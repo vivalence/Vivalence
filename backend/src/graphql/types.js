@@ -1,0 +1,87 @@
+import { builder } from "./core.js";
+
+const ReviewObject = builder.prismaObject("Review", {
+    description: "A instance of review holds the ebisu model and the schedule",
+    fields: (t) => {
+        return {
+            id: t.exposeID("id"),
+            lastReview: t.expose("lastReview", { type: "DateTime" }),
+            nextReview: t.expose("nextReview", { type: "DateTime" }),
+            model: t.expose("model", { type: "JSON" }),
+            known: t.exposeBoolean("known"),
+            itemId: t.exposeString("itemId"),
+            itemType: t.field({
+                type: "ReviewItemTypeEnum",
+                resolve: (root) => root.itemType
+            }),
+            word: t.relation("word")
+        };
+    }
+});
+
+const WordObject = builder.prismaObject("Word", {
+    fields: (t) => ({
+        id: t.exposeID("id"),
+        index: t.exposeInt("index"),
+        spanish: t.exposeString("spanish"),
+        english: t.exposeString("english"),
+        type: t.field({
+            type: "WordTypeEnum",
+            resolve: (root) => root.type
+        }),
+        review: t.relation("review")
+    })
+});
+
+const WordTypeEnum = builder.enumType("WordTypeEnum", {
+    values: [
+        "ART",
+        "ADJ",
+        "ADV",
+        "CONJ",
+        "F",
+        "PLUS_FAM",
+        "MINUS_FAM",
+        "INTERJ",
+        "M",
+        "N",
+        "NC",
+        "NF",
+        "NF_EL",
+        "NM",
+        "NMF",
+        "NM_F",
+        "NUM",
+        "OBJ",
+        "DIR_OBJ",
+        "INDIR_OBJ",
+        "PL",
+        "PREP",
+        "PRON",
+        "SG",
+        "SUBI",
+        "V",
+        "SPEAKERS"
+    ]
+});
+
+export const ReviewItemTypeEnumMap = {
+    word: "WORD",
+    conjugatedVerb: "CONJUGATED_VERB",
+    verbStem: "VERB_STEM",
+    verbEnding: "VERB_ENDING"
+};
+
+const ReviewItemTypeEnum = builder.enumType("ReviewItemTypeEnum", {
+    values: Object.values(ReviewItemTypeEnumMap)
+});
+
+export const ReviewResponseTypeEnumMap = {
+    known: "KNOWN",
+    unknown: "UNKNOWN",
+    graduate: "GRADUATE"
+};
+
+const ReviewResponseTypeEnum = builder.enumType("ReviewResponseTypeEnum", {
+    values: Object.values(ReviewResponseTypeEnumMap)
+});

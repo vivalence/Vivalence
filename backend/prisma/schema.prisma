@@ -1,0 +1,198 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+generator pothos {
+    provider        = "prisma-pothos-types"
+    clientOutput    = "@prisma/client"
+    previewFeatures = ["filteredRelationCount"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Review {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // It
+    nextReview DateTime
+    lastReview DateTime
+    model      Json
+    known      Boolean            @default(false)
+    itemId     String
+    itemType   ReviewItemTypeEnum
+
+    // Down
+    word Word?
+    // ConjugatedVerb   ConjugatedVerb?
+    // VerbStem         VerbStem?
+    // VerbEnding       VerbEnding?
+
+    @@unique([itemId, itemType])
+}
+
+enum ReviewItemTypeEnum {
+    WORD
+    VERB_CONJUGATION
+    VERB_STEM
+    VERB_ENDING
+}
+
+model Word {
+    // Meta
+    id             String       @id @default(cuid())
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @default(now()) @updatedAt
+    // It
+    index          Int          @unique
+    spanish        String
+    english        String
+    type           WordTypeEnum
+    usageInSpanish String?
+    usageInEnglish String?
+    data           Json?
+
+    // Up
+    review   Review? @relation(fields: [reviewId], references: [id])
+    reviewId String? @unique
+
+    // Down
+    conjugations Conjugation[]
+}
+
+model Conjugation {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // It
+    value     String
+    tense     TenseEnum
+    performer PerformerEnum
+    ending    EndingEnum
+    mood      MoodEnum
+
+    // Up
+    verb   Word   @relation(fields: [verbId], references: [id])
+    verbId String
+
+    // Down
+    verbStem   VerbStem?
+    verbEnding VerbEnding?
+
+    @@unique([verbId, tense, performer, mood])
+}
+
+model VerbStem {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // It
+    value String
+    tense TenseEnum
+    mood  MoodEnum
+
+    // Up
+    conjugation   Conjugation @relation(fields: [conjugationId], references: [id])
+    conjugationId String      @unique
+}
+
+model VerbEnding {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+
+    // It
+    value     String
+    ending    EndingEnum
+    tense     TenseEnum
+    performer PerformerEnum
+    mood      MoodEnum
+
+    // Up
+    conjugation   Conjugation @relation(fields: [conjugationId], references: [id])
+    conjugationId String      @unique
+}
+
+enum MoodEnum {
+    INDICATIVO
+    SUBJUNTIVO
+    IMPERATIVO_AFIRMATIVO
+    IMPERATIVO_NEGATIVO
+    NON_FINITE
+}
+
+enum TenseEnum {
+    INFINITIVO
+    GERUNDIO
+    PARTICIPIO
+
+    PRESENTE
+    PRETERITO
+    IMPERFECTO
+    FUTURO
+    CONDICIONAL
+
+    FUTURO_PERFECTO
+    PLUSCUAMPERFECTO
+    PRESENTE_PERFECTO
+    PRETERITO_ANTERIOR
+    CONDICIONAL_PERFECTO
+}
+
+enum PerformerEnum {
+    NON_FINITE
+    YO
+    TU
+    EL_ELLA_USTED
+    NOSOTROS_NOSOTRAS
+    VOSOTROS_VOSOTRAS
+    ELLOS_ELLAS_USTEDES
+}
+
+enum EndingEnum {
+    ER
+    AR
+    IR
+}
+
+enum WordTypeEnum {
+    ART
+    ADJ
+    ADV
+    CONJ
+    F
+    PLUS_FAM
+    MINUS_FAM
+    INTERJ
+    M
+    N
+    NC
+    NF
+    NF_EL
+    NM
+    NMF
+    NM_F
+    NUM
+    OBJ
+    DIR_OBJ
+    INDIR_OBJ
+    PL
+    PREP
+    PRON
+    SG
+    SUBI
+    V // infitiivo
+    // V_G
+    // V_P
+    SPEAKERS
+}
