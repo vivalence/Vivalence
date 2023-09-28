@@ -5,11 +5,9 @@ WORKDIR /app
 
 # COPY package*.json bun.lockb ./
 COPY package*.json ./
-
 RUN npm install
-RUN npm run prisma-generate
-
 COPY . .
+RUN npm run prisma-generate
 
 EXPOSE 4000
 CMD [ "npm", "run", "start" ]
