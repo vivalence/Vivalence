@@ -1,4 +1,4 @@
-FROM oven/bun
+FROM node:lts-alpine 
 
 ENV NODE_ENV production
 WORKDIR /app
@@ -10,4 +10,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 4000
-CMD [ "bun", "start" ]
+CMD [ "npm", "run", "start" ]
