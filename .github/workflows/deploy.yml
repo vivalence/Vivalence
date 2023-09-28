@@ -17,9 +17,10 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Print secret (Not Recommended)
-      run: echo "secrets.SSH_USER ${{ secrets.SSH_USER }}"
-      run: echo "secrets.SSH_HOST ${{ secrets.SSH_HOST }}"
-      run: echo "secrets.SSH_KEY ${{ secrets.SSH_KEY }}"
+      run: |
+        echo "secrets.SSH_USER ${{ secrets.SSH_USER }}"
+        echo "secrets.SSH_HOST ${{ secrets.SSH_HOST }}"
+        echo "secrets.SSH_KEY ${{ secrets.SSH_KEY }}"
 
     - name: Build and push Docker images
       run: |
