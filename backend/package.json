@@ -10,7 +10,7 @@
         "prettier-plugin-prisma": "^5.0.0"
     },
     "scripts": {
-        "start": "bun src/index.js",
+        "start": "node src/index.js",
         "dev": "bun --watch --hot src/index.js",
         "prisma-seed": "bun prisma/seed/index.js",
         "prisma-studio": "cd prisma && npx prisma studio",
