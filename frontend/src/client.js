@@ -1,5 +1,5 @@
 import { HoudiniClient } from "$houdini";
-import { PUBLIC_GQL_SERVER_API_URL } from "$env/static/public";
+import { PUBLIC_GQL_SERVER_API_URL } from "$env/dynamic/public";
 
 export default new HoudiniClient({
     url: PUBLIC_GQL_SERVER_API_URL
