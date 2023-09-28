@@ -16,25 +16,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # - name: Add SSH key
-    #   run: |
-    #     mkdir -p ~/.ssh
-    #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-    #     chmod 600 ~/.ssh/id_rsa
-    #     ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Test ssh
+    - name: Add SSH key
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful.'"
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
     - name: Build and push Docker images
       run: |
-        docker build -t v-test -f Dockerfile.test .
-        docker save v-test | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
-        # docker build -t v-frontend ./frontend
-        # docker build -t v-backend ./backend
-        # docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker build -t v-frontend ./frontend
+        docker build -t v-backend ./backend
+        docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
-    # - name: Deploy to server
-    #   run: |
-    #     ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
+    - name: Deploy to server
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
