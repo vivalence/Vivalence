@@ -9,13 +9,11 @@ on:
     #   - 'v*.*.*'  # Semantic versioning tags
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         component: ['frontend', 'backend']
-
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -39,6 +37,8 @@ jobs:
     #     docker build -t v-backend ./backend
     #     docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
+  deploy:
+    runs-on: ubuntu-latest
     - name: Deploy to server
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
