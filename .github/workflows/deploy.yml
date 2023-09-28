@@ -18,10 +18,12 @@ jobs:
 
     - name: Build and push Docker images
       run: |
-        docker build -t v-frontend ./frontend
-        docker build -t v-backend ./backend
-        docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker build -t v-test -f Dockerfile.test .
+        docker save v-test | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        # docker build -t v-frontend ./frontend
+        # docker build -t v-backend ./backend
+        # docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
-    - name: Deploy to server
-      run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
+    # - name: Deploy to server
+    #   run: |
+    #     ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
