@@ -33,6 +33,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    steps:
     - name: Deploy to server
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
