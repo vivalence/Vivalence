@@ -24,20 +24,14 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
         
     - name: Build and push Docker image
       run: |
         docker build -t v-${{ matrix.component }} ./${{ matrix.component }}
         docker save v-${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
-    # - name: Build and push Docker images
-    #   run: |
-    #     docker build -t v-frontend ./frontend
-    #     docker build -t v-backend ./backend
-    #     docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
-
   deploy:
+    needs: build-and-push
     runs-on: ubuntu-latest
     - name: Deploy to server
       run: |
