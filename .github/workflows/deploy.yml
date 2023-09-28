@@ -11,6 +11,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: ['frontend', 'backend']
+
 
     steps:
     - name: Checkout code
@@ -23,11 +27,17 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Build and push Docker images
+        
+    - name: Build and push Docker image
       run: |
-        docker build -t v-frontend ./frontend
-        docker build -t v-backend ./backend
-        docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker build -t v-${{ matrix.component }} ./${{ matrix.component }}
+        docker save v-${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+
+    # - name: Build and push Docker images
+    #   run: |
+    #     docker build -t v-frontend ./frontend
+    #     docker build -t v-backend ./backend
+    #     docker save v-frontend v-backend | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
     - name: Deploy to server
       run: |
