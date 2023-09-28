@@ -16,11 +16,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Print secret (Not Recommended)
+    - name: Add SSH key
       run: |
-        echo "secrets.SSH_USER ${{ secrets.SSH_USER }}"
-        echo "secrets.SSH_HOST ${{ secrets.SSH_HOST }}"
-        echo "secrets.SSH_KEY ${{ secrets.SSH_KEY }}"
+        echo "${{ secrets.SSH_KEY }}" > private_key
+        chmod 600 private_key
+        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+    - name: Test ssh
+      run: |
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful.'"
 
     - name: Build and push Docker images
       run: |
