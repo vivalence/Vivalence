@@ -18,9 +18,12 @@ jobs:
 
     - name: Add SSH key
       run: |
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
         echo "${{ secrets.SSH_KEY }}" > private_key
         chmod 600 private_key
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
     - name: Test ssh
       run: |
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful.'"
