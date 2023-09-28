@@ -3,11 +3,11 @@ FROM oven/bun
 ENV NODE_ENV production
 WORKDIR /app
 
-COPY package*.json bun.lockb ./
-RUN bun install
+# COPY package*.json bun.lockb ./
+COPY package*.json ./
+RUN npm install
+# RUN bun run prisma-generate
 COPY . .
-
-RUN bun run prisma-generate
 
 EXPOSE 4000
 CMD [ "bun", "start" ]
