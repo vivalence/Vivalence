@@ -1,8 +1,9 @@
 import { HoudiniClient } from "$houdini";
-import { PUBLIC_GQL_SERVER_API_URL } from "$env/static/public";
+import { env } from "$env/dynamic/public";
 
+console.log("ENV", env);
 export default new HoudiniClient({
-    url: PUBLIC_GQL_SERVER_API_URL
+    url: env.PUBLIC_GQL_SERVER_API_URL
 
     // uncomment this to configure the network call (for things like authentication)
     // for more information, please visit here: https://www.houdinigraphql.com/guides/authentication
