@@ -1,8 +1,8 @@
-import { prisma } from "../../prisma";
+import { prisma } from "../../prisma-client.js";
 import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../lib/time.js";
 import { ReviewItemTypeEnumMap } from "../../graphql/types.js";
 import { invertObj } from "../../lib/utils.js";
-import * as ebisu from "./ebisu";
+import * as ebisu from "./ebisu.js";
 
 export async function updateReviewItem(input) {
     try {
