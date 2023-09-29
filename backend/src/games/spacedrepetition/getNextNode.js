@@ -55,22 +55,34 @@ export const getNextReviewItem = async ({ type }) => {
     }
 };
 
-// usage
+// omg so ugly.
+const buildGameCard = (item, gameType = "SPACEDREPETITION") => {
+    switch (gameType) {
+        case "SPACEDREPETITION":
+            return `<p class="text-3xl font-bold">${item.header}</p>
+        <p class="text-xl">${item.body}</p>
+`;
+    }
+};
 const buildWordRreviewItem = (itemType, item) => {
+    // console.log("buildWordRreviewItem", itemType, item);
     switch (itemType) {
         case "REVIEW":
             return {
                 id: item.word.id,
                 type: "WORD",
-                front: item.word.english,
-                back: item.word.spanish
+                front: buildGameCard({
+                    header: item.word.english,
+                    body: item.word.usageInEnglish
+                }),
+                back: buildGameCard({ header: item.word.spanish, body: item.word.usageInSpanish })
             };
         case "WORD":
             return {
                 id: item.id,
                 type: "WORD",
-                front: item.english,
-                back: item.spanish
+                front: buildGameCard({ header: item.english, body: item.usageInEnglish }),
+                back: buildGameCard({ header: item.spanish, body: item.usageInSpanish })
             };
     }
 };

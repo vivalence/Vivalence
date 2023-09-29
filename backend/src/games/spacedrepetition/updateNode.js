@@ -7,7 +7,7 @@ import * as ebisu from "./ebisu.js";
 export async function updateReviewItem(input) {
     try {
         let reviewItem = await getReviewItem(input);
-        console.log("updateReviewItem input reviewItem", input, reviewItem);
+        // console.log("updateReviewItem input reviewItem", input, reviewItem);
 
         if (reviewItem) {
             reviewItem = await updateReviewModel(input, reviewItem);
