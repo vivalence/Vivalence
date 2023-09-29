@@ -49,11 +49,11 @@
     <div class="flex-grow bg-gray-200 pb-32 flex flex-row justify-center pt-24">
         {#if reviewItem.loading}
             <div class="flex items-center justify-center h-64">
-                <h1 class="text-4xl font-bold">Loading...</h1>
+                <h1 class="text-3xl font-bold">Loading...</h1>
             </div>
         {:else if reviewItem.error}
             <div class="flex items-center justify-center h-64">
-                <h1 class="text-4xl font-bold">Error</h1>
+                <h1 class="text-3xl font-bold">Error</h1>
             </div>
         {:else if reviewItem.data}
             <div class="flex-initial w-96">
