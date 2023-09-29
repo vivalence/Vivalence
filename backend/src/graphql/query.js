@@ -39,7 +39,7 @@ const reviewItemQuery = builder.queryField("reviewItem", (t) => {
         resolve: async (root, args, { prisma }) => {
             // console.log("\n\n\n\n\n\n\n\n\n\n[QUERY]\n");
             const next = await getNextReviewItem({ type: args.type });
-            console.log("next", next);
+            // console.log("next", next);
             return next;
         }
     });
