@@ -1,7 +1,6 @@
 import { HoudiniClient } from "$houdini";
 import { env } from "$env/dynamic/public";
 
-console.log("ENV", env);
 export default new HoudiniClient({
     url: env.PUBLIC_GQL_SERVER_API_URL
 

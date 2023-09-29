@@ -15,14 +15,10 @@ async function main() {
                 usageInEnglish: word.used_english,
                 data: word
             };
-            // console.log("word", word, data);
-            const update = await prisma.word.updateMany({
-                where: { index: data.index },
-                data
-            });
-            // console.log("update", update);
-            // const words = await prisma.word.findMany();
-            // console.log("words", words);
+
+            const update = await prisma.word.create({ data });
+            // const update = await prisma.word.updateMany({where: { index: data.index }, data});
+            console.log("update", update.index);
         } catch (e) {
             console.error("[error]", e);
         }
