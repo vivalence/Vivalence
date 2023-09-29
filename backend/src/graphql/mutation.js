@@ -1,5 +1,5 @@
 import { builder } from "./core.js";
-import { updateReviewItem, getNextReviewItem } from "../games/spacedrepetition";
+import { updateReviewItem, getNextReviewItem } from "../games/spacedrepetition/index.js";
 
 const reviewItemInput = builder.inputType("reviewItemInput", {
     fields: (t) => ({

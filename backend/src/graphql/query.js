@@ -1,5 +1,5 @@
 import { builder } from "./core.js";
-import { getNextReviewItem } from "../games/spacedrepetition";
+import { getNextReviewItem } from "../games/spacedrepetition/index.js";
 
 const wordsQuery = builder.queryField("words", (t) =>
     t.field({

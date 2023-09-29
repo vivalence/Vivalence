@@ -1,4 +1,4 @@
-import { prisma } from "../../prisma";
+import { prisma } from "../../prisma-client.js";
 
 export const getNextReviewItem = async ({ type }) => {
     try {

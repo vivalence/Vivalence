@@ -12,11 +12,11 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "bun --watch --hot src/index.js",
-        "prisma-seed": "bun prisma/seed/index.js",
-        "prisma-studio": "cd prisma && npx prisma studio",
-        "prisma-format": "cd prisma && npx prisma format",
-        "prisma-generate": "cd prisma && npx prisma generate",
-        "prisma-migrate": "cd prisma && npx prisma migrate dev"
+        "prisma-seed": "bun prisma-server/seed/index.js",
+        "prisma-studio": "cd prisma-server && bunx prisma studio",
+        "prisma-format": "cd prisma-server && bunx prisma format",
+        "prisma-generate": "cd prisma-server && npx prisma generate",
+        "prisma-migrate": "cd prisma-server && bunx prisma migrate dev"
     },
     "peerDependencies": {
         "typescript": "^5.0.0"
@@ -29,7 +29,6 @@
         "ebisu-js": "^2.1.0",
         "graphql": "^16.8.0",
         "graphql-scalars": "^1.22.2",
-        "luxon": "^3.4.3",
-        "prisma": "^5.3.1"
+        "luxon": "^3.4.3"
     }
 }
