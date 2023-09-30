@@ -49,23 +49,36 @@ async function createReviewItem({ id, type, response }) {
         [invertObj(ReviewItemTypeEnumMap)[type]]: { connect: { id } }
     };
     const created = await prisma.review.create({ data, include: { word: true } });
+    created["previousItemDelay"] = nextReviewTime;
     return created;
 }
 
 async function updateReviewModel({ id, type, response }, reviewItem) {
     const elapsedTime = getTimeDifferenceFromNow(reviewItem.lastReview);
 
-    const model =
-        response == "GRADUATE"
-            ? ebisu.scaleModel(ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime), 10)
-            : ebisu.updateModel(reviewItem.model, response == "KNOWN" ? 1 : 0, 1, elapsedTime);
+    let model;
+    switch (response) {
+        case "GRADUATE":
+            model = ebisu.scaleModel(ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime), 10);
+            break;
+        case "KNOWN":
+            model = ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime);
+            break;
+        case "UNKNOWN":
+            model = ebisu.updateModel(reviewItem.model, 0, 1, elapsedTime);
+            break;
+        default:
+            throw new Error(`Invalid response: ${response}`);
+    }
 
     const nextReview = ebisu.predictNextReviewTime(model);
 
-    return await prisma.review.update({
+    const newReviewItem = await prisma.review.update({
         where: { id: reviewItem.id },
         data: { model, nextReview: getDateTimeInXHours(nextReview), lastReview: new Date() }
     });
+    newReviewItem["previousItemDelay"] = nextReview;
+    return newReviewItem;
 }
 // try {
 //     const tau = 0.0607;
