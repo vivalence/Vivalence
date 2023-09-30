@@ -36,7 +36,7 @@ async function getReviewItem({ id, type }) {
 }
 
 async function createReviewItem({ id, type, response }) {
-    let defautlModel;
+    let defautlModel = {};
     switch (response) {
         case "GRADUATE":
             defautlModel.tau = 24;
@@ -44,8 +44,11 @@ async function createReviewItem({ id, type, response }) {
         case "KNOWN":
             defautlModel.tau = 2.4;
             break;
-        default:
+        case "UNKNOWN":
             defautlModel.tau = 0.24;
+            break;
+        default:
+            throw new Error(`Invalid response: ${response}`);
     }
     const model = ebisu.getDefaultModel(defautlModel);
     const nextReviewTime = ebisu.predictNextReviewTime(model);
