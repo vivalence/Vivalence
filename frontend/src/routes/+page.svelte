@@ -52,7 +52,7 @@
 
 
 {#if reviewItem.data && reviewItem.data.previousItemDelay}
-    <div class="fixed bottom-0 w-full flex items-center justify-center h-8 bg-gray-100 mb-28">
+    <div class="fixed top-0 w-full flex items-center justify-center h-8 bg-gray-100">
         <div class="flex flex-col items-center justify-center">
             <h1 class="text-xl italic">
                 {#if reviewItem.data.previousItemDelay < 1}
