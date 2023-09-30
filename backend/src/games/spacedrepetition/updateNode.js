@@ -26,18 +26,28 @@ async function getReviewItem({ id, type }) {
     const queryResult = await prisma.review.findFirst({
         where: { [invertObj(ReviewItemTypeEnumMap)[type]]: { id } },
         include: {
-            word: type === "WORD"
-            // conjugatedVerb: type === "CONJUGATED_VERB",
-            // verbStem: type === "VERB_STEM",
-            // verbEnding: type === "VERB_ENDING"
+            word: type === "WORD",
+            conjugatedVerb: type === "CONJUGATED_VERB",
+            verbStem: type === "VERB_STEM",
+            verbEnding: type === "VERB_ENDING"
         }
     });
     return queryResult;
 }
 
 async function createReviewItem({ id, type, response }) {
-    const tau = response == "GRADUATE" ? 24 : response == "KNOWN" ? 24 : 1;
-    const model = ebisu.getDefaultModel({ tau });
+    let defautlModel;
+    switch (response) {
+        case "GRADUATE":
+            defautlModel.tau = 24;
+            break;
+        case "KNOWN":
+            defautlModel.tau = 2.4;
+            break;
+        default:
+            defautlModel.tau = 0.24;
+    }
+    const model = ebisu.getDefaultModel(defautlModel);
     const nextReviewTime = ebisu.predictNextReviewTime(model);
 
     const data = {
@@ -59,7 +69,8 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
     let model;
     switch (response) {
         case "GRADUATE":
-            model = ebisu.scaleModel(ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime), 10);
+            model = ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime);
+            model = ebisu.scaleModel(model, 10);
             break;
         case "KNOWN":
             model = ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime);

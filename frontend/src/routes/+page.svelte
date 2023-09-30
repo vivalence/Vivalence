@@ -98,7 +98,7 @@
             </div>
         {:else}
             <div class="">
-                <Button on:click={doReviewUpdate("UNKNOWN")}>Unknow</Button>
+                <Button on:click={doReviewUpdate("UNKNOWN")}>Unknown</Button>
                 <Button on:click={doReviewUpdate("KNOWN")}>Knew</Button>
                 <Button on:click={doReviewUpdate("GRADUATE")}>Graduate</Button>
             </div>
