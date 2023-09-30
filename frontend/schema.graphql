@@ -37,6 +37,7 @@ type ReviewItem {
   back: String!
   front: String!
   id: ID!
+  previousItemDelay: Float
   type: ReviewItemTypeEnum!
 }
 

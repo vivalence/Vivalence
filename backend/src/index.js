@@ -22,7 +22,9 @@ const apolloServer = new ApolloServer({
 await apolloServer.start();
 
 const apolloMiddlewear = expressMiddleware(apolloServer, {
-    context: async ({ req }) => ({ prisma, token: req.headers.token })
+    context: async ({ req }) => {
+        return { prisma, token: req.headers.token };
+    }
 });
 
 app.use("/", cors(), bodyParser.json(), apolloMiddlewear);

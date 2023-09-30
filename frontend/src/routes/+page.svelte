@@ -12,6 +12,7 @@
                 type
                 front
                 back
+                previousItemDelay
             }
         }
     `);
@@ -42,8 +43,36 @@
     };
     const doReveal = () => (revealed = true);
 
-    // $: console.log(reviewItem, data);
+    $: if (reviewItem.data && reviewItem.data.previousItemDelay) {
+        setTimeout(() => {
+            reviewItem.data.previousItemDelay = null;
+        }, 1000);
+    }
 </script>
+
+
+{#if reviewItem.data && reviewItem.data.previousItemDelay}
+    <div class="fixed bottom-0 w-full flex items-center justify-center h-8 bg-gray-100 mb-28">
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-xl italic">
+                {#if reviewItem.data.previousItemDelay < 1}
+                    {Math.round(reviewItem.data.previousItemDelay * 60)} minutes
+                {:else if reviewItem.data.previousItemDelay < 24}
+                    {Math.round(reviewItem.data.previousItemDelay)} hours
+                {:else if reviewItem.data.previousItemDelay < 30 * 24}
+                    {Math.round(reviewItem.data.previousItemDelay / 24)} days
+                {:else if reviewItem.data.previousItemDelay < 365 * 24}
+                    {Math.round(reviewItem.data.previousItemDelay / (30 * 24))} months
+                {:else}
+                    {Math.round(reviewItem.data.previousItemDelay / (365 * 24))} years
+                {/if}
+                <small>
+                    ({Math.floor(reviewItem.data.previousItemDelay * 100) / 100})
+                </small>
+            </h1>
+        </div>
+    </div>
+{/if}
 
 <div class="flex flex-col justify-center h-screen scroll">
     <div class="flex-grow bg-gray-200 pb-32 flex flex-row justify-center pt-24">

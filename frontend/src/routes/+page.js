@@ -14,6 +14,7 @@ export const _houdini_load = graphql(`
             type
             back
             front
+            previousItemDelay
         }
     }
 `);

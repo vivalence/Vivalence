@@ -20,9 +20,11 @@ const reviewItemMutation = builder.mutationField("reviewItem", (t) =>
             // console.log("\n\n\n\n\n\n\n\n\n\n[MUTATION]\n");
             // console.log("reviewItemMutation", args.input);
             // this could be done without blocking
-            await updateReviewItem(args.input);
+            const previousReviewItem = await updateReviewItem(args.input);
             // console.log("Updated, now getting next");
-            return await getNextReviewItem({ type: args.input.type });
+            const reviewItem = await getNextReviewItem({ type: args.input.type });
+            reviewItem.previousItemDelay = previousReviewItem.previousItemDelay;
+            return reviewItem;
         }
     })
 );

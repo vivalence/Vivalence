@@ -25,7 +25,9 @@ const ReviewItemObject = builder.objectType("ReviewItem", {
                 resolve: (root) => root.type
             }),
             front: t.exposeString("front"),
-            back: t.exposeString("back")
+            back: t.exposeString("back"),
+            // optional fields
+            previousItemDelay: t.exposeFloat("previousItemDelay", { nullable: true })
         };
     }
 });
@@ -40,6 +42,7 @@ const reviewItemQuery = builder.queryField("reviewItem", (t) => {
             // console.log("\n\n\n\n\n\n\n\n\n\n[QUERY]\n");
             const next = await getNextReviewItem({ type: args.type });
             // console.log("next", next);
+            // next.previousItemDelay = 0;
             return next;
         }
     });
