@@ -23,6 +23,8 @@ model Review {
     nextReview DateTime
     lastReview DateTime
     model      Json
+    // history    Json
+    // history is a json of {model, lastReview, nextReview, result }
     known      Boolean            @default(false)
     itemId     String
     itemType   ReviewItemTypeEnum
@@ -48,6 +50,7 @@ model Word {
     id             String       @id @default(cuid())
     createdAt      DateTime     @default(now())
     updatedAt      DateTime     @default(now()) @updatedAt
+    status         StatusEnum   @default(ACTIVE)
     // It
     index          Int          @unique
     spanish        String
@@ -56,10 +59,9 @@ model Word {
     usageInSpanish String?
     usageInEnglish String?
     data           Json?
-
     // Up
-    review   Review? @relation(fields: [reviewId], references: [id])
-    reviewId String? @unique
+    review         Review?      @relation(fields: [reviewId], references: [id])
+    reviewId       String?      @unique
 
     // Down
     conjugations Conjugation[]
@@ -157,6 +159,11 @@ enum PerformerEnum {
     NOSOTROS_NOSOTRAS
     VOSOTROS_VOSOTRAS
     ELLOS_ELLAS_USTEDES
+}
+
+enum StatusEnum {
+    ACTIVE
+    HIDDEN
 }
 
 enum EndingEnum {

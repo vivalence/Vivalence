@@ -27,8 +27,9 @@
     }
 
     const doReviewUpdate = (response) => async () => {
-        revealed = false;
+      try{
         reviewItem.loading = true;
+        revealed = false;
 
         const update = await ReviewItemMutation.mutate({
             input: { id: reviewItem.data.id, response, type: "WORD" }
@@ -40,7 +41,13 @@
             reviewItem.data = update.data.reviewItem;
         }
         reviewItem.loading = false;
+      } catch (e) {
+        reviewItem.error = e;
+        console.log("doReviewUpdate ERROR", e);
+        throw e;
+      }
     };
+
     const doReveal = () => (revealed = true);
 
     $: if (reviewItem.data && reviewItem.data.previousItemDelay) {
@@ -77,8 +84,8 @@
 <div class="flex flex-col justify-center h-screen scroll">
     <div class="flex-grow bg-gray-200 pb-32 flex flex-row justify-center pt-24">
         {#if reviewItem.loading}
-            <div class="flex items-center justify-center h-64">
-                <h1 class="text-3xl font-bold">Loading...</h1>
+            <div class="flex-initial w-96">
+                <Card front={`<h1 class="text-3xl font-bold">...</h1>`}  revealed={false} />
             </div>
         {:else if reviewItem.error}
             <div class="flex items-center justify-center h-64">

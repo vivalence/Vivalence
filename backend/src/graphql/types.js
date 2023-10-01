@@ -10,6 +10,7 @@ const ReviewObject = builder.prismaObject("Review", {
             model: t.expose("model", { type: "JSON" }),
             known: t.exposeBoolean("known"),
             itemId: t.exposeString("itemId"),
+            status: t.field({ type: "StatusEnum", resolve: (root) => root.status }),
             itemType: t.field({
                 type: "ReviewItemTypeEnum",
                 resolve: (root) => root.itemType
@@ -63,6 +64,10 @@ const WordTypeEnum = builder.enumType("WordTypeEnum", {
         "V",
         "SPEAKERS"
     ]
+});
+
+const StatusEnum = builder.enumType("StatusEnum", {
+    values: ["HIDDEN", "ACTIVE"]
 });
 
 export const ReviewItemTypeEnumMap = {
