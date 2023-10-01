@@ -27,6 +27,7 @@ type Review {
   lastReview: DateTime!
   model: JSON!
   nextReview: DateTime!
+  status: StatusEnum!
   word: Word!
 }
 
@@ -52,6 +53,11 @@ enum ReviewResponseTypeEnum {
   GRADUATE
   KNOWN
   UNKNOWN
+}
+
+enum StatusEnum {
+  ACTIVE
+  HIDDEN
 }
 
 type Word {

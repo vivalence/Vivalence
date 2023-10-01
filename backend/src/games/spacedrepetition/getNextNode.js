@@ -7,8 +7,13 @@ export const getNextReviewItem = async ({ type }) => {
 
         // 1. fetch the next item to review
         const review = await prisma.review.findFirst({
+            // where not word.status is "ACTIVE"
             where: {
                 itemType: type,
+                word: {
+                    status: "ACTIVE"
+                },
+
                 nextReview: { lt: now }
             },
             orderBy: [
