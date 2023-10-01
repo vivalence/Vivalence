@@ -68,7 +68,6 @@ async function createReviewItem({ id, type, response }) {
 
 async function updateReviewModel({ id, type, response }, reviewItem) {
     const elapsedTime = getTimeDifferenceFromNow(reviewItem.lastReview);
-    // console.log("updateReviewModel", elapsedTime);
 
     let model = null;
     let inputModel = reviewItem.model; // [ 4, 4, 0.24 ]
@@ -82,16 +81,26 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
             // console.log("updateReviewModel ERROR", e);
         }
     }
+    if (model === null) throw new Error("updateReviewModel: model is null");
 
     const nextReview = ebisu.predictNextReviewTime(model);
 
     const newReviewItem = await prisma.review.update({
         where: { id: reviewItem.id },
-        data: { model, nextReview: getDateTimeInXHours(nextReview), lastReview: new Date() }
+        data: {
+            model,
+            nextReview: getDateTimeInXHours(nextReview),
+            lastReview: new Date(),
+            status: isKnown(elapsedTime, response)
+        }
     });
     newReviewItem["previousItemDelay"] = nextReview;
     return newReviewItem;
 }
+
+const isKnown = (elapsedTime, response) => {
+    return elapsedTime > 24 * 4 && ["GRADUATE", "KNOWN"].includes(response);
+};
 // try {
 //     const tau = 0.44;
 //     const time = 16.09;
