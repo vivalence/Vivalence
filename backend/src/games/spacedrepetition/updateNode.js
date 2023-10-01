@@ -42,10 +42,10 @@ async function createReviewItem({ id, type, response }) {
             defautlModel.tau = 24;
             break;
         case "KNOWN":
-            defautlModel.tau = 2.4;
+            defautlModel.tau = 3.4;
             break;
         case "UNKNOWN":
-            defautlModel.tau = 0.24;
+            defautlModel.tau = 0.26;
             break;
         default:
             throw new Error(`Invalid response: ${response}`);
@@ -68,21 +68,19 @@ async function createReviewItem({ id, type, response }) {
 
 async function updateReviewModel({ id, type, response }, reviewItem) {
     const elapsedTime = getTimeDifferenceFromNow(reviewItem.lastReview);
+    // console.log("updateReviewModel", elapsedTime);
 
-    let model;
-    switch (response) {
-        case "GRADUATE":
-            model = ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime);
-            model = ebisu.scaleModel(model, 10);
-            break;
-        case "KNOWN":
-            model = ebisu.updateModel(reviewItem.model, 1, 1, elapsedTime);
-            break;
-        case "UNKNOWN":
-            model = ebisu.updateModel(reviewItem.model, 0, 1, elapsedTime);
-            break;
-        default:
-            throw new Error(`Invalid response: ${response}`);
+    let model = null;
+    let inputModel = reviewItem.model; // [ 4, 4, 0.24 ]
+    let count = 0;
+    while (model === null && count < 10) {
+        console.log("updateReviewModel", count++);
+        try {
+            model = updateEbisuModel(inputModel, response, elapsedTime);
+        } catch (e) {
+            inputModel = ebisu.scaleModel(inputModel, 1.1);
+            // console.log("updateReviewModel ERROR", e);
+        }
     }
 
     const nextReview = ebisu.predictNextReviewTime(model);
@@ -95,10 +93,30 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
     return newReviewItem;
 }
 // try {
-//     const tau = 0.0607;
-//     const time = 3.56;
-//     const model = [4, 4, tau];
-//     ebisu.updateModel(model, 1, 1, time);
+//     const tau = 0.44;
+//     const time = 16.09;
+//     const model = [5, 5, tau];
+//     const update = ebisu.updateModel(model, 0, 1, time);
+//     console.log("update", update);
 // } catch (e) {
 //     console.log(e);
 // }
+
+const updateEbisuModel = (model, response, elapsedTime) => {
+    switch (response) {
+        case "GRADUATE":
+            model = ebisu.updateModel(model, 1, 1, elapsedTime);
+            model = ebisu.scaleModel(model, 10);
+            break;
+        case "KNOWN":
+            model = ebisu.updateModel(model, 1, 1, elapsedTime);
+            break;
+        case "UNKNOWN":
+            model = ebisu.updateModel(model, 0, 1, elapsedTime);
+            break;
+        default:
+            throw new Error(`Invalid response: ${response}`);
+    }
+
+    return model;
+};
