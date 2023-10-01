@@ -91,7 +91,7 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
             model,
             nextReview: getDateTimeInXHours(nextReview),
             lastReview: new Date(),
-            status: isKnown(elapsedTime, response)
+            known: isKnown(elapsedTime, response)
         }
     });
     newReviewItem["previousItemDelay"] = nextReview;
