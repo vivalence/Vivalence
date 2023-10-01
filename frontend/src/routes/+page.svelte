@@ -58,7 +58,7 @@
 </script>
 
 
-{#if reviewItem.data && reviewItem.data.previousItemDelay}
+{#if false && reviewItem.data && reviewItem.data.previousItemDelay}
     <div class="fixed top-0 w-full flex items-center justify-center h-8 bg-gray-100">
         <div class="flex flex-col items-center justify-center">
             <h1 class="text-xl italic">
@@ -82,7 +82,7 @@
 {/if}
 
 <div class="flex flex-col justify-center h-screen scroll">
-    <div class="flex-grow bg-gray-200 pb-32 flex flex-row justify-center pt-24">
+    <div class="flex-grow bg-gray-200 pb-32 flex flex-row justify-center pt-16">
         {#if reviewItem.loading}
             <div class="flex-initial w-96">
                 <Card front={`<h1 class="text-3xl font-bold">...</h1>`}  revealed={false} />
@@ -98,7 +98,7 @@
         {/if}
     </div>
 
-    <div class="fixed bottom-0 w-full flex items-center justify-center h-28 bg-gray-400">
+    <div class="fixed bottom-0 w-full flex items-center justify-center h-40 pb-16 bg-gray-400">
         {#if !revealed}
             <div class="">
                 <Button on:click={doReveal}>Reveal</Button>
