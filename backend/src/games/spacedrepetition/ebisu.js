@@ -1,12 +1,12 @@
 import * as ebisu from "ebisu-js";
 
 // provides a defaul model thats used when a node is reviewed for the first time
-
+const DECAY_THRESHOLD = 0.75;
 export const getDefaultModel = ({ alpha = 4, beta = 4, tau = 0.1 }) =>
     ebisu.defaultModel(tau, alpha, beta);
 
 export const predictNextReviewTime = (model) => {
-    let decay = ebisu.modelToPercentileDecay(model, 0.8);
+    let decay = ebisu.modelToPercentileDecay(model, DECAY_THRESHOLD);
     return decay;
 };
 

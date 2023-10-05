@@ -53,25 +53,32 @@
     $: if (reviewItem.data && reviewItem.data.previousItemDelay) {
         setTimeout(() => {
             reviewItem.data.previousItemDelay = null;
-        }, 1000);
+        }, 1500);
     }
+  // $: console.log("reviewItem", reviewItem.data);
+  $: delayIsPositive = reviewItem.data.previousItemDelay > 0 
+  $: delay = Math.abs(reviewItem.data.previousItemDelay) 
 </script>
 
 
-{#if false && reviewItem.data && reviewItem.data.previousItemDelay}
+{#if reviewItem.data && reviewItem.data.previousItemDelay}
     <div class="fixed top-0 w-full flex items-center justify-center h-8 bg-gray-100">
         <div class="flex flex-col items-center justify-center">
             <h1 class="text-xl italic">
-                {#if reviewItem.data.previousItemDelay < 1}
-                    {Math.round(reviewItem.data.previousItemDelay * 60)} minutes
-                {:else if reviewItem.data.previousItemDelay < 24}
+              {#if !delayIsPositive}
+                -
+              {/if}
+
+                {#if delay < 1}
+                    {Math.round(delay * 60)} minutes
+                {:else if delay < 24}
                     {Math.round(reviewItem.data.previousItemDelay)} hours
-                {:else if reviewItem.data.previousItemDelay < 30 * 24}
-                    {Math.round(reviewItem.data.previousItemDelay / 24)} days
-                {:else if reviewItem.data.previousItemDelay < 365 * 24}
-                    {Math.round(reviewItem.data.previousItemDelay / (30 * 24))} months
+                {:else if delay < 30 * 24}
+                    {Math.round(delay / 24)} days
+                {:else if delay < 365 * 24}
+                    {Math.round(delay / (30 * 24))} months
                 {:else}
-                    {Math.round(reviewItem.data.previousItemDelay / (365 * 24))} years
+                    {Math.round(delay / (365 * 24))} years
                 {/if}
                 <small>
                     ({Math.floor(reviewItem.data.previousItemDelay * 100) / 100})

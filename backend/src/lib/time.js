@@ -1,5 +1,4 @@
-export const getTimeDifferenceFromNow = (dateTime) => {
-    const now = new Date();
+export const getTimeDifferenceFromNow = (dateTime, now = new Date()) => {
     const inputDate = new Date(dateTime);
 
     // Calculate the difference in milliseconds

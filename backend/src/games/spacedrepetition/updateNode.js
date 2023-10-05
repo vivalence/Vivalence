@@ -73,7 +73,7 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
     let inputModel = reviewItem.model; // [ 4, 4, 0.24 ]
     let count = 0;
     while (model === null && count < 10) {
-        console.log("updateReviewModel", count++);
+        // console.log("updateReviewModel", count++);
         try {
             model = updateEbisuModel(inputModel, response, elapsedTime);
         } catch (e) {
@@ -94,9 +94,22 @@ async function updateReviewModel({ id, type, response }, reviewItem) {
             known: isKnown(elapsedTime, response)
         }
     });
-    newReviewItem["previousItemDelay"] = nextReview;
+    newReviewItem["previousItemDelay"] = getDelayTime(reviewItem, nextReview);
     return newReviewItem;
 }
+
+const getDelayTime = (reviewItem, nextReviewInHours) => {
+    // difference between (reviewItem.lastreview to now) and (nextreview to now) in hours
+    const lastPredictionDifference =
+        (reviewItem.nextReview - reviewItem.lastReview) / (1000 * 60 * 60);
+
+    console.log("item", reviewItem.word.spanish);
+    console.log("previous", lastPredictionDifference);
+    console.log("next", nextReviewInHours);
+
+    const delay = nextReviewInHours - lastPredictionDifference;
+    return delay;
+};
 
 const isKnown = (elapsedTime, response) => {
     return elapsedTime > 24 * 4 && ["GRADUATE", "KNOWN"].includes(response);
@@ -115,7 +128,7 @@ const updateEbisuModel = (model, response, elapsedTime) => {
     switch (response) {
         case "GRADUATE":
             model = ebisu.updateModel(model, 1, 1, elapsedTime);
-            model = ebisu.scaleModel(model, 10);
+            model = ebisu.scaleModel(model, 5);
             break;
         case "KNOWN":
             model = ebisu.updateModel(model, 1, 1, elapsedTime);
