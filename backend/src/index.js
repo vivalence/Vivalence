@@ -7,7 +7,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 
 import { prisma } from "./prisma-client.js";
-import { schema } from "./graphql/index.js";
+import { schema } from "./pothos-client/schema.js";
 
 const PORT = process.env.PORT || 4000;
 

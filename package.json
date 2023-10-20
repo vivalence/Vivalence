@@ -1,0 +1,6 @@
+{
+  "dependencies": {},
+  "devDependencies": {
+    "@pothos/plugin-errors": "^3.11.1"
+  }
+}

@@ -1,9 +1,21 @@
 version: '3.9'
 
 services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    env_file:
+      - .env.postgres
+    # networks:
+    #   - localhost
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
-  frontend:
-    image: v-frontend
+volumes:
+  postgres_data:
 
-  backend:
-    image: v-backend
+# networks:
+#   localhost:
+#     name: localhost
