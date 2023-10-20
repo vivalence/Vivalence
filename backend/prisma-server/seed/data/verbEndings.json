@@ -1,0 +1,434 @@
+[
+  {
+    "verb": "tener",
+    "ending": "er",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 0
+  },
+  {
+    "verb": "tener",
+    "ending": "iendo",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 1
+  },
+  {
+    "verb": "tener",
+    "ending": "ido",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 2
+  },
+  {
+    "verb": "tener",
+    "ending": "o",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 3
+  },
+  {
+    "verb": "tener",
+    "ending": "ienes",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 4
+  },
+  {
+    "verb": "tener",
+    "ending": "iene",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 5
+  },
+  {
+    "verb": "tener",
+    "ending": "emos",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 6
+  },
+  {
+    "verb": "tener",
+    "ending": "éis",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 7
+  },
+  {
+    "verb": "tener",
+    "ending": "ienen",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 8
+  },
+  {
+    "verb": "tener",
+    "ending": "í",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 9
+  },
+  {
+    "verb": "tener",
+    "ending": "iste",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 10
+  },
+  {
+    "verb": "tener",
+    "ending": "ió",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 11
+  },
+  {
+    "verb": "tener",
+    "ending": "imos",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 12
+  },
+  {
+    "verb": "tener",
+    "ending": "isteis",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 13
+  },
+  {
+    "verb": "tener",
+    "ending": "ieron",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 14
+  },
+  {
+    "verb": "tener",
+    "ending": "ía",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 15
+  },
+  {
+    "verb": "tener",
+    "ending": "ías",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 16
+  },
+  {
+    "verb": "tener",
+    "ending": "ía",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 17
+  },
+  {
+    "verb": "tener",
+    "ending": "íamos",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 18
+  },
+  {
+    "verb": "tener",
+    "ending": "íais",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 19
+  },
+  {
+    "verb": "tener",
+    "ending": "ían",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 20
+  },
+  {
+    "verb": "tener",
+    "ending": "é",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 21
+  },
+  {
+    "verb": "tener",
+    "ending": "ás",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 22
+  },
+  {
+    "verb": "tener",
+    "ending": "rá",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 23
+  },
+  {
+    "verb": "tener",
+    "ending": "emos",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 24
+  },
+  {
+    "verb": "tener",
+    "ending": "éis",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 25
+  },
+  {
+    "verb": "tener",
+    "ending": "án",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 26
+  },
+  {
+    "verb": "estar",
+    "ending": "ar",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 27
+  },
+  {
+    "verb": "estar",
+    "ending": "ando",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 28
+  },
+  {
+    "verb": "estar",
+    "ending": "ado",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "performer": "NON_FINITE_PERFORMER",
+    "index": 29
+  },
+  {
+    "verb": "estar",
+    "ending": "o",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 30
+  },
+  {
+    "verb": "estar",
+    "ending": "ás",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 31
+  },
+  {
+    "verb": "estar",
+    "ending": "á",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 32
+  },
+  {
+    "verb": "estar",
+    "ending": "amos",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 33
+  },
+  {
+    "verb": "estar",
+    "ending": "áis",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 34
+  },
+  {
+    "verb": "estar",
+    "ending": "an",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 35
+  },
+  {
+    "verb": "estar",
+    "ending": "é",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 36
+  },
+  {
+    "verb": "estar",
+    "ending": "aste",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 37
+  },
+  {
+    "verb": "estar",
+    "ending": "ó",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 38
+  },
+  {
+    "verb": "estar",
+    "ending": "amos",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 39
+  },
+  {
+    "verb": "estar",
+    "ending": "asteis",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 40
+  },
+  {
+    "verb": "estar",
+    "ending": "aron",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 41
+  },
+  {
+    "verb": "estar",
+    "ending": "aba",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 42
+  },
+  {
+    "verb": "estar",
+    "ending": "abas",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 43
+  },
+  {
+    "verb": "estar",
+    "ending": "aba",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 44
+  },
+  {
+    "verb": "estar",
+    "ending": "ábamos",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 45
+  },
+  {
+    "verb": "estar",
+    "ending": "abais",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 46
+  },
+  {
+    "verb": "estar",
+    "ending": "aban",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 47
+  },
+  {
+    "verb": "estar",
+    "ending": "é",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "YO",
+    "index": 48
+  },
+  {
+    "verb": "estar",
+    "ending": "ás",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "TU",
+    "index": 49
+  },
+  {
+    "verb": "estar",
+    "ending": "ará",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "EL_ELLA_USTED",
+    "index": 50
+  },
+  {
+    "verb": "estar",
+    "ending": "emos",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "NOSOTROS_NOSOTRAS",
+    "index": 51
+  },
+  {
+    "verb": "estar",
+    "ending": "éis",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "VOSOTROS_VOSOTRAS",
+    "index": 52
+  },
+  {
+    "verb": "estar",
+    "ending": "án",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "performer": "ELLOS_ELLAS_USTEDES",
+    "index": 53
+  }
+]

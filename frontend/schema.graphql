@@ -1,106 +1,56 @@
+"""A curriculum is a collection of Units and Games."""
+type Curriculum {
+  gameRelations: [CurriculumGameRelation!]!
+  id: ID!
+  name: String!
+}
+
+"""The relation between a curriculum and a game"""
+type CurriculumGameRelation {
+  curriculum: Curriculum!
+  game: Game!
+  id: ID!
+}
+
 """
 A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
 """
 scalar DateTime
+
+"""One Card"""
+type FlashcardsGameCard {
+  front: String!
+  unitId: ID!
+}
+
+"""The initial game setup for flashcards"""
+type FlashcardsSetupObject {
+  cards: [FlashcardsGameCard!]!
+  curriculumId: ID!
+  gameId: ID!
+}
+
+"""A Game"""
+type Game {
+  curriculumRelation: CurriculumGameRelation!
+  id: ID!
+  type: GameTypeEnum!
+  typePretty: String!
+}
+
+enum GameTypeEnum {
+  FLASHCARDS
+}
 
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
 scalar JSON
 
-type Mutation {
-  """"""
-  reviewItem(input: reviewItemInput!): ReviewItem!
-}
-
 type Query {
-  reviewItem(type: String!): ReviewItem!
-  words: [Word!]!
-}
+  curriculumsRead: [Curriculum!]!
 
-"""A instance of review holds the ebisu model and the schedule"""
-type Review {
-  id: ID!
-  itemId: String!
-  itemType: ReviewItemTypeEnum!
-  known: Boolean!
-  lastReview: DateTime!
-  model: JSON!
-  nextReview: DateTime!
-  status: StatusEnum!
-  word: Word!
-}
-
-"""
-An item that can be reviewed in the context of spaced repetition. Exposed to the client.
-"""
-type ReviewItem {
-  back: String!
-  front: String!
-  id: ID!
-  previousItemDelay: Float
-  type: ReviewItemTypeEnum!
-}
-
-enum ReviewItemTypeEnum {
-  CONJUGATED_VERB
-  VERB_ENDING
-  VERB_STEM
-  WORD
-}
-
-enum ReviewResponseTypeEnum {
-  GRADUATE
-  KNOWN
-  UNKNOWN
-}
-
-enum StatusEnum {
-  ACTIVE
-  HIDDEN
-}
-
-type Word {
-  english: String!
-  id: ID!
-  index: Int!
-  review: Review!
-  spanish: String!
-  type: WordTypeEnum!
-}
-
-enum WordTypeEnum {
-  ADJ
-  ADV
-  ART
-  CONJ
-  DIR_OBJ
-  F
-  INDIR_OBJ
-  INTERJ
-  M
-  MINUS_FAM
-  N
-  NC
-  NF
-  NF_EL
-  NM
-  NMF
-  NM_F
-  NUM
-  OBJ
-  PL
-  PLUS_FAM
-  PREP
-  PRON
-  SG
-  SPEAKERS
-  SUBI
-  V
-}
-
-input reviewItemInput {
-  id: ID!
-  response: String!
-  type: String!
+  """Initialize the flashcards game. Returns the first review items."""
+  flashcardsInit(blacklist: [String!], fetch: Int!, gameId: ID!): FlashcardsSetupObject!
+  gameRead(id: ID!): Game!
 }
