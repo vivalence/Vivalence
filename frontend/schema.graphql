@@ -19,6 +19,7 @@ scalar DateTime
 
 """One Card"""
 type FlashcardsGameCard {
+  back: String!
   front: String!
   unitId: ID!
 }
