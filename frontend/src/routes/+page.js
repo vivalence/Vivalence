@@ -5,10 +5,12 @@ export const _houdini_load = graphql(`
         curriculumsRead {
             id
             name
-            games {
-                id
-                type
-                typePretty
+            gameRelations {
+                game {
+                    id
+                    type
+                    typePretty
+                }
             }
         }
     }
