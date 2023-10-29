@@ -1,6 +1,7 @@
 import openai
 import yaml
 from flask import Flask, request, jsonify
+from difflib import SequenceMatcher
 
 #put in a utils file at some point
 def get_api_key_from_yaml(keyword):
@@ -35,8 +36,7 @@ def process_request():
         return jsonify({"error": "Invalid action type"}), 400
 
 
-from difflib import SequenceMatcher
-import openai
+
 
 def check_translation(english, spanish, spanish_true):
     # Using OpenAI to evaluate correctness
