@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "translation"
+version = "0.1.0"
+description = ""
+authors = ["finn <finn@vivalence.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openai = "^1.2.0"
+flask = "^3.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
