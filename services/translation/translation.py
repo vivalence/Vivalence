@@ -2,6 +2,7 @@ import openai
 import yaml
 from flask import Flask, request, jsonify
 from difflib import SequenceMatcher
+import time
 
 #put in a utils file at some point
 def get_api_key_from_yaml(keyword):
@@ -39,6 +40,7 @@ def process_request():
 
 
 def check_translation(english, spanish, spanish_true):
+    start_time = time.time()
     # Using OpenAI to evaluate correctness
     prompt = f"Translate the following English sentence to Spanish:\n\n{english}\n\nTranslated: {spanish}\n\nIs this translation, considering grammatical gender as well? If not, please provide the reason in one concise sentence."
     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, max_tokens=100)
@@ -46,14 +48,20 @@ def check_translation(english, spanish, spanish_true):
     
     # Calculate accuracy using SequenceMatcher
     accuracy = SequenceMatcher(None, spanish, spanish_true).ratio()
+    end_time = time.time()
+    response_time = end_time - start_time
 
     return {
         "accuracy": f"{accuracy * 100:.2f}%",
-        "feedback": feedback
+        "feedback": feedback,
+        "response_time": f"{response_time:.2f} seconds"
+
     }
 
 
 def generate_sentences(constraints):
+    start_time = time.time()
+
     spoken_language = constraints.get("spokenLanguage", "English")
     learning_language = constraints.get("learningLanguage", "Spanish")
     words = constraints.get("words", [])
@@ -78,11 +86,14 @@ def generate_sentences(constraints):
     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, max_tokens=max_tokens)
 
     generated_text = response.choices[0].text.strip().split("\n")
-    
+    end_time = time.time()
+    response_time = end_time - start_time
     if len(generated_text) >= 2:
         return {
             "sentenceSpoken": generated_text[1].replace(f"{spoken_language}: ", "").strip(),
-            "sentenceLearning": generated_text[0]
+            "sentenceLearning": generated_text[0],
+            "response_time": f"{response_time:.2f} seconds"
+
         }
     else:
         return {"error": "Failed to generate sentences"}
