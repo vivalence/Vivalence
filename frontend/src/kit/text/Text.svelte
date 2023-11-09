@@ -2,7 +2,7 @@
     export let variant = "text";   // 'heading', 'text', 'code'
     export let weight = "regular"; // 'regular', 'light', 'medium', 'heavy'
     export let size = "md";        // 'xs', 'sm', 'md', 'lg', 'xl'
-    export let color = "text-1";   // "link", "text-1", "text-2", "placeholder", "contrast", "hint", "disabled", "error", "inverse"
+    export let color = "theme-text-1";   // "link", "text-1", "text-2", "placeholder", "contrast", "hint", "disabled", "error", "inverse"
     export let elementType = "p";  // 'h1', 'h2', 'h3', 'p', 'span'
     export let serif = false;
     export let italic = false;
@@ -60,7 +60,7 @@
         }
 
         // Font Color
-        computedClass += ` ${color}`;
+        computedClass += ` text-${color}`;
 
         // Emphasis
         if (italic) {

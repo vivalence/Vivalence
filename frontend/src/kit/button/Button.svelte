@@ -1,12 +1,16 @@
 <script>
+    import { createEventDispatcher } from "svelte";
     import Text from "../text/Text.svelte";
+
     export let state = "default";
-    export let iconComponent;
-    export let label = "Button";
     export let hierarchy = "primary";
     export let size = "md";
+    export let iconComponent = undefined;
     export let outlined = false;
     export let icon = false;
+
+    const dispatch = createEventDispatcher();
+    const handleClick = () => dispatch("click");
 
     let bgColor, textColor, borderColor, padding, borderStyles, hoverColor, focusColor;
 
@@ -30,8 +34,8 @@
                 break;
             case "secondary":
                 bgColor = outlined ? "bg-transparent" : "bg-theme-secondary";
-                textColor = outlined ? "text-theme-secondary" : "text-theme-text-1";
-                borderColor = "border-theme-secondary";
+                textColor = outlined ? "text-theme-text-1" : "text-theme-text-1";
+                borderColor = "border-theme-border-2";
                 hoverColor = `hover:bg-interactive-hover-secondary`;
                 focusColor = "focus:bg-interactive-focus-secondary";
 
@@ -40,7 +44,7 @@
                 bgColor = outlined ? "bg-transparent" : "bg-theme-danger-1";
                 textColor = outlined ? "text-theme-danger-1" : "text-theme-text-1";
                 borderColor = "border-theme-danger-1";
-                hoverColor = `hover:bg-interactive-hover-danger`;
+                hoverColor = `hover:bg-interactive-focus-danger`;
                 focusColor = "focus:bg-interactive-focus-danger";
 
                 break;
@@ -80,18 +84,19 @@
                 break;
         }
 
-        borderStyles = outlined ? `${borderColor} border` : "";
+        borderStyles = outlined ? `${borderColor} border` : " border";
     }
 </script>
 
 <button
+    on:click={handleClick}
     class={`${bgColor} ${textColor} ${borderStyles} ${hoverColor} ${focusColor} ${padding} font-medium rounded-[30px] focus:outline-none`}
 >
     {icon === "leading" ? iconComponent : ""}
     {#if icon === true}
         {iconComponent}
     {:else}
-        <Text {size} weight='medium' elementType='span'>{label}</Text>
+        <Text {size} color="inherit" weight="medium" elementType="span"><slot /></Text>
     {/if}
 
     {icon === "trailing" ? iconComponent : ""}

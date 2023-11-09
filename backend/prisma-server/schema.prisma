@@ -63,10 +63,9 @@ model Game {
     updatedAt          DateTime                @default(now()) @updatedAt
     // It
     type               GameTypeEnum
-    curriculumRelation CurriculumGameRelation?
-    // Down
-    unitRelations      GameUnitRelation[]
     // Relations
+    curriculumRelation CurriculumGameRelation?
+    unitRelations      GameUnitRelation[]
 }
 
 model CurriculumUnitRelation {
@@ -90,11 +89,11 @@ model GameUnitRelation {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
+    history   Json     @default([])
     // It
     nextPlay  DateTime
     lastPlay  DateTime
     state     Json
-    history   Json?
     // Relations
     unit      Unit     @relation(fields: [unitId], references: [id])
     unitId    String
@@ -134,8 +133,8 @@ enum UnitTypeEnum {
 
 enum UnitStatusEnum {
     HIDDEN // not yet known but dont show
-    UNKNOWN // not yet being learned
     PRIORITIZED // start learning asp
+    UNKNOWN // not yet being learned
     LEARNING // being learned 
     KNOWN // sufficiently learned
     GRADUATED // sufficiently learned and not Showing anymore

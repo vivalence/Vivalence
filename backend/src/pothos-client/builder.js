@@ -10,14 +10,15 @@ const builder = new SchemaBuilder({
         client: prisma,
         exposeDescriptions: { models: true, fields: true },
         filterConnectionTotalCount: true,
-        onUnusedQuery: process.env.NODE_ENV === "production" ? null : "warn"
-    }
+        onUnusedQuery: process.env.NODE_ENV === "production" ? null : "warn",
+    },
 });
 
 builder.addScalarType("DateTime", DateTimeResolver, {});
 builder.addScalarType("JSON", JSONResolver, {});
 
 builder.queryType({});
+builder.mutationType({});
 
 export { builder };
 

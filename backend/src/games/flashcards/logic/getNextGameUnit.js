@@ -3,62 +3,20 @@ import { prisma } from "../../../prisma-client.js";
 export const getNextGameUnit = async ({ blacklist, curriculumId, gameId, type = "WORD" }) => {
     // console.log("getNextGameUnit props", { blacklist, curriculumId, gameId, type });
     try {
-        const now = new Date();
-        // 0. start by fetching prioritized units
-        const prioritizedUnit = await prisma.unit.findFirst({
-            where: {
-                status: "PRIORITIZED",
-                unitType: type,
-                id: { notIn: blacklist },
-                curriculumRelations: { some: { curriculumId } },
-            },
-            include: {
-                curriculumRelations: { where: { curriculumId } },
-                gameRelations: { where: { gameId } },
-            },
-        });
-        // console.log("prioritizedUnit", !!prioritizedUnit);
+        const input = {
+            blacklist,
+            curriculumId,
+            gameId,
+            now: new Date(),
+        };
+
+        const prioritizedUnit = await getPrioritizedUnit(input);
         if (prioritizedUnit) return prioritizedUnit;
 
-        // 1. fetch from all the units that had are due
-        const gameUnitRelation = await prisma.gameUnitRelation.findFirst({
-            where: {
-                gameId,
-                nextPlay: { lt: now },
-                unit: {
-                    status: { in: ["LEARNING", "KNOWN"] },
-                    unitType: type,
-                    id: { notIn: blacklist },
-                },
-            },
-            orderBy: [{ nextPlay: "asc" }],
-            include: {
-                unit: {
-                    include: {
-                        curriculumRelations: { where: { curriculumId } },
-                        gameRelations: { where: { gameId } },
-                    },
-                },
-            },
-        });
-        // console.log("gameUnitRelation", !!gameUnitRelation);
-        if (gameUnitRelation) return gameUnitRelation.unit;
+        const dueUnit = await getDueUnit(input);
+        if (dueUnit) return dueUnit;
 
-        // 2. if no review is available, get new item to review
-        const newUnit = await prisma.unit.findFirst({
-            where: {
-                status: { in: ["UNKNOWN", "PRIORITIZED"] },
-                unitType: type,
-                id: { notIn: blacklist },
-                curriculumRelations: { some: { curriculumId } },
-            },
-            include: {
-                curriculumRelations: { where: { curriculumId } },
-                gameRelations: { where: { gameId } },
-            },
-            orderBy: [{ index: "asc" }],
-        });
-        // console.log("newUnit", !!newUnit);
+        const newUnit = await getNewUnit(input);
         if (newUnit) return newUnit;
 
         console.log("No items to practice now");
@@ -69,41 +27,57 @@ export const getNextGameUnit = async ({ blacklist, curriculumId, gameId, type = 
     }
 };
 
-// omg so ugly.
-// const buildGameCard = (item, gameType = "SPACEDREPETITION") => {
-//     switch (gameType) {
-//         case "SPACEDREPETITION":
-//             return;
-//     }
-// };
-// {"type": "NF", "index": 344, "english": "", "spanish": "", "usedInEnglish": "", "usedInSpanish": ""}
+const getPrioritizedUnit = async ({ blacklist, curriculumId, gameId, type }) => {
+    return await prisma.unit.findFirst({
+        where: {
+            status: "PRIORITIZED",
+            unitType: type,
+            id: { notIn: blacklist },
+            curriculumRelations: { some: { curriculumId } },
+        },
+        include: {
+            curriculumRelations: { where: { curriculumId } },
+            gameRelations: { where: { gameId } },
+        },
+    });
+};
 
-// const buildWordRreviewItem = (itemType, item) => {
-//     // console.log("buildWordRreviewItem", itemType, item);
-//     switch (itemType) {
-//         case "REVIEW":
-//             return {
-//                 id: item.word.id,
-//                 type: "WORD",
-//                 front: buildGameCard({
-//                     header: item.word.english,
-//                     body: item.word.usageInEnglish,
-//                 }),
-//                 back: buildGameCard({ header: item.word.spanish, body: item.word.usageInSpanish }),
-//             };
-//         case "WORD":
-//             return {
-//                 id: item.id,
-//                 type: "WORD",
-//                 front: buildGameCard({ header: item.english, body: item.usageInEnglish }),
-//                 back: buildGameCard({ header: item.spanish, body: item.usageInSpanish }),
-//             };
-//     }
-// };
+const getDueUnit = async ({ blacklist, curriculumId, gameId, type, now }) => {
+    const relation = await prisma.gameUnitRelation.findFirst({
+        where: {
+            gameId,
+            nextPlay: { lt: now },
+            unit: {
+                status: { in: ["LEARNING", "KNOWN"] },
+                unitType: type,
+                id: { notIn: blacklist },
+            },
+        },
+        orderBy: [{ nextPlay: "asc" }],
+        include: {
+            unit: {
+                include: {
+                    curriculumRelations: { where: { curriculumId } },
+                    gameRelations: { where: { gameId } },
+                },
+            },
+        },
+    });
+    return relation ? relation.unit : null;
+};
 
-// const getReviewItemBuilder = (type) => {
-//     switch (type) {
-//         case "WORD":
-//             return buildWordRreviewItem;
-//     }
-// };
+const getNewUnit = async ({ blacklist, curriculumId, gameId, type }) => {
+    return await prisma.unit.findFirst({
+        where: {
+            status: { in: ["UNKNOWN", "PRIORITIZED"] },
+            unitType: type,
+            id: { notIn: blacklist },
+            curriculumRelations: { some: { curriculumId } },
+        },
+        include: {
+            curriculumRelations: { where: { curriculumId } },
+            gameRelations: { where: { gameId } },
+        },
+        orderBy: [{ index: "asc" }],
+    });
+};

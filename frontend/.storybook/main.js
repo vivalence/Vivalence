@@ -10,6 +10,7 @@ const config = {
         "@storybook/addon-links",
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
+        "@storybook/addon-actions",
         "@storybook/addon-svelte-csf"
         // "@storybook/addon-styling-webpack"
     ],

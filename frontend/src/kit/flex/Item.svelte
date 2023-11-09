@@ -9,8 +9,8 @@
     let computedClasses;
     $: {
         computedClasses = ``;
-        computedClasses += grow ? ` ${grow}` : "";
-        computedClasses += shrink ? ` ${shrink}` : "";
+        computedClasses += grow ? ` grow-${grow}` : "";
+        computedClasses += shrink ? ` shrink-${shrink}` : "";
         computedClasses += basis ? ` basis-${basis}` : "";
         computedClasses += order ? ` order-${order}` : "";
         computedClasses += alignSelf ? ` self-${alignSelf}` : "";

@@ -5,7 +5,7 @@
 </script>
 
 <Meta
-    title="Layout/Flex"
+    title="Kit/Layout/Flex"
     component={FlexContainer}
     parameters={{ backgrounds: { default: "light" } }}
 />
