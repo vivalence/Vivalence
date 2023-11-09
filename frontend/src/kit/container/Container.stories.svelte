@@ -3,22 +3,18 @@
     import Container from "./Container.svelte";
 </script>
 
+<!-- parameters={{ backgrounds: { default: "light" } }} -->
 <Meta
-    title="Container"
+    title="Kit/Container"
     component={Container}
-    parameters={{ backgrounds: { default: "light" } }}
     argTypes={{
-        content: {
-            control: "text"
-        },
-        titel: {
-            control: "text"
-        }
+        content: { control: "text" },
+        titel: { control: "text" }
     }}
 />
 
 <Template let:args>
-    <Container {...args} classes="bg-palette-gray">Second text</Container>
+    <Container {...args} classes="bg-palette-gray">{args.content}</Container>
 </Template>
 
 <Story args={{ title: "first text" }} name="Container"></Story>

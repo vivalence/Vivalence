@@ -5,7 +5,7 @@
 </script>
 
 <Meta
-    title="Layout/Grid"
+    title="Kit/Layout/Grid"
     component={GridContainer}
     parameters={{ backgrounds: { default: "light" } }}
 />

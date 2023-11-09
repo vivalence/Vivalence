@@ -1,39 +1,39 @@
 {
-  "name": "backend",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/client-preset": "^4.1.0",
-    "@graphql-codegen/schema-ast": "^4.0.0",
-    "bun-types": "latest",
-    "chatgpt": "^5.2.5",
-    "typescript": "^5.2.2",
-    "prettier-plugin-prisma": "^5.0.0"
-  },
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "bun --watch --hot src/index.js",
-    "pseed": "bun prisma-server/seed/index.js",
-    "pstudio": "cd prisma-server && bunx prisma studio",
-    "pformat": "cd prisma-server && bunx prisma format",
-    "pgenerate": "cd prisma-server && npx prisma generate",
-    "pmigrate": "cd prisma-server && bunx prisma migrate dev"
-  },
-  "peerDependencies": {},
-  "dependencies": {
-    "@apollo/server": "^4.9.3",
-    "@pothos/core": "^3.38.0",
-    "@pothos/plugin-prisma": "^3.59.3",
-    "@prisma/client": "5.3.1",
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "ebisu-js": "^2.1.0",
-    "express": "^4.18.2",
-    "graphql": "^16.8.0",
-    "graphql-scalars": "^1.22.2",
-    "luxon": "^3.4.3",
-    "mustache": "^4.2.0",
-    "pg": "^8.11.3"
-  }
+    "name": "backend",
+    "module": "index.ts",
+    "type": "module",
+    "devDependencies": {
+        "@graphql-codegen/cli": "^5.0.0",
+        "@graphql-codegen/client-preset": "^4.1.0",
+        "@graphql-codegen/schema-ast": "^4.0.0",
+        "bun-types": "latest",
+        "chatgpt": "^5.2.5",
+        "typescript": "^5.2.2",
+        "prettier-plugin-prisma": "^5.0.0"
+    },
+    "scripts": {
+        "start": "node src/index.js",
+        "dev": "bun --watch --hot src/index.js",
+        "pseed": "bun prisma-server/seed/index.js",
+        "pstudio": "cd prisma-server && bunx prisma studio",
+        "pformat": "cd prisma-server && bunx prisma format",
+        "pgenerate": "cd prisma-server && npx prisma generate",
+        "pmigrate": "cd prisma-server && bunx prisma migrate dev"
+    },
+    "peerDependencies": {},
+    "dependencies": {
+        "@apollo/server": "^4.9.3",
+        "@pothos/core": "^3.38.0",
+        "@pothos/plugin-prisma": "^3.59.3",
+        "@prisma/client": "5.3.1",
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "ebisu-js": "^2.1.1",
+        "express": "^4.18.2",
+        "graphql": "^16.8.0",
+        "graphql-scalars": "^1.22.2",
+        "luxon": "^3.4.3",
+        "mustache": "^4.2.0",
+        "pg": "^8.11.3"
+    }
 }

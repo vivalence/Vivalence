@@ -48,5 +48,10 @@
     "typescript": "^5.0.0",
     "vite": "^4.4.9"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@storybook/addon-actions": "^7.5.2",
+    "graphql-scalars": "^1.22.4",
+    "svelte-swipe": "^2.0.3"
+  }
 }

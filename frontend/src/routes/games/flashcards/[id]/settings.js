@@ -1,1 +1,1 @@
-export const FLASHCARDS_QUEUE_SIZE = 10;
+export const FLASHCARDS_QUEUE_SIZE = 5;

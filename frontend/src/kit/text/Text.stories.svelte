@@ -4,7 +4,7 @@
 </script>
 
 <Meta
-    title="Text"
+    title="Kit/Text"
     component={Text}
     argTypes={{
         content: { control: "text" },

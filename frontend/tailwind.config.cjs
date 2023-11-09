@@ -351,8 +351,11 @@ const config = {
         { pattern: /flex-/ },
         { pattern: /basis-/ },
         { pattern: /order-/ },
-        { pattern: /self-/ }
-        // { pattern: /bg-palette-/ }
+        { pattern: /self-/ },
+        { pattern: /bg-palette-/ },
+        { pattern: /text-/ },
+        { pattern: /border/ },
+        { pattern: /theme-/ }
     ]
 };
 
