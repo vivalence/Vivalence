@@ -1,0 +1,93 @@
+"""A curriculum is a collection of Units and Games."""
+type Curriculum {
+  gameRelations: [CurriculumGameRelation!]!
+  id: ID!
+  name: String!
+}
+
+"""The relation between a curriculum and a game"""
+type CurriculumGameRelation {
+  curriculum: Curriculum!
+  game: Game!
+  id: ID!
+}
+
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
+
+type FlashcardsGameCard {
+  back: String!
+  front: String!
+  unitId: ID!
+}
+
+type FlashcardsGamePlayInit {
+  gamePlayStateUpdate: FlashcardsGamePlayStateUpdate!
+}
+
+type FlashcardsGamePlayLoop {
+  gamePlayStateUpdate: FlashcardsGamePlayStateUpdate!
+  gameUnitRelationUpdate: FlashcardsGameUnitRelationUpdate!
+}
+
+input FlashcardsGamePlayStateInput {
+  blacklist: [String!]
+  fetch: Int!
+  gameId: ID!
+}
+
+type FlashcardsGamePlayStateUpdate {
+  gameId: ID!
+  newCards: [FlashcardsGameCard!]!
+}
+
+enum FlashcardsGameReviewResponses {
+  GRADUATE
+  KNOWN
+  UNKNOWN
+}
+
+input FlashcardsGameUnitRelationInput {
+  gameId: ID!
+  response: FlashcardsGameReviewResponses!
+  unitId: ID!
+}
+
+type FlashcardsGameUnitRelationUpdate {
+  gameUnitRelation: GameUnitRelation!
+}
+
+"""A Game"""
+type Game {
+  curriculumRelation: CurriculumGameRelation!
+  id: ID!
+  type: GameTypeEnum!
+  typePretty: String!
+}
+
+enum GameTypeEnum {
+  FLASHCARDS
+}
+
+type GameUnitRelation {
+  id: ID!
+  nextPlay: DateTime!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type Mutation {
+  """"""
+  flashcardsLoop(gamePlayStateInput: FlashcardsGamePlayStateInput!, gameUnitRelationInput: FlashcardsGameUnitRelationInput!): FlashcardsGamePlayLoop!
+}
+
+type Query {
+  curriculumsRead: [Curriculum!]!
+  flashcardsInit(gamePlayStateInput: FlashcardsGamePlayStateInput!): FlashcardsGamePlayInit!
+  gameRead(id: ID!): Game!
+}
