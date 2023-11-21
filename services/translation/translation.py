@@ -1,3 +1,17 @@
+"""
+Flask API for Language Processing and Translation Evaluation
+
+This API leverages OpenAI's GPT model to offer two key services:
+1. Evaluating the accuracy of Spanish translations of English sentences, providing feedback and accuracy percentages.
+2. Generating sentences based on specified constraints, including language, words, and grammar.
+
+Developers can utilize this API for educational purposes, language learning applications, or as a tool for language translation evaluation.
+
+Endpoints:
+- POST /process_request: Process requests for evaluating translations or generating sentences based on the 'action' parameter.
+
+Note: Requires OpenAI API key configured in 'config.yaml'.
+"""
 import openai
 import yaml
 from flask import Flask, request, jsonify
@@ -13,11 +27,13 @@ def get_api_key_from_yaml(keyword):
 app = Flask(__name__)
 openai.api_key = get_api_key_from_yaml('openai')
 
+
 @app.route('/process_request', methods=['POST'])
 @app.route('/process_request', methods=['POST'])
 def process_request():
     data = request.json
     action = data.get("action")
+    print(data)
 
     if action == "evaluate":
         english_sentence = data.get("english")
@@ -83,6 +99,8 @@ def generate_sentences(constraints):
               f"{learning_language}: ")
 
     max_tokens = constraints.get("length", 150)
+    # TOOD
+    # why is this davinci and not 3.5 gpt-4 trubo 
     response = openai.Completion.create(engine="text-davinci-003", prompt=prompt, max_tokens=max_tokens)
 
     generated_text = response.choices[0].text.strip().split("\n")

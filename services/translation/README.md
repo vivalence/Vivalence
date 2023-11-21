@@ -1,3 +1,10 @@
+# Language Processing and Translation Evaluation API
+## Endpoints
+- `POST /process_request`
+  - Actions: `evaluate`, `generate`
+  - See the API documentation section for detailed request formats.
+
+# Specification INPUT
 ## Endpoint 1: Sentence Generation
 Endpoint: /generation
 
