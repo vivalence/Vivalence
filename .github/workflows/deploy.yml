@@ -30,7 +30,7 @@ jobs:
         
     - name: Build and push Docker image
       run: |
-        docker build -t v-${{ matrix.component }} ./${{ matrix.component }}
+        docker build -t v-${{ matrix.component }} ./app/${{ matrix.component }}
         docker save v-${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:

@@ -5,7 +5,7 @@ services:
     image: postgres:latest
     container_name: postgres
     env_file:
-      - .env.postgres
+      - ./services/database-postgres/.env.postgres
     # networks:
     #   - localhost
     ports:
