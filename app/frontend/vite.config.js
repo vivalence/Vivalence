@@ -1,6 +1,12 @@
+import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import houdini from "houdini/vite";
-import { defineConfig } from "vite";
+
+export default defineConfig({
+    plugins: [houdini(), sveltekit()],
+    logLevel: "info",
+    mode: "development"
+});
 
 // function ignoreEmacsTempFiles() {
 //     return {
@@ -20,9 +26,3 @@ import { defineConfig } from "vite";
 //         }
 //     };
 // }ignoreEmacsTempFiles(),
-
-export default defineConfig({
-    plugins: [houdini(), sveltekit()],
-    logLevel: "info",
-    mode: "development"
-});
