@@ -17,48 +17,6 @@ A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `dat
 """
 scalar DateTime
 
-type FlashcardsGameCard {
-  back: String!
-  front: String!
-  unitId: ID!
-}
-
-type FlashcardsGamePlayInit {
-  gamePlayStateUpdate: FlashcardsGamePlayStateUpdate!
-}
-
-type FlashcardsGamePlayLoop {
-  gamePlayStateUpdate: FlashcardsGamePlayStateUpdate!
-  gameUnitRelationUpdate: FlashcardsGameUnitRelationUpdate!
-}
-
-input FlashcardsGamePlayStateInput {
-  blacklist: [String!]
-  fetch: Int!
-  gameId: ID!
-}
-
-type FlashcardsGamePlayStateUpdate {
-  gameId: ID!
-  newCards: [FlashcardsGameCard!]!
-}
-
-enum FlashcardsGameReviewResponses {
-  GRADUATE
-  KNOWN
-  UNKNOWN
-}
-
-input FlashcardsGameUnitRelationInput {
-  gameId: ID!
-  response: FlashcardsGameReviewResponses!
-  unitId: ID!
-}
-
-type FlashcardsGameUnitRelationUpdate {
-  gameUnitRelation: GameUnitRelation!
-}
-
 """A Game"""
 type Game {
   curriculumRelation: CurriculumGameRelation!
@@ -71,9 +29,32 @@ enum GameTypeEnum {
   FLASHCARDS
 }
 
-type GameUnitRelation {
-  id: ID!
-  nextPlay: DateTime!
+type Game_Flashcards_Card {
+  back: String!
+  front: String!
+  unitId: ID!
+}
+
+input Game_Flashcards_GetCards_Input {
+  blacklist: [String!]
+  fetch: Int!
+  gameId: ID!
+}
+
+enum Game_Flashcards_ReviewResponses_Enum {
+  GRADUATE
+  KNOWN
+  UNKNOWN
+}
+
+input Game_Flashcards_UpdateCard_Input {
+  gameId: ID!
+  response: Game_Flashcards_ReviewResponses_Enum!
+  unitId: ID!
+}
+
+type Game_Flashcards_UpdateCard_Response {
+  unitId: ID!
 }
 
 """
@@ -82,12 +63,11 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Mutation {
-  """"""
-  flashcardsLoop(gamePlayStateInput: FlashcardsGamePlayStateInput!, gameUnitRelationInput: FlashcardsGameUnitRelationInput!): FlashcardsGamePlayLoop!
+  Game_Flashcards_UpdateCard(input: Game_Flashcards_UpdateCard_Input!): Game_Flashcards_UpdateCard_Response!
 }
 
 type Query {
+  Game_Flashcards_GetCards(input: Game_Flashcards_GetCards_Input!): [Game_Flashcards_Card!]!
   curriculumsRead: [Curriculum!]!
-  flashcardsInit(gamePlayStateInput: FlashcardsGamePlayStateInput!): FlashcardsGamePlayInit!
   gameRead(id: ID!): Game!
 }

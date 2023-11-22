@@ -1,6 +1,7 @@
 import { writable, get } from "svelte/store";
 import { FLASHCARDS_QUEUE_SIZE } from "./settings.js";
-import { FlashcardsLoopMutation } from "./gql.js";
+import { UpdateCard_Mutation } from "./gql.js";
+import { GetCardsStore } from "$houdini";
 
 function createFlashcardStore() {
     const Store = writable({
@@ -11,6 +12,7 @@ function createFlashcardStore() {
         loading: false,
         error: null
     });
+    const GetCardsQuery = new GetCardsStore();
 
     const getIds = () => {
         let ids;
@@ -61,29 +63,38 @@ function createFlashcardStore() {
             const gameId = get(Store).gameId;
             const current = get(Store).current;
 
-            const mutationInput = {
-                gamePlayStateInput: {
-                    gameId,
-                    fetch: FLASHCARDS_QUEUE_SIZE - blacklist.length - 1,
-                    blacklist
-                },
-                gameUnitRelationInput: {
-                    gameId,
-                    response,
-                    unitId: current.unitId
-                }
-            };
-            const updateResult = await FlashcardsLoopMutation.mutate(mutationInput);
+            const [queryResult, mutationResult] = await Promise.all([
+                GetCardsQuery.fetch({
+                    policy: "NetworkOnly",
+                    variables: {
+                        input: {
+                            gameId,
+                            fetch: FLASHCARDS_QUEUE_SIZE - blacklist.length - 1,
+                            blacklist
+                        }
+                    }
+                }),
+                UpdateCard_Mutation.mutate({
+                    input: {
+                        gameId,
+                        response,
+                        unitId: current.unitId
+                    }
+                })
+            ]);
 
-            if (updateResult.errors) {
-                console.error("ReviewItemMutation ERROR", updateResult.errors);
+            // console.log("results data", queryResult, mutationResult);
+
+            const errors = queryResult.errors || mutationResult.errors;
+            if (errors) {
+                console.error("ERROR", errors);
                 Store.update((store) => ({
                     ...store,
-                    error: { errors: updateResult.errors, current },
+                    error: { errors: errors, current },
                     loading: false
                 }));
             } else {
-                addCards(updateResult.data.flashcardsLoop.gamePlayStateUpdate.newCards);
+                addCards(queryResult.data.Game_Flashcards_GetCards);
                 Store.update((store) => ({ ...store, loading: false, error: null }));
             }
         }

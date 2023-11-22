@@ -6,16 +6,16 @@
 
     import Card from "./components/Card.svelte";
     import Controls from "./components/Controls.svelte";
-    import { flashcardsStore } from "./store.js"; // assuming you export it with this name
+    import { flashcardsStore } from "./store.js"; 
 
     export let data;
-    $: ({ FlashcardsInit } = data);
+    $: ({ GetCards  } = data);
     let seeded = false;
 
-    $: if (!seeded && $FlashcardsInit.data && $FlashcardsInit.data.flashcardsInit) {
+    $: if (!seeded && $GetCards.data && $GetCards.data.Game_Flashcards_GetCards) {
         seeded = true;
         flashcardsStore.init({
-            cards: $FlashcardsInit.data.flashcardsInit.gamePlayStateUpdate.newCards,
+            cards: $GetCards.data.Game_Flashcards_GetCards,
             gameId: $page.params.id
         });
     }
@@ -30,4 +30,3 @@
 {/if}
 <Controls />
 
-<!-- <div class="text-palette-white">{JSON.stringify($FlashcardsInit, null, 2)}</div> -->
