@@ -17,10 +17,10 @@ function createFlashcardStore() {
     const getIds = () => {
         let ids;
         Store.update((store) => {
-            ids = [store.current?.id, ...store.flashcards.map((item) => item.unitId)];
+            ids = [store.current?.unitId, ...store.flashcards.map((item) => item.unitId)];
             return store;
         });
-        return ids;
+        return ids.filter((id) => !!id);
     };
     const addCards = (cards) => {
         Store.update((store) => ({
@@ -30,10 +30,9 @@ function createFlashcardStore() {
     };
     const nextCard = () => {
         Store.update((store) => {
-            const current = store.flashcards.length > 1 ? store.flashcards[1] : null;
+            const current = store.flashcards.shift();
             return {
                 ...store,
-                flashcards: store.flashcards.slice(1),
                 current
             };
         });
@@ -57,11 +56,11 @@ function createFlashcardStore() {
         },
         review: async (response) => {
             Store.update((store) => ({ ...store, loading: true, revealed: false }));
-            nextCard();
-
             const blacklist = getIds();
             const gameId = get(Store).gameId;
             const current = get(Store).current;
+
+            nextCard(); // Must be called after fetching store state. @lj
 
             const [queryResult, mutationResult] = await Promise.all([
                 GetCardsQuery.fetch({
@@ -69,7 +68,7 @@ function createFlashcardStore() {
                     variables: {
                         input: {
                             gameId,
-                            fetch: FLASHCARDS_QUEUE_SIZE - blacklist.length - 1,
+                            fetch: FLASHCARDS_QUEUE_SIZE - (blacklist.length - 1),
                             blacklist
                         }
                     }
@@ -95,7 +94,10 @@ function createFlashcardStore() {
                 }));
             } else {
                 addCards(queryResult.data.Game_Flashcards_GetCards);
-                Store.update((store) => ({ ...store, loading: false, error: null }));
+                Store.update((store) => {
+                    const current = store.current || store.flashcards.shift();
+                    return { ...store, loading: false, error: null };
+                });
             }
         }
     };
