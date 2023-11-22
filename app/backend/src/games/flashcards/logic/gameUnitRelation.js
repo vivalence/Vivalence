@@ -21,6 +21,7 @@ async function create({ unitId, gameId, response }) {
         unitId,
         nextPlay: getDateTimeInXHours(nextReviewTime),
         lastPlay: new Date(),
+        history: [],
     };
     const created = await prisma.gameUnitRelation.create({ data });
     // created["previousItemDelay"] = nextReviewTime;

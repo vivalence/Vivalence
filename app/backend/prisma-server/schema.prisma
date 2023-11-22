@@ -89,7 +89,7 @@ model GameUnitRelation {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @default(now()) @updatedAt
-    history   Json     @default([])
+    history   Json
     // It
     nextPlay  DateTime
     lastPlay  DateTime
