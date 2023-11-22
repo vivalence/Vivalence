@@ -17,7 +17,7 @@ function createFlashcardStore() {
     const getIds = () => {
         let ids;
         Store.update((store) => {
-            ids = store.flashcards.map((item) => item.unitId);
+            ids = [store.current?.id, ...store.flashcards.map((item) => item.unitId)];
             return store;
         });
         return ids;
