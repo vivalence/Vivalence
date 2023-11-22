@@ -1,0 +1,242 @@
+[
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "ten",
+    "index": 0
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "teni",
+    "index": 1
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "ten",
+    "index": 2
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "stem": "tien",
+    "index": 3
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "stem": "tuv",
+    "index": 4
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "stem": "ten",
+    "index": 5
+  },
+  {
+    "verb": "tener",
+    "ending": "ER",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "stem": "tendr",
+    "index": 6
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "est",
+    "index": 7
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "est",
+    "index": 8
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "est",
+    "index": 9
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "stem": "est",
+    "index": 10
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "stem": "estuv",
+    "index": 11
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "stem": "est",
+    "index": 12
+  },
+  {
+    "verb": "estar",
+    "ending": "AR",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "stem": "est",
+    "index": 13
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "s",
+    "index": 14
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "siend",
+    "index": 15
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "s",
+    "index": 16
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "stem": "s",
+    "index": 17
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "stem": "fu",
+    "index": 18
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "stem": "era",
+    "index": 19
+  },
+  {
+    "verb": "ser",
+    "ending": "ER",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "stem": "ser",
+    "index": 20
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "vay",
+    "index": 21
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "yend",
+    "index": 22
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "PARTICIPIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "id",
+    "index": 23
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "PRESENTE",
+    "mood": "INDICATIVO",
+    "stem": "vay",
+    "index": 24
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "PRETERITO",
+    "mood": "INDICATIVO",
+    "stem": "fu",
+    "index": 25
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "IMPERFECTO",
+    "mood": "INDICATIVO",
+    "stem": "iba",
+    "index": 26
+  },
+  {
+    "verb": "ir",
+    "ending": "IR",
+    "tense": "FUTURO",
+    "mood": "INDICATIVO",
+    "stem": "ir",
+    "index": 27
+  },
+  {
+    "verb": "hacer",
+    "ending": "ER",
+    "tense": "INFINITIVO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "hac",
+    "index": 28
+  },
+  {
+    "verb": "hacer",
+    "ending": "ER",
+    "tense": "GERUNDIO",
+    "mood": "NON_FINITE_MOOD",
+    "stem": "haci",
+    "index": 29
+  }
+]
