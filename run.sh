@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker build -t v-backend ./backend
+# docker build -t v-backend ./app/backend
 
 # docker run -e DATABASE_URL="postgresql://admin:password@host.docker.internal:5432/valence-spanish" v-backend
 # docker run -e DATABASE_URL="postgresql://admin:password@host.docker.internal:5432/valence-spanish" v-backend

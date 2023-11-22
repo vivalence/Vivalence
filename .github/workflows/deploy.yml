@@ -3,7 +3,10 @@ name: Deploy on Tag
 on:
   push:
     branches:
-      - '*'  # Trigger on push to any branch
+      # Trigger on push to any branch
+      # - '*'  
+      # Trigger on push main
+      - 'main'
 
     # tags:
     #   - 'v*.*.*'  # Semantic versioning tags
@@ -27,7 +30,7 @@ jobs:
         
     - name: Build and push Docker image
       run: |
-        docker build -t v-${{ matrix.component }} ./${{ matrix.component }}
+        docker build -t v-${{ matrix.component }} ./app/${{ matrix.component }}
         docker save v-${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
