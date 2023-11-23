@@ -3,7 +3,7 @@
     export let wrap = "nowrap"; // default to flex-nowrap
     export let justify = "start"; // default to justify-start
     export let items = "start"; // default to items-start
-    export let gap = ""; // no default gap
+    // export let gap = ""; // no default gap
     export let classes = "";
 
     let computedClasses;

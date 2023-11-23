@@ -27,8 +27,10 @@
     const HORIZONTAL_BIAS = 1.3;
     let cancelled = false;
     let xstart, ystart, yend, xend;
-    let x = spring(0);
-    let y = spring(0);
+    const stiffness = 0.15;
+        const damping = 0.35;
+    let x = spring(0, { stiffness, damping });
+    let y = spring(0, { stiffness, damping });
 
     function determineDirection(xstart, ystart, xend, yend) {
         const dx = xend - xstart;

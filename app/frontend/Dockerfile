@@ -2,7 +2,7 @@ FROM node:lts-alpine as build
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install --force
+RUN npm install --force --legacy-peer-deps
 
 COPY . ./
 
