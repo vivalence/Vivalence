@@ -10,6 +10,7 @@
     const playGame = (game) => () => {
         goto(`/games/${game.type.toLowerCase()}/${game.id}`);
     };
+    $: console.log("$CurriculumsRead.data", $CurriculumsRead);
 </script>
 
 <div class="pt-6 px-4">

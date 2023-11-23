@@ -1,13 +1,20 @@
 <script>
+    // import { onMount } from "svelte";
+    import { pan, swipe } from "svelte-gestures";
     import { flashcardsStore } from "../store.js";
+    let rounded, classesFront, classesBack, classesContainer;
+    $: rounded = `rounded-t-xl ${!$flashcardsStore.revealed && "rounded-b-xl"}`;
+    classesBack = `bg-theme-ui-5 w-80 min-h-[12em] py-6 px-8 shadow-sm text-theme-text-3 rounded-b-xl`;
+    $: classesFront = `bg-theme-ui-2 w-80 min-h-[12em] py-6 px-8 shadow-sm text-theme-text-1 ${rounded}`;
+    classesContainer = `select-none font-inherit text-theme-text-1 font-sans-text`;
 </script>
 
-<div class="font-inherit text-theme-text-1 font-sans-text">
-    <div class="bg-theme-ui-1 w-80 min-h-[12em] p-8 mb-3 rounded shadow-sm">
+<div class={classesContainer}>
+    <div class={classesFront}>
         {@html $flashcardsStore.current.front}
     </div>
     {#if $flashcardsStore.revealed}
-        <div class="bg-theme-ui-2 w-80 min-h-[12em] p-8 mb-3 rounded shadow-sm">
+        <div class={classesBack}>
             {@html $flashcardsStore.current.back}
         </div>
     {/if}

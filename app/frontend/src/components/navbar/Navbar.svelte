@@ -1,11 +1,11 @@
 <script>
     import FlexContainer from "../../kit/flex/Container.svelte";
     import FlexItem from "../../kit/flex/Item.svelte";
-    const logo = "../../static/logo.png";
+    const logo = "../../../static/vivalence-white.svg";
 </script>
 
 <nav
-    class="bg-black p-4 fixed top-0 w-full right-0 h-16 z-10 bg-theme-ui-1 border-b border-theme-borde-1"
+    class="bg-theme-ui-1 p-4 fixed top-0 w-full right-0 h-16 z-10 border-b border-theme-border-1"
 >
     <FlexContainer items="center">
         <FlexItem shrink="shrink-1" classes="content-center">

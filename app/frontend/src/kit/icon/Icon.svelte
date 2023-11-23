@@ -1,4 +1,5 @@
 <script>
+    export let iconAlt = "";
     export let icon = "";
     export let hierarchy = "primary";
     export let outlined = false;
@@ -6,7 +7,7 @@
     export let size = "md";
     export let classes = "";
 
-    const getSvgPath = (iconName) => `../../../static/icons/${iconName}`;
+    // const getSvgPath = (iconName) => `../../../static/icons/${iconName}`;
 
     let hierarchyClass;
     switch (hierarchy) {
@@ -58,4 +59,4 @@
   `.trim();
 </script>
 
-<img src={getSvgPath(icon)} class={iconClasses} alt={icon} />
+<img src={icon} class={iconClasses} alt={iconAlt } />

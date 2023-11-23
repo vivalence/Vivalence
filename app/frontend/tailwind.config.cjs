@@ -2,124 +2,134 @@ const palette = {
     white: "#F2F4F6",
     black: "#030D0D",
     gray: {
-        DEFAULT: "#27292B",
-        10: "#EBE9EB",
-        20: "#E8E7E9",
-        30: "#E5E4E7",
-        40: "#E2E1E4",
-        50: "#DFDFE2",
-        60: "#DCDCDF",
-        70: "#D9DADD",
-        80: "#D7D8DA",
-        90: "#D4D6D8",
-        100: "#CACCCF",
-        200: "#B4B8BB",
-        300: "#9FA3A8",
-        400: "#8A8F94",
-        500: "#778088",
-        600: "#5C636A",
-        700: "#42474C",
-        800: "#282B2E",
-        900: "#0E0F10",
-        950: "#010101"
+        10: "#ffffff",
+        20: "#ebedef",
+        30: "#d8dcdf",
+        40: "#c5cacf",
+        50: "#b3b9bf",
+        60: "#a2a8af",
+        70: "#90989f",
+        80: "#80888f",
+        90: "#6f7780",
+        100: "#606870",
+        200: "#505860",
+        300: "#414850",
+        400: "#323940",
+        500: "#242a30",
+        600: "#161b20",
+        700: "#0f1318",
+        800: "#090c10",
+        900: "#020508",
+        950: "#000000"
     },
-
-    moroccanBlue: {
-        DEFAULT: "#0006EF",
-        50: "#e5e6ff",
-        100: "#b3b4ff",
-        200: "#8083ff",
-        300: "#4d51ff",
-        400: "#1a1fff",
-        500: "#0006e6",
-        600: "#0004b3",
-        700: "#000380",
-        800: "#00024d",
-        900: "#00011a"
+    aqua: {
+        50: "#adfffa",
+        100: "#80ede6",
+        200: "#51d8d0",
+        300: "#1ebcb5",
+        400: "#00686a",
+        500: "#004c4e",
+        600: "#004244",
+        700: "#00383a",
+        800: "#003031",
+        900: "#002729",
+        DEFAULT: "#00FFFB"
     },
-    cathodeGreen: {
-        DEFAULT: "#00FF58",
-        50: "#e5ffee",
-        100: "#b3ffcd",
-        200: "#80ffac",
-        300: "#4dff8a",
-        400: "#1aff69",
-        500: "#00e64f",
-        600: "#00b33e",
-        700: "#00802c",
-        800: "#004d1a",
-        900: "#001a09"
+    indigo: {
+        50: "#adb4ff",
+        100: "#8088ed",
+        200: "#515cd8",
+        300: "#1e28bc",
+        400: "#00006a",
+        500: "#01004e",
+        600: "#010044",
+        700: "#01003a",
+        800: "#010031",
+        900: "#010029",
+        DEFAULT: "#0006EF"
     },
-    arcticAqua: {
-        DEFAULT: "#00FFFA",
-        50: "#e5ffff",
-        100: "#b3fffe",
-        200: "#80fffc",
-        300: "#4dfffb",
-        400: "#1afffa",
-        500: "#00e6e1",
-        600: "#00b3af",
-        700: "#00807d",
-        800: "#004d4b",
-        900: "#001a19"
+    pink: {
+        50: "#ffade8",
+        100: "#ed80ce",
+        200: "#d851b1",
+        300: "#bc1e8c",
+        400: "#6a0043",
+        500: "#4e0031",
+        600: "#44002a",
+        700: "#3a0024",
+        800: "#31001f",
+        900: "#290019",
+        DEFAULT: "#FF00AA"
     },
-    vividPink: {
-        DEFAULT: "#FF00AA",
-        50: "#ffe5f6",
-        100: "#ffb3e5",
-        200: "#ff80d4",
-        300: "#ff4dc3",
-        400: "#ff1ab2",
-        500: "#e60099",
-        600: "#b30077",
-        700: "#800055",
-        800: "#4d0033",
-        900: "#1a0011"
+    red: {
+        50: "#ffadba",
+        100: "#ed8090",
+        200: "#d85165",
+        300: "#bc1e33",
+        400: "#6a0007",
+        500: "#4e0004",
+        600: "#440004",
+        700: "#3a0003",
+        800: "#310003",
+        900: "#290002",
+        DEFAULT: "#F10118"
     },
-    honeyOrange: {
-        DEFAULT: "#FF8D00",
-        50: "#fff4e5",
-        100: "#ffddb3",
-        200: "#ffc680",
-        300: "#ffaf4d",
-        400: "#ff981a",
-        500: "#e67f00",
-        600: "#b36300",
-        700: "#804700",
-        800: "#4d2a00",
-        900: "#1a0e00"
+    amber: {
+        50: "#ffd6ad",
+        100: "#edb780",
+        200: "#d89651",
+        300: "#bc701e",
+        400: "#6a3e00",
+        500: "#4e2e00",
+        600: "#442900",
+        700: "#3a2300",
+        800: "#311e00",
+        900: "#291800",
+        DEFAULT: "#FF8D00"
     },
-    cherryRed: {
-        DEFAULT: "#F10118",
-        50: "#ffe6e8",
-        100: "#ffb3ba",
-        200: "#fe808c",
-        300: "#fe4d5e",
-        400: "#fe1a30",
-        500: "#e50117",
-        600: "#b20112",
-        700: "#7f010d",
-        800: "#4c0008",
-        900: "#190003"
+    yellow: {
+        50: "#fff4ad",
+        100: "#eddf80",
+        200: "#d8c751",
+        300: "#bcaa1e",
+        400: "#6a6500",
+        500: "#4e4b00",
+        600: "#444200",
+        700: "#3a3800",
+        800: "#313000",
+        900: "#292700",
+        DEFAULT: "#FCF4A3"
     },
-
-    bananaYellow: {
-        DEFAULT: "#FCF4A3",
-        50: "#fefce6",
-        100: "#fdf6b5",
-        200: "#fbf084",
-        300: "#f9ea52",
-        400: "#f8e421",
-        500: "#decb07",
-        600: "#ad9e06",
-        700: "#7b7104",
-        800: "#4a4402",
-        900: "#191701"
+    citron: {
+        50: "#f7ffad",
+        100: "#e2ed80",
+        200: "#cad851",
+        300: "#aabc1e",
+        400: "#566a00",
+        500: "#3f4e00",
+        600: "#374400",
+        700: "#2f3a00",
+        800: "#283100",
+        900: "#212900",
+        DEFAULT: "#D9FF00"
+    },
+    lime: {
+        50: "#adffc6",
+        100: "#80eda1",
+        200: "#51d87b",
+        300: "#1ebc50",
+        400: "#006a29",
+        500: "#004e1f",
+        600: "#00441b",
+        700: "#003a17",
+        800: "#003114",
+        900: "#002910",
+        DEFAULT: "#00FF58"
     }
 };
 
-const tint = {
-    moroccanBlue: {
+const _tint = {
+    ingigo: {
         25: `rgba(0, 115, 217, 0.05)`,
         50: `rgba(0, 115, 217, 0.15)`,
         100: `rgba(0, 115, 217, 0.25)`,
@@ -213,31 +223,31 @@ const tint = {
 
 const system = {
     info: {
-        1: palette.moroccanBlue["400"],
-        2: palette.moroccanBlue["300"],
-        3: tint.moroccanBlue["50"]
+        1: palette.indigo["400"],
+        2: palette.indigo["300"],
+        3: palette.indigo["50"]
     },
     success: {
-        1: palette.cathodeGreen["400"],
-        2: palette.cathodeGreen["300"],
-        3: tint.cathodeGreen["50"]
+        1: palette.lime["400"],
+        2: palette.lime["300"],
+        3: palette.lime["50"]
     },
     warning: {
-        1: palette.honeyOrange["400"],
-        2: palette.honeyOrange["300"],
-        3: tint.honeyOrange["50"]
+        1: palette.amber["400"],
+        2: palette.amber["300"],
+        3: palette.amber["50"]
     },
     danger: {
-        1: palette.cherryRed["400"],
-        2: palette.cherryRed["300"],
-        3: tint.cherryRed["50"],
-        hover: palette.cherryRed["500"]
+        1: palette.red["400"],
+        2: palette.red["300"],
+        3: palette.red["50"],
+        hover: palette.red["500"]
     }
 };
 
 const interactive = {
     hover: {
-        accent: palette.moroccanBlue[600],
+        accent: palette.pink[700],
         primary: palette.gray[20],
         secondary: palette.gray[500],
         inverse: palette.gray[0],
@@ -245,18 +255,18 @@ const interactive = {
         field: palette.gray[600]
     },
     active: {
-        accent: palette.moroccanBlue[400],
+        accent: palette.pink[300],
         primary: palette.gray[10],
         secondary: palette.gray[800],
         inverse: palette.gray[10],
         ui: palette.gray[600],
-        border: palette.moroccanBlue[300],
+        border: palette.indigo[300],
         field: palette.gray[800]
     },
     focus: {
-        accent: tint.moroccanBlue[50],
-        secondary: tint.white[25],
-        danger: tint.cherryRed[50]
+        accent: palette.pink[300],
+        secondary: palette.gray[40],
+        danger: palette.red[50]
     },
     skeleton: {
         1: palette.gray[500],
@@ -270,25 +280,27 @@ const interactive = {
 };
 
 const theme = {
-    accent: palette.honeyOrange[500],
+    accent: palette.pink[400],
     primary: palette.white,
     secondary: palette.gray[600],
     contrast: palette.gray[800],
-    link: palette.moroccanBlue.SOURCE,
+    link: palette.indigo.DEFAULT,
     text: {
         1: palette.gray[10],
         2: palette.gray[60],
+        3: palette.gray[400],
+        4: palette.gray[600],
         placeholder: palette.gray[100],
         contrast: palette.white,
         hint: palette.gray[200],
         disabled: palette.gray[100],
-        error: palette.cherryRed[300],
+        error: palette.red[300],
         inverse: palette.gray[900]
     },
     icon: {
         1: palette.gray[10],
-        2: palette.gray[60],
-        3: palette.moroccanBlue[400],
+        2: palette.gray[90],
+        3: palette.aqua[200],
         contrast: palette.white,
         disabled: palette.gray[200],
         inverse: palette.gray[900]
@@ -296,17 +308,17 @@ const theme = {
     ui: {
         background: palette.gray[900],
         1: palette.gray[700],
-        2: palette.gray[600],
-        3: palette.gray[400],
-        4: palette.gray[300],
+        2: palette.gray[500],
+        3: palette.gray[300],
+        4: palette.gray[200],
         5: palette.white,
-        6: palette.gray[300],
-        overlay: palette.gray[400]
+        6: palette.gray[800],
+        overlay: palette.gray[100]
     },
     border: {
-        1: palette.gray[600],
-        2: palette.gray[400],
-        3: palette.gray[300],
+        1: palette.gray[500],
+        2: palette.gray[300],
+        3: palette.gray[100],
         4: palette.gray[30]
     },
     field: {
@@ -314,14 +326,28 @@ const theme = {
         2: palette.gray[600]
     }
 };
+
 const font = {
     "serif-heading": ["Sabon", "serif"],
-    "sans-heading": ["Avant Garde", "sans"],
+    "sans-heading": ["K2D", "sans"],
     "serif-text": ["Sabon", "serif"],
     "sans-text": ["Kabel", "sans"],
     code: ["Source Code Pro", "monospace"]
 };
 
+const fontSize = {
+    xs: ["0.694rem", "0.8"],
+    sm: ["0.833rem", "1.0"],
+    base: ["1rem", "1.0"],
+    lg: ["1.2rem", "1.1"],
+    xl: ["1.44rem", "1.1"],
+    "2xl": ["1.728rem", "1.1"],
+    "3xl": ["2.074rem", "1.2"],
+    "4xl": ["2.488rem", "1.25"],
+    "5xl": ["2.986rem", "1.3"],
+    "6xl": ["3.583rem", "1.35"],
+    "7xl": ["4.3rem", "1.4"]
+};
 /** @type {import('tailwindcss').Config}*/
 const config = {
     mode: "jit",
@@ -331,11 +357,12 @@ const config = {
             theme,
             system,
             interactive,
-            palette,
-            tint
+            palette
         },
         extend: {
-            fontFamily: font
+            fontSize,
+            fontFamily: font,
+            borderWidth: {}
         }
     },
     content: ["./src/**/*.{html,js,svelte,ts,stories.svelte}"],

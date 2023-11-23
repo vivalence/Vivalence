@@ -17,36 +17,35 @@
     $: {
         switch (hierarchy) {
             case "accent":
-                bgColor = outlined ? "bg-transparent" : "bg-theme-accent";
-                textColor = outlined ? "text-theme-accent" : "text-theme-text-1";
+                bgColor = !outlined ? "bg-theme-accent" : "bg-transparent";
+                textColor = !outlined ? "text-theme-text-contrast" : "text-theme-accent";
                 borderColor = "border-theme-accent";
-                hoverColor = `hover:bg-interactive-hover-accent`;
-                focusColor = "focus:bg-interactive-focus-accent";
-
+                hoverColor = `hover:bg-interactive-hover-accent hover:border-interactive-hover-accent`;
+                focusColor = "focus:bg-interactive-focus-accent focus:border-interactive-focus-accent";
                 break;
+
             case "primary":
                 bgColor = `bg-theme-primary`;
                 textColor = "text-theme-text-inverse";
                 borderColor = "border-theme-border-1";
                 hoverColor = "hover:bg-interactive-hover-primary";
                 focusColor = "focus:bg-interactive-focus-primary";
-
                 break;
+
             case "secondary":
-                bgColor = outlined ? "bg-transparent" : "bg-theme-secondary";
-                textColor = outlined ? "text-theme-text-1" : "text-theme-text-1";
+                bgColor = !outlined ? "bg-theme-secondary" : "bg-transparent";
+                textColor = !outlined ? "text-theme-text-1" : "text-theme-text-1";
                 borderColor = "border-theme-border-2";
                 hoverColor = `hover:bg-interactive-hover-secondary`;
                 focusColor = "focus:bg-interactive-focus-secondary";
-
                 break;
+
             case "destructive":
                 bgColor = outlined ? "bg-transparent" : "bg-theme-danger-1";
                 textColor = outlined ? "text-theme-danger-1" : "text-theme-text-1";
                 borderColor = "border-theme-danger-1";
                 hoverColor = `hover:bg-interactive-focus-danger`;
                 focusColor = "focus:bg-interactive-focus-danger";
-
                 break;
         }
 
@@ -74,23 +73,23 @@
                 padding = "px-2 py-1";
                 break;
             case "md":
-                padding = "px-4 py-2";
+                padding = "px-4 py-1";
                 break;
             case "lg":
-                padding = "px-6 py-3";
+                padding = "px-4 py-2";
                 break;
             case "xl":
-                padding = "px-8 py-4";
+                padding = "px-5 py-2";
                 break;
         }
 
-        borderStyles = outlined ? `${borderColor} border` : " border";
+        borderStyles = outlined ? `${borderColor} border` : `${borderColor} border`;
     }
 </script>
 
 <button
     on:click={handleClick}
-    class={`${bgColor} ${textColor} ${borderStyles} ${hoverColor} ${focusColor} ${padding} font-medium rounded-[30px] focus:outline-none`}
+    class={`${bgColor} ${textColor} ${borderStyles} ${hoverColor} ${focusColor} ${padding} font-medium rounded-xl focus:outline-none`}
 >
     {icon === "leading" ? iconComponent : ""}
     {#if icon === true}
