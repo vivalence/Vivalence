@@ -27,8 +27,8 @@
     const HORIZONTAL_BIAS = 1.3;
     let cancelled = false;
     let xstart, ystart, yend, xend;
-    const stiffness = 0.15;
-        const damping = 0.35;
+    const stiffness = 0.30;
+        const damping = 0.55;
     let x = spring(0, { stiffness, damping });
     let y = spring(0, { stiffness, damping });
 

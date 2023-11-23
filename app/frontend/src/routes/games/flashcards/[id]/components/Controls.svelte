@@ -14,7 +14,7 @@
         </FlexItem>
     {:else}
         <FlexItem classes={containerClasses}>
-            <Button size="xl" hierarchy="accent" outlined on:click={handleReview("UNKNOWN")}
+            <Button size="xl" hierarchy="primary" outlined on:click={handleReview("UNKNOWN")}
                 >Unknown</Button
             >
             <Button size="xl" hierarchy="primary" on:click={handleReview("KNOWN")}>Knew</Button>
