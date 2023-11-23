@@ -40,8 +40,8 @@
         //     break;
         case "primary":
             // backgroundClass = "bg-theme-primary";
-            backgroundClass = "bg-theme-ui-6";
-            borderClass = "border-theme-border-2";
+            backgroundClass = "bg-theme-ui-1";
+            borderClass = "border-theme-border-3";
             break;
         // case "secondary":
         //     backgroundClass = "bg-theme-secondary";
@@ -57,9 +57,9 @@
         //     break;
     }
 
-    const roundedClass = "rounded-lg";
+    const roundedClass = "rounded-xl";
     $: if (bordered) {
-        borderClass += ` border-2 `;
+        borderClass += ` border`;
     }
 
     let computedClasses;

@@ -9,6 +9,9 @@
     import FlexContainer from "../flex/Container.svelte";
     import FlexItem from "../flex/Item.svelte";
 
+    import IconCards from "../../../static/icons/data/Show-data--cards.svg";
+
+    export let showHr = false;
     export let icon;
     export let title = "";
     export let description = "";
@@ -16,7 +19,8 @@
 
     switch (icon) {
         case "FLASHCARDS":
-            icon = "data/Show-data--cards.svg";
+            icon = IconCards;
+            console.log("icon", icon, IconCards);
             break;
         default:
             icon = null;
@@ -27,8 +31,8 @@
     const handleClick = () => dispatch("primaryButtonClick");
 </script>
 
-<Container>
-    <FlexContainer direction="col" classes="bg-white py-6 rounded-lg">
+<Container borderColor="border-theme-border-2" classes="bg-theme-ui-1 hover:bg-theme-ui-2">
+    <FlexContainer direction="col" classes="py-6">
         {#if icon}
             <FlexItem shrink="1" classes="mx-6 mb-4">
                 <IconContainer bordered size="md">
@@ -47,13 +51,15 @@
             </FlexItem>
         {/if}
 
+        {#if showHr}
         <FlexItem classes="mb-3 mt-4 w-full">
             <HR />
         </FlexItem>
+        {/if}
 
         {#if handleClick}
-            <FlexItem classes="mx-6 ">
-                <Button hierarchy="secondary" on:click={handleClick}>{buttonText}</Button>
+            <FlexItem classes="mx-6 mt-3">
+                <Button hierarchy="accent" on:click={handleClick}>{buttonText}</Button>
             </FlexItem>
         {/if}
     </FlexContainer>
