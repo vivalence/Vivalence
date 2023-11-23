@@ -21,7 +21,8 @@
                 textColor = !outlined ? "text-theme-text-contrast" : "text-theme-accent";
                 borderColor = "border-theme-accent";
                 hoverColor = `hover:bg-interactive-hover-accent hover:border-interactive-hover-accent`;
-                focusColor = "focus:bg-interactive-focus-accent focus:border-interactive-focus-accent";
+                focusColor =
+                    "focus:bg-interactive-focus-accent focus:border-interactive-focus-accent";
                 break;
 
             case "primary":
@@ -41,11 +42,11 @@
                 break;
 
             case "destructive":
-                bgColor = outlined ? "bg-transparent" : "bg-theme-danger-1";
-                textColor = outlined ? "text-theme-danger-1" : "text-theme-text-1";
-                borderColor = "border-theme-danger-1";
-                hoverColor = `hover:bg-interactive-focus-danger`;
-                focusColor = "focus:bg-interactive-focus-danger";
+                bgColor = !outlined ? "bg-system-danger-2" : "bg-transparent";
+                textColor = !outlined ? "text-system-danger-2" : "text-system-danger-2";
+                borderColor = "border-system-danger-2";
+                hoverColor = `hover:bg-palette-red-50`;
+                focusColor = "focus:bg-palette-red-50";
                 break;
         }
 
