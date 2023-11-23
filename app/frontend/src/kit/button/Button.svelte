@@ -26,9 +26,9 @@
                 break;
 
             case "primary":
-                bgColor = `bg-theme-primary`;
-                textColor = "text-theme-text-inverse";
-                borderColor = "border-theme-border-1";
+                bgColor = !outlined ? `bg-theme-primary` : "bg-transparent";
+                textColor = !outlined ? "text-theme-text-inverse" : "text-theme-text-inverse";
+                borderColor = "border-theme-border-1 ";
                 hoverColor = "hover:bg-interactive-hover-primary";
                 focusColor = "focus:bg-interactive-focus-primary";
                 break;
