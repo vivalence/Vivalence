@@ -21,6 +21,14 @@ export const _ReviewSentence_Mutation = graphql(`
     mutation ReviewSentence($input: Game_Translations_ReviewSentence_Input!) {
         Game_Translations_ReviewSentence(input: $input) {
             gameId
+            parts {
+                part
+                correction
+                translation
+                classification
+            }
+            correction
+            classification
         }
     }
 `);
