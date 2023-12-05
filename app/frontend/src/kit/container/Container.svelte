@@ -3,7 +3,10 @@
     import FlexContainer from "../flex/Container.svelte";
     import Item from "../flex/Item.svelte";
 
+    export let bgColor = "bg-theme-ui-1";
     export let borderColor = "border-theme-border-1";
+    export let border = "border";
+
     export let classes = "";
     export let title = "";
 
@@ -12,7 +15,7 @@
     $: showHeader = !!title;
 </script>
 
-<div class={`container bg-theme-ui-1 ${borderColor} border rounded-xl px-6 pt-2 pb-6 ${classes}`}>
+<div class={`container  ${classes} ${bgColor} ${borderColor} ${border} rounded-xl px-6 pt-2 pb-6 `}>
     <FlexContainer direction="col">
         {#if showHeader}
             <Item shrink="shrink-1" classes="px-3 py-4 mb-2">

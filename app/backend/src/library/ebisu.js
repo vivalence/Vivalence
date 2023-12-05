@@ -1,7 +1,8 @@
 import * as ebisu from "ebisu-js";
 
-// provides a defaul model thats used when a node is reviewed for the first time
 const DECAY_THRESHOLD = 0.75;
+
+// provides a defaul model thats used when a node is reviewed for the first time
 export const getDefaultModel = ({ alpha = 4, beta = 4, tau = 0.1 }) =>
     ebisu.defaultModel(tau, alpha, beta);
 
@@ -25,7 +26,7 @@ export const defaults = {
     init: {
         unknown: 0.1,
         known: 1,
-        graduate: 24
+        graduate: 24,
     },
-    graduateScale: 10
+    graduateScale: 10,
 };

@@ -1,5 +1,6 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = ["orderByRelation"]
 }
 
 generator pothos {
@@ -11,149 +12,6 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
-
-//
-// App
-// 
-
-model User {
-    // Meta
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    // It
-    // name     String
-    // Down
-    // curriculums Curriculum[]
-}
-
-model Unit {
-    // Meta
-    id                  String                   @id @default(cuid())
-    createdAt           DateTime                 @default(now())
-    updatedAt           DateTime                 @default(now()) @updatedAt
-    // It
-    data                Json
-    corpusId            String
-    unitType            UnitTypeEnum             @default(WORD)
-    status              UnitStatusEnum           @default(UNKNOWN)
-    // Up
-    curriculumRelations CurriculumUnitRelation[]
-    gameRelations       GameUnitRelation[]
-
-    @@unique([corpusId, unitType]) // + userId 
-}
-
-model Curriculum {
-    // Meta
-    id            String                   @id @default(cuid())
-    createdAt     DateTime                 @default(now())
-    updatedAt     DateTime                 @default(now()) @updatedAt
-    // It
-    name          String
-    // Down
-    gameRelations CurriculumGameRelation[]
-    unitRelations CurriculumUnitRelation[]
-}
-
-model Game {
-    // Meta
-    id                 String                  @id @default(cuid())
-    createdAt          DateTime                @default(now())
-    updatedAt          DateTime                @default(now()) @updatedAt
-    // It
-    type               GameTypeEnum
-    // Relations
-    curriculumRelation CurriculumGameRelation?
-    unitRelations      GameUnitRelation[]
-}
-
-model CurriculumUnitRelation {
-    // Meta
-    id           String     @id @default(cuid())
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @default(now()) @updatedAt
-    // It
-    index        Int
-    // Relations
-    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
-    curriculumId String
-    unit         Unit       @relation(fields: [unitId], references: [id])
-    unitId       String
-
-    @@unique([unitId, curriculumId])
-}
-
-model GameUnitRelation {
-    // Meta
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    history   Json     @default("[]")
-    // It
-    nextPlay  DateTime
-    lastPlay  DateTime
-    state     Json
-    // Relations
-    unit      Unit     @relation(fields: [unitId], references: [id])
-    unitId    String
-    game      Game     @relation(fields: [gameId], references: [id])
-    gameId    String
-
-    @@unique([unitId, gameId])
-}
-
-model CurriculumGameRelation {
-    // Meta
-    id           String     @id @default(cuid())
-    createdAt    DateTime   @default(now())
-    updatedAt    DateTime   @default(now()) @updatedAt
-    // Relations
-    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
-    curriculumId String
-    game         Game       @relation(fields: [gameId], references: [id])
-    gameId       String     @unique
-    // It
-    mask         Mask       @relation(fields: [maskId], references: [id])
-    maskId       String
-
-    @@unique([gameId, curriculumId])
-}
-
-enum GameTypeEnum {
-    FLASHCARDS
-}
-
-enum UnitTypeEnum {
-    WORD
-    VERB_CONJUGATION
-    VERB_STEM
-    VERB_ENDING
-}
-
-enum UnitStatusEnum {
-    HIDDEN // not yet known but dont show
-    PRIORITIZED // start learning asp
-    UNKNOWN // not yet being learned
-    LEARNING // being learned 
-    KNOWN // sufficiently learned
-    GRADUATED // sufficiently learned and not Showing anymore
-}
-
-model Mask {
-    // Meta
-    id                     String                   @id @default(cuid())
-    createdAt              DateTime                 @default(now())
-    updatedAt              DateTime                 @default(now()) @updatedAt
-    // It
-    data                   Json
-    // relations
-    CurriculumGameRelation CurriculumGameRelation[]
-}
-
-//
-// CORPUS
-// 
 
 model Word {
     // Meta
@@ -181,52 +39,27 @@ model Conjugation {
     updatedAt DateTime @default(now()) @updatedAt
 
     // It
-    value     String
-    tense     TenseEnum
-    performer PerformerEnum
-    ending    EndingEnum
-    mood      MoodEnum
+    spanish   String
+    english   String?
+    tense     TenseEnum     @default(NON_TEMPORAL)
+    performer PerformerEnum @default(NON_FINITE)
+    mood      MoodEnum      @default(NON_FINITE)
+    ending    EndingEnum?
 
     // Up
     verb   Word   @relation(fields: [verbId], references: [id])
     verbId String
 
     // Down
-    verbStem   VerbStem?
-    verbEnding VerbEnding?
+    // verbStem   VerbStem?
+    // verbEnding VerbEnding?
 
     @@unique([verbId, tense, performer, mood])
 }
 
-model VerbStem {
-    // Meta
-    id            String       @id @default(cuid())
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @default(now()) @updatedAt
-    // It
-    value         String
-    tense         TenseEnum
-    mood          MoodEnum
-    // Up
-    conjugation   Conjugation? @relation(fields: [conjugationId], references: [id])
-    conjugationId String?      @unique
-}
+// model VerbStem {// Meta id            String       @id @default(cuid()) createdAt     DateTime     @default(now()) updatedAt     DateTime     @default(now()) @updatedAt // It value         String tense         TenseEnum mood          MoodEnum // Up conjugation   Conjugation? @relation(fields: [conjugationId], references: [id]) conjugationId String?      @unique}
 
-model VerbEnding {
-    // Meta
-    id            String        @id @default(cuid())
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @default(now()) @updatedAt
-    // It
-    value         String
-    ending        EndingEnum
-    tense         TenseEnum
-    performer     PerformerEnum
-    mood          MoodEnum
-    // Up
-    conjugation   Conjugation?  @relation(fields: [conjugationId], references: [id])
-    conjugationId String?       @unique
-}
+// model VerbEnding {// Meta id            String        @id @default(cuid()) createdAt     DateTime      @default(now()) updatedAt     DateTime      @default(now()) @updatedAt // It value         String ending        EndingEnum tense         TenseEnum performer     PerformerEnum mood          MoodEnum // Up conjugation   Conjugation?  @relation(fields: [conjugationId], references: [id]) conjugationId String?       @unique}
 
 enum MoodEnum {
     INDICATIVO
@@ -235,6 +68,13 @@ enum MoodEnum {
     IMPERATIVO_NEGATIVO
     NON_FINITE
 }
+
+// enum GenderEnum {
+//     MASCULINO
+//     FEMENINO
+//     NEUTRO
+//     NOT_GENDERED
+// }
 
 enum TenseEnum {
     INFINITIVO
@@ -252,16 +92,17 @@ enum TenseEnum {
     PRESENTE_PERFECTO
     PRETERITO_ANTERIOR
     CONDICIONAL_PERFECTO
+    NON_TEMPORAL
 }
 
 enum PerformerEnum {
-    NON_FINITE
     YO
     TU
     EL_ELLA_USTED
     NOSOTROS_NOSOTRAS
     VOSOTROS_VOSOTRAS
     ELLOS_ELLAS_USTEDES
+    NON_FINITE
 }
 
 enum EndingEnum {
@@ -301,3 +142,160 @@ enum WordTypeEnum {
     // V_P
     SPEAKERS
 }
+
+model User {
+    // Meta
+    id               String             @id @default(cuid())
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @default(now()) @updatedAt
+    // It
+    // Down
+    unitUserRelation UnitUserRelation[]
+}
+
+model Unit {
+    // Meta
+    id                  String                   @id @default(cuid())
+    createdAt           DateTime                 @default(now())
+    updatedAt           DateTime                 @default(now()) @updatedAt
+    // It
+    data                Json
+    corpusId            String
+    unitType            UnitTypeEnum             @default(WORD)
+    status              UnitStatusEnum           @default(UNKNOWN)
+    // Up
+    curriculumRelations CurriculumUnitRelation[]
+    gameRelations       GameUnitRelation[]
+    unitUserRelation    UnitUserRelation[]
+
+    @@unique([corpusId, unitType]) // + userId 
+}
+
+model Curriculum {
+    // Meta
+    id            String                   @id @default(cuid())
+    createdAt     DateTime                 @default(now())
+    updatedAt     DateTime                 @default(now()) @updatedAt
+    // It
+    name          String
+    // Down
+    gameRelations CurriculumGameRelation[]
+    unitRelations CurriculumUnitRelation[]
+}
+
+model Game {
+    // Meta
+    id                 String                  @id @default(cuid())
+    createdAt          DateTime                @default(now())
+    updatedAt          DateTime                @default(now()) @updatedAt
+    // It
+    type               GameTypeEnum
+    // Relations
+    curriculumRelation CurriculumGameRelation?
+    unitRelations      GameUnitRelation[]
+}
+
+model UnitUserRelation {
+    // Meta
+    id        String         @id @default(cuid())
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @default(now()) @updatedAt
+    // history   Json     @default("[]")
+    // It
+    status    UnitStatusEnum @default(UNKNOWN)
+    state     Json           @default("{}")
+    // Relations
+    unit      Unit           @relation(fields: [unitId], references: [id])
+    user      User           @relation(fields: [userId], references: [id])
+    unitId    String
+    userId    String
+
+    @@unique([unitId, userId])
+}
+
+model CurriculumUnitRelation {
+    // Meta
+    id           String     @id @default(cuid())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    // It
+    index        Int
+    // Relations
+    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+    curriculumId String
+    unit         Unit       @relation(fields: [unitId], references: [id])
+    unitId       String
+
+    @@unique([unitId, curriculumId])
+}
+
+model GameUnitRelation {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    history   Json     @default("[]")
+    // It
+    nextPlay  DateTime
+    lastPlay  DateTime
+    state     Json     @default("{}")
+    // Relations
+    unit      Unit     @relation(fields: [unitId], references: [id])
+    unitId    String
+    game      Game     @relation(fields: [gameId], references: [id])
+    gameId    String
+
+    @@unique([unitId, gameId])
+}
+
+model CurriculumGameRelation {
+    // Meta
+    id           String     @id @default(cuid())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    // Relations
+    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+    curriculumId String
+    game         Game       @relation(fields: [gameId], references: [id])
+    gameId       String     @unique
+    // It
+    mask         Mask       @relation(fields: [maskId], references: [id])
+    maskId       String
+
+    @@unique([gameId, curriculumId])
+}
+
+enum GameTypeEnum {
+    FLASHCARDS
+    TRANSLATIONS
+}
+
+enum UnitTypeEnum {
+    WORD
+    CONJUGATION
+}
+
+enum UnitStatusEnum {
+    HIDDEN // not yet known but dont show
+    PRIORITIZED // start learning asp
+    UNKNOWN // not yet being learned
+    LEARNING // being learned 
+    KNOWN // sufficiently learned
+    GRADUATED // sufficiently learned and not Showing anymore
+}
+
+model Mask {
+    // Meta
+    id                     String                   @id @default(cuid())
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @default(now()) @updatedAt
+    // It
+    data                   Json
+    // relations
+    CurriculumGameRelation CurriculumGameRelation[]
+}
+
+//
+// CORPUS
+// 
+

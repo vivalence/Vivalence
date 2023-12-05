@@ -1,27 +1,20 @@
 import { PrismaClient } from "@prisma/client";
 
-const sourcePrisma = new PrismaClient({
-    datasources: {
-        db: {
-            url: "postgresql://valence:a87%24%26Fhasds9@db.valence.education:5432/valence-spanish?sslmode=disable"
-        }
-    }
-});
-const targetPrisma = new PrismaClient({
-    datasources: {
-        db: {
-            url: "postgresql://valence:DUMMY@localhost:5432/valence-spanish-vII"
-        }
-    }
-});
+const prisma = new PrismaClient({});
 
 async function mainOne() {
     const data = {
-        type: "FLASHCARDS",
-        curriculum: { connect: { id: "clnt1os200000g04mn5i16991" } }
+        type: "TRANSLATIONS",
+
+        curriculumRelation: {
+            create: {
+                curriculum: { connect: { id: "clpl75uu00000g0mwkivlcucv" } },
+                mask: { create: { data: {} } },
+            },
+        },
     };
 
-    const update = await targetPrisma.game.create({ data });
+    const update = await prisma.game.create({ data });
 }
 async function main() {
     let index = 0;
@@ -33,13 +26,13 @@ async function main() {
             createdAt: review.createdAt,
             updatedAt: review.updatedAt,
             unit: {
-                connect: { corpusId_corpusType: { corpusId: review.itemId, corpusType: "WORD" } }
+                connect: { corpusId_corpusType: { corpusId: review.itemId, corpusType: "WORD" } },
             },
             game: { connect: { id: "clnt1upox0000g0iddrya4pr4" } },
             nextPlay: review.nextReview,
             lastPlay: review.lastReview,
             state: review.model,
-            history: []
+            history: [],
         };
 
         const update = await targetPrisma.gameUnitRelation.create({ data });
@@ -47,4 +40,4 @@ async function main() {
     }
 }
 
-await main();
+await mainOne();

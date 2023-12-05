@@ -1,5 +1,4 @@
 import { performerEnum, removeDiacritics } from "./lib.js";
-
 import { PrismaClient } from "@prisma/client";
 import grammarData from "./conjugation.json";
 // import wordsData from "./words.json";
@@ -15,8 +14,9 @@ async function main() {
         index++;
 
         try {
+            return;
             const word = await prisma.word.findMany({
-                where: { spanish: grammar.infinitive, type: "V" }
+                where: { spanish: grammar.infinitive, type: "V" },
             });
 
             if (!word.length > 0) {

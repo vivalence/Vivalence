@@ -19,6 +19,7 @@ const GameType = builder.prismaObject("Game", {
 });
 
 export const GameTypeEnumMap = {
+    TRANSLATIONS: "Translations",
     FLASHCARDS: "Flashcards",
 };
 

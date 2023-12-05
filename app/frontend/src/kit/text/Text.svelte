@@ -1,9 +1,10 @@
 <script>
-    export let variant = "text";   // 'heading', 'text', 'code'
-    export let weight = "regular"; // 'regular', 'light', 'medium', 'heavy'
-    export let size = "md";        // 'xs', 'sm', 'md', 'lg', 'xl'
-    export let color = "theme-text-1";   // "link", "text-1", "text-2", "placeholder", "contrast", "hint", "disabled", "error", "inverse"
-    export let elementType = "p";  // 'h1', 'h2', 'h3', 'p', 'span'
+    export let variant = "text"; // 'heading', 'text', 'code'
+    export let weight = "regular"; // thin 'regular', 'light', 'medium', 'heavy'
+    export let size = "md"; // 'xs', 'sm', 'md', 'lg', 'xl'
+    export let color = "theme-text-1"; // "link", "text-1", "text-2", "placeholder", "contrast", "hint", "disabled", "error", "inverse"
+    export let as = undefined; // 'h1', 'h2', 'h3', 'p', 'span'
+    export let elementType = "p"; // 'h1', 'h2', 'h3', 'p', 'span'
     export let serif = false;
     export let italic = false;
     export let classes = "";
@@ -29,6 +30,9 @@
             case "regular":
                 computedClass += " font-regular";
                 break;
+            case "thin":
+                computedClass += " font-thin";
+                break;
             case "light":
                 computedClass += " font-light";
                 break;
@@ -41,23 +45,8 @@
         }
 
         // Font Size
-        switch (size) {
-            case "xs":
-                computedClass += " text-xs";
-                break;
-            case "sm":
-                computedClass += " text-sm";
-                break;
-            case "md":
-                computedClass += " text-base";
-                break;
-            case "lg":
-                computedClass += " text-lg";
-                break;
-            case "xl":
-                computedClass += " text-xl";
-                break;
-        }
+        // switch (size) {case "xs": computedClass += " text-xs"; break; case "sm": computedClass += " text-sm"; break; case "md": computedClass += " text-base"; break; case "lg": computedClass += " text-lg"; break; case "xl": computedClass += " text-xl"; break;}
+        computedClass += ` text-${size}`;
 
         // Font Color
         computedClass += ` text-${color}`;
@@ -69,7 +58,7 @@
     }
 </script>
 
-<svelte:element this={elementType} class="{computedClass} {classes}">
+<svelte:element this={as || elementType} class="{computedClass} {classes}">
     <slot />
 </svelte:element>
 
