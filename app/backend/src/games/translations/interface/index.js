@@ -3,6 +3,7 @@
 import { prisma } from "../../../prisma-client.js";
 import { builder } from "../../../pothos-client/builder.js";
 
+import evaluate from "../logic/evaluate.js";
 import generateSentence from "../logic/generate.js";
 // import { getNextGameUnit } from "../logic/getNextGameUnit.js";
 
@@ -12,16 +13,16 @@ import generateSentence from "../logic/generate.js";
 
 builder.inputType("Game_Translations_GetSentence_Input", {
     fields: (t) => ({
-        gameId: t.field({ type: "ID", required: true }),
+        gameId: t.id({ required: true }),
     }),
 });
 
 builder.inputType("Game_Translations_ReviewSentence_Input", {
     fields: (t) => ({
-        gameId: t.field({ type: "ID", required: true }),
-        learning: t.field({ type: "String", required: true }),
-        spoken: t.field({ type: "String", required: true }),
-        input: t.field({ type: "String", required: true }),
+        gameId: t.id({ required: true }),
+        learning: t.string({ required: true }),
+        spoken: t.string({ required: true }),
+        input: t.string({ required: true }),
     }),
 });
 
@@ -73,18 +74,21 @@ builder.mutationFields((t) => ({
 
         resolve: async (root, { input }, _) => {
             try {
-                console.log("input", input);
-                const { gameId, learning, spoken, input: userInput } = input;
-                const game = await prisma.game.findUnique({ where: { id: gameId } });
-                // how the fuck do i review?
+                const {
+                    gameId,
+                    learning: learningSentence,
+                    spoken: spokenSentence,
+                    input: userInput,
+                } = input;
 
-                // let gameUnitRelation = await GameUnitRelation.get(input);
-                // if (gameUnitRelation) {
-                //     gameUnitRelation = await GameUnitRelation.update(input, gameUnitRelation);
-                // } else {
-                //     gameUnitRelation = await GameUnitRelation.create(input);
-                // }
-                // return gameUnitRelation;
+                const evaluation = await evaluate({
+                    learningLanguage: "spanish",
+                    spokenLanguage: "english",
+                    userInput,
+                    sentence: { learning: learningSentence, spoken: spokenSentence },
+                });
+                evaluation.gameId = gameId;
+                return evaluation;
             } catch (e) {
                 console.log("ERROR", e);
                 throw e;
@@ -99,18 +103,56 @@ builder.mutationFields((t) => ({
 
 builder.objectType("Game_Translations_Sentence", {
     fields: (t) => ({
-        spoken: t.field({ type: "String", resolve: ({ sentenceSpoken }) => sentenceSpoken }),
-        learning: t.field({ type: "String", resolve: ({ sentenceLearning }) => sentenceLearning }),
+        spoken: t.string({ resolve: ({ sentenceSpoken }) => sentenceSpoken }),
+        learning: t.string({ resolve: ({ sentenceLearning }) => sentenceLearning }),
     }),
 });
 
 builder.objectType("Game_Translations_ReviewSentence_Response", {
     fields: (t) => ({
-        gameId: t.field({ type: "ID", resolve: ({ gameId }) => gameId }),
+        gameId: t.id({ required: true, resolve: ({ gameId }) => gameId }),
+        parts: t.field({
+            type: ["Game_Translations_ReviewSentence_Part"],
+            list: true,
+            required: true,
+            resolve: ({ parts }) => parts,
+        }),
+        correction: t.string({
+            nullable: true,
+            resolve: ({ correction }) => correction,
+        }),
+        score: t.float({ required: true, resolve: ({ score }) => score }),
+        classification: t.field({
+            type: "Game_Translations_ReviewSentence_Classification_Enum",
+            required: true,
+            resolve: ({ classification }) => classification,
+        }),
+        feedback: t.string({ required: true, resolve: ({ feedback }) => feedback }),
     }),
 });
 
-// // Enums
-// builder.enumType("Game_Flashcards_ReviewResponses_Enum", {
-//     values: ["KNOWN", "UNKNOWN", "GRADUATE"],
-// });
+builder.objectType("Game_Translations_ReviewSentence_Part", {
+    fields: (t) => ({
+        part: t.string({
+            required: true,
+            resolve: ({ part }) => part,
+        }),
+        correction: t.string({
+            nullable: true,
+            resolve: ({ correction }) => correction,
+        }),
+        translation: t.string({
+            required: true,
+            resolve: ({ translation }) => translation,
+        }),
+        classification: t.field({
+            type: "Game_Translations_ReviewSentence_Classification_Enum",
+            required: true,
+            resolve: ({ classification }) => classification,
+        }),
+    }),
+});
+
+builder.enumType("Game_Translations_ReviewSentence_Classification_Enum", {
+    values: ["correct", "info", "mistake", "failure"],
+});

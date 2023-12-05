@@ -5,8 +5,8 @@
     import FlexContainer from "$kit/flex/Container.svelte";
     import FlexItem from "$kit/flex/Item.svelte";
 
-    import TranslationInput from "./components/TranslationsInput.svelte";
-    // import TranslationReview from "./components/TranslationReview.svelte";
+    import TranslationsInput from "./components/TranslationsInput.svelte";
+import TranslationsReview from "./components/TranslationsReview.svelte";
     // import Controls from "./components/Controls.svelte";
 
     import { gameStore } from "./store.js";
@@ -14,6 +14,8 @@
     onMount(async () => {
         gameStore.init({ gameId: $page.params.id });
     });
+    $: console.log($gameStore);
+  // display error
 </script>
 
 <FlexContainer
@@ -23,9 +25,10 @@
 >
     <FlexItem>
         {#if $gameStore.sentence && !$gameStore.revealed}
-            <TranslationInput />
-            <!-- {:else if $translationsStore.revealed} -->
-            <!--     <TranslationReview /> -->
+            <TranslationsInput />
+        {:else if $gameStore.revealed}
+            <TranslationsReview />
+
             <!-- {:else} -->
             <!--     <\!-- <Loading/> -\-> -->
             <!--     <h1>loading</h1> -->

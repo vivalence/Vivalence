@@ -7,7 +7,8 @@ function createGameStore() {
         gameId: null,
         input: null,
         sentence: null,
-        review: null
+        review: null,
+        error: null
     });
     const { subscribe, set, update } = Store;
 
@@ -17,42 +18,62 @@ function createGameStore() {
         return response.data.Game_Translations_GetSentence;
     };
 
-    const submitReview = async () => {
-        const { gameId, sentence, input } = get(Store);
-        const mutationInput = { input: { gameId, ...sentence, input } };
-        const response = await _ReviewSentence_Mutation.mutate(mutationInput);
-        console.log("response", response);
-        // return response.data.Game_TranslationsReview;
-    };
-
     return {
         subscribe,
         init: async ({ gameId }) => {
             const sentence = await fetchSentence(gameId);
             set({
                 gameId,
-                revealed: false,
+                revealed: true,
                 sentence,
-                review: null,
-                input: "Lorem Ipsum"
+                error: null,
+                review: {
+                    gameId: "clpr5668n0000g01pvnkghden",
+                    parts: [
+                        {
+                            part: "El año",
+                            correction: null,
+                            translation: "The year",
+                            classification: "correct"
+                        },
+                        {
+                            part: "vas",
+                            correction: "va a ser",
+                            translation: "is going to be",
+                            classification: "mistake"
+                        },
+                        {
+                            part: "muy bueno",
+                            correction: "genial",
+                            translation: "great",
+                            classification: "info"
+                        }
+                    ],
+                    correction: "Este año va a ser genial",
+                    classification: "mistake"
+                },
+                input: ""
             });
         },
         setInput: (input) => update((s) => ({ ...s, input })),
         reveal: (revealed = null) =>
             update((s) => ({ ...s, revealed: revealed === null ? !s.revealed : revealed })),
-        submitReview: submitReview,
-        // loadReview: async (input) => {
-        // const review = await submitReview(input);
-        // update((s) => ({ ...s, review }));
-        // },
+        submitReview: async () => {
+            const { gameId, sentence, input } = get(Store);
+            const mutationInput = { input: { gameId, ...sentence, input } };
+            const response = await _ReviewSentence_Mutation.mutate(mutationInput);
+            const error = response.errors && response.errors[0];
+            if (error) {
+                console.error("ERROR", error);
+                update((s) => ({ ...s, error }));
+            } else {
+                const review = response.data.Game_Translations_ReviewSentence;
+                update((s) => ({ ...s, review }));
+            }
+        },
         requestNewSentence: async (gameId) => {
             const newSentence = await fetchSentence(gameId);
-            set({
-                revealed: false,
-                sentence: newSentence,
-                review: null,
-                input: null
-            });
+            //
         }
     };
 }

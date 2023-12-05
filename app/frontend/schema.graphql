@@ -62,6 +62,13 @@ input Game_Translations_GetSentence_Input {
   gameId: ID!
 }
 
+enum Game_Translations_ReviewSentence_Classification_Enum {
+  correct
+  failure
+  info
+  mistake
+}
+
 input Game_Translations_ReviewSentence_Input {
   gameId: ID!
   input: String!
@@ -69,8 +76,20 @@ input Game_Translations_ReviewSentence_Input {
   spoken: String!
 }
 
+type Game_Translations_ReviewSentence_Part {
+  classification: Game_Translations_ReviewSentence_Classification_Enum!
+  correction: String
+  part: String!
+  translation: String!
+}
+
 type Game_Translations_ReviewSentence_Response {
+  classification: Game_Translations_ReviewSentence_Classification_Enum!
+  correction: String
+  feedback: String!
   gameId: ID!
+  parts: [Game_Translations_ReviewSentence_Part!]!
+  score: Float!
 }
 
 type Game_Translations_Sentence {
