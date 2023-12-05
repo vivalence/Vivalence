@@ -5,14 +5,23 @@
     export let state = "default";
     export let hierarchy = "primary";
     export let size = "md";
-    export let iconComponent = undefined;
     export let outlined = false;
     export let icon = false;
+    export let iconClass = "";
+    export let IconComponent = undefined;
 
     const dispatch = createEventDispatcher();
     const handleClick = () => dispatch("click");
 
-    let bgColor, textColor, borderColor, padding, borderStyles, hoverColor, focusColor;
+    let bgColor,
+        textColor,
+        borderColor,
+        padding,
+        borderStyles,
+        hoverColor,
+        focusColor,
+        rounded,
+        iconSize;
 
     $: {
         switch (hierarchy) {
@@ -72,29 +81,47 @@
         switch (size) {
             case "sm":
                 padding = "px-2 py-1";
+                if (icon === true) {
+                    padding = "p-1";
+                    iconSize = 16;
+                }
                 break;
             case "md":
                 padding = "px-4 py-1";
+                if (icon === true) {
+                    padding = "p-2";
+                    iconSize = 24;
+                }
                 break;
             case "lg":
                 padding = "px-4 py-2";
+                if (icon === true) {
+                    padding = "p-3";
+                    iconSize = 32;
+                }
                 break;
             case "xl":
                 padding = "px-5 py-2";
+                if (icon === true) {
+                    padding = "p-4";
+                    iconSize = 40;
+                }
                 break;
         }
-
+        rounded = icon !== true ? "rounded-xl" : "rounded-full";
         borderStyles = outlined ? `${borderColor} border` : `${borderColor} border`;
     }
 </script>
 
 <button
     on:click={handleClick}
-    class={`${bgColor} ${textColor} ${borderStyles} ${hoverColor} ${focusColor} ${padding} font-medium rounded-xl focus:outline-none`}
+    class={`${bgColor} ${textColor} ${borderStyles} ${hoverColor} ${focusColor} ${padding} font-medium ${rounded} focus:outline-none`}
 >
-    {icon === "leading" ? iconComponent : ""}
+    {#if icon === "leading"}
+        <svelte:component this={IconComponent} size={iconSize} class={iconClass} />
+    {/if}
     {#if icon === true}
-        {iconComponent}
+        <svelte:component this={IconComponent} size={iconSize} class={iconClass} />
     {:else}
         <Text {size} color="inherit" weight="medium" elementType="span"><slot /></Text>
     {/if}

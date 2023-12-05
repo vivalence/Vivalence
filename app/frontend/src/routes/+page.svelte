@@ -1,8 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
 
-    import Container from "../kit/container/Container.svelte";
-    import GameCard from "../kit/card/GameCard.svelte";
+    import Container from "$kit/container/Container.svelte";
+    import GameCard from "$kit/card/GameCard.svelte";
 
     export let data;
     $: ({ CurriculumsRead } = data);
@@ -10,7 +10,6 @@
     const playGame = (game) => () => {
         goto(`/games/${game.type.toLowerCase()}/${game.id}`);
     };
-    $: console.log("$CurriculumsRead.data", $CurriculumsRead);
 </script>
 
 <div class="pt-6 px-4">

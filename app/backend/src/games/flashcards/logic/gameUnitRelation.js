@@ -1,7 +1,7 @@
 import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../../utils/time.js";
 import { prisma } from "../../../prisma-client.js";
 
-import * as ebisu from "./ebisu.js";
+import * as ebisu from "../../../library/ebisu.js";
 
 // export async function updateGameUnitRelation(gameUnitRelationUpdate) {
 //     try {

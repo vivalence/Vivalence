@@ -1,8 +1,8 @@
 <script>
     import { flashcardsStore } from "../store.js"; // assuming you export it with this name
-    import Button from "../../../../../kit/button/Button.svelte";
-    import FlexContainer from "../../../../../kit/flex/Container.svelte";
-    import FlexItem from "../../../../../kit/flex/Item.svelte";
+    import Button from "$kit/button/Button.svelte";
+    import FlexContainer from "$kit/flex/Container.svelte";
+    import FlexItem from "$kit/flex/Item.svelte";
     const handleReview = (review) => () => flashcardsStore.review(review);
     const containerClasses = "border rounded-xl bg-theme-ui-3 border-theme-border-2 p-2";
 </script>

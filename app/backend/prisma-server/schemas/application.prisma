@@ -1,0 +1,155 @@
+model User {
+    // Meta
+    id               String             @id @default(cuid())
+    createdAt        DateTime           @default(now())
+    updatedAt        DateTime           @default(now()) @updatedAt
+    // It
+    // Down
+    unitUserRelation UnitUserRelation[]
+}
+
+model Unit {
+    // Meta
+    id                  String                   @id @default(cuid())
+    createdAt           DateTime                 @default(now())
+    updatedAt           DateTime                 @default(now()) @updatedAt
+    // It
+    data                Json
+    corpusId            String
+    unitType            UnitTypeEnum             @default(WORD)
+    status              UnitStatusEnum           @default(UNKNOWN)
+    // Up
+    curriculumRelations CurriculumUnitRelation[]
+    gameRelations       GameUnitRelation[]
+    unitUserRelation    UnitUserRelation[]
+
+    @@unique([corpusId, unitType]) // + userId 
+}
+
+model Curriculum {
+    // Meta
+    id            String                   @id @default(cuid())
+    createdAt     DateTime                 @default(now())
+    updatedAt     DateTime                 @default(now()) @updatedAt
+    // It
+    name          String
+    // Down
+    gameRelations CurriculumGameRelation[]
+    unitRelations CurriculumUnitRelation[]
+}
+
+model Game {
+    // Meta
+    id                 String                  @id @default(cuid())
+    createdAt          DateTime                @default(now())
+    updatedAt          DateTime                @default(now()) @updatedAt
+    // It
+    type               GameTypeEnum
+    // Relations
+    curriculumRelation CurriculumGameRelation?
+    unitRelations      GameUnitRelation[]
+}
+
+model UnitUserRelation {
+    // Meta
+    id        String         @id @default(cuid())
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @default(now()) @updatedAt
+    // history   Json     @default("[]")
+    // It
+    status    UnitStatusEnum @default(UNKNOWN)
+    state     Json           @default("{}")
+    // Relations
+    unit      Unit           @relation(fields: [unitId], references: [id])
+    user      User           @relation(fields: [userId], references: [id])
+    unitId    String
+    userId    String
+
+    @@unique([unitId, userId])
+}
+
+model CurriculumUnitRelation {
+    // Meta
+    id           String     @id @default(cuid())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    // It
+    index        Int
+    // Relations
+    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+    curriculumId String
+    unit         Unit       @relation(fields: [unitId], references: [id])
+    unitId       String
+
+    @@unique([unitId, curriculumId])
+}
+
+model GameUnitRelation {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    history   Json     @default("[]")
+    // It
+    nextPlay  DateTime
+    lastPlay  DateTime
+    state     Json     @default("{}")
+    // Relations
+    unit      Unit     @relation(fields: [unitId], references: [id])
+    unitId    String
+    game      Game     @relation(fields: [gameId], references: [id])
+    gameId    String
+
+    @@unique([unitId, gameId])
+}
+
+model CurriculumGameRelation {
+    // Meta
+    id           String     @id @default(cuid())
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @default(now()) @updatedAt
+    // Relations
+    curriculum   Curriculum @relation(fields: [curriculumId], references: [id])
+    curriculumId String
+    game         Game       @relation(fields: [gameId], references: [id])
+    gameId       String     @unique
+    // It
+    mask         Mask       @relation(fields: [maskId], references: [id])
+    maskId       String
+
+    @@unique([gameId, curriculumId])
+}
+
+enum GameTypeEnum {
+    FLASHCARDS
+    TRANSLATIONS
+}
+
+enum UnitTypeEnum {
+    WORD
+    CONJUGATION
+}
+
+enum UnitStatusEnum {
+    HIDDEN // not yet known but dont show
+    PRIORITIZED // start learning asp
+    UNKNOWN // not yet being learned
+    LEARNING // being learned 
+    KNOWN // sufficiently learned
+    GRADUATED // sufficiently learned and not Showing anymore
+}
+
+model Mask {
+    // Meta
+    id                     String                   @id @default(cuid())
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @default(now()) @updatedAt
+    // It
+    data                   Json
+    // relations
+    CurriculumGameRelation CurriculumGameRelation[]
+}
+
+//
+// CORPUS
+// 

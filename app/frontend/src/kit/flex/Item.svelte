@@ -1,5 +1,5 @@
 <script>
-    export let grow = ""; // empty means use the default flex-grow behavior
+    export let grow = undefined // empty means use the default flex-grow behavior
     export let shrink = ""; // empty means use the default flex-shrink behavior
     export let basis = "auto"; // default to flex-auto
     export let order = ""; // no default order
@@ -9,7 +9,7 @@
     let computedClasses;
     $: {
         computedClasses = ``;
-        computedClasses += grow ? ` grow-${grow}` : "";
+        computedClasses += grow !== undefined && grow !== "0" ? ` grow` : "";
         computedClasses += shrink ? ` shrink-${shrink}` : "";
         computedClasses += basis ? ` basis-${basis}` : "";
         computedClasses += order ? ` order-${order}` : "";

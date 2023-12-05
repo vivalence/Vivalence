@@ -27,6 +27,7 @@ type Game {
 
 enum GameTypeEnum {
   FLASHCARDS
+  TRANSLATIONS
 }
 
 type Game_Flashcards_Card {
@@ -57,6 +58,26 @@ type Game_Flashcards_UpdateCard_Response {
   unitId: ID!
 }
 
+input Game_Translations_GetSentence_Input {
+  gameId: ID!
+}
+
+input Game_Translations_ReviewSentence_Input {
+  gameId: ID!
+  input: String!
+  learning: String!
+  spoken: String!
+}
+
+type Game_Translations_ReviewSentence_Response {
+  gameId: ID!
+}
+
+type Game_Translations_Sentence {
+  learning: String!
+  spoken: String!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -64,10 +85,12 @@ scalar JSON
 
 type Mutation {
   Game_Flashcards_UpdateCard(input: Game_Flashcards_UpdateCard_Input!): Game_Flashcards_UpdateCard_Response!
+  Game_Translations_ReviewSentence(input: Game_Translations_ReviewSentence_Input!): Game_Translations_ReviewSentence_Response!
 }
 
 type Query {
   Game_Flashcards_GetCards(input: Game_Flashcards_GetCards_Input!): [Game_Flashcards_Card!]!
+  Game_Translations_GetSentence(input: Game_Translations_GetSentence_Input!): Game_Translations_Sentence!
   curriculumsRead: [Curriculum!]!
   gameRead(id: ID!): Game!
 }

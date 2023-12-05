@@ -2,23 +2,24 @@ const palette = {
     white: "#F2F4F6",
     black: "#030D0D",
     gray: {
-        10: "#ffffff",
-        20: "#ebedef",
-        30: "#d8dcdf",
-        40: "#c5cacf",
-        50: "#b3b9bf",
-        60: "#a2a8af",
-        70: "#90989f",
-        80: "#80888f",
-        90: "#6f7780",
-        100: "#606870",
-        200: "#505860",
-        300: "#414850",
-        400: "#323940",
-        500: "#242a30",
-        600: "#161b20",
-        700: "#0f1318",
-        800: "#090c10",
+        0: "#ffffff",
+        10: "#F3F5F7",
+        20: "#E8ECF0",
+        30: "#DDE3E8",
+        40: "#D3DAE1",
+        50: "#C8D1D9",
+        60: "#BEC8D2",
+        70: "#B4BFCA",
+        80: "#AAB6C3",
+        90: "#A0ADBA",
+        100: "#95A3B2",
+        200: "#8999A8",
+        300: "#7B8C9D",
+        400: "#697B8D",
+        500: "#4C5E70",
+        600: "#354556",
+        700: "#202E3B",
+        800: "#08131E",
         900: "#020508",
         950: "#000000"
     },
@@ -264,8 +265,8 @@ const interactive = {
         field: palette.gray[800]
     },
     focus: {
-        accent: palette.pink[300],
-        secondary: palette.gray[40],
+        accent: palette.indigo[400],
+        secondary: palette.amber[50],
         danger: palette.red[50]
     },
     skeleton: {
@@ -281,9 +282,9 @@ const interactive = {
 
 const theme = {
     accent: palette.pink[400],
-    primary: palette.white,
-    secondary: palette.gray[600],
-    contrast: palette.gray[800],
+    primary: palette.aqua[300],
+    secondary: palette.aqua[400],
+    contrast: palette.gray[300],
     link: palette.indigo.DEFAULT,
     text: {
         1: palette.gray[10],
@@ -348,6 +349,11 @@ const fontSize = {
     "6xl": ["3.583rem", "1.35"],
     "7xl": ["4.3rem", "1.4"]
 };
+
+const animation = {
+    "spin-slow": "spin 9s linear infinite"
+};
+
 /** @type {import('tailwindcss').Config}*/
 const config = {
     mode: "jit",
@@ -362,7 +368,8 @@ const config = {
         extend: {
             fontSize,
             fontFamily: font,
-            borderWidth: {}
+            borderWidth: {},
+            animation
         }
     },
     content: ["./src/**/*.{html,js,svelte,ts,stories.svelte}"],
@@ -382,6 +389,7 @@ const config = {
         { pattern: /bg-palette-/ },
         { pattern: /text-/ },
         { pattern: /border/ },
+        { pattern: /rotate/ },
         { pattern: /theme-/ }
     ]
 };

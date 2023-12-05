@@ -57,8 +57,7 @@ function createFlashcardStore() {
         review: async (response) => {
             Store.update((store) => ({ ...store, loading: true, revealed: false }));
             const blacklist = getIds();
-            const gameId = get(Store).gameId;
-            const current = get(Store).current;
+            const { gameId, current } = get(Store);
 
             nextCard(); // Must be called after fetching store state. @lj
 

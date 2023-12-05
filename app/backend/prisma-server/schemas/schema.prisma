@@ -1,0 +1,14 @@
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["orderByRelation"]
+}
+
+generator pothos {
+    provider     = "prisma-pothos-types"
+    clientOutput = "@prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
