@@ -17,23 +17,31 @@
                 dominantColor = "system-success-2";
                 textColor = "theme-text-4";
                 break;
+            case "info":
+                dominantColor = "system-info-2";
+                textColor = "theme-text-4";
+                break;
             case "warning":
                 dominantColor = "system-warning-2";
                 textColor = dominantColor;
+                break;
+            case "danger":
+                dominantColor = "system-danger-2";
+                textColor = "theme-text-4";
                 break;
         }
     }
 </script>
 
-<div class={`py-5 px-6 rounded-xl border-4 bg-theme-ui-5 w-[270px] border-${dominantColor}`}>
-    <Text color={textColor} size="lg" classes="mb-1">
+<div class={`px-5 pt-4 pb-2 rounded-xl border-4 bg-theme-ui-5 w-[270px] border-${dominantColor}`}>
+    <Text color={dominantColor} size="lg" >
         {subject}
     </Text>
     {#if correction}
-        <Text color="theme-text-4" weight="thin" size="xs" as="span" italic classes="mb-0 pb-0"
+        <Text color="theme-text-4" weight="thin" size="xs" as="span" italic classes="m-0 p-0"
             >correction</Text
         >
-        <Text color="theme-text-4" classes="mb-2" size="lg">
+        <Text color="theme-text-4" classes="mb-2 -mt-1" size="lg">
             {correction}
         </Text>
     {/if}

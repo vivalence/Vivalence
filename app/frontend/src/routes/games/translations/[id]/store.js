@@ -14,66 +14,60 @@ function createGameStore() {
 
     const fetchSentence = async (gameId) => {
         const variables = _GetSentenceVariables({ params: { id: gameId } });
+        console.log("variables", variables);
         const response = await _houdini_load.fetch({ variables });
-        return response.data.Game_Translations_GetSentence;
+        console.log("response", response);
+        const error = response.errors && response.errors[0];
+        const sentence = !error && response.data.Game_Translations_GetSentence;
+        return { sentence, error };
+    };
+    const fetchReview = async (gameId, sentence, input) => {
+        const mutationInput = { input: { gameId, ...sentence, input } };
+        const response = await _ReviewSentence_Mutation.mutate(mutationInput);
+        const error = response.errors && response.errors[0];
+        const review = !error && response.data.Game_Translations_ReviewSentence;
+        return { review, error };
     };
 
     return {
         subscribe,
         init: async ({ gameId }) => {
-            const sentence = await fetchSentence(gameId);
+            const { sentence, error } = await fetchSentence(gameId);
             set({
                 gameId,
-                revealed: true,
+                revealed: false,
                 sentence,
-                error: null,
-                review: {
-                    gameId: "clpr5668n0000g01pvnkghden",
-                    parts: [
-                        {
-                            part: "El año",
-                            correction: null,
-                            translation: "The year",
-                            classification: "correct"
-                        },
-                        {
-                            part: "vas",
-                            correction: "va a ser",
-                            translation: "is going to be",
-                            classification: "mistake"
-                        },
-                        {
-                            part: "muy bueno",
-                            correction: "genial",
-                            translation: "great",
-                            classification: "info"
-                        }
-                    ],
-                    correction: "Este año va a ser genial",
-                    classification: "mistake"
-                },
-                input: ""
+                error,
+                review: null,
+                input: "el ano vas muy bueno"
             });
         },
         setInput: (input) => update((s) => ({ ...s, input })),
         reveal: (revealed = null) =>
             update((s) => ({ ...s, revealed: revealed === null ? !s.revealed : revealed })),
-        submitReview: async () => {
+        reviewSentence: async () => {
             const { gameId, sentence, input } = get(Store);
-            const mutationInput = { input: { gameId, ...sentence, input } };
-            const response = await _ReviewSentence_Mutation.mutate(mutationInput);
-            const error = response.errors && response.errors[0];
+            const { review, error } = await fetchReview(gameId, sentence, input);
             if (error) {
                 console.error("ERROR", error);
                 update((s) => ({ ...s, error }));
             } else {
-                const review = response.data.Game_Translations_ReviewSentence;
-                update((s) => ({ ...s, review }));
+                review.sentence = sentence;
+                update((s) => ({ ...s, review, sentence: null }));
             }
         },
-        requestNewSentence: async (gameId) => {
-            const newSentence = await fetchSentence(gameId);
-            //
+        getSentence: async () => {
+            const { gameId } = get(Store);
+            const { sentence, error } = await fetchSentence(gameId);
+            if (error) {
+                console.error("ERROR", error);
+                update((s) => ({ ...s, error }));
+            } else {
+                update((s) => ({ ...s, sentence }));
+            }
+        },
+        requestNextSentence: () => {
+            update((s) => ({ ...s, revealed: false, review: null, input: "" }));
         }
     };
 }
