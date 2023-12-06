@@ -29,6 +29,7 @@ export const _ReviewSentence_Mutation = graphql(`
             }
             correction
             classification
+            feedback
         }
     }
 `);

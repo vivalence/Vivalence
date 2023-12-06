@@ -6,6 +6,7 @@
     export let as = undefined; // 'h1', 'h2', 'h3', 'p', 'span'
     export let elementType = "p"; // 'h1', 'h2', 'h3', 'p', 'span'
     export let serif = false;
+    export let allcaps = false;
     export let italic = false;
     export let classes = "";
 
@@ -54,6 +55,9 @@
         // Emphasis
         if (italic) {
             computedClass += " italic";
+        }
+        if (allcaps) {
+            computedClass += " uppercase";
         }
     }
 </script>

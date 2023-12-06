@@ -30,7 +30,7 @@
             </Item>
         {/if}
 
-        <Item classes="">
+        <Item classes="w-full">
             <slot />
         </Item>
     </FlexContainer>

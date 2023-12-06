@@ -11,12 +11,13 @@
     import { gameStore } from "../store.js";
 
     const onValue = (value) => gameStore.setInput(value);
+    const onClick = () => commitTranslation();
+
     async function commitTranslation() {
         gameStore.reveal(true);
-        await gameStore.submitReview();
-        // await gameStore.sendSentence();
+        await gameStore.reviewSentence();
+        await gameStore.getSentence();
     }
-    const onClick = () => commitTranslation();
 </script>
 
 <Container classes="align-center text-center">
