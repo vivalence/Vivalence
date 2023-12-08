@@ -6,6 +6,7 @@ model User {
     // It
     // Down
     unitUserRelation UnitUserRelation[]
+    TagUserRelation  TagUserRelation[]
 }
 
 model Unit {
@@ -13,17 +14,36 @@ model Unit {
     id                  String                   @id @default(cuid())
     createdAt           DateTime                 @default(now())
     updatedAt           DateTime                 @default(now()) @updatedAt
-    // It
-    data                Json
     corpusId            String
     unitType            UnitTypeEnum             @default(WORD)
+    // It
+    data                Json
     status              UnitStatusEnum           @default(UNKNOWN)
+    tags                Tag[]
     // Up
     curriculumRelations CurriculumUnitRelation[]
     gameRelations       GameUnitRelation[]
     unitUserRelation    UnitUserRelation[]
 
     @@unique([corpusId, unitType]) // + userId 
+}
+
+model Tag {
+    // Meta
+    id            String            @id @default(cuid())
+    createdAt     DateTime          @default(now())
+    updatedAt     DateTime          @default(now()) @updatedAt
+    // It
+    name          String            @unique
+    type          TagTypeEnum[]     @default([])
+    unitRelations Unit[]
+    userRelations TagUserRelation[]
+}
+
+enum TagTypeEnum {
+    STRUCTURAL
+    LEARNABLE
+    SET
 }
 
 model Curriculum {
@@ -50,6 +70,17 @@ model Game {
     unitRelations      GameUnitRelation[]
 }
 
+model Mask {
+    // Meta
+    id                     String                   @id @default(cuid())
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @default(now()) @updatedAt
+    // It
+    data                   Json
+    // relations
+    CurriculumGameRelation CurriculumGameRelation[]
+}
+
 model UnitUserRelation {
     // Meta
     id        String         @id @default(cuid())
@@ -61,11 +92,29 @@ model UnitUserRelation {
     state     Json           @default("{}")
     // Relations
     unit      Unit           @relation(fields: [unitId], references: [id])
-    user      User           @relation(fields: [userId], references: [id])
     unitId    String
+    user      User           @relation(fields: [userId], references: [id])
     userId    String
 
     @@unique([unitId, userId])
+}
+
+model TagUserRelation {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    history   Json     @default("[]")
+    // It
+    // status    UnitStatusEnum @default(UNKNOWN)
+    state     Json     @default("{}")
+    // Relations
+    tag       Tag      @relation(fields: [tagId], references: [id])
+    tagId     String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+
+    @@unique([tagId, userId])
 }
 
 model CurriculumUnitRelation {
@@ -137,17 +186,6 @@ enum UnitStatusEnum {
     LEARNING // being learned 
     KNOWN // sufficiently learned
     GRADUATED // sufficiently learned and not Showing anymore
-}
-
-model Mask {
-    // Meta
-    id                     String                   @id @default(cuid())
-    createdAt              DateTime                 @default(now())
-    updatedAt              DateTime                 @default(now()) @updatedAt
-    // It
-    data                   Json
-    // relations
-    CurriculumGameRelation CurriculumGameRelation[]
 }
 
 //

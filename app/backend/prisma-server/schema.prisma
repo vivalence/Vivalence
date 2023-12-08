@@ -1,6 +1,5 @@
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["orderByRelation"]
+    provider = "prisma-client-js"
 }
 
 generator pothos {
@@ -15,14 +14,15 @@ datasource db {
 
 model Word {
     // Meta
-    id             String        @id @default(cuid())
-    createdAt      DateTime      @default(now())
-    updatedAt      DateTime      @default(now()) @updatedAt
+    id             String             @id @default(cuid())
+    createdAt      DateTime           @default(now())
+    updatedAt      DateTime           @default(now()) @updatedAt
     // It
-    index          Int           @unique
+    index          Int                @unique
     spanish        String
     english        String
     type           WordTypeEnum
+    pos            PartOfSpeechEnum[] @default([])
     usageInSpanish String?
     usageInEnglish String?
     data           Json?
@@ -111,6 +111,264 @@ enum EndingEnum {
     IR
 }
 
+enum PartOfSpeechEnum {
+    // POS
+    ADJECTIVE
+    ADPOSITION
+    ADVERB
+    AUXILIARY
+    CONJUNCTION_COORDINATING
+    CONJUNCTION_SUBORDINATING
+    DETERMINER
+    INTERJECTION
+    NOUN
+    NUMERAL
+    PARTICLE
+    PRONOUN
+    PROPERNOUN
+    PUNCTUATION
+    SYMBOL
+    VERB
+    OTHER
+
+    // TAGs
+    GENDER_MASCULINE
+    GENDER_FEMININE
+    GENDER_NEUTER
+
+    // POLITE_INFORMAL
+    // POLITE_FORMAL
+
+    // REGISTER_FORMAL
+    // REGISTER_INFORMAL
+    // REGISTER_VULGAR
+    // REGISTER_SLANG
+    // REGISTER_TECHNICAL
+
+    // ARTICLE_DEFINITE
+    // ARTICLE_INDEFINITE
+
+    // INTERROGATIVE_PRONOUN
+    // INTERROGATIVE_ADVERB
+    // INTERROGATIVE_ADJECTIVE
+
+    // ADVERB_TYPE_GENERAL
+    // ADVERB_TYPE_MODAL
+    // ADVERB_TYPE_MANNER
+    // ADVERB_TYPE_PLACE
+    // ADVERB_TYPE_DEGREE
+    // ADVERB_TYPE_FREQUENCY
+    // ADVERB_TYPE_CAUSE
+    // ADVERB_TYPE_TIME
+
+    // ADPOSITION_TYPE_PREPOSITION
+    // ADPOSITION_TYPE_POSTPOSITION
+    // ADPOSITION_TYPE_CIRCUMPOSITION
+
+    // NUMBER_TYPE_CARDINAL
+    // NUMBER_TYPE_ORDINAL
+    // NUMBER_TYPE_MULTIPLIER
+    // NUMBER_TYPE_FRACTIONAL
+
+    // NUMBER_SINGULAR
+    // NUMBER_PLURAL
+
+    // DEGREE_POSITIVE
+    // DEGREE_COMPARATIVE
+    // DEGREE_SUPERLATIVE
+
+    // PARTICLE_TYPE_MODAL
+    // PARTICLE_TYPE_NEGATIVE
+    // PARTICLE_TYPE_INTENSIFIER
+    // PARTICLE_TYPE_INTERROGATIVE
+
+    // REFLEX_REFLEXIVE
+    // POSS_POSSESSIVE
+
+    // CLITIC_CATEGORY_DIRECT_OBJECT
+    // CLITIC_CATEGORY_INDIRECT_OBJECT
+    // CLITIC_CATEGORY_REFLEXIVE
+    // CLITIC_CATEGORY_RECIPROCAL
+    // CLITIC_CATEGORY_EMPHATIC_OR_ASPECTUAL
+
+    // PRONOUN_TYPE_PERSONAL
+    // PRONOUN_TYPE_DEMONSTRATIVE
+    // PRONOUN_TYPE_REFLEXIVE
+    // PRONOUN_TYPE_INDEFINITE
+    // PRONOUN_TYPE_INTERROGATIVE
+    // PRONOUN_TYPE_RELATIVE
+    // PRONOUN_TYPE_POSSESSIVE
+    // PRONOUN_TYPE_RECIPROCAL
+
+    // MOOD_INDICATIVE
+    // MOOD_IMPERATIVE_NEGATIVE
+    // MOOD_IMPERATIVE_AFFIRMATIVE
+    // MOOD_SUBJUNCTIVE
+
+    // PERSON_FIRST
+    // PERSON_SECOND
+    // PERSON_THIRD
+    // PERSON_SINGULAR
+    // PERSON_PLURAL
+
+    // TENSE_PAST
+    // TENSE_PRESENT
+    // TENSE_FUTURE
+
+    // ASPECT_IMPERFECTIVE
+    // ASPECT_PERFECTIVE
+    // ASPECT_PROGRESSIVE
+    // ASPECT_HABITUAL
+    // ASPECT_PERFECT
+    // ASPECT_PROSPECTIVE
+
+    // VERB_FORM_GERUNDIO
+    // VERB_FORM_PARTICIPIO
+    // VERB_FORM_PRESENTE
+    // VERB_FORM_PRETERITO
+    // VERB_FORM_IMPERFECTO
+    // VERB_FORM_FUTURO
+    // VERB_FORM_CONDICIONAL
+    // VERB_FORM_FUTURO_PERFECTO
+    // VERB_FORM_PLUSCUAMPERFECTO
+    // VERB_FORM_PRESENTE_PERFECTO
+    // VERB_FORM_PRETERITO_ANTERIOR
+    // VERB_FORM_CONDICIONAL_PERFECTO
+
+    // VERBTYPE_MAIN
+    // VERBTYPE_MODAL
+    // VERBTYPE_AUXILIARY
+    // VERBTYPE_TRANSITIVE
+    // VERBTYPE_INTRANSITIVE
+
+    // VERB_ENDING_ER
+    // VERB_ENDING_AR
+    // VERB_ENDING_IR
+
+    // ADJECTIVE_DESCRIPTIVE
+    // ADJECTIVE_QUANTITATIVE
+    // ADJECTIVE_DEMONSTRATIVE
+    // ADJECTIVE_INTERROGATIVE
+    // ADJECTIVE_INDEFINITE
+    // ADJECTIVE_NUMERAL
+    // ADJECTIVE_COMPARATIVE_SUPERLATIVE
+    // ADJECTIVE_QUALITATIVE
+    // ADJECTIVE_PREDICATE
+    // ADJECTIVE_COLOR
+    // ADJECTIVE_NATIONALITY_ORIGIN
+    // ADJECTIVE_POSSESSIVE
+    // ADJECTIVE_RELATIVE
+    // ADJECTIVE_DIMINUTIVE
+    // ADJECTIVE_AUGMENTATIVE
+    // ADJECTIVE_DISTRIBUTIVE
+
+    // NOUN_DAY_OF_WEEK
+    // NOUN_MONTH_SEASON
+    // NOUN_FAMILY_MEMBER
+    // NOUN_EVERYDAY_OBJECT
+    // NOUN_BASIC_FOOD_ITEM
+    // NOUN_COMMON_PLACE
+    // NOUN_OCCUPATION
+    // NOUN_ANIMAL
+    // NOUN_TRANSPORTATION_MEAN
+    // NOUN_BODY_PART
+    // NOUN_COLOR
+    // NOUN_GEOGRAPHICAL_FEATURE
+    // NOUN_BUILDING_TYPE
+    // NOUN_FURNITURE_ITEM
+    // NOUN_CLOTHING_ITEM
+    // NOUN_SPORT
+    // NOUN_MUSICAL_INSTRUMENT
+    // NOUN_NATURAL_ELEMENT
+    // NOUN_TECHNOLOGICAL_DEVICE
+    // NOUN_ARTISTIC_CONCEPT
+    // NOUN_LITERARY_GENRE
+    // NOUN_SCHOOL_SUBJECT
+    // NOUN_RELIGIOUS_CONCEPT
+    // NOUN_HOLIDAY
+    // NOUN_EMOTION
+    // NOUN_PHYSICAL_ACTIVITY
+    // NOUN_SCIENTIFIC_CONCEPT
+    // NOUN_HISTORICAL_EVENT
+    // NOUN_POLITICAL_CONCEPT
+    // NOUN_ECONOMIC_CONCEPT
+    // NOUN_LEGAL_CONCEPT
+    // NOUN_MEDICAL_CONDITION
+    // NOUN_PHILOSOPHICAL_CONCEPT
+    // NOUN_CULTURAL_CONCEPT
+    // NOUN_ENVIRONMENTAL_CONCEPT
+    // NOUN_ASTROLOGICAL_SIGN
+    // NOUN_LANGUAGE
+    // NOUN_WEATHER_CONDITION
+    // NOUN_GEOMETRIC_SHAPE
+    // NOUN_CULINARY_DISH
+    // NOUN_PLANT
+    // NOUN_COOKING_UTENSIL
+    // NOUN_HOBBY
+    // NOUN_GARDENING_TOOL
+    // NOUN_CONSTRUCTION_MATERIAL
+    // NOUN_OFFICE_SUPPLY
+    // NOUN_MECHANICAL_PART
+    // NOUN_ELECTRICAL_COMPONENT
+    // NOUN_PHARMACEUTICAL_PRODUCT
+    // NOUN_CLEANING_PRODUCT
+    // NOUN_COSMETIC_ITEM
+    // NOUN_PERSONAL_ACCESSORY
+    // NOUN_DIGITAL_PLATFORM
+    // NOUN_GRAPHIC_ELEMENT
+    // NOUN_TEXTILE_MATERIAL
+    // NOUN_METAL
+    // NOUN_MINERAL
+    // NOUN_GEMSTONE
+    // NOUN_CURRENCY
+    // NOUN_PAYMENT_METHOD
+    // NOUN_TRAVEL_DESTINATION
+    // NOUN_LEISURE_ACTIVITY
+    // NOUN_SOCIAL_EVENT
+    // NOUN_TRAFFIC_ELEMENT
+    // NOUN_ACADEMIC_DEGREE
+    // NOUN_POLITICAL_OFFICE
+    // NOUN_LEGAL_DOCUMENT
+    // NOUN_MEDICAL_PROCEDURE
+    // NOUN_FITNESS_EXERCISE
+    // NOUN_DIETARY_CHOICE
+    // NOUN_COMMUNICATION_MEDIUM
+    // NOUN_ARTWORK
+    // NOUN_MUSICAL_GENRE
+    // NOUN_DANCE_STYLE
+    // NOUN_FILM_GENRE
+    // NOUN_THEATRICAL_PLAY
+    // NOUN_LITERARY_DEVICE
+    // NOUN_POETIC_FORM
+    // NOUN_MUSICAL_NOTE
+    // NOUN_ARTISTIC_MOVEMENT
+    // NOUN_ARCHITECTURAL_STYLE
+    // NOUN_HISTORICAL_PERIOD
+    // NOUN_CULTURAL_MOVEMENT
+    // NOUN_SOCIOLOGICAL_CONCEPT
+    // NOUN_PSYCHOLOGICAL_THEORY
+    // NOUN_ETHICAL_PRINCIPLE
+    // NOUN_RELIGIOUS_DOCTRINE
+    // NOUN_SPIRITUAL_PRACTICE
+    // NOUN_MEDITATION_TECHNIQUE
+    // NOUN_YOGA_POSE
+    // NOUN_MARTIAL_ART
+    // NOUN_PHYSICAL_THEORY
+    // NOUN_CHEMICAL_ELEMENT
+    // NOUN_BIOLOGICAL_SPECIES
+    // NOUN_ECOLOGICAL_BIOME
+    // NOUN_GEOLOGICAL_FEATURE
+    // NOUN_ASTRONOMICAL_OBJECT
+    // NOUN_PHYSICAL_LAW
+    // NOUN_MATHEMATICAL_CONCEPT
+    // NOUN_COMPUTING_TERM
+
+    // ABBR_ABBREVIATIO
+    // TYPO_TYPOGRAPHICAL_ERROR
+}
+
+// enum UD_TAG {ABBR_ABBREVIATIO ADPOSITION_TYPE_PREPOSITION ADPOSITION_TYPE_POSTPOSITION ADPOSITION_TYPE_CIRCUMPOSITION ADVERB_TYPE_GENERAL ADVERB_TYPE_MODAL ADVERB_TYPE_MANNER ADVERB_TYPE_TIME ANIMACY_ANIMATE ANIMACY_INANIMATE ASPECT_IMPERFECTIVE ASPECT_PERFECTIVE ASPECT_PROGRESSIVE CASE_NOMINATIVE CASE_ACCUSATIVE CASE_GENITIVE CASE_DATIVE CLUSIVITY_INCLUSIVE CLUSIVITY_EXCLUSIVE DEFINITE_DEFINITE DEFINITE_INDEFINITE DEFINITE_SPECIFIC DEGREE_POSITIVE DEGREE_COMPARATIVE DEGREE_SUPERLATIVE ECHO_ECHO EVIDENT_DIRECT EVIDENT_INDIRECT EVIDENT_REPORTED FOREIGN_FOREIGN GENDER_MASCULINE GENDER_FEMININE GENDER_NEUTER MOOD_INDICATIVE MOOD_IMPERATIVE MOOD_SUBJUNCTIVE NOUNCLASS_NOUN_CLASS NUMFORM_DIGIT NUMFORM_ROMAN NUMFORM_WORD NUMBER_TYPE_CARDINAL NUMBER_TYPE_ORDINAL NUMBER_TYPE_MULTIPLIER NUMBER_SINGULAR NUMBER_PLURAL NUMBER_DUAL PARTTYPE_MODAL PARTTYPE_NEGATIVE PERSON_FIRST PERSON_SECOND PERSON_THIRD POLARITY_POSITIVE POLARITY_NEGATIVE POLITE_INFORMAL POLITE_FORMAL POSS_POSSESSIVE PRONTYPE_PERSONAL PRONTYPE_DEMONSTRATIVE PRONTYPE_REFLEXIVE REFLEX_REFLEXIVE REGISTER_FORMAL REGISTER_INFORMAL REGISTER_VULGAR TENSE_PAST TENSE_PRESENT TENSE_FUTURE TYPO_TYPOGRAPHICAL_ERROR VERB_FORM_FINITE VERB_FORM_INFINITIVE VERB_FORM_PARTICIPLE VERB_FORM_GERUND VERBTYPE_MAIN VERBTYPE_MODAL VERBTYPE_AUXILIARY VOICE_ACTIVE VOICE_PASSIVE VOICE_MIDDLE}
+
 enum WordTypeEnum {
     ART
     ADJ
@@ -151,6 +409,7 @@ model User {
     // It
     // Down
     unitUserRelation UnitUserRelation[]
+    TagUserRelation  TagUserRelation[]
 }
 
 model Unit {
@@ -158,17 +417,36 @@ model Unit {
     id                  String                   @id @default(cuid())
     createdAt           DateTime                 @default(now())
     updatedAt           DateTime                 @default(now()) @updatedAt
-    // It
-    data                Json
     corpusId            String
     unitType            UnitTypeEnum             @default(WORD)
+    // It
+    data                Json
     status              UnitStatusEnum           @default(UNKNOWN)
+    tags                Tag[]
     // Up
     curriculumRelations CurriculumUnitRelation[]
     gameRelations       GameUnitRelation[]
     unitUserRelation    UnitUserRelation[]
 
     @@unique([corpusId, unitType]) // + userId 
+}
+
+model Tag {
+    // Meta
+    id            String            @id @default(cuid())
+    createdAt     DateTime          @default(now())
+    updatedAt     DateTime          @default(now()) @updatedAt
+    // It
+    name          String            @unique
+    type          TagTypeEnum[]     @default([])
+    unitRelations Unit[]
+    userRelations TagUserRelation[]
+}
+
+enum TagTypeEnum {
+    STRUCTURAL
+    LEARNABLE
+    SET
 }
 
 model Curriculum {
@@ -195,6 +473,17 @@ model Game {
     unitRelations      GameUnitRelation[]
 }
 
+model Mask {
+    // Meta
+    id                     String                   @id @default(cuid())
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @default(now()) @updatedAt
+    // It
+    data                   Json
+    // relations
+    CurriculumGameRelation CurriculumGameRelation[]
+}
+
 model UnitUserRelation {
     // Meta
     id        String         @id @default(cuid())
@@ -206,11 +495,29 @@ model UnitUserRelation {
     state     Json           @default("{}")
     // Relations
     unit      Unit           @relation(fields: [unitId], references: [id])
-    user      User           @relation(fields: [userId], references: [id])
     unitId    String
+    user      User           @relation(fields: [userId], references: [id])
     userId    String
 
     @@unique([unitId, userId])
+}
+
+model TagUserRelation {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    history   Json     @default("[]")
+    // It
+    // status    UnitStatusEnum @default(UNKNOWN)
+    state     Json     @default("{}")
+    // Relations
+    tag       Tag      @relation(fields: [tagId], references: [id])
+    tagId     String
+    user      User     @relation(fields: [userId], references: [id])
+    userId    String
+
+    @@unique([tagId, userId])
 }
 
 model CurriculumUnitRelation {
@@ -282,17 +589,6 @@ enum UnitStatusEnum {
     LEARNING // being learned 
     KNOWN // sufficiently learned
     GRADUATED // sufficiently learned and not Showing anymore
-}
-
-model Mask {
-    // Meta
-    id                     String                   @id @default(cuid())
-    createdAt              DateTime                 @default(now())
-    updatedAt              DateTime                 @default(now()) @updatedAt
-    // It
-    data                   Json
-    // relations
-    CurriculumGameRelation CurriculumGameRelation[]
 }
 
 //

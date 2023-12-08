@@ -79,7 +79,7 @@ Generate very simple sentences.
             sentence = await getGPTResponse([prompt]);
             if (!(await verifySentence(sentence))) sentence = null;
         }
-        return sentence;
+        return { spoken: sentence.sentenceSpoken, learning: sentence.sentenceLearning };
     } catch (error) {
         console.error("Error in generateSentences:", error);
         throw error;
