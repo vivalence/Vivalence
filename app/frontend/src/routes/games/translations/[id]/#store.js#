@@ -1,4 +1,4 @@
-import { writable, get } from "svelte/store";
+juimport { writable, get } from "svelte/store";
 import { _houdini_load, _GetSentenceVariables, _ReviewSentence_Mutation } from "./+page.js";
 
 function createGameStore() {
