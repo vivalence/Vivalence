@@ -73,6 +73,7 @@ input Game_Translations_ReviewSentence_Input {
   gameId: ID!
   input: String!
   learning: String!
+  payload: String!
   spoken: String!
 }
 
@@ -94,6 +95,7 @@ type Game_Translations_ReviewSentence_Response {
 
 type Game_Translations_Sentence {
   learning: String!
+  payload: String!
   spoken: String!
 }
 

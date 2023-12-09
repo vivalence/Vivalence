@@ -1,11 +1,8 @@
-// import Mustache from "mustache";
+import { prisma } from "../../prisma-client.js";
+import { builder } from "../../pothos-client/builder.js";
 
-import { prisma } from "../../../prisma-client.js";
-import { builder } from "../../../pothos-client/builder.js";
-
-import evaluate from "../logic/evaluate.js";
-import generateSentence from "../logic/generate.js";
-// import { getNextGameUnit } from "../logic/getNextGameUnit.js";
+import evaluate from "./logic/evaluate.js";
+import generate from "./logic/generate.js";
 
 //
 //  INPUTS
@@ -23,6 +20,7 @@ builder.inputType("Game_Translations_ReviewSentence_Input", {
         learning: t.string({ required: true }),
         spoken: t.string({ required: true }),
         input: t.string({ required: true }),
+        payload: t.string({ required: true }),
     }),
 });
 
@@ -47,11 +45,13 @@ builder.queryFields((t) => ({
                     include: { curriculumRelation: { include: { mask: true } } },
                 });
                 if (!game) throw new Error("Game not found");
-                const sentence = await generateSentence({
+
+                const sentence = await generate({
                     gameId,
                     curriculumId: game.curriculumRelation.curriculumId,
                     mask: game.curriculumRelation.mask,
                 });
+
                 if (!sentence) throw new Error("Sentence generation failed");
                 return sentence;
             } catch (e) {
@@ -71,21 +71,19 @@ builder.mutationFields((t) => ({
                 required: true,
             }),
         },
-
         resolve: async (root, { input }, _) => {
+            const { gameId, payload, learning, spoken, input: translation } = input;
             try {
-                const {
-                    gameId,
-                    learning: learningSentence,
-                    spoken: spokenSentence,
-                    input: userInput,
-                } = input;
-
+                console.log("input", input);
                 const evaluation = await evaluate({
-                    learningLanguage: "spanish",
-                    spokenLanguage: "english",
-                    userInput,
-                    sentence: { learning: learningSentence, spoken: spokenSentence },
+                    gameId,
+                    language: {
+                        learning: "spanish",
+                        spoken: "english",
+                    },
+                    translation,
+                    payload: JSON.parse(payload),
+                    sentence: { learning, spoken },
                 });
                 evaluation.gameId = gameId;
                 return evaluation;
@@ -103,8 +101,9 @@ builder.mutationFields((t) => ({
 
 builder.objectType("Game_Translations_Sentence", {
     fields: (t) => ({
-        spoken: t.string({ resolve: ({ sentenceSpoken }) => sentenceSpoken }),
-        learning: t.string({ resolve: ({ sentenceLearning }) => sentenceLearning }),
+        spoken: t.string({ resolve: ({ spoken }) => spoken }),
+        learning: t.string({ resolve: ({ learning }) => learning }),
+        payload: t.string({ resolve: (sentence) => JSON.stringify(sentence) }),
     }),
 });
 

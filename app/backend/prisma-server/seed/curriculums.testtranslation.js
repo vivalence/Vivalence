@@ -1,63 +1,80 @@
 import { PrismaClient } from "@prisma/client";
-// so what do i create here? // i create one large curriculum
-// of the top nouns. // and some set of verbs.
-// nothing fancy. // just for development
-// IN ('ADJ', 'ADV', 'ART', 'CONJ', 'INTERJ', 'N', 'NC', 'NF', 'NF_EL', 'NM', 'NM_F', 'NMF', 'NUM', 'PREP', 'PRON')
-const prisma = new PrismaClient();
-
-const NounsEnum = ["NC", "NF", "NF_EL", "NM", "NM_F", "NMF"];
-const moodTenses = [
-    ["NON_FINITE", "INFINITIVO"],
-    ["NON_FINITE", "GERUNDIO"],
-    ["NON_FINITE", "PARTICIPIO"],
-    ["INDICATIVO", "PRESENTE"],
-    ["INDICATIVO", "PRETERITO"],
-    ["INDICATIVO", "IMPERFECTO"],
-    ["INDICATIVO", "FUTURO"],
+const PullMap = [
+    ["ADJECTIVE", 1000],
+    ["ADPOSITION", 5000],
+    ["ADVERB", 1050],
+    ["NUMERAL", 5000],
+    ["PRONOUN", 5000],
+    ["VERB", 300],
 ];
+
+const prisma = new PrismaClient();
 
 const DRYRUN = false;
 const VERB_INDEX = 35;
 const TAKE_NOUNS = 200;
 const START = 0;
 
-const nouns = await prisma.word.findMany({
-    where: { type: { in: NounsEnum } },
-    orderBy: { index: "asc" },
-    take: TAKE_NOUNS,
-});
-const nounUnits = await prisma.unit.findMany({
-    where: { corpusId: { in: nouns.map((noun) => noun.id) } },
-});
+// const nouns = await prisma.word.findMany({
+//     where: { type: { in: NounsEnum } },
+//     orderBy: { index: "asc" },
+//     take: TAKE_NOUNS,
+// });
+// const nounUnits = await prisma.unit.findMany({
+//     where: { corpusId: { in: nouns.map((noun) => noun.id) } },
+// });
 
 let index = 200;
-const conjUnits = [];
-for (const [mood, tense] of moodTenses) {
-    const conjugations = await prisma.conjugation.findMany({
-        where: { mood, tense, verb: { index: { lte: VERB_INDEX } } },
-        orderBy: { verb: { index: "asc" } },
-    });
+const updateList = [];
 
-    const units = await prisma.unit.findMany({
-        where: { corpusId: { in: conjugations.map((conj) => conj.id) } },
-    });
-
-    units.map((unit) => {
-        unit.data.index = index++;
-        conjUnits.push(unit);
-    });
-}
-
-console.log(conjUnits.length, nounUnits.length);
-
-const data = {
-    name: "Test for Translations",
-    unitRelations: {
-        create: [...conjUnits, ...nounUnits].map((unit) => ({
-            unit: { connect: { id: unit.id } },
-            index: unit.data.index,
-        })),
+const curriculum = await prisma.curriculum.findUnique({
+    where: {
+        id: "clpl75uu00000g0mwkivlcucv",
+        unitRelations: { some: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } } },
     },
-};
+    include: {
+        unitRelations: {
+            include: { unit: { include: { tags: { select: { name: true } } } } },
+            where: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } },
+            orderBy: { index: "asc" },
+        },
+    },
+});
+console.log("curriculum", curriculum.unitRelations.length, curriculum.unitRelations[0]);
 
-const update = await prisma.curriculum.create({ data });
+// for (const [tagName, indexLimit] of PullMap) {
+//     const words = await prisma.word.findMany({
+//         where: { index: { lte: indexLimit }, pos: { has: tagName } },
+//         orderBy: { index: "asc" },
+//     });
+
+//     const units = await prisma.unit.findMany({
+//         where: { corpusId: { in: words.map((word) => word.id) } },
+//         include: { tags: { select: { name: true } } },
+//     });
+
+//     console.log("words", units.length, words.length, tagName, indexLimit);
+
+//     units.map((unit) => {
+//         unit.data.index = index++;
+//         updateList.push(unit);
+//     });
+// }
+
+// console.log(updateList.length);
+
+// const data = {
+//     unitRelations: {
+//         create: updateList.map((unit) => ({
+//             unit: { connect: { id: unit.id } },
+//             index: unit.data.index,
+//         })),
+//     },
+// };
+
+// const update = await prisma.curriculum.update({
+//     where: { id: "clpl75uu00000g0mwkivlcucv" },
+//     data,
+// });
+
+// console.log("update", update);
