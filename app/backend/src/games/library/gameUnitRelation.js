@@ -1,15 +1,6 @@
-import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../../utils/time.js";
-import { prisma } from "../../../prisma-client.js";
-
-import * as ebisu from "../../../library/ebisu.js";
-
-// export async function updateGameUnitRelation(gameUnitRelationUpdate) {
-//     try {
-//     } catch (e) {
-//         console.log("updateReviewItem ERROR", e);
-//         throw e;
-//     }
-// }
+import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../utils/time.js";
+import { prisma } from "../../prisma-client.js";
+import * as ebisu from "../../library/ebisu.js";
 
 async function create({ unitId, gameId, response }) {
     const model = getDefaultEbisuModel(response);
@@ -70,7 +61,19 @@ async function update({ unitId, gameId, response }, gameUnitRelation) {
     return gameUnitRelationUpdate;
 }
 
-export default { get, create, update };
+async function handleGameUnitUpdate({ gameId, unitId, response }) {
+    const input = { gameId, unitId, response };
+    let gameUnitRelation = await get(input);
+
+    if (gameUnitRelation) {
+        gameUnitRelation = await update(input, gameUnitRelation);
+    } else {
+        gameUnitRelation = await create(input);
+    }
+    return gameUnitRelation;
+}
+
+export default { handle: handleGameUnitUpdate, get, create, update };
 
 // const getDelayTime = (gameUnitRelation, nextReviewInHours) => {// difference between (reviewItem.lastreview to now) and (nextreview to now) in hours const lastPredictionDifference = (reviewItem.nextReview - gameUnitRelation.lastReview) / (1000 * 60 * 60); console.log("item", gameUnitRelation.word.spanish); console.log("previous", lastPredictionDifference); console.log("next", nextReviewInHours); const delay = nextReviewInHours - lastPredictionDifference; return delay;};
 

@@ -6,7 +6,7 @@ model User {
     // It
     // Down
     unitUserRelation UnitUserRelation[]
-    TagUserRelation  TagUserRelation[]
+    tagUserRelation  TagUserRelation[]
 }
 
 model Unit {

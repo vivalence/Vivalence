@@ -1,100 +1,109 @@
+import Mustache from "mustache";
 import { prisma } from "../../../prisma-client.js";
 import { getGPTResponse } from "../../../library/openai-client.js";
-import { getNewUnit, getDueUnit, getPrioritizedUnit } from "../../library/getGameUnits.js";
+import { getUnits } from "../../library/gameUnits.js";
 
 export default async function generate({ gameId, curriculumId, mask }) {
-    const practiceSet = await Promise.all([
-        getNextInputUnits({ curriculumId, gameId, type: "WORD" }),
-        getNextInputUnits({ curriculumId, gameId, type: "CONJUGATION" }),
-    ]);
-    if (practiceSet.some((item) => !item)) throw new Error("No items to practice now");
+    const getterInput = {
+        curriculumId,
+        gameId,
+        take: 3,
+    };
+    const conjugation = (
+        await getUnits({
+            ...getterInput,
+            tags: ["VERB_CONJUGATION"],
+            take: 1,
+        })
+    ).shift();
+    if (!conjugation) throw new Error("No conjugation to practice now");
+
+    let units = (
+        await Promise.all([
+            [conjugation],
+            getUnits({ ...getterInput, tags: ["NOUN"] }),
+            getUnits({ ...getterInput, tags: ["ADJECTIVE"] }),
+            getUnits({ ...getterInput, tags: ["ADPOSITION"] }),
+            getUnits({ ...getterInput, tags: ["ADVERB"] }),
+            getUnits({ ...getterInput, tags: ["PRONOUN"] }),
+        ])
+    ).flat();
+
+    if (units.filter((item) => !!item).length < 5) throw new Error("Not enough items to practice");
+
+    const learning = "spanish";
+    const spoken = "english";
+
+    units = units.map((input) => ({
+        id: input.id,
+        word: { learning: input.data[learning], spoken: input.data[spoken] },
+        tags: input.tags.map(({ name }) => name),
+    }));
+
+    const constraints = {
+        tense: conjugation.data.tense,
+        mood: conjugation.data.mood,
+        performer: conjugation.data.performer,
+    };
+
     const sentence = await generateSentence({
-        inputs: practiceSet,
-        learning: "spanish",
-        spoken: "english",
+        units,
+        language: { learning, spoken },
+        constraints,
     });
     return sentence;
 }
 
-async function getNextInputUnits(input) {
-    const { curriculumId, gameId, type = "WORD" } = input;
-    try {
-        const input = {
-            curriculumId,
-            type,
-            gameId,
-            now: new Date(),
-        };
+function makePrompt(input) {
+    // template should be a mask property
+    const promptTemplate = `
+You are generating language learning material for a user learning {{language.learning}}.
+Using the following constraints generate a sentence in {{language.spoken}} and its translation in {{language.learning}}:
 
-        const prioritizedUnit = await getPrioritizedUnit(input);
-        if (prioritizedUnit) return prioritizedUnit;
+Tense: {{constraints.tense}},
+mood: {{constraints.mood}},
+performer: {{constraints.performer}},
 
-        const dueUnit = await getDueUnit(input);
-        if (dueUnit) return dueUnit;
+Select from among these words:
+{{#units}}
+{ id: "{{id}}", {{language.spoken}}: "{{word.spoken}}", {{language.learning}}: "{{word.learning}}", tags: [ {{#tags}}{{.}}, {{/tags}}] },
+{{/units}}
 
-        const newUnit = await getNewUnit(input);
-        if (newUnit) return newUnit;
-
-        console.log("No items to practice now");
-        return null;
-    } catch (err) {
-        console.error(`Error fetching next review item: ${err}`);
-        throw err; // or handle the error as you see fit
-    }
-}
-
-async function generateSentence({ inputs, learning, spoken }) {
-    try {
-        const prompt = `
-You are generating language learning material for a user learning ${learning}
-Using the following constraints:
-generate a sentence in ${spoken}
-and its translation in ${learning}:
-
-Words to be used in ${spoken}:
-${inputs.map((w) => w.data[spoken]).join(", ")}
-
-Words to be used in ${learning}:
-${inputs.map((w) => w.data[learning]).join(", ")}
-
-return this structure/format:
+Return the following JSON structure:
 {
-  "sentenceSpoken": "String",
-  "sentenceLearning": "String"
+  "spoken": "Sentence in {{language.spoken}}",
+  "learning": "Sentence in {{language.learning}}",
+  "ids": ["ID", ...], // the ids of the words used to generate the sentence. One-to-one correspondence is required.
 }
 
-dont use words more advanced than those provided.
-Generate very simple sentences.
-`;
-        let sentence = null;
-        return {
-            sentenceSpoken: "This year is going to be great.",
-            sentenceLearning: "Este año va a ser genial.",
-        };
+Don't use words more advanced than those provided. We want the learner to be successfull. Keep the sentence between 4-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.`;
+    // the learner is at level {{level}}.
+    const prompt = Mustache.render(promptTemplate, input);
+    return prompt;
+}
 
-        let index = 0;
-        while (!sentence && index < 3) {
-            index++;
-            console.log("index", index);
-            sentence = await getGPTResponse([prompt]);
-            if (!(await verifySentence(sentence))) sentence = null;
-        }
-        return { spoken: sentence.sentenceSpoken, learning: sentence.sentenceLearning };
+async function generateSentence(inputs) {
+    try {
+        const prompt = makePrompt(inputs);
+        const sentence = await getGPTResponse({ prompt: [prompt] });
+
+        // let index = 0;
+        // while (!sentence && index < 3) {
+        //     index++;
+        //     console.log("index", index);
+        //     sentence = await getGPTResponse({ prompt: [prompt] });
+        //     if (!(await verifySentence(sentence))) sentence = null;
+        // }
+        return { spoken: sentence.spoken, learning: sentence.learning, ids: sentence.ids };
     } catch (error) {
         console.error("Error in generateSentences:", error);
         throw error;
     }
 }
+
 async function verifySentence(sentence) {
-    console.log("verify sentence", sentence);
+    // console.log("verify sentence", sentence);
     return true;
 }
 
-// curriculum: clpl75uu00000g0mwkivlcucv
-// game: clpr5668n0000g01pvnkghden
 // await generate({ curriculumId: "clpl75uu00000g0mwkivlcucv", gameId: "clpr5668n0000g01pvnkghden" });
-
-// Grammar - Verb: ${constraints.grammar.verb},
-// Tense: ${constraints.grammar.tense},
-// Performer: ${constraints.grammar.performer},
-// Mood: ${constraints.grammar.mood}

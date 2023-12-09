@@ -1,10 +1,9 @@
 import Mustache from "mustache";
+import { prisma } from "../../prisma-client.js";
+import { builder } from "../../pothos-client/builder.js";
 
-import { prisma } from "../../../prisma-client.js";
-import { builder } from "../../../pothos-client/builder.js";
-
-import GameUnitRelation from "../logic/gameUnitRelation.js";
-import { getNextGameUnit } from "../logic/getNextGameUnit.js";
+import GameUnitRelation from "../library/gameUnitRelation.js";
+import { getUnits } from "../library/gameUnits.js";
 
 //
 //  INPUTS
@@ -51,7 +50,7 @@ builder.queryFields((t) => ({
                 // if !game throw
 
                 while (units.length < fetch) {
-                    const unit = await getNextGameUnit({
+                    const unit = await getUnits({
                         blacklist,
                         gameId: gameId,
                         curriculumId: game.curriculumRelation.curriculumId,
@@ -80,18 +79,14 @@ builder.mutationFields((t) => ({
                 required: true,
             }),
         },
-
         resolve: async (root, { input }, _) => {
             try {
-                let gameUnitRelation = await GameUnitRelation.get(input);
-
-                if (gameUnitRelation) {
-                    gameUnitRelation = await GameUnitRelation.update(input, gameUnitRelation);
-                } else {
-                    gameUnitRelation = await GameUnitRelation.create(input);
-                }
-
-                return gameUnitRelation;
+                const { gameId, unitId, response } = input;
+                return await GameUnitRelation.handle({
+                    gameId,
+                    unitId: evaluation.id,
+                    response: evaluation.evaluation,
+                });
             } catch (e) {
                 console.log("ERROR", e);
                 throw e;
@@ -104,6 +99,8 @@ builder.mutationFields((t) => ({
 // RETURN TYPES
 //
 
+// might want to migrate this to a more useful & shared type
+// like a GameUnitRelationUpdateResponse type or so
 builder.objectType("Game_Flashcards_UpdateCard_Response", {
     fields: (t) => ({
         unitId: t.field({ type: "ID", resolve: ({ unitId }) => unitId }),

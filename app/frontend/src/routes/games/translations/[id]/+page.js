@@ -13,6 +13,7 @@ export const _houdini_load = graphql(`
         Game_Translations_GetSentence(input: $input) {
             spoken
             learning
+            payload
         }
     }
 `);
