@@ -1,5 +1,6 @@
 import { writable, get } from "svelte/store";
 import { _houdini_load, _GetSentenceVariables, _ReviewSentence_Mutation } from "./+page.js";
+import { cache } from "$houdini";
 
 function createGameStore() {
     const Store = writable({
@@ -13,6 +14,7 @@ function createGameStore() {
     const { subscribe, set, update } = Store;
 
     const fetchSentence = async (gameId) => {
+        cache.markStale("GetSentence");
         const variables = _GetSentenceVariables({ params: { id: gameId } });
         const response = await _houdini_load.fetch({ variables });
         const error = response.errors && response.errors[0];
@@ -20,7 +22,9 @@ function createGameStore() {
         return { sentence, error };
     };
     const fetchReview = async (gameId, sentence, input) => {
-        const mutationInput = { input: { gameId, ...sentence, input } };
+        const mutationInput = {
+            input: { gameId, ...sentence, input }
+        };
         const response = await _ReviewSentence_Mutation.mutate(mutationInput);
         const error = response.errors && response.errors[0];
         const review = !error && response.data.Game_Translations_ReviewSentence;

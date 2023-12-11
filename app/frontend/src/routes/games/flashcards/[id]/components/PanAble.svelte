@@ -1,4 +1,8 @@
 <script>
+    import { onMount, onDestroy } from "svelte";
+    import { spring } from "svelte/motion";
+    import { pan } from "svelte-gestures";
+
     import { flashcardsStore } from "../store.js";
     import { determineDirection } from "../library.js";
 

@@ -2,6 +2,7 @@ import Mustache from "mustache";
 import { prisma } from "../../../prisma-client.js";
 import { getGPTResponse } from "../../../library/openai-client.js";
 import { getUnits } from "../../library/gameUnits.js";
+import { log } from "../../../library/logging.js";
 
 export default async function generate({ gameId, curriculumId, mask }) {
     const getterInput = {
@@ -50,50 +51,26 @@ export default async function generate({ gameId, curriculumId, mask }) {
         units,
         language: { learning, spoken },
         constraints,
+        mask,
     });
     return sentence;
 }
 
-function makePrompt(input) {
-    // template should be a mask property
-    const promptTemplate = `
-You are generating language learning material for a user learning {{language.learning}}.
-Using the following constraints generate a sentence in {{language.spoken}} and its translation in {{language.learning}}:
-
-Tense: {{constraints.tense}},
-mood: {{constraints.mood}},
-performer: {{constraints.performer}},
-
-Select from among these words:
-{{#units}}
-{ id: "{{id}}", {{language.spoken}}: "{{word.spoken}}", {{language.learning}}: "{{word.learning}}", tags: [ {{#tags}}{{.}}, {{/tags}}] },
-{{/units}}
-
-Return the following JSON structure:
-{
-  "spoken": "Sentence in {{language.spoken}}",
-  "learning": "Sentence in {{language.learning}}",
-  "ids": ["ID", ...], // the ids of the words used to generate the sentence. One-to-one correspondence is required.
-}
-
-Don't use words more advanced than those provided. We want the learner to be successfull. Keep the sentence between 4-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.`;
-    // the learner is at level {{level}}.
-    const prompt = Mustache.render(promptTemplate, input);
-    return prompt;
-}
-
 async function generateSentence(inputs) {
     try {
-        const prompt = makePrompt(inputs);
-        const sentence = await getGPTResponse({ prompt: [prompt] });
+        const prompt = Mustache.render(inputs.mask.data.generate.prompt, inputs);
+        const model = "gpt-4-1106-preview"; // "gpt-3.5-turbo-1106"
 
-        // let index = 0;
-        // while (!sentence && index < 3) {
-        //     index++;
-        //     console.log("index", index);
-        //     sentence = await getGPTResponse({ prompt: [prompt] });
-        //     if (!(await verifySentence(sentence))) sentence = null;
-        // }
+        const start = Date.now();
+        const sentence = await getGPTResponse({ prompt: [prompt], model });
+        const duration = (Date.now() - start) / 1000;
+        log(
+            "generateSentence",
+            { prompt, input: inputs, response: sentence, duration, model },
+            "foreign",
+        );
+
+        // let index = 0; while (!sentence && index < 3) {index++; console.log("index", index); sentence = await getGPTResponse({ prompt: [prompt] }); if (!(await verifySentence(sentence))) sentence = null;}
         return { spoken: sentence.spoken, learning: sentence.learning, ids: sentence.ids };
     } catch (error) {
         console.error("Error in generateSentences:", error);

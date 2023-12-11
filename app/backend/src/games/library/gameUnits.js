@@ -1,4 +1,5 @@
 import { prisma } from "../../prisma-client.js";
+import { log } from "../../library/logging.js";
 
 const STATUS = ["PRIORITIZED", "UNKNOWN", "LEARNING", "KNOWN"];
 // const {
@@ -12,15 +13,26 @@ const STATUS = ["PRIORITIZED", "UNKNOWN", "LEARNING", "KNOWN"];
 // } = inputs;
 export async function getUnits(inputs) {
     try {
-        const getters = [getPrioritizedUnits, getDueUnits, getNewUnits];
+        const getters = [
+            [getPrioritizedUnits, "getPrioritizedUnits"],
+            [getDueUnits, "getDueUnits"],
+            [getNewUnits, "getNewUnits"],
+        ];
         let take = inputs.take;
         const units = [];
 
-        for (const getUnits of getters) {
+        for (const [getUnits, funName] of getters) {
             if (units.length >= take) break;
 
             const newUnits = await getUnits(inputs);
             if (newUnits.length === 0) continue;
+
+            log("getUnits", {
+                gameId: inputs.gameId,
+                tags: inputs.tags,
+                [funName]: newUnits.lenght,
+                units: newUnits.map(({ id }) => id),
+            });
 
             units.push(...newUnits);
             inputs.take -= newUnits.length;
@@ -32,6 +44,7 @@ export async function getUnits(inputs) {
         throw err; // or handle the error as you see fit
     }
 }
+
 export const getPrioritizedUnit = async (inputs) => {
     inputs["take"] = 1;
     const units = await getPrioritizedUnits(inputs);
@@ -50,7 +63,7 @@ export const getPrioritizedUnits = async ({
     };
 
     if (tags.length > 0) where["AND"] = tags.map((tag) => ({ tags: { some: { name: tag } } }));
-    if (blacklist.length > 0) where.unit["id"] = { notIn: blacklist };
+    if (blacklist.length > 0) where["id"] = { notIn: blacklist };
 
     return await prisma.unit.findMany({
         where,

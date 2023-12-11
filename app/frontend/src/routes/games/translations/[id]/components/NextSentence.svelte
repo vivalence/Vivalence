@@ -1,9 +1,28 @@
 <script>
+    import { onMount, onDestroy } from "svelte";
     import Container from "$kit/container/Container.svelte";
     import Arrow from "carbon-icons-svelte/lib/DirectionStraight.svelte";
     import Button from "$kit/button/Button.svelte";
     import { gameStore } from "../store.js";
+
     const onClick = () => gameStore.requestNextSentence();
+
+    function handleKeyDown(event) {
+        if (event.key === " " || event.key === "Enter") {
+            onClick();
+        }
+    }
+    onMount(() => {
+        if (typeof window !== "undefined") {
+            window.addEventListener("keydown", handleKeyDown);
+        }
+    });
+
+    onDestroy(() => {
+        if (typeof window !== "undefined") {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    });
 </script>
 
 <Container

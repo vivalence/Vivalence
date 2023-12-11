@@ -1,8 +1,5 @@
 <script>
     import { page } from "$app/stores";
-    import { pan } from "svelte-gestures";
-    import { onMount, onDestroy } from "svelte";
-    import { spring } from "svelte/motion";
 
     import FlexContainer from "$kit/flex/Container.svelte";
     import FlexItem from "$kit/flex/Item.svelte";
@@ -24,6 +21,7 @@
             gameId: $page.params.id
         });
     }
+  // $: console.log($flashcardsStore)
 </script>
 
 <Panable>
@@ -40,3 +38,4 @@
     {/if}
 </Panable>
 <Controls />
+
