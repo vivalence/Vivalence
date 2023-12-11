@@ -1,4 +1,6 @@
 <script>
+    import { onMount, onDestroy } from "svelte";
+
     import FlexContainer from "$kit/flex/Container.svelte";
     import FlexItem from "$kit/flex/Item.svelte";
     import Reset from "carbon-icons-svelte/lib/Reset.svelte";
@@ -13,6 +15,23 @@
     const onValue = (value) => gameStore.setInput(value);
     const onClick = () => commitTranslation();
 
+    function handleKeyDown(event) {
+        if (event.key === "Enter") {
+            commitTranslation();
+        }
+    }
+
+    onMount(() => {
+        if (typeof window !== "undefined") {
+            window.addEventListener("keydown", handleKeyDown);
+        }
+    });
+
+    onDestroy(() => {
+        if (typeof window !== "undefined") {
+            window.removeEventListener("keydown", handleKeyDown);
+        }
+    });
     async function commitTranslation() {
         gameStore.reveal(true);
         await gameStore.reviewSentence();
@@ -28,7 +47,7 @@
     </div>
     <FlexContainer classes="mx-9 mt-9 mb-9">
         <FlexItem grow>
-            <Input value={$gameStore.input} {onValue} containerClasses={`min-w-[24em]`} />
+            <Input autofocus value={$gameStore.input} {onValue} containerClasses={`min-w-[24em]`} />
         </FlexItem>
         <FlexItem classes="ml-3">
             <Button

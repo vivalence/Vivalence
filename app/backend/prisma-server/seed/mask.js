@@ -1,22 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 
-const targetPrisma = new PrismaClient({
-    datasources: {
-        db: {
-            url: "postgresql://valence:DUMMY@localhost:5432/valence-spanish-vII"
-        }
-    }
-});
-const front = `<p class="text-3xl font-bold">{{english}}</p>
-        <p class="text-xl">{{usedInEnglish}}</p>`;
-const back = `<p class="text-3xl font-bold">{{spanish}}</p>
-        <p class="text-xl">{{usedInSpanish}}</p>`;
+const prisma = new PrismaClient({});
+
 async function mainOne() {
+    const where = {
+        id: "clq0z4qxv0002g0f8f93uwkc4",
+    };
     const data = {
-        data: { front, back }
+        data: {
+            WORD: {
+                back: `<p class="text-3xl font-sans-heading font-light mb-3">{{spanish}}</p>
+ <p class="text-lg">{{usedInSpanish}}</p>`,
+                front: `<p class="text-3xl font-sans-heading font-light mb-3">{{english}}</p>
+  <p class="text-lg">{{usedInEnglish}}</p>`,
+            },
+            CONJUGATION: {
+                front: `<p class="text-3xl font-sans-heading font-light mb-3">{{english}}</p>
+<p class="text-lg">
+    <span class="">Mood:</span> {{mood}}<br>
+    <span class="">Tense:</span> {{tense}}<br>
+    <span class="">Performer:</span> {{performer}}
+</p>`,
+                back: `<p class="text-3xl font-sans-heading font-light">Ser</p>`,
+            },
+        },
     };
 
-    const update = await targetPrisma.mask.updateMany({ data });
+    const update = await prisma.mask.update({ where, data });
 }
 
 await mainOne();

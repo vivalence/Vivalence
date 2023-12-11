@@ -16,7 +16,10 @@
         gameStore.init({ gameId: $page.params.id });
     });
     // display error
-    $: console.log($gameStore);
+
+    // <!-- $: console.log(''); -->
+    // <!-- $: console.log($gameStore.sentence); -->
+    // <!-- $: console.log($gameStore.review); -->
 </script>
 
 <FlexContainer

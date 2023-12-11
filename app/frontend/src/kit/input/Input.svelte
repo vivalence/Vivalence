@@ -11,6 +11,7 @@
     export let placeholder = "";
     export let label = "";
     export let tooltip = "";
+    export let autofocus = false;
 
     let visible = false;
 
@@ -37,6 +38,7 @@
         bind:value
         on:input={handleInput}
         type="text"
+        {autofocus}
         {placeholder}
     />
     {#if tooltip}

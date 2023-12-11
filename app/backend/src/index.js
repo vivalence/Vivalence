@@ -9,6 +9,7 @@ import bodyParser from "body-parser";
 import { prisma } from "./prisma-client.js";
 import { schema } from "./pothos-client/schema.js";
 
+import "./library/logging.js";
 const PORT = process.env.PORT || 4000;
 
 const app = express();
@@ -16,7 +17,7 @@ const httpServer = http.createServer(app);
 
 const apolloServer = new ApolloServer({
     schema: schema,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
 await apolloServer.start();
@@ -24,7 +25,7 @@ await apolloServer.start();
 const apolloMiddlewear = expressMiddleware(apolloServer, {
     context: async ({ req }) => {
         return { prisma, token: req.headers.token };
-    }
+    },
 });
 
 app.use("/", cors(), bodyParser.json(), apolloMiddlewear);

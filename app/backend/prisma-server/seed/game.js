@@ -4,7 +4,7 @@ const prisma = new PrismaClient({});
 
 async function mainOne() {
     const data = {
-        type: "TRANSLATIONS",
+        type: "FLASHCARDS",
 
         curriculumRelation: {
             create: {
@@ -16,6 +16,7 @@ async function mainOne() {
 
     const update = await prisma.game.create({ data });
 }
+
 async function main() {
     let index = 0;
     const reviews = await sourcePrisma.$queryRaw`SELECT * FROM public."Review";`;

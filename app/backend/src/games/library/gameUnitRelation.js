@@ -22,6 +22,7 @@ async function create({ unitId, gameId, response }) {
 async function get({ unitId, gameId }) {
     const queryResult = await prisma.gameUnitRelation.findFirst({
         where: { unitId, gameId },
+        include: { unit: true },
     });
     return queryResult;
 }
@@ -57,7 +58,6 @@ async function update({ unitId, gameId, response }, gameUnitRelation) {
             },
         },
     });
-    // gameUnitRelationUpdate["previousItemDelay"] = getDelayTime(gameUnitRelation, nextReview);
     return gameUnitRelationUpdate;
 }
 
@@ -70,6 +70,7 @@ async function handleGameUnitUpdate({ gameId, unitId, response }) {
     } else {
         gameUnitRelation = await create(input);
     }
+
     return gameUnitRelation;
 }
 
