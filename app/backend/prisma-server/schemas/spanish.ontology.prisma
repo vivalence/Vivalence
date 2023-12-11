@@ -11,8 +11,7 @@ model Word {
     pos            PartOfSpeechEnum[] @default([])
     usageInSpanish String?
     usageInEnglish String?
-    data
-    Json?
+    data           Json?
     // Up
     // Down
     conjugations   Conjugation[]

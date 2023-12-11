@@ -1,6 +1,7 @@
 import winston from "winston";
-import { Pool } from "pg";
 import Transport from "winston-transport";
+import pg from "pg";
+const { Pool } = pg;
 
 class PostgresTransport extends Transport {
     constructor(opts) {
