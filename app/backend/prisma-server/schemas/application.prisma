@@ -1,12 +1,10 @@
 model User {
     // Meta
-    id               String             @id @default(cuid())
-    createdAt        DateTime           @default(now())
-    updatedAt        DateTime           @default(now()) @updatedAt
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
     // It
     // Down
-    unitUserRelation UnitUserRelation[]
-    tagUserRelation  TagUserRelation[]
 }
 
 model Unit {
@@ -18,26 +16,25 @@ model Unit {
     unitType            UnitTypeEnum             @default(WORD)
     // It
     data                Json
-    status              UnitStatusEnum           @default(UNKNOWN)
+    status              UnitStatusEnum?
     tags                Tag[]
     // Up
     curriculumRelations CurriculumUnitRelation[]
     gameRelations       GameUnitRelation[]
-    unitUserRelation    UnitUserRelation[]
+    memoryModels        MemoryModel[]
 
     @@unique([corpusId, unitType]) // + userId 
 }
 
 model Tag {
     // Meta
-    id            String            @id @default(cuid())
-    createdAt     DateTime          @default(now())
-    updatedAt     DateTime          @default(now()) @updatedAt
+    id            String        @id @default(cuid())
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @default(now()) @updatedAt
     // It
-    name          String            @unique
-    type          TagTypeEnum[]     @default([])
+    name          String        @unique
+    type          TagTypeEnum[] @default([])
     unitRelations Unit[]
-    userRelations TagUserRelation[]
 }
 
 enum TagTypeEnum {
@@ -81,40 +78,24 @@ model Mask {
     CurriculumGameRelation CurriculumGameRelation[]
 }
 
-model UnitUserRelation {
+model MemoryModel {
     // Meta
-    id        String         @id @default(cuid())
-    createdAt DateTime       @default(now())
-    updatedAt DateTime       @default(now()) @updatedAt
-    // history   Json     @default("[]")
+    id        String           @id @default(cuid())
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @default(now()) @updatedAt
     // It
-    status    UnitStatusEnum @default(UNKNOWN)
-    state     Json           @default("{}")
+    type      MemoryTypeEnum   @default(EBISU_v2)
+    status    MemoryStatusEnum @default(UNKNOWN)
+    state     Json             @default("{}")
+    lastSeen  DateTime?
+    history   Json             @default("[]")
     // Relations
-    unit      Unit           @relation(fields: [unitId], references: [id])
+    unit      Unit             @relation(fields: [unitId], references: [id])
     unitId    String
-    user      User           @relation(fields: [userId], references: [id])
-    userId    String
+    // user      User             @relation(fields: [userId], references: [id])
+    // userId    String
 
-    @@unique([unitId, userId])
-}
-
-model TagUserRelation {
-    // Meta
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    history   Json     @default("[]")
-    // It
-    // status    UnitStatusEnum @default(UNKNOWN)
-    state     Json     @default("{}")
-    // Relations
-    tag       Tag      @relation(fields: [tagId], references: [id])
-    tagId     String
-    user      User     @relation(fields: [userId], references: [id])
-    userId    String
-
-    @@unique([tagId, userId])
+    @@unique([unitId])
 }
 
 model CurriculumUnitRelation {
@@ -142,7 +123,7 @@ model GameUnitRelation {
     // It
     nextPlay  DateTime
     lastPlay  DateTime
-    state     Json     @default("{}")
+    // state     Json     @default("{}")
     // Relations
     unit      Unit     @relation(fields: [unitId], references: [id])
     unitId    String
@@ -169,6 +150,11 @@ model CurriculumGameRelation {
     @@unique([gameId, curriculumId])
 }
 
+enum MemoryTypeEnum {
+    EBISU_v2
+    EBISU_v3
+}
+
 enum GameTypeEnum {
     FLASHCARDS
     TRANSLATIONS
@@ -179,13 +165,16 @@ enum UnitTypeEnum {
     CONJUGATION
 }
 
-enum UnitStatusEnum {
-    HIDDEN // not yet known but dont show
-    PRIORITIZED // start learning asp
+enum MemoryStatusEnum {
     UNKNOWN // not yet being learned
     LEARNING // being learned 
     KNOWN // sufficiently learned
     GRADUATED // sufficiently learned and not Showing anymore
+}
+
+enum UnitStatusEnum {
+    HIDDEN // dont show
+    PRIORITIZED // start learning asp
 }
 
 //

@@ -5,7 +5,9 @@
     import Button from "$kit/button/Button.svelte";
     import { gameStore } from "../store.js";
 
-    const onClick = () => gameStore.requestNextSentence();
+  const onClick = () => {
+    gameStore.displayNextSentence();
+  }
 
     function handleKeyDown(event) {
         if (event.key === " " || event.key === "Enter") {

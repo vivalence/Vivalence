@@ -1,5 +1,15 @@
 import { graphql } from "$houdini";
 
+export async function load({ fetch }) {
+    let data = {};
+
+    return {
+        props: {
+            data
+        }
+    };
+}
+
 export const _GetSentenceVariables = (event) => {
     return {
         input: {
@@ -9,7 +19,7 @@ export const _GetSentenceVariables = (event) => {
 };
 
 export const _houdini_load = graphql(`
-    query GetSentence($input: Game_Translations_GetSentence_Input!) {
+    query GetSentence($input: Game_Translations_GetSentence_Input!) @cache(policy: NetworkOnly) {
         Game_Translations_GetSentence(input: $input) {
             spoken
             learning
@@ -18,9 +28,16 @@ export const _houdini_load = graphql(`
     }
 `);
 
-export const _ReviewSentence_Mutation = graphql(`
-    mutation ReviewSentence($input: Game_Translations_ReviewSentence_Input!) {
-        Game_Translations_ReviewSentence(input: $input) {
+export const _Review_Mutation = graphql(`
+    mutation Review($input: Game_Translations_SentenceTranslation_Input!) {
+        Game_Translations_Review(input: $input) {
+            gameId
+        }
+    }
+`);
+export const _Feedback_Mutation = graphql(`
+    mutation Feedback($input: Game_Translations_SentenceTranslation_Input!) {
+        Game_Translations_Feedback(input: $input) {
             gameId
             parts {
                 part
