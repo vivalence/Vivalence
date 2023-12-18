@@ -19,12 +19,14 @@
         {#each $CurriculumsRead.data.curriculumsRead as curriculum}
             <Container title={curriculum.name} classes="mx-auto max-w-4xl mb-12">
                 {#each curriculum.gameRelations as gameRelation}
-                    <GameCard
-                        icon={gameRelation.game.type}
-                        title={gameRelation.game.typePretty}
-                        buttonText="Play"
-                        on:primaryButtonClick={playGame(gameRelation.game)}
-                    />
+                    <div class="mb-2 w-80">
+                        <GameCard
+                            icon={gameRelation.game.type}
+                            title={gameRelation.game.typePretty}
+                            buttonText="Play"
+                            on:primaryButtonClick={playGame(gameRelation.game)}
+                        />
+                    </div>
                 {/each}
             </Container>
         {/each}
