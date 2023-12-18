@@ -34,8 +34,8 @@
     });
     async function commitTranslation() {
         gameStore.reveal(true);
-        await gameStore.reviewSentence();
-        await gameStore.getSentence();
+        await gameStore.getReview();
+        await gameStore.getSentenceToQueue();
     }
 </script>
 

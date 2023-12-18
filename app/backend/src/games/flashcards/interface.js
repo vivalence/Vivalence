@@ -3,7 +3,7 @@ import { prisma } from "../../prisma-client.js";
 import { builder } from "../../pothos-client/builder.js";
 import { log } from "../../library/logging.js";
 
-import GameUnitRelation from "../library/gameUnitRelation.js";
+import handleGameUpdate from "../library/handleGameUpdate.js";
 import { getUnits } from "../library/gameUnits.js";
 
 //
@@ -32,17 +32,17 @@ builder.inputType("Game_Flashcards_UpdateCard_Input", {
 
 builder.queryFields((t) => ({
     Game_Flashcards_GetCards: t.field({
-        type: ["Game_Flashcards_Card"],
         args: {
             input: t.arg({
                 type: "Game_Flashcards_GetCards_Input",
                 required: true,
             }),
         },
+        type: ["Game_Flashcards_Card"],
         resolve: async (root, { input }, _) => {
             try {
                 const { gameId, blacklist = [], fetch } = input;
-                log("Game_Flashcards_GetCards_Input", input, "api");
+                log("Game_Flashcards_GetCards_Input", input);
 
                 const game = await prisma.game.findUnique({
                     where: { id: gameId },
@@ -57,11 +57,7 @@ builder.queryFields((t) => ({
                     take: fetch,
                 });
 
-                log(
-                    "Game_Flashcards_GetCards_Response",
-                    { units: units.map((unit) => unit.id) },
-                    "api",
-                );
+                log("Game_Flashcards_GetCards_Response", { units: units.map((unit) => unit.id) });
                 return units.map((unit) => ({ unit, mask: game.curriculumRelation.mask }));
             } catch (e) {
                 console.log("ERROR", e);
@@ -73,32 +69,33 @@ builder.queryFields((t) => ({
 
 builder.mutationFields((t) => ({
     Game_Flashcards_UpdateCard: t.field({
-        type: "Game_Flashcards_UpdateCard_Response",
         args: {
             input: t.arg({
                 type: "Game_Flashcards_UpdateCard_Input",
                 required: true,
             }),
         },
+        type: "Game_Flashcards_UpdateCard_Response",
         resolve: async (root, { input }, _) => {
             try {
                 const { gameId, unitId, response } = input;
-                log("Game_Flashcards_UpdateCard_Input", input, "api");
+                log("Game_Flashcards_UpdateCard_Input", input);
 
-                const relation = await GameUnitRelation.handle({ gameId, unitId, response });
+                const gameUpdate = await handleGameUpdate({
+                    gameId,
+                    unitId,
+                    response,
+                    gameType: "FLASHCARDS",
+                });
 
-                log(
-                    "Game_Flashcards_UpdateCard_Response",
-                    {
-                        gameId,
-                        unitId,
-                        nextPlay: relation.nextPlay,
-                        model: relation.state,
-                    },
-                    "api",
-                );
+                log("Game_Flashcards_UpdateCard_Response", {
+                    gameId,
+                    unitId,
+                    nextPlay: gameUpdate.nextPlay,
+                    model: gameUpdate.state,
+                });
 
-                return relation;
+                return gameUpdate;
             } catch (e) {
                 console.log("ERROR", e);
                 throw e;

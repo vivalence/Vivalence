@@ -8,7 +8,7 @@ export default async function generate({ gameId, curriculumId, mask }) {
     const getterInput = {
         curriculumId,
         gameId,
-        take: 3,
+        take: 2,
     };
     const conjugation = (
         await getUnits({
@@ -24,9 +24,14 @@ export default async function generate({ gameId, curriculumId, mask }) {
             [conjugation],
             getUnits({ ...getterInput, tags: ["NOUN"] }),
             getUnits({ ...getterInput, tags: ["ADJECTIVE"] }),
+            getUnits({ ...getterInput, tags: ["PRONOUN"] }),
             getUnits({ ...getterInput, tags: ["ADPOSITION"] }),
             getUnits({ ...getterInput, tags: ["ADVERB"] }),
-            getUnits({ ...getterInput, tags: ["PRONOUN"] }),
+            getUnits({ ...getterInput, tags: ["NUMERAL"] }),
+            getUnits({
+                ...getterInput,
+                tags: ["CONJUNCTION_COORDINATING", "CONJUNCTION_SUBORDINATING"],
+            }),
         ])
     ).flat();
 
@@ -37,7 +42,8 @@ export default async function generate({ gameId, curriculumId, mask }) {
 
     units = units.map((input) => ({
         id: input.id,
-        word: { learning: input.data[learning], spoken: input.data[spoken] },
+        learning: input.data[learning],
+        spoken: input.data[spoken],
         tags: input.tags.map(({ name }) => name),
     }));
 
@@ -62,13 +68,13 @@ async function generateSentence(inputs) {
         const model = "gpt-4-1106-preview"; // "gpt-3.5-turbo-1106"
 
         const start = Date.now();
-        const sentence = await getGPTResponse({ prompt: [prompt], model });
+        const sentence = await getGPTResponse({
+            prompt: [prompt],
+            model,
+            schema: inputs.mask.data.generate.schema,
+        });
         const duration = (Date.now() - start) / 1000;
-        log(
-            "generateSentence",
-            { prompt, input: inputs, response: sentence, duration, model },
-            "foreign",
-        );
+        log("generateSentence", { prompt, input: inputs, response: sentence, duration, model });
 
         // let index = 0; while (!sentence && index < 3) {index++; console.log("index", index); sentence = await getGPTResponse({ prompt: [prompt] }); if (!(await verifySentence(sentence))) sentence = null;}
         return { spoken: sentence.spoken, learning: sentence.learning, ids: sentence.ids };

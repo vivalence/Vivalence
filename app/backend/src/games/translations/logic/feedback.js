@@ -4,7 +4,7 @@ import { getGPTResponse } from "../../../library/openai-client.js";
 import handleGameUpdate from "../../library/handleGameUpdate.js";
 import { log } from "../../../library/logging.js";
 
-export default async function evaluate(input) {
+export default async function feedback(input) {
     const { gameId, payload, language, sentence, translation, mask } = input;
     try {
         const units = await prisma.unit.findMany({
@@ -22,39 +22,28 @@ export default async function evaluate(input) {
                 spoken: unit.data[language.spoken],
             })),
         };
-        const prompt = Mustache.render(mask.data.evaluate.prompt, promptInputs);
+        const prompt = Mustache.render(mask.data.feedback.prompt, promptInputs);
 
         const start = Date.now();
         const model = "gpt-3.5-turbo-1106"; // "gpt-4-1106-preview"; // "gpt-3.5-turbo-1106"
         const response = await getGPTResponse({
             prompt: [prompt],
             model,
-            schema: mask.data.evaluate.schema,
+            schema: mask.data.feedback.schema,
         });
         const duration = (Date.now() - start) / 1000;
-        log("evaluateSentence", { prompt, input: promptInputs, response, duration, model });
+        log("feedbackSentence", { prompt, input: promptInputs, response, duration, model });
 
-        const promises = [];
-        for (const evaluation of response.evaluations) {
-            promises.push(
-                handleGameUpdate({
-                    gameId,
-                    unitId: evaluation.id,
-                    response: evaluation.evaluation,
-                    gameType: "TRANSLATIONS",
-                }),
-            );
-        }
-        await Promise.all(promises);
-
-        return response.evaluations;
+        return response.feedback;
     } catch (error) {
         console.error("Error in evaluate:", error);
         throw error;
     }
 }
-// await evaluate({});
 
+function makePrompt(input) {
+    return prompt;
+}
 //         console.log(
 //             `
 // "evaluation response":

@@ -1,21 +1,26 @@
 import { prisma } from "../../prisma-client.js";
 import { builder } from "../../pothos-client/builder.js";
 import { log } from "../../library/logging.js";
+import { sleep } from "../../utils/index.js";
 
+import feedback from "./logic/feedback.js";
 import evaluate from "./logic/evaluate.js";
 import generate from "./logic/generate.js";
+
+let cachedSentence = null;
 
 //
 //  INPUTS
 //
-
-// generate a random number between 0 and 100
-
 const dryRun = false;
-const dummy = () => {
+const dummy = async () => {
+    await sleep(2000);
     const random = Math.floor(Math.random() * 100);
     return {
         review: {
+            gameId: "clpr5668n0000g01pvnkghden",
+        },
+        feedback: {
             parts: [
                 {
                     part: "I",
@@ -55,11 +60,7 @@ const dummy = () => {
         sentence: {
             spoken: random + "Man going to the time",
             learning: random + "Hombre yendo al tiempo",
-            ids: [
-                "clnt09m8j03shg0nuhkiik4eg",
-                "clpl45wuk009jg0s3z2mxfz2j",
-                "clnt09ie1001ug0nu4tekfb9z",
-            ],
+            ids: ["clnt09m8j03shg0nuhkiik4eg", "clnt09ie1001ug0nu4tekfb9z"],
         },
     };
 };
@@ -70,12 +71,12 @@ builder.inputType("Game_Translations_GetSentence_Input", {
     }),
 });
 
-builder.inputType("Game_Translations_ReviewSentence_Input", {
+builder.inputType("Game_Translations_SentenceTranslation_Input", {
     fields: (t) => ({
         gameId: t.id({ required: true }),
         learning: t.string({ required: true }),
         spoken: t.string({ required: true }),
-        input: t.string({ required: true }),
+        translation: t.string({ required: true }),
         payload: t.string({ required: true }),
     }),
 });
@@ -83,7 +84,6 @@ builder.inputType("Game_Translations_ReviewSentence_Input", {
 //
 // RESOLVERS
 //
-let cachedSentence = null;
 
 builder.queryFields((t) => ({
     Game_Translations_GetSentence: t.field({
@@ -99,8 +99,8 @@ builder.queryFields((t) => ({
                 console.log("cachedSentence", cachedSentence);
                 return cachedSentence;
             }
-            if (dryRun) return dummy().sentence;
-            log("Game_Flashcards_GetSentence_Input", input, "api");
+            if (dryRun) return (await dummy()).sentence;
+            log("Game_Flashcards_GetSentence_Input", input);
             try {
                 const { gameId } = input;
                 const game = await prisma.game.findUnique({
@@ -127,19 +127,19 @@ builder.queryFields((t) => ({
 }));
 
 builder.mutationFields((t) => ({
-    Game_Translations_ReviewSentence: t.field({
-        type: "Game_Translations_ReviewSentence_Response",
+    Game_Translations_Review: t.field({
+        type: "Game_Translations_Review_Response",
         args: {
             input: t.arg({
-                type: "Game_Translations_ReviewSentence_Input",
+                type: "Game_Translations_SentenceTranslation_Input",
                 required: true,
             }),
         },
         resolve: async (root, { input }, _) => {
             cachedSentence = null;
-            if (dryRun) return dummy().review;
-            const { gameId, payload, learning, spoken, input: translation } = input;
-            log("Game_Flashcards_ReviewSentence_Input", input, "api");
+            if (dryRun) return (await dummy()).review;
+            log("Game_Flashcards_Review_Input", input);
+            const { gameId, payload, learning, spoken, translation } = input;
 
             try {
                 const game = await prisma.game.findUnique({
@@ -161,9 +161,51 @@ builder.mutationFields((t) => ({
                     mask: game.curriculumRelation.mask,
                 });
 
-                evaluation.gameId = gameId;
-                log("Game_Flashcards_ReviewSentence_Response", evaluation, "api");
+                evaluation["gameId"] = game.id;
+                log("Game_Flashcards_Review_Response", evaluation);
                 return evaluation;
+            } catch (e) {
+                console.log("ERROR", e);
+                throw e;
+            }
+        },
+    }),
+    Game_Translations_Feedback: t.field({
+        type: "Game_Translations_Feedback_Response",
+        args: {
+            input: t.arg({
+                type: "Game_Translations_SentenceTranslation_Input",
+                required: true,
+            }),
+        },
+        resolve: async (root, { input }, _) => {
+            try {
+                if (dryRun) return (await dummy()).feedback;
+                log("Game_Flashcards_Feedback_Input", input);
+                const { gameId, payload, learning, spoken, translation } = input;
+
+                const game = await prisma.game.findUnique({
+                    where: { id: gameId },
+                    include: { curriculumRelation: { include: { mask: true } } },
+                });
+
+                if (!game) throw new Error("Game not found");
+
+                const result = await feedback({
+                    gameId,
+                    language: {
+                        learning: "spanish",
+                        spoken: "english",
+                    },
+                    translation,
+                    payload: JSON.parse(payload),
+                    sentence: { learning, spoken },
+                    mask: game.curriculumRelation.mask,
+                });
+
+                result.gameId = gameId;
+                log("Game_Flashcards_Feedback_Response", result);
+                return result;
             } catch (e) {
                 console.log("ERROR", e);
                 throw e;
@@ -184,11 +226,17 @@ builder.objectType("Game_Translations_Sentence", {
     }),
 });
 
-builder.objectType("Game_Translations_ReviewSentence_Response", {
+builder.objectType("Game_Translations_Review_Response", {
+    fields: (t) => ({
+        gameId: t.id({ required: true, resolve: ({ gameId }) => gameId }),
+    }),
+});
+
+builder.objectType("Game_Translations_Feedback_Response", {
     fields: (t) => ({
         gameId: t.id({ required: true, resolve: ({ gameId }) => gameId }),
         parts: t.field({
-            type: ["Game_Translations_ReviewSentence_Part"],
+            type: ["Game_Translations_Feedback_Part"],
             list: true,
             required: true,
             resolve: ({ parts }) => parts,
@@ -199,7 +247,7 @@ builder.objectType("Game_Translations_ReviewSentence_Response", {
         }),
         score: t.float({ required: true, resolve: ({ score }) => score }),
         classification: t.field({
-            type: "Game_Translations_ReviewSentence_Classification_Enum",
+            type: "Game_Translations_Feedback_Classification_Enum",
             required: true,
             resolve: ({ classification }) => classification,
         }),
@@ -207,7 +255,7 @@ builder.objectType("Game_Translations_ReviewSentence_Response", {
     }),
 });
 
-builder.objectType("Game_Translations_ReviewSentence_Part", {
+builder.objectType("Game_Translations_Feedback_Part", {
     fields: (t) => ({
         part: t.string({
             required: true,
@@ -222,13 +270,13 @@ builder.objectType("Game_Translations_ReviewSentence_Part", {
             resolve: ({ translation }) => translation,
         }),
         classification: t.field({
-            type: "Game_Translations_ReviewSentence_Classification_Enum",
+            type: "Game_Translations_Feedback_Classification_Enum",
             required: true,
             resolve: ({ classification }) => classification,
         }),
     }),
 });
 
-builder.enumType("Game_Translations_ReviewSentence_Classification_Enum", {
+builder.enumType("Game_Translations_Feedback_Classification_Enum", {
     values: ["correct", "info", "mistake", "failure"],
 });

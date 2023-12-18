@@ -21,13 +21,13 @@
             xend = yend = undefined;
             cancelled = true;
         } else if (event.code === "Space") {
-            flashcardsStore.reveal();
+            $flashcardsStore.revealed ? flashcardsStore.review("KNOWN") : flashcardsStore.reveal();
         } else if (event.code === "Digit1") {
-            flashcardsStore.review("UNKNOWN");
+            $flashcardsStore.revealed && flashcardsStore.review("UNKNOWN");
         } else if (event.code === "Digit2") {
-            flashcardsStore.review("KNOWN");
+            $flashcardsStore.revealed && flashcardsStore.review("KNOWN");
         } else if (event.code === "Digit3") {
-            flashcardsStore.review("GRADUATE");
+            $flashcardsStore.revealed && flashcardsStore.review("GRADUATE");
         }
     }
 

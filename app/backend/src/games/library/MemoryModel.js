@@ -2,51 +2,80 @@ import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../utils/time.
 import { prisma } from "../../prisma-client.js";
 import * as ebisu from "../../library/ebisu.js";
 
-async function create({ unitId, gameId, response, nextPlay }) {
-    const lastPlay = new Date();
+async function create({ unitId, response, gameType }) {
+    const model = getDefaultEbisuModel(response);
+    const nextReviewTime = ebisu.predictNextReviewTime(model);
+    const nextPlay = getDateTimeInXHours(nextReviewTime);
+    const now = new Date();
 
     const data = {
-        gameId,
-        unitId,
-        nextPlay,
-        lastPlay,
-        history: [{ response, nextPlay, now: lastPlay }],
+        unit: { connect: { id: unitId } },
+        type: "EBISU_v2",
+        status: "LEARNING",
+        lastSeen: now,
+        state: model,
+        history: [{ gameType, response, model, nextPlay, now }],
     };
-    const created = await prisma.gameUnitRelation.create({ data });
-    return created;
+
+    const created = await prisma.memoryModel.create({ data });
+
+    return { memoryModel: created, nextPlay };
 }
 
-async function read({ unitId, gameId }) {
-    const queryResult = await prisma.gameUnitRelation.findFirst({
-        where: { unitId, gameId },
-        include: { game: { select: { type: true } } },
+async function read({ unitId }) {
+    const queryResult = await prisma.memoryModel.findFirst({
+        where: { unitId },
+        include: { unit: true },
     });
     return queryResult;
 }
 
-async function update({ unitId, gameId, nextPlay, response }, gameUnitRelation) {
+async function update({ unitId, response, gameType }, memoryModel) {
     const now = new Date();
-    const history = [...gameUnitRelation.history, { response, nextPlay, now }];
+    const elapsedTime = getTimeDifferenceFromNow(memoryModel.lastSeen);
+    const model = updateEbisuModel(memoryModel.state, response, elapsedTime);
+    const nextPlay = getDateTimeInXHours(ebisu.predictNextReviewTime(model));
 
-    const gameUnitRelationUpdate = await prisma.gameUnitRelation.update({
-        where: { id: gameUnitRelation.id },
-        data: { history, nextPlay, lastPlay: now },
+    const history = [
+        ...memoryModel.history,
+        {
+            gameType,
+            response,
+            model,
+            nextPlay,
+            now,
+        },
+    ];
+
+    const update = await prisma.memoryModel.update({
+        where: { id: memoryModel.id },
+        data: {
+            state: model,
+            status: "LEARNING",
+            lastSeen: now,
+            history,
+        },
     });
-    return gameUnitRelationUpdate;
+    return { memoryModel: update, nextPlay };
 }
 
-async function handle({ gameId, unitId, nextPlay, response }) {
-    const input = { gameId, unitId, nextPlay, response };
+async function handle({ unitId, gameType, response }) {
+    const input = { unitId, gameType, response };
 
-    let gameUnitRelation = await read(input);
+    let nextPlay;
+    let memoryModel = await read(input);
 
-    if (gameUnitRelation) {
-        gameUnitRelation = await update(input, gameUnitRelation);
+    if (memoryModel) {
+        const updated = await update(input, memoryModel);
+        memoryModel = updated.memoryModel;
+        nextPlay = updated.nextPlay;
     } else {
-        gameUnitRelation = await create(input);
+        const created = await create(input);
+        memoryModel = created.memoryModel;
+        nextPlay = created.nextPlay;
     }
 
-    return gameUnitRelation;
+    return { memoryModel, nextPlay };
 }
 
 export default {
@@ -65,6 +94,7 @@ function getUnitStatus(elapsedTime, response) {
         return "LEARNING";
     }
 }
+
 function getDefaultEbisuModel(response) {
     let defautlModel = {};
     switch (response) {
@@ -82,6 +112,7 @@ function getDefaultEbisuModel(response) {
     }
     return ebisu.getDefaultModel(defautlModel);
 }
+
 function updateEbisuModel(model, response, elapsedTime) {
     switch (response) {
         case "GRADUATE":

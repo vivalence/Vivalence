@@ -1,33 +1,49 @@
+import { page } from "$app/stores";
 import { writable, get } from "svelte/store";
-import { _houdini_load, _GetSentenceVariables, _ReviewSentence_Mutation } from "./+page.js";
-import { cache } from "$houdini";
+import { browser } from "$app/environment";
+import { _GetSentenceVariables, _Review_Mutation, _Feedback_Mutation } from "./+page.js";
+import { cache, GetSentenceStore } from "$houdini";
+
+const sentenceStore = new GetSentenceStore();
 
 function createGameStore() {
     const Store = writable({
         revealed: false,
+        loadingFeedback: false,
         gameId: null,
-        input: null,
+        input: "",
+        queue: null,
         sentence: null,
         review: null,
+        feedback: null,
         error: null
     });
     const { subscribe, set, update } = Store;
 
     const fetchSentence = async (gameId) => {
-        cache.markStale("GetSentence");
         const variables = _GetSentenceVariables({ params: { id: gameId } });
-        const response = await _houdini_load.fetch({ variables });
-        const error = response.errors && response.errors[0];
-        const sentence = !error && response.data.Game_Translations_GetSentence;
+        const { data, errors } = await sentenceStore.fetch({ variables });
+        const error = errors && errors[0];
+        const sentence = !error && data.Game_Translations_GetSentence;
         return { sentence, error };
     };
-    const fetchReview = async (gameId, sentence, input) => {
+    const fetchFeedback = async (gameId, sentence, translation) => {
         const mutationInput = {
-            input: { gameId, ...sentence, input }
+            input: { gameId, ...sentence, translation }
         };
-        const response = await _ReviewSentence_Mutation.mutate(mutationInput);
+        const response = await _Feedback_Mutation.mutate(mutationInput);
         const error = response.errors && response.errors[0];
-        const review = !error && response.data.Game_Translations_ReviewSentence;
+        const feedback = !error && response.data.Game_Translations_Feedback;
+        return { feedback, error };
+    };
+    const fetchReview = async (gameId, sentence, translation) => {
+        const mutationInput = {
+            input: { gameId, ...sentence, translation }
+        };
+
+        const response = await _Review_Mutation.mutate(mutationInput);
+        const error = response.errors && response.errors[0];
+        const review = !error && response.data.Game_Translations_Review;
         return { review, error };
     };
 
@@ -35,41 +51,53 @@ function createGameStore() {
         subscribe,
         init: async ({ gameId }) => {
             const { sentence, error } = await fetchSentence(gameId);
-            set({
-                gameId,
-                revealed: false,
-                sentence,
-                error,
-                review: null,
-                input: ""
-            });
+            update((state) => ({ ...state, gameId, sentence, error }));
         },
         setInput: (input) => update((s) => ({ ...s, input })),
         reveal: (revealed = null) =>
             update((s) => ({ ...s, revealed: revealed === null ? !s.revealed : revealed })),
-        reviewSentence: async () => {
-            const { gameId, sentence, input } = get(Store);
-            const { review, error } = await fetchReview(gameId, sentence, input);
-            if (error) {
-                console.error("ERROR", error);
-                update((s) => ({ ...s, error }));
-            } else {
-                review.sentence = sentence;
-                update((s) => ({ ...s, review, sentence: null }));
-            }
+        displayNextSentence: () => {
+            update((s) => ({
+                ...s,
+                revealed: false,
+                feedback: null,
+                review: null,
+                input: "",
+                queue: null,
+                sentence: s.queue
+            }));
         },
-        getSentence: async () => {
+        getSentenceToQueue: async () => {
             const { gameId } = get(Store);
             const { sentence, error } = await fetchSentence(gameId);
             if (error) {
                 console.error("ERROR", error);
                 update((s) => ({ ...s, error }));
             } else {
-                update((s) => ({ ...s, sentence }));
+                update((s) => ({ ...s, queue: sentence }));
             }
         },
-        requestNextSentence: () => {
-            update((s) => ({ ...s, revealed: false, review: null, input: "" }));
+        getReview: async () => {
+            const { gameId, sentence, input } = get(Store);
+            const { review, error } = await fetchReview(gameId, sentence, input);
+            if (error) {
+                console.error("ERROR", error);
+                update((s) => ({ ...s, error }));
+            } else {
+                update((s) => ({ ...s, review }));
+            }
+        },
+        getFeedback: async () => {
+            update((s) => ({ ...s, loadingFeedback: true }));
+            const { gameId, sentence, input } = get(Store);
+            const { feedback, error } = await fetchFeedback(gameId, sentence, input);
+            if (error) {
+                console.error("ERROR", error);
+                update((s) => ({ ...s, error, loadingFeedback: false }));
+            } else {
+                feedback.sentence = sentence;
+                update((s) => ({ ...s, feedback, loadingFeedback: false }));
+            }
         }
     };
 }

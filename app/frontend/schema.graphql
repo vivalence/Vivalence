@@ -58,45 +58,49 @@ type Game_Flashcards_UpdateCard_Response {
   unitId: ID!
 }
 
-input Game_Translations_GetSentence_Input {
-  gameId: ID!
-}
-
-enum Game_Translations_ReviewSentence_Classification_Enum {
+enum Game_Translations_Feedback_Classification_Enum {
   correct
   failure
   info
   mistake
 }
 
-input Game_Translations_ReviewSentence_Input {
-  gameId: ID!
-  input: String!
-  learning: String!
-  payload: String!
-  spoken: String!
-}
-
-type Game_Translations_ReviewSentence_Part {
-  classification: Game_Translations_ReviewSentence_Classification_Enum!
+type Game_Translations_Feedback_Part {
+  classification: Game_Translations_Feedback_Classification_Enum!
   correction: String
   part: String!
   translation: String!
 }
 
-type Game_Translations_ReviewSentence_Response {
-  classification: Game_Translations_ReviewSentence_Classification_Enum!
+type Game_Translations_Feedback_Response {
+  classification: Game_Translations_Feedback_Classification_Enum!
   correction: String
   feedback: String!
   gameId: ID!
-  parts: [Game_Translations_ReviewSentence_Part!]!
+  parts: [Game_Translations_Feedback_Part!]!
   score: Float!
+}
+
+input Game_Translations_GetSentence_Input {
+  gameId: ID!
+}
+
+type Game_Translations_Review_Response {
+  gameId: ID!
 }
 
 type Game_Translations_Sentence {
   learning: String!
   payload: String!
   spoken: String!
+}
+
+input Game_Translations_SentenceTranslation_Input {
+  gameId: ID!
+  learning: String!
+  payload: String!
+  spoken: String!
+  translation: String!
 }
 
 """
@@ -106,7 +110,8 @@ scalar JSON
 
 type Mutation {
   Game_Flashcards_UpdateCard(input: Game_Flashcards_UpdateCard_Input!): Game_Flashcards_UpdateCard_Response!
-  Game_Translations_ReviewSentence(input: Game_Translations_ReviewSentence_Input!): Game_Translations_ReviewSentence_Response!
+  Game_Translations_Feedback(input: Game_Translations_SentenceTranslation_Input!): Game_Translations_Feedback_Response!
+  Game_Translations_Review(input: Game_Translations_SentenceTranslation_Input!): Game_Translations_Review_Response!
 }
 
 type Query {

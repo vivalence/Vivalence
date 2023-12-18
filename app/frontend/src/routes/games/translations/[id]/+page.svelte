@@ -15,10 +15,11 @@
     onMount(async () => {
         gameStore.init({ gameId: $page.params.id });
     });
-    // display error
 
-    // <!-- $: console.log(''); -->
-    // <!-- $: console.log($gameStore.sentence); -->
+    $: console.log($gameStore);
+
+    // TODO display error
+    //     <!-- // <\!-- $: console.log(''); -\-> -->
     // <!-- $: console.log($gameStore.review); -->
 </script>
 
@@ -30,7 +31,7 @@
     <FlexItem>
         {#if $gameStore.sentence && !$gameStore.revealed}
             <TranslationsInput />
-        {:else if $gameStore.revealed}
+        {:else if $gameStore.sentence && $gameStore.revealed}
             <TranslationsReview />
         {:else}
             <Loader />
@@ -38,6 +39,6 @@
     </FlexItem>
 </FlexContainer>
 
-{#if $gameStore.revealed && $gameStore.sentence}
-    <NextSentence/>
+{#if $gameStore.revealed && $gameStore.queue}
+    <NextSentence />
 {/if}
