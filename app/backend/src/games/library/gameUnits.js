@@ -2,15 +2,7 @@ import { prisma } from "../../prisma-client.js";
 import { log } from "../../library/logging.js";
 
 const STATUS = ["UNKNOWN", "LEARNING", "KNOWN"];
-// const {
-//     take = 1,
-//     status = STATUS,
-//     tags = [],
-//     due_lt = new Date(),
-//     blacklist = [],
-//     curriculumId,
-//     gameId,
-// } = inputs;
+// const {take = 1, status = STATUS, tags = [], due_lt = new Date(), blacklist = [], curriculumId, gameId,} = inputs;
 export async function getUnits(inputs) {
     try {
         const getters = [

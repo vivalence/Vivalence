@@ -8,6 +8,7 @@ const curriculumsRead = builder.queryField("curriculumsRead", (t) => {
                 include: {
                     gameRelations: { include: { game: true } },
                 },
+                orderBy: { name: "desc" },
             });
 
             return data;

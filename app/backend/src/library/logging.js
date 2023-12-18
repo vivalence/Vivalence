@@ -42,7 +42,7 @@ const logger = winston.createLogger({
 });
 
 export async function log(type, message, level = "info") {
-    if (type !== "getUnits") console.log("logging", type, message);
+    if (isDev && type !== "getUnits") console.log("logging", type, message);
     if (isDev && !type === "openai") return;
     logger.log({
         level: "info",
