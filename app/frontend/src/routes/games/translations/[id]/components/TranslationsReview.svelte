@@ -71,11 +71,11 @@
                     {/each}
                 </FlexContainer>
             </FlexItem>
-            {#if $gameStore.feedback.feedback}
+            {#if $gameStore.feedback.summary}
                 <FlexItem>
-                    <Text as="span" weight="light" size="xs" allcaps>Feedback</Text>
+                    <Text as="span" weight="light" size="xs" allcaps>Summary</Text>
                     <Text size="md" classes="max-w-2xl mt-1 pr-20"
-                        >{$gameStore.feedback.feedback}</Text
+                        >{$gameStore.feedback.summary}</Text
                     >
                 </FlexItem>
             {/if}

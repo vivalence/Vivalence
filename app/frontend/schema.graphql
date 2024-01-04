@@ -58,6 +58,10 @@ type Game_Flashcards_UpdateCard_Response {
   unitId: ID!
 }
 
+type Game_Translations_Evaluate_Response {
+  gameId: ID!
+}
+
 enum Game_Translations_Feedback_Classification_Enum {
   correct
   failure
@@ -75,17 +79,13 @@ type Game_Translations_Feedback_Part {
 type Game_Translations_Feedback_Response {
   classification: Game_Translations_Feedback_Classification_Enum!
   correction: String
-  feedback: String!
   gameId: ID!
   parts: [Game_Translations_Feedback_Part!]!
   score: Float!
+  summary: String!
 }
 
 input Game_Translations_GetSentence_Input {
-  gameId: ID!
-}
-
-type Game_Translations_Review_Response {
   gameId: ID!
 }
 
@@ -110,8 +110,8 @@ scalar JSON
 
 type Mutation {
   Game_Flashcards_UpdateCard(input: Game_Flashcards_UpdateCard_Input!): Game_Flashcards_UpdateCard_Response!
+  Game_Translations_Evaluate(input: Game_Translations_SentenceTranslation_Input!): Game_Translations_Evaluate_Response!
   Game_Translations_Feedback(input: Game_Translations_SentenceTranslation_Input!): Game_Translations_Feedback_Response!
-  Game_Translations_Review(input: Game_Translations_SentenceTranslation_Input!): Game_Translations_Review_Response!
 }
 
 type Query {

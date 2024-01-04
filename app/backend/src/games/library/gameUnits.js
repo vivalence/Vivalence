@@ -2,14 +2,18 @@ import { prisma } from "../../prisma-client.js";
 import { log } from "../../library/logging.js";
 
 const STATUS = ["UNKNOWN", "LEARNING", "KNOWN"];
-// const {take = 1, status = STATUS, tags = [], due_lt = new Date(), blacklist = [], curriculumId, gameId,} = inputs;
-export async function getUnits(inputs) {
+
+// const {take = 1, status = STATUS, tags = [], due_lt = new Date(), whitelist = [], blacklist = [], curriculumId, gameId,} = inputs;
+export default async function (inputs) {
     try {
         const getters = [
             [getPrioritizedUnits, "getPrioritizedUnits"],
             [getDueUnits, "getDueUnits"],
             [getNewUnits, "getNewUnits"],
         ];
+        if (inputs.whitelist && inputs.whitelist.length > 0)
+            getters.unshift([getWhitelistedUnits, "getWhitelistedUnits"]);
+
         let take = inputs.take;
         const units = [];
 
@@ -21,6 +25,7 @@ export async function getUnits(inputs) {
 
             log("getUnits", {
                 gameId: inputs.gameId,
+                curriculumId: inputs.curriculumId,
                 tags: inputs.tags,
                 [funName]: newUnits.length,
                 units: newUnits.map(({ id }) => id),
@@ -37,6 +42,26 @@ export async function getUnits(inputs) {
     }
 }
 
+export const getWhitelistedUnits = async ({
+    gameId,
+    curriculumId,
+    whitelist = [],
+    take = undefined,
+}) => {
+    const where = {
+        id: { in: whitelist },
+    };
+
+    return await prisma.unit.findMany({
+        where,
+        include: {
+            curriculumRelations: { where: { curriculumId } },
+            gameRelations: { where: { gameId } },
+            tags: { select: { name: true } },
+        },
+        take,
+    });
+};
 export const getPrioritizedUnit = async (inputs) => {
     inputs["take"] = 1;
     const units = await getPrioritizedUnits(inputs);

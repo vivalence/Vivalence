@@ -4,7 +4,7 @@ import { builder } from "../../pothos-client/builder.js";
 import { log } from "../../library/logging.js";
 
 import handleGameUpdate from "../library/handleGameUpdate.js";
-import { getUnits } from "../library/gameUnits.js";
+import getUnits from "../library/gameUnits.js";
 
 //
 //  INPUTS
@@ -42,7 +42,7 @@ builder.queryFields((t) => ({
         resolve: async (root, { input }, _) => {
             try {
                 const { gameId, blacklist = [], fetch } = input;
-                log("Game_Flashcards_GetCards_Input", input);
+                // log("Game_Flashcards_GetCards_Input", input);
 
                 const game = await prisma.game.findUnique({
                     where: { id: gameId },
@@ -57,7 +57,7 @@ builder.queryFields((t) => ({
                     take: fetch,
                 });
 
-                log("Game_Flashcards_GetCards_Response", { units: units.map((unit) => unit.id) });
+                // log("Game_Flashcards_GetCards_Response", { units: units.map((unit) => unit.id) });
                 return units.map((unit) => ({ unit, mask: game.curriculumRelation.mask }));
             } catch (e) {
                 console.log("ERROR", e);
@@ -79,7 +79,7 @@ builder.mutationFields((t) => ({
         resolve: async (root, { input }, _) => {
             try {
                 const { gameId, unitId, response } = input;
-                log("Game_Flashcards_UpdateCard_Input", input);
+                // log("Game_Flashcards_UpdateCard_Input", input);
 
                 const gameUpdate = await handleGameUpdate({
                     gameId,
@@ -88,13 +88,7 @@ builder.mutationFields((t) => ({
                     gameType: "FLASHCARDS",
                 });
 
-                log("Game_Flashcards_UpdateCard_Response", {
-                    gameId,
-                    unitId,
-                    nextPlay: gameUpdate.nextPlay,
-                    model: gameUpdate.state,
-                });
-
+                // log("Game_Flashcards_UpdateCard_Response", {gameId, unitId, nextPlay: gameUpdate.nextPlay, model: gameUpdate.state,});
                 return gameUpdate;
             } catch (e) {
                 console.log("ERROR", e);
