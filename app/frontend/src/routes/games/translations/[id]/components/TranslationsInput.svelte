@@ -35,7 +35,6 @@
     async function commitTranslation() {
         gameStore.reveal(true);
         await gameStore.getReview();
-        await gameStore.getSentenceToQueue();
     }
 </script>
 

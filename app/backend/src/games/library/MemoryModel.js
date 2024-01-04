@@ -65,6 +65,10 @@ async function handle({ unitId, gameType, response }) {
     let nextPlay;
     let memoryModel = await read(input);
 
+    // debugging
+    let unit;
+    if (memoryModel) unit = memoryModel.unit;
+
     if (memoryModel) {
         const updated = await update(input, memoryModel);
         memoryModel = updated.memoryModel;
@@ -74,6 +78,7 @@ async function handle({ unitId, gameType, response }) {
         memoryModel = created.memoryModel;
         nextPlay = created.nextPlay;
     }
+    console.log("memoryModel", unit && unit.data.spanish, response, nextPlay);
 
     return { memoryModel, nextPlay };
 }

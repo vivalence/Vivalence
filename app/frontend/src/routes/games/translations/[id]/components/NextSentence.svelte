@@ -5,9 +5,10 @@
     import Button from "$kit/button/Button.svelte";
     import { gameStore } from "../store.js";
 
-  const onClick = () => {
-    gameStore.displayNextSentence();
-  }
+    const onClick = () => {
+        gameStore.displayNextSentence();
+        gameStore.getSentenceToQueue();
+    }
 
     function handleKeyDown(event) {
         if (event.key === " " || event.key === "Enter") {

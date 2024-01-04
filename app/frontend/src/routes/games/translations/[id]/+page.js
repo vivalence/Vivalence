@@ -28,9 +28,9 @@ export const _houdini_load = graphql(`
     }
 `);
 
-export const _Review_Mutation = graphql(`
+export const _Evaluate_Mutation = graphql(`
     mutation Review($input: Game_Translations_SentenceTranslation_Input!) {
-        Game_Translations_Review(input: $input) {
+        Game_Translations_Evaluate(input: $input) {
             gameId
         }
     }
@@ -47,7 +47,7 @@ export const _Feedback_Mutation = graphql(`
             }
             correction
             classification
-            feedback
+            summary
         }
     }
 `);

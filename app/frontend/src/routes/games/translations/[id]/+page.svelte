@@ -13,10 +13,11 @@
     import { gameStore } from "./store.js";
 
     onMount(async () => {
-        gameStore.init({ gameId: $page.params.id });
+        await gameStore.init({ gameId: $page.params.id });
+        await gameStore.getSentenceToQueue();
     });
 
-    $: console.log($gameStore);
+    // $: console.log($gameStore);
 
     // TODO display error
     //     <!-- // <\!-- $: console.log(''); -\-> -->

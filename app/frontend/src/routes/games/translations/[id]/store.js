@@ -1,7 +1,7 @@
 import { page } from "$app/stores";
 import { writable, get } from "svelte/store";
 import { browser } from "$app/environment";
-import { _GetSentenceVariables, _Review_Mutation, _Feedback_Mutation } from "./+page.js";
+import { _GetSentenceVariables, _Evaluate_Mutation, _Feedback_Mutation } from "./+page.js";
 import { cache, GetSentenceStore } from "$houdini";
 
 const sentenceStore = new GetSentenceStore();
@@ -41,9 +41,9 @@ function createGameStore() {
             input: { gameId, ...sentence, translation }
         };
 
-        const response = await _Review_Mutation.mutate(mutationInput);
+        const response = await _Evaluate_Mutation.mutate(mutationInput);
         const error = response.errors && response.errors[0];
-        const review = !error && response.data.Game_Translations_Review;
+        const review = !error && response.data.Game_Translations_Evaluate;
         return { review, error };
     };
 
@@ -68,6 +68,7 @@ function createGameStore() {
             }));
         },
         getSentenceToQueue: async () => {
+            console.log("getSentenceToQueue");
             const { gameId } = get(Store);
             const { sentence, error } = await fetchSentence(gameId);
             if (error) {
