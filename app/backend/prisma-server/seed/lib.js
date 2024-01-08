@@ -1,6 +1,33 @@
 import { promises as fs } from "fs";
-
 import readline from "readline";
+
+export function mergeDeep(target, source) {
+    // Iterate through all properties in the source object
+    for (const key in source) {
+        if (source.hasOwnProperty(key)) {
+            if (source[key] && typeof source[key] === "object") {
+                // If the property is an object and the target has the same key, merge them
+                if (!target[key]) {
+                    Object.assign(target, { [key]: {} });
+                }
+                mergeDeep(target[key], source[key]);
+            } else {
+                // Otherwise, just set the property on the target
+                Object.assign(target, { [key]: source[key] });
+            }
+        }
+    }
+    return target;
+}
+
+export const batchArray = (array, batchSize) => {
+    let batches = [];
+    for (let i = 0; i < array.length; i += batchSize) {
+        const batch = array.slice(i, i + batchSize);
+        batches.push(batch);
+    }
+    return batches;
+};
 
 export function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));

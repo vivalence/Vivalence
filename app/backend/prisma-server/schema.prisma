@@ -23,6 +23,9 @@ model Word {
     english        String
     type           WordTypeEnum
     pos            PartOfSpeechEnum[] @default([])
+    lemmaSpanish   String?
+    lemmaEnglish   String?
+    ud             Json?
     usageInSpanish String?
     usageInEnglish String?
     data           Json?
@@ -39,12 +42,15 @@ model Conjugation {
     updatedAt DateTime @default(now()) @updatedAt
 
     // It
-    spanish   String
-    english   String?
-    tense     TenseEnum     @default(NON_TEMPORAL)
-    performer PerformerEnum @default(NON_FINITE)
-    mood      MoodEnum      @default(NON_FINITE)
-    ending    EndingEnum?
+    spanish      String
+    english      String?
+    tense        TenseEnum     @default(NON_TEMPORAL)
+    performer    PerformerEnum @default(NON_FINITE)
+    mood         MoodEnum      @default(NON_FINITE)
+    ending       EndingEnum?
+    lemmaSpanish String?
+    lemmaEnglish String?
+    ud           Json?
 
     // Up
     verb   Word   @relation(fields: [verbId], references: [id])
@@ -69,12 +75,7 @@ enum MoodEnum {
     NON_FINITE
 }
 
-// enum GenderEnum {
-//     MASCULINO
-//     FEMENINO
-//     NEUTRO
-//     NOT_GENDERED
-// }
+// enum GenderEnum {MASCULINO FEMENINO NEUTRO NOT_GENDERED}
 
 enum TenseEnum {
     INFINITIVO
@@ -440,12 +441,6 @@ model Tag {
     unitRelations Unit[]
 }
 
-enum TagTypeEnum {
-    STRUCTURAL
-    LEARNABLE
-    SET
-}
-
 model Curriculum {
     // Meta
     id            String                   @id @default(cuid())
@@ -551,6 +546,12 @@ model CurriculumGameRelation {
     maskId       String
 
     @@unique([gameId, curriculumId])
+}
+
+enum TagTypeEnum {
+    STRUCTURAL
+    LEARNABLE
+    SET
 }
 
 enum MemoryTypeEnum {
