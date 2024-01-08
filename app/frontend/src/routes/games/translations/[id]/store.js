@@ -21,7 +21,9 @@ function createGameStore() {
     const { subscribe, set, update } = Store;
 
     const fetchSentence = async (gameId) => {
-        const variables = _GetSentenceVariables({ params: { id: gameId } });
+        const blacklist = await makeBlacklist();
+        console.log("blacklist", blacklist);
+        const variables = _GetSentenceVariables({ params: { id: gameId, backlist } });
         const { data, errors } = await sentenceStore.fetch({ variables });
         const error = errors && errors[0];
         const sentence = !error && data.Game_Translations_GetSentence;
@@ -46,7 +48,10 @@ function createGameStore() {
         const review = !error && response.data.Game_Translations_Evaluate;
         return { review, error };
     };
-
+    const makeBlacklist = async () => {
+        const { sentence, queue } = get(Store);
+        return [sentence, queue].map((s) => JSON.parse(s.payload).pos.map((pos) => pos.id)).flat();
+    };
     return {
         subscribe,
         init: async ({ gameId }) => {
@@ -68,8 +73,8 @@ function createGameStore() {
             }));
         },
         getSentenceToQueue: async () => {
-            console.log("getSentenceToQueue");
             const { gameId } = get(Store);
+
             const { sentence, error } = await fetchSentence(gameId);
             if (error) {
                 console.error("ERROR", error);

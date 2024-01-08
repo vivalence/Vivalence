@@ -1,7 +1,9 @@
 import Mustache from "mustache";
 
 import validator from "./validator.js";
-import aiclients from "../../library/openai-client.js";
+import prisma from "../../prisma-client.js";
+import llmClients from "../../library/openai-client.js";
+import nlp from "../../services/nlp/index.js";
 
 export default async (inputs, inputPrimitives, context, factorySettings = {}) => {
     const { maxTries = 5 } = factorySettings;
@@ -15,7 +17,7 @@ export default async (inputs, inputPrimitives, context, factorySettings = {}) =>
     const llmAndValidate = async (prompt) => {
         let tries = 0;
         while (tries++ < maxTries) {
-            const candidate = await aiclients[mask.api]({ prompt, schema, model });
+            const candidate = await llmClients[mask.api]({ prompt, schema, model });
             const validation = validate(candidate);
 
             if (!validation.success) {
@@ -28,7 +30,13 @@ export default async (inputs, inputPrimitives, context, factorySettings = {}) =>
         throw new Error("Failed to generate a valid output");
     };
 
-    const primitives = { template: renderTemplate, llm: llmAndValidate, ...inputPrimitives };
+    const primitives = {
+        template: renderTemplate,
+        llm: llmAndValidate,
+        nlp,
+        prisma,
+        ...inputPrimitives,
+    };
     const maskOutput = await generator(inputs, primitives, context);
     return maskOutput;
 };

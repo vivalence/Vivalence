@@ -9,6 +9,7 @@ import cache from "../cache.js";
 builder.inputType("Game_Translations_GetSentence_Input", {
     fields: (t) => ({
         gameId: t.id({ required: true }),
+        blacklist: t.stringList(),
     }),
 });
 
@@ -36,6 +37,7 @@ builder.queryFields((t) => ({
                 };
                 const inputs = {
                     curriculumId: game.curriculumRelation.curriculumId,
+                    blacklist: input.blacklist,
                     gameId: game.id,
                 };
                 const sentence = await maskFactory(inputs, { getUnits }, { mask });
@@ -55,7 +57,7 @@ builder.objectType("Game_Translations_Sentence", {
     fields: (t) => ({
         spoken: t.string({ resolve: ({ spoken }) => spoken }),
         learning: t.string({ resolve: ({ learning }) => learning }),
-        payload: t.string({ resolve: (sentence) => JSON.stringify(sentence) }),
+        payload: t.string({ resolve: (sentence) => JSON.stringify(sentence.payload) }),
     }),
 });
 // export default async function generate({ gameId, curriculumId, mask }) {

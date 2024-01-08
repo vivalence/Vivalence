@@ -30,13 +30,15 @@ model Conjugation {
     // It
     spanish      String
     english      String?
-    tense        TenseEnum     @default(NON_TEMPORAL)
-    performer    PerformerEnum @default(NON_FINITE)
-    mood         MoodEnum      @default(NON_FINITE)
-    ending       EndingEnum?
     lemmaSpanish String?
     lemmaEnglish String?
-    ud           Json?
+
+    tense     TenseEnum?
+    performer PerformerEnum?
+    mood      MoodEnum?
+    form      VerbFormEnum?
+    ending    EndingEnum?
+    ud        Json?
 
     // Up
     verb   Word   @relation(fields: [verbId], references: [id])
@@ -56,18 +58,45 @@ model Conjugation {
 enum MoodEnum {
     INDICATIVO
     SUBJUNTIVO
+
+    IMPERATIVO
     IMPERATIVO_AFIRMATIVO
     IMPERATIVO_NEGATIVO
+
     NON_FINITE
+
+    Indicative
+    Subjunctive
+    Imperative
+    Conditional
+
+    Participle
+    Infinitive
+    Gerund
+    Conditional
 }
 
-// enum GenderEnum {MASCULINO FEMENINO NEUTRO NOT_GENDERED}
+enum PolarityEnum {
+    Positive
+    Negative
+}
+
+enum VerbFormEnum {
+    // "Infinitive", "Participle", "Finite", "Gerund"
+    Infinitive
+    Participle
+    Finite
+    Gerund
+}
+
+// enum GenderEnum {
+//     MASCULINO
+//     FEMENINO
+//     NEUTRO
+//     NOT_GENDERED
+// }
 
 enum TenseEnum {
-    INFINITIVO
-    GERUNDIO
-    PARTICIPIO
-
     PRESENTE
     PRETERITO
     IMPERFECTO
@@ -80,6 +109,28 @@ enum TenseEnum {
     PRETERITO_ANTERIOR
     CONDICIONAL_PERFECTO
     NON_TEMPORAL
+
+    INFINITIVO
+    GERUNDIO
+    PARTICIPIO
+
+    // "Present", "Future", "Imperfect", "Past"
+    Present
+    Future
+    Imperfect
+    Past
+}
+
+enum NumberEnum {
+    Singular
+    Plural
+    Dual
+}
+
+enum PersonEnum {
+    First
+    Second
+    Third
 }
 
 enum PerformerEnum {

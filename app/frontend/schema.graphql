@@ -86,6 +86,7 @@ type Game_Translations_Feedback_Response {
 }
 
 input Game_Translations_GetSentence_Input {
+  blacklist: [String!]
   gameId: ID!
 }
 

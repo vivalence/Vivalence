@@ -3,9 +3,80 @@ import { prisma } from "../../../prisma-client.js";
 const mask = {
     language: { learning: "spanish", spoken: "english" },
     tags: ["NOUN", "VERB", "ADJECTIVE"],
-    api: "openai",
-    model: "gpt-4-1106-preview",
-    // api: "anyscale", model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    // api: "openai", model: "gpt-4-1106-preview",
+    api: "anyscale",
+    model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    generate: {
+        api: "openai",
+        model: "gpt-4-1106-preview",
+        prompt: {
+            text: `You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
+
+Follow this strategy: Basic Descriptive Sentences
+   - Part of Speech Combination: NOUN + VERB + ADJ
+   - Focus: Practice forming sentences with a subject (NOUN), a simple action (VERB in present tense), and a descriptor (ADJ).
+   - Example: "El gato (NOUN) es (VERB) pequeño (ADJ)." (The cat is small.)
+
+Don't use words more advanced than those provided. We want the learner to be successfull.
+Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
+
+language spoken: {{language.spoken}}; learning: {{language.learning}};
+
+Select from among these words:
+{{#units}}
+{{.}}
+{{/units}}
+
+Return a JSON object with the spoken and learning sentence..`,
+        },
+        schema: {
+            title: "LanguageLearningSentence",
+            type: "object",
+            properties: {
+                spoken: {
+                    title: "SpokenSentence",
+                    description: "Sentence in the familiar language",
+                    type: "string",
+                },
+                learning: {
+                    title: "LearningSentence",
+                    description: "Sentence in the language to be learned",
+                    type: "string",
+                },
+            },
+            required: ["spoken", "learning"],
+        },
+        run: (async (inputs, primitives, context) => {
+            const { gameId, curriculumId, blacklist } = inputs;
+            const { validate, getUnits, template, llm, nlp } = primitives;
+            const { tags, language } = context.mask;
+
+            const units = (
+                await Promise.all(
+                    tags.map((tag) =>
+                        getUnits({ blacklist, curriculumId, gameId, take: 4, tags: [tag] }),
+                    ),
+                )
+            )
+                .flat()
+                .map((input) =>
+                    JSON.stringify({
+                        learning: input.data[language.learning],
+                        spoken: input.data[language.spoken],
+                        tags: input.tags.map(({ name }) => name),
+                    }),
+                );
+
+            if (units.filter((item) => !!item).length < 5)
+                throw new Error("Not enough items to practice");
+
+            const renderedPrompt = template({ units, language });
+            const sentences = await llm(renderedPrompt);
+            const analysis = await nlp(sentences.learning, { findUnits: true });
+            sentences.payload = { pos: analysis };
+            return sentences;
+        }).toString(),
+    },
     evaluate: {
         schema: {
             title: "Evaluations",
@@ -90,9 +161,24 @@ The sentence was generated from these words:
         },
         run: (async (inputs, primitives, context) => {
             const { gameId, curriculumId, payload, sentence } = inputs;
-            const { validate, template, llm, getUnits, handleGameUpdate } = primitives;
+            const { prisma, validate, template, nlp, llm, getUnits, handleGameUpdate } = primitives;
             const { language } = context.mask;
 
+            const sentenceAnalysis = await nlp(sentence.learning);
+            console.log("sentenceAnalysis", sentenceAnalysis);
+
+            for (const word of sentenceAnalysis) {
+                const unit = await prisma.unit.findOne({
+                    where: {
+                        data: {
+                            path: ["spanish"],
+                            string_contains: word.lemma,
+                        },
+                    },
+                });
+            }
+
+            return;
             const units = await getUnits({
                 gameId,
                 curriculumId,
@@ -254,81 +340,6 @@ This was the originially intended translation, but the learner never saw it:
             const renderedPrompt = template(promptInputs);
             const response = await llm(renderedPrompt);
             return response;
-        }).toString(),
-    },
-    generate: {
-        prompt: {
-            text: `You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
-
-Follow this strategy: Basic Descriptive Sentences
-   - POS Combination: NOUN + VERB + ADJ
-   - Focus: Practice forming sentences with a subject (NOUN), a simple action (VERB in present tense), and a descriptor (ADJ).
-   - Example: "El gato (NOUN) es (VERB) pequeño (ADJ)." (The cat is small.)
-
-Don't use words more advanced than those provided. We want the learner to be successfull.
-Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
-
-language spoken: {{language.spoken}}; learning: {{language.learning}};
-
-Select from among these words:
-{{#units}}
-{{.}}
-{{/units}}
-
-Return a JSON object with the spoken and learning sentence, as well as the list of ids used to generate the sentence. exclude any words that were not used to generate the sentence.`,
-        },
-        schema: {
-            title: "LanguageLearningSentence",
-            type: "object",
-            properties: {
-                spoken: {
-                    title: "SpokenSentence",
-                    description: "Sentence in the familiar language",
-                    type: "string",
-                },
-                learning: {
-                    title: "LearningSentence",
-                    description: "Sentence in the language to be learned",
-                    type: "string",
-                },
-                ids: {
-                    title: "Ids",
-                    description:
-                        "List of IDs corresponding to the words used to generate the sentence",
-                    type: "array",
-                    items: {
-                        type: "string",
-                    },
-                },
-            },
-            required: ["spoken", "learning", "ids"],
-        },
-        run: (async (inputs, primitives, context) => {
-            const { gameId, curriculumId } = inputs;
-            const { validate, getUnits, template, llm } = primitives;
-            const { tags, language } = context.mask;
-
-            const units = (
-                await Promise.all(
-                    tags.map((tag) => getUnits({ curriculumId, gameId, take: 3, tags: [tag] })),
-                )
-            )
-                .flat()
-                .map((input) =>
-                    JSON.stringify({
-                        id: input.id,
-                        learning: input.data[language.learning],
-                        spoken: input.data[language.spoken],
-                        tags: input.tags.map(({ name }) => name),
-                    }),
-                );
-
-            if (units.filter((item) => !!item).length < 5)
-                throw new Error("Not enough items to practice");
-
-            const renderedPrompt = template({ units, language });
-            const sentences = await llm(renderedPrompt);
-            return sentences;
         }).toString(),
     },
 };

@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import api from "api"; // Import the default export from 'api' module
+
 import fetch from "node-fetch";
 import { log } from "./logging.js";
 
@@ -14,7 +16,8 @@ const anyscaleClient = new OpenAI({
     baseURL: "https://api.endpoints.anyscale.com/v1",
 });
 
-// const fetchOpenAI = async (endpoint, payload) => {const openaiHeaders = {"Content-Type": "application/json", Authorization: `Bearer ${openaiApiKey}`,}; const response = await fetch(endpoint, {method: "POST", headers: openaiHeaders, body: JSON.stringify(payload),}); if (!response.ok) {throw new Error(`HTTP error! status: ${response.status}`);} return await response.json();};
+const perplexityClient = api("@pplx/v0#b2wdhb1klq5dn1d6");
+perplexityClient.auth(process.env.PERPLEXITY_API_KEY);
 
 async function anyscale({ prompt, schema, model }) {
     try {
@@ -72,5 +75,37 @@ async function openai({ prompt, model, schema }) {
     }
 }
 
-export default { anyscale, openai };
+async function perplexity({ prompt, model, schema }) {
+    try {
+        const start = Date.now();
+        const messages = [{ role: "user", content: prompt }];
+
+        if (schema) {
+            messages.unshift({
+                role: "system",
+                content:
+                    `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
+                    `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
+            });
+        }
+
+        const chatCompletion = await perplexityClient.post_chat_completions({
+            model: model || "mixtral-8x7b-instruct",
+            messages: messages,
+        });
+
+        const response = JSON.parse(chatCompletion.data.choices[0].message.content);
+        console.log("perplexity", {
+            messages,
+            response,
+            model,
+            duration: (Date.now() - start) / 1000,
+        });
+        return response;
+    } catch (error) {
+        console.log("error", { where: "perplexityAI", error });
+    }
+}
+
+export default { anyscale, openai, perplexity };
 // export { fetchOpenAI, getGPTResponse };
