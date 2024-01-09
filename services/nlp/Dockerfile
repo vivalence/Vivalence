@@ -1,6 +1,6 @@
 FROM python:3.10-buster 
 
-RUN pip install poetry==1.4.2
+RUN pip install poetry==1.7.0
 
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
@@ -16,9 +16,10 @@ RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
 
 # The runtime image, used to just run the code provided its virtual environment
 
-# ENV VIRTUAL_ENV=/app/.venv \ PATH="/app/.venv/bin:$PATH"
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
 
-COPY . .
+COPY . /app
 
 ENV PORT=5050
 
