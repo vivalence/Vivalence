@@ -1,8 +1,8 @@
 import { builder } from "../../../pothos-client/builder.js";
-import { prisma } from "../../../prisma-client.js";
+import prisma from "../../../prisma-client.js";
 
 import maskFactory from "../../library/maskFactory.js";
-import getUnits from "../../library/gameUnits.js";
+// import getUnits from "../../library/gameUnits.js";
 
 import cache from "../cache.js";
 
@@ -40,7 +40,7 @@ builder.queryFields((t) => ({
                     blacklist: input.blacklist,
                     gameId: game.id,
                 };
-                const sentence = await maskFactory(inputs, { getUnits }, { mask });
+                const sentence = await maskFactory(inputs, {}, { mask });
 
                 if (!sentence) throw new Error("Sentence generation failed");
                 // cache.set(sentence);

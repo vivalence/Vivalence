@@ -45,7 +45,7 @@ export async function log(type, message, level = "info") {
     if (isDev && !["resolver", "openai", "anyscale", "getUnits"].includes(type))
         console.log("logging", type, message);
     if (isDev && !["openai", "anyscale"].includes(type)) return;
-    console.log("logging", type);
+    // console.log("logging", type);
     logger.log({
         level: "info",
         type,

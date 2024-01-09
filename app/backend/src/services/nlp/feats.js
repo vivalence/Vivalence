@@ -8,9 +8,12 @@ export default function parseFeats(featsString = "") {
         return acc;
     }, {});
 
-    feats.ENUM = {
-        mood: FEATS_ENUM_MAPPING.mood[feats.Mood],
-    };
+    if (feats.Mood !== undefined) {
+        feats.ENUM = {
+            mood: FEATS_ENUM_MAPPING.mood[feats.Mood],
+        };
+    }
+    feats.STRING = featsString || "";
     return feats;
 }
 
