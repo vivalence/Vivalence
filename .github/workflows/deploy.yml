@@ -35,7 +35,7 @@ jobs:
         
     - name: Build and push Docker image
       run: |
-        docker build -t ${{ matrix.component }} ${{ matrix.path }}
+        docker build --progress=plain -t ${{ matrix.component }} ${{ matrix.path }}
         docker save ${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
