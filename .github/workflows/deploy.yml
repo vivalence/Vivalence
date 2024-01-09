@@ -9,7 +9,7 @@ on:
     #   - 'v*.*.*'  
 
 jobs:
-  build-and-push-app:
+  build-and-push:
     runs-on: ubuntu-latest
     strategy:
       matrix:
