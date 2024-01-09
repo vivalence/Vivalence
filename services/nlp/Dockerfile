@@ -1,52 +1,49 @@
-FROM python:3.10-buster 
+# Builder stage
+FROM python:3.10-slim AS builder
 
+# Install Poetry
 RUN pip install poetry==1.7.0
 
+# Set Environment Variables for Poetry
 ENV POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_IN_PROJECT=1 \
     POETRY_VIRTUALENVS_CREATE=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 
+# Set Working Directory
 WORKDIR /app
 
+# Copy dependency files
 COPY pyproject.toml poetry.lock ./
-RUN touch README.md
 
+# Install dependencies
 RUN poetry install --no-dev --no-root
+
+# Remove Poetry Cache
 RUN rm -rf $POETRY_CACHE_DIR
 
-# The runtime image, used to just run the code provided its virtual environment
+# Runtime stage
+FROM python:3.10-slim
 
-ENV VIRTUAL_ENV=/app/.venv \
+# Set Environment Variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
 
+# Set Working Directory
+WORKDIR /app
+
+# Copy the virtual environment from builder stage
+COPY --from=builder /app/.venv ./.venv
+
+# Copy application code
 COPY . /app
 
+# Set Environment Variable for Port
 ENV PORT=5050
 
+# Expose Port
 EXPOSE $PORT
+
+# Command to run the application
 CMD ["poetry", "run", "python", "src/index.py", "$PORT"]
-
-
-
-
-
-
-
-
-# # Use an official Python runtime as a parent image
-# FROM python:3.10-slim
-
-# # Set the working directory in the container
-
-# # Copy the current directory contents into the container at /usr/src/app
-# COPY . .
-
-# # Install Poetry
-# RUN pip install poetry
-
-# # Install any needed packages specified in pyproject.toml
-# RUN poetry config virtualenvs.create false
-# RUN poetry install --no-dev
-
-# # Define environment variable
