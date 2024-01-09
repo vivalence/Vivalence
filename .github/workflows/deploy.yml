@@ -3,20 +3,25 @@ name: Deploy on Tag
 on:
   push:
     branches:
-      # Trigger on push to any branch
       # - '*'  
-      # Trigger on push main
       - 'main'
-
     # tags:
-    #   - 'v*.*.*'  # Semantic versioning tags
+    #   - 'v*.*.*'  
 
 jobs:
-  build-and-push:
+  build-and-push-app:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        component: ['frontend', 'backend']
+         include:
+          - component: 'frontend'
+            path: './app/frontend'
+          - component: 'backend'
+            path: './app/backend'
+          - component: 'service-nlp'
+            path: './services/nlp'
+        # component: ['frontend', 'backend', 'service-nlp']
+        # docker build -t ${{ matrix.component }} ./app/${{ matrix.component }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -30,7 +35,7 @@ jobs:
         
     - name: Build and push Docker image
       run: |
-        docker build -t ${{ matrix.component }} ./app/${{ matrix.component }}
+        docker build -t ${{ matrix.component }} ${{ matrix.path }}
         docker save ${{ matrix.component }} | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:

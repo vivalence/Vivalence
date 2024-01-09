@@ -5,6 +5,8 @@ import parseFeats from "../../services/nlp/feats.js";
 async function test() {
     const sentence = "Me gusta comer pizza las sábados";
     const doc = await nlp(sentence);
+    console.log(doc);
+    return;
 
     for (const partOfSentence of doc) {
         let unit;
