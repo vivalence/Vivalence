@@ -1,5 +1,5 @@
 import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../utils/time.js";
-import { prisma } from "../../prisma-client.js";
+import prisma from "../../prisma-client.js";
 import * as ebisu from "../../library/ebisu.js";
 
 async function create({ unitId, response, gameType }) {
@@ -78,7 +78,7 @@ async function handle({ unitId, gameType, response }) {
         memoryModel = created.memoryModel;
         nextPlay = created.nextPlay;
     }
-    console.log("memoryModel", unit && unit.data.spanish, response, nextPlay);
+    // console.log("memoryModel", unit && unit.data.spanish, response, nextPlay);
 
     return { memoryModel, nextPlay };
 }

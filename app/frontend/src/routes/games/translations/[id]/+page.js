@@ -13,7 +13,8 @@ export async function load({ fetch }) {
 export const _GetSentenceVariables = (event) => {
     return {
         input: {
-            gameId: event.params.id
+            gameId: event.params.id,
+            blacklist: event.params.blacklist
         }
     };
 };

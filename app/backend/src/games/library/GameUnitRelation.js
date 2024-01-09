@@ -1,5 +1,5 @@
 import { getDateTimeInXHours, getTimeDifferenceFromNow } from "../../utils/time.js";
-import { prisma } from "../../prisma-client.js";
+import prisma from "../../prisma-client.js";
 import * as ebisu from "../../library/ebisu.js";
 
 async function create({ unitId, gameId, response, nextPlay }) {

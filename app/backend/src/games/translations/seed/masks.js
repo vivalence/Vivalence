@@ -1,16 +1,34 @@
-import { prisma } from "../../../prisma-client.js";
+import prisma from "../../../prisma-client.js";
 
 const mask = {
     language: { learning: "spanish", spoken: "english" },
     tags: ["NOUN", "VERB", "ADJECTIVE"],
-    // api: "openai", model: "gpt-4-1106-preview",
-    api: "anyscale",
-    model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    provider: {
+        // api: "openai", model: "gpt-4-1106-preview",
+        api: "anyscale",
+        model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+    },
     generate: {
-        api: "openai",
-        model: "gpt-4-1106-preview",
+        // provider: {api: "openai", model: "gpt-4-1106-preview",},
         prompt: {
-            text: `You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
+            schema: {
+                title: "LanguageLearningSentence",
+                type: "object",
+                properties: {
+                    spoken: {
+                        title: "SpokenSentence",
+                        description: "Sentence in the familiar language",
+                        type: "string",
+                    },
+                    learning: {
+                        title: "LearningSentence",
+                        description: "Sentence in the language to be learned",
+                        type: "string",
+                    },
+                },
+                required: ["spoken", "learning"],
+            },
+            template: `You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
 
 Follow this strategy: Basic Descriptive Sentences
    - Part of Speech Combination: NOUN + VERB + ADJ
@@ -24,32 +42,17 @@ language spoken: {{language.spoken}}; learning: {{language.learning}};
 
 Select from among these words:
 {{#units}}
-{{.}}
+{{learning}} {{spoken}} {{#tags}}{{.}} {{/tags}}
 {{/units}}
 
 Return a JSON object with the spoken and learning sentence..`,
         },
-        schema: {
-            title: "LanguageLearningSentence",
-            type: "object",
-            properties: {
-                spoken: {
-                    title: "SpokenSentence",
-                    description: "Sentence in the familiar language",
-                    type: "string",
-                },
-                learning: {
-                    title: "LearningSentence",
-                    description: "Sentence in the language to be learned",
-                    type: "string",
-                },
-            },
-            required: ["spoken", "learning"],
-        },
-        run: (async (inputs, primitives, context) => {
+        run: async function (inputs, primitives, context) {
             const { gameId, curriculumId, blacklist } = inputs;
-            const { validate, getUnits, template, llm, nlp } = primitives;
-            const { tags, language } = context.mask;
+            const { getUnits, createLLMClient, nlp } = primitives;
+            const { tags, language, provider, prompt } = context.mask;
+
+            const llm = await createLLMClient({ provider, prompt });
 
             const units = (
                 await Promise.all(
@@ -59,288 +62,235 @@ Return a JSON object with the spoken and learning sentence..`,
                 )
             )
                 .flat()
-                .map((input) =>
-                    JSON.stringify({
-                        learning: input.data[language.learning],
-                        spoken: input.data[language.spoken],
-                        tags: input.tags.map(({ name }) => name),
-                    }),
-                );
+                .map((input) => ({
+                    learning: input.data[language.learning],
+                    spoken: input.data[language.spoken],
+                    tags: input.tags.map(({ name }) => name),
+                }));
 
             if (units.filter((item) => !!item).length < 5)
                 throw new Error("Not enough items to practice");
 
-            const renderedPrompt = template({ units, language });
-            const sentences = await llm(renderedPrompt);
+            const sentences = await llm({ units, language });
             const analysis = await nlp(sentences.learning, { findUnits: true });
             sentences.payload = { pos: analysis };
             return sentences;
-        }).toString(),
+        }.toString(),
     },
     evaluate: {
-        schema: {
-            title: "Evaluations",
-            type: "object",
-            properties: {
-                evaluations: {
-                    title: "Evaluations",
-                    type: "array",
-                    items: {
-                        $ref: "#/definitions/Evaluation",
-                    },
-                },
-            },
-            required: ["evaluations"],
-            definitions: {
-                EvaluationEnum: {
-                    title: "EvaluationEnum",
-                    description:
-                        "Does the user know to correctly apply this part of speech? Classified as either KNOWN or UNKNOWN.",
-                    enum: ["KNOWN", "UNKNOWN"],
-                    type: "string",
-                },
-                Evaluation: {
-                    title: "Evaluation",
-                    type: "object",
-                    properties: {
-                        id: {
-                            title: "ID",
-                            type: "string",
-                        },
-                        evaluation: {
-                            $ref: "#/definitions/EvaluationEnum",
-                        },
-                    },
-                    required: ["id", "evaluation"],
-                },
-            },
-        },
         prompt: {
-            text: `A language learner was prompted with a {{language.spoken}} sentence and asked to provide the {{language.learning}} translation as a learning exercise.
-You provide a technical evaluation on the successfull usage of specific words.
+            schema: {
+                title: "Evaluations",
+                type: "object",
+                properties: {
+                    evaluation: {
+                        title: "Evaluation",
+                        description: `KNOWN means the learner successfully used this part of speech in their translation as expected. UNKNOWN means the learner failed in their use the expected part of speech. Spelling, missing words, and other errors are considered UNKNOWN. NEUTRAL is to be used only if the learner applied an equivalent alternative successfully. If the PoS is not present in the translation, then it is UNKNOWN.`,
+                        enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
+                        type: "string",
+                    },
+                },
+                required: ["evaluation"],
+            },
+            template: `Evaluate this part of speech of a translated sentence.
+The sentence was translated from {{language.spoken}} to {{language.learning}} by a language learner as a learning exercise.
 
-Respond in JSON format. Example:
-"""
-input {
-    learning: "Haber un año",
-    spoken: "To have a year",
-    translation: "tener un año",
-    words: [
-	{"id": 2A, "spoken": "to have", "learning": "haber"},
-	{"id": 3B, "spoken": "thing", "learning": "cosa"},
-	{"id": 4C, "spoken": "year", "learning": "año"}
-    ]
-}
-return {
-    evaluations: [ 
-        { id: "2A", evaluation: "UNKNOWN" },
-        { id: "4C", evaluation: "KNOWN" },
-    ]
-}
-"""
+Prompted {{language.spoken}} sentence:
+{{sentence.spoken}}
 
-Evaluation:
-Evaluate whether the usage of these words as either KNOWN or UNKNOWN, as measured by the learners successful usage of the word in context, given the prompt and expected translation.
-Only provide evaluations for words that were part of the prompted sentence. Exclude words that were not part of the prompted sentenc.
-
-The learner was prompted with this sentence:
-{{{sentence.spoken}}}
-
-The learner has provided this translation:
-{{sentence.translation}}
-
-This was the originially intended translation, but the learner never saw it:
+Expected {{language.learning}} translation: (this was hidden from the learner)
 {{sentence.learning}}
 
-spoken: {{language.spoken}}; learning: {{language.learning}};
-The sentence was generated from these words:
-{{#units}}
-{{.}}
-{{/units}}
+Learner provided translation:
+{{sentence.translation}}
+
+You provide an evaluation on the successful usage of this part of speech as KNOWN or UNKNOWN.
+The Part of Speech you are evaluating is:
+{{language.spoken}}: {{part.spoken}}
+{{language.learning}}: {{part.learning}}
+upos: {{part.upos}}
+feats: {{part.feats}}
+
+Did the learner correctly use this part of speech? evaluate only the part of speech. not the whole sentence.
 `,
         },
         run: (async (inputs, primitives, context) => {
             const { gameId, curriculumId, payload, sentence } = inputs;
-            const { prisma, validate, template, nlp, llm, getUnits, handleGameUpdate } = primitives;
-            const { language } = context.mask;
+            const { prisma, nlp, createLLMClient, handleGameUpdate } = primitives;
+            const { language, provider, prompt } = context.mask;
 
-            const sentenceAnalysis = await nlp(sentence.learning);
-            console.log("sentenceAnalysis", sentenceAnalysis);
+            const llm = await createLLMClient({ provider, prompt });
 
-            for (const word of sentenceAnalysis) {
-                const unit = await prisma.unit.findOne({
-                    where: {
-                        data: {
-                            path: ["spanish"],
-                            string_contains: word.lemma,
-                        },
-                    },
-                });
-            }
+            const PoS = payload.pos.filter((pos) => pos.unit);
+            console.log(`[expected] ${sentence.learning} [translation] ${sentence.translation}`);
 
-            return;
-            const units = await getUnits({
-                gameId,
-                curriculumId,
-                whitelist: payload.ids,
-                take: payload.ids.length,
+            const promises = PoS.map(async (pos, i) => {
+                const part = {
+                    spoken: pos.unit.data[language.spoken],
+                    learning: pos.unit.data[language.learning],
+                    upos: pos.upos,
+                    feats: pos.feats.STRING.replace(/\=/g, ":"),
+                };
+                const response = await llm({ language, sentence, part });
+                console.log(response.evaluation, part.spoken, part.learning);
+                if (response.evaluation !== "NEUTRAL")
+                    await handleGameUpdate({
+                        gameId,
+                        unitId: pos.unit.id,
+                        response: response.evaluation,
+                        gameType: "TRANSLATIONS",
+                    });
             });
 
-            const promptInputs = {
-                language,
-                sentence,
-                units: units.map((unit) =>
-                    JSON.stringify({
-                        id: unit.id,
-                        learning: unit.data[language.learning],
-                        spoken: unit.data[language.spoken],
-                    }),
-                ),
-            };
-            const renderedPrompt = template(promptInputs);
-            const response = await llm(renderedPrompt);
-
-            const promises = [];
-            for (const evaluation of response.evaluations) {
-                // validate evaluation
-                promises.push(
-                    handleGameUpdate({
-                        gameId,
-                        unitId: evaluation.id,
-                        response: evaluation.evaluation,
-                        gameType: "TRANSLATIONS",
-                    }),
-                );
-            }
-            await Promise.all(promises);
-            return response;
+            return await Promise.all(promises);
         }).toString(),
     },
     feedback: {
-        prompt: {
-            text: `A language learner was prompted with a {{language.spoken}} sentence and asked to provide the {{language.learning}} translation as a learning exercise.
-You provide feedback on the translation for the user. Assess each part-of-speech (PoS) and the overall quality of the translation. Include a score and classification for both individual parts and the entire sentence.
-
-Respond in JSON format. Example:
-"""input {
-    learning: "Él hace comida deliciosa todos los días",
-    spoken: "He makes delicious food every day",
-    translation: "el hace delicioso cada día",
-}
-return {
-  feedback: {
-    parts: [
-      { part: "Él", translation: "el", correction: "Él", classification: "info" },
-      { part: "hace", translation: "hace", classification: "correct" },
-      { part: "comida", translation: "", correction: "comida", classification: "failure" },
-      { part: "deliciosa", translation: "delicioso", correction: "deliciosa", classification: "mistake" },
-      { part: "todos los días", translation: "cada día", correction: "todos los días", classification: "info" }
-    ],
-    correction: "Él hace comida deliciosa todos los días",
-    score: 0.4,
-    classification: "failure",
-    summary: "You missed the noun 'food' ('comida') and used 'delicioso' instead of 'deliciosa', which should agree in gender with 'comida'. Additionally, 'todos los días' is a more common translation for 'every day' then 'cada día'."
-  }
-}"""
-
-Feedback:
-The learner was prompted with this sentence:
-{{{sentence.spoken}}}
-
-The learner has provided this translation:
-{{sentence.translation}}
-
-This was the originially intended translation, but the learner never saw it:
-{{sentence.learning}}`,
-        },
-        schema: {
-            title: "Feedback",
-            type: "object",
-            properties: {
-                parts: {
-                    title: "Parts",
-                    type: "array",
-                    items: {
-                        $ref: "#/definitions/Part",
-                    },
-                },
-                correction: {
-                    title: "Correction",
-                    type: "string",
-                },
-                score: {
-                    title: "Score",
-                    minimum: 0.0,
-                    maximum: 1.0,
-                    type: "number",
-                },
-                classification: {
-                    $ref: "#/definitions/FeedbackEnum",
-                },
-                summary: {
-                    title: "Summary",
-                    description:
-                        "Human readable feedback for the learner in the form of a few short and concise sentences. Meant to be displayed to the learner, such that they can improve their translation.",
-                    type: "string",
-                },
-            },
-            required: ["parts", "score", "classification", "summary"],
-            definitions: {
-                FeedbackEnum: {
-                    title: "FeedbackEnum",
-                    description: "An enumeration.",
-                    enum: ["correct", "info", "mistake", "failure"],
-                    type: "string",
-                },
-                Part: {
-                    title: "Part",
+        // provider: {api: "openai", model: "gpt-4-1106-preview",},
+        prompts: {
+            parts: {
+                schema: {
+                    title: "Feedback on a Part of Speech",
                     type: "object",
                     properties: {
                         part: {
-                            title: "Part",
+                            title: "the Part of Speech",
+                            description:
+                                "the referenced PoS. in the language to be learned. Taken from the expected translation! single word. only the PoS.",
+                            type: "string",
+                        },
+                        translation: {
+                            title: "PoS Learners Translation",
+                            description:
+                                "The original translation of this PoS by the learner. Taken from the learner's translation! single word. only the PoS.",
                             type: "string",
                         },
                         correction: {
                             title: "Correction",
-                            type: "string",
-                        },
-                        translation: {
-                            title: "Translation",
+                            description:
+                                "if learner made a mistake, provide what the learner should have written. Taken from the expected translation! single word. only the PoS. optional.",
                             type: "string",
                         },
                         classification: {
-                            $ref: "#/definitions/FeedbackEnum",
+                            title: "FeedbackEnum",
+                            description:
+                                `This enumeration assesses the learner's use of the specific part of speech (PoS) in the translation.` +
+                                `'correct' signifies accurate usage of the PoS.` +
+                                `'info' applies when non-standard usage still conveys the intended meaning, reflecting stylistic or creative choices.` +
+                                `'mistake' denotes minor errors like punctuation, apostrophes, spelling, or typos, not affecting clarity or grammar.` +
+                                `'failure' indicates false use or omission of the PoS.`,
+                            enum: ["correct", "info", "mistake", "failure"],
+                            type: "string",
                         },
                     },
                     required: ["part", "translation", "classification"],
                 },
+                template: `### Instructions
+You provide feedback on a specific Part of Speech (PoS) of a translation. the translation was created as a learning exercise. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON. 
+Ignore capitalization.
+Assess the correctness of the PoS. reference only the PoS. Not the sentence.
+Include a correction, translation, and classification. 
+
+### Task:
+PoS you are evaluating:
+{{language.spoken}}: {{part.spoken}}
+{{language.learning}}: {{part.learning}}
+upos: {{part.upos}}
+start - end character: {{part.start}} - {{part.end}}
+
+Prompted {{language.spoken}} sentence:
+{{sentence.spoken}}
+
+Expected {{language.learning}} translation: (this was hidden from the user)
+{{sentence.learning}}
+
+Learner provided translation:
+{{sentence.translation}}
+
+`,
+            },
+            overall: {
+                schema: {
+                    title: "Feedback on whole Translation",
+                    type: "object",
+                    properties: {
+                        correction: { title: "Correction", type: "string" },
+                        score: { title: "Score", minimum: 0.0, maximum: 1.0, type: "number" },
+                        classification: { $ref: "#/definitions/FeedbackEnum" },
+                        summary: {
+                            title: "Summary",
+                            description:
+                                "Human readable feedback for the learner in the form of a few short and concise sentences. Meant to be displayed to the learner, such that they can improve their translation.",
+                            type: "string",
+                        },
+                    },
+                    required: ["correction", "score", "classification", "summary"],
+                    definitions: {
+                        FeedbackEnum: {
+                            title: "FeedbackEnum",
+                            description: "an enumeration of this sentences' correctness.",
+                            enum: ["correct", "info", "mistake", "failure"],
+                            type: "string",
+                        },
+                    },
+                },
+                template: `### Instructions
+You provide feedback on a translation, which was created as a learning exercise. Assess the overall quality of the translation. Include a score and classification. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON. 
+
+### Example
+input 
+learning: Él hace comida deliciosa todos los días
+spoken: He makes delicious food every day
+translation: el hace delicioso cada día
+
+response 
+correction: "Él hace comida deliciosa todos los días"
+score: 0.4
+classification: "failure"
+summary: "You missed the noun 'food' ('comida') and used 'delicioso' instead of 'deliciosa', which should agree in gender with 'comida'. Additionally, 'todos los días' is a more common translation for 'every day' then 'cada día'."
+
+### Task:
+Prompted {{language.spoken}} sentence:
+{{sentence.spoken}}
+
+Expected {{language.learning}} translation: (this was hidden from the user)
+{{sentence.learning}}
+
+Learner provided translation:
+{{sentence.translation}}`,
             },
         },
-        run: (async (inputs, primitives, context) => {
+        run: async function (inputs, primitives, context) {
             const { gameId, curriculumId, payload, sentence } = inputs;
-            const { validate, template, llm, getUnits } = primitives;
-            const { language } = context.mask;
+            const { createLLMClient } = primitives;
+            const { language, provider, prompts } = context.mask;
 
-            const units = await getUnits({
-                gameId,
-                curriculumId,
-                whitelist: payload.ids,
-                take: payload.ids.length,
+            const overall = await createLLMClient({ provider, prompt: prompts.overall });
+            const parts = await createLLMClient({ provider, prompt: prompts.parts });
+
+            const PoS = payload.pos.filter((pos) => pos.unit);
+
+            const promises = PoS.map(async (pos, i) => {
+                const part = await parts({
+                    language,
+                    sentence,
+                    part: {
+                        spoken: pos.unit.data[language.spoken],
+                        learning: pos.unit.data[language.learning],
+                        feats: pos.feats.STRING.replace(/\=/g, ":"),
+                        upos: pos["upos"],
+                        start: pos["start_char"],
+                        end: pos["end_char"],
+                    },
+                });
+                part.part = pos.text;
+                return part;
             });
 
-            const promptInputs = {
-                language,
-                sentence,
-                units: units.map((unit) => ({
-                    id: unit.id,
-                    learning: unit.data[language.learning],
-                    spoken: unit.data[language.spoken],
-                })),
-            };
-            const renderedPrompt = template(promptInputs);
-            const response = await llm(renderedPrompt);
+            const response = await overall({ language, sentence });
+            response.parts = await Promise.all(promises);
             return response;
-        }).toString(),
+        }.toString(),
     },
 };
 

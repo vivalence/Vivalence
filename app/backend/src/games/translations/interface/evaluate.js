@@ -1,9 +1,9 @@
 import { builder } from "../../../pothos-client/builder.js";
-import { prisma } from "../../../prisma-client.js";
+import prisma from "../../../prisma-client.js";
 
 import maskFactory from "../../library/maskFactory.js";
 import handleGameUpdate from "../../library/handleGameUpdate.js";
-import getUnits from "../../library/gameUnits.js";
+// import getUnits from "../../library/gameUnits.js";
 
 import cache from "../cache.js";
 
@@ -33,7 +33,7 @@ builder.mutationFields((t) => ({
                     payload: JSON.parse(payload),
                     sentence: { learning, spoken, translation },
                 };
-                const primitives = { getUnits, handleGameUpdate };
+                const primitives = { handleGameUpdate };
                 const context = {
                     mask: {
                         ...game.curriculumRelation.mask.data,

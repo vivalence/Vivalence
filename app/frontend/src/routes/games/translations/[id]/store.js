@@ -22,8 +22,7 @@ function createGameStore() {
 
     const fetchSentence = async (gameId) => {
         const blacklist = await makeBlacklist();
-        console.log("blacklist", blacklist);
-        const variables = _GetSentenceVariables({ params: { id: gameId, backlist } });
+        const variables = _GetSentenceVariables({ params: { id: gameId, blacklist } });
         const { data, errors } = await sentenceStore.fetch({ variables });
         const error = errors && errors[0];
         const sentence = !error && data.Game_Translations_GetSentence;
@@ -50,7 +49,11 @@ function createGameStore() {
     };
     const makeBlacklist = async () => {
         const { sentence, queue } = get(Store);
-        return [sentence, queue].map((s) => JSON.parse(s.payload).pos.map((pos) => pos.id)).flat();
+        return [sentence, queue]
+            .filter((i) => i)
+            .map((s) => JSON.parse(s.payload).pos.map((pos) => pos.unit && pos.unit.id))
+            .flat()
+            .filter((i) => i);
     };
     return {
         subscribe,
