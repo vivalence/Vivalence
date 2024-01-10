@@ -1,5 +1,10 @@
 FROM mwalbeck/python-poetry:1.7.1-3.10 AS builder
-ENV POETRY_NO_INTERACTION=1 
+
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    PATH="/app/.venv/bin:$PATH"
+
 
 
 RUN apt-get update && apt-get install -y bash \
