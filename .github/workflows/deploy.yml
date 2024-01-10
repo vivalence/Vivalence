@@ -20,8 +20,6 @@ jobs:
             path: './app/backend'
           - component: 'service-nlp'
             path: './services/nlp'
-        # component: ['frontend', 'backend', 'service-nlp']
-        # docker build -t ${{ matrix.component }} ./app/${{ matrix.component }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
