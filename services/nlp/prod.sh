@@ -1,11 +1,9 @@
 #!/bin/bash
 
-ls -la
 poetry --version
-poetry install --no-dev --no-root
+poetry install --no-root
 
-rm -rf /tmp/poetry_cache
-
+echo "Pre assign PORT: $PORT"
 PORT=5050
 echo "Running on PORT: $PORT"
 

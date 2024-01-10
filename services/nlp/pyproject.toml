@@ -11,6 +11,7 @@ stanza = "^1.7.0"
 watchdog = "^3.0.0"
 fastapi = "^0.108.0"
 uvicorn = "^0.25.0"
+pydantic = "^2.5.3"
 
 
 [build-system]

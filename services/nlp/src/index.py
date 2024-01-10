@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException
 import sys
 from pydantic import BaseModel
 import stanza
+from fastapi import FastAPI, HTTPException
 import os
 from stanza.resources.common import DEFAULT_MODEL_DIR
 
