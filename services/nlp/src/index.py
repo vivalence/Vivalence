@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import stanza
 import os
 from stanza.resources.common import DEFAULT_MODEL_DIR
+
 stanza_model_dir = DEFAULT_MODEL_DIR
 os.makedirs(stanza_model_dir, exist_ok=True)
 print(f"Stanza model directory: {stanza_model_dir}")
