@@ -1,58 +1,39 @@
 # Builder stage
 # FROM python:3.10.13-slim-bookworm@sha256:25f03d17398b3f001e040fc951b4ee9404862f1b65c5eea1aa31c042dfdab527
-FROM mwalbeck/python-poetry:1.7.1-3.10
+FROM mwalbeck/python-poetry:1.7.1-3.10 AS builder
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-# renovate: datasource=pypi depName=poetry versioning=semver
-# ENV POETRY_VERSION 1.7.1
-
-# RUN set -ex; pip install --no-cache-dir poetry==$POETRY_VERSION;
-# FROM python:3.10-slim AS builder
-# FROM mwalbeck/python-poetry:latest
-
-# # Install Poetry
-# RUN pip install poetry==1.7.0
-
-# # Set Environment Variables for Poetry
-# ENV POETRY_NO_INTERACTION=1 \
-#     POETRY_VIRTUALENVS_IN_PROJECT=1 \
-#     POETRY_VIRTUALENVS_CREATE=1 \
-#     POETRY_CACHE_DIR=/tmp/poetry_cache
-
-# Set Working Directory
 WORKDIR /app
 
-# Copy dependency files
 COPY pyproject.toml poetry.lock .
 
-# Install dependencies
 RUN poetry --version
 RUN poetry install --no-dev --no-root
 
-# # Remove Poetry Cache
-# RUN rm -rf $POETRY_CACHE_DIR
+RUN rm -rf $POETRY_CACHE_DIR
 
 # # Runtime stage
-# FROM python:3.10-slim
+FROM python:3.10-slim
 
 # # Set Environment Variables
-# ENV PYTHONDONTWRITEBYTECODE=1 \
-#     PYTHONUNBUFFERED=1 \
-#     PATH="/app/.venv/bin:$PATH"
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH"
 
-# # Set Working Directory
-# WORKDIR /app
 
-# Copy the virtual environment from builder stage
-# COPY --from=builder /app/.venv ./.venv
+COPY --from=builder /app/.venv ./.venv
 
-# Copy application code
-COPY . .
-
-# Set Environment Variable for Port
+WORKDIR /app
 ENV PORT=5050
-
-# Expose Port
 EXPOSE $PORT
 
-# Command to run the application
-CMD ["poetry", "run", "python", "src/index.py", "$PORT"]
+COPY . .
+# RUN python -c 'import stanza; stanza.download("es")'
+
+
+
+CMD ["python", "src/index.py", "$PORT"]
+# CMD ["poetry", "run", "python", "src/index.py", "$PORT"]
