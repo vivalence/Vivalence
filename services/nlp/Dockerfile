@@ -18,7 +18,9 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock .
 
 # Install dependencies
-RUN poetry install --no-dev --no-root
+RUN poetry --version
+RUN poetry --help
+RUN poetry install --no-dev
 
 # # Remove Poetry Cache
 # RUN rm -rf $POETRY_CACHE_DIR
