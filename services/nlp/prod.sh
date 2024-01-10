@@ -8,5 +8,6 @@ rm -rf /tmp/poetry_cache
 PORT=5050
 echo "Running on PORT: $PORT"
 
-poetry run python src/index.py $PORT &
+# python -c 'import stanza; stanza.download("es")'
+poetry run python src/index.py $PORT 
 
