@@ -1,5 +1,6 @@
 #!/bin/bash
 
+ls -la
 poetry --version
 poetry install --no-dev --no-root
 

@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y bash \
     && rm -rf /var/lib/apt/lists/*
 
 
+COPY pyproject.toml poetry.lock ./
 
 WORKDIR /app
 
@@ -35,9 +36,11 @@ ENV PORT=5050
 EXPOSE $PORT
 
 COPY . .
+
 # RUN python -c 'import stanza; stanza.download("es")'
 
 
 # CMD ["python", "src/index.py", "$PORT"]
+RUN ls -la
 CMD ["bash", "./prod.sh"]
 # CMD ["poetry", "run", "python", "src/index.py", "$PORT"]
