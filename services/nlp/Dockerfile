@@ -1,6 +1,13 @@
 # Builder stage
+FROM python:3.10.13-slim-bookworm@sha256:25f03d17398b3f001e040fc951b4ee9404862f1b65c5eea1aa31c042dfdab527
+
+# renovate: datasource=pypi depName=poetry versioning=semver
+ENV POETRY_VERSION 1.7.1
+
+RUN set -ex; pip install --no-cache-dir poetry==$POETRY_VERSION;
+
 # FROM python:3.10-slim AS builder
-FROM mwalbeck/python-poetry
+# FROM mwalbeck/python-poetry:latest
 
 # # Install Poetry
 # RUN pip install poetry==1.7.0
@@ -19,8 +26,7 @@ COPY pyproject.toml poetry.lock .
 
 # Install dependencies
 RUN poetry --version
-RUN poetry --help
-RUN poetry install --no-dev
+RUN poetry install --no-dev --no-root
 
 # # Remove Poetry Cache
 # RUN rm -rf $POETRY_CACHE_DIR
