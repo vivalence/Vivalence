@@ -8,8 +8,6 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 stanza = "^1.7.0"
-stanfordnlp = "^0.2.0"
-flask = "^3.0.0"
 watchdog = "^3.0.0"
 fastapi = "^0.108.0"
 uvicorn = "^0.25.0"
