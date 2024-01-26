@@ -56,14 +56,14 @@ async function updateUnit(unit, data) {
     return update;
 }
 
-async function main() {
+async function pull() {
     const unitsApp = await prisma.unit.findMany({
         where: { unitType: "WORD" },
         take: TAKE,
         skip: START,
     });
 
-    console.log("units", unitsApp.length);
+    // console.log("units", unitsApp.length);
 
     const promises = [];
     for (const unitApp of unitsApp) {
@@ -87,4 +87,54 @@ async function main() {
     console.log("result", result.length);
 }
 
-await main();
+async function push() {
+    const words = await prisma.word.findMany({
+        take: TAKE,
+        skip: START,
+    });
+
+    console.log("words", words.length);
+
+    const promises = [];
+    for (const word of words) {
+        index++;
+        promises.push(
+            (async (index) => {
+                const hasUnit = await prisma.unit.findFirst({
+                    where: { corpusId: word.id },
+                });
+                if (!hasUnit) {
+                    const unit = await prisma.unit.create({
+                        data: {
+                            corpusId: word.id,
+                            unitType: "WORD",
+                            data: {
+                                ud: word.ud,
+                                pos: word.pos,
+                                type: word.type,
+                                index: word.index,
+                                english: word.english,
+                                spanish: word.spanish,
+                                lemmaEnglish: null,
+                                lemmaSpanish: word.lemmaSpanish,
+                                usageInEnglish: word.usageInEnglish,
+                                usageInSpanish: word.usageInSpanish,
+                            },
+                        },
+                    });
+                    console.log(index, "created", word.spanish);
+                }
+            })(index),
+        );
+
+        if (index % BATCHSIZE === 0) {
+            console.log(`batch launched ${index / BATCHSIZE} / ${words.length / BATCHSIZE}`);
+            await sleep(BATCHINTERVAL);
+        }
+    }
+
+    const result = await Promise.all(promises);
+    console.log("result", result.length);
+}
+
+// await push();

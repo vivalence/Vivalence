@@ -9,6 +9,10 @@ import bodyParser from "body-parser";
 import { prisma } from "./prisma-client.js";
 import { schema } from "./pothos-client/schema.js";
 
+if (process.env.SEED_STRATEGIES === "true") {
+    import("../prisma-server/seed/strategies/index.js");
+}
+
 import "./library/logging.js";
 const PORT = process.env.PORT || 4000;
 

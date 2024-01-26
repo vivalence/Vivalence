@@ -6,7 +6,7 @@ export default async function (sentence, options = {}) {
     try {
         // const PORT = Math.floor(Math.random() * 10) + 5050;
         // http://service-nlp:5000
-        const path = process.env.SERVICE_NLP_URL || `http://localhost:5050`;
+        const path = process.env.SERVICE_NLP_URL;
         const response = await axios.post(path, { sentence });
         const analysis = response.data;
         analysis.map((pos) => (pos.feats = parseFeats(pos.feats)));
