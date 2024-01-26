@@ -1,17 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import nlp from "../../../../src/services/nlp/index.js";
 
-// function that sends a json {sentence} to :5000/pipeline and returns the response
-const pipeline = async (sentence) => {
-    const response = await fetch("http://127.0.0.1:5000/pipeline", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sentence }),
-    });
-    const json = await response.json();
-    return json;
-};
+const prisma = new PrismaClient();
 
 const spanishWords = {
     nouns: [
@@ -141,10 +131,6 @@ const spanishWords = {
         "dejar",
     ],
 };
-
-// const PullMap = [["ADJECTIVE", 1000], ["ADPOSITION", 5000], ["ADVERB", 1050], ["NUMERAL", 5000], ["PRONOUN", 5000], ["VERB", 300],];
-
-const prisma = new PrismaClient();
 
 const DRYRUN = true;
 const VERB_INDEX = 35;
