@@ -4,13 +4,18 @@ import parseFeats from "./feats.js";
 
 export default async function (sentence, options = {}) {
     try {
-        // const PORT = Math.floor(Math.random() * 10) + 5050;
-        // http://service-nlp:5000
         const path = process.env.SERVICE_NLP_URL;
-        const response = await axios.post(path, { sentence });
+        const response = await axios.post(path, {
+            language: "es",
+            text: sentence,
+            processors: "tokenize,mwt,pos,lemma,depparse",
+        });
         const analysis = response.data;
-        analysis.map((pos) => (pos.feats = parseFeats(pos.feats)));
-        if (options.findUnits) await findUnits(analysis);
+        for (const sentence of analysis.sentences) {
+            const tokens = sentence.tokens;
+            tokens.map((pos) => (pos.feats = parseFeats(pos.feats)));
+            if (options.findUnits) await findUnits(tokens);
+        }
         return analysis;
     } catch (error) {
         console.error("Error:", Object.keys(error), error.message);

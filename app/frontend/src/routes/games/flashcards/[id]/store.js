@@ -3,6 +3,8 @@ import { FLASHCARDS_QUEUE_SIZE } from "./settings.js";
 import { UpdateCard_Mutation } from "./gql.js";
 import { GetCardsStore } from "$houdini";
 
+const GetCardsQuery = new GetCardsStore();
+
 function createFlashcardStore() {
     const Store = writable({
         flashcards: [],
@@ -12,7 +14,6 @@ function createFlashcardStore() {
         loading: false,
         error: null
     });
-    const GetCardsQuery = new GetCardsStore();
 
     const getIds = () => {
         let ids;

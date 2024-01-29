@@ -1,13 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// provider: {api: "openai", model: "gpt-4-1106-preview",},
 const mask = {
     language: { learning: "spanish", spoken: "english" },
-    tags: ["PRONOUN", "CONJUGATION", "NOUN", "ADJECTIVE"],
-    provider: {
-        api: "anyscale",
-        model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    },
+    tags: ["NOUN", "VERB", "ADJECTIVE"],
+    provider: { api: "anyscale", model: "mistralai/Mixtral-8x7B-Instruct-v0.1" },
     generate: {
         prompt: {
             schema: {
@@ -30,17 +28,16 @@ const mask = {
             template: `### Instructions
 You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
 
-Follow this strategy: Subject Pronouns, Present Tense Verbs, and Objects or Adjectives
-   - Part of Speech Combination: SUBJECT PRONOUN + PRESENT TENSE VERB + (OBJECT or ADJECTIVE)
-   - Focus: The learner should practice forming sentences using subject pronouns (yo, tú, él, etc.), verbs conjugated in the present tense, and an appropriate object or adjective.
+Follow this strategy: Basic Descriptive Sentences
+   - Part of Speech Combination: NOUN + VERB + ADJ (varying order)
+   - Focus: The learner should practice forming sentences with a subject (NOUN), a simple action (VERB in present tense), and a descriptor (ADJ).
    - Examples:
-        "Yo (SUBJECT PRONOUN) leo (PRESENT TENSE VERB) un libro (OBJECT)." (I read a book.)
-        "Ellos (SUBJECT PRONOUN) comen (PRESENT TENSE VERB) manzanas (OBJECT)." (They eat apples.)
-        "Nosotros (SUBJECT PRONOUN) escribimos (PRESENT TENSE VERB) cartas (OBJECT)." (We write letters.)
-        "Tú (SUBJECT PRONOUN) corres (PRESENT TENSE VERB) rápido (ADJECTIVE)." (You run fast.)
+        "El gato (NOUN) es (VERB) pequeño (ADJ)." (The cat is small.)
+        "Los perros (NOUN) corren (VERB) rápidos (ADJ)." (The dogs run fast.)
+        "La sopa (NOUN) huele (VERB) deliciosa (ADJ)." (The soup smells delicious.)
 
-Don't use words more advanced than those provided. We want the learner to be successful.
-Keep the sentence short, ideally 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
+Don't use words more advanced than those provided. We want the learner to be successfull.
+Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
 
 ### Task
 language spoken: {{language.spoken}}; learning: {{language.learning}};
@@ -50,7 +47,7 @@ Select from among these words:
 {{learning}} {{spoken}} {{#tags}}{{.}} {{/tags}}
 {{/units}}
 
-Return a JSON object with the spoken and learning sentence.```,
+Return a JSON object with the spoken and learning sentence.`,
         },
         run: async function (inputs, primitives, context) {
             const { gameId, curriculumId, blacklist } = inputs;
@@ -62,7 +59,7 @@ Return a JSON object with the spoken and learning sentence.```,
             const units = (
                 await Promise.all(
                     tags.map((tag) =>
-                        getUnits({ blacklist, curriculumId, gameId, take: 3, tags: [tag] }),
+                        getUnits({ blacklist, curriculumId, gameId, take: 4, tags: [tag] }),
                     ),
                 )
             )
@@ -78,7 +75,7 @@ Return a JSON object with the spoken and learning sentence.```,
 
             const sentences = await llm({ units, language });
             const analysis = await nlp(sentences.learning, { findUnits: true });
-            sentences.payload = { pos: analysis };
+            sentences.payload = { pos: analysis.sentences[0].tokens };
             return sentences;
         }.toString(),
     },
@@ -137,7 +134,7 @@ Did the learner correctly use this part of speech? evaluate only the part of spe
                     feats: pos.feats.STRING.replace(/\=/g, ":"),
                 };
                 const response = await llm({ language, sentence, part });
-                console.log(response.evaluation, part.spoken, part.learning);
+                // console.log(response.evaluation, part.spoken, part.learning);
                 if (response.evaluation !== "NEUTRAL")
                     await handleGameUpdate({
                         gameId,
@@ -190,18 +187,12 @@ Did the learner correctly use this part of speech? evaluate only the part of spe
                     required: ["part", "translation", "classification"],
                 },
                 template: `### Instructions
-You provide feedback on a specific Part of Speech (PoS) of a translation. the translation was created as a learning exercise. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON. 
+Provide feedback on a specific Part of Speech (PoS) of a translation. the translation was created as a learning exercise. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON.
 Ignore capitalization.
-Assess the correctness of the PoS. reference only the PoS. Not the sentence.
-Include a correction, translation, and classification. 
+Assess the correctness of the Part of Speech. Reference only the PoS. Not the whole sentence.
+Include a correction, translation, and classification.
 
 ### Task:
-PoS you are evaluating:
-{{language.spoken}}: {{part.spoken}}
-{{language.learning}}: {{part.learning}}
-upos: {{part.upos}}
-start - end character: {{part.start}} - {{part.end}}
-
 Prompted {{language.spoken}} sentence:
 {{sentence.spoken}}
 
@@ -210,6 +201,14 @@ Expected {{language.learning}} translation: (this was hidden from the user)
 
 Learner provided translation:
 {{sentence.translation}}
+
+PoS you are evaluating:
+PoS: {{part.word}}
+{{language.spoken}}: {{part.spoken}}
+{{language.learning}}: {{part.learning}}
+upos: {{part.upos}}
+start - end character: {{part.start}} - {{part.end}}
+
 `,
             },
             overall: {
@@ -238,15 +237,15 @@ Learner provided translation:
                     },
                 },
                 template: `### Instructions
-You provide feedback on a translation, which was created as a learning exercise. Assess the overall quality of the translation. Include a score and classification. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON. 
+You provide feedback on a translation, which was created as a learning exercise. Assess the overall quality of the translation. Include a score and classification. The user is familiar with {{language.spoken}} and is learning {{language.learning}}. Respond in JSON.
 
 ### Example
-input 
+input
 learning: Él hace comida deliciosa todos los días
 spoken: He makes delicious food every day
 translation: el hace delicioso cada día
 
-response 
+response
 correction: "Él hace comida deliciosa todos los días"
 score: 0.4
 classification: "failure"
@@ -271,25 +270,25 @@ Learner provided translation:
             const overall = await createLLMClient({ provider, prompt: prompts.overall });
             const parts = await createLLMClient({ provider, prompt: prompts.parts });
 
-            const PoS = payload.pos.filter((pos) => pos.unit);
-
-            const promises = PoS.map(async (pos, i) => {
-                const part = await parts({
-                    language,
-                    sentence,
-                    part: {
-                        spoken: pos.unit.data[language.spoken],
-                        learning: pos.unit.data[language.learning],
-                        feats: pos.feats.STRING.replace(/\=/g, ":"),
-                        upos: pos["upos"],
-                        start: pos["start_char"],
-                        end: pos["end_char"],
-                    },
+            const promises = payload.pos
+                .filter((pos) => pos.unit)
+                .map(async (pos, i) => {
+                    const part = await parts({
+                        language,
+                        sentence,
+                        part: {
+                            word: pos.word,
+                            spoken: pos.unit.data[language.spoken],
+                            learning: pos.unit.data[language.learning],
+                            feats: pos.feats.STRING.replace(/\=/g, ":"),
+                            upos: pos["upos"],
+                            start: pos["start_char"],
+                            end: pos["end_char"],
+                        },
+                    });
+                    part.part = pos.word;
+                    return part;
                 });
-                part.part = pos.text;
-                return part;
-            });
-
             const response = await overall({ language, sentence });
             response.parts = await Promise.all(promises);
             return response;
@@ -298,8 +297,8 @@ Learner provided translation:
 };
 
 async function update() {
-    const maskId = "clr84f74f0001g05rl2gh6550";
-    const where = { id: maskId };
+    const where = { id: "clpr5668n0002g01pnxhkh8nf" };
+
     const data = { data: mask };
     const update = await prisma.mask.update({ where, data });
 }

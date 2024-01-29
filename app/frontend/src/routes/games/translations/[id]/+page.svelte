@@ -17,7 +17,9 @@
         await gameStore.getSentenceToQueue();
     });
 
-    // $: console.log($gameStore);
+    // $: if ($gameStore.sentence) console.log("sentence", $gameStore.sentence.spoken);
+    // $: if ($gameStore.queue) console.log("queue", $gameStore.queue.spoken);
+    // $: console.log("-"), $gameStore.sentence, $gameStore.queue ;
 
     // TODO display error
     //     <!-- // <\!-- $: console.log(''); -\-> -->

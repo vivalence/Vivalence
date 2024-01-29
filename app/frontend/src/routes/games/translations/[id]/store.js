@@ -2,7 +2,7 @@ import { page } from "$app/stores";
 import { writable, get } from "svelte/store";
 import { browser } from "$app/environment";
 import { _GetSentenceVariables, _Evaluate_Mutation, _Feedback_Mutation } from "./+page.js";
-import { cache, GetSentenceStore } from "$houdini";
+import { GetSentenceStore } from "$houdini";
 
 const sentenceStore = new GetSentenceStore();
 
@@ -49,8 +49,8 @@ function createGameStore() {
     };
     const makeBlacklist = async () => {
         const { sentence, queue } = get(Store);
-        return [sentence, queue]
-            .filter((i) => i)
+        const sentences = [sentence, queue].filter((i) => i);
+        return sentences
             .map((s) => JSON.parse(s.payload).pos.map((pos) => pos.unit && pos.unit.id))
             .flat()
             .filter((i) => i);

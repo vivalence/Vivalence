@@ -6,11 +6,12 @@ import http from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
 
-import { prisma } from "./prisma-client.js";
-import { schema } from "./pothos-client/schema.js";
+import prisma from "./prisma-client.js";
+import schema from "./pothos-client/schema.js";
 
 if (process.env.SEED_STRATEGIES === "true") {
-    import("../prisma-server/seed/strategies/index.js");
+    console.log("Seeding strategies");
+    await import("../prisma-server/seed/strategies/index.js");
 }
 
 import "./library/logging.js";
