@@ -40,9 +40,9 @@ Don't use words more advanced than those provided. We want the learner to be suc
 Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
 
 ### Task
-language spoken: {{language.spoken}}; learning: {{language.learning}};
+generate a sentence in {{language.learning}} (learning) and its translation in {{language.spoken}} (spoken).
 
-Select from among these words:
+build the sentence using these words:
 {{#units}}
 {{learning}} {{spoken}} {{#tags}}{{.}} {{/tags}}
 {{/units}}
@@ -108,6 +108,7 @@ Learner provided translation:
 
 You provide an evaluation on the successful usage of this part of speech as KNOWN or UNKNOWN.
 The Part of Speech you are evaluating is:
+PoS: {{part.token}}
 {{language.spoken}}: {{part.spoken}}
 {{language.learning}}: {{part.learning}}
 upos: {{part.upos}}
@@ -130,6 +131,7 @@ Did the learner correctly use this part of speech? evaluate only the part of spe
                 const part = {
                     spoken: pos.unit.data[language.spoken],
                     learning: pos.unit.data[language.learning],
+                    token: pos.token,
                     upos: pos.upos,
                     feats: pos.feats.STRING.replace(/\=/g, ":"),
                 };
@@ -203,7 +205,7 @@ Learner provided translation:
 {{sentence.translation}}
 
 PoS you are evaluating:
-PoS: {{part.word}}
+PoS: {{part.token}}
 {{language.spoken}}: {{part.spoken}}
 {{language.learning}}: {{part.learning}}
 upos: {{part.upos}}
@@ -277,7 +279,7 @@ Learner provided translation:
                         language,
                         sentence,
                         part: {
-                            word: pos.word,
+                            token: pos.token,
                             spoken: pos.unit.data[language.spoken],
                             learning: pos.unit.data[language.learning],
                             feats: pos.feats.STRING.replace(/\=/g, ":"),
