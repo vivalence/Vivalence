@@ -1,6 +1,6 @@
 // https://universaldependencies.org/u/feat/index.html
 export default function parseFeats(featsString = "") {
-    const feats = featsString.split("|").reduce((acc, feat) => {
+    const feats = (featsString || "").split("|").reduce((acc, feat) => {
         let [key, value] = feat.split("=");
         const keyMapping = VALUE_MAPPINGS[key];
         value = keyMapping && keyMapping[value] ? keyMapping[value] : value;

@@ -110,19 +110,16 @@ builder.objectType("Game_Flashcards_UpdateCard_Response", {
     }),
 });
 
+function renderMask(mask, unit, side) {
+    const buildMaskData = new Function(`return ${mask.data[unit.unitType].buildData}`)();
+    return Mustache.render(mask.data[unit.unitType][side], buildMaskData(unit));
+}
+
 builder.objectType("Game_Flashcards_Card", {
     fields: (t) => ({
         unitId: t.field({ type: "ID", resolve: ({ unit }) => unit.id }),
-        front: t.string({
-            resolve: ({ mask, unit }, _, ctx) => {
-                return Mustache.render(mask.data[unit.unitType].front, unit.data);
-            },
-        }),
-        back: t.string({
-            resolve: ({ mask, unit }, args, ctx) => {
-                return Mustache.render(mask.data[unit.unitType].back, unit.data);
-            },
-        }),
+        front: t.string({ resolve: ({ mask, unit }, _, ctx) => renderMask(mask, unit, "front") }),
+        back: t.string({ resolve: ({ mask, unit }, args, ctx) => renderMask(mask, unit, "back") }),
     }),
 });
 

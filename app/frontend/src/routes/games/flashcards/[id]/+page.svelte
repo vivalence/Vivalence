@@ -14,14 +14,16 @@
     $: ({ GetCards } = data);
     let seeded = false;
 
+
     $: if (!seeded && $GetCards.data && $GetCards.data.Game_Flashcards_GetCards) {
+	console.log("cards", seeded, $GetCards.data);
         seeded = true;
         flashcardsStore.init({
             cards: $GetCards.data.Game_Flashcards_GetCards,
             gameId: $page.params.id
         });
     }
-  // $: console.log($flashcardsStore)
+    $: console.log("flashcardsStore", $flashcardsStore);
 </script>
 
 <Panable>
@@ -38,4 +40,3 @@
     {/if}
 </Panable>
 <Controls />
-

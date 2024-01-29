@@ -3,14 +3,12 @@ const prisma = new PrismaClient();
 
 const mask = {
     language: { learning: "spanish", spoken: "english" },
-    tags: ["NOUN", "VERB", "ADJECTIVE"],
+    tags: ["PRONOUN", "CONJUGATION", "NOUN", "ADJECTIVE"],
     provider: {
-        // api: "openai", model: "gpt-4-1106-preview",
         api: "anyscale",
         model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
     },
     generate: {
-        // provider: {api: "openai", model: "gpt-4-1106-preview",},
         prompt: {
             schema: {
                 title: "LanguageLearningSentence",
@@ -32,16 +30,17 @@ const mask = {
             template: `### Instructions
 You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
 
-Follow this strategy: Basic Descriptive Sentences
-   - Part of Speech Combination: NOUN + VERB + ADJ (varying order)
-   - Focus: The learner should practice forming sentences with a subject (NOUN), a simple action (VERB in present tense), and a descriptor (ADJ).
+Follow this strategy: Subject Pronouns, Present Tense Verbs, and Objects or Adjectives
+   - Part of Speech Combination: SUBJECT PRONOUN + PRESENT TENSE VERB + (OBJECT or ADJECTIVE)
+   - Focus: The learner should practice forming sentences using subject pronouns (yo, tú, él, etc.), verbs conjugated in the present tense, and an appropriate object or adjective.
    - Examples:
-        "El gato (NOUN) es (VERB) pequeño (ADJ)." (The cat is small.)
-        "Los perros (NOUN) corren (VERB) rápidos (ADJ)." (The dogs run fast.)
-        "La sopa (NOUN) huele (VERB) deliciosa (ADJ)." (The soup smells delicious.)
+        "Yo (SUBJECT PRONOUN) leo (PRESENT TENSE VERB) un libro (OBJECT)." (I read a book.)
+        "Ellos (SUBJECT PRONOUN) comen (PRESENT TENSE VERB) manzanas (OBJECT)." (They eat apples.)
+        "Nosotros (SUBJECT PRONOUN) escribimos (PRESENT TENSE VERB) cartas (OBJECT)." (We write letters.)
+        "Tú (SUBJECT PRONOUN) corres (PRESENT TENSE VERB) rápido (ADJECTIVE)." (You run fast.)
 
-Don't use words more advanced than those provided. We want the learner to be successfull.
-Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
+Don't use words more advanced than those provided. We want the learner to be successful.
+Keep the sentence short, ideally 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
 
 ### Task
 language spoken: {{language.spoken}}; learning: {{language.learning}};
@@ -63,7 +62,7 @@ Return a JSON object with the spoken and learning sentence.`,
             const units = (
                 await Promise.all(
                     tags.map((tag) =>
-                        getUnits({ blacklist, curriculumId, gameId, take: 4, tags: [tag] }),
+                        getUnits({ blacklist, curriculumId, gameId, take: 3, tags: [tag] }),
                     ),
                 )
             )
@@ -79,7 +78,7 @@ Return a JSON object with the spoken and learning sentence.`,
 
             const sentences = await llm({ units, language });
             const analysis = await nlp(sentences.learning, { findUnits: true });
-            sentences.payload = { pos: analysis };
+            sentences.payload = { pos: analysis.sentences[0].tokens };
             return sentences;
         }.toString(),
     },
@@ -152,7 +151,6 @@ Did the learner correctly use this part of speech? evaluate only the part of spe
         }).toString(),
     },
     feedback: {
-        // provider: {api: "openai", model: "gpt-4-1106-preview",},
         prompts: {
             parts: {
                 schema: {
@@ -212,7 +210,6 @@ Expected {{language.learning}} translation: (this was hidden from the user)
 
 Learner provided translation:
 {{sentence.translation}}
-
 `,
             },
             overall: {
@@ -301,7 +298,9 @@ Learner provided translation:
 };
 
 async function update() {
-    const where = { id: "clpr5668n0002g01pnxhkh8nf" };
+    const maskId = "clr84f74f0001g05rl2gh6550";
+
+    const where = { id: maskId };
     const data = { data: mask };
     const update = await prisma.mask.update({ where, data });
 }
