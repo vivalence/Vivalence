@@ -28,13 +28,16 @@ model Unit {
 
 model Tag {
     // Meta
-    id            String        @id @default(cuid())
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @default(now()) @updatedAt
+    id        String        @id @default(cuid())
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @default(now()) @updatedAt
     // It
-    name          String        @unique
-    type          TagTypeEnum[] @default([])
-    unitRelations Unit[]
+    name      String        @unique
+    type      TagTypeEnum[] @default([])
+    data      Json          @default("{}")
+    units     Unit[]
+    tags      Tag[]         @relation("TagTag")
+    tagsFrom  Tag[]         @relation("TagTag")
 }
 
 model Curriculum {
@@ -92,6 +95,9 @@ model MemoryModel {
     @@unique([unitId])
 }
 
+// model StructuralTagUnitRelation
+// model StructuralTagGameRelation
+
 model CurriculumUnitRelation {
     // Meta
     id           String     @id @default(cuid())
@@ -145,9 +151,9 @@ model CurriculumGameRelation {
 }
 
 enum TagTypeEnum {
-    STRUCTURAL
-    LEARNABLE
-    SET
+    STRUCTURAL // organizing and completable 
+    ONTOLOGICAL // subject matter attribute
+    LEARNABLE // higher order feature
 }
 
 enum MemoryTypeEnum {
