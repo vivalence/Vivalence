@@ -1,9 +1,6 @@
 import { writable, get } from "svelte/store";
-import { FLASHCARDS_QUEUE_SIZE } from "./settings.js";
-import { UpdateCard_Mutation } from "./gql.js";
-import { GetCardsStore } from "$houdini";
-
-const GetCardsQuery = new GetCardsStore();
+import { FLASHCARDS_QUEUE_SIZE } from "./library.js";
+import { UpdateCardMutation, GetCardsQuery } from "./gql.js";
 
 function createFlashcardStore() {
     const Store = writable({
@@ -38,10 +35,27 @@ function createFlashcardStore() {
             };
         });
     };
+    const fetchCards = async ({ gameId }) => {
+        const blacklist = getIds();
+
+        const queryResult = await GetCardsQuery.fetch({
+            policy: "NetworkOnly",
+            variables: {
+                input: {
+                    gameId,
+                    fetch: FLASHCARDS_QUEUE_SIZE - (blacklist.length - 1),
+                    blacklist
+                }
+            }
+        });
+
+        return { cards: queryResult.data.Game_Flashcards_GetCards, errors: queryResult.errors };
+    };
 
     return {
         subscribe: Store.subscribe,
-        init: ({ cards, gameId }) => {
+        init: async ({ gameId }) => {
+            const { cards, errors } = await fetchCards({ gameId });
             const [current, ...flashcards] = cards;
             Store.set({
                 flashcards,
@@ -49,7 +63,7 @@ function createFlashcardStore() {
                 current,
                 revealed: false,
                 loading: false,
-                error: null
+                error: errors
             });
         },
         reveal: () => {
@@ -57,23 +71,13 @@ function createFlashcardStore() {
         },
         review: async (response) => {
             Store.update((store) => ({ ...store, loading: true, revealed: false }));
-            const blacklist = getIds();
             const { gameId, current } = get(Store);
 
-            nextCard(); // Must be called after fetching store state. @lj
+            nextCard(); // Must be called after fetching store state; because current changes. @lj
 
             const [queryResult, mutationResult] = await Promise.all([
-                GetCardsQuery.fetch({
-                    policy: "NetworkOnly",
-                    variables: {
-                        input: {
-                            gameId,
-                            fetch: FLASHCARDS_QUEUE_SIZE - (blacklist.length - 1),
-                            blacklist
-                        }
-                    }
-                }),
-                UpdateCard_Mutation.mutate({
+                fetchCards({ gameId }),
+                UpdateCardMutation.mutate({
                     input: {
                         gameId,
                         response,
@@ -93,7 +97,7 @@ function createFlashcardStore() {
                     loading: false
                 }));
             } else {
-                addCards(queryResult.data.Game_Flashcards_GetCards);
+                addCards(queryResult.cards);
                 Store.update((store) => {
                     const current = store.current || store.flashcards.shift();
                     return { ...store, loading: false, error: null };
@@ -104,3 +108,4 @@ function createFlashcardStore() {
 }
 
 export const flashcardsStore = createFlashcardStore();
+export default flashcardsStore;

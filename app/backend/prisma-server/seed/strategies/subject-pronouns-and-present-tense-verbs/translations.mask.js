@@ -33,7 +33,7 @@ You Generate a sentence in {{language.spoken}} and its translation in {{language
 Follow this strategy: Subject Pronouns, Present Tense Verbs, and Objects or Adjectives
    - Part of Speech Combination: SUBJECT PRONOUN + PRESENT TENSE VERB + (OBJECT or ADJECTIVE)
    - Focus: The learner should practice forming sentences using subject pronouns (yo, tú, él, etc.), verbs conjugated in the present tense, and an appropriate object or adjective.
-   - Examples:
+   - Examples: (JUST EXAMPLES for structure!)
         "Yo (SUBJECT PRONOUN) leo (PRESENT TENSE VERB) un libro (OBJECT)." (I read a book.)
         "Ellos (SUBJECT PRONOUN) comen (PRESENT TENSE VERB) manzanas (OBJECT)." (They eat apples.)
         "Nosotros (SUBJECT PRONOUN) escribimos (PRESENT TENSE VERB) cartas (OBJECT)." (We write letters.)
@@ -45,9 +45,9 @@ Keep the sentence short, ideally 3-7 words. The sentence must be semantically co
 ### Task
 generate a sentence in {{language.learning}} (learning) and its translation in {{language.spoken}} (spoken).
 
-build the sentence using these words:
+build the sentence using these words: (MUST)
 {{#units}}
-{{learning}} {{spoken}} {{#tags}}{{.}} {{/tags}}
+{{learning}} {{spoken}} 
 {{/units}}
 
 Return a JSON object with the spoken and learning sentence.`,
@@ -67,10 +67,11 @@ Return a JSON object with the spoken and learning sentence.`,
                 )
             )
                 .flat()
-                .map((input) => ({
-                    learning: input.data[language.learning],
-                    spoken: input.data[language.spoken],
-                    tags: input.tags.map(({ name }) => name),
+                .map((unit) => ({
+                    id: unit.id,
+                    learning: unit.data[language.learning],
+                    spoken: unit.data[language.spoken],
+                    tags: unit.tags.map(({ name }) => name),
                 }));
 
             if (units.filter((item) => !!item).length < 5)

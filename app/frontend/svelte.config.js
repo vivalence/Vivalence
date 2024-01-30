@@ -8,6 +8,7 @@ const config = {
     kit: {
         adapter: adapter(),
         alias: {
+            $games: "./src/games",
             $kit: "./src/kit",
             $components: "./src/components",
             $houdini: "./$houdini"
