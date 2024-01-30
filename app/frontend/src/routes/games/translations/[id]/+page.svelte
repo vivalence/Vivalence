@@ -2,46 +2,13 @@
     import { page } from "$app/stores";
     import { onMount } from "svelte";
 
-    import Loader from "$kit/loader/Loader.svelte";
-    import FlexContainer from "$kit/flex/Container.svelte";
-    import FlexItem from "$kit/flex/Item.svelte";
-
-    import TranslationsInput from "./components/TranslationsInput.svelte";
-    import TranslationsReview from "./components/TranslationsReview.svelte";
-    import NextSentence from "./components/NextSentence.svelte";
-
-    import { gameStore } from "./store.js";
+    import translationsStore from "$games/translations/store.js";
+    import TranslationsGame from "$games/translations/translations.svelte";
 
     onMount(async () => {
-        await gameStore.init({ gameId: $page.params.id });
-        await gameStore.getSentenceToQueue();
+        await translationsStore.init({ gameId: $page.params.id });
+        await translationsStore.getSentenceToQueue();
     });
-
-    // $: if ($gameStore.sentence) console.log("sentence", $gameStore.sentence.spoken);
-    // $: if ($gameStore.queue) console.log("queue", $gameStore.queue.spoken);
-    // $: console.log("-"), $gameStore.sentence, $gameStore.queue ;
-
-    // TODO display error
-    //     <!-- // <\!-- $: console.log(''); -\-> -->
-    // <!-- $: console.log($gameStore.review); -->
 </script>
 
-<FlexContainer
-    items="center"
-    justify="center"
-    classes=" h-full h-max w-full lg:mt-18 md:mt-12 mt-8 pb-32"
->
-    <FlexItem>
-        {#if $gameStore.sentence && !$gameStore.revealed}
-            <TranslationsInput />
-        {:else if $gameStore.sentence && $gameStore.revealed}
-            <TranslationsReview />
-        {:else}
-            <Loader />
-        {/if}
-    </FlexItem>
-</FlexContainer>
-
-{#if $gameStore.revealed && $gameStore.queue}
-    <NextSentence />
-{/if}
+<TranslationsGame />

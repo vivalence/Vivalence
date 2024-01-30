@@ -1,3 +1,5 @@
+export const FLASHCARDS_QUEUE_SIZE = 5;
+
 const TAB_THRESHOLD = 50;
 const HORIZONTAL_BIAS = 1.3;
 

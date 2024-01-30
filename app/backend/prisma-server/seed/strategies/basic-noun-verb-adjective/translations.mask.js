@@ -44,7 +44,7 @@ generate a sentence in {{language.learning}} (learning) and its translation in {
 
 build the sentence using these words:
 {{#units}}
-{{learning}} {{spoken}} {{#tags}}{{.}} {{/tags}}
+{{learning}} {{spoken}}
 {{/units}}
 
 Return a JSON object with the spoken and learning sentence.`,
