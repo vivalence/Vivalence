@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "TenseEnum" ADD VALUE 'NON_TEMPORAL';

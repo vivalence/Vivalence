@@ -11,5 +11,5 @@ COPY . .
 
 RUN npm run pgenerate
 
-EXPOSE 4000
+EXPOSE 5001
 CMD [ "npm", "run", "start" ]

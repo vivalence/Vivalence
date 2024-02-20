@@ -37,4 +37,4 @@ app.use("/", cors(), bodyParser.json(), apolloMiddlewear);
 
 await new Promise((resolve) => httpServer.listen({ port: PORT }, resolve));
 
-console.log(`🚀 Server ready at http://localhost:4000/`);
+console.log(`🚀 Server ready at http://localhost:${PORT}/`);

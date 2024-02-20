@@ -1,38 +1,54 @@
-# create-svelte
+# MVP for "SSalSA" stack
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+SvelteKit, Supabase, and lovely SSR Auth
 
-## Creating a project
+## Code Showcase
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Email sign-up/sign-in.
+- GitHub sign-in. Can easily be changed to other oauth providers.
+- Requires a session to access all pages under the `authenticated` layout group.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+> All sign-up and sign-ins happen server-side.
 
-# create a new project in my-app
-npm create svelte@latest my-app
+## Install
+
+> Tweak your Sveltekit creation as desired.
+
+```
+npm create svelte@latest sveltekit-supabase-ssr
+  > Skeleton project
+  > Yes, using Typescript syntax
+  > none
+
+cd sveltekit-supabase-ssr
+npm install
+
+npm install @supabase/supabase-js @supabase/ssr
 ```
 
-## Developing
+## Setup
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. Supabase types
+    ```
+    supabase init
+    supabase link --project-ref <your-project-id>
+    supabase gen types typescript --linked > src/lib/database.d.ts
+    ```
 
-```bash
+2. Environment variables.
+    
+    Create a `src/env.local` file.
+    ```
+    PUBLIC_SUPABASE_ANON_KEY=<your-project-anon-key>
+    PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co
+    ```
+
+3. Change email templates, per [official docs](https://supabase.com/docs/guides/auth/server-side/email-based-auth-with-pkce-flow-for-ssr?framework=sveltekit#update-email-templates-with-url-for-api-endpoint)
+
+## Run!
+
+```
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Open a browser to http://localhost:5173
