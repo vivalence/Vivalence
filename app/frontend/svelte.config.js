@@ -1,26 +1,17 @@
-import { vitePreprocess } from "@sveltejs/kit/vite";
-import preprocess from "svelte-preprocess";
-
 import adapter from "@sveltejs/adapter-node";
+import { vitePreprocess } from "@sveltejs/kit/vite";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-    kit: {
-        adapter: adapter(),
-        alias: {
-            $games: "./src/games",
-            $kit: "./src/kit",
-            $components: "./src/components",
-            $houdini: "./$houdini"
-        }
+  preprocess: vitePreprocess(),
+  kit: {
+    adapter: adapter(),
+    alias: {
+      $games: "./src/games",
+      $kit: "./src/kit",
+      $components: "./src/components",
     },
-
-    preprocess: [
-        vitePreprocess({})
-        // preprocess({
-        //   postcss: true
-        // })
-    ]
+  },
 };
 
 export default config;

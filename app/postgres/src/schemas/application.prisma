@@ -1,0 +1,217 @@
+view User {
+  instance_id                 String?   @db.Uuid
+  id                          String    @id @unique @db.Uuid
+  aud                         String?   @db.VarChar(255)
+  role                        String?   @db.VarChar(255)
+  email                       String?   @db.VarChar(255)
+  encrypted_password          String?   @db.VarChar(255)
+  email_confirmed_at          DateTime? @db.Timestamptz(6)
+  invited_at                  DateTime? @db.Timestamptz(6)
+  confirmation_token          String?   @db.VarChar(255)
+  confirmation_sent_at        DateTime? @db.Timestamptz(6)
+  recovery_token              String?   @db.VarChar(255)
+  recovery_sent_at            DateTime? @db.Timestamptz(6)
+  email_change_token_new      String?   @db.VarChar(255)
+  email_change                String?   @db.VarChar(255)
+  email_change_sent_at        DateTime? @db.Timestamptz(6)
+  last_sign_in_at             DateTime? @db.Timestamptz(6)
+  raw_app_meta_data           Json?
+  raw_user_meta_data          Json?
+  is_super_admin              Boolean?
+  created_at                  DateTime? @db.Timestamptz(6)
+  updated_at                  DateTime? @db.Timestamptz(6)
+  phone                       String?   @unique
+  phone_confirmed_at          DateTime? @db.Timestamptz(6)
+  phone_change                String?   @default("")
+  phone_change_token          String?   @default("") @db.VarChar(255)
+  phone_change_sent_at        DateTime? @db.Timestamptz(6)
+  confirmed_at                DateTime? @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)"))     @db.Timestamptz(6)
+  email_change_token_current  String?   @default("") @db.VarChar(255)
+  email_change_confirm_status Int?      @default(0) @db.SmallInt
+  banned_until                DateTime? @db.Timestamptz(6)
+  reauthentication_token      String?   @default("") @db.VarChar(255)
+  reauthentication_sent_at    DateTime? @db.Timestamptz(6)
+  is_sso_user                 Boolean   @default(false)
+  deleted_at                  DateTime? @db.Timestamptz(6)
+
+  @@index([instance_id])
+  @@map("auth_users")
+}
+
+// model User {
+//     // Meta
+//     id           Int           @id 
+//     createdAt    DateTime      @default(now())
+//     updatedAt    DateTime      @default(now()) @updatedAt
+//     // It
+//     // Down
+//     strategies   Strategy[]
+//     plays        Play[]
+//     memoryModels MemoryModel[]
+
+
+//     @@schema("auth") 
+// }
+
+
+}
+
+model Strategy {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    // It
+    name      String
+    data      Json     @default("{}")
+    tactics   Json     @default("[]")
+    // Relations
+    tags      Tag[]
+    games     Game[]
+    user      User[]
+}
+
+model Game {
+    // Meta
+    id         String       @id @default(cuid())
+    createdAt  DateTime     @default(now())
+    updatedAt  DateTime     @default(now()) @updatedAt
+    // It
+    type       GameTypeEnum
+    // Relations
+    plays      Play[]
+    mask       Mask?        @relation(fields: [maskId], references: [id])
+    maskId     String?      @unique
+    strategy   Strategy?    @relation(fields: [strategyId], references: [id])
+    strategyId String?
+
+    @@unique([type, strategyId])
+}
+
+model Mask {
+    // Meta
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now()) @updatedAt
+    // It
+    data      Json
+    // Relations
+    game      Game?
+    // parent    Mask?    @relation("MaskMask", fields: [parentId], references: [id])
+    // children  Mask[]   @relation("MaskMask")
+    // parentId  String?
+}
+
+model Unit {
+    // Meta
+    id           String          @id @default(cuid())
+    createdAt    DateTime        @default(now())
+    updatedAt    DateTime        @default(now()) @updatedAt
+    corpusId     String
+    unitType     UnitTypeEnum    @default(WORD)
+    // It
+    data         Json
+    status       UnitStatusEnum?
+    // Relations
+    tags         Tag[]
+    plays        Play[]
+    memoryModels MemoryModel[]
+
+    @@unique([corpusId, unitType])
+}
+
+model Tag {
+    // Meta
+    id        String        @id @default(cuid())
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @default(now()) @updatedAt
+    // It
+    name      String        @unique
+    type      TagTypeEnum[] @default([])
+    data      Json          @default("{}")
+    // Relations
+    units     Unit[]
+    tags      Tag[]         @relation("TagTag")
+    fromTag   Tag[]         @relation("TagTag")
+    strategy  Strategy[]
+}
+
+model MemoryModel {
+    // Meta
+    id        String           @id @default(cuid())
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @default(now()) @updatedAt
+    // It
+    type      MemoryTypeEnum   @default(EBISU_v2)
+    status    MemoryStatusEnum @default(UNKNOWN)
+    state     Json             @default("{}")
+    lastSeen  DateTime?
+    history   Json             @default("[]")
+    // Relations
+    unit      Unit             @relation(fields: [unitId], references: [id])
+    unitId    String
+    user      User             @relation(fields: [userId], references: [id])
+    userId    String           @default("clph9fwsl0000g0qt5l1wgvg1")
+    plays     Play[]
+
+    @@unique([unitId, userId])
+}
+
+model Play {
+    // Meta
+    id        String      @id @default(cuid())
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @default(now()) @updatedAt
+    history   Json        @default("[]")
+    // It
+    nextPlay  DateTime
+    lastPlay  DateTime
+    // Relations
+    unit      Unit        @relation(fields: [unitId], references: [id])
+    unitId    String
+    game      Game        @relation(fields: [gameId], references: [id])
+    gameId    String
+    user      User        @relation(fields: [userId], references: [id])
+    userId    String      @default("clph9fwsl0000g0qt5l1wgvg1")
+    memory    MemoryModel @relation(fields: [memoryId], references: [id])
+    memoryId  String
+
+    @@unique([unitId, gameId, userId, memoryId])
+}
+
+enum TagTypeEnum {
+    STRUCTURAL // organizing and completable 
+    ONTOLOGICAL // subject matter attribute
+    LEARNABLE // higher order feature
+}
+
+enum MemoryTypeEnum {
+    EBISU_v2
+    EBISU_v3
+}
+
+enum GameTypeEnum {
+    FLASHCARDS
+    TRANSLATIONS
+}
+
+enum UnitTypeEnum {
+    WORD
+    CONJUGATION
+}
+
+enum MemoryStatusEnum {
+    UNKNOWN // not yet being learned
+    LEARNING // being learned 
+    KNOWN // sufficiently learned
+    GRADUATED // sufficiently learned and not Showing anymore
+}
+
+enum UnitStatusEnum {
+    HIDDEN // dont show
+    PRIORITIZED // start learning asp
+}
+
+//
+// CORPUS
+// 

@@ -1,0 +1,15 @@
+i am splitting the schema across multiple files.
+
+user is a view into postgres.auth.
+create with
+
+#+begin_src sql
+create or replace view auth_users as
+select *
+from auth.users
+#+end_src
+
+#+begin_src sql
+alter table auth.users
+add column app_user_id uuid;
+#+end_src

@@ -1,0 +1,23 @@
+{
+  "name": "prisma",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "pschema": "bun schema.js",
+    "pseed": "bun seed/index.js",
+    "pstudio": "bunx prisma studio",
+    "pformat": "bunx prisma format",
+    "pgenerate": "npx prisma generate",
+    "pmigrate": "bun pschema && bunx prisma migrate dev"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "dependencies": {
+    "@pothos/plugin-prisma": "^3.59.3",
+    "@pothos/plugin-tracing": "^0.5.8",
+    "@prisma/client": "5.9.1",
+    "@supabase/supabase-js": "^2.39.7",
+    "prisma": "^5.9.1"
+  }
+}
