@@ -5,8 +5,7 @@ BEGIN
     -- Update AppUser roles based on AuthUser raw_user_meta_data
     UPDATE public."AppUser"
     SET roles = ARRAY(SELECT jsonb_array_elements_text(NEW.raw_user_meta_data->'roles'))::public."UserRolesEnum"[]
-    
-    WHERE auth_user_id = NEW.id::text;
+    WHERE id = NEW.id::text;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -19,6 +18,9 @@ FOR EACH ROW
 WHEN (OLD.raw_user_meta_data IS DISTINCT FROM NEW.raw_user_meta_data)
 EXECUTE FUNCTION public.sync_roles_from_authuser();
 
+
+
+
 -- Function to update Auth.users raw_user_meta_data from AppUser roles
 CREATE OR REPLACE FUNCTION public.sync_raw_user_meta_data_from_appuser()
 RETURNS TRIGGER AS $$
@@ -26,10 +28,12 @@ BEGIN
     -- Update AuthUser raw_user_meta_data based on AppUser roles
     UPDATE auth.users
     SET raw_user_meta_data = jsonb_set(coalesce(raw_user_meta_data, '{}'), '{roles}', to_jsonb(ARRAY(SELECT unnest(NEW.roles))))
-    WHERE id = NEW.auth_user_id::uuid;
+    WHERE id = NEW.id::uuid;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- $$ LANGUAGE plpgsql;
+ALTER FUNCTION public.sync_raw_user_meta_data_from_appuser() OWNER TO postgres; -- @lj hack bc: jwt is null inside policy functions. either after writing user or inside trigger
 
 -- Trigger to execute the above function after updates to AppUser roles
 DROP TRIGGER IF EXISTS trigger_sync_raw_user_meta_data_from_appuser ON public."AppUser";

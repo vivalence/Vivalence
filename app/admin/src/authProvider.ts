@@ -4,163 +4,11 @@ import { supabaseClient } from "./utility";
 
 const authProvider: AuthBindings = {
     login: async ({ email, password, providerName }) => {
-        // sign in with oauth
-        try {
-            if (providerName) {
-                const { data, error } = await supabaseClient.auth.signInWithOAuth({
-                    provider: providerName,
-                });
-
-                if (error) {
-                    return {
-                        success: false,
-                        error,
-                    };
-                }
-
-                if (data?.url) {
-                    return {
-                        success: true,
-                        redirectTo: "/",
-                    };
-                }
-            }
-
-            // sign in with email and password
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) {
-                return {
-                    success: false,
-                    error,
-                };
-            }
-
-            if (data?.user) {
-                return {
-                    success: true,
-                    redirectTo: "/",
-                };
-            }
-        } catch (error: any) {
-            return {
-                success: false,
-                error,
-            };
-        }
-
         return {
             success: false,
             error: {
                 message: "Login failed",
                 name: "Invalid email or password",
-            },
-        };
-    },
-    register: async ({ email, password }) => {
-        try {
-            const { data, error } = await supabaseClient.auth.signUp({
-                email,
-                password,
-            });
-
-            if (error) {
-                return {
-                    success: false,
-                    error,
-                };
-            }
-
-            if (data) {
-                return {
-                    success: true,
-                    redirectTo: "/",
-                };
-            }
-        } catch (error: any) {
-            return {
-                success: false,
-                error,
-            };
-        }
-
-        return {
-            success: false,
-            error: {
-                message: "Register failed",
-                name: "Invalid email or password",
-            },
-        };
-    },
-    forgotPassword: async ({ email }) => {
-        try {
-            const { data, error } = await supabaseClient.auth.resetPasswordForEmail(
-                email,
-                {
-                    redirectTo: `${window.location.origin}/update-password`,
-                },
-            );
-
-            if (error) {
-                return {
-                    success: false,
-                    error,
-                };
-            }
-
-            if (data) {
-                return {
-                    success: true,
-                };
-            }
-        } catch (error: any) {
-            return {
-                success: false,
-                error,
-            };
-        }
-
-        return {
-            success: false,
-            error: {
-                message: "Forgot password failed",
-                name: "Invalid email",
-            },
-        };
-    },
-    updatePassword: async ({ password }) => {
-        try {
-            const { data, error } = await supabaseClient.auth.updateUser({
-                password,
-            });
-
-            if (error) {
-                return {
-                    success: false,
-                    error,
-                };
-            }
-
-            if (data) {
-                return {
-                    success: true,
-                    redirectTo: "/",
-                };
-            }
-        } catch (error: any) {
-            return {
-                success: false,
-                error,
-            };
-        }
-        return {
-            success: false,
-            error: {
-                message: "Update password failed",
-                name: "Invalid password",
             },
         };
     },
@@ -173,7 +21,6 @@ const authProvider: AuthBindings = {
                 error,
             };
         }
-
         return {
             success: true,
             redirectTo: "/",
@@ -188,9 +35,9 @@ const authProvider: AuthBindings = {
             const { data } = await supabaseClient.auth.getSession();
             const { session } = data;
             console.log("authprovider check session", session);
-            //
 
             if (!session) {
+                window.location.href = "https://auth.vivalence.com";
                 return {
                     authenticated: false,
                     error: {
@@ -198,11 +45,11 @@ const authProvider: AuthBindings = {
                         name: "Session not found",
                     },
                     logout: true,
-                    // redirectTo: "/login",
-                    redirectTo: "https://auth.vivalence.com",
+                    redirectTo: "/",
                 };
             }
             if (!session.user.user_metadata.roles.includes("ADMIN")) {
+                window.location.href = "https://auth.vivalence.com";
                 return {
                     authenticated: false,
                     error: {
@@ -210,10 +57,11 @@ const authProvider: AuthBindings = {
                         name: "Not Admin",
                     },
                     logout: true,
-                    redirectTo: "https://auth.vivalence.com",
+                    redirectTo: "/",
                 };
             }
         } catch (error: any) {
+            window.location.href = "https://auth.vivalence.com";
             return {
                 authenticated: false,
                 error: error || {
@@ -221,42 +69,13 @@ const authProvider: AuthBindings = {
                     name: "Not authenticated",
                 },
                 logout: true,
-                redirectTo: "https://auth.vivalence.com",
-                // redirectTo: "/login",
+                redirectTo: "/",
             };
         }
 
         return {
             authenticated: true,
         };
-    },
-    getPermissions: async () => {
-        const user = await supabaseClient.auth.getUser();
-        console.log("authProvider getPermissions", user);
-
-        if (user) {
-            // roles: data.user.user_metadata?.roles,
-            return user.data.user?.role;
-        }
-
-        return null;
-    },
-    getIdentity: async () => {
-        const { data } = await supabaseClient.auth.getUser();
-        console.log("identity data", data);
-        if (!data?.user.user_metadata?.roles.includes("ADMIN")) {
-            // window.location.href = "https://auth.vivalence.com";
-        }
-
-        if (data?.user) {
-            return {
-                ...data.user,
-                name: data.user.email,
-                roles: data.user.user_metadata?.roles,
-            };
-        }
-
-        return null;
     },
 };
 

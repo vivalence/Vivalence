@@ -8,6 +8,6 @@ CREATE POLICY admin_crud_all_AppUser ON "AppUser"
 DROP POLICY IF EXISTS user_appuser_crud_policy  ON "AppUser";
 CREATE POLICY user_appuser_crud_policy ON "AppUser"
     FOR ALL
-    USING (auth_user_id = auth.uid()::text)
-    WITH CHECK (auth_user_id = auth.uid()::text);
+    USING (id = auth.uid()::text)
+    WITH CHECK (id = auth.uid()::text);
 

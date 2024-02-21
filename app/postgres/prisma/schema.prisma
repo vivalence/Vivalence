@@ -1,28 +1,28 @@
 generator local-client {
-    // output       = "../../app/backend/node_modules/.prisma/client"
-    provider = "prisma-client-js"
-    clientOutput = "@prisma/client"
-    previewFeatures = ["views"]
+  // output       = "../../app/backend/node_modules/.prisma/client"
+  provider        = "prisma-client-js"
+  clientOutput    = "@prisma/client"
+  previewFeatures = ["views"]
 }
 
 generator backend-client {
-    provider = "prisma-client-js"
-    output       = "../../app/backend/node_modules/.prisma/client"
-    clientOutput = "@prisma/client"
-    previewFeatures = ["views"]
+  provider        = "prisma-client-js"
+  output          = "../../app/backend/node_modules/.prisma/client"
+  clientOutput    = "@prisma/client"
+  previewFeatures = ["views"]
 }
 
 generator pothos-client {
-    // clientOutput = "@prisma/client"
-    provider     = "prisma-pothos-types"
-    clientOutput = "../../app/backend/node_modules/.prisma/client"
-    output       = "../../app/backend/node_modules/@pothos/test"
-    previewFeatures = ["views"]
+  // clientOutput = "@prisma/client"
+  provider        = "prisma-pothos-types"
+  clientOutput    = "../../app/backend/node_modules/.prisma/client"
+  output          = "../../app/backend/node_modules/@pothos/test"
+  previewFeatures = ["views"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url               = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 view AuthUser {
@@ -52,7 +52,7 @@ view AuthUser {
   phone_change                String?   @default("")
   phone_change_token          String?   @default("") @db.VarChar(255)
   phone_change_sent_at        DateTime? @db.Timestamptz(6)
-  confirmed_at                DateTime? @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)"))     @db.Timestamptz(6)
+  confirmed_at                DateTime? @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)")) @db.Timestamptz(6)
   email_change_token_current  String?   @default("") @db.VarChar(255)
   email_change_confirm_status Int?      @default(0) @db.SmallInt
   banned_until                DateTime? @db.Timestamptz(6)
@@ -60,44 +60,45 @@ view AuthUser {
   reauthentication_sent_at    DateTime? @db.Timestamptz(6)
   is_sso_user                 Boolean   @default(false)
   deleted_at                  DateTime? @db.Timestamptz(6)
+  AppUser                     AppUser?
 
   @@index([instance_id])
   @@map("auth_users")
 }
 
 model AppUser {
-    // Meta
-    auth_user_id String       @id @unique // same as auth."users".id
-    authUser     AuthUser     @relation(fields: [auth_user_id], references: [app_user_id])
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @default(now()) @updatedAt
-    // It
-    roles        UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
-    strategies   Strategy[]
+  // Meta
+  id String   @id @unique // same as auth."users".id
+  authUser     AuthUser @relation(fields: [id], references: [id])
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @default(now()) @updatedAt
+  // It
+  roles      UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+  strategies Strategy[]
 }
 
 enum UserRolesEnum {
-    ADMIN
-    USER
-    GUEST
+  ADMIN
+  USER
+  GUEST
 }
 
 model Strategy {
-    // Meta
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now()) @updatedAt
-    // It
-    name      String
-    data      Json     @default("{}")
-    tactics   Json     @default("[]")
-    // Relations
-    user      AppUser[]
-//     // It
-//     name      String
-//     data      Json     @default("{}")
-//     tactics   Json     @default("[]")
-//     // Relations
-//     // tags      Tag[]
-//     // games     Game[]
+  // Meta
+  id        String    @id @default(cuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  // It
+  name      String
+  data      Json      @default("{}")
+  tactics   Json      @default("[]")
+  // Relations
+  user      AppUser[]
+  //     // It
+  //     name      String
+  //     data      Json     @default("{}")
+  //     tactics   Json     @default("[]")
+  //     // Relations
+  //     // tags      Tag[]
+  //     // games     Game[]
 }

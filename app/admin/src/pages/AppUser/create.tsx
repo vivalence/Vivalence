@@ -1,12 +1,14 @@
 import React from "react";
-import { IResourceComponentsProps, useCreate } from "@refinedev/core";
+import { IResourceComponentsProps, useNavigation, } from "@refinedev/core";
 import { Create, useForm } from "@refinedev/antd";
-import { Form, Input, Button, message } from "antd";
+import { Form, Input } from "antd";
 
 import { supabaseClient } from "../../utility/supabaseClient"
 
 export const AppUserCreate: React.FC<IResourceComponentsProps> = () => {
   const { formProps, saveButtonProps } = useForm();
+  const { editUrl, push } = useNavigation();
+
 
   const onFinish = async (values: any) => {
     const { data: { session } } = await supabaseClient.auth.getSession()
@@ -15,12 +17,15 @@ export const AppUserCreate: React.FC<IResourceComponentsProps> = () => {
       email: values.email,
       password: values.password
     });
-    console.log('newUser', newUser)
 
     await supabaseClient.auth.signOut();
     if (session) {
       await supabaseClient.auth.setSession(session);
     }
+
+    formProps.form?.resetFields(); // Reset the form before navigating
+    const url = editUrl("AppUser", newUser?.data.user?.id!)
+    push(url)
   };
 
   return (
@@ -46,11 +51,6 @@ export const AppUserCreate: React.FC<IResourceComponentsProps> = () => {
         >
           <Input.Password />
         </Form.Item>
-        {/* <Form.Item>
-            <Button type="primary" htmlType="submit" loading={false}>
-            Create User
-            </Button>
-            </Form.Item> */}
       </Form>
     </Create>
   );
