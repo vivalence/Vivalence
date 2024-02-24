@@ -1,8 +1,8 @@
 CREATE OR REPLACE FUNCTION public.app_user_create()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public."AppUser" (id)
-    VALUES (NEW.id);
+    INSERT INTO public."AppUser" (id, email)
+    VALUES (NEW.id, NEW.email);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -4,8 +4,9 @@ import supabase from "../clients/supabase.js";
 
 export async function main() {
   const request = await supabase.auth.signUp({
-    email: "finn@vivalence.com",
-    password: process.env.USER_PASSWORD,
+    email: "shared@vivalence.com",
+    password: process.env.ADMINUSER_PASSWORD,
+    user_metadata: { roles: ["ADMIN"] },
   });
   console.log("request", request);
 

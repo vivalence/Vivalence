@@ -28,6 +28,8 @@ import dataProvider from "./dataProvider";
 import { AppUserCreate, AppUserEdit, AppUserList, AppUserShow } from "./pages/AppUser";
 import { StrategyCreate, StrategyEdit, StrategyList, StrategyShow } from "./pages/Strategy";
 
+import JsonEditor from "./pages/test";
+
 /* import { AntdInferencer } from "@refinedev/inferencer/antd"; */
 
 const resources = [
@@ -74,6 +76,7 @@ function App() {
                       <Route index
                         element={<NavigateToResource resource="AppUser" />}
                       />
+                      <Route path="/test" element={<JsonEditor />} />
                       <Route path="/user">
                         <Route index element={<AppUserList />} />
                         <Route path="create" element={<AppUserCreate />} />

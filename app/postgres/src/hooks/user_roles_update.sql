@@ -44,12 +44,3 @@ WHEN (OLD.roles IS DISTINCT FROM NEW.roles)
 EXECUTE FUNCTION public.sync_raw_user_meta_data_from_appuser();
 
 
--- PERMISSIONS
--- maybe i am missing permissions for anon,authenticated,others on auth.users
-GRANT USAGE ON TYPE public."UserRolesEnum" TO supabase_auth_admin;
-
-GRANT EXECUTE ON FUNCTION public.sync_roles_from_authuser() TO supabase_auth_admin;
-GRANT EXECUTE ON FUNCTION public.sync_raw_user_meta_data_from_appuser() TO supabase_auth_admin;
-
-GRANT SELECT, UPDATE ON public."AppUser" TO supabase_auth_admin;
-GRANT SELECT, UPDATE ON auth.users TO supabase_auth_admin;
