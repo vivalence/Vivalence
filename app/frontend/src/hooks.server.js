@@ -1,29 +1,34 @@
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
-import { createServerClient } from "@supabase/ssr";
+import { json } from "@sveltejs/kit";
+
+import supabase from "$lib/server/supabase.js";
 
 export const handle = async ({ event, resolve }) => {
-    event.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-        cookies: {
-            get: (key) => event.cookies.get(key),
-            set: (key, value, options) => {
-                event.cookies.set(key, value, options);
-            },
-            remove: (key, options) => {
-                event.cookies.delete(key, options);
-            }
-        }
-    });
+    event.locals.supabase = supabase(event);
 
-    /**
-     * a little helper that is written for convenience so that instead
-     * of calling `const { data: { session } } = await supabase.auth.getSession()`
-     * you just call this `await getSession()`
-     */
+    event.locals.params = () => {
+        return JSON.parse(event.url.searchParams.get("body"));
+    };
+    event.locals.get = async (url, body) => {
+        const options = { method: "GET" };
+        const urlParams = new URLSearchParams({ body: JSON.stringify(body) }).toString();
+        const response = await event.fetch(`${url}?${urlParams}`, options);
+        return response.json();
+    };
+    event.locals.post = async (url, body) => {
+        const options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(body)
+        };
+        const response = await event.fetch(url, options);
+        return response.json();
+    };
+
     event.locals.getSession = async () => {
-        const {
-            data: { session }
-        } = await event.locals.supabase.auth.getSession();
-        return session;
+        const { data } = await event.locals.supabase.auth.getSession();
+        return data.session;
     };
 
     return resolve(event, {

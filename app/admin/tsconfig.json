@@ -14,9 +14,16 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"], // Matches "@/somePath"
+      "$types/*": ["./src/types/*"], // Matches "$util/somePath"
+      "$util/*": ["./src/utility/*"], // Matches "$util/somePath"
+      "$components/*": ["./src/components/*"] // Matches "$components/somePath"
+    }
   },
-  "include": ["src", "vite.config.ts"],
+  "include": ["src", "src/**/*", "vite.config.ts"],
   "references": [
     {
       "path": "./tsconfig.node.json"

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: "/Users/finn/vivalence/code/spanish/app/postgres/.env" });
+
 import { createClient } from "@supabase/supabase-js";
 
 const { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } = process.env;

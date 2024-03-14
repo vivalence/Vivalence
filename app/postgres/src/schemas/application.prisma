@@ -54,8 +54,6 @@ view User {
 // }
 
 
-}
-
 model Strategy {
     // Meta
     id        String   @id @default(cuid())
@@ -97,8 +95,6 @@ model Mask {
     data      Json
     // Relations
     game      Game?
-    // parent    Mask?    @relation("MaskMask", fields: [parentId], references: [id])
-    // children  Mask[]   @relation("MaskMask")
     // parentId  String?
 }
 
@@ -172,7 +168,7 @@ model Play {
     game      Game        @relation(fields: [gameId], references: [id])
     gameId    String
     user      User        @relation(fields: [userId], references: [id])
-    userId    String      @default("clph9fwsl0000g0qt5l1wgvg1")
+    userId    String      
     memory    MemoryModel @relation(fields: [memoryId], references: [id])
     memoryId  String
 

@@ -1,37 +1,69 @@
 <script lang="ts">
-  import { invalidate } from '$app/navigation'
-  import { onMount } from 'svelte'
+    import { setContext, onMount } from "svelte";
+    import { writable } from "svelte/store";
+    import { afterNavigate, invalidate } from "$app/navigation";
+    import { AppShell, AppBar } from "@skeletonlabs/skeleton";
 
-  export let data
+    import "../app.pcss";
 
-  let { supabase, session } = data
-  $: ({ supabase, session } = data)
+    export let data;
+    let { supabase, session } = data;
+    $: ({ supabase, session } = data);
 
-  onMount(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, _session) => {
-      if (_session?.expires_at !== session?.expires_at) {
-        invalidate('supabase:auth')
-      }
-    })
+    const FooterComponent = writable(null);
+    setContext("page-footer", FooterComponent);
 
-    return () => subscription.unsubscribe()
-  })
+    afterNavigate((params) => {
+        const isNewPage = params.from?.url.pathname !== params.to?.url.pathname;
+        const elemPage = document.querySelector("#page");
+        if (isNewPage && elemPage !== null) {
+            elemPage.scrollTop = 0;
+        }
+    });
+
+    onMount(() => {
+        const { data } = supabase.auth.onAuthStateChange(async (event, _session) => {
+            if (_session?.expires_at !== session?.expires_at) {
+                invalidate("supabase:auth");
+            }
+        });
+        return () => data.subscription.unsubscribe();
+    });
 </script>
 
-<nav style="border: solid; border-width: 0 0 2px; padding-bottom: 5px;">
-  <a href="/">Home</a>
-  {#if session}
-    <a href="/app">App</a>
-    <a href="/admin">Admin</a>
-    <img style="width: 32px; height: 32px; border-radius: 9999px;" src={session.user.user_metadata.avatar_url} alt="person_avatar">
-    <form method="POST" action="auth?/signout">
-      <button>Logout</button>
-    </form>
-  {:else}
-    <a href='/auth'>Login</a>
-  {/if}
-</nav>
+<AppShell>
+    <svelte:fragment slot="header">
+        <AppBar
+            gridColumns="grid-cols-3"
+            slotDefault="place-self-center"
+            slotTrail="place-content-end"
+            background="bg-surface-900"
+        >
+            <svelte:fragment slot="lead">{" "}</svelte:fragment>
 
-<slot />
+            <a href="/">
+                <img src={"/logo/vivalence-white.svg"} alt="Logo" class="h-8 mx-auto" />
+            </a>
+
+            <svelte:fragment slot="trail">
+                {#if session}
+                    <form method="POST" action="auth?/signout">
+                        <button>Logout</button>
+                    </form>
+                {:else}
+                    <a href="/auth">Login</a>
+                {/if}
+            </svelte:fragment>
+        </AppBar>
+    </svelte:fragment>
+
+    <slot />
+
+    <svelte:fragment slot="footer">
+        {#if typeof $FooterComponent === "string"}
+            {@html $FooterComponent}
+        {:else if typeof $FooterComponent === "function"}
+            <svelte:component this={$FooterComponent} />
+        {/if}
+    </svelte:fragment>
+</AppShell>
