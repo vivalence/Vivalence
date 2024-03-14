@@ -18,6 +18,8 @@
     "@pothos/plugin-tracing": "^0.5.8",
     "@prisma/client": "5.9.1",
     "@supabase/supabase-js": "^2.39.7",
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.3",
     "prisma": "^5.9.1"
   }
 }

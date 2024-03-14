@@ -8,6 +8,8 @@ export const load = async ({ locals: { getSession } }) => {
     if (session) throw redirect(303, "/app");
 };
 
+const post_auth_path = "";
+
 export const actions = {
     signup: async ({ request, url, locals: { supabase } }) => {
         const formData = await request.formData();
@@ -18,7 +20,7 @@ export const actions = {
             const { error } = await supabase.auth.signUp({
                 email,
                 password,
-                options: { emailRedirectTo: `${url.origin}/app` }
+                options: { emailRedirectTo: `${url.origin}/${post_auth_path}` }
             });
 
             if (error) console.error(error);
@@ -32,30 +34,18 @@ export const actions = {
         const provider = formData.get("provider");
 
         if (email && password) {
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
 
             if (error) {
+                console.log("error", error);
                 if (error instanceof AuthApiError && error.status === 400) {
-                    return fail(400, {
-                        error: "Invalid credentials.",
-                        data: {
-                            email
-                        }
-                    });
+                    return fail(400, { error: "Invalid credentials.", data: { email } });
                 }
-                return fail(500, {
-                    error: "Server error. Try again later.",
-                    data: {
-                        email
-                    }
-                });
+                return fail(500, { error: "Server error. Try again later.", data: { email } });
             }
 
             /* Login successful, redirect. */
-            throw redirect(303, "/app");
+            throw redirect(303, "/${post_auth_path}}");
         } else if (provider) {
             /* OAuth sign-in. */
 
@@ -66,7 +56,7 @@ export const actions = {
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider,
                 options: {
-                    redirectTo: `${url.origin}/auth/callback?next=/app`
+                    redirectTo: `${url.origin}/auth/callback?next=/${post_auth_path}`
                 }
             });
 

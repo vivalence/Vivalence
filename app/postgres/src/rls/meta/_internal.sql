@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- PERMISSIONS
 -- maybe i am missing permissions for anon,authenticated,others on auth.users

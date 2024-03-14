@@ -37,7 +37,7 @@ const authProvider: AuthBindings = {
             console.log("authprovider check session", session);
 
             if (!session) {
-                window.location.href = "https://auth.vivalence.com";
+                // window.location.href = "https://auth.vivalence.com";
                 return {
                     authenticated: false,
                     error: {
@@ -49,7 +49,7 @@ const authProvider: AuthBindings = {
                 };
             }
             if (!session.user.user_metadata.roles.includes("ADMIN")) {
-                window.location.href = "https://auth.vivalence.com";
+                // window.location.href = "https://auth.vivalence.com";
                 return {
                     authenticated: false,
                     error: {
@@ -61,7 +61,7 @@ const authProvider: AuthBindings = {
                 };
             }
         } catch (error: any) {
-            window.location.href = "https://auth.vivalence.com";
+            // window.location.href = "https://auth.vivalence.com";
             return {
                 authenticated: false,
                 error: error || {

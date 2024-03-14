@@ -4,7 +4,7 @@ import validator from '@rjsf/validator-ajv8';
 import { FormProps, IChangeEvent } from '@rjsf/core';
 import Form from '@rjsf/antd';
 
-import CodeEditorField from './Code';
+/* import CodeEditorField from './Code'; */
 
 import './index.css'
 
@@ -45,5 +45,7 @@ const JsonForm: React.FC<Props> = (props, ref) => {
 };
 
 export default JsonForm;
+
+
 
 

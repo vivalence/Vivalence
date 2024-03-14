@@ -1,3 +1,13 @@
-<h1>HOME</h1>
-<p>👇 will redirect you to /auth if you aren't authenticated.</p>
-<a href="/app">App</a>
+<script>
+    export let data;
+    const strategies = data.strategies;
+</script>
+
+{#if strategies}
+    {#each strategies as strategy}
+        <h1>{strategy.name}</h1>
+        <a href="/strategy/{strategy.id}"> play </a>
+    {/each}
+{:else}
+    <p>No strategies</p>
+{/if}

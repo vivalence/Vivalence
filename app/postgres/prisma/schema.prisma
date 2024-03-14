@@ -1,101 +1,179 @@
+generator app-client {
+  output          = "../../frontend/node_modules/.prisma/client"
+  provider        = "prisma-client-js"
+  clientOutput    = "@prisma/client"
+  previewFeatures = ["views"]
+}
+
 generator local-client {
-  // output       = "../../app/backend/node_modules/.prisma/client"
   provider        = "prisma-client-js"
-  previewFeatures = ["views"]
   clientOutput    = "@prisma/client"
-}
-
-generator backend-client {
-  provider        = "prisma-client-js"
-  output          = "../../app/backend/node_modules/.prisma/client"
   previewFeatures = ["views"]
-  clientOutput    = "@prisma/client"
-}
-
-generator pothos-client {
-  provider        = "prisma-pothos-types"
-  output          = "../../app/backend/node_modules/@pothos/test"
-  previewFeatures = ["views"]
-  clientOutput    = "../../app/backend/node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
+  // extensions = [pg_graphql, pg_net, pg_stat_statements, pgcrypto, pgjwt, pgsodium, supabase_vault]
   url      = env("DATABASE_URL")
 }
 
 model AppUser {
-  // Meta
-  id         String          @id @unique // same as auth."users".id
-  authUser   AuthUser        @relation(fields: [id], references: [id])
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @default(now()) @updatedAt
-  email      String?        
-  // It
-  roles      UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
-  strategies Strategy[]      @relation("AppUserToStrategy")
+  id          String          @id @unique // same as auth."users".id
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+  email       String?
+  roles       UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+  strategies  Strategy[]      @relation("AppUserToStrategy")
+  Play        Play[]
+  MemoryModel MemoryModel[]
 }
 
 model Strategy {
-  // Meta
   id        String    @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
-  // It
   name      String
   data      Json      @default("{}")
-  tactics   Json      @default("[]")
-  // Relations
   user      AppUser[] @relation("AppUserToStrategy")
-  //     // It
-  //     name      String
-  //     data      Json     @default("{}")
-  //     tactics   Json     @default("[]")
-  //     // Relations
-  //     // tags      Tag[]
-  //     // games     Game[]
+  tags      Tag[]     @relation("StrategyToTag")
+  games     Game[]    @relation("StrategyToGame")
 }
 
-// view AuthUser {
-//   instance_id                 String?   @db.Uuid
-//   id                          String    @id @unique @db.Uuid
-//   aud                         String?   @db.VarChar(255)
-//   role                        String?   @db.VarChar(255)
-//   email                       String?   @db.VarChar(255)
-//   encrypted_password          String?   @db.VarChar(255)
-//   email_confirmed_at          DateTime? @db.Timestamptz(6)
-//   invited_at                  DateTime? @db.Timestamptz(6)
-//   confirmation_token          String?   @db.VarChar(255)
-//   confirmation_sent_at        DateTime? @db.Timestamptz(6)
-//   recovery_token              String?   @db.VarChar(255)
-//   recovery_sent_at            DateTime? @db.Timestamptz(6)
-//   email_change_token_new      String?   @db.VarChar(255)
-//   email_change                String?   @db.VarChar(255)
-//   email_change_sent_at        DateTime? @db.Timestamptz(6)
-//   last_sign_in_at             DateTime? @db.Timestamptz(6)
-//   raw_app_meta_data           Json?
-//   raw_user_meta_data          Json?
-//   is_super_admin              Boolean?
-//   created_at                  DateTime? @db.Timestamptz(6)
-//   updated_at                  DateTime? @db.Timestamptz(6)
-//   phone                       String?   @unique
-//   phone_confirmed_at          DateTime? @db.Timestamptz(6)
-//   phone_change                String?
-//   phone_change_token          String?   @db.VarChar(255)
-//   phone_change_sent_at        DateTime? @db.Timestamptz(6)
-//   confirmed_at                DateTime? @db.Timestamptz(6)
-//   email_change_token_current  String?   @db.VarChar(255)
-//   email_change_confirm_status Int?      @db.SmallInt
-//   banned_until                DateTime? @db.Timestamptz(6)
-//   reauthentication_token      String?   @db.VarChar(255)
-//   reauthentication_sent_at    DateTime? @db.Timestamptz(6)
-//   is_sso_user                 Boolean
-//   deleted_at                  DateTime? @db.Timestamptz(6)
-//   AppUser                     AppUser?
+model Game {
+  id         String       @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now()) @updatedAt
+  name       String
+  type       GameTypeEnum
+  data       Json         @default("{}")
+  plays      Play[]
+  strategies Strategy[]   @relation("StrategyToGame")
 
-//   @@index([instance_id])
-//   @@map("auth_users")
-// }
+  // @@unique([type, ])
+}
+
+model Play {
+  id        String      @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
+  history   Json        @default("[]")
+  nextPlay  DateTime
+  lastPlay  DateTime
+  unit      Unit        @relation(fields: [unitId], references: [id])
+  unitId    String
+  game      Game        @relation(fields: [gameId], references: [id])
+  gameId    String
+  user      AppUser     @relation(fields: [userId], references: [id])
+  userId    String
+  memory    MemoryModel @relation(fields: [memoryId], references: [id])
+  memoryId  String
+
+  @@index([unitId], name: "unitIdIndexOnPlay")
+  @@index([userId], name: "userIdIndexOnPlay")
+  @@index([gameId], name: "gameIdIndexOnPlay")
+  @@index([memoryId], name: "memoryIdIndexOnPlay")
+  @@unique([unitId, gameId, userId, memoryId])
+}
+
+model MemoryModel {
+  id        String           @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @default(now()) @updatedAt
+  type      MemoryTypeEnum   @default(EBISU_v2)
+  status    MemoryStatusEnum @default(UNKNOWN)
+  state     Json             @default("{}")
+  lastSeen  DateTime?
+  history   Json             @default("[]")
+  unit      Unit             @relation(fields: [unitId], references: [id])
+  unitId    String
+  user      AppUser          @relation(fields: [userId], references: [id])
+  userId    String
+  plays     Play[]
+
+  @@index([unitId], name: "unitIdIndexOnMemoryModel")
+  @@index([userId], name: "userIdIndexOnMemoryModel")
+  @@unique([unitId, userId])
+}
+
+model Tag {
+  id        String        @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @default(now()) @updatedAt
+  name      String        @unique
+  type      TagTypeEnum[] @default([])
+  data      Json          @default("{}")
+  units     Unit[]
+  strategy  Strategy[]    @relation("StrategyToTag")
+
+  @@index([name], name: "nameIndexOnTag")
+}
+
+model Unit {
+  id           String         @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  corpusId     String
+  corpusType   CorpusTypeEnum @default(WORD)
+  data         Json
+  tags         Tag[]
+  plays        Play[]
+  memoryModels MemoryModel[]
+
+  @@index([corpusId], name: "corpusIdIndexOnUnit")
+  @@unique([corpusId, corpusType])
+}
+
+enum QueueStatusEnum {
+  PENDING
+
+  PROCESSING
+  DONE
+  FAILED
+}
+
+model Queue {
+  id          String         @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt @default(now())
+  userId      String
+  strategyId  String
+  status      QueueStatusEnum @default(PENDING)
+  data        Json           @default("{}")
+}
+
+
+enum CorpusTypeEnum {
+  WORD
+  CONJUGATION
+}
+
+enum TagTypeEnum {
+  STRUCTURAL // organizing and completable 
+  ONTOLOGICAL // subject matter attribute
+  LEARNABLE // higher order feature
+}
+
+enum MemoryTypeEnum {
+  EBISU_v2
+  EBISU_v3
+}
+
+enum GameTypeEnum {
+  FLASHCARDS
+  TRANSLATIONS
+}
+
+enum MemoryStatusEnum {
+  UNKNOWN // not yet being learned
+  LEARNING // being learned 
+  KNOWN // sufficiently learned
+  GRADUATED // sufficiently learned and not Showing anymore
+}
+
+enum UnitStatusEnum {
+  HIDDEN // dont show
+  PRIORITIZED // start learning asp
+}
 
 enum UserRolesEnum {
   ADMIN

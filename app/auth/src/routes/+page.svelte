@@ -8,9 +8,9 @@
 
         onMount(async () => {
             const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                    console.log('session', session)
-                if(session !== null && session.user !== null){
-                    console.log('user', session.user)
+                console.log('session', session)
+                session && console.log('session.user', session.user)
+                if(!!session && !!session.user && !!session.user.user_metadata.roles){
                     if(session.user.user_metadata.roles.includes('ADMIN')){
                         // window.location.href = import.meta.env.VITE_VIVALENCE_ADMIN_PATH;
                     }

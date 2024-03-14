@@ -6,7 +6,7 @@
   <input name="email" placeholder="email" type="email" value={form?.data?.email ?? ""}>
   <input name="password" placeholder="password" type="password">
   <button style="margin-top: 12px;">Login</button>
-  <button formaction="?/signup" style="margin-top: 12px;">Signup</button>
+  <!-- <button formaction="?/signup" style="margin-top: 12px;">Signup</button> -->
 </form>
 <form method="POST" action="?/signin">
   <button style="margin-top: 12px;" name="provider" value="github">Login with GitHub</button>
