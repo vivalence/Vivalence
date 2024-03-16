@@ -28,7 +28,7 @@
 <Panable
     on:left={onReview("UNKNOWN")}
     on:right={onReview("KNOWN")}
-    on:up={onReview("GRADUCATE")}
+    on:up={onReview("GRADUATE")}
     on:tap={store.reveal}
 >
     <div class="flex items-center justify-center pb-24 h-full v-game">

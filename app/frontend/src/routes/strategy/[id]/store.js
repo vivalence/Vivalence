@@ -39,9 +39,7 @@ function createInstructionStore() {
 
     const fillQueue = async () => {
         const { active, queue, status } = get(Store);
-        console.log(
-            `SSTORE queue length: ${queue.length} | fetching: ${queue.length <= QUEUE_THRESHOLD} | has active: ${!!active} `
-        );
+        // console.log(`SSTORE queue length: ${queue.length} | fetching: ${queue.length <= QUEUE_THRESHOLD} | has active: ${!!active} `);
 
         if (queue.length <= QUEUE_THRESHOLD) {
             Store.update((s) => ({ ...s, status: 202 }));

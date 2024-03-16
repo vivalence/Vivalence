@@ -3,7 +3,8 @@ import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
 const gamePrompt = {
-    provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
+    // provider: { api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.8 },
+    provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
     schema: {
         title: "LanguageLearningSentence",
         type: "object",
@@ -22,7 +23,7 @@ const gamePrompt = {
         required: ["spoken", "learning"]
     },
     template: `### Instructions
-You Generate a sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
+You Generate one single sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
 
 Follow this strategy:
 {{innerPrompt}}

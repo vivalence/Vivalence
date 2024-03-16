@@ -125,7 +125,6 @@ model Unit {
 
 enum QueueStatusEnum {
   PENDING
-
   PROCESSING
   DONE
   FAILED
@@ -135,6 +134,7 @@ model Queue {
   id          String         @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt @default(now())
+  index       Int             @default(0)
   userId      String
   strategyId  String
   status      QueueStatusEnum @default(PENDING)

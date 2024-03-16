@@ -18,8 +18,10 @@ export async function anthropic(inputs) {
             `The return JSON schema is: ${JSON.stringify(schema)}.` +
             `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`;
     }
-
+    // console.log(completion.system);
+    // console.log(JSON.stringify(prompt, null, 2));
     const response = await anthropicClient.messages.create(completion);
     const text = response.content[0].text;
+    // console.log(JSON.parse(text, null, 2));
     return schema ? JSON.parse(text) : text;
 }
