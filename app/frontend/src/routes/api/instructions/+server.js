@@ -6,7 +6,6 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms * 1000));
 const PROVISION_THRESHOLD = 8;
 
 export async function POST({ locals, params, request }) {
-    console.log("/api/instructions GET<POST>");
     try {
         const session = await locals.getSession();
         if (!session) throw redirect(307, "/auth");
@@ -21,6 +20,7 @@ export async function POST({ locals, params, request }) {
             .eq("strategyId", strategyId)
             .eq("status", "PENDING")
             .order("createdAt", { ascending: true })
+            .order("index", { ascending: true })
             .limit(take);
 
         if (pendingRequest.error) {
@@ -53,8 +53,6 @@ export async function POST({ locals, params, request }) {
             .eq("userId", userId)
             .eq("strategyId", strategyId)
             .eq("status", "PENDING");
-
-        console.log("DB QUEUED (WAITING) INSTRUCTIONS #", count.count);
 
         if (count.error) {
             console.error("Error retrieving the oldest pending entry:", count.error);

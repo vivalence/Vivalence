@@ -40,6 +40,7 @@ export const load = async ({ fetch, data, depends }) => {
             }
         }
     });
+    Global.supabase = supabase;
 
     const {
         data: { session }

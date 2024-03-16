@@ -1,17 +1,21 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useCreate, useUpdate, useList, IResourceComponentsProps, } from "@refinedev/core";
+import {
+  useCreate,
+  useUpdate,
+  IResourceComponentsProps,
+} from "@refinedev/core";
 import { useForm, Edit } from "@refinedev/antd";
 import { Form, Input } from "antd";
 
 import { useResource } from "$util/hooks/index";
 import supabase from "$util/supabaseClient";
 import { type User } from "$types/index";
-import MonacoEditor from "$components/monaco-editor/index";
 import Autocomplete, {
   type OptionType,
   type RefHandles,
 } from "$components/autocomplete/index";
-
+import JSONField from "$components/json-field/index";
+import StrategySchema from "./strategy-data-schema";
 
 const mapUsersToOption = (users: User[]): OptionType<User>[] =>
   users.map((user) => ({
@@ -20,26 +24,30 @@ const mapUsersToOption = (users: User[]): OptionType<User>[] =>
     data: user,
   }));
 
-
 const useFormSubmission = (strategyId: string) => {
   const autocompleteRef = useRef<RefHandles>(null);
   const { mutate: createOne } = useCreate();
   const { mutate: updateOne } = useUpdate();
 
   const onFormFinish = async (values: any) => {
-    if (!autocompleteRef.current) return console.error("Autocomplete ref is null");
+    if (!autocompleteRef.current)
+      return console.error("Autocomplete ref is null");
 
     const { added, removed } = autocompleteRef.current;
 
     try {
-      added().forEach(option => {
+      added().forEach((option) => {
         createOne({
           resource: "_AppUserToStrategy",
           values: { A: option.data.id, B: strategyId },
         });
       });
-      removed().forEach(async option => {
-        await supabase.from("_AppUserToStrategy").delete().eq("A", option.data.id).eq("B", strategyId);
+      removed().forEach(async (option) => {
+        await supabase
+          .from("_AppUserToStrategy")
+          .delete()
+          .eq("A", option.data.id)
+          .eq("B", strategyId);
       });
 
       updateOne({ resource: "Strategy", values, id: strategyId });
@@ -71,7 +79,7 @@ export const StrategyEdit: React.FC<IResourceComponentsProps> = () => {
       );
     });
   };
-
+  const strategyData = form.getFieldValue("data");
   return (
     <Edit saveButtonProps={saveButtonProps}>
       <Form {...formProps} layout="vertical" onFinish={onFormFinish}>
@@ -87,14 +95,18 @@ export const StrategyEdit: React.FC<IResourceComponentsProps> = () => {
             optionsAtStart={optionsActive}
           />
         </Form.Item>
-        <Form.Item label="Data" name={['data']}>
-          <MonacoEditor
-            value={form.getFieldValue('data')}
-            onChange={(data) => form.setFieldsValue({ data })}
-            language="json"
-          />
+        <Form.Item name={["data"]}>
+          {/* Need to register field with form, but field cant be child of form; because its a form. */}
         </Form.Item>
       </Form>
+
+      {strategyData && (
+        <JSONField
+          schema={StrategySchema}
+          data={strategyData}
+          onChange={(data) => form.setFieldValue("data", data)}
+        />
+      )}
     </Edit>
   );
-}
+};

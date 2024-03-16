@@ -1,24 +1,30 @@
-import { RJSFSchema } from "@rjsf/utils";
+import { RJSFSchema, UiSchema } from "@rjsf/utils";
 
-export const schema: RJSFSchema = {
-    $schema: "http://json-schema.org/draft-07/schema#",
-    type: "object",
-    properties: {
-        name: {
-            title: "Name",
-            type: "string",
-        },
-        run: {
-            title: "Run",
-            type: "string",
-            // format: "code", // Custom format to trigger the Monaco Editor
-        },
-        age: {
-            title: "Age",
-            type: "integer",
-        },
+export const uiSchema: UiSchema = {
+  run: {
+    "ui:field": Monaco,
+  },
+};
+
+export const dataSchema: RJSFSchema = {
+  $schema: "http://json-schema.org/draft-07/schema#",
+  type: "object",
+  properties: {
+    name: {
+      title: "Name",
+      type: "string",
     },
-    required: ["name"],
+    run: {
+      title: "Run",
+      type: "string",
+      // format: "code", // Custom format to trigger the Monaco Editor
+    },
+    age: {
+      title: "Age",
+      type: "integer",
+    },
+  },
+  required: ["name"],
 };
 
 /* language: {

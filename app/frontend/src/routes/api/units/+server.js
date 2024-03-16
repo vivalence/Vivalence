@@ -39,7 +39,7 @@ export async function GET({ fetch, locals, ...props }) {
     }
 }
 
-export async function POST({ fetch, locals: { post }, request }) {
+export async function POST({ fetch, locals: { supabase, post }, request }) {
     try {
         const { gameId, gameType, unitId, response } = await request.json();
 
@@ -60,10 +60,21 @@ export async function POST({ fetch, locals: { post }, request }) {
             response
         });
 
+        const { data: unit } = await supabase.from("Unit").select("data").eq("id", unitId).single();
+
+        console.log(
+            "UNIT ",
+            unit.data.spanish,
+            memoryData.memoryModel.status,
+            `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`,
+            memoryData.memoryStatusChange ? "status change" : "no change",
+            response
+        );
+
         if (playError) throw playError;
 
         return json({
-            data: { nextPlay: memoryData.nextPlay },
+            data: { ...playData, ...memoryData },
             status: 200
         });
     } catch (err) {

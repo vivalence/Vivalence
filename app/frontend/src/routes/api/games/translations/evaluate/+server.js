@@ -6,7 +6,11 @@ import { sleep, wrapTextWithTag } from "$lib";
 
 const prompt = {
     language: { spoken: "english", learning: "spanish" },
-    provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
+    // provider: { api: "openai", model: "gpt-3.5-turbo" },
+    // provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
+    provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
+    // provider: { api: "anyscale", model: "mistralai/Mixtral-8x7B-Instruct-v0.1" },
+    // provider: { api: "groq", model: "mixtral-8x7b-32768", temperature: 0.2 },
     schema: {
         title: "Evaluations",
         type: "object",
@@ -23,8 +27,8 @@ const prompt = {
     template: `Evaluate a <PART> of a translated sentence.
 
 The <PART> you evaluate now is:
-{{{language.spoken}}}: "{{{part.spoken}}}" - prompted
-{{{language.learning}}}: "{{{part.token}}}" - expected
+{{{language.spoken}}}: "{{{part.spoken}}}"
+{{{language.learning}}}: "{{{part.token}}}"
 
 Context:
 upos: {{{part.upos}}}
@@ -37,18 +41,16 @@ If the <PART> is missing, then select UNKNOWN.
 Did the learner correctly translate "{{{part.token}}}", used it in the right place, and used it correctly?
 
 As evidenced by the translation provided by the learner:
-"{{{sentence.translation}}}"
-
-of this sentence:
-"{{{sentence.spoken}}}"
+USER: "{{{sentence.translation}}}"
 
 when it should have been this:
-"{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis)
+EXPECTED: "{{{sentence.learning}}}"
+
+(the tag <PART> was added now for your emphasis)
 `
 };
 
 export async function POST({ fetch, locals, request }) {
-    console.log("POST /api/games/translations/evaluate ");
     try {
         const { user } = await locals.getSession();
         const { gameId, payload, sentence } = await request.json();
@@ -83,7 +85,7 @@ export async function POST({ fetch, locals, request }) {
             };
             const message = Mustache.render(prompt.template, inputPrompt);
 
-            (await sleep(i * 1.1)) && console.log("SLEEPT /translation/evaluate");
+            await sleep(i * 1.1);
 
             const input = {
                 prompt: message,
@@ -92,6 +94,14 @@ export async function POST({ fetch, locals, request }) {
             };
 
             const { data, error } = await locals.get("/api/llm", input);
+            // console.log(
+            //     `
+
+            // ${learningTagged}
+            // ${sentence.translation}
+            // token: ${part.token} spoken: ${part.spoken} learning: ${part.learning}
+            // evaluation: ${data.evaluation} `
+            // );
 
             if (error) console.error(error);
             else if (data.evaluation !== "NEUTRAL") {

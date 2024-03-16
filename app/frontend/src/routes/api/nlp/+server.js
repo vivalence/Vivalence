@@ -83,6 +83,6 @@ async function findUnit(annotation, { supabase, getSession }) {
 
     return {
         ...data,
-        MemoryModel: data.MemoryModel.length > 0 ? data.MemoryModel[0] : null
+        memoryModel: data.MemoryModel.length > 0 ? data.MemoryModel[0] : null
     };
 }

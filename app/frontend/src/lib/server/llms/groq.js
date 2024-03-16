@@ -26,7 +26,7 @@ export async function groq(inputs) {
         temperature: provider.temperature || 0.2
     };
 
-    const response = await openaiClient.chat.completions.create(completion);
+    const response = await groqClient.chat.completions.create(completion);
     const text = response.choices[0].message.content;
     return schema ? JSON.parse(text) : text;
 }

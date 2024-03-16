@@ -1,94 +1,50 @@
-import React, { useRef } from "react";
+import React from "react";
 import * as monaco from "monaco-editor";
-import Editor, { OnMount, loader } from "@monaco-editor/react";
+import Editor from "@monaco-editor/react";
+import { Typography } from 'antd';
+
 
 interface MonacoEditorFieldProps {
-  value: string | undefined;
+  formData: string | undefined;
   onChange: (value: string | undefined) => void;
   language?: string;
   theme?: string;
   height?: string;
+  schema: any;
+  uiSchema: any;
 }
 
 const MonacoEditorField: React.FC<MonacoEditorFieldProps> = (props) => {
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const schema = props.schema;
+  const uiOptions = props.uiSchema["ui:options"];
 
   const handleEditorChange = (value: string | undefined) => {
-    /* if (!value) value = "";
-     * else if (props.language === "json") {
-     *   try {
-     *     value = JSON.parse(value || "{}")
-     *   } catch (err) { }
-     * } else if (props.language === "javascript") {
-     *   try {
-     *     // do nothing @bumi
-     *   } catch (err) {
-     *     console.log(err);
-     *   }
-     * } */
+    if (!value) value = "";
     props.onChange(value);
   };
 
-  const handleEditorDidMount: OnMount = (
-    editor: monaco.editor.IStandaloneCodeEditor,
-  ) => {
-    editorRef.current = editor;
-  };
+  const defaultValue =
+    typeof props.formData === "object"
+      ? JSON.stringify(props.formData, null, 2)
+      : props.formData || "";
 
-  const defaultValue = typeof props.value === "object" ? JSON.stringify(props.value || "", null, 2) : props.value || ""
-  console.log(defaultValue);
   return (
-    <Editor
-      height={props.height || "40vh"}
-      theme={props.theme || "vs-dark"}
-      defaultLanguage={props.language || "javascript"}
-      defaultValue={defaultValue || ""}
-      onChange={handleEditorChange}
-      onMount={handleEditorDidMount}
-    />
+    <>
+      <Typography.Text>{schema.title}</Typography.Text>
+      <Editor
+        height={props.height || uiOptions.height || "40vh"}
+        theme={props.theme || "vs-dark"}
+        defaultLanguage={props.language || uiOptions.language || "javascript"}
+        defaultValue={defaultValue || ""}
+        onChange={handleEditorChange}
+        options={{
+          scrollBeyondLastLine: false,
+          minimap: { enabled: false },
+        }}
+      />
+    </>
   );
 };
-
-{
-  /* 
-    const editorInstance = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-
-    import { FieldProps } from "@rwjsf/utils"; 
-    useEffect(() => {
-    if (editorRef.current && !editorInstance.current) {
-    editorInstance.current = monaco.editor.create(editorRef.current, {
-    value: formData,
-    language: 'typescript',
-    theme: 'vs-dark',
-    });
-
-    editorInstance.current.onDidChangeModelContent(() => {
-    const value = editorInstance.current?.getValue()
-    onChange(value);
-    });
-    }
-
-    return () => {
-    if (editorInstance.current) {
-    editorInstance.current.dispose();
-    editorInstance.current = null;
-    }
-    };
-    }, []);
-
-    useEffect(() => {
-    if (editorInstance.current) {
-    const currentValue = editorInstance.current.getValue();
-    if (formData !== currentValue) {
-    const initialValue = formData && formData[props.name] || ''
-    editorInstance.current.getModel()?.setValue(initialValue);
-    }
-    }
-    }, [formData, onChange]);
-
-    return <div id={idSchema.$id} ref={editorRef} style={{ height: '300px' }} />;
-    }; */
-}
 
 export default MonacoEditorField;
 

@@ -20,6 +20,13 @@ BEGIN
         AND p."gameId" = game_id
         AND p."userId" = auth.uid()::text
     )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM "MemoryModel" m
+        WHERE m."unitId" = u.id
+        AND m."userId" = auth.uid()::text
+        AND m."status" IN ('KNOWN', 'GRADUATED')
+    )
     AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist)))
     GROUP BY u.id
     HAVING COUNT(DISTINCT tu."A") = num_tags
@@ -47,6 +54,13 @@ BEGIN
         AND p."gameId" = game_id
         AND p."nextPlay" < due_lt
         AND p."userId" = auth.uid()::text
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM "MemoryModel" m
+        WHERE m."unitId" = u.id
+        AND m."userId" = auth.uid()::text
+        AND m."status" IN ('KNOWN', 'GRADUATED')
     )
     AND EXISTS (
         SELECT 1
