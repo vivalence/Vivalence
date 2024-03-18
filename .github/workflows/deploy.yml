@@ -2,8 +2,6 @@ name: Deploy on Tag
 
 on:
   push:
-    # branches:
-    #   - 'main'
     tags:
       - 'v*.*.*'  
 
@@ -13,12 +11,12 @@ jobs:
     strategy:
       matrix:
          include:
-          # - component: 'service-nlp'
-          #   path: './services/nlp'
-          - component: 'frontend'
-            path: './app/frontend'
-          - component: 'backend'
-            path: './app/backend'
+          - component: 'admin'
+            path: './packages/admin'
+          # - component: 'authentication'
+          #   path: './packages/authentication'
+          # - component: 'client'
+          #   path: './packages/client'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
