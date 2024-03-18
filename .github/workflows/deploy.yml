@@ -31,7 +31,6 @@ jobs:
     - name: Build and push Docker image
       env:
           PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
-          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
           VITE_VIVALENCE_ADMIN_PATH: ${{ secrets.VITE_VIVALENCE_ADMIN_PATH }}
           VITE_VIVALENCE_USER_PATH: ${{ secrets.VITE_VIVALENCE_USER_PATH }}
