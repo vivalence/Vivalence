@@ -32,8 +32,8 @@ run ls -la
 
 RUN bun install -g serve
 
-# USER bun
-USER refine
+USER bun
+# USER refine
 EXPOSE 5000/tcp
 CMD ["serve"]
 # ENTRYPOINT [ "bun", "run", "index.ts" ]
