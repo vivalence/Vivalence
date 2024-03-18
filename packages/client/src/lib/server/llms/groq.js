@@ -3,7 +3,7 @@ import { env } from "$env/dynamic/private";
 const { GROQ_API_KEY, SYSTEM_MODE } = env;
 
 const groqClient = new OpenAI({
-    apiKey: GROQ_API_KEY,
+    apiKey: GROQ_API_KEY || "",
     baseURL: "https://api.groq.com/openai/v1"
 });
 
