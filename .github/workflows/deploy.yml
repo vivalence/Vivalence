@@ -32,6 +32,10 @@ jobs:
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         
     - name: Build and push Docker image
+
+      with: 
+        PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+        PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
       run: |
         docker build --progress=plain  -t ${{ matrix.component }} ${{ matrix.path }}
         docker images --format "{{.Repository}}: {{.Size}}"
