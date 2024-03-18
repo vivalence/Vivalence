@@ -5,7 +5,7 @@ export const load = async ({ locals: { getSession } }) => {
     const session = await getSession();
 
     /* User is already logged in. */
-    if (session) throw redirect(303, "/app");
+    if (session) throw redirect(303, "/");
 };
 
 const post_auth_path = "";

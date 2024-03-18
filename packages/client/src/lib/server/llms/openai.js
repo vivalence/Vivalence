@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { OPENAI_API_KEY } from "$env/static/private";
+import { env } from "$env/dynamic/public";
+const { OPENAI_API_KEY, SYSTEM_MODE } = env;
 
 const openaiClient = new OpenAI({
     apiKey: OPENAI_API_KEY,

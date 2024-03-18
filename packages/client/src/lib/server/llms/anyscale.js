@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { ANYSCALE_API_KEY, SYSTEM_MODE } from "$env/static/private";
+import { env } from "$env/dynamic/public";
+const { ANYSCALE_API_KEY, SYSTEM_MODE } = env;
 
 const anyscaleClient = new OpenAI({
     apiKey: ANYSCALE_API_KEY,

@@ -1,8 +1,10 @@
-import { SYSTEM_MODE } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
 import { sleep, wrapTextWithTag } from "$lib";
+
+const { SYSTEM_MODE } = env;
 
 const prompt = {
     language: { spoken: "english", learning: "spanish" },

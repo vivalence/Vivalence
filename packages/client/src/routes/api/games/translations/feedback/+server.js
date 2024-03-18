@@ -1,4 +1,5 @@
-import { SYSTEM_MODE } from "$env/static/private";
+import { env } from "$env/dynamic/private";
+const { SYSTEM_MODE } = env;
 import Mustache from "mustache";
 import { json } from "@sveltejs/kit";
 

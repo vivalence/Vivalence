@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
-
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from "$env/static/public";
+import { env } from "$env/dynamic/public";
+const { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } = env;
 
 export const supabase = (event) => {
     const supabaseClient = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
