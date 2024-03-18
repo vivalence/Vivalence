@@ -1,4 +1,5 @@
-import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from "$env/static/public";
+import { env } from "$env/dynamic/public";
+const { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } = env;
 import { createBrowserClient, isBrowser, parse } from "@supabase/ssr";
 import { setContext } from "svelte";
 import Global from "$global";
