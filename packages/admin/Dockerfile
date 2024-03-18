@@ -27,11 +27,10 @@ FROM base AS release
 COPY --from=install /temp/prod/node_modules node_modules 
 COPY --from=prerelease /usr/src/app/dist ./
 
-# RUN bun install -g serve
-
 USER bun
-EXPOSE 5000/tcp
+EXPOSE 3000/tcp
 CMD ["serve"]
+
 # ENTRYPOINT [ "bun", "run", "index.ts" ]
 
 

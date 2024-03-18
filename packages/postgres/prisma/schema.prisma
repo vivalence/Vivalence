@@ -24,8 +24,8 @@ model AppUser {
   email       String?
   roles       UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
   strategies  Strategy[]      @relation("AppUserToStrategy")
-  Play        Play[]
-  MemoryModel MemoryModel[]
+  Play        Play[]          
+  MemoryModel MemoryModel[]   
 }
 
 model Strategy {
@@ -46,7 +46,7 @@ model Game {
   name       String
   type       GameTypeEnum
   data       Json         @default("{}")
-  plays      Play[]
+  plays      Play[]       
   strategies Strategy[]   @relation("StrategyToGame")
 
   // @@unique([type, ])
@@ -59,11 +59,11 @@ model Play {
   history   Json        @default("[]")
   nextPlay  DateTime
   lastPlay  DateTime
-  unit      Unit        @relation(fields: [unitId], references: [id])
+  unit      Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId    String
-  game      Game        @relation(fields: [gameId], references: [id])
+  game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
-  user      AppUser     @relation(fields: [userId], references: [id])
+  user      AppUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   memory    MemoryModel @relation(fields: [memoryId], references: [id])
   memoryId  String
@@ -84,9 +84,9 @@ model MemoryModel {
   state     Json             @default("{}")
   lastSeen  DateTime?
   history   Json             @default("[]")
-  unit      Unit             @relation(fields: [unitId], references: [id])
+  unit      Unit             @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId    String
-  user      AppUser          @relation(fields: [userId], references: [id])
+  user      AppUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   plays     Play[]
 
