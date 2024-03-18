@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { env } from "$env/dynamic/public";
+import { env } from "$env/dynamic/private";
 const { ANTHROPIC_API_KEY, SYSTEM_MODE } = env;
 
 const anthropicClient = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
