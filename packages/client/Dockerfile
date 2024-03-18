@@ -6,13 +6,11 @@ RUN npm install --force --legacy-peer-deps
 
 COPY . ./
 
-COPY .env .env
-
 RUN npm run build
-
 
 FROM node:lts-alpine as runtime
 WORKDIR /app
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./
 COPY --from=build /app/package.json ./
 
