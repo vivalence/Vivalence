@@ -24,16 +24,12 @@ run pwd
 
 
 FROM base AS release
-run pwd
-run ls -la
 COPY --from=install /temp/prod/node_modules node_modules 
 COPY --from=prerelease /usr/src/app/dist ./
-run ls -la
 
-RUN bun install -g serve
+# RUN bun install -g serve
 
 USER bun
-# USER refine
 EXPOSE 5000/tcp
 CMD ["serve"]
 # ENTRYPOINT [ "bun", "run", "index.ts" ]

@@ -1,0 +1,25 @@
+meta {
+  name: Translations:Feedback
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://192.168.1.54:5174/api/games/translations/feedback
+  body: json
+  auth: none
+}
+
+headers {
+  Cookie: sb-supa-auth-token=%7B%22access_token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzEwMzM4ODgwLCJpYXQiOjE3MTAzMzUyODAsInN1YiI6Ijk2OTEwMDZkLTUxZTMtNGRiNC1iMGQ2LWQzMTM3ZDZjMTNhNCIsImVtYWlsIjoic2hhcmVkQHZpdmFsZW5jZS5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7InJvbGVzIjpbIkFETUlOIiwiVVNFUiJdfSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTcxMDE3ODE5Nn1dLCJzZXNzaW9uX2lkIjoiMWY3YzFhNzgtYWUyNS00NTE1LWFjZTItNjU1NTg1YzU3MmUyIn0.ucnBewQN3srElMI9vbWGet_BvVUpA-D6hAx8HRaByi4%22%2C%22token_type%22%3A%22bearer%22%2C%22expires_in%22%3A3600%2C%22expires_at%22%3A1710338880%2C%22refresh_token%22%3A%228K7dAA5KonrfIBFFP0ImJg%22%2C%22user%22%3A%7B%22id%22%3A%229691006d-51e3-4db4-b0d6-d3137d6c13a4%22%2C%22aud%22%3A%22authenticated%22%2C%22role%22%3A%22authenticated%22%2C%22email%22%3A%22shared%40vivalence.com%22%2C%22email_confirmed_at%22%3A%222024-02-23T18%3A01%3A00.321964Z%22%2C%22phone%22%3A%22%22%2C%22confirmed_at%22%3A%222024-02-23T18%3A01%3A00.321964Z%22%2C%22last_sign_in_at%22%3A%222024-03-12T18%3A33%3A40.012786Z%22%2C%22app_metadata%22%3A%7B%22provider%22%3A%22email%22%2C%22providers%22%3A%5B%22email%22%5D%7D%2C%22user_metadata%22%3A%7B%22roles%22%3A%5B%22ADMIN%22%2C%22USER%22%5D%7D%2C%22identities%22%3A%5B%7B%22identity_id%22%3A%220358584a-5961-4e8a-b3dd-793278d4fdc5%22%2C%22id%22%3A%229691006d-51e3-4db4-b0d6-d3137d6c13a4%22%2C%22user_id%22%3A%229691006d-51e3-4db4-b0d6-d3137d6c13a4%22%2C%22identity_data%22%3A%7B%22email%22%3A%22shared%40vivalence.com%22%2C%22email_verified%22%3Afalse%2C%22phone_verified%22%3Afalse%2C%22sub%22%3A%229691006d-51e3-4db4-b0d6-d3137d6c13a4%22%7D%2C%22provider%22%3A%22email%22%2C%22last_sign_in_at%22%3A%222024-02-23T18%3A01%3A00.316833Z%22%2C%22created_at%22%3A%222024-02-23T18%3A01%3A00.316901Z%22%2C%22updated_at%22%3A%222024-02-23T18%3A01%3A00.316901Z%22%2C%22email%22%3A%22shared%40vivalence.com%22%7D%5D%2C%22created_at%22%3A%222024-02-23T18%3A01%3A00.305959Z%22%2C%22updated_at%22%3A%222024-03-13T13%3A08%3A00.196457Z%22%7D%7D
+}
+
+body:json {
+  {
+    "sentence": {
+      "spoken": "The father goes to the new city.",
+      "learning": "El padre va a la ciudad nueva.",
+      "translation": "el padre ves a el cuidad nuevo."
+    }
+  }
+}
