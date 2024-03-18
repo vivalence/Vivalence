@@ -1,6 +1,7 @@
 import { json } from "@sveltejs/kit";
-import { SERVICE_NLP_URL } from "$env/static/private";
+import { env } from "$env/dynamic/private";
 import parseFeats from "./feats.js";
+const { SERVICE_NLP_URL } = env;
 
 export async function GET({ fetch, locals, ...props }) {
     try {

@@ -1,4 +1,5 @@
-import { SYSTEM_MODE } from "$env/static/private";
+import { env } from "$env/dynamic/private";
+const { SYSTEM_MODE } = env;
 import { json } from "@sveltejs/kit";
 import provisionInstructions from "./lib/provision";
 

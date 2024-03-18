@@ -15,6 +15,6 @@ COPY --from=build /app/build ./
 COPY --from=build /app/package.json ./
 
 ENV NODE_ENV production
-EXPOSE 5000
 
+EXPOSE 3000/tcp
 CMD [ "node", "index.js" ]

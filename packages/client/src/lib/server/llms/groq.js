@@ -1,5 +1,6 @@
 import OpenAI from "openai";
-import { GROQ_API_KEY, SYSTEM_MODE } from "$env/static/private";
+import { env } from "$env/dynamic/public";
+const { GROQ_API_KEY, SYSTEM_MODE } = env;
 
 const groqClient = new OpenAI({
     apiKey: GROQ_API_KEY,
