@@ -25,6 +25,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.16.1",
     "@prisma/client": "^5.10.2",
+    "@rwh/keystrokes": "^1.5.5",
     "@skeletonlabs/skeleton": "^2.9.0",
     "@skeletonlabs/tw-plugin": "^0.3.1",
     "@supabase/ssr": "^0.0.10",

@@ -77,7 +77,10 @@ async function findUnit(annotation, { supabase, getSession }) {
     const { data, error } = await query.limit(1).single();
 
     if (error) {
-        console.error("Error fetching unit:", error);
+        console.error("[NLPU ERROR /api/nlp] Error fetching unit:", error.message);
+        console.error(error);
+        console.log("Annotation:\n", annotation);
+        console.log("query:\n", query);
         return null;
     }
 

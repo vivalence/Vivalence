@@ -45,6 +45,9 @@ Return a JSON object with the spoken and learning sentence.`
 export async function GET({ fetch, locals, ...props }) {
     try {
         const { units, language, innerPrompt } = locals.params();
+        // console.log("SENTENCE GENERATION");
+        // console.log(units, language, innerPrompt);
+        // console.log(JSON.stringify(locals.params(), null, 2));
 
         if (SYSTEM_MODE && +SYSTEM_MODE < 2) {
             console.log("STUBBING TRANSLATION GENERATION");

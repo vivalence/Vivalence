@@ -7,7 +7,7 @@ const { Option } = Select;
 import supabase from "$util/supabaseClient";
 import { type Tag } from "$types/index";
 import Autocomplete, { type OptionType, type RefHandles, } from "$components/autocomplete/index";
-import MonacoEditor from "$components/monaco-editor/index";
+/* import MonacoEditor from "$components/monaco-editor/index"; */
 import { useResource } from "$util/hooks/index";
 
 const mapTagsToOption = (data: Tag[]): OptionType<Tag>[] =>
@@ -65,6 +65,7 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
       );
     });
   };
+  queryResult && console.log('queryResult', queryResult)
 
   return (
     <Edit saveButtonProps={saveButtonProps}>
@@ -99,13 +100,13 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
           />
         </Form.Item>
 
-        <Form.Item label="Data" name={['data']}>
-          <MonacoEditor
+        {/* <Form.Item label="Data" name={['data']}>
+            <MonacoEditor
             value={form.getFieldValue('data')}
             onChange={(newValue) => form.setFieldsValue({ data: newValue })}
             language="json"
-          />
-        </Form.Item>
+            />
+            </Form.Item> */}
       </Form>
     </Edit>
   );

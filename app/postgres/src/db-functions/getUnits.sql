@@ -11,8 +11,13 @@ BEGIN
     RETURN QUERY
     SELECT u.*
     FROM "Unit" u
-    INNER JOIN "_TagToUnit" tu ON tu."B" = u.id
-    WHERE tu."A" = ANY(tag_ids)
+    WHERE u.id IN (
+        SELECT tu."B"
+        FROM "_TagToUnit" tu
+        WHERE tu."A" = ANY(tag_ids)
+        GROUP BY tu."B"
+        HAVING COUNT(DISTINCT tu."A") = num_tags
+    )
     AND NOT EXISTS (
         SELECT 1
         FROM "Play" p
@@ -28,11 +33,10 @@ BEGIN
         AND m."status" IN ('KNOWN', 'GRADUATED')
     )
     AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist)))
-    GROUP BY u.id
-    HAVING COUNT(DISTINCT tu."A") = num_tags
     LIMIT take_limit;
 END;
 $$ LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION get_due_units(
@@ -45,8 +49,19 @@ CREATE OR REPLACE FUNCTION get_due_units(
 RETURNS SETOF "Unit" AS $$
 BEGIN
     RETURN QUERY
+    WITH required_tags AS (
+        SELECT UNNEST(tag_ids) AS tag_id
+    ),
+    unit_tags AS (
+        SELECT tu."B" AS unit_id, COUNT(DISTINCT tu."A") AS matched_tags
+        FROM "_TagToUnit" tu
+        INNER JOIN required_tags rt ON rt.tag_id = tu."A"
+        GROUP BY tu."B"
+        HAVING COUNT(DISTINCT tu."A") = (SELECT COUNT(*) FROM required_tags)
+    )
     SELECT u.*
     FROM "Unit" u
+    INNER JOIN unit_tags ut ON ut.unit_id = u.id
     WHERE EXISTS (
         SELECT 1
         FROM "Play" p
@@ -61,15 +76,6 @@ BEGIN
         WHERE m."unitId" = u.id
         AND m."userId" = auth.uid()::text
         AND m."status" IN ('KNOWN', 'GRADUATED')
-    )
-    AND EXISTS (
-        SELECT 1
-        FROM unnest(tag_ids) AS tag_id
-        WHERE EXISTS (
-            SELECT 1
-            FROM "_TagToUnit" tu
-            WHERE tu."B" = u.id AND tu."A" = tag_id
-        )
     )
     AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist)))
     LIMIT take_limit;
