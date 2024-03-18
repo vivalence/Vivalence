@@ -1,5 +1,5 @@
 import api from "api";
-import { env } from "$env/dynamic/public";
+import { env } from "$env/dynamic/private";
 const { PERPLEXITY_API_KEY, SYSTEM_MODE } = env;
 
 const perplexityClient = api("@pplx/v0#b2wdhb1klq5dn1d6");
