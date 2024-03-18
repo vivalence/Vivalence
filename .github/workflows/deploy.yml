@@ -14,7 +14,7 @@ jobs:
           - component: 'admin'
             path: './packages/admin'
           # - component: 'authentication'
-          #   path: './packages/authentication'
+            # path: './packages/authentication'
           # - component: 'client'
           #   path: './packages/client'
     steps:
@@ -37,6 +37,15 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+         include:
+          - component: 'admin'
+            path: './packages/admin'
+          # - component: 'authentication'
+            # path: './packages/authentication'
+          # - component: 'client'
+          #   path: './packages/client'
     steps:
     - name: Add SSH key
       run: |
@@ -46,4 +55,4 @@ jobs:
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
     - name: Deploy to server
       run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose -f /opt/server/docker-compose.yml up -d"
+        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d ${{ matrix.component }}"
