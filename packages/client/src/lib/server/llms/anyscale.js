@@ -3,7 +3,7 @@ import { env } from "$env/dynamic/private";
 const { ANYSCALE_API_KEY, SYSTEM_MODE } = env;
 
 const anyscaleClient = new OpenAI({
-    apiKey: ANYSCALE_API_KEY,
+    apiKey: ANYSCALE_API_KEY || "",
     baseURL: "https://api.endpoints.anyscale.com/v1"
 });
 // model: "mistralai/Mixtral-8x7B-Instruct-v0.1"

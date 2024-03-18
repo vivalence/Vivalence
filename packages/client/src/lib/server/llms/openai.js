@@ -3,7 +3,7 @@ import { env } from "$env/dynamic/private";
 const { OPENAI_API_KEY, SYSTEM_MODE } = env;
 
 const openaiClient = new OpenAI({
-    apiKey: OPENAI_API_KEY,
+    apiKey: OPENAI_API_KEY || "",
     baseURL: "https://api.openai.com/v1"
 });
 
