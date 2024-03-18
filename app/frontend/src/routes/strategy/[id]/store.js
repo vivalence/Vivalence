@@ -32,7 +32,7 @@ function createInstructionStore() {
         const blacklist = getBlacklist();
         const input = { take, blacklist, strategyId };
         const response = await Global.post(`/api/instructions`, input);
-        console.log("response /api/instructions", response);
+        // console.log("response /api/instructions", response);
         const { instructions = [], error, status } = response;
         return { instructions, error, status };
     };

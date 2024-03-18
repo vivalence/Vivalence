@@ -31,6 +31,7 @@ const makeInstructions = async ({ strategyId, blacklist, userId, locals }) => {
             .select("data")
             .eq("strategyId", strategyId)
             .eq("userId", userId);
+
         queue.map(({ data }) => data.payload.blacklist.forEach((id) => blacklist.push(id)));
 
         strategy.tags = strategy._StrategyToTag.map((t) => t.Tag);
