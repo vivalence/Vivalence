@@ -16,8 +16,8 @@ jobs:
          include:
           - component: 'authentication'
             path: './packages/authentication'
-          # - component: 'admin'
-          #   path: './packages/admin'
+          - component: 'admin'
+            path: './packages/admin'
           - component: 'client'
             path: './packages/client'
     steps:
@@ -45,8 +45,8 @@ jobs:
          include:
           - component: 'authentication'
             path: './packages/authentication'
-          # - component: 'admin'
-          #   path: './packages/admin'
+          - component: 'admin'
+            path: './packages/admin'
           - component: 'client'
             path: './packages/client'
     steps:
