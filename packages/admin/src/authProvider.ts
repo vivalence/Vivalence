@@ -1,6 +1,7 @@
 import { AuthBindings } from "@refinedev/core";
 
 import { supabaseClient } from "./utility";
+const { VITE_VIVALENCE_AUTH_PATH, VITE_SYSTEM_MODE } = import.meta.env;
 
 const authProvider: AuthBindings = {
     login: async ({ email, password, providerName }) => {
@@ -37,7 +38,8 @@ const authProvider: AuthBindings = {
             console.log("authprovider check session", session);
 
             if (!session) {
-                // window.location.href = "https://auth.vivalence.com";
+                if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+                    window.location.href = VITE_VIVALENCE_AUTH_PATH;
                 return {
                     authenticated: false,
                     error: {
@@ -49,7 +51,8 @@ const authProvider: AuthBindings = {
                 };
             }
             if (!session.user.user_metadata.roles.includes("ADMIN")) {
-                // window.location.href = "https://auth.vivalence.com";
+                if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+                    window.location.href = VITE_VIVALENCE_AUTH_PATH;
                 return {
                     authenticated: false,
                     error: {
@@ -61,7 +64,8 @@ const authProvider: AuthBindings = {
                 };
             }
         } catch (error: any) {
-            // window.location.href = "https://auth.vivalence.com";
+            if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+                window.location.href = VITE_VIVALENCE_AUTH_PATH;
             return {
                 authenticated: false,
                 error: error || {
