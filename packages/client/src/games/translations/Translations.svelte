@@ -1,5 +1,6 @@
 <script>
     import { page } from "$app/stores";
+    import { bindKey, unbindKey } from "@rwh/keystrokes";
     import { createEventDispatcher } from "svelte";
     import { getContext, onDestroy, onMount } from "svelte";
 
@@ -10,12 +11,19 @@
 
     const dispatch = createEventDispatcher();
     const pageFooterContext = getContext("page-footer");
+
+    const keymap = {
+        Enter: () => (!$store.revealed ? store.commitTranslation() : store.finishTranslation())
+    };
+
     onMount(() => {
         pageFooterContext.set(Footer);
         store.update((s) => ({ ...s, input: "", onFinish: (p) => dispatch("finish", p) }));
+        Object.keys(keymap).forEach((key) => bindKey(key, keymap[key]));
     });
     onDestroy(() => {
         pageFooterContext.set(null);
+        Object.keys(keymap).forEach((key) => unbindKey(key, keymap[key]));
     });
 
     export let payload;
