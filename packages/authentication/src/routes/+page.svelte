@@ -3,7 +3,7 @@
 	import { Auth } from '@supabase/auth-ui-svelte';
 	import { ThemeSupa, } from '@supabase/auth-ui-shared';
         import { env } from "$env/dynamic/public";
-        const { PUBLIC_SYSTEM_MODE,PUBLIC_VIVALENCE_ADMIN_PATH, PUBLIC_VIVALENCE_CLIENT_PATH } = env;
+        const { PUBLIC_SYSTEM_MODE, PUBLIC_VIVALENCE_ADMIN_PATH, PUBLIC_VIVALENCE_CLIENT_PATH } = env;
 
 	import { supabaseClient } from '../db';
 
@@ -14,6 +14,7 @@
             const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 console.log('SYSTEM_MODE ', PUBLIC_SYSTEM_MODE )
                 console.log('session', session)
+                console.log('PUBLIC_VIVALENCE_ADMIN_PATH, PUBLIC_VIVALENCE_CLIENT_PATH ', PUBLIC_VIVALENCE_ADMIN_PATH, PUBLIC_VIVALENCE_CLIENT_PATH )
                 session && console.log('session.user', session.user)
                 if(!!session && !!session.user && !!session.user.user_metadata.roles){
                     if(session.user.user_metadata.roles.includes('ADMIN')){
