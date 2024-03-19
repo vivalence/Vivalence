@@ -1,21 +1,28 @@
 <script lang='js'>
         import { onMount, } from 'svelte';
 	import { Auth } from '@supabase/auth-ui-svelte';
-	import { supabaseClient } from '../db';
 	import { ThemeSupa, } from '@supabase/auth-ui-shared';
+        import { env } from "$env/dynamic/public";
+        const { PUBLIC_SYSTEM_MODE,PUBLIC_VIVALENCE_ADMIN_PATH, PUBLIC_VIVALENCE_CLIENT_PATH } = env;
+
+	import { supabaseClient } from '../db';
+
 	import MenuIcon from './MenuIcon.svelte';
 	import ToggleButton from './ToggleButton.svelte';
 
         onMount(async () => {
             const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                console.log('SYSTEM_MODE ', PUBLIC_SYSTEM_MODE )
                 console.log('session', session)
                 session && console.log('session.user', session.user)
                 if(!!session && !!session.user && !!session.user.user_metadata.roles){
                     if(session.user.user_metadata.roles.includes('ADMIN')){
-                        // window.location.href = import.meta.env.VITE_VIVALENCE_ADMIN_PATH;
+                      if(PUBLIC_SYSTEM_MODE && +PUBLIC_SYSTEM_MODE > 2) window.location.href = PUBLIC_VIVALENCE_ADMIN_PATH;
+                      else console.log('ADMIN path', PUBLIC_VIVALENCE_ADMIN_PATH)
                     }
                     if(session.user.user_metadata.roles.includes('USER')){
-                        // window.location.href = import.meta.env.VITE_VIVALENCE_USER_PATH;
+                      if(PUBLIC_SYSTEM_MODE && +PUBLIC_SYSTEM_MODE > 2) window.location.href = PUBLIC_VIVALENCE_CLIENT_PATH;
+                      else console.log('USER path', PUBLIC_VIVALENCE_CLIENT_PATH)
                     }
                 }
             });
