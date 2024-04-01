@@ -5,9 +5,15 @@ import { useList, BaseRecord } from "@refinedev/core";
 
 export function useResource<T extends BaseRecord>(
     resource: string,
-    map: (data: T[]) => OptionType<T>[],
+    map: (items: T[]) => OptionType<T>[],
 ): [OptionType<T>[], boolean, Error | undefined] {
-    const queryResult = useList<T>({ resource });
+    const queryResult = useList<T>({
+        resource,
+        pagination: {
+            pageSize: 9999999,
+        },
+    });
+
     const [options, setOptions] = useState<OptionType<T>[]>([]);
 
     useEffect(() => {

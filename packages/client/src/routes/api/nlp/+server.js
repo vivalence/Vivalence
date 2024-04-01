@@ -51,24 +51,22 @@ async function findUnit(annotation, { supabase, getSession }) {
         .from("Unit")
         .select(
             `*,
-            MemoryModel:MemoryModel (
-                id,
-                status,
-                lastSeen
-            )`
+            MemoryModel:MemoryModel (id, status, lastSeen),
+            _TagToUnit!inner(*),
+            _TagToUnit!inner.Tag!inner(*)`
         )
         .eq("MemoryModel.userId", userId);
 
     if (["VERB"].includes(annotation.upos)) {
         if (annotation.feats.Tense) {
             query = query
-                .eq("data->ud->>lemma", annotation.lemma)
+                .eq("data->>lemmaSpanish", annotation.lemma)
                 .eq("data->>spanish", annotation.token)
                 .eq("data->>mood", annotation.feats.ENUM.mood)
                 .eq("data->ud->feats->>Tense", annotation.feats.Tense);
         } else {
             query = query
-                .eq("data->ud->>lemma", annotation.lemma)
+                .eq("data->>lemmaSpanish", annotation.lemma)
                 .eq("data->ud->feats->>VerbForm", annotation.feats.VerbForm);
         }
     } else {

@@ -7,40 +7,53 @@ import {
   EditButton,
   DeleteButton,
   ShowButton,
-  DateField,
+  SaveButton,
   TagField,
 } from "@refinedev/antd";
-import { Table, Space } from "antd";
+import { Table, Space, Form, Input, } from "antd";
 
 export const AppUserList: React.FC<IResourceComponentsProps> = () => {
   /* return (<AntdInferencer />) */
-  const { tableProps } = useTable({ syncWithLocation: true });
+  const { tableProps, searchFormProps } = useTable({
+    syncWithLocation: true,
+    sorters: {
+      initial: [
+        {
+          field: "email",
+          order: "asc",
+        },
+      ],
+    },
+    pagination: {
+      pageSize: 100,
+    },
+    onSearch: (values: any) => {
+      return [
+        {
+          field: "email",
+          operator: "contains",
+          value: values.value,
+        },
+      ];
+    },
+  });
 
   /* const many = useMany({resource: "AppUser", ids: tableProps?.dataSource?.map((item: any) => item.id), queryOptions: {enabled: !!tableProps?.dataSource,},}); */
   /* console.log('many', many) */
 
   return (
     <List>
+      <Form {...searchFormProps} layout="inline">
+        <Form.Item name="value">
+          <Input placeholder="Search" />
+        </Form.Item>
+        <SaveButton hideText onClick={searchFormProps.form?.submit} />
+      </Form>
       <Table {...tableProps} rowKey="id">
         <Table.Column
           dataIndex={["email"]}
           title="Email"
           render={(value: any) => value}
-        />
-        <Table.Column
-          dataIndex={["id"]}
-          title="User"
-          render={(value: any) => value}
-        />
-        <Table.Column
-          dataIndex={["createdAt"]}
-          title="Created At"
-          render={(value: any) => <DateField value={value} />}
-        />
-        <Table.Column
-          dataIndex={["updatedAt"]}
-          title="Updated At"
-          render={(value: any) => <DateField value={value} />}
         />
         <Table.Column
           dataIndex="roles"

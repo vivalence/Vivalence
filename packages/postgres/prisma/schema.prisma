@@ -1,5 +1,5 @@
 generator app-client {
-  output          = "../../frontend/node_modules/.prisma/client"
+  output          = "../../client/node_modules/.prisma/client"
   provider        = "prisma-client-js"
   clientOutput    = "@prisma/client"
   previewFeatures = ["views"]

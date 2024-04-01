@@ -5,21 +5,52 @@ import {
   List,
   EditButton,
   DeleteButton,
+  SaveButton,
   ShowButton,
   TagField,
 } from "@refinedev/antd";
-import { Table, Space } from "antd";
+import { Table, Space, Form, Input, } from "antd";
 
 export const UnitList: React.FC<IResourceComponentsProps> = () => {
-  const { tableProps } = useTable({ syncWithLocation: true });
+  const { tableProps, searchFormProps } = useTable({
+    sorters: {
+      initial: [
+        {
+          field: "id",
+          order: "asc",
+        },
+      ],
+    },
+    pagination: {
+      pageSize: 50,
+    },
+    /* syncWithLocation: true, */
+    onSearch: (values: any) => {
+      return [
+        {
+          field: "data->>spanish",
+          operator: "contains",
+          value: values.value,
+        },
+      ];
+    },
+  });
 
   return (
     <List>
-      <Table {...tableProps} rowKey="id">
+      <Form {...searchFormProps} layout="inline">
+        <Form.Item name="value">
+          <Input placeholder="Search" />
+        </Form.Item>
+        <SaveButton hideText onClick={searchFormProps.form?.submit} />
+      </Form>
+      <Table {...tableProps}
+        rowKey="id">
         <Table.Column
           dataIndex={["name"]}
           title="name"
-          render={(value: any) => value}
+          render={(_: any, data: any) => `${data.data.spanish} - ${data.data.english}`
+          }
         />
         <Table.Column
           dataIndex="corpusType"

@@ -17,19 +17,48 @@ export default (supabaseClient) => {
         getOne: async (params) => {
             const oneResource = await baseData.getOne(params);
 
-            if (params.resource === "Strategy") {
-                // console.log("oneResource", oneResource);
+            if (params.resource === "AppUser") {
                 const { data, error } = await supabaseClient
                     .from("_AppUserToStrategy")
-                    .select(`*, AppUser:AppUser(*)`)
-                    .eq("B", oneResource.data.id);
+                    .select(`*, Strategy:Strategy(id, name)`)
+                    .eq("A", oneResource.data.id);
 
                 if (error) return { ...oneResource, error };
                 return {
                     ...oneResource,
                     data: {
                         ...oneResource.data,
-                        users: data.map((d) => d.AppUser),
+                        strategies: data.map((d) => d.Strategy),
+                    },
+                };
+            } else if (params.resource === "Strategy") {
+                // console.log("oneResource", oneResource);
+                const { data: users, error: errorUser } = await supabaseClient
+                    .from("_AppUserToStrategy")
+                    .select(`*, AppUser:AppUser(*)`)
+                    .eq("B", oneResource.data.id);
+                if (errorUser) return { ...oneResource, error: errorUser };
+
+                const { data: games, error: errorGame } = await supabaseClient
+                    .from("_StrategyToGame")
+                    .select(`*, Game:Game(id, name, type)`)
+                    .eq("B", oneResource.data.id);
+                if (errorGame) return { ...oneResource, error: errorGame };
+                console.log("games", games);
+
+                const { data: tags, error: errorTag } = await supabaseClient
+                    .from("_StrategyToTag")
+                    .select(`*, Tag:Tag(id, name, type)`)
+                    .eq("A", oneResource.data.id);
+                if (errorTag) return { ...oneResource, error: errorTag };
+
+                return {
+                    ...oneResource,
+                    data: {
+                        ...oneResource.data,
+                        users: users.map((d) => d.AppUser),
+                        games: games.map((d) => d.Game),
+                        tags: tags.map((d) => d.Tag),
                     },
                 };
             } else if (params.resource === "Tag") {
@@ -79,7 +108,7 @@ export default (supabaseClient) => {
                     ...oneResource,
                     data: {
                         ...oneResource.data,
-                        tags: tags.map((d) => d.Unit),
+                        tags: tags.map((d) => d.Tag),
                     },
                 };
             }
