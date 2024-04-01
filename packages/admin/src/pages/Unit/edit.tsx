@@ -1,89 +1,53 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useCreate, useUpdate, useList, IResourceComponentsProps, BaseRecord, } from "@refinedev/core";
-import { useForm, Edit } from "@refinedev/antd";
+import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
+import { SaveButton, useForm, Edit } from "@refinedev/antd";
 import { Form, Input, Select } from "antd";
 const { Option } = Select;
 
-import supabase from "$util/supabaseClient";
-import { type Tag } from "$types/index";
-import Autocomplete, { type OptionType, type RefHandles, } from "$components/autocomplete/index";
-/* import MonacoEditor from "$components/monaco-editor/index"; */
-import { useResource } from "$util/hooks/index";
+import Connection, { type ConnectionEditHandles } from "$components/connection";
+import JSONField from "$components/json-field/index";
+import UnitSchema from "./unit-data-schema";
 
-const mapTagsToOption = (data: Tag[]): OptionType<Tag>[] =>
-  data.map((d) => ({ value: d.id, label: d.name, data: d, }));
+type CorpusType = "WORD" | "CONJUGATION";
 
-const useFormSubmission = (unitId: string) => {
-  const autocompleteRef = useRef<RefHandles>(null);
-  const { mutate: createOne } = useCreate();
+export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
+  const { form, formProps, saveButtonProps, queryResult } = useForm();
   const { mutate: updateOne } = useUpdate();
+  const unitId = queryResult?.data?.data.id! as string;
+  const corpusType: CorpusType = form.getFieldValue("corpusType");
+  const tagConnectionRef = useRef<ConnectionEditHandles | null>(null);
 
-  const onFormFinish = async (values: any) => {
-    if (!autocompleteRef.current) return console.error("Autocomplete ref is null");
-
-    const { added, removed } = autocompleteRef.current;
-
+  const onSave = async (values: any) => {
     try {
-      added().forEach(option => {
-        createOne({
-          resource: "_TagToUnit",
-          values: { A: option.data.id, B: unitId },
-        });
-      });
-      removed().forEach(async option => {
-        await supabase.from("_TagToUnit").delete().eq("A", option.data.id).eq("B", unitId);
-      });
-
       updateOne({ resource: "Unit", values, id: unitId });
+      if (tagConnectionRef.current) tagConnectionRef.current.onSave();
     } catch (error) {
       console.error("Error in mutation:", error);
     }
   };
 
-  return { autocompleteRef, onFormFinish };
-};
-
-
-export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
-  const { form, formProps, saveButtonProps, queryResult } = useForm();
-
-  const [tagsAll] = useResource<Tag>("Tag", mapTagsToOption);
-  const [optionsActive, setActive] = useState<OptionType<Tag>[]>([]);
-
-  const unitId = queryResult?.data?.data.id! as string;
-  const { autocompleteRef, onFormFinish } = useFormSubmission(unitId);
-
-  useEffect(() => {
-    setActive(mapTagsToOption(queryResult?.data?.data.tags || []));
-  }, [queryResult?.data?.data.strategies]);
-
-  const filter = (searchText: string): OptionType<Tag>[] => {
-    return tagsAll.filter((option: OptionType<Tag>) => {
-      return (
-        option.data.name.toLowerCase().includes(searchText.toLowerCase()) ||
-        option.data.id.toLowerCase().includes(searchText.toLowerCase())
-      );
-    });
-  };
-  queryResult && console.log('queryResult', queryResult)
+  const [jsonData, setJsonData] = useState();
+  useEffect(
+    () => setJsonData(form.getFieldValue("data")),
+    [form, queryResult, formProps],
+  );
+  console.log(jsonData);
 
   return (
-    <Edit saveButtonProps={saveButtonProps}>
-      <Form {...formProps} layout="vertical" onFinish={onFormFinish}>
-        <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Corpus ID"
-          name="corpusId"
-          rules={[{ required: true, message: 'Please input the Corpus ID!' }]}
-        >
-          <Input />
-        </Form.Item>
+    <Edit
+      headerButtons={({ defaultButtons }) => (
+        <>
+          {defaultButtons}
+          <SaveButton {...saveButtonProps} />
+        </>
+      )}
+      saveButtonProps={saveButtonProps}
+    >
+      <Form {...formProps} layout="vertical" onFinish={onSave}>
         <Form.Item
           label="Corpus Type"
           name="corpusType"
-          rules={[{ required: true, message: 'Please select a Corpus Type!' }]}
+          rules={[{ required: true, message: "Please select a Corpus Type!" }]}
         >
           <Select placeholder="Select a corpus type">
             <Option value="WORD">Word</Option>
@@ -91,23 +55,32 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
           </Select>
         </Form.Item>
 
-        <Form.Item label="Connected Strategies">
-          <Autocomplete
-            ref={autocompleteRef}
-            filter={filter}
-            optionsAll={tagsAll}
-            optionsAtStart={optionsActive}
-          />
+        <Form.Item
+          label="Corpus ID"
+          name="corpusId"
+          rules={[{ required: true, message: "Please input the Corpus ID!" }]}
+        >
+          <Input />
         </Form.Item>
 
-        {/* <Form.Item label="Data" name={['data']}>
-            <MonacoEditor
-            value={form.getFieldValue('data')}
-            onChange={(newValue) => form.setFieldsValue({ data: newValue })}
-            language="json"
+        <Form.Item label="Connected Tags">
+          <Connection
+            ref={tagConnectionRef}
+            active={queryResult?.data?.data.tags}
+            rootResourceId={unitId}
+            connectionName="UnitToTag"
+          />
+        </Form.Item>
+        <Form.Item name={["data"]}>
+          {corpusType && (
+            <JSONField
+              schema={UnitSchema[corpusType]}
+              data={jsonData}
+              onChange={(data) => form.setFieldValue('data', data)}
             />
-            </Form.Item> */}
+          )}
+        </Form.Item>
       </Form>
     </Edit>
   );
-}
+};

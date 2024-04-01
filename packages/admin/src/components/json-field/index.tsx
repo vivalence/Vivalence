@@ -61,6 +61,7 @@ const JsonForm: React.FC<Props> = (props) => {
     onChange: handleChange,
     validator: validator,
   };
+  console.log("formProps", formProps);
 
   return <Form {...formProps} />;
 };

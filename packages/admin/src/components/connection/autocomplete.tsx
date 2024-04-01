@@ -1,22 +1,22 @@
 import React, { ReactElement, useEffect, useState, forwardRef, useImperativeHandle, Ref } from 'react';
-
 import Search from './search';
 import List from './list';
 import { type OptionType, type RefHandles } from './types';
+import { type Resource } from "$types/index";
 
-interface AutocompleteProps<T> {
+interface AutocompleteProps<T extends Resource> {
   optionsAll: OptionType<T>[];
-  optionsAtStart: OptionType<T>[];
-  filter: (searchText: string,) => OptionType<T>[];
+  optionsInit: OptionType<T>[];
+  filter: (searchText: string) => OptionType<T>[];
 }
 
-const Autocomplete = forwardRef(<T,>({ optionsAll, optionsAtStart, filter }: AutocompleteProps<T>, ref: Ref<RefHandles>): ReactElement => {
-  const [optionsActive, setActiveOptions] = useState<OptionType<T>[]>(optionsAtStart);
-  useEffect(() => setActiveOptions(optionsAtStart), [optionsAtStart])
+const Autocomplete = forwardRef(<T extends Resource,>(props: AutocompleteProps<T>, ref: Ref<RefHandles>): ReactElement => {
+  const [optionsActive, setActiveOptions] = useState<OptionType<T>[]>(props.optionsInit);
+  useEffect(() => setActiveOptions(props.optionsInit), [props.optionsInit])
 
   useImperativeHandle(ref, () => ({
-    added: () => optionsActive.filter((u) => !optionsAtStart.some((u2) => u2.value === u.value)),
-    removed: () => optionsAll.filter((u) => !optionsActive.some((u2) => u2.value === u.value))
+    added: () => optionsActive.filter((u) => !props.optionsInit.some((u2) => u2.value === u.value)),
+    removed: () => props.optionsInit.filter((u) => !optionsActive.some((u2) => u2.value === u.value))
   }));
 
   const onSelect = (option: OptionType<T>) => {
@@ -34,20 +34,18 @@ const Autocomplete = forwardRef(<T,>({ optionsAll, optionsAtStart, filter }: Aut
   return (
     <>
       <Search<T>
-        optionsAll={optionsAll}
-        filter={filter}
+        optionsAll={props.optionsAll}
+        filter={props.filter}
         onSelect={onSelect}
       />
 
       <List<T>
         listMembers={optionsActive}
-        displayMember={(option: OptionType<T>) => option.label}
         onDelete={onDelete}
       />
     </>
   )
 })
-
 
 export { Search, List, OptionType, RefHandles };
 

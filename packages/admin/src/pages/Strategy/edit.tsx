@@ -1,112 +1,85 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  useCreate,
-  useUpdate,
-  IResourceComponentsProps,
-} from "@refinedev/core";
-import { useForm, Edit } from "@refinedev/antd";
+import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
+import { useForm, Edit, SaveButton, } from "@refinedev/antd";
 import { Form, Input } from "antd";
 
-import { useResource } from "$util/hooks/index";
-import supabase from "$util/supabaseClient";
-import { type User } from "$types/index";
-import Autocomplete, {
-  type OptionType,
-  type RefHandles,
-} from "$components/autocomplete/index";
+import Connection, { type ConnectionEditHandles } from "$components/connection";
 import JSONField from "$components/json-field/index";
+
 import StrategySchema from "./strategy-data-schema";
 
-const mapUsersToOption = (users: User[]): OptionType<User>[] =>
-  users.map((user) => ({
-    value: user.id,
-    label: user.email,
-    data: user,
-  }));
+export const StrategyEdit: React.FC<IResourceComponentsProps> = () => {
+  const { form, formProps, saveButtonProps, queryResult } = useForm();
+  const strategyId = queryResult?.data?.data.id! as string;
+  const userConnectionRef = useRef<ConnectionEditHandles | null>(null);
+  const gameConnectionRef = useRef<ConnectionEditHandles | null>(null);
+  const tagConnectionRef = useRef<ConnectionEditHandles | null>(null);
 
-const useFormSubmission = (strategyId: string) => {
-  const autocompleteRef = useRef<RefHandles>(null);
-  const { mutate: createOne } = useCreate();
   const { mutate: updateOne } = useUpdate();
 
-  const onFormFinish = async (values: any) => {
-    if (!autocompleteRef.current)
-      return console.error("Autocomplete ref is null");
-
-    const { added, removed } = autocompleteRef.current;
-
+  const onSave = async (values: any) => {
     try {
-      added().forEach((option) => {
-        createOne({
-          resource: "_AppUserToStrategy",
-          values: { A: option.data.id, B: strategyId },
-        });
-      });
-      removed().forEach(async (option) => {
-        await supabase
-          .from("_AppUserToStrategy")
-          .delete()
-          .eq("A", option.data.id)
-          .eq("B", strategyId);
-      });
-
       updateOne({ resource: "Strategy", values, id: strategyId });
+      if (userConnectionRef.current) userConnectionRef.current.onSave();
+      if (gameConnectionRef.current) gameConnectionRef.current.onSave();
+      if (tagConnectionRef.current) tagConnectionRef.current.onSave();
     } catch (error) {
       console.error("Error in mutation:", error);
     }
   };
 
-  return { autocompleteRef, onFormFinish };
-};
+  const [jsonData, setJsonData] = useState();
+  useEffect(
+    () => setJsonData(form.getFieldValue("data")),
+    [form, queryResult, formProps],
+  );
 
-export const StrategyEdit: React.FC<IResourceComponentsProps> = () => {
-  const { form, formProps, saveButtonProps, queryResult } = useForm();
-  const strategyId = queryResult?.data?.data.id! as string;
-
-  const [optionsAll] = useResource<User>("AppUser", mapUsersToOption);
-  const [optionsActive, setActive] = useState<OptionType<User>[]>([]);
-  const { autocompleteRef, onFormFinish } = useFormSubmission(strategyId);
-
-  useEffect(() => {
-    setActive(mapUsersToOption(queryResult?.data?.data.users || []));
-  }, [queryResult?.data?.data.users]);
-
-  const filter = (searchText: string) => {
-    return optionsAll.filter((option) => {
-      return (
-        option.data.email.toLowerCase().includes(searchText.toLowerCase()) ||
-        option.data.id.toLowerCase().includes(searchText.toLowerCase())
-      );
-    });
-  };
-  const strategyData = form.getFieldValue("data");
   return (
-    <Edit saveButtonProps={saveButtonProps}>
-      <Form {...formProps} layout="vertical" onFinish={onFormFinish}>
+    <Edit
+      headerButtons={({ defaultButtons }) => (
+        <>
+          {defaultButtons}
+          <SaveButton {...saveButtonProps} />
+        </>
+      )}
+      saveButtonProps={saveButtonProps}>
+      <Form {...formProps} layout="vertical" onFinish={onSave}>
         <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
           <Input />
         </Form.Item>
 
         <Form.Item label="Connected Users">
-          <Autocomplete
-            ref={autocompleteRef}
-            filter={filter}
-            optionsAll={optionsAll}
-            optionsAtStart={optionsActive}
+          <Connection
+            ref={userConnectionRef}
+            active={queryResult?.data?.data.users}
+            rootResourceId={strategyId}
+            connectionName="StrategyToUser"
+          />
+        </Form.Item>
+        <Form.Item label="Connected Games">
+          <Connection
+            ref={gameConnectionRef}
+            active={queryResult?.data?.data.games}
+            rootResourceId={strategyId}
+            connectionName="StrategyToGame"
+          />
+        </Form.Item>
+        <Form.Item label="Connected Tags">
+          <Connection
+            ref={tagConnectionRef}
+            active={queryResult?.data?.data.tags}
+            rootResourceId={strategyId}
+            connectionName="StrategyToTag"
           />
         </Form.Item>
         <Form.Item name={["data"]}>
-          {/* Need to register field with form, but field cant be child of form; because its a form. */}
+          <JSONField
+            schema={StrategySchema}
+            data={jsonData}
+            onChange={(data) => form.setFieldValue("data", data)}
+          />
         </Form.Item>
       </Form>
-
-      {strategyData && (
-        <JSONField
-          schema={StrategySchema}
-          data={strategyData}
-          onChange={(data) => form.setFieldValue("data", data)}
-        />
-      )}
     </Edit>
   );
 };
