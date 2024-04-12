@@ -38,6 +38,7 @@ const Autocomplete = forwardRef(<T extends Resource,>(props: AutocompleteProps<T
         filter={props.filter}
         onSelect={onSelect}
       />
+      <label className="float right end">Total: {props.optionsAll.length} | Connected: {optionsActive.length}</label>
 
       <List<T>
         listMembers={optionsActive}

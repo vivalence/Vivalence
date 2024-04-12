@@ -4,8 +4,8 @@ import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
 const gamePrompt = {
-    // provider: { api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.8 },
-    provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
+    provider: { api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.3 },
+    // provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
     schema: {
         title: "LanguageLearningSentence",
         type: "object",
@@ -27,25 +27,27 @@ const gamePrompt = {
 You Generate one single sentence in {{language.spoken}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
 
 Follow this strategy:
+<STRATEGY>
+
 {{innerPrompt}}
 
+</STRATEGY>
+
 Don't use words more advanced than those provided. We want the learner to be successfull.
-Keep the sentence between 3-7 words. The sentence must be semantically correct and either a reasonable or common thing to say.
+The sentence must be semantically correct and either a reasonable or common thing to say.
 
-### Task
-generate a sentence in {{language.learning}} (learning) and its translation in {{language.spoken}} (spoken).
-
-build the sentence using these words:
-{{#units}}
-{{learning}} {{spoken}}
-{{/units}}
+### Constraints
+Build the sentence using these constraints:
+{{#constraints}}
+{{.}}
+{{/constraints}}
 
 Return a JSON object with the spoken and learning sentence.`
 };
 
 export async function GET({ fetch, locals, ...props }) {
     try {
-        const { units, language, innerPrompt } = locals.params();
+        const { constraints, language, innerPrompt } = locals.params();
         // console.log("SENTENCE GENERATION");
         // console.log(units, language, innerPrompt);
         // console.log(JSON.stringify(locals.params(), null, 2));
@@ -61,10 +63,7 @@ export async function GET({ fetch, locals, ...props }) {
         }
 
         const inputs = {
-            units: units.map((unit) => ({
-                learning: unit.data[language.learning],
-                spoken: unit.data[language.spoken]
-            })),
+            constraints,
             language,
             innerPrompt
         };

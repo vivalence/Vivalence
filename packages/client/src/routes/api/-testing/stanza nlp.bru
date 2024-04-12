@@ -1,0 +1,23 @@
+meta {
+  name: stanza nlp
+  type: http
+  seq: 7
+}
+
+post {
+  url: https://stanza.vivalence.com/nlp
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "language": "es",
+    "text": "Las ventanas abiertas.",
+    "processors": "tokenize,mwt,pos,lemma,depparse"
+  }
+}

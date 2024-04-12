@@ -1,10 +1,11 @@
 import { AuthBindings } from "@refinedev/core";
+import supabase from "$util/supabaseClient";
 
-import { supabaseClient } from "./utility";
 const { VITE_VIVALENCE_AUTH_PATH, VITE_SYSTEM_MODE } = import.meta.env;
 
 const authProvider: AuthBindings = {
     login: async ({ email, password, providerName }) => {
+        console.log("authProvider login", email, password, providerName);
         return {
             success: false,
             error: {
@@ -14,7 +15,7 @@ const authProvider: AuthBindings = {
         };
     },
     logout: async () => {
-        const { error } = await supabaseClient.auth.signOut();
+        const { error } = await supabase.auth.signOut();
 
         if (error) {
             return {
@@ -33,13 +34,13 @@ const authProvider: AuthBindings = {
     },
     check: async () => {
         try {
-            const { data } = await supabaseClient.auth.getSession();
+            const { data } = await supabase.auth.getSession();
             const { session } = data;
             console.log("authprovider check session", session);
 
             if (!session) {
-                if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
-                    window.location.href = VITE_VIVALENCE_AUTH_PATH;
+                // if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+                //     window.location.href = VITE_VIVALENCE_AUTH_PATH;
                 return {
                     authenticated: false,
                     error: {
@@ -47,12 +48,12 @@ const authProvider: AuthBindings = {
                         name: "Session not found",
                     },
                     logout: true,
-                    redirectTo: "/",
+                    redirectTo: "/login",
                 };
             }
             if (!session.user.user_metadata.roles.includes("ADMIN")) {
-                if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
-                    window.location.href = VITE_VIVALENCE_AUTH_PATH;
+                // if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+                //     window.location.href = VITE_VIVALENCE_AUTH_PATH;
                 return {
                     authenticated: false,
                     error: {
@@ -60,12 +61,12 @@ const authProvider: AuthBindings = {
                         name: "Not Admin",
                     },
                     logout: true,
-                    redirectTo: "/",
+                    redirectTo: "/login",
                 };
             }
         } catch (error: any) {
-            if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
-                window.location.href = VITE_VIVALENCE_AUTH_PATH;
+            // if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
+            //     window.location.href = VITE_VIVALENCE_AUTH_PATH;
             return {
                 authenticated: false,
                 error: error || {
@@ -73,7 +74,7 @@ const authProvider: AuthBindings = {
                     name: "Not authenticated",
                 },
                 logout: true,
-                redirectTo: "/",
+                redirectTo: "/login",
             };
         }
 

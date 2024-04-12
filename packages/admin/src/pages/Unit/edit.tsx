@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
-import { SaveButton, useForm, Edit } from "@refinedev/antd";
+import { useUpdate, useNavigation, IResourceComponentsProps, } from "@refinedev/core";
+
+import { useDocumentTitle } from "@refinedev/react-router-v6";
+import { DeleteButton, SaveButton, useForm, Edit } from "@refinedev/antd";
 import { Form, Input, Select } from "antd";
 const { Option } = Select;
 
@@ -13,13 +15,19 @@ type CorpusType = "WORD" | "CONJUGATION";
 export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
   const { form, formProps, saveButtonProps, queryResult } = useForm();
   const { mutate: updateOne } = useUpdate();
-  const unitId = queryResult?.data?.data.id! as string;
+  const { replace } = useNavigation();
+  const unit = queryResult?.data?.data as any;
+  const unitId = unit?.id! as string;
   const corpusType: CorpusType = form.getFieldValue("corpusType");
   const tagConnectionRef = useRef<ConnectionEditHandles | null>(null);
+  const strategyConnectionRef = useRef<ConnectionEditHandles | null>(null);
+
+  useDocumentTitle(`Unit: ${unit?.data.spanish}`);
 
   const onSave = async (values: any) => {
     try {
       updateOne({ resource: "Unit", values, id: unitId });
+      if (strategyConnectionRef.current) strategyConnectionRef.current.onSave();
       if (tagConnectionRef.current) tagConnectionRef.current.onSave();
     } catch (error) {
       console.error("Error in mutation:", error);
@@ -31,14 +39,19 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
     () => setJsonData(form.getFieldValue("data")),
     [form, queryResult, formProps],
   );
-  console.log(jsonData);
 
   return (
     <Edit
       headerButtons={({ defaultButtons }) => (
         <>
           {defaultButtons}
-          <SaveButton {...saveButtonProps} />
+          <SaveButton hideText {...saveButtonProps} />
+          <DeleteButton
+            resource="Unit"
+            id={unitId}
+            hideText
+            onSuccess={() => replace("/unit")}
+          />
         </>
       )}
       saveButtonProps={saveButtonProps}
@@ -56,6 +69,18 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
         </Form.Item>
 
         <Form.Item
+          label="Object Status"
+          name="objectStatus"
+          rules={[{ required: true, message: "Please select a object status!" }]}
+        >
+          <Select placeholder="Select a Object Status">
+            <Option value="ACTIVE">Active</Option>
+            <Option value="INACTIVE">Inactive</Option>
+            <Option value="DELETED">Deleted</Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item
           label="Corpus ID"
           name="corpusId"
           rules={[{ required: true, message: "Please input the Corpus ID!" }]}
@@ -69,6 +94,14 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
             active={queryResult?.data?.data.tags}
             rootResourceId={unitId}
             connectionName="UnitToTag"
+          />
+        </Form.Item>
+        <Form.Item label="Connected Strategies">
+          <Connection
+            ref={strategyConnectionRef}
+            active={queryResult?.data?.data.strategies}
+            rootResourceId={unitId}
+            connectionName="UnitToStrategy"
           />
         </Form.Item>
         <Form.Item name={["data"]}>

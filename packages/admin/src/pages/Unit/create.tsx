@@ -20,6 +20,7 @@ export const UnitCreate: React.FC<IResourceComponentsProps> = () => {
         {
           corpusId: values.corpusId,
           corpusType: values.corpusType,
+          data: {}
         }
       ])
       .select()
@@ -45,7 +46,8 @@ export const UnitCreate: React.FC<IResourceComponentsProps> = () => {
           name="corpusType"
           rules={[{ required: true, message: 'Please select a Corpus Type!' }]}
         >
-          <Select placeholder="Select a corpus type">
+          <Select
+            placeholder="Select a corpus type">
             <Option value="WORD">Word</Option>
             <Option value="CONJUGATION">Conjugation</Option>
           </Select>

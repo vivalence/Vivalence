@@ -14,6 +14,8 @@ export async function POST({ locals, params, request }) {
         const { strategyId, take, blacklist } = await request.json();
         const userId = session.user.id;
 
+        // console.log(`[/api/instructions]`, take, strategyId, userId);
+
         const pendingRequest = await locals.supabase
             .from("Queue")
             .select("*")

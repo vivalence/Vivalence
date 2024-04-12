@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
          include:
-          - component: 'authentication'
-            path: './packages/authentication'
+          # - component: 'authentication'
+          #   path: './packages/authentication'
           - component: 'admin'
             path: './packages/admin'
           - component: 'client'
@@ -43,8 +43,8 @@ jobs:
     strategy:
       matrix:
          include:
-          - component: 'authentication'
-            path: './packages/authentication'
+          # - component: 'authentication'
+          #   path: './packages/authentication'
           - component: 'admin'
             path: './packages/admin'
           - component: 'client'

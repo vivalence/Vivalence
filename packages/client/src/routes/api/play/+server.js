@@ -5,22 +5,25 @@ import * as ebisu from "$lib/ebisu";
 export async function POST({ locals: { supabase, getSession }, request, ...props }) {
     try {
         const { user } = await getSession();
-        const { gameId, unitId, memoryId, nextPlay, response } = await request.json();
+        const { gameId, unitId, tagId, memoryId, nextPlay, response } = await request.json();
 
         const now = new Date().toISOString();
 
-        let { data: play, error: readError } = await supabase
+        let play;
+        let query = supabase
             .from("Play")
             .select("*")
             .eq("memoryId", memoryId)
             .eq("unitId", unitId)
             .eq("gameId", gameId)
-            .eq("userId", user.id)
-            .single();
+            .eq("userId", user.id);
+        if (tagId) query = query.eq("tagId", tagId);
+        else query = query.filter("tagId", "is", null);
 
-        if (readError && !readError.details.includes("result contains 0 rows")) {
-            throw readError;
-        }
+        let { data: plays, error } = await query.limit(1);
+        if (error) throw error;
+        // console.log("plays", plays);
+        play = plays[0];
 
         if (!play) {
             const { data: updatedPlay, error: createError } = await supabase
@@ -28,6 +31,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
                 .insert([
                     {
                         unitId,
+                        tagId,
                         gameId,
                         userId: user.id,
                         memoryId,

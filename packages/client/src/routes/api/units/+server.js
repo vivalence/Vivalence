@@ -54,7 +54,7 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
 
         const { data: playData, error: playError } = await post("/api/play", {
             gameId,
-            memoryId: memoryData.memoryModel.id,
+            memoryId: memoryData.memory.id,
             nextPlay: memoryData.nextPlay,
             unitId,
             response
@@ -62,14 +62,14 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
 
         const { data: unit } = await supabase.from("Unit").select("data").eq("id", unitId).single();
 
-        console.log(
-            "UNIT ",
-            unit.data.spanish,
-            memoryData.memoryModel.status,
-            `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`,
-            memoryData.memoryStatusChange ? "status change" : "no change",
-            response
-        );
+        // console.log(
+        //     "UNIT ",
+        //     unit.data.spanish,
+        //     memoryData.memory.status,
+        //     `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`,
+        //     memoryData.memoryStatusChange ? "status change" : "no change",
+        //     response
+        // );
 
         if (playError) throw playError;
 
@@ -85,7 +85,7 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
 }
 
 // POST /api/memory data {
-//   memoryModel: {
+//   memory: {
 //     id: '56ad28ad-aee0-4aae-af56-81e5de37e145',
 //     state: [ 4.00818272051485, 4.008182720260797, 24.807831925750413 ],
 //     lastSeen: '2024-03-11T18:41:45.879'

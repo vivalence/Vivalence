@@ -25,24 +25,27 @@ model AppUser {
   roles       UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
   strategies  Strategy[]      @relation("AppUserToStrategy")
   Play        Play[]          
-  MemoryModel MemoryModel[]   
+  memories    Memory[]          
 }
 
 model Strategy {
   id        String    @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime  @default(now())
   updatedAt DateTime  @default(now()) @updatedAt
+  objectStatus ObjectStatusEnum @default(ACTIVE)
   name      String
   data      Json      @default("{}")
   user      AppUser[] @relation("AppUserToStrategy")
   tags      Tag[]     @relation("StrategyToTag")
   games     Game[]    @relation("StrategyToGame")
+  units     Unit[]    @relation("StrategyToUnit")
 }
 
 model Game {
   id         String       @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @default(now()) @updatedAt
+  objectStatus ObjectStatusEnum @default(ACTIVE)
   name       String
   type       GameTypeEnum
   data       Json         @default("{}")
@@ -61,21 +64,24 @@ model Play {
   lastPlay  DateTime
   unit      Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId    String
+  tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String?
   game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
   user      AppUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  memory    MemoryModel @relation(fields: [memoryId], references: [id])
+  memory    Memory @relation(fields: [memoryId], references: [id])
   memoryId  String
 
   @@index([unitId], name: "unitIdIndexOnPlay")
+  @@index([tagId], name: "tagIdIndexOnPlay")
   @@index([userId], name: "userIdIndexOnPlay")
   @@index([gameId], name: "gameIdIndexOnPlay")
   @@index([memoryId], name: "memoryIdIndexOnPlay")
-  @@unique([unitId, gameId, userId, memoryId])
+  @@unique([unitId, tagId,gameId, userId, memoryId])
 }
 
-model MemoryModel {
+model Memory {
   id        String           @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime         @default(now())
   updatedAt DateTime         @default(now()) @updatedAt
@@ -85,14 +91,17 @@ model MemoryModel {
   lastSeen  DateTime?
   history   Json             @default("[]")
   unit      Unit             @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String?
   unitId    String
   user      AppUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   plays     Play[]
 
-  @@index([unitId], name: "unitIdIndexOnMemoryModel")
-  @@index([userId], name: "userIdIndexOnMemoryModel")
-  @@unique([unitId, userId])
+  @@index([unitId], name: "unitIdIndexOnMemory")
+  @@index([userId], name: "userIdIndexOnMemory")
+  @@index([tagId], name: "tagIdIndexOnMemory")
+  @@unique([unitId, userId, tagId])
 }
 
 model Tag {
@@ -102,8 +111,10 @@ model Tag {
   name      String        @unique
   type      TagTypeEnum[] @default([])
   data      Json          @default("{}")
-  units     Unit[]
   strategy  Strategy[]    @relation("StrategyToTag")
+  units     Unit[]
+  memory    Memory[]        // @relation("TagToMemory")
+  plays     Play[]
 
   @@index([name], name: "nameIndexOnTag")
 }
@@ -112,12 +123,14 @@ model Unit {
   id           String         @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
+  objectStatus ObjectStatusEnum @default(ACTIVE)
   corpusId     String
   corpusType   CorpusTypeEnum @default(WORD)
   data         Json
+  strategy     Strategy[]     @relation("StrategyToUnit")
   tags         Tag[]
   plays        Play[]
-  memoryModels MemoryModel[]
+  memory       Memory[]
 
   @@index([corpusId], name: "corpusIdIndexOnUnit")
   @@unique([corpusId, corpusType])
@@ -128,6 +141,12 @@ enum QueueStatusEnum {
   PROCESSING
   DONE
   FAILED
+}
+
+enum ObjectStatusEnum {
+  ACTIVE
+  INACTIVE
+  DELETED
 }
 
 model Queue {

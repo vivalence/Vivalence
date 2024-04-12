@@ -6,12 +6,12 @@ import React, {
   useEffect,
 } from "react";
 
-import { useResource } from "$util/hooks/index";
+import { useResource } from "$util/hooks/useResource";
 import Autocomplete, { type OptionType, type RefHandles } from "./autocomplete";
 import { type Resource } from "$types/index";
 
 import { ConnectionTypes } from "./connections"
-import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./connections"
+import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./types"
 
 const useFormSubmission = (
   rootResourceId: string,
@@ -58,8 +58,8 @@ export const ConnectionEdit = forwardRef<
   const connection = ConnectionTypes[props.connectionName] as unknown as ConnectionTypeMethods<Resource>;
   const { map, filter, variableResourceKey } = connection;
 
-  const [optionsAll] = useResource<Resource>(variableResourceKey, map);
-  /* console.log("optionsAll", variableResourceKey, optionsAll); */
+  let [optionsAll] = useResource<Resource>(variableResourceKey, map);
+
   const [optionsActive, setActive] = useState<OptionType<Resource>[]>([]);
 
   useEffect(() => props.active && setActive(map(props.active)), [props.active]);

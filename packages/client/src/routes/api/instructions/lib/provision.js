@@ -1,30 +1,47 @@
 import Mustache from "mustache";
+import * as ebisu from "$lib/ebisu";
+import * as lib from "$lib";
+
 const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
 
 const QueueProvisioningLock = new Map();
 
-export default async ({ blacklist, strategyId, userId, locals }) => {
-    if (QueueProvisioningLock.has(`${userId}-${strategyId}`)) {
+export default async (props) => {
+    if (QueueProvisioningLock.has(`${props.userId}-${props.strategyId}`)) {
         return { status: 202 };
     } else {
-        QueueProvisioningLock.set(`${userId}-${strategyId}`, new Date());
-        makeInstructions({ userId, blacklist, strategyId, locals });
+        QueueProvisioningLock.set(`${props.userId}-${props.strategyId}`, new Date());
+        makeInstructions(props);
         return { status: 202 };
     }
 };
 
-const makeInstructions = async ({ strategyId, blacklist, userId, locals }) => {
+const makeInstructions = async ({
+    strategyId,
+    blacklist,
+    userId,
+    locals,
+    dry = false,
+    local = false
+}) => {
     const start = performance.now();
 
     try {
         // GET DATA
         const { data: strategy, error } = await locals.supabase
             .from("Strategy")
-            .select(`*, _StrategyToGame (Game: A (*)), _StrategyToTag (Tag: B (*))`)
+            .select(
+                `*,
+                _StrategyToGame (Game: A (*)),
+                _StrategyToUnit (Unit: B (*, Memory (id, state, type, status, lastSeen, userId, Tag (id), Unit(id) ))),
+                _StrategyToTag (Tag: B (*, Memory (id, state, type, status, lastSeen, userId, Tag (id), Unit(id) )))`
+            ) // might be able to remove a memory from the tag
             .eq("id", strategyId)
+            .eq("_StrategyToUnit.Unit.Memory.userId", userId)
+            .eq("_StrategyToTag.Tag.Memory.userId", userId)
             .single();
 
-        if (error) console.error(error);
+        if (error) throw error;
 
         const { data: queue = [] } = await locals.supabase
             .from("Queue")
@@ -34,9 +51,33 @@ const makeInstructions = async ({ strategyId, blacklist, userId, locals }) => {
 
         queue.map(({ data }) => data.payload.blacklist.forEach((id) => blacklist.push(id)));
 
-        strategy.tags = strategy._StrategyToTag.map((t) => t.Tag);
-        strategy.games = strategy._StrategyToGame.map((g) => g.Game);
-        locals.maskFlashcards = maskFlashcards;
+        strategy.Units = strategy._StrategyToUnit.map(({ Unit }) => {
+            Unit.Memory = Unit.Memory.filter((m) => !m.Tag)[0];
+
+            if (Unit.Memory)
+                Unit.Memory.strength = ebisu.predictRecall(
+                    Unit.Memory.state,
+                    new Date() - new Date(Unit.Memory.lastSeen)
+                );
+            return Unit;
+        });
+
+        strategy.Tags = strategy._StrategyToTag.map(({ Tag }) => {
+            Tag.Memory = Tag.Memory.filter((m) =>
+                strategy.Units.map((u) => u.id).includes(m.Unit.id)
+            ).map((m) => {
+                m.strength = ebisu.predictRecall(m.state, new Date() - new Date(m.lastSeen));
+                return m;
+            });
+            return Tag;
+        });
+
+        strategy.Games = strategy._StrategyToGame.map(({ Game }) => Game);
+
+        delete strategy._StrategyToUnit;
+        delete strategy._StrategyToTag;
+        delete strategy._StrategyToGame;
+        locals.Mustache = Mustache;
 
         const context = {
             blacklist,
@@ -44,19 +85,25 @@ const makeInstructions = async ({ strategyId, blacklist, userId, locals }) => {
             strategyId,
             language: { learning: "spanish", spoken: "english" }
         };
+        locals.ebisu = ebisu;
+        locals.shuffle = lib.shuffleArray;
 
-        const strategyProvisioning = new Function(`return ${strategy.data.provisioning}`)();
+        const strategyProvisioning =
+            local || new Function(`return ${strategy.data.provisioning}`)();
+
         const instructions = await strategyProvisioning({ locals, strategy, context });
 
         // PERSIST INSTRUCTIONS
-        const insert = await locals.supabase
-            .from("Queue")
-            .insert(instructions.map((data, index) => ({ userId, strategyId, data, index })));
-
-        if (insert.error) throw insert.error;
+        if (!dry) {
+            const insert = await locals.supabase
+                .from("Queue")
+                .insert(instructions.map((data, index) => ({ userId, strategyId, data, index })));
+            if (insert.error) throw insert.error;
+        }
 
         const end = performance.now();
         console.log(`PROVISIONING ${instructions.length}  took ${(end - start) / 1000} seconds`);
+        return instructions;
     } catch (error) {
         console.error(`[PROVISIONING ERROR]`, error.message);
         console.error(error);
@@ -64,99 +111,3 @@ const makeInstructions = async ({ strategyId, blacklist, userId, locals }) => {
         QueueProvisioningLock.delete(`${userId}-${strategyId}`);
     }
 };
-
-const maskFlashcards = (flashcardsMask, unit) => {
-    const mask = flashcardsMask[unit.corpusType];
-    const buildMaskData = new Function(`return ${mask.buildData}`)();
-    const maskData = buildMaskData(unit);
-    return {
-        front: Mustache.render(mask["front"], maskData),
-        back: Mustache.render(mask["back"], maskData)
-    };
-};
-
-// const generateInstructionsFromStrategy = async ({ locals, strategy, context }) => {
-//     const structuralTag = strategy.tags.find((g) => g.type.includes("STRUCTURAL"));
-//     const ontologicalTags = strategy.tags.filter((g) => g.type.includes("ONTOLOGICAL"));
-
-//     const translationsGame = strategy.games.find((g) => g.type === "TRANSLATIONS");
-//     const flashcardsGame = strategy.games.find((g) => g.type === "FLASHCARDS");
-
-//     // GET SENTENCE
-//     const units = [];
-//     for (const tag of ontologicalTags) {
-//         const response = await locals.get("/api/units", {
-//             tagIds: [structuralTag.id, tag.id],
-//             gameId: translationsGame.id,
-//             blacklist: context.blacklist,
-//             take: 3
-//         });
-//         if (response.error) console.error(response.error);
-//         else units.push(...response.data);
-//     }
-//     const { data: sentence } = await locals.get(`/api/games/translations/generate`, {
-//         units,
-//         language: strategy.data.language,
-//         innerPrompt: translationsGame.data.innerPrompt.text
-//     });
-//     const { data: nlp } = await locals.get(`/api/nlp`, { sentence: sentence.learning });
-//     const translationUnits = nlp.sentences[0].tokens
-//         .map((token) => token.unit)
-//         .filter((unit) => unit);
-
-//     translationUnits.forEach((unit) => context.blacklist.push(unit.id));
-
-//     // GET FLASHCARD
-//     const { data: flashcardUnits } = await locals.get("/api/units", {
-//         tagIds: [structuralTag.id],
-//         gameId: flashcardsGame.id,
-//         blacklist: context.blacklist,
-//         take: 5
-//     });
-
-//     // MAKE INSTRUCTIONS
-//     const instructions = [];
-
-//     for (const unit of flashcardUnits) {
-//         if (!unit) continue;
-//         instructions.push({
-//             type: "FLASHCARDS",
-//             instructions: locals.maskFlashcards(flashcardsGame.data, unit),
-//             payload: {
-//                 blacklist: [unit.id],
-//                 gameId: flashcardsGame.id,
-//                 unitId: unit.id,
-//                 strategyId: context.strategyId
-//             }
-//         });
-//     }
-
-//     for (const unit of translationUnits) {
-//         if (!unit) continue;
-//         if (unit.memoryModel && ["KNOWN", "GRADUATED"].includes(unit.memoryModel.status)) continue;
-//         instructions.push({
-//             type: "FLASHCARDS",
-//             instructions: locals.maskFlashcards(flashcardsGame.data, unit),
-//             payload: {
-//                 blacklist: [unit.id],
-//                 gameId: flashcardsGame.id,
-//                 unitId: unit.id,
-//                 strategyId: context.strategyId
-//             }
-//         });
-//     }
-
-//     instructions.push({
-//         type: "TRANSLATIONS",
-//         instructions: sentence,
-//         payload: {
-//             blacklist: translationUnits.map(({ id }) => id),
-//             gameId: translationsGame.id,
-//             unitIds: translationUnits.map(({ id }) => id),
-//             tokens: nlp.sentences[0].tokens,
-//             strategyId: context.strategyId
-//         }
-//     });
-
-//     return instructions;
-// };

@@ -22,16 +22,26 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
       ],
     },
     pagination: {
-      pageSize: 50,
+      pageSize: 20,
+
     },
-    /* syncWithLocation: true, */
+    syncWithLocation: true,
+    meta: {
+      count: "estimated",
+    },
     onSearch: (values: any) => {
       return [
         {
           field: "data->>spanish",
           operator: "contains",
+          /* operator: "eq", */
           value: values.value,
         },
+        /* {
+         *   field: "data->>english",
+         *   operator: "contains",
+         *   value: values.value,
+         * }, */
       ];
     },
   });

@@ -3,6 +3,8 @@ import { env } from "$env/dynamic/private";
 import parseFeats from "./feats.js";
 const { SERVICE_NLP_URL } = env;
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms * 1000));
+
 export async function GET({ fetch, locals, ...props }) {
     try {
         const input = locals.params();
@@ -42,49 +44,76 @@ export async function GET({ fetch, locals, ...props }) {
 }
 
 async function findUnit(annotation, { supabase, getSession }) {
-    if (["PUNCT", "SPACE"].includes(annotation.upos)) {
-        return null;
-    }
-    const userId = (await getSession()).user.id;
-
-    let query = supabase
-        .from("Unit")
-        .select(
-            `*,
-            MemoryModel:MemoryModel (id, status, lastSeen),
-            _TagToUnit!inner(*),
-            _TagToUnit!inner.Tag!inner(*)`
-        )
-        .eq("MemoryModel.userId", userId);
-
-    if (["VERB"].includes(annotation.upos)) {
-        if (annotation.feats.Tense) {
-            query = query
-                .eq("data->>lemmaSpanish", annotation.lemma)
-                .eq("data->>spanish", annotation.token)
-                .eq("data->>mood", annotation.feats.ENUM.mood)
-                .eq("data->ud->feats->>Tense", annotation.feats.Tense);
-        } else {
-            query = query
-                .eq("data->>lemmaSpanish", annotation.lemma)
-                .eq("data->ud->feats->>VerbForm", annotation.feats.VerbForm);
+    try {
+        if (["PUNCT", "SPACE"].includes(annotation.upos)) {
+            return null;
         }
-    } else {
-        query = query.eq("data->>lemmaSpanish", annotation.lemma);
-    }
 
-    const { data, error } = await query.limit(1).single();
+        const userId = (await getSession()).user.id;
 
-    if (error) {
+        let unit;
+        let query = supabase
+            .from("Unit")
+            .select(
+                `*,
+		Memory (id, status,tagId, lastSeen, state, type, lastSeen ),
+		_TagToUnit(*, Tag: A (*, Memory (id, status,tagId, lastSeen, state, type, lastSeen ))) `
+            )
+            .eq("data->>lemmaSpanish", annotation.lemma)
+            .eq("objectStatus", "ACTIVE")
+            .eq("_TagToUnit.Tag.Memory.userId", userId)
+            .eq("Memory.userId", userId)
+            .filter("Memory.tagId", "is", null);
+
+        let filterTags = [annotation.upos];
+        if (["VERB", "AUX"].includes(annotation.upos)) {
+            //     query = query
+            //         .filter("_TagToUnit.Tag.data->>branch", "eq", "VerbForm")
+            //         .filter("_TagToUnit.Tag.data->>leaf", "eq", annotation.feats.VerbForm);
+            //     if (annotation.feats.Tense) {
+            //         query = query
+            //             .filter("_TagToUnit.Tag.data->>branch", "eq", "Tense")
+            //             .filter("_TagToUnit.Tag.data->>leaf", "eq", annotation.feats.Tense);
+            //         // .eq("data->>spanish", annotation.token)
+            //         // .eq("data->>mood", annotation.feats.ENUM.mood)
+            //         // .eq("data->ud->feats->>Tense", annotation.feats.Tense);
+            //     }
+        } else if (["NOUN", "PROPN"].includes(annotation.upos)) {
+            filterTags.push(...[annotation.feats.Number, annotation.feats.Gender]);
+        } else if (["ADJ"].includes(annotation.upos)) {
+            filterTags.push(...[annotation.feats.Number]);
+            if (annotation.feats.Gender) filterTags.push(annotation.feats.Gender);
+        } else if (["DET"].includes(annotation.upos)) {
+            const feats = annotation.feats;
+            filterTags.push(...[feats.Number, feats.Gender, feats.PronType, feats.Definite]);
+        }
+
+        query = query
+            .in("_TagToUnit.Tag.data->ONTOLOGICAL->>leaf", filterTags)
+            .not("_TagToUnit.Tag", "is", null);
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        unit = data.find((u) => u._TagToUnit.length === filterTags.length);
+
+        unit.Tags = unit._TagToUnit.map(({ Tag }) => {
+            Tag.Memory = Tag.Memory && Tag.Memory.length > 0 ? Tag.Memory[0] : null;
+            return Tag;
+        });
+
+        unit.Memory = unit.Memory && unit.Memory.length > 0 ? unit.Memory[0] : null;
+
+        delete unit._TagToUnit;
+
+        // console.log("/api/nlp Unit ", JSON.stringify(unit, null, 2));
+
+        return unit;
+    } catch (error) {
         console.error("[NLPU ERROR /api/nlp] Error fetching unit:", error.message);
-        console.error(error);
         console.log("Annotation:\n", annotation);
-        console.log("query:\n", query);
-        return null;
+        console.error(error);
+        // console.log("query:\n", query);
+        return { error };
     }
-
-    return {
-        ...data,
-        memoryModel: data.MemoryModel.length > 0 ? data.MemoryModel[0] : null
-    };
 }

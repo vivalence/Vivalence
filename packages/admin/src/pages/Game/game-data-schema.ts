@@ -31,14 +31,14 @@ const GameFlashcardsDataSchema: RJSFSchema = {
                     title: "Back",
                     description: "Template for the back of the card",
                 },
-                buildData: {
-                    type: "string",
-                    title: "Build Data",
-                    description: "Function to build card data",
-                    format: "code",
-                },
+                // buildData: {
+                //     type: "string",
+                //     title: "Build Data",
+                //     description: "Function to build card data",
+                //     format: "code",
+                // },
             },
-            required: ["back", "front", "buildData"],
+            required: ["back", "front"],
         },
     },
     properties: {
