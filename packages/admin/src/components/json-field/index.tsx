@@ -10,14 +10,14 @@ const HandlebarsField = {
   "ui:field": Monaco,
   "ui:options": {
     language: "handlebars",
-    height: "300px",
+    height: "400px",
   },
 };
 const HTMLField = {
   "ui:field": Monaco,
   "ui:options": {
     language: "html",
-    height: "150px",
+    height: "400px",
   },
 };
 
@@ -25,7 +25,7 @@ const JSField = {
   "ui:field": Monaco,
   "ui:options": {
     language: "javascript",
-    height: "300px",
+    height: "600px",
   },
 };
 
@@ -61,7 +61,6 @@ const JsonForm: React.FC<Props> = (props) => {
     onChange: handleChange,
     validator: validator,
   };
-  console.log("formProps", formProps);
 
   return <Form {...formProps} />;
 };

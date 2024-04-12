@@ -6,7 +6,7 @@ import { sleep, wrapTextWithTag } from "$lib";
 
 const { SYSTEM_MODE } = env;
 
-const prompt = {
+const Prompt = {
     language: { spoken: "english", learning: "spanish" },
     // provider: { api: "openai", model: "gpt-3.5-turbo" },
     // provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
@@ -16,39 +16,55 @@ const prompt = {
     schema: {
         title: "Evaluations",
         type: "object",
-        properties: {
+        definitions: {
             evaluation: {
-                title: "Evaluation",
-                description: `KNOWN means the learner successfully used this part of speech in their translation as expected. UNKNOWN means the learner failed in their use the expected part of speech. Spelling, missing words, and other errors are considered UNKNOWN. NEUTRAL is to be used only if the learner applied an equivalent alternative successfully. If the PoS is not present in the translation, then it is UNKNOWN.`,
-                enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
-                type: "string"
+                type: "object",
+                properties: {
+                    confidence: {
+                        title: "Confidence level",
+                        description: "How confident are you that the user knows the PART?",
+                        type: "number",
+                        minimum: 0.0,
+                        maximum: 1.0
+                    },
+                    status: {
+                        title: "Evaluation status",
+                        description: `KNOWN indicates correct usage of PART in the translation. UNKNOWN marks incorrect usage, including spelling and missing words. NEUTRAL applies for successful alternative use. Absence of PART is UNKNOWN.`,
+                        enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
+                        type: "string"
+                    }
+                },
+                required: ["confidence", "status"]
             }
         },
-        required: ["evaluation"]
+        properties: {}
     },
-    template: `Evaluate a <PART> of a translated sentence.
 
-The <PART> you evaluate now is:
-{{{language.spoken}}}: "{{{part.spoken}}}"
-{{{language.learning}}}: "{{{part.token}}}"
-
-Context:
-upos: {{{part.upos}}}
-feats: {{{part.feats}}}
-
-We ignore capitalization and punctuation.
+    template: `Evaluate a <PART> of translated sentence.
+We ignore capitalization.
 We do not ignore severe spelling errors.
 If the learner used an equivalent alternative, then select NEUTRAL.
 If the <PART> is missing, then select UNKNOWN.
-Did the learner correctly translate "{{{part.token}}}", used it in the right place, and used it correctly?
 
-As evidenced by the translation provided by the learner:
+### TRANSLATION
+PROMPT: "{{{sentence.spoken}}}"
+EXPECTED: "{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis)
 USER: "{{{sentence.translation}}}"
 
-when it should have been this:
-EXPECTED: "{{{sentence.learning}}}"
+The <PART> you evaluate now is made up of the word (Unit) "{{part.token}}"
+and the UniversalDependencys (Tags) of{{#part.tags}} {{branch}}{{/part.tags}}.
 
-(the tag <PART> was added now for your emphasis)
+### Unit:{{part.id}}
+{{{language.spoken}}}: "{{{part.spoken}}}"
+{{{language.learning}}}: "{{{part.token}}}"
+
+{{#part.tags}}
+### Tag:{{id}}: {{branch}} "{{leaf}}"
+Was {{branch}} "{{leaf}}" used correctly?
+
+{{/part.tags}}
+
+Return a JSON object with the evaluation of <PART>.
 `
 };
 
@@ -56,12 +72,15 @@ export async function POST({ fetch, locals, request }) {
     try {
         const { user } = await locals.getSession();
         const { gameId, payload, sentence } = await request.json();
-        const { language } = prompt;
+        const { language } = Prompt;
+
+        // console.log("/games/translations/evaluate", gameId, sentence);
 
         const learning = sentence.learning;
         const tokens = payload.tokens.filter((token) => token.unit);
 
-        const promises = tokens.map(async (token, i) => {
+        const promises = [];
+        tokens.map(async (token, i) => {
             const learningTagged = wrapTextWithTag(
                 learning,
                 token.start_char,
@@ -70,49 +89,77 @@ export async function POST({ fetch, locals, request }) {
             );
 
             const part = {
+                id: token.unit.id,
                 spoken: token.unit.data[language.spoken],
                 learning: token.unit.data[language.learning],
                 token: token.token,
-                upos: token.upos,
-                feats: token.feats.STRING.replace(/\=/g, ":")
+                tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
+                    (tag) => ({
+                        id: tag.id,
+                        branch: tag.data.ONTOLOGICAL.branch,
+                        leaf: tag.data.ONTOLOGICAL.leaf
+                    })
+                )
             };
 
-            const inputPrompt = {
+            const prompt = Mustache.render(Prompt.template, {
                 part,
                 language,
                 sentence: {
                     ...sentence,
                     learning: learningTagged
                 }
-            };
-            const message = Mustache.render(prompt.template, inputPrompt);
+            });
 
-            await sleep(i * 1.1);
+            const schema = {
+                ...Prompt.schema,
+                properties: part.tags.reduce(
+                    (acc, tag) => {
+                        acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
+                        return acc;
+                    },
+                    { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
+                )
+            };
+            schema.properties.required = Object.keys(schema.properties);
 
             const input = {
-                prompt: message,
-                schema: prompt.schema,
-                provider: prompt.provider
+                prompt,
+                schema,
+                provider: Prompt.provider
             };
 
             const { data, error } = await locals.get("/api/llm", input);
-            // console.log(
-            //     `
-
-            // ${learningTagged}
-            // ${sentence.translation}
-            // token: ${part.token} spoken: ${part.spoken} learning: ${part.learning}
-            // evaluation: ${data.evaluation} `
-            // );
 
             if (error) console.error(error);
-            else if (data.evaluation !== "NEUTRAL") {
-                return await locals.post("/api/units", {
-                    gameId,
-                    gameType: "TRANSLATIONS",
-                    unitId: token.unit.id,
-                    response: data.evaluation
-                });
+            else {
+                // console.log("data", data);
+                for (const key in data) {
+                    const [type, id] = key.split(":");
+                    const evaluation = data[key];
+                    if (evaluation.status === "NEUTRAL") continue;
+                    console.log("evaluation", token.token, key, evaluation);
+
+                    let response;
+                    if (type === "Unit") {
+                        response = await locals.post("/api/units", {
+                            gameId,
+                            gameType: "TRANSLATIONS",
+                            unitId: id,
+                            response: evaluation.status
+                        });
+                    } else if (type === "Tag") {
+                        response = await locals.post("/api/tags", {
+                            gameId,
+                            gameType: "TRANSLATIONS",
+                            unitId: token.unit.id,
+                            tagId: id,
+                            response: evaluation.status
+                        });
+                    }
+                    // console.log("response", JSON.stringify(response, null, 2));
+                }
+                return json({ data, error });
             }
         });
         const results = await Promise.all(promises);

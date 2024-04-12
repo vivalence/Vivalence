@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { useUpdate, IResourceComponentsProps, } from "@refinedev/core";
 import { useForm, Edit, SaveButton } from "@refinedev/antd";
+import { useDocumentTitle } from "@refinedev/react-router-v6";
 import { Form, Input, Select } from "antd";
 const { Option } = Select;
 
@@ -15,7 +16,9 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
   const { mutate: updateOne } = useUpdate();
   const strategyConnectionRef = useRef<ConnectionEditHandles | null>(null);
   const gametype: GameType = form.getFieldValue("type");
-  const gameId = queryResult?.data?.data.id! as string;
+  const game = queryResult?.data?.data as any;
+  const gameId = game?.id! as string;
+  useDocumentTitle(`Game: ${game?.name}`);
 
   const onSave = async (values: any) => {
     try {
@@ -57,6 +60,17 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
           </Select>
         </Form.Item>
 
+        <Form.Item
+          label="Object Status"
+          name="objectStatus"
+          rules={[{ required: true, message: "Please select a object status!" }]}
+        >
+          <Select placeholder="Select a Object Status">
+            <Option value="ACTIVE">Active</Option>
+            <Option value="INACTIVE">Inactive</Option>
+            <Option value="DELETED">Deleted</Option>
+          </Select>
+        </Form.Item>
         <Form.Item label="Connected Strategies">
           <Connection
             ref={strategyConnectionRef}

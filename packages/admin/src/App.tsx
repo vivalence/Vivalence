@@ -1,5 +1,5 @@
 import { Refine, Authenticated } from "@refinedev/core";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, } from "react-router-dom";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerBindings, {
@@ -24,12 +24,14 @@ import { supabaseClient } from "./utility";
 import authProvider from "./authProvider";
 import dataProvider from "./dataProvider";
 
-
 import { AppUserCreate, AppUserEdit, AppUserList, AppUserShow } from "./pages/AppUser";
 import { StrategyCreate, StrategyEdit, StrategyList, StrategyShow } from "./pages/Strategy";
 import { GameCreate, GameEdit, GameList, GameShow } from "./pages/Game";
 import { TagCreate, TagEdit, TagList, TagShow } from "./pages/Tag";
 import { UnitCreate, UnitEdit, UnitList, UnitShow } from "./pages/Unit";
+import { Login } from "./pages/login";
+
+/* console.log('Login', Login) */
 
 /* import JsonEditor from "./pages/test"; */
 
@@ -98,8 +100,10 @@ function App() {
               <RefineKbarProvider>
                 <DevtoolsProvider>
                   <ThemedLayoutV2>
-
                     <Routes>
+
+                      <Route path="/login" element={<Login />} />
+
                       <Route index
                         element={<NavigateToResource resource="AppUser" />}
                       />
@@ -138,13 +142,13 @@ function App() {
                     </Routes>
                     <RefineKbar />
                     <UnsavedChangesNotifier />
-                    <DocumentTitleHandler />
                   </ThemedLayoutV2>
                   <DevtoolsPanel />
                 </DevtoolsProvider>
               </RefineKbarProvider>
             </AntdApp>
           </Authenticated>
+          <DocumentTitleHandler />
         </Refine>
       </ConfigProvider>
     </BrowserRouter>

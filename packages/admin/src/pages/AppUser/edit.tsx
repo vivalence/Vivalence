@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
 import { Edit, useForm, SaveButton } from "@refinedev/antd";
 import { Select, Form, Input, Typography } from "antd";
+import { useDocumentTitle } from "@refinedev/react-router-v6";
 
 import Connection, { type ConnectionEditHandles } from "$components/connection";
 
@@ -10,6 +11,7 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
   const appUserData = queryResult?.data?.data;
   const userId = appUserData?.id! as string;
   const strategyConnectionRef = useRef<ConnectionEditHandles | null>(null);
+  useDocumentTitle(`User: ${appUserData?.email}`);
 
   const { mutate: updateOne } = useUpdate();
   const onSave = async (values: any) => {

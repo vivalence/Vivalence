@@ -43,33 +43,33 @@ const UnitWordDataSchema: RJSFSchema = {
         usageInEnglish: { type: "string" },
         usageInSpanish: { type: "string" },
         index: { type: "number" },
-
         // type: { type: "string" },
         // pos: { type: "array", items: { type: "string" } },
-        // ud: {
-        //     type: "object",
-        //     properties: {
-        //         text: { type: "string" },
-        //         upos: { type: "string" },
-        //         // xpos: { type: "string" },
-        //         // lemma: { type: "string" },
-        //         udFeats: { type: "string" },
-        //         feats: {
-        //             type: "object",
-        //             properties: {
-        //                 Mood: { type: "string" },
-        //                 Tense: { type: "string" },
-        //                 Number: { type: "string" },
-        //                 Person: { type: "string" },
-        //                 VerbForm: { type: "string" },
-        //                 Gender: { type: "string" },
-        //                 PronType: { type: "string" },
-        //                 Polarity: { type: "string" },
-        //                 PunctType: { type: "string" },
-        //             },
-        //         },
-        //     },
-        // },
+        ud: {
+            type: "object",
+            title: "Universal Dependencies  (OLD)",
+            properties: {
+                //         text: { type: "string" },
+                upos: { type: "string" },
+                //         // xpos: { type: "string" },
+                //         // lemma: { type: "string" },
+                udFeats: { type: "string" },
+                //         feats: {
+                //             type: "object",
+                //             properties: {
+                //                 Mood: { type: "string" },
+                //                 Tense: { type: "string" },
+                //                 Number: { type: "string" },
+                //                 Person: { type: "string" },
+                //                 VerbForm: { type: "string" },
+                //                 Gender: { type: "string" },
+                //                 PronType: { type: "string" },
+                //                 Polarity: { type: "string" },
+                //                 PunctType: { type: "string" },
+                //             },
+                //         },
+            },
+        },
     },
 };
 

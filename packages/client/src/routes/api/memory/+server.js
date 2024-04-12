@@ -5,20 +5,22 @@ import * as ebisu from "$lib/ebisu";
 // { gameId, gameType, unitId, response }
 export async function POST({ locals: { supabase, getSession }, request, ...props }) {
     try {
-        const { gameType, gameId, unitId, response } = await request.json();
+        const { gameType, gameId, tagId, unitId, response } = await request.json();
         const { user } = await getSession();
 
-        let nextPlay, memory;
+        let memory, nextPlay;
 
-        let { data: memories, error } = await supabase
-            .from("MemoryModel")
-            .select("id, unitId, userId, state, status, lastSeen, history")
+        let query = supabase
+            .from("Memory")
+            .select("id, unitId, tagId, userId, state, status, lastSeen, history")
             .eq("unitId", unitId)
-            .eq("userId", user.id)
-            .limit(1);
+            .eq("userId", user.id);
+        if (tagId) query = query.eq("tagId", tagId);
+        else query = query.filter("tagId", "is", null);
 
+        const { data: memories, error } = await query.limit(1);
         if (error) throw error;
-
+        // console.log("memories", memories);
         memory = memories[0];
 
         if (!memory) {
@@ -28,7 +30,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             const now = new Date().toISOString();
 
             const { data: createdMemory, error } = await supabase
-                .from("MemoryModel")
+                .from("Memory")
                 .insert([
                     {
                         type: "EBISU_v2",
@@ -36,8 +38,9 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
                         state: model,
                         lastSeen: now,
                         history: [{ gameType, response, model, nextPlay, date: now }],
-                        unitId: unitId,
-                        userId: user.id
+                        userId: user.id,
+                        unitId,
+                        tagId
                     }
                 ])
                 .single()
@@ -46,7 +49,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             if (error) throw error;
             return json({
                 data: {
-                    memoryModel: createdMemory,
+                    memory: createdMemory,
                     nextPlay
                 },
                 error: null
@@ -62,8 +65,8 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
 
             const status = nextReviewIn > 24 * 7 ? "KNOWN" : "LEARNING";
 
-            const { data: updatedMemoryModel, error } = await supabase
-                .from("MemoryModel")
+            const { data: updatedMemory, error } = await supabase
+                .from("Memory")
                 .update({
                     state: model,
                     status,
@@ -78,7 +81,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             if (error) throw error;
             return json({
                 data: {
-                    memoryModel: updatedMemoryModel,
+                    memory: updatedMemory,
                     nextReviewIn,
                     nextPlay,
                     memoryStatusChange: status !== memory.status

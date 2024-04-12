@@ -27,7 +27,7 @@ BEGIN
     )
     AND NOT EXISTS (
         SELECT 1
-        FROM "MemoryModel" m
+        FROM "Memory" m
         WHERE m."unitId" = u.id
         AND m."userId" = auth.uid()::text
         AND m."status" IN ('KNOWN', 'GRADUATED')
@@ -72,7 +72,7 @@ BEGIN
     )
     AND NOT EXISTS (
         SELECT 1
-        FROM "MemoryModel" m
+        FROM "Memory" m
         WHERE m."unitId" = u.id
         AND m."userId" = auth.uid()::text
         AND m."status" IN ('KNOWN', 'GRADUATED')

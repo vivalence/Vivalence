@@ -9,31 +9,34 @@ import {
   SaveButton,
   TagField,
 } from "@refinedev/antd";
-import { Table, Space, Form, Input, } from "antd";
+import { Table, Space, Form, Input } from "antd";
 
 export const TagList: React.FC<IResourceComponentsProps> = () => {
   const { tableProps, searchFormProps } = useTable({
     sorters: {
       initial: [
         {
-          field: "name",
-          order: "asc",
+          field: "createdAt",
+          order: "desc",
         },
       ],
     },
     pagination: {
-      pageSize: 100,
+      pageSize: 20,
     },
     syncWithLocation: true,
-    onSearch: (values: any) => {
-      return [
-        {
-          field: "name",
-          operator: "contains",
-          value: values.value,
-        },
-      ];
+    meta: {
+      select: "*, _TagToUnit(*)",
+      count: "estimated",
     },
+    onSearch: (values: any) => [
+      {
+        field: "name",
+        operator: "contains",
+        value: values.value,
+      },
+
+    ],
   });
 
   return (
@@ -51,14 +54,15 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
           render={(value: any) => value}
         />
         <Table.Column
+          dataIndex={["unit count"]}
+          title="Units"
+          render={(_: any, tag: any) => tag._TagToUnit.length}
+        />
+        <Table.Column
           dataIndex="type"
           title="Type"
           render={(value: any[]) => (
-            <>
-              {value?.map((item) => (
-                <TagField value={item} key={item} />
-              ))}
-            </>
+            <>{value?.map((item) => <TagField value={item} key={item} />)}</>
           )}
         />
         <Table.Column
@@ -66,21 +70,9 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
           dataIndex="actions"
           render={(_, record: BaseRecord) => (
             <Space>
-              <EditButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <ShowButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <DeleteButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
+              <EditButton hideText size="small" recordItemId={record.id} />
+              <ShowButton hideText size="small" recordItemId={record.id} />
+              <DeleteButton hideText size="small" recordItemId={record.id} />
             </Space>
           )}
         />
@@ -88,4 +80,3 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
     </List>
   );
 };
-

@@ -10,6 +10,10 @@ export const predictNextReviewTime = (model) => {
     return ebisu.modelToPercentileDecay(model, DECAY_THRESHOLD);
 };
 
+export const modelToPercentileDecay = ebisu.modelToPercentileDecay;
+export const predictRecall = ebisu.predictRecall;
+export default ebisu;
+
 export const initiateModel = (response) => {
     let defaultModel = {};
     switch (response) {
