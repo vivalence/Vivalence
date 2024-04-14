@@ -5,7 +5,20 @@ const { VITE_VIVALENCE_AUTH_PATH, VITE_SYSTEM_MODE } = import.meta.env;
 
 const authProvider: AuthBindings = {
     login: async ({ email, password, providerName }) => {
-        console.log("authProvider login", email, password, providerName);
+        // console.log("authProvider login", email, password, providerName);
+
+        const { user, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (!error)
+            return {
+                success: true,
+                user,
+                redirectTo: "/",
+            };
+
         return {
             success: false,
             error: {
@@ -33,11 +46,16 @@ const authProvider: AuthBindings = {
         return { error };
     },
     check: async () => {
+        const currentPath = window.location.pathname;
         try {
             const { data } = await supabase.auth.getSession();
             const { session } = data;
             console.log("authprovider check session", session);
-
+            if (currentPath === "/login" && !session) {
+                return {
+                    authenticated: true,
+                };
+            }
             if (!session) {
                 // if (VITE_SYSTEM_MODE && +VITE_SYSTEM_MODE > 2)
                 //     window.location.href = VITE_VIVALENCE_AUTH_PATH;

@@ -24,7 +24,7 @@ BEGIN
         JOIN "_TagToUnit" tu ON t_id = tu."A"
         JOIN "Tag" tag ON tu."A" = tag.id
         JOIN "Unit" unit ON tu."B" = unit.id
-        LEFT JOIN "MemoryModel" memory ON memory."unitId" = unit.id AND memory."userId" = auth.uid()::text
+        LEFT JOIN "Memory" memory ON memory."unitId" = unit.id AND memory."userId" = auth.uid()::text
     GROUP BY tag.id;
 END;
 $$ LANGUAGE plpgsql;

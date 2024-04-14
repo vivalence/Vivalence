@@ -20,7 +20,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
 
         const { data: memories, error } = await query.limit(1);
         if (error) throw error;
-        // console.log("memories", memories);
+
         memory = memories[0];
 
         if (!memory) {
@@ -29,15 +29,18 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             const nextPlay = getDateTimeInXHours(nextReviewTime);
             const now = new Date().toISOString();
 
+            const history = [{ gameType, response, model, nextPlay, date: now }];
+            const status = getStatus(nextReviewTime, history);
+
             const { data: createdMemory, error } = await supabase
                 .from("Memory")
                 .insert([
                     {
                         type: "EBISU_v2",
-                        status: "LEARNING",
+                        status,
                         state: model,
                         lastSeen: now,
-                        history: [{ gameType, response, model, nextPlay, date: now }],
+                        history,
                         userId: user.id,
                         unitId,
                         tagId
@@ -62,8 +65,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             const nextPlay = getDateTimeInXHours(nextReviewIn);
 
             const history = [...memory.history, { gameType, response, model, nextPlay, date: now }];
-
-            const status = nextReviewIn > 24 * 7 ? "KNOWN" : "LEARNING";
+            const status = getStatus(nextReviewIn, history);
 
             const { data: updatedMemory, error } = await supabase
                 .from("Memory")
@@ -95,3 +97,39 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
         return json({ error: err, status: 500 });
     }
 }
+
+const getStatus = (nextReviewIn, history) => {
+    // Helper function to check the last N responses in history
+    const checkLastResponses = (n, condition) => {
+        const recentResponses = history.slice(-n).map((entry) => entry.response);
+        return recentResponses.every((response) => condition.includes(response));
+    };
+
+    // Calculate conditions for the responses
+    const isUnknown = nextReviewIn < 1 || checkLastResponses(3, ["UNKNOWN"]);
+    const isLearning = nextReviewIn >= 1 && nextReviewIn <= 24 * 7;
+    const isKnown = nextReviewIn > 24 * 7 && checkLastResponses(3, ["KNOWN", "GRADUATED"]);
+    const isGraduated = nextReviewIn > 24 * 14 && checkLastResponses(5, ["KNOWN", "GRADUATED"]);
+
+    // Determine status based on conditions
+    if (isUnknown) {
+        return "UNKNOWN";
+    } else if (isLearning) {
+        return "LEARNING";
+    } else if (isGraduated) {
+        return "GRADUATED";
+    } else if (isKnown) {
+        return "KNOWN";
+    }
+
+    return "UNKNOWN";
+};
+
+// // Example usage
+// const history = [
+//   { response: "KNOWN", date: new Date() },
+//   { response: "GRADUATED", date: new Date() },
+//   { response: "KNOWN", date: new Date() }
+// ];
+
+// console.log(getStatus(15 * 24, history)); // Test with nextReviewIn in hours
