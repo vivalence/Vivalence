@@ -101,9 +101,7 @@ function App() {
                 <DevtoolsProvider>
                   <ThemedLayoutV2>
                     <Routes>
-
                       <Route path="/login" element={<Login />} />
-
                       <Route index
                         element={<NavigateToResource resource="AppUser" />}
                       />
