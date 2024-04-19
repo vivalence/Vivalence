@@ -36,7 +36,6 @@
                     {#if $store.revealed}
                         {conjugation.learning}
                     {:else}
-                        <!-- Masked answer until revealed -->
                         *****
                     {/if}
                     </p>
