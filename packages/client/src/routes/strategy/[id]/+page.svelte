@@ -15,14 +15,12 @@
     };
 
     const onGameFinish = (payload) => {
-        console.log("onGameFinish", $store.active?.data.type, $store.active?.id);
         store.next();
     };
     // $: console.log($store);
 </script>
 
 {#if !$store.error && !!$store.active}
-    {$store.active.id}
     <svelte:component
         this={games[$store.active?.data.type]}
         on:finish={onGameFinish}
