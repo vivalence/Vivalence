@@ -45,7 +45,7 @@ export const actions = {
             }
 
             /* Login successful, redirect. */
-            throw redirect(303, "/${post_auth_path}");
+            throw redirect(303, `/${post_auth_path}`);
         } else if (provider) {
             /* OAuth sign-in. */
 

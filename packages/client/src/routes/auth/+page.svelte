@@ -2,19 +2,19 @@
     export let form;
 </script>
 
-<form method="POST" action="?/signin">
-    <input name="email" placeholder="email" type="email" value={form?.data?.email ?? ""} />
-    <input name="password" placeholder="password" type="password" />
-    <button style="margin-top: 12px;">Login</button>
-    <!-- <button formaction="?/signup" style="margin-top: 12px;">Signup</button> -->
-</form>
-<!-- <form method="POST" action="?/signin"> -->
-<!--     <button style="margin-top: 12px;" name="provider" value="github">Login with GitHub</button> -->
-<!-- </form> -->
+<div class="flex justify-center items-center h-screen ">
+    <form method="POST" action="?/signin">
+        <input class="input border mb-3" name="email" placeholder="email" type="email" value={form?.data?.email ?? ""} />
+        <br />
+        <input class="input border" name="password" placeholder="password" type="password" />
+        <br />
+        <button style="margin-top: 12px;">Login</button>
+    </form>
 
-{#if form?.message}
-    <p>{form.message}</p>
-{/if}
-{#if form?.error}
-    <p>{form.error}</p>
-{/if}
+    {#if form?.message}
+        <p>{form.message}</p>
+    {/if}
+    {#if form?.error}
+        <p>{form.error}</p>
+    {/if}
+</div>
