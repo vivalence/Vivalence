@@ -32,11 +32,11 @@
     </svg>
 
     <div class={classesFront}>
-        {@html $store.instructions.front}
+        {@html $store.instruction.front}
     </div>
     {#if $store.revealed}
         <div class={classesBack}>
-            {@html $store.instructions.back}
+            {@html $store.instruction.back}
         </div>
     {/if}
 </div>

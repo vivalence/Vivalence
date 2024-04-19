@@ -167,9 +167,10 @@ enum CorpusTypeEnum {
 }
 
 enum TagTypeEnum {
-  STRUCTURAL // organizing and completable 
   ONTOLOGICAL // subject matter attribute
-  LEARNABLE // higher order feature
+  STRUCTURAL // organizing of units into sets or categories
+  LEARNABLE // higher order feature that one can master
+  COMPLETABLE // a set of units where each can be mastered
 }
 
 enum MemoryTypeEnum {
@@ -180,6 +181,7 @@ enum MemoryTypeEnum {
 enum GameTypeEnum {
   FLASHCARDS
   TRANSLATIONS
+  CONJUGATIONS
 }
 
 enum MemoryStatusEnum {

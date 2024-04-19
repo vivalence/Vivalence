@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "GameTypeEnum" ADD VALUE 'CONJUGATIONS';

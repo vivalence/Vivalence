@@ -8,7 +8,7 @@
 <div class="my-4">
     <div class="">
         <p class="text-center text-3xl">
-            {$store.instructions.spoken}
+            {$store.instruction.spoken}
         </p>
     </div>
     <div class="flex items-center justify-center mt-6">

@@ -17,11 +17,10 @@
     onDestroy(() => pageFooterContext.set(null));
 
     export let payload;
-    export let instructions;
-    $: if (payload && instructions) {
-        store.update((s) => ({ ...s, revealed: false, loading: false, payload, instructions }));
+    export let instruction;
+    $: if (payload && instruction) {
+        store.update((s) => ({ ...s, revealed: false, loading: false, payload, instruction }));
     }
-
     const onReview = (status) => () => store.review(status);
 </script>
 

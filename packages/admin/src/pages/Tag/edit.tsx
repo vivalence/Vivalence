@@ -77,6 +77,8 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
             <Option value="STRUCTURAL">Structural</Option>
             <Option value="ONTOLOGICAL">Ontological</Option>
             <Option value="LEARNABLE">Learnable</Option>
+            <Option value="COMPLETABLE">Completable</Option>
+
           </Select>
         </Form.Item>
 

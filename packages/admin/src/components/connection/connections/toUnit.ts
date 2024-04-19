@@ -33,18 +33,19 @@ export const StrategyToUnit: ConnectionTypeMethods<Unit> = {
 export const TagToUnit: ConnectionTypeMethods<Unit> = {
     variableResourceKey: "Unit",
     map: (all) =>
-        all.map((data) => ({
-            value: data.id,
-            label: `${data.data.spanish} - ${data.data.english}`,
-            link: `/unit/edit/${data.id}`,
-            data,
-        })),
-    // .sort((a, b) => a.label.localeCompare(b.label)),
+        all
+            .map((data) => ({
+                value: data.id,
+                label: `${data.data.spanish} - ${data.data.english}`,
+                link: `/unit/edit/${data.id}`,
+                data,
+            }))
+            .sort((a, b) => a.label.localeCompare(b.label)),
     filter: (all) => (searchText) =>
         all.filter(
             ({ data }) =>
-                // data.data.english.toLowerCase().includes(searchText.toLowerCase()) ||
-                data.data.spanish.toLowerCase().includes(searchText.toLowerCase()),
+                data.data.english.toLowerCase().startsWith(searchText.toLowerCase()) ||
+                data.data.spanish.toLowerCase().startsWith(searchText.toLowerCase()),
             // data.id.toLowerCase().includes(searchText.toLowerCase()),
         ),
     // sort: (all) => all.sort((a, b) => a.data.index - b.data.index),

@@ -4,8 +4,12 @@ import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
 const gamePrompt = {
-    provider: { api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.3 },
-    // provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
+    provider: {
+        api: "anthropic",
+        model: "claude-3-sonnet-20240229",
+        temperature: 0.5,
+        max_tokens: 256
+    },
     schema: {
         title: "LanguageLearningSentence",
         type: "object",

@@ -9,7 +9,7 @@ import Connection, { type ConnectionEditHandles } from "$components/connection";
 import JSONField from "$components/json-field/index";
 import GameSchema from "./game-data-schema";
 
-type GameType = "FLASHCARDS" | "TRANSLATIONS";
+type GameType = "FLASHCARDS" | "TRANSLATIONS" | "CONJUGATIONS";
 
 export const GameEdit: React.FC<IResourceComponentsProps> = () => {
   const { form, formProps, saveButtonProps, queryResult } = useForm();
@@ -57,6 +57,7 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
           <Select placeholder="Select a game type">
             <Option value="FLASHCARDS">Flashcards</Option>
             <Option value="TRANSLATIONS">Translations</Option>
+            <Option value="CONJUGATIONS">Conjugations</Option>
           </Select>
         </Form.Item>
 

@@ -18,14 +18,14 @@
     <label class="label">
         <span>Prompt</span>
         <p class="">
-            {$store.instructions.spoken}
+            {$store.instruction.spoken}
         </p>
     </label>
 
     <label class="label">
         <span>Expected:</span>
         <p class="">
-            {$store.feedback ? $store.feedback.correction : $store.instructions.learning}
+            {$store.feedback ? $store.feedback.correction : $store.instruction.learning}
         </p>
     </label>
     <label class="label">
@@ -40,7 +40,8 @@
             {#if $store.loading}
                 <Loader />
             {:else}
-                <button class="btn variant-ghost" on:click={getFeedback}>Detailed Feedback</button>
+                <div />
+                <!-- <button class="btn variant-ghost" on:click={getFeedback}>Detailed Feedback</button> -->
             {/if}
         </div>
     {:else}
@@ -66,22 +67,6 @@
         </label>
     {/if}
 </div>
-<style lang="postcss">
-    .review label {
-        @apply block mt-4;
-    }
-    .review label span {
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        line-height: 1rem;
-    }
-
-    .review label p {
-        font-size: 1.25rem;
-        /* font-weight: 400; */
-        /* @apply ;  */
-    }
-</style>
 
 <!--     <FlexContainer direction="col" classes=" mx-12 my-8"> -->
 <!--         <FlexItem classes="mb-6"> -->
@@ -136,3 +121,20 @@
 <!--             {/if} -->
 <!--         {/if} -->
 <!--     </FlexContainer> -->
+
+<style lang="postcss">
+    .review label {
+        @apply block mt-4;
+    }
+    .review label span {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
+
+    .review label p {
+        font-size: 1.25rem;
+        /* font-weight: 400; */
+        /* @apply ;  */
+    }
+</style>

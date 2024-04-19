@@ -49,8 +49,11 @@ const makeInstructions = async ({
             .eq("strategyId", strategyId)
             .eq("userId", userId);
 
-        queue.map(({ data }) => data.payload.blacklist.forEach((id) => blacklist.push(id)));
-
+        queue.map(({ data }) => {
+            Object.keys(data.blacklist).forEach((key) =>
+                blacklist[key].push(...data.blacklist[key])
+            );
+        });
         strategy.Units = strategy._StrategyToUnit.map(({ Unit }) => {
             Unit.Memory = Unit.Memory.filter((m) => !m.Tag)[0];
 
@@ -77,6 +80,7 @@ const makeInstructions = async ({
         delete strategy._StrategyToUnit;
         delete strategy._StrategyToTag;
         delete strategy._StrategyToGame;
+
         locals.Mustache = Mustache;
 
         const context = {
@@ -102,6 +106,13 @@ const makeInstructions = async ({
         }
 
         const end = performance.now();
+        // console.log(
+        //     instructions
+        //         .map((i) => {
+        //             if (i.type === "TRANSLATIONS") return i.instruction;
+        //         })
+        //         .filter((n) => n)[0]
+        // );
         console.log(`PROVISIONING ${instructions.length}  took ${(end - start) / 1000} seconds`);
         return instructions;
     } catch (error) {

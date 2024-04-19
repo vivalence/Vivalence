@@ -29,6 +29,7 @@ BEGIN
         SELECT 1
         FROM "Memory" m
         WHERE m."unitId" = u.id
+        AND m."tagId" IS NULL
         AND m."userId" = auth.uid()::text
         AND m."status" IN ('KNOWN', 'GRADUATED')
     )
@@ -74,6 +75,7 @@ BEGIN
         SELECT 1
         FROM "Memory" m
         WHERE m."unitId" = u.id
+        AND m."tagId" IS NULL
         AND m."userId" = auth.uid()::text
         AND m."status" IN ('KNOWN', 'GRADUATED')
     )
