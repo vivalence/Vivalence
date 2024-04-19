@@ -10,7 +10,12 @@ const Prompt = {
     language: { spoken: "english", learning: "spanish" },
     // provider: { api: "openai", model: "gpt-3.5-turbo" },
     // provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
-    provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
+    provider: {
+        api: "anthropic",
+        model: "claude-3-haiku-20240307",
+        max_tokens: 256,
+        temperature: 0.3
+    },
     // provider: { api: "anyscale", model: "mistralai/Mixtral-8x7B-Instruct-v0.1" },
     // provider: { api: "groq", model: "mixtral-8x7b-32768", temperature: 0.2 },
     schema: {
@@ -79,7 +84,7 @@ export async function POST({ fetch, locals, request }) {
         const learning = sentence.learning;
         const tokens = payload.tokens.filter((token) => token.unit);
 
-        const promises = [];
+        const promises = []; // lol. unused
         tokens.map(async (token, i) => {
             const learningTagged = wrapTextWithTag(
                 learning,
@@ -138,7 +143,7 @@ export async function POST({ fetch, locals, request }) {
                     const [type, id] = key.split(":");
                     const evaluation = data[key];
                     if (evaluation.status === "NEUTRAL") continue;
-                    console.log("evaluation", token.token, key, evaluation);
+                    // console.log("evaluation", token.token, key, evaluation);
 
                     let response;
                     if (type === "Unit") {

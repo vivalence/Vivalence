@@ -12,6 +12,12 @@ export const predictNextReviewTime = (model) => {
 
 export const modelToPercentileDecay = ebisu.modelToPercentileDecay;
 export const predictRecall = ebisu.predictRecall;
+
+export const predictRecallNow = (model, lastSeen) => {
+    const hoursDifference = (new Date() - new Date(lastSeen)) / (1000 * 60 * 60);
+    return ebisu.predictRecall(model, hoursDifference);
+};
+
 export default ebisu;
 
 export const initiateModel = (response) => {

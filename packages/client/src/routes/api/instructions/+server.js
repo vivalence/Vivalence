@@ -11,57 +11,49 @@ export async function POST({ locals, params, request }) {
         const session = await locals.getSession();
         if (!session) throw redirect(307, "/auth");
 
-        const { strategyId, take, blacklist } = await request.json();
+        const { strategyId, take, blacklist = {} } = await request.json();
         const userId = session.user.id;
 
-        // console.log(`[/api/instructions]`, take, strategyId, userId);
+        blacklist.units = blacklist.units || [];
+        blacklist.tags = blacklist.tags || [];
+        blacklist.instructions = blacklist.instructions || [];
 
-        const pendingRequest = await locals.supabase
+        const nextInstructions = await locals.supabase
             .from("Queue")
             .select("*")
+            .not("id", "in", `(${blacklist.instructions.join(",")})`)
             .eq("userId", userId)
             .eq("strategyId", strategyId)
-            .eq("status", "PENDING")
             .order("createdAt", { ascending: true })
             .order("index", { ascending: true })
             .limit(take);
 
-        if (pendingRequest.error) {
-            console.error("Error retrieving the oldest pending entry:", pendingRequest.error);
-            throw pendingRequest.error;
+        if (nextInstructions.error) {
+            console.error("Error retrieving the oldest pending entry:", nextInstructions.error);
+            throw nextInstructions.error;
         }
-        if (pendingRequest.data.length === 0) {
+        if (nextInstructions.data.length < take) {
+            // console.log("nextInstructions.data.length < take", nextInstructions.data.length, take);
             provisionInstructions({ strategyId, userId, blacklist, locals });
             return json({ status: 202 });
         }
-        const queueItems = pendingRequest.data;
-
-        if (!SYSTEM_MODE || +SYSTEM_MODE >= 1) {
-            for (const queueItem of queueItems) {
-                const update = await locals.supabase
-                    .from("Queue")
-                    .update({ status: "PROCESSING" })
-                    .eq("id", queueItem.id);
-
-                if (update.error) {
-                    console.error("Error retrieving the oldest pending entry:", update.error);
-                    throw update.error;
-                }
-            }
-        }
+        const queueItems = nextInstructions.data;
+        blacklist.instructions.push(...queueItems.map((u) => u.id));
 
         const count = await locals.supabase
             .from("Queue")
             .select("id", { count: "exact" })
             .eq("userId", userId)
             .eq("strategyId", strategyId)
-            .eq("status", "PENDING");
+            .not("id", "in", `(${blacklist.instructions.join(",")})`);
+
+        // console.log("count.count < PROVISION_THRESHOLD", count.count, PROVISION_THRESHOLD);
 
         if (count.error) {
             console.error("Error retrieving the oldest pending entry:", count.error);
             throw count.error;
         } else if (count.count < PROVISION_THRESHOLD) {
-            provisionInstructions({ userId, strategyId, blacklist, params, locals });
+            provisionInstructions({ userId, strategyId, blacklist, locals });
         }
 
         return json({ instructions: queueItems, status: 200 });

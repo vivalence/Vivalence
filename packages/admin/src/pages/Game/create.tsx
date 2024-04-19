@@ -44,6 +44,7 @@ export const GameCreate: React.FC<IResourceComponentsProps> = () => {
           <Select placeholder="Select a game type" >
             <Option value="FLASHCARDS">Flashcards</Option>
             <Option value="TRANSLATIONS">Translations</Option>
+            <Option value="CONJUGATIONS">Conjugations</Option>
           </Select>
         </Form.Item>
 

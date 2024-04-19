@@ -1,5 +1,4 @@
 import { json } from "@sveltejs/kit";
-
 import supabase from "$lib/server/supabase.js";
 
 export const handle = async ({ event, resolve }) => {
@@ -28,6 +27,7 @@ export const handle = async ({ event, resolve }) => {
 
     event.locals.getSession = async () => {
         const { data } = await event.locals.supabase.auth.getSession();
+        // console.log(data);
         return data.session;
     };
 

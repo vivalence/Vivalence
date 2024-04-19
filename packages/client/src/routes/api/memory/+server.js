@@ -66,6 +66,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
 
             const history = [...memory.history, { gameType, response, model, nextPlay, date: now }];
             const status = getStatus(nextReviewIn, history);
+            // console.log("memory", unitId, response, status, nextPlay, nextReviewIn);
 
             const { data: updatedMemory, error } = await supabase
                 .from("Memory")
@@ -99,37 +100,35 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
 }
 
 const getStatus = (nextReviewIn, history) => {
-    // Helper function to check the last N responses in history
     const checkLastResponses = (n, condition) => {
         const recentResponses = history.slice(-n).map((entry) => entry.response);
         return recentResponses.every((response) => condition.includes(response));
     };
 
-    // Calculate conditions for the responses
     const isUnknown = nextReviewIn < 1 || checkLastResponses(3, ["UNKNOWN"]);
-    const isLearning = nextReviewIn >= 1 && nextReviewIn <= 24 * 7;
-    const isKnown = nextReviewIn > 24 * 7 && checkLastResponses(3, ["KNOWN", "GRADUATED"]);
-    const isGraduated = nextReviewIn > 24 * 14 && checkLastResponses(5, ["KNOWN", "GRADUATED"]);
+    const isLearning = nextReviewIn >= 1;
+    const isKnown = nextReviewIn > 24 * 7 && checkLastResponses(3, ["KNOWN", "GRADUATE"]);
+    const isGraduated = nextReviewIn > 24 * 14 && checkLastResponses(5, ["KNOWN", "GRADUATE"]);
 
-    // Determine status based on conditions
+    // @lj dont change order
     if (isUnknown) {
         return "UNKNOWN";
-    } else if (isLearning) {
-        return "LEARNING";
     } else if (isGraduated) {
         return "GRADUATED";
     } else if (isKnown) {
         return "KNOWN";
+    } else if (isLearning) {
+        return "LEARNING";
     }
 
     return "UNKNOWN";
 };
 
-// // Example usage
+// // // Example usage
 // const history = [
-//   { response: "KNOWN", date: new Date() },
-//   { response: "GRADUATED", date: new Date() },
-//   { response: "KNOWN", date: new Date() }
+//     { response: "KNOWN", date: new Date() },
+//     { response: "GRADUATED", date: new Date() },
+//     { response: "KNOWN", date: new Date() }
 // ];
 
-// console.log(getStatus(15 * 24, history)); // Test with nextReviewIn in hours
+// console.log("hi", getStatus(751.8439344719621, history));

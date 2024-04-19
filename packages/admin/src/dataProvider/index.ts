@@ -1,6 +1,18 @@
 // @ts-nocheck
 import { dataProvider as baseDataProvider } from "@refinedev/supabase";
+// import crypto from "crypto";
 import { supabaseClient } from "../utility/supabaseClient";
+
+const hashString = async (str) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    const hash = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hash))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+};
+
+// const hashString = (str) => {const hash = createHash("sha256"); hash.update(str); return hash.digest("hex");};
 
 const MAX_AGE = 1000 * 60 * 60 * 24; // 24 hours
 const Cache = new Map();
@@ -27,11 +39,16 @@ export default (supabaseClient) => {
         ...baseData,
         default: baseData,
         getList: async (params) => {
-            const list = await getData(`${params.resource}-list`, () =>
+            const key = JSON.stringify({
+                filter: params.filter,
+                sort: params.sort,
+                resource: params.resource,
+                sorters: params.sorters,
+                pagination: params.pagination,
+            });
+            const list = await getData(hashString(`${params.resource}-${key}`), () =>
                 baseData.getList(params),
             );
-            // console.log("params", params);
-            // console.log("list", list);
             return list;
         },
         //     if (params.resource === "Tag") {const { data: units, error: errorUnit } = await supabaseClient .from("_TagToUnit") .select(`*, Unit:Unit(*)`) .eq("A", oneResource.data.id) .count(); console.log("tag", list); console.log("units", units); const ids = list.data.map((item) => item.id); const { data, error } = await supabaseClient .from("auth_users") .select("id, email") .in("id", ids); if (error) return list; const mergedList = list.data.map((item) => {const additionalDetails = data.find((d) => d.id === item.id); return { ...item, ...additionalDetails };}); return list; // , data: { units } };} else {console.log("list", list); return list;}},

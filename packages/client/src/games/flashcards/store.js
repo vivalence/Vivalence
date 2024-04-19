@@ -6,7 +6,7 @@ function createFlashcardStore() {
         loading: true,
         revealed: false,
         payload: null,
-        instructions: null,
+        instruction: null,
         onFinish: null
     });
 
@@ -20,7 +20,7 @@ function createFlashcardStore() {
 
             onFinish({ response, payload });
 
-            Global.post("/api/games/flashcards/review", {
+            Global.post("/api/games/flashcards/evaluate", {
                 unitId: payload.unitId,
                 gameId: payload.gameId,
                 response

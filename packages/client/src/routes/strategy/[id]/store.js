@@ -18,28 +18,41 @@ function createInstructionStore() {
 
     const getBlacklist = () => {
         const store = get(Store);
-        const blacklist = [
-            store.active?.data.payload.blacklist,
-            ...store.queue?.map((i) => i.data.payload.blacklist)
-        ]
-            .flat()
-            .filter((item) => !!item);
+        const blacklist = {
+            units: [],
+            tags: [],
+            instructions: []
+        };
+        [store.active, ...store.queue]
+            .filter((x) => x)
+            .forEach((item) => {
+                blacklist.units.push(...item.data.blacklist.units);
+                blacklist.tags.push(...item.data.blacklist.tags);
+                blacklist.instructions.push(item.id);
+            });
 
+        blacklist.units = blacklist.units.flat().filter((x) => x);
+        blacklist.tags = blacklist.tags.flat().filter((x) => x);
         return blacklist;
     };
 
     const fetchInstructions = async (take = QUEUE_THRESHOLD) => {
         const blacklist = getBlacklist();
         const input = { take, blacklist, strategyId };
-        const response = await Global.post(`/api/instructions`, input);
-        // console.log("response /api/instructions", response);
+        // 3 times do the same thing
+        let response;
+        for (let i = 0; i < 3; i++) {
+            response = await Global.post(`/api/instructions`, input);
+            if (response.error === 500) await new Promise((resolve) => setTimeout(resolve, 500));
+            else break;
+        }
+
         const { instructions = [], error, status } = response;
         return { instructions, error, status };
     };
 
     const fillQueue = async () => {
         const { active, queue, status } = get(Store);
-        // console.log(`SSTORE queue length: ${queue.length} | fetching: ${queue.length <= QUEUE_THRESHOLD} | has active: ${!!active} `);
 
         if (queue.length <= QUEUE_THRESHOLD) {
             Store.update((s) => ({ ...s, status: 202 }));
@@ -60,26 +73,40 @@ function createInstructionStore() {
         });
     };
 
+    const reset = () => {
+        Store.update((store) => {
+            return {
+                active: null,
+                queue: [],
+                status: null,
+                error: null,
+                onFinish: null
+            };
+        });
+    };
+
+    const init = async (params) => {
+        fetch = params.fetch;
+        if (params.strategyId !== strategyId) reset();
+        strategyId = params.strategyId;
+        fillQueue();
+    };
+
     return {
         ...Store,
-        init: async (params) => {
-            strategyId = params.strategyId;
-            fetch = params.fetch;
-            fillQueue();
-        },
+        init,
         load: () => {
             activate();
             fillQueue();
         },
-        next: () => {
+        next: async () => {
             const queueId = get(Store).active?.id;
 
             activate();
-            fillQueue();
 
-            Global.delete(`/api/instructions`, { queueId }).catch((error) =>
-                console.error("ERROR /api/instructions DELETE", error)
-            );
+            await Global.delete(`/api/instructions`, { queueId });
+
+            fillQueue();
         }
     };
 }

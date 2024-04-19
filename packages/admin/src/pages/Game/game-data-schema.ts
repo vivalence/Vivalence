@@ -74,9 +74,33 @@ const GameTranslationsDataSchema: RJSFSchema = {
     },
 };
 
+const GameConjugationsUiSchema: UiSchema = {
+    innerPrompt: { text: Fields.HandlebarsField },
+};
+
+const GameConjugationsDataSchema: RJSFSchema = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    properties: {
+        innerPrompt: {
+            type: "object",
+            title: "",
+            properties: {
+                text: {
+                    type: "string",
+                    title: "Inner Prompt",
+                    description:
+                        "Specifics instructions for sentence generation instructions",
+                },
+            },
+        },
+    },
+};
+
 interface ExportedConfig {
     FLASHCARDS: JsonFieldSchema;
     TRANSLATIONS: JsonFieldSchema;
+    CONJUGATIONS: JsonFieldSchema;
 }
 
 const config: ExportedConfig = {
@@ -87,6 +111,10 @@ const config: ExportedConfig = {
     TRANSLATIONS: {
         data: GameTranslationsDataSchema,
         ui: GameTranslationsUiSchema,
+    },
+    CONJUGATIONS: {
+        data: GameConjugationsDataSchema,
+        ui: GameConjugationsUiSchema,
     },
 };
 

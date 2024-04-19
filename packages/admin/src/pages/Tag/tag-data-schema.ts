@@ -3,11 +3,12 @@
 import { RJSFSchema, UiSchema } from "@rjsf/core";
 import { Fields, type JsonFieldSchema } from "$components/json-field/index";
 
-type TagType = ("STRUCTURAL" | "ONTOLOGICAL" | "LEARNABLE")[];
+type TagType = ("STRUCTURAL" | "ONTOLOGICAL" | "LEARNABLE" | "COMPLETABLE")[];
 
 const TagOntologicalUiSchema: UiSchema = {};
 const TagLearnableUiSchema: UiSchema = {};
 const TagStructuralUiSchema: UiSchema = {};
+const TagCompletableUiSchema: UiSchema = {};
 
 const TagOntologicalDataSchema: RJSFSchema = {
     $schema: "http://json-schema.org/draft-07/schema#",
@@ -36,11 +37,17 @@ const TagStructuralDataSchema: RJSFSchema = {
     type: "object",
     properties: {},
 };
+const TagCompletableDataSchema: RJSFSchema = {
+    $schema: "http://json-schema.org/draft-07/schema#",
+    type: "object",
+    properties: {},
+};
 
 interface ExportedConfig {
     STRUCTURAL: JsonFieldSchema;
     LEARNABLE: JsonFieldSchema;
     ONTOLOGICAL: JsonFieldSchema;
+    COMPLETABLE: JsonFieldSchema;
 }
 
 const config: ExportedConfig = {
@@ -55,6 +62,10 @@ const config: ExportedConfig = {
     STRUCTURAL: {
         data: TagStructuralDataSchema,
         ui: TagStructuralUiSchema,
+    },
+    COMPLETABLE: {
+        data: TagCompletableDataSchema,
+        ui: TagCompletableUiSchema,
     },
 };
 

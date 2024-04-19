@@ -65,27 +65,23 @@ async function findUnit(annotation, { supabase, getSession }) {
             .eq("Memory.userId", userId)
             .filter("Memory.tagId", "is", null);
 
-        let filterTags = [annotation.upos];
+        let filterTags = [];
         if (["VERB", "AUX"].includes(annotation.upos)) {
-            //     query = query
-            //         .filter("_TagToUnit.Tag.data->>branch", "eq", "VerbForm")
-            //         .filter("_TagToUnit.Tag.data->>leaf", "eq", annotation.feats.VerbForm);
-            //     if (annotation.feats.Tense) {
-            //         query = query
-            //             .filter("_TagToUnit.Tag.data->>branch", "eq", "Tense")
-            //             .filter("_TagToUnit.Tag.data->>leaf", "eq", annotation.feats.Tense);
-            //         // .eq("data->>spanish", annotation.token)
-            //         // .eq("data->>mood", annotation.feats.ENUM.mood)
-            //         // .eq("data->ud->feats->>Tense", annotation.feats.Tense);
-            //     }
+            filterTags.push(annotation.feats.VerbForm);
+            if (annotation.feats.Tense) filterTags.push(annotation.feats.Tense);
+            if (annotation.feats.Number) filterTags.push(annotation.feats.Number);
+            if (annotation.feats.Person) filterTags.push(annotation.feats.Person);
         } else if (["NOUN", "PROPN"].includes(annotation.upos)) {
-            filterTags.push(...[annotation.feats.Number, annotation.feats.Gender]);
+            filterTags.push(...[annotation.upos, annotation.feats.Number]);
+            if (annotation.feats.Gender) filterTags.push(annotation.feats.Gender);
         } else if (["ADJ"].includes(annotation.upos)) {
-            filterTags.push(...[annotation.feats.Number]);
+            filterTags.push(...[annotation.upos, annotation.feats.Number]);
             if (annotation.feats.Gender) filterTags.push(annotation.feats.Gender);
         } else if (["DET"].includes(annotation.upos)) {
             const feats = annotation.feats;
-            filterTags.push(...[feats.Number, feats.Gender, feats.PronType, feats.Definite]);
+            filterTags.push(
+                ...[annotation.upos, feats.Number, feats.Gender, feats.PronType, feats.Definite]
+            );
         }
 
         query = query
@@ -97,23 +93,22 @@ async function findUnit(annotation, { supabase, getSession }) {
 
         unit = data.find((u) => u._TagToUnit.length === filterTags.length);
 
-        unit.Tags = unit._TagToUnit.map(({ Tag }) => {
-            Tag.Memory = Tag.Memory && Tag.Memory.length > 0 ? Tag.Memory[0] : null;
-            return Tag;
-        });
+        if (unit) {
+            unit.Tags = unit._TagToUnit.map(({ Tag }) => {
+                Tag.Memory = Tag.Memory && Tag.Memory.length > 0 ? Tag.Memory[0] : null;
+                return Tag;
+            });
 
-        unit.Memory = unit.Memory && unit.Memory.length > 0 ? unit.Memory[0] : null;
+            unit.Memory = unit.Memory && unit.Memory.length > 0 ? unit.Memory[0] : null;
 
-        delete unit._TagToUnit;
-
-        // console.log("/api/nlp Unit ", JSON.stringify(unit, null, 2));
+            delete unit._TagToUnit;
+        }
 
         return unit;
     } catch (error) {
-        console.error("[NLPU ERROR /api/nlp] Error fetching unit:", error.message);
+        console.error("\n[NLP ERROR /api/nlp] Error fetching unit:\n", error.message);
         console.log("Annotation:\n", annotation);
-        console.error(error);
-        // console.log("query:\n", query);
+        console.error(error, "\n");
         return { error };
     }
 }
