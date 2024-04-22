@@ -4,7 +4,8 @@ import { json } from "@sveltejs/kit";
 import provisionInstructions from "./lib/provision";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms * 1000));
-const PROVISION_THRESHOLD = 8;
+
+const PROVISION_THRESHOLD = 5;
 
 export async function POST({ locals, params, request }) {
     try {

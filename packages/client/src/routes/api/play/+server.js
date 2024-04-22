@@ -14,9 +14,12 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
             .from("Play")
             .select("*")
             .eq("memoryId", memoryId)
-            .eq("unitId", unitId)
             .eq("gameId", gameId)
             .eq("userId", user.id);
+
+        if (unitId) query = query.eq("unitId", unitId);
+        else query = query.filter("unitId", "is", null);
+
         if (tagId) query = query.eq("tagId", tagId);
         else query = query.filter("tagId", "is", null);
 
@@ -41,7 +44,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
                     }
                 ])
                 .single()
-                .select("id");
+                .select("id, nextPlay");
 
             if (createError) throw createError;
 
@@ -61,8 +64,8 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
                     updatedAt: now
                 })
                 .eq("id", play.id)
-                .single()
-                .select();
+                .select("id, nextPlay")
+                .single();
 
             if (updateError) throw updateError;
 

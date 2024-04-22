@@ -34,8 +34,9 @@ export async function GET({ fetch, locals, ...props }) {
 }
 
 export async function POST({ fetch, locals: { supabase, post }, request }) {
+    const params = await request.json();
     try {
-        const { gameId, gameType, tagId, unitId, response } = await request.json();
+        const { gameId, gameType, tagId, unitId, response } = params;
 
         const { data: memoryData, error: memoryError } = await post("/api/memory", {
             gameId,
@@ -58,15 +59,6 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
 
         const { data: tag } = await supabase.from("Tag").select("data").eq("id", tagId).single();
 
-        // console.log(
-        //     "tag ",
-        //     tag.name,
-        //     memoryData.memory.status,
-        //     `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`,
-        //     memoryData.memoryStatusChange ? "status change" : "no change",
-        //     response
-        // );
-
         if (playError) throw playError;
 
         return json({
@@ -74,8 +66,9 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
             status: 200
         });
     } catch (err) {
-        console.error(`ERROR /api/units POST:`, err.message);
+        console.error(`ERROR /api/tags POST:`, err.message);
         console.error(err);
+        console.error(params);
         return json({ status: 500, error: err });
     }
 }

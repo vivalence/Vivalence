@@ -25,11 +25,11 @@ const Prompt = {
         required: ["confidence", "status"]
     },
     template: `Evaluate this conjugation of {{{verb}}} from {{language.spoken}} to {{language.learning}} and return JSON:
-tense: {{{tense}}}
-person: {{{person}}} {{{number}}}
-prompt: {{{spoken}}}
-user input: {{{input}}}
-correct: {{{learning}}}`
+tense: "{{{tense}}}"
+person: "{{{person}}} {{{number}}}"
+prompt: "{{{spoken}}}"
+user input: "{{{input}}}"
+correct: "{{{learning}}}"`
 };
 
 export async function POST({ fetch, locals, request }) {
@@ -97,10 +97,10 @@ export async function POST({ fetch, locals, request }) {
             }, 0),
             results.length
         ];
-        console.log("EVALUATIONS", evaluations);
 
         // should be returned to client
-        for (const tagId in Object.keys(payload.tags)) {
+        for (const key of Object.keys(payload.tags)) {
+            const tagId = payload.tags[key];
             const result = await locals.post("/api/tags", {
                 gameId: payload.gameId,
                 gameType: "CONJUGATIONS",
