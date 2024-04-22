@@ -66,9 +66,9 @@ const makeInstructions = async ({
         });
 
         strategy.Tags = strategy._StrategyToTag.map(({ Tag }) => {
-            Tag.Memory = Tag.Memory.filter((m) =>
-                strategy.Units.map((u) => u.id).includes(m.Unit.id)
-            ).map((m) => {
+            Tag.Memory = Tag.Memory.filter((m) => {
+                return strategy.Units.map((u) => u.id).includes(m.Unit && m.Unit.id);
+            }).map((m) => {
                 m.strength = ebisu.predictRecall(m.state, new Date() - new Date(m.lastSeen));
                 return m;
             });

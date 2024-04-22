@@ -13,8 +13,11 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
         let query = supabase
             .from("Memory")
             .select("id, unitId, tagId, userId, state, status, lastSeen, history")
-            .eq("unitId", unitId)
             .eq("userId", user.id);
+
+        if (unitId) query = query.eq("unitId", unitId);
+        else query = query.filter("unitId", "is", null);
+
         if (tagId) query = query.eq("tagId", tagId);
         else query = query.filter("tagId", "is", null);
 
@@ -47,7 +50,7 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
                     }
                 ])
                 .single()
-                .select("id, state, lastSeen");
+                .select("id, state, status, lastSeen");
 
             if (error) throw error;
             return json({

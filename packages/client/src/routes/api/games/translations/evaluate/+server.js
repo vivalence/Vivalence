@@ -84,89 +84,80 @@ export async function POST({ fetch, locals, request }) {
         const learning = sentence.learning;
         const tokens = payload.tokens.filter((token) => token.unit);
 
-        const promises = []; // lol. unused
-        tokens.map(async (token, i) => {
-            const learningTagged = wrapTextWithTag(
-                learning,
-                token.start_char,
-                token.end_char,
-                "PART"
-            );
+        const promises = [];
+        for (const [i, token] of tokens.entries()) {
+            promises.push(
+                (async (token, i) => {
+                    const learningTagged = wrapTextWithTag(
+                        learning,
+                        token.start_char,
+                        token.end_char,
+                        "PART"
+                    );
 
-            const part = {
-                id: token.unit.id,
-                spoken: token.unit.data[language.spoken],
-                learning: token.unit.data[language.learning],
-                token: token.token,
-                tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
-                    (tag) => ({
-                        id: tag.id,
-                        branch: tag.data.ONTOLOGICAL.branch,
-                        leaf: tag.data.ONTOLOGICAL.leaf
-                    })
-                )
-            };
+                    const part = {
+                        id: token.unit.id,
+                        spoken: token.unit.data[language.spoken],
+                        learning: token.unit.data[language.learning],
+                        token: token.token,
+                        tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
+                            (tag) => ({
+                                id: tag.id,
+                                branch: tag.data.ONTOLOGICAL.branch,
+                                leaf: tag.data.ONTOLOGICAL.leaf
+                            })
+                        )
+                    };
 
-            const prompt = Mustache.render(Prompt.template, {
-                part,
-                language,
-                sentence: {
-                    ...sentence,
-                    learning: learningTagged
-                }
-            });
+                    const prompt = Mustache.render(Prompt.template, {
+                        part,
+                        language,
+                        sentence: { ...sentence, learning: learningTagged }
+                    });
 
-            const schema = {
-                ...Prompt.schema,
-                properties: part.tags.reduce(
-                    (acc, tag) => {
-                        acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
-                        return acc;
-                    },
-                    { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
-                )
-            };
-            schema.properties.required = Object.keys(schema.properties);
+                    const schema = {
+                        ...Prompt.schema,
+                        properties: part.tags.reduce(
+                            (acc, tag) => {
+                                acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
+                                return acc;
+                            },
+                            { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
+                        )
+                    };
+                    schema.properties.required = Object.keys(schema.properties);
 
-            const input = {
-                prompt,
-                schema,
-                provider: Prompt.provider
-            };
+                    const input = { prompt, schema, provider: Prompt.provider };
 
-            const { data, error } = await locals.get("/api/llm", input);
+                    const { data, error } = await locals.get("/api/llm", input);
 
-            if (error) console.error(error);
-            else {
-                // console.log("data", data);
-                for (const key in data) {
-                    const [type, id] = key.split(":");
-                    const evaluation = data[key];
-                    if (evaluation.status === "NEUTRAL") continue;
-                    // console.log("evaluation", token.token, key, evaluation);
-
-                    let response;
-                    if (type === "Unit") {
-                        response = await locals.post("/api/units", {
-                            gameId,
-                            gameType: "TRANSLATIONS",
-                            unitId: id,
-                            response: evaluation.status
-                        });
-                    } else if (type === "Tag") {
-                        response = await locals.post("/api/tags", {
-                            gameId,
-                            gameType: "TRANSLATIONS",
-                            unitId: token.unit.id,
-                            tagId: id,
-                            response: evaluation.status
-                        });
+                    if (error) return { error };
+                    for (const key in data) {
+                        const [type, id] = key.split(":");
+                        const evaluation = data[key];
+                        if (evaluation.status === "NEUTRAL") continue;
+                        let response;
+                        if (type === "Unit") {
+                            response = await locals.post("/api/units", {
+                                gameId,
+                                gameType: "TRANSLATIONS",
+                                unitId: id,
+                                response: evaluation.status
+                            });
+                        } else if (type === "Tag") {
+                            response = await locals.post("/api/tags", {
+                                gameId,
+                                gameType: "TRANSLATIONS",
+                                unitId: token.unit.id,
+                                tagId: id,
+                                response: evaluation.status
+                            });
+                        }
+                        return { data };
                     }
-                    // console.log("response", JSON.stringify(response, null, 2));
-                }
-                return json({ data, error });
-            }
-        });
+                })(token, i)
+            );
+        }
         const results = await Promise.all(promises);
         return json({
             data: results.map((r) => r.data),
