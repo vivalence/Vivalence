@@ -30,7 +30,6 @@
                 );
                 if (error) throw error;
 
-
                 const statistics = data.reduce(
                     (
                         acc,
@@ -59,7 +58,7 @@
                 }
 
                 const result = Object.keys(chartMapping).map((key, index) => ({
-                    label: chartMapping[key].label,
+                    label: `${statistics[key]} ${chartMapping[key].label}`,
                     number: statistics[key],
                     index: index,
                     class: chartMapping[key].class,
@@ -76,7 +75,6 @@
             Statistics.update((s) => ({ ...s, [strategy.id]: stats }));
         }
     });
-
 </script>
 
 <div class="container mx-auto mt-20 sm:px-20 md:px-40 xl:px-80">
