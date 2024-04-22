@@ -34,7 +34,7 @@
     }
 </script>
 
-<section class="container mx-auto sm:px-6 md:px-20 mt-20 pb-10">
+<section class="container mx-auto sm:px-6 md:px-20 mt-12 mb-20">
     <div class="card variant-soft px-12 pt-6 pb-10 rounded-container-token">
         {#if $store.instruction}
             <Prompt />

@@ -22,45 +22,59 @@ export default ebisu;
 
 export const initiateModel = (response) => {
     let defaultModel = {};
-    switch (response) {
-        case "GRADUATE":
-            defaultModel.tau = 24;
-            break;
-        case "KNOWN":
-            defaultModel.tau = 3.4;
-            break;
-        case "UNKNOWN":
+    if (typeof response === "string") {
+        switch (response) {
+            case "GRADUATE":
+                defaultModel.tau = 24;
+                break;
+            case "KNOWN":
+                defaultModel.tau = 3.4;
+                break;
+            case "UNKNOWN":
+                defaultModel.tau = 0.26;
+                break;
+            default:
+                throw new Error(`Invalid response: ${response}`);
+        }
+    } else if (Array.isArray(response) && response.length === 2) {
+        const ratio = response[0] / response[1];
+        if (ratio === 1) {
+            defaultModel.tau = 8;
+        } else if (ratio > 0.8) {
+            defaultModel.tau = 2.4;
+        } else {
             defaultModel.tau = 0.26;
-            break;
-        default:
-            throw new Error(`Invalid response: ${response}`);
+        }
     }
     return getDefaultModel(defaultModel);
 };
 export const updateModel = (model, response, elapsedTime) => {
     try {
-        switch (response) {
-            case "GRADUATE":
-                model = ebisu.updateRecall(model, 1, 1, elapsedTime);
-                model = ebisu.rescaleHalflife(model, 5);
-                break;
-            case "KNOWN":
-                model = ebisu.updateRecall(model, 1, 1, elapsedTime);
-                break;
-            case "UNKNOWN":
-                model = ebisu.updateRecall(model, 0, 1, elapsedTime);
-                break;
-            default:
-                throw new Error(`Invalid response: ${response}`);
+        if (typeof response === "string") {
+            switch (response) {
+                case "GRADUATE":
+                    model = ebisu.updateRecall(model, 1, 1, elapsedTime);
+                    model = ebisu.rescaleHalflife(model, 4);
+                    break;
+                case "KNOWN":
+                    model = ebisu.updateRecall(model, 1, 1, elapsedTime);
+                    break;
+                case "UNKNOWN":
+                    model = ebisu.updateRecall(model, 0, 1, elapsedTime);
+                    break;
+                default:
+                    throw new Error(`Invalid response: ${response}`);
+            }
+        } else if (Array.isArray(response) && response.length === 2) {
+            model = ebisu.updateRecall(model, response[0], response[1], elapsedTime);
         }
     } catch (error) {
         console.log("\n\n\n\n\n\n\n\n");
         console.error(error);
         console.log("\n\nCONTINUING\n\n\n\n\n\n");
+    } finally {
         return model;
     }
-
-    return model;
 };
 
 // todo USE actually

@@ -62,9 +62,9 @@ model Play {
   history   Json        @default("[]")
   nextPlay  DateTime
   lastPlay  DateTime
-  unit      Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId    String
-  tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  unit      Unit?       @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId    String?
+  tag       Tag?        @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId     String?
   game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
@@ -90,10 +90,10 @@ model Memory {
   state     Json             @default("{}")
   lastSeen  DateTime?
   history   Json             @default("[]")
-  unit      Unit             @relation(fields: [unitId], references: [id], onDelete: Cascade)
   tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId     String?
-  unitId    String
+  unit      Unit?            @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId    String?
   user      AppUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   plays     Play[]
