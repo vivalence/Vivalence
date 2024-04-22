@@ -89,6 +89,27 @@ export async function POST({ fetch, locals, request }) {
         }
 
         const results = await Promise.all(promises);
+
+        const evaluations = [
+            results.reduce((acc, r) => {
+                if (r.data && ["KNOWN", "GRADUATE"].includes(r.data.evaluation)) acc += 1;
+                return acc;
+            }, 0),
+            results.length
+        ];
+        console.log("EVALUATIONS", evaluations);
+
+        // should be returned to client
+        for (const tagId in Object.keys(payload.tags)) {
+            const result = await locals.post("/api/tags", {
+                gameId: payload.gameId,
+                gameType: "CONJUGATIONS",
+                tagId: tagId,
+                response: evaluations
+            });
+            results.push(result);
+        }
+
         return json({
             data: results.map((r) => r.data),
             error: results.find((r) => r.error),
