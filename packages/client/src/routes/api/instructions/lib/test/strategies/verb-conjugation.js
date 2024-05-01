@@ -199,7 +199,6 @@ export default async ({ locals, strategy, context }) => {
 
         const maskFlashcards = (flashcardsMask, { data, ...unit }) => {
             const mask = flashcardsMask[unit.corpusType];
-            // console.log('make flashcard', {...unit,data})
             const { Person, Number, Tense } = data.ud.feats;
             const frontFooter = `${Tense} - ${Person} Person ${Number}`;
             const maskData = {
@@ -222,8 +221,8 @@ export default async ({ locals, strategy, context }) => {
 
         // TODO: filter by memory
         for (const conjugation of conjugations) {
-            // console.log('conjugation',conjugation)
             const unit = conjugation.payload.unit;
+
             instructions.unshift({
                 type: "FLASHCARDS",
                 instruction: maskFlashcards(flashcardsGame.data, unit),

@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "dev": "refine dev --port 5173",
+    "build": "refine build",
+    "preview": "refine start",
+    "refine": "refine"
+  },
   "dependencies": {
     "@ant-design/icons": "5.0.1",
     "@monaco-editor/react": "^4.6.0",
@@ -44,12 +50,6 @@
   },
   "optionalDependencies": {
     "inotify": "1.4.6"
-  },
-  "scripts": {
-    "dev": "refine dev",
-    "build": "refine build",
-    "preview": "refine start",
-    "refine": "refine"
   },
   "browserslist": {
     "production": [

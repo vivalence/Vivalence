@@ -1,0 +1,34 @@
+meta {
+  name: Games:Flashcards:Generate:fromTagIds
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:5174/api/games/flashcards/generate/fromTagIds
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "strategyId": "",
+    "gameId": "clqcr75ai0002g04mem2ugyo6",
+    "tagIds": [""],
+    "blacklist": { "units": [], "tags": [] },
+    "take": 2
+  }
+}
+
+docs {
+# Generate Flashcard Instructions 
+
+not done yet.
+i must decide how to attach tags to units.
+
+## Request
+`take` optional
+
+## Response
+
+}

@@ -49,40 +49,62 @@ Build the sentence using these constraints:
 Return a JSON object with the spoken and learning sentence.`
 };
 
-export async function GET({ fetch, locals, ...props }) {
-    try {
-        const { constraints, language, innerPrompt } = locals.params();
-        // console.log("SENTENCE GENERATION");
-        // console.log(units, language, innerPrompt);
-        // console.log(JSON.stringify(locals.params(), null, 2));
+export async function POST({ fetch, locals, ...props }) {
+    if (SYSTEM_MODE && +SYSTEM_MODE < 2) {
+        return json({
+            data: {
+                spoken: "The father should have a good new house.",
+                learning: "El padre debería tener una casa nueva buena."
+            }
+        });
+    }
 
-        if (SYSTEM_MODE && +SYSTEM_MODE < 2) {
-            console.log("STUBBING TRANSLATION GENERATION");
-            return json({
-                data: {
-                    spoken: "The father should have a good new house.",
-                    learning: "El padre debería tener una casa nueva buena."
-                }
-            });
-        }
+    try {
+        const { gameId, constraints, language } = await request.json();
+
+        const { data: game, error: gameError } = await locals.supabase
+            .from("Game")
+            .select(`*`)
+            .eq("id", gameId)
+            .single();
+        if (gameError) throw gameError;
 
         const inputs = {
             constraints,
             language,
-            innerPrompt
+            innerPrompt: game.data.innerPrompt
         };
 
-        const message = Mustache.render(gamePrompt.template, inputs);
-
-        const { data: sentences, error } = await locals.get("/api/llm", {
-            prompt: message,
+        const { data: sentence, error: llmError } = await locals.get("/api/llm", {
+            prompt: Mustache.render(gamePrompt.template, inputs),
             schema: gamePrompt.schema,
             provider: gamePrompt.provider
         });
+        if (llmError) throw llmError;
 
-        if (error) throw error;
+        const { data: nlp, error: nlpError } = await locals.get(`/api/nlp`, {
+            sentence: sentence.learning
+        });
+        if (nlpError) throw nlpError;
 
-        return json({ data: sentences, status: 200 });
+        const tokens = nlp.sentences[0].tokens.filter((token) => !!token.unit);
+
+        const instruction = {
+            type: "TRANSLATIONS",
+            instruction: sentence,
+            blacklist: { units: tokens.map(({ unit }) => unit.id), tags: [] },
+            evaluate: {
+                game: { id: gameId },
+                tokens: tokens.map((token) => ({
+                    token: token.token,
+                    start_char: token.start_char,
+                    end_char: token.end_char,
+                    unit: { id: unit.id, tags: unit.Tags.map(({ id }) => ({ id })) }
+                }))
+            }
+        };
+
+        return json({ data: instruction, status: 200 });
     } catch (error) {
         console.error("[GENERATE ERROR] /api/games/translation/generate", error.message);
         console.error(error);
