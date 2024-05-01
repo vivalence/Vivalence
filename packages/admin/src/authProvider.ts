@@ -50,8 +50,8 @@ const authProvider: AuthBindings = {
         try {
             const { data } = await supabase.auth.getSession();
             const { session } = data;
-            console.log("authprovider check session", session);
-            if (currentPath === "/login" && !session) {
+            // console.log("authprovider check session", session);
+            if (!session && currentPath.startsWith("/login")) {
                 return {
                     authenticated: true,
                 };

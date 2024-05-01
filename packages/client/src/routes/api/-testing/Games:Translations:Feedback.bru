@@ -1,0 +1,21 @@
+meta {
+  name: Games:Translations:Feedback
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://192.168.1.54:5174/api/games/translations/feedback
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "sentence": {
+      "spoken": "The father goes to the new city.",
+      "learning": "El padre va a la ciudad nueva.",
+      "translation": "el padre ves a el cuidad nuevo."
+    }
+  }
+}

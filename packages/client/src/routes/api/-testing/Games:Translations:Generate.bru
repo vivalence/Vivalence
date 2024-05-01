@@ -1,0 +1,30 @@
+meta {
+  name: Games:Translations:Generate
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://192.168.1.54:5174/api/games/translations/generate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "constraints": ["constraint 1", "2"],
+    "gameId": "ID"
+    "language": {
+      "learning": "spanish",
+      "spoken": "english"
+    },
+  }
+}
+
+docs {
+# Generate a Translation Instruction
+  
+## Response
+returns an instruction object with evaluate populated with tokens.
+
+}

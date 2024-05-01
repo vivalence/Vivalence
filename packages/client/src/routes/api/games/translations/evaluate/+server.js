@@ -76,89 +76,88 @@ Return a JSON object with the evaluation of <PART>.
 export async function POST({ fetch, locals, request }) {
     try {
         const { user } = await locals.getSession();
-        const { gameId, payload, sentence } = await request.json();
+        const { evaluate, sentence } = await request.json();
         const { language } = Prompt;
 
-        // console.log("/games/translations/evaluate", gameId, sentence);
-
-        const learning = sentence.learning;
-        const tokens = payload.tokens.filter((token) => token.unit);
-
-        const promises = [];
-        for (const [i, token] of tokens.entries()) {
-            promises.push(
-                (async (token, i) => {
-                    const learningTagged = wrapTextWithTag(
-                        learning,
-                        token.start_char,
-                        token.end_char,
-                        "PART"
-                    );
-
-                    const part = {
-                        id: token.unit.id,
-                        spoken: token.unit.data[language.spoken],
-                        learning: token.unit.data[language.learning],
-                        token: token.token,
-                        tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
-                            (tag) => ({
-                                id: tag.id,
-                                branch: tag.data.ONTOLOGICAL.branch,
-                                leaf: tag.data.ONTOLOGICAL.leaf
-                            })
-                        )
-                    };
-
-                    const prompt = Mustache.render(Prompt.template, {
-                        part,
-                        language,
-                        sentence: { ...sentence, learning: learningTagged }
-                    });
-
-                    const schema = {
-                        ...Prompt.schema,
-                        properties: part.tags.reduce(
-                            (acc, tag) => {
-                                acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
-                                return acc;
-                            },
-                            { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
-                        )
-                    };
-                    schema.properties.required = Object.keys(schema.properties);
-
-                    const input = { prompt, schema, provider: Prompt.provider };
-
-                    const { data, error } = await locals.get("/api/llm", input);
-
-                    if (error) return { error };
-                    for (const key in data) {
-                        const [type, id] = key.split(":");
-                        const evaluation = data[key];
-                        if (evaluation.status === "NEUTRAL") continue;
-                        let response;
-                        if (type === "Unit") {
-                            response = await locals.post("/api/units", {
-                                gameId,
-                                gameType: "TRANSLATIONS",
-                                unitId: id,
-                                response: evaluation.status
-                            });
-                        } else if (type === "Tag") {
-                            response = await locals.post("/api/tags", {
-                                gameId,
-                                gameType: "TRANSLATIONS",
-                                unitId: token.unit.id,
-                                tagId: id,
-                                response: evaluation.status
-                            });
-                        }
-                        return { data };
-                    }
-                })(token, i)
+        const evaluateToken = async (token, i) => {
+            const learningTagged = wrapTextWithTag(
+                sentence.learning,
+                token.start_char,
+                token.end_char,
+                "PART"
             );
-        }
-        const results = await Promise.all(promises);
+            const unit = await locals.supabase
+                .from("Unit")
+                .select("*")
+                .eq("id", token.unit.id)
+                .single();
+
+            const part = {
+                spoken: unit.data[language.spoken],
+                learning: unit.data[language.learning],
+                token: token.token
+                // tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
+                //     (tag) => ({
+                //         id: tag.id,
+                //         branch: tag.data.ONTOLOGICAL.branch,
+                //         leaf: tag.data.ONTOLOGICAL.leaf
+                //     })
+                // )
+            };
+
+            const prompt = Mustache.render(Prompt.template, {
+                part,
+                language,
+                sentence: { ...sentence, learning: learningTagged }
+            });
+
+            const schema = {
+                ...Prompt.schema,
+                properties: [{ ["Unit:" + unit.id]: { $ref: "#/definitions/evaluation" } }]
+                // TODO:
+                // properties: part.tags.reduce(
+                //     (acc, tag) => {
+                //         acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
+                //         return acc;
+                //     },
+                //     { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
+                // )
+            };
+            schema.properties.required = Object.keys(schema.properties);
+
+            const input = { prompt, schema, provider: Prompt.provider };
+
+            const { data, error } = await locals.get("/api/llm", input);
+
+            if (error) return { error };
+            for (const key in data) {
+                const [type, id] = key.split(":");
+                const evaluation = data[key];
+                if (evaluation.status === "NEUTRAL") continue;
+                let response;
+                if (type === "Unit") {
+                    response = await locals.post("/api/units", {
+                        gameId: evaluate.game.id,
+                        gameType: "TRANSLATIONS",
+                        unitId: id,
+                        response: evaluation.status
+                    });
+                    // TODO:
+                    // } else if (type === "Tag") {
+                    //     response = await locals.post("/api/tags", {
+                    //         gameId: evaluate.game.id,
+                    //         gameType: "TRANSLATIONS",
+                    //         unitId: token.unit.id,
+                    //         tagId: id,
+                    //         response: evaluation.status
+                    //     });
+                }
+                return { data };
+            }
+        };
+
+        const results = await Promise.all(evaluate.tokens.map(evaluateToken));
+
         return json({
             data: results.map((r) => r.data),
             error: results.find((r) => r.error),
@@ -170,35 +169,3 @@ export async function POST({ fetch, locals, request }) {
         return json({ error, status: 500 });
     }
 }
-
-// const run = async (inputs, primitives, context) => {
-//     const { gameId, curriculumId, payload, sentence } = inputs;
-//     const { prisma, nlp, createLLMClient, handleGameUpdate } = primitives;
-//     const { language, provider, prompt } = context.mask;
-
-//     const llm = await createLLMClient({ provider, prompt });
-
-//     const PoS = payload.pos.filter((pos) => pos.unit);
-//     console.log(`[expected] ${sentence.learning} [translation] ${sentence.translation}`);
-
-//     const promises = PoS.map(async (pos, i) => {
-//         const part = {
-//             spoken: pos.unit.data[language.spoken],
-//             learning: pos.unit.data[language.learning],
-//             token: pos.token,
-//             upos: pos.upos,
-//             feats: pos.feats.STRING.replace(/\=/g, ":")
-//         };
-//         const response = await llm({ language, sentence, part });
-//         // console.log(response.evaluation, part.spoken, part.learning);
-//         if (response.evaluation !== "NEUTRAL")
-//             await handleGameUpdate({
-//                 gameId,
-//                 unitId: pos.unit.id,
-//                 response: response.evaluation,
-//                 gameType: "TRANSLATIONS"
-//             });
-//     });
-
-//     return await Promise.all(promises);
-// };
