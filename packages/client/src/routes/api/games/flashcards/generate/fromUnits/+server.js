@@ -2,7 +2,7 @@ import { env } from "$env/dynamic/private";
 const { SYSTEM_MODE } = env;
 import { json } from "@sveltejs/kit";
 
-import { make } from "../make";
+import make from "../make";
 
 export async function POST({ fetch, locals, request }) {
     try {
@@ -13,23 +13,21 @@ export async function POST({ fetch, locals, request }) {
             .select(`*`)
             .eq("id", gameId)
             .single();
-
-        // const { data: units } = await locals.get("/api/units", {gameId, tagIds, whitelist: whitelist.units || [], blacklist: blacklist.units || [], take});
+        if (gameError) throw gameError;
 
         const instructions = [];
         for (const unit of units) {
             const instruction = make({ game, unit });
 
-            const evaluate = { unit: { id: unit.id }, game: { id: gameId } };
+            const scope = { unit: { id: unit.id }, game: { id: gameId } };
             if (unit.tags && unit.tags.length > 0) {
-                evaluate.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
+                scope.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
             }
 
             instructions.push({
                 type: "FLASHCARDS",
                 instruction,
-                evaluate,
-                blacklist: { units: [unit.id], tags: [] }
+                scope
             });
         }
 

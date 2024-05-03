@@ -94,12 +94,12 @@ async function findUnit(annotation, { supabase, getSession }) {
         unit = data.find((u) => u._TagToUnit.length === filterTags.length);
 
         if (unit) {
-            unit.Tags = unit._TagToUnit.map(({ Tag }) => {
-                Tag.Memory = Tag.Memory && Tag.Memory.length > 0 ? Tag.Memory[0] : null;
+            unit.tags = unit._TagToUnit.map(({ Tag }) => {
+                Tag.memory = Tag.Memory && Tag.Memory.length > 0 ? Tag.Memory[0] : null;
                 return Tag;
             });
 
-            unit.Memory = unit.Memory && unit.Memory.length > 0 ? unit.Memory[0] : null;
+            unit.memory = unit.Memory && unit.Memory.length > 0 ? unit.Memory[0] : null;
 
             delete unit._TagToUnit;
         }

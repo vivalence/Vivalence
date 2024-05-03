@@ -1,4 +1,4 @@
-ALTER TABLE public."MemoryModel" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public."Memory" ENABLE ROW LEVEL SECURITY;
 
 -- 
 -- CREATE OR REPLACE FUNCTION user_has_access_to_memorymodel(memory_id TEXT)
@@ -12,20 +12,20 @@ ALTER TABLE public."MemoryModel" ENABLE ROW LEVEL SECURITY;
 --     RAISE NOTICE 'user_metadata: %', auth.jwt();
 
 --     RETURN EXISTS (
---         SELECT 1 FROM public."MemoryModel"
+--         SELECT 1 FROM public."Memory"
 --         WHERE "userId" = auth.uid()::Text AND "id" = memory_id
 --     );
 -- END;
 -- $$ LANGUAGE plpgsql STABLE;
 
 -- RULES
-DROP POLICY IF EXISTS admin_crud_all_memorymodel ON public."MemoryModel";
-CREATE POLICY admin_crud_all_memorymodel ON public."MemoryModel"
+DROP POLICY IF EXISTS admin_crud_all_memorymodel ON public."Memory";
+CREATE POLICY admin_crud_all_memorymodel ON public."Memory"
     FOR ALL
     USING (is_admin());
 
-DROP POLICY IF EXISTS user_memorymodel_crud_policy ON public."MemoryModel";
-CREATE POLICY user_memorymodel_crud_policy ON public."MemoryModel"
+DROP POLICY IF EXISTS user_memorymodel_crud_policy ON public."Memory";
+CREATE POLICY user_memorymodel_crud_policy ON public."Memory"
     FOR ALL
     USING ("userId" = auth.uid()::text);
     -- (user_has_access_to_memorymodel("id"));

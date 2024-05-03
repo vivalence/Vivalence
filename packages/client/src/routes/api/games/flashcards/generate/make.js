@@ -29,7 +29,7 @@ const nounFlashcards = (mask, { data, ...unit }) => {
     return flashcard(mask, { data, ...unit }, maskData);
 };
 const flashcard = (mask, { data, ...unit }, maskData = {}) => {
-    const data = {
+    maskData = {
         front: {
             header: `<h2>${data.english}<h2>`,
             content: data.usageInEnglish ? `<p>${data.usageInEnglish}<p>` : "",
@@ -43,8 +43,8 @@ const flashcard = (mask, { data, ...unit }, maskData = {}) => {
     };
 
     return {
-        front: Mustache.render(mask["front"], data),
-        back: Mustache.render(mask["back"], data)
+        front: Mustache.render(mask["front"], maskData),
+        back: Mustache.render(mask["back"], maskData)
     };
 };
 

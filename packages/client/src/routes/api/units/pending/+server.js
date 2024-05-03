@@ -6,14 +6,14 @@ export async function POST({ locals, request }) {
             gameId,
             tagIds,
             blacklist = [],
-            due_lt = new Date().toISOString(),
+            // due_lt = new Date().toISOString(),
             take = 1
         } = await request.json();
 
         let debt = -take;
         const units = [];
 
-        for (const methodname of methods) {
+        for (const methodname of ["get_due_units", "get_new_units"]) {
             if (debt >= 0) break;
 
             const params = {

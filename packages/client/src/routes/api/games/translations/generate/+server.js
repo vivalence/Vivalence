@@ -49,7 +49,7 @@ Build the sentence using these constraints:
 Return a JSON object with the spoken and learning sentence.`
 };
 
-export async function POST({ fetch, locals, ...props }) {
+export async function POST({ fetch, locals, request }) {
     if (SYSTEM_MODE && +SYSTEM_MODE < 2) {
         return json({
             data: {
@@ -91,15 +91,19 @@ export async function POST({ fetch, locals, ...props }) {
 
         const instruction = {
             type: "TRANSLATIONS",
-            instruction: sentence,
-            blacklist: { units: tokens.map(({ unit }) => unit.id), tags: [] },
-            evaluate: {
+            instruction: {
+                sentence
+                // TODO for feedback:
+                // deconstruct the sentence and send the deconstruction
+            },
+            scope: {
                 game: { id: gameId },
-                tokens: tokens.map((token) => ({
+                units: tokens.map((token) => ({
+                    id: token.unit.id,
                     token: token.token,
                     start_char: token.start_char,
                     end_char: token.end_char,
-                    unit: { id: unit.id, tags: unit.Tags.map(({ id }) => ({ id })) }
+                    tags: token.unit.tags.map(({ id }) => ({ id }))
                 }))
             }
         };
