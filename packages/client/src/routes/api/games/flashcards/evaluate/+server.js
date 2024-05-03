@@ -3,7 +3,7 @@ import { json } from "@sveltejs/kit";
 export async function POST({ fetch, locals: { post }, request }) {
     try {
         const {
-            evaluate: { unit, game },
+            scope: { unit, game },
             response
         } = await request.json();
 

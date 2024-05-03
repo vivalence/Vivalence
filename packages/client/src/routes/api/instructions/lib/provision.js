@@ -11,15 +11,15 @@ export default async (props) => {
         return { status: 202 };
     } else {
         QueueProvisioningLock.set(`${props.userId}-${props.strategyId}`, new Date());
-        makeInstructions(props);
+        make(props);
         return { status: 202 };
     }
 };
 
-const makeInstructions = async ({
+export const make = async ({
     strategyId,
-    blacklist,
     userId,
+    blacklist,
     locals,
     dry = false,
     local = false
@@ -27,55 +27,34 @@ const makeInstructions = async ({
     const start = performance.now();
 
     try {
+        // SETUP BLACKLIST
+        const { data: queue = [] } = await locals.supabase
+            .from("Queue")
+            .select("data")
+            .eq("strategyId", strategyId)
+            .eq("userId", userId);
+        queue.map(({ data }) => {
+            Object.keys(data.blacklist).forEach((key) =>
+                blacklist[key].push(...data.blacklist[key])
+            );
+        });
+
         // GET DATA
         const { data: strategy, error } = await locals.supabase
             .from("Strategy")
             .select(
                 `*,
                 _StrategyToGame (Game: A (*)),
-                _StrategyToUnit (Unit: B (*, Memory (id, state, type, status, lastSeen, userId, Tag (id), Unit(id) ))),
-                _StrategyToTag (Tag: B (*, Memory (id, state, type, status, lastSeen, userId, Tag (id), Unit(id) )))`
-            ) // might be able to remove a memory from the tag
+                _StrategyToUnit (Unit: B (*)),
+                _StrategyToTag (Tag: B (*))`
+            )
             .eq("id", strategyId)
-            .eq("_StrategyToUnit.Unit.Memory.userId", userId)
-            .eq("_StrategyToTag.Tag.Memory.userId", userId)
             .single();
-
         if (error) throw error;
 
-        const { data: queue = [] } = await locals.supabase
-            .from("Queue")
-            .select("data")
-            .eq("strategyId", strategyId)
-            .eq("userId", userId);
-
-        queue.map(({ data }) => {
-            Object.keys(data.blacklist).forEach((key) =>
-                blacklist[key].push(...data.blacklist[key])
-            );
-        });
-        strategy.Units = strategy._StrategyToUnit.map(({ Unit }) => {
-            Unit.Memory = Unit.Memory.filter((m) => !m.Tag)[0];
-
-            if (Unit.Memory)
-                Unit.Memory.strength = ebisu.predictRecall(
-                    Unit.Memory.state,
-                    new Date() - new Date(Unit.Memory.lastSeen)
-                );
-            return Unit;
-        });
-
-        strategy.Tags = strategy._StrategyToTag.map(({ Tag }) => {
-            Tag.Memory = Tag.Memory.filter((m) => {
-                return strategy.Units.map((u) => u.id).includes(m.Unit && m.Unit.id);
-            }).map((m) => {
-                m.strength = ebisu.predictRecall(m.state, new Date() - new Date(m.lastSeen));
-                return m;
-            });
-            return Tag;
-        });
-
-        strategy.Games = strategy._StrategyToGame.map(({ Game }) => Game);
+        strategy.units = strategy._StrategyToUnit.map(({ Unit }) => Unit);
+        strategy.tags = strategy._StrategyToTag.map(({ Tag }) => Tag);
+        strategy.games = strategy._StrategyToGame.map(({ Game }) => Game);
 
         delete strategy._StrategyToUnit;
         delete strategy._StrategyToTag;
@@ -106,13 +85,6 @@ const makeInstructions = async ({
         }
 
         const end = performance.now();
-        // console.log(
-        //     instructions
-        //         .map((i) => {
-        //             if (i.type === "TRANSLATIONS") return i.instruction;
-        //         })
-        //         .filter((n) => n)[0]
-        // );
         console.log(`PROVISIONING ${instructions.length}  took ${(end - start) / 1000} seconds`);
         return instructions;
     } catch (error) {

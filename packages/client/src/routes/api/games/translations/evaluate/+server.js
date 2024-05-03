@@ -76,7 +76,7 @@ Return a JSON object with the evaluation of <PART>.
 export async function POST({ fetch, locals, request }) {
     try {
         const { user } = await locals.getSession();
-        const { evaluate, sentence } = await request.json();
+        const { scope, sentence } = await request.json();
         const { language } = Prompt;
 
         const evaluateToken = async (token, i) => {
@@ -86,23 +86,31 @@ export async function POST({ fetch, locals, request }) {
                 token.end_char,
                 "PART"
             );
-            const unit = await locals.supabase
+            const { data: unit, error: unitError } = await locals.supabase
                 .from("Unit")
                 .select("*")
-                .eq("id", token.unit.id)
+                .eq("id", token.id)
                 .single();
+
+            const { data: tags, error: tagsError } = await locals.supabase
+                .from("Tag")
+                .select("*")
+                .in(
+                    "id",
+                    token.tags.map((tag) => tag.id)
+                );
 
             const part = {
                 spoken: unit.data[language.spoken],
                 learning: unit.data[language.learning],
-                token: token.token
-                // tags: token.unit.Tags.filter((tag) => tag.type.includes("LEARNABLE")).map(
-                //     (tag) => ({
-                //         id: tag.id,
-                //         branch: tag.data.ONTOLOGICAL.branch,
-                //         leaf: tag.data.ONTOLOGICAL.leaf
-                //     })
-                // )
+                token: token.token,
+                tags: tags
+                    .filter((tag) => tag.type.includes("LEARNABLE"))
+                    .map((tag) => ({
+                        id: tag.id,
+                        branch: tag.data.ONTOLOGICAL.branch,
+                        leaf: tag.data.ONTOLOGICAL.leaf
+                    }))
             };
 
             const prompt = Mustache.render(Prompt.template, {
@@ -113,15 +121,15 @@ export async function POST({ fetch, locals, request }) {
 
             const schema = {
                 ...Prompt.schema,
-                properties: [{ ["Unit:" + unit.id]: { $ref: "#/definitions/evaluation" } }]
+                // properties: [{ ["Unit:" + unit.id]: { $ref: "#/definitions/evaluation" } }]
                 // TODO:
-                // properties: part.tags.reduce(
-                //     (acc, tag) => {
-                //         acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
-                //         return acc;
-                //     },
-                //     { ["Unit:" + part.id]: { $ref: "#/definitions/evaluation" } }
-                // )
+                properties: part.tags.reduce(
+                    (acc, tag) => {
+                        acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
+                        return acc;
+                    },
+                    { ["Unit:" + unit.id]: { $ref: "#/definitions/evaluation" } }
+                )
             };
             schema.properties.required = Object.keys(schema.properties);
 
@@ -137,26 +145,25 @@ export async function POST({ fetch, locals, request }) {
                 let response;
                 if (type === "Unit") {
                     response = await locals.post("/api/units", {
-                        gameId: evaluate.game.id,
+                        gameId: scope.game.id,
                         gameType: "TRANSLATIONS",
                         unitId: id,
                         response: evaluation.status
                     });
-                    // TODO:
-                    // } else if (type === "Tag") {
-                    //     response = await locals.post("/api/tags", {
-                    //         gameId: evaluate.game.id,
-                    //         gameType: "TRANSLATIONS",
-                    //         unitId: token.unit.id,
-                    //         tagId: id,
-                    //         response: evaluation.status
-                    //     });
+                } else if (type === "Tag") {
+                    response = await locals.post("/api/tags", {
+                        gameId: scope.game.id,
+                        gameType: "TRANSLATIONS",
+                        unitId: unit.id,
+                        tagId: id,
+                        response: evaluation.status
+                    });
                 }
                 return { data };
             }
         };
 
-        const results = await Promise.all(evaluate.tokens.map(evaluateToken));
+        const results = await Promise.all(scope.units.map(evaluateToken));
 
         return json({
             data: results.map((r) => r.data),

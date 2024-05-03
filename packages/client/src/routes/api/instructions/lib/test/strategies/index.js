@@ -1,5 +1,6 @@
-import strategy from "./strategies/verb-conjugation.js";
-export default strategy;
+import verbs from "./verb-conjugation.js";
+import gender from "./gender-number.js";
+export default verbs;
 
 // const articleUnits = strategy.Units;
 // const structuralTag = strategy.Tags.find((t) => t.type.includes("STRUCTURAL"));

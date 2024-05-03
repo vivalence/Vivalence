@@ -1,11 +1,12 @@
 meta {
-  name: Units:get:weakest
+  name: Tags:get:pending
   type: http
-  seq: 11
+  seq: 12
 }
 
+
 post {
-  url: http://localhost:5174/api/units/weakest
+  url: http://localhost:5174/api/tags/weakest
   body: json
   auth: none
 }
@@ -18,7 +19,7 @@ body:json {
         "take": 5
     }
 }
+
 docs {
-# get the weakest units
-MUST BE TESTED
+    # get weakest tags from a list of tags
 }
