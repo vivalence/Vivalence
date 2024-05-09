@@ -25,7 +25,7 @@ const JSField = {
   "ui:field": Monaco,
   "ui:options": {
     language: "javascript",
-    height: "600px",
+    height: "100vh",
   },
 };
 
