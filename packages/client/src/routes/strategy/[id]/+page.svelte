@@ -17,7 +17,7 @@
     const onGameFinish = (payload) => {
         store.next();
     };
-    // $: console.log($store);
+  // $: console.log('Strategy',$store);
 </script>
 
 {#if !$store.error && !!$store.active}

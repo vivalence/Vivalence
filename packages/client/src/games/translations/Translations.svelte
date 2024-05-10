@@ -27,11 +27,11 @@
         Object.keys(keymap).forEach((key) => unbindKey(key, keymap[key]));
     });
 
-    export let payload;
+    export let scope;
     export let instruction;
 
-    $: if (payload && instruction) {
-        store.update((s) => ({ ...s, payload, instruction }));
+    $: if (scope && instruction) {
+        store.update((s) => ({ ...s, scope, instruction }));
     }
 </script>
 

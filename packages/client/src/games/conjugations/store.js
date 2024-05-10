@@ -4,7 +4,7 @@ import Global from "$global";
 function createConjugationGameStore() {
     const Store = writable({
         instruction: null,
-        payload: null,
+        scope: null,
         inputs: {},
         revealed: false,
         loading: false,
@@ -13,9 +13,9 @@ function createConjugationGameStore() {
         onFinish: null
     });
 
-    const setInput = (person, userInput) => {
+    const setInput = (key, userInput) => {
         Store.update((s) => {
-            const newUserInputs = { ...s.inputs, [person]: userInput };
+            const newUserInputs = { ...s.inputs, [key]: userInput };
             return { ...s, inputs: newUserInputs };
         });
     };
@@ -23,7 +23,7 @@ function createConjugationGameStore() {
     const reset = () => {
         Store.update((s) => ({
             instruction: null,
-            payload: null,
+            scope: null,
             inputs: {},
             revealed: false,
             loading: false,
@@ -34,23 +34,21 @@ function createConjugationGameStore() {
     };
 
     const evaluate = async () => {
-        const storeValue = get(Store);
-        const { instruction, inputs, payload } = storeValue;
+        const { instruction, inputs, scope } = get(Store);
         Store.update((s) => ({ ...s, revealed: true, loading: true }));
 
         try {
-            const params = { instruction, inputs, payload };
+            const params = { instruction, inputs, scope };
             const { data: evaluations, error } = Global.post(
                 "/api/games/conjugations/evaluate",
                 params
             );
-            console.log("evaluationResults ", evaluations);
             Store.update((s) => ({
                 ...s,
                 evaluations,
                 revealed: true,
                 loading: false,
-                error: null
+                error
             }));
         } catch (error) {
             console.error("Evaluation error:", error);

@@ -1,5 +1,6 @@
 import { writable, get } from "svelte/store";
 import { localStorageStore } from "@skeletonlabs/skeleton";
+import scopeToBlacklist from "$lib/scopeToBlacklist";
 import Global from "$global";
 
 const QUEUE_THRESHOLD = 3;
@@ -18,28 +19,28 @@ function createInstructionStore() {
 
     const getBlacklist = () => {
         const store = get(Store);
-        const blacklist = {
+        let blacklist = {
             units: [],
             tags: [],
             instructions: []
         };
+        const scopes = [];
         [store.active, ...store.queue]
             .filter((x) => x)
             .forEach((item) => {
-                blacklist.units.push(...item.data.blacklist.units);
-                blacklist.tags.push(...item.data.blacklist.tags);
+                scopes.push(item.data.scope);
                 blacklist.instructions.push(item.id);
             });
 
-        blacklist.units = blacklist.units.flat().filter((x) => x);
-        blacklist.tags = blacklist.tags.flat().filter((x) => x);
+        scopes.map((scope) => {
+            blacklist = scopeToBlacklist({ blacklist, scope });
+        });
         return blacklist;
     };
 
     const fetchInstructions = async (take = QUEUE_THRESHOLD) => {
         const blacklist = getBlacklist();
         const input = { take, blacklist, strategyId };
-        // 3 times do the same thing
         let response;
         for (let i = 0; i < 3; i++) {
             response = await Global.post(`/api/instructions`, input);
@@ -101,11 +102,8 @@ function createInstructionStore() {
         },
         next: async () => {
             const queueId = get(Store).active?.id;
-
             activate();
-
             await Global.delete(`/api/instructions`, { queueId });
-
             fillQueue();
         }
     };

@@ -7,7 +7,6 @@ export const getMemory = (locals) => async (unit) => {
         .eq("id", unit.id)
         .filter("Memory.tagId", "is", null)
         .single();
-    // .filter("_TagToUnit.Tag.Memory.unitId", "is", unit.id) _TagToUnit(*, Tag: A (*, Memory (id, tagId, unitId, state, status, lastSeen))),
     if (error) throw error; // TODO: not handling this RN
     unit = { ...unit, memory: data.Memory[0] };
     delete unit.Memory;
@@ -27,7 +26,8 @@ export const getWeakest =
         if (!take || weakestUnits.length < take) {
             units = units
                 .filter((unit) => unit.memory)
-                .sort((a, b) => a.memory.strength > b.memory.strength);
+                .sort((a, b) => a.memory.strength - b.memory.strength);
+
             if (take) units = units.slice(0, take - weakestUnits.length);
             weakestUnits.push(...units);
         }

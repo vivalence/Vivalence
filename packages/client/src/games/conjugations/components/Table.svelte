@@ -26,8 +26,8 @@
                     <input
                         class="border input u-full-width text-lg"
                         type="text"
-                        bind:value={$store.inputs[conjugation.index]}
-                        on:input={(event) => store.setInput(conjugation.index, event.target.value)}
+                        bind:value={$store.inputs[conjugation.scope.unit.id]}
+                        on:input={(event) => store.setInput(conjugation.scope.unit.id, event.target.value)}
                         disabled={$store.revealed}
                     />
                 </td>

@@ -6,8 +6,8 @@ import parseFeats from "/Users/finn/vivalence/code/app/packages/client/src/route
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function scope() {
-  const START = 500;
-  const TAKE = 100000;
+  const START = 000;
+  const TAKE = 500;
   const BATCHSIZE = 1000;
   const BATCHINTERVAL = 1000;
   let index = START;

@@ -16,12 +16,14 @@
     });
     onDestroy(() => pageFooterContext.set(null));
 
-    export let payload;
+    export let scope;
     export let instruction;
-    $: if (payload && instruction) {
-        store.update((s) => ({ ...s, revealed: false, loading: false, payload, instruction }));
+    $: if (scope && instruction) {
+        store.update((s) => ({ ...s, revealed: false, loading: false, scope, instruction }));
     }
     const onReview = (status) => () => store.review(status);
+
+  // $: console.log('Flashcards',$store);
 </script>
 
 <Panable

@@ -1,6 +1,7 @@
 import Mustache from "mustache";
 import * as ebisu from "$lib/ebisu";
 import * as lib from "$lib";
+import scopeToBlacklist from "$lib/scopeToBlacklist";
 
 const sleep = (s) => new Promise((resolve) => setTimeout(resolve, s * 1000));
 
@@ -33,10 +34,9 @@ export const make = async ({
             .select("data")
             .eq("strategyId", strategyId)
             .eq("userId", userId);
+
         queue.map(({ data }) => {
-            Object.keys(data.blacklist).forEach((key) =>
-                blacklist[key].push(...data.blacklist[key])
-            );
+            blacklist = scopeToBlacklist({ blacklist, scope: data.scope });
         });
 
         // GET DATA
