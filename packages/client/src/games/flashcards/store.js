@@ -5,7 +5,7 @@ function createFlashcardStore() {
     const Store = writable({
         loading: true,
         revealed: false,
-        payload: null,
+        scope: null,
         instruction: null,
         onFinish: null
     });
@@ -16,13 +16,12 @@ function createFlashcardStore() {
             Store.update((store) => ({ ...store, revealed: true }));
         },
         review: async (response) => {
-            const { payload, onFinish } = get(Store);
+            const { scope, onFinish } = get(Store);
 
-            onFinish({ response, payload });
+            onFinish({ response, scope });
 
             Global.post("/api/games/flashcards/evaluate", {
-                unitId: payload.unitId,
-                gameId: payload.gameId,
+                scope,
                 response
             })
                 // .then((response) => {console.log("RESPONSE /api/games/flashcards/review POST", response);})

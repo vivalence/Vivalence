@@ -9,14 +9,12 @@ export async function POST({ locals, request }) {
             blacklist: blacklist.length > 0 ? blacklist : null
         };
         if (take) params.take_limit = take;
-        // console.log("params", params);
 
         const { data, error: unitsError } = await locals.supabase.rpc(
             "get_units_from_tag_ids",
             params
         );
         if (unitsError) throw unitsError;
-        // console.log("data", data);
 
         const units = await Promise.all(
             data.map(async (unit) => {
@@ -28,7 +26,6 @@ export async function POST({ locals, request }) {
                 return unit;
             })
         );
-        // console.log("units", units);
 
         return json({ data: units, error: null });
     } catch (err) {

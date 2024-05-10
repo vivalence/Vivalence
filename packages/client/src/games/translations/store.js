@@ -3,8 +3,8 @@ import Global from "$global";
 
 function createGameStore() {
     const Store = writable({
-        payload: null,
         instruction: null,
+        scope: null,
         input: "",
         revealed: false,
         loading: false,
@@ -14,15 +14,13 @@ function createGameStore() {
     });
 
     const evaluate = async () => {
-        const { payload, instruction, input } = get(Store);
+        const { scope, instruction, input } = get(Store);
         const params = {
-            gameId: payload.gameId,
             sentence: {
-                spoken: instruction.spoken,
-                learning: instruction.learning,
+                ...instruction.sentence,
                 translation: input
             },
-            payload
+            scope
         };
         const { error, data: evaluation } = await Global.post(
             "/api/games/translations/evaluate",
@@ -35,9 +33,9 @@ function createGameStore() {
     const feedback = async () => {
         const { instruction, input } = get(Store);
         const params = {
+            scope,
             sentence: {
-                spoken: instruction.spoken,
-                learning: instruction.learning,
+                ...instruction.sentence,
                 translation: input
             }
         };
@@ -50,8 +48,8 @@ function createGameStore() {
     };
     const reset = () => {
         Store.update((s) => ({
-            payload: null,
             instruction: null,
+            scope: null,
             input: "",
             revealed: false,
             loading: false,

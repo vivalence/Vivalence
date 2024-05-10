@@ -25,7 +25,6 @@ export async function POST({ locals: { supabase, getSession }, request, ...props
 
         let { data: plays, error } = await query.limit(1);
         if (error) throw error;
-        // console.log("plays", plays);
         play = plays[0];
 
         if (!play) {

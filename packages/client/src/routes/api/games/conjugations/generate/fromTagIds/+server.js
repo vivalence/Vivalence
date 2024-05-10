@@ -52,6 +52,7 @@ export async function POST({ fetch, locals, request }) {
             throw error || new Error("No conjugation units found");
         const units = conjugationUnits.sort(sortByPerformer);
 
+        // TODO: add tag[Person&Number] to scope.unit.tags
         const conjugations = [];
         for (const [index, unit] of units.entries()) {
             conjugations.push({
@@ -76,8 +77,8 @@ export async function POST({ fetch, locals, request }) {
                 conjugations
             },
             scope: {
-                tags,
-                units: conjugations.map((c) => ({ id: c.scope.unit.id })),
+                tags: Object.keys(tags).map((key) => ({ id: tags[key].id, role: key })),
+                units: conjugations.map(({ scope }) => scope.unit),
                 game: { id: gameId }
             }
         };

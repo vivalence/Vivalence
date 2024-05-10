@@ -35,59 +35,55 @@ correct: "{{{learning}}}"`
 export async function POST({ fetch, locals, request }) {
     try {
         const { user } = await locals.getSession();
-        const { inputs, instruction, payload } = await request.json();
+        const { inputs, instruction, scope } = await request.json();
         const { language } = Prompt;
 
-        const promises = [];
-        for (const conjugation of instruction.conjugations) {
-            promises.push(
-                (async (conjugation) => {
-                    const part = {
-                        verb: instruction.verb.learning,
-                        tense: instruction.tense,
-                        person: conjugation.Person,
-                        number: conjugation.Number,
-                        spoken: conjugation.spoken,
-                        learning: conjugation.learning,
-                        input: inputs[conjugation.index]
-                    };
+        const evaluateConjugation = async (conjugation) => {
+            const part = {
+                input: inputs[conjugation.scope.unit.id],
+                person: conjugation.Person,
+                number: conjugation.Number,
+                spoken: conjugation.spoken,
+                learning: conjugation.learning,
 
-                    const prompt = Mustache.render(Prompt.template, {
-                        ...part,
-                        language
-                    });
+                verb: instruction.verb.learning,
+                tense: instruction.tense,
+                language
+            };
 
-                    const input = { prompt, schema: Prompt.schema, provider: Prompt.provider };
-                    const { data: evaluation, error } = await locals.get("/api/llm", input);
-                    if (error) throw error;
+            const prompt = Mustache.render(Prompt.template, part);
 
-                    await locals.post("/api/units", {
-                        gameId: payload.gameId,
-                        gameType: "CONJUGATIONS",
-                        unitId: conjugation.payload.unit.id,
-                        response: evaluation.status
-                    });
-                    for (const tag in conjugation.payload.unit.tags) {
-                        await locals.post("/api/tags", {
-                            gameId: payload.gameId,
-                            gameType: "CONJUGATIONS",
-                            tagId: tag.id,
-                            unitId: conjugation.payload.unit.id,
-                            response: evaluation.status
-                        });
-                    }
-                    return {
-                        data: {
-                            index: conjugation.index,
-                            unitId: conjugation.payload.unit.id,
-                            evaluation: evaluation.status
-                        },
-                        error
-                    };
-                })(conjugation)
-            );
-        }
+            const input = { prompt, schema: Prompt.schema, provider: Prompt.provider };
+            const { data: evaluation, error } = await locals.get("/api/llm", input);
+            if (error) throw error;
 
+            await locals.post("/api/units", {
+                gameId: scope.game.id,
+                gameType: "CONJUGATIONS",
+                unitId: conjugation.scope.unit.id,
+                response: evaluation.status
+            });
+            for (const tag in conjugation.scope.unit.tags) {
+                await locals.post("/api/tags", {
+                    gameId: scope.game.id,
+                    gameType: "CONJUGATIONS",
+                    tagId: tag.id,
+                    unitId: conjugation.scope.unit.id,
+                    response: evaluation.status
+                });
+            }
+
+            return {
+                data: {
+                    index: conjugation.meta.index,
+                    unitId: conjugation.scope.unit.id,
+                    evaluation: evaluation.status
+                },
+                error
+            };
+        };
+
+        const promises = instruction.conjugations.map(evaluateConjugation);
         const results = await Promise.all(promises);
 
         const evaluations = [
@@ -98,13 +94,11 @@ export async function POST({ fetch, locals, request }) {
             results.length
         ];
 
-        // should be returned to client
-        for (const key of Object.keys(payload.tags)) {
-            const tagId = payload.tags[key];
+        for (const tag of scope.tags) {
             const result = await locals.post("/api/tags", {
-                gameId: payload.gameId,
+                gameId: scope.game.id,
                 gameType: "CONJUGATIONS",
-                tagId: tagId,
+                tagId: tag.id,
                 response: evaluations
             });
             results.push(result);
@@ -117,6 +111,7 @@ export async function POST({ fetch, locals, request }) {
         });
     } catch (error) {
         console.error("[CONJUGATIONS/EVALUATION ERROR]", error.message);
-        return json({ error: error.message }, { status: 500 });
+        console.error(error);
+        return json({ error: error.message, status: 500 });
     }
 }

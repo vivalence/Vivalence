@@ -16,22 +16,22 @@
 
 <div class="review">
     <label class="label">
-        <span>Prompt</span>
+        <span>Translation</span>
         <p class="">
-            {$store.instruction.spoken}
+            {$store.instruction.sentence.spoken}
         </p>
     </label>
 
     <label class="label">
-        <span>Expected:</span>
-        <p class="">
-            {$store.feedback ? $store.feedback.correction : $store.instruction.learning}
-        </p>
-    </label>
-    <label class="label">
         <span>Provided:</span>
         <p class="">
             {$store.input}
+        </p>
+    </label>
+    <label class="label">
+        <span>Expected:</span>
+        <p class="">
+            {$store.feedback ? $store.feedback.correction : $store.instruction.sentence.learning}
         </p>
     </label>
 

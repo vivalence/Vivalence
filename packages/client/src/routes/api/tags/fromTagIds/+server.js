@@ -2,12 +2,13 @@ import { json } from "@sveltejs/kit";
 
 export async function POST({ locals, request }) {
     try {
-        const { tagIds = [] } = await request.json();
+        const { tagIds = [], blacklist = [] } = await request.json();
 
         const { data: tags, error } = await locals.supabase
             .from("Tag")
             .select("*")
-            .in("id", tagIds);
+            .in("id", tagIds)
+            .not("id", "in", `(${blacklist.join(",")})`);
 
         if (error) throw error;
         return json({ data: tags, status: 200 });

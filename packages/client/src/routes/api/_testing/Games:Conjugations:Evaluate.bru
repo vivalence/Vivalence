@@ -5,16 +5,227 @@ meta {
 }
 
 post {
-  url: http://localhost:5174/api/games/conjugations/Evaluate
+  url: http://localhost:5174/api/games/conjugations/evaluate
   body: json
   auth: none
 }
 
 body:json {
   {
-    "unitId": "clnt09icp000kg0nu822puicy",
-    "gameId": "clqcr75ai0002g04mem2ugyo6",
-    "response": "KNOWN"
+    "instruction": {
+      "verb": {
+        "spoken": "to be (state/condition)",
+        "learning": "estar"
+      },
+      "tense": "Pres",
+      "conjugations": [
+        {
+          "meta": {
+            "index": 0
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45jmn0039g0s3b71whevt",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "I am",
+          "learning": "estoy"
+        },
+        {
+          "meta": {
+            "index": 1
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45joc003ag0s3d6hod8ak",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "you are",
+          "learning": "estás"
+        },
+        {
+          "meta": {
+            "index": 2
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45jq1003bg0s3kaq3aad4",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "he/she/it is",
+          "learning": "está"
+        },
+        {
+          "meta": {
+            "index": 3
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45jrq003cg0s3y5niujti",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "we are",
+          "learning": "estamos"
+        },
+        {
+          "meta": {
+            "index": 4
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45jtf003dg0s31gckofpi",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "you all are",
+          "learning": "estáis"
+        },
+        {
+          "meta": {
+            "index": 5
+          },
+          "scope": {
+            "unit": {
+              "id": "clpl45jv5003eg0s372o6hty1",
+              "tags": [
+                {
+                  "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+                },
+                {
+                  "id": "clrzb19mp0079g0m3badzek07"
+                }
+              ]
+            }
+          },
+          "spoken": "they are",
+          "learning": "están"
+        }
+      ]
+    },
+    "inputs": {
+      "clpl45jmn0039g0s3b71whevt": "estoy",
+      "clpl45joc003ag0s3d6hod8ak": "estas"
+    },
+    "scope": {
+      "game": {
+        "id": "5336151d-78ec-4699-ba94-efba4e0ece42"
+      },
+      "tags": [
+        {
+          "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81", "role":""
+        },
+        {
+          "id": "clrzb19mp0079g0m3badzek07", "role":""
+        }
+      ],
+      "units": [
+        {
+          "id": "clpl45jmn0039g0s3b71whevt",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        },
+        {
+          "id": "clpl45joc003ag0s3d6hod8ak",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        },
+        {
+          "id": "clpl45jq1003bg0s3kaq3aad4",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        },
+        {
+          "id": "clpl45jrq003cg0s3y5niujti",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        },
+        {
+          "id": "clpl45jtf003dg0s31gckofpi",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        },
+        {
+          "id": "clpl45jv5003eg0s372o6hty1",
+          "tags": [
+            {
+              "id": "bce30a11-51a0-4c46-8db0-ae8c12970c81"
+            },
+            {
+              "id": "clrzb19mp0079g0m3badzek07"
+            }
+          ]
+        }
+      ]
+    }
   }
 }
 

@@ -3,9 +3,12 @@ import * as ebisu from "$lib/ebisu";
 
 export async function POST({ fetch, locals, request }) {
     try {
-        const { tagIds, take } = await request.json();
+        const { tagIds, take, blacklist } = await request.json();
 
-        let { data: tags, error } = await locals.post("/api/tags/fromTagIds", { tagIds });
+        let { data: tags, error } = await locals.post("/api/tags/fromTagIds", {
+            tagIds,
+            blacklist
+        });
         if (error) throw error;
 
         const getMemory = async (tag) => {
@@ -30,7 +33,8 @@ export async function POST({ fetch, locals, request }) {
         if (!take || weakestTags.length < take) {
             tags = tags
                 .filter((tag) => tag.memory)
-                .sort((a, b) => a.memory.strength > b.memory.strength);
+                .sort((a, b) => a.memory.strength - b.memory.strength);
+
             if (take) tags = tags.slice(0, take - weakestTags.length);
             weakestTags.push(...tags);
         }
