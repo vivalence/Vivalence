@@ -30,6 +30,7 @@ export default async ({ locals, strategy, context }) => {
 
     const { data: verbTags, error: verbError } = await locals.post("/api/tags/weakest", {
         tagIds: verbTagIds,
+        blacklist: blacklist.tags,
         take: 1
     });
     if (verbError || !verbTags) throw verbError || new Error("No verb tag found.");
@@ -46,19 +47,6 @@ export default async ({ locals, strategy, context }) => {
         }
     );
     if (conjugationsError) throw conjugationsError;
-
-    //
-    // FLASHCARDS
-    //
-    const { data: flashcards, error: flashcardsError } = await locals.post(
-        "/api/games/flashcards/generate/fromTagIds",
-        {
-            tagIds: [verbTag.id, tenseTags[0]],
-            gameId: flashcardsGame.id,
-            blacklist
-        }
-    );
-    if (flashcardsError) throw flashcardsError;
 
     //
     // TRANSLATIONS
@@ -89,177 +77,46 @@ export default async ({ locals, strategy, context }) => {
         }
     );
     if (sentenceError) throw sentenceError;
+    locals.scopeToBlacklist({ blacklist, scope: translations.scope });
 
-    return [...locals.shuffle(flashcards), conjugations, translations];
+    //
+    // FLASHCARDS
+    // from translation
+    const { data: filteredTranslationUnits } = await locals.post("/api/memory/filter/units", {
+        units: translations.scope.units,
+        accept: ["UNKNOWN", "LEARNING"]
+    });
+    const { data: translationFlashcards } = await locals.post(
+        "/api/games/flashcards/generate/fromUnitIds",
+        {
+            unitIds: filteredTranslationUnits.map((u) => u.id),
+            gameId: flashcardsGame.id
+        }
+    );
+
+    //
+    // FLASHCARDS
+    // from conjugation
+    const { data: flashcardUnits } = await locals.post("/api/units/fromTagIds", {
+        tagIds: [verbTag.id, tenseTags[0]],
+        blacklist: blacklist.units
+    });
+    const { data: filteredFlashcardUnits } = await locals.post("/api/memory/filter/units", {
+        units: flashcardUnits,
+        accept: ["UNKNOWN", "LEARNING"]
+    });
+    let { data: flashcards, error: flashcardsError } = await locals.post(
+        "/api/games/flashcards/generate/fromUnits",
+        {
+            units: filteredFlashcardUnits,
+            gameId: flashcardsGame.id
+        }
+    );
+    if (flashcardsError) throw flashcardsError;
+
+    return [
+        ...locals.shuffle([...flashcards, ...translationFlashcards]),
+        conjugations,
+        translations
+    ];
 };
-
-//     //
-//     // TRANSLATIONS
-//     //
-//     // let translationInstruction = null;
-//     async function.postTranslation(unit) {
-//         const lang = context.language;
-//         const constraints = [];
-//         constraints.push(`VERB: ${unit.data[lang.learning]} - ${unit.data[lang.spoken]}`);
-//         constraints.push(`NOUN: Be more creative.`);
-//         constraints.push(`NOUN: Don't use obvious nouns like 'estudiante'.`);
-//         constraints.push(
-//             `NOUN: In case of ser/estar, chose a noun that highlights the lasting/temporary aspect of the verb.`
-//         );
-//         constraints.push(`GRAMMAR: Allways without the pronoun in spanish!`);
-
-//         const { data: sentence, error: sentenceError } = await locals.post(
-//             `/api/games/translations/generate`,
-//             {
-//                 constraints,
-//                 language: lang,
-//                 innerPrompt: translationsGame.data.innerPrompt.text
-//             }
-//         );
-//         if (sentenceError) throw sentenceError;
-
-//         const { data: nlp } = await locals.post(`/api/nlp`, { sentence: sentence.learning });
-
-//         const translationTokens = nlp.sentences[0].tokens
-//             .filter((token) => token.unit)
-//             .filter((token) => {
-//                 if (!token.unit.Memory) return true;
-//                 return ["LEARNING", "UNKNOWN"].includes(token.unit.Memory.status);
-//             })
-//             .filter((token) => token.unit.id !== unit.id);
-
-//         translationTokens.forEach((token) => blacklist.units.push(token.unit.id));
-
-//         const maskFlashcards = (flashcardsMask, { data, ...unit }) => {
-//             const mask = flashcardsMask[unit.corpusType];
-//             const isNoun = data.ud.upos === "NOUN";
-//             const { Gender, Number } = data.ud.feats;
-//             const frontFooter = [Gender, Number].filter((f) => f).join(" - ");
-//             const maskData = {
-//                 front: {
-//                     header: `<h2>${data.english}<h2>`,
-//                     content: `<p>${data.usageInEnglish}<p>`,
-//                     footer: `<h5>${frontFooter}</h5>`
-//                 },
-//                 back: {
-//                     header: `<h2>${data.spanish}<h2>`,
-//                     content: `<p>${data.usageInSpanish}<p>`
-//                 }
-//             };
-
-//             return {
-//                 front: locals.Mustache.render(mask["front"], maskData),
-//                 back: locals.Mustache.render(mask["back"], maskData)
-//             };
-//         };
-//         for (const token of translationTokens) {
-//             instructions.unshift({
-//                 type: "FLASHCARDS",
-//                 instruction: maskFlashcards(flashcardsGame.data, {
-//                     ...token.unit,
-//                     data: {
-//                         ...token.unit.data,
-//                         spanish: token.token,
-//                         ud: token
-//                     }
-//                 }),
-//                 blacklist: { units: [token.unit.id], tags: [] },
-//                 payload: {
-//                     corpusType: token.unit.corpusType,
-//                     source: "TOKEN",
-//                     token: token,
-//                     gameId: flashcardsGame.id,
-//                     unitId: token.unit.id,
-//                     strategyId: context.strategyId
-//                 }
-//             });
-//         }
-
-//         translationInstruction = {
-//             type: "TRANSLATIONS",
-//             instruction: sentence,
-//             blacklist: { units: translationTokens.map(({ unit }) => unit.id), tags: [] },
-//             payload: {
-//                 gameId: translationsGame.id,
-//                 unitIds: translationTokens.map(({ unit }) => unit.id),
-//                 tokens: nlp.sentences[0].tokens,
-//                 strategyId: context.strategyId
-//             }
-//         };
-//         // return instructions
-//     }
-
-//     const weakestUnit = units.reduce((a, b) =>
-//         !a.memory ? a : !b.memory ? b : a.memory.strength > b.memory.strength ? a : b
-//     );
-//     await.postTranslation(weakestUnit);
-
-//     //
-//     // CONJUGATIONS
-//     //
-//     async function.postConjugations() {
-//         const conjugations = units.map((unit) => {
-//             const conjugation = {
-//                 spoken: `${unit.data.english}`,
-//                 learning: `${unit.data.spanish}`,
-//                 payload: { unit },
-//                 index: unit.index
-//             };
-//             unit.tags.map((tag) => {
-//                 conjugation[tag.data.ONTOLOGICAL.branch] = tag.data.ONTOLOGICAL.leaf;
-//             });
-//             return conjugation;
-//         });
-
-//         const maskFlashcards = (flashcardsMask, { data, ...unit }) => {
-//             const mask = flashcardsMask[unit.corpusType];
-//             // console.log('make flashcard', {...unit,data})
-//             const { Person, Number, Tense } = data.ud.feats;
-//             const frontFooter = `${Tense} - ${Person} Person ${Number}`;
-
-//             const maskData = {
-//                 front: {
-//                     header: `<h2>${data.english}<h2>`,
-//                     content: data.usageInEnglish ? `<p>${data.usageInEnglish}<p>` : "",
-//                     footer: `<h5>${frontFooter}</h5>`
-//                 },
-//                 back: {
-//                     header: `<h2>${data.spanish}<h2>`,
-//                     content: data.usageInSpanish ? `<p>${data.usageInSpanish}<p>` : ""
-//                 }
-//             };
-
-//             return {
-//                 front: locals.Mustache.render(mask["front"], maskData),
-//                 back: locals.Mustache.render(mask["back"], maskData)
-//             };
-//         };
-
-//         // TODO: filter by memory
-//         for (const conjugation of conjugations) {
-//             const unit = conjugation.payload.unit;
-//             if (unit.memory && ["KNOWN", "GRADUATED"].includes(unit.memory.status)) continue;
-
-//             instructions.unshift({
-//                 type: "FLASHCARDS",
-//                 instruction: maskFlashcards(flashcardsGame.data, unit),
-//                 blacklist: { units: [unit.id], tags: [tenseTags[0]] },
-//                 payload: {
-//                     source: "CONJUGATION",
-//                     corpusType: unit.corpusType,
-//                     gameId: flashcardsGame.id,
-//                     strategyId: context.strategyId,
-//                     unitId: unit.id
-//                 }
-//             });
-//         }
-//         return conjugations;
-//     }
-//     const conjugations = await.postConjugations(units);
-
-//     locals.shuffle(instructions);
-//     // instructions.push({type: "CONJUGATIONS", instruction: {tense: "Pres", // this should come from the tense tag verb: {spoken: infinitiveVerb.data.english, learning: infinitiveVerb.data.spanish}, conjugations}, blacklist: {units: conjugations.map((c) => c.payload.unit.id), tags: [verbTag.id, tenseTags[0]]}, payload: {source: "CONJUGATION", tags: { verb: verbTag.id, tense: tenseTags[0] }, gameId: conjugationsGame.id, strategyId: context.strategyId}});
-//     instructions.push(translationInstruction);
-
-//     return instructions;
-// };

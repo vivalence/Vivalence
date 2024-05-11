@@ -45,11 +45,9 @@ export default async ({ locals, strategy, context }) => {
     if (genderError || !genderTags) throw genderError || new Error("No gender tags found.");
     const genderTag = genderTags[0];
 
-    // console.log("TRANSLATIONS");
     //
     // TRANSLATIONS
     //
-    // console.log("articleUnit", articleUnit);
     const constraints = [];
     constraints.push(
         `ARTICLE: ${articleUnit.data[language.learning]} - ${articleUnit.data[language.spoken]}`
@@ -57,7 +55,6 @@ export default async ({ locals, strategy, context }) => {
     [genderTag, numberTag].forEach((tag) =>
         constraints.push(`${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}`)
     );
-    // console.log("constraints", constraints);
 
     for (const tag of vocabularyTags) {
         const { data: units, error } = await locals.post("/api/units/fromTagIds", {
@@ -86,14 +83,22 @@ export default async ({ locals, strategy, context }) => {
     //
     // FLASHCARDS
     //
-    const { data: flashcards, error: flashcardsError } = await locals.post(
-        "/api/games/flashcards/generate/fromUnitIds",
-        {
-            gameId: flashcardsGame.id,
-            unitIds: translations.scope.units.map((u) => u.id)
-        }
-    );
-    if (flashcardsError) throw flashcardsError;
+    // const { data: flashcards, error: flashcardsError } = await locals.post(
+    //     "/api/games/flashcards/generate/fromUnitIds",
+    //     {
+    //         gameId: flashcardsGame.id,
+    //         unitIds: translations.scope.units.map((u) => u.id)
+    //     }
+    // );
+    // if (flashcardsError) throw flashcardsError;
+    const { data: filteredTranslationUnits } = await locals.post("/api/memory/filter/units", {
+        units: translations.scope.units,
+        accept: ["UNKNOWN", "LEARNING"]
+    });
+    const { data: flashcards } = await locals.post("/api/games/flashcards/generate/fromUnitIds", {
+        unitIds: filteredTranslationUnits.map((u) => u.id),
+        gameId: flashcardsGame.id
+    });
 
     return [...locals.shuffle(flashcards), translations];
 };

@@ -11,10 +11,9 @@ export async function POST({ locals, params, request }) {
     try {
         const session = await locals.getSession();
         if (!session) throw redirect(307, "/auth");
-
-        const { strategyId, take, blacklist = {} } = await request.json();
         const userId = session.user.id;
 
+        let { strategyId, take, blacklist = {} } = await request.json();
         blacklist.units = blacklist.units || [];
         blacklist.tags = blacklist.tags || [];
         blacklist.instructions = blacklist.instructions || [];

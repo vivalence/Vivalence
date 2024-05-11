@@ -17,9 +17,10 @@ const relevantFeats = [
 ];
 
 export default function parseFeats(featsString = "") {
+    if (!featsString) return {};
     const feats = featsString.split("|").reduce((acc, feat) => {
         if (!feat || feat === "_") return acc;
-        let [key, value] = feat.split("=");
+        const [key, value] = feat.split("=");
         if (!!key && !!value && relevantFeats.includes(key)) acc[key] = value;
         return acc;
     }, {});
