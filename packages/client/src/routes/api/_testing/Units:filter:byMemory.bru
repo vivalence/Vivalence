@@ -1,0 +1,24 @@
+meta {
+  name: Memory:filter:Units
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:5174/api/memory/filter/units
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+        "units": [{"id": "clpwfwoax0000g0n1wrtqt6q1"},{"id":"55bdcbd6-fd42-41dd-8014-79668ae6fd07"}],
+        "accept": ["UNKNOWN", "LEARNING"]
+    }
+}
+docs {
+# get the weakest units
+MUST BE TESTED
+
+weakest by memory
+}

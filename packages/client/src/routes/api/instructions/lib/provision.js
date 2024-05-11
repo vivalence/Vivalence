@@ -61,6 +61,7 @@ export const make = async ({
         delete strategy._StrategyToGame;
 
         locals.Mustache = Mustache;
+        locals.scopeToBlacklist = scopeToBlacklist;
 
         const context = {
             blacklist,
