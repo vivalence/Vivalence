@@ -10,7 +10,7 @@ import Connection, { type ConnectionEditHandles } from "$components/connection";
 import JSONField from "$components/json-field/index";
 import UnitSchema from "./unit-data-schema";
 
-type CorpusType = "WORD" | "CONJUGATION";
+/* type CorpusType = "WORD" | "CONJUGATION"; */
 
 export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
   const { form, formProps, saveButtonProps, queryResult } = useForm();
@@ -18,7 +18,7 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
   const { replace } = useNavigation();
   const unit = queryResult?.data?.data as any;
   const unitId = unit?.id! as string;
-  const corpusType: CorpusType = form.getFieldValue("corpusType");
+  /* const corpusType: CorpusType = form.getFieldValue("corpusType"); */
   const tagConnectionRef = useRef<ConnectionEditHandles | null>(null);
   const strategyConnectionRef = useRef<ConnectionEditHandles | null>(null);
 
@@ -57,17 +57,16 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
       saveButtonProps={saveButtonProps}
     >
       <Form {...formProps} layout="vertical" onFinish={onSave}>
-        <Form.Item
-          label="Corpus Type"
-          name="corpusType"
-          rules={[{ required: true, message: "Please select a Corpus Type!" }]}
-        >
-          <Select placeholder="Select a corpus type">
+        {/* <Form.Item
+            label="Corpus Type"
+            name="corpusType"
+            rules={[{ required: true, message: "Please select a Corpus Type!" }]}
+            >
+            <Select placeholder="Select a corpus type">
             <Option value="WORD">Word</Option>
             <Option value="CONJUGATION">Conjugation</Option>
-          </Select>
-        </Form.Item>
-
+            </Select>
+            </Form.Item> */}
         <Form.Item
           label="Object Status"
           name="objectStatus"
@@ -105,13 +104,11 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
           />
         </Form.Item>
         <Form.Item name={["data"]}>
-          {corpusType && (
-            <JSONField
-              schema={UnitSchema[corpusType]}
-              data={jsonData}
-              onChange={(data) => form.setFieldValue('data', data)}
-            />
-          )}
+          <JSONField
+            schema={UnitSchema}
+            data={jsonData}
+            onChange={(data) => form.setFieldValue('data', data)}
+          />
         </Form.Item>
       </Form>
     </Edit>
