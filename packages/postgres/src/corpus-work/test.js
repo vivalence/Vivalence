@@ -1,47 +1,66 @@
 import fs from "fs";
 import supabase from "../clients/supabase.js";
+import { post } from "../clients/client.js";
 import { fetchData } from "../clients/pg.js";
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function scope() {
-  const START = 0;
-  const TAKE = 5000;
-  const BATCHSIZE = 100;
-  let index = START;
+async function remedy() {
+  const error = {
+    path: ["unit", "annotation", "pos"],
+    type: "required",
+    context: { unit: {}, tag: {}, adminUrl: "" },
+  };
 
-  const query = ` SELECT tag.* FROM public."Tag" AS tag ORDER BY tag."createdAt"; `;
-  let tags = await fetchData(query);
-  tags = tags.filter((t) => t.data.ONTOLOGICAL);
-  tags = tags.filter((t) => !t.data.ONTOLOGICAL.leaf);
-
-  // console.log(JSON.stringify(result[0], null, 2));
-  tags.forEach((t) => {
-    const { id, name, data } = t;
-    let type = `${data.ONTOLOGICAL.leaf} ${data.ONTOLOGICAL.branch}`;
-    console.log(`${id}       ${name}                    ${type}`);
-  });
-
-  // const { data: tag } = await supabase
-  //   .from("Tag")
-  //   .select(`*, _TagToUnit(*, Unit: B (*))`)
-  //   .eq("id", "clrzaz72c000mg0jssrfxuk9o")
-  //   .single();
-
-  // console.log(tag._TagToUnit.length);
-  // // return;
-  // for (const [i, relation] of tag._TagToUnit.entries()) {
-  //   const { error } = await supabase
-  //     .from("Unit")
-  //     .delete()
-  //     .eq("id", relation.Unit.id);
-  //   console.log(i, error);
-  // }
+  const result = await post("/api/classifier/remedy", { error });
+  console.log("remedy", result);
 }
 
-await scope();
+async function validate() {
+  const START = 0;
+  const TAKE = 100000;
+  const pos = "verb";
 
-// https://stanza.vivalence.com/nlp
-// {
-//   "language": "es",
-//   "text": "Las ventanas abiertas.",
-//   "processors": "tokenize,mwt,pos,lemma,depparse"
-// }
+  const { data: tag } = await supabase
+    .from("Tag")
+    .select(`*, _TagToUnit(*, Unit: B (*))`)
+    .eq(`data->ONTOLOGICAL->>leaf`, pos)
+    .eq(`data->ONTOLOGICAL->>branch`, "pos")
+    .single();
+
+  const units = tag._TagToUnit
+    .map((r) => r.Unit)
+    .sort((a, b) => a.createdAt - b.createdAt)
+    .slice(START, TAKE);
+
+  console.log(units.length);
+  const errors = [];
+
+  for (const [i, unit] of units.entries()) {
+    const result = await post("/api/classifier/validate/unit", { unit });
+    if (result.error) return console.error(result.error);
+    console.log(
+      i + START,
+      units.length,
+      unit.id,
+      unit.data.spanish,
+      unit.data.english,
+    );
+    if (!result.data.isValid) {
+      result.data.adminUrl = `${process.env.PUBLIC_ADMIN_URL}/unit/edit/${unit.id}`;
+      result.data.unit = {
+        id: unit.id,
+        spanish: unit.data.spanish,
+        english: unit.data.english,
+      };
+      errors.push(result.data);
+    }
+  }
+  console.log(errors.length, (100 / units.length) * errors.length + "%");
+  fs.writeFileSync(
+    `src/corpus-work/errors/${pos}.json`,
+    JSON.stringify(errors, null, 2),
+  );
+}
+
+await remedy();
+// await validate();
