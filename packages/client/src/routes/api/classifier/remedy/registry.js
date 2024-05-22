@@ -1,34 +1,46 @@
 export const remedyRegistry = new Map();
 
-function createKey(path, type) {
-    return JSON.stringify({ path, type });
+function createKey(path, violation) {
+    return JSON.stringify([...path, violation]);
 }
 
-export function registerRemedy(path, type, handler) {
-    const key = createKey(path, type);
-    remedyRegistry.set(key, handler);
-}
-
-function registerHandlers(module, parentPath = []) {
-    const path = [...parentPath, ...module.path];
-
-    for (const [type, handler] of Object.entries(module.handlers)) {
-        registerRemedy(path, type, handler);
+export function registerHandlers(module, parentPath = []) {
+    function registerRemedy(path, violation, handler) {
+        const key = createKey(path, violation);
+        remedyRegistry.set(key, handler);
     }
 
-    module.children.forEach((child) => registerHandlers(child, path));
+    const path = [...parentPath, ...module.path];
+    if (module.handlers) {
+        for (const [violation, handler] of Object.entries(module.handlers)) {
+            registerRemedy(path, violation, handler);
+        }
+    }
+    if (module.children) module.children.forEach((child) => registerHandlers(child, path));
 }
 
-export async function handleValidationError(error) {
-    const key = createKey(error.path, error.type);
+export async function handleValidationError(error, locals) {
+    function findHandler(path, violation) {
+        let handler = remedyRegistry.get(createKey(path, violation));
+        if (handler) {
+            return handler;
+        }
 
-    const handler = remedyRegistry.get(key);
+        for (let i = path.length - 1; i >= 0; i--) {
+            const subPath = [...path.slice(0, i), "*"];
+            handler = remedyRegistry.get(createKey(subPath, violation));
+            if (handler) {
+                return handler;
+            }
+        }
+        return null;
+    }
+
+    const handler = findHandler(error.path, error.violation);
 
     if (handler) {
-        await handler(error);
+        return await handler(error, locals);
     } else {
-        throw new Error(`No handler registered for ${key}`);
+        throw new Error(`No handler for path: ${error.path} violation: ${error.violation}`);
     }
 }
-
-export default registerHandlers;

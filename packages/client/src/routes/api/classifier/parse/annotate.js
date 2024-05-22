@@ -51,7 +51,7 @@ export default function annotate(token) {
             if (feats.mood) annotation.mood = feats.mood;
             if (feats.person) annotation.person = feats.person;
             if (feats.number) annotation.number = feats.number;
-            // annotation.aspect = feats.aspect;
+            if (feats.aspect) annotation.aspect = feats.aspect;
             break;
 
         case "aux":

@@ -1,10 +1,8 @@
 import annotation from "./annotation";
 import tag from "./tag";
-
-const path = ["unit"];
+import pos from "./pos";
 
 export default {
-    handlers: {},
-    path,
-    children: [annotation, tag]
+    path: ["unit"],
+    children: [annotation, tag, pos]
 };

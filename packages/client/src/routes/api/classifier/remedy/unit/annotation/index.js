@@ -1,19 +1,11 @@
-import pos from "./pos";
+import star from "./*.js";
 
-const path = ["annotation"];
-
-async function required({ context }) {
-    // return
-}
-async function forbidden({ context }) {
-    // return
-}
-async function invalid({ context }) {
-    // return
+async function conditional(issue, locals) {
+    return { resolved: false };
 }
 
 export default {
-    handlers: { required, forbidden, invalid },
-    path,
-    children: [pos]
+    handlers: { conditional },
+    path: ["annotation"],
+    children: [star]
 };
