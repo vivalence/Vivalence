@@ -4,6 +4,7 @@ import { unit, ontologyTags } from "../defaults";
 export const schema = {
     ...unit,
     properties: {
+        ...unit.properties,
         annotation: {
             type: "object",
             properties: {
@@ -17,9 +18,6 @@ export const schema = {
                 prontype: { ...annotations.prontype }
             },
             required: ["pos", "lemma"]
-        },
-        tags: {
-            ...ontologyTags
         }
     }
 };

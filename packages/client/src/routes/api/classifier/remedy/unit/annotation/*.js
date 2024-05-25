@@ -1,4 +1,4 @@
-import { annotations, pos } from "$classifier/ontology";
+import { annotations, pos, unit as unitPrototype } from "$classifier/ontology";
 
 async function invalid(issue, locals) {
     const unit = issue.context.unit;
@@ -6,17 +6,26 @@ async function invalid(issue, locals) {
     const invalidAnnotationKey = issue.path[issue.path.length - 1];
     const invalidAnnotationValue = issue.context.error.data;
 
-    if (invalidAnnotationKey === "aspect" && invalidAnnotationValue === "impf") {
-        unit.data.annotation.aspect = "imp";
-        const result = await locals.supabase
-            .from("Unit")
-            .update({ data: unit.data })
-            .eq("id", unit.id);
-        return { resolved: !result.error, unit, from: "hardcode" };
-    }
+    console.log("[DELETING] annotation key:", invalidAnnotationKey);
 
-    throw new Error("invalid fix", issue);
+    delete unit.data.annotation[invalidAnnotationKey];
+    const result = await locals.supabase
+        .from("Unit")
+        .update({
+            updatedAt: new Date().toISOString(),
+            data: unit.data
+        })
+        .eq("id", unit.id);
+    return { resolved: !result.error, unit, from: "hardcode" };
 }
+
+// @lj
+// invalid & required might cause oscillation.
+// invalid deletes the annotation key,
+// required adds the annotation key from tag.
+// if the tag is faulty, it will never be resolved,
+// instead the handlers will keep toggling the annotation key.
+// SOLUTION: either removed the tag too, or ask llm.
 
 async function required(issue, locals) {
     const unit = issue.context.unit;
@@ -32,7 +41,10 @@ async function required(issue, locals) {
             unit.data.annotation[requiredAnnotationKey] = missingTag.data.ONTOLOGICAL.leaf;
             const result = await locals.supabase
                 .from("Unit")
-                .update({ data: unit.data })
+                .update({
+                    updatedAt: new Date().toISOString(),
+                    data: unit.data
+                })
                 .eq("id", unit.id);
             resolved = { resolved: !result.error, unit, tag: missingTag, from: "tag" };
         }
@@ -73,11 +85,19 @@ ${JSON.stringify(unit.data, null, 2)}
             unit.data.annotation[requiredAnnotationKey] = data[requiredAnnotationKey];
             const result = await locals.supabase
                 .from("Unit")
-                .update({ data: unit.data })
+                .update({
+                    updatedAt: new Date().toISOString(),
+                    data: unit.data
+                })
                 .eq("id", unit.id);
             resolved = { resolved: !result.error, unit, from: "llm" };
         } else {
-            throw new Error("[invalid LLM response]", data, issue);
+            console.log("[invalid LLM response]:", data);
+            console.log(
+                `if ${JSON.stringify(issue.context.error.data, null, 2)} is verb but misses verbform, then thats the ajv bug.`
+            );
+            console.log(`unit:`, unit.id);
+            throw new Error("[invalid LLM response]");
         }
     })();
     return resolved;
@@ -87,7 +107,13 @@ async function forbidden(issue, locals) {
     const unit = issue.context.unit;
     const forbiddenAnnotationKey = issue.path[issue.path.length - 1];
     delete unit.data.annotation[forbiddenAnnotationKey];
-    const result = await locals.supabase.from("Unit").update({ data: unit.data }).eq("id", unit.id);
+    const result = await locals.supabase
+        .from("Unit")
+        .update({
+            updatedAt: new Date().toISOString(),
+            data: unit.data
+        })
+        .eq("id", unit.id);
     return { resolved: !result.error, unit, from: "hardcode" };
 }
 

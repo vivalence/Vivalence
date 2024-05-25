@@ -124,16 +124,13 @@ model Unit {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
   objectStatus ObjectStatusEnum @default(ACTIVE)
-  corpusId     String
+  corpusId     String?
   corpusType   CorpusTypeEnum @default(WORD)
   data         Json
   strategy     Strategy[]     @relation("StrategyToUnit")
   tags         Tag[]
   plays        Play[]
   memory       Memory[]
-
-  @@index([corpusId], name: "corpusIdIndexOnUnit")
-  @@unique([corpusId, corpusType])
 }
 
 enum QueueStatusEnum {

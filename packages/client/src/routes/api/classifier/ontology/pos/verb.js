@@ -4,6 +4,7 @@ import { unit, ontologyTags } from "../defaults";
 export const schema = {
     ...unit,
     properties: {
+        ...unit.properties,
         annotation: {
             type: "object",
             properties: {
@@ -17,10 +18,10 @@ export const schema = {
                 tense: { ...annotations.tense },
                 mood: { ...annotations.mood },
                 person: { ...annotations.person },
+                gender: { ...annotations.gender },
                 number: { ...annotations.number },
                 aspect: { ...annotations.aspect }
             },
-
             required: ["pos", "lemma", "verbform"],
             allOf: [
                 {
@@ -43,7 +44,6 @@ export const schema = {
                         }
                     }
                 },
-
                 {
                     if: { properties: { verbform: { const: "part" } } },
                     then: {
@@ -70,15 +70,13 @@ export const schema = {
                     }
                 }
             ]
-        },
-        tags: {
-            ...ontologyTags
         }
     }
 };
 
 export const constraints = [
     { unique: { branch: "pos" } },
+    { unique: { branch: "lemma" } },
     { unique: { branch: "verbform" } },
     { unique: { branch: "tense" } },
     { unique: { branch: "mood" } },
@@ -100,8 +98,8 @@ export const constraints = [
                 { required: { branch: "mood" } },
                 { required: { branch: "person" } },
                 { required: { branch: "number" } },
-                { unique: { branch: "number" } },
                 { required: { branch: "aspect" } },
+                { unique: { branch: "number" } },
                 { forbidden: { branch: "gender" } }
             ]
         }

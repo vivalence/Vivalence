@@ -51,6 +51,13 @@ function buildError(error) {
             violation: "forbidden",
             context
         };
+    } else if (error.keyword === "additionalProperties") {
+        return {
+            message: `annotation invalid: ${error.instancePath} ${error.message}`,
+            path: [...path, error.params.additionalProperty],
+            violation: "forbidden",
+            context
+        };
     } else if (error.keyword === "if") {
         return {
             message: `annotation invalid: ${error.instancePath} ${error.message}`,
@@ -65,7 +72,6 @@ function buildError(error) {
         violation: "unknown",
         context
     };
-    throw new Error(`Unknown annotation validation error`, unknownError);
     return unknownError;
 }
 

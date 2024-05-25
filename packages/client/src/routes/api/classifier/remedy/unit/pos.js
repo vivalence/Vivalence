@@ -11,6 +11,7 @@ async function mismatch(issue, locals) {
                 delete demoData.annotation;
                 return `### Task
 Identify the Part of Speech (defined by Universal Dependencies) of a spanish word.
+Strongly prefere verb over aux.
 
 ### Input
 \`\`\`json
@@ -19,7 +20,7 @@ ${JSON.stringify(demoData, null, 2)}
 
 ### Output
 \`\`\`json
-{"pos": "${annotations.pos.enum.join('" | "')}"}
+{"pos": "${annotations.pos.enum.filter((e) => e !== "aux").join('" | "')}"}
 `;
             })(),
             schema: {
@@ -50,7 +51,10 @@ ${JSON.stringify(demoData, null, 2)}
     await (async function updateUnit() {
         const { error: unitDataError } = await locals.supabase
             .from("Unit")
-            .update({ data: unit.data })
+            .update({
+                updatedAt: new Date().toISOString(),
+                data: unit.data
+            })
             .eq("id", unit.id);
         if (unitDataError) throw unitDataError;
     })();

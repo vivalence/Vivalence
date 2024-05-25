@@ -15,8 +15,8 @@ export async function openai(inputs) {
     const completion = {
         messages,
         model: provider.model || "gpt-3.5-turbo",
-        max_tokens: provider.max_tokens || 100,
-        temperature: provider.temperature || 0.2
+        max_tokens: provider.max_tokens || 4096,
+        temperature: provider.temperature || 0.5
     };
     if (schema) {
         messages.unshift({

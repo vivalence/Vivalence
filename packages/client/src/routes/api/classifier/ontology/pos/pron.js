@@ -4,6 +4,7 @@ import { unit, ontologyTags } from "../defaults";
 export const schema = {
     ...unit,
     properties: {
+        ...unit.properties,
         annotation: {
             type: "object",
             properties: {
@@ -49,9 +50,6 @@ export const schema = {
                     then: { required: ["number"] }
                 }
             ]
-        },
-        tags: {
-            ...ontologyTags
         }
     }
 };
