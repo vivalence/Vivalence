@@ -1,5 +1,8 @@
+import { pos, annotations } from "$classifier/ontology";
+
 async function required({ context, ...issue }, locals) {
-    const feat = context[context.ontology.branch];
+    const feat = annotations[context.ontology.branch];
+    // requires PROVIDE_META = true
     const enumVal = feat.meta.enums[context.ontology.leaf];
 
     const tag = {

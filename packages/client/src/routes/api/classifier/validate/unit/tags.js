@@ -1,11 +1,28 @@
 import { pos } from "$classifier/ontology";
 
-export default function (unit) {
+export default async function (unit, locals) {
     const { constraints } = pos[unit.annotation.pos];
     const issues = [];
 
-    for (const constraint of constraints) {
-        issues.push(...validate(constraint, unit));
+    for (const [branch, leaf] of Object.entries(unit.annotation)) {
+        // if (branch === "lemma" && !["verb", "aux"].includes(unit.annotation.pos)) continue;
+        if (branch === "lemma") continue;
+        const ontology = { branch: branch, leaf: leaf };
+        const tags = unit.tags.filter((tag) => tag.branch === branch && tag.leaf === leaf);
+        if (tags.length === 0) {
+            issues.push({
+                message: `Required tag with branch: '${branch}' and leaf: '${leaf}' missing.`,
+                path: ["unit", "tag"],
+                violation: "required",
+                context: { ontology, test: { required: ontology } }
+            });
+        }
+    }
+
+    if (issues.length === 0) {
+        for (const constraint of constraints) {
+            issues.push(...validate(constraint, unit));
+        }
     }
 
     return {

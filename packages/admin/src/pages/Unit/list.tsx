@@ -31,10 +31,14 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
     },
     onSearch: (values: any) => {
       return [
+        /* {
+         *   field: "id",
+         *   operator: "contains",
+         *   value: values.value,
+         * }, */
         {
           field: "data->>spanish",
           operator: "contains",
-          /* operator: "eq", */
           value: values.value,
         },
         /* {

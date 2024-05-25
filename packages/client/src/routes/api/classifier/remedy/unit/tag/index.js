@@ -22,10 +22,7 @@ async function required(issue, locals) {
             resolved = { resolved: !result.error, tag: requiredTag, unit, from: "annotation" };
         } else {
             console.log("required tag not found");
-            console.log(issue.message);
-            console.log(ontology);
-            console.log(annotation);
-            throw new Error("required tag not found");
+            resolved = { resolved: false, issue, error: { message: "required tag not found" } };
         }
     })();
 
@@ -42,6 +39,7 @@ async function unique(issue, locals) {
 
         const tags = unit.tags
             .filter((tag) => {
+                // get all tags that match the constraint
                 return (
                     (constraint.branch
                         ? tag.data.ONTOLOGICAL?.branch === constraint.branch
@@ -50,6 +48,7 @@ async function unique(issue, locals) {
                 );
             })
             .filter((tag) => {
+                // filter out tags that are covered in the annotation
                 return !Object.keys(annotation).some((key) => {
                     return (
                         key === tag.data.ONTOLOGICAL.branch &&
@@ -58,6 +57,7 @@ async function unique(issue, locals) {
                 });
             });
 
+        // delete all tags that match the constraint but are not in the annotation
         for (const tag of tags) {
             const result = await locals.supabase
                 .from("_TagToUnit")

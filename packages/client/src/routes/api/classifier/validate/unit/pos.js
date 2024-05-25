@@ -13,7 +13,7 @@ export default async function (unit, locals) {
         return { isValid: false, issues };
     }
 
-    if (issues.length === 0) {
+    if (issues.length === 0 && unit.tags) {
         const tags = unit.tags.filter((tag) => {
             return (
                 tag.branch === "pos" && //

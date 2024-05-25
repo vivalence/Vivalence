@@ -4,11 +4,11 @@ import llms from "$lib/server/llms";
 export async function GET({ fetch, locals, ...props }) {
     try {
         const inputs = locals.params();
-        const response = await llms[inputs.provider.api](inputs);
-        // console.log("[LLM ]");
+        // console.log("[LLM]");
         // console.log("[LLM REQUEST]", inputs);
-        console.log("[LLM RESPONSE]", response);
-        // console.log("[LLM ]");
+        const response = await llms[inputs.provider.api](inputs);
+        // console.log("[LLM RESPONSE]", response);
+        // console.log("[LLM]");
         return json({ data: response, error: null });
     } catch (err) {
         console.error(`[LLM ERROR /api/llm]`, err.message);

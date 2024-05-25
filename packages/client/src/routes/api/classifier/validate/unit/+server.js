@@ -1,7 +1,7 @@
 import { json } from "@sveltejs/kit";
 
 import validateAnnotation from "./annotation.js";
-import validateRelations from "./tags.js";
+import validateTags from "./tags.js";
 import validatePos from "./pos.js";
 
 export async function POST({ request, locals, ...props }) {
@@ -11,16 +11,16 @@ export async function POST({ request, locals, ...props }) {
 
         const issues = [];
 
-        const validation = await validatePos(statement);
+        const validation = await validatePos(statement, locals);
         if (!validation.isValid) issues.push(...validation.issues);
 
         if (!issues.length > 0 && statement.annotation) {
-            const validation = await validateAnnotation(statement);
+            const validation = await validateAnnotation(statement, locals);
             if (!validation.isValid) issues.push(...validation.issues);
         }
 
         if (!issues.length > 0 && statement.tags) {
-            const validation = await validateRelations(statement);
+            const validation = await validateTags(statement, locals);
             if (!validation.isValid) issues.push(...validation.issues);
         }
 
@@ -38,7 +38,15 @@ export async function POST({ request, locals, ...props }) {
 }
 
 function buildStatement(unit) {
-    const statement = { id: unit.id };
+    const statement = {
+        spanish: unit.data.spanish,
+        english: unit.data.english
+    };
+
+    if (unit.id) statement.id = unit.id;
+    if (unit.data.usageInEnglish) statement.usageInEnglish = unit.data.usageInEnglish;
+    if (unit.data.usageInSpanish) statement.usageInSpanish = unit.data.usageInSpanish;
+
     if (unit.data.annotation) {
         statement.annotation = unit.data.annotation;
     }

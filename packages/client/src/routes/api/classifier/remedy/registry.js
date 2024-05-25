@@ -39,6 +39,7 @@ export async function handleValidationError(error, locals) {
     const handler = findHandler(error.path, error.violation);
 
     if (handler) {
+        console.log("remedy issue:", error.violation, error.path);
         return await handler(error, locals);
     } else {
         throw new Error(`No handler for path: ${error.path} violation: ${error.violation}`);
