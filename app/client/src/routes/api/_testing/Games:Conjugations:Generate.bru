@@ -1,0 +1,21 @@
+meta {
+  name: Games:Conjugations:Generate
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:5174/api/games/conjugations/generate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "gameId": "clqcr75ai0002g04mem2ugyo6",
+    "tagIds": [],
+    "whitelist": [],
+    "blacklist": [],
+    "take": 0
+  }
+}

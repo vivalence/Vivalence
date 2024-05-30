@@ -1,0 +1,6 @@
+{
+    "version": "1",
+    "name": "vivalence client api",
+    "type": "collection",
+    "ignore": ["node_modules", ".git"]
+}

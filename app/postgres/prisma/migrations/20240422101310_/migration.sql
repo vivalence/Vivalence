@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Memory" ALTER COLUMN "unitId" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Play" ALTER COLUMN "unitId" DROP NOT NULL;

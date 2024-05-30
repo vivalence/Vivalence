@@ -1,0 +1,26 @@
+meta {
+  name: Units:get:weakest
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:5174/api/units/weakest
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+        "tagIds": ["clpwfwoax0000g0n1wrtqt6q1","55bdcbd6-fd42-41dd-8014-79668ae6fd07"],
+        "gameId": "clqcr74kx0000g04mh0lh3ymw",
+        "blacklist": [],
+        "take": 5
+    }
+}
+docs {
+# get the weakest units
+MUST BE TESTED
+
+weakest by memory
+}
