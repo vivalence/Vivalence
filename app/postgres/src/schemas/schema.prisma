@@ -1,0 +1,21 @@
+generator client {
+    provider = "prisma-client-js"
+    output   = "./app/backend/" 
+    previewFeatures = ["views"]
+
+}
+
+generator pothos {
+    provider     = "prisma-pothos-types"
+    clientOutput = "@prisma/client"
+    output       = "./app/backend/" 
+    previewFeatures = ["views"]
+
+}
+
+datasource db {
+    provider = "postgresql"
+    url               = env("DATABASE_URL")
+    // schemas           = ["public", "auth"]
+    // directUrl         = env("DIRECT_URL")
+}

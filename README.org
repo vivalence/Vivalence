@@ -1,0 +1,29 @@
+* identity
+** why
+make learning everything as easy as trinity learning to fly a b-21-2 helicopter
+** vision
+the entirety of humanities competence,
+encoded and optimized and transmitted,
+between any persons and available to anyone.
+
+tradeoffs and all.
+** mission
+be the global competence transfer layer for humanity.
+like the internet is for information or facebook is for social.
+
+* values
+** curiosity
+*** optimise for learning
+doing is linear, learning is log.
+errors in estimates of doing are exponentially smaller than in discovery
+so is the value of output. maybe value of learning is cubic.
+
+*** humility
+you dont know shit.
+
+** dedication
+*** disciplin
+*** focus
+** service
+*** provide value 
+*** solve the problem
