@@ -1,5 +1,3 @@
-import { env } from "$env/dynamic/private";
-const { SYSTEM_MODE } = env;
 import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
@@ -48,17 +46,11 @@ Build the sentence using these constraints:
 
 Return a JSON object with the spoken and learning sentence.`
 };
+// import { env } from "$env/dynamic/private";
+// const { SYSTEM_MODE } = env;
+// if (SYSTEM_MODE && +SYSTEM_MODE < 2) {return json({data: {spoken: "The father should have a good new house.", learning: "El padre debería tener una casa nueva buena."}});}
 
 export async function POST({ fetch, locals, request }) {
-    if (SYSTEM_MODE && +SYSTEM_MODE < 2) {
-        return json({
-            data: {
-                spoken: "The father should have a good new house.",
-                learning: "El padre debería tener una casa nueva buena."
-            }
-        });
-    }
-
     try {
         const { gameId, constraints, language } = await request.json();
 
@@ -82,27 +74,32 @@ export async function POST({ fetch, locals, request }) {
         });
         if (llmError) throw llmError;
 
-        const { data: nlp, error: nlpError } = await locals.get(`/api/nlp`, {
-            sentence: sentence.learning
-        });
+        const { data: annotations, error: nlpError } = await locals.post(
+            `/api/classifier/annotate/fromText`,
+            { text: sentence.learning }
+        );
         if (nlpError) throw nlpError;
 
-        const tokens = nlp.sentences[0].tokens.filter((token) => !!token.unit);
+        const tokens = await Promise.all(
+            annotations.flat().map(async (annotation) => {
+                const input = { annotation };
+                const { data: units } = await locals.post("/api/units/fromAnnotation", input);
+                return { annotation, unit: units[0] };
+            })
+        );
 
         const instruction = {
             type: "TRANSLATIONS",
             instruction: {
-                sentence
-                // TODO for feedback:
-                // deconstruct the sentence and send the deconstruction
+                sentence // @lj TODO for feedback: deconstruct the sentence and send the deconstruction
             },
             scope: {
                 game: { id: gameId },
                 units: tokens.map((token) => ({
                     id: token.unit.id,
-                    token: token.token,
-                    start_char: token.start_char,
-                    end_char: token.end_char,
+                    token: token.annotation.meta.token,
+                    start_char: token.annotation.meta.start_char,
+                    end_char: token.annotation.meta.end_char,
                     tags: token.unit.tags.map(({ id }) => ({ id }))
                 }))
             }

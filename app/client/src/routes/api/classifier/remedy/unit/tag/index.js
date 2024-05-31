@@ -21,7 +21,8 @@ async function required(issue, locals) {
                 .upsert({ A: requiredTag.id, B: unit.id });
             resolved = { resolved: !result.error, tag: requiredTag, unit, from: "annotation" };
         } else {
-            console.log("required tag not found");
+            console.log("required tag not found", ontology, unit.id, unit.data.annotation);
+            // console.log(JSON.stringify(issue, null, 2));
             resolved = { resolved: false, issue, error: { message: "required tag not found" } };
         }
     })();

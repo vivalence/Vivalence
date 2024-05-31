@@ -88,15 +88,13 @@ export const annotationSpace = [
         ["lemma", ["qué"]],
         ["pos", ["pron"]],
         ["prontype", ["exc"]]
-    ],
-    [
-        ["lemma", ["todo"]],
-        ["pos", ["pron"]],
-        ["prontype", ["tot"]]
-    ],
-    [
-        ["lemma", ["ninguno"]],
-        ["pos", ["pron"]],
-        ["prontype", ["neg"]]
     ]
+    // [["lemma", ["todo"]], ["pos", ["pron"]], ["prontype", ["tot"]]],
+    // [["lemma", ["ninguno"]], ["pos", ["pron"]], ["prontype", ["neg"]]]
 ];
+
+export const lemmas = [];
+for (const [branch, leaves] of annotationSpace.flat()) {
+    if (branch !== "lemma") continue;
+    lemmas.push(...leaves);
+}

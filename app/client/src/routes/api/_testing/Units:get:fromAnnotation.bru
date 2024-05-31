@@ -1,24 +1,36 @@
 meta {
   name: Units:get:fromAnnotation
   type: http
-  seq: 23
+  seq: 16
 }
 
 post {
-  url: http://localhost:5174/api/units/pending
+  url: http://localhost:5174/api/units/fromAnnotation
   body: json
   auth: none
 }
 
 body:json {
     {
-        "tagIds": ["clpwfwoax0000g0n1wrtqt6q1","55bdcbd6-fd42-41dd-8014-79668ae6fd07"],
-        "gameId": "clqcr74kx0000g04mh0lh3ymw",
-        "blacklist": [],
-        "take": 5
+      "annotation": {
+          "lemma": "yo",
+          "pos": "pron",
+          "number": "sing",
+          "person": "1",
+          "prontype": "prs",
+          "reflex": "yes",
+          "meta": {
+            "token": "Me",
+            "index": 1,
+            "start_char": 0,
+            "end_char": 2,
+            "upos": "PRON",
+            "feats": "Case=Acc|Number=Sing|Person=1|PrepCase=Npr|PronType=Prs|Reflex=Yes"
+          }
+        }
     }
 }
 
 docs {
-  due by play
+  find units +.tags by annotation object.
 }

@@ -82,13 +82,7 @@ export const annotationSpace = [
         ["number", ["sing"]],
         ["gender", ["masc"]]
     ],
-    [
-        ["lemma", ["todo"]],
-        ["pos", ["det"]],
-        ["prontype", ["tot"]],
-        ["number", ["sing"]],
-        ["gender", ["masc"]]
-    ],
+    // [["lemma", ["todo"]], ["pos", ["det"]], ["prontype", ["tot"]], ["number", ["sing"]], ["gender", ["masc"]]],
     [
         [
             "lemma",
@@ -110,12 +104,12 @@ export const annotationSpace = [
         ["prontype", ["ind"]],
         ["number", ["sing"]],
         ["gender", ["masc"]]
-    ],
-    [
-        ["lemma", ["ninguno"]],
-        ["pos", ["det"]],
-        ["prontype", ["neg"]],
-        ["number", ["sing"]],
-        ["gender", ["masc"]]
     ]
+    // [["lemma", ["ninguno"]], ["pos", ["det"]], ["prontype", ["neg"]], ["number", ["sing"]], ["gender", ["masc"]]]
 ];
+
+export const lemmas = [];
+for (const [branch, leaves] of annotationSpace.flat()) {
+    if (branch !== "lemma") continue;
+    lemmas.push(...leaves);
+}

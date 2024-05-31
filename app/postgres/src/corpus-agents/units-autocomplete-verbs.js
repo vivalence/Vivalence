@@ -6,30 +6,7 @@ import {
   annotations,
 } from "/Users/finn/vivalence/code/vivalence/app/client/src/routes/api/classifier/ontology";
 
-const topSpanishVerbs = (() => {
-  return [
-    "ser",
-    "estar",
-    "tener",
-    "hacer",
-    "poder",
-    "decir",
-    "ir",
-    "ver",
-    "dar",
-    "saber",
-    "querer",
-    "llegar",
-    "pasar",
-    "deber",
-    "poner",
-    "parecer",
-    "quedar",
-    "creer",
-    "hablar",
-    "llevar",
-  ];
-})();
+const topSpanishVerbs = POS.verb.lemmas;
 
 async function getVerbs(lemmas) {
   const branch = "pos";

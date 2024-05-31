@@ -16,7 +16,7 @@ export const schema = {
                 pos: {
                     ...annotations.pos,
                     $id: "verb.annotation.pos",
-                    enum: ["verb", "aux"]
+                    enum: ["verb"]
                 },
                 lemma: { ...annotations.lemma },
                 verbform: { ...annotations.verbform },
@@ -52,8 +52,9 @@ export const schema = {
                 {
                     if: { properties: { verbform: { const: "part" } }, required: ["verbform"] },
                     then: {
-                        required: ["gender", "number"],
                         properties: {
+                            gender: { not: {} },
+                            number: { not: {} },
                             tense: { not: {} },
                             mood: { not: {} },
                             person: { not: {} },
@@ -93,7 +94,6 @@ export const constraints = [
             { required: { branch: "pos", leaf: "aux" } }
         ]
     },
-    { required: { branch: "verbform", leaf: "fin" } },
     {
         condition: {
             if: { required: { branch: "verbform", leaf: "fin" } },
@@ -126,10 +126,8 @@ export const constraints = [
         condition: {
             if: { required: { branch: "verbform", leaf: "part" } },
             then: [
-                { required: { branch: "gender", leaf: "masc" } },
-                { required: { branch: "gender", leaf: "fem" } },
-                { required: { branch: "number", leaf: "sing" } },
-                { required: { branch: "number", leaf: "plur" } },
+                { forbidden: { branch: "gender" } },
+                { forbidden: { branch: "number" } },
                 { forbidden: { branch: "tense" } },
                 { forbidden: { branch: "mood" } },
                 { forbidden: { branch: "person" } },
@@ -152,20 +150,41 @@ export const constraints = [
     }
 ];
 
-// const verbLemmas = [];
-// export const annotationSpace = [
-//     [
-//         ["lemma", verbLemmas],
-//         ["pos", ["verb"]],
-//         ["verbform", ["fin"]],
-//         ["mood", ["ind"]],
-//         ["tense", ["pres", "past", "fut", "imp"]],
-//         ["number", ["sing", "plur"]],
-//         ["person", ["1", "2", "3"]]
-//     ],
-//     [
-//         ["lemma", verbLemmas],
-//         ["pos", ["verb"]],
-//         ["verbform", ["inf", "ger", "part"]]
-//     ]
-// ];
+export const lemmas = [
+    "ser",
+    "estar",
+    "tener",
+    "hacer",
+    "poder",
+    "decir",
+    "ir",
+    "ver",
+    "dar",
+    "saber",
+    "querer",
+    "llegar",
+    "pasar",
+    "deber",
+    "poner",
+    "parecer",
+    "quedar",
+    "creer",
+    "hablar",
+    "llevar"
+];
+export const annotationSpace = [
+    [
+        ["lemma", lemmas],
+        ["pos", ["verb"]],
+        ["verbform", ["fin"]],
+        ["mood", ["ind"]],
+        ["tense", ["pres", "past", "fut", "imp"]],
+        ["number", ["sing", "plur"]],
+        ["person", ["1", "2", "3"]]
+    ],
+    [
+        ["lemma", lemmas],
+        ["pos", ["verb"]],
+        ["verbform", ["inf", "ger", "part"]]
+    ]
+];

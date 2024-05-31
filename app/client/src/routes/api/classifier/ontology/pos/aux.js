@@ -38,3 +38,9 @@ export const constraints = [...verb.constraints];
 //         ["verbform", ["inf", "ger", "part"]]
 //     ]
 // ];
+
+// export const lemmas = [];
+// for (const [branch, leaves] of annotationSpace.flat()) {
+//     if (branch !== "lemma") continue;
+//     lemmas.push(...leaves);
+// }
