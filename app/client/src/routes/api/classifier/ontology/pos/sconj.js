@@ -47,3 +47,8 @@ export const annotationSpace = [
         ]
     ]
 ];
+export const lemmas = [];
+for (const [branch, leaves] of annotationSpace.flat()) {
+    if (branch !== "lemma") continue;
+    lemmas.push(...leaves);
+}

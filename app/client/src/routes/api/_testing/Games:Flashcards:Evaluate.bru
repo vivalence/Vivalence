@@ -1,7 +1,7 @@
 meta {
   name: Games:Flashcards:Evaluate
   type: http
-  seq: 7
+  seq: 9
 }
 
 post {
@@ -18,19 +18,19 @@ body:json {
 }
 
 docs {
-# Evaluate a flashcard game loop
-This API is used to evaluate a flashcard game loop.
-
-## Request
-The `response` can be one of the following:
+  # Evaluate a flashcard game loop
+  This API is used to evaluate a flashcard game loop.
+  
+  ## Request
+  The `response` can be one of the following:
     - UNKNOWN: The user does not know the answer to the flashcard.
     - KNOWN: The user knows the answer to the flashcard.
     - GRADUATE: The user knows the answer to the flashcard and the flashcard is graduated. This means the flashcard memory will be scaled 3-5x.
-
-The `payload`, as usual, contains the necessary information to identify the memory model thats being evaluated. Here, the `unitId` and `gameId` are required.
-
-## Response
-The response will be a JSON object with the following fields:
-
-
+  
+  The `payload`, as usual, contains the necessary information to identify the memory model thats being evaluated. Here, the `unitId` and `gameId` are required.
+  
+  ## Response
+  The response will be a JSON object with the following fields:
+  
+  
 }

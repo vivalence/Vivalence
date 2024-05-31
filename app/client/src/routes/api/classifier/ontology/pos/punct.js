@@ -16,6 +16,7 @@ export const schema = {
                     enum: ["punct"]
                 },
                 lemma: { ...annotations.lemma }
+                // puncttype: { ...annotations.puncttype }
             },
             required: ["pos", "lemma"]
         }
@@ -32,3 +33,9 @@ export const annotationSpace = [
         ["lemma", [".", ",", "!", "¡", "?", "¿"]]
     ]
 ];
+
+// export const lemmas = [];
+// for (const [branch, leaves] of annotationSpace.flat()) {
+//     if (branch !== "lemma") continue;
+//     lemmas.push(...leaves);
+// }

@@ -1,47 +1,29 @@
 import fs from "fs";
 import supabase from "../clients/supabase.js";
 import { fetchData } from "../clients/pg.js";
-import annotate from "/Users/finn/vivalence/code/app/packages/client/src/routes/api/classifier/parse/annotate.js";
+import annotate from "../../../client/src/routes/api/classifier/annotate/fromText/annotate.js";
 
+const referenceDate = new Date("2024-05-31T00:00:00.000Z");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-const exampledata = {
-  ud: {
-    text: "y",
-    upos: "CCONJ",
-    xpos: "cc",
-    feats: {},
-    lemma: "y",
-  },
-  pos: ["CONJUNCTION_COORDINATING", "CONJUNCTION_SUBORDINATING"],
-  type: "CONJ",
-  lemmaEnglish: null,
-  lemmaSpanish: "y",
-  index: 4,
-  english: "and",
-  spanish: "y",
-  usageInEnglish: "they know how to read and write",
-  usageInSpanish: "saben leer y escribir",
-};
+const START = 0;
+const TAKE = 10000;
+const BATCHSIZE = 500;
+const BATCHINTERVAL = 1000;
 
-const referenceDate = new Date("2024-05-12T00:00:00.000Z");
+let index = START;
+
 async function scope() {
-  const START = 0;
-  const TAKE = 50000;
-  const BATCHSIZE = 1000;
-  const BATCHINTERVAL = 1000;
-  let index = START;
-
   const response = await supabase
     .from("Unit")
     .select("*")
-    // .lte("updatedAt", referenceDate.toISOString())
+    .lte("updatedAt", referenceDate.toISOString())
     .order("updatedAt", { ascending: true })
-    .range(START, START + TAKE);
+    .range(START, START + TAKE - 1);
 
   if (response.error) return console.error(response.error);
 
   console.log("ops avail", response.data.length);
-  const units = response.data.filter((unit) => !unit.data.annotation.lemma);
+  const units = response.data.filter((unit) => !unit.data.lemma);
   console.log("ops to do", units.length);
 
   async function update(unit, index) {
@@ -52,6 +34,7 @@ async function scope() {
       token.token = unit.data.spanish || token.text;
 
       const annotation = annotate(token);
+      delete annotation.meta;
       delete unit.data.ud;
       delete unit.data.pos;
       delete unit.data.type;

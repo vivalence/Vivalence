@@ -31,3 +31,9 @@ export const annotationSpace = [
         ["lemma", ["y", "o", "pero", "sino", "ni"]]
     ]
 ];
+
+export const lemmas = [];
+for (const [branch, leaves] of annotationSpace.flat()) {
+    if (branch !== "lemma") continue;
+    lemmas.push(...leaves);
+}
