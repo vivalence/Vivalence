@@ -1,5 +1,5 @@
 import Ajv from "ajv";
-import ajvErrors from "ajv-Errors";
+import ajvErrors from "ajv-errors";
 
 const ajv = new Ajv({
     allErrors: true,
