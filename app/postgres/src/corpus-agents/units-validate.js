@@ -9,26 +9,31 @@ import {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const index = 0;
-const TAKE = 16000;
+const TAKE = 40;
 const START = TAKE * index;
 
 let count = 0;
 const MAX_RUNS = 10;
+const BATCHSIZE = 50;
 
 async function getUnits() {
   const { data: units, error } = await supabase
     .from("Unit")
-    .select(`id, createdAt`)
+    .select(`id, createdAt, data`)
     .order("createdAt", { ascending: false })
-    .range(START, START + TAKE);
+    .in("data->annotation->>pos", ["pron", "det"])
+    .range(START, START + TAKE - 1);
 
   return units;
 }
 let units = await getUnits();
+console.log("units", units.length);
 
 while (count < MAX_RUNS) {
   console.log(" ");
   console.log("getting issues...", count++ + 1, "of", MAX_RUNS, "runs");
+
+  // validate
 
   console.log("validating units...", units.length);
   async function validateUnitsInBatches(units, batchSize) {
@@ -37,7 +42,7 @@ while (count < MAX_RUNS) {
     async function validateUnits(units, bi) {
       const promises = units.map(async function (unit) {
         const response = await post("/api/classifier/units/validate", { unit });
-        if (response.error) throw error;
+        if (response.error) throw response.error;
         return response.data.issues;
       });
       const unitIssues = await Promise.all(promises);
@@ -57,7 +62,13 @@ while (count < MAX_RUNS) {
 
     return issues;
   }
-  let issues = await validateUnitsInBatches(units, 100);
+  let issues = await validateUnitsInBatches(units, BATCHSIZE);
+
+  // console.log("issues", issues);
+  console.log("issues", issues.length);
+  // continue;
+  // issues
+
   const totalIssueCount = issues.length;
   if (totalIssueCount === 0) {
     console.log("\n\n[BATCH IS CLEAN]\n");
@@ -93,6 +104,8 @@ while (count < MAX_RUNS) {
   issues = orderIssues(issues);
   units = issues.map((i) => i.context.unit);
 
+  // remedy
+
   async function remedyIssuesInBatches(issues, batchSize) {
     async function remedyIssues(batch, bi) {
       const promises = batch.map(async (issue, i) => {
@@ -114,15 +127,5 @@ while (count < MAX_RUNS) {
       await remedyIssues(batch, i);
     }
   }
-  await remedyIssuesInBatches(issues, 50);
+  await remedyIssuesInBatches(issues, BATCHSIZE);
 }
-
-// for (const [i, issue] of issues.entries()) {
-//   const response = await post("/api/classifier/remedy", { issue });
-//   if (response.error)
-//     console.log(`Error: ${i}/${issues.length} ->`, response.error);
-//   else
-//     console.log(
-//       `${count} - ${i}/${issues.length}(${totalIssueCount}) =>   ${issue.violation} =>  ${response.remedy.resolved}`,
-//     );
-// }

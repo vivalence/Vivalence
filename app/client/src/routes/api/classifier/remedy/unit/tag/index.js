@@ -75,13 +75,13 @@ async function unique(issue, locals) {
 
 async function forbidden(issue, locals) {
     const unit = issue.context.unit;
-    const forbidden = issue.context.test.forbidden;
+    const ontology = issue.context.forbidden;
     const annotation = unit.data.annotation;
 
     const tag = unit.tags.find((tag) => {
         return (
-            (forbidden.branch ? tag.data.ONTOLOGICAL?.branch === forbidden.branch : true) &&
-            (forbidden.leaf ? tag.data.ONTOLOGICAL?.leaf === forbidden.leaf : true)
+            (ontology.branch ? tag.data.ONTOLOGICAL?.branch === ontology.branch : true) &&
+            (ontology.leaf ? tag.data.ONTOLOGICAL?.leaf === ontology.leaf : true)
         );
     });
 

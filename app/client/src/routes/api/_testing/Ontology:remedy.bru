@@ -1,0 +1,49 @@
+meta {
+  name: Ontology:remedy
+  type: http
+  seq: 21
+}
+
+post {
+  url: http://localhost:5174/api/classifier/remedy
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "issue": {
+      "path": [
+        "unit",
+        "lemma"
+      ],
+      "violation": "invalid",
+      "context": {
+        "unit": {
+          "id": "4ef6022c-a88b-4a96-95ac-289e715945ed",
+          "createdAt": "2024-05-31T14:00:38.67",
+          "updatedAt": "2024-06-01T13:16:39.895",
+          "corpusId": null,
+          "corpusType": "WORD",
+          "data": {
+            "index": 50,
+            "english": "my",
+            "spanish": "mi",
+            "annotation": {
+              "pos": "det",
+              "poss": "yes",
+              "lemma": "mi",
+              "gender": "masc",
+              "number": "sing",
+              "person": "1",
+              "prontype": "prs"
+            },
+            "usageInEnglish": "This is my book.",
+            "usageInSpanish": "Este es mi libro."
+          },
+          "objectStatus": "ACTIVE"
+        }
+      }
+    }
+  }
+}

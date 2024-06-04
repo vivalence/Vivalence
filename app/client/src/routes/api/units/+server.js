@@ -21,16 +21,9 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
         });
         if (playError) throw playError;
 
-        // const { data: unit } = await supabase.from("Unit").select("data").eq("id", unitId).single();
+        const { data: unit } = await supabase.from("Unit").select("data").eq("id", unitId).single();
 
-        // console.log(
-        //     "UNIT ",
-        //     unit.data.spanish,
-        //     memoryData.memory.status,
-        //     `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`,
-        //     memoryData.memoryStatusChange ? "status change" : "no change",
-        //     response
-        // );
+        // console.log("UNIT ", unit.data.spanish, memoryData.memory.status, memoryData.nextPlay, `${Math.round((memoryData.nextReviewIn / 7) * 100) / 100} days`, memoryData.memoryStatusChange ? "status change" : "no change", response, gameId);
 
         return json({
             data: { ...playData, ...memoryData },

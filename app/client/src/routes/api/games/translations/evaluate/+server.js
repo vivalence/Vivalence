@@ -8,14 +8,9 @@ const { SYSTEM_MODE } = env;
 
 const Prompt = {
     language: { spoken: "english", learning: "spanish" },
-    // provider: { api: "openai", model: "gpt-3.5-turbo" },
+    provider: { api: "openai", model: "gpt-4o" },
     // provider: { api: "anthropic", model: "claude-3-sonnet-20240229" },
-    provider: {
-        api: "anthropic",
-        model: "claude-3-haiku-20240307",
-        max_tokens: 256,
-        temperature: 0.3
-    },
+    // provider: { api: "anthropic", model: "claude-3-haiku-20240307", max_tokens: 256, temperature: 0.3 },
     // provider: { api: "anyscale", model: "mistralai/Mixtral-8x7B-Instruct-v0.1" },
     // provider: { api: "groq", model: "mixtral-8x7b-32768", temperature: 0.2 },
     schema: {
@@ -25,12 +20,10 @@ const Prompt = {
             evaluation: {
                 type: "object",
                 properties: {
-                    confidence: {
-                        title: "Confidence level",
-                        description: "How confident are you that the user knows the PART?",
-                        type: "number",
-                        minimum: 0.0,
-                        maximum: 1.0
+                    reasoning: {
+                        description:
+                            "Explain how confident the user knows or doesn't <PART> why in short sentence",
+                        type: "string"
                     },
                     status: {
                         title: "Evaluation status",
@@ -39,7 +32,7 @@ const Prompt = {
                         type: "string"
                     }
                 },
-                required: ["confidence", "status"]
+                required: ["reasoning", "status"]
             }
         },
         properties: {}
@@ -104,6 +97,7 @@ export async function POST({ fetch, locals, request }) {
                 spoken: unit.data[language.spoken],
                 learning: unit.data[language.learning],
                 token: token.token,
+                annotation: unit.data.annotation,
                 tags: tags
                     .filter((tag) => tag.type.includes("LEARNABLE"))
                     .map((tag) => ({
@@ -121,8 +115,6 @@ export async function POST({ fetch, locals, request }) {
 
             const schema = {
                 ...Prompt.schema,
-                // properties: [{ ["Unit:" + unit.id]: { $ref: "#/definitions/evaluation" } }]
-                // TODO:
                 properties: part.tags.reduce(
                     (acc, tag) => {
                         acc["Tag:" + tag.id] = { $ref: "#/definitions/evaluation" };
@@ -159,7 +151,7 @@ export async function POST({ fetch, locals, request }) {
                         response: evaluation.status
                     });
                 }
-                return { data };
+                return { data, response };
             }
         };
 

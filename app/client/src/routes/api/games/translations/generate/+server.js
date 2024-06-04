@@ -2,12 +2,8 @@ import { json } from "@sveltejs/kit";
 import Mustache from "mustache";
 
 const gamePrompt = {
-    provider: {
-        api: "anthropic",
-        model: "claude-3-sonnet-20240229",
-        temperature: 0.5,
-        max_tokens: 256
-    },
+    // provider: {api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.5, max_tokens: 256},
+    provider: { api: "openai", model: "gpt-4o" },
     schema: {
         title: "LanguageLearningSentence",
         type: "object",
@@ -67,6 +63,7 @@ export async function POST({ fetch, locals, request }) {
             innerPrompt: game.data.innerPrompt
         };
 
+        // const sentence = { spoken: "We have a book.", learning: "Nosotros tenemos un libro." };
         const { data: sentence, error: llmError } = await locals.get("/api/llm", {
             prompt: Mustache.render(gamePrompt.template, inputs),
             schema: gamePrompt.schema,
@@ -95,13 +92,15 @@ export async function POST({ fetch, locals, request }) {
             },
             scope: {
                 game: { id: gameId },
-                units: tokens.map((token) => ({
-                    id: token.unit.id,
-                    token: token.annotation.meta.token,
-                    start_char: token.annotation.meta.start_char,
-                    end_char: token.annotation.meta.end_char,
-                    tags: token.unit.tags.map(({ id }) => ({ id }))
-                }))
+                units: tokens
+                    .filter((t) => !!t.unit)
+                    .map((token) => ({
+                        id: token.unit.id,
+                        token: token.annotation.meta.token,
+                        start_char: token.annotation.meta.start_char,
+                        end_char: token.annotation.meta.end_char,
+                        tags: token.unit.tags.map(({ id }) => ({ id }))
+                    }))
             }
         };
 

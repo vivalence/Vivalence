@@ -1,8 +1,9 @@
 import { json } from "@sveltejs/kit";
 
-import validateAnnotation from "./annotation.js";
+import validateSchema from "./schema.js";
 import validateTags from "./tags.js";
 import validatePos from "./pos.js";
+import validateNLP from "./nlp.js";
 
 export async function POST({ request, locals, ...props }) {
     try {
@@ -20,12 +21,17 @@ export async function POST({ request, locals, ...props }) {
         const validation = await validatePos(statement, locals);
         if (!validation.isValid) issues.push(...validation.issues);
 
-        if (!issues.length > 0 && statement.annotation) {
-            const validation = await validateAnnotation(statement, locals);
+        if (!issues.length > 0) {
+            const validation = await validateSchema(statement, locals);
             if (!validation.isValid) issues.push(...validation.issues);
         }
 
-        if (!issues.length > 0 && statement.tags) {
+        if (!issues.length > 0) {
+            const validation = await validateNLP(statement, locals);
+            if (!validation.isValid) issues.push(...validation.issues);
+        }
+
+        if (!issues.length > 0) {
             const validation = await validateTags(statement, locals);
             if (!validation.isValid) issues.push(...validation.issues);
         }
@@ -56,15 +62,13 @@ function buildStatement(unit, locals) {
     if (unit.data.annotation) {
         statement.annotation = unit.data.annotation;
     }
-    if (unit._TagToUnit.length > 0) {
-        statement.tags = unit._TagToUnit
-            .map(({ Tag }) => Tag)
-            .filter((tag) => !!tag.data.ONTOLOGICAL?.branch)
-            .map((tag) => ({
-                branch: tag.data.ONTOLOGICAL.branch,
-                leaf: tag.data.ONTOLOGICAL.leaf
-            }));
-    }
+    statement.tags = unit._TagToUnit
+        .map(({ Tag }) => Tag)
+        .filter((tag) => !!tag.data.ONTOLOGICAL?.branch)
+        .map((tag) => ({
+            branch: tag.data.ONTOLOGICAL.branch,
+            leaf: tag.data.ONTOLOGICAL.leaf
+        }));
 
     return statement;
 }

@@ -12,6 +12,7 @@ import * as poss from "./poss.js";
 import * as reflex from "./reflex.js";
 import * as definite from "./definite.js";
 import * as prontype from "./prontype.js";
+import * as prepcase from "./prepcase.js";
 import * as numtype from "./numtype.js";
 import * as numform from "./numform.js";
 import * as polarity from "./polarity.js";
@@ -34,6 +35,7 @@ Object.entries({
     reflex,
     definite,
     prontype,
+    prepcase,
     numtype,
     numform,
     polarity

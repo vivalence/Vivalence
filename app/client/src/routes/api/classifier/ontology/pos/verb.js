@@ -12,12 +12,12 @@ export const schema = {
         },
         annotation: {
             type: "object",
+            // comspute properties from scope.
+            // compute scope from conditional.
+            // scope: [["pos", ["verb"]], "lemma", "verbform", "tense", "mood", "person", "gender", "number", "aspect"],
+
             properties: {
-                pos: {
-                    ...annotations.pos,
-                    $id: "verb.annotation.pos",
-                    enum: ["verb"]
-                },
+                pos: { ...annotations.pos, $id: "verb.annotation.pos", enum: ["verb"] },
                 lemma: { ...annotations.lemma },
                 verbform: { ...annotations.verbform },
                 tense: { ...annotations.tense },
@@ -27,6 +27,7 @@ export const schema = {
                 number: { ...annotations.number },
                 aspect: { ...annotations.aspect }
             },
+
             required: ["pos", "lemma", "verbform"],
             allOf: [
                 {

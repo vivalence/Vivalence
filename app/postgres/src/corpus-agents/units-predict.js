@@ -8,11 +8,8 @@ import {
 
 async function predictSpace() {
   const spaces = (() => {
-    return Object.keys(POS)
-      .filter((pos) => POS[pos].annotationSpace)
-      .map((pos) => POS[pos].annotationSpace)
-      .flat();
-    // return [...POS.pron.annotationSpace, ...POS.det.annotationSpace];
+    // return Object.keys(POS) .filter((pos) => POS[pos].annotationSpace) .map((pos) => POS[pos].annotationSpace) .flat();
+    return [...POS.det.annotationSpace];
   })();
 
   for (const space of spaces) {

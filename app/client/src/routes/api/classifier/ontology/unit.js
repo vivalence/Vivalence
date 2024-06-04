@@ -1,5 +1,5 @@
 import { annotations } from "./annotations";
-import { pos } from "./pos";
+import { pos as POS } from "./pos";
 import { unit as defaults } from "./defaults";
 
 export const schema = {
@@ -12,7 +12,8 @@ export const schema = {
                 ...annotations
             },
             required: ["pos", "lemma"],
-            allOf: Object.values(pos).map((pos) => {
+            allOf: Object.values(POS).map((pos) => {
+                // wtf is this?
                 const statement = {
                     if: {
                         properties: {

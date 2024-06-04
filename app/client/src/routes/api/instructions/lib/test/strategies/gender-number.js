@@ -6,15 +6,15 @@ export default async ({ locals, strategy, context }) => {
     //
     // SCOPE
     //
-    const FLASHCARD_COUNT = 4;
+    const FLASHCARD_COUNT = 5;
 
     const structuralTag = strategy.tags.find((t) => t.type.includes("STRUCTURAL"));
     const learnableTags = strategy.tags.filter((t) => t.type.includes("LEARNABLE"));
     const vocabularyTags = strategy.tags.filter(
         (t) =>
             t.type.includes("ONTOLOGICAL") &&
-            ["upos"].includes(t.data["ONTOLOGICAL"].branch) &&
-            ["NOUN", "ADJ"].includes(t.data["ONTOLOGICAL"].leaf)
+            ["pos"].includes(t.data["ONTOLOGICAL"].branch) &&
+            ["noun", "adj"].includes(t.data["ONTOLOGICAL"].leaf)
     );
 
     const { data: articleUnits, error: unitsError } = await locals.post(
@@ -29,7 +29,7 @@ export default async ({ locals, strategy, context }) => {
 
     const { data: numberTags, error: numberError } = await locals.post("/api/tags/weakest", {
         tagIds: learnableTags
-            .filter((t) => t.data["ONTOLOGICAL"].branch === "Number")
+            .filter((t) => t.data["ONTOLOGICAL"].branch === "number")
             .map((t) => t.id),
         take: 1
     });
@@ -38,7 +38,7 @@ export default async ({ locals, strategy, context }) => {
 
     const { data: genderTags, error: genderError } = await locals.post("/api/tags/weakest", {
         tagIds: learnableTags
-            .filter((t) => t.data["ONTOLOGICAL"].branch === "Gender")
+            .filter((t) => t.data["ONTOLOGICAL"].branch === "gender")
             .map((t) => t.id),
         take: 1
     });
@@ -55,15 +55,19 @@ export default async ({ locals, strategy, context }) => {
     [genderTag, numberTag].forEach((tag) =>
         constraints.push(`${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}`)
     );
+    constraints.push(`LENGTH: between 4-7 words.`);
 
     for (const tag of vocabularyTags) {
-        const { data: units, error } = await locals.post("/api/units/fromTagIds", {
+        const { data: units, error } = await locals.post("/api/units/pending", {
+            gameId: translationsGame.id,
             tagIds: [structuralTag.id, tag.id],
             blacklist: blacklist.units,
-            take: 5
+            take: 4
         });
         if (error) throw error;
+        console.log("unit constraints", units.length);
         units.forEach((unit) => {
+            console.log("unit", unit.data[language.learning]);
             constraints.push(
                 `${tag.data["ONTOLOGICAL"].leaf}: ${unit.data[language.learning]} - ${unit.data[language.spoken]}`
             );
@@ -79,24 +83,30 @@ export default async ({ locals, strategy, context }) => {
         }
     );
     if (translationsError) throw translationsError;
+    locals.scopeToBlacklist({ blacklist, scope: translations.scope });
 
     //
     // FLASHCARDS
     //
-    // const { data: flashcards, error: flashcardsError } = await locals.post(
-    //     "/api/games/flashcards/generate/fromUnitIds",
-    //     {
-    //         gameId: flashcardsGame.id,
-    //         unitIds: translations.scope.units.map((u) => u.id)
-    //     }
-    // );
-    // if (flashcardsError) throw flashcardsError;
     const { data: filteredTranslationUnits } = await locals.post("/api/memory/filter/units", {
         units: translations.scope.units,
         accept: ["UNKNOWN", "LEARNING"]
     });
+
+    const flashcardUnits = [];
+    for (const tag of vocabularyTags) {
+        const { data: units, error } = await locals.post("/api/units/pending", {
+            gameId: flashcardsGame.id,
+            tagIds: [structuralTag.id, tag.id],
+            blacklist: blacklist.units,
+            take: Math.round((FLASHCARD_COUNT - filteredTranslationUnits.length) / 2)
+        });
+        if (error) throw error;
+        flashcardUnits.push(...units);
+    }
+
     const { data: flashcards } = await locals.post("/api/games/flashcards/generate/fromUnitIds", {
-        unitIds: filteredTranslationUnits.map((u) => u.id),
+        unitIds: [...filteredTranslationUnits, ...flashcardUnits].map((u) => u.id),
         gameId: flashcardsGame.id
     });
 

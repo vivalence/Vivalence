@@ -20,8 +20,8 @@ export async function POST({ locals, request }) {
             data.map(async (unit) => {
                 const { data, error } = await locals.supabase
                     .from("_TagToUnit")
-                    .select("*, Tag: B (*)")
-                    .in("A", unit.id);
+                    .select("*, Tag: Tag (*)")
+                    .eq("B", unit.id);
                 unit.tags = data.map(({ Tag }) => Tag);
                 return unit;
             })

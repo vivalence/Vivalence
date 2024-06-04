@@ -17,17 +17,23 @@ export const schema = {
                     enum: ["pron"]
                 },
                 lemma: { ...annotations.lemma },
+
                 prontype: { ...annotations.prontype },
+
                 person: { ...annotations.person },
                 number: { ...annotations.number },
                 gender: { ...annotations.gender },
+
+                prepcase: { ...annotations.prepcase },
                 reflex: { ...annotations.reflex }
             },
             required: ["pos", "lemma", "prontype"],
             allOf: [
                 {
                     if: { properties: { prontype: { const: "prs" } }, required: ["prontype"] },
-                    then: { required: ["person", "number", "gender"] }
+                    then: {
+                        required: ["person", "number"]
+                    }
                 }
             ]
         }
@@ -36,15 +42,22 @@ export const schema = {
 
 export const constraints = [
     { unique: { branch: "pos" } },
+    { unique: { branch: "prontype" } },
+    { unique: { branch: "prepcase" } },
+    { unique: { branch: "reflex" } },
+    { unique: { branch: "person" } },
+    { unique: { branch: "number" } },
+
     { required: { branch: "pos", leaf: "pron" } },
     { required: { branch: "prontype" } },
     {
         condition: {
             if: { required: { branch: "prontype", leaf: "prs" } },
             then: [
-                { required: { branch: "gender" } },
                 { required: { branch: "person" } },
-                { required: { branch: "gender" } }
+                { required: { branch: "number" } },
+                { unique: { branch: "reflex" } },
+                { unique: { branch: "prepcase" } }
             ]
         }
     }
@@ -55,7 +68,22 @@ export const annotationSpace = [
         ["pos", ["pron"]],
         ["prontype", ["prs"]],
         ["number", ["sing", "plur"]],
-        ["reflex", [null, "yes"]],
+        ["person", ["1", "2", "3"]],
+        ["gender", ["masc"]]
+    ],
+    [
+        ["pos", ["pron"]],
+        ["prontype", ["prs"]],
+        ["prepcase", ["pre", "npr"]],
+        ["number", ["sing", "plur"]],
+        ["person", ["1", "2", "3"]],
+        ["gender", ["masc"]]
+    ],
+    [
+        ["pos", ["pron"]],
+        ["prontype", ["prs"]],
+        ["reflex", ["yes"]],
+        ["number", ["sing", "plur"]],
         ["person", ["1", "2", "3"]],
         ["gender", ["masc"]]
     ],
@@ -63,13 +91,15 @@ export const annotationSpace = [
         ["lemma", ["que", "quien", "cual"]],
         ["pos", ["pron"]],
         ["prontype", ["rel"]],
-        ["number", ["sing"]]
+        ["number", ["sing"]],
+        ["gender", ["masc"]]
     ],
     [
         ["lemma", ["qué", "quién", "cuál"]],
         ["pos", ["pron"]],
         ["prontype", ["int"]],
-        ["number", ["sing"]]
+        ["number", ["sing"]],
+        ["gender", ["masc"]]
     ],
     [
         ["lemma", ["este", "ese", "aquel"]],
@@ -82,7 +112,9 @@ export const annotationSpace = [
         ["lemma", ["alguno", "ninguno", "alguien", "nadie"]],
         ["pos", ["pron"]],
         ["prontype", ["ind"]],
-        ["number", ["sing"]]
+        ["number", ["sing"]],
+        ,
+        ["gender", ["masc"]]
     ],
     [
         ["lemma", ["qué"]],
@@ -98,3 +130,5 @@ for (const [branch, leaves] of annotationSpace.flat()) {
     if (branch !== "lemma") continue;
     lemmas.push(...leaves);
 }
+
+// should here reside the logic for unit/fromAnnotation?

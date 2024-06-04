@@ -43,13 +43,16 @@ export async function POST({ fetch, locals, request }) {
         //
         // POST CONJUGATION UNITS
         //
-        const tagIds = [tags.verb.id, tags.tense.id];
+        const tagIds = [tags.verb.id, tags.tense.id, tags.mood.id];
         const { data: conjugationUnits, error: conjugationsError } = await locals.post(
             "/api/units/fromTagIds",
             { tagIds }
         );
         if (conjugationsError || !conjugationUnits)
-            throw error || new Error("No conjugation units found");
+            throw error || new Error("No conjugation units found", tags);
+        if (!conjugationUnits.length !== 6)
+            new Error("not the right number of conjugation units found", tags);
+
         const units = conjugationUnits.sort(sortByPerformer);
 
         // TODO: add tag[Person&Number] to scope.unit.tags

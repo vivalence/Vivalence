@@ -8,12 +8,10 @@ const Prompt = {
         title: "Evaluation",
         type: "object",
         properties: {
-            confidence: {
-                title: "Confidence level",
-                description: "How confident are you that the user knows the conjugation?",
-                type: "number",
-                minimum: 0.0,
-                maximum: 1.0
+            reasoning: {
+                description:
+                    "Explain how confident the user knows or doesn't <PART> why in short sentence",
+                type: "string"
             },
             status: {
                 title: "Evaluation status",
@@ -22,7 +20,7 @@ const Prompt = {
                 type: "string"
             }
         },
-        required: ["confidence", "status"]
+        required: ["reasoning", "status"]
     },
     template: `Evaluate this conjugation of {{{verb}}} from {{language.spoken}} to {{language.learning}} and return JSON:
 tense: "{{{tense}}}"
@@ -39,10 +37,11 @@ export async function POST({ fetch, locals, request }) {
         const { language } = Prompt;
 
         const evaluateConjugation = async (conjugation) => {
+            // TODO: use full annotation here
             const part = {
                 input: inputs[conjugation.scope.unit.id],
-                person: conjugation.Person,
-                number: conjugation.Number,
+                person: conjugation.person,
+                number: conjugation.number,
                 spoken: conjugation.spoken,
                 learning: conjugation.learning,
 
@@ -58,6 +57,7 @@ export async function POST({ fetch, locals, request }) {
             if (error) throw error;
 
             await locals.post("/api/units", {
+                // @lf i should rename this to /unit/review or something
                 gameId: scope.game.id,
                 gameType: "CONJUGATIONS",
                 unitId: conjugation.scope.unit.id,

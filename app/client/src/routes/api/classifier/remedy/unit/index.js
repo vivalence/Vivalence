@@ -2,7 +2,6 @@ import * as ontology from "$classifier/ontology";
 
 import annotation from "./annotation";
 import tag from "./tag";
-import pos from "./pos";
 
 async function required(issue, locals) {
     let resolved = { resolved: false };
@@ -145,5 +144,5 @@ If the unit is already correct and cannot be improved, leave 'properties.unit' e
 export default {
     handlers: { required, invalid, forbidden },
     path: ["unit"],
-    children: [annotation, tag, pos]
+    children: [annotation, tag]
 };

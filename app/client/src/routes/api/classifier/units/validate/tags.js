@@ -61,7 +61,7 @@ function validateConstraints(test, unit) {
                 message: `Required tag with branch: '${test.required.branch}'${test.required.leaf ? ` and leaf: '${test.required.leaf}'` : ""} missing.`,
                 path: ["unit", "tag"],
                 violation: "required",
-                context: { test }
+                context: { ...test, test }
             });
         }
     } else if (test.unique) {
@@ -76,7 +76,7 @@ function validateConstraints(test, unit) {
                 message: `There must be no more than one tag with branch '${test.unique.branch || ""}'${test.unique.leaf ? ` and leaf '${test.unique.leaf}'` : ""}.`,
                 path: ["unit", "tag"],
                 violation: "unique",
-                context: { test }
+                context: { ...test, test }
             });
         }
     } else if (test.forbidden) {
@@ -91,7 +91,7 @@ function validateConstraints(test, unit) {
                 message: `Forbidden Tag with branch '${test.forbidden.branch || ""}'${test.forbidden.leaf ? ` and leaf '${test.forbidden.leaf}'` : ""} found.`,
                 path: ["unit", "tag"],
                 violation: "forbidden",
-                context: { test }
+                context: { ...test }
             });
         }
     } else if (test.some) {
