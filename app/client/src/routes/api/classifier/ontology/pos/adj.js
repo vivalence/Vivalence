@@ -32,7 +32,6 @@ export const constraints = [
     { required: { branch: "number", leaf: "plur" } },
     { unique: { branch: "degree" } }
 ];
-
 // export const lemmas = [];
 // for (const [branch, leaves] of annotationSpace.flat()) {
 //     if (branch !== "lemma") continue;

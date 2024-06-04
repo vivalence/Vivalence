@@ -32,6 +32,7 @@ async function predictAnnotationTags() {
     console.log("remedy", remedy.data);
   }
 }
+await predictAnnotationTags();
 
 async function predictLemmaTags() {
   const ontologies = [];

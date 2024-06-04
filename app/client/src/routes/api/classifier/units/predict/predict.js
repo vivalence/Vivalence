@@ -32,7 +32,7 @@ export default async function ({ space }, locals) {
         let query = supabase.from("Unit").select("*");
         for (const [branch, leaf] of Object.entries(annotation)) {
             if (typeof leaf === "string") query = query.eq(`data->annotation->>${branch}`, leaf);
-            else if (leaf === null || leaf === undefined)
+            else if (leaf === null || leaf === undefined || leaf === false)
                 query = query.filter(`data->annotation->>${branch}`, "is", null);
             else throw new Error("invalid leaf type");
         }

@@ -363,12 +363,6 @@ BEGIN
     LIMIT take_limit;
 END;
 $$ LANGUAGE plpgsql;
-DROP FUNCTION get_units_from_tag_ids(
-    tag_ids TEXT[],
-    blacklist TEXT[],
-    take_limit INT 
-);
-
 CREATE OR REPLACE FUNCTION get_units_from_tag_ids(
     tag_ids TEXT[],
     blacklist TEXT[] DEFAULT NULL,

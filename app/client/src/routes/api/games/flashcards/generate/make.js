@@ -1,9 +1,9 @@
 import Mustache from "mustache";
 
 const verbFlashcards = (mask, { data, ...unit }) => {
-    const { Person, Number, Tense } = data.ud.feats;
+    const { person, number, tense } = data.annotation;
     // TODO: maybe include the related PRONOUN?
-    const frontFooter = `${Tense} - ${Person} Person ${Number}`;
+    const frontFooter = `${tense} - ${person} Person ${number}`;
     const maskData = {
         front: {
             footer: `<h5>${frontFooter}</h5>`
@@ -13,9 +13,9 @@ const verbFlashcards = (mask, { data, ...unit }) => {
 };
 
 const nounFlashcards = (mask, { data, ...unit }) => {
-    const { Gender, Number } = data.ud.feats;
-    const article = ["Fem", "Feminine"].includes(Gender) ? "La " : "El ";
-    const frontFooter = [Gender, Number].filter((f) => f).join(" - ");
+    const { gender, number } = data.annotation;
+    const article = ["fem"].includes(gender) ? "La " : "El ";
+    const frontFooter = [gender, number].filter((f) => f).join(" - ");
 
     const maskData = {
         front: {
@@ -50,10 +50,9 @@ const flashcard = (mask, { data, ...unit }, maskData = {}) => {
 
 export default function make({ game, unit }) {
     let maker;
-    if (["VERB", "AUX"].includes(unit.data.ud.upos)) maker = verbFlashcards;
-    else if (["NOUN"].includes(unit.data.ud.upos)) maker = nounFlashcards;
+    if (["verb", "aux"].includes(unit.data.annotation.pos)) maker = verbFlashcards;
+    else if (["noun"].includes(unit.data.annotation.pos)) maker = nounFlashcards;
     else maker = flashcard;
-    // TODO: DEFAULT
 
     return maker(game.data, unit);
 }

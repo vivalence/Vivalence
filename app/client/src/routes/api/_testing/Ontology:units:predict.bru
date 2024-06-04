@@ -1,0 +1,52 @@
+meta {
+  name: Ontology:units:predict
+  type: http
+  seq: 20
+}
+
+post {
+  url: http://localhost:5174/api/classifier/units/predict
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "space": [
+      [
+        "number",
+        [
+          "sing",
+          "plur"
+        ]
+      ],
+      [
+        "person",
+        [
+          "1",
+          "2",
+          "3"
+        ]
+      ],
+      [
+        "pos",
+        [
+          "det"
+        ]
+      ],
+      [
+        "prontype",
+        [
+          "prs"
+        ]
+      ],
+      [
+        "poss",
+        [
+          "yes"
+        ]
+      ]
+      // ["lemma", ["mi", "tu", "su", "nuestro", "vuestro"]],
+    ]
+  }
+}

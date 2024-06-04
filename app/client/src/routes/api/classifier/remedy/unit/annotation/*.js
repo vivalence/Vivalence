@@ -1,4 +1,4 @@
-import { annotations, pos, unit as unitPrototype } from "$classifier/ontology";
+import { annotations, pos as POS, unit as unitPrototype } from "$classifier/ontology";
 
 async function invalid(issue, locals) {
     const unit = issue.context.unit;
@@ -17,6 +17,105 @@ async function invalid(issue, locals) {
         })
         .eq("id", unit.id);
     return { resolved: !result.error, unit, from: "hardcode" };
+}
+
+async function mismatch(issue, locals) {
+    const unit = issue.context.unit;
+    const patch = issue.context.patch;
+    const pos = unit.data.annotation.pos;
+    let resolved = { resolved: false, unit: null, tag: null };
+
+    if (patch && patch.ontology) {
+        unit.data.annotation[patch.ontology.branch] = patch.ontology.leaf;
+        resolved = { ...resolved, resolved: true, unit, from: "patch.ontology" };
+    } else if (issue.path[issue.path.length - 1] === "pos") {
+        const newPos = await (async function fromLLM() {
+            const { data: choice, error } = await locals.get("/api/llm", {
+                prompt: (() => {
+                    const demoData = { ...unit.data };
+                    delete demoData.annotation;
+                    return `### Task
+Identify the Part of Speech (defined by Universal Dependencies) of a spanish word.
+Strongly prefere verb over aux.
+
+### Input
+\`\`\`json
+${JSON.stringify(demoData, null, 2)}
+\`\`\`
+
+### Output
+\`\`\`json
+{"pos": "${annotations.pos.enum.filter((e) => e !== "aux").join('" | "')}"}
+`;
+                })(),
+                schema: {
+                    title: "Part of Speech (POS) Tagging",
+                    type: "object",
+                    properties: {
+                        pos: annotations.pos
+                    }
+                },
+                provider: {
+                    api: "openai",
+                    model: "gpt-4o"
+                }
+            });
+            if (error) throw error;
+            const { pos: newPos } = choice;
+
+            if (!newPos || !annotations.pos.enum.includes(newPos)) {
+                throw new Error("[invalid LLM response]", choice, issue);
+            } else {
+                return newPos;
+            }
+        })();
+        unit.data.annotation = { pos: newPos, lemma: unit.data.annotation.lemma };
+        resolved = { ...resolved, resolved: true, unit, from: "llm" };
+    } else {
+        throw new Error("UNHANDLED MISMATCH ISSUE", issue);
+    }
+
+    const { error: unitDataError } = await locals.supabase
+        .from("Unit")
+        .update({
+            updatedAt: new Date().toISOString(),
+            data: unit.data
+        })
+        .eq("id", unit.id);
+    if (unitDataError) throw unitDataError;
+
+    if (pos !== unit.data.annotation.pos) {
+        // remove any pos from tags
+        await (async function removePosTags() {
+            const tags = unit.tags.filter((tag) => tag.data.ONTOLOGICAL?.branch === "pos");
+            for (const tag of tags) {
+                const { error: tagRemovalError } = await locals.supabase
+                    .from("_TagToUnit")
+                    .delete()
+                    .eq("A", tag.id)
+                    .eq("B", unit.id);
+                if (tagRemovalError) throw tagRemovalError;
+            }
+        })();
+
+        // find & connect to new pos tag
+        await (async function connectPosTag() {
+            const { data: tag, error: tagError } = await locals.supabase
+                .from("Tag")
+                .select(`*`)
+                .eq(`data->ONTOLOGICAL->>branch`, "pos")
+                .eq(`data->ONTOLOGICAL->>leaf`, pos)
+                .single();
+            if (tagError) throw tagError;
+            const result = await locals.supabase
+                .from("_TagToUnit")
+                .upsert({ A: tag.id, B: unit.id });
+            if (result.error) throw result.error;
+            resolved = { resolved: !result.error, unit, tag, from: "llm" };
+        })();
+    }
+
+    return resolved;
 }
 
 // @lj
@@ -52,7 +151,7 @@ async function required(issue, locals) {
     if (resolved.resolved) return resolved;
 
     await (async function fromLLM() {
-        const { schema } = pos[unit.data.annotation.pos];
+        const { schema } = POS[unit.data.annotation.pos];
         const property = schema.properties.annotation.properties[requiredAnnotationKey];
 
         const { data, error } = await locals.get("/api/llm", {
@@ -118,6 +217,6 @@ async function forbidden(issue, locals) {
 }
 
 export default {
-    handlers: { required, invalid, forbidden },
+    handlers: { required, invalid, forbidden, mismatch },
     path: ["*"]
 };

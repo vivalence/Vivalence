@@ -22,10 +22,11 @@ export const schema = {
                 definite: { ...annotations.definite },
                 poss: { ...annotations.poss },
 
-                gender: { ...annotations.gender },
-                number: { ...annotations.number }
+                person: { ...annotations.person },
+                number: { ...annotations.number },
+                gender: { ...annotations.gender }
             },
-            required: ["pos", "lemma", "prontype", "gender", "number"],
+            required: ["pos", "lemma", "prontype"],
             allOf: [
                 {
                     if: { properties: { prontype: { const: "art" } }, required: ["prontype"] },
@@ -33,7 +34,7 @@ export const schema = {
                 },
                 {
                     if: { properties: { prontype: { const: "prs" } }, required: ["prontype"] },
-                    then: { required: ["poss"] }
+                    then: { required: ["poss", "person"] }
                 }
             ]
         }
@@ -45,6 +46,8 @@ export const constraints = [
     { unique: { branch: "prontype" } },
     { required: { branch: "pos", leaf: "det" } },
     { required: { branch: "prontype" } },
+    // { required: { branch: "gender" } },
+    // { required: { branch: "number" } },
     {
         condition: {
             if: { required: { branch: "prontype", leaf: "art" } },
@@ -54,7 +57,7 @@ export const constraints = [
     {
         condition: {
             if: { required: { branch: "prontype", leaf: "prs" } },
-            then: [{ required: { branch: "poss" } }]
+            then: [{ required: { branch: "poss" } }, { required: { branch: "person" } }]
         }
     }
 ];
@@ -75,36 +78,15 @@ export const annotationSpace = [
         ["gender", ["masc"]]
     ],
     [
-        ["lemma", ["mi", "tu", "su", "nuestro", "vuestro", "mío", "tuyo", "suyo"]],
+        ["number", ["sing", "plur"]],
+        ["person", ["1", "2", "3"]],
         ["pos", ["det"]],
         ["prontype", ["prs"]],
-        ["poss", ["yes"]],
-        ["number", ["sing"]],
-        ["gender", ["masc"]]
-    ],
-    // [["lemma", ["todo"]], ["pos", ["det"]], ["prontype", ["tot"]], ["number", ["sing"]], ["gender", ["masc"]]],
-    [
-        [
-            "lemma",
-            [
-                "mucho",
-                "poco",
-                "algún",
-                "cada",
-                "otro",
-                "cualquier",
-                "demasiado",
-                "vario",
-                "suficiente",
-                "tanto",
-                "alguno"
-            ]
-        ],
-        ["pos", ["det"]],
-        ["prontype", ["ind"]],
-        ["number", ["sing"]],
-        ["gender", ["masc"]]
+        ["poss", ["yes"]]
+        // ["lemma", ["mi", "tu", "su", "nuestro", "vuestro"]],
     ]
+    // [["lemma", ["todo"]], ["pos", ["det"]], ["prontype", ["tot"]], ["number", ["sing"]], ["gender", ["masc"]]],
+    // [["lemma", ["mucho", "poco", "algún", "cada", "otro", "cualquier", "demasiado", "vario", "alguno"]], ["pos", ["det"]], ["prontype", ["ind"]], ["number", ["sing"]], ["gender", ["masc"]]]
     // [["lemma", ["ninguno"]], ["pos", ["det"]], ["prontype", ["neg"]], ["number", ["sing"]], ["gender", ["masc"]]]
 ];
 

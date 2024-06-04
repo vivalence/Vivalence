@@ -5,8 +5,8 @@ export default async function (unit, locals) {
     if (!pos) {
         issues.push({
             message: "annotation missing: unit.annotation.pos is required.",
-            path: ["unit", "pos"],
-            violation: "required",
+            path: ["unit"],
+            violation: "invalid",
             context: { unit }
         });
     }
@@ -14,11 +14,19 @@ export default async function (unit, locals) {
     if (issues.length === 0 && unit.tags) {
         const tags = unit.tags.filter((t) => t.branch === "pos" && t.leaf !== pos);
         if (tags.length > 0) {
-            issues.push({
-                message: "Annotation.pos does not match tags.ontological.branch",
-                path: ["unit", "pos"],
-                violation: "mismatch",
-                context: { statement: unit }
+            tags.forEach((tag) => {
+                issues.push({
+                    message: "Annotation.pos does not match tags.ontological.branch",
+                    path: ["unit", "tag"],
+                    violation: "forbidden",
+                    context: {
+                        unit,
+                        forbidden: {
+                            branch: tag.branch,
+                            leaf: tag.leaf
+                        }
+                    }
+                });
             });
         }
     }
