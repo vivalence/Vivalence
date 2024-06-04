@@ -14,12 +14,10 @@ jobs:
     strategy:
       matrix:
          include:
-          # - component: 'authentication'
-          #   path: './packages/authentication'
           - component: 'admin'
-            path: './packages/admin'
+            path: './app/admin'
           - component: 'client'
-            path: './packages/client'
+            path: './app/client'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -43,12 +41,10 @@ jobs:
     strategy:
       matrix:
          include:
-          # - component: 'authentication'
-          #   path: './packages/authentication'
           - component: 'admin'
-            path: './packages/admin'
+            path: './app/admin'
           - component: 'client'
-            path: './packages/client'
+            path: './app/client'
     steps:
     - name: Add SSH key
       run: |
