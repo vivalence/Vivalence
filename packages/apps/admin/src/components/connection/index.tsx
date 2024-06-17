@@ -1,0 +1,92 @@
+import React, {
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+  useState,
+  useEffect,
+} from "react";
+
+import { useResource } from "$util/hooks/useResource";
+import Autocomplete, { type OptionType, type RefHandles } from "./autocomplete";
+import { type Resource } from "$types/index";
+
+import { ConnectionTypes } from "./connections"
+import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./types"
+
+const useFormSubmission = (
+  rootResourceId: string,
+  connectionName: keyof ConnectionTypesInterface,
+) => {
+  const autocompleteRef = useRef<RefHandles>(null);
+
+  const onFormFinish = async () => {
+    if (!autocompleteRef.current)
+      return console.error("Autocomplete ref is null");
+
+    const { added, removed } = autocompleteRef.current;
+
+    try {
+      added().forEach(async (option) => {
+        await ConnectionTypes[connectionName].create(option, rootResourceId);
+      });
+      removed().forEach(async (option) => {
+        await ConnectionTypes[connectionName].remove(option, rootResourceId);
+      });
+    } catch (error) {
+      console.error("Error in mutation:", error);
+    }
+  };
+
+  return { autocompleteRef, onFormFinish };
+};
+
+export interface ConnectionEditHandles {
+  onSave: () => void;
+}
+
+interface ConnectionEditProps<T extends Resource> {
+  active: T[];
+  connectionName: keyof ConnectionTypesInterface;
+  rootResourceId: string;
+}
+
+export const ConnectionEdit = forwardRef<
+  ConnectionEditHandles,
+  ConnectionEditProps<Resource>
+>((props, ref) => {
+  // @lj: unknown is ts hack because ts is retarded
+  /* console.log('CONNECTION NAME', props.connectionName) */
+  const connection = ConnectionTypes[props.connectionName] as unknown as ConnectionTypeMethods<Resource>;
+  /* console.log('CONNECTION', connection) */
+  const { map, filter, variableResourceKey } = connection;
+  /* console.log('FILTER', filter) */
+
+  let [optionsAll] = useResource<Resource>(variableResourceKey, map);
+
+  const [optionsActive, setActive] = useState<OptionType<Resource>[]>([]);
+
+  useEffect(() => props.active && setActive(map(props.active)), [props.active]);
+
+  const { autocompleteRef, onFormFinish } = useFormSubmission(
+    props.rootResourceId,
+    props.connectionName,
+  );
+
+  useImperativeHandle(ref, () => ({
+    onSave: () => {
+      console.log("This function can be called from the parent.");
+      onFormFinish();
+    },
+  }));
+
+  return (
+    <Autocomplete
+      ref={autocompleteRef}
+      optionsInit={optionsActive}
+      optionsAll={optionsAll}
+      filter={filter(optionsAll)}
+    />
+  );
+});
+
+export default ConnectionEdit;

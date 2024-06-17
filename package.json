@@ -1,0 +1,13 @@
+{
+  "workspaces": [
+    "packages/apps/*",
+    "packages/ontologies/*",
+    "packages/services",
+    "packages/postgres"
+  ],
+  "dependencies": {
+    "@koa/cors": "^5.0.0",
+    "koa-send": "^5.0.1",
+    "koa-static": "^5.0.0"
+  }
+}
