@@ -1,0 +1,27 @@
+meta {
+  name: Games:Flashcards:Generate:fromUnits
+  type: http
+  seq: 9
+}
+
+post {
+  url: http://localhost:5174/api/games/flashcards/generate/fromUnits
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "strategyId": "",
+    "gameId": "clqcr75ai0002g04mem2ugyo6",
+    "units": [{}]
+  }
+}
+
+docs {
+  # Generate Flashcard Instructions from a list of units
+  
+  ## Request
+  ## Response
+  
+}

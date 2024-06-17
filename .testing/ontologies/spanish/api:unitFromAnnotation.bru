@@ -1,0 +1,37 @@
+meta {
+  name: api:unitFromAnnotation
+  type: http
+  seq: 11
+}
+
+post {
+  url: http://localhost:5175/api/unitFromAnnotation
+  body: json
+  auth: none
+}
+
+body:json {
+   {
+        "annotation": {
+          "lemma": "tener",
+          "pos": "verb",
+          "mood": "ind",
+          "number": "plur",
+          "person": "1",
+          "tense": "pres",
+          "verbform": "fin",
+          "meta": {
+            "token": "tenemos",
+            "index": 2,
+            "start_char": 9,
+            "end_char": 16,
+            "upos": "VERB",
+            "feats": "Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin"
+          }
+        }
+      }
+}
+
+docs {
+  find units +.tags by annotation object.
+}
