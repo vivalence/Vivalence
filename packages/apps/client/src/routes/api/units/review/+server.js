@@ -1,25 +1,23 @@
 import { json } from "@sveltejs/kit";
 
-export async function POST({ fetch, locals: { supabase, post }, request }) {
+export async function POST({ fetch, locals: { supabase, client }, request }) {
     try {
         const { gameId, gameType, unitId, response } = await request.json();
 
-        const { data: memoryData, error: memoryError } = await post("/api/memory", {
+        const memoryData = await client("memory/update", {
             gameId,
             gameType,
             unitId,
             response
-        });
-        if (memoryError) throw memoryError;
+        }).ok();
 
-        const { data: playData, error: playError } = await post("/api/play", {
+        const playData = await client("play/update", {
             gameId,
             memoryId: memoryData.memory.id,
             nextPlay: memoryData.nextPlay,
             unitId,
             response
-        });
-        if (playError) throw playError;
+        }).ok();
 
         const { data: unit } = await supabase.from("Unit").select("data").eq("id", unitId).single();
 
@@ -30,7 +28,7 @@ export async function POST({ fetch, locals: { supabase, post }, request }) {
             status: 200
         });
     } catch (err) {
-        console.error(`ERROR /api/units POST:`, err.message);
+        console.error(`ERROR /api/units/review POST:`, err.message);
         console.error(err);
         return json({ status: 500, error: err });
     }

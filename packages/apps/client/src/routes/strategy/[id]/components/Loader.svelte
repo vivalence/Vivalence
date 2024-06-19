@@ -1,6 +1,8 @@
 <script>
     import { onDestroy, onMount } from "svelte";
-    import gameStore from "../store.js";
+    import { getStore } from "../store.js";
+
+    const store = getStore();
 
     const VARIANCE = 2000;
     let MINIMUM = 2000;
@@ -9,8 +11,8 @@
     let interval;
 
     const loadStatus = () => {
-        if ($gameStore.status === 202) {
-            gameStore.load();
+        if (!$store.error) {
+            store.load();
         }
         counter++;
     };

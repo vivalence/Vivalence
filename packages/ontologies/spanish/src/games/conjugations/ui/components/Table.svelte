@@ -1,5 +1,6 @@
 <script>
-    import store from "../store.js";
+    import { getStore } from "../store.js";
+    const store = getStore();
 
     function handleInput(person, value) {
         store.setInputs(person, value);

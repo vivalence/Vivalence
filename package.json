@@ -7,7 +7,13 @@
   ],
   "dependencies": {
     "@koa/cors": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "isomorphic-fetch": "^3.0.0",
     "koa-send": "^5.0.1",
     "koa-static": "^5.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.2",
+    "prettier-plugin-svelte": "^3.2.4"
   }
 }

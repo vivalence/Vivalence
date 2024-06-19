@@ -1,7 +1,6 @@
 import { writable, get } from "svelte/store";
-import Global from "$global";
 
-function createConjugationGameStore() {
+function ConjugationGameStore({ locals }) {
     const Store = writable({
         instruction: null,
         scope: null,
@@ -9,8 +8,7 @@ function createConjugationGameStore() {
         revealed: false,
         loading: false,
         evaluations: null,
-        error: null,
-        onFinish: null
+        error: null
     });
 
     const setInput = (key, userInput) => {
@@ -28,8 +26,7 @@ function createConjugationGameStore() {
             revealed: false,
             loading: false,
             evaluations: null,
-            error: null,
-            onFinish: null
+            error: null
         }));
     };
 
@@ -39,16 +36,12 @@ function createConjugationGameStore() {
 
         try {
             const params = { instruction, inputs, scope };
-            const { data: evaluations, error } = Global.post(
-                "/api/games/conjugations/evaluate",
-                params
-            );
+            const evaluations = await locals.ontology("games/conjugations/evaluate", params).ok();
             Store.update((s) => ({
                 ...s,
                 evaluations,
                 revealed: true,
-                loading: false,
-                error
+                loading: false
             }));
         } catch (error) {
             console.error("Evaluation error:", error);
@@ -57,10 +50,7 @@ function createConjugationGameStore() {
     };
 
     const finish = () => {
-        const store = get(Store);
-        if (store.onFinish) {
-            store.onFinish();
-        }
+        locals.onGameFinish();
         reset();
     };
 
@@ -69,9 +59,16 @@ function createConjugationGameStore() {
         setInput,
         finish,
         evaluate
-        // reset
     };
 }
 
-const conjugationGameStore = createConjugationGameStore();
-export default conjugationGameStore;
+let store;
+
+export function createStore(input) {
+    if (!store) store = ConjugationGameStore(input);
+    return store;
+}
+
+export function getStore(input) {
+    return store;
+}

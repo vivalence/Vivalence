@@ -1,8 +1,6 @@
 export default async ({ locals, strategy, context }) => {
     // console.log((await locals.supabase.from("Tag").select("*").eq("data->ONTOLOGICAL->>branch", "lemma")).data .map((t) => `"${t.id}", // ${t.data.ONTOLOGICAL.leaf}`) .join("\n"));
 
-    const instructions = [];
-
     const { blacklist, language } = context;
 
     const conjugationsGame = strategy.games.find((g) => g.type === "CONJUGATIONS");

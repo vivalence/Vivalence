@@ -129,20 +129,24 @@ export default async function generate(inputs, locals) {
 
                 if (evaluation.status === "NEUTRAL") null;
                 else if (type === "Unit") {
-                    evaluation.response = await locals.client("units", {
-                        gameId: scope.game.id,
-                        gameType: "TRANSLATIONS",
-                        unitId: id,
-                        response: evaluation.status
-                    });
+                    evaluation.response = await locals
+                        .client("units/review", {
+                            gameId: scope.game.id,
+                            gameType: "TRANSLATIONS",
+                            unitId: id,
+                            response: evaluation.status
+                        })
+                        .ok();
                 } else if (type === "Tag") {
-                    evaluation.response = await locals.client("tags", {
-                        gameId: scope.game.id,
-                        gameType: "TRANSLATIONS",
-                        unitId: unit.id,
-                        tagId: id,
-                        response: evaluation.status
-                    });
+                    evaluation.response = await locals
+                        .client("tags/review", {
+                            gameId: scope.game.id,
+                            gameType: "TRANSLATIONS",
+                            unitId: unit.id,
+                            tagId: id,
+                            response: evaluation.status
+                        })
+                        .ok();
                 }
                 return evaluation;
             })

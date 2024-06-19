@@ -7,7 +7,8 @@
     const Statistics = writable({});
 
     export let data;
-    const supabase = data.supabase;
+    let { locals } = data;
+    const supabase = locals.supabase;
 
     const chartMapping = {
         unknown: { label: "Unknown", color: "bg-error-400", class: "unknown" },
@@ -77,9 +78,7 @@
     });
 </script>
 
-
 <div class="container mx-auto mt-20 sm:px-20 md:px-40 xl:px-80">
-
     {#if data.strategies}
         {#each data.strategies as strategy}
             <div class="card mb-2 p-2">

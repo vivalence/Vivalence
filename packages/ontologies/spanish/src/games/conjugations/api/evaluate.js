@@ -54,20 +54,24 @@ export default async function generate({ inputs, instruction, scope }, locals) {
         const evaluation = await locals.llm(input);
 
         // @lf i should rename this to /unit/review, evaluate or update or something
-        await locals.client("units", {
-            gameId: scope.game.id,
-            gameType: "CONJUGATIONS",
-            unitId: conjugation.scope.unit.id,
-            response: evaluation.status
-        });
-        for (const tag in conjugation.scope.unit.tags) {
-            await locals.client("tags", {
+        await locals
+            .client("units/review", {
                 gameId: scope.game.id,
                 gameType: "CONJUGATIONS",
-                tagId: tag.id,
                 unitId: conjugation.scope.unit.id,
                 response: evaluation.status
-            });
+            })
+            .request();
+        for (const tag in conjugation.scope.unit.tags) {
+            await locals
+                .client("tags/review", {
+                    gameId: scope.game.id,
+                    gameType: "CONJUGATIONS",
+                    tagId: tag.id,
+                    unitId: conjugation.scope.unit.id,
+                    response: evaluation.status
+                })
+                .request();
         }
 
         return {
@@ -75,8 +79,7 @@ export default async function generate({ inputs, instruction, scope }, locals) {
                 index: conjugation.meta.index,
                 unitId: conjugation.scope.unit.id,
                 evaluation: evaluation.status
-            },
-            error
+            }
         };
     };
 
@@ -93,7 +96,7 @@ export default async function generate({ inputs, instruction, scope }, locals) {
 
     for (const tag of scope.tags) {
         const result = await locals
-            .client("tags", {
+            .client("tags/review", {
                 gameId: scope.game.id,
                 gameType: "CONJUGATIONS",
                 tagId: tag.id,

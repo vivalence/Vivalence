@@ -6,11 +6,13 @@ import { make } from "../provision";
 import localStrategy from "./strategies";
 
 export async function POST({ locals, params, request }) {
-    // console.log("POST /api/instructions/test", request); console.log(request.headers);
     // console.log(await locals.getSession());
 
     try {
-        // const { userId, strategyId } = {strategyId: "caab159c-8689-4812-9b16-5f0bec7e7530", userId: "9691006d-51e3-4db4-b0d6-d3137d6c13a4"};
+        const { userId, strategyId } = {
+            strategyId: "caab159c-8689-4812-9b16-5f0bec7e7530",
+            userId: "9691006d-51e3-4db4-b0d6-d3137d6c13a4"
+        };
         // const { userId,  } = await request.json();
         let blacklist = { tags: [], units: [] };
 
@@ -23,7 +25,7 @@ export async function POST({ locals, params, request }) {
             local: localStrategy.provision
         });
 
-        return json({ instructions: [], status: 200 });
+        return json({ instructions, status: 200 });
     } catch (error) {
         console.error("[INSTRUCTIONS POST<GET> ERROR] /api/instructions", error.message);
         console.error(error);

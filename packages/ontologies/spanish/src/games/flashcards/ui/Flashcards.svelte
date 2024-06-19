@@ -1,55 +1,45 @@
 <script>
     import { page } from "$app/stores";
-    import { createEventDispatcher } from "svelte";
     import { getContext, onDestroy, onMount } from "svelte";
 
     import Panable from "$components/panable/Panable.svelte";
     import Card from "./components/Card.svelte";
     import Footer from "./components/Footer.svelte";
-    import store from "./store.js";
+    import { createStore } from "./store.js";
 
-    const dispatch = createEventDispatcher();
-    const pageFooterContext = getContext("page-footer");
-    onMount(() => {
-        pageFooterContext.set(Footer);
-        store.update((s) => ({ ...s, onFinish: (p) => dispatch("finish", p) }));
-    });
-    onDestroy(() => pageFooterContext.set(null));
-
+    export let locals;
     export let scope;
     export let instruction;
+
+    const store = createStore({ locals });
+
+    const pageFooterContext = getContext("page-footer");
+
+    onMount(() => pageFooterContext.set(Footer));
+    onDestroy(() => pageFooterContext.set(null));
+
     $: if (scope && instruction) {
         store.update((s) => ({ ...s, revealed: false, loading: false, scope, instruction }));
     }
+
     const onReview = (status) => () => store.review(status);
 
-  // $: console.log('Flashcards',$store);
+    // $: console.log('Flashcards',$store);
 </script>
 
-<Panable
-    on:left={onReview("UNKNOWN")}
-    on:right={onReview("KNOWN")}
-    on:up={onReview("GRADUATE")}
-    on:tap={store.reveal}
->
-    <div class="flex items-center justify-center pb-24 h-full v-game">
-        <div class="basis-auto">
-            {#if !$store.loading}
-                <Card />
-            {/if}
+<div class="h-full v-game-container">
+    <Panable
+        on:left={onReview("UNKNOWN")}
+        on:right={onReview("KNOWN")}
+        on:up={onReview("GRADUATE")}
+        on:tap={store.reveal}
+    >
+        <div class="flex items-center justify-center h-full v-game-content">
+            <div class="basis-auto">
+                {#if !$store.loading}
+                    <Card />
+                {/if}
+            </div>
         </div>
-    </div>
-</Panable>
-
-<!--     {#if $flashcardsStore.current} -->
-<!--         <FlexContainer -->
-<!--             items="center" -->
-<!--             justify="center" -->
-<!--             classes=" h-full h-max w-full lg:mt-32 md:mt-20 mt-12" -->
-<!--         > -->
-<!--             <FlexItem> -->
-<!--                 <Card /> -->
-<!--             </FlexItem> -->
-<!--         </FlexContainer> -->
-<!--     {/if} -->
-<!-- <Controls /> -->
+    </Panable>
+</div>

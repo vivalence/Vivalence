@@ -55,18 +55,14 @@ export default async function generate(inputs, locals) {
     const prompt = Mustache.render(gamePrompt.template, {
         constraints,
         language,
-        innerPrompt: game.data.innerPrompt
+        innerPrompt: game.data.innerPrompt.text
     });
 
-    // const sentence = { spoken: "We have a book.", learning: "Nosotros tenemos un libro." };
-    const sentence = await locals.llm({
-        prompt,
-        schema: gamePrompt.schema,
-        provider: gamePrompt.provider
-    });
+    const sentence = { spoken: "We have a book.", learning: "Nosotros tenemos un libro." };
+    // const sentence = await locals.llm({prompt, schema: gamePrompt.schema, provider: gamePrompt.provider}, locals);
 
     // @ self
-    const tokens = await locals.self.api.unitsFromText({ text: sentence.learning });
+    const tokens = await locals.self.api.unitsFromText({ text: sentence.learning }, locals);
 
     const instruction = {
         type: "TRANSLATIONS",

@@ -1,5 +1,6 @@
 <script>
-    import store from "../store.js";
+    import { getStore } from "../store.js";
+    const store = getStore();
 </script>
 
 <header class="mb-8">

@@ -100,7 +100,7 @@
 </script>
 
 <div
-    class="h-screen"
+    class="h-full"
     style="touch-action: none; transform: translate({$x}px, {$y}px)"
     on:mousedown={handleStart}
     on:mouseup={handleEnd}
