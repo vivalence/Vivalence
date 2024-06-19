@@ -3,6 +3,8 @@ import supabase from "$lib/supabase.js";
 import urlJoin from "url-join";
 import { env } from "$env/dynamic/public";
 
+console.log("@vivalence/client client env", env);
+
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
 const vfetch = (params) => {

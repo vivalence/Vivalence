@@ -15,9 +15,11 @@ jobs:
       matrix:
          include:
           - component: 'admin'
-            path: './app/admin'
+            path: './packages/apps/admin'
           - component: 'client'
-            path: './app/client'
+            path: './packages/apps/client'
+          - component: 'ontologies-spanish'
+            path: './packages/ontologies/spanish'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -42,9 +44,11 @@ jobs:
       matrix:
          include:
           - component: 'admin'
-            path: './app/admin'
+            path: './packages/apps/admin'
           - component: 'client'
-            path: './app/client'
+            path: './packages/apps/client'
+          - component: 'ontologies-spanish'
+            path: './packages/ontologies/spanish'
     steps:
     - name: Add SSH key
       run: |

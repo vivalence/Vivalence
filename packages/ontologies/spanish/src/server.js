@@ -8,6 +8,9 @@ import auth from "./auth";
 import router from "./router";
 
 dotenv.config();
+
+console.log("@vivalence/ontologies-spanish env", process.env);
+
 const app = new Koa();
 
 app.use(cors);
