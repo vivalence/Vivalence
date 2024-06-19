@@ -3,8 +3,8 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
     plugins: [sveltekit()],
-    logLevel: "info",
     mode: "development",
+    logLevel: "info",
     server: {
         watch: {
             ignored: ["**/.#*"] // Ignores files starting with .# in any directory

@@ -1,20 +1,15 @@
 import { writable, get } from "svelte/store";
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import scopeToBlacklist from "$lib/scopeToBlacklist";
-import Global from "$global";
 
-const QUEUE_THRESHOLD = 3;
+const QUEUE_THRESHOLD = 2;
 
-function createInstructionStore() {
-    let strategyId = null;
-    let fetch = null;
-
+function InstructionStore({ locals, strategyId }) {
     const Store = localStorageStore("instructions", {
         active: null,
         queue: [],
         status: null,
-        error: null,
-        onFinish: null
+        error: null
     });
 
     const getBlacklist = () => {
@@ -37,19 +32,12 @@ function createInstructionStore() {
         });
         return blacklist;
     };
-
     const fetchInstructions = async (take = QUEUE_THRESHOLD) => {
         const blacklist = getBlacklist();
         const input = { take, blacklist, strategyId };
-        let response;
-        for (let i = 0; i < 3; i++) {
-            response = await Global.post(`/api/instructions`, input);
-            if (response.error === 500) await new Promise((resolve) => setTimeout(resolve, 500));
-            else break;
-        }
-
-        const { instructions = [], error, status } = response;
-        return { instructions, error, status };
+        const response = await locals.client(`instructions/get`, input).response();
+        const { data = [], error, status } = await response.json();
+        return { instructions: data, error, status };
     };
 
     const fillQueue = async () => {
@@ -65,7 +53,6 @@ function createInstructionStore() {
             });
         }
     };
-
     const activate = () => {
         Store.update((store) => {
             const active = store.queue[0];
@@ -73,41 +60,51 @@ function createInstructionStore() {
             return { ...store, active, queue };
         });
     };
-
     const reset = () => {
         Store.update((store) => {
             return {
                 active: null,
                 queue: [],
                 status: null,
-                error: null,
-                onFinish: null
+                error: null
             };
         });
     };
-
-    const init = async (params) => {
-        fetch = params.fetch;
-        if (params.strategyId !== strategyId) reset();
-        strategyId = params.strategyId;
+    const load = () => {
+        activate();
+        fillQueue();
+    };
+    const next = async () => {
+        const queueId = get(Store).active?.id;
+        activate();
+        await locals.client(`instructions/delete`, { queueId }).response();
         fillQueue();
     };
 
     return {
         ...Store,
-        init,
-        load: () => {
-            activate();
-            fillQueue();
-        },
-        next: async () => {
-            const queueId = get(Store).active?.id;
-            activate();
-            await Global.delete(`/api/instructions`, { queueId });
-            fillQueue();
-        }
+        strategyId,
+        reset,
+        load,
+        next
     };
 }
 
-export const instructionStore = createInstructionStore();
-export default instructionStore;
+let store;
+
+export function createStore(input) {
+    if (!store) store = InstructionStore(input);
+    else if (input.strategyId !== store.strategyId) {
+        store.reset();
+        store = InstructionStore(input);
+    }
+
+    return store;
+}
+
+export function getStore(input) {
+    return store;
+}
+
+// export const instructionStore = createInstructionStore();
+// export default instructionStore;

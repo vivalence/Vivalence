@@ -5,11 +5,12 @@ export async function POST({ fetch, locals, request }) {
     try {
         const { tagIds, blacklist = [], take } = await request.json();
 
-        let { data: units, error } = await locals.post("/api/units/fromTagIds", {
-            tagIds,
-            blacklist
-        });
-        if (error) throw error;
+        let units = await locals
+            .client("units/fromTagIds", {
+                tagIds,
+                blacklist
+            })
+            .ok();
 
         const weakestUnits = await getWeakest(locals)(units, take);
         return json({ data: weakestUnits, status: 200 });

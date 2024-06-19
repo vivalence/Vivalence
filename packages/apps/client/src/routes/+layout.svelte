@@ -7,8 +7,8 @@
     import "../app.pcss";
 
     export let data;
-    let { supabase, session } = data;
-    $: ({ supabase, session } = data);
+    let { locals } = data;
+    let session;
 
     const FooterComponent = writable(null);
     setContext("page-footer", FooterComponent);
@@ -21,8 +21,9 @@
         }
     });
 
-    onMount(() => {
-        const { data } = supabase.auth.onAuthStateChange(async (event, _session) => {
+    onMount(async () => {
+        session = await locals.getSession();
+        const { data } = locals.supabase.auth.onAuthStateChange((event, _session) => {
             if (_session?.expires_at !== session?.expires_at) {
                 invalidate("supabase:auth");
             }

@@ -33,7 +33,7 @@ export default async ({ locals, strategy, context }) => {
         })
         .single();
 
-    const generTags = await locals
+    const genderTag = await locals
         .client("tags/weakest", {
             tagIds: learnableTags
                 .filter((t) => t.data["ONTOLOGICAL"].branch === "gender")
@@ -63,9 +63,7 @@ export default async ({ locals, strategy, context }) => {
                 take: 4
             })
             .ok();
-        // console.log("unit constraints", units.length);
         units.forEach((unit) => {
-            // console.log("unit", unit.data[language.learning]);
             constraints.push(
                 `${tag.data["ONTOLOGICAL"].leaf}: ${unit.data[language.learning]} - ${unit.data[language.spoken]}`
             );

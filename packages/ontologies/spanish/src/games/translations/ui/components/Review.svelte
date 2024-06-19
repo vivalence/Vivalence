@@ -1,11 +1,10 @@
 <script>
     // import Card from "./Card.svelte";
-    import store from "../store.js";
     import { onMount } from "svelte";
     import Loader from "./Loader.svelte";
-    onMount(async () => {
-        //
-    });
+
+    import { getStore } from "../store.js";
+    const store = getStore();
 
     const getFeedback = async () => {
         store.setLoading(true);

@@ -1,7 +1,9 @@
 <script>
-    import store from "../store.js";
     import { onMount, onDestroy } from "svelte";
     import { bindKey, unbindKey } from "@rwh/keystrokes";
+
+    import { getStore } from "../store.js";
+    const store = getStore();
 
     const keymap = {
         " ": () => ($store.revealed ? store.review("KNOWN") : store.reveal()),

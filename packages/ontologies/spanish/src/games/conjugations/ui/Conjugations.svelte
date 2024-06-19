@@ -1,14 +1,18 @@
 <script>
     import { onMount, onDestroy, getContext, tick } from "svelte";
-    import { createEventDispatcher } from "svelte";
     import { bindKey, unbindKey } from "@rwh/keystrokes";
-    import store from "./store.js";
 
+    import { createStore } from "./store.js";
     import Prompt from "./components/Prompt.svelte";
     import Table from "./components/Table.svelte";
     import Footer from "./components/Footer.svelte";
 
-    const dispatch = createEventDispatcher();
+    export let locals;
+    export let scope;
+    export let instruction;
+
+    const store = createStore({ locals });
+
     const pageFooterContext = getContext("page-footer");
     const keymap = {
         Enter: () => (!$store.revealed ? store.evaluate() : store.finish())
@@ -17,7 +21,6 @@
     onMount(async () => {
         pageFooterContext.set(Footer);
         await tick();
-        store.update((s) => ({ ...s, input: "", onFinish: (p) => dispatch("finish", p) }));
         Object.keys(keymap).forEach((key) => bindKey(key, keymap[key]));
     });
 
@@ -25,9 +28,6 @@
         pageFooterContext.set(null);
         Object.keys(keymap).forEach((key) => unbindKey(key));
     });
-
-    export let scope;
-    export let instruction;
 
     $: if (instruction && scope) {
         store.update((s) => ({ ...s, instruction, scope }));

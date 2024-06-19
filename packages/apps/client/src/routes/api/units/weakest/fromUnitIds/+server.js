@@ -5,10 +5,7 @@ export async function POST({ fetch, locals, request }) {
     try {
         const { unitIds, take } = await request.json();
 
-        let { data: units, error } = await locals.post("/api/units/fromUnitIds", {
-            unitIds
-        });
-        if (error) throw error;
+        let units = await locals.client("units/fromUnitIds", { unitIds }).ok();
 
         const weakestUnits = await getWeakest(locals)(units, take);
         return json({ data: weakestUnits, status: 200 });

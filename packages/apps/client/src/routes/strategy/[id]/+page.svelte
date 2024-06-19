@@ -1,28 +1,25 @@
 <script>
-    import { page } from "$app/stores";
     import spanish from "@vivalence/ontologies-spanish";
 
     import Loader from "./components/Loader.svelte";
-    import store from "./store.js";
+    import { createStore } from "./store.js";
 
-    // const games = {CONJUGATIONS: spanish.games.Conjugations, FLASHCARDS: spanish.games.Flashcards, TRANSLATIONS: spanish.games.Translations};
-    const games = Object.fromEntries(
-        Object.entries(spanish.games).map(([key, value]) => ({
-          [key.toUpperCase()]: value.default,
-        })))
+    export let data;
+    const { locals, params } = data;
 
-    const onGameFinish = (payload) => {
-        store.next();
-    };
+    const store = createStore({ strategyId: params.id, locals });
+    locals.onGameFinish = store.next;
+
+    const games = Object.entries(spanish.games).reduce(
+        (acc, [name, game]) => ({ ...acc, [name.toUpperCase()]: game }),
+        {}
+    );
+
 </script>
 
 {#if !$store.error && !!$store.active}
-    <svelte:component
-        this={games[$store.active?.data.type]}
-        on:finish={onGameFinish}
-        {...$store.active?.data}
-    />
-{:else if !$store.error && $store.status === 202}
+    <svelte:component this={games[$store.active?.data.type]} {...$store.active?.data} {locals} />
+{:else if !$store.error}
     <Loader />
 {:else if $store.error}
     <div>Error: {JSON.stringify($store.error, null, 2)}</div>

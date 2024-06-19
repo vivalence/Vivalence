@@ -1,6 +1,6 @@
 <script>
-
-    import store from "../store.js";
+    import { getStore } from "../store.js";
+    const store = getStore();
 
     const handleInput = (event) => store.setInput(event.target.value);
 </script>

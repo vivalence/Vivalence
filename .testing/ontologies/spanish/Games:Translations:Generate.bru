@@ -1,11 +1,11 @@
 meta {
   name: Games:Translations:Generate
   type: http
-  seq: 4
+  seq: 2
 }
 
 post {
-  url: http://localhost:5174/api/games/translations/generate
+  url: {{SERVER_ONTOLOGIES_URL}}/games/translations/generate
   body: json
   auth: none
 }

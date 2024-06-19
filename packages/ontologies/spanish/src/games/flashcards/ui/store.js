@@ -1,13 +1,11 @@
 import { writable, get } from "svelte/store";
-import Global from "$global";
 
-function createFlashcardStore() {
+function FlashcardStore({ locals }) {
     const Store = writable({
         loading: true,
         revealed: false,
         scope: null,
-        instruction: null,
-        onFinish: null
+        instruction: null
     });
 
     return {
@@ -16,21 +14,20 @@ function createFlashcardStore() {
             Store.update((store) => ({ ...store, revealed: true }));
         },
         review: async (response) => {
-            const { scope, onFinish } = get(Store);
-
-            onFinish({ response, scope });
-
-            Global.post("/api/games/flashcards/evaluate", {
-                scope,
-                response
-            })
-                // .then((response) => {console.log("RESPONSE /api/games/flashcards/review POST", response);})
-                .catch((error) => {
-                    console.error("ERROR /api/games/flashcards/review POST", error);
-                });
+            const { scope } = get(Store);
+            locals.onGameFinish({ response, scope });
+            await locals.ontology("games/flashcards/evaluate", { scope, response }).ok();
         }
     };
 }
 
-export const store = createFlashcardStore();
-export default store;
+let store;
+
+export function createStore(input) {
+    if (!store) store = FlashcardStore(input);
+    return store;
+}
+
+export function getStore(input) {
+    return store;
+}
