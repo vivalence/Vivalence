@@ -14,8 +14,8 @@ jobs:
     strategy:
       matrix:
          include:
-          - component: 'admin'
-            path: './packages/apps/admin'
+          # - component: 'admin'
+          #   path: './packages/apps/admin'
           - component: 'client'
             path: './packages/apps/client'
           - component: 'ontologies-spanish'
@@ -43,8 +43,8 @@ jobs:
     strategy:
       matrix:
          include:
-          - component: 'admin'
-            path: './packages/apps/admin'
+          # - component: 'admin'
+          #   path: './packages/apps/admin'
           - component: 'client'
             path: './packages/apps/client'
           - component: 'ontologies-spanish'
