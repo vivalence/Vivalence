@@ -1,0 +1,18 @@
+FROM oven/bun:1 as base
+WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY . .
+
+RUN bun install --frozen-lockfile
+RUN mkdir -p /temp/dev && cp -R node_modules /temp/dev/
+
+RUN bun install --frozen-lockfile --production
+RUN mkdir -p /temp/prod && cp -R node_modules /temp/prod/
+
