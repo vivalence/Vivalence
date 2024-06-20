@@ -28,6 +28,8 @@ jobs:
     - name: Build image
       run: |
         docker build --progress=plain -t vivalence .
+        docker images vivalence
+        docker images vivalence --format "{{.Size}}"
         docker save vivalence | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
