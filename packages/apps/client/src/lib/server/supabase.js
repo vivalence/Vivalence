@@ -13,9 +13,17 @@ export const supabase = (event) => {
             },
             set: (key, value, options) => {
                 event.cookies.set(key, value, options);
+                event.cookies.set(key, value, {
+                    ...options,
+                    domain: ".vivalence.com"
+                });
             },
             remove: (key, options) => {
                 event.cookies.delete(key, options);
+                event.cookies.delete(key, {
+                    ...options,
+                    domain: ".vivalence.com"
+                });
             }
         }
     });

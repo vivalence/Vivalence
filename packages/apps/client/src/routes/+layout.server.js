@@ -1,12 +1,13 @@
 import { redirect } from "@sveltejs/kit";
-import { env } from "$env/dynamic/public";
 
-export const load = async ({ route, locals: { getSession }, ...params }) => {
-    const session = await getSession();
+export const load = async ({ route, locals, ...params }) => {
+    const user = await locals.getUser();
 
-    if (!session && route.id !== "/auth") {
+    if (!user && route.id !== "/auth") {
         throw redirect(307, `/auth`);
     }
+
+    const session = await locals.getSession();
 
     return { session };
 };
