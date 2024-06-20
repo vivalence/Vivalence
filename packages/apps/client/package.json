@@ -3,9 +3,9 @@
     "version": "0.0.1",
     "private": true,
     "scripts": {
-        "dev": "vite dev --host --port 5174",
-        "build": "vite build",
-        "start": "bun run build/index.js"
+        "dev": "bun run --bun vite dev --host --port 5174",
+        "build": "bun run --bun vite build",
+        "start": "node build/index.js"
     },
     "devDependencies": {
         "@sveltejs/adapter-node": "^1.3.1",
