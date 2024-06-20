@@ -1,15 +1,16 @@
-name: Deploy on Tag
+name: Deploy 
 
 on:
   push:
-    # branches:
-    #   - main
-    tags:
-      - 'v*.*.*'  
+    branches:
+      - main
+    # tags:
+      # - 'v*.*.*'  
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -24,7 +25,7 @@ jobs:
     #     chmod 600 ~/.ssh/id_rsa
     #     ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         
-    - name: Build and push Docker image
+    - name: Build image
       run: |
         docker build --progress=plain -t ghcr.io/vivalence/vivalence:latest .
         docker push ghcr.io/vivalence/vivalence:latest
