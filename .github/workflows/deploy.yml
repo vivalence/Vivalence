@@ -2,49 +2,37 @@ name: Deploy on Tag
 
 on:
   push:
-    branches:
-      - main
-    # tags:
-    #   - 'v*.*.*'  
+    # branches:
+    #   - main
+    tags:
+      - 'v*.*.*'  
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #      include:
-    #       - component: 'ontologies-spanish'
-    #         path: './packages/ontologies/spanish'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Add SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+    - name: Log in to GitHub Docker Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+    # - name: Add SSH key
+    #   run: |
+    #     mkdir -p ~/.ssh
+    #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+    #     chmod 600 ~/.ssh/id_rsa
+    #     ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         
     - name: Build and push Docker image
       run: |
-        # docker build --progress=plain  -t ${{ matrix.component }} ${{ matrix.path }}
-        docker build --progress=plain -f ./Dockerfile -t vivalence .
-        docker images --format "{{.Repository}}: {{.Size}}"
-        docker save vivalence | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker build --progress=plain -t ghcr.io/vivalence/vivalence:latest .
+        docker push ghcr.io/vivalence/vivalence:latest
+        # docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
-    needs: build-and-push
+    needs: build
     runs-on: ubuntu-latest
-    # strategy:
-    #   matrix:
-    #      include:
-    #       # - component: 'admin'
-    #       #   path: './packages/apps/admin'
-    #       - component: 'client'
-    #         path: './packages/apps/client'
-    #       - component: 'ontologies-spanish'
-    #         path: './packages/ontologies/spanish'
     steps:
     - name: Add SSH key
       run: |
@@ -52,6 +40,9 @@ jobs:
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
     - name: Deploy to server
       run: |
+        docker pull ghcr.io/vivalence/vivalence:latest
+        docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d client ontologies-spanish"

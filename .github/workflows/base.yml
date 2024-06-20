@@ -1,0 +1,24 @@
+name: Build and Push Base Image
+
+on:
+  push:
+    paths:
+      - 'Dockerfile.base'
+      - 'package.json'
+      - 'bun.lockb'
+  workflow_dispatch:
+
+jobs:
+  build-and-push-base:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to GitHub Docker Registry
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+    - name: Build and push Docker base image
+      run: |
+        docker build -f Dockerfile.base -t ghcr.io/vivalence/base:latest .
+        docker push ghcr.io/vivalence/base:latest
