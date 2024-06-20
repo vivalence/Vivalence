@@ -1,12 +1,13 @@
 {
     "name": "@vivalence/ontologies-spanish",
+    "target": "bun",
     "version": "0.0.1",
     "exports": {
         ".": "./src"
     },
     "scripts": {
-        "dev": "nodemon --exec bun run src/server.js",
-        "start": "bun run src/server.js"
+        "dev": "bun --watch run src/server.js",
+        "start": "bun run --bun src/server.js"
     },
     "type": "module",
     "dependencies": {
