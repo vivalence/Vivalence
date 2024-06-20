@@ -2,16 +2,19 @@ import path from "path";
 import fetch from "isomorphic-fetch";
 
 export default (params) => {
-    // console.log("@services/vfetch ", fetch.toString());
+    console.log("@services/vfetch ", params);
     return (url, body) => {
         const options = {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                ...(params.cookie && { Cookie: params.cookie })
+            },
             body: JSON.stringify(body)
         };
-        if (params.cookie) options.headers.cookie = params.cookie;
-
-        const request = fetch(path.join(params.basePath, url), options);
+        const pth = urlJoin(params.basePath || "", url);
+        console.log("@services/vfetch fetch", pth, options);
+        const request = fetch(pth, options);
 
         const ok = async () => {
             try {
