@@ -7,7 +7,7 @@ export default defineConfig({
     logLevel: "info",
     server: {
         watch: {
-            ignored: ["**/.#*"] // Ignores files starting with .# in any directory
+            ignored: ["**/.#*"]
         }
     }
 });

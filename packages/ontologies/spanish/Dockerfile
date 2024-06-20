@@ -1,21 +1,47 @@
-FROM node:lts-alpine as build
-WORKDIR /app
+# FROM oven/bun:1-debian as build
 
-COPY package.json ./
-RUN npm install --force --legacy-peer-deps
+# WORKDIR /app
 
-COPY . ./
+# COPY ./../.. /app
+# # RUN rm -rf /app/packages/apps /app/packages/postgres
 
-RUN npm run build
+# RUN bun install 
+# WORKDIR /app/packages/ontologies/spanish
+# RUN bun install 
 
-FROM node:lts-alpine as runtime
-WORKDIR /app
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/build ./
-COPY --from=build /app/package.json ./
+# FROM oven/bun:1-debian as runtime
+# WORKDIR /app
+# COPY --from=build /app/node_modules ./node_modules
+# COPY --from=build /app/packages/ontologies/spanish ./
 
-ENV NODE_ENV production
-EXPOSE 3000/tcp
+# ENV NODE_ENV production
 
-CMD [ "node", "index.js" ]
+# USER bun
+# EXPOSE 3000/tcp
+# # ENTRYPOINT [ "bun", "run", "start" ]
+# ENTRYPOINT ["tail", "-f", "/dev/null"]
+
+
+# # CMD [ "bun", "run", "index.js" ]
+
+# # FROM node:lts-alpine as build
+# # WORKDIR /app
+
+# # COPY package.json ./
+# # RUN npm install --force --legacy-peer-deps
+
+# # COPY . ./
+
+# # RUN npm run build
+
+# # FROM node:lts-alpine as runtime
+# # WORKDIR /app
+# # COPY --from=build /app/node_modules ./node_modules
+# # COPY --from=build /app/build ./
+# # COPY --from=build /app/package.json ./
+
+# # ENV NODE_ENV production
+# # EXPOSE 3000/tcp
+
+# # CMD [ "node", "index.js" ]
 
