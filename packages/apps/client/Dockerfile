@@ -1,21 +1,44 @@
-FROM node:lts-alpine as build
-WORKDIR /app
+# FROM oven/bun:1-debian as build
 
-COPY package.json ./
-RUN npm install --force --legacy-peer-deps
+# WORKDIR /app
 
-COPY . ./
+# COPY ./../.. /app
+# # RUN rm -rf /app/packages/app/admin /app/packages/postgres
 
-RUN npm run build
+# RUN bun install 
+# WORKDIR /app/packages/apps/client
+# RUN bun install
+# RUN bun run build
 
-FROM node:lts-alpine as runtime
-WORKDIR /app
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/build ./
-COPY --from=build /app/package.json ./
+# FROM oven/bun:1-debian as runtime
+# WORKDIR /app
+# COPY --from=build /app/packages/apps/client/build ./
+# COPY --from=build /app/packages/apps/client/package.json ./
+# COPY --from=build /app/node_modules ./node_modules
 
-ENV NODE_ENV production
-EXPOSE 3000/tcp
+# ENV NODE_ENV production
 
-CMD [ "node", "index.js" ]
+# USER bun
+# EXPOSE 3000/tcp
+# # CMD [ "bun", "run", "index.js" ]
+# ENTRYPOINT [ "bun", "run", "index.js" ]
+
+
+
+# # COPY --from=build /app/node_modules ./node_modules
+# # COPY --from=build /app/build ./
+# # COPY --from=build /app/package.json ./
+
+# # # COPY package.json yarn.lock ./
+# # # RUN yarn install --frozen-lockfile
+
+# # # Copy all packages and build the project
+# # COPY . ./
+# # RUN yarn workspace @vivalence/client build
+
+# # FROM node:lts-alpine as runtime
+# # WORKDIR /app
+# # COPY --from=build /app/packages/apps/client/build ./
+# # COPY --from=build /app/packages/apps/client/package.json ./
+# # COPY --from=build /app/node_modules ./node_modules
 
