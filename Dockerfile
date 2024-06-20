@@ -1,5 +1,4 @@
-# FROM node:20-bullseye AS base
-FROM node:20-alpine AS base
+FROM node:20-bullseye-slim AS base
 RUN npm install -g bun
 WORKDIR /app
 ENV NODE_ENV=production
