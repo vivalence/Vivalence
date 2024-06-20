@@ -27,8 +27,8 @@ jobs:
 
     - name: Build image
       run: |
-        docker build --progress=plain -t ghcr.io/vivalence/vivalence:latest .
-        docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker build --progress=plain -t vivalence .
+        docker save vivalence | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
     needs: build
