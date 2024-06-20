@@ -2,10 +2,10 @@ name: Build and Deploy to Server
 
 on:
   push:
-    # branches:
-      # - main
-    tags:
-      - 'v*.*.*'  
+    branches:
+      - main
+    # tags:
+      # - 'v*.*.*'  
 
 jobs:
   build:
@@ -18,15 +18,9 @@ jobs:
     - name: Log in to GitHub Docker Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-    # - name: Add SSH key
-    #   run: |
-    #     mkdir -p ~/.ssh
-    #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-    #     chmod 600 ~/.ssh/id_rsa
-    #     ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-        
     - name: Build image
       run: |
+        docker pull ghcr.io/vivalence/vivalence:latest
         docker build --progress=plain -t ghcr.io/vivalence/vivalence:latest .
         docker push ghcr.io/vivalence/vivalence:latest
         # docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
