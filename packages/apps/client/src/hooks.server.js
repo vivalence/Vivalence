@@ -3,7 +3,6 @@ import { nlp, llm } from "@vivalence/services";
 import urlJoin from "url-join";
 import supabase from "$lib/server/supabase.js";
 import { env } from "$env/dynamic/public";
-console.log("@vivalence/client server env", env);
 
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
@@ -33,7 +32,7 @@ const vfetch = (params) => {
                 console.error("[SERVER FETCH ERROR]");
                 console.error(err);
                 console.error(params);
-                console.error(urls, options);
+                console.error(url, options);
                 console.error("[/SERVER FETCH ERROR]");
                 throw err;
             }
