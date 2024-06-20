@@ -26,7 +26,7 @@ RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/s
 
 # FROM base AS release
 FROM node:20-bullseye AS release
-RUN npm install -g bun # @lj hack because client&ontology need node&bun respectively
+# RUN npm install -g bun # @lj hack because client&ontology need node&bun respectively
 
 WORKDIR /app
 COPY --from=prerelease /app /app

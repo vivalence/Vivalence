@@ -4,8 +4,8 @@ import { nlp, llm } from "@vivalence/services";
 import * as ontology from "./ontology";
 import * as api from "./api";
 
-const { SERVER_SUPABASE_URL, SERVER_SUPABASE_ANON_KEY } = process.env;
-const { SERVER_CLIENT_URL } = process.env;
+const { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } = process.env;
+const { PUBLIC_CLIENT_URL } = process.env;
 
 const vfetch = (params) => {
     // @lj duplication due to SSR fetch&path complications
@@ -54,7 +54,7 @@ export default async function (ctx, next) {
     ctx.locals.nlp = nlp;
     ctx.locals.llm = llm;
 
-    ctx.locals.supabase = createServerClient(SERVER_SUPABASE_URL, SERVER_SUPABASE_ANON_KEY, {
+    ctx.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
         cookies: {
             get: (key) => {
                 const cookie = ctx.cookies.get(key);
@@ -78,7 +78,7 @@ export default async function (ctx, next) {
     ctx.locals.self = { api, ontology };
 
     ctx.locals.client = vfetch({
-        basePath: path.join(SERVER_CLIENT_URL, "api"),
+        basePath: path.join(PUBLIC_CLIENT_URL, "api"),
         cookie: ctx.headers.cookie
     });
 
