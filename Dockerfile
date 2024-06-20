@@ -24,8 +24,8 @@ RUN bun run build
 RUN find . -mindepth 1 -maxdepth 1 ! -name 'build' ! -name 'package.json' -exec rm -rf {} +
 RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/shims.js
 
-# FROM base AS release
-FROM node:20-bullseye AS release
+FROM base AS release
+# FROM node:20-bullseye AS release
 # RUN npm install -g bun # @lj hack because client&ontology need node&bun respectively
 
 WORKDIR /app
