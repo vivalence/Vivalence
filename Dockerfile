@@ -1,6 +1,14 @@
-FROM ghcr.io/vivalence/base:latest as base
-ENV NODE_ENV=production
+FROM node:20-bullseye AS base
+RUN npm install -g bun
 
+WORKDIR /app
+COPY . .
+
+RUN bun install --frozen-lockfile
+RUN mkdir -p /temp/dev && cp -R node_modules /temp/dev/
+
+RUN bun install --frozen-lockfile --production
+RUN mkdir -p /temp/prod && cp -R node_modules /temp/prod/
 
 
 FROM base as build
@@ -17,6 +25,7 @@ RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/s
 FROM base AS release
 COPY --from=build /app /app
 COPY --from=base /temp/prod/node_modules node_modules
+ENV NODE_ENV=production
 
 # USER bun
 EXPOSE 3000/tcp
