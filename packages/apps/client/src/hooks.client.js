@@ -14,11 +14,12 @@ const vfetch = (params) => {
                 "Content-Type": "application/json",
                 ...(params.cookie && { Cookie: params.cookie })
             },
-            body: JSON.stringify(body),
-            credentials: "include"
+            body: JSON.stringify(body)
+            // credentials: "include"
         };
 
         const path = urlJoin(params.basePath || "", url);
+        console.log("hooks client request:", path, options);
         const request = (params.fetch || fetch)(path, options);
 
         const ok = async () => {

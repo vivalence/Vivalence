@@ -4,7 +4,7 @@ export default async function (ctx, next) {
 
     if (error || !data.user) {
         ctx.status = 401;
-        ctx.body = "Unauthorized";
+        ctx.body = { error: "Unauthorized" };
         console.error("[AUTH ERROR]");
         console.error(data, error, ctx);
         console.error("[/AUTH ERROR]");
