@@ -25,49 +25,11 @@ RUN bun run build
 RUN find . -mindepth 1 -maxdepth 1 ! -name 'build' ! -name 'package.json' -exec rm -rf {} +
 RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/shims.js
 
-# RUN mkdir -p /temp/client
-# RUN mv build /temp/client/build
-# RUN mv package.json /temp/client/package.json
-# RUN rm -rf ./*
-# RUN mv /temp/client/* .
-
 FROM base AS release
 COPY --from=prerelease /app /app
 COPY --from=install /temp/prod/node_modules node_modules
 
-USER bun
+# USER bun
 EXPOSE 3000/tcp
 CMD ["tail", "-f", "/dev/null"]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# FROM oven/bun:1-debian as build
-
-# WORKDIR /app/vivalence
-
-# COPY . .
-
-# RUN bun install --frozen-lockfile
-
-# FROM oven/bun:1-debian as runtime
-
-# WORKDIR /app/vivalence
-# COPY --from=build /app/vivalence /app/vivalence
-
-# ENV NODE_ENV production
-
-# USER bun
-# EXPOSE 3000/tcp
 

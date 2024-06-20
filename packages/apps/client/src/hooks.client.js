@@ -30,6 +30,11 @@ const vfetch = (params) => {
                 if (json.error || !json.data) throw new Error(json.error || "No data found");
                 return json.data;
             } catch (err) {
+                console.error("[CLIENT FETCH ERROR]");
+                console.error(err);
+                console.error(params);
+                console.error(urls, options);
+                console.error("[/CLIENT FETCH ERROR]");
                 throw err;
             }
         };
@@ -54,6 +59,8 @@ export const handle = (event) => {
         basePath: "/api",
         fetch: event.fetch
     });
+
+    if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
 
     locals.ontology = vfetch({
         basePath: ONTOLOGIES_URL,

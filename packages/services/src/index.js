@@ -5,8 +5,6 @@ import dotenv from "dotenv";
 const __filename = fileURLToPath(import.meta.url);
 dotenv.config({ path: join(dirname(__filename), "../.env") });
 
-console.log("@vivalence/services env", process.env);
-
 // import vfetch from "./vfetch";
 import nlp from "./nlp";
 import llm from "./llm";
