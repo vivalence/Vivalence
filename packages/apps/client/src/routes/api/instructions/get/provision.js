@@ -1,4 +1,5 @@
 import Mustache from "mustache";
+import { performance } from "perf_hooks";
 import * as ebisu from "$lib/ebisu";
 import * as lib from "$lib";
 import scopeToBlacklist from "$lib/scopeToBlacklist";
