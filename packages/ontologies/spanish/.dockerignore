@@ -1,4 +1,7 @@
-.env
-.env*
-.git
+**/node_modules
 node_modules
+.git
+*.log
+.env
+.env.*
+.DS_Store

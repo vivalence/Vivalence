@@ -2,8 +2,7 @@
     "workspaces": [
         "packages/apps/*",
         "packages/ontologies/*",
-        "packages/services",
-        "packages/postgres"
+        "packages/services"
     ],
     "scripts": {
         "start:ontologies-spanish": "cd packages/ontologies/spanish && bun run start",
