@@ -1,4 +1,5 @@
-no/node_modules
+node_modules
+**/node_modules
 
 .git
 .github
@@ -8,5 +9,11 @@ no/node_modules
 **/.env
 **/.env.*
 
-*.log
 .DS_Store
+temp
+.git
+.DS_Store
+*.log
+*.md
+*.org
+build
