@@ -5,22 +5,23 @@ import { env } from "$env/dynamic/public";
 
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
-const vfetch = (params) => {
+const vfetch = (params, locals) => {
     // @lj duplication due to SSR fetch&path complications
     return (url, body) => {
         const options = {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                ...(params.cookie && { Cookie: params.cookie })
+                "Content-Type": "application/json"
+                // Cookie: document.cookie
             },
-            body: JSON.stringify(body)
-            // credentials: "include"
+            body: JSON.stringify(body),
+            credentials: "include"
         };
 
         const path = urlJoin(params.basePath || "", url);
         console.log("hooks client request:", path, options);
-        const request = (params.fetch || fetch)(path, options);
+        console.log("params.fetch", !!params.fetch);
+        const request = (fetch || params.fetch || fetch)(path, options);
 
         const ok = async () => {
             try {
@@ -53,7 +54,6 @@ export const handle = (event) => {
     const locals = {};
 
     locals.supabase = supabase(event);
-
     locals.client = vfetch({
         basePath: "/api",
         fetch: event.fetch
@@ -61,11 +61,15 @@ export const handle = (event) => {
 
     if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
 
-    locals.ontology = vfetch({
-        basePath: ONTOLOGIES_URL,
-        cookie: isBrowser() ? document.cookie : "",
-        fetch: event.fetch
-    });
+    console.log("ONTOLOGIES_URL", ONTOLOGIES_URL);
+    locals.ontology = vfetch(
+        {
+            basePath: ONTOLOGIES_URL,
+            cookie: isBrowser() ? document.cookie : "",
+            fetch: event.fetch
+        },
+        locals
+    );
 
     locals.getSession = async () => {
         const { data } = await locals.supabase.auth.getSession();

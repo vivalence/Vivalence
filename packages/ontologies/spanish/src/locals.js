@@ -65,6 +65,7 @@ export default async function (ctx, next) {
                 console.log("cookies key", key);
                 console.log("ctx.headers.cookies", ctx.headers.cookie);
                 const cookie = ctx.cookies.get(key);
+                // const cookie = ctx.cookies.get("sb-base-auth-token");
                 return decodeURIComponent(cookie);
             },
             set: (key, value, options) => {
@@ -74,10 +75,22 @@ export default async function (ctx, next) {
                     httpOnly: true,
                     sameSite: "Lax"
                 });
+
+                ctx.cookies.set(key, encodeURIComponent(value), {
+                    ...options,
+                    domain: ".vivalence.com",
+                    httpOnly: true,
+                    sameSite: "Lax"
+                });
             },
             remove: (key, options) => {
                 if (!ctx.response) return;
                 ctx.cookies.set(key, "", { ...options, expires: new Date(0) });
+                ctx.cookies.set(key, "", {
+                    ...options,
+                    domain: ".vivalence.com",
+                    expires: new Date(0)
+                });
             }
         }
     });
