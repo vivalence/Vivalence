@@ -3,7 +3,8 @@ import cors from "@koa/cors";
 const allowedOrigins = [
     // env.SERVER_CLIENT_PATH
     "localhost(:[0-9]+)?",
-    "*.vivalence.com"
+    "*.vivalence.com",
+    "*.ontologies.vivalence.com"
 ];
 
 function isOriginAllowed(origin, allowedOrigins) {

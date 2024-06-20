@@ -29,6 +29,11 @@ const vfetch = (params) => {
                 if (json.error || !json.data) throw new Error(json.error || "No data found");
                 return json.data;
             } catch (err) {
+                console.error("[ONTOLOGY FETCH ERROR]");
+                console.error(err);
+                console.error(params);
+                console.error(url, options);
+                console.error("[/ONTOLOGY FETCH ERROR]");
                 throw err;
             }
         };
@@ -57,6 +62,9 @@ export default async function (ctx, next) {
     ctx.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
         cookies: {
             get: (key) => {
+                console.log("cookies key", key);
+                console.log("ctx.cookies.get(key)", ctx.cookies.get(key));
+                console.log("ctx.headers.cookies", ctx.headers.cookie);
                 const cookie = ctx.cookies.get(key);
                 return decodeURIComponent(cookie);
             },
@@ -77,6 +85,7 @@ export default async function (ctx, next) {
 
     ctx.locals.self = { api, ontology };
 
+    console.log("building vfetch client with : ctx.headers.cookies", ctx.headers.cookie);
     ctx.locals.client = vfetch({
         basePath: path.join(PUBLIC_CLIENT_URL, "api"),
         cookie: ctx.headers.cookie

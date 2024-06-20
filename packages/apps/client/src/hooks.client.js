@@ -3,8 +3,6 @@ import supabase from "$lib/supabase.js";
 import urlJoin from "url-join";
 import { env } from "$env/dynamic/public";
 
-console.log("@vivalence/client client env", env);
-
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
 const vfetch = (params) => {
@@ -33,7 +31,7 @@ const vfetch = (params) => {
                 console.error("[CLIENT FETCH ERROR]");
                 console.error(err);
                 console.error(params);
-                console.error(urls, options);
+                console.error(url, options);
                 console.error("[/CLIENT FETCH ERROR]");
                 throw err;
             }

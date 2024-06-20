@@ -1,4 +1,5 @@
-FROM node:20-bullseye AS base
+# FROM node:20-bullseye AS base
+FROM node:20-alpine AS base
 RUN npm install -g bun
 WORKDIR /app
 ENV NODE_ENV=production
@@ -6,11 +7,16 @@ ENV NODE_ENV=production
 FROM base AS install
 COPY . .
 
-RUN bun install --frozen-lockfile
-RUN mkdir -p /temp/dev && cp -R node_modules /temp/dev/
+# RUN bun install --frozen-lockfile RUN mkdir -p /temp/dev && cp -R node_modules /temp/dev/
+RUN bun install --frozen-lockfile && \
+    mkdir -p /temp/dev && \
+    cp -R node_modules /temp/dev/
 
-RUN bun install --frozen-lockfile --production
-RUN mkdir -p /temp/prod && cp -R node_modules /temp/prod/
+# RUN bun install --frozen-lockfile --production RUN mkdir -p /temp/prod && cp -R node_modules /temp/prod/
+RUN bun install --frozen-lockfile --production && \
+    mkdir -p /temp/prod && \
+    cp -R node_modules /temp/prod/
+
 
 
 FROM base as build
@@ -27,7 +33,14 @@ FROM base AS release
 COPY --from=build /app /app
 COPY --from=install /temp/prod/node_modules node_modules
 
-# USER bun
+RUN rm -rf /var/lib/apt/lists/* && \
+    rm -rf /app/node_modules/.cache && \
+    rm -rf /app/node_modules/.bin && \
+    rm -rf /app/node_modules/@types && \
+    rm -rf /app/node_modules/**/*.d.ts
+
+
+USER bun
 EXPOSE 3000/tcp
 CMD ["tail", "-f", "/dev/null"]
 
