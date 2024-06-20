@@ -1,16 +1,16 @@
 {
-  "workspaces": [
-    "packages/apps/*",
-    "packages/ontologies/*",
-    "packages/services"
-  ],
-  "scripts": {
-    "start:ontologies-spanish": "cd packages/ontologies/spanish && bun run start",
-    "start:client": "cd packages/apps/client && bun run start"
-  },
-  "dependencies": { "bun": "^1.1.15" },
-  "devDependencies": {
-    "prettier": "^3.3.2",
-    "prettier-plugin-svelte": "^3.2.4"
-  }
+    "workspaces": [
+        "packages/apps/*",
+        "packages/ontologies/*",
+        "packages/services"
+    ],
+    "scripts": {
+        "start:ontologies-spanish": "cd packages/ontologies/spanish && bun run start",
+        "start:client": "cd packages/apps/client && bun run start"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "prettier": "^3.3.2",
+        "prettier-plugin-svelte": "^3.2.4"
+    }
 }
