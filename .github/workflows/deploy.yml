@@ -18,19 +18,24 @@ jobs:
     - name: Log in to GitHub Docker Registry
       run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
+    - name: Add SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
     - name: Build image
       run: |
-        docker pull ghcr.io/vivalence/vivalence:latest
         docker build --progress=plain -t ghcr.io/vivalence/vivalence:latest .
-        docker push ghcr.io/vivalence/vivalence:latest
-        # docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Log in to GitHub Docker Registry
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+    # - name: Log in to GitHub Docker Registry
+    #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
     - name: Add SSH key
       run: |
@@ -41,6 +46,6 @@ jobs:
 
     - name: Deploy to server
       run: |
-        docker pull ghcr.io/vivalence/vivalence:latest
-        docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+        # docker pull ghcr.io/vivalence/vivalence:latest
+        # docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d client ontologies-spanish"
