@@ -1,8 +1,13 @@
-# .dockerignore
-**/node_modules
 node_modules
+**/node_modules
+
 .git
-*.log
+.github
+
 .env
 .env.*
+**/.env
+**/.env.*
+
+*.log
 .DS_Store
