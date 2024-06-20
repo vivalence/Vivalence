@@ -63,7 +63,6 @@ export default async function (ctx, next) {
         cookies: {
             get: (key) => {
                 console.log("cookies key", key);
-                console.log("ctx.cookies.get(key)", ctx.cookies.get(key));
                 console.log("ctx.headers.cookies", ctx.headers.cookie);
                 const cookie = ctx.cookies.get(key);
                 return decodeURIComponent(cookie);
@@ -72,20 +71,19 @@ export default async function (ctx, next) {
                 if (!ctx.response) return;
                 ctx.cookies.set(key, encodeURIComponent(value), {
                     ...options,
-                    sameSite: "Lax",
-                    httpOnly: true
+                    httpOnly: true,
+                    sameSite: "Lax"
                 });
             },
             remove: (key, options) => {
                 if (!ctx.response) return;
-                ctx.cookies.set(key, "", { ...options, httpOnly: true });
+                ctx.cookies.set(key, "", { ...options, expires: new Date(0) });
             }
         }
     });
 
     ctx.locals.self = { api, ontology };
 
-    console.log("building vfetch client with : ctx.headers.cookies", ctx.headers.cookie);
     ctx.locals.client = vfetch({
         basePath: path.join(PUBLIC_CLIENT_URL, "api"),
         cookie: ctx.headers.cookie
