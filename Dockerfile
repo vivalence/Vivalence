@@ -20,13 +20,16 @@ COPY --from=install /temp/dev/node_modules node_modules
 ENV NODE_ENV=production
 
 # Build Client
-RUN mkdir -p /temp/client
 WORKDIR /app/packages/apps/client
 RUN bun run build
-RUN mv build /temp/client/build
-RUN mv package.json /temp/client/package.json
-RUN rm -rf ./*
-RUN mv /temp/client/* .
+RUN find . -mindepth 1 -maxdepth 1 ! -name 'build' ! -name 'package.json' -exec rm -rf {} +
+RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/shims.js
+
+# RUN mkdir -p /temp/client
+# RUN mv build /temp/client/build
+# RUN mv package.json /temp/client/package.json
+# RUN rm -rf ./*
+# RUN mv /temp/client/* .
 
 FROM base AS release
 COPY --from=prerelease /app /app
