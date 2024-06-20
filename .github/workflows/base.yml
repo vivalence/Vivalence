@@ -9,8 +9,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push-base:
+  build-base:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
