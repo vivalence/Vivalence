@@ -2,10 +2,8 @@ name: Build and Deploy to Server
 
 on:
   push:
-    branches:
-      - main
-    # tags:
-      # - 'v*.*.*'  
+    tags:
+      - 'v*.*.*'  
 
 jobs:
   build:
@@ -14,9 +12,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    # - name: Log in to GitHub Docker Registry
-      # run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
     - name: Add SSH key
       run: |
@@ -36,8 +31,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-    # - name: Log in to GitHub Docker Registry
-    #   run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
     - name: Add SSH key
       run: |
@@ -48,6 +41,4 @@ jobs:
 
     - name: Deploy to server
       run: |
-        # docker pull ghcr.io/vivalence/vivalence:latest
-        # docker save ghcr.io/vivalence/vivalence:latest | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
         ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d client ontologies-spanish"

@@ -71,7 +71,7 @@ export const actions = {
                 return;
             }
 
-            setAuthCookie(session, cookies, request);
+            // setAuthCookie(session, cookies, request);
 
             return { message: "Please check your email to confirm your signup." };
         }
@@ -84,7 +84,7 @@ export const actions = {
 
         if (email && password) {
             const cred = { email, password };
-            console.log("cred", cred);
+            // console.log("cred", cred);
             const { error, data } = await supabase.auth.signInWithPassword(cred);
             const session = data.session;
 
@@ -96,7 +96,7 @@ export const actions = {
                 return fail(500, { error: "Server error. Try again later.", data: { email } });
             }
 
-            setAuthCookie(session, cookies, request);
+            // setAuthCookie(session, cookies, request);
 
             throw redirect(303, `/${post_auth_path}`);
         } else {

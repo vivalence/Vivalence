@@ -22,7 +22,7 @@ const vfetch = (params) => {
         };
 
         const path = urlJoin(params.basePath || "", url);
-        console.log("fetching", path, options, params);
+        // console.log("fetching", path, options, params);
         const request = (params.fetch || fetch)(path, options);
 
         const ok = async () => {

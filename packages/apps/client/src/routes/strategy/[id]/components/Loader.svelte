@@ -5,7 +5,7 @@
     const store = getStore();
 
     const VARIANCE = 2000;
-    let MINIMUM = 200000;
+    let MINIMUM = 2000;
 
     let counter = 0;
     let interval;
