@@ -10,7 +10,6 @@ export const supabase = (event) => {
         cookies: {
             get(key) {
                 if (!isBrowser()) {
-                    console.log("supabase client event.data.session", event.data.session);
                     return JSON.stringify(event.data.session);
                 } else {
                     return parse(document.cookie)[key];

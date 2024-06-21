@@ -13,7 +13,10 @@ const vfetch = (params) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(params.cookie && { Cookie: params.cookie })
+                ...(!!params.cookie && { Cookie: params.cookie }),
+                ...(!!params.session && {
+                    Authorization: `Bearer ${JSON.stringify(params.session)}`
+                })
             },
             body: JSON.stringify(body),
             credentials: "include"
@@ -49,12 +52,21 @@ const vfetch = (params) => {
     };
 };
 
-export const handle = ({ event, resolve, ...ops }) => {
+export const handle = async ({ event, resolve, ...ops }) => {
     const locals = event.locals;
 
     locals.supabase = supabase(event);
     locals.nlp = nlp;
     locals.llm = llm;
+
+    locals.getUser = async () => {
+        const { data } = await locals.supabase.auth.getUser();
+        return data.user;
+    };
+    locals.getSession = async () => {
+        const { data } = await locals.supabase.auth.getSession();
+        return data.session;
+    };
 
     locals.client = vfetch({
         basePath: `/api`,
@@ -66,17 +78,9 @@ export const handle = ({ event, resolve, ...ops }) => {
     locals.ontology = vfetch({
         basePath: ONTOLOGIES_URL,
         fetch: event.fetch,
-        cookie: event.request.headers.get("cookie")
+        cookie: event.request.headers.get("cookie"),
+        session: await locals.getSession()
     });
-
-    locals.getUser = async () => {
-        const { data } = await locals.supabase.auth.getUser();
-        return data.user;
-    };
-    locals.getSession = async () => {
-        const { data } = await locals.supabase.auth.getSession();
-        return data.session;
-    };
 
     event.locals = locals;
 

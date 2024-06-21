@@ -14,14 +14,17 @@ const vfetch = (params) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(params.cookie && { Cookie: params.cookie })
+                ...(!!params.cookie && { Cookie: params.cookie }),
+                ...(!!params.session && {
+                    Authorization: `Bearer ${JSON.stringify(params.session)}`
+                })
             },
             body: JSON.stringify(body),
             credentials: "include"
         };
 
         const pth = path.join(params.basePath, url);
-        console.log("fetch", pth, options);
+        // console.log("fetch", pth, options);
         const request = (params.fetch || fetch)(pth, options);
 
         const ok = async () => {
@@ -55,12 +58,15 @@ const vfetch = (params) => {
     };
 };
 function createSupabaseClient(ctx) {
+    if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_ANON_KEY)
+        throw new Error("Missing Supabase URL or Anon Key");
+
     return createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
         cookies: {
             get: (key) => {
                 const authHeader = ctx.header.authorization;
                 if (authHeader && authHeader.startsWith("Bearer ")) {
-                    console.log("authHeader", authHeader);
+                    // console.log("authHeader", authHeader.slice(0, 50));
                     const token = authHeader.slice(7);
                     const session = JSON.parse(token);
 
@@ -72,8 +78,8 @@ function createSupabaseClient(ctx) {
                     return session;
                 }
 
-                console.log("cookies key", key);
-                console.log("ctx.headers.cookies", ctx.headers.cookie);
+                // console.log("cookies key", key);
+                // console.log("ctx.headers.cookies", ctx.headers.cookie.slice(0, 50));
                 const cookie = ctx.cookies.get(key);
                 return decodeURIComponent(cookie);
             },
@@ -96,11 +102,18 @@ export default async function (ctx, next) {
     ctx.locals.llm = llm;
 
     ctx.locals.supabase = createSupabaseClient(ctx);
+    ctx.locals.getSession = async () => {
+        const { data } = await ctx.locals.supabase.auth.getSession();
+        return data.session;
+    };
+    ctx.locals.session = await ctx.locals.getSession();
+
     ctx.locals.self = { api, ontology };
 
     ctx.locals.client = vfetch({
         basePath: path.join(PUBLIC_CLIENT_URL, "api"),
-        cookie: ctx.headers.cookie
+        cookie: ctx.headers.cookie,
+        session: ctx.locals.session
     });
 
     await next();
