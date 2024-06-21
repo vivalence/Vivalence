@@ -19,11 +19,11 @@ export const supabase = (event) => {
                 return event.cookies.get(key);
             },
             set: (key, value, options) => {
-                console.log("setting cookie", key, value, options);
+                // console.log("setting cookie", key, value, options);
                 event.cookies.set(key, value, options);
             },
             remove: (key, options) => {
-                console.log("deleting cookie", key, options);
+                // console.log("deleting cookie", key, options);
                 event.cookies.delete(key, options);
             }
         }

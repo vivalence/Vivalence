@@ -2,7 +2,7 @@ import path from "path";
 import fetch from "isomorphic-fetch";
 
 export default (params) => {
-    console.log("@services/vfetch ", params);
+    // console.log("@services/vfetch ", params);
     return (url, body) => {
         const options = {
             method: "POST",
@@ -13,7 +13,7 @@ export default (params) => {
             body: JSON.stringify(body)
         };
         const pth = urlJoin(params.basePath || "", url);
-        console.log("@services/vfetch fetch", pth, options);
+        // console.log("@services/vfetch fetch", pth, options);
         const request = fetch(pth, options);
 
         const ok = async () => {
