@@ -12,17 +12,17 @@ const vfetch = (params) => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                ...(!!params.cookie && { Cookie: params.cookie }),
                 ...(!!params.session && {
                     Authorization: `Bearer ${JSON.stringify(params.session)}`
-                }),
-                ...(!!params.cookie && { Cookie: params.cookie })
+                })
             },
             body: JSON.stringify(body),
             credentials: "include"
         };
 
         const path = urlJoin(params.basePath || "", url);
-        console.log("fetching", path, options);
+        console.log("fetching", path, options, params);
         const request = (params.fetch || fetch)(path, options);
 
         const ok = async () => {
@@ -65,7 +65,8 @@ export const handle = async (event) => {
 
     locals.client = vfetch({
         basePath: "/api",
-        fetch: event.fetch
+        fetch: event.fetch,
+        session: event.data.session
     });
 
     if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
