@@ -9,21 +9,16 @@ export const supabase = (event) => {
     const supabaseClient = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
         cookies: {
             get: (key) => {
+                console.log("cookie", key, event.cookies.get(key).slice(0, 20));
                 return event.cookies.get(key);
             },
             set: (key, value, options) => {
+                console.log("setting cookie", key, value, options);
                 event.cookies.set(key, value, options);
-                event.cookies.set(key, value, {
-                    ...options,
-                    domain: ".vivalence.com"
-                });
             },
             remove: (key, options) => {
+                console.log("deleting cookie", key, options);
                 event.cookies.delete(key, options);
-                event.cookies.delete(key, {
-                    ...options,
-                    domain: ".vivalence.com"
-                });
             }
         }
     });

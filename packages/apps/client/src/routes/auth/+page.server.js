@@ -26,6 +26,16 @@ function setAuthCookie(session, cookie, request) {
         }
     );
 
+    const localDomainCookie = cookie.serialize(
+        "sb-vivalence-auth-token",
+        encodeURIComponent(cookieValue),
+        {
+            domain: "localhost",
+            path: "/",
+            sameSite: "None",
+            httpOnly: true
+        }
+    );
     const subDomainCookie = cookie.serialize(
         "sb-vivalence-auth-token",
         encodeURIComponent(cookieValue),
@@ -39,6 +49,7 @@ function setAuthCookie(session, cookie, request) {
     );
 
     request.headers.set("Set-Cookie", rootDomainCookie);
+    request.headers.append("Set-Cookie", localDomainCookie);
     request.headers.append("Set-Cookie", subDomainCookie);
 }
 
@@ -73,7 +84,9 @@ export const actions = {
 
         if (email && password) {
             const cred = { email, password };
-            const { error, data: session } = await supabase.auth.signInWithPassword(cred);
+            console.log("cred", cred);
+            const { error, data } = await supabase.auth.signInWithPassword(cred);
+            const session = data.session;
 
             if (error) {
                 console.error("signup error", error);
