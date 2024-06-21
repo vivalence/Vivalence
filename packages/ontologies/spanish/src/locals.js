@@ -20,7 +20,9 @@ const vfetch = (params) => {
             credentials: "include"
         };
 
-        const request = (params.fetch || fetch)(path.join(params.basePath, url), options);
+        const pth = path.join(params.basePath, url);
+        console.log("fetch", pth, options);
+        const request = (params.fetch || fetch)(pth, options);
 
         const ok = async () => {
             try {
@@ -52,6 +54,40 @@ const vfetch = (params) => {
         };
     };
 };
+function createSupabaseClient(ctx) {
+    return createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+        cookies: {
+            get: (key) => {
+                const authHeader = ctx.header.authorization;
+                if (authHeader && authHeader.startsWith("Bearer ")) {
+                    console.log("authHeader", authHeader);
+                    const token = authHeader.slice(7);
+                    const session = JSON.parse(token);
+
+                    ctx.cookies.set(key, encodeURIComponent(session), {
+                        httpOnly: true,
+                        sameSite: "None"
+                    });
+
+                    return session;
+                }
+
+                console.log("cookies key", key);
+                console.log("ctx.headers.cookies", ctx.headers.cookie);
+                const cookie = ctx.cookies.get(key);
+                return decodeURIComponent(cookie);
+            },
+            set: (key, value, options) => {
+                if (!ctx.response) return;
+                ctx.cookies.set(key, encodeURIComponent(value), options);
+            },
+            remove: (key, options) => {
+                if (!ctx.response) return;
+                ctx.cookies.set(key, "", { ...options, expires: new Date(0) });
+            }
+        }
+    });
+}
 
 export default async function (ctx, next) {
     ctx.locals = {};
@@ -59,42 +95,7 @@ export default async function (ctx, next) {
     ctx.locals.nlp = nlp;
     ctx.locals.llm = llm;
 
-    ctx.locals.supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
-        cookies: {
-            get: (key) => {
-                console.log("cookies key", key);
-                console.log("ctx.headers.cookies", ctx.headers.cookie);
-                const cookie = ctx.cookies.get(key);
-                // const cookie = ctx.cookies.get("sb-base-auth-token");
-                return decodeURIComponent(cookie);
-            },
-            set: (key, value, options) => {
-                if (!ctx.response) return;
-                ctx.cookies.set(key, encodeURIComponent(value), {
-                    ...options,
-                    httpOnly: true,
-                    sameSite: "Lax"
-                });
-
-                ctx.cookies.set(key, encodeURIComponent(value), {
-                    ...options,
-                    domain: ".vivalence.com",
-                    httpOnly: true,
-                    sameSite: "Lax"
-                });
-            },
-            remove: (key, options) => {
-                if (!ctx.response) return;
-                ctx.cookies.set(key, "", { ...options, expires: new Date(0) });
-                ctx.cookies.set(key, "", {
-                    ...options,
-                    domain: ".vivalence.com",
-                    expires: new Date(0)
-                });
-            }
-        }
-    });
-
+    ctx.locals.supabase = createSupabaseClient(ctx);
     ctx.locals.self = { api, ontology };
 
     ctx.locals.client = vfetch({

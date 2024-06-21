@@ -5,23 +5,25 @@ import { env } from "$env/dynamic/public";
 
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
-const vfetch = (params, locals) => {
+const vfetch = (params) => {
     // @lj duplication due to SSR fetch&path complications
     return (url, body) => {
         const options = {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
-                // Cookie: document.cookie
+                "Content-Type": "application/json",
+                ...(!!params.session && {
+                    Authorization: `Bearer ${JSON.stringify(params.session)}`
+                }),
+                ...(!!params.cookie && { Cookie: params.cookie })
             },
             body: JSON.stringify(body),
             credentials: "include"
         };
 
         const path = urlJoin(params.basePath || "", url);
-        console.log("hooks client request:", path, options);
-        console.log("params.fetch", !!params.fetch);
-        const request = (fetch || params.fetch || fetch)(path, options);
+        console.log("fetching", path, options);
+        const request = (params.fetch || fetch)(path, options);
 
         const ok = async () => {
             try {
@@ -50,10 +52,17 @@ const vfetch = (params, locals) => {
     };
 };
 
-export const handle = (event) => {
+export const handle = async (event) => {
     const locals = {};
 
     locals.supabase = supabase(event);
+
+    locals.getSession = async () => {
+        const { data } = await locals.supabase.auth.getSession();
+        return data.session;
+    };
+    event.data.session = await locals.getSession();
+
     locals.client = vfetch({
         basePath: "/api",
         fetch: event.fetch
@@ -61,20 +70,12 @@ export const handle = (event) => {
 
     if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
 
-    console.log("ONTOLOGIES_URL", ONTOLOGIES_URL);
-    locals.ontology = vfetch(
-        {
-            basePath: ONTOLOGIES_URL,
-            cookie: isBrowser() ? document.cookie : "",
-            fetch: event.fetch
-        },
-        locals
-    );
-
-    locals.getSession = async () => {
-        const { data } = await locals.supabase.auth.getSession();
-        return data.session;
-    };
+    locals.ontology = vfetch({
+        basePath: ONTOLOGIES_URL,
+        cookie: isBrowser() ? document.cookie : "",
+        fetch: event.fetch,
+        session: event.data.session
+    });
 
     event.locals = locals;
     return event;

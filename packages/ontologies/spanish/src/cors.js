@@ -3,7 +3,8 @@ import cors from "@koa/cors";
 const allowedOrigins = [
     //
     "localhost(:[0-9]+)?",
-    "*.vivalence.com"
+    "*.vivalence.com",
+    "*vivalence.com"
 ];
 
 function isOriginAllowed(origin, allowedOrigins) {
@@ -21,14 +22,14 @@ function isOriginAllowed(origin, allowedOrigins) {
 export default cors({
     origin: (ctx) => {
         const requestOrigin = ctx.get("Origin") || "*";
-        console.log("Request Origin:", requestOrigin);
+        // console.log("Request Origin:", requestOrigin);
 
         if (isOriginAllowed(requestOrigin, allowedOrigins)) {
-            console.log("Allowed origin:", requestOrigin);
+            // console.log("Allowed origin:", requestOrigin);
             return requestOrigin;
         }
 
-        console.log("Disallowed origin:", requestOrigin);
+        // console.log("Disallowed origin:", requestOrigin);
         return false;
     },
     credentials: true,
