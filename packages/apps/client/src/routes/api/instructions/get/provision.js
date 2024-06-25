@@ -61,8 +61,12 @@ export const make = async ({
         delete strategy._StrategyToTag;
         delete strategy._StrategyToGame;
 
-        locals.Mustache = Mustache;
-        locals.scopeToBlacklist = scopeToBlacklist;
+        strategy.relations = strategy.relations.reduce((relations, { key, ...relation }) => {
+            relations[key.trim().toLowerCase()] = relation.data
+                .map((id) => strategy[relation.type].find((obj) => obj.id === id))
+                .filter(Boolean);
+            return relations;
+        }, {});
 
         const context = {
             blacklist,
@@ -70,12 +74,13 @@ export const make = async ({
             strategyId,
             language: { learning: "spanish", spoken: "english" }
         };
+
+        locals.Mustache = Mustache;
+        locals.scopeToBlacklist = scopeToBlacklist;
         locals.ebisu = ebisu;
         locals.shuffle = lib.shuffleArray;
 
-        const strategyProvisioning =
-            local || new Function(`return ${strategy.data.provisioning}`)();
-
+        const strategyProvisioning = local || new Function(`return ${strategy.provision.run}`)();
         const instructions = await strategyProvisioning({ locals, strategy, context });
 
         // PERSIST INSTRUCTIONS

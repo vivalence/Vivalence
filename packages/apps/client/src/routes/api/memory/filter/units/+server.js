@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { getUnitMemory } from "../lib";
+import { getUnitMemory } from "../../lib";
 
 export async function POST({ fetch, locals, request }) {
     try {

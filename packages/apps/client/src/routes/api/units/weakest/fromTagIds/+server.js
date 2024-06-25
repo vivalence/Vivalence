@@ -1,5 +1,5 @@
 import { json } from "@sveltejs/kit";
-import { getWeakest } from "../lib";
+import { getWeakest, getUnitMemory } from "$api/memory/lib";
 
 export async function POST({ fetch, locals, request }) {
     try {
@@ -12,8 +12,10 @@ export async function POST({ fetch, locals, request }) {
             })
             .ok();
 
-        const weakestUnits = await getWeakest(locals)(units, take);
-        return json({ data: weakestUnits, status: 200 });
+        units = await Promise.all(units.map(getUnitMemory(locals)));
+        units = getWeakest(locals)(units, take);
+
+        return json({ data: units, status: 200 });
     } catch (err) {
         console.error(`[ERROR] /api/units/weakest/fromTagIds:\n`, err.message);
         console.error(err);

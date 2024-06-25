@@ -12,26 +12,27 @@ export const StrategyToGame: ConnectionTypeMethods<Game> = {
                 label: `${data.type} - ${data.name}`,
 
                 link: `/game/edit/${data.id}`,
-                data,
+                data
             }))
             .sort((a, b) => a.label.localeCompare(b.label)),
     filter: (all) => (searchText) =>
-        all.filter(
-            ({ data }) =>
+        all.filter(({ data }) => {
+            return (
                 data.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                data.id.toLowerCase().includes(searchText.toLowerCase()),
-        ),
+                data.id.toLowerCase().includes(searchText.toLowerCase())
+            );
+        }),
     create: async (option, rootResourceId) =>
         await supabase.from("_StrategyToGame").insert([
             {
                 B: rootResourceId,
-                A: option.data.id,
-            },
+                A: option.data.id
+            }
         ]),
     remove: async (option, rootResourceId) =>
         await supabase
             .from("_StrategyToGame")
             .delete()
             .eq("B", rootResourceId)
-            .eq("A", option.data.id),
+            .eq("A", option.data.id)
 };

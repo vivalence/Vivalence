@@ -10,28 +10,24 @@ export const UnitToTag: ConnectionTypeMethods<Tag> = {
                 value: data.id,
                 label: `${data.type.join(", ")} - ${data.name}`,
                 link: `/tag/edit/${data.id}`,
-                data,
+                data
             }))
             .sort((a, b) => a.label.localeCompare(b.label)),
     filter: (all) => (searchText) =>
         all.filter(
             ({ data }) =>
                 data.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                data.id.toLowerCase().includes(searchText.toLowerCase()),
+                data.id.toLowerCase().includes(searchText.toLowerCase())
         ),
     create: async (option, rootResourceId) =>
         await supabase.from("_TagToUnit").insert([
             {
                 A: option.data.id,
-                B: rootResourceId,
-            },
+                B: rootResourceId
+            }
         ]),
     remove: async (option, rootResourceId) =>
-        await supabase
-            .from("_TagToUnit")
-            .delete()
-            .eq("A", option.data.id)
-            .eq("B", rootResourceId),
+        await supabase.from("_TagToUnit").delete().eq("A", option.data.id).eq("B", rootResourceId)
 };
 
 export const StrategyToTag: ConnectionTypeMethods<Tag> = {
@@ -42,26 +38,28 @@ export const StrategyToTag: ConnectionTypeMethods<Tag> = {
                 value: data.id,
                 label: `${data.type.join(", ")} - ${data.name}`,
                 link: `/tag/edit/${data.id}`,
-                data,
+                data
             }))
             .sort((a, b) => a.label.localeCompare(b.label)),
     filter: (all) => (searchText) =>
-        all.filter(
-            ({ data }) =>
+        all.filter(({ data }) => {
+            console.log("searchText", searchText);
+            return (
                 data.name.toLowerCase().includes(searchText.toLowerCase()) ||
-                data.id.toLowerCase().includes(searchText.toLowerCase()),
-        ),
+                data.id.toLowerCase().includes(searchText.toLowerCase())
+            );
+        }),
     create: async (option, rootResourceId) =>
         await supabase.from("_StrategyToTag").insert([
             {
                 A: rootResourceId,
-                B: option.data.id,
-            },
+                B: option.data.id
+            }
         ]),
     remove: async (option, rootResourceId) =>
         await supabase
             .from("_StrategyToTag")
             .delete()
             .eq("A", rootResourceId)
-            .eq("B", option.data.id),
+            .eq("B", option.data.id)
 };

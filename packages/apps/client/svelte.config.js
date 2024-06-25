@@ -11,6 +11,7 @@ const config = {
             $games: "./src/games",
             $global: "./src/global",
             $components: "./src/components",
+            $api: "./src/routes/api",
             $classifier: "./src/routes/api/classifier",
 
             $kit: "./src/kit"

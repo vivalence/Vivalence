@@ -1,8 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useUpdate, IResourceComponentsProps, } from "@refinedev/core";
+import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
 import { useForm, Edit, SaveButton } from "@refinedev/antd";
 import { useDocumentTitle } from "@refinedev/react-router-v6";
-import { Form, Input, Select } from "antd";
+import { Form, Input, Select, Tabs } from "antd";
 const { Option } = Select;
 
 import Connection, { type ConnectionEditHandles } from "$components/connection";
@@ -35,6 +35,71 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
     [form, queryResult, formProps],
   );
 
+  const items = [
+    {
+      key: '1',
+      label: 'Game',
+      children: (
+        <>
+          <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Type"
+            name="type"
+            rules={[{ required: true, message: "Please select a Game Type!" }]}
+          >
+            <Select placeholder="Select a game type">
+              <Option value="FLASHCARDS">Flashcards</Option>
+              <Option value="TRANSLATIONS">Translations</Option>
+              <Option value="CONJUGATIONS">Conjugations</Option>
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Object Status"
+            name="objectStatus"
+            rules={[{ required: true, message: "Please select a object status!" }]}
+          >
+            <Select placeholder="Select a Object Status">
+              <Option value="ACTIVE">Active</Option>
+              <Option value="INACTIVE">Inactive</Option>
+              <Option value="DELETED">Deleted</Option>
+            </Select>
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: '2',
+      label: 'Connections',
+      children: (
+        <Form.Item label="Connected Strategies">
+          <Connection
+            ref={strategyConnectionRef}
+            active={queryResult?.data?.data.strategies}
+            rootResourceId={gameId}
+            connectionName="GameToStrategy"
+          />
+        </Form.Item>
+      ),
+    },
+    {
+      key: '3',
+      label: 'Data',
+      children: (
+        <Form.Item name={["data"]}>
+          {gametype && (
+            <JSONField
+              schema={GameSchema[gametype]}
+              data={jsonData}
+              onChange={(data) => form.setFieldValue('data', data)}
+            />
+          )}
+        </Form.Item>
+      ),
+    },
+  ];
+
   return (
     <Edit
       headerButtons={({ defaultButtons }) => (
@@ -45,50 +110,7 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
       )}
       saveButtonProps={saveButtonProps}>
       <Form {...formProps} layout="vertical" onFinish={onSave}>
-        <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Type"
-          name="type"
-          rules={[{ required: true, message: "Please select a Game Type!" }]}
-        >
-          <Select placeholder="Select a game type">
-            <Option value="FLASHCARDS">Flashcards</Option>
-            <Option value="TRANSLATIONS">Translations</Option>
-            <Option value="CONJUGATIONS">Conjugations</Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          label="Object Status"
-          name="objectStatus"
-          rules={[{ required: true, message: "Please select a object status!" }]}
-        >
-          <Select placeholder="Select a Object Status">
-            <Option value="ACTIVE">Active</Option>
-            <Option value="INACTIVE">Inactive</Option>
-            <Option value="DELETED">Deleted</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item label="Connected Strategies">
-          <Connection
-            ref={strategyConnectionRef}
-            active={queryResult?.data?.data.strategies}
-            rootResourceId={gameId}
-            connectionName="GameToStrategy"
-          />
-        </Form.Item>
-        <Form.Item name={["data"]}>
-          {gametype && (
-            <JSONField
-              schema={GameSchema[gametype]}
-              data={jsonData}
-              onChange={(data) => form.setFieldValue('data', data)}
-            />
-          )}
-        </Form.Item>
+        <Tabs defaultActiveKey="1" items={items} />
       </Form>
     </Edit>
   );

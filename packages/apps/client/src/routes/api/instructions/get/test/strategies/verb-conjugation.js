@@ -1,51 +1,15 @@
 export default async ({ locals, strategy, context }) => {
-    // console.log((await locals.supabase.from("Tag").select("*").eq("data->ONTOLOGICAL->>branch", "lemma")).data .map((t) => `"${t.id}", // ${t.data.ONTOLOGICAL.leaf}`) .join("\n"));
-
     const { blacklist, language } = context;
+    const conjugationsGame = strategy.relations.conjugations;
+    const flashcardsGame = strategy.relations.flashcards;
+    const translationsGame = strategy.relations.translations;
 
-    const conjugationsGame = strategy.games.find((g) => g.type === "CONJUGATIONS");
-    const flashcardsGame = strategy.games.find((g) => g.type === "FLASHCARDS");
-    const translationsGame = strategy.games.find((g) => g.type === "TRANSLATIONS");
-
-    //
-    // SCOPE
-    //
-    const verbTagIds = [
-        // temporary hardcode
-        "b200050b-0f2a-4759-85ae-dbd965f34596", // ser
-        "de18da86-6038-44ae-8ce7-282f24e99f21", // estar
-        "e25e00ff-0ef9-4b33-acce-1a6be3892058", // tener
-        "8c501ed6-243e-4197-937a-3e5854cc0e3e", // hacer
-        "60d52f32-5cd7-49df-8a54-b695c85601c9", // poder
-        "f393f08e-cb4a-465d-a016-3833ad42f20c", // decir
-        "b6b9818a-3aa9-41aa-822a-9f9fca3250d9", // ir
-        "048ce68d-fdf3-474f-bf87-f11cb16ab829", // ver
-        "dae289ad-54d4-4c73-be54-e2cfebcdc608", // dar
-        "915ffaee-5763-4986-bd6d-fda6bc539c3d", // saber
-        "df915a8a-148a-4231-af0c-f31cc626f29e", // querer
-        "eb55ddc2-959d-4b6a-bbfd-2b81a88711c4", // llegar
-        "c3869e1f-7245-48d2-b1ee-7cb72db7ed35", // pasar
-        "5d0fe4ab-eac2-435f-90a1-cf3407b27263", // deber
-        "6c0c53ec-06ce-4a92-9b17-a0edc9f39950", // poner
-        "1086f95c-ddec-46d6-a3f9-55caf8161bf3", // parecer
-        "e5330b3c-d95e-479f-a5dd-840ece7c5be7", // quedar
-        "7a46e84f-9024-4455-a338-fd9a8ce4df16", // creer
-        "9ebb46de-9ed0-4981-801a-cd8c93144fa1", // hablar
-        "5471ae1e-5522-4f20-842f-dc28917978ea" // llevar
-    ];
-    const tenseTags = [
-        "clrzb19mp0079g0m3badzek07" // Present Tense
-        // "clpwfwpt6000ug0n1htcn6x30", // Past Tense
-        // "clrzb96vh06gwg0mwasu65dg4", // Imperfect Tense
-        // "clpwfwpwg000wg0n16nvxfpmq" // Future Tense
-    ];
-    const moodTags = [
-        "clpwfwpfp000lg0n1q9872y8x" // Indicative
-    ];
+    const tenseTag = strategy.relations.tenseTags[0];
+    const moodTag = strategy.relations.moodTags[0];
 
     const verbTag = await locals
         .client("tags/weakest", {
-            tagIds: verbTagIds,
+            tags: strategy.relations.verbTags,
             blacklist: blacklist.tags,
             take: 1
         })
@@ -58,19 +22,20 @@ export default async ({ locals, strategy, context }) => {
         .ontology("games/conjugations/generate", {
             tags: {
                 verb: { id: verbTag.id },
-                tense: { id: tenseTags[0] },
-                mood: { id: moodTags[0] }
+                tense: { id: tenseTag.id },
+                mood: { id: moodTag.id }
             },
             gameId: conjugationsGame.id
         })
         .ok();
+    // locals.scopeToBlacklist({ blacklist, scope: conjugations.scope });
 
     //
     // TRANSLATIONS
     //
     const unit = await locals
         .client("units/weakest/fromTagIds", {
-            tagIds: [verbTag.id, tenseTags[0], moodTags[0]],
+            tagIds: [verbTag.id, tenseTag.id, moodTag.id],
             blacklist,
             take: 1
         })
@@ -94,8 +59,6 @@ export default async ({ locals, strategy, context }) => {
         .ok();
 
     locals.scopeToBlacklist({ blacklist, scope: translations.scope });
-    // console.log("[conjugations]");
-    // console.log(JSON.stringify(conjugations, null, 2));
 
     //
     // FLASHCARDS
@@ -118,7 +81,7 @@ export default async ({ locals, strategy, context }) => {
     // from conjugation
     const flashcardUnits = await locals
         .client("units/fromTagIds", {
-            tagIds: [verbTag.id, tenseTags[0], moodTags[0]],
+            tagIds: [verbTag.id, tenseTag.id, moodTag.id],
             blacklist: blacklist.units
         })
         .ok();

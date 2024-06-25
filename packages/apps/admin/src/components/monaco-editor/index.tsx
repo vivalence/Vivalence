@@ -5,32 +5,34 @@ import { Typography } from 'antd';
 
 
 interface MonacoEditorFieldProps {
-  formData: string | undefined;
-  onChange: (value: string | undefined) => void;
+  onChange?: (value: string | undefined) => void;
+  formData?: string | undefined;
+  value?: string | undefined;
   language?: string;
   theme?: string;
   height?: string;
-  schema: any;
-  uiSchema: any;
+  title?: string;
+  schema?: any;
+  uiSchema?: any;
 }
 
 const MonacoEditorField: React.FC<MonacoEditorFieldProps> = (props) => {
-  const schema = props.schema;
-  const uiOptions = props.uiSchema["ui:options"];
+  const schema = props.schema || {};
+  const uiOptions = props.uiSchema ? props.uiSchema["ui:options"] : {};
 
   const handleEditorChange = (value: string | undefined) => {
     if (!value) value = "";
-    props.onChange(value);
+    props.onChange && props.onChange(value);
   };
 
   const defaultValue =
     typeof props.formData === "object"
       ? JSON.stringify(props.formData, null, 2)
-      : props.formData || "";
+      : props.formData || props.value || "";
 
   return (
     <>
-      <Typography.Text>{schema.title}</Typography.Text>
+      <Typography.Text>{props.title || schema.title || ""}</Typography.Text>
       <Editor
         height={props.height || uiOptions.height || "40vh"}
         theme={props.theme || "vs-dark"}
