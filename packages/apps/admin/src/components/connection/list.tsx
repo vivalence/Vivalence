@@ -13,12 +13,18 @@ interface ListProps<T extends Resource> {
 const AnyLinkOutlined: any = LinkOutlined;
 const AnyDeleteOutlined: any = DeleteOutlined;
 
-const List = <T extends Resource>({
-  listMembers,
-  onDelete,
-}: ListProps<T>): ReactElement => {
+const List = <T extends Resource>({ listMembers, onDelete, }: ListProps<T>): ReactElement => {
   return (
     <AntList
+      style={{
+        backgroundColor: '#fefefe',
+        border: '1px solid #e2e2e2',
+        borderRadius: '5px',
+        boxShadow: '0 2px 4px 0 rgba(0,0,0,0.1)',
+        marginTop: '10px',
+        padding: '0 10px 10px',
+        width: '100%'
+      }}
       pagination={
         listMembers.length > 10 && {
           position: "bottom",
@@ -44,7 +50,7 @@ const List = <T extends Resource>({
           ]}
         >
           <Skeleton avatar title={false} loading={false} active>
-            <AntList.Item.Meta title={<span>{member.label}</span>} />
+            <span>{member.label}</span>
           </Skeleton>
         </AntList.Item>
       )}

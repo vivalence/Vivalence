@@ -4,12 +4,11 @@ import provisionInstructions from "./provision";
 const PROVISION_THRESHOLD = 5;
 
 export async function POST({ locals, params, request }) {
-    console.log("instructions/get");
     try {
         const session = await locals.getSession();
         if (!session) throw redirect(307, "/auth");
-        const userId = session.user.id;
 
+        const userId = session.user.id;
         let { strategyId, take, blacklist = {} } = await request.json();
 
         console.log("getting instructions", strategyId, take, blacklist);
@@ -46,8 +45,6 @@ export async function POST({ locals, params, request }) {
             .eq("userId", userId)
             .eq("strategyId", strategyId)
             .not("id", "in", `(${blacklist.instructions.join(",")})`);
-
-        // console.log("count.count < PROVISION_THRESHOLD", count.count, PROVISION_THRESHOLD);
 
         if (count.error) {
             console.error("Error retrieving the oldest pending entry:", count.error);

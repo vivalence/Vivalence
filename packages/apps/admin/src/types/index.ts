@@ -13,6 +13,12 @@ export interface Strategy {
     [key: string]: any;
 }
 
+export interface Game {
+    id: string;
+    name: string;
+    [key: string]: any;
+}
+
 export interface Tag {
     id: string;
     name: string;
@@ -26,4 +32,4 @@ export interface Unit {
 }
 
 // one type that can be any of User, Strategy, Tag, or Unit
-export type Resource = User | Strategy | Tag | Unit;
+export type Resource = User | Strategy | Tag | Unit | Game;

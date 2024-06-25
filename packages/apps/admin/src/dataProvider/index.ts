@@ -25,7 +25,7 @@ const getData = async (key, func) => {
         const data = await func();
         const cache = {
             data,
-            time: new Date(),
+            time: new Date()
         };
         Cache.set(key, cache);
         return data;
@@ -37,24 +37,27 @@ export default (supabaseClient) => {
 
     return {
         ...baseData,
-        default: baseData,
+        // default: baseData,
+        getMany: async (params) => {
+            return await baseData.getMany(params);
+        },
         getList: async (params) => {
             const key = JSON.stringify({
                 filter: params.filter,
                 sort: params.sort,
                 resource: params.resource,
                 sorters: params.sorters,
-                pagination: params.pagination,
+                pagination: params.pagination
             });
+
             const list = await getData(hashString(`${params.resource}-${key}`), () =>
-                baseData.getList(params),
+                baseData.getList(params)
             );
             return list;
         },
         //     if (params.resource === "Tag") {const { data: units, error: errorUnit } = await supabaseClient .from("_TagToUnit") .select(`*, Unit:Unit(*)`) .eq("A", oneResource.data.id) .count(); console.log("tag", list); console.log("units", units); const ids = list.data.map((item) => item.id); const { data, error } = await supabaseClient .from("auth_users") .select("id, email") .in("id", ids); if (error) return list; const mergedList = list.data.map((item) => {const additionalDetails = data.find((d) => d.id === item.id); return { ...item, ...additionalDetails };}); return list; // , data: { units } };} else {console.log("list", list); return list;}},
         getOne: async (params) => {
             const oneResource = await baseData.getOne(params);
-            // console.log("getOne resource", params.resource);
 
             if (params.resource === "AppUser") {
                 const { data, error } = await supabaseClient
@@ -67,8 +70,8 @@ export default (supabaseClient) => {
                     ...oneResource,
                     data: {
                         ...oneResource.data,
-                        strategies: data.map((d) => d.Strategy),
-                    },
+                        strategies: data.map((d) => d.Strategy)
+                    }
                 };
             } else if (params.resource === "Strategy") {
                 const { data: users, error: errorUser } = await supabaseClient
@@ -77,13 +80,11 @@ export default (supabaseClient) => {
                     .eq("B", oneResource.data.id);
                 if (errorUser) return { ...oneResource, error: errorUser };
 
-                const { data: units, error: errorUnits } = await getData(
-                    "StrategyToUnit",
-                    () =>
-                        supabaseClient
-                            .from("_StrategyToUnit")
-                            .select(`*, Unit:Unit(*)`)
-                            .eq("A", oneResource.data.id),
+                const { data: units, error: errorUnits } = await getData("StrategyToUnit", () =>
+                    supabaseClient
+                        .from("_StrategyToUnit")
+                        .select(`*, Unit:Unit(*)`)
+                        .eq("A", oneResource.data.id)
                 );
                 if (errorUnits) return { ...oneResource, error: errorUnits };
 
@@ -106,8 +107,8 @@ export default (supabaseClient) => {
                         users: users.map((d) => d.AppUser),
                         units: units.map((d) => d.Unit),
                         games: games.map((d) => d.Game),
-                        tags: tags.map((d) => d.Tag),
-                    },
+                        tags: tags.map((d) => d.Tag)
+                    }
                 };
             } else if (params.resource === "Tag") {
                 const { data: units, error: errorUnit } = await supabaseClient
@@ -128,8 +129,8 @@ export default (supabaseClient) => {
                     data: {
                         ...oneResource.data,
                         units: units.map((d) => d.Unit),
-                        strategies: strategies.map((d) => d.Strategy),
-                    },
+                        strategies: strategies.map((d) => d.Strategy)
+                    }
                 };
             } else if (params.resource === "Game") {
                 const { data: strategies, error: errorTag } = await supabaseClient
@@ -142,8 +143,8 @@ export default (supabaseClient) => {
                     ...oneResource,
                     data: {
                         ...oneResource.data,
-                        strategies: strategies.map((d) => d.Strategy),
-                    },
+                        strategies: strategies.map((d) => d.Strategy)
+                    }
                 };
             } else if (params.resource === "Unit") {
                 const { data: tags, error: errorTag } = await supabaseClient
@@ -162,12 +163,12 @@ export default (supabaseClient) => {
                     data: {
                         ...oneResource.data,
                         strategies: strategies.map((d) => d.Strategy),
-                        tags: tags.map((d) => d.Tag),
-                    },
+                        tags: tags.map((d) => d.Tag)
+                    }
                 };
             }
 
             return oneResource;
-        },
+        }
     };
 };

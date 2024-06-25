@@ -5,6 +5,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
+import { grey } from '@ant-design/colors';
 
 import { useResource } from "$util/hooks/useResource";
 import Autocomplete, { type OptionType, type RefHandles } from "./autocomplete";
@@ -55,11 +56,8 @@ export const ConnectionEdit = forwardRef<
   ConnectionEditProps<Resource>
 >((props, ref) => {
   // @lj: unknown is ts hack because ts is retarded
-  /* console.log('CONNECTION NAME', props.connectionName) */
   const connection = ConnectionTypes[props.connectionName] as unknown as ConnectionTypeMethods<Resource>;
-  /* console.log('CONNECTION', connection) */
   const { map, filter, variableResourceKey } = connection;
-  /* console.log('FILTER', filter) */
 
   let [optionsAll] = useResource<Resource>(variableResourceKey, map);
 
@@ -74,7 +72,6 @@ export const ConnectionEdit = forwardRef<
 
   useImperativeHandle(ref, () => ({
     onSave: () => {
-      console.log("This function can be called from the parent.");
       onFormFinish();
     },
   }));

@@ -1,43 +1,17 @@
 export default async ({ locals, strategy, context }) => {
-    const translationsGame = strategy.games.find((g) => g.type === "TRANSLATIONS");
-    const flashcardsGame = strategy.games.find((g) => g.type === "FLASHCARDS");
     const { blacklist, language } = context;
-
-    //
-    // SCOPE
-    //
     const FLASHCARD_COUNT = 5;
 
-    const structuralTag = strategy.tags.find((t) => t.type.includes("STRUCTURAL"));
-    const learnableTags = strategy.tags.filter((t) => t.type.includes("LEARNABLE"));
-    const vocabularyTags = strategy.tags.filter(
-        (t) =>
-            t.type.includes("ONTOLOGICAL") &&
-            ["pos"].includes(t.data["ONTOLOGICAL"].branch) &&
-            ["noun", "adj"].includes(t.data["ONTOLOGICAL"].leaf)
-    );
+    const translationsGame = strategy.relations.translations;
+    const flashcardsGame = strategy.relations.flashcards;
+
+    const structuralTag = strategy.relations.structuralTags[0];
+    const vocabularyTags = strategy.relations.vocabularyTags;
+    const articleTags = strategy.relations.articleTags;
 
     const articleUnit = await locals
-        .client("units/weakest/fromUnitIds", {
-            unitIds: strategy.units.map((u) => u.id),
-            take: 1
-        })
-        .single();
-
-    const numberTag = await locals
-        .client("tags/weakest", {
-            tagIds: learnableTags
-                .filter((t) => t.data["ONTOLOGICAL"].branch === "number")
-                .map((t) => t.id),
-            take: 1
-        })
-        .single();
-
-    const genderTag = await locals
-        .client("tags/weakest", {
-            tagIds: learnableTags
-                .filter((t) => t.data["ONTOLOGICAL"].branch === "gender")
-                .map((t) => t.id),
+        .client("units/weakest/fromTagIds", {
+            tagIds: articleTags.map((t) => t.id),
             take: 1
         })
         .single();
@@ -45,14 +19,10 @@ export default async ({ locals, strategy, context }) => {
     //
     // TRANSLATIONS
     //
-    const constraints = [];
-    constraints.push(
-        `ARTICLE: ${articleUnit.data[language.learning]} - ${articleUnit.data[language.spoken]}`
-    );
-    [genderTag, numberTag].forEach((tag) =>
-        constraints.push(`${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}`)
-    );
-    constraints.push(`LENGTH: between 4-7 words.`);
+    const constraints = [
+        `ARTICLE: ${articleUnit.data[language.learning]} - ${articleUnit.data[language.spoken]}`,
+        `LENGTH: between 4-7 words.`
+    ];
 
     for (const tag of vocabularyTags) {
         const units = await locals
@@ -63,6 +33,7 @@ export default async ({ locals, strategy, context }) => {
                 take: 4
             })
             .ok();
+
         units.forEach((unit) => {
             constraints.push(
                 `${tag.data["ONTOLOGICAL"].leaf}: ${unit.data[language.learning]} - ${unit.data[language.spoken]}`

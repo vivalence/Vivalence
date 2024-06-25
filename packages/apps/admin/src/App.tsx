@@ -83,6 +83,7 @@ function App() {
     <BrowserRouter>
       <ConfigProvider theme={RefineThemes.Purple}>
         <Refine
+          // @ts-ignore
           dataProvider={dataProviderProp}
           liveProvider={liveProvider(supabaseClient)}
           authProvider={authProvider}
@@ -92,7 +93,6 @@ function App() {
             syncWithLocation: true,
             warnWhenUnsavedChanges: true,
             useNewQueryKeys: true,
-            // projectId: '', // "ohLSiu-WPTwmV-V83w78",
           }}
           resources={resources}>
           <Authenticated key="home">
