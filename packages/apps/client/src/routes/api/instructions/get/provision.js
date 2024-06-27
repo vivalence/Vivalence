@@ -62,7 +62,7 @@ export const make = async ({
         delete strategy._StrategyToGame;
 
         strategy.relations = strategy.relations.reduce((relations, { key, ...relation }) => {
-            relations[key.trim().toLowerCase()] = relation.data
+            relations[key.trim()] = relation.data
                 .map((id) => strategy[relation.type].find((obj) => obj.id === id))
                 .filter(Boolean);
             return relations;

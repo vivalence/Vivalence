@@ -10,20 +10,25 @@ export const supabase = (event) => {
         cookies: {
             get: (key) => {
                 const authHeader = event.request.headers.get("Authorization");
+                const cookie = event.cookies.get(key);
+                // console.log("supabase server cookies get cookie", key, !!cookie);
+                // console.log("supabase server cookies get authHeader", authHeader && authHeader.slice(0, 50));
+
+                if (cookie) {
+                    return cookie;
+                }
                 if (authHeader && authHeader.startsWith("Bearer ")) {
                     const token = authHeader.slice(7);
                     const session = JSON.parse(token);
-                    // event.cookies.set(key, encodeURIComponent(session), {httpOnly: true, sameSite: "None"});
                     return session;
                 }
-                return event.cookies.get(key);
             },
             set: (key, value, options) => {
-                // console.log("setting cookie", key, value, options);
+                // console.log("supabase setting cookie", key, value, options);
                 event.cookies.set(key, value, options);
             },
             remove: (key, options) => {
-                // console.log("deleting cookie", key, options);
+                // console.log("supabase deleting cookie", key, options);
                 event.cookies.delete(key, options);
             }
         }

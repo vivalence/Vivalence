@@ -3,8 +3,13 @@
     import { writable } from "svelte/store";
     import { afterNavigate, invalidate } from "$app/navigation";
     import { AppShell, AppBar } from "@skeletonlabs/skeleton";
+    import { dev } from "$app/environment";
+
+    import { initializeStores } from '@skeletonlabs/skeleton';
+    import DebugTool from "$components/_debug/DebugTool.svelte";
 
     import "../app.pcss";
+    initializeStores();
 
     export let data;
     let { locals } = data;
@@ -68,3 +73,7 @@
         {/if}
     </svelte:fragment>
 </AppShell>
+
+{#if dev}
+    <DebugTool {locals} />
+{/if}

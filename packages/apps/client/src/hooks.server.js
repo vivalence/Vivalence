@@ -1,56 +1,12 @@
 import { json } from "@sveltejs/kit";
-import { nlp, llm } from "@vivalence/services";
-import urlJoin from "url-join";
+import { nlp, llm, vfetch } from "@vivalence/services/server";
+// import urlJoin from "url-join";
 import supabase from "$lib/server/supabase.js";
 import { env } from "$env/dynamic/public";
 
 const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 
-const vfetch = (params) => {
-    // @lj duplication due to SSR fetch&path complications
-    return (url, body) => {
-        const options = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...(!!params.cookie && { Cookie: params.cookie }),
-                ...(!!params.session && {
-                    Authorization: `Bearer ${JSON.stringify(params.session)}`
-                })
-            },
-            body: JSON.stringify(body),
-            credentials: "include"
-        };
-
-        const path = urlJoin(params.basePath || "", url);
-        const request = (params.fetch || fetch)(path, options);
-
-        const ok = async () => {
-            try {
-                const response = await request;
-                const json = await response.json();
-                if (json.error || !json.data) throw new Error(json.error || "No data found");
-                return json.data;
-            } catch (err) {
-                console.error("[SERVER FETCH ERROR]");
-                console.error(err);
-                console.error(params);
-                console.error(url, options);
-                console.error("[/SERVER FETCH ERROR]");
-                throw err;
-            }
-        };
-
-        const single = async () => {
-            const items = await ok();
-            if (items[0]) return items[0];
-            else throw new Error("No single data found");
-        };
-
-        const response = async () => await request;
-        return { request, response, ok, single };
-    };
-};
+// const vfetch = (params) => {return (url, body) => {const options = {method: "POST", headers: {"Content-Type": "application/json", ...(!!params.cookie && { Cookie: params.cookie }), ...(!!params.session && {Authorization: `Bearer ${JSON.stringify(params.session)}`})}, body: JSON.stringify(body), credentials: "include"}; const path = urlJoin(params.basePath || "", url); const request = (params.fetch || fetch)(path, options); const ok = async () => {try {const response = await request; const json = await response.json(); if (json.error || !json.data) throw new Error(json.error || "No data found"); return json.data;} catch (err) {console.error("[SERVER FETCH ERROR]"); console.error(err); console.error(params); console.error(url, options); console.error("[/SERVER FETCH ERROR]"); throw err;}}; const single = async () => {const items = await ok(); if (items[0]) return items[0]; else throw new Error("No single data found");}; const response = async () => await request; return { request, response, ok, single };};};
 
 export const handle = async ({ event, resolve, ...ops }) => {
     const locals = event.locals;
@@ -67,6 +23,8 @@ export const handle = async ({ event, resolve, ...ops }) => {
         const { data } = await locals.supabase.auth.getSession();
         return data.session;
     };
+    locals.session = await locals.getSession();
+    locals.user = await locals.getUser();
 
     locals.client = vfetch({
         basePath: `/api`,
@@ -74,12 +32,9 @@ export const handle = async ({ event, resolve, ...ops }) => {
     });
 
     if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
-
     locals.ontology = vfetch({
         basePath: ONTOLOGIES_URL,
-        fetch: event.fetch,
-        cookie: event.request.headers.get("cookie"),
-        session: await locals.getSession()
+        session: locals.session
     });
 
     event.locals = locals;
