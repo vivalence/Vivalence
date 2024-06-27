@@ -1,20 +1,25 @@
-import path from "path";
-import fetch from "isomorphic-fetch";
+// import path from "path";
+import urlJoin from "url-join";
+import cfetch from "cross-fetch";
 
-export default (params) => {
-    // console.log("@services/vfetch ", params);
+const vfetch = (requestParams) => {
     return (url, body) => {
         const options = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                ...(params.cookie && { Cookie: params.cookie })
+                // ...(!!requestParams.cookie && { Cookie: requestParams.cookie }),
+                ...(!!requestParams.session && {
+                    Authorization: `Bearer ${JSON.stringify(requestParams.session)}`
+                })
             },
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
+            credentials: "include"
         };
-        const pth = urlJoin(params.basePath || "", url);
-        // console.log("@services/vfetch fetch", pth, options);
-        const request = fetch(pth, options);
+
+        const pth = urlJoin(requestParams.basePath, url);
+        // console.log("fetch", pth, options);
+        const request = (requestParams.fetch || cfetch)(pth, options);
 
         const ok = async () => {
             try {
@@ -23,6 +28,11 @@ export default (params) => {
                 if (json.error || !json.data) throw new Error(json.error || "No data found");
                 return json.data;
             } catch (err) {
+                console.error("[ONTOLOGY FETCH ERROR]");
+                console.error(err);
+                console.error(requestParams);
+                console.error(url, options);
+                console.error("[/ONTOLOGY FETCH ERROR]");
                 throw err;
             }
         };
@@ -41,3 +51,5 @@ export default (params) => {
         };
     };
 };
+
+export default vfetch;

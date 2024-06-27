@@ -13,7 +13,7 @@ export async function POST({ fetch, locals, request }) {
             .ok();
 
         units = await Promise.all(units.map(getUnitMemory(locals)));
-        units = getWeakest(locals)(units, take);
+        units = getWeakest(units, take);
 
         return json({ data: units, status: 200 });
     } catch (err) {

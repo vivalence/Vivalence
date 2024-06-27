@@ -12,9 +12,9 @@ dotenv.config();
 const app = new Koa();
 
 app.use(cors);
+app.use(body());
 app.use(locals);
 app.use(auth);
-app.use(body());
 app.use(router.routes()).use(router.allowedMethods());
 
 const PORT = process.env.PORT || 3000;

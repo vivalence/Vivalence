@@ -10,7 +10,7 @@ export async function POST({ request, locals, ...props }) {
         }
 
         tags = await Promise.all(tags.map(getTagMemory(locals)));
-        tags = getWeakest(locals)(tags, take);
+        tags = getWeakest(tags, take);
 
         return json({ data: tags, error: null });
     } catch (err) {

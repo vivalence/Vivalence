@@ -9,10 +9,12 @@ export const supabase = (event) => {
     const supabaseClient = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
         cookies: {
             get(key) {
-                if (!isBrowser()) {
-                    return JSON.stringify(event.data.session);
-                } else {
+                // console.log("supabase client cookies get session", event.data.session);
+                // console.log("supabase client cookies get is browser cookie", key, isBrowser() && document.cookie);
+                if (isBrowser()) {
                     return parse(document.cookie)[key];
+                } else {
+                    return JSON.stringify(event.data.session);
                 }
             }
         },

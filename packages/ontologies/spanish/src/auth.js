@@ -11,7 +11,5 @@ export default async function (ctx, next) {
         return;
     }
 
-    ctx.state.user = data.user;
-
     await next();
 }
