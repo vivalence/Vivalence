@@ -1,0 +1,216 @@
+{
+    "results": [
+        {
+            "test": {
+                "filename": "../packages/ontologies/spanish/src/games/translations/docs/Games:Translations:Evaluate.bru"
+            },
+            "request": {
+                "method": "POST",
+                "url": "http://localhost:5175/games/translations/evaluate",
+                "headers": {
+                    "Cookie": "sb-base-auth-token=%7B%22access_token%22%3A%22eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzE5NjYzMjY3LCJpYXQiOjE3MTk2NTk2NjcsInN1YiI6IjFmN2JjNDAzLTZkMmQtNGE3Yi1iNTJmLTNiZmVlZjBkNTkwYiIsImVtYWlsIjoiZmlubkB2aXZhbGVuY2UuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJyb2xlcyI6WyJVU0VSIl19LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzE5NjU5NjY3fV0sInNlc3Npb25faWQiOiIyY2NlMDdmMy1hMWVjLTQ2ZDQtODU5YS04ZmFmMGMzMjlkMDgifQ.FsTFrIB5RpwZAuRhty-eFPB6f4_EU-q3Ra6PfAlgi7I%22%2C%22token_type%22%3A%22bearer%22%2C%22expires_in%22%3A3600%2C%22expires_at%22%3A1719663267%2C%22refresh_token%22%3A%224FfFNXvFh0yI5wADW3rxow%22%2C%22user%22%3A%7B%22id%22%3A%221f7bc403-6d2d-4a7b-b52f-3bfeef0d590b%22%2C%22aud%22%3A%22authenticated%22%2C%22role%22%3A%22authenticated%22%2C%22email%22%3A%22finn%40vivalence.com%22%2C%22email_confirmed_at%22%3A%222024-03-01T16%3A43%3A56.021465Z%22%2C%22phone%22%3A%22%22%2C%22confirmed_at%22%3A%222024-03-01T16%3A43%3A56.021465Z%22%2C%22last_sign_in_at%22%3A%222024-06-29T11%3A14%3A27.444953236Z%22%2C%22app_metadata%22%3A%7B%22provider%22%3A%22email%22%2C%22providers%22%3A%5B%22email%22%5D%7D%2C%22user_metadata%22%3A%7B%22roles%22%3A%5B%22USER%22%5D%7D%2C%22identities%22%3A%5B%7B%22identity_id%22%3A%22f5f61520-caf4-4c04-b3af-f9a3c4f1f67b%22%2C%22id%22%3A%221f7bc403-6d2d-4a7b-b52f-3bfeef0d590b%22%2C%22user_id%22%3A%221f7bc403-6d2d-4a7b-b52f-3bfeef0d590b%22%2C%22identity_data%22%3A%7B%22email%22%3A%22finn%40vivalence.com%22%2C%22email_verified%22%3Afalse%2C%22phone_verified%22%3Afalse%2C%22sub%22%3A%221f7bc403-6d2d-4a7b-b52f-3bfeef0d590b%22%7D%2C%22provider%22%3A%22email%22%2C%22last_sign_in_at%22%3A%222024-03-01T16%3A43%3A56.016857Z%22%2C%22created_at%22%3A%222024-03-01T16%3A43%3A56.016953Z%22%2C%22updated_at%22%3A%222024-03-01T16%3A43%3A56.016953Z%22%2C%22email%22%3A%22finn%40vivalence.com%22%7D%5D%2C%22created_at%22%3A%222024-03-01T16%3A43%3A56.006731Z%22%2C%22updated_at%22%3A%222024-06-29T11%3A14%3A27.449664Z%22%7D%7D",
+                    "content-type": "application/json"
+                },
+                "data": {
+                    "sentence": {
+                        "spoken": "The old women",
+                        "learning": "Las mujeres viejas",
+                        "translation": "Las mujeres viejos"
+                    },
+                    "scope": {
+                        "game": {
+                            "id": "89066bac-2c5f-47d2-a8b5-10c6803d51bd"
+                        },
+                        "units": [
+                            {
+                                "id": "596bc1b2-0aed-42e6-a64e-2bfe4fc73fda",
+                                "tags": [
+                                    {
+                                        "id": "clpwfwot10006g0n18uv27vbi"
+                                    },
+                                    {
+                                        "id": "clrzb15d70030g0m3zhq7cynz"
+                                    },
+                                    {
+                                        "id": "clrzb14tl002dg0m3p5lsy4f3"
+                                    },
+                                    {
+                                        "id": "clrzaz4z90009g0jsrf0yyiqu"
+                                    },
+                                    {
+                                        "id": "clrzb8zro069ug0mwugfrctvb"
+                                    }
+                                ],
+                                "token": "Las",
+                                "end_char": 3,
+                                "start_char": 0
+                            },
+                            {
+                                "id": "clnt09if2002sg0nupqigvaqy",
+                                "tags": [
+                                    {
+                                        "id": "clrzb15d70030g0m3zhq7cynz"
+                                    },
+                                    {
+                                        "id": "clpwfwow30008g0n1iruvb7un"
+                                    },
+                                    {
+                                        "id": "clrzb14tl002dg0m3p5lsy4f3"
+                                    }
+                                ],
+                                "token": "mujeres",
+                                "end_char": 11,
+                                "start_char": 4
+                            },
+                            {
+                                "id": "clnt09ihy005bg0nu1szaqnkp",
+                                "tags": [
+                                    {
+                                        "id": "clrzb15d70030g0m3zhq7cynz"
+                                    },
+                                    {
+                                        "id": "clrzb14tl002dg0m3p5lsy4f3"
+                                    },
+                                    {
+                                        "id": "clpwfwoax0000g0n1wrtqt6q1"
+                                    }
+                                ],
+                                "token": "viejas",
+                                "end_char": 18,
+                                "start_char": 12
+                            }
+                        ]
+                    }
+                }
+            },
+            "response": {
+                "status": 200,
+                "statusText": "OK",
+                "headers": {
+                    "vary": "Origin",
+                    "content-type": "application/json; charset=utf-8",
+                    "date": "Sat, 29 Jun 2024 11:23:49 GMT",
+                    "content-length": "1618"
+                },
+                "data": {
+                    "data": [
+                        [
+                            {
+                                "id": "596bc1b2-0aed-42e6-a64e-2bfe4fc73fda",
+                                "type": "Unit",
+                                "evaluation": {
+                                    "status": "KNOWN",
+                                    "correction": null,
+                                    "feedback": null
+                                },
+                                "spoken": "the (plural feminine)",
+                                "token": "Las",
+                                "index": 1,
+                                "start_char": 0,
+                                "end_char": 3
+                            },
+                            {
+                                "id": "clrzb15d70030g0m3zhq7cynz",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Gender Feminine",
+                                "branch": "gender",
+                                "leaf": "fem"
+                            },
+                            {
+                                "id": "clrzb14tl002dg0m3p5lsy4f3",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Number Plural",
+                                "branch": "number",
+                                "leaf": "plur"
+                            }
+                        ],
+                        [
+                            {
+                                "id": "clnt09if2002sg0nupqigvaqy",
+                                "type": "Unit",
+                                "evaluation": {
+                                    "status": "UNKNOWN",
+                                    "correction": "mujeres",
+                                    "feedback": "The word 'mujeres' should be used instead of 'mujeres' to correctly translate the noun 'women'."
+                                },
+                                "spoken": "woman, wife",
+                                "token": "mujeres",
+                                "index": 2,
+                                "start_char": 4,
+                                "end_char": 11
+                            },
+                            {
+                                "id": "clrzb15d70030g0m3zhq7cynz",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Gender Feminine",
+                                "branch": "gender",
+                                "leaf": "fem"
+                            },
+                            {
+                                "id": "clrzb14tl002dg0m3p5lsy4f3",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Number Plural",
+                                "branch": "number",
+                                "leaf": "plur"
+                            }
+                        ],
+                        [
+                            {
+                                "id": "clnt09ihy005bg0nu1szaqnkp",
+                                "type": "Unit",
+                                "evaluation": {
+                                    "status": "UNKNOWN",
+                                    "correction": "viejas",
+                                    "feedback": "The word 'viejos' should be 'viejas' to agree with the feminine plural noun 'mujeres'."
+                                },
+                                "spoken": "old, aged",
+                                "token": "viejas",
+                                "index": 3,
+                                "start_char": 12,
+                                "end_char": 18
+                            },
+                            {
+                                "id": "clrzb15d70030g0m3zhq7cynz",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Gender Feminine",
+                                "branch": "gender",
+                                "leaf": "fem"
+                            },
+                            {
+                                "id": "clrzb14tl002dg0m3p5lsy4f3",
+                                "type": "Tag",
+                                "evaluation": {
+                                    "status": "KNOWN"
+                                },
+                                "name": "Number Plural",
+                                "branch": "number",
+                                "leaf": "plur"
+                            }
+                        ]
+                    ]
+                },
+                "responseTime": 3757
+            },
+            "error": null,
+            "assertionResults": [],
+            "testResults": [],
+            "runtime": 3.7640072079999998,
+            "suitename": "../packages/ontologies/spanish/src/games/translations/docs/Games:Translations:Evaluate"
+        }
+    ]
+}

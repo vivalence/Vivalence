@@ -9,6 +9,10 @@
         {
             "files": "*.svelte",
             "options": { "parser": "svelte" }
-        }
+        },
+	{
+	    "files": "*.viva",
+	    "options": {"parser": "babel"}
+	}
     ]
 }

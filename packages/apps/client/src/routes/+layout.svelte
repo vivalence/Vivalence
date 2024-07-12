@@ -4,12 +4,13 @@
     import { afterNavigate, invalidate } from "$app/navigation";
     import { AppShell, AppBar } from "@skeletonlabs/skeleton";
     import { dev } from "$app/environment";
-
-    import { initializeStores } from '@skeletonlabs/skeleton';
+    import { computePosition, autoUpdate, offset, shift, flip, arrow } from "@floating-ui/dom";
+    import { storePopup, initializeStores  } from "@skeletonlabs/skeleton";
     import DebugTool from "$components/_debug/DebugTool.svelte";
 
     import "../app.pcss";
     initializeStores();
+    storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
     export let data;
     let { locals } = data;

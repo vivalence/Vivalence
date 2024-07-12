@@ -1,0 +1,42 @@
+const boot = async (runtime, locals) => {
+    runtime.router.route("/validate", async (request, state) => {
+        console.log("ontology /Validate called");
+        return { type: "unit", id: "pseudoUnit", name: "Test Unit" };
+    });
+    runtime.router.use(async (request, state) => {
+        state.ontology = "ontology";
+        return request;
+    });
+    return runtime;
+};
+
+export default {
+    manifest: {
+        type: "Ontology",
+        id: "langugage-universal-dependencies",
+        name: "Langauges by Universal Dependencies",
+        games: [
+            {
+                type: "Game",
+                id: "l-ud-flashcards",
+                name: "Flashcards",
+                description: "A simple flashcard game to help you learn the language."
+            }
+        ],
+        owner: "Vivalence",
+        reference: "https://github.com/vivalence/ontologies/spanish",
+        docs: "https://docs.vivalence.com/ontologies/spanish"
+    },
+    boot
+};
+
+// runtime.on('memory:update', handleMemoryUpdate);
+// runtime.on('tag:complete', handleTagComplete);
+
+// // Register routes
+// runtime.route('/tags/predict', handleTagPrediction);
+// runtime.route('/units/validate', handleUnitValidation);
+// runtime.route('/remedy', handleRemedy);
+
+// Initialize ontology-specific data structures or states
+// await initializeOntologyData(runtime);
