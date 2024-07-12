@@ -21,8 +21,8 @@ export default async function groq({ prompt, schema, provider }) {
     const completion = {
         messages,
         model: provider.model || "llama2-70b-4096",
-        max_tokens: provider.max_tokens || 100,
-        temperature: provider.temperature || 0.2
+        max_tokens: provider.max_tokens || 4096,
+        temperature: provider.temperature || 0.8
     };
 
     const response = await client.chat.completions.create(completion);

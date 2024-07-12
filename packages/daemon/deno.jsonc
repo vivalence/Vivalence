@@ -1,0 +1,43 @@
+{
+  // Define tasks that can be run with `deno task <taskname>`
+  "tasks": {
+    "dev": "deno run --watch --allow-net --allow-read src/index.js",
+    "build": "deno compile --allow-net --allow-read src/index.js",
+    "start": "deno run --allow-net --allow-read src/index.js"
+  },
+  
+  "imports": {
+    "ontologies/": "../ontologies/"
+  },
+
+
+  // Compiler options
+  "compilerOptions": {
+    "allowJs": true,
+    "strict": true
+  },
+
+  // Linter options
+  "lint": {
+    "files": {
+      "include": ["src/"]
+    },
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+
+  // Formatter options (for Prettier compatibility)
+  // "fmt": {
+  //     "files": {
+  //         "include": ["src/"]
+  //     },
+  //     "options": {
+  //         "useTabs": false,
+  //         "lineWidth": 80,
+  //         "indentWidth": 2,
+  //         "singleQuote": true,
+  //         "proseWrap": "always"
+  //     }
+  // }
+}

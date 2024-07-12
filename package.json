@@ -1,8 +1,6 @@
 {
     "workspaces": [
-        "packages/apps/*",
-        "packages/ontologies/*",
-        "packages/services"
+        "packages/apps/*"
     ],
     "scripts": {
         "start:ontologies-spanish": "cd packages/ontologies/spanish && bun run start",

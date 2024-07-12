@@ -1,0 +1,26 @@
+const boot = async (runtime, locals) => {
+    runtime.router.use(async (request, state) => {
+        state.corpus = "corpus";
+        return request;
+    });
+
+    runtime.router.route("/instructions", async (request, state) => {
+        console.log("corpus route /instructions");
+        return [{ type: "instruction", strategy: state.strategy }];
+    });
+
+    return runtime;
+};
+
+export default {
+    manifest: {
+        type: "Corpus",
+        id: "eng-to-esp",
+        name: "English to Spanish",
+        ontology: { id: "langugage-universal-dependencies" },
+        owner: "Vivalence",
+        reference: "https://github.com/vivalence/ontologies/spanish",
+        docs: "https://docs.vivalence.com/ontologies/spanish"
+    },
+    boot
+};
