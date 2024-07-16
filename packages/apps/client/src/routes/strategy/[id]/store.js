@@ -1,109 +1,109 @@
-import { writable, get } from "svelte/store";
+import { get, writable } from "svelte/store";
 import { localStorageStore } from "@skeletonlabs/skeleton";
 import scopeToBlacklist from "$lib/scopeToBlacklist";
 
 const QUEUE_THRESHOLD = 2;
 
 function InstructionStore({ locals, strategyId }) {
-    const Store = localStorageStore("instructions", {
+  const Store = localStorageStore("instructions", {
+    active: null,
+    queue: [],
+    status: null,
+    error: null,
+  });
+
+  const getBlacklist = () => {
+    const store = get(Store);
+    let blacklist = {
+      units: [],
+      tags: [],
+      instructions: [],
+    };
+    const scopes = [];
+    [store.active, ...store.queue]
+      .filter((x) => x)
+      .forEach((item) => {
+        scopes.push(item.data.scope);
+        blacklist.instructions.push(item.id);
+      });
+
+    scopes.map((scope) => {
+      blacklist = scopeToBlacklist({ blacklist, scope });
+    });
+    return blacklist;
+  };
+  const fetchInstructions = async (take = QUEUE_THRESHOLD) => {
+    const blacklist = getBlacklist();
+    const input = { take, blacklist, strategyId };
+    const response = await locals.client(`instructions/get`, input).response();
+    const { data = [], error, status } = await response.json();
+    return { instructions: data, error, status };
+  };
+
+  const fillQueue = async () => {
+    const { active, queue, status } = get(Store);
+
+    if (queue.length <= QUEUE_THRESHOLD) {
+      Store.update((s) => ({ ...s, status: 202 }));
+      const { instructions, ...result } = await fetchInstructions();
+      Store.update((store) => {
+        const queue = [...store.queue, ...instructions];
+        const active = store.active || queue.shift();
+        return { ...store, active, queue, ...result };
+      });
+    }
+  };
+  const activate = () => {
+    Store.update((store) => {
+      const active = store.queue[0];
+      const queue = store.queue.slice(1);
+      return { ...store, active, queue };
+    });
+  };
+  const reset = () => {
+    Store.update((store) => {
+      return {
         active: null,
         queue: [],
         status: null,
-        error: null
+        error: null,
+      };
     });
+  };
+  const load = () => {
+    activate();
+    fillQueue();
+  };
+  const next = async () => {
+    const queueId = get(Store).active?.id;
+    activate();
+    await locals.client(`instructions/delete`, { queueId }).response();
+    fillQueue();
+  };
 
-    const getBlacklist = () => {
-        const store = get(Store);
-        let blacklist = {
-            units: [],
-            tags: [],
-            instructions: []
-        };
-        const scopes = [];
-        [store.active, ...store.queue]
-            .filter((x) => x)
-            .forEach((item) => {
-                scopes.push(item.data.scope);
-                blacklist.instructions.push(item.id);
-            });
-
-        scopes.map((scope) => {
-            blacklist = scopeToBlacklist({ blacklist, scope });
-        });
-        return blacklist;
-    };
-    const fetchInstructions = async (take = QUEUE_THRESHOLD) => {
-        const blacklist = getBlacklist();
-        const input = { take, blacklist, strategyId };
-        const response = await locals.client(`instructions/get`, input).response();
-        const { data = [], error, status } = await response.json();
-        return { instructions: data, error, status };
-    };
-
-    const fillQueue = async () => {
-        const { active, queue, status } = get(Store);
-
-        if (queue.length <= QUEUE_THRESHOLD) {
-            Store.update((s) => ({ ...s, status: 202 }));
-            const { instructions, ...result } = await fetchInstructions();
-            Store.update((store) => {
-                const queue = [...store.queue, ...instructions];
-                const active = store.active || queue.shift();
-                return { ...store, active, queue, ...result };
-            });
-        }
-    };
-    const activate = () => {
-        Store.update((store) => {
-            const active = store.queue[0];
-            const queue = store.queue.slice(1);
-            return { ...store, active, queue };
-        });
-    };
-    const reset = () => {
-        Store.update((store) => {
-            return {
-                active: null,
-                queue: [],
-                status: null,
-                error: null
-            };
-        });
-    };
-    const load = () => {
-        activate();
-        fillQueue();
-    };
-    const next = async () => {
-        const queueId = get(Store).active?.id;
-        activate();
-        await locals.client(`instructions/delete`, { queueId }).response();
-        fillQueue();
-    };
-
-    return {
-        ...Store,
-        strategyId,
-        reset,
-        load,
-        next
-    };
+  return {
+    ...Store,
+    strategyId,
+    reset,
+    load,
+    next,
+  };
 }
 
 let store;
 
 export function createStore(input) {
-    if (!store) store = InstructionStore(input);
-    else if (input.strategyId !== store.strategyId) {
-        store.reset();
-        store = InstructionStore(input);
-    }
+  if (!store) store = InstructionStore(input);
+  else if (input.strategyId !== store.strategyId) {
+    store.reset();
+    store = InstructionStore(input);
+  }
 
-    return store;
+  return store;
 }
 
 export function getStore(input) {
-    return store;
+  return store;
 }
 
 // export const instructionStore = createInstructionStore();

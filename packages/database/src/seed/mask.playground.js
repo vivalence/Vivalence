@@ -9,62 +9,62 @@ const prisma = new PrismaClient({});
 const translationsMask = {};
 
 async function read({ id }) {
-    const where = { id };
-    const mask = await prisma.mask.findUnique({ where });
-    // console.log(mask.data.evaluate.prompt.replace(/\\n/g, "\n"));
-    // console.log(mask.data.generate.prompt.replace(/\\n/g, "\n"));
-    return mask;
+  const where = { id };
+  const mask = await prisma.mask.findUnique({ where });
+  // console.log(mask.data.evaluate.prompt.replace(/\\n/g, "\n"));
+  // console.log(mask.data.generate.prompt.replace(/\\n/g, "\n"));
+  return mask;
 }
 
 async function run({ gameId }) {
-    const mask = translationsMask.generate;
-    const generator = new Function(`return ${mask.generateSentence}`)();
+  const mask = translationsMask.generate;
+  const generator = new Function(`return ${mask.generateSentence}`)();
 
-    const game = await prisma.game.findUnique({
-        where: { id: gameId },
-        include: { curriculumRelation: { include: { mask: true } } },
-    });
+  const game = await prisma.game.findUnique({
+    where: { id: gameId },
+    include: { curriculumRelation: { include: { mask: true } } },
+  });
 
-    let tries = 0;
+  let tries = 0;
 
-    while (tries++ < 5) {
-        tries++;
-        // const candidate = await generator(
-        //     {
-        //         curriculumId: game.curriculumRelation.curriculumId,
-        //         gameId: game.id,
-        //         mask,
-        //     },
-        //     {
-        //         mustache: Mustache.render,
-        //         getUnits,
-        //         ai: (prompt) =>
-        //             aiclients[mask.api]({ prompt, schema: mask.schema, model: mask.model }),
-        //     },
-        // );
-        const validation = await validateSentence(candidate, mask.schema);
-        if (!validation.success) {
-            console.log("validation failed", validation.errors);
-            continue;
-        }
-        const sentence = validation.sentence;
-        return sentence;
+  while (tries++ < 5) {
+    tries++;
+    // const candidate = await generator(
+    //     {
+    //         curriculumId: game.curriculumRelation.curriculumId,
+    //         gameId: game.id,
+    //         mask,
+    //     },
+    //     {
+    //         mustache: Mustache.render,
+    //         getUnits,
+    //         ai: (prompt) =>
+    //             aiclients[mask.api]({ prompt, schema: mask.schema, model: mask.model }),
+    //     },
+    // );
+    const validation = await validateSentence(candidate, mask.schema);
+    if (!validation.success) {
+      console.log("validation failed", validation.errors);
+      continue;
     }
+    const sentence = validation.sentence;
+    return sentence;
+  }
 }
 
 async function update({ id }) {
-    const where = {
-        id,
-    };
-    const data = { data: translationMask };
-    const update = await prisma.mask.update({ where, data });
-    return update;
+  const where = {
+    id,
+  };
+  const data = { data: translationMask };
+  const update = await prisma.mask.update({ where, data });
+  return update;
 }
 
 async function main() {
-    // const id = "clpr5668n0002g01pnxhkh8nf";
-    // return await update({ id }); //
-    return await run({ gameId: "clqcr74kx0000g04mh0lh3ymw" });
+  // const id = "clpr5668n0002g01pnxhkh8nf";
+  // return await update({ id }); //
+  return await run({ gameId: "clqcr74kx0000g04mh0lh3ymw" });
 }
 console.log("main", await main());
 

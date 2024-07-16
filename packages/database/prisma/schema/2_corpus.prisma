@@ -1,0 +1,92 @@
+model Tactic {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+  games    Game[] // input for tactic.relations
+
+  // CORPUS 
+  tags  Tag[] // input for tactic.relations
+  units Unit[] // input for tactic.relations
+
+  // USERLAND
+  plays      Play[]       
+
+  // TRANSIENT
+  queue        Queue[]
+
+  // DATA
+  relations    Json @default("[]") // for grouping units and tags
+  provisions   Json @default("{}") // for games
+  instructions Json @default("{}") // for generating instructions
+
+  // DEPRACATED
+  provision Json? 
+}
+
+model Tag {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String   @unique
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+
+  // CORPUS
+  units   Unit[]
+  tactics Tactic[]
+
+  // USERLAND
+  strategy     Strategy? @relation(fields: [strategyId], references: [id])
+  strategyId   String? // for strategy specific or user defined tags
+  memory       Memory[]        
+  plays        Play[]
+
+  // DATA
+  type     TagTypeEnum[] @default([])
+  data     Json          @default("{}")
+
+  @@index([name], name: "nameIndexOnTag")
+}
+
+enum TagTypeEnum {
+  ONTOLOGICAL // subject matter attribute
+  STRUCTURAL // organizing of units into sets or categories
+  LEARNABLE // higher order feature that one can master
+  COMPLETABLE // a set of units where each can be mastered
+}
+
+model Unit {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+
+  // CORPUS
+  tags    Tag[]
+  tactics Tactic[]
+
+  // USERLAND
+  strategy     Strategy? @relation(fields: [strategyId], references: [id])
+  strategyId   String? // for strategy specific or user defined units
+  plays        Play[]
+  memory       Memory[]
+
+  // DATA
+  annotation   Json     @default("{}")
+  data         Json     @default("{}")
+}
+
+

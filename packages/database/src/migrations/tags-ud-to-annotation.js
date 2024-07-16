@@ -32,8 +32,9 @@ async function scope() {
         branch: tag.data.ONTOLOGICAL.branch.toLowerCase(),
         leaf: tag.data.ONTOLOGICAL.leaf.toLowerCase(),
       };
-      if (tag.data.ONTOLOGICAL.branch === "upos")
+      if (tag.data.ONTOLOGICAL.branch === "upos") {
         tag.data.ONTOLOGICAL.branch = "pos";
+      }
 
       await supabase
         .from("Tag")

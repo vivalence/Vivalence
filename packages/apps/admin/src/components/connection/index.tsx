@@ -1,18 +1,12 @@
-import React, {
-  useRef,
-  useImperativeHandle,
-  forwardRef,
-  useState,
-  useEffect,
-} from "react";
-import { grey } from '@ant-design/colors';
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { grey } from "@ant-design/colors";
 
 import { useResource } from "$util/hooks/useResource";
 import Autocomplete, { type OptionType, type RefHandles } from "./autocomplete";
 import { type Resource } from "$types/index";
 
-import { ConnectionTypes } from "./connections"
-import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./types"
+import { ConnectionTypes } from "./connections";
+import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./types";
 
 const useFormSubmission = (
   rootResourceId: string,
@@ -21,8 +15,9 @@ const useFormSubmission = (
   const autocompleteRef = useRef<RefHandles>(null);
 
   const onFormFinish = async () => {
-    if (!autocompleteRef.current)
+    if (!autocompleteRef.current) {
       return console.error("Autocomplete ref is null");
+    }
 
     const { added, removed } = autocompleteRef.current;
 

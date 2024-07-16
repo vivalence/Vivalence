@@ -1,8 +1,8 @@
-import { ReactElement, useEffect, useState } from 'react';
-import { AutoComplete as AntdAutoComplete } from 'antd';
-import { type OptionType } from "./types"
+import { ReactElement, useEffect, useState } from "react";
+import { AutoComplete as AntdAutoComplete } from "antd";
+import { type OptionType } from "./types";
 import { type Resource } from "$types/index";
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined } from "@ant-design/icons";
 
 interface SearchProps<T extends Resource> {
   optionsActive: OptionType<T>[];
@@ -11,11 +11,10 @@ interface SearchProps<T extends Resource> {
   filter: (searchText: string) => OptionType<T>[];
 }
 
-const Search = <T extends Resource,>({ optionsActive, optionsAll, filter, onSelect }: SearchProps<T>): ReactElement => {
+const Search = <T extends Resource>({ optionsActive, optionsAll, filter, onSelect }: SearchProps<T>): ReactElement => {
   const [options, setOptions] = useState<OptionType<T>[]>(optionsAll);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
-
 
   useEffect(() => setOptions(optionsAll), [optionsAll]);
 
@@ -23,7 +22,6 @@ const Search = <T extends Resource,>({ optionsActive, optionsAll, filter, onSele
     setInputValue(searchText); // Update inputValue as user types
     setOptions(filter(searchText));
     setOpen(true);
-
   };
 
   const handleSelect = (_: string, option: OptionType<T>) => {
@@ -46,7 +44,10 @@ const Search = <T extends Resource,>({ optionsActive, optionsAll, filter, onSele
       placeholder="Search..."
       notFoundContent="None found"
       value={inputValue}
-      onChange={(value) => { setInputValue(value); setOpen(true); }}
+      onChange={(value) => {
+        setInputValue(value);
+        setOpen(true);
+      }}
       open={open}
       onDropdownVisibleChange={handleDropdownVisibleChange}
       onBlur={() => setOpen(false)}
@@ -56,13 +57,12 @@ const Search = <T extends Resource,>({ optionsActive, optionsAll, filter, onSele
           <div>
             <span>{option.label}</span>
             {/* @ts-ignore */}
-            {isActive && <CheckOutlined style={{ float: 'right' }} />}
+            {isActive && <CheckOutlined style={{ float: "right" }} />}
           </div>
         );
       }}
     />
   );
 };
-
 
 export default Search;

@@ -1,0 +1,17 @@
+async function boot(runtime) {}
+
+// async function activate() {console.log("ontology activated");}
+
+export default {
+  manifest: {
+    type: "Game",
+    id: "flashcards",
+    name: "Flashcards",
+    description: "Flashcards game for learning vocabulary",
+    owner: "Vivalence",
+    reference: "https://github.com/vivalence/ontologies/spanish",
+    docs: "https://docs.vivalence.com/ontologies/spanish"
+  },
+  boot
+  // activate
+};

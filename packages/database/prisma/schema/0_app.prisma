@@ -1,0 +1,31 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("PRIVATE_DATABASE_URL")
+}
+
+model AppUser {
+  // ABOUT
+  id        String          @id @unique // same as auth."users".id
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+  roles     UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+
+  // RUNTIME
+  runtimes   Runtime[]   
+  strategies Strategy[]
+
+  // USERLAND
+  plays       Play[]           
+  memories    Memory[]          
+
+  // TRANSIENT
+  queue        Queue[]
+}
+
+enum UserRolesEnum {
+  ADMIN
+  USER
+  GUEST
+}
+
+

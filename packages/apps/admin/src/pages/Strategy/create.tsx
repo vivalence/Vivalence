@@ -1,9 +1,9 @@
 import React from "react";
-import { IResourceComponentsProps, useNavigation, } from "@refinedev/core";
+import { IResourceComponentsProps, useNavigation } from "@refinedev/core";
 import { Create, useForm } from "@refinedev/antd";
 import { Form, Input } from "antd";
 
-import { supabaseClient } from "../../utility/supabaseClient"
+import { supabaseClient } from "../../utility/supabaseClient";
 
 export const StrategyCreate: React.FC<IResourceComponentsProps> = () => {
   const { formProps, saveButtonProps } = useForm();
@@ -13,13 +13,13 @@ export const StrategyCreate: React.FC<IResourceComponentsProps> = () => {
     formProps.form?.resetFields();
 
     const { data, error } = await supabaseClient
-      .from('Strategy')
+      .from("Strategy")
       .insert([{ name: values.name }])
-      .select()
+      .select();
 
-    if (error) return console.error(error)
+    if (error) return console.error(error);
 
-    const url = editUrl("Strategy", data[0].id!)
+    const url = editUrl("Strategy", data[0].id!);
     replace(url);
   };
 

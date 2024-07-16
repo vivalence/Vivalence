@@ -2,10 +2,7 @@ import fs from "fs";
 import supabase from "../clients/supabase.js";
 import { post } from "../clients/client.js";
 
-import {
-  annotations,
-  pos as POS,
-} from "../../../client/src/routes/api/classifier/ontology";
+import { annotations, pos as POS } from "../../../client/src/routes/api/classifier/ontology";
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const index = 0;
@@ -90,11 +87,11 @@ while (count < MAX_RUNS) {
 
     if (
       todo.length !==
-      todo.filter(
-        (i, index) =>
-          todo.findIndex((j) => j.context.unit.id === i.context.unit.id) ===
-          index,
-      ).length
+        todo.filter(
+          (i, index) =>
+            todo.findIndex((j) => j.context.unit.id === i.context.unit.id) ===
+              index,
+        ).length
     ) {
       console.log("DUPLICATE ISSUES");
       throw new Error("DUPLICATE ISSUES");
@@ -115,7 +112,9 @@ while (count < MAX_RUNS) {
           console.log(`Error: ${bi + i}/${batch.length} ->`, response.error);
         } else {
           console.log(
-            `${count} - ${bi + i}/${issues.length}(${totalIssueCount}) => ${issue.violation} => ${response.data.resolved}`,
+            `${count} - ${
+              bi + i
+            }/${issues.length}(${totalIssueCount}) => ${issue.violation} => ${response.data.resolved}`,
           );
         }
       });

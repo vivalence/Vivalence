@@ -6,4 +6,4 @@ import { AuthPage } from "@refinedev/antd";
 
 /* export const Login = () => <Auth supabaseClient={supabase} /> */
 
-export const Login = () => <AuthPage type="login" />
+export const Login = () => <AuthPage type="login" />;

@@ -8,15 +8,15 @@ import FlashcardsSchema from "./data-schema/flashcards";
 import TranslationsSchema from "./data-schema/translations";
 
 interface ExportedConfig {
-    FLASHCARDS: JsonFieldSchema;
-    TRANSLATIONS: JsonFieldSchema;
-    CONJUGATIONS: JsonFieldSchema;
+  FLASHCARDS: JsonFieldSchema;
+  TRANSLATIONS: JsonFieldSchema;
+  CONJUGATIONS: JsonFieldSchema;
 }
 
 const config: ExportedConfig = {
-    FLASHCARDS: FlashcardsSchema,
-    TRANSLATIONS: TranslationsSchema,
-    CONJUGATIONS: ConjugationsSchema,
+  FLASHCARDS: FlashcardsSchema,
+  TRANSLATIONS: TranslationsSchema,
+  CONJUGATIONS: ConjugationsSchema,
 };
 
 export default config;

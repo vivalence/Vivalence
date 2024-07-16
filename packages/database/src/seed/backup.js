@@ -4,9 +4,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const data = {
-    conjugations: await prisma.conjugation.findMany({}),
-    reviews: await prisma.review.findMany({}),
-    words: await prisma.word.findMany({})
+  conjugations: await prisma.conjugation.findMany({}),
+  reviews: await prisma.review.findMany({}),
+  words: await prisma.word.findMany({}),
 };
 
 console.log("lenghts", data.conjugations.length, data.reviews.length, data.words.length);

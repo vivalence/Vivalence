@@ -58,9 +58,7 @@ Return a JSON object with the spoken and learning sentence.`,
 
       const units = (
         await Promise.all(
-          tags.map((tag) =>
-            getUnits({ blacklist, curriculumId, gameId, take: 4, tags: [tag] }),
-          ),
+          tags.map((tag) => getUnits({ blacklist, curriculumId, gameId, take: 4, tags: [tag] })),
         )
       )
         .flat()
@@ -70,8 +68,9 @@ Return a JSON object with the spoken and learning sentence.`,
           tags: input.tags.map(({ name }) => name),
         }));
 
-      if (units.filter((item) => !!item).length < 5)
+      if (units.filter((item) => !!item).length < 5) {
         throw new Error("Not enough items to practice");
+      }
 
       const sentences = await llm({ units, language });
       const analysis = await nlp(sentences.learning, { findUnits: true });
@@ -87,7 +86,8 @@ Return a JSON object with the spoken and learning sentence.`,
         properties: {
           evaluation: {
             title: "Evaluation",
-            description: `KNOWN means the learner successfully used this part of speech in their translation as expected. UNKNOWN means the learner failed in their use the expected part of speech. Spelling, missing words, and other errors are considered UNKNOWN. NEUTRAL is to be used only if the learner applied an equivalent alternative successfully. If the PoS is not present in the translation, then it is UNKNOWN.`,
+            description:
+              `KNOWN means the learner successfully used this part of speech in their translation as expected. UNKNOWN means the learner failed in their use the expected part of speech. Spelling, missing words, and other errors are considered UNKNOWN. NEUTRAL is to be used only if the learner applied an equivalent alternative successfully. If the PoS is not present in the translation, then it is UNKNOWN.`,
             enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
             type: "string",
           },
@@ -139,13 +139,14 @@ Did the learner correctly use this part of speech? evaluate only the part of spe
         };
         const response = await llm({ language, sentence, part });
         // console.log(response.evaluation, part.spoken, part.learning);
-        if (response.evaluation !== "NEUTRAL")
+        if (response.evaluation !== "NEUTRAL") {
           await handleGameUpdate({
             gameId,
             unitId: pos.unit.id,
             response: response.evaluation,
             gameType: "TRANSLATIONS",
           });
+        }
       });
 
       return await Promise.all(promises);

@@ -1,8 +1,8 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useUpdate, useNavigation, IResourceComponentsProps, } from "@refinedev/core";
+import React, { useEffect, useRef, useState } from "react";
+import { IResourceComponentsProps, useNavigation, useUpdate } from "@refinedev/core";
 
 import { useDocumentTitle } from "@refinedev/react-router-v6";
-import { DeleteButton, SaveButton, useForm, Edit } from "@refinedev/antd";
+import { DeleteButton, Edit, SaveButton, useForm } from "@refinedev/antd";
 import { Form, Input, Select, Tabs } from "antd";
 const { Option } = Select;
 
@@ -39,8 +39,8 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
 
   const items = [
     {
-      key: '1',
-      label: 'Unit',
+      key: "1",
+      label: "Unit",
       children: (
         <>
           <Form.Item
@@ -65,8 +65,8 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '2',
-      label: 'Connections',
+      key: "2",
+      label: "Connections",
       children: (
         <>
           <Form.Item label="Connected Tags">
@@ -89,14 +89,14 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '3',
-      label: 'Data',
+      key: "3",
+      label: "Data",
       children: (
         <Form.Item name={["data"]}>
           <JSONField
             schema={UnitSchema}
             data={jsonData}
-            onChange={(data) => form.setFieldValue('data', data)}
+            onChange={(data) => form.setFieldValue("data", data)}
           />
         </Form.Item>
       ),

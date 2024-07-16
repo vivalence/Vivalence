@@ -1,16 +1,8 @@
 import React from "react";
 /* import { AntdInferencer } from "@refinedev/inferencer/antd"; */
-import { IResourceComponentsProps, BaseRecord } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  DeleteButton,
-  ShowButton,
-  SaveButton,
-  TagField,
-} from "@refinedev/antd";
-import { Table, Space, Form, Input, } from "antd";
+import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
+import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import { Form, Input, Space, Table } from "antd";
 
 export const AppUserList: React.FC<IResourceComponentsProps> = () => {
   /* return (<AntdInferencer />) */
@@ -60,9 +52,7 @@ export const AppUserList: React.FC<IResourceComponentsProps> = () => {
           title="Roles"
           render={(value: any[]) => (
             <>
-              {value?.map((item) => (
-                <TagField value={item} key={item} />
-              ))}
+              {value?.map((item) => <TagField value={item} key={item} />)}
             </>
           )}
         />

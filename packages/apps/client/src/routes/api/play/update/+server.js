@@ -3,81 +3,81 @@ import { getDateTimeInXHours, getTimeDifferenceFromNow } from "$lib/time";
 import * as ebisu from "$lib/ebisu";
 
 export async function POST({ locals: { supabase, getSession }, request, ...props }) {
-    try {
-        const { user } = await getSession();
-        const { gameId, unitId, tagId, memoryId, nextPlay, response } = await request.json();
+  try {
+    const { user } = await getSession();
+    const { gameId, unitId, tagId, memoryId, nextPlay, response } = await request.json();
 
-        const now = new Date().toISOString();
+    const now = new Date().toISOString();
 
-        let play;
-        let query = supabase
-            .from("Play")
-            .select("*")
-            .eq("memoryId", memoryId)
-            .eq("gameId", gameId)
-            .eq("userId", user.id);
+    let play;
+    let query = supabase
+      .from("Play")
+      .select("*")
+      .eq("memoryId", memoryId)
+      .eq("gameId", gameId)
+      .eq("userId", user.id);
 
-        if (unitId) query = query.eq("unitId", unitId);
-        else query = query.filter("unitId", "is", null);
+    if (unitId) query = query.eq("unitId", unitId);
+    else query = query.filter("unitId", "is", null);
 
-        if (tagId) query = query.eq("tagId", tagId);
-        else query = query.filter("tagId", "is", null);
+    if (tagId) query = query.eq("tagId", tagId);
+    else query = query.filter("tagId", "is", null);
 
-        let { data: plays, error } = await query.limit(1);
-        if (error) throw error;
-        play = plays[0];
+    let { data: plays, error } = await query.limit(1);
+    if (error) throw error;
+    play = plays[0];
 
-        if (!play) {
-            const { data: updatedPlay, error: createError } = await supabase
-                .from("Play")
-                .insert([
-                    {
-                        unitId,
-                        tagId,
-                        gameId,
-                        userId: user.id,
-                        memoryId,
-                        nextPlay,
-                        lastPlay: now,
-                        history: [{ response, nextPlay, now }]
-                    }
-                ])
-                .single()
-                .select("id, nextPlay");
+    if (!play) {
+      const { data: updatedPlay, error: createError } = await supabase
+        .from("Play")
+        .insert([
+          {
+            unitId,
+            tagId,
+            gameId,
+            userId: user.id,
+            memoryId,
+            nextPlay,
+            lastPlay: now,
+            history: [{ response, nextPlay, now }],
+          },
+        ])
+        .single()
+        .select("id, nextPlay");
 
-            if (createError) throw createError;
+      if (createError) throw createError;
 
-            return json({
-                data: { play: updatedPlay },
-                status: 200
-            });
-        } else {
-            const updatedHistory = [...play.history, { response, nextPlay, now }];
+      return json({
+        data: { play: updatedPlay },
+        status: 200,
+      });
+    } else {
+      const updatedHistory = [...play.history, { response, nextPlay, now }];
 
-            const { data: updatedPlay, error: updateError } = await supabase
-                .from("Play")
-                .update({
-                    history: updatedHistory,
-                    nextPlay,
-                    lastPlay: now,
-                    updatedAt: now
-                })
-                .eq("id", play.id)
-                .select("id, nextPlay")
-                .single();
+      const { data: updatedPlay, error: updateError } = await supabase
+        .from("Play")
+        .update({
+          history: updatedHistory,
+          nextPlay,
+          lastPlay: now,
+          updatedAt: now,
+        })
+        .eq("id", play.id)
+        .select("id, nextPlay")
+        .single();
 
-            if (updateError) throw updateError;
+      if (updateError) throw updateError;
 
-            return json({
-                data: { play: updatedPlay },
-                status: 200
-            });
-        }
-    } catch (err) {
-        console.error(`[PLAY ERROR /api/play]`, err.message);
-        console.error(err);
-        return json({ error: err, status: 500 });
+      return json({
+        data: { play: updatedPlay },
+        status: 200,
+      });
     }
+  } catch (err) {
+    console.error(`[PLAY ERROR /api/play]`, err.message);
+    console.error(err);
+    return json({ error: err, status: 500 });
+  }
 }
 
 // async function create({ unitId, gameId, response, nextPlay }) {

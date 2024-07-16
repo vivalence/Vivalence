@@ -1,0 +1,79 @@
+model Runtime {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?  //@unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // APP
+  users AppUser[] 
+
+  // RUNTIME
+  ontology   Ontology?   @relation(fields: [ontologyId], references: [id])
+  ontologyId String?     @unique 
+  corpus     Corpus?     @relation(fields: [corpusId], references: [id])
+  corpusId   String?     @unique 
+
+  strategies Strategy[]
+  games      Game[]
+
+  // CORPUS
+  units   Unit[]
+  tags    Tag[]
+  tactics Tactic[]
+}
+
+model Ontology {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime Runtime? 
+}
+
+model Corpus {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime Runtime?
+}
+
+
+model Game {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String?
+
+  // CORPUS
+  tactics Tactic[]
+
+  // USERLAND
+  plays     Play[]
+
+  // DEPRACATED
+  data      Json?
+}
+

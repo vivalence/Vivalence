@@ -1,12 +1,8 @@
-import React, { useRef, useState, useEffect } from "react";
-import {
-  useUpdate,
-  IResourceComponentsProps,
-  useNavigation,
-} from "@refinedev/core";
+import React, { useEffect, useRef, useState } from "react";
+import { IResourceComponentsProps, useNavigation, useUpdate } from "@refinedev/core";
 import { useDocumentTitle } from "@refinedev/react-router-v6";
 
-import { useForm, Edit, SaveButton, DeleteButton } from "@refinedev/antd";
+import { DeleteButton, Edit, SaveButton, useForm } from "@refinedev/antd";
 import { Form, Input, Select, Tabs } from "antd";
 const { Option } = Select;
 
@@ -45,8 +41,8 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
 
   const items = [
     {
-      key: '1',
-      label: 'Tag',
+      key: "1",
+      label: "Tag",
       children: (
         <>
           <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
@@ -70,8 +66,8 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '2',
-      label: 'Connections',
+      key: "2",
+      label: "Connections",
       children: (
         <>
           <Form.Item label="Connected Strategies">
@@ -94,8 +90,8 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '3',
-      label: 'Data',
+      key: "3",
+      label: "Data",
       children: (
         <Form.Item name={["data"]}>
           {tagtype &&
@@ -107,7 +103,7 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
                   schema={TagSchema[type]}
                   data={jsonData[type]}
                   onChange={(data = {}) => {
-                    form.setFieldValue(`data`, { ...jsonData, [type]: data })
+                    form.setFieldValue(`data`, { ...jsonData, [type]: data });
                   }}
                 />
               </div>

@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 const PullMap = [
-    ["ADJECTIVE", 1000],
-    ["ADPOSITION", 5000],
-    ["ADVERB", 1050],
-    ["NUMERAL", 5000],
-    ["PRONOUN", 5000],
-    ["VERB", 300],
+  ["ADJECTIVE", 1000],
+  ["ADPOSITION", 5000],
+  ["ADVERB", 1050],
+  ["NUMERAL", 5000],
+  ["PRONOUN", 5000],
+  ["VERB", 300],
 ];
 
 const prisma = new PrismaClient();
@@ -28,17 +28,17 @@ let index = 200;
 const updateList = [];
 
 const curriculum = await prisma.curriculum.findUnique({
-    where: {
-        id: "clpl75uu00000g0mwkivlcucv",
-        unitRelations: { some: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } } },
+  where: {
+    id: "clpl75uu00000g0mwkivlcucv",
+    unitRelations: { some: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } } },
+  },
+  include: {
+    unitRelations: {
+      include: { unit: { include: { tags: { select: { name: true } } } } },
+      where: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } },
+      orderBy: { index: "asc" },
     },
-    include: {
-        unitRelations: {
-            include: { unit: { include: { tags: { select: { name: true } } } } },
-            where: { unit: { tags: { some: { name: "VERB_CONJUGATION" } } } },
-            orderBy: { index: "asc" },
-        },
-    },
+  },
 });
 console.log("curriculum", curriculum.unitRelations.length, curriculum.unitRelations[0]);
 

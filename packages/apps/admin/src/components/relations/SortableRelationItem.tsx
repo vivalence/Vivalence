@@ -1,8 +1,8 @@
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { RelationItemProps } from './types';
-import RelationItem from './RelationItem';
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { RelationItemProps } from "./types";
+import RelationItem from "./RelationItem";
 
 const SortableRelationItem: React.FC<RelationItemProps> = (props) => {
   const {

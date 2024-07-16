@@ -1,10 +1,10 @@
 import React from "react";
-import { IResourceComponentsProps, useNavigation, } from "@refinedev/core";
+import { IResourceComponentsProps, useNavigation } from "@refinedev/core";
 import { Create, useForm } from "@refinedev/antd";
 import { Form, Input, Select } from "antd";
 const { Option } = Select;
 
-import { supabaseClient } from "../../utility/supabaseClient"
+import { supabaseClient } from "../../utility/supabaseClient";
 
 export const GameCreate: React.FC<IResourceComponentsProps> = () => {
   const { formProps, saveButtonProps } = useForm();
@@ -14,13 +14,13 @@ export const GameCreate: React.FC<IResourceComponentsProps> = () => {
     formProps.form?.resetFields();
 
     const { data, error } = await supabaseClient
-      .from('Game')
+      .from("Game")
       .insert([values])
-      .select()
+      .select();
 
-    if (error) return console.error(error)
+    if (error) return console.error(error);
 
-    const url = editUrl("Game", data[0].id!)
+    const url = editUrl("Game", data[0].id!);
     replace(url);
   };
 
@@ -39,15 +39,14 @@ export const GameCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Type"
           name="type"
-          rules={[{ required: true, message: 'Please select a Game Type!' }]}
+          rules={[{ required: true, message: "Please select a Game Type!" }]}
         >
-          <Select placeholder="Select a game type" >
+          <Select placeholder="Select a game type">
             <Option value="FLASHCARDS">Flashcards</Option>
             <Option value="TRANSLATIONS">Translations</Option>
             <Option value="CONJUGATIONS">Conjugations</Option>
           </Select>
         </Form.Item>
-
       </Form>
     </Create>
   );

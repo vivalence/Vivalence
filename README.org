@@ -1,6 +1,11 @@
 * identity
 ** why
-make learning everything as easy as trinity learning to fly a b-21-2 helicopter
+make learning anything as easy as trinity learning to fly a b-21 helicopter.
+what if you had a system available,
+that you tell what skill you want to be able to perform, or what thing you want to accomplish,
+and it maps your path from is to ought and teaches you every step until youve mastered it.
+i can do that for any skill thats measurable.
+
 ** vision
 the entirety of humanities competence,
 encoded and optimized and transmitted,

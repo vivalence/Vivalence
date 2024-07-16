@@ -1,5 +1,5 @@
-import { Refine, Authenticated } from "@refinedev/core";
-import { BrowserRouter, Route, Routes, } from "react-router-dom";
+import { Authenticated, Refine } from "@refinedev/core";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 import routerBindings, {
@@ -7,13 +7,8 @@ import routerBindings, {
   NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
-import {
-  useNotificationProvider,
-  ThemedLayoutV2,
-  ErrorComponent,
-  RefineThemes,
-} from "@refinedev/antd";
-import { ConfigProvider, App as AntdApp } from "antd";
+import { ErrorComponent, RefineThemes, ThemedLayoutV2, useNotificationProvider } from "@refinedev/antd";
+import { App as AntdApp, ConfigProvider } from "antd";
 
 import "@refinedev/antd/dist/reset.css";
 import "./App.css";
@@ -94,7 +89,8 @@ function App() {
             warnWhenUnsavedChanges: true,
             useNewQueryKeys: true,
           }}
-          resources={resources}>
+          resources={resources}
+        >
           <Authenticated key="home">
             <AntdApp>
               <RefineKbarProvider>
@@ -102,9 +98,7 @@ function App() {
                   <ThemedLayoutV2>
                     <Routes>
                       <Route path="/login" element={<Login />} />
-                      <Route index
-                        element={<NavigateToResource resource="AppUser" />}
-                      />
+                      <Route index element={<NavigateToResource resource="AppUser" />} />
                       {/* <Route path="/test" element={<JsonEditor />} /> */}
                       <Route path="/user">
                         <Route index element={<AppUserList />} />
