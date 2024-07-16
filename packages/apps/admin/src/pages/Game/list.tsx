@@ -1,15 +1,7 @@
 import React from "react";
-import { IResourceComponentsProps, BaseRecord } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  DeleteButton,
-  SaveButton,
-  ShowButton,
-  TagField,
-} from "@refinedev/antd";
-import { Table, Space, Form, Input, } from "antd";
+import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
+import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import { Form, Input, Space, Table } from "antd";
 
 export const GameList: React.FC<IResourceComponentsProps> = () => {
   const { tableProps, searchFormProps } = useTable({
@@ -33,7 +25,7 @@ export const GameList: React.FC<IResourceComponentsProps> = () => {
         },
       ];
     },
-    syncWithLocation: true
+    syncWithLocation: true,
   });
 
   return (

@@ -2,79 +2,79 @@ import { sleep } from "./lib.js";
 import { PrismaClient } from "@prisma/client";
 
 const lookup = {
-    word: [
-        "ADJECTIVE",
-        "ADPOSITION",
-        "ADVERB",
-        "AUXILIARY",
-        "CONJUNCTION_COORDINATING",
-        "CONJUNCTION_SUBORDINATING",
-        "DETERMINER",
-        "INTERJECTION",
-        "NOUN",
-        "NUMERAL",
-        "PARTICLE",
-        "PRONOUN",
-        "PROPERNOUN",
-        "PUNCTUATION",
-        "SYMBOL",
-        "VERB",
-        "VERB_CONJUGATION",
-        "OTHER",
+  word: [
+    "ADJECTIVE",
+    "ADPOSITION",
+    "ADVERB",
+    "AUXILIARY",
+    "CONJUNCTION_COORDINATING",
+    "CONJUNCTION_SUBORDINATING",
+    "DETERMINER",
+    "INTERJECTION",
+    "NOUN",
+    "NUMERAL",
+    "PARTICLE",
+    "PRONOUN",
+    "PROPERNOUN",
+    "PUNCTUATION",
+    "SYMBOL",
+    "VERB",
+    "VERB_CONJUGATION",
+    "OTHER",
 
-        "GENDER_MASCULINE",
-        "GENDER_FEMININE",
-        "GENDER_NEUTER",
-    ],
-    conjugation: {
-        mood: {
-            INDICATIVO: ["MOOD_INDICATIVE"],
-            SUBJUNTIVO: ["MOOD_SUBJUNCTIVE"],
-            IMPERATIVO_AFIRMATIVO: ["MOOD_IMPERATIVE_AFFIRMATIVE"],
-            IMPERATIVO_NEGATIVO: ["MOOD_IMPERATIVE_NEGATIVE"],
-            NON_FINITE: [],
-        },
-        tense: {
-            INFINITIVO: ["VERB_FORM_INFINITIVO", "TENSE_PRESENT", "ASPECT_IMPERFECTIVE"],
-            GERUNDIO: ["VERB_FORM_GERUNDIO", "TENSE_PRESENT", "ASPECT_PROGRESSIVE"],
-            PARTICIPIO: ["VERB_FORM_PARTICIPIO", "TENSE_PAST", "ASPECT_PERFECTIVE"],
-
-            PRESENTE: ["VERB_FORM_PRESENTE", "TENSE_PRESENT", "ASPECT_IMPERFECTIVE"],
-            PRETERITO: ["VERB_FORM_PRETERITO", "TENSE_PAST", "ASPECT_IMPERFECTIVE"],
-            IMPERFECTO: ["VERB_FORM_IMPERFECTO", "TENSE_PAST", "ASPECT_IMPERFECTIVE"],
-            FUTURO: ["VERB_FORM_FUTURO", "TENSE_FUTURE", "ASPECT_IMPERFECTIVE"],
-            CONDICIONAL: ["VERB_FORM_CONDICIONAL", "TENSE_FUTURE", "ASPECT_IMPERFECTIVE"],
-
-            FUTURO_PERFECTO: ["VERB_FORM_FUTURO_PERFECTO", "TENSE_FUTURE", "ASPECT_PERFECTIVE"],
-            PLUSCUAMPERFECTO: ["VERB_FORM_PLUSCUAMPERFECTO", "TENSE_PAST", "ASPECT_PERFECTIVE"],
-            PRESENTE_PERFECTO: [
-                "VERB_FORM_PRESENTE_PERFECTO",
-                "TENSE_PRESENT",
-                "ASPECT_PERFECTIVE",
-            ],
-            PRETERITO_ANTERIOR: ["VERB_FORM_PRETERITO_ANTERIOR", "TENSE_PAST", "ASPECT_PERFECTIVE"],
-            CONDICIONAL_PERFECTO: [
-                "VERB_FORM_CONDICIONAL_PERFECTO",
-                "TENSE_FUTURE",
-                "ASPECT_PERFECTIVE",
-            ],
-            NON_TEMPORAL: [],
-        },
-        performer: {
-            YO: ["PERSON_FIRST", "PERSON_SINGULAR"],
-            TU: ["PERSON_SECOND", "PERSON_SINGULAR"],
-            EL_ELLA_USTED: ["PERSON_THIRD", "PERSON_SINGULAR"],
-            NOSOTROS_NOSOTRAS: ["PERSON_FIRST", "PERSON_PLURAL"],
-            VOSOTROS_VOSOTRAS: ["PERSON_SECOND", "PERSON_PLURAL"],
-            ELLOS_ELLAS_USTEDES: ["PERSON_THIRD", "PERSON_PLURAL"],
-            NON_FINITE: [],
-        },
-        ending: {
-            ER: ["VERB_ENDING_ER"],
-            AR: ["VERB_ENDING_AR"],
-            IR: ["VERB_ENDING_IR"],
-        },
+    "GENDER_MASCULINE",
+    "GENDER_FEMININE",
+    "GENDER_NEUTER",
+  ],
+  conjugation: {
+    mood: {
+      INDICATIVO: ["MOOD_INDICATIVE"],
+      SUBJUNTIVO: ["MOOD_SUBJUNCTIVE"],
+      IMPERATIVO_AFIRMATIVO: ["MOOD_IMPERATIVE_AFFIRMATIVE"],
+      IMPERATIVO_NEGATIVO: ["MOOD_IMPERATIVE_NEGATIVE"],
+      NON_FINITE: [],
     },
+    tense: {
+      INFINITIVO: ["VERB_FORM_INFINITIVO", "TENSE_PRESENT", "ASPECT_IMPERFECTIVE"],
+      GERUNDIO: ["VERB_FORM_GERUNDIO", "TENSE_PRESENT", "ASPECT_PROGRESSIVE"],
+      PARTICIPIO: ["VERB_FORM_PARTICIPIO", "TENSE_PAST", "ASPECT_PERFECTIVE"],
+
+      PRESENTE: ["VERB_FORM_PRESENTE", "TENSE_PRESENT", "ASPECT_IMPERFECTIVE"],
+      PRETERITO: ["VERB_FORM_PRETERITO", "TENSE_PAST", "ASPECT_IMPERFECTIVE"],
+      IMPERFECTO: ["VERB_FORM_IMPERFECTO", "TENSE_PAST", "ASPECT_IMPERFECTIVE"],
+      FUTURO: ["VERB_FORM_FUTURO", "TENSE_FUTURE", "ASPECT_IMPERFECTIVE"],
+      CONDICIONAL: ["VERB_FORM_CONDICIONAL", "TENSE_FUTURE", "ASPECT_IMPERFECTIVE"],
+
+      FUTURO_PERFECTO: ["VERB_FORM_FUTURO_PERFECTO", "TENSE_FUTURE", "ASPECT_PERFECTIVE"],
+      PLUSCUAMPERFECTO: ["VERB_FORM_PLUSCUAMPERFECTO", "TENSE_PAST", "ASPECT_PERFECTIVE"],
+      PRESENTE_PERFECTO: [
+        "VERB_FORM_PRESENTE_PERFECTO",
+        "TENSE_PRESENT",
+        "ASPECT_PERFECTIVE",
+      ],
+      PRETERITO_ANTERIOR: ["VERB_FORM_PRETERITO_ANTERIOR", "TENSE_PAST", "ASPECT_PERFECTIVE"],
+      CONDICIONAL_PERFECTO: [
+        "VERB_FORM_CONDICIONAL_PERFECTO",
+        "TENSE_FUTURE",
+        "ASPECT_PERFECTIVE",
+      ],
+      NON_TEMPORAL: [],
+    },
+    performer: {
+      YO: ["PERSON_FIRST", "PERSON_SINGULAR"],
+      TU: ["PERSON_SECOND", "PERSON_SINGULAR"],
+      EL_ELLA_USTED: ["PERSON_THIRD", "PERSON_SINGULAR"],
+      NOSOTROS_NOSOTRAS: ["PERSON_FIRST", "PERSON_PLURAL"],
+      VOSOTROS_VOSOTRAS: ["PERSON_SECOND", "PERSON_PLURAL"],
+      ELLOS_ELLAS_USTEDES: ["PERSON_THIRD", "PERSON_PLURAL"],
+      NON_FINITE: [],
+    },
+    ending: {
+      ER: ["VERB_ENDING_ER"],
+      AR: ["VERB_ENDING_AR"],
+      IR: ["VERB_ENDING_IR"],
+    },
+  },
 };
 
 const prisma = new PrismaClient();
@@ -86,129 +86,129 @@ const BATCHINTERVAL = 1000;
 let index = START;
 
 async function updateConjugation(unit) {
-    const conjugation = await prisma.conjugation.findUnique({
-        where: {
-            id: unit.corpusId,
-        },
-    });
-    const tags = await prisma.tag.findMany({
-        where: {
-            name: {
-                in: [
-                    ...lookup.conjugation.mood[conjugation.mood],
-                    ...lookup.conjugation.tense[conjugation.tense],
-                    ...lookup.conjugation.performer[conjugation.performer],
-                    ...lookup.conjugation.ending[conjugation.ending],
-                ],
-            },
-        },
-    });
-    const update = await prisma.unit.update({
-        where: {
-            id: unit.id,
-        },
-        data: {
-            tags: {
-                connect: [
-                    ...tags.map((tag) => ({ id: tag.id })),
-                    {
-                        name: "VERB_CONJUGATION",
-                    },
-                ],
-            },
-        },
-    });
-    return update;
+  const conjugation = await prisma.conjugation.findUnique({
+    where: {
+      id: unit.corpusId,
+    },
+  });
+  const tags = await prisma.tag.findMany({
+    where: {
+      name: {
+        in: [
+          ...lookup.conjugation.mood[conjugation.mood],
+          ...lookup.conjugation.tense[conjugation.tense],
+          ...lookup.conjugation.performer[conjugation.performer],
+          ...lookup.conjugation.ending[conjugation.ending],
+        ],
+      },
+    },
+  });
+  const update = await prisma.unit.update({
+    where: {
+      id: unit.id,
+    },
+    data: {
+      tags: {
+        connect: [
+          ...tags.map((tag) => ({ id: tag.id })),
+          {
+            name: "VERB_CONJUGATION",
+          },
+        ],
+      },
+    },
+  });
+  return update;
 }
 
 async function mainConjugation() {
-    const units = await prisma.unit.findMany({
-        where: {
-            unitType: "CONJUGATION",
-        },
-        take: TAKE,
-        skip: START,
-    });
+  const units = await prisma.unit.findMany({
+    where: {
+      unitType: "CONJUGATION",
+    },
+    take: TAKE,
+    skip: START,
+  });
 
-    console.log("conjugation units", units.length);
+  console.log("conjugation units", units.length);
 
-    try {
-        const promises = [];
-        for (const unit of units) {
-            index++;
-            promises.push(updateConjugation(unit));
-            if (index % BATCHSIZE === 0) {
-                console.log(index);
-                await sleep(BATCHINTERVAL);
-            }
-        }
-        const result = await Promise.all(promises);
-        console.log("result", result.length);
-    } catch (e) {
-        if (e.code !== "P2002") console.error("[error]", index, e);
+  try {
+    const promises = [];
+    for (const unit of units) {
+      index++;
+      promises.push(updateConjugation(unit));
+      if (index % BATCHSIZE === 0) {
+        console.log(index);
+        await sleep(BATCHINTERVAL);
+      }
     }
+    const result = await Promise.all(promises);
+    console.log("result", result.length);
+  } catch (e) {
+    if (e.code !== "P2002") console.error("[error]", index, e);
+  }
 }
 
 async function updateWord(unit) {
-    const word = await prisma.word.findUnique({
-        where: {
-            id: unit.corpusId,
-        },
-    });
+  const word = await prisma.word.findUnique({
+    where: {
+      id: unit.corpusId,
+    },
+  });
 
-    const tags = await prisma.tag.findMany({
-        where: {
-            name: {
-                in: word.pos,
-            },
-        },
-    });
+  const tags = await prisma.tag.findMany({
+    where: {
+      name: {
+        in: word.pos,
+      },
+    },
+  });
 
-    const update = await prisma.unit.update({
-        where: {
-            id: unit.id,
-        },
-        data: {
-            tags: {
-                connect: tags.map((tag) => ({ id: tag.id })),
-            },
-        },
-    });
-    return update;
+  const update = await prisma.unit.update({
+    where: {
+      id: unit.id,
+    },
+    data: {
+      tags: {
+        connect: tags.map((tag) => ({ id: tag.id })),
+      },
+    },
+  });
+  return update;
 }
 async function mainWord() {
-    const units = await prisma.unit.findMany({
-        where: {
-            unitType: "WORD",
-            tags: {
-                some: {
-                    name: "ADJECTIVE",
-                },
-            },
+  const units = await prisma.unit.findMany({
+    where: {
+      unitType: "WORD",
+      tags: {
+        some: {
+          name: "ADJECTIVE",
         },
-        include: { tags: { select: { name: true } } },
-        take: TAKE,
-        skip: START,
-    });
+      },
+    },
+    include: { tags: { select: { name: true } } },
+    take: TAKE,
+    skip: START,
+  });
 
-    console.log("word units", units);
+  console.log("word units", units);
 
-    return;
-    try {
-        const promises = [];
-        for (const unit of units) {
-            index++;
-            promises.push(updateWord(unit));
-            if (index % BATCHSIZE === 0) {
-                console.log(index);
-                await sleep(BATCHINTERVAL);
-            }
-        }
-        const result = await Promise.all(promises);
-        console.log("result", result.length);
-    } catch (e) {
-        if (e.code !== "P2002") console.error("[error]", index, e);
+  return;
+  try {
+    const promises = [];
+    for (const unit of units) {
+      index++;
+      promises.push(updateWord(unit));
+      if (index % BATCHSIZE === 0) {
+        console.log(index);
+        await sleep(BATCHINTERVAL);
+      }
     }
+    const result = await Promise.all(promises);
+    console.log("result", result.length);
+  } catch (e) {
+    if (e.code !== "P2002") console.error("[error]", index, e);
+  }
 }
 
 // await mainConjugation();

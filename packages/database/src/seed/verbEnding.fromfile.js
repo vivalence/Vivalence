@@ -4,30 +4,30 @@ import verbEndings from "./data/verbEndings.json";
 const prisma = new PrismaClient();
 
 const targetPrisma = new PrismaClient({
-    datasources: {
-        db: {
-            url: "postgresql://valence:DUMMY@localhost:5432/valence-spanish-vII"
-        }
-    }
+  datasources: {
+    db: {
+      url: "postgresql://valence:DUMMY@localhost:5432/valence-spanish-vII",
+    },
+  },
 });
 
 async function main() {
-    for (const verb of verbEndings) {
-        console.log(verb);
-        throw Error("stop");
+  for (const verb of verbEndings) {
+    console.log(verb);
+    throw Error("stop");
 
-        try {
-            const data = {
-                ...verb
-            };
+    try {
+      const data = {
+        ...verb,
+      };
 
-            // const update = await prisma.verbEnding.create({ data });
-            // const update = await prisma..updateMany({where: { index: data.index }, data});
-            console.log("update", update.index);
-        } catch (e) {
-            console.error("[error]", e);
-        }
+      // const update = await prisma.verbEnding.create({ data });
+      // const update = await prisma..updateMany({where: { index: data.index }, data});
+      console.log("update", update.index);
+    } catch (e) {
+      console.error("[error]", e);
     }
+  }
 }
 
 // await prisma.word.deleteMany();

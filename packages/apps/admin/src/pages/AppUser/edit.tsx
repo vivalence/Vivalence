@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
-import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
-import { Edit, useForm, SaveButton } from "@refinedev/antd";
-import { Select, Form, Input, Typography, Tabs } from "antd";
+import { IResourceComponentsProps, useUpdate } from "@refinedev/core";
+import { Edit, SaveButton, useForm } from "@refinedev/antd";
+import { Form, Input, Select, Tabs, Typography } from "antd";
 import { useDocumentTitle } from "@refinedev/react-router-v6";
 import Connection, { type ConnectionEditHandles } from "$components/connection";
 
@@ -24,8 +24,8 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
 
   const items = [
     {
-      key: '1',
-      label: 'User',
+      key: "1",
+      label: "User",
       children: (
         <>
           <Form.Item
@@ -47,7 +47,7 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
           <Form.Item
             name={["roles"]}
             label="Roles"
-            rules={[{ required: true, message: 'Please select at least one role' }]}
+            rules={[{ required: true, message: "Please select at least one role" }]}
           >
             <Select
               mode="multiple"
@@ -65,8 +65,8 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '3',
-      label: 'Connections',
+      key: "3",
+      label: "Connections",
       children: (
         <Form.Item label="Connected Strategies">
           <Connection

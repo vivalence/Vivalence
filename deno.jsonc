@@ -1,0 +1,43 @@
+{
+  "tasks": {
+    "permit": "deno run --allow-env --allow-net --allow-read --allow-run"
+    "daemon:dev": "deno task permit --watch packages/daemon/mod.js",
+    "daemon:build": "deno compile --allow-env --allow-net --allow-read packages/daemon/mod.js",
+    "daemon:start": "",
+
+    "client:dev": "deno task permit --watch packages/apps/client/src/index.js",
+
+    "prisma:schema:load": "deno run --allow-read --allow-write packages/database/prisma/schema.js",
+    "prisma:schema:format": "prisma format --schema=packages/database/prisma/schema.prisma",
+    "prisma:schema": "deno task prisma:schema:load && deno task prisma:schema:format",
+
+    "prisma:migrate": "deno task prisma:schema && prisma migrate dev --schema=packages/database/prisma/schema.prisma",
+    "prisma:generate": "deno task prisma:schema && prisma generate --schema=packages/database/prisma/schema.prisma"
+  },
+  "compilerOptions": {
+    "allowJs": true,
+    "lib": ["deno.window", "dom"],
+    "strict": true
+  },
+  "lint": {
+    "files": {
+      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+    },
+    "rules": {
+      "tags": ["recommended"]
+    }
+  },
+  "fmt": {
+    "files": {
+      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.md"],
+      "exclude": ["**/*.svelte", "**/*.viva"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 120,
+      "indentWidth": 2,
+      "singleQuote": false
+    }
+  },
+  "importMap": "./import_map.json"
+}

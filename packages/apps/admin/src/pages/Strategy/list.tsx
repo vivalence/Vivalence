@@ -1,15 +1,7 @@
 import React from "react";
-import { IResourceComponentsProps, BaseRecord } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  DeleteButton,
-  ShowButton,
-  SaveButton,
-  CloneButton,
-} from "@refinedev/antd";
-import { Table, Space, Form, Input, } from "antd";
+import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
+import { CloneButton, DeleteButton, EditButton, List, SaveButton, ShowButton, useTable } from "@refinedev/antd";
+import { Form, Input, Space, Table } from "antd";
 
 export const StrategyList: React.FC<IResourceComponentsProps> = () => {
   const { tableProps, searchFormProps } = useTable({
@@ -83,4 +75,3 @@ export const StrategyList: React.FC<IResourceComponentsProps> = () => {
     </List>
   );
 };
-

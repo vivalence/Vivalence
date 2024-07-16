@@ -3,54 +3,54 @@ const prisma = new PrismaClient();
 
 // provider: {api: "openai", model: "gpt-4-1106-preview",},
 const mask = {
-    WORD: {
-        buildData: (({ data }) => ({
-            spanish: data.spanish,
-            english: data.english,
-            usedInSpanish: data.usedInSpanish,
-            usedInEnglish: data.usedInEnglish,
-        })).toString(),
-        back: `
+  WORD: {
+    buildData: (({ data }) => ({
+      spanish: data.spanish,
+      english: data.english,
+      usedInSpanish: data.usedInSpanish,
+      usedInEnglish: data.usedInEnglish,
+    })).toString(),
+    back: `
 <p class="text-3xl font-sans-heading font-light mb-3">
     {{spanish}}
 </p>
 <p class="text-lg">
     {{usedInSpanish}}
 </p>`,
-        front: `
+    front: `
 <p class="text-3xl font-sans-heading font-light mb-3">
     {{english}}
 </p>
 <p class="text-lg">
     {{usedInEnglish}}
 </p>`,
-    },
+  },
 
-    CONJUGATION: {
-        buildData: (({ data }) => ({
-            spanish: data.spanish,
-            english: data.english,
-            person: data.ud.feats.Person,
-            number: data.ud.feats.Number,
-        })).toString(),
-        back: `
+  CONJUGATION: {
+    buildData: (({ data }) => ({
+      spanish: data.spanish,
+      english: data.english,
+      person: data.ud.feats.Person,
+      number: data.ud.feats.Number,
+    })).toString(),
+    back: `
 <p class="text-3xl font-sans-heading font-light">
     {{spanish}}
 </p>`,
-        front: `
+    front: `
 <p class="text-3xl font-sans-heading font-light mb-3">
     {{english}}
 </p>
 <p class="text-lg">
     <span class="">{{person}} person {{number}}</span>
 </p>`,
-    },
+  },
 };
 
 async function update() {
-    const where = { id: "clq0z4qxv0002g0f8f93uwkc4" };
-    const data = { data: mask };
-    const update = await prisma.mask.update({ where, data });
+  const where = { id: "clq0z4qxv0002g0f8f93uwkc4" };
+  const data = { data: mask };
+  const update = await prisma.mask.update({ where, data });
 }
 
 await update();

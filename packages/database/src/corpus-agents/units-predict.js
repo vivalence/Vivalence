@@ -2,8 +2,8 @@ import fs from "fs";
 import supabase from "../clients/supabase.js";
 import { post } from "../clients/client.js";
 import {
-  pos as POS,
   annotations,
+  pos as POS,
 } from "/Users/finn/vivalence/code/vivalence/app/client/src/routes/api/classifier/ontology";
 
 async function predictSpace() {
@@ -39,10 +39,11 @@ async function predictSpace() {
         console.log("issue:", JSON.stringify(issue, null, 2));
         console.log("remedy:", JSON.stringify(remedy, null, 2));
         console.log("error:", JSON.stringify(error, null, 2));
-      } else
+      } else {
         console.log(
           `${i}/${prediction.issues.length} => ${issue.violation} => ${remedy.resolved}`,
         );
+      }
     }
   }
 }

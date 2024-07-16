@@ -4,25 +4,25 @@ import wordsData from "./words.json";
 const prisma = new PrismaClient();
 
 async function main() {
-    for (const word of wordsData) {
-        try {
-            const data = {
-                index: parseInt(word.index),
-                spanish: word.spanish,
-                english: word.english,
-                type: word.type_enums.toUpperCase(),
-                usageInSpanish: word.used_spanish,
-                usageInEnglish: word.used_english,
-                data: word
-            };
+  for (const word of wordsData) {
+    try {
+      const data = {
+        index: parseInt(word.index),
+        spanish: word.spanish,
+        english: word.english,
+        type: word.type_enums.toUpperCase(),
+        usageInSpanish: word.used_spanish,
+        usageInEnglish: word.used_english,
+        data: word,
+      };
 
-            const update = await prisma.word.create({ data });
-            // const update = await prisma.word.updateMany({where: { index: data.index }, data});
-            console.log("update", update.index);
-        } catch (e) {
-            console.error("[error]", e);
-        }
+      const update = await prisma.word.create({ data });
+      // const update = await prisma.word.updateMany({where: { index: data.index }, data});
+      console.log("update", update.index);
+    } catch (e) {
+      console.error("[error]", e);
     }
+  }
 }
 
 // await prisma.word.deleteMany();
@@ -30,9 +30,9 @@ await main();
 
 // # top 100 verbs
 const words = await prisma.word.findMany({
-    // orderBy: { index: "asc" },
-    // where: { type: "V" },
-    // take: 25,
+  // orderBy: { index: "asc" },
+  // where: { type: "V" },
+  // take: 25,
 });
 
 console.log("words", words.length);

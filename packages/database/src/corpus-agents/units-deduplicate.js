@@ -2,8 +2,8 @@ import fs from "fs";
 import supabase from "../clients/supabase.js";
 import { post } from "../clients/client.js";
 import {
-  pos as POS,
   annotations,
+  pos as POS,
 } from "/Users/finn/vivalence/code/vivalence/app/client/src/routes/api/classifier/ontology";
 
 let index = 0;

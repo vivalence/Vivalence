@@ -1,9 +1,6 @@
 import fs from "fs";
 import { post } from "../clients/client.js";
-import {
-  annotations,
-  pos as POS,
-} from "../../../client/src/routes/api/classifier/ontology";
+import { annotations, pos as POS } from "../../../client/src/routes/api/classifier/ontology";
 
 async function predictAnnotationTags() {
   const ontologies = [];

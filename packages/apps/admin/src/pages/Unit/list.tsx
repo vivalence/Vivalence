@@ -1,15 +1,7 @@
 import React from "react";
-import { IResourceComponentsProps, BaseRecord } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  DeleteButton,
-  SaveButton,
-  ShowButton,
-  TagField,
-} from "@refinedev/antd";
-import { Table, Space, Form, Input, } from "antd";
+import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
+import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import { Form, Input, Space, Table } from "antd";
 
 export const UnitList: React.FC<IResourceComponentsProps> = () => {
   const { tableProps, searchFormProps } = useTable({
@@ -23,7 +15,6 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
     },
     pagination: {
       pageSize: 20,
-
     },
     syncWithLocation: true,
     meta: {
@@ -58,13 +49,11 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
         </Form.Item>
         <SaveButton hideText onClick={searchFormProps.form?.submit} />
       </Form>
-      <Table {...tableProps}
-        rowKey="id">
+      <Table {...tableProps} rowKey="id">
         <Table.Column
           dataIndex={["name"]}
           title="name"
-          render={(_: any, data: any) => `${data.data.spanish} - ${data.data.english}`
-          }
+          render={(_: any, data: any) => `${data.data.spanish} - ${data.data.english}`}
         />
         <Table.Column
           dataIndex="corpusType"
@@ -98,4 +87,3 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
     </List>
   );
 };
-

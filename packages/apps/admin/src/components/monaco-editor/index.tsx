@@ -1,8 +1,7 @@
 import React from "react";
 import * as monaco from "monaco-editor";
 import Editor from "@monaco-editor/react";
-import { Typography } from 'antd';
-
+import { Typography } from "antd";
 
 interface MonacoEditorFieldProps {
   onChange?: (value: string | undefined) => void;
@@ -25,10 +24,9 @@ const MonacoEditorField: React.FC<MonacoEditorFieldProps> = (props) => {
     props.onChange && props.onChange(value);
   };
 
-  const defaultValue =
-    typeof props.formData === "object"
-      ? JSON.stringify(props.formData, null, 2)
-      : props.formData || props.value || "";
+  const defaultValue = typeof props.formData === "object"
+    ? JSON.stringify(props.formData, null, 2)
+    : props.formData || props.value || "";
 
   return (
     <>

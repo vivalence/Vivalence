@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect } from "react";
-import { useUpdate, IResourceComponentsProps } from "@refinedev/core";
-import { useForm, Edit, SaveButton } from "@refinedev/antd";
+import React, { useEffect, useRef, useState } from "react";
+import { IResourceComponentsProps, useUpdate } from "@refinedev/core";
+import { Edit, SaveButton, useForm } from "@refinedev/antd";
 import { useDocumentTitle } from "@refinedev/react-router-v6";
 import { Form, Input, Select, Tabs } from "antd";
 const { Option } = Select;
@@ -37,8 +37,8 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
 
   const items = [
     {
-      key: '1',
-      label: 'Game',
+      key: "1",
+      label: "Game",
       children: (
         <>
           <Form.Item label="Name" name={["name"]} rules={[{ required: true }]}>
@@ -70,8 +70,8 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '2',
-      label: 'Connections',
+      key: "2",
+      label: "Connections",
       children: (
         <Form.Item label="Connected Strategies">
           <Connection
@@ -84,15 +84,15 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
       ),
     },
     {
-      key: '3',
-      label: 'Data',
+      key: "3",
+      label: "Data",
       children: (
         <Form.Item name={["data"]}>
           {gametype && (
             <JSONField
               schema={GameSchema[gametype]}
               data={jsonData}
-              onChange={(data) => form.setFieldValue('data', data)}
+              onChange={(data) => form.setFieldValue("data", data)}
             />
           )}
         </Form.Item>
@@ -108,7 +108,8 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
           <SaveButton {...saveButtonProps} />
         </>
       )}
-      saveButtonProps={saveButtonProps}>
+      saveButtonProps={saveButtonProps}
+    >
       <Form {...formProps} layout="vertical" onFinish={onSave}>
         <Tabs defaultActiveKey="1" items={items} />
       </Form>

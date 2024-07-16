@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Input, Select, Form, Button, AutoComplete, List } from "antd";
-import { DeleteOutlined, MenuOutlined, EyeOutlined, EyeInvisibleOutlined } from "@ant-design/icons";
+import { AutoComplete, Button, Form, Input, List, Select } from "antd";
+import { DeleteOutlined, EyeInvisibleOutlined, EyeOutlined, MenuOutlined } from "@ant-design/icons";
 
 /* import { Resource } from "$types/index"; */
 import { RelationItemProps } from "./types";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
+  DragEndEvent,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 
@@ -36,7 +36,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, children, onRemove }) =
     background: "#fff",
     border: "1px solid #f1f1f1",
     boxShadow: "0 2px 4px 0 rgba(0,0,0,0.1)",
-    borderRadius: "6px"
+    borderRadius: "6px",
   };
 
   return (
@@ -58,7 +58,7 @@ const RelationItem: React.FC<RelationItemProps> = ({
   relation,
   connections,
   onUpdate,
-  onRemove
+  onRemove,
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [options, setOptions] = useState<{ value: string }[]>([]);
@@ -78,7 +78,7 @@ const RelationItem: React.FC<RelationItemProps> = ({
               {item.name}
               <span style={{ float: "right" }}>{itemtype}</span>
             </>
-          )
+          ),
         };
       });
     setOptions(options);
@@ -122,8 +122,7 @@ const RelationItem: React.FC<RelationItemProps> = ({
         style={{
           display: "flex",
           justifyContent: "space-between",
-          borderBottom: showDetails ? "1px solid lightgrey" : "none"
-
+          borderBottom: showDetails ? "1px solid lightgrey" : "none",
         }}
       >
         <Form.Item label="Key" style={{ flex: 1, marginRight: "8px" }}>
@@ -152,10 +151,9 @@ const RelationItem: React.FC<RelationItemProps> = ({
             <Button onClick={() => setShowDetails(!showDetails)}>
               {/* @ts-ignore */}
               {showDetails ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-              <span style={{ marginLeft: '-3px' }}>{relation.data.length}</span>
+              <span style={{ marginLeft: "-3px" }}>{relation.data.length}</span>
             </Button>
           </Button.Group>
-
         </Form.Item>
       </div>
       {showDetails && (
@@ -188,15 +186,17 @@ const RelationItem: React.FC<RelationItemProps> = ({
                 dataSource={relation.data}
                 renderItem={(itemId: string) => {
                   const item = connections[relation.type].find((c) => c.id === itemId);
-                  return item ? (
-                    <SortableItem
-                      key={item.id}
-                      id={item.id}
-                      onRemove={handleRemove}
-                    >
-                      {{ games: "Game", units: "Unit", tags: "Tag" }[relation.type]} : {item.name}
-                    </SortableItem>
-                  ) : null;
+                  return item
+                    ? (
+                      <SortableItem
+                        key={item.id}
+                        id={item.id}
+                        onRemove={handleRemove}
+                      >
+                        {{ games: "Game", units: "Unit", tags: "Tag" }[relation.type]} : {item.name}
+                      </SortableItem>
+                    )
+                    : null;
                 }}
               />
             </SortableContext>

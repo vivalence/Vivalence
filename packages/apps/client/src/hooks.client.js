@@ -10,27 +10,27 @@ const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
 // if (isBrowser()) import { vfetch } from "@vivalence/services";
 
 export const handle = async (event) => {
-    const locals = {};
+  const locals = {};
 
-    locals.supabase = supabase(event);
+  locals.supabase = supabase(event);
 
-    locals.getSession = async () => {
-        const { data } = await locals.supabase.auth.getSession();
-        return data.session;
-    };
-    event.data.session = await locals.getSession();
+  locals.getSession = async () => {
+    const { data } = await locals.supabase.auth.getSession();
+    return data.session;
+  };
+  event.data.session = await locals.getSession();
 
-    locals.client = vfetch({
-        basePath: "/api",
-        fetch: event.fetch
-    });
+  locals.client = vfetch({
+    basePath: "/api",
+    fetch: event.fetch,
+  });
 
-    if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
-    locals.ontology = vfetch({
-        basePath: ONTOLOGIES_URL,
-        session: event.data.session
-    });
+  if (!ONTOLOGIES_URL) throw new Error("ONTOLOGIES_URL not found in env");
+  locals.ontology = vfetch({
+    basePath: ONTOLOGIES_URL,
+    session: event.data.session,
+  });
 
-    event.locals = locals;
-    return event;
+  event.locals = locals;
+  return event;
 };

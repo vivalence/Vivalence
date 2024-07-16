@@ -1,0 +1,13 @@
+# Ignore Deno-formatted files
+**/*.ts
+**/*.js
+**/*.jsx
+**/*.tsx
+
+# Don't ignore Svelte and Viva files
+!**/*.svelte
+!**/*.viva
+
+# Other common ignores
+node_modules
+.git

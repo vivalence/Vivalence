@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@vivalence/daemon/": "./packages/daemon/",
+    "@vivalence/shared/client.js": "./packages/shared/client.mod.js",
+    "@vivalence/shared/server.js": "./packages/shared/server.mod.js",
+    "@vivalence/services/": "./packages/services/",
+    "@vivalence/runtimes/": "./runtimes/"
+  }
+}

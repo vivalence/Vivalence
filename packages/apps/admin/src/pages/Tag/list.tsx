@@ -1,15 +1,7 @@
 import React from "react";
-import { IResourceComponentsProps, BaseRecord } from "@refinedev/core";
-import {
-  useTable,
-  List,
-  EditButton,
-  DeleteButton,
-  ShowButton,
-  SaveButton,
-  TagField,
-} from "@refinedev/antd";
-import { Table, Space, Form, Input } from "antd";
+import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
+import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import { Form, Input, Space, Table } from "antd";
 
 export const TagList: React.FC<IResourceComponentsProps> = () => {
   const { tableProps, searchFormProps } = useTable({
@@ -35,7 +27,6 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
         operator: "contains",
         value: values.value,
       },
-
     ],
   });
 
@@ -61,9 +52,7 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
         <Table.Column
           dataIndex="type"
           title="Type"
-          render={(value: any[]) => (
-            <>{value?.map((item) => <TagField value={item} key={item} />)}</>
-          )}
+          render={(value: any[]) => <>{value?.map((item) => <TagField value={item} key={item} />)}</>}
         />
         <Table.Column
           title="Actions"

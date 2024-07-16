@@ -5,42 +5,42 @@ import grammarData from "./data/conjugation.json";
 
 const prisma = new PrismaClient();
 const createGrammar = async (verb, grammar) => {
-    const createManyData = [];
+  const createManyData = [];
 
-    const tense = grammar.tense;
-    const mood = grammar.mood;
-    const ending = removeDiacritics(grammar.infinitive.slice(-2).toUpperCase());
+  const tense = grammar.tense;
+  const mood = grammar.mood;
+  const ending = removeDiacritics(grammar.infinitive.slice(-2).toUpperCase());
 
-    const data = { tense, ending, mood, verbId: verb.id };
+  const data = { tense, ending, mood, verbId: verb.id };
 
-    for (const performer of PerformerEnum) {
-        data["spanish"] = grammar[performer];
-        data["performer"] = performer;
-        if (data.spanish) createManyData.push({ ...data });
-    }
+  for (const performer of PerformerEnum) {
+    data["spanish"] = grammar[performer];
+    data["performer"] = performer;
+    if (data.spanish) createManyData.push({ ...data });
+  }
 
-    // on this unique case, we need to create two more conjugations
-    if (tense === "PRESENTE" && mood === "INDICATIVO") {
-        data["mood"] = "NON_FINITE";
-        data["performer"] = "NON_FINITE";
+  // on this unique case, we need to create two more conjugations
+  if (tense === "PRESENTE" && mood === "INDICATIVO") {
+    data["mood"] = "NON_FINITE";
+    data["performer"] = "NON_FINITE";
 
-        // data["tense"] = "INFINITIVO";
-        // data["spanish"] = grammar.infinitive;
-        // data["english"] = grammar.infinitive_english;
-        // await prisma.conjugation.upsert({where: {verbId_tense_performer_mood: {tense: data.tense, mood: data.mood, verbId: verb.id, performer: "NON_FINITE",},}, create: data, update: data,});
+    // data["tense"] = "INFINITIVO";
+    // data["spanish"] = grammar.infinitive;
+    // data["english"] = grammar.infinitive_english;
+    // await prisma.conjugation.upsert({where: {verbId_tense_performer_mood: {tense: data.tense, mood: data.mood, verbId: verb.id, performer: "NON_FINITE",},}, create: data, update: data,});
 
-        data["tense"] = "GERUNDIO";
-        data["spanish"] = grammar.gerund;
-        data["english"] = grammar.gerund_english;
-        if (data.spanish) createManyData.push({ ...data });
+    data["tense"] = "GERUNDIO";
+    data["spanish"] = grammar.gerund;
+    data["english"] = grammar.gerund_english;
+    if (data.spanish) createManyData.push({ ...data });
 
-        data["tense"] = "PARTICIPIO";
-        data["spanish"] = grammar.pastparticiple;
-        data["english"] = grammar.pastparticiple_english;
-        if (data.spanish) createManyData.push({ ...data });
-    }
+    data["tense"] = "PARTICIPIO";
+    data["spanish"] = grammar.pastparticiple;
+    data["english"] = grammar.pastparticiple_english;
+    if (data.spanish) createManyData.push({ ...data });
+  }
 
-    return prisma.conjugation.createMany({ data: createManyData });
+  return prisma.conjugation.createMany({ data: createManyData });
 };
 
 const notFound = [];
@@ -49,38 +49,38 @@ const START = 0;
 let index = START;
 
 async function main() {
-    const verbs = await prisma.word.findMany({
-        where: { type: "V" },
-        orderBy: { index: "asc" },
-        take: TAKE,
-        skip: START,
-    });
+  const verbs = await prisma.word.findMany({
+    where: { type: "V" },
+    orderBy: { index: "asc" },
+    take: TAKE,
+    skip: START,
+  });
 
-    for (const verb of verbs) {
-        try {
-            const promises = [];
-            index++;
-            console.log(`${index}: `, verb.spanish, verb.index, verb.english);
+  for (const verb of verbs) {
+    try {
+      const promises = [];
+      index++;
+      console.log(`${index}: `, verb.spanish, verb.index, verb.english);
 
-            let grammars = grammarData.filter((g) => g.infinitive === verb.spanish);
+      let grammars = grammarData.filter((g) => g.infinitive === verb.spanish);
 
-            if (!grammars.length > 0) {
-                notFound.push(verb.spanish);
-            }
+      if (!grammars.length > 0) {
+        notFound.push(verb.spanish);
+      }
 
-            for (const grammar of grammars) {
-                promises.push(createGrammar(verb, grammar));
-            }
-            const counts = await Promise.all(promises);
-            console.log("counts", counts);
-        } catch (e) {
-            // console.error("[error]", index, JSON.stringify(e, null, 2));
-            if (e.code !== "P2002") console.error("[error]", index, e);
-            // else console.error(e);
-        }
+      for (const grammar of grammars) {
+        promises.push(createGrammar(verb, grammar));
+      }
+      const counts = await Promise.all(promises);
+      console.log("counts", counts);
+    } catch (e) {
+      // console.error("[error]", index, JSON.stringify(e, null, 2));
+      if (e.code !== "P2002") console.error("[error]", index, e);
+      // else console.error(e);
     }
-    // console.log("notFound", notFound);
-    console.log("notFound", notFound.length);
+  }
+  // console.log("notFound", notFound);
+  console.log("notFound", notFound.length);
 }
 
 await main();

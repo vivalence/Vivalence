@@ -1,168 +1,168 @@
-generator app-client {
-  output          = "../../client/node_modules/.prisma/client"
-  provider        = "prisma-client-js"
-  clientOutput    = "@prisma/client"
-  previewFeatures = ["views"]
-}
-
-generator local-client {
-  provider        = "prisma-client-js"
-  clientOutput    = "@prisma/client"
-  previewFeatures = ["views"]
-}
-
 datasource db {
   provider = "postgresql"
-  // extensions = [pg_graphql, pg_net, pg_stat_statements, pgcrypto, pgjwt, pgsodium, supabase_vault]
-  url      = env("DATABASE_URL")
+  url      = env("PRIVATE_DATABASE_URL")
 }
 
 model AppUser {
-  id          String          @id @unique // same as auth."users".id
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @default(now()) @updatedAt
-  email       String?
-  roles       UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
-  strategies  Strategy[]      @relation("AppUserToStrategy")
-  Play        Play[]           
-  memories    Memory[]          
+  // ABOUT
+  id        String          @id @unique // same as auth."users".id
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+  roles     UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+
+  // RUNTIME
+  runtimes   Runtime[]
+  strategies Strategy[]
+
+  // USERLAND
+  plays    Play[]
+  memories Memory[]
+
+  // TRANSIENT
+  queue Queue[]
 }
 
-model Strategy {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now()) @updatedAt
-  objectStatus ObjectStatusEnum @default(ACTIVE)
-  name      String
-  data      Json?     @default("{}")
-  relations Json      @default("[]")
-  provision Json      @default("{}")
-  user      AppUser[] @relation("AppUserToStrategy")
-  tags      Tag[]     @relation("StrategyToTag")
-  games     Game[]    @relation("StrategyToGame")
-  units     Unit[]    @relation("StrategyToUnit")
+enum UserRolesEnum {
+  ADMIN
+  USER
+  GUEST
+}
+
+model Runtime {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String? //@unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // APP
+  users AppUser[]
+
+  // RUNTIME
+  ontology   Ontology? @relation(fields: [ontologyId], references: [id])
+  ontologyId String?   @unique
+  corpus     Corpus?   @relation(fields: [corpusId], references: [id])
+  corpusId   String?   @unique
+
+  strategies Strategy[]
+  games      Game[]
+
+  // CORPUS
+  units   Unit[]
+  tags    Tag[]
+  tactics Tactic[]
+}
+
+model Ontology {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime Runtime?
+}
+
+model Corpus {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime Runtime?
 }
 
 model Game {
-  id         String       @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @default(now()) @updatedAt
-  objectStatus ObjectStatusEnum @default(ACTIVE)
-  name       String
-  type       GameTypeEnum
-  data       Json         @default("{}")
-  plays      Play[]       
-  strategies Strategy[]   @relation("StrategyToGame")
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
 
-  // @@unique([type, ])
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String?
+
+  // CORPUS
+  tactics Tactic[]
+
+  // USERLAND
+  plays Play[]
+
+  // DEPRACATED
+  data Json?
 }
 
-model Play {
-  id        String      @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now()) @updatedAt
-  history   Json        @default("[]")
-  nextPlay  DateTime
-  lastPlay  DateTime
-  unit      Unit?       @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId    String?
-  tag       Tag?        @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId     String?
-  game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId    String
-  user      AppUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  memory    Memory @relation(fields: [memoryId], references: [id])
-  memoryId  String
+model Tactic {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String
 
-  @@index([unitId], name: "unitIdIndexOnPlay")
-  @@index([tagId], name: "tagIdIndexOnPlay")
-  @@index([userId], name: "userIdIndexOnPlay")
-  @@index([gameId], name: "gameIdIndexOnPlay")
-  @@index([memoryId], name: "memoryIdIndexOnPlay")
-  @@unique([unitId, tagId,gameId, userId, memoryId])
-}
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+  games     Game[] // input for tactic.relations
 
-model Memory {
-  id        String           @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @default(now()) @updatedAt
-  type      MemoryTypeEnum   @default(EBISU_v2)
-  status    MemoryStatusEnum @default(UNKNOWN)
-  state     Json             @default("{}")
-  lastSeen  DateTime?
-  history   Json             @default("[]")
-  tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId     String?
-  unit      Unit?            @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId    String?
-  user      AppUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  plays     Play[]
+  // CORPUS 
+  tags  Tag[] // input for tactic.relations
+  units Unit[] // input for tactic.relations
 
-  @@index([unitId], name: "unitIdIndexOnMemory")
-  @@index([userId], name: "userIdIndexOnMemory")
-  @@index([tagId], name: "tagIdIndexOnMemory")
-  @@unique([unitId, userId, tagId])
+  // USERLAND
+  plays Play[]
+
+  // TRANSIENT
+  queue Queue[]
+
+  // DATA
+  relations    Json @default("[]") // for grouping units and tags
+  provisions   Json @default("{}") // for games
+  instructions Json @default("{}") // for generating instructions
+
+  // DEPRACATED
+  provision Json?
 }
 
 model Tag {
-  id        String        @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @default(now()) @updatedAt
-  name      String        @unique
-  type      TagTypeEnum[] @default([])
-  data      Json          @default("{}")
-  strategy  Strategy[]    @relation("StrategyToTag")
-  units     Unit[]
-  memory    Memory[]        // @relation("TagToMemory")
-  plays     Play[]
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String   @unique
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+
+  // CORPUS
+  units   Unit[]
+  tactics Tactic[]
+
+  // USERLAND
+  strategy   Strategy? @relation(fields: [strategyId], references: [id])
+  strategyId String? // for strategy specific or user defined tags
+  memory     Memory[]
+  plays      Play[]
+
+  // DATA
+  type TagTypeEnum[] @default([])
+  data Json          @default("{}")
 
   @@index([name], name: "nameIndexOnTag")
-}
-
-model Unit {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
-  objectStatus ObjectStatusEnum @default(ACTIVE)
-  corpusId     String?
-  corpusType   CorpusTypeEnum @default(WORD)
-  data         Json
-  strategy     Strategy[]     @relation("StrategyToUnit")
-  tags         Tag[]
-  plays        Play[]
-  memory       Memory[]
-}
-
-enum QueueStatusEnum {
-  PENDING
-  PROCESSING
-  DONE
-  FAILED
-}
-
-enum ObjectStatusEnum {
-  ACTIVE
-  INACTIVE
-  DELETED
-}
-
-model Queue {
-  id          String         @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt @default(now())
-  index       Int             @default(0)
-  userId      String
-  strategyId  String
-  status      QueueStatusEnum @default(PENDING)
-  data        Json           @default("{}")
-}
-
-
-enum CorpusTypeEnum {
-  WORD
-  CONJUGATION
 }
 
 enum TagTypeEnum {
@@ -172,15 +172,131 @@ enum TagTypeEnum {
   COMPLETABLE // a set of units where each can be mastered
 }
 
-enum MemoryTypeEnum {
-  EBISU_v2
-  EBISU_v3
+model Unit {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+
+  // CORPUS
+  tags    Tag[]
+  tactics Tactic[]
+
+  // USERLAND
+  strategy   Strategy? @relation(fields: [strategyId], references: [id])
+  strategyId String? // for strategy specific or user defined units
+  plays      Play[]
+  memory     Memory[]
+
+  // DATA
+  annotation Json @default("{}")
+  data       Json @default("{}")
 }
 
-enum GameTypeEnum {
-  FLASHCARDS
-  TRANSLATIONS
-  CONJUGATIONS
+model Strategy {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // APP
+  user   AppUser? @relation(fields: [userId], references: [id])
+  userId String?
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String?
+
+  // CORPUS
+  tags  Tag[] // for special or user defined tags
+  units Unit[] // for special or user defined units
+
+  // DATA
+  session Json @default("{}")
+
+  // DEPRACATED
+  relations Json?
+  provision Json?
+}
+
+model Play {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // APP
+  user   AppUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  // RUNTIME
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
+
+  // CORPUS
+  tactic   Tactic? @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId String?
+  unit     Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId   String?
+  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId    String?
+
+  // USERLAND
+  memory   Memory? @relation(fields: [memoryId], references: [id])
+  memoryId String?
+
+  // DATA
+  history  Json     @default("[]")
+  nextPlay DateTime
+  lastPlay DateTime
+
+  @@unique([userId, unitId, tagId, tacticId, gameId]) // gameId temporary
+  @@index([userId], name: "userIdIndexOnPlay")
+  @@index([gameId], name: "gameIdIndexOnPlay")
+  @@index([tacticId], name: "tacticIdIndexOnPlay")
+  @@index([unitId], name: "unitIdIndexOnPlay")
+  @@index([tagId], name: "tagIdIndexOnPlay")
+  @@index([memoryId], name: "memoryIdIndexOnPlay")
+}
+
+model Memory {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // APP
+  user   AppUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String?
+
+  // CORPUS
+  tag    Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId  String?
+  unit   Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String?
+
+  // USERLAND
+  plays Play[]
+
+  // DATA
+  type     MemoryTypeEnum   @default(EBISU_v2)
+  status   MemoryStatusEnum @default(UNKNOWN)
+  state    Json             @default("{}")
+  lastSeen DateTime         @default(now())
+  history  Json             @default("[]")
+
+  @@unique([unitId, userId, tagId])
+  @@index([unitId], name: "unitIdIndexOnMemory")
+  @@index([userId], name: "userIdIndexOnMemory")
+  @@index([tagId], name: "tagIdIndexOnMemory")
 }
 
 enum MemoryStatusEnum {
@@ -190,13 +306,33 @@ enum MemoryStatusEnum {
   GRADUATED // sufficiently learned and not Showing anymore
 }
 
-enum UnitStatusEnum {
-  HIDDEN // dont show
-  PRIORITIZED // start learning asp
+enum MemoryTypeEnum {
+  EBISU_v2
+  EBISU_v3
 }
 
-enum UserRolesEnum {
-  ADMIN
-  USER
-  GUEST
+model Queue {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // APP
+  user   AppUser? @relation(fields: [userId], references: [id])
+  userId String?
+
+  // CORPUS
+  tactic   Tactic? @relation(fields: [tacticId], references: [id])
+  tacticId String?
+
+  // DATA
+  index  Int             @default(0)
+  status QueueStatusEnum @default(PENDING)
+  data   Json            @default("{}")
+}
+
+enum QueueStatusEnum {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
 }

@@ -1,10 +1,10 @@
 import React from "react";
-import { IResourceComponentsProps, useNavigation, } from "@refinedev/core";
+import { IResourceComponentsProps, useNavigation } from "@refinedev/core";
 import { Create, useForm } from "@refinedev/antd";
 import { Form, Input, Select } from "antd";
 const { Option } = Select;
 
-import { supabaseClient } from "../../utility/supabaseClient"
+import { supabaseClient } from "../../utility/supabaseClient";
 
 export const TagCreate: React.FC<IResourceComponentsProps> = () => {
   const { formProps, saveButtonProps } = useForm();
@@ -14,13 +14,13 @@ export const TagCreate: React.FC<IResourceComponentsProps> = () => {
     formProps.form?.resetFields();
 
     const { data, error } = await supabaseClient
-      .from('Tag')
-      .insert([{ name: values.name, type: values.type, }])
-      .select()
+      .from("Tag")
+      .insert([{ name: values.name, type: values.type }])
+      .select();
 
-    if (error) return console.error(error)
+    if (error) return console.error(error);
 
-    const url = editUrl("Tag", data[0].id!)
+    const url = editUrl("Tag", data[0].id!);
     replace(url);
   };
 
@@ -40,7 +40,7 @@ export const TagCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Type"
           name="type"
-          rules={[{ required: true, message: 'Please select at least one Tag Type!' }]}
+          rules={[{ required: true, message: "Please select at least one Tag Type!" }]}
         >
           <Select
             mode="multiple"
@@ -52,7 +52,6 @@ export const TagCreate: React.FC<IResourceComponentsProps> = () => {
             <Option value="COMPLETABLE">Completable</Option>
           </Select>
         </Form.Item>
-
       </Form>
     </Create>
   );
