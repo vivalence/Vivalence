@@ -12,7 +12,7 @@ export default async function router(runtime) {
 
   runtime.router.route("/remedy", async (ctx, next) => {
     const { issue } = ctx.request.body;
-    const result = await remedy(issue, ctx.locals);
+    const result = await remedy(issue, ctx);
     ctx.body = { data: result };
   });
 

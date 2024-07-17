@@ -1,14 +1,14 @@
 import { handleValidationError, registerHandlers } from "./registry.js";
 
-import unit from "./unit/index.js";
+// import unit from "./unit/index.js";
 import tags from "./tags/index.js";
 
-registerHandlers(unit);
+// registerHandlers(unit);
 registerHandlers(tags);
 
-export default async function remedy(issue, locals) {
+export default async function remedy(issue, ctx) {
   if (issue.context.unit) {
-    const { data: unit } = await ctx.supabase
+    const { data: unit } = await ctx.locals.supabase
       .from("Unit")
       .select(`*, _TagToUnit(*, Tag: A (*))`)
       .eq("id", issue.context.unit.id)
@@ -19,7 +19,7 @@ export default async function remedy(issue, locals) {
     delete issue.context.unit._TagToUnit;
   }
 
-  const result = await handleValidationError(issue, locals);
+  const result = await handleValidationError(issue, ctx);
 
   return result;
 }

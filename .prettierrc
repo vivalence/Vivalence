@@ -1,13 +1,13 @@
 {
-    "useTabs": false,
-    "singleQuote": false,
-    "trailingComma": "none",
-    "tabWidth": 2,
-    "printWidth": 120,
-    "overrides": [
-        {
-            "files": "*.viva",
-            "options": { "parser": "babel" }
-        }
-    ]
+  "useTabs": false,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "tabWidth": 2,
+  "printWidth": 100,
+  "overrides": [
+    {
+      "files": "*.viva",
+      "options": { "parser": "babel" }
+    }
+  ]
 }
