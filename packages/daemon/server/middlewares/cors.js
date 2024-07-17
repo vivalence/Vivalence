@@ -14,13 +14,19 @@ function isOriginAllowed(origin, allowedOrigins) {
   return regexPatterns.some((regex) => regex.test(origin));
 }
 
-export default oakCors({
+// export default oakCors({origin: (requestOrigin) => {console.log("requestOrigin", requestOrigin); if (isOriginAllowed(requestOrigin, allowedOrigins)) {return requestOrigin;} return false;}, credentials: true, allowHeaders: ["Content-Type", "Authorization", "Cookie"],});
+
+const cors = oakCors({
   origin: (requestOrigin) => {
+    console.log(`[CUSTOM] CORS origin check for: ${requestOrigin}`);
     if (isOriginAllowed(requestOrigin, allowedOrigins)) {
+      console.log(`[CUSTOM] CORS origin allowed: ${requestOrigin}`);
       return requestOrigin;
     }
+    console.log(`[CUSTOM] CORS origin not allowed: ${requestOrigin}`);
     return false;
   },
-  credentials: true,
-  allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+  // credentials: true,
+  // allowHeaders: ["Content-Type", "Authorization", "Cookie"],
 });
+export { cors };

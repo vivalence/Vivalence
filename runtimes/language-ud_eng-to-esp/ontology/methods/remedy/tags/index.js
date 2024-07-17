@@ -1,6 +1,6 @@
-import annotations, { metas } from "../../../ontology/annotations";
-
-async function required({ context, ...issue }, locals) {
+async function required({ context, ...issue }, ctx) {
+  console.log("remedy ctx", ctx);
+  throw new Error("Needs annotations,&{ metas }");
   let tag = null;
   if (context.ontology.branch !== "lemma") {
     const feat = annotations[context.ontology.branch];
@@ -18,7 +18,7 @@ async function required({ context, ...issue }, locals) {
     };
   }
 
-  const result = await locals.supabase.from("Tag").insert(tag);
+  const result = await ctx.locals.supabase.from("Tag").insert(tag);
   return { resolved: !!result.error, tag, error: result.error };
 }
 

@@ -4,7 +4,7 @@ export default async function supabase(ctx, next) {
   ctx.state = ctx.state || {};
   ctx.locals = ctx.locals || {};
 
-  ctx.supabase = createSupabaseUserClient(ctx);
+  ctx.locals.supabase = createSupabaseUserClient(ctx);
 
   ctx.locals.getUser = async () => {
     const { data } = await ctx.locals.supabase.auth.getUser();
