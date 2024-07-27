@@ -1,10 +1,11 @@
+import config from "@vivalence/config";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 let supabaseUserClient;
 
 export default function createSupabaseUserClient(ctx) {
   if (!supabaseUserClient) {
-    const { SUPABASE_URL, SUPABASE_ANON_KEY } = Deno.env.toObject();
+    const { SUPABASE_URL, SUPABASE_ANON_KEY } = config.env;
     if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
       throw new Error("Missing Supabase URL or Anon Key");
     }

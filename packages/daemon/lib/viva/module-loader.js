@@ -1,80 +1,81 @@
-import { dirname, extname, fromFileUrl, join } from "https://deno.land/std/path/mod.ts";
+import { join, dirname } from "https://deno.land/std/path/mod.ts";
 import { walk } from "https://deno.land/std/fs/mod.ts";
+import { getResolver, importModule, parseManifest } from "./registry.js";
 
-const VIVA_RUNTIMES_PATH = join(Deno.cwd(), "./runtimes");
+async function buildRuntime(module, loadedModules) {
+  const loadedModulePaths = new Set(loadedModules.keys());
+  const runtime = {
+    Runtime: null,
+    Domain: null,
+    Ontology: null,
+    Corpus: null,
+    Games: new Map(),
+    Strategies: new Map(),
+  };
 
-async function getVivaFiles(type) {
-  const walked = await walk(VIVA_RUNTIMES_PATH, { maxDepth: 8, exts: [".viva.js"] });
-  const files = [];
-  for await (const entry of walked) {
-    files.push(entry);
+  async function recursiveDiscover(module) {
+    if (loadedModulePaths.has(module.path)) {
+      return;
+    }
+    loadedModules.set(module.path, module);
+    loadedModulePaths.add(module.path);
+
+    const moduleType = module.manifest.type;
+    if (moduleType === "Game") {
+      runtime.Games.set(module.manifest.slug, module);
+    } else if (moduleType === "Strategy") {
+      runtime.Strategies.set(module.manifest.slug, module);
+    } else if (runtime[moduleType]) {
+      throw new Error(`Duplicate ${moduleType} module found: ${module.path}`);
+    } else {
+      runtime[moduleType] = module;
+    }
+
+    const declarations = parseManifest(module.manifest);
+    for (const declaration of declarations) {
+      const resolver = getResolver(declaration);
+      const depPath = await resolver(declaration, module.path);
+      const depModule = await importModule(depPath);
+      await recursiveDiscover(depModule);
+    }
   }
-  return files;
+
+  await recursiveDiscover(module);
+  return runtime;
 }
-async function loadModules(entries, type) {
-  const modules = [];
-  for (const entry of entries) {
+
+async function discoverRuntimes(runtimesDir) {
+  const runtimes = new Map();
+  for await (const entry of walk(runtimesDir, { maxDepth: 1, exts: [".viva.js"] })) {
     if (entry.isFile) {
       try {
-        const module = await import(entry.path);
-        if (!type || module.default.manifest.type === type) {
-          modules.push({
-            slug: module.default.manifest.slug,
-            path: entry.path,
-            module: module.default,
-          });
+        const module = await importModule(`file://${entry.path}`);
+        if (module.manifest.type === "Runtime") {
+          runtimes.set(module.manifest.slug, module);
         }
       } catch (error) {
-        console.error(`[[VIVA MODULE LOADER ERROR]]`);
-        console.error(`Error loading module ${entry.path}: ${error.message}`);
-        console.error(error);
-        throw error;
+        console.warn(
+          `Failed to import potential runtime module at ${entry.path}: ${error.message}`
+        );
       }
     }
   }
-  return modules;
+  return runtimes;
 }
-async function importModule(manifest, root, Modules = []) {
-  let Module;
 
-  if (manifest.path && root) {
-    Module = {
-      module: (await import(join(root, manifest.path))).default,
-      path: join(root, manifest.path),
-      slug: manifest.slug,
-    };
-  } else {
-    const module = Modules.find((c) => c.slug === manifest.slug);
-    if (module) {
-      Module = {
-        module: (await import(module.path)).default,
-        path: module.path,
-        slug: module.slug,
-      };
+async function getRuntimeModules(directory) {
+  const runtimes = new Map();
+  const loadedModules = new Map();
+
+  for (const runtimeModule of (await discoverRuntimes(directory)).values()) {
+    try {
+      const runtime = await buildRuntime(runtimeModule, loadedModules);
+      runtimes.set(runtime.Runtime.manifest.slug, runtime);
+    } catch (error) {
+      console.error(`Failed to build runtime for ${runtimeModule.manifest.slug}: ${error.message}`);
     }
   }
-
-  return Module;
+  return runtimes;
 }
 
-const vivaFiles = await getVivaFiles();
-const RuntimeModules = await loadModules(vivaFiles, "Runtime");
-const OntologyModules = await loadModules(vivaFiles, "Ontology");
-const CorpusModules = await loadModules(vivaFiles, "Corpus");
-
-export async function buildRuntimes() {
-  const results = [];
-
-  for (const { path, slug, module: Runtime } of RuntimeModules) {
-    const Corpus = await importModule(Runtime.manifest.corpus, dirname(path), CorpusModules);
-    const Ontology = await importModule(Corpus.module.manifest.ontology, dirname(Corpus.path), OntologyModules);
-
-    Runtime.Corpus = Corpus.module;
-    Runtime.Ontology = Ontology.module;
-    results.push(Runtime);
-  }
-
-  return results;
-}
-
-export const Runtimes = await buildRuntimes();
+export default getRuntimeModules;

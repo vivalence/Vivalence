@@ -1,1 +1,0 @@
-* a standard library of games, helper functions, and other useful tools and materials for the ontologies.

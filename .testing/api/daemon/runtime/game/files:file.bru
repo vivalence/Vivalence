@@ -1,0 +1,17 @@
+meta {
+  name: files:file
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/runtime/{{RUNTIME_SLUG}}/predict/units
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "space": []
+  }
+}

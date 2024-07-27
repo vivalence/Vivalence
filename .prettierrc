@@ -1,9 +1,8 @@
 {
   "useTabs": false,
   "singleQuote": false,
-  "trailingComma": "none",
-  "tabWidth": 2,
   "printWidth": 100,
+  "tabWidth": 2,
   "overrides": [
     {
       "files": "*.viva",

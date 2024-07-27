@@ -1,0 +1,5 @@
+{
+  "name": "@vivalence/config",
+  "exports": "./mod.js",
+  "version": "0.0.1",
+}

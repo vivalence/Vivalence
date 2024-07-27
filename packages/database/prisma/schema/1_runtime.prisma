@@ -3,6 +3,7 @@ model Runtime {
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   slug      String?  //@unique
   name      String?
+  installed Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 

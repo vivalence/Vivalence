@@ -1,49 +1,54 @@
-import createEmitter from "../lib/emitter.js";
-import { Runtimes } from "../lib/viva/module-loader.js";
-import { connect, createRuntimeLocals, ensure } from "./lib.js";
+import supabase from "../lib/supabase/index.js";
+import getRuntimeModules from "../lib/viva/module-loader.js";
+import config from "@vivalence/config";
 
-export default async function ({ router, ...params }) {
-  const runtimes = new Map();
-  const locals = await createRuntimeLocals();
+import createRouter from "../server/createRouter.js";
+import createEmitter from "./lib/createEmitter.js";
+import { connect, ensure } from "./lib/install.js";
 
-  for (const Runtime of Runtimes) {
-    let ontology = await ensure(Runtime.Ontology.manifest, locals);
-    let corpus = await ensure(Runtime.Corpus.manifest, locals);
-    let runtime = await ensure(Runtime.manifest, locals);
-    await connect({ runtime, ontology, corpus }, locals);
-
-    runtime = {
-      ...runtime,
-      ontology: ontology,
-      corpus: corpus,
-      module: Runtime,
-      bus: createEmitter(),
-      router: router.scope(`/runtime/${Runtime.manifest.slug}`),
-    };
-
-    ontology = await Runtime.Ontology.boot(
-      { ...runtime, bus: runtime.bus.scope(`@Ontology`) },
-      locals,
-    );
-    corpus = await Runtime.Corpus.boot({
-      ...runtime,
-      bus: runtime.bus.scope(`@Corpus`),
-    }, locals);
-
-    runtime.ontology = ontology;
-    runtime.corpus = corpus;
-
-    runtime.router.use(async (ctx, next) => {
-      console.log(`[Runtime router use] ${Runtime.manifest.slug} router`);
-      ctx.runtime = runtime;
-      await next();
-    });
-
-    runtimes.set(Runtime.manifest.slug, runtime);
-  }
-
-  return { ...params, runtimes, router };
+async function boot(Module, runtime) {
+  const type = Module.manifest.type.toLowerCase();
+  const bus = runtime.bus.scope(`@${type}`);
+  const router = createRouter();
+  const { manifest } = await ensure(Module, runtime.locals);
+  return await Module.boot({ ...runtime, manifest, router, bus, Module });
 }
 
-// boot could be abstracted @lj:
-// [Ontology, Corpus].reduce(async (module) => (runtime = await boot(module,runtime)));
+function middlewares(runtime, runtimes, supabase) {
+  runtime.router.use(async (ctx, next) => {
+    ctx.runtime = runtimes.get(runtime.symbol);
+    ctx.runtime.locals.supabase = supabase.createUserClient(ctx.runtime);
+    await next();
+  });
+}
+
+export default async function runtimes({ services, supabase, ...params }) {
+  const Runtimes = await getRuntimeModules(config.env.get("VIVA_RUNTIMES_DIR"));
+  const runtimes = new Map();
+
+  for (const { Ontology, Corpus, Games, Runtime } of Runtimes.values()) {
+    const locals = { supabase: supabase.createAdminClient(), services };
+
+    let runtime = {
+      ...(await ensure(Runtime, locals)),
+      symbol: Symbol(Runtime.manifest.type),
+      bus: createEmitter(),
+      router: createRouter(),
+      schema: [Ontology, Corpus].reduce((a, { schema: s }) => s(a), {}),
+      locals,
+    };
+
+    middlewares(runtime, runtimes, supabase);
+
+    runtime = await Runtime.boot(runtime);
+    runtime.ontology = await boot(Ontology, runtime);
+    runtime.corpus = await boot(Corpus, runtime);
+    runtime.games = await Promise.all(Games.values().map((G) => boot(G, runtime)));
+    await connect(runtime, locals);
+
+    // runtime.call = (i) => i,
+    runtimes.set(runtime.symbol, runtime);
+  }
+
+  return { ...params, runtimes };
+}
