@@ -1,4 +1,4 @@
-import { oakCors } from "https://deno.land/x/cors@v1.2.2/mod.ts";
+import { oakCors } from "https://deno.land/x/cors/mod.ts";
 
 const allowedOrigins = ["localhost(:[0-9]+)?", "*.vivalence.com", "*vivalence.com"];
 
@@ -14,19 +14,14 @@ function isOriginAllowed(origin, allowedOrigins) {
   return regexPatterns.some((regex) => regex.test(origin));
 }
 
-// export default oakCors({origin: (requestOrigin) => {console.log("requestOrigin", requestOrigin); if (isOriginAllowed(requestOrigin, allowedOrigins)) {return requestOrigin;} return false;}, credentials: true, allowHeaders: ["Content-Type", "Authorization", "Cookie"],});
-
-const cors = oakCors({
+export default oakCors({
   origin: (requestOrigin) => {
-    console.log(`[CUSTOM] CORS origin check for: ${requestOrigin}`);
-    if (isOriginAllowed(requestOrigin, allowedOrigins)) {
-      console.log(`[CUSTOM] CORS origin allowed: ${requestOrigin}`);
-      return requestOrigin;
-    }
-    console.log(`[CUSTOM] CORS origin not allowed: ${requestOrigin}`);
+    if (!requestOrigin) return true;
+    if (isOriginAllowed(requestOrigin, allowedOrigins)) return true;
     return false;
   },
-  // credentials: true,
-  // allowHeaders: ["Content-Type", "Authorization", "Cookie"],
+  credentials: true,
+  allowMethods: ["*"],
+  allowHeaders: ["*"]
+  // allowHeaders: ["Content-Type", "Authorization", "Cookie"]
 });
-export { cors };

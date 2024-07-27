@@ -1,0 +1,70 @@
+{
+  "hash": "d7d50e8e",
+  "configHash": "4559fa7c",
+  "lockfileHash": "107bef7f",
+  "browserHash": "9a9dc92d",
+  "optimized": {
+    "svelte/animate": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/animate/index.js",
+      "file": "svelte_animate.js",
+      "fileHash": "0c08ee58",
+      "needsInterop": false
+    },
+    "svelte/easing": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/easing/index.js",
+      "file": "svelte_easing.js",
+      "fileHash": "006868e6",
+      "needsInterop": false
+    },
+    "svelte/internal": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/internal/index.js",
+      "file": "svelte_internal.js",
+      "fileHash": "4ecd9ee4",
+      "needsInterop": false
+    },
+    "svelte/internal/disclose-version": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/internal/disclose-version/index.js",
+      "file": "svelte_internal_disclose-version.js",
+      "fileHash": "9bd8c0c7",
+      "needsInterop": false
+    },
+    "svelte/motion": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/motion/index.js",
+      "file": "svelte_motion.js",
+      "fileHash": "68d7c79d",
+      "needsInterop": false
+    },
+    "svelte/store": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/store/index.js",
+      "file": "svelte_store.js",
+      "fileHash": "b8f685da",
+      "needsInterop": false
+    },
+    "svelte/transition": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/transition/index.js",
+      "file": "svelte_transition.js",
+      "fileHash": "8f9c7272",
+      "needsInterop": false
+    },
+    "svelte": {
+      "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/index.js",
+      "file": "svelte.js",
+      "fileHash": "a1e78a74",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-CGWA6ECO": {
+      "file": "chunk-CGWA6ECO.js"
+    },
+    "chunk-RHWAJGIK": {
+      "file": "chunk-RHWAJGIK.js"
+    },
+    "chunk-LDUNWSQC": {
+      "file": "chunk-LDUNWSQC.js"
+    },
+    "chunk-OMWZ4HIV": {
+      "file": "chunk-OMWZ4HIV.js"
+    }
+  }
+}

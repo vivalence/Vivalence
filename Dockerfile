@@ -19,11 +19,11 @@ FROM base as build
 COPY . .
 COPY --from=install /temp/dev/node_modules node_modules
 
-WORKDIR /app/packages/apps/client
+WORKDIR /app/packages/clients/user
 # RUN bun run build RUN find . -mindepth 1 -maxdepth 1 ! -name 'build' ! -name 'package.json' -exec rm -rf {} + RUN sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/shims.js
 RUN bun run build && \
     find . -mindepth 1 -maxdepth 1 ! -name 'build' ! -name 'package.json' -exec rm -rf {} + && \
-    sed -i '/performance.markResourceTiming/d' /app/packages/apps/client/build/shims.js
+    sed -i '/performance.markResourceTiming/d' /app/packages/clients/user/build/shims.js
 
 
 FROM base AS release

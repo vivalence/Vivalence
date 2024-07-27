@@ -1,0 +1,15 @@
+meta {
+  name: status
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/{{GAME_SLUG}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+  {}
+}

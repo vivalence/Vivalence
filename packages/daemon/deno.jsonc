@@ -1,0 +1,7 @@
+{
+  "allow": ["*"],
+  "tasks": {
+    "permit": "DENO_ROLE=daemon deno run --allow-all --allow-env --allow-net --allow-ffi --allow-read --allow-run --allow-write",
+    "dev": "deno task permit --watch ./mod.js"
+  },
+}
