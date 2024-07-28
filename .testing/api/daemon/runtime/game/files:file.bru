@@ -4,8 +4,8 @@ meta {
   seq: 2
 }
 
-post {
-  url: {{DAEMON_SERVER_URL}}/runtime/{{RUNTIME_SLUG}}/predict/units
+get {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/{{GAME_SLUG}}/files/Flashcards.js
   body: json
   auth: none
 }

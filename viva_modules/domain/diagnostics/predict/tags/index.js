@@ -1,21 +1,17 @@
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   const { ontologies } = body;
   const issues = [];
 
   for (const ontology of ontologies) {
-    const { data: tags, error } = await runtime.locals.supabase
+    const { data: tags, error } = await ctx.runtime.locals.supabase
       .from("Tag")
       .select("id")
       .eq("data->ONTOLOGICAL->>branch", ontology.branch)
       .eq("data->ONTOLOGICAL->>leaf", ontology.leaf);
 
     const issue = {
-      path: ["ontology", "tags"],
-      context: {
-        [ontology.branch]: ontology.leaf,
-        tags,
-        ontology: ontology,
-      },
+      path: ["tag"],
+      context: { [ontology.branch]: ontology.leaf, tags, ontology },
     };
     if (tags.length === 0) {
       issues.push({
@@ -29,10 +25,9 @@ export default async function (body, runtime) {
         message: `Unique constraint violated on ontological tag ${ontology.branch}:${ontology.leaf}`,
         violation: "unique",
       });
-    } else {
-      console.log("else");
     }
   }
+
   return {
     isValid: issues.length === 0,
     issues,

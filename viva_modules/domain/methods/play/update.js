@@ -1,7 +1,9 @@
-export default async function (body, runtime) {
-  const { gameId, unitId, tagId, memoryId, nextPlay, response } = body;
-  const { user } = await runtime.locals.getSession();
+export default async function (body, ctx) {
+  const session = await ctx.runtime.locals.getSession();
+  await ctx.runtime.call("/unit/validate", body.unit);
 
+  const { gameId, unitId, tagId, memoryId, nextPlay, response } = body;
+  const { user } = session;
   const now = new Date().toISOString();
 
   let play;

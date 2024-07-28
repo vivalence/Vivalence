@@ -6,6 +6,7 @@ const config = { env: { get: (key) => config.env[key] } };
 let initialized = false;
 if (!initialized) {
   const env = await load({ envPath: join(dirname(fromFileUrl(import.meta.url)), ".env") });
+  const ROOT_DIR = Deno.cwd();
 
   config.env = {
     ...config.env,
@@ -19,8 +20,8 @@ if (!initialized) {
   if (Deno.env.get("DENO_ROLE") === "daemon") {
     config.env = {
       ...config.env,
-      VIVA_MODULES_DIR: "/Users/finn/vivalence/code/vivalence/viva_modules",
-      VIVA_RUNTIMES_DIR: "/Users/finn/vivalence/code/vivalence/runtimes",
+      VIVA_MODULES_DIR: `${ROOT_DIR}/viva_modules`,
+      VIVA_RUNTIMES_DIR: `${ROOT_DIR}/runtimes`,
       DAEMON_PORT: env.DAEMON_PORT,
       PRIVATE_SUPABASE_ADMIN_KEY: env.PRIVATE_SUPABASE_ADMIN_KEY,
       PRIVATE_DATABASE_URL: env.PRIVATE_DATABASE_URL,
@@ -36,6 +37,13 @@ if (!initialized) {
   if (Deno.env.get("DENO_ROLE") === "client") {
     config.env = {
       ...config.env,
+    };
+  }
+  if (Deno.env.get("DENO_ROLE") === "prisma") {
+    config.env = {
+      ...config.env,
+      DATABASE_URL: env.PRIVATE_DATABASE_URL,
+      PRISMA_DIR: `${ROOT_DIR}/packages/database/prisma`,
     };
   }
 

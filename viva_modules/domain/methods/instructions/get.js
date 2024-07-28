@@ -1,7 +1,7 @@
 import config from "@vivalence/config";
 import lock from "./lib/lock.js";
 
-// must be databased for scalability re: stateless runtime
+// lock must be databased for scalability re: stateless runtime
 
 function provision(props, runtime) {
   if (lock.has(props)) {

@@ -1,6 +1,6 @@
 async function boot(runtime) {
-  runtime.router.route("/status", (body, ctx) => {
-    return { status: "ok" };
+  runtime.router.get("/status", async (ctx) => {
+    ctx.response.body = { message: "daemons run this place", status: "ok" };
   });
   return runtime;
 }
@@ -20,7 +20,3 @@ export default {
   },
   boot,
 };
-
-// corpus: { slug: "eng-to-esp" }, ontology: { slug: "langugage-universal-dependencies" }, domain: { slug: "vivalence-1" }, games: [{ slug: "flashcards" }],
-
-// ontology: "@vivalence/ontologies/langugage-universal-dependencies", domain: "@vivalence/domains/vivalence-1", games: ["@vivalence/games/flashcards"],

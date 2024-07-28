@@ -1,22 +1,18 @@
 {
   "workspace": [
     "./config",
-    "./packages/clients/user",
-    "./packages/daemon",
     "./packages/shared",
     "./packages/services"
   ],
   "importMap": "./import_map.json",
   "tasks": {
-    "daemon:dev": "cd packages/daemon && deno task dev",
+    "daemon:dev": "DENO_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
     "user:dev": "cd packages/clients/user && deno task dev",
 
-    "prisma:schema:load": "deno run --allow-read --allow-write packages/database/prisma/schema.js",
-    "prisma:schema:format": "prisma format --schema=packages/database/prisma/schema.prisma",
-    "prisma:schema": "deno task prisma:schema:load && deno task prisma:schema:format",
-    "prisma:migrate": "deno task prisma:schema && prisma migrate dev --schema=packages/database/prisma/schema.prisma",
-    "prisma:generate": "deno task prisma:schema && prisma generate --schema=packages/database/prisma/schema.prisma"
+    "prisma:schema": "DENO_ROLE=prisma deno run -A packages/database/prisma/scripts/schema.js",
+    "prisma:migrate": "deno task prisma:schema && DENO_ROLE=prisma deno run -A packages/database/prisma/scripts/migrate.js",
   },
+
   "compilerOptions": {
     "allowJs": true,
     "lib": ["deno.window", "dom"],
@@ -39,7 +35,7 @@
       "useTabs": false,
       "singleQuote": false,
       "lineWidth": 100,
-      "indentWidth": 2,
+      "indentWidth": 2
     }
   }
 }

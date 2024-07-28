@@ -1,5 +1,6 @@
 {
   "imports": {
+    "oak": "jsr:@oak/oak@16.1.0",
     "$std/": "https://deno.land/std@0.224.0/",
     "vite": "npm:vite@^5.3.5",
     "svelte": "npm:svelte@4.2.18",

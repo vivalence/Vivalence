@@ -3,8 +3,8 @@ import schema from "./schema/index.js";
 
 async function install(runtime) {
   const { units, tags } = presets(runtime);
-  console.log(units.length, units[0]);
-  console.log(tags.length, tags[0]);
+  console.log(units.length, units[0]); // 785 { annotation: { pos: "adp", lemma: "a" } }
+  console.log(tags.length, tags[0]); // 20 { ontology: { branch: "lemma", leaf: "ser" } }
 
   // async function installUnits({ units }) {
   //   const [annotations, rest] = units.reduce(
@@ -20,8 +20,6 @@ async function install(runtime) {
   //   }
   //   return { rest: [], installed: [], failed: [] };
   // }
-  // await tags( tags);
-  // await units( units);
 }
 
 async function boot(runtime) {

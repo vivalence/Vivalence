@@ -1,4 +1,4 @@
-export async function ensure(Module, locals) {
+export default async function ensure(Module, { locals }) {
   let data;
   const select = "id, slug, name, installed";
   const query = await locals.supabase
@@ -21,21 +21,4 @@ export async function ensure(Module, locals) {
     if (data) data = insert.data;
   }
   return { manifest: { ...data, ...Module.manifest } };
-}
-
-export async function connect({ ontology, corpus, games, ...runtime }, locals) {
-  await Promise.all([
-    locals.supabase
-      .from("Runtime")
-      .update({ installed: true, ontologyId: ontology.id, corpusId: corpus.id })
-      .eq("id", runtime.id),
-
-    locals.supabase
-      .from("Game")
-      .update({ runtimeId: runtime.id })
-      .in(
-        "id",
-        games.values().map((g) => g.id)
-      ),
-  ]);
 }
