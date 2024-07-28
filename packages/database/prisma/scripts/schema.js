@@ -1,23 +1,24 @@
-import { walk } from "https://deno.land/std@0.161.0/fs/mod.ts";
+import { walk } from "$std/fs/mod.ts";
 import { readAll } from "https://deno.land/std@0.161.0/streams/conversion.ts";
-import { basename, dirname, fromFileUrl, join } from "https://deno.land/std@0.161.0/path/mod.ts";
+import { basename, join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
 
-const __dirname = dirname(fromFileUrl(import.meta.url));
+const __dirname = config.env.get("PRISMA_DIR");
 const schemasDirectory = join(__dirname, "./schema");
 const outputSchema = join(__dirname, "./schema.prisma");
 
-async function readTextFile(path) {
-  const file = await Deno.open(path);
-  const content = await readAll(file);
-  file.close();
-  return new TextDecoder().decode(content);
-}
-
-async function writeTextFile(path, content) {
-  await Deno.writeTextFile(path, content);
-}
-
 async function concatenateSchemas() {
+  async function readTextFile(path) {
+    const file = await Deno.open(path);
+    const content = await readAll(file);
+    file.close();
+    return new TextDecoder().decode(content);
+  }
+
+  async function writeTextFile(path, content) {
+    await Deno.writeTextFile(path, content);
+  }
+
   try {
     const files = [];
     for await (const entry of walk(schemasDirectory, { exts: [".prisma"] })) {
@@ -30,12 +31,13 @@ async function concatenateSchemas() {
 
     const schemaContents = await Promise.all(
       files
-        .sort((a, b) =>
-          (basename(a).startsWith("_") ? 1 : 0) - (basename(b).startsWith("_") ? 1 : 0) ||
-          basename(a).localeCompare(basename(b))
+        .sort(
+          (a, b) =>
+            (basename(a).startsWith("_") ? 1 : 0) - (basename(b).startsWith("_") ? 1 : 0) ||
+            basename(a).localeCompare(basename(b))
         )
         // .filter((file) => allowedFiles.includes(basename(file)))
-        .map((file) => readTextFile(file)),
+        .map((file) => readTextFile(file))
     );
 
     const schemaContent = schemaContents.join("\n\n");
@@ -45,5 +47,8 @@ async function concatenateSchemas() {
     console.error("Error reading schema files:", err);
   }
 }
-
 await concatenateSchemas();
+
+const process = await Deno.run({
+  cmd: ["deno", "run", "-A", "npm:prisma", "format", `--schema=${outputSchema}`],
+}).status();

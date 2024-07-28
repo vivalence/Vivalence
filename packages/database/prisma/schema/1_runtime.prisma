@@ -1,3 +1,17 @@
+model Domain {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String?
+  version   String   @default("v0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime Runtime?
+}
+
 model Runtime {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
@@ -11,6 +25,8 @@ model Runtime {
   users AppUser[] 
 
   // RUNTIME
+  domain     Domain?     @relation(fields: [domainId], references: [id])
+  domainId   String?     @unique 
   ontology   Ontology?   @relation(fields: [ontologyId], references: [id])
   ontologyId String?     @unique 
   corpus     Corpus?     @relation(fields: [corpusId], references: [id])

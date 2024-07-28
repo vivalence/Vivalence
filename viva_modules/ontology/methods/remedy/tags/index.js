@@ -1,8 +1,8 @@
 async function required({ context, ...issue }, ctx) {
-  const schema = ctx.runtime.module.schema;
+  const { schema, locals } = ctx.runtime;
   const { ontology } = context;
 
-  const { data: existingTags, error } = await ctx.locals.supabase
+  const { data: existingTags, error } = await locals.supabase
     .from("Tag")
     .select("*")
     .eq("data->ONTOLOGICAL->>branch", ontology.branch)
@@ -34,7 +34,7 @@ async function required({ context, ...issue }, ctx) {
     };
   }
 
-  const result = await ctx.locals.supabase.from("Tag").insert(tag);
+  const result = await locals.supabase.from("Tag").insert(tag);
   return { resolved: !result.error, tag, error: result.error };
 }
 

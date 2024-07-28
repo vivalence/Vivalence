@@ -1,14 +1,16 @@
 export default async function install({ runtimes, ...params }) {
   for (const runtime of runtimes.values()) {
-    for (const module of [runtime.ontology, runtime.corpus, ...runtime.games]) {
-      if (!module.manifest.installed) {
-        if (module.Module.install) await module.Module.install(runtime);
+    runtime.call = runtime.caller();
+    for (const { manifest, Module } of [runtime.ontology, runtime.corpus, ...runtime.games]) {
+      if (!manifest.installed) {
+        if (Module.install) await Module.install(runtime);
         await runtime.locals.supabase
-          .from(module.manifest.type)
+          .from(manifest.type)
           .update({ installed: true })
-          .eq("id", module.manifest.id);
+          .eq("id", manifest.id);
       }
     }
   }
+
   return { runtimes, ...params };
 }

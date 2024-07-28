@@ -1,12 +1,9 @@
 import classifier from "./classifier/index.js";
 import remedy from "./methods/remedy/index.js";
-// import install from "./methods/install/units.js";
-
 import schema from "./schema/index.js";
 import presets from "./presets/index.js";
 
 async function boot(runtime) {
-  runtime.router.route("/status", () => ({ status: "ok" }));
   runtime.router.route("/parser/unitFromAnnotation", classifier.unitFromAnnotation);
   runtime.router.route("/parser/annotationsFromText", classifier.annotationsFromText);
   runtime.router.route("/parser/unitsFromText", classifier.unitsFromText);
@@ -25,18 +22,18 @@ async function install(runtime) {
     [[], []]
   );
 
-  // const predictions = await ctx.runtime.methods.predict.tags({ ontologies }, ctx);
+  const predictions = await runtime.call("/diagnostics/predict/tags", { ontologies });
 
   const remedies = [];
-  // for (const issue of predictions.issues) {
-  // const remedy = await ctx.runtime.methods.remedy({ issue }, ctx);
-  // remedies.push(remedy);
-  // }
+  for (const issue of predictions.issues) {
+    const remedy = await runtime.call("/remedy", { issue });
+    remedies.push(remedy);
+  }
 
   // i need to do something with the issues and remedies
   // i need to know what was successfully installed, attempted and failed, not even attempted
   // const installed = remedies.
-  return { rest, installed: [], failed: [] };
+  return { rest: [], installed: [], failed: [] };
 }
 
 export default {
