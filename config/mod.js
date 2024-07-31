@@ -39,8 +39,9 @@ if (!initialized) {
       ...config.env,
     };
   }
-  if (Deno.env.get("DENO_ROLE") === "prisma") {
+  if (Deno.env.get("DENO_ROLE") === "sudo") {
     config.env = {
+      ...env,
       ...config.env,
       DATABASE_URL: env.PRIVATE_DATABASE_URL,
       PRISMA_DIR: `${ROOT_DIR}/packages/database/prisma`,

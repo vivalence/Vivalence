@@ -14,6 +14,10 @@ model AppUser {
   runtimes   Runtime[]   
   strategies Strategy[]
 
+  // CORPUS
+  // units   Unit[] // for custom units that exceed the scope of a single strategy
+  // tags    Tag[]
+
   // USERLAND
   plays       Play[]           
   memories    Memory[]          

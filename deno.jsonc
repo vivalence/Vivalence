@@ -9,8 +9,9 @@
     "daemon:dev": "DENO_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
     "user:dev": "cd packages/clients/user && deno task dev",
 
-    "prisma:schema": "DENO_ROLE=prisma deno run -A packages/database/prisma/scripts/schema.js",
-    "prisma:migrate": "deno task prisma:schema && DENO_ROLE=prisma deno run -A packages/database/prisma/scripts/migrate.js",
+    "prisma:schema": "DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/schema.js",
+    "prisma:migrate": "deno task prisma:schema && DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/migrate.js",
+    "db": "DENO_ROLE=sudo deno run --watch -A packages/database/src/index.js",
   },
 
   "compilerOptions": {

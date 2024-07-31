@@ -1,18 +1,15 @@
-import dotenv from "dotenv";
-dotenv.config({ path: "/Users/finn/vivalence/code/spanish/app/postgres/.env" });
+import config from "@vivalence/config";
+import pg from "npm:pg";
 
-import { Pool } from "pg";
+const pool = new pg.Pool({ connectionString: config.env.get("PRIVATE_BACKUP_DB_URL") });
 
-const { BACKUP_DB_URL, DATABASE_URL } = process.env;
-
-const pool = new Pool({ connectionString: DATABASE_URL });
-
-export const fetchData = async (query) => {
+export default async (query) => {
   const client = await pool.connect();
+  let res = {};
   try {
-    const res = await client.query(query);
-    return res.rows;
+    res = await client.query(query);
   } finally {
     client.release();
   }
+  return res.rows;
 };

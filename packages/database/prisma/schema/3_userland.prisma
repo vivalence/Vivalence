@@ -5,8 +5,6 @@ model Strategy {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
-  installed Boolean  @default(false)
 
   // APP
   user AppUser?  @relation(fields: [userId], references: [id])
@@ -17,15 +15,42 @@ model Strategy {
   runtimeId String?
 
   // CORPUS
-  tags    Tag[] // for special or user defined tags
-  units   Unit[] // for special or user defined units
+  // tags    Tag[] // for special or user defined tags
+  // units   Unit[] // for special or user defined units
 
   // DATA
   session Json @default("{}")
 
-  // DEPRACATED
-  relations    Json?
-  provision    Json? 
+  // @@unique([userId, runtimeId])
+}
+
+model Tactic {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  slug      String?
+  name      String
+
+  // RUNTIME
+  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
+  runtimeId String? // required
+  games    Game[] // input for tactic.relations
+
+  // CORPUS 
+  tags  Tag[] // input for tactic.relations
+  units Unit[] // input for tactic.relations
+
+  // USERLAND
+  plays      Play[]       
+
+  // TRANSIENT
+  queue        Queue[]
+
+  // DATA
+  relations    Json @default("[]") // for grouping units and tags
+  masks        Json @default("{}") // for games
+  instructions Json @default("{}") // for provisioning instructions
 }
 
 model Play {
