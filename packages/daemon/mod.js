@@ -30,7 +30,6 @@ async function cleanupPorts() {
     kill.close();
   }
 }
-
 function launch({ router, ...params }) {
   router.all("/status", async (ctx) => {
     console.log("DEMON /status");
@@ -40,7 +39,6 @@ function launch({ router, ...params }) {
   console.log(`Daemon started in ${performance.now() - start}ms`);
   return { ...params, router };
 }
-
 function daemonize({ server, abortController }) {
   return new Promise((resolve) => {
     const shutdown = () => {
@@ -60,12 +58,16 @@ function daemonize({ server, abortController }) {
     });
   });
 }
-
 const tick = (name) => (params) => {
   // console.log(`[DAEMON PERF] from init to [${name}] in [${performance.now() - start}ms]`);
-
   return params;
 };
+
+async function dev(params) {
+  const runtime = params.runtimes.values().next().value;
+  // await runtime.strategies[].Module.install(runtime);
+  return params;
+}
 
 await [
   cleanupPorts,
@@ -78,6 +80,7 @@ await [
   install,
   userland,
   launch,
+  dev,
   daemonize,
 ].reduce((acc, fn) => acc.then(fn), Promise.resolve());
 

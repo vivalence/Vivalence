@@ -1,11 +1,11 @@
 import { getUnitMemory, getWeakest } from "../../memory/lib/memory.js";
 
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   const { unitIds, take } = body;
 
-  let units = await runtime.locals.client("units/fromUnitIds", { unitIds }).ok();
+  let units = await ctx.runtime.call("/units/fromUnitIds", { unitIds });
 
-  units = await Promise.all(units.map((unit) => getUnitMemory(runtime.locals, unit)));
+  units = await Promise.all(units.map((unit) => getUnitMemory(unit, ctx.runtime)));
   units = getWeakest(units, take);
 
   return units;

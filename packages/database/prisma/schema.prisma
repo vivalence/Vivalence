@@ -35,7 +35,7 @@ model Domain {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -78,7 +78,7 @@ model Ontology {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -92,7 +92,7 @@ model Corpus {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -106,7 +106,7 @@ model Game {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -147,11 +147,8 @@ model Tactic {
 
   // DATA
   relations    Json @default("[]") // for grouping units and tags
-  provisions   Json @default("{}") // for games
-  instructions Json @default("{}") // for generating instructions
-
-  // DEPRACATED
-  provision Json?
+  masks        Json @default("{}") // for games
+  instructions Json @default("{}") // for provisioning instructions
 }
 
 model Tag {
@@ -176,8 +173,10 @@ model Tag {
   plays      Play[]
 
   // DATA
+  traits TagTraitsEnum[] @default([])
+  data   Json            @default("{}")
+
   type TagTypeEnum[] @default([])
-  data Json          @default("{}")
 
   @@index([name], name: "nameIndexOnTag")
 }
@@ -187,6 +186,14 @@ enum TagTypeEnum {
   STRUCTURAL // organizing of units into sets or categories
   LEARNABLE // higher order feature that one can master
   COMPLETABLE // a set of units where each can be mastered
+}
+
+enum TagTraitsEnum {
+  ONTOLOGICAL // subject matter attribute
+  STRUCTURAL // organizing of units into sets or categories
+  LEARNABLE // higher order feature that one can master
+  COMPLETABLE // a set of units where each can be mastered
+  DEPENDENCY
 }
 
 model Unit {
@@ -221,7 +228,7 @@ model Strategy {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // APP

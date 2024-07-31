@@ -1,6 +1,9 @@
-import presets from "./presets/index.js";
 import schema from "./schema/index.js";
+import presets from "./presets/index.js";
+// import tactics from "./tactics/index.js";
+// import strategies from "./strategies/index.js";
 
+// TODO install tactics
 async function install(runtime) {
   const { units, tags } = presets(runtime);
   console.log(units.length, units[0]); // 785 { annotation: { pos: "adp", lemma: "a" } }
@@ -22,6 +25,7 @@ async function install(runtime) {
   // }
 }
 
+// TODO boot strategy hooks
 async function boot(runtime) {
   return runtime;
 }

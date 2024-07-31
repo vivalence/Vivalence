@@ -5,7 +5,7 @@ model Domain {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -48,7 +48,7 @@ model Ontology {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -62,7 +62,7 @@ model Corpus {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -77,7 +77,7 @@ model Game {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String?
-  version   String   @default("v0.0.0")
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
@@ -89,8 +89,5 @@ model Game {
 
   // USERLAND
   plays     Play[]
-
-  // DEPRACATED
-  data      Json?
 }
 

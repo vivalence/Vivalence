@@ -1,9 +1,9 @@
 import { getUnitMemory } from "../lib/memory.js";
 
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   let { units, accept } = body;
 
-  units = await Promise.all(units.map(getUnitMemory(runtime.locals)));
+  units = await Promise.all(units.map((t) => getUnitMemory(t, ctx.runtime)));
 
   units = units.filter((unit) => {
     if (!unit.memory && accept.includes("UNKNOWN")) return true;

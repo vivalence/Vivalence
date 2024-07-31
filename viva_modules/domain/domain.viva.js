@@ -36,7 +36,7 @@ async function boot(runtime) {
   runtime.router.route("/diagnostics/predict/units", predictUnits);
   runtime.router.route("/diagnostics/validate/unit", validateUnit);
 
-  runtime.router.route("/provision/instructions", provisionInstructions);
+  runtime.router.route("/instructions/provision", provisionInstructions);
   runtime.router.route("/instructions/delete", deleteInstructions);
   runtime.router.route("/instructions/get", getInstructions);
   runtime.router.route("/instructions/test", testInstructions);

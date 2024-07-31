@@ -1,4 +1,4 @@
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   const { tagIds, blacklist = [], take } = body;
 
   const params = {
@@ -7,7 +7,7 @@ export default async function (body, runtime) {
   };
   if (take) params.take_limit = take;
 
-  const { data, error: unitsError } = await runtime.locals.supabase.rpc(
+  const { data, error: unitsError } = await ctx.runtime.locals.supabase.rpc(
     "get_units_from_tag_ids",
     params
   );
@@ -15,7 +15,7 @@ export default async function (body, runtime) {
 
   const units = await Promise.all(
     data.map(async (unit) => {
-      const { data, error } = await runtime.locals.supabase
+      const { data, error } = await ctx.runtime.locals.supabase
         .from("_TagToUnit")
         .select("*, Tag: Tag (*)")
         .eq("B", unit.id);
