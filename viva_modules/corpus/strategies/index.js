@@ -1,36 +1,54 @@
-async function createStrategyForUser(user, runtime) {
-  await runtime.locals.supabase.from("Strategy").insert({
-    runtimeId: runtime.id,
-    userId: user.id,
-    name: "A1 Spanish - Beginner",
-    session: [
-      {
-        tactic: { slug: "intro-morphology-of-gender-and-number" },
-        for: { type: "repetitions", value: 10 },
-      },
-    ],
-  });
-}
-
 async function boot(runtime) {
+  runtime.bus.on("@domain:user-join", async (ctx) => {
+    console.log("@CORPUS event handler on: @domain:user-join");
 
-  runtime.bus.on("@corpus/graduation",(ctx) => {
-  await runtime.locals.supabase.from("Strategy").update({
-    name: "A2 Spanish - Beginner",
-    session: [
-      {tactic: { slug: "intermediate-morphology-of-gender-and-number" }, for: { type: "repetitions", value: 10 },},
-    ],
-  })
-      .eq("userId", ctx.event.userId)
-    .eq("runtimeId", ctx.event.runtimeId);
-  })
-  // install hooks that
-  // 1: assigns this strategy to a user on corpus join.
-  // 2: moves to dfferent session on graduation event.
+    await ctx.runtime.call("/install/strategy", {
+      user: { id: ctx.event.body.user.id },
+      strategy: {
+        name: "A1 Spanish - Beginner",
+        session: [
+          {
+            tactic: {
+              slug: "morphology-of-gender-and-number",
+              relations: {
+                tags: {
+                  structural: { slug: "structural:a1" },
+                },
+              },
+            },
+            for: { type: "repetitions", value: 10 },
+          },
+        ],
+      },
+    });
+  });
+  runtime.bus.on("@domain:graduation", async (event, runtime) => {
+    console.log("@CORPUS event handler on: @domain:graducation");
+    if (!event.body.tag.slug === "a1 dependency slug") {
+      await ctx.runtime.call("/install/strategy", {
+        user: { id: ctx.event.body.user.id },
+        strategy: {
+          name: "A2 Spanish - Beginner",
+          session: [
+            {
+              tactic: {
+                slug: "morphology-of-gender-and-number",
+                relations: {
+                  tags: {
+                    structural: { slug: "structural:a2" },
+                  },
+                },
+              },
+              for: { type: "repetitions", value: 10 },
+            },
+          ],
+        },
+      });
+    }
+  });
   return runtime;
 }
 
-async function install(runtime) {
-  // insert the tactics into the db
-  return runtime;
-}
+export default {
+  boot,
+};

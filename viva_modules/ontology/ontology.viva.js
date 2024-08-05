@@ -1,13 +1,22 @@
-import classifier from "./classifier/index.js";
+import classification from "./methods/classification/index.js";
+import diagnostics from "./methods/diagnostics/index.js";
 import remedy from "./methods/remedy/index.js";
 import schema from "./schema/index.js";
 import presets from "./presets/index.js";
 
 async function boot(runtime) {
-  runtime.router.route("/parser/unitFromAnnotation", classifier.unitFromAnnotation);
-  runtime.router.route("/parser/annotationsFromText", classifier.annotationsFromText);
-  runtime.router.route("/parser/unitsFromText", classifier.unitsFromText);
+  runtime.router.route("/classification/unitFromAnnotation", classification.unitFromAnnotation);
+  runtime.router.route("/classification/annotationsFromText", classification.annotationsFromText);
+  runtime.router.route("/classification/unitsFromText", classification.unitsFromText);
+
+  runtime.router.route("/diagnostics/autocomplete/units", diagnostics.autocomplete.units);
+  runtime.router.route("/diagnostics/duplicates/annotation", diagnostics.duplicates.annotation);
+  runtime.router.route("/diagnostics/predict/tags", diagnostics.predict.tags);
+  runtime.router.route("/diagnostics/predict/units", diagnostics.predict.units);
+  runtime.router.route("/diagnostics/validate/unit", diagnostics.validate.unit);
+
   runtime.router.route("/remedy", remedy);
+
   return runtime;
 }
 

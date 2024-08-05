@@ -1,22 +1,9 @@
-model Domain {
-  // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  name      String?
-  version   String   @default("0.0.0")
-  installed Boolean  @default(false)
-
-  // RUNTIME
-  runtime Runtime?
-}
-
 model Runtime {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?  //@unique
-  name      String?
+  slug      String  
+  name      String
+  version   String   @default("0.0.0")
   installed Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -25,69 +12,95 @@ model Runtime {
   users AppUser[] 
 
   // RUNTIME
-  domain     Domain?     @relation(fields: [domainId], references: [id])
-  domainId   String?     @unique 
-  ontology   Ontology?   @relation(fields: [ontologyId], references: [id])
-  ontologyId String?     @unique 
-  corpus     Corpus?     @relation(fields: [corpusId], references: [id])
-  corpusId   String?     @unique 
-
-  strategies Strategy[]
+  domain     Domain?
+  ontology   Ontology?
+  corpus     Corpus?
   games      Game[]
 
   // CORPUS
+  tactics Tactic[]
   units   Unit[]
   tags    Tag[]
-  tactics Tactic[]
+
+  // USERLAND
+  strategies Strategy[]
+
+  // TRANSIENT
+  HEAD       HEAD[]
+
+  @@unique([slug, version])
 }
 
-model Ontology {
+model Domain {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String?
+  name      String
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
-  runtime Runtime? 
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  @unique 
+
+  @@unique([slug, version, runtimeId])
+}
+
+
+model Ontology {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  name      String
+  version   String   @default("0.0.0")
+  installed Boolean  @default(false)
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  @unique 
+
+  @@unique([slug, version, runtimeId])
 }
 
 model Corpus {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String?
+  name      String
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
-  runtime Runtime?
-}
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  @unique 
 
+  @@unique([slug, version, runtimeId])
+}
 
 model Game {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?
+  slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String?
+  name      String
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
+  mask      Json     @default("{}") 
 
   // RUNTIME
-  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
-  runtimeId String?
-
-  // CORPUS
-  tactics Tactic[]
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  
 
   // USERLAND
   plays     Play[]
+
+  @@unique([slug, version, runtimeId])
 }
 

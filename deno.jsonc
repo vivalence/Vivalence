@@ -1,13 +1,15 @@
 {
   "workspace": [
     "./config",
+    "./packages/clients/user",
     "./packages/shared",
     "./packages/services"
   ],
   "importMap": "./import_map.json",
   "tasks": {
     "daemon:dev": "DENO_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
-    "user:dev": "cd packages/clients/user && deno task dev",
+    "clients:user:dev": "DENO_ROLE=client deno run -A packages/clients/user/mod.js --dev",
+    // "clients:user:dev": "cd packages/clients/user && deno task dev",
 
     "prisma:schema": "DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/schema.js",
     "prisma:migrate": "deno task prisma:schema && DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/migrate.js",

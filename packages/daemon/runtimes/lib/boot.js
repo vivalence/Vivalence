@@ -6,5 +6,6 @@ export default async function boot(Module, runtime) {
   const bus = runtime.bus.scope(`@${type}`);
   const router = createRouter();
   const { manifest } = await ensure(Module, runtime);
-  return await Module.boot({ ...runtime, manifest, router, bus, Module });
+  const module = await Module.boot({ ...runtime, router, bus }, { manifest, Module });
+  return { ...runtime, ...module, manifest, Module };
 }

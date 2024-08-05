@@ -11,16 +11,19 @@ function caller(runtime) {
       const ctx = {
         state: requestContext ? { ...requestContext.state } : {},
         locals: requestContext ? { ...requestContext.locals } : {},
-        // ...(requestContext || {}),
         request: {
           method: params.method || "POST",
           body: { json: async () => body },
-          headers: requestContext?.request.headers || new Headers(),
+          headers: requestContext?.request?.headers || new Headers(),
           // ...(requestContext ? { ...requestContext.request } : {}),
           url: new URL(join(config.env.get("DAEMON_URL"), path)),
         },
         response: { body: {}, status: 404, headers: new Headers() },
-        runtime,
+        runtime: {
+          ...runtime,
+          ...(requestContext ? { ...requestContext.runtime } : {}),
+        },
+        ...(requestContext?.event ? { event: requestContext.event } : {}),
       };
 
       const composedMiddleware = compose([
@@ -45,8 +48,10 @@ function route(router) {
       try {
         ctx.response.body = { data: await handler(body, ctx) };
       } catch (error) {
+        console.error("[ERROR] router.route handler");
+        console.error(error);
         ctx.response.status = 500;
-        ctx.response.body = { error };
+        ctx.response.body = { error: error.toString() };
       }
     });
   };

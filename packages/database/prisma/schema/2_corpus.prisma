@@ -1,25 +1,42 @@
+model Tactic {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  slug      String
+  name      String
+  description String?
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
+
+  // USERLAND
+  plays      Play[]       
+
+  // DATA
+  relations    Json @default("[]") // for grouping units and tags
+  masks        Json @default("{}") // for games
+  instructions Json @default("{}") // for provisioning instructions
+  @@unique([slug, runtimeId] )
+}
+
 model Tag {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   name      String   @unique
-
-  // APP
-  // user     User? @relation(fields: [userId], references: [id])
-  // userId   String? // for user defined units
+  slug      String   
 
   // RUNTIME
-  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
-  runtimeId String? // required
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
 
   // CORPUS
   units   Unit[]
-  tactics Tactic[]
 
   // USERLAND
-  // strategy     Strategy? @relation(fields: [strategyId], references: [id])
-  // strategyId   String? // for strategy specific or user defined tags
   memory       Memory[]        
   plays        Play[]
 
@@ -28,6 +45,7 @@ model Tag {
   data     Json          @default("{}")
 
   @@index([name], name: "nameIndexOnTag")
+  @@unique([slug, runtimeId])
 }
 
 enum TagTraitsEnum {
@@ -43,28 +61,24 @@ model Unit {
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
-  // APP
-  // user     User? @relation(fields: [userId], references: [id])
-  // userId   String? // for user defined units
+  slug      String  
 
   // RUNTIME
-  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
-  runtimeId String? // required
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
 
   // CORPUS
   tags    Tag[]
-  tactics Tactic[]
 
   // USERLAND
-  // strategy     Strategy? @relation(fields: [strategyId], references: [id])
-  // strategyId   String? // for strategy specific or user defined units
   plays        Play[]
   memory       Memory[]
 
   // DATA
   annotation   Json     @default("{}")
   data         Json     @default("{}")
+
+  @@unique([slug, runtimeId])
 }
 
 

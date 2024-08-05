@@ -3,7 +3,7 @@ export default async function install({ runtimes, ...params }) {
     runtime.call = runtime.caller();
     for (const { manifest, Module } of [runtime.ontology, runtime.corpus, ...runtime.games]) {
       if (!manifest.installed) {
-        if (Module.install) await Module.install(runtime);
+        if (Module.install) await Module.install(runtime, { manifest, Module });
         await runtime.locals.supabase
           .from(manifest.type)
           .update({ installed: true })

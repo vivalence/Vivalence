@@ -32,17 +32,17 @@ function buildBlacklist(blacklist = {}) {
 
 export default async function (body, runtime) {
   const { user } = await runtime.locals.getSession();
-  const { tacticId, take } = body;
+  const { tacticId, strategyId, take } = body;
   const blacklist = ensureBlacklist(body.blacklist);
 
-  console.log("getting instructions", userId, tacticId, take, blacklist);
+  console.log("getting instructions", userId, strategyId, take, blacklist);
 
   const { data: instructions, error } = await runtime.locals.supabase
     .from("Queue")
     .select("*")
     .not("id", "in", `(${blacklist.instructions.join(",")})`)
     .eq("userId", user.id)
-    .eq("tacticId", tacticId)
+    .eq("strategyId", strategyId)
     .order("createdAt", { ascending: true })
     .order("index", { ascending: true })
     .limit(take);

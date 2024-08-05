@@ -4,17 +4,17 @@ model Queue {
   updatedAt   DateTime       @updatedAt @default(now())
 
   // APP
-  user        AppUser?       @relation(fields: [userId], references: [id])
+  user        AppUser?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String?
 
-  // CORPUS
-  tactic      Tactic?        @relation(fields: [tacticId], references: [id])
-  tacticId    String?
+  // USERLAND
+  strategy    Strategy      @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  strategyId  String
   
  // DATA
   index       Int             @default(0)
   status      QueueStatusEnum @default(PENDING)
-  data        Json           @default("{}")
+  data        Json            @default("{}")
 }
 
 enum QueueStatusEnum {
@@ -22,4 +22,19 @@ enum QueueStatusEnum {
   PROCESSING
   DONE
   FAILED
+}
+
+model HEAD {
+  id          String         @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt @default(now())
+  data        Json           @default("{}")
+
+  // APP
+  user        AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  @unique 
 }

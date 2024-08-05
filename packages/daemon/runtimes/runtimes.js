@@ -14,12 +14,21 @@ export default async function runtimes({ services, supabase, ...params }) {
   const runtimes = new Map();
 
   function middlewares(runtime) {
+    runtime.bus.use(async (ctx, next) => {
+      ctx.runtime = runtimes.get(runtime["#symbol"]);
+      ctx.runtime.locals.supabase = supabase.createAdminClient();
+      ctx.runtime.call = runtime.caller(ctx);
+      await next();
+    });
+
     runtime.router.use(async (ctx, next) => {
       ctx.runtime = runtimes.get(runtime["#symbol"]);
-      ctx.runtime.call = runtime.caller(ctx);
-      if (ctx.runtime.privileges !== "ELEVATED") {
+
+      if (!ctx.runtime.locals.supabase) {
         ctx.runtime.locals.supabase = supabase.createUserClient(ctx.runtime);
       }
+
+      ctx.runtime.call = runtime.caller(ctx);
       await next();
     });
   }
@@ -39,7 +48,8 @@ export default async function runtimes({ services, supabase, ...params }) {
 
     middlewares(runtime);
 
-    runtime = await Runtime.boot(runtime);
+    runtime = await Runtime.boot(runtime, { Module: Runtime, manifest: runtime.manifest });
+    runtime.Module = Runtime;
     runtime.domain = await boot(Domain, runtime);
     runtime.ontology = await boot(Ontology, runtime);
     runtime.corpus = await boot(Corpus, runtime);

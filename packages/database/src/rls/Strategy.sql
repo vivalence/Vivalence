@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION user_has_access_to_Strategy(strategy_id TEXT)
 RETURNS BOOLEAN AS $$
 BEGIN
     RETURN EXISTS (
-        SELECT 1 FROM "_AppUserToStrategy"
-        WHERE "A" = auth.uid()::Text AND "B" = strategy_id
+        SELECT 1 FROM "Strategy"
+        WHERE "userId" = auth.uid()::Text AND "id" = strategy_id
     );
 END;
 $$ LANGUAGE plpgsql STABLE;
@@ -20,17 +20,4 @@ DROP POLICY IF EXISTS user_Strategy_read_policy ON "Strategy";
 CREATE POLICY user_Strategy_read_policy ON "Strategy"
     FOR SELECT
     USING (user_has_access_to_Strategy(id));
-
 -- 
-DROP POLICY IF EXISTS admin_crud_all_AppUser_to_Strategy ON public."_AppUserToStrategy";
-CREATE POLICY admin_crud_all_AppUser_to_Strategy
-    ON public."_AppUserToStrategy"
-    FOR ALL
-    USING (is_admin());
-
-DROP POLICY IF EXISTS user_AppUser_to_Strategy_read_policy ON public."_AppUserToStrategy";
-CREATE POLICY user_AppUser_to_Strategy_read_policy
-    ON public."_AppUserToStrategy"
-    FOR SELECT
-    USING (user_has_access_to_Strategy("B"));
-

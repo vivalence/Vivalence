@@ -1,1 +1,1 @@
-import "./migrations/tag-types-to-traits.js";
+import "./migrations/corpus-slugs.js";
