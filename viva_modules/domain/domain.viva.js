@@ -1,9 +1,4 @@
 // @lj i should build an autoloader for the methods. load everything but lib and index.
-import autocompleteUnits from "./diagnostics/autocomplete/units/index.js";
-import deduplicateUnits from "./diagnostics/deduplicate/units/index.js";
-import predictUnits from "./diagnostics/predict/units/index.js";
-import predictTags from "./diagnostics/predict/tags/index.js";
-import validateUnit from "./diagnostics/validate/unit/index.js";
 
 import deleteInstructions from "./methods/instructions/delete.js";
 import getInstructions from "./methods/instructions/get.js";
@@ -29,12 +24,11 @@ import unitsFromUnitIds from "./methods/units/fromUnitIds.js";
 import unitsPending from "./methods/units/pending.js";
 import unitsReview from "./methods/units/review.js";
 
+import install from "./methods/install/index.js";
+
 async function boot(runtime) {
-  runtime.router.route("/diagnostics/autocomplete/units", autocompleteUnits);
-  runtime.router.route("/diagnostics/deduplicate/units", deduplicateUnits);
-  runtime.router.route("/diagnostics/predict/tags", predictTags);
-  runtime.router.route("/diagnostics/predict/units", predictUnits);
-  runtime.router.route("/diagnostics/validate/unit", validateUnit);
+  runtime.router.route("/install/tactic", install.tactic);
+  runtime.router.route("/install/strategy", install.strategy);
 
   runtime.router.route("/instructions/provision", provisionInstructions);
   runtime.router.route("/instructions/delete", deleteInstructions);

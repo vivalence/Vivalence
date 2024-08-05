@@ -9,21 +9,19 @@ model AppUser {
   createdAt DateTime        @default(now())
   updatedAt DateTime        @default(now()) @updatedAt
   roles     UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+  config    Json  @default("{}")
 
   // RUNTIME
   runtimes   Runtime[]   
-  strategies Strategy[]
-
-  // CORPUS
-  // units   Unit[] // for custom units that exceed the scope of a single strategy
-  // tags    Tag[]
+  strategies Strategy[] 
 
   // USERLAND
   plays       Play[]           
   memories    Memory[]          
 
   // TRANSIENT
-  queue        Queue[]
+  queue       Queue[]
+  HEAD        HEAD[]
 }
 
 enum UserRolesEnum {

@@ -12,12 +12,12 @@ export async function getTactic(tacticId, ctx) {
   if (error) throw error;
 
   tactic.units = tactic._TacticToUnit.map(({ Unit }) => Unit);
-  tactic.tags = tactic._TacticToTag.map(({ Tag }) => Tag);
-  tactic.games = tactic._GameToTactic.map(({ Game }) => Game);
-
   delete tactic._TacticToUnit;
+  tactic.tags = tactic._TacticToTag.map(({ Tag }) => Tag);
   delete tactic._TacticToTag;
+  tactic.games = tactic._GameToTactic.map(({ Game }) => Game);
   delete tactic._GameToTactic;
+
   return tactic;
 }
 
@@ -26,9 +26,9 @@ export function buildRelations(tactic, ctx) {
     return {
       ...game,
       call: (path, input) => {
-        path = join("/", "g", game.slug, path);
-        input = { gameId: game.id, mask: tactic.masks[relationKey], ...input };
-        return ctx.runtime.call(path, input);
+        const mask = { ...(game.mask || {}), ...(tactic.masks[relationKey] || {}) };
+        input = { gameId: game.id, mask, ...input };
+        return ctx.runtime.call(join("/g", game.slug, path), input);
       },
     };
   }

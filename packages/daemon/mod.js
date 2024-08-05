@@ -65,7 +65,8 @@ const tick = (name) => (params) => {
 
 async function dev(params) {
   const runtime = params.runtimes.values().next().value;
-  // await runtime.strategies[].Module.install(runtime);
+  // runtime.domain.bus.emit("user-join", { user: { id: "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b" } });
+  // dev,
   return params;
 }
 
@@ -80,7 +81,6 @@ await [
   install,
   userland,
   launch,
-  dev,
   daemonize,
 ].reduce((acc, fn) => acc.then(fn), Promise.resolve());
 

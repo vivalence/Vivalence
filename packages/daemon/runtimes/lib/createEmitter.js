@@ -1,38 +1,32 @@
+const executeMiddlewareChain = async (ctx, middlewares) => {
+  let index = 0;
+  const next = async () => {
+    if (index < middlewares.length) {
+      await middlewares[index++](ctx, next);
+    }
+  };
+  await next();
+};
+
 const createBaseEmitter = () => {
   const listeners = new Map();
-  const middlewares = new Map();
-
-  const executeMiddlewareChain = async (ctx, scope) => {
-    const relevantMiddlewares = [
-      ...(middlewares.get(null) || []),
-      ...(middlewares.get(scope) || []),
-    ];
-    let index = 0;
-    const next = async () => {
-      if (index < relevantMiddlewares.length) {
-        await relevantMiddlewares[index++](ctx, next);
-      }
-    };
-    await next();
-  };
+  const middlewares = new Array();
 
   return {
     on: (event, listener) => {
       if (!listeners.has(event)) listeners.set(event, new Set());
       listeners.get(event).add(listener);
     },
-    emit: async (event, ...args) => {
-      const ctx = { event, data: args[0] || {} };
-      const [scope] = event.split(":");
-      await executeMiddlewareChain(ctx, scope);
+    emit: async (event, body) => {
+      const ctx = { event: { name: event, body } };
+      await executeMiddlewareChain(ctx, middlewares);
       const eventListeners = listeners.get(event) || new Set();
       for (const listener of eventListeners) {
         await listener(ctx);
       }
     },
-    use: (middleware, scope = null) => {
-      if (!middlewares.has(scope)) middlewares.set(scope, []);
-      middlewares.get(scope).push(middleware);
+    use: (middleware) => {
+      middlewares.push(middleware);
     },
   };
 };
@@ -42,21 +36,18 @@ const createSecurityDecorator = (baseEmitter, rules) => {
     emitterScope === listenerScope || rules[listenerScope]?.includes(emitterScope);
 
   const secureEmitter = {
-    on: (event, listener) => {
-      baseEmitter.on(event, (ctx) => {
-        const [emitterScope, emitterEvent] = ctx.event.split(":");
-        const [listenerScope, listenerEvent] = event.split(":");
-        if (!listenerScope || checkSecurity(emitterScope, listenerScope)) {
-          listener(ctx);
-        }
-      });
+    ...baseEmitter,
+    on: (event, listener, listenerScope) => {
+      const [emitterScope, emitterEvent] = event.split(":");
+      if (checkSecurity(emitterScope, listenerScope)) {
+        baseEmitter.on(event, listener);
+      } else {
+        console.warn("[INVALID EVENTBUS LISTENER] - event, listener", event, listenerScope);
+      }
     },
-    emit: (event, ...args) => baseEmitter.emit(event, ...args),
-    use: (middleware, scope = null) => baseEmitter.use(middleware, scope),
     scope: (scope) => ({
-      on: (event, listener) => secureEmitter.on(event, listener),
-      emit: (event, ...args) => secureEmitter.emit(`${scope}:${event}`, ...args),
-      use: (middleware) => secureEmitter.use(middleware, scope),
+      on: (event, listener) => secureEmitter.on(event, listener, scope),
+      emit: (event, body) => secureEmitter.emit(`${scope}:${event}`, body),
     }),
   };
 
@@ -66,10 +57,11 @@ const createSecurityDecorator = (baseEmitter, rules) => {
 const createSecureEventEmitter = () => {
   const baseEmitter = createBaseEmitter();
   const rules = {
-    "@games": [],
-    "@strategy": ["@ontology", "@games"],
-    "@corpus": ["@ontology", "@games", "@strategy"],
-    "@ontology": ["@corpus", "@games"],
+    // @emitter:@permitted-consumer - ontology can be consumed by corpus domain and games
+    "@corpus": ["@domain", "@ontology", "@game"],
+    "@ontology": ["@corpus", "@domain", "@game"],
+    "@domain": ["@corpus", "@ontology", "@game"],
+    "@game": [],
   };
   return createSecurityDecorator(baseEmitter, rules);
 };

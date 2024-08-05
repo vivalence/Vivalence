@@ -1,56 +1,23 @@
 model Strategy {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  slug      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String?
-
-  // APP
-  user AppUser?  @relation(fields: [userId], references: [id])
-  userId String?
-
-  // RUNTIME
-  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
-  runtimeId String?
-
-  // CORPUS
-  // tags    Tag[] // for special or user defined tags
-  // units   Unit[] // for special or user defined units
-
-  // DATA
-  session Json @default("{}")
-
-  // @@unique([userId, runtimeId])
-}
-
-model Tactic {
-  // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  slug      String?
   name      String
 
+  // APP
+  user AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
   // RUNTIME
-  runtime   Runtime? @relation(fields: [runtimeId], references: [id])
-  runtimeId String? // required
-  games    Game[] // input for tactic.relations
-
-  // CORPUS 
-  tags  Tag[] // input for tactic.relations
-  units Unit[] // input for tactic.relations
-
-  // USERLAND
-  plays      Play[]       
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
 
   // TRANSIENT
   queue        Queue[]
 
   // DATA
-  relations    Json @default("[]") // for grouping units and tags
-  masks        Json @default("{}") // for games
-  instructions Json @default("{}") // for provisioning instructions
+  session Json @default("{}")
 }
 
 model Play {
@@ -60,24 +27,24 @@ model Play {
   updatedAt DateTime    @default(now()) @updatedAt
 
   // APP
-  user      AppUser?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String?
+  user      AppUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String 
 
   // RUNTIME
   game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
 
   // CORPUS
-  tactic    Tactic?     @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId  String?
-  unit      Unit?       @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId    String?
-  tag       Tag?        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tactic    Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId  String 
+  unit      Unit?        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId    String? 
+  tag       Tag?         @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId     String?
 
   // USERLAND
-  memory    Memory? @relation(fields: [memoryId], references: [id])
-  memoryId  String?
+  memory    Memory  @relation(fields: [memoryId], references: [id])
+  memoryId  String 
 
   // DATA
   history   Json        @default("[]")
@@ -90,7 +57,7 @@ model Play {
   @@index([unitId], name: "unitIdIndexOnPlay")
   @@index([tagId], name: "tagIdIndexOnPlay")
   @@index([memoryId], name: "memoryIdIndexOnPlay")
-  @@unique([userId ,unitId, tagId, tacticId, gameId ]) // gameId temporary
+  @@unique([userId, unitId, tagId, gameId, tacticId])
 }
 
 model Memory {
@@ -100,8 +67,8 @@ model Memory {
   updatedAt DateTime         @default(now()) @updatedAt
 
   // APP
-  user      AppUser?          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String?
+  user      AppUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String 
 
   // CORPUS
   tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
