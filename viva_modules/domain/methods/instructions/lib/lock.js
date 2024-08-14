@@ -1,7 +1,9 @@
 const ProvisioningLock = new Map();
 
 export default {
-  has: (props) => ProvisioningLock.has(`${props.userId}-${props.tacticId}`),
-  set: (props) => ProvisioningLock.set(`${props.userId}-${props.tacticId}`, new Date()),
-  delete: (props) => ProvisioningLock.delete(`${props.userId}-${props.tacticId}`),
+  has: (scope) => ProvisioningLock.has(`${scope.user.id}-${scope.strategy.id}-${scope.tactic.id}`),
+  set: (scope) =>
+    ProvisioningLock.set(`${scope.user.id}-${scope.strategy.id}-${scope.tactic.id}`, new Date()),
+  delete: (scope) =>
+    ProvisioningLock.delete(`${scope.user.id}-${scope.strategy.id}-${scope.tactic.id}`),
 };

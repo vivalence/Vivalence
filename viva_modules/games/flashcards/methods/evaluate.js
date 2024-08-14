@@ -1,13 +1,9 @@
-export default async function evaluate({ scope, response }, locals) {
-  const result = await locals
-    .client("units/review", {
-      gameType: "FLASHCARDS",
-      gameId: scope.game.id,
-      unitId: scope.unit.id,
-      response,
-    })
-    .ok();
-  // TODO tags
+export default async function evaluate({ scope, response }, ctx) {
+  const result = await ctx.runtime.call("/units/review", {
+    gameType: "FLASHCARDS",
+    scope,
+    response,
+  });
 
   return result;
 }

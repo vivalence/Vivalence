@@ -16,6 +16,7 @@ import tagsFromUnit from "./methods/tags/fromUnit.js";
 import tagsPending from "./methods/tags/pending.js";
 import tagsReview from "./methods/tags/review.js";
 import tagsWeakest from "./methods/tags/weakest.js";
+import tagFromSlug from "./methods/tags/fromSlug.js";
 
 import weakestUnitsFromTagIds from "./methods/units/weakest/fromTagIds.js";
 import weakestUnitsFromUnitIds from "./methods/units/weakest/fromUnitIds.js";
@@ -23,6 +24,9 @@ import unitsFromTagIds from "./methods/units/fromTagIds.js";
 import unitsFromUnitIds from "./methods/units/fromUnitIds.js";
 import unitsPending from "./methods/units/pending.js";
 import unitsReview from "./methods/units/review.js";
+
+import tacticsFromSlug from "./methods/tactics/fromSlug.js";
+import gamesFromSlug from "./methods/games/fromSlug.js";
 
 import install from "./methods/install/index.js";
 
@@ -47,6 +51,7 @@ async function boot(runtime) {
   runtime.router.route("/tags/pending", tagsPending);
   runtime.router.route("/tags/review", tagsReview);
   runtime.router.route("/tags/weakest", tagsWeakest);
+  runtime.router.route("/tags/fromSlug", tagFromSlug);
 
   runtime.router.route("/units/fromTagIds", unitsFromTagIds);
   runtime.router.route("/units/fromUnitIds", unitsFromUnitIds);
@@ -54,6 +59,9 @@ async function boot(runtime) {
   runtime.router.route("/units/review", unitsReview);
   runtime.router.route("/units/weakest/fromTagIds", weakestUnitsFromTagIds);
   runtime.router.route("/units/weakest/fromUnitIds", weakestUnitsFromUnitIds);
+
+  runtime.router.route("/tactics/fromSlug", tacticsFromSlug);
+  runtime.router.route("/games/fromSlug", gamesFromSlug);
   return runtime;
 }
 

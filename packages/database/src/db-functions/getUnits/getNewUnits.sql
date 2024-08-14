@@ -1,5 +1,6 @@
 CREATE OR REPLACE FUNCTION get_new_units(
     tag_ids TEXT[],
+    tactic_id TEXT,
     game_id TEXT,
     blacklist TEXT[] DEFAULT NULL,
     take_limit INT DEFAULT NULL
@@ -23,6 +24,7 @@ BEGIN
         FROM "Play" p
         WHERE p."unitId" = u.id
         AND p."gameId" = game_id
+        AND p."tacticId" = tactic_id
         AND p."userId" = auth.uid()::text
     )
     AND NOT EXISTS (

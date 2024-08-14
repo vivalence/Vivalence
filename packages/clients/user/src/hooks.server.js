@@ -1,7 +1,23 @@
-export const handle = async (props) => {
-  // console.log("server hooks", props);
+import supabase from "$lib/server/supabase.js";
 
-  return props.resolve(props.event, {
+export const handle = async ({ event, resolve, ...props }) => {
+  event.locals = event.locals || {};
+  event.data = event.data || {};
+
+  event.locals.supabase = supabase(event);
+
+  event.locals.getUser = async () => {
+    const { data } = await event.locals.supabase.auth.getUser();
+    return data.user;
+  };
+  event.locals.getSession = async () => {
+    const { data } = await event.locals.supabase.auth.getSession();
+    return data.session;
+  };
+
+  event.data.session = await event.locals.getSession();
+
+  return resolve(event, {
     filterSerializedResponseHeaders(name) {
       return name === "content-range";
     },
@@ -11,7 +27,6 @@ export const handle = async (props) => {
 // import { json } from "@sveltejs/kit";
 // import { llm, nlp, vfetch } from "@vivalence/services/server";
 // // import urlJoin from "url-join";
-// import supabase from "$lib/server/supabase.js";
 // import { env } from "$env/dynamic/public";
 
 // const { PUBLIC_VIVALENCE_ONTOLOGIES_SPANISH_URL: ONTOLOGIES_URL } = env;
@@ -24,14 +39,6 @@ export const handle = async (props) => {
 //   //   locals.supabase = supabase(event);
 //   //   locals.nlp = nlp;
 //   //   locals.llm = llm;
-//   //   locals.getUser = async () => {
-//   //     const { data } = await locals.supabase.auth.getUser();
-//   //     return data.user;
-//   //   };
-//   //   locals.getSession = async () => {
-//   //     const { data } = await locals.supabase.auth.getSession();
-//   //     return data.session;
-//   //   };
 //   //   locals.session = await locals.getSession();
 //   //   locals.user = await locals.getUser();
 //   //   locals.client = vfetch({

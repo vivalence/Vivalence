@@ -1,0 +1,8 @@
+<script>
+    import { onMount, } from "svelte";
+    import { getStore } from "../store.js";
+    const store = getStore();
+
+    export let matrix;
+
+</script>

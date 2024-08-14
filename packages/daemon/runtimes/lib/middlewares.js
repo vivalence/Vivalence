@@ -1,0 +1,35 @@
+import supabase from "../../lib/supabase/index.js";
+
+export default function middlewares(runtime, runtimes) {
+  function middlewareRuntime(ctx) {
+    delete ctx.locals;
+    ctx.runtime = runtimes.get(runtime["#symbol"]);
+
+    if (!ctx.runtime.locals.supabase) {
+      ctx.runtime.locals.supabase = supabase.createUserClient(ctx);
+    }
+
+    ctx.runtime.locals.getUser = async () => {
+      const { data, error } = await ctx.runtime.locals.supabase.auth.getUser();
+      return data.user;
+    };
+    // ctx.runtime.locals.getSession = async () => {
+    //   const { data } = await ctx.runtime.locals.supabase.auth.getSession();
+    //   return data.session;
+    // };
+
+    ctx.runtime.call = runtime.caller(ctx);
+    return ctx.runtime;
+  }
+
+  runtime.bus.use(async (ctx, next) => {
+    ctx.runtime = middlewareRuntime(ctx);
+    ctx.runtime.locals.supabase = supabase.createAdminClient(ctx);
+    await next();
+  });
+
+  runtime.router.use(async (ctx, next) => {
+    ctx.runtime = middlewareRuntime(ctx);
+    await next();
+  });
+}

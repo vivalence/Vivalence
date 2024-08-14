@@ -1,7 +1,7 @@
 import * as ebisu from "./ebisu.js";
 
-export async function getUnitMemory(unit, runtime) {
-  const { data, error } = await runtime.locals.supabase
+export async function getUnitMemory(unit, ctx) {
+  const { data, error } = await ctx.runtime.locals.supabase
     .from("Unit")
     .select(`id, Memory (id, tagId, unitId, state, status, lastSeen)`)
     .eq("id", unit.id)
@@ -19,8 +19,8 @@ export async function getUnitMemory(unit, runtime) {
   return unit;
 }
 
-export async function getTagMemory(tag, runtime) {
-  const { data, error } = await runtime.locals.supabase
+export async function getTagMemory(tag, ctx) {
+  const { data, error } = await ctx.runtime.locals.supabase
     .from("Tag")
     .select(`id, Memory (id, tagId, unitId, state, status, lastSeen)`)
     .eq("id", tag.id)

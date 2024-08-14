@@ -23,7 +23,6 @@
             xstart = ystart = undefined;
             xend = yend = undefined;
             cancelled = true;
-        // } else if (event.code === "Space") {$flashcardsStore.revealed ? flashcardsStore.review("KNOWN") : flashcardsStore.reveal(); dispatch("space");} else if (event.code === "Digit1") {$flashcardsStore.revealed && flashcardsStore.review("UNKNOWN");} else if (event.code === "Digit2") {$flashcardsStore.revealed && flashcardsStore.review("KNOWN");} else if (event.code === "Digit3") {$flashcardsStore.revealed && flashcardsStore.review("GRADUATE");
         }
     }
 

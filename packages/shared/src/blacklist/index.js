@@ -1,2 +1,3 @@
-import scopeToBlacklist from "./scopeToBlacklist.js";
-export default { scopeToBlacklist };
+import fromScope from "./fromScope.js";
+
+export default { fromScope };

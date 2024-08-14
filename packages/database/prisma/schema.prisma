@@ -151,6 +151,9 @@ model Tactic {
   // USERLAND
   plays Play[]
 
+  // TRANSIENT
+  queue Queue[]
+
   // DATA
   relations    Json @default("[]") // for grouping units and tags
   masks        Json @default("{}") // for games
@@ -224,6 +227,7 @@ model Strategy {
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  slug      String   @default("")
   name      String
 
   // APP
@@ -333,6 +337,10 @@ model Queue {
   // APP
   user   AppUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String?
+
+  // CORPUS
+  tactic   Tactic @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId String
 
   // USERLAND
   strategy   Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)

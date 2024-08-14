@@ -1,10 +1,9 @@
 import make from "./lib/make.js";
 
 export default async function fromTagIds(inputs, ctx) {
-  const { gameId, tagIds, mask, blacklist, take } = inputs;
+  const { scope, tagIds, mask, blacklist, take } = inputs;
 
-  const units = await ctx.runtime.call("units/fromTagIds", {
-    gameId,
+  const units = await ctx.runtime.call("/units/fromTagIds", {
     tagIds,
     blacklist: blacklist.units,
     take: take || 5,
@@ -16,10 +15,9 @@ export default async function fromTagIds(inputs, ctx) {
     instructions.push({
       type: "FLASHCARDS",
       instruction,
-      scope: {
+      scope: deepMerge(scope, {
         unit: { id: unit.id, tags: tagIds.map((tagId) => ({ id: tagId })) },
-        game: { id: gameId },
-      },
+      }),
     });
   }
 

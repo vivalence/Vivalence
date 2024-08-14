@@ -9,8 +9,7 @@ export default function serve({ runtimes, router, ...params }) {
     }
 
     router.use(`/r/${manifest.slug}`, runtime.router.routes(), runtime.router.allowedMethods());
-
-    // console.log(`[RUNTIME] /r/${manifest.slug}`);
+    console.log(`[RUNTIME] /r/${manifest.slug}`);
   }
   return { ...params, router, runtimes };
 }

@@ -14,6 +14,9 @@ model Tactic {
   // USERLAND
   plays      Play[]       
 
+  // TRANSIENT
+  queue        Queue[]
+
   // DATA
   relations    Json @default("[]") // for grouping units and tags
   masks        Json @default("{}") // for games

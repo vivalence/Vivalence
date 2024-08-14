@@ -1,13 +1,29 @@
 <script>
+  import '../app.css';
+  import { page } from '$app/stores';
+  import { onMount } from "svelte";
+
+  import matrix from "$matrix";
+  import * as keyboard from "$signals/keyboard.js";
   import Menu from '$components/menu/Menu.svelte'
+
+  onMount(() => {
+    matrix.initialize($page.data.locals)
+    matrix.root()
+    keyboard.initialize()
+  })
+  // onMount(() => {const simulateKeyPress = (key) => {if (document && KeyboardEvent) {const event = new KeyboardEvent("keydown", {key, code: `Key${key.toUpperCase()}`, keyCode: key.charCodeAt(0), charCode: key.charCodeAt(0), bubbles: true,}); document.dispatchEvent(event);}}; simulateKeyPress('c');});
+
 </script> 
 
 <slot />
 
-<Menu />
+{#if !$page.url.pathname.startsWith('/auth')}
+    <Menu />
+{/if}
 
 <!--     import { setContext, onMount } from "svelte";
-<!-- 	    import { writable } from "svelte/store"; -->
+<!-- 	 import { writable } from "svelte/store"; -->
 <!--     import { afterNavigate, invalidate } from "$app/navigation"; -->
 <!--     import { AppShell, AppBar } from "@skeletonlabs/skeleton"; -->
 <!--     import { dev } from "$app/environment"; -->

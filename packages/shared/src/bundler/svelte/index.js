@@ -1,4 +1,4 @@
-import { basename } from "$std/path/mod.ts";
+import { dirname, basename } from "$std/path/mod.ts";
 
 import esbuild from "npm:esbuild@latest";
 import sveltePlugin from "npm:esbuild-svelte@latest";
@@ -7,7 +7,7 @@ import { cache } from "npm:esbuild-plugin-cache";
 const logSizeInKB = (file) => {
   const sizeInBytes = file.contents.length;
   const sizeInKB = sizeInBytes / 1024;
-  // console.log(`Size of ${file.path}: ${sizeInKB.toFixed(2)} KB`);
+  console.log(`Size of ${file.path}: ${sizeInKB.toFixed(2)} KB`);
 };
 
 export default async function (entry) {
@@ -22,7 +22,9 @@ export default async function (entry) {
     sourcemap: true,
     minify: true,
     bundle: true,
-    outdir: `/`,
+    outdir: dirname(entry),
+    outExtension: { ".js": ".svelte" },
+
     plugins: [
       cache(svelteImportMap),
       sveltePlugin({
@@ -35,8 +37,6 @@ export default async function (entry) {
       }),
     ],
   });
-
-  build.outputFiles.forEach(logSizeInKB);
   return build.outputFiles;
 }
 

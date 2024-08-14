@@ -7,6 +7,10 @@ model Queue {
   user        AppUser?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String?
 
+  // CORPUS
+  tactic      Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId    String
+
   // USERLAND
   strategy    Strategy      @relation(fields: [strategyId], references: [id], onDelete: Cascade)
   strategyId  String
