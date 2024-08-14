@@ -16,7 +16,7 @@ function FlashcardStore({ locals }) {
     review: async (response) => {
       const { scope } = get(Store);
       locals.onGameFinish({ response, scope });
-      await locals.ontology("games/flashcards/evaluate", { scope, response }).ok();
+      await locals.call("/g/flashcards/evaluate", { scope, response });
     },
   };
 }

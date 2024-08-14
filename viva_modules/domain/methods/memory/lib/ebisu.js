@@ -49,7 +49,7 @@ export const initiateModel = (response) => {
   }
   return getDefaultModel(defaultModel);
 };
-const updateModel = (model, response, elapsedTime) => {
+export const updateModel = (model, response, elapsedTime) => {
   try {
     if (typeof response === "string") {
       switch (response) {

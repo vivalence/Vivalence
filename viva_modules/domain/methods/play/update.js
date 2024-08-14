@@ -1,23 +1,22 @@
 export default async function (body, ctx) {
-  const session = await ctx.runtime.locals.getSession();
-  await ctx.runtime.call("/unit/validate", body.unit);
-
-  const { gameId, unitId, tagId, memoryId, nextPlay, response } = body;
-  const { user } = session;
+  const user = await ctx.runtime.locals.getUser();
+  const { scope, nextPlay, response } = body;
   const now = new Date().toISOString();
+  scope.user = { id: user.id };
 
   let play;
-  let query = runtime.locals.supabase
+  let query = ctx.runtime.locals.supabase
     .from("Play")
     .select("*")
-    .eq("memoryId", memoryId)
-    .eq("gameId", gameId)
+    .eq("memoryId", scope.memory.id)
+    .eq("tacticId", scope.tactic.id)
+    .eq("gameId", scope.game.id)
     .eq("userId", user.id);
 
-  if (unitId) query = query.eq("unitId", unitId);
+  if (scope.unit) query = query.eq("unitId", scope.unit.id);
   else query = query.filter("unitId", "is", null);
 
-  if (tagId) query = query.eq("tagId", tagId);
+  if (scope.tag) query = query.eq("tagId", scope.tag.id);
   else query = query.filter("tagId", "is", null);
 
   let { data: plays, error } = await query.limit(1);
@@ -25,15 +24,16 @@ export default async function (body, ctx) {
   play = plays[0];
 
   if (!play) {
-    const { data: updatedPlay, error: createError } = await runtime.locals.supabase
+    const { data: updatedPlay, error: createError } = await ctx.runtime.locals.supabase
       .from("Play")
       .insert([
         {
-          unitId,
-          tagId,
-          gameId,
           userId: user.id,
-          memoryId,
+          gameId: scope.game.id,
+          tacticId: scope.tactic.id,
+          unitId: scope.unit?.id,
+          tagId: scope.tag?.id,
+          memoryId: scope.memory.id,
           nextPlay,
           lastPlay: now,
           history: [{ response, nextPlay, now }],
@@ -45,13 +45,12 @@ export default async function (body, ctx) {
     if (createError) throw createError;
 
     return {
-      data: { play: updatedPlay },
-      status: 200,
+      play: updatedPlay,
     };
   } else {
     const updatedHistory = [...play.history, { response, nextPlay, now }];
 
-    const { data: updatedPlay, error: updateError } = await runtime.locals.supabase
+    const { data: updatedPlay, error: updateError } = await ctx.runtime.locals.supabase
       .from("Play")
       .update({
         history: updatedHistory,

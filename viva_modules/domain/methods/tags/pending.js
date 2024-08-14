@@ -1,4 +1,4 @@
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   const { gameId, tagIds, take = 1, blacklist = [] } = body;
   let debt = -take;
 
@@ -11,7 +11,7 @@ export default async function (body, runtime) {
       blacklist: blacklist.length > 0 ? blacklist : null,
       take_limit: Math.abs(debt),
     };
-    const { data, error } = await runtime.locals.supabase.rpc(methodname, params);
+    const { data, error } = await ctx.runtime.locals.supabase.rpc(methodname, params);
     if (error) throw error;
     if (data.length === 0) continue;
     tags.push(...data);

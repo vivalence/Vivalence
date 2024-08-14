@@ -10,11 +10,13 @@ if (!initialized) {
 
   config.env = {
     ...config.env,
+    DENO_ENV: "development",
     DAEMON_URL: env.DAEMON_URL,
     CLIENTS_USER_URL: env.CLIENTS_USER_URL,
     SUPABASE_URL: env.SUPABASE_URL,
     SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,
     PROVISION_THRESHOLD: 5,
+    CACHE_AGE_SECONDS: 1,
   };
 
   if (Deno.env.get("DENO_ROLE") === "daemon") {
@@ -37,6 +39,9 @@ if (!initialized) {
   if (Deno.env.get("DENO_ROLE") === "client") {
     config.env = {
       ...config.env,
+      ...Object.entries(config.env).reduce((acc, [key, value]) => {
+        return (acc[`PUBLIC_${key}`] = value.toString()), acc;
+      }, {}),
     };
   }
   if (Deno.env.get("DENO_ROLE") === "sudo") {
@@ -52,6 +57,8 @@ if (!initialized) {
     Deno.env.set(key, value);
   }
 
+  config.isDev = config.env.DENO_ENV === "development";
+  config.isProd = config.env.DENO_ENV === "production";
   initialized = true;
 }
 

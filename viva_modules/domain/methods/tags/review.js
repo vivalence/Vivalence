@@ -1,32 +1,29 @@
-export default async function (body, runtime) {
-  const { gameId, gameType, tagId, unitId, response } = body;
+export default async function (body, ctx) {
+  console.log("REVIEW the tag.review() function - scope updates indescriminately", body.scope);
 
-  const memoryData = await runtime.locals
-    .client("memory/update", {
-      gameId,
-      gameType,
-      unitId,
-      tagId,
-      response,
-    })
-    .ok();
+  const { scope, gameType, response } = body;
 
-  const playData = await runtime.locals
-    .client("play/update", {
-      gameId,
-      memoryId: memoryData.memory.id,
-      nextPlay: memoryData.nextPlay,
-      unitId,
-      tagId,
-      response,
-    })
-    .ok();
+  const { memory, nextPlay, error, ...memoryData } = await ctx.runtime.call("/memory/update", {
+    scope,
+    gameType,
+    response,
+  });
+
+  if (error) throw error;
+
+  scope.memory = { id: memory.id };
+
+  const playData = await ctx.runtime.call("/play/update", {
+    scope,
+    nextPlay,
+    response,
+  });
 
   const { data: tag } = await runtime.locals.supabase
     .from("Tag")
-    .select("data")
+    .select("id, data, name, slug, traits")
     .eq("id", tagId)
     .single();
 
-  return { ...tag, ...playData, ...memoryData };
+  return { ...tag, ...playData, ...memoryData, memory, nextPlay };
 }

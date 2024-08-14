@@ -1,5 +1,5 @@
 async function ensureVerbTagConnection({ unit, annotation }, ctx) {
-  const { data: tag } = await ctx.locals.supabase
+  const { data: tag } = await ctx.runtime.locals.supabase
     .from("Tag")
     .select("*")
     .eq("data->ONTOLOGICAL->>branch", "lemma")
@@ -15,20 +15,25 @@ async function ensureVerbTagConnection({ unit, annotation }, ctx) {
     };
   }
 
-  const { data: connection } = await ctx.locals.supabase.from("_TagToUnit")
-    .select("*").eq("A", tag.id)
-    .eq("B", unit.id).single();
+  const { data: connection } = await ctx.runtime.locals.supabase
+    .from("_TagToUnit")
+    .select("*")
+    .eq("A", tag.id)
+    .eq("B", unit.id)
+    .single();
 
-  return !!connection ? null : {
-    message: "unit is not connected to its lemma tag.",
-    path: ["unit", "tag"],
-    violation: "required",
-    context: { unit, test: { required: { branch: "lemma", leaf: unit.lemma } } },
-  };
+  return !!connection
+    ? null
+    : {
+        message: "unit is not connected to its lemma tag.",
+        path: ["unit", "tag"],
+        violation: "required",
+        context: { unit, test: { required: { branch: "lemma", leaf: unit.lemma } } },
+      };
 }
 
 async function getUnits(annotation, ctx) {
-  let query = ctx.locals.supabase.from("Unit").select("*");
+  let query = ctx.runtime.locals.supabase.from("Unit").select("*");
 
   for (const [branch, leaf] of Object.entries(annotation)) {
     if (typeof leaf === "string") query = query.eq(`data->annotation->>${branch}`, leaf);

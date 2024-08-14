@@ -1,6 +1,7 @@
+import { deepMerge } from "@vivalence/shared";
 import make from "./lib/make.js";
 
-export default async function fromUnitIds({ gameId, mask, unitIds }, ctx) {
+export default async function fromUnitIds({ scope, mask, unitIds }, ctx) {
   // const { data: game, error: gameError } = await ctx.runtime.locals.supabase .from("Game") .select(`*`) .eq("id", gameId) .single();
   // if (gameError) throw gameError;
 
@@ -12,7 +13,7 @@ export default async function fromUnitIds({ gameId, mask, unitIds }, ctx) {
     instructions.push({
       type: "FLASHCARDS",
       instruction,
-      scope: { unit: { id: unit.id }, game: { id: gameId } },
+      scope: deepMerge(scope, { unit: { id: unit.id } }),
     });
   }
 

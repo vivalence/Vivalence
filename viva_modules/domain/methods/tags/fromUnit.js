@@ -1,13 +1,13 @@
-export default async function (body, runtime) {
+export default async function (body, ctx) {
   const { unit } = body;
 
-  const { data, error } = await runtime.locals.supabase
+  const { data, error } = await ctx.runtime.locals.supabase
     .from("_TagToUnit")
-    .select(`*, Tag: A (*)`)
+    .select(`*, tag: A (id, data, name, slug, traits)`)
     .eq("B", unit.id);
 
   if (error) throw error;
 
-  const tags = data.map((tag) => tag.Tag);
+  const tags = data.map(({ tag }) => tag);
   return tags;
 }

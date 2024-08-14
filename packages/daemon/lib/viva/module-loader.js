@@ -73,6 +73,7 @@ async function getRuntimeModules(directory) {
       runtimes.set(runtime.Runtime.manifest.slug, runtime);
     } catch (error) {
       console.error(`Failed to build runtime for ${runtimeModule.manifest.slug}: ${error.message}`);
+      console.error(error);
     }
   }
   return runtimes;

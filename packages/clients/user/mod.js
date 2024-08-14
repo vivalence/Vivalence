@@ -28,7 +28,7 @@ try {
   const status = await startProcess();
   console.log(`Process exited with status: ${status.code}`);
 } catch (error) {
-  console.error("Error running process:", error);
+  // console.error("Error running process:", error);
 } finally {
   for (const signal of ["SIGINT", "SIGTERM", "SIGQUIT"]) {
     Deno.removeSignalListener(signal, handleSignal);

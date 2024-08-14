@@ -1,5 +1,4 @@
 <script>
-    import '../app.css';
     // import kb from '$lib/signals/keyboard/index.js';
 </script>
 

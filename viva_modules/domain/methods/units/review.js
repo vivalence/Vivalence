@@ -1,30 +1,21 @@
-export default async function (body, runtime) {
-  const { gameId, gameType, unitId, response } = body;
+export default async function (body, ctx) {
+  const { scope, gameType, response } = body;
 
-  const memoryData = await runtime.locals
-    .client("memory/update", {
-      gameId,
-      gameType,
-      unitId,
-      response,
-    })
-    .ok();
+  const { memory, nextPlay, error, ...memoryData } = await ctx.runtime.call("/memory/update", {
+    scope,
+    gameType,
+    response,
+  });
 
-  const playData = await runtime.locals
-    .client("play/update", {
-      gameId,
-      memoryId: memoryData.memory.id,
-      nextPlay: memoryData.nextPlay,
-      unitId,
-      response,
-    })
-    .ok();
+  if (error) throw error;
 
-  const { data: unit } = await runtime.locals.supabase
-    .from("Unit")
-    .select("data")
-    .eq("id", unitId)
-    .single();
+  scope.memory = { id: memory.id };
 
-  return { ...playData, ...memoryData };
+  const playData = await ctx.runtime.call("/play/update", {
+    scope,
+    nextPlay,
+    response,
+  });
+
+  return { ...playData, ...memoryData, memory, nextPlay };
 }

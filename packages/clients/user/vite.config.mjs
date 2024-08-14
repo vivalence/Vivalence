@@ -1,30 +1,28 @@
-// https://github.com/bluwy/create-vite-extra/tree/master/template-deno-svelte/src
-
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
-// import path from "path";
+import { fromFileUrl, dirname, join } from "$std/path/mod.ts";
 
+// https://github.com/bluwy/create-vite-extra/tree/master/template-deno-svelte/src
+import "@vivalence/config";
 import "svelte";
 import "@sveltejs/kit";
 import "@sveltejs/vite-plugin-svelte";
-import {fromFileUrl, dirname, join} from "$std/path/mod.ts"
+import "@supabase/ssr";
+import "@supabase/supabase-js"
+import "daisyui";
 
 const root = dirname(fromFileUrl(import.meta.url));
 
 export default defineConfig({
   resolve: {
     alias: {
-      $lib: join(root, './src/lib'),
-      $components: join(root, './src/components'),
-      $signals: join(root, './src/lib/signals'),
-      '$signals/ui': join(root, './src/lib/signals/ui/index.js'),
-      '$signals/keyboard': join(root, './src/lib/signals/keyboard/index.js'),
+      $lib: join(root, "./src/lib"),
+      $components: join(root, "./src/components"),
+      $matrix: join(root, "./src/lib/state/matrix/matrix.js"),
+      $signals: join(root, "./src/lib/state/signals"),
     },
   },
-  server: {
-    fs: {
-      allow: ["../../.."],
-    },
-  },
+  server: { fs: { allow: ["../../.."] } },
   plugins: [sveltekit()],
+  // define: JSON.stringify(config.env),
 });

@@ -1,5 +1,5 @@
-export default async function (body, runtime) {
-  const { gameId, tagIds, blacklist = [], take = 1 } = body;
+export default async function (body, ctx) {
+  const { scope, tagIds, blacklist, take = 1 } = body;
 
   let debt = -take;
   const units = [];
@@ -9,12 +9,13 @@ export default async function (body, runtime) {
 
     const params = {
       tag_ids: tagIds,
-      game_id: gameId,
-      blacklist: blacklist.length > 0 ? blacklist : null,
+      tactic_id: scope.tactic.id,
+      game_id: scope.game.id,
+      blacklist: blacklist.units,
       take_limit: Math.abs(debt),
     };
 
-    const { data, error } = await runtime.locals.supabase.rpc(methodname, params);
+    const { data, error } = await ctx.runtime.locals.supabase.rpc(methodname, params);
 
     if (error) throw error;
     if (data.length === 0) continue;

@@ -1,4 +1,4 @@
-import createRouter from "../../lib/router/create.js";
+import createRouter from "../../server/router/create.js";
 import ensure from "./ensure.js";
 
 export default async function boot(Module, runtime) {

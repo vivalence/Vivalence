@@ -28,7 +28,7 @@ model Runtime {
   // TRANSIENT
   HEAD       HEAD[]
 
-  @@unique([slug, version])
+  @@unique([slug])
 }
 
 model Domain {
@@ -45,7 +45,7 @@ model Domain {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique 
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 
@@ -63,7 +63,7 @@ model Ontology {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique 
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Corpus {
@@ -80,7 +80,7 @@ model Corpus {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique 
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Game {
@@ -101,6 +101,6 @@ model Game {
   // USERLAND
   plays     Play[]
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 

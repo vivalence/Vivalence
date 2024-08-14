@@ -3,13 +3,16 @@
   "version": "0.0.1",
   "exports": "./unknown.js",
   "tasks": {
-    "permit": "DENO_ROLE=user deno run -A",
+    "permit": "DENO_ROLE=client deno run -A",
     "user:dev": "deno task permit --node-modules-dir npm:vite",
     "build": "deno run -A --node-modules-dir npm:vite build",
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "serve": "deno run --allow-net --allow-read https://deno.land/std@0.157.0/http/file_server.ts dist/"
     // "dev": "deno run --allow-env --allow-read --allow-net -A --node-modules-dir npm:vite",
-  }
+  },
+  // "imports": {
+  //   "@vivalence/config": "../../../config/mod.js"
+  // }
   // "scripts": {"dev": "vite dev", "build": "vite build", "preview": "vite preview"},
   // "devDependencies": {"@sveltejs/adapter-auto": "^3.0.0", "@sveltejs/kit": "^2.0.0", "@sveltejs/vite-plugin-svelte": "^3.0.0", "svelte": "4.2.18", "vite": "^5.0.3"},
   // "type": "module"

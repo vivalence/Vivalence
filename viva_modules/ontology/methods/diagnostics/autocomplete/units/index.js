@@ -7,7 +7,7 @@ export default async function autocomplete(input, ctx) {
   if (!schema.provider) throw new Error("schema.provider is required");
 
   const proposedUnits = await (async function fromLLM() {
-    const { data: units, error } = await ctx.services.llm({
+    const { data: units, error } = await ctx.runtime.services.llm({
       prompt,
       schema,
       provider: { api: "openai", model: "gpt-4o" },
@@ -22,9 +22,9 @@ export default async function autocomplete(input, ctx) {
     .filter(async (unitData) => {
       const input = { unit: { data: unitData } };
       // self.api
-      const { data: validation, error } = await ctx.locals.post(
+      const { data: validation, error } = await ctx.runtime.locals.post(
         "/api/classifier/validate/unit",
-        input,
+        input
       );
 
       if (error) console.error(error);
@@ -35,7 +35,9 @@ export default async function autocomplete(input, ctx) {
     .filter(async (unitData) => {
       const annotation = unitData.annotation;
       // self.api
-      const { data: unit } = await ctx.locals.post("/api/units/fromAnnotation", { annotation });
+      const { data: unit } = await ctx.runtime.call("/classification/unitFromAnnotation", {
+        annotation,
+      });
       // console.log("unit", unit);
     });
 

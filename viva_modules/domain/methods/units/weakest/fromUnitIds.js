@@ -5,7 +5,7 @@ export default async function (body, ctx) {
 
   let units = await ctx.runtime.call("/units/fromUnitIds", { unitIds });
 
-  units = await Promise.all(units.map((unit) => getUnitMemory(unit, ctx.runtime)));
+  units = await Promise.all(units.map((unit) => getUnitMemory(unit, ctx)));
   units = getWeakest(units, take);
 
   return units;

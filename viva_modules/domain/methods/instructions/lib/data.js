@@ -1,53 +1,78 @@
+import { deepMerge } from "@vivalence/shared";
 import { join } from "$std/path/mod.ts";
 
-export async function getTactic(tacticId, ctx) {
-  const { data: tactic, error } = await ctx.runtime.locals.supabase
-    .from("Tactic")
-    .select(
-      `*, _GameToTactic (Game: A (*)), _TacticToUnit (Unit: B (*)), _TacticToTag (Tag: B (*))`
-    )
-    .eq("id", tacticId)
+export default async function getData({ scope }, ctx) {
+  let { data: strategy, error: es } = await ctx.runtime.locals.supabase
+    .from("Strategy")
+    .select(`*`)
+    .eq("id", scope.strategy.id)
     .single();
 
-  if (error) throw error;
+  let { data: tactic, error: et } = await ctx.runtime.locals.supabase
+    .from("Tactic")
+    .select(`*`)
+    .eq("id", scope.tactic.id)
+    .single();
+  if (es || et) throw es || et;
 
-  tactic.units = tactic._TacticToUnit.map(({ Unit }) => Unit);
-  delete tactic._TacticToUnit;
-  tactic.tags = tactic._TacticToTag.map(({ Tag }) => Tag);
-  delete tactic._TacticToTag;
-  tactic.games = tactic._GameToTactic.map(({ Game }) => Game);
-  delete tactic._GameToTactic;
+  tactic = deepMerge(tactic, strategy.session.find((step) => step.tactic.id === tactic.id).tactic);
 
-  return tactic;
+  const relations = await buildRelations({ tactic, scope }, ctx);
+  tactic.relations = relations;
+
+  return { tactic, strategy };
 }
 
-export function buildRelations(tactic, ctx) {
-  function buildGameHandler(relationKey, game) {
+async function buildRelations({ tactic, scope }, ctx) {
+  function buildGameHandler(relationName, game) {
     return {
       ...game,
       call: (path, input) => {
-        const mask = { ...(game.mask || {}), ...(tactic.masks[relationKey] || {}) };
-        input = { gameId: game.id, mask, ...input };
+        const mask = deepMerge(game.mask, tactic.masks[relationName]);
+        scope = deepMerge(scope, { game: { id: game.id } }, input.scope);
+        input = deepMerge({ scope, mask }, input);
         return ctx.runtime.call(join("/g", game.slug, path), input);
       },
     };
   }
 
-  return tactic.relations.reduce(
-    (relations, relation) => {
-      const key = relation.key.trim();
-      relations[relation.with][key] =
-        relation.type === "array"
-          ? relation.value
-              .map((id) => tactic[relation.with].find((obj) => obj.id === id))
-              .filter(Boolean)
-          : tactic[relation.with].find((obj) => obj.id === relation.value);
+  async function resolveResource(resourceType, relations) {
+    const richRelations = await Object.entries(relations).reduce(
+      async (acc, [relationName, relationDetail]) => {
+        acc = await acc;
+        const resource = await resolveRelation(resourceType, relationDetail, ctx);
 
-      if (relation.with === "games") {
-        relations.games[key] = buildGameHandler(key, relations.games[key]);
-      }
-      return relations;
+        if (resourceType === "games") {
+          acc[relationName] = buildGameHandler(relationName, resource);
+        } else acc[relationName] = resource;
+
+        return acc;
+      },
+      {}
+    );
+
+    return richRelations;
+  }
+
+  async function resolveRelation(resourceType, relation) {
+    if (Array.isArray(relation)) {
+      return await Promise.all(
+        relation.map(async (slug) => await ctx.runtime.call(`/${resourceType}/fromSlug`, slug))
+      );
+    } else if (typeof relation === "object" && relation.slug) {
+      return await ctx.runtime.call(`/${resourceType}/fromSlug`, relation);
+    } else {
+      throw new Error("Invalid relation");
+    }
+  }
+
+  const relations = await Object.entries(tactic.relations).reduce(
+    async (acc, [resourceType, relation]) => {
+      acc = await acc;
+      acc[resourceType] = await resolveResource(resourceType, relation, ctx);
+      return acc;
     },
     { games: {}, units: {}, tags: {} }
   );
+  return relations;
 }

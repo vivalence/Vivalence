@@ -3,6 +3,7 @@ model Strategy {
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+  slug      String   @default("")
   name      String
 
   // APP
@@ -37,6 +38,7 @@ model Play {
   // CORPUS
   tactic    Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
   tacticId  String 
+
   unit      Unit?        @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId    String? 
   tag       Tag?         @relation(fields: [tagId], references: [id], onDelete: Cascade)

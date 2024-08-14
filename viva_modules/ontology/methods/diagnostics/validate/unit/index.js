@@ -4,7 +4,7 @@ import validatePos from "./lib/pos.js";
 import validateNLP from "./lib/nlp.js";
 
 export default async function validate(input, ctx) {
-  const { data: unit } = await ctx.locals.supabase
+  const { data: unit } = await ctx.runtime.locals.supabase
     .from("Unit")
     .select(`*, _TagToUnit(*, Tag: A (*))`)
     .eq("id", input.unit.id)

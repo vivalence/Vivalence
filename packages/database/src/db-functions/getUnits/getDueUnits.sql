@@ -1,6 +1,7 @@
 CREATE OR REPLACE FUNCTION get_due_units(
     tag_ids TEXT[],
     game_id TEXT,
+    tactic_id TEXT,
     due_lt TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     blacklist TEXT[] DEFAULT NULL,
     take_limit INT DEFAULT NULL
@@ -25,6 +26,7 @@ BEGIN
         SELECT 1
         FROM "Play" p
         WHERE p."unitId" = u.id
+        AND p."tacticId" = tactic_id
         AND p."gameId" = game_id
         AND p."nextPlay" < due_lt
         AND p."userId" = auth.uid()::text
