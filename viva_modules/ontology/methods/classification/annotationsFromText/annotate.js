@@ -16,7 +16,7 @@ export default function annotate(token, ctx) {
   const schema = ctx.runtime.schema.units[annotation.pos].properties.annotation;
   schema.additionalProperties = false;
 
-  const { isValid, errors } = ctx.locals.validate(schema, annotation);
+  const { isValid, errors } = ctx.runtime.locals.validate(schema, annotation);
 
   annotation.meta = {
     token: token.token,

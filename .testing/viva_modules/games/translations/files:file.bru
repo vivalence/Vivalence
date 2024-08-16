@@ -1,0 +1,17 @@
+meta {
+  name: files:file
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/translations/game/Translations.svelte
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "space": []
+  }
+}

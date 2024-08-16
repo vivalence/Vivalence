@@ -10,6 +10,7 @@
     locals.call  = locals.wrapCall(`/r/${strategy.runtime.slug}`)
     const store = createStore({ strategy, locals });
     locals.onGameFinish = store.next;
+  $: console.log($store)
 
 </script>
 

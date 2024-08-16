@@ -6,9 +6,15 @@ import provisionInstructions from "./methods/instructions/provision.js";
 import testInstructions from "./methods/instructions/test/index.js";
 
 import updateMemory from "./methods/memory/update.js";
+
+import updateTagMemory from "./methods/memory/update/tag.js";
+import updateUnitMemory from "./methods/memory/update/unit.js";
+
 import tagsFilterByMemory from "./methods/memory/filter/tags.js";
 import unitsFilterByMemory from "./methods/memory/filter/units.js";
 import updatePlay from "./methods/play/update.js";
+import updateUnitPlay from "./methods/play/update/unit.js";
+import updateTagPlay from "./methods/play/update/tag.js";
 import hydrateScope from "./methods/scope/hydrate.js";
 
 import tagsFromTagIds from "./methods/tags/fromTagIds.js";
@@ -40,10 +46,14 @@ async function boot(runtime) {
   runtime.router.route("/instructions/test", testInstructions);
 
   runtime.router.route("/memory/update", updateMemory);
+  runtime.router.route("/memory/update/tag", updateTagMemory);
+  runtime.router.route("/memory/update/unit", updateUnitMemory);
   runtime.router.route("/memory/filter/tags", tagsFilterByMemory);
   runtime.router.route("/memory/filter/units", unitsFilterByMemory);
 
   runtime.router.route("/play/update", updatePlay);
+  runtime.router.route("/play/update/unit", updateUnitPlay);
+  runtime.router.route("/play/update/tag", updateTagPlay);
   runtime.router.route("/scope/hydrate", hydrateScope);
 
   runtime.router.route("/tags/fromTagIds", tagsFromTagIds);

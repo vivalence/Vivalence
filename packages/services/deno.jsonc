@@ -3,6 +3,5 @@
   "version": "0.0.1",
   "exports": {
     "./server.js": "./mod.server.js"
-    "./client.js": "./mod.client.js"
   }
 }

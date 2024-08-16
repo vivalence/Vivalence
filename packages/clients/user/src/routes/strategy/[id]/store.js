@@ -1,5 +1,6 @@
 import { get, writable } from "svelte/store";
 import { fromScope } from "$lib/blacklist.js";
+import dummy from "./tmp.js";
 
 const QUEUE_THRESHOLD = 2;
 
@@ -41,7 +42,8 @@ function InstructionStore({ locals, strategy }) {
       },
     };
 
-    const response = await locals.call(`/instructions/get`, input);
+    // const response = await locals.call(`/instructions/get`, input);
+    const response = dummy;
 
     if (response.error || response.data.error)
       return { error: response.error || response.data.error, status: 500 };

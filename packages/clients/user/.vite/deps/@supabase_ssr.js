@@ -6812,10 +6812,10 @@ var createClient = (supabaseUrl, supabaseKey, options) => {
   return new SupabaseClient(supabaseUrl, supabaseKey, options);
 };
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/version.js
-var VERSION = "0.4.0";
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/version.js
+var VERSION = "0.4.1";
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/utils/helpers.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/utils/helpers.js
 var import_cookie = __toESM(require_cookie());
 var parse = import_cookie.parse;
 var serialize = import_cookie.serialize;
@@ -6833,7 +6833,7 @@ function isBrowser2() {
   return typeof window !== "undefined" && typeof window.document !== "undefined";
 }
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/utils/constants.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/utils/constants.js
 var DEFAULT_COOKIE_OPTIONS = {
   path: "/",
   sameSite: "lax",
@@ -6841,7 +6841,7 @@ var DEFAULT_COOKIE_OPTIONS = {
   maxAge: 60 * 60 * 24 * 365 * 1e3
 };
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/utils/chunker.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/utils/chunker.js
 var MAX_CHUNK_SIZE = 3180;
 var CHUNK_LIKE_REGEX = /^(.*)[.](0|[1-9][0-9]*)$/;
 function isChunkLike(cookieName, key) {
@@ -6919,7 +6919,7 @@ async function deleteChunks(key, retrieveChunk, removeChunk) {
   }
 }
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/utils/base64url.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/utils/base64url.js
 var TO_BASE64URL = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".split("");
 var IGNORE_BASE64URL = " 	\n\r=".split("");
 var FROM_BASE64URL = (() => {
@@ -7057,7 +7057,7 @@ function stringFromUTF8(byte, state, emit) {
   }
 }
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/cookies.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/cookies.js
 var import_cookie2 = __toESM(require_cookie());
 var BASE64_PREFIX = "base64-";
 function createStorageFromOptions(options, isServerClient) {
@@ -7337,7 +7337,7 @@ async function applyServerStorage({ getAll, setAll, setItems, removedItems }, op
   ]);
 }
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/createBrowserClient.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/createBrowserClient.js
 var cachedBrowserClient;
 function createBrowserClient(supabaseUrl, supabaseKey, options) {
   var _a, _b;
@@ -7381,7 +7381,7 @@ https://supabase.com/dashboard/project/_/settings/api`);
   return client;
 }
 
-// ../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/createServerClient.js
+// ../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/createServerClient.js
 function createServerClient(supabaseUrl, supabaseKey, options) {
   var _a, _b;
   if (!supabaseUrl || !supabaseKey) {
@@ -7416,7 +7416,7 @@ https://supabase.com/dashboard/project/_/settings/api`);
   });
   client.auth.onAuthStateChange(async (event) => {
     const hasStorageChanges = Object.keys(setItems).length > 0 || Object.keys(removedItems).length > 0;
-    if (hasStorageChanges && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED" || event === "SIGNED_OUT")) {
+    if (hasStorageChanges && (event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED" || event === "PASSWORD_RECOVERY" || event === "SIGNED_OUT" || event === "MFA_CHALLENGE_VERIFIED")) {
       await applyServerStorage({ getAll, setAll, setItems, removedItems }, {
         cookieOptions: (options == null ? void 0 : options.cookieOptions) ?? null,
         cookieEncoding: (options == null ? void 0 : options.cookieEncoding) ?? "base64url"

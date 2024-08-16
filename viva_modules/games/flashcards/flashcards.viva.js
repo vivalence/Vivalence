@@ -60,9 +60,6 @@ export default {
     slug: "flashcards",
     name: "Flashcards",
     description: "Flashcards game for learning vocabulary",
-    modules: {
-      ontology: "file://../../ontology/ontology.viva.js",
-    },
   },
   boot,
   install,

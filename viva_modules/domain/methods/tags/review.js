@@ -1,9 +1,7 @@
 export default async function (body, ctx) {
-  console.log("REVIEW the tag.review() function - scope updates indescriminately", body.scope);
-
   const { scope, gameType, response } = body;
 
-  const { memory, nextPlay, error, ...memoryData } = await ctx.runtime.call("/memory/update", {
+  const { memory, nextPlay, error, ...memoryData } = await ctx.runtime.call("/memory/update/tag", {
     scope,
     gameType,
     response,
@@ -13,17 +11,11 @@ export default async function (body, ctx) {
 
   scope.memory = { id: memory.id };
 
-  const playData = await ctx.runtime.call("/play/update", {
+  const playData = await ctx.runtime.call("/play/update/tag", {
     scope,
     nextPlay,
     response,
   });
 
-  const { data: tag } = await runtime.locals.supabase
-    .from("Tag")
-    .select("id, data, name, slug, traits")
-    .eq("id", tagId)
-    .single();
-
-  return { ...tag, ...playData, ...memoryData, memory, nextPlay };
+  return { ...playData, ...memoryData, memory, nextPlay };
 }

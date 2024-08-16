@@ -1,24 +1,33 @@
-export default async function ensure(Module, { locals }) {
+const select = "id, slug, name, installed";
+
+export default async function ensure(Module, runtime) {
   let data;
-  const select = "id, slug, name, installed";
-  const query = await locals.supabase
+  let query = runtime.locals.supabase
     .from(Module.manifest.type)
     .select(select)
-    .eq("slug", Module.manifest.slug)
-    .single();
+    .eq("slug", Module.manifest.slug);
+  if (runtime.manifest) query = query.eq("runtimeId", runtime.manifest.id);
+  const result = await query.single();
 
-  if (query.error && query.error.code !== "PGRST116") throw query.error;
-  else if (query.data) data = query.data;
-  else if (!query.data) {
-    let insert = { slug: Module.manifest.slug, name: Module.manifest.name };
+  if (result.error && result.error.code !== "PGRST116") throw result.error;
+  else if (result.data) data = result.data;
+  else {
+    const insert = {
+      slug: Module.manifest.slug,
+      name: Module.manifest.name,
+      runtimeId: runtime.manifest.id,
+    };
+
     if (Module.manifest.version) insert.version = Module.manifest.version;
-    insert = await locals.supabase
+
+    const update = await runtime.locals.supabase
       .from(Module.manifest.type)
       .insert(insert)
       .select(select)
       .single();
-    if (insert.error) throw insert.error;
-    if (data) data = insert.data;
+
+    if (update.error) throw update.error;
+    else data = update.data;
   }
   return { manifest: { ...data, ...Module.manifest } };
 }

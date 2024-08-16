@@ -15,6 +15,7 @@ async function boot(runtime) {
                   structural: { slug: "structural:a1" },
                 },
               },
+              masks: {},
             },
             for: { type: "repetitions", value: 10 },
           },
