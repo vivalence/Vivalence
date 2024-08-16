@@ -12,6 +12,15 @@ const tactic = {
     },
     games: {
       flashcards: { slug: "flashcards" },
+      translations: { slug: "translations" },
+    },
+  },
+  masks: {
+    translations: {
+      prompt: {
+        inner:
+          "### Task:\nCreate simple statements to practice the usage of present tense verbs with a noun for A1 language learners.\nUsage of present tense verbs and nouns on A1 level.\n1 VERB + 1 NOUN\n\n### Examples:\nHe eats bread. - Él come pan. (Masculine Singular)\nShe reads a book. - Ella lee un libro. (Feminine Singular)\nThey play soccer. - Ellos juegan fútbol. (Masculine Plural)\n\n### Instructions:\nThe sentence should be made up of 2 parts. One (1) verb in the present tense and one (1) noun.\nChoose common, everyday nouns suitable for A1 level language learners.\nThe statement must make sense, possibly occur in written text or conversation, and be clear for a language learner.\nI will provide the verb. Take the provided verb exactly. Don't change its tense or person.",
+      },
     },
   },
   instructions: {

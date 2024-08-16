@@ -1,4 +1,103 @@
+import { getDateTimeInXHours, getTimeDifferenceFromNow } from "./time.js";
 import * as ebisu from "./ebisu.js";
+
+export async function handleMemory({ scope, gameType, response }, ctx) {
+  const user = await ctx.runtime.locals.getUser();
+  scope.user = { id: user.id };
+
+  const memory = await findMemory({ scope, gameType, response }, ctx);
+
+  if (!memory) {
+    return await createNewMemory({ scope, gameType, response }, ctx);
+  } else {
+    return await updateMemory({ memory, gameType, response }, ctx);
+  }
+}
+
+export async function findMemory({ scope }, ctx) {
+  let query = ctx.runtime.locals.supabase
+    .from("Memory")
+    .select("id, unitId, tagId, userId, state, status, lastSeen, history")
+    .eq("userId", scope.user.id);
+
+  if (scope.unit) query = query.eq("unitId", scope.unit.id);
+  else query = query.filter("unitId", "is", null);
+
+  if (scope.tag) query = query.eq("tagId", scope.tag.id);
+  else query = query.filter("tagId", "is", null);
+
+  const { data: memories, error } = await query.limit(1);
+  if (error) throw error;
+
+  return memories[0];
+}
+
+export async function createNewMemory({ response, gameType, scope }, ctx) {
+  const model = ebisu.initiateModel(response);
+  const nextReviewTime = ebisu.predictNextReviewTime(model);
+  const nextPlay = getDateTimeInXHours(nextReviewTime);
+  const now = new Date().toISOString();
+
+  const history = [{ gameType, response, model, nextPlay, date: now }];
+  const status = getStatus(nextReviewTime, history);
+
+  const { data: createdMemory, error } = await ctx.runtime.locals.supabase
+    .from("Memory")
+    .insert([
+      {
+        type: "EBISU_v2",
+        status,
+        state: model,
+        lastSeen: now,
+        history,
+        userId: scope.user.id,
+        unitId: scope.unit?.id,
+        tagId: scope.tag?.id,
+      },
+    ])
+    .single()
+    .select("id, state, status, lastSeen");
+
+  if (error) throw error;
+
+  return {
+    memory: createdMemory,
+    nextPlay,
+  };
+}
+
+export async function updateMemory({ memory, response, gameType }, ctx) {
+  const now = new Date().toISOString();
+  const elapsedTime = getTimeDifferenceFromNow(memory.lastSeen);
+  const model = ebisu.updateModel(memory.state, response, elapsedTime);
+  const nextReviewIn = ebisu.predictNextReviewTime(model);
+  const nextPlay = getDateTimeInXHours(nextReviewIn);
+
+  const history = [...memory.history, { gameType, response, model, nextPlay, date: now }];
+  const status = getStatus(nextReviewIn, history);
+
+  const { data: updatedMemory, error } = await ctx.runtime.locals.supabase
+    .from("Memory")
+    .update({
+      state: model,
+      status,
+      history,
+      lastSeen: now,
+      updatedAt: now,
+    })
+    .eq("id", memory.id)
+    .single()
+    .select("id, state, status, lastSeen");
+
+  if (error) throw error;
+
+  return {
+    memory: updatedMemory,
+    nextReviewIn,
+    nextPlay,
+    memoryStatusChange: status !== memory.status,
+  };
+}
 
 export async function getUnitMemory(unit, ctx) {
   const { data, error } = await ctx.runtime.locals.supabase

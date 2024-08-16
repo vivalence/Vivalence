@@ -2,43 +2,6 @@ import config from "@vivalence/config";
 import lock from "./lib/lock.js";
 // lock must be databased for scalability. re: stateless runtime
 
-async function provision(props, ctx) {
-  let instructions, error;
-  try {
-    if (lock.has(props.scope)) return { status: 202 };
-    lock.set(props.scope);
-    instructions = await ctx.runtime.call("/instructions/provision", props);
-    if (instructions.error) throw response.error;
-
-    const { error } = await ctx.runtime.locals.supabase.from("Queue").insert(
-      instructions.map((data, index) => ({
-        userId: props.scope.user.id,
-        strategyId: props.scope.strategy.id,
-        tacticId: props.scope.tactic.id,
-        data,
-        index,
-      }))
-    );
-
-    if (error) throw error;
-  } catch (err) {
-    console.error(`[PROVISIONING ERROR]`, err.message);
-    console.error(err);
-    error = error;
-  } finally {
-    lock.delete(props.scope);
-    if (error) throw error;
-    return instructions;
-  }
-}
-
-function buildBlacklist(blacklist = {}) {
-  blacklist.units = blacklist.units || [];
-  blacklist.tags = blacklist.tags || [];
-  blacklist.instructions = blacklist.instructions || [];
-  return blacklist;
-}
-
 export default async function ({ scope, take, ...body }, ctx) {
   const user = await ctx.runtime.locals.getUser();
   scope.user = { id: user.id };
@@ -104,4 +67,41 @@ export default async function ({ scope, take, ...body }, ctx) {
   }
 
   return { instructions, status: 200 };
+}
+
+async function provision(props, ctx) {
+  let instructions, error;
+  try {
+    if (lock.has(props.scope)) return { status: 202 };
+    lock.set(props.scope);
+    instructions = await ctx.runtime.call("/instructions/provision", props);
+    if (instructions.error) throw response.error;
+
+    const { error } = await ctx.runtime.locals.supabase.from("Queue").insert(
+      instructions.map((data, index) => ({
+        userId: props.scope.user.id,
+        strategyId: props.scope.strategy.id,
+        tacticId: props.scope.tactic.id,
+        data,
+        index,
+      }))
+    );
+
+    if (error) throw error;
+  } catch (err) {
+    console.error(`[PROVISIONING ERROR]`, err.message);
+    console.error(err);
+    error = error;
+  } finally {
+    lock.delete(props.scope);
+    if (error) throw error;
+    return instructions;
+  }
+}
+
+function buildBlacklist(blacklist = {}) {
+  blacklist.units = blacklist.units || [];
+  blacklist.tags = blacklist.tags || [];
+  blacklist.instructions = blacklist.instructions || [];
+  return blacklist;
 }

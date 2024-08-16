@@ -1,0 +1,44 @@
+meta {
+  name: provision
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/instructions/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "scope": {
+      "tactic": {
+        "id": "a5f3f728-2f3b-4767-8757-2386d7f977ab"
+      },
+      "strategy": {
+        "id": "e4f3d446-c1c3-42b2-8e5e-7bd7fcae9928"
+      }
+    },
+    "blacklist": {
+      "units": [
+        "b521df06-cb03-4fa7-abc6-db55e0453696",
+        "c54a5c83-64f3-4162-9bf7-880dca21244b"
+      ],
+      "tags": [
+        "clrzb14tl002dg0m3p5lsy4f3",
+        "clpwfwot10006g0n18uv27vbi",
+        "clrzaz35y0003g0jsnr9c47j0",
+        "clrzb8zro069ug0mwugfrctvb",
+        "clrzaz4z90009g0jsrf0yyiqu",
+        "clrzb15d70030g0m3zhq7cynz",
+        "clrzaz4r10008g0jslyotjh0c",
+        "clrzaz4ir0006g0jsp53an5jh"
+      ],
+      "instructions": [
+        "a28425c0-ff07-4135-884c-3c71425abe81",
+        "011e2789-33fb-48ad-89ac-8547324984be"
+      ]
+    }
+  }
+}

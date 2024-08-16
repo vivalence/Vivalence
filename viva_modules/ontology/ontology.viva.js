@@ -54,7 +54,10 @@ export default {
     modules: {
       domain: "file://../domain/domain.viva.js",
       corpus: "file://../corpus/corpus.viva.js",
-      games: ["file://../games/flashcards/flashcards.viva.js"],
+      games: [
+        "file://../games/flashcards/flashcards.viva.js",
+        "file://../games/translations/translations.viva.js",
+      ],
       strategies: [],
     },
     owner: "Vivalence",

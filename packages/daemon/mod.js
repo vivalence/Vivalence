@@ -3,7 +3,6 @@ const start = performance.now();
 
 import config from "@vivalence/config";
 import supabase from "./lib/supabase/index.js";
-import services from "./lib/services.js";
 
 import runtimes from "./runtimes/runtimes.js";
 import routes from "./runtimes/routes.js";
@@ -80,7 +79,7 @@ async function dev(params) {
       tactic: { id: "a5f3f728-2f3b-4767-8757-2386d7f977ab" },
       strategy: { id: "e4f3d446-c1c3-42b2-8e5e-7bd7fcae9928" },
       user: { id: "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b" },
-      game: { id: "8e77d3db-1d61-4980-8f86-cf5f6ec0b4dd" },
+      game: { id: "55de6b74-f28d-4871-b394-ae806e482fa1" },
     },
     blacklist: {
       units: ["b521df06-cb03-4fa7-abc6-db55e0453696", "c54a5c83-64f3-4162-9bf7-880dca21244b"],
@@ -99,10 +98,11 @@ async function dev(params) {
         "011e2789-33fb-48ad-89ac-8547324984be",
       ],
     },
-    tagIds: ["55bdcbd6-fd42-41dd-8014-79668ae6fd07", "clpwfwow30008g0n1iruvb7un"],
-    take: 4,
+    // tagIds: ["55bdcbd6-fd42-41dd-8014-79668ae6fd07", "clpwfwow30008g0n1iruvb7un"],
+    // take: 4,
   };
 
+  // console.log("call(body).response", JSON.stringify(body));
   // console.log("call(body).response", await call("/instructions/provision", body));
   // console.log("call(body).response", await call("/units/pending", body));
 
@@ -112,7 +112,6 @@ async function dev(params) {
 await [
   cleanupPorts,
   supabase,
-  services,
   server,
   runtimes,
   routes,

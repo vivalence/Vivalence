@@ -3,8 +3,8 @@ node_modules
 # Output
 .output
 .vercel
-/.svelte-kit
-/build
+.svelte-kit
+build
 
 # OS
 .DS_Store
@@ -18,4 +18,4 @@ Thumbs.db
 
 # Vite
 vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
+.vite

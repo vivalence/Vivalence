@@ -10,8 +10,10 @@ export default function route(router) {
       } catch (error) {
         console.error("[ERROR] router.route handler");
         console.error(error);
+        console.error({ path, body });
+        console.error(JSON.stringify(error, null, 2));
         ctx.response.status = 500;
-        ctx.response.body = { error: error.toString() };
+        ctx.response.body = { error: JSON.stringify(error), path, body };
       }
     });
   };

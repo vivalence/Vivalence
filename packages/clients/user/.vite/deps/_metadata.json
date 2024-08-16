@@ -2,72 +2,72 @@
   "hash": "552a7a1b",
   "configHash": "a8812441",
   "lockfileHash": "107bef7f",
-  "browserHash": "e8eca1ea",
+  "browserHash": "1d5e0310",
   "optimized": {
     "svelte/animate": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/animate/index.js",
       "file": "svelte_animate.js",
-      "fileHash": "54b635d1",
+      "fileHash": "79866305",
       "needsInterop": false
     },
     "svelte/easing": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/easing/index.js",
       "file": "svelte_easing.js",
-      "fileHash": "518d44b4",
+      "fileHash": "0894fb93",
       "needsInterop": false
     },
     "svelte/internal": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/internal/index.js",
       "file": "svelte_internal.js",
-      "fileHash": "b8948ea1",
+      "fileHash": "6b8f208b",
       "needsInterop": false
     },
     "svelte/internal/disclose-version": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/internal/disclose-version/index.js",
       "file": "svelte_internal_disclose-version.js",
-      "fileHash": "28801360",
+      "fileHash": "4497fb27",
       "needsInterop": false
     },
     "svelte/motion": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/motion/index.js",
       "file": "svelte_motion.js",
-      "fileHash": "914ecbce",
+      "fileHash": "c5305895",
       "needsInterop": false
     },
     "svelte/store": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/store/index.js",
       "file": "svelte_store.js",
-      "fileHash": "aef75e3f",
+      "fileHash": "bccdeb19",
       "needsInterop": false
     },
     "svelte/transition": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/transition/index.js",
       "file": "svelte_transition.js",
-      "fileHash": "0e3d41d0",
+      "fileHash": "ea9bad6c",
       "needsInterop": false
     },
     "svelte": {
       "src": "../../../../../node_modules/.deno/svelte@4.2.18/node_modules/svelte/src/runtime/index.js",
       "file": "svelte.js",
-      "fileHash": "590a8900",
+      "fileHash": "42e8e350",
       "needsInterop": false
     },
     "@supabase/ssr": {
-      "src": "../../../../../node_modules/.deno/@supabase+ssr@0.4.0/node_modules/@supabase/ssr/dist/module/index.js",
+      "src": "../../../../../node_modules/.deno/@supabase+ssr@0.4.1/node_modules/@supabase/ssr/dist/module/index.js",
       "file": "@supabase_ssr.js",
-      "fileHash": "85e857b4",
+      "fileHash": "7f4332c4",
       "needsInterop": false
     },
     "devalue": {
       "src": "../../../../../node_modules/.deno/devalue@5.0.0/node_modules/devalue/index.js",
       "file": "devalue.js",
-      "fileHash": "9a1e4b78",
+      "fileHash": "c1f5ea1c",
       "needsInterop": false
     },
     "esm-env": {
       "src": "../../../../../node_modules/.deno/esm-env@1.0.0/node_modules/esm-env/dev-browser.js",
       "file": "esm-env.js",
-      "fileHash": "bc03754f",
+      "fileHash": "f3489be6",
       "needsInterop": false
     }
   },

@@ -3,7 +3,10 @@ import supabase from "../lib/supabase/index.js";
 import getRuntimes from "../lib/viva/module-loader.js";
 import config from "@vivalence/config";
 
-import bundler from "../lib/bundler.js";
+import createServerServices from "@vivalence/services/server.js";
+
+import validate from "../lib/validate.js";
+import bundler from "../lib/bundler/index.js";
 import createRouter from "../server/router/create.js";
 import createEmitter from "./lib/createEmitter.js";
 import middlewares from "./lib/middlewares.js";
@@ -11,21 +14,28 @@ import boot from "./lib/boot.js";
 import ensure from "./lib/ensure.js";
 import connect from "./lib/connect.js";
 
-export default async function runtimes({ services, ...params }) {
+export default async function runtimes({ ...params }) {
   const Runtimes = await getRuntimes(config.env.get("VIVA_RUNTIMES_DIR"));
   const runtimes = new Map();
 
   for (const { Domain, Ontology, Corpus, Games, Runtime } of Runtimes.values()) {
-    const locals = { bundler: bundler(), supabase: supabase.createAdminClient(), services };
+    const services = createServerServices("");
+    const locals = {
+      validate: validate(),
+      bundler: bundler(),
+      supabase: supabase.createAdminClient(),
+      services,
+    };
 
     let runtime = {
       ...(await ensure(Runtime, { locals })),
       ["#symbol"]: Symbol(Runtime.manifest.type),
-      privileges: "ELEVATED",
       bus: createEmitter(),
       router: createRouter(),
       schema: [Ontology, Corpus].reduce((a, { schema: s }) => s(a), {}),
+      statics: { language: { known: "english", learning: "spanish" } },
       locals,
+      services,
     };
 
     middlewares(runtime, runtimes);

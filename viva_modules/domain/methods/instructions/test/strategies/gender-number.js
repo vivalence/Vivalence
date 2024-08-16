@@ -1,6 +1,7 @@
 export default async (inputs, runtime) => {
-  const { language, tactic, strategy, scope, blacklist } = inputs;
+  const { language, tactic, strategy, scope } = inputs;
   const { games, units, tags } = tactic.relations;
+  let blacklist = inputs.blacklist;
 
   const FLASHCARD_COUNT = 5;
 
@@ -25,10 +26,10 @@ export default async (inputs, runtime) => {
   // TRANSLATIONS
   //
   const constraints = [];
-  constraints.push(`ARTICLE: "${articleUnit.data.learning} - ${articleUnit.data.known}"`);
+  constraints.push(`ARTICLE to use: "${articleUnit.data.learning} - ${articleUnit.data.known}"`);
   [genderTag, numberTag].forEach((tag) =>
     constraints.push(
-      `inflection in agreement with: "${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}"`
+      `inflection must be in agreement with: "${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}"`
     )
   );
   constraints.push(`LENGTH: "Between 4-7 words."`);
@@ -40,22 +41,23 @@ export default async (inputs, runtime) => {
       tagIds: [tags.structural.id, tag.id],
       take: 4,
     });
-
-    console.log(units[0], units.length);
-
     units.forEach((unit) => {
       constraints.push(
-        `${tag.data["ONTOLOGICAL"].leaf}: "${unit.data.learning} - ${unit.data.known}"`
+        `choices of "${tag.data["ONTOLOGICAL"].leaf}": "${unit.data.learning} - ${unit.data.known}"`
       );
     });
   }
-  console.log("constraints", constraints);
-  // console.log(JSON.stringify(tactic.relations.games, null, 2));
 
   // const flashcards = await games.flashcards.call("/provision/fromUnits", {units: articleUnits, scope,});
-  // const translations = await games.translations.call(`/provision`, {constraints, language, scope,});
+  const translations = await games.translations.call(`/provision`, {
+    constraints,
+    language,
+    scope,
+    mask: tactic.masks.translations,
+  });
 
-  // locals.scopeToBlacklist({ blacklist, scope: translations.scope });
+  // blacklist = runtime.locals.blacklist.fromSCope({ blacklist, scope: translations.scope });
+  return [translations];
 };
 
 const tmp = {

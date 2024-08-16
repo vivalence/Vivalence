@@ -77,7 +77,9 @@ export const actions = {
     }
   },
   signin: async ({ request, url, locals, cookies }) => {
+    console.log("+page.server SIGNING request", request);
     const formData = await request.formData();
+    console.log("+page.server SIGNING formData", formData);
     const email = formData.get("email");
     const password = formData.get("password");
     const provider = formData.get("provider");
