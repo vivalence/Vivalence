@@ -1,6 +1,14 @@
 import React from "react";
 import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
-import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import {
+  DeleteButton,
+  EditButton,
+  List,
+  SaveButton,
+  ShowButton,
+  TagField,
+  useTable,
+} from "@refinedev/antd";
 import { Form, Input, Space, Table } from "antd";
 
 export const UnitList: React.FC<IResourceComponentsProps> = () => {
@@ -65,21 +73,9 @@ export const UnitList: React.FC<IResourceComponentsProps> = () => {
           dataIndex="actions"
           render={(_, record: BaseRecord) => (
             <Space>
-              <EditButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <ShowButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <DeleteButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
+              <EditButton hideText size="small" recordItemId={record.id} />
+              <ShowButton hideText size="small" recordItemId={record.id} />
+              <DeleteButton hideText size="small" recordItemId={record.id} />
             </Space>
           )}
         />

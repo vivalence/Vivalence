@@ -1,6 +1,14 @@
 import React from "react";
 import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
-import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import {
+  DeleteButton,
+  EditButton,
+  List,
+  SaveButton,
+  ShowButton,
+  TagField,
+  useTable,
+} from "@refinedev/antd";
 import { Form, Input, Space, Table } from "antd";
 
 export const TagList: React.FC<IResourceComponentsProps> = () => {
@@ -39,11 +47,7 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
         <SaveButton hideText onClick={searchFormProps.form?.submit} />
       </Form>
       <Table {...tableProps} rowKey="id">
-        <Table.Column
-          dataIndex={["name"]}
-          title="name"
-          render={(value: any) => value}
-        />
+        <Table.Column dataIndex={["name"]} title="name" render={(value: any) => value} />
         <Table.Column
           dataIndex={["unit count"]}
           title="Units"
@@ -52,7 +56,9 @@ export const TagList: React.FC<IResourceComponentsProps> = () => {
         <Table.Column
           dataIndex="type"
           title="Type"
-          render={(value: any[]) => <>{value?.map((item) => <TagField value={item} key={item} />)}</>}
+          render={(value: any[]) => (
+            <>{value?.map((item) => <TagField value={item} key={item} />)}</>
+          )}
         />
         <Table.Column
           title="Actions"

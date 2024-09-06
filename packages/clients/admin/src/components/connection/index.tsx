@@ -46,39 +46,40 @@ interface ConnectionEditProps<T extends Resource> {
   rootResourceId: string;
 }
 
-export const ConnectionEdit = forwardRef<
-  ConnectionEditHandles,
-  ConnectionEditProps<Resource>
->((props, ref) => {
-  // @lj: unknown is ts hack because ts is retarded
-  const connection = ConnectionTypes[props.connectionName] as unknown as ConnectionTypeMethods<Resource>;
-  const { map, filter, variableResourceKey } = connection;
+export const ConnectionEdit = forwardRef<ConnectionEditHandles, ConnectionEditProps<Resource>>(
+  (props, ref) => {
+    // @lj: unknown is ts hack because ts is retarded
+    const connection = ConnectionTypes[
+      props.connectionName
+    ] as unknown as ConnectionTypeMethods<Resource>;
+    const { map, filter, variableResourceKey } = connection;
 
-  let [optionsAll] = useResource<Resource>(variableResourceKey, map);
+    let [optionsAll] = useResource<Resource>(variableResourceKey, map);
 
-  const [optionsActive, setActive] = useState<OptionType<Resource>[]>([]);
+    const [optionsActive, setActive] = useState<OptionType<Resource>[]>([]);
 
-  useEffect(() => props.active && setActive(map(props.active)), [props.active]);
+    useEffect(() => props.active && setActive(map(props.active)), [props.active]);
 
-  const { autocompleteRef, onFormFinish } = useFormSubmission(
-    props.rootResourceId,
-    props.connectionName,
-  );
+    const { autocompleteRef, onFormFinish } = useFormSubmission(
+      props.rootResourceId,
+      props.connectionName,
+    );
 
-  useImperativeHandle(ref, () => ({
-    onSave: () => {
-      onFormFinish();
-    },
-  }));
+    useImperativeHandle(ref, () => ({
+      onSave: () => {
+        onFormFinish();
+      },
+    }));
 
-  return (
-    <Autocomplete
-      ref={autocompleteRef}
-      optionsInit={optionsActive}
-      optionsAll={optionsAll}
-      filter={filter(optionsAll)}
-    />
-  );
-});
+    return (
+      <Autocomplete
+        ref={autocompleteRef}
+        optionsInit={optionsActive}
+        optionsAll={optionsAll}
+        filter={filter(optionsAll)}
+      />
+    );
+  },
+);
 
 export default ConnectionEdit;

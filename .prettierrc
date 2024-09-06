@@ -3,7 +3,13 @@
   "singleQuote": false,
   "printWidth": 100,
   "tabWidth": 2,
+  "svelteSortOrder": "options-styles-scripts-markup",
+  "svelteStrictMode": false,
+  "svelteIndentScriptAndStyle": true,
+  "plugins": ["prettier-plugin-svelte"],
+
   "overrides": [
+    { "files": "*.svelte", "options": { "parser": "svelte" } },
     {
       "files": "*.viva",
       "options": { "parser": "babel" }

@@ -14,13 +14,14 @@ export default async function evaluate({ scope, sentence }, ctx) {
   );
 
   evaluations.map((evaluation) => evaluateByType({ ...evaluation, scope }, ctx));
+  const result = prettifyEvaluations({ evaluations, scope }, ctx);
 
   console.log(`[PERF] evaluate took ${performance.now() - perf}ms`);
-  return prettifyEvaluations({ evaluations, scope }, ctx);
+  return result;
 }
 
 function prettifyEvaluations({ evaluations, scope }, ctx) {
-  return evaluations
+  const units = evaluations
     .map(({ evaluations, unit }) => {
       return evaluations.reduce(
         (acc, obj) => {
@@ -38,6 +39,13 @@ function prettifyEvaluations({ evaluations, scope }, ctx) {
       });
       return unit;
     });
+
+  const errors = units.reduce((errors, unit) => {
+    unit.evaluation.status !== "KNOWN" && errors++;
+    return errors;
+  }, 0);
+
+  return { units, sentence: { status: errors === 0 ? "KNOWN" : "UNKNOWN" } };
 }
 
 async function evaluateByType({ scope, evaluations }, ctx) {

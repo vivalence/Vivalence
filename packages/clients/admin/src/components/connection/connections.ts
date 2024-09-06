@@ -3,7 +3,12 @@ import { type ConnectionTypeMethods, type ConnectionTypesInterface } from "./typ
 // next: export ConnectionTypeMethods;
 
 import { StrategyToTag, UnitToTag } from "./connections/toTag";
-import { GameToStrategy, TagToStrategy, UnitToStrategy, UserToStrategy } from "./connections/toStrategy";
+import {
+  GameToStrategy,
+  TagToStrategy,
+  UnitToStrategy,
+  UserToStrategy,
+} from "./connections/toStrategy";
 import { StrategyToGame } from "./connections/toGame";
 import { StrategyToUser } from "./connections/toUser";
 import { StrategyToUnit, TagToUnit } from "./connections/toUnit";

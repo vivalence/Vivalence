@@ -11,7 +11,12 @@ interface SearchProps<T extends Resource> {
   filter: (searchText: string) => OptionType<T>[];
 }
 
-const Search = <T extends Resource>({ optionsActive, optionsAll, filter, onSelect }: SearchProps<T>): ReactElement => {
+const Search = <T extends Resource>({
+  optionsActive,
+  optionsAll,
+  filter,
+  onSelect,
+}: SearchProps<T>): ReactElement => {
   const [options, setOptions] = useState<OptionType<T>[]>(optionsAll);
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState(false);
@@ -52,7 +57,9 @@ const Search = <T extends Resource>({ optionsActive, optionsAll, filter, onSelec
       onDropdownVisibleChange={handleDropdownVisibleChange}
       onBlur={() => setOpen(false)}
       optionRender={(option) => {
-        const isActive = optionsActive.some((activeOption) => activeOption.data.id === option.data.data.id);
+        const isActive = optionsActive.some(
+          (activeOption) => activeOption.data.id === option.data.data.id,
+        );
         return (
           <div>
             <span>{option.label}</span>

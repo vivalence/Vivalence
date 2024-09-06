@@ -12,6 +12,7 @@ async function startProcess() {
   });
   return await process.status();
 }
+
 function handleSignal(signal) {
   console.log(`Received ${signal}. Shutting down...`);
   if (process) {

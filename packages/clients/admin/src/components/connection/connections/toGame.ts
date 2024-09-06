@@ -30,9 +30,5 @@ export const StrategyToGame: ConnectionTypeMethods<Game> = {
       },
     ]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToGame")
-      .delete()
-      .eq("B", rootResourceId)
-      .eq("A", option.data.id),
+    await supabase.from("_StrategyToGame").delete().eq("B", rootResourceId).eq("A", option.data.id),
 };

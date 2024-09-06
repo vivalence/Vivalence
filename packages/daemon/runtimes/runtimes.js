@@ -6,7 +6,7 @@ import config from "@vivalence/config";
 import createServerServices from "@vivalence/services/server.js";
 
 import validate from "../lib/validate.js";
-import bundler from "../lib/bundler/index.js";
+// import bundler from "../lib/bundler/index.js";
 import createRouter from "../server/router/create.js";
 import createEmitter from "./lib/createEmitter.js";
 import middlewares from "./lib/middlewares.js";
@@ -22,7 +22,7 @@ export default async function runtimes({ ...params }) {
     const services = createServerServices("");
     const locals = {
       validate: validate(),
-      bundler: bundler(),
+      // bundler: bundler(),
       supabase: supabase.createAdminClient(),
       services,
     };

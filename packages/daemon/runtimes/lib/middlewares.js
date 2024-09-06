@@ -11,12 +11,9 @@ export default function middlewares(runtime, runtimes) {
 
     ctx.runtime.locals.getUser = async () => {
       const { data, error } = await ctx.runtime.locals.supabase.auth.getUser();
+      if (error) throw error;
       return data.user;
     };
-    // ctx.runtime.locals.getSession = async () => {
-    //   const { data } = await ctx.runtime.locals.supabase.auth.getSession();
-    //   return data.session;
-    // };
 
     ctx.runtime.call = runtime.caller(ctx);
     return ctx.runtime;

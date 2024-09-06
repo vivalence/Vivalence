@@ -3,42 +3,41 @@ name: Build and Deploy to Server
 on:
   push:
     tags:
-      - 'v*.*.*'  
+      - "v*.*.*"
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Add SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Build image
-      run: |
-        docker build --progress=plain -t vivalence .
-        docker images vivalence
-        docker images vivalence --format "{{.Size}}"
-        docker save vivalence | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
+      - name: Build image
+        run: |
+          docker build --progress=plain -t vivalence .
+          docker images vivalence
+          docker images vivalence --format "{{.Size}}"
+          docker save vivalence | ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker load"
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-    - name: Add SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -t rsa ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
-    - name: Deploy to server
-      run: |
-        ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d client ontologies-spanish"
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose -f /opt/server/docker-compose.yml up -d client ontologies-spanish"

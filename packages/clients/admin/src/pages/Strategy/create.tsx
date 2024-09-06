@@ -29,9 +29,7 @@ export const StrategyCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Name"
           name="name"
-          rules={[
-            { required: true, message: "Please input a name" },
-          ]}
+          rules={[{ required: true, message: "Please input a name" }]}
         >
           <Input />
         </Form.Item>

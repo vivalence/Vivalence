@@ -1,4 +1,11 @@
-import React, { forwardRef, ReactElement, Ref, useEffect, useImperativeHandle, useState } from "react";
+import React, {
+  forwardRef,
+  ReactElement,
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 
 import Search from "./search";
 import List from "./list";
@@ -22,13 +29,17 @@ const Autocomplete = forwardRef(
     /* useEffect(() => setAllOptions(f(props.optionsAll)), [props.optionsAll, optionsActive]) */
 
     useImperativeHandle(ref, () => ({
-      added: () => optionsActive.filter((u) => !props.optionsInit.some((u2) => u2.value === u.value)),
-      removed: () => props.optionsInit.filter((u) => !optionsActive.some((u2) => u2.value === u.value)),
+      added: () =>
+        optionsActive.filter((u) => !props.optionsInit.some((u2) => u2.value === u.value)),
+      removed: () =>
+        props.optionsInit.filter((u) => !optionsActive.some((u2) => u2.value === u.value)),
     }));
 
     const onSelect = (option: OptionType<T>) => {
       setActiveOptions(
-        optionsActive.some((u) => u.value === option.value) ? optionsActive : [...optionsActive, option],
+        optionsActive.some((u) => u.value === option.value)
+          ? optionsActive
+          : [...optionsActive, option],
       );
     };
 
@@ -51,10 +62,7 @@ const Autocomplete = forwardRef(
           onSelect={onSelect}
         />
 
-        <List<T>
-          listMembers={optionsActive}
-          onDelete={onDelete}
-        />
+        <List<T> listMembers={optionsActive} onDelete={onDelete} />
       </div>
     );
   },

@@ -15,16 +15,17 @@ if (!initialized) {
     CLIENTS_USER_URL: env.CLIENTS_USER_URL,
     SUPABASE_URL: env.SUPABASE_URL,
     SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,
-    PROVISION_THRESHOLD: 5,
     CACHE_AGE_SECONDS: 1,
   };
 
   if (Deno.env.get("DENO_ROLE") === "daemon") {
     config.env = {
       ...config.env,
-      VIVA_MODULES_DIR: `${ROOT_DIR}/viva_modules`,
-      VIVA_RUNTIMES_DIR: `${ROOT_DIR}/runtimes`,
+      PROVISION_THRESHOLD: 1,
       DAEMON_PORT: env.DAEMON_PORT,
+      VIVA_MODULES_DIR: `${ROOT_DIR}/viva_modules`,
+      VIVA_PACKAGES_DIR: `${ROOT_DIR}/packages`,
+      VIVA_RUNTIMES_DIR: `${ROOT_DIR}/runtimes`,
       PRIVATE_SUPABASE_ADMIN_KEY: env.PRIVATE_SUPABASE_ADMIN_KEY,
       PRIVATE_DATABASE_URL: env.PRIVATE_DATABASE_URL,
       PRIVATE_SERVICE_NLP_URL: env.PRIVATE_SERVICE_NLP_URL,
@@ -39,6 +40,7 @@ if (!initialized) {
   if (Deno.env.get("DENO_ROLE") === "client") {
     config.env = {
       ...config.env,
+      PUBLIC_QUEUE_THRESHOLD: 1,
       ...Object.entries(config.env).reduce((acc, [key, value]) => {
         return (acc[`PUBLIC_${key}`] = value.toString()), acc;
       }, {}),

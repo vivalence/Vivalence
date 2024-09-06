@@ -17,9 +17,7 @@ export const handle = async (event) => {
     return data.session;
   };
 
-  const call = createCall({});
-  event.locals.wrapCall = (root) => (path, body, params) => call(`${root}${path}`, body, params);
-  event.locals.call = call;
+  event.locals.call = createCall({});
 
   event.data.session = await event.locals.getSession();
   return event;

@@ -24,9 +24,10 @@ const MonacoEditorField: React.FC<MonacoEditorFieldProps> = (props) => {
     props.onChange && props.onChange(value);
   };
 
-  const defaultValue = typeof props.formData === "object"
-    ? JSON.stringify(props.formData, null, 2)
-    : props.formData || props.value || "";
+  const defaultValue =
+    typeof props.formData === "object"
+      ? JSON.stringify(props.formData, null, 2)
+      : props.formData || props.value || "";
 
   return (
     <>

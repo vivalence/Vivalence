@@ -30,10 +30,7 @@ export const GameEdit: React.FC<IResourceComponentsProps> = () => {
   };
 
   const [jsonData, setJsonData] = useState();
-  useEffect(
-    () => setJsonData(form.getFieldValue("data")),
-    [form, queryResult, formProps],
-  );
+  useEffect(() => setJsonData(form.getFieldValue("data")), [form, queryResult, formProps]);
 
   const items = [
     {

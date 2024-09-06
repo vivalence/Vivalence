@@ -10,7 +10,9 @@ export const AppUserCreate: React.FC<IResourceComponentsProps> = () => {
   const { editUrl, push } = useNavigation();
 
   const onFinish = async (values: any) => {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+    const {
+      data: { session },
+    } = await supabaseClient.auth.getSession();
 
     const newUser = await supabaseClient.auth.signUp({
       email: values.email,

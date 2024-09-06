@@ -5,8 +5,11 @@
     "vite": "npm:vite@^5.3.5",
     "svelte": "npm:svelte@4.2.18",
     "svelte/compiler": "npm:svelte@4.2.18/compiler",
+    "svelte/motion": "npm:svelte@4.2.18/motion",
+    "svelte-gestures": "npm:svelte-gestures@5.0.4",
     "@sveltejs/kit": "npm:@sveltejs/kit@2.5.18",
     "@sveltejs/kit/vite": "npm:@sveltejs/kit@2.5.18/vite",
+    "@vivalence/ui": "./packages/ui/mod.js",
     "@vivalence/config": "./config/mod.js",
     "@sveltejs/adapter-auto": "npm:@sveltejs/adapter-auto@3.2.2",
     "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@3.1.1",
@@ -14,6 +17,7 @@
     "@supabase/ssr": "npm:@supabase/ssr@0.4.1",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.45.1",
     "mustache": "npm:mustache@4.2.0",
+    "@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.15",
     "daisyui": "npm:daisyui@4.12.10"
   }
 }
