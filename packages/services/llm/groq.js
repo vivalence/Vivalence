@@ -15,7 +15,7 @@ export default () => {
         role: "user",
         content:
           `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
-          `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`
+          `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
       });
     }
 
@@ -23,11 +23,17 @@ export default () => {
       messages,
       model: provider.model || "llama2-70b-4096",
       max_tokens: provider.max_tokens || 4096,
-      temperature: provider.temperature || 0.8
+      temperature: provider.temperature || 0.8,
     };
 
-    const response = await client.chat.completions.create(completion);
-    const text = response.choices[0].message.content;
-    return schema ? JSON.parse(text) : text;
+    let response, text, result;
+    try {
+      response = await client.chat.completions.create(completion);
+      text = response.choices[0].message.content;
+      result = schema ? JSON.parse(text) : text;
+      return result;
+    } catch (error) {
+      throw new Error(JSON.stringify({ error, reponse, text, result }));
+    }
   };
 };

@@ -20,9 +20,7 @@ export const StrategyToUser: ConnectionTypeMethods<User> = {
         data.id.toLowerCase().includes(searchText.toLowerCase()),
     ),
   create: async (option, rootResourceId) =>
-    await supabase
-      .from("_AppUserToStrategy")
-      .insert([{ A: option.data.id, B: rootResourceId }]),
+    await supabase.from("_AppUserToStrategy").insert([{ A: option.data.id, B: rootResourceId }]),
   remove: async (option, rootResourceId) =>
     await supabase
       .from("_AppUserToStrategy")

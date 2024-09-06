@@ -28,18 +28,11 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
       label: "User",
       children: (
         <>
-          <Form.Item
-            label="Id"
-            name={["id"]}
-            rules={[{ required: true }]}
-          >
+          <Form.Item label="Id" name={["id"]} rules={[{ required: true }]}>
             <Input readOnly disabled />
           </Form.Item>
           <div style={{ marginBottom: "16px" }}>
-            <Typography.Text
-              strong
-              style={{ display: "block", marginBottom: "8px" }}
-            >
+            <Typography.Text strong style={{ display: "block", marginBottom: "8px" }}>
               Email
             </Typography.Text>
             <Typography.Text>{appUserData?.email}</Typography.Text>
@@ -49,11 +42,7 @@ export const AppUserEdit: React.FC<IResourceComponentsProps> = () => {
             label="Roles"
             rules={[{ required: true, message: "Please select at least one role" }]}
           >
-            <Select
-              mode="multiple"
-              placeholder="Select roles"
-              defaultValue={appUserData?.roles}
-            >
+            <Select mode="multiple" placeholder="Select roles" defaultValue={appUserData?.roles}>
               {["ADMIN", "USER", "GUEST"].map((role) => (
                 <Select.Option key={role} value={role}>
                   {role}

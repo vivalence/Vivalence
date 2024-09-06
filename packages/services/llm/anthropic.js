@@ -12,7 +12,7 @@ export default () => {
       messages: [{ role: "user", content: [{ type: "text", text: prompt }] }],
       model: provider.model || "claude-3-sonnet-20240229",
       max_tokens: provider.max_tokens || 200,
-      temperature: provider.temperature || 0.3
+      temperature: provider.temperature || 0.3,
     };
 
     if (schema) {

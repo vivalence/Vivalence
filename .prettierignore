@@ -1,8 +1,8 @@
 # Ignore Deno-formatted files
-**/*.ts
-**/*.js
-**/*.jsx
-**/*.tsx
+!**/*.ts
+!**/*.js
+!**/*.jsx
+!**/*.tsx
 
 # Don't ignore Svelte and Viva files
 !**/*.svelte

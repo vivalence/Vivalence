@@ -23,11 +23,7 @@ export const StrategyToUnit: ConnectionTypeMethods<Unit> = {
   create: async (option, rootResourceId) =>
     await supabase.from("_StrategyToUnit").insert([{ B: option.data.id, A: rootResourceId }]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToUnit")
-      .delete()
-      .eq("A", rootResourceId)
-      .eq("B", option.data.id),
+    await supabase.from("_StrategyToUnit").delete().eq("A", rootResourceId).eq("B", option.data.id),
 };
 export const TagToUnit: ConnectionTypeMethods<Unit> = {
   variableResourceKey: "Unit",

@@ -29,6 +29,7 @@ npm install @supabase/supabase-js @supabase/ssr
 ## Setup
 
 1. Supabase types
+
    ```
    supabase init
    supabase link --project-ref <your-project-id>
@@ -38,6 +39,7 @@ npm install @supabase/supabase-js @supabase/ssr
 2. Environment variables.
 
    Create a `src/env.local` file.
+
    ```
    PUBLIC_SUPABASE_ANON_KEY=<your-project-anon-key>
    PUBLIC_SUPABASE_URL=https://<your-project-id>.supabase.co

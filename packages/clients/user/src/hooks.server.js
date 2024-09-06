@@ -1,4 +1,5 @@
 import supabase from "$lib/server/supabase.js";
+import createCall from "$lib/call.js";
 
 export const handle = async ({ event, resolve, ...props }) => {
   event.locals = event.locals || {};
@@ -7,7 +8,7 @@ export const handle = async ({ event, resolve, ...props }) => {
   event.locals.supabase = supabase(event);
 
   event.locals.getUser = async () => {
-    const { data } = await event.locals.supabase.auth.getUser();
+    const { data, error } = await event.locals.supabase.auth.getUser();
     return data.user;
   };
   event.locals.getSession = async () => {
@@ -16,6 +17,8 @@ export const handle = async ({ event, resolve, ...props }) => {
   };
 
   event.data.session = await event.locals.getSession();
+
+  event.locals.call = createCall({});
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {

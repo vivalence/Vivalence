@@ -1,6 +1,7 @@
 <script>
-    // import kb from '$lib/signals/keyboard/index.js';
+  import {Button} from '@vivalence/ui';
+
 </script>
-
-<h1 class="text-3xl font-bold underline">Hello world!</h1>
-
+<div class="prose">
+    <h1 class="">Hello world!</h1>
+</div>

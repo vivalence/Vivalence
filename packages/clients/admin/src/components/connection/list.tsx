@@ -25,13 +25,15 @@ const List = <T extends Resource>({ listMembers, onDelete }: ListProps<T>): Reac
         padding: "0 10px 10px",
         width: "100%",
       }}
-      pagination={listMembers.length > 10 && {
-        position: "bottom",
-        align: "end",
-        showSizeChanger: true,
-        defaultPageSize: 10,
-        pageSizeOptions: [10, 100, 1000],
-      }}
+      pagination={
+        listMembers.length > 10 && {
+          position: "bottom",
+          align: "end",
+          showSizeChanger: true,
+          defaultPageSize: 10,
+          pageSizeOptions: [10, 100, 1000],
+        }
+      }
       dataSource={listMembers}
       renderItem={(member: OptionType<T>) => (
         <AntList.Item

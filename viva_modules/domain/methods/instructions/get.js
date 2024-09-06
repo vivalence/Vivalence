@@ -7,10 +7,12 @@ export default async function ({ scope, take, ...body }, ctx) {
   scope.user = { id: user.id };
   const blacklist = buildBlacklist(body.blacklist);
 
+  console.log("GET INSTRUCTIONS");
   const { data: instructions, error } = await ctx.runtime.locals.supabase
     .from("Queue")
     .select("*")
     .not("id", "in", `(${blacklist.instructions.join(",")})`)
+    .eq("status", "PENDING")
     .eq("userId", scope.user.id)
     .eq("strategyId", scope.strategy.id)
     .eq("tacticId", scope.tactic.id)

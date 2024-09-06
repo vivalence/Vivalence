@@ -16,11 +16,11 @@ export const supabase = (event) => {
         }
       },
       set: (key, value, options) => {
-        console.log("SUPABASE client cookies set", event);
+        // console.log("SUPABASE client cookies set", event);
         event.cookies && event.cookies.set(key, value, options);
       },
       remove: (key, options) => {
-        console.log("SUPABASE client cookies remove");
+        // console.log("SUPABASE client cookies remove");
         event.cookies && event.cookies.delete(key, options);
       },
     },

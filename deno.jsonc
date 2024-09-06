@@ -2,8 +2,9 @@
   "workspace": [
     "./config",
     "./packages/clients/user",
+    "./packages/ui",
     "./packages/shared",
-    "./packages/services"
+    "./packages/services",
   ],
   "importMap": "./import_map.json",
   "tasks": {
@@ -17,26 +18,26 @@
   "compilerOptions": {
     "allowJs": true,
     "lib": ["deno.window", "dom"],
-    "strict": true
+    "strict": true,
   },
   "lint": {
     "files": {
-      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"]
+      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
     },
     "rules": {
-      "tags": ["recommended"]
-    }
+      "tags": ["recommended"],
+    },
   },
   "fmt": {
     "files": {
       "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.md"],
-      "exclude": ["**/*.svelte", "**/*.viva"]
+      "exclude": ["**/*.svelte", "**/*.viva"],
     },
     "options": {
       "useTabs": false,
       "singleQuote": false,
       "lineWidth": 100,
-      "indentWidth": 2
-    }
-  }
+      "indentWidth": 2,
+    },
+  },
 }

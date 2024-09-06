@@ -4,6 +4,6 @@
   "exports": {
     ".": "./mod.js",
     "./server": "./mod.server.js",
-    "./client": "./mod.client.js"
-  }
+    "./client": "./mod.client.js",
+  },
 }

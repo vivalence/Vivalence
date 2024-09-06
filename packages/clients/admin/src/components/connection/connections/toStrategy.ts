@@ -20,9 +20,7 @@ export const UserToStrategy: ConnectionTypeMethods<Strategy> = {
         data.id.toLowerCase().includes(searchText.toLowerCase()),
     ),
   create: async (option, rootResourceId) =>
-    await supabase
-      .from("_AppUserToStrategy")
-      .insert([{ B: option.data.id, A: rootResourceId }]),
+    await supabase.from("_AppUserToStrategy").insert([{ B: option.data.id, A: rootResourceId }]),
   remove: async (option, rootResourceId) =>
     await supabase
       .from("_AppUserToStrategy")
@@ -56,11 +54,7 @@ export const GameToStrategy = {
       },
     ]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToGame")
-      .delete()
-      .eq("B", option.data.id)
-      .eq("A", rootResourceId),
+    await supabase.from("_StrategyToGame").delete().eq("B", option.data.id).eq("A", rootResourceId),
 };
 export const TagToStrategy = {
   variableResourceKey: "Strategy",
@@ -87,11 +81,7 @@ export const TagToStrategy = {
       },
     ]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToTag")
-      .delete()
-      .eq("A", option.data.id)
-      .eq("B", rootResourceId),
+    await supabase.from("_StrategyToTag").delete().eq("A", option.data.id).eq("B", rootResourceId),
 };
 export const UnitToStrategy = {
   variableResourceKey: "Strategy",
@@ -111,13 +101,7 @@ export const UnitToStrategy = {
         data.id.toLowerCase().includes(searchText.toLowerCase()),
     ),
   create: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToUnit")
-      .insert([{ A: option.data.id, B: rootResourceId }]),
+    await supabase.from("_StrategyToUnit").insert([{ A: option.data.id, B: rootResourceId }]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToUnit")
-      .delete()
-      .eq("B", rootResourceId)
-      .eq("A", option.data.id),
+    await supabase.from("_StrategyToUnit").delete().eq("B", rootResourceId).eq("A", option.data.id),
 };

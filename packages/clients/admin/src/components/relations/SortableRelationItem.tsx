@@ -5,13 +5,9 @@ import { RelationItemProps } from "./types";
 import RelationItem from "./RelationItem";
 
 const SortableRelationItem: React.FC<RelationItemProps> = (props) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: props.relation.id });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: props.relation.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),

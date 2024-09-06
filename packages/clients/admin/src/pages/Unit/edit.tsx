@@ -32,10 +32,7 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
   };
 
   const [jsonData, setJsonData] = useState();
-  useEffect(
-    () => setJsonData(form.getFieldValue("data")),
-    [form, queryResult, formProps],
-  );
+  useEffect(() => setJsonData(form.getFieldValue("data")), [form, queryResult, formProps]);
 
   const items = [
     {
@@ -109,12 +106,7 @@ export const UnitEdit: React.FC<IResourceComponentsProps> = () => {
         <>
           {defaultButtons}
           <SaveButton hideText {...saveButtonProps} />
-          <DeleteButton
-            resource="Unit"
-            id={unitId}
-            hideText
-            onSuccess={() => replace("/unit")}
-          />
+          <DeleteButton resource="Unit" id={unitId} hideText onSuccess={() => replace("/unit")} />
         </>
       )}
       saveButtonProps={saveButtonProps}

@@ -18,13 +18,21 @@ const RelationsEdit: React.FC<RelationsEditProps> = (props) => {
     onChange([...value, newRelation]);
   }, [value, onChange]);
 
-  const updateRelation = useCallback((id: string, updates: Partial<Relation>) => {
-    onChange(value.map((relation) => relation.id === id ? { ...relation, ...updates } : relation));
-  }, [value, onChange]);
+  const updateRelation = useCallback(
+    (id: string, updates: Partial<Relation>) => {
+      onChange(
+        value.map((relation) => (relation.id === id ? { ...relation, ...updates } : relation)),
+      );
+    },
+    [value, onChange],
+  );
 
-  const removeRelation = useCallback((id: string) => {
-    onChange(value.filter((relation) => relation.id !== id));
-  }, [value, onChange]);
+  const removeRelation = useCallback(
+    (id: string) => {
+      onChange(value.filter((relation) => relation.id !== id));
+    },
+    [value, onChange],
+  );
 
   return (
     <Container>

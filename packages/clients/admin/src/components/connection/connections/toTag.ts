@@ -57,9 +57,5 @@ export const StrategyToTag: ConnectionTypeMethods<Tag> = {
       },
     ]),
   remove: async (option, rootResourceId) =>
-    await supabase
-      .from("_StrategyToTag")
-      .delete()
-      .eq("A", rootResourceId)
-      .eq("B", option.data.id),
+    await supabase.from("_StrategyToTag").delete().eq("A", rootResourceId).eq("B", option.data.id),
 };

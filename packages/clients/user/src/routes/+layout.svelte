@@ -3,23 +3,36 @@
   import { page } from '$app/stores';
   import { onMount } from "svelte";
 
-  import matrix from "$matrix";
-  import * as keyboard from "$signals/keyboard.js";
-  import Menu from '$components/menu/Menu.svelte'
+  import trajectory from "$trajectory";
+  import * as keyboard from "$trajectory/signals/keyboard/index.js";
+  import Drawer from '$trajectory/ui/drawer/Drawer.svelte'
 
   onMount(() => {
-    matrix.initialize($page.data.locals)
-    matrix.root()
+    trajectory.initialize($page.data.locals)
+    trajectory.root()
     keyboard.initialize()
   })
-  // onMount(() => {const simulateKeyPress = (key) => {if (document && KeyboardEvent) {const event = new KeyboardEvent("keydown", {key, code: `Key${key.toUpperCase()}`, keyCode: key.charCodeAt(0), charCode: key.charCodeAt(0), bubbles: true,}); document.dispatchEvent(event);}}; simulateKeyPress('c');});
+  // onMount(() => {
+  //   const simulateKeyPress = (key) => {
+  //     if (document && KeyboardEvent) {
+  // 	const event = new KeyboardEvent("keydown", {
+  // 	  key,
+  // 	  code: `Key${key.toUpperCase()}`,
+  // 	  keyCode: key.charCodeAt(0),
+  // 	  charCode: key.charCodeAt(0),
+  // 	  bubbles: true,
+  // 	});
+  // 	document.dispatchEvent(event);
+  //     }};
+  //   simulateKeyPress('c');
+  // });
 
 </script> 
 
 <slot />
 
 {#if !$page.url.pathname.startsWith('/auth')}
-    <Menu />
+    <Drawer />
 {/if}
 
 <!--     import { setContext, onMount } from "svelte";

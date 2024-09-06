@@ -50,7 +50,9 @@ export default (supabaseClient) => {
         pagination: params.pagination,
       });
 
-      const list = await getData(hashString(`${params.resource}-${key}`), () => baseData.getList(params));
+      const list = await getData(hashString(`${params.resource}-${key}`), () =>
+        baseData.getList(params),
+      );
       return list;
     },
     //     if (params.resource === "Tag") {const { data: units, error: errorUnit } = await supabaseClient .from("_TagToUnit") .select(`*, Unit:Unit(*)`) .eq("A", oneResource.data.id) .count(); console.log("tag", list); console.log("units", units); const ids = list.data.map((item) => item.id); const { data, error } = await supabaseClient .from("auth_users") .select("id, email") .in("id", ids); if (error) return list; const mergedList = list.data.map((item) => {const additionalDetails = data.find((d) => d.id === item.id); return { ...item, ...additionalDetails };}); return list; // , data: { units } };} else {console.log("list", list); return list;}},
@@ -82,7 +84,8 @@ export default (supabaseClient) => {
           supabaseClient
             .from("_StrategyToUnit")
             .select(`*, Unit:Unit(*)`)
-            .eq("A", oneResource.data.id));
+            .eq("A", oneResource.data.id),
+        );
         if (errorUnits) return { ...oneResource, error: errorUnits };
 
         const { data: games, error: errorGame } = await supabaseClient

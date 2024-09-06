@@ -13,10 +13,7 @@ export const GameCreate: React.FC<IResourceComponentsProps> = () => {
   const onFinish = async (values: any) => {
     formProps.form?.resetFields();
 
-    const { data, error } = await supabaseClient
-      .from("Game")
-      .insert([values])
-      .select();
+    const { data, error } = await supabaseClient.from("Game").insert([values]).select();
 
     if (error) return console.error(error);
 
@@ -30,9 +27,7 @@ export const GameCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Name"
           name="name"
-          rules={[
-            { required: true, message: "Please input a name" },
-          ]}
+          rules={[{ required: true, message: "Please input a name" }]}
         >
           <Input />
         </Form.Item>

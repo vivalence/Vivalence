@@ -1,6 +1,14 @@
 import React from "react";
 import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
-import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import {
+  DeleteButton,
+  EditButton,
+  List,
+  SaveButton,
+  ShowButton,
+  TagField,
+  useTable,
+} from "@refinedev/antd";
 import { Form, Input, Space, Table } from "antd";
 
 export const GameList: React.FC<IResourceComponentsProps> = () => {
@@ -37,11 +45,7 @@ export const GameList: React.FC<IResourceComponentsProps> = () => {
         <SaveButton hideText onClick={searchFormProps.form?.submit} />
       </Form>
       <Table {...tableProps} rowKey="id">
-        <Table.Column
-          dataIndex={["name"]}
-          title="name"
-          render={(value: any) => value}
-        />
+        <Table.Column dataIndex={["name"]} title="name" render={(value: any) => value} />
         <Table.Column
           dataIndex="type"
           title="Type"

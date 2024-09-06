@@ -37,6 +37,12 @@ import gamesFromSlug from "./methods/games/fromSlug.js";
 import install from "./methods/install/index.js";
 
 async function boot(runtime) {
+  runtime.router.use(async (ctx, next) => {
+    // console.log(ctx.request);
+    // console.log("domain auth");
+    const user = await ctx.runtime.locals.getUser();
+    await next();
+  });
   runtime.router.route("/install/tactic", install.tactic);
   runtime.router.route("/install/strategy", install.strategy);
 

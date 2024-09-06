@@ -43,11 +43,7 @@ const SortableItem: React.FC<SortableItemProps> = ({ id, children, onRemove }) =
     <div ref={setNodeRef} style={style}>
       <span style={{ flex: 1, paddingLeft: "8px" }}>{children}</span>
       {/* @ts-ignore */}
-      <MenuOutlined
-        {...attributes}
-        {...listeners}
-        style={{ cursor: "move", marginRight: "8px" }}
-      />
+      <MenuOutlined {...attributes} {...listeners} style={{ cursor: "move", marginRight: "8px" }} />
       {/* @ts-ignore */}
       <DeleteOutlined onClick={() => onRemove(id)} style={{ cursor: "pointer" }} />
     </div>
@@ -186,17 +182,11 @@ const RelationItem: React.FC<RelationItemProps> = ({
                 dataSource={relation.data}
                 renderItem={(itemId: string) => {
                   const item = connections[relation.type].find((c) => c.id === itemId);
-                  return item
-                    ? (
-                      <SortableItem
-                        key={item.id}
-                        id={item.id}
-                        onRemove={handleRemove}
-                      >
-                        {{ games: "Game", units: "Unit", tags: "Tag" }[relation.type]} : {item.name}
-                      </SortableItem>
-                    )
-                    : null;
+                  return item ? (
+                    <SortableItem key={item.id} id={item.id} onRemove={handleRemove}>
+                      {{ games: "Game", units: "Unit", tags: "Tag" }[relation.type]} : {item.name}
+                    </SortableItem>
+                  ) : null;
                 }}
               />
             </SortableContext>

@@ -34,10 +34,7 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
   };
 
   const [jsonData, setJsonData] = useState({} as any);
-  useEffect(
-    () => setJsonData(form.getFieldValue("data")),
-    [form, queryResult, formProps],
-  );
+  useEffect(() => setJsonData(form.getFieldValue("data")), [form, queryResult, formProps]);
 
   const items = [
     {
@@ -51,9 +48,7 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
           <Form.Item
             label="Type"
             name="type"
-            rules={[
-              { required: true, message: "Please select at least one Tag Type!" },
-            ]}
+            rules={[{ required: true, message: "Please select at least one Tag Type!" }]}
           >
             <Select mode="multiple" placeholder="Select tag types">
               <Option value="STRUCTURAL">Structural</Option>
@@ -119,12 +114,7 @@ export const TagEdit: React.FC<IResourceComponentsProps> = () => {
         <>
           {defaultButtons}
           <SaveButton hideText {...saveButtonProps} />
-          <DeleteButton
-            resource="Tag"
-            id={tagId}
-            hideText
-            onSuccess={() => replace("/tag")}
-          />
+          <DeleteButton resource="Tag" id={tagId} hideText onSuccess={() => replace("/tag")} />
         </>
       )}
       saveButtonProps={saveButtonProps}

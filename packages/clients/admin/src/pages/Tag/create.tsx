@@ -30,9 +30,7 @@ export const TagCreate: React.FC<IResourceComponentsProps> = () => {
         <Form.Item
           label="Name"
           name="name"
-          rules={[
-            { required: true, message: "Please input a name" },
-          ]}
+          rules={[{ required: true, message: "Please input a name" }]}
         >
           <Input />
         </Form.Item>
@@ -42,10 +40,7 @@ export const TagCreate: React.FC<IResourceComponentsProps> = () => {
           name="type"
           rules={[{ required: true, message: "Please select at least one Tag Type!" }]}
         >
-          <Select
-            mode="multiple"
-            placeholder="Select tag types"
-          >
+          <Select mode="multiple" placeholder="Select tag types">
             <Option value="STRUCTURAL">Structural</Option>
             <Option value="ONTOLOGICAL">Ontological</Option>
             <Option value="LEARNABLE">Learnable</Option>

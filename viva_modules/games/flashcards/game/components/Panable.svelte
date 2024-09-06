@@ -105,8 +105,8 @@
     on:mouseup={handleEnd}
     on:touchstart={handleStart}
     on:touchend={handleEnd}
-    use:pan={{ delay: 30 }}
-    on:pan={handlePan}
 >
+    <!-- use:pan={{ delay: 30 }} -->
+    <!-- on:pan={handlePan} -->
     <slot />
 </div>

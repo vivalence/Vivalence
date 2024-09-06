@@ -1,7 +1,15 @@
 import React from "react";
 /* import { AntdInferencer } from "@refinedev/inferencer/antd"; */
 import { BaseRecord, IResourceComponentsProps } from "@refinedev/core";
-import { DeleteButton, EditButton, List, SaveButton, ShowButton, TagField, useTable } from "@refinedev/antd";
+import {
+  DeleteButton,
+  EditButton,
+  List,
+  SaveButton,
+  ShowButton,
+  TagField,
+  useTable,
+} from "@refinedev/antd";
 import { Form, Input, Space, Table } from "antd";
 
 export const AppUserList: React.FC<IResourceComponentsProps> = () => {
@@ -42,18 +50,12 @@ export const AppUserList: React.FC<IResourceComponentsProps> = () => {
         <SaveButton hideText onClick={searchFormProps.form?.submit} />
       </Form>
       <Table {...tableProps} rowKey="id">
-        <Table.Column
-          dataIndex={["email"]}
-          title="Email"
-          render={(value: any) => value}
-        />
+        <Table.Column dataIndex={["email"]} title="Email" render={(value: any) => value} />
         <Table.Column
           dataIndex="roles"
           title="Roles"
           render={(value: any[]) => (
-            <>
-              {value?.map((item) => <TagField value={item} key={item} />)}
-            </>
+            <>{value?.map((item) => <TagField value={item} key={item} />)}</>
           )}
         />
         <Table.Column
@@ -61,21 +63,9 @@ export const AppUserList: React.FC<IResourceComponentsProps> = () => {
           dataIndex="actions"
           render={(_, record: BaseRecord) => (
             <Space>
-              <EditButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <ShowButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
-              <DeleteButton
-                hideText
-                size="small"
-                recordItemId={record.id}
-              />
+              <EditButton hideText size="small" recordItemId={record.id} />
+              <ShowButton hideText size="small" recordItemId={record.id} />
+              <DeleteButton hideText size="small" recordItemId={record.id} />
             </Space>
           )}
         />

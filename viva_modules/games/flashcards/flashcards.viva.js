@@ -9,8 +9,8 @@ const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS");
 
 async function boot(runtime, game) {
   runtime.router.use(async (ctx, next) => {
-    const rootPath = join(config.env.get("DAEMON_URL"), "/r", runtime.manifest.slug, "/g");
-    ctx.state.bundle = join(rootPath, game.manifest.slug, BUNDLE_PATH, GAME_COMPONENT);
+    // const rootPath = join(config.env.get("DAEMON_URL"), "/r", runtime.manifest.slug, "/g");
+    ctx.state.bundle = join("/g", game.manifest.slug, BUNDLE_PATH, GAME_COMPONENT);
 
     await next();
 
