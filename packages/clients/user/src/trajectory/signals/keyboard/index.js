@@ -1,7 +1,7 @@
 const listeners = new Map();
 
 const createSignal = (key) => {
-  const signal = (props) => {
+  const signal = (props = {}) => {
     signal.id = Math.random().toString(36).substring(2, 15);
     return Object.entries(props).reduce((signal, [key, val]) => {
       signal[key] = value;
@@ -9,7 +9,7 @@ const createSignal = (key) => {
     }, signal);
   };
 
-  signal.id = Math.random().toString(36).substring(2, 15);
+  // signal.id = Math.random().toString(36).substring(2, 15);
   signal.key = key;
   signal.type = "keyboard";
 

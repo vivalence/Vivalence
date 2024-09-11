@@ -5,6 +5,9 @@ model Strategy {
   updatedAt DateTime @default(now()) @updatedAt
   slug      String   @default("")
   name      String
+  version   String   @default("0.0.0")
+  installed Boolean  @default(false)
+  description String?
 
   // APP
   user AppUser  @relation(fields: [userId], references: [id], onDelete: Cascade)

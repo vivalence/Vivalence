@@ -3,6 +3,7 @@ import Mustache from "mustache";
 import { GamePrompt } from "./lib/prompts.js";
 
 export default async function (inputs, ctx) {
+  console.log("translation instruction");
   const { scope, constraints, mask, language } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {
@@ -41,7 +42,7 @@ export default async function (inputs, ctx) {
             if (!acc.has(id)) acc.add(id);
           });
           return acc;
-        }, new Set())
+        }, new Set()),
       ).map((id) => ({ id })),
     },
   };

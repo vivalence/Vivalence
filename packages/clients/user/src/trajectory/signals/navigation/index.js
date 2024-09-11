@@ -18,7 +18,7 @@ const createSignal = (key, component) => {
 
   signal.listen = (effect, trajectory) => {
     signal.effect = effect;
-    trajectory.use((m) => m.set(m.signals.keyboard[signal.key], effect));
+    trajectory.use((m) => m.set(m.signals.keyboard[signal.key](), effect));
   };
   signal.trigger = (event) => {
     signal.effect(event);

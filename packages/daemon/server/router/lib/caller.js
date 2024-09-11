@@ -2,7 +2,7 @@ import { compose } from "oak/middleware";
 import { join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
 
-import notFoundMiddleware from "../middleware/notFound.js";
+import notFoundMiddleware from "../../middlewares/notFound.js";
 
 export default function caller(runtime) {
   return (requestContext) => {
@@ -33,6 +33,7 @@ export default function caller(runtime) {
       ]);
 
       await composedMiddleware(ctx);
+
       return ctx.response.body.data || ctx.response.body;
     };
   };

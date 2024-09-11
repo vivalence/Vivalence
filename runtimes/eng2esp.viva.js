@@ -14,7 +14,16 @@ export default {
       corpus: "file://../viva_modules/corpus/corpus.viva.js",
       ontology: "file://../viva_modules/ontology/ontology.viva.js",
       domain: "file://../viva_modules/domain/domain.viva.js",
-      // games: ["file://../viva_modules/games/flashcards/flashcards.viva.js"],
+      games: [
+        "file://../viva_modules/games/flashcards/flashcards.viva.js",
+        "file://../viva_modules/games/translations/translations.viva.js",
+        // "file://../viva_modules/games/conjugations/conjugations.viva.js",
+      ],
+      tactics: [
+        "file://../viva_modules/tactics/applying-verb-conjugations/tactic.viva.js",
+        "file://../viva_modules/tactics/article-morphology-of-gender-and-number/tactic.viva.js",
+      ],
+      strategies: ["file://../viva_modules/strategies/a1.viva.js"],
     },
   },
   boot,

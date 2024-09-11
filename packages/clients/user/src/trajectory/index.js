@@ -28,6 +28,11 @@ const createTrajectory = (locals) => {
   const trajectory = { locals, signals, map: writable(new Map()), mode: writable("closed") };
 
   trajectory.set = (signal, effect) => {
+    if (Array.isArray(signal)) {
+      if (effect) throw new Error("Invalid signal or effect");
+      signal.forEach(([s, e]) => trajectory.set(s, e));
+      return trajectory;
+    }
     if (validate(signal, effect)) {
       effectuate(trajectory, signal, effect);
       trajectory.map.update((m) => {
@@ -45,7 +50,7 @@ const createTrajectory = (locals) => {
   trajectory.clean = () => {
     signals.clean();
     trajectory.map.update(() => new Map());
-    trajectory.set(trajectory.signals.keyboard["Escape"], () => trajectory.setMode("closed"));
+    trajectory.set(trajectory.signals.keyboard["Escape"], () => trajectory.root());
     return trajectory;
   };
   trajectory.root = () => root(trajectory);

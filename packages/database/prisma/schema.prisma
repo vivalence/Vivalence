@@ -33,12 +33,12 @@ enum UserRolesEnum {
 model Runtime {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   slug      String
   name      String
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
 
   // APP
   users AppUser[]
@@ -60,7 +60,7 @@ model Runtime {
   // TRANSIENT
   HEAD HEAD[]
 
-  @@unique([slug, version])
+  @@unique([slug])
 }
 
 model Domain {
@@ -77,7 +77,7 @@ model Domain {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Ontology {
@@ -94,7 +94,7 @@ model Ontology {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Corpus {
@@ -111,7 +111,7 @@ model Corpus {
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  @unique
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Game {
@@ -132,7 +132,7 @@ model Game {
   // USERLAND
   plays Play[]
 
-  @@unique([slug, version, runtimeId])
+  @@unique([slug, runtimeId])
 }
 
 model Tactic {
@@ -142,6 +142,8 @@ model Tactic {
   updatedAt   DateTime @default(now()) @updatedAt
   slug        String
   name        String
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
   description String?
 
   // RUNTIME
@@ -155,9 +157,10 @@ model Tactic {
   queue Queue[]
 
   // DATA
-  relations    Json @default("[]") // for grouping units and tags
-  masks        Json @default("{}") // for games
-  instructions Json @default("{}") // for provisioning instructions
+  relations Json @default("[]") // for grouping units and tags
+  masks     Json @default("{}") // for games
+
+  // instructions Json @default("{}") // for provisioning instructions
 
   @@unique([slug, runtimeId])
 }
@@ -195,6 +198,7 @@ enum TagTraitsEnum {
   LEARNABLE // higher order feature that one can master
   COMPLETABLE // a set of units where each can be mastered
   DEPENDENCY
+  // TACTICAL
 }
 
 model Unit {
@@ -224,11 +228,14 @@ model Unit {
 
 model Strategy {
   // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  slug      String   @default("")
-  name      String
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  slug        String   @default("")
+  name        String
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
+  description String?
 
   // APP
   user   AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -260,12 +267,13 @@ model Play {
   gameId String
 
   // CORPUS
-  tactic   Tactic  @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tactic   Tactic @relation(fields: [tacticId], references: [id], onDelete: Cascade)
   tacticId String
-  unit     Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId   String?
-  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId    String?
+
+  unit   Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId String?
+  tag    Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId  String?
 
   // USERLAND
   memory   Memory @relation(fields: [memoryId], references: [id])

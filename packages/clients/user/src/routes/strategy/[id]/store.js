@@ -1,7 +1,8 @@
 import { get, writable } from "svelte/store";
 import { fromScope } from "$lib/blacklist.js";
+import { env } from "$env/dynamic/public";
 
-const QUEUE_THRESHOLD = 1; // config.env.get("QUEUE_THRESHOLD")
+const QUEUE_THRESHOLD = parseInt(env["PUBLIC_QUEUE_THRESHOLD"]);
 
 function InstructionStore({ locals, strategy }) {
   const Store = writable({

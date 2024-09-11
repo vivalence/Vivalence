@@ -3,7 +3,7 @@ import { getTagMemory } from "../lib/memory.js";
 export default async function (body, ctx) {
   let { tags, accept } = body;
 
-  tags = await Promise.all(tags.map((t) => getTagMemory(t, ctx.runtime)));
+  tags = await Promise.all(tags.map((t) => getTagMemory(t, ctx)));
 
   tags = tags.filter((tag) => {
     if (!tag.memory && accept.includes("UNKNOWN")) return true;

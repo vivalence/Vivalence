@@ -1,9 +1,18 @@
 export default async function (body, ctx) {
   const { strategy, user } = body;
   for (const session of strategy.session) {
-    if (session.tactic) {
-      const tactic = await ctx.call("/tactic/fromSlug", session.tactic);
-      session.tactic.id = tactic.id;
+    const { data, error } = await ctx.runtime.locals.supabase
+      .from("Tactic")
+      .select("id, slug")
+      .eq("slug", session.tactic.slug)
+      .eq("runtimeId", ctx.runtime.manifest.id)
+      .single();
+
+    if (error) throw error;
+    if (data) session.tactic.id = data.id;
+    else {
+      console.log("Tactic not found: ", slug);
+      return;
     }
   }
 
@@ -21,20 +30,3 @@ export default async function (body, ctx) {
 
   return data;
 }
-
-// strategy: {
-//   name: "A1 Spanish - Beginner",
-//   session: [
-//     {
-//       tactic: {
-//         slug: "morphology-of-gender-and-number",
-//         relations: {
-//           tags: {
-//             structural: { slug: "structural:a1" },
-//           },
-//         },
-//       },
-//       for: { type: "repetitions", value: 10 },
-//     },
-//   ],
-// },

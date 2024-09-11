@@ -3,7 +3,6 @@
 import deleteInstructions from "./methods/instructions/delete.js";
 import getInstructions from "./methods/instructions/get.js";
 import provisionInstructions from "./methods/instructions/provision.js";
-import testInstructions from "./methods/instructions/test/index.js";
 
 import updateMemory from "./methods/memory/update.js";
 
@@ -38,9 +37,10 @@ import install from "./methods/install/index.js";
 
 async function boot(runtime) {
   runtime.router.use(async (ctx, next) => {
+    // Cannot use atm, bc Module.install uses runtime.call() without a user.
     // console.log(ctx.request);
     // console.log("domain auth");
-    const user = await ctx.runtime.locals.getUser();
+    // const user = await ctx.runtime.locals.getUser();
     await next();
   });
   runtime.router.route("/install/tactic", install.tactic);
@@ -49,7 +49,6 @@ async function boot(runtime) {
   runtime.router.route("/instructions/provision", provisionInstructions);
   runtime.router.route("/instructions/delete", deleteInstructions);
   runtime.router.route("/instructions/get", getInstructions);
-  runtime.router.route("/instructions/test", testInstructions);
 
   runtime.router.route("/memory/update", updateMemory);
   runtime.router.route("/memory/update/tag", updateTagMemory);
@@ -87,9 +86,6 @@ export default {
     slug: "base",
     name: "Base",
     description: "Basic domain with units tags ebisu and annotations",
-    modules: {
-      ontology: "file://../ontology/ontology.viva.js",
-    },
   },
   boot,
 };

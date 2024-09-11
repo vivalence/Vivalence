@@ -33,7 +33,7 @@ export default () => {
       result = schema ? JSON.parse(text) : text;
       return result;
     } catch (error) {
-      throw new Error(JSON.stringify({ error, reponse, text, result }));
+      throw new Error(JSON.stringify({ error, response, text, result }));
     }
   };
 };

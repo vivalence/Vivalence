@@ -11,17 +11,19 @@ if (!initialized) {
   config.env = {
     ...config.env,
     DENO_ENV: "development",
+    DENO_ROLE: Deno.env.get("DENO_ROLE"),
     DAEMON_URL: env.DAEMON_URL,
     CLIENTS_USER_URL: env.CLIENTS_USER_URL,
     SUPABASE_URL: env.SUPABASE_URL,
     SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,
+    QUEUE_THRESHOLD: 2,
     CACHE_AGE_SECONDS: 1,
   };
 
   if (Deno.env.get("DENO_ROLE") === "daemon") {
     config.env = {
       ...config.env,
-      PROVISION_THRESHOLD: 1,
+      PROVISION_THRESHOLD: 2,
       DAEMON_PORT: env.DAEMON_PORT,
       VIVA_MODULES_DIR: `${ROOT_DIR}/viva_modules`,
       VIVA_PACKAGES_DIR: `${ROOT_DIR}/packages`,
@@ -40,7 +42,6 @@ if (!initialized) {
   if (Deno.env.get("DENO_ROLE") === "client") {
     config.env = {
       ...config.env,
-      PUBLIC_QUEUE_THRESHOLD: 1,
       ...Object.entries(config.env).reduce((acc, [key, value]) => {
         return (acc[`PUBLIC_${key}`] = value.toString()), acc;
       }, {}),

@@ -1,4 +1,3 @@
-import { env } from "$env/dynamic/public";
 import { isBrowser } from "@supabase/ssr";
 import supabase from "$lib/supabase.js";
 import createCall from "$lib/call.js";

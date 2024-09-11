@@ -56,12 +56,15 @@ const createSecurityDecorator = (baseEmitter, rules) => {
 
 const createSecureEventEmitter = () => {
   const baseEmitter = createBaseEmitter();
+  // this might be fairly meaningless.
   const rules = {
     // @emitter:@permitted-consumer - ontology can be consumed by corpus domain and games
-    "@corpus": ["@domain", "@ontology", "@game"],
-    "@ontology": ["@corpus", "@domain", "@game"],
-    "@domain": ["@corpus", "@ontology", "@game"],
+    "@corpus": ["@domain", "@ontology", "@game", "@strategy", "@tactic"],
+    "@ontology": ["@corpus", "@domain", "@game", "@strategy", "@tactic"],
+    "@domain": ["@corpus", "@ontology", "@game", "@strategy", "@tactic"],
     "@game": [],
+    "@strategy": ["@domain", "@corpus"],
+    "@tactic": ["@corpus"],
   };
   return createSecurityDecorator(baseEmitter, rules);
 };
