@@ -1,26 +1,19 @@
 import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
-import lib from "@vivalence/shared";
+import { bundler } from "@vivalence/shared";
 
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
 
 async function boot(runtime, game) {
-  const bundleEntryPath = join(
-    dirname(fromFileUrl(import.meta.url)),
-    "/bundle/Translations.svelte",
-  );
-  // const bundlePath = join(dirname(fromFileUrl(import.meta.url)), "bundle");
+  const bundlePath = join(dirname(fromFileUrl(import.meta.url)), "/bundle/Translations.svelte");
+  const bundle = bundler(bundlePath, runtime, game);
+  runtime.router.get(bundle.path, bundle.serve());
 
-  const bundler = lib.bundler(bundleEntryPath, runtime, game);
-  runtime.router.get(bundler.path, bundler.serve());
-  runtime.router.route("/provision", bundler.injectPath(), provision);
-
-  // runtime.router.use(async (ctx, next) => {const root = join("/r", runtime.manifest.slug, "/g", game.manifest.slug); ctx.state.bundle = config.env.get("DAEMON_URL") + join(root, BUNDLE_PATH, GAME_COMPONENT); console.log("ctx.state.bundle", ctx.state.bundle); await next(); if (ctx.response.body && Array.isArray(ctx.response.body.data)) {ctx.response.body.data = ctx.response.body.data.map((item) => {if (item && item.type && item.type === "TRANSLATIONS") item.bundle = ctx.state.bundle; return item;});} else if (ctx.response.body && typeof ctx.response.body.data === "object") {if (ctx.response.body.data.type === "TRANSLATIONS") ctx.response.body.data.bundle = ctx.state.bundle;}});
-  // runtime.router.get(`/${BUNDLE_PATH}/:filename`, async (ctx) => {const path = join(dirname(fromFileUrl(import.meta.url)), BUNDLE_PATH, ctx.params.filename); const bundle = await ctx.runtime.locals.bundler(path); if (bundle) {ctx.response.headers.set("Cache-Control", `max-age=${CACHE_AGE}`); ctx.response.headers.set("Expires", new Date(Date.now() + CACHE_AGE * 1000).toUTCString()); ctx.response.body = bundle; ctx.response.type = "application/javascript";}});
+  runtime.router.route("/provision", bundle.injectPath(), provision);
 
   runtime.router.route("/evaluate", evaluate);
-  runtime.router.route("/status", (body, ctx) => ({ status: "ok" }));
+  runtime.router.route("/status", (body, ctx) => ({ status: "OK" }));
 
   return runtime;
 }
@@ -42,6 +35,10 @@ export default {
     slug: "translations",
     name: "Translations",
     description: "Practice translating sentences",
+    modules: {
+      domain: "file://../../domain/domain.viva.js",
+      ontology: "file://../../ontology/ontology.viva.js",
+    },
   },
   boot,
   install,

@@ -28,7 +28,7 @@ async function install(runtime) {
       tag.ontology ? acc[0].push(tag.ontology) : acc[1].push(tag);
       return acc;
     },
-    [[], []]
+    [[], []],
   );
 
   const predictions = await runtime.call("/diagnostics/predict/tags", { ontologies });
@@ -53,12 +53,6 @@ export default {
     name: "Langauges by Universal Dependencies",
     modules: {
       domain: "file://../domain/domain.viva.js",
-      corpus: "file://../corpus/corpus.viva.js",
-      games: [
-        "file://../games/flashcards/flashcards.viva.js",
-        "file://../games/translations/translations.viva.js",
-      ],
-      strategies: [],
     },
     owner: "Vivalence",
     reference: "https://github.com/vivalence/ontologies/spanish",

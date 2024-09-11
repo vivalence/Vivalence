@@ -1,15 +1,27 @@
 import schema from "./schema/index.js";
 import presets from "./presets/index.js";
-import tactics from "./tactics/index.js";
-import strategies from "./strategies/index.js";
 
 async function install(runtime) {
-  console.log("installing corpus");
-  await tactics.install(runtime);
+  //   console.log("installing corpus");
+  // const { units, tags } = presets(runtime);
+  // console.log(units.length, units[0]); // 785 { annotation: { pos: "adp", lemma: "a" } }
+  // console.log(tags.length, tags[0]); // 20 { ontology: { branch: "lemma", leaf: "ser" } }
+  // async function installUnits({ units }) {
+  //   const [annotations, rest] = units.reduce(
+  //     (acc, unit) => (unit.annotation ? acc[0].push(unit.annotation) : acc[1].push(unit)) && acc,
+  //     [[], []]
+  //   );
+  //   const predictions = await ctx.runtime.methods.predict.units({ annotations }, ctx);
+  //   const remedies = [];
+  //   console.log("install prediction issue ", predictions.issues);
+  //   for (const issue of predictions.issues) {
+  //     // const remedy = await ctx.runtime.methods.remedy({ issue }, ctx);
+  //     // remedies.push(remedy);
+  //   }
+  //   return { rest: [], installed: [], failed: [] };
 }
 
 async function boot(runtime) {
-  runtime = strategies.boot(runtime);
   return runtime;
 }
 
@@ -21,26 +33,12 @@ export default {
     owner: "Vivalence",
     reference: "https://github.com/vivalence/ontologies/langauge-ud/corpus/eng-to-esp",
     docs: "https://docs.vivalence.com/ontologies/language-ud/corpus/eng-to-esp",
+    modules: {
+      domain: "file://../domain/domain.viva.js",
+      ontology: "file://../ontology/ontology.viva.js",
+    },
   },
   schema,
   boot,
   install,
 };
-
-// const { units, tags } = presets(runtime);
-// console.log(units.length, units[0]); // 785 { annotation: { pos: "adp", lemma: "a" } }
-// console.log(tags.length, tags[0]); // 20 { ontology: { branch: "lemma", leaf: "ser" } }
-// async function installUnits({ units }) {
-//   const [annotations, rest] = units.reduce(
-//     (acc, unit) => (unit.annotation ? acc[0].push(unit.annotation) : acc[1].push(unit)) && acc,
-//     [[], []]
-//   );
-//   const predictions = await ctx.runtime.methods.predict.units({ annotations }, ctx);
-//   const remedies = [];
-//   console.log("install prediction issue ", predictions.issues);
-//   for (const issue of predictions.issues) {
-//     // const remedy = await ctx.runtime.methods.remedy({ issue }, ctx);
-//     // remedies.push(remedy);
-//   }
-//   return { rest: [], installed: [], failed: [] };
-// }

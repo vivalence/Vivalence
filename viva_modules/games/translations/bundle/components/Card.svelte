@@ -1,7 +1,7 @@
 <script>
+  // export let tags;
   // export let known;
   export let token;
-  // export let tags;
 
   export let evaluation;
 
@@ -30,7 +30,9 @@
       {evaluation.correction || token}
       <div class={`badge ${color.badge} gap-2`}>{content.badge}</div>
     </h2>
-    <p class="text-base-content/70 text-sm">{evaluation.feedback}</p>
+    {#if evaluation.feedback}
+      <p class="text-base-content/70 text-sm">{evaluation.feedback}</p>
+    {/if}
   </div>
 </div>
 

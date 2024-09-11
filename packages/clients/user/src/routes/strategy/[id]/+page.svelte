@@ -9,15 +9,8 @@
   export let data;
   const { locals, strategy } = data;
 
-  const store = createStore({
-    strategy,
-    locals: {
-      ...locals,
-      call: locals.call.wrap(`/r/${strategy.runtime.slug}`),
-    },
-  });
-  $: console.log("store active", $store.active?.data.type);
-
+  locals.call = locals.call.wrap(`/r/${strategy.runtime.slug}`);
+  const store = createStore({ strategy, locals });
   locals.onGameFinish = store.next;
 </script>
 

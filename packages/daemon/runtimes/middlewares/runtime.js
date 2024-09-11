@@ -1,6 +1,6 @@
 import supabase from "../../lib/supabase/index.js";
 
-export default function middlewares(runtime, runtimes) {
+export default function runtimeMiddleware(runtime, runtimes) {
   function middlewareRuntime(ctx) {
     delete ctx.locals;
     ctx.runtime = runtimes.get(runtime["#symbol"]);

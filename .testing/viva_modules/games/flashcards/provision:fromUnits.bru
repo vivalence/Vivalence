@@ -1,0 +1,15 @@
+meta {
+  name: provision:fromUnits
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/flashcards/provision/fromUnits
+  body: json
+  auth: none
+}
+
+body:json {
+  {}
+}

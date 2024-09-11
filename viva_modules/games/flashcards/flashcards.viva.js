@@ -2,39 +2,18 @@ import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
-
-const BUNDLE_PATH = "game";
-const GAME_COMPONENT = "Flashcards.svelte";
-const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS");
+import { bundler } from "@vivalence/shared";
 
 async function boot(runtime, game) {
-  runtime.router.use(async (ctx, next) => {
-    // const rootPath = join(config.env.get("DAEMON_URL"), "/r", runtime.manifest.slug, "/g");
-    ctx.state.bundle = join("/g", game.manifest.slug, BUNDLE_PATH, GAME_COMPONENT);
+  const bundlePath = join(dirname(fromFileUrl(import.meta.url)), "/game/Flashcards.svelte");
+  const bundle = bundler(bundlePath, runtime, game);
 
-    await next();
+  runtime.router.get(bundle.path, bundle.serve());
 
-    if (ctx.response.body && Array.isArray(ctx.response.body.data)) {
-      ctx.response.body.data = ctx.response.body.data.map((item) => {
-        if (item.type && item.type === "FLASHCARDS") item.bundle = ctx.state.bundle;
-        return item;
-      });
-    }
-  });
-  runtime.router.get(`/${BUNDLE_PATH}/:filename`, async (ctx) => {
-    const path = join(dirname(fromFileUrl(import.meta.url)), BUNDLE_PATH, ctx.params.filename);
-    const bundle = await ctx.runtime.locals.bundler(path);
-    if (bundle) {
-      ctx.response.headers.set("Cache-Control", `max-age=${CACHE_AGE}`);
-      ctx.response.headers.set("Expires", new Date(Date.now() + CACHE_AGE * 1000).toUTCString());
-      ctx.response.body = bundle;
-      ctx.response.type = "application/javascript";
-    }
-  });
+  runtime.router.route("/provision/fromTagIds", bundle.injectPath(), provision.fromTagIds);
+  runtime.router.route("/provision/fromUnitIds", bundle.injectPath(), provision.fromUnitIds);
+  runtime.router.route("/provision/fromUnits", bundle.injectPath(), provision.fromUnits);
 
-  runtime.router.route("/provision/fromTagIds", provision.fromTagIds);
-  runtime.router.route("/provision/fromUnitIds", provision.fromUnitIds);
-  runtime.router.route("/provision/fromUnits", provision.fromUnits);
   runtime.router.route("/evaluate", evaluate);
   runtime.router.route("/status", (body, ctx) => ({ status: "ok" }));
 
@@ -60,6 +39,10 @@ export default {
     slug: "flashcards",
     name: "Flashcards",
     description: "Flashcards game for learning vocabulary",
+    modules: {
+      domain: "file://../../domain/domain.viva.js",
+      ontology: "file://../../ontology/ontology.viva.js",
+    },
   },
   boot,
   install,

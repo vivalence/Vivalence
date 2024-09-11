@@ -8,9 +8,9 @@
   export let locals;
   export let scope;
   export let instruction;
+  export let trajectory;
 
   const store = createStore({ locals });
-  const next = () => {};
   const handleInput = (event) => store.setInput(event.target.value);
 
   $: if (scope && instruction) {
@@ -30,15 +30,26 @@
         inputState = "input-error";
         break;
     }
+
+  onMount(() => {
+    $: console.log("trajectory", trajectory);
+    trajectory.set(trajectory.signals.keyboard.Enter(), () => {
+      if ($store.revealed) {
+        store.finishTranslation();
+      } else {
+        store.commitTranslation();
+      }
+    });
+  });
 </script>
 
-<div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[20vh]">
+<div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh]">
   <div class="flex flex-row items-center w-full justify-cente pb-20">
     <div class="card bg-base-200 w-1/2 mb-2 mr-2">
       <div class="card-body">
         <p class="text-base-content/60 text-sm">English:</p>
         <h2 class="card-title text-xl text-base-content italic">
-          {$store.instruction.sentence.spoken}
+          {$store.instruction.sentence.known}
         </h2>
       </div>
     </div>
@@ -81,6 +92,7 @@
       type="text"
       placeholder="Spanish translation here..."
       bind:value={$store.input}
+      autofocus
       on:input={handleInput}
     />
     {#if !$store.revealed}

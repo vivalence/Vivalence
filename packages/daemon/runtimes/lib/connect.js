@@ -1,4 +1,13 @@
-export default async function connect({ ontology, corpus, domain, games, locals, ...runtime }) {
+export default async function connect({
+  ontology,
+  corpus,
+  domain,
+  games,
+  strategies,
+  tactics,
+  locals,
+  ...runtime
+}) {
   await Promise.all([
     locals.supabase
       .from("Ontology")
@@ -17,7 +26,14 @@ export default async function connect({ ontology, corpus, domain, games, locals,
       .update({ runtimeId: runtime.id })
       .in(
         "id",
-        games.values().map((g) => g.id)
+        games.values().map((g) => g.id),
+      ),
+    locals.supabase
+      .from("Tactic")
+      .update({ runtimeId: runtime.id })
+      .in(
+        "id",
+        tactics.values().map((g) => g.id),
       ),
     locals.supabase.from("Runtime").update({ installed: true }).eq("id", runtime.id),
   ]);

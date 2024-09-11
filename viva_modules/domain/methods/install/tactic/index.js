@@ -5,8 +5,10 @@ export default async function (body, ctx) {
     .from("Tactic")
     .select("*")
     .eq("slug", tactic.slug)
+    .eq("runtimeId", ctx.runtime.manifest.id)
     .single();
-  if (existingError) throw existingError;
+
+  if (existingError && existingError.code !== "PGRST116") throw existingError;
   if (existingTactic) return existingTactic;
 
   const { data: newTactic, error } = await ctx.runtime.locals.supabase
@@ -17,6 +19,7 @@ export default async function (body, ctx) {
     })
     .eq("runtimeId", ctx.runtime.manifest.id)
     .select("*");
+
   if (error) throw error;
   return newTactic;
 }

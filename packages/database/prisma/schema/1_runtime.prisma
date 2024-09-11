@@ -1,12 +1,12 @@
 model Runtime {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   slug      String  
   name      String
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
 
   // APP
   users AppUser[] 
@@ -104,3 +104,30 @@ model Game {
   @@unique([slug, runtimeId])
 }
 
+model Tactic {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  slug      String
+  name      String
+  version   String   @default("0.0.0")
+  installed Boolean  @default(false)
+  description String?
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
+
+  // USERLAND
+  plays      Play[]       
+
+  // TRANSIENT
+  queue        Queue[]
+
+  // DATA
+  relations    Json @default("{}") // for grouping units, tags and games
+  masks        Json @default("{}") // for customizing games
+
+  @@unique([slug, runtimeId] )
+}

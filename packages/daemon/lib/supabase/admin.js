@@ -1,9 +1,9 @@
 import config from "@vivalence/config";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-// import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 
 let supabaseAdminClient;
-export default function createSupabaseAdminClient(ctx) {
+export default function createSupabaseAdminClient() {
   if (!supabaseAdminClient) {
     const { SUPABASE_URL, PRIVATE_SUPABASE_ADMIN_KEY } = config.env;
 
@@ -11,7 +11,7 @@ export default function createSupabaseAdminClient(ctx) {
       throw new Error("Missing Supabase URL or Anon Key");
     }
 
-    supabaseAdminClient = createClient(SUPABASE_URL, PRIVATE_SUPABASE_ADMIN_KEY);
+    supabaseAdminClient = createClient(SUPABASE_URL, PRIVATE_SUPABASE_ADMIN_KEY, {});
   }
   return supabaseAdminClient;
 }

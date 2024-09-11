@@ -28,17 +28,8 @@ export default async function ({ scope, take, ...body }, ctx) {
     };
   }
   if (instructions.length < take) {
-    provision(
-      {
-        scope,
-        blacklist,
-      },
-      ctx
-    );
-    return {
-      message: "Provisioning Instructions",
-      status: 202,
-    };
+    provision({ scope, blacklist }, ctx);
+    return { message: "Provisioning Instructions", status: 202 };
   }
 
   blacklist.instructions.push(...instructions.map((u) => u.id));
@@ -59,13 +50,7 @@ export default async function ({ scope, take, ...body }, ctx) {
     };
   }
   if (count.count < config.env.get("PROVISION_THRESHOLD")) {
-    provision(
-      {
-        scope,
-        blacklist,
-      },
-      ctx
-    );
+    provision({ scope, blacklist }, ctx);
   }
 
   return { instructions, status: 200 };
@@ -77,7 +62,7 @@ async function provision(props, ctx) {
     if (lock.has(props.scope)) return { status: 202 };
     lock.set(props.scope);
     instructions = await ctx.runtime.call("/instructions/provision", props);
-    if (instructions.error) throw response.error;
+    if (instructions.error) throw instructions.error;
 
     const { error } = await ctx.runtime.locals.supabase.from("Queue").insert(
       instructions.map((data, index) => ({
@@ -86,7 +71,7 @@ async function provision(props, ctx) {
         tacticId: props.scope.tactic.id,
         data,
         index,
-      }))
+      })),
     );
 
     if (error) throw error;

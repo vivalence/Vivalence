@@ -24,40 +24,10 @@ export default async function getData({ scope }, ctx) {
 }
 
 async function buildRelations({ tactic, scope }, ctx) {
-  function buildGameHandler(relationName, game) {
-    return {
-      ...game,
-      call: (path, input) => {
-        const mask = deepMerge(game.mask, tactic.masks[relationName]);
-        scope = deepMerge(scope, { game: { id: game.id } }, input.scope);
-        input = deepMerge({ scope, mask }, input);
-        return ctx.runtime.call(join("/g", game.slug, path), input);
-      },
-    };
-  }
-
-  async function resolveResource(resourceType, relations) {
-    const richRelations = await Object.entries(relations).reduce(
-      async (acc, [relationName, relationDetail]) => {
-        acc = await acc;
-        const resource = await resolveRelation(resourceType, relationDetail, ctx);
-
-        if (resourceType === "games") {
-          acc[relationName] = buildGameHandler(relationName, resource);
-        } else acc[relationName] = resource;
-
-        return acc;
-      },
-      {}
-    );
-
-    return richRelations;
-  }
-
   async function resolveRelation(resourceType, relation) {
     if (Array.isArray(relation)) {
       return await Promise.all(
-        relation.map(async (slug) => await ctx.runtime.call(`/${resourceType}/fromSlug`, slug))
+        relation.map(async (slug) => await ctx.runtime.call(`/${resourceType}/fromSlug`, slug)),
       );
     } else if (typeof relation === "object" && relation.slug) {
       return await ctx.runtime.call(`/${resourceType}/fromSlug`, relation);
@@ -66,13 +36,26 @@ async function buildRelations({ tactic, scope }, ctx) {
     }
   }
 
+  async function resolveResource(resourceType, relations) {
+    const richRelations = await Object.entries(relations).reduce(
+      async (acc, [relationName, relationDetail]) => {
+        acc = await acc;
+        acc[relationName] = await resolveRelation(resourceType, relationDetail, ctx);
+        return acc;
+      },
+      {},
+    );
+
+    return richRelations;
+  }
+
   const relations = await Object.entries(tactic.relations).reduce(
     async (acc, [resourceType, relation]) => {
       acc = await acc;
       acc[resourceType] = await resolveResource(resourceType, relation, ctx);
       return acc;
     },
-    { games: {}, units: {}, tags: {} }
+    { games: {}, units: {}, tags: {} },
   );
   return relations;
 }

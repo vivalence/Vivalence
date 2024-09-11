@@ -11,6 +11,7 @@ async function buildRuntime(module, loadedModules) {
     Corpus: null,
     Games: new Map(),
     Strategies: new Map(),
+    Tactics: new Map(),
   };
 
   async function recursiveDiscover(module) {
@@ -25,6 +26,8 @@ async function buildRuntime(module, loadedModules) {
       runtime.Games.set(module.manifest.slug, module);
     } else if (moduleType === "Strategy") {
       runtime.Strategies.set(module.manifest.slug, module);
+    } else if (moduleType === "Tactic") {
+      runtime.Tactics.set(module.manifest.slug, module);
     } else if (runtime[moduleType]) {
       throw new Error(`Duplicate ${moduleType} module found: ${module.path}`);
     } else {
@@ -55,7 +58,7 @@ async function discoverRuntimes(runtimesDir) {
         }
       } catch (error) {
         console.warn(
-          `Failed to import potential runtime module at ${entry.path}: ${error.message}`
+          `Failed to import potential runtime module at ${entry.path}: ${error.message}`,
         );
       }
     }

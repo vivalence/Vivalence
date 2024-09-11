@@ -30,13 +30,14 @@ export default function createSupabaseUserClient(ctx) {
           if (options && options.expires) {
             await ctx.cookies.set(key, value, {
               expires: options.expires,
+              secure: config.isProd,
               secure: true,
               httpOnly: true,
               sameSite: "strict",
             });
           } else {
             await ctx.cookies.set(key, value, {
-              secure: true,
+              secure: config.isProd,
               httpOnly: true,
               sameSite: "strict",
             });
@@ -45,7 +46,7 @@ export default function createSupabaseUserClient(ctx) {
         remove: async (key) => {
           await ctx.cookies.set(key, "", {
             expires: new Date(0),
-            secure: true,
+            secure: config.isProd,
             httpOnly: true,
             sameSite: "strict",
           });
