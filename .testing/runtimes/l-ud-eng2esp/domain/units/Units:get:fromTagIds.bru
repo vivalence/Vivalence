@@ -1,0 +1,19 @@
+meta {
+  name: Units:get:fromTagIds
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/units/fromTagIds
+  body: json
+  auth: none
+}
+
+body:json {
+    {"tagIds":["clrzb0g3v000xg0lg85jltdwy","7a46e84f-9024-4455-a338-fd9a8ce4df16"],"blacklist":{"units":[],"tags":[],"instructions":[]},"take":1}
+}
+
+docs {
+  ho
+}

@@ -1,26 +1,42 @@
 import createRouter from "../../server/router/create.js";
 import ensure from "./ensure.js";
+import middlewares from "../middlewares/index.js";
 
-export default async function boot(Module, runtime) {
+const defaultModuleBoot = {
+  tactic: async (module, Module) => {
+    if (!Module.provision) throw new Error("Tactic module must export provision method");
+    module.router.route("/", Module.provision);
+    return module;
+  },
+};
+
+async function boot(Module, runtime) {
   const type = Module.manifest.type.toLowerCase();
+  const bootable = Module.boot || defaultModuleBoot[type];
+  if (!bootable) throw new Error(`${type} Module unbootable: ${Module.manifest.slug}`);
 
-  const bus = runtime.bus.scope(`@${type}`);
-  const router = createRouter();
+  let moduleRuntime = {
+    ["#symbol"]: runtime["#symbol"],
+    manifest: runtime.manifest,
+    Module: runtime.Module,
+    locals: runtime.locals,
+    services: runtime.services,
+    statics: runtime.statics,
+    router: createRouter(),
+    bus: runtime.bus.scope(`@${type}`),
+  };
 
-  const { manifest } = await ensure(Module, runtime);
-  const middlewares = Module.middlewares || [];
+  if (middlewares[type]) moduleRuntime.router.middleware.push(...middlewares[type]);
 
-  let module = { router, bus, middlewares };
-  if (Module.boot) {
-    module = (await Module.boot({ ...runtime, ...module }, { manifest, Module })) || module;
-  } else {
-    switch (Module.manifest.type) {
-      case "Tactic":
-        if (Module.provision) module.router.route("/", Module.provision);
-        else throw new Error("Tactic module must export provision method");
-        break;
-    }
-  }
+  const manifest = await ensure(Module, runtime);
+  const module = (await bootable(moduleRuntime, { ...Module, manifest })) || moduleRuntime;
 
-  return { ...runtime, ...module, manifest, Module };
+  return { ...module, manifest, Module };
 }
+
+boot.many = async (Modules, runtime) => {
+  const booted = await Promise.all(Modules.values().map((M) => boot(M, runtime)));
+  return new Map(booted.map((m) => [m.manifest.slug, m]));
+};
+
+export default boot;

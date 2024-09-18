@@ -4,22 +4,19 @@ export default async function runtimeManagement({ router, runtimes, ...params })
       .values()
       .find((runtime) => runtime.manifest.slug === body.runtime.slug);
 
-    const strategies = runtime.strategies.map((strategy) => {
-      return {
-        slug: strategy.manifest.slug,
-        name: strategy.manifest.name,
-        description: strategy.manifest.description,
-      };
-    });
+    const strategies = Array.from(runtime.strategies.values()).map((strategy) => ({
+      slug: strategy.manifest.slug,
+      name: strategy.manifest.name,
+      description: strategy.manifest.description,
+    }));
 
     return strategies;
   });
 
   router.route("/v/user/join/strategy", async (body, ctx) => {
     const runtime = runtimes.values().find((runtime) => runtime.manifest.id === body.runtime.id);
-    const { manifest, Module } = runtime.strategies.find(
-      (s) => s.manifest.slug === body.strategy.slug,
-    );
+
+    const { manifest, Module } = runtime.strategies.get(body.strategy.slug);
 
     const user = await ctx.locals.getUser();
 

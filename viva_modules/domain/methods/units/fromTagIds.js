@@ -4,12 +4,8 @@ export default async function (body, ctx) {
   // Step 1: Get units that have all the required tags
   let query = ctx.runtime.locals.supabase.from("_TagToUnit").select("*").in("A", tagIds);
 
-  if (blacklist.units && blacklist.units.length > 0) {
+  if (blacklist && blacklist.units && blacklist.units.length > 0) {
     query = query.not("B", "in", `(${blacklist.units.join(",")})`);
-  }
-
-  if (take !== null) {
-    query = query.limit(take);
   }
 
   const { data: matchedRelations, error: matchError } = await query;
@@ -28,11 +24,15 @@ export default async function (body, ctx) {
     .map(([unitId, _]) => unitId);
 
   // Step 4: Fetch full data for fully matched units
-  const { data: units, error: unitsError } = await ctx.runtime.locals.supabase
+  query = ctx.runtime.locals.supabase
     .from("Unit")
     .select(`*, tags:_TagToUnit(tag:A(*)) `)
     .in("id", fullyMatchedUnitIds);
 
+  if (take !== null) {
+    query = query.limit(parseInt(take));
+  }
+  const { data: units, error: unitsError } = await query;
   if (unitsError) throw unitsError;
 
   // Step 5: Format the tags for each unit

@@ -1,9 +1,7 @@
 import Mustache from "mustache";
-
 import { GamePrompt } from "./lib/prompts.js";
 
 export default async function (inputs, ctx) {
-  console.log("translation instruction");
   const { scope, constraints, mask, language } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {

@@ -20,7 +20,7 @@ async function getUsersStrategies({ locals }, { active }) {
     .eq("runtimeId", active.id)
     .order("name", { ascending: true });
 
-  if (error) console.log("error", error);
+  if (error) throw error;
 
   return strategies.map((strategy) => ({
     id: strategy.id,
@@ -30,9 +30,10 @@ async function getUsersStrategies({ locals }, { active }) {
 }
 
 async function getJoinableStrategies(runtime, t) {
-  const { data: strategies } = await t.locals.call("/v/runtime/available/strategies", {
+  const { data: strategies, error } = await t.locals.call("/v/runtime/available/strategies", {
     runtime,
   });
+  if (error) throw error;
 
   return strategies.map((strategy) => ({
     id: strategy.slug,
@@ -42,10 +43,11 @@ async function getJoinableStrategies(runtime, t) {
 }
 
 const joinStrategy = (runtime) => async (event, t) => {
-  const { data: strategy } = await t.locals.call("/v/user/join/strategy", {
+  const { data: strategy, error } = await t.locals.call("/v/user/join/strategy", {
     runtime,
     strategy: event.active.data.strategy,
   });
+  if (error) throw error;
   goto("/strategy/" + strategy.id);
   t.clean().setMode("closed");
 };

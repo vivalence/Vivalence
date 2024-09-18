@@ -9,6 +9,7 @@ const ajv = new Ajv({
 });
 
 ajvErrors(ajv);
+ajv.addKeyword({ keyword: "slug", validate: () => true, errors: false });
 ajv.addKeyword({ keyword: "meta", validate: () => true, errors: false });
 
 export default () => (schema, data) => {

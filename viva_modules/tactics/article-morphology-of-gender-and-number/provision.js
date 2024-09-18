@@ -3,25 +3,24 @@ import { blacklist as Blacklist, shuffle } from "@vivalence/shared";
 const FLASHCARD_COUNT = 5;
 
 export default async (inputs, { runtime }) => {
-  console.log("article morph provision inputs", JSON.stringify(inputs, null, 2));
   const { language, tactic, scope } = inputs;
   const { games, units, tags } = tactic.relations;
   let blacklist = inputs.blacklist;
 
   // // SCOPE //
   const [articleUnit] = await runtime.call("/units/weakest/fromTagIds", {
-    tagIds: [tags.article.id],
+    tagIds: [tags.articles.id],
     blacklist,
     take: 1,
   });
 
   const [numberTag] = await runtime.call("/tags/weakest", {
-    tags: tactic.relations.tags.numbers,
+    tags: tags.numbers,
     take: 1,
   });
 
   const [genderTag] = await runtime.call("/tags/weakest", {
-    tags: tactic.relations.tags.genders,
+    tags: tags.genders,
     take: 1,
   });
 
@@ -49,12 +48,8 @@ export default async (inputs, { runtime }) => {
     });
   }
 
-  const translations = await games.translations.call(`/provision`, {
-    constraints,
-    language,
-    scope,
-    mask: tactic.masks.translations,
-  });
+  const translations = await games.translations.call(`/provision`, { constraints });
+
   blacklist = Blacklist.fromScope({ blacklist, scope: translations.scope });
 
   // // FLASHCARDS //
@@ -79,10 +74,7 @@ export default async (inputs, { runtime }) => {
     flashcardUnits.push(...units);
   }
 
-  const flashcards = await games.flashcards.call("/provision/fromUnits", {
-    units: flashcardUnits,
-    scope,
-  });
+  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: flashcardUnits });
 
   return [...shuffle(flashcards), translations];
 };

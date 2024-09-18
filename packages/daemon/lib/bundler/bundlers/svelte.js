@@ -50,8 +50,8 @@ const svelteImportMap = {
   importmap: {
     imports: {
       svelte,
-      "@vivalence/ui": `../../../../packages/ui/mod.js`,
       // ugly. absolute or repo imports not working. doesnt import nested packages.
+      "@vivalence/ui": `../../../../packages/ui/mod.js`,
       "svelte/store": `${svelte}/store`,
       "svelte/motion": `${svelte}/motion`,
       "svelte/internal": `${svelte}/internal`,

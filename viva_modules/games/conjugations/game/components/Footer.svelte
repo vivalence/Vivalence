@@ -1,18 +1,18 @@
 <script>
-    import { getStore } from "../store.js";
-    const store = getStore();
+  import { getStore } from "../store.js";
+  const store = getStore();
 </script>
 
-<footer class="fixed bottom-0 w-full p-4 bg-gray-800">
-    <div class="flex justify-center space-x-2">
-        {#if !$store.revealed}
-            <div class="flex justify-center">
-                <button class="btn variant-filled" on:click={store.evaluate}> Check </button>
-            </div>
-        {:else}
-            <div class="flex justify-center">
-                <button class="btn variant-filled" on:click={store.finish}>next</button>
-            </div>
-        {/if}
-    </div>
-</footer>
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100/80 py-6">
+  <div class="container mx-auto flex items-center justify-center">
+    {#if !$store.revealed}
+      <button
+        on:click={store.evaluate}
+        class={`btn btn-accent ${Object.keys($store.inputs).length !== 6 && "btn-outline"}`}
+        type="button">Check</button
+      >
+    {:else}
+      <button on:click={store.finish} class={`btn btn-accent btn`} type="button">Next</button>
+    {/if}
+  </div>
+</div>

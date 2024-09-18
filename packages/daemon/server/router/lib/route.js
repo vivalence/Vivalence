@@ -26,19 +26,19 @@ export default function route(router) {
           }
         }
       } catch (e) {
-        // console.error("[ERROR] @daemon/server/router/route body parsing");
-        // console.error(e);
+        console.error("[ERROR] @daemon/server/router/route body parsing");
+        console.error(e);
         // ctx.response.status = 400;
         // ctx.response.body = JSON.stringify({ error: e, path, body });
-        // return;
       }
       try {
         const data = await handler(body, ctx);
+        if (data && data.error) throw data.error;
         ctx.response.body = { data };
       } catch (error) {
-        console.error("[ERROR] @router.route handler");
-        console.error({ path, body });
-        console.error(error);
+        console.error("[ERROR] @router.route handler @", path);
+        console.trace(error);
+
         ctx.response.body = { error };
         ctx.response.status = 500;
       }

@@ -32,7 +32,6 @@
     }
 
   onMount(() => {
-    $: console.log("trajectory", trajectory);
     trajectory.set(trajectory.signals.keyboard.Enter(), () => {
       if ($store.revealed) {
         store.finishTranslation();
@@ -85,22 +84,20 @@
 
 <div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-10 py-16">
   <div
-    class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center"
-  >
+    class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
     <input
-      class={`input input-bordered ${inputState} w-full mr-2 `}
+      class="{`input input-bordered ${inputState} w-full mr-2 `}"
       type="text"
       placeholder="Spanish translation here..."
-      bind:value={$store.input}
+      bind:value="{$store.input}"
       autofocus
-      on:input={handleInput}
-    />
+      on:input="{handleInput}" />
     {#if !$store.revealed}
-      <button on:click={store.commitTranslation} class={`btn btn-neutral`} type="button">
+      <button on:click="{store.commitTranslation}" class="{`btn btn-neutral`}" type="button">
         Review
       </button>
     {:else}
-      <button on:click={store.finishTranslation} class={`btn btn-neutral`} type="button">
+      <button on:click="{store.finishTranslation}" class="{`btn btn-neutral`}" type="button">
         Next Game
       </button>
     {/if}

@@ -12,10 +12,7 @@ function ConjugationGameStore({ locals }) {
   });
 
   const setInput = (key, userInput) => {
-    Store.update((s) => {
-      const newUserInputs = { ...s.inputs, [key]: userInput };
-      return { ...s, inputs: newUserInputs };
-    });
+    Store.update((s) => ({ ...s, inputs: { ...s.inputs, [key]: userInput } }));
   };
 
   const reset = () => {
@@ -36,13 +33,9 @@ function ConjugationGameStore({ locals }) {
 
     try {
       const params = { instruction, inputs, scope };
-      const evaluations = await locals.call("/g/conjugations/evaluate", params);
-      Store.update((s) => ({
-        ...s,
-        evaluations,
-        revealed: true,
-        loading: false,
-      }));
+      const { data: evaluations, error } = await locals.call("/g/conjugations/evaluate", params);
+      if (error) throw error;
+      Store.update((s) => ({ ...s, evaluations, error: null, revealed: true, loading: false }));
     } catch (error) {
       console.error("Evaluation error:", error);
       Store.update((s) => ({ ...s, error, loading: false }));
@@ -54,12 +47,7 @@ function ConjugationGameStore({ locals }) {
     reset();
   };
 
-  return {
-    ...Store,
-    setInput,
-    finish,
-    evaluate,
-  };
+  return { ...Store, setInput, finish, evaluate };
 }
 
 let store;

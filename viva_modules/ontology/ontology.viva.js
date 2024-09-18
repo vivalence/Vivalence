@@ -49,7 +49,6 @@ export default {
   manifest: {
     type: "Ontology",
     slug: "langugage-universal-dependencies",
-    version: "v0.0.0",
     name: "Langauges by Universal Dependencies",
     modules: {
       domain: "file://../domain/domain.viva.js",

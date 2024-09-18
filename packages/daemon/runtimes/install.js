@@ -13,8 +13,8 @@ export default async function install({ runtimes, ...params }) {
     for (const { manifest, Module } of [
       runtime.ontology,
       runtime.corpus,
-      ...runtime.games,
-      ...runtime.tactics,
+      ...runtime.games.values(),
+      ...runtime.tactics.values(),
     ]) {
       if (manifest.installed) continue;
       let installed = false;

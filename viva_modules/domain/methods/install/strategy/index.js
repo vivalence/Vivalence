@@ -9,11 +9,8 @@ export default async function (body, ctx) {
       .single();
 
     if (error) throw error;
-    if (data) session.tactic.id = data.id;
-    else {
-      console.log("Tactic not found: ", slug);
-      return;
-    }
+    if (!data) throw new Error("Tactic not found: " + slug);
+    session.tactic.id = data.id;
   }
 
   const { data, error } = await ctx.runtime.locals.supabase
@@ -27,6 +24,5 @@ export default async function (body, ctx) {
     .single();
 
   if (error) throw error;
-
   return data;
 }

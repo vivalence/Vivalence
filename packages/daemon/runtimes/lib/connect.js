@@ -8,33 +8,14 @@ export default async function connect({
   locals,
   ...runtime
 }) {
+  const idfy = (m) => m.values().map((m) => m.id);
+  const update = { runtimeId: runtime.id };
+
   await Promise.all([
-    locals.supabase
-      .from("Ontology")
-      .update({ installed: true, runtimeId: runtime.id })
-      .eq("id", ontology.id),
-    locals.supabase
-      .from("Corpus")
-      .update({ installed: true, runtimeId: runtime.id })
-      .eq("id", corpus.id),
-    locals.supabase
-      .from("Domain")
-      .update({ installed: true, runtimeId: runtime.id })
-      .eq("id", domain.id),
-    locals.supabase
-      .from("Game")
-      .update({ runtimeId: runtime.id })
-      .in(
-        "id",
-        games.values().map((g) => g.id),
-      ),
-    locals.supabase
-      .from("Tactic")
-      .update({ runtimeId: runtime.id })
-      .in(
-        "id",
-        tactics.values().map((g) => g.id),
-      ),
-    locals.supabase.from("Runtime").update({ installed: true }).eq("id", runtime.id),
+    locals.supabase.from("Ontology").update(update).eq("id", ontology.id),
+    locals.supabase.from("Corpus").update(update).eq("id", corpus.id),
+    locals.supabase.from("Domain").update(update).eq("id", domain.id),
+    locals.supabase.from("Game").update(update).in("id", idfy(games)),
+    locals.supabase.from("Tactic").update(update).in("id", idfy(tactics)),
   ]);
 }

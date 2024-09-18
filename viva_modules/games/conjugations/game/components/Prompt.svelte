@@ -1,23 +1,31 @@
 <script>
-    import { getStore } from "../store.js";
-    const store = getStore();
+  import { getStore } from "../store.js";
+  const store = getStore();
 </script>
 
-<header class="mb-8">
-    <h2 class="h1">
-        {$store.instruction.verb.learning} - {$store.instruction.verb.spoken}
-    </h2>
-    <p class="">
-        Tense: {$store.instruction.tense}
-    </p>
-</header>
+<header class="card bg-base-100 rounded-t-xl rounded-b-none">
+  <div class="card-body">
+    <div class="flex flex-row">
+      <h1 class="card-title text-xl mr-2">
+        {$store.instruction.infinitive.known}
+      </h1>
+      {#if $store.revealed}
+        <h1 class="card-title text-2xl mr-2">-</h1>
 
-<!-- <style> -->
-<!--     .conjugation-prompt { -->
-<!--         text-align: center; -->
-<!--         margin-bottom: 1rem; -->
-<!--     } -->
-<!--     .conjugation-prompt h2 { -->
-<!--         margin-bottom: 0.5rem; -->
-<!--     } -->
-<!-- </style> -->
+        <h1 class="card-title text-2xl">
+          {$store.instruction.infinitive.learning}
+        </h1>
+      {/if}
+    </div>
+    <div class="flex flex-row">
+      <label class="text-sm mr-2"> in: </label>
+      <label class="badge badge-secondary mr-2">
+        {$store.instruction.tense}
+      </label>
+
+      <label class="badge badge-secondary">
+        {$store.instruction.mood}
+      </label>
+    </div>
+  </div>
+</header>

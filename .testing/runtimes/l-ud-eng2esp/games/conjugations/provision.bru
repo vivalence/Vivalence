@@ -1,0 +1,102 @@
+meta {
+  name: provision
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/conjugations/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tags": {
+      "mood": {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": [
+          "ONTOLOGICAL"
+        ],
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+      },
+      "tense": {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": [
+          "ONTOLOGICAL",
+          "LEARNABLE"
+        ],
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+      },
+      "verb": {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": [
+          "ONTOLOGICAL"
+        ],
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+      }
+    },
+    "scope": {
+      "tactic": {
+        "id": "649484a9-4659-4ea3-a57b-7404a59a69e7"
+      },
+      "strategy": {
+        "id": "7ff4e8ae-4a1f-4ef1-90ce-34bde721f66b"
+      },
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      },
+      "game": {
+        "id": "00395831-386e-4c1a-9052-f6dd88d35901"
+      }
+    },
+    "mask": {
+      "tags": {
+        "infinitive": {
+          "id": "clrzb0g3v000xg0lg85jltdwy",
+          "data": {
+            "ONTOLOGICAL": {
+              "leaf": "inf",
+              "branch": "verbform"
+            }
+          },
+          "name": "Verbform Infinitive",
+          "slug": "verbform:inf",
+          "traits": [
+            "ONTOLOGICAL"
+          ],
+          "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+        }
+      }
+    },
+    "language": {
+      "learning": "spanish",
+      "known": "english"
+    }
+  }
+}

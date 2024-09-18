@@ -5,8 +5,10 @@ const tactic = {
     units: {},
     tags: {
       structural: { slug: "structural:a1" },
-      articles: { slug: "prontype:art" },
       vocabulary: [{ slug: "pos:noun" }, { slug: "pos:adj" }],
+      articles: { slug: "prontype:art" },
+      numbers: [{ slug: "number:sing" }, { slug: "number:plur" }],
+      genders: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
     },
     games: {
       flashcards: { slug: "flashcards" },
@@ -16,7 +18,7 @@ const tactic = {
   masks: {
     translations: {
       prompt: {
-        inner: ` ### Task:
+        inner: `### Task:
 Create simple statements to practice the usage of present tense verbs with a noun for A1 language learners.
 Usage of present tense verbs and nouns on A1 level.
 1 VERB + 1 NOUN
@@ -41,6 +43,7 @@ export default {
     type: "Tactic",
     name: "Morphology of Articles with gender and number",
     slug: "article-morphology-gender-and-number",
+    version: "0.0.3",
     description:
       "Learn how to properly use gender and number of vocabulary by repetition of flashcards.",
     modules: {
