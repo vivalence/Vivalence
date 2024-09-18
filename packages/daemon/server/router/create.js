@@ -7,5 +7,6 @@ export default function createRouter() {
   const router = new Router();
   router.route = route(router);
   router.caller = caller;
+  router.middleware = [];
   return router;
 }

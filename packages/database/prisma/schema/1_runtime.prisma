@@ -1,4 +1,5 @@
 model Runtime {
+
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
@@ -93,6 +94,7 @@ model Game {
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
   mask      Json     @default("{}") 
+  description String?
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)

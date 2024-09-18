@@ -8,6 +8,7 @@ export default function serve({ app, router, runtimes, ...params }) {
   const server = app.listen({ port });
 
   for (const runtime of runtimes.values()) {
+    // mw maybe?
     runtime.call = runtime.caller();
   }
 

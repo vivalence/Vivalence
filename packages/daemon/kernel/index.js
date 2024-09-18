@@ -1,7 +1,5 @@
 import config from "@vivalence/config";
 
-import dev from "./dev.js";
-
 async function cleanupPorts() {
   const port = config.env.DAEMON_PORT;
   const p = Deno.run({ cmd: ["lsof", "-i", `:${port}`, "-t"], stdout: "piped", stderr: "piped" });
@@ -54,4 +52,4 @@ const tick = (start) => (name) => (params) => {
   return params;
 };
 
-export { cleanupPorts, launch, daemonize, tick, dev };
+export { cleanupPorts, launch, daemonize, tick };

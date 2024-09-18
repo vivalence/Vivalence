@@ -10,9 +10,7 @@ export default async function ({ scope, blacklist }, ctx) {
 
   blacklist = await queueToBlacklist({ blacklist, scope }, ctx);
 
-  console.log("3");
   const { tactic } = await getData({ scope }, ctx);
-  console.log("4");
 
   const inputs = {
     language: { learning: "spanish", known: "english" },

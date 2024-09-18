@@ -1,6 +1,7 @@
 import supabase from "../../lib/supabase/index.js";
+import runtimes from "../index.js";
 
-export default function runtimeMiddleware(runtime, runtimes) {
+export default function runtimeMiddleware(runtime) {
   function middlewareRuntime(ctx) {
     delete ctx.locals;
     ctx.runtime = runtimes.get(runtime["#symbol"]);
@@ -19,13 +20,13 @@ export default function runtimeMiddleware(runtime, runtimes) {
     return ctx.runtime;
   }
 
-  runtime.bus.use(async (ctx, next) => {
+  runtime.bus.use((ctx, next) => {
     ctx.runtime = middlewareRuntime(ctx);
-    ctx.runtime.locals.supabase = supabase.createAdminClient(ctx);
-    await next();
+    ctx.runtime.locals.supabase = supabase.createAdminClient();
+    next();
   });
 
-  runtime.router.use(async (ctx, next) => {
+  runtime.router.middleware.push(async (ctx, next) => {
     ctx.runtime = middlewareRuntime(ctx);
     await next();
   });

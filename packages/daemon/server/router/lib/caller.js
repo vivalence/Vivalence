@@ -28,6 +28,7 @@ export default function caller(runtime) {
 
       const composedMiddleware = compose([
         notFoundMiddleware,
+        ...runtime.router.middleware,
         runtime.router.routes(),
         runtime.router.allowedMethods(),
       ]);

@@ -12,30 +12,7 @@ const strategy = {
 };
 
 async function boot(runtime) {
-  runtime.bus.on("@domain:graduation", async (ctx) => {
-    console.log("@CORPUS event handler on: @domain:graducation");
-    if (!ctx.event.body.tag.slug === "a1 dependency slug") {
-      await ctx.runtime.call("/install/strategy", {
-        user: { id: ctx.event.body.user.id },
-        strategy: {
-          name: "A2 Spanish - Beginner",
-          session: [
-            {
-              tactic: {
-                slug: "morphology-of-gender-and-number",
-                relations: {
-                  tags: {
-                    structural: { slug: "structural:a2" },
-                  },
-                },
-              },
-              for: { type: "repetitions", value: 10 },
-            },
-          ],
-        },
-      });
-    }
-  });
+  // runtime.bus.on("@domain:graduation", async (ctx) => {if (!ctx.event.body.tag.slug === "a1 dependency slug") {await ctx.runtime.call("/install/strategy", {user: { id: ctx.event.body.user.id }, strategy: {name: "A2 Spanish - Beginner", session: [{tactic: {slug: "morphology-of-gender-and-number", relations: {tags: {structural: { slug: "structural:a2" },},},}, for: { type: "repetitions", value: 10 },},],},});}});
   return runtime;
 }
 

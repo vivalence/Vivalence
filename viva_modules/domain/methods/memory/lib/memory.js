@@ -150,6 +150,17 @@ export const getWeakest = (resources, take = null) => {
   return resourcesWeakest;
 };
 
+export const sortByMemory = (a, b) => {
+  if (!a.memory && !b.memory) return 0;
+  if (!a.memory) return 1;
+  if (!b.memory) return -1;
+  return b.memory.strength - a.memory.strength;
+};
+
+export const sortResourcesByMemory = (resources) => {
+  return resources.sort(sortByMemory);
+};
+
 export const getStatus = (nextReviewIn, history) => {
   const checkLastResponses = (n, condition) => {
     const recentResponses = history.slice(-n).map((entry) => entry.response);

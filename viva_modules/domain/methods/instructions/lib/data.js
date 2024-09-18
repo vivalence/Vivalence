@@ -7,7 +7,6 @@ export default async function getData({ scope }, ctx) {
     .select(`*`)
     .eq("id", scope.strategy.id)
     .single();
-
   let { data: tactic, error: et } = await ctx.runtime.locals.supabase
     .from("Tactic")
     .select(`*`)
@@ -16,23 +15,26 @@ export default async function getData({ scope }, ctx) {
   if (es || et) throw es || et;
 
   tactic = deepMerge(tactic, strategy.session.find((step) => step.tactic.id === tactic.id).tactic);
-
-  const relations = await buildRelations({ tactic, scope }, ctx);
-  tactic.relations = relations;
+  tactic.relations = await buildRelations({ tactic, scope }, ctx);
 
   return { tactic, strategy };
 }
 
+// this can be massively cleaned.
 async function buildRelations({ tactic, scope }, ctx) {
   async function resolveRelation(resourceType, relation) {
     if (Array.isArray(relation)) {
       return await Promise.all(
-        relation.map(async (slug) => await ctx.runtime.call(`/${resourceType}/fromSlug`, slug)),
+        relation.map(async ({ slug }) =>
+          slug ? await ctx.runtime.call(`/${resourceType}/fromSlug`, { slug }) : relation,
+        ),
       );
     } else if (typeof relation === "object" && relation.slug) {
-      return await ctx.runtime.call(`/${resourceType}/fromSlug`, relation);
+      return relation.slug
+        ? await ctx.runtime.call(`/${resourceType}/fromSlug`, relation)
+        : relation;
     } else {
-      throw new Error("Invalid relation");
+      return relation;
     }
   }
 
@@ -41,6 +43,14 @@ async function buildRelations({ tactic, scope }, ctx) {
       async (acc, [relationName, relationDetail]) => {
         acc = await acc;
         acc[relationName] = await resolveRelation(resourceType, relationDetail, ctx);
+        if (resourceType === "games" && acc[relationName].mask) {
+          // resolve tags units and games defined in game mask.
+          Object.entries(acc[relationName].mask).forEach(async ([maskType, mask]) => {
+            if (typeof mask === "object") {
+              acc[relationName].mask[maskType] = await resolveResource(maskType, mask);
+            }
+          });
+        }
         return acc;
       },
       {},
@@ -57,5 +67,6 @@ async function buildRelations({ tactic, scope }, ctx) {
     },
     { games: {}, units: {}, tags: {} },
   );
+
   return relations;
 }

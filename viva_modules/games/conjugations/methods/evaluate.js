@@ -1,81 +1,72 @@
 import Mustache from "mustache";
-import { GamePrompt } from "./lib/prompts.js";
+import { EvalPrompt } from "./lib/prompts.js";
+import { getPersonAndNumber } from "./lib/index.js";
 
-// export async function POST({ fetch, locals, request }) {
-export default async function generate({ inputs, instruction, scope }, ctx) {
-  const { language } = GamePrompt;
+export default async function generate({ inputs, scope, instruction }, ctx) {
+  const { language } = ctx.runtime.statics;
 
-  const evaluateConjugation = async (conjugation) => {
-    // TODO: use full annotation here
-    const part = {
-      input: inputs[conjugation.scope.unit.id],
-      person: conjugation.person,
-      number: conjugation.number,
-      spoken: conjugation.spoken,
-      learning: conjugation.learning,
+  const [scopeTags, personTags, numberTags] = await Promise.all([
+    ctx.runtime.call("/tags/fromTagIds", { tagIds: scope.tags.map((t) => t.id) }),
+    ctx.runtime.call("/tags/fromOntology", { branch: "person" }),
+    ctx.runtime.call("/tags/fromOntology", { branch: "number" }),
+  ]);
 
-      verb: instruction.verb.learning,
-      tense: instruction.tense,
-      language,
-    };
-
-    const prompt = Mustache.render(Prompt.template, part);
-
-    const input = { prompt, schema: Prompt.schema, provider: Prompt.provider };
-    const evaluation = await ctx.runtime.services.llm(input);
-
-    // @lf i should rename this to /unit/review, evaluate or update or something
-    await ctx.runtime.call("/units/review", {
-      gameType: "CONJUGATIONS",
-      response: evaluation.status,
-      scope: { ...scope, tag: null, unit: { id: conjugation.scope.unit.id } },
-    });
-    for (const tag in conjugation.scope.unit.tags) {
-      await ctx.runtime.call("/tags/review", {
-        gameType: "CONJUGATIONS",
-        response: evaluation.status,
-        scope: {
-          ...scope,
-          unit: null,
-          tag: { id: tag.id },
-        },
-      });
-    }
-
-    return {
-      data: {
-        index: conjugation.meta.index,
-        unitId: conjugation.scope.unit.id,
-        evaluation: evaluation.status,
-      },
-    };
+  const tags = {
+    lemma: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "lemma"),
+    tense: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "tense"),
+    mood: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "mood"),
+    persons: personTags,
+    numbers: numberTags,
   };
 
-  const promises = instruction.conjugations.map(evaluateConjugation);
-  const results = await Promise.all(promises);
+  const promises = instruction.conjugations.map((conjugation) =>
+    evaluateConjugation({ conjugation, tags, language, inputs, scope }, ctx),
+  );
 
-  const evaluations = [
-    results.reduce((acc, r) => {
-      if (r.data && ["KNOWN", "GRADUATE"].includes(r.data.evaluation)) acc += 1;
-      return acc;
-    }, 0),
-    results.length,
-  ];
+  const result = await Promise.all(promises);
 
-  for (const tag of scope.tags) {
-    const result = await ctx.runtime.call("/tags/review", {
+  return result.reduce((acc, e) => ((acc[e.unit.id] = e), acc), {});
+}
+
+async function evaluateConjugation({ conjugation, tags, language, inputs, scope }, ctx) {
+  const { person, number } = getPersonAndNumber(conjugation.meta.index);
+  const personTag = tags.persons.find((tag) => tag.data.ONTOLOGICAL.leaf === person);
+  const numberTag = tags.numbers.find((tag) => tag.data.ONTOLOGICAL.leaf === number);
+
+  const part = {
+    language,
+    input: inputs[conjugation.scope.unit.id],
+    known: conjugation.known,
+    learning: conjugation.learning,
+    person: personTag.name,
+    number: numberTag.name,
+    verb: tags.lemma.name,
+    tense: tags.tense.name,
+    mood: tags.mood.name,
+  };
+
+  const prompt = Mustache.render(EvalPrompt.template, part);
+
+  const input = { prompt, schema: EvalPrompt.schema, provider: EvalPrompt.provider };
+  const evaluation = await ctx.runtime.services.llm(input);
+
+  // @lf i should rename this to /unit/review, evaluate or update or something
+  await ctx.runtime.call("/units/review", {
+    gameType: "CONJUGATIONS",
+    response: evaluation.status,
+    scope: { ...scope, tag: null, unit: { id: conjugation.scope.unit.id } },
+  });
+  for (const tag in conjugation.scope.tags) {
+    await ctx.runtime.call("/tags/review", {
       gameType: "CONJUGATIONS",
-      response: evaluations,
-      scope: {
-        ...scope,
-        unit: null,
-        game: { id: scope.game.id },
-        tag: { id: tag.id },
-      },
+      response: evaluation.status,
+      scope: { ...scope, unit: null, tag: { id: tag.id } },
     });
-
-    results.push(result);
   }
 
-  return results;
+  return {
+    evaluation,
+    index: conjugation.meta.index,
+    unit: { id: conjugation.scope.unit.id },
+  };
 }

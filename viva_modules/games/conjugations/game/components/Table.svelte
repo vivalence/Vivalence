@@ -1,48 +1,25 @@
 <script>
-    import { getStore } from "../store.js";
-    const store = getStore();
+  import TableRow from "./TableRow.svelte";
 
-    function handleInput(person, value) {
-        store.setInputs(person, value);
-    }
+  import { getStore } from "../store.js";
+  const store = getStore();
 </script>
 
-<table class="table table-hover ">
+<div
+  class={`overflow-x-auto container bg-base-100 pt-4 pb-6 px-4 rounded-b-xl border-t-2 border-neutral`}
+>
+  <table class="table">
     <thead>
-        <tr>
-            <th>Person</th>
-            <th>Conjugation</th>
-            <th>Correct Answer</th>
-        </tr>
+      <tr>
+        <th class="w-1">Person</th>
+        <th>Conjugation</th>
+        <th class={`text-neutral-content/${$store.revealed ? "100" : "0"}`}>Corrent Answer</th>
+      </tr>
     </thead>
     <tbody>
-        {#each $store.instruction.conjugations as conjugation}
-            <tr>
-              <td>
-                  <p class=" text-lg mt-2">
-                    {conjugation.spoken}
-                    </p>
-              </td>
-                <td>
-                    <input
-                        class="border input u-full-width text-lg"
-                        type="text"
-                        bind:value={$store.inputs[conjugation.scope.unit.id]}
-                        on:input={(event) => store.setInput(conjugation.scope.unit.id, event.target.value)}
-                        disabled={$store.revealed}
-                    />
-                </td>
-                <td class="answer ">
-                  <p class="text-token text-lg mt-2">
-                    {#if $store.revealed}
-                        {conjugation.learning}
-                    {:else}
-                        *****
-                    {/if}
-                    </p>
-                </td>
-            </tr>
-        {/each}
+      {#each $store.instruction.conjugations as conjugation}
+        <TableRow {conjugation} />
+      {/each}
     </tbody>
-</table>
-
+  </table>
+</div>

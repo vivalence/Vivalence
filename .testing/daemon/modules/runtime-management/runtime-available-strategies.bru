@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{DAEMON_SERVER_URL}}/v/user/on/signup
+  url: {{DAEMON_SERVER_URL}}/v/runtime/available/strategies
   body: json
   auth: none
 }
@@ -14,6 +14,9 @@ body:json {
   {
     "user": {
       "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+    },
+    "runtime": {
+      "slug": "l-ud-eng2esp"
     }
   }
 }

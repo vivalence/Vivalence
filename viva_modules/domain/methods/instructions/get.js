@@ -44,10 +44,7 @@ export default async function ({ scope, take, ...body }, ctx) {
 
   if (count.error) {
     console.error("Error retrieving the oldest pending entry:", count.error);
-    return {
-      error: count.error,
-      status: 500,
-    };
+    return { error: count.error, status: 500 };
   }
   if (count.count < config.env.get("PROVISION_THRESHOLD")) {
     provision({ scope, blacklist }, ctx);
@@ -62,13 +59,20 @@ async function provision(props, ctx) {
     if (lock.has(props.scope)) return { status: 202 };
     lock.set(props.scope);
     instructions = await ctx.runtime.call("/instructions/provision", props);
+
     if (instructions.error) throw instructions.error;
 
-    const { error } = await ctx.runtime.locals.supabase.from("Queue").insert(
+    const scope = {
+      userId: props.scope.user.id,
+      strategyId: props.scope.strategy.id,
+      tacticId: props.scope.tactic.id,
+    };
+
+    instructions.push({ type: "SIGNAL", instruction: { message: "REPETITION" } });
+
+    const { data, error } = await ctx.runtime.locals.supabase.from("Queue").insert(
       instructions.map((data, index) => ({
-        userId: props.scope.user.id,
-        strategyId: props.scope.strategy.id,
-        tacticId: props.scope.tactic.id,
+        ...scope,
         data,
         index,
       })),

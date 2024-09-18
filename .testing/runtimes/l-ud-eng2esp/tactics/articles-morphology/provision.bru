@@ -1,0 +1,218 @@
+meta {
+  name: provision
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/t/article-morphology-gender-and-number/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "language": {
+      "learning": "spanish",
+      "known": "english"
+    },
+    "tactic": {
+      "id": "2bdcd051-e075-412e-9959-f67bd4f56fbb",
+      "createdAt": "2024-09-10T20:55:38.291",
+      "updatedAt": "2024-09-10T20:55:38.291",
+      "name": "Morphology of Articles with gender and number",
+      "relations": {
+        "games": {
+          "flashcards": {
+            "id": "8e77d3db-1d61-4980-8f86-cf5f6ec0b4dd",
+            "createdAt": "2024-07-25T12:45:54.748",
+            "updatedAt": "2024-07-25T12:45:54.748",
+            "name": "Flashcards",
+            "installed": true,
+            "version": "0.0.0",
+            "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+            "slug": "flashcards",
+            "mask": {
+              "back": "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
+              "front": "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n"
+            }
+          },
+          "translations": {
+            "id": "55de6b74-f28d-4871-b394-ae806e482fa1",
+            "createdAt": "2024-08-15T14:05:04.034",
+            "updatedAt": "2024-08-15T14:05:04.034",
+            "name": "Translations",
+            "installed": true,
+            "version": "0.0.0",
+            "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+            "slug": "translations",
+            "mask": {}
+          }
+        },
+        "units": {},
+        "tags": {
+          "genders": [
+            {
+              "id": "clrzaz35y0003g0jsnr9c47j0",
+              "data": {
+                "LEARNABLE": {},
+                "ONTOLOGICAL": {
+                  "leaf": "masc",
+                  "branch": "gender"
+                }
+              },
+              "name": "Gender Masculine",
+              "slug": "gender:masc",
+              "traits": [
+                "LEARNABLE",
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            },
+            {
+              "id": "clrzb15d70030g0m3zhq7cynz",
+              "data": {
+                "LEARNABLE": {},
+                "ONTOLOGICAL": {
+                  "leaf": "fem",
+                  "branch": "gender"
+                }
+              },
+              "name": "Gender Feminine",
+              "slug": "gender:fem",
+              "traits": [
+                "LEARNABLE",
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            }
+          ],
+          "numbers": [
+            {
+              "id": "clrzaz4ir0006g0jsp53an5jh",
+              "data": {
+                "LEARNABLE": {},
+                "ONTOLOGICAL": {
+                  "leaf": "sing",
+                  "branch": "number"
+                }
+              },
+              "name": "Number Singular",
+              "slug": "number:sing",
+              "traits": [
+                "LEARNABLE",
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            },
+            {
+              "id": "clrzb14tl002dg0m3p5lsy4f3",
+              "data": {
+                "LEARNABLE": {},
+                "ONTOLOGICAL": {
+                  "leaf": "plur",
+                  "branch": "number"
+                }
+              },
+              "name": "Number Plural",
+              "slug": "number:plur",
+              "traits": [
+                "LEARNABLE",
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            }
+          ],
+          "articles": {
+            "id": "clrzaz4z90009g0jsrf0yyiqu",
+            "data": {
+              "STRUCTURAL": {},
+              "ONTOLOGICAL": {
+                "leaf": "art",
+                "branch": "prontype"
+              }
+            },
+            "name": "Prontype: Articles",
+            "slug": "prontype:art",
+            "traits": [
+              "ONTOLOGICAL"
+            ],
+            "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+          },
+          "structural": {
+            "id": "55bdcbd6-fd42-41dd-8014-79668ae6fd07",
+            "data": {
+              "STRUCTURAL": {}
+            },
+            "name": "A1",
+            "slug": "structural:a1",
+            "traits": [
+              "STRUCTURAL"
+            ],
+            "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+          },
+          "vocabulary": [
+            {
+              "id": "clpwfwow30008g0n1iruvb7un",
+              "data": {
+                "ONTOLOGICAL": {
+                  "leaf": "noun",
+                  "branch": "pos"
+                }
+              },
+              "name": "Noun",
+              "slug": "pos:noun",
+              "traits": [
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            },
+            {
+              "id": "clpwfwoax0000g0n1wrtqt6q1",
+              "data": {
+                "ONTOLOGICAL": {
+                  "leaf": "adj",
+                  "branch": "pos"
+                }
+              },
+              "name": "Adjectives",
+              "slug": "pos:adj",
+              "traits": [
+                "ONTOLOGICAL"
+              ],
+              "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590"
+            }
+          ]
+        }
+      },
+      "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+      "masks": {
+        "translations": {
+          "prompt": {
+            "inner": " ### Task:\nCreate simple statements to practice the usage of present tense verbs with a noun for A1 language learners.\nUsage of present tense verbs and nouns on A1 level.\n1 VERB + 1 NOUN\n\n### Examples:\nHe eats bread. - Él come pan. (Masculine Singular)\nShe reads a book. - Ella lee un libro. (Feminine Singular)\nThey play soccer. - Ellos juegan fútbol. (Masculine Plural)\n\n### Instructions:\nThe sentence should be made up of 2 parts. One (1) verb in the present tense and one (1) noun.\nChoose common, everyday nouns suitable for A1 level language learners.\nThe statement must make sense, possibly occur in written text or conversation, and be clear for a language learner.\nI will provide the verb. Take the provided verb exactly. Don't change its tense or person. "
+          }
+        }
+      },
+      "slug": "article-morphology-gender-and-number",
+      "description": "Learn how to properly use gender and number of vocabulary by repetition of flashcards.",
+      "installed": true,
+      "version": "0.0.3"
+    },
+    "scope": {
+      "tactic": {
+        "id": "2bdcd051-e075-412e-9959-f67bd4f56fbb"
+      },
+      "strategy": {
+        "id": "7ff4e8ae-4a1f-4ef1-90ce-34bde721f66b"
+      },
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      }
+    },
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "instructions": []
+    }
+  }
+}

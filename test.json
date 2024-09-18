@@ -1,0 +1,4759 @@
+[
+  {
+    "id": "clnt09ie3001wg0nuhmngn4lx",
+    "createdAt": "2023-10-16T12:43:22.588",
+    "updatedAt": "2024-08-01T17:36:50.511",
+    "data": {
+      "index": 83,
+      "known": "to believe, think",
+      "example": {
+        "known": "I believe in the justice of God",
+        "learning": "creo en la justicia de Dios"
+      },
+      "learning": "creer"
+    },
+    "annotation": {
+      "pos": "verb",
+      "lemma": "creer",
+      "verbform": "inf"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creer:creer-verb-inf",
+    "tags": [
+      {
+        "id": "clrzb0g3v000xg0lg85jltdwy",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "inf",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Infinitive",
+        "slug": "verbform:inf",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:09:41.9",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "55bdcbd6-fd42-41dd-8014-79668ae6fd07",
+        "data": {
+          "STRUCTURAL": {}
+        },
+        "name": "A1",
+        "slug": "structural:a1",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2024-03-02T14:36:22.984",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "05faf4cd-c5e5-4f91-846e-1d74a74e72ec",
+    "createdAt": "2024-05-31T14:27:26.681",
+    "updatedAt": "2024-08-01T17:37:16.232",
+    "data": {
+      "index": 200,
+      "known": "believing",
+      "example": {
+        "known": "She is believing in herself.",
+        "learning": "Ella está creyendo en sí misma."
+      },
+      "learning": "creyendo"
+    },
+    "annotation": {
+      "pos": "verb",
+      "lemma": "creer",
+      "verbform": "ger"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyendo:creer-verb-ger",
+    "tags": [
+      {
+        "id": "clpwfwq710013g0n1dh5g4z6n",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ger",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Gerund",
+        "slug": "verbform:ger",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:03.23",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "163dc90a-9088-488f-936d-811c51d2d153",
+    "createdAt": "2024-05-31T14:27:31.155",
+    "updatedAt": "2024-08-01T17:37:16.237",
+    "data": {
+      "index": 1500,
+      "known": "believed",
+      "example": {
+        "known": "He has believed the story.",
+        "learning": "Él ha creído la historia."
+      },
+      "learning": "creído"
+    },
+    "annotation": {
+      "pos": "verb",
+      "lemma": "creer",
+      "verbform": "part"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creído:creer-verb-part",
+    "tags": [
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1dm100bpg0m3zdqyz7jp",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "part",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Participle",
+        "slug": "verbform:part",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:22.183",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "27e619e9-bfac-4956-ac34-ce6ebd5d5323",
+    "createdAt": "2024-05-31T14:49:08.439",
+    "updatedAt": "2024-08-01T17:37:16.238",
+    "data": {
+      "index": 150,
+      "known": "I believe",
+      "example": {
+        "known": "I believe in you.",
+        "learning": "Creo en ti."
+      },
+      "learning": "creo"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creo:imp-creer-ind-sing-1-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "6cc0f3f5-7880-45ce-b03e-f0cb1c936101",
+    "createdAt": "2024-05-31T14:49:20.611",
+    "updatedAt": "2024-08-01T17:37:16.237",
+    "data": {
+      "index": 150,
+      "known": "believed",
+      "example": {
+        "known": "He believed in miracles.",
+        "learning": "Él creía en milagros."
+      },
+      "learning": "creía"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creía:imp-creer-ind-sing-3-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "70ef40ff-ec43-44cf-87ba-a6fe9bd7f64d",
+    "createdAt": "2024-05-31T14:22:51.045",
+    "updatedAt": "2024-08-01T17:37:16.234",
+    "data": {
+      "index": 150,
+      "known": "to believe",
+      "example": {
+        "known": "You used to believe in magic.",
+        "learning": "Creíais en la magia."
+      },
+      "learning": "creer"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creer:imp-creer-ind-plur-2-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      }
+    ]
+  },
+  {
+    "id": "78fac2fa-479b-403f-bb6a-521da5f50760",
+    "createdAt": "2024-05-31T14:22:20.24",
+    "updatedAt": "2024-08-01T17:37:16.233",
+    "data": {
+      "index": 200,
+      "known": "they believed",
+      "example": {
+        "known": "They believed in the story.",
+        "learning": "Creyeron en la historia."
+      },
+      "learning": "creyeron"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "perf",
+      "number": "plur",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyeron:perf-creer-ind-plur-2-verb-past-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpzh000yg0n1eao5zj13",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "perf",
+            "branch": "aspect"
+          }
+        },
+        "name": "Perfective Aspect",
+        "slug": "aspect:perf",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.957",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      }
+    ]
+  },
+  {
+    "id": "79145a60-8d38-4956-9226-9b4f9c1e21db",
+    "createdAt": "2024-05-31T14:22:40.754",
+    "updatedAt": "2024-08-01T17:37:16.237",
+    "data": {
+      "index": 500,
+      "known": "I believed",
+      "example": {
+        "known": "I believed in the story.",
+        "learning": "Yo creía en la historia."
+      },
+      "learning": "creía"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creía:imp-creer-ind-sing-1-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "838d2739-eef7-475c-a9c2-97edaf25aaa1",
+    "createdAt": "2024-05-31T14:22:16.943",
+    "updatedAt": "2024-08-01T17:37:16.234",
+    "data": {
+      "index": 450,
+      "known": "you believed",
+      "example": {
+        "known": "You believed in the story.",
+        "learning": "Creíste en la historia."
+      },
+      "learning": "creíste"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "perf",
+      "number": "sing",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creíste:perf-creer-ind-sing-2-verb-past-fin",
+    "tags": [
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpzh000yg0n1eao5zj13",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "perf",
+            "branch": "aspect"
+          }
+        },
+        "name": "Perfective Aspect",
+        "slug": "aspect:perf",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.957",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "b373a9ce-791e-4ca3-a4bb-e20c26c56602",
+    "createdAt": "2024-05-31T14:22:34.844",
+    "updatedAt": "2024-08-01T17:37:16.234",
+    "data": {
+      "index": 150,
+      "known": "they will believe",
+      "example": {
+        "known": "They will believe the story.",
+        "learning": "Ellos creerán la historia."
+      },
+      "learning": "creerán"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "perf",
+      "number": "plur",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creerán:perf-creer-ind-plur-2-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpzh000yg0n1eao5zj13",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "perf",
+            "branch": "aspect"
+          }
+        },
+        "name": "Perfective Aspect",
+        "slug": "aspect:perf",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.957",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      }
+    ]
+  },
+  {
+    "id": "clpl48z7m006gg0xc5bv1th7e",
+    "createdAt": "2023-11-30T10:32:11.458",
+    "updatedAt": "2024-08-01T17:37:16.231",
+    "data": {
+      "index": 300,
+      "known": "you believe",
+      "example": {
+        "known": "You believe in yourself.",
+        "learning": "Tú crees en ti mismo."
+      },
+      "learning": "crees"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "crees:imp-creer-ind-sing-2-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48z7m006hg0xcs50rrtqw",
+    "createdAt": "2023-11-30T10:32:11.458",
+    "updatedAt": "2024-08-01T17:37:16.232",
+    "data": {
+      "index": 300,
+      "known": "he/she believes",
+      "example": {
+        "known": "He believes in hard work.",
+        "learning": "Él cree en el trabajo duro."
+      },
+      "learning": "cree"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "cree:imp-creer-ind-sing-3-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48z7m006ig0xch367tz7y",
+    "createdAt": "2023-11-30T10:32:11.458",
+    "updatedAt": "2024-08-01T17:37:16.232",
+    "data": {
+      "index": 1500,
+      "known": "we believe",
+      "example": {
+        "known": "We believe in honesty.",
+        "learning": "Creemos en la honestidad."
+      },
+      "learning": "creemos"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creemos:imp-creer-ind-plur-1-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zfn006lg0xcllorr6l8",
+    "createdAt": "2023-11-30T10:32:11.748",
+    "updatedAt": "2024-08-01T17:37:16.237",
+    "data": {
+      "index": 2000,
+      "known": "I believed",
+      "example": {
+        "known": "I believed in the story.",
+        "learning": "Creí en la historia."
+      },
+      "learning": "creí"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creí:imp-creer-ind-sing-1-verb-past-fin",
+    "tags": [
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zfn006ng0xcm5w7vg6d",
+    "createdAt": "2023-11-30T10:32:11.748",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "he/she/you formal believed, thought",
+      "example": {},
+      "learning": "creyó"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyó:imp-creer-ind-sing-3-verb-past-fin",
+    "tags": [
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zfn006og0xc9khr12ib",
+    "createdAt": "2023-11-30T10:32:11.748",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "we believed, thought",
+      "example": {},
+      "learning": "creímos"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creímos:imp-creer-ind-plur-1-verb-past-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zfn006qg0xcmleebaz2",
+    "createdAt": "2023-11-30T10:32:11.748",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "they/you all formal believed, thought",
+      "example": {},
+      "learning": "creyeron"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "past",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyeron:imp-creer-ind-plur-3-verb-past-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpt6000ug0n1htcn6x30",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "past",
+            "branch": "tense"
+          }
+        },
+        "name": "Past Tense",
+        "slug": "tense:past",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.73",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48znm006ug0xcx221iiog",
+    "createdAt": "2023-11-30T10:32:12.034",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "we believed, we used to believe, we were believing",
+      "example": {},
+      "learning": "creíamos"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creíamos:imp-creer-ind-plur-1-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48znm006wg0xcbrdwu8o9",
+    "createdAt": "2023-11-30T10:32:12.034",
+    "updatedAt": "2024-08-01T17:37:14.051",
+    "data": {
+      "known": "they/you all(formal) believed, they/you all(formal) used to believe, they/you all(formal) were believing",
+      "example": {},
+      "learning": "creían"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creían:imp-creer-ind-plur-3-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zvq006xg0xc1cl191h6",
+    "createdAt": "2023-11-30T10:32:12.326",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "I will believe",
+      "example": {},
+      "learning": "creeré"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creeré:imp-creer-ind-sing-1-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zvq006yg0xcnkqtu5si",
+    "createdAt": "2023-11-30T10:32:12.326",
+    "updatedAt": "2024-08-01T17:37:16.231",
+    "data": {
+      "index": 2000,
+      "known": "you will believe",
+      "example": {
+        "known": "You will believe in yourself.",
+        "learning": "Creerás en ti mismo."
+      },
+      "learning": "creerás"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creerás:imp-creer-ind-sing-2-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zvq006zg0xccjb35i3v",
+    "createdAt": "2023-11-30T10:32:12.326",
+    "updatedAt": "2024-08-01T17:37:02.637",
+    "data": {
+      "known": "he/she/you formal will believe",
+      "example": {},
+      "learning": "creerá"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creerá:imp-creer-ind-sing-3-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zvq0070g0xc27r39epc",
+    "createdAt": "2023-11-30T10:32:12.326",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "we will believe",
+      "example": {},
+      "learning": "creeremos"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "1",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creeremos:imp-creer-ind-plur-1-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwplo000pg0n1sc4frv60",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "1",
+            "branch": "person"
+          }
+        },
+        "name": "First Person",
+        "slug": "person:1",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.461",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl48zvq0072g0xct3rr29nz",
+    "createdAt": "2023-11-30T10:32:12.326",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "they/you all formal will believe",
+      "example": {},
+      "learning": "creerán"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creerán:imp-creer-ind-plur-3-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl4903s0073g0xc4rkoo41h",
+    "createdAt": "2023-11-30T10:32:12.616",
+    "updatedAt": "2024-08-01T17:37:14.059",
+    "data": {
+      "known": "I would believe",
+      "example": {},
+      "learning": "creería"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "cnd",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creería:imp-creer-cnd-sing-3-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "1ae2de99-a387-41fc-9cd6-509768e91c14",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "cnd",
+            "branch": "mood"
+          }
+        },
+        "name": "Mood: Conditional",
+        "slug": "mood:cnd",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:06:35.168",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl4903s0078g0xcw9b67c8w",
+    "createdAt": "2023-11-30T10:32:12.616",
+    "updatedAt": "2024-08-01T17:37:02.637",
+    "data": {
+      "known": "they/you all (formal) would believe",
+      "example": {},
+      "learning": "creerían"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "cnd",
+      "lemma": "creer",
+      "tense": "fut",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creerían:imp-creer-cnd-plur-3-verb-fut-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpwg000wg0n16nvxfpmq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fut",
+            "branch": "tense"
+          }
+        },
+        "name": "Future Tense",
+        "slug": "tense:fut",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.848",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.992"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "1ae2de99-a387-41fc-9cd6-509768e91c14",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "cnd",
+            "branch": "mood"
+          }
+        },
+        "name": "Mood: Conditional",
+        "slug": "mood:cnd",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:06:35.168",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl490zt007lg0xci9bl4fxr",
+    "createdAt": "2023-11-30T10:32:13.769",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "(that) I believe",
+      "example": {},
+      "learning": "crea"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "sub",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "crea:imp-creer-sub-sing-3-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpk7000og0n12m4n8tag",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "sub",
+            "branch": "mood"
+          }
+        },
+        "name": "Subjunctive Mood",
+        "slug": "mood:sub",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.408",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl4917u007rg0xcqkfpllfy",
+    "createdAt": "2023-11-30T10:32:14.058",
+    "updatedAt": "2024-08-01T17:37:02.638",
+    "data": {
+      "known": "believed (subjunctive)",
+      "example": {},
+      "learning": "creyera"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "sub",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyera:imp-creer-sub-sing-3-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpk7000og0n12m4n8tag",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "sub",
+            "branch": "mood"
+          }
+        },
+        "name": "Subjunctive Mood",
+        "slug": "mood:sub",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.408",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl4917u007wg0xcdydlaptx",
+    "createdAt": "2023-11-30T10:32:14.058",
+    "updatedAt": "2024-08-01T17:37:02.639",
+    "data": {
+      "known": "believed (subjunctive, they/you plural formal)",
+      "example": {},
+      "learning": "creyeran"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "sub",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creyeran:imp-creer-sub-plur-3-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpk7000og0n12m4n8tag",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "sub",
+            "branch": "mood"
+          }
+        },
+        "name": "Subjunctive Mood",
+        "slug": "mood:sub",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.408",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "clpl4x1y800vdg0qj7xbfhtxm",
+    "createdAt": "2023-11-30T10:50:49.219",
+    "updatedAt": "2024-08-01T17:37:16.232",
+    "data": {
+      "index": 500,
+      "known": "they believe",
+      "example": {
+        "known": "They believe in miracles.",
+        "learning": "Creen en milagros."
+      },
+      "learning": "creen"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "3",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creen:imp-creer-ind-plur-3-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clpwfwpoo000rg0n12jtcg952",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "3",
+            "branch": "person"
+          }
+        },
+        "name": "Third Person",
+        "slug": "person:3",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.568",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp84000gg0n16r0pht0a",
+        "data": {
+          "ONTOLOGICAL": {}
+        },
+        "name": "Conjugations",
+        "slug": "structural:conjugations",
+        "traits": ["STRUCTURAL"],
+        "createdAt": "2023-12-08T08:44:01.972",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "ddabaafd-da29-4c3f-9881-81a4761e7c0d",
+    "createdAt": "2024-05-31T14:22:44.443",
+    "updatedAt": "2024-08-01T17:37:16.235",
+    "data": {
+      "index": 1500,
+      "known": "you believed",
+      "example": {
+        "known": "You believed in miracles.",
+        "learning": "Creías en milagros."
+      },
+      "learning": "creías"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "imp",
+      "aspect": "imp",
+      "number": "sing",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creías:imp-creer-ind-sing-2-verb-imp-fin",
+    "tags": [
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb96vh06gwg0mwasu65dg4",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "tense"
+          }
+        },
+        "name": "Imperfect Tense",
+        "slug": "tense:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:16:27.719",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzaz4ir0006g0jsp53an5jh",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "sing",
+            "branch": "number"
+          }
+        },
+        "name": "Number Singular",
+        "slug": "number:sing",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:08:40.228",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      }
+    ]
+  },
+  {
+    "id": "ded47d38-4a2f-425e-87f8-e162f9193a7e",
+    "createdAt": "2024-05-31T14:22:03.908",
+    "updatedAt": "2024-08-01T17:37:16.233",
+    "data": {
+      "index": 500,
+      "known": "you believe",
+      "example": {
+        "known": "You believe in miracles.",
+        "learning": "Creéis en milagros."
+      },
+      "learning": "creéis"
+    },
+    "annotation": {
+      "pos": "verb",
+      "mood": "ind",
+      "lemma": "creer",
+      "tense": "pres",
+      "aspect": "imp",
+      "number": "plur",
+      "person": "2",
+      "verbform": "fin"
+    },
+    "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+    "slug": "creéis:imp-creer-ind-plur-2-verb-pres-fin",
+    "tags": [
+      {
+        "id": "clrzb14tl002dg0m3p5lsy4f3",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "plur",
+            "branch": "number"
+          }
+        },
+        "name": "Number Plural",
+        "slug": "number:plur",
+        "traits": ["LEARNABLE", "ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:12.488",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpfp000lg0n1q9872y8x",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "ind",
+            "branch": "mood"
+          }
+        },
+        "name": "Indicative Mood",
+        "slug": "mood:ind",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.245",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      },
+      {
+        "id": "clrzb1a22007ng0m3ll7tdkry",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "fin",
+            "branch": "verbform"
+          }
+        },
+        "name": "Verbform Finite",
+        "slug": "verbform:fin",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-01-29T18:10:20.163",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clrzb19mp0079g0m3badzek07",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "pres",
+            "branch": "tense"
+          }
+        },
+        "name": "Present Tense",
+        "slug": "tense:pres",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2024-01-29T18:10:20.162",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "7a46e84f-9024-4455-a338-fd9a8ce4df16",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "creer",
+            "branch": "lemma"
+          }
+        },
+        "name": "Lemma: creer",
+        "slug": "lemma:creer",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2024-05-31T10:08:01.357",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpxy000xg0n1563btd7i",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "imp",
+            "branch": "aspect"
+          }
+        },
+        "name": "Aspect: Imperfective",
+        "slug": "aspect:imp",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:02.902",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwp6j000fg0n1ed4r9ppq",
+        "data": {
+          "ONTOLOGICAL": {
+            "leaf": "verb",
+            "branch": "pos"
+          }
+        },
+        "name": "Verb",
+        "slug": "pos:verb",
+        "traits": ["ONTOLOGICAL"],
+        "createdAt": "2023-12-08T08:44:01.916",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.991"
+      },
+      {
+        "id": "clpwfwpn6000qg0n1c1um77vb",
+        "data": {
+          "LEARNABLE": {},
+          "ONTOLOGICAL": {
+            "leaf": "2",
+            "branch": "person"
+          }
+        },
+        "name": "Second Person",
+        "slug": "person:2",
+        "traits": ["ONTOLOGICAL", "LEARNABLE"],
+        "createdAt": "2023-12-08T08:44:02.514",
+        "runtimeId": "c9e2eacf-eaef-47de-bf6b-3aac4d3e8590",
+        "updatedAt": "2024-08-01T17:33:55.99"
+      }
+    ]
+  }
+]

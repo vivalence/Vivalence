@@ -8,8 +8,9 @@ export default async function queueToBlacklist({ blacklist, scope }, ctx) {
     .eq("strategyId", scope.strategy.id)
     .eq("tacticId", scope.tactic.id);
 
-  queue.map(({ data }) => {
-    blacklist = Blacklist.fromScope({ blacklist, scope: data.scope });
+  queue.map((instruction) => {
+    if (instruction.data.type !== "SIGNAL")
+      blacklist = Blacklist.fromScope({ blacklist, scope: instruction.data.scope });
   });
 
   return Blacklist.fromScope({ blacklist, scope });

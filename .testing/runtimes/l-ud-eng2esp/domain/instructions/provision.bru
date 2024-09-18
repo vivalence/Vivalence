@@ -1,0 +1,32 @@
+meta {
+  name: provision
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/instructions/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "scope": {
+      "tactic": {
+        "id": "649484a9-4659-4ea3-a57b-7404a59a69e7"
+      },
+      "strategy": {
+        "id": "ef0df66b-9627-4fc4-b4e9-d78b0542631d"
+      },
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      }
+    },
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "instructions": []
+    }
+  }
+}
