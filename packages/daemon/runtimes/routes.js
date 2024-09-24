@@ -1,6 +1,6 @@
 export default function serve({ runtimes, router, ...params }) {
   for (const { manifest, ...runtime } of runtimes.values()) {
-    for (const module of [runtime.domain, runtime.ontology, runtime.corpus]) {
+    for (const module of [runtime.domain, runtime.ontology, ...runtime.corpora.values()]) {
       runtime.router.use(
         ...module.router.middleware,
         module.router.routes(),

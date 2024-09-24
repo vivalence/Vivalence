@@ -7,7 +7,6 @@
   "trailingComma": "all",
   "bracketSpacing": true,
   "bracketSameLine": true,
-  "svelteBracketNewLine": true,
   "svelteSortOrder": "options-scripts-markup-styles",
   "svelteStrictMode": true,
   "svelteIndentScriptAndStyle": true,

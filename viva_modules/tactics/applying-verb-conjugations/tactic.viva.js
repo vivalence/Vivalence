@@ -60,19 +60,12 @@ Remember to use the verb exactly as given and create a meaningful, level-appropr
   },
 };
 
-export default {
-  manifest: {
-    type: "Tactic",
-    name: "Verb Conjugation",
-    slug: "applying-verb-conjugations",
-    version: "0.0.1",
-    description:
-      "Conjugate a set of verbs for a given tense and mood. Supported by flashcards and a translation.",
-    modules: {
-      domain: "file://../../domain/domain.viva.js",
-      ontology: "file://../../ontology/ontology.viva.js",
-    },
-  },
-  tactic,
-  provision,
+const manifest = {
+  type: "Tactic",
+  name: "Verb Conjugation",
+  slug: "applying-verb-conjugations",
+  version: "0.0.1",
+  description:
+    "Conjugate a set of verbs for a given tense and mood. Supported by flashcards and a translation.",
 };
+export { manifest, tactic, provision };

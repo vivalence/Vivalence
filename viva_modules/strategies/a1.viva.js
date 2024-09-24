@@ -1,7 +1,11 @@
 const strategy = {
   session: [
     {
-      tactic: { slug: "article-morphology-gender-and-number" },
+      tactic: {
+        slug: "article-morphology-gender-and-number",
+        relations: { units: {}, tags: {}, games: {} },
+        masks: {},
+      },
       for: { type: "repetitions", value: 10 },
     },
     {
@@ -24,7 +28,8 @@ export default {
     description: "A1 Spanish - Beginner",
     modules: {
       domain: "file://../domain/domain.viva.js",
-      ontology: "file://../ontology/ontology.viva.js",
+      ontology: "file://../ontologies/langugage-universal-dependencies/ontology.viva.js",
+      // corpus:""
     },
   },
   boot,

@@ -1,6 +1,6 @@
-const success = (manifest, installed, runtime) => {
+const success = (manifest, runtime) => {
   manifest.installed = true;
-  manifest.id = installed.id;
+  manifest.id = manifest.id;
 
   return runtime.locals.supabase
     .from(manifest.type)
@@ -12,7 +12,7 @@ export default async function install({ runtimes, ...params }) {
   for (const runtime of runtimes.values()) {
     for (const { manifest, Module } of [
       runtime.ontology,
-      runtime.corpus,
+      ...runtime.corpora.values(),
       ...runtime.games.values(),
       ...runtime.tactics.values(),
     ]) {
@@ -20,12 +20,12 @@ export default async function install({ runtimes, ...params }) {
       let installed = false;
 
       if (Module.install && typeof Module.install === "function") {
-        installed = await Module.install(runtime, { manifest, Module });
+        installed = !!(await Module.install(runtime, { ...Module, manifest }));
       } else if (Module.install === undefined && manifest.id) {
-        installed = manifest;
+        installed = true;
       }
 
-      if (installed) await success(manifest, installed, runtime);
+      if (installed) await success(manifest, runtime);
     }
   }
 
