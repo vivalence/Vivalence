@@ -1,0 +1,20 @@
+meta {
+  name: Units:slugFromAnnotation
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/units/slugFromAnnotation
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+        "annotation": {
+          "pos": "adp",
+          "lemma": "a"
+        }
+      }
+}

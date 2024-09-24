@@ -24,20 +24,23 @@ function getResolver(declaration) {
 
 async function importModule(path) {
   try {
-    const module = await import(path);
-    if (!module.default || !module.default.manifest) {
+    let module = await import(path);
+    if (module.default) module = module.default;
+
+    if (!module || !module.manifest) {
       throw new Error(`Invalid module structure at ${path}`);
     }
-    return { ...module.default, path };
+    // module.path = path; return module;
+    return { ...module, path };
   } catch (error) {
     throw new Error(`Failed to import module at ${path}: ${error.message}`);
   }
 }
 
-function parseManifest(manifest) {
+function parseManifest(module) {
   const declarations = [];
-  for (const depType in manifest.modules) {
-    const depDeclarations = manifest.modules[depType];
+  for (const depType in module.modules) {
+    const depDeclarations = module.modules[depType];
     if (Array.isArray(depDeclarations)) {
       declarations.push(...depDeclarations);
     } else {

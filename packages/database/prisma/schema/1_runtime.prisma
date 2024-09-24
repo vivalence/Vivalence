@@ -1,11 +1,11 @@
 model Runtime {
-
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
   slug      String  
-  name      String
+  description String?
+  name      String?
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
@@ -15,7 +15,7 @@ model Runtime {
   // RUNTIME
   domain     Domain?
   ontology   Ontology?
-  corpus     Corpus?
+  corpora    Corpus[]
   games      Game[]
 
   // CORPUS
@@ -25,6 +25,9 @@ model Runtime {
 
   // USERLAND
   strategies Strategy[]
+  plays      Play[]
+  memories   Memory[]
+
 
   // TRANSIENT
   HEAD       HEAD[]
@@ -38,17 +41,17 @@ model Domain {
   slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String
+  description String?
+  name      String?
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique 
+  runtimeId String @unique 
 
   @@unique([slug, runtimeId])
 }
-
 
 model Ontology {
   // ABOUT
@@ -56,13 +59,14 @@ model Ontology {
   slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String
+  description String?
+  name      String?
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique 
+  runtimeId String  @unique
 
   @@unique([slug, runtimeId])
 }
@@ -73,13 +77,20 @@ model Corpus {
   slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String
+  name      String?
+  description String?
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique 
+  runtimeId String   
+
+  // CORPUS
+  // optional, in case of ownership
+  tactics Tactic[]
+  units   Unit[]
+  tags    Tag[]
 
   @@unique([slug, runtimeId])
 }
@@ -90,11 +101,11 @@ model Game {
   slug      String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  name      String
+  name      String?
+  description String?
   version   String   @default("0.0.0")
   installed Boolean  @default(false)
   mask      Json     @default("{}") 
-  description String?
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
@@ -106,30 +117,3 @@ model Game {
   @@unique([slug, runtimeId])
 }
 
-model Tactic {
-  // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  slug      String
-  name      String
-  version   String   @default("0.0.0")
-  installed Boolean  @default(false)
-  description String?
-
-  // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String 
-
-  // USERLAND
-  plays      Play[]       
-
-  // TRANSIENT
-  queue        Queue[]
-
-  // DATA
-  relations    Json @default("{}") // for grouping units, tags and games
-  masks        Json @default("{}") // for customizing games
-
-  @@unique([slug, runtimeId] )
-}

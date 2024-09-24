@@ -48,7 +48,8 @@ export default {
       "Learn how to properly use gender and number of vocabulary by repetition of flashcards.",
     modules: {
       domain: "file://../../domain/domain.viva.js",
-      ontology: "file://../../ontology/ontology.viva.js",
+      ontology: "file://../../ontologies/langugage-universal-dependencies/ontology.viva.js",
+      // corpus:""
     },
   },
   tactic,

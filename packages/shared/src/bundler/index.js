@@ -4,7 +4,7 @@ import svelte from "./bundlers/svelte.js";
 
 const bundlers = { svelte };
 
-function createBundler(bundleEntryPath, runtime, game) {
+function createBundler(bundleEntryPath, gameUrl) {
   const bundles = new Map();
   const BASE_URL = "bundle";
 
@@ -19,11 +19,8 @@ function createBundler(bundleEntryPath, runtime, game) {
     return bundles.get(path);
   };
 
-  bundler.injectPath = () => async (ctx, next) => {
-    const root = new URL(
-      join("/r", runtime.manifest.slug, "/g", game.manifest.slug),
-      config.env.get("DAEMON_URL"),
-    ).toString();
+  bundler.injectBundleUrl = () => async (ctx, next) => {
+    const root = new URL(gameUrl, config.env.get("DAEMON_URL")).toString();
 
     ctx.state.bundle = root + join("/", BASE_URL, basename(bundleEntryPath));
 
@@ -38,6 +35,7 @@ function createBundler(bundleEntryPath, runtime, game) {
       ctx.response.body.data.bundle = ctx.state.bundle;
     }
   };
+  bundler.injectPath = bundler.injectBundleUrl;
 
   bundler.path = `/${BASE_URL}/:filename`;
   bundler.serve = () => async (ctx) => {

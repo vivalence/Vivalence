@@ -35,6 +35,9 @@ model Play {
   userId    String 
 
   // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  
+
   game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
 
@@ -74,6 +77,10 @@ model Memory {
   // APP
   user      AppUser           @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String 
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
 
   // CORPUS
   tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)

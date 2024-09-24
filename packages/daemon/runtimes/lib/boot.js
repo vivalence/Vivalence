@@ -1,6 +1,5 @@
 import createRouter from "../../server/router/create.js";
-import ensure from "./ensure.js";
-import middlewares from "../middlewares/index.js";
+// import middlewares from "../middlewares/index.js";
 
 const defaultModuleBoot = {
   tactic: async (module, Module) => {
@@ -13,25 +12,24 @@ const defaultModuleBoot = {
 async function boot(Module, runtime) {
   const type = Module.manifest.type.toLowerCase();
   const bootable = Module.boot || defaultModuleBoot[type];
-  if (!bootable) throw new Error(`${type} Module unbootable: ${Module.manifest.slug}`);
 
   let moduleRuntime = {
-    ["#symbol"]: runtime["#symbol"],
-    manifest: runtime.manifest,
-    Module: runtime.Module,
-    locals: runtime.locals,
-    services: runtime.services,
-    statics: runtime.statics,
+    ...runtime,
+    // ["#symbol"]: runtime["#symbol"], manifest: runtime.manifest, Module: runtime.Module, locals: runtime.locals, services: runtime.services, statics: runtime.statics,
     router: createRouter(),
     bus: runtime.bus.scope(`@${type}`),
   };
 
-  if (middlewares[type]) moduleRuntime.router.middleware.push(...middlewares[type]);
+  // if (middlewares[type]) moduleRuntime.router.middleware.push(...middlewares[type]);
+  moduleRuntime.router.middleware.push(...Module.router.middleware);
 
-  const manifest = await ensure(Module, runtime);
-  const module = (await bootable(moduleRuntime, { ...Module, manifest })) || moduleRuntime;
+  const manifest = Module.manifest;
 
-  return { ...module, manifest, Module };
+  if (!bootable) return { ...moduleRuntime, manifest, Module };
+  else {
+    const module = (await bootable(moduleRuntime, { ...Module, manifest })) || moduleRuntime;
+    return { ...module, manifest, Module };
+  }
 }
 
 boot.many = async (Modules, runtime) => {
