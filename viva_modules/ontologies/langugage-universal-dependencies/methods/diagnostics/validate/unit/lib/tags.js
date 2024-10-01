@@ -2,17 +2,20 @@ export default async function tags({ unit }, ctx) {
   const pos = unit.annotation.pos;
   const constraints = ctx.runtime.schema.constraints[pos];
 
+  const issues = [];
+
   if (unit.tags) {
     for (const [branch, leaf] of Object.entries(unit.annotation)) {
       if (branch === "lemma") continue;
-      const issues = validateRelations(unit, { branch, leaf });
-      if (issues.length > 0) return issues;
+      issues.push(...validateRelations(unit, { branch, leaf }));
     }
 
+    if (issues.length > 0) return issues;
+
     for (const constraint of constraints) {
-      const issues = validateConstraints(constraint, unit);
-      if (issues.length > 0) return issues;
+      issues.push(...validateConstraints(constraint, unit));
     }
+    if (issues.length > 0) return issues;
   }
 
   return [];

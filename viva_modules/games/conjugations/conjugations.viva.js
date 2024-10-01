@@ -5,21 +5,10 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
 
-async function boot(runtime, Module) {
-  const bundlePath = join(dirname(fromFileUrl(import.meta.url)), "/game/Conjugations.svelte");
-  const gameUrl = join("/r", runtime.manifest.slug, "/g", Module.manifest.slug);
-  const bundle = bundler(bundlePath, gameUrl);
-
-  runtime.router.get(bundle.path, bundle.serve());
-  runtime.router.route("/provision", bundle.injectBundleUrl(), provision);
-  runtime.router.route("/evaluate", evaluate);
-  runtime.router.route("/status", (body, ctx) => ({ status: "ok" }));
-
-  return runtime;
-}
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/Conjugations.svelte");
 
 async function install(runtime, Module) {
-  return await runtime.locals.supabase
+  const { error } = await runtime.locals.supabase
     .from("Game")
     .update({
       mask: {
@@ -29,6 +18,7 @@ async function install(runtime, Module) {
       },
     })
     .eq("id", Module.manifest.id);
+  return !error;
 }
 
 const manifest = {
@@ -42,4 +32,5 @@ const manifest = {
     ontology: "file://../../ontologies/langugage-universal-dependencies/ontology.viva.js",
   },
 };
-export { manifest, boot, install };
+
+export { manifest, provision, evaluate, bundle, install };

@@ -1,158 +1,71 @@
-export const EvalTranslationPrompt = {
-  provider: { api: "groq", model: "llama3-70b-8192", max_tokens: 8192, temperature: 0.8 },
+export const ProvisioningPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
+  provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
   schema: {
-    title: "Evaluation of Translation",
-    type: "object",
-    definitions: {
-      translation: {
-        type: "string",
-        description: `In 3 short sentences: describe 1: the linguistic attributes of the original sentence and the provided translation. 2: argue if the user got the translation right over all. and 3: what errors where made and in what specific parts of speech. `,
-      },
-      token: {
-        type: "string",
-        description:
-          "In a sentence, describe 1: this <token> of the translation, 2: if the token is translated correctly?, 3: Are each tag attributes correct? and if there is an error 4: what would be the correctly translated word?",
-      },
-    },
-    properties: {},
-  },
-  template: `# TASK
-Evaluate a translated sentence. The translation is from {{{language.known}}} to {{{language.learning}}}.
-A: reason and describe the correctness of the translation as a whole.
-B: describe and evaluate each token:$token of speech individually.
-ignore capitalization. do not ignore severe spelling errors.
-ud = Universal Dependencies 
-
-### TRANSLATION
-original sentence: "{{{sentence.known}}}"
-original sentence: "{{{sentence.known}}}"
-expected translation: "{{{sentence.learning}}}" 
-user translation: "{{{sentence.translation}}}"
-user translation: "{{{sentence.translation}}}"
-
-### TOKENS / PARTS OF SPEECH
-{{#parts}}
-# Part {{index}}
-Token: "{{{known}}}":"{{{token}}}"
-{{#tags}}
-Tag: "{{name}}" "{{branch}}:{{leaf}}"
-{{/tags}}
-
-{{/parts}}
-`,
-};
-export const EvalTokensPrompt = {
-  provider: {
-    api: "anthropic",
-    model: "claude-3-haiku-20240307",
-    max_tokens: 1000,
-    temperature: 0.8,
-  },
-  schema: {
-    title: "Evaluations",
-    type: "object",
-    definitions: {
-      status: {
-        description: `KNOWN indicates correct usage of PART in the translation. UNKNOWN marks incorrect usage, including spelling and missing words. NEUTRAL applies for successful alternative use. Absence of PART is UNKNOWN.`,
-        enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
-        type: "string",
-      },
-      unit: {
-        type: "object",
-        description: "Evaluation of the unit / word.",
-        properties: {
-          status: { $ref: "#/definitions/status" },
-          correction: {
-            type: "string",
-            description: "If the status is UNKNOWN, provide the corrected word.",
-          },
-          feedback: {
-            type: "string",
-            description:
-              "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence.",
-          },
-        },
-        required: ["status"],
-      },
-      tag: {
-        type: "object",
-        description: "Evaluation of the universal dependency tags correctness.",
-        properties: { status: { $ref: "#/definitions/status" } },
-        required: ["status"],
-      },
-    },
-    properties: {},
-  },
-  template: `# INSTRUCTIONS
-input: two evaluations of a translation. One for the whole translation and one for a specific <PART>.
-task: format and articulate the evaluation of the <PART> of speech.
-output: JSON. For the Unit a status enum and optional feedback and correction. For Tags respond with status enum. 
-
-If the learner used equivalent alternative vocabulary, then select NEUTRAL. if you are unsure, select NEUTRAL. If the <PART> is missing, then select UNKNOWN.
-If you reference the Unit, call it a word.
-You can improve the evaluation. If there are mistakes in the evaluation, correct the mistakes.
-
-### TRANSLATION
-from {{{language.known}}} to {{{language.learning}}}
-original sentence: "{{{sentence.known}}}"
-expected translation: "{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis) "{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis)
-user translation: "{{{sentence.translation}}}"
-
-The <PART> you evaluate now is made up of the word (Unit) "{{part.token}}"
-and the UniversalDependencys (Tags) of{{#part.tags}} {{branch}}{{/part.tags}}.
-
-### EVALUATION
-of the whole translation:
-{{{evaluation.whole}}}
-
-of your specific <PART>:
-{{{evaluation.token}}}
-
-You can improve the evaluation. If there are mistakes in the evaluation, please correct them.
-
-### "Unit:{{part.id}}" {{{part.known}}} {{{part.token}}}
-{{#part.tags}}
-### "Tag:{{id}}" {{branch}}:{{leaf}} {{name}} 
-{{/part.tags}}`,
-};
-export const GamePrompt = {
-  // provider: {api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.5, max_tokens: 256},
-  provider: { api: "openai", model: "gpt-4o" },
-  schema: {
-    title: "LanguageLearningSentence",
+    title: "Prose",
     type: "object",
     properties: {
-      known: {
-        title: "Sentence in Known Language",
-        description: "Sentence in the familiar language",
+      planning: {
+        title: "Planning",
+        description: `1. summarize the task. 2. define markers of high quality and task success. 3. plan the prose structure.`,
         type: "string",
       },
-      learning: {
-        title: "Sentence in Learning Language",
-        description: "Sentence in the language to be learned",
+      prose: {
+        title: "Prose",
+        description: `The prose to be generated. HTML formatted, using the tailwind css typography helper class .prose.
+
+Available HTML elements in prose blocks:
+- Headings: <h1>Main Title</h1> to <h4>Sub-sub-heading</h4>
+- Paragraphs: <p>Regular text content goes here.</p>
+- Links: <a href="#">Clickable text</a>
+- Lists: 
+  <ul>
+    <li>Unordered item</li>
+  </ul>
+  <ol>
+    <li>Ordered item</li>
+  </ol>
+- Blockquotes: <blockquote>Quoted content</blockquote>
+- Inline code: <code>function()</code>
+- Code blocks: 
+  <pre><code>
+  function example() {
+    return 'Hello, World!';
+  }
+  </code></pre>
+- Strong/Bold: <strong>Important text</strong>
+- Emphasis/Italic: <em>Emphasized text</em>
+- Tables:
+  <table>
+    <thead><tr><th>Header</th></tr></thead>
+    <tbody><tr><td>Cell</td></tr></tbody>
+  </table>
+- Horizontal rule: <hr>`,
         type: "string",
       },
     },
-    required: ["known", "learning"],
+    required: ["planning", "prose"],
+    additionalProperties: false,
   },
   template: `### Instructions
-You Generate one single sentence in {{language.known}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
+You are an expert teacher generating educational content. Create prose in HTML format, optimized for Tailwind CSS typography.
 
-Follow this strategy:
-<STRATEGY>
+Your content will be rendered within a <article class="prose">{YOUR PROSE}</article> element, so only provide the inner HTML.
+<article class="prose>{prose}</article>. you generate {prose}. not article.prose.
 
-{{innerPrompt}}
+You are given an goal that you must follow. The goal is a specific objective that the prose must achieve. You must generate prose that satisfies this goal. the ultimate goal is educational.
 
-</STRATEGY>
+you are also given a set of constraints that you must follow. The constraints are about the specific topic, aspect, topic or theme that is to be covered in the prose. You must generate prose that satisfies these constraints.
 
-Don't use words more advanced than those provided. We want the learner to be successfull.
-The sentence must be semantically correct and either a reasonable or common thing to say.
+<GOAL>
+{{goal}}
+</GOAL>
 
-### Constraints
-Build the sentence using these constraints:
+<CONSTRAINTS>
+Don't give any additional advice or further instructions to the reader. Dont moralize or be preachy. 
 {{#constraints}}
 {{.}}
 {{/constraints}}
-
-Return a JSON object with the known and learning sentence.`,
+</CONSTRAINTS>
+`,
 };

@@ -18,6 +18,7 @@ export default function serve({ runtimes, router, ...params }) {
     }
 
     for (const { manifest, ...tactic } of runtime.tactics.values()) {
+      // console.log(`[RUNTIME] /t/${manifest.slug}`);
       runtime.router.use(
         `/t/${manifest.slug}`,
         ...tactic.router.middleware,

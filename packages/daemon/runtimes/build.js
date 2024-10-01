@@ -6,7 +6,7 @@ import getRuntimes from "../lib/viva/module-loader.js";
 
 import supabase from "../lib/supabase/index.js";
 import createValidator from "../lib/validator/create.js";
-import createRouter from "../server/router/create.js";
+// import createRouter from "../server/router/create.js";
 import createEmitter from "../lib/emitter/create.js";
 
 import register from "./lib/register.js";
@@ -57,22 +57,24 @@ async function buildRuntime(Runtime) {
   };
 
   const schema = [Runtime.modules.ontology, ...Runtime.modules.corpora].reduce(
-    (a, { schema: s }) => (s ? s(a) : a),
+    (s, { schema = (s) => s }) => schema(s) || s,
     {},
   );
 
-  const { manifest } = await register(Runtime, { locals });
-  let runtime = {
+  const { manifest, router, bus } = await register(Runtime, { locals });
+
+  const runtime = {
     ["#symbol"]: Symbol(`${Runtime.manifest.slug}-${Runtime.manifest.version}`),
     manifest,
-    Module: Runtime,
-    bus: createEmitter(),
-    router: createRouter(),
-    schema,
-    statics: { language: { known: "english", learning: "spanish" } },
+    router,
+    bus,
     locals,
     services,
+    schema,
+    statics: { language: { known: "english", learning: "spanish" } },
+    Module: Runtime,
   };
+
   return runtime;
 }
 
@@ -87,8 +89,8 @@ async function build(Runtime) {
   Runtime.modules.strategies = await register.many(Runtime.modules.strategies, runtime);
 
   runtime = runtimeMiddleware({ ...runtime, ...Runtime.modules });
-
   runtime = (await Runtime.boot(runtime, { ...Runtime, manifest: runtime.manifest })) || runtime;
+
   runtime.domain = await boot(Runtime.modules.domain, runtime);
   runtime.ontology = await boot(Runtime.modules.ontology, runtime);
   runtime.corpora = await boot.many(Runtime.modules.corpora, runtime);

@@ -7,7 +7,7 @@ async function validate({ unit }, ctx) {
   const validators = [validatePos, validateSchema, validateTags]; //, validateNLP, ];
 
   for (const validator of validators) {
-    const issues = await validator({ unit }, ctx);
+    const issues = await validator({ unit: { ...unit } }, ctx);
     if (issues.length > 0) return issues;
   }
 

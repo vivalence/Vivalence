@@ -1,0 +1,40 @@
+meta {
+  name: provision
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/translations/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mask": {
+      "prompt": {
+        "goal": "\nYou're given an explanation of a grammatical concept, that includes examples.\nYour task is to extract an example sentence from the explanation.\nThe goal is for the user to translate ththat sentence for practice.\n\n1. Extract a sentence from the explanation that demonstrates the concept. \n2. Use simple, everyday vocabulary suitable for the learner's level.\n3. The sentence should be clear, concise, and make sense in conversation or writing.\n4. Ensure the sentence untilizes correct grammar and vocabulary.\n"
+      }
+    },
+    "scope": {
+      "dependency": {
+        "tag": {
+          "id": "8d5025c5-864d-40c3-b3fb-1d8468d7b91d"
+        }
+      },
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      },
+      "tactic": {
+        "id": "7aca2532-7c13-45e7-8639-341e46816c3b"
+      },
+      "game": {
+        "id": "deeb866e-5fd1-4b52-a0ac-62191daaff28"
+      }
+    },
+    "constraints": [
+      "The grammatical concept and examples are provided in this prose: \"<h1>Nouns in Spanish: Understanding Gender</h1>\\n<p>In Spanish, nouns are words that name people, places, things, or ideas. One important aspect of Spanish nouns is gender. Every noun in Spanish is either masculine or feminine. This means that nouns have a gender, which affects how they are used in sentences. For example, the word for \\\"book\\\" is <strong>libro</strong>, which is masculine, while the word for \\\"table\\\" is <strong>mesa</strong>, which is feminine.</p>\\n\\n<h2>Examples of Gender in Nouns</h2>\\n<ul>\\n    <li><strong>Masculine:</strong> el perro (the dog)</li>\\n    <li><strong>Feminine:</strong> la casa (the house)</li>\\n    <li><strong>Masculine:</strong> el coche (the car)</li>\\n</ul>\\n\\n<h2>Visual Aid: Gender of Common Nouns</h2>\\n<table class=\\\"min-w-full border-collapse border border-gray-300\\\">\\n    <thead>\\n        <tr>\\n            <th class=\\\"border border-gray-300 p-2\\\">Noun</th>\\n            <th class=\\\"border border-gray-300 p-2\\\">Gender</th>\\n        </tr>\\n    </thead>\\n    <tbody>\\n        <tr>\\n            <td class=\\\"border border-gray-300 p-2\\\">libro</td>\\n            <td class=\\\"border border-gray-300 p-2\\\">Masculine</td>\\n        </tr>\\n        <tr>\\n            <td class=\\\"border border-gray-300 p-2\\\">mesa</td>\\n            <td class=\\\"border border-gray-300 p-2\\\">Feminine</td>\\n        </tr>\\n        <tr>\\n            <td class=\\\"border border-gray-300 p-2\\\">gato</td>\\n            <td class=\\\"border border-gray-300 p-2\\\">Masculine</td>\\n        </tr>\\n    </tbody>\\n</table>\""
+    ]
+  }
+}

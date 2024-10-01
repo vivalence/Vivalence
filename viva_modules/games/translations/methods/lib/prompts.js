@@ -72,6 +72,7 @@ export const EvalTokensPrompt = {
               "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence.",
           },
         },
+        additionalProperties: false,
         required: ["status"],
       },
       tag: {
@@ -79,9 +80,12 @@ export const EvalTokensPrompt = {
         description: "Evaluation of the universal dependency tags correctness.",
         properties: { status: { $ref: "#/definitions/status" } },
         required: ["status"],
+        additionalProperties: false,
       },
     },
-    properties: {},
+    properties: {
+      additionalProperties: false,
+    },
   },
   template: `# INSTRUCTIONS
 input: two evaluations of a translation. One for the whole translation and one for a specific <PART>.
@@ -118,7 +122,8 @@ You can improve the evaluation. If there are mistakes in the evaluation, please 
 
 export const GamePrompt = {
   // provider: {api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.5, max_tokens: 256},
-  provider: { api: "openai", model: "gpt-4o" },
+  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
+  provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
   schema: {
     title: "LanguageLearningSentence",
     type: "object",
@@ -135,25 +140,28 @@ export const GamePrompt = {
       },
     },
     required: ["known", "learning"],
+    additionalProperties: false,
   },
   template: `### Instructions
-You Generate one single sentence in {{language.known}} and its translation in {{language.learning}} as language learning material for a user learning {{language.learning}}.
+You are an expert teacher generating educational content. 
+The learner's native language is {{language.known}} and the target language being learned is {{language.learning}}.
 
-Follow this strategy:
-<STRATEGY>
+You Generate one single sentence. in {{language.known}} and its translation in {{language.learning}}. as language learning material.
 
-{{innerPrompt}}
+You are given an goal that you must follow. The goal is a specific objective that the sentence and translation must achieve. the ultimate goal is educational.
 
-</STRATEGY>
+you are also given a set of constraints. You must generate a sentence that satisfies these constraints.
 
+<GOAL>
+{{goal}}
+</GOAL>
+
+<CONSTRAINTS>
 Don't use words more advanced than those provided. We want the learner to be successfull.
 The sentence must be semantically correct and either a reasonable or common thing to say.
-
-### Constraints
-Build the sentence using these constraints:
 {{#constraints}}
 {{.}}
 {{/constraints}}
-
-Return a JSON object with the known and learning sentence.`,
+</CONSTRAINTS>
+`,
 };

@@ -1,5 +1,8 @@
-const select = "id, slug, name, version, installed";
+import { deepMerge } from "@vivalence/shared";
+import createRouter from "../../server/router/create.js";
+import createEmitter from "../../lib/emitter/create.js";
 
+const select = "id, slug, name, version, installed";
 async function findModule(Module, runtime) {
   let query = runtime.locals.supabase
     .from(Module.manifest.type)
@@ -15,7 +18,6 @@ async function findModule(Module, runtime) {
 
   return data;
 }
-
 async function createModule(Module, runtime) {
   let insert = {
     slug: Module.manifest.slug,
@@ -41,7 +43,6 @@ async function createModule(Module, runtime) {
   }
   return data;
 }
-
 async function updateModule(Module, runtime) {
   let update = {
     slug: Module.manifest.slug,
@@ -71,30 +72,48 @@ async function updateModule(Module, runtime) {
   return data;
 }
 
-//  make sure the module is installed in the runtime
-async function register(Module, runtime) {
-  // dummy router for collecting middlewares
-  const router = { middleware: [] };
-
-  if (["Strategy"].includes(Module.manifest.type)) {
-    // Strategies are per user, not per runtime, and joinded manually
-    return { manifest: Module.manifest, router };
-  }
-
+async function getModuleManifest(Module, runtime) {
   let manifest = await findModule(Module, runtime);
-
   if (!manifest) {
     manifest = await createModule(Module, runtime);
   } else if (Module.manifest.version && manifest.version !== Module.manifest.version) {
     manifest = await updateModule(Module, runtime);
   }
 
-  return { ...Module, manifest: { ...manifest, ...Module.manifest }, router };
+  if (Module.manifest.type === "Runtime") {
+    manifest.url = `/r/${manifest.slug}`;
+  } else if (Module.manifest.type === "Game") {
+    manifest.url = `${runtime.manifest.url}/g/${manifest.slug}`;
+  } else if (Module.manifest.type === "Tactic") {
+    manifest.url = `${runtime.manifest.url}/t/${manifest.slug}`;
+  }
+
+  return manifest;
+}
+
+//  make sure the Module is installed in the runtime
+async function register(Module, runtime) {
+  const module = { ...Module };
+
+  module.router = createRouter();
+  module.bus =
+    Module.manifest.type === "Runtime"
+      ? createEmitter()
+      : runtime.bus.scope(`@${Module.manifest.type}`);
+
+  if (["Strategy"].includes(Module.manifest.type)) {
+    // Strategies are per user, not per runtime, and joinded manually
+    return module;
+  }
+
+  module.manifest = deepMerge(Module.manifest, await getModuleManifest(Module, runtime));
+
+  return module;
 }
 
 register.many = async (Modules, runtime) => {
   const registered = await Promise.all(Modules.values().map((M) => register(M, runtime)));
-  return new Map(registered.map((m) => [m.manifest.slug, m]));
+  return new Map(registered.map((M) => [M.manifest.slug, M]));
 };
 
 export default register;

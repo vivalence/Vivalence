@@ -3,7 +3,7 @@ export default function deepMerge(...objects) {
 
   return objects.reduce(
     (prev, obj) => {
-      if (obj === null || typeof obj !== "object") return prev;
+      if (obj === undefined || obj === null || typeof obj !== "object") return prev;
 
       Object.keys(obj).forEach((key) => {
         const pVal = prev[key];
@@ -13,6 +13,7 @@ export default function deepMerge(...objects) {
           prev[key] = Array.isArray(pVal) ? [...pVal, ...oVal] : oVal;
         } else if (isObject(oVal)) {
           prev[key] = isObject(pVal) ? deepMerge(pVal, oVal) : oVal;
+          // } else if (oVal === undefined || oVal === null) {prev[key] = pVal;
         } else {
           prev[key] = oVal;
         }
@@ -20,6 +21,6 @@ export default function deepMerge(...objects) {
 
       return prev;
     },
-    Array.isArray(objects[0]) ? [] : {}
+    Array.isArray(objects[0]) ? [] : {},
   );
 }

@@ -1,0 +1,22 @@
+meta {
+  name: predict:tags
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/diagnostics/predict/tags
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ontologies": [
+      {
+          "branch": "gender"
+        
+      }
+    ]
+  }
+}

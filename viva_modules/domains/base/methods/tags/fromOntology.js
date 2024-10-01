@@ -19,16 +19,26 @@ export default async function (body, ctx) {
 
   let query = ctx.runtime.locals.supabase
     .from("Tag")
-    .select("id, data, name, slug, traits, runtimeId")
+    .select("id, data, name, description, slug, traits, runtimeId")
     .eq("runtimeId", ctx.runtime.manifest.id);
 
-  if (leaf && branch) {
-    query = query.eq("data->ONTOLOGICAL->>leaf", leaf).eq("data->ONTOLOGICAL->>branch", branch);
+  if (leaf === "*") {
+    query = query.neq("data->ONTOLOGICAL->>leaf", null);
   } else if (leaf) {
     query = query.eq("data->ONTOLOGICAL->>leaf", leaf);
+  }
+  if (leaf === null) {
+    query = query.is("data->ONTOLOGICAL->>leaf", null);
+  }
+
+  if (branch === "*") {
+    query = query.neq("data->ONTOLOGICAL->>branch", null);
   } else if (branch) {
     query = query.eq("data->ONTOLOGICAL->>branch", branch);
+  } else if (branch === null) {
+    query = query.is("data->ONTOLOGICAL->>branch", null);
   }
+
   if (take) {
     query = query.limit(take);
   }

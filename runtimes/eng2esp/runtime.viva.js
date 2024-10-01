@@ -1,5 +1,5 @@
 import { deepMerge } from "@vivalence/shared";
-import * as m1 from "./curricula/m1.js";
+import * as m1 from "./curricula/index.js";
 
 const manifest = {
   type: "Runtime",

@@ -4,16 +4,22 @@ model Queue {
   updatedAt   DateTime       @updatedAt @default(now())
 
   // APP
-  user        AppUser?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String?
+  user        AppUser       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+
+  // RUNTIME
+  runtime     Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String  @unique 
 
   // CORPUS
   tactic      Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
   tacticId    String
+  tag         Tag?         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId       String?
 
   // USERLAND
-  strategy    Strategy      @relation(fields: [strategyId], references: [id], onDelete: Cascade)
-  strategyId  String
+  strategy    Strategy?      @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  strategyId  String?
   
  // DATA
   index       Int             @default(0)

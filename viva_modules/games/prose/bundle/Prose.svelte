@@ -3,11 +3,14 @@
   import { onMount } from "svelte";
 
   export let locals;
+  export let game;
+  export let scope;
   export let instruction;
   export let trajectory;
 
-  const next = () => {
+  const next = async () => {
     locals.onGameFinish();
+    await locals.call(`/g/${game.slug}/evaluate`, { scope });
   };
 
   onMount(() => {

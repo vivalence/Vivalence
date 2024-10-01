@@ -4,7 +4,7 @@ import svelte from "./bundlers/svelte.js";
 
 const bundlers = { svelte };
 
-function createBundler(bundleEntryPath, gameUrl) {
+function createBundler(input) {
   const bundles = new Map();
   const BASE_URL = "bundle";
 
@@ -20,26 +20,15 @@ function createBundler(bundleEntryPath, gameUrl) {
   };
 
   bundler.injectBundleUrl = () => async (ctx, next) => {
-    const root = new URL(gameUrl, config.env.get("DAEMON_URL")).toString();
-
-    ctx.state.bundle = root + join("/", BASE_URL, basename(bundleEntryPath));
-
+    const rootpath = new URL(input.url, config.env.get("DAEMON_URL")).toString();
+    const bundlepath = join("/", BASE_URL, basename(input.path));
+    ctx.state.game.bundle = rootpath + bundlepath;
     await next();
-
-    if (ctx.response.body && Array.isArray(ctx.response.body.data)) {
-      ctx.response.body.data = ctx.response.body.data.map((item) => {
-        item.bundle = ctx.state.bundle;
-        return item;
-      });
-    } else if (ctx.response.body && typeof ctx.response.body.data === "object") {
-      ctx.response.body.data.bundle = ctx.state.bundle;
-    }
   };
-  bundler.injectPath = bundler.injectBundleUrl;
 
-  bundler.path = `/${BASE_URL}/:filename`;
+  bundler.url = `/${BASE_URL}/:filename`;
   bundler.serve = () => async (ctx) => {
-    const path = join(dirname(bundleEntryPath), ctx.params.filename);
+    const path = join(dirname(input.path), ctx.params.filename);
     const bundle = await bundler(path);
     if (bundle) {
       const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS");

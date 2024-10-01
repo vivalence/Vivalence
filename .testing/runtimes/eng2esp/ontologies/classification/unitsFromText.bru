@@ -1,0 +1,17 @@
+meta {
+  name: unitsFromText
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/classification/unitsFromText
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "text": "el perro ."
+  }
+}

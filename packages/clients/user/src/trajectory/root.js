@@ -13,7 +13,7 @@ export default function root(trajectory) {
         t.set(t.signals.navigation.y({ label: "(y)ank cookie" }), () => {
           const cookie = document.cookie;
           navigator.clipboard.writeText(cookie).then(
-            () => console.log("Async: Copying to clipboard was successful!"),
+            () => console.log("Async: Copying to clipboard was successful!", cookie),
             (err) => console.error("Async: Could not copy text: ", err),
           );
           t.root();

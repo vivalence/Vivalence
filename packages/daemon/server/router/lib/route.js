@@ -26,10 +26,9 @@ export default function route(router) {
           }
         }
       } catch (e) {
-        console.error("[ERROR] @daemon/server/router/route body parsing");
+        console.error("[ERROR] @daemon/server/router/route.js - body parsing");
+
         console.error(e);
-        // ctx.response.status = 400;
-        // ctx.response.body = JSON.stringify({ error: e, path, body });
       }
       try {
         const data = await handler(body, ctx);

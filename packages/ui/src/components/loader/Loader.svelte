@@ -1,0 +1,38 @@
+<script>
+  import { onDestroy, onMount } from "svelte";
+  import expressions from "./expressions.js";
+
+  export let load;
+
+  expressions.random = (int) =>
+    expressions[Math.floor(Math.random() * int + expressions.length) % expressions.length];
+
+  const VARIANCE = 2000;
+  const MINIMUM = 2000;
+
+  let counter = 0;
+  let interval;
+
+  const loadStatus = () => {
+    if (load) {
+      load();
+    } else {
+      console.log("No load function provided");
+    }
+    counter++;
+  };
+
+  onMount(() => {
+    loadStatus();
+    /* interval = setInterval(loadStatus, Math.random() * VARIANCE + MINIMUM); */
+  });
+
+  onDestroy(() => {
+    clearInterval(interval);
+  });
+</script>
+
+<div class="flex flex-col container justify-center items-center h-screen">
+  <progress class="progress progress-accent w-56"></progress>
+  <div class="mt-3">{expressions.random(counter)} #{counter}</div>
+</div>

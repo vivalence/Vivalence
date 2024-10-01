@@ -9,6 +9,7 @@ export default async function (body, ctx) {
       .eq("runtimeId", ctx.runtime.manifest.id)
       .eq("data->ONTOLOGICAL->>branch", ontology.branch)
       .eq("data->ONTOLOGICAL->>leaf", ontology.leaf);
+    if (error) throw error;
 
     const issue = {
       path: ["tag"],

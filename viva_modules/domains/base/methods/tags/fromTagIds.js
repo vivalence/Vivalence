@@ -3,7 +3,7 @@ export default async function (body, ctx) {
 
   const { data: tags, error } = await ctx.runtime.locals.supabase
     .from("Tag")
-    .select("id, data, name, slug, traits")
+    .select("id, data, name, description, slug, traits")
     .eq("runtimeId", ctx.runtime.manifest.id)
     .in("id", tagIds)
     .not("id", "in", `(${blacklist.tags.join(",")})`);
