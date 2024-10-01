@@ -1,0 +1,55 @@
+meta {
+  name: provision
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/t/ontological-branch-introduction
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "relations": {
+      "tags": {
+        "root": {
+          "slug": "pos:noun"
+        },
+        "aspects": [
+          {
+            "slug": "gender:*"
+          },
+          {
+            "slug": "number:*"
+          },
+          {
+            "slug": "definite:*"
+          }
+        ]
+      },
+      "games": {
+        "prose": {
+          "slug": "prose"
+        }
+      },
+      "units": {}
+    },
+    "masks": {},
+    "blacklist": {
+      "units": [],
+      "tags": [
+        "a2db7b46-3537-4297-8b2e-fdec097a9ad5"
+      ],
+      "instructions": []
+    },
+    "scope": {
+      "dependency": {
+        "tag": {
+          "id": "8d5025c5-864d-40c3-b3fb-1d8468d7b91d"
+        }
+      }
+    }
+  }
+}

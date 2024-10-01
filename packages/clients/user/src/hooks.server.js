@@ -5,8 +5,6 @@ export const handle = async ({ event, resolve, ...props }) => {
   event.locals = event.locals || {};
   event.data = event.data || {};
 
-  event.locals.supabase = supabase(event);
-
   event.locals.getUser = async () => {
     const { data, error } = await event.locals.supabase.auth.getUser();
     return data.user;
@@ -16,9 +14,11 @@ export const handle = async ({ event, resolve, ...props }) => {
     return data.session;
   };
 
-  event.data.session = await event.locals.getSession();
-
   event.locals.call = createCall({});
+  event.locals.supabase = supabase(event);
+
+  await event.locals.getSession();
+  event.data.session = await event.locals.getSession();
 
   return resolve(event, {
     filterSerializedResponseHeaders(name) {

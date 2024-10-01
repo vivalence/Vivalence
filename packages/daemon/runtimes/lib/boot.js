@@ -1,35 +1,41 @@
-import createRouter from "../../server/router/create.js";
-// import middlewares from "../middlewares/index.js";
+import { bundler } from "@vivalence/shared";
 
 const defaultModuleBoot = {
-  tactic: async (module, Module) => {
-    if (!Module.provision) throw new Error("Tactic module must export provision method");
-    module.router.route("/", Module.provision);
-    return module;
+  Tactic: async (runtime, Tactic) => {
+    if (!Tactic.provision) {
+      throw new Error("Tactic module must export provision method");
+    }
+    runtime.router.route(
+      "/",
+      (ctx, next) => {
+        console.log("depracated call to /tactic/ - move to /tactic/provision");
+        next();
+      },
+      Tactic.provision,
+    );
+    runtime.router.route("/provision", Tactic.provision);
+  },
+  Game: async (runtime, Game) => {
+    const bundle = bundler({ path: Game.bundle, url: Game.manifest.url });
+    runtime.router.get(bundle.url, bundle.serve());
+    runtime.router.route("/provision", bundle.injectBundleUrl(), Game.provision);
+    runtime.router.route("/evaluate", Game.evaluate);
   },
 };
 
+async function bootable(runtime, Module) {
+  const boot = Module.boot || defaultModuleBoot[Module.manifest.type];
+  if (!boot) return runtime;
+  return (await boot(runtime, Module)) || runtime;
+}
+
 async function boot(Module, runtime) {
-  const type = Module.manifest.type.toLowerCase();
-  const bootable = Module.boot || defaultModuleBoot[type];
+  const { router, bus } = await bootable(
+    { ...runtime, ...Module, manifest: runtime.manifest },
+    Module,
+  );
 
-  let moduleRuntime = {
-    ...runtime,
-    // ["#symbol"]: runtime["#symbol"], manifest: runtime.manifest, Module: runtime.Module, locals: runtime.locals, services: runtime.services, statics: runtime.statics,
-    router: createRouter(),
-    bus: runtime.bus.scope(`@${type}`),
-  };
-
-  // if (middlewares[type]) moduleRuntime.router.middleware.push(...middlewares[type]);
-  moduleRuntime.router.middleware.push(...Module.router.middleware);
-
-  const manifest = Module.manifest;
-
-  if (!bootable) return { ...moduleRuntime, manifest, Module };
-  else {
-    const module = (await bootable(moduleRuntime, { ...Module, manifest })) || moduleRuntime;
-    return { ...module, manifest, Module };
-  }
+  return { manifest: Module.manifest, router, bus, Module };
 }
 
 boot.many = async (Modules, runtime) => {

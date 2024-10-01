@@ -36,6 +36,7 @@ model Tag {
   updatedAt DateTime @default(now()) @updatedAt
   name      String  
   slug      String   
+  description String?
 
   // RUNTIME
   runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
@@ -63,8 +64,8 @@ enum TagTraitsEnum {
   ONTOLOGICAL // subject matter attribute
   STRUCTURAL // organizing of units into sets or categories
   LEARNABLE // higher order feature that one can master
-  COMPLETABLE // a set of units where each can be mastered
-  DEPENDENCY
+  DEPENDENCY // defines preconditions, conditions and a way to master the condition
+  // COMPLETABLE // contains a set where each can be mastered
   // TACTICAL
 }
 

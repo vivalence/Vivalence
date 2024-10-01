@@ -1,0 +1,47 @@
+meta {
+  name: evaluate
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/prose/evaluate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "scope": {
+      "dependency": {
+        "tag": {
+          "id": "8d5025c5-864d-40c3-b3fb-1d8468d7b91d"
+        }
+      },
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      },
+      "tactic": {
+        "id": "7aca2532-7c13-45e7-8639-341e46816c3b"
+      },
+      "game": {
+        "id": "1477e30f-4c70-4e93-9f97-5ed3ffffaa08"
+      },
+      "aspect": {
+        "tag": {
+          "id": "9f12c14d-3c19-422f-8e69-d5c2ea926252"
+        }
+      },
+      "leafs": {
+        "tags": [
+          {
+            "id": "04ceff93-d2ad-442d-b52f-1da222258c5e"
+          },
+          {
+            "id": "3cc6bd7e-359b-4f1d-80e4-9facabe1123a"
+          }
+        ]
+      }
+    }
+  }
+}

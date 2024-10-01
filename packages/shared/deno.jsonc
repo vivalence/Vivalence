@@ -2,7 +2,8 @@
   "name": "@vivalence/shared",
   "version": "0.0.1",
   "exports": {
-    "./server": "./mod.js",
     ".": "./mod.js",
+    "./server": "./mod.js",
+    "./client": "./client.js",
   },
 }

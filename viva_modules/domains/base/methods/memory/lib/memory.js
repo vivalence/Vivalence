@@ -2,8 +2,11 @@ import { getDateTimeInXHours, getTimeDifferenceFromNow } from "./time.js";
 import * as ebisu from "./ebisu.js";
 
 export async function handleMemory({ scope, gameType, response }, ctx) {
-  const user = await ctx.runtime.locals.getUser();
-  scope.user = { id: user.id };
+  if (!scope.user) {
+    const user = await ctx.runtime.locals.getUser();
+    if (!user) throw new Error("User not found");
+    scope.user = { id: user.id };
+  }
 
   const memory = await findMemory({ scope, gameType, response }, ctx);
 
@@ -161,6 +164,17 @@ export const sortByMemory = (a, b) => {
   return b.memory.strength - a.memory.strength;
 };
 
+export const filterResourceByMemory = (accept) => (resource) => {
+  if (!resource.memory) {
+    if (accept.includes(null)) return true;
+    // if (accept.includes("UNKNOWN")) return true;
+  }
+
+  if (accept.includes(resource.memory.status)) return true;
+
+  return false;
+};
+
 export const sortResourcesByMemory = (resources) => {
   return resources.sort(sortByMemory);
 };
@@ -168,6 +182,9 @@ export const sortResourcesByMemory = (resources) => {
 export const getStatus = (nextReviewIn, history) => {
   const checkLastResponses = (n, condition) => {
     const recentResponses = history.slice(-n).map((entry) => entry.response);
+    // sometimes reponse is a ratio
+    // if (typeof response === "string") {
+    // } else if (Array.isArray(response) && response.length === 2) {
     return recentResponses.every((response) => condition.includes(response));
   };
 
@@ -184,7 +201,5 @@ export const getStatus = (nextReviewIn, history) => {
     return "KNOWN";
   } else if (isLearning) {
     return "LEARNING";
-  }
-
-  return "UNKNOWN";
+  } else return "UNKNOWN";
 };

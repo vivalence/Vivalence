@@ -61,7 +61,8 @@ model Runtime {
   memories   Memory[]
 
   // TRANSIENT
-  HEAD HEAD[]
+  HEAD  HEAD[]
+  Queue Queue?
 
   @@unique([slug])
 }
@@ -181,11 +182,12 @@ model Tactic {
 
 model Tag {
   // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  name      String
-  slug      String
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  name        String
+  slug        String
+  description String?
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
@@ -204,6 +206,7 @@ model Tag {
   // DATA
   traits TagTraitsEnum[] @default([])
   data   Json            @default("{}")
+  Queue  Queue[]
 
   @@unique([slug, runtimeId])
   @@index([name], name: "nameIndexOnTag")
@@ -213,8 +216,8 @@ enum TagTraitsEnum {
   ONTOLOGICAL // subject matter attribute
   STRUCTURAL // organizing of units into sets or categories
   LEARNABLE // higher order feature that one can master
-  COMPLETABLE // a set of units where each can be mastered
-  DEPENDENCY
+  DEPENDENCY // defines preconditions, conditions and a way to master the condition
+  // COMPLETABLE // contains a set where each can be mastered
   // TACTICAL
 }
 
@@ -299,7 +302,7 @@ model Play {
   tagId  String?
 
   // USERLAND
-  memory   Memory @relation(fields: [memoryId], references: [id])
+  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
   memoryId String
 
   // DATA
@@ -370,16 +373,22 @@ model Queue {
   updatedAt DateTime @default(now()) @updatedAt
 
   // APP
-  user   AppUser? @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String?
+  user   AppUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  @unique
 
   // CORPUS
-  tactic   Tactic @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tactic   Tactic  @relation(fields: [tacticId], references: [id], onDelete: Cascade)
   tacticId String
+  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId    String?
 
   // USERLAND
-  strategy   Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
-  strategyId String
+  strategy   Strategy? @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  strategyId String?
 
   // DATA
   index  Int             @default(0)

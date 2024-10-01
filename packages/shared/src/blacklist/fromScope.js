@@ -1,21 +1,3 @@
-function removeDuplicatesFromBlacklist(blacklist) {
-  // Remove duplicates from the 'units' array
-  if (blacklist.units && Array.isArray(blacklist.units)) {
-    blacklist.units = Array.from(new Set(blacklist.units));
-  }
-
-  // Remove duplicates from the 'tags' array
-  if (blacklist.tags && Array.isArray(blacklist.tags)) {
-    blacklist.tags = Array.from(new Set(blacklist.tags));
-  }
-
-  // Add additional arrays like 'instructions' if needed
-  if (blacklist.instructions && Array.isArray(blacklist.instructions)) {
-    blacklist.instructions = Array.from(new Set(blacklist.instructions));
-  }
-
-  return blacklist;
-}
 export default function fromScope({ blacklist, scope }) {
   const extractIds = (obj) => {
     if (obj.unit) {
@@ -52,4 +34,20 @@ export default function fromScope({ blacklist, scope }) {
 
   extractIds(scope);
   return removeDuplicatesFromBlacklist(blacklist);
+}
+
+function removeDuplicatesFromBlacklist(blacklist) {
+  if (blacklist.units && Array.isArray(blacklist.units)) {
+    blacklist.units = Array.from(new Set(blacklist.units));
+  }
+
+  if (blacklist.tags && Array.isArray(blacklist.tags)) {
+    blacklist.tags = Array.from(new Set(blacklist.tags));
+  }
+
+  if (blacklist.instructions && Array.isArray(blacklist.instructions)) {
+    blacklist.instructions = Array.from(new Set(blacklist.instructions));
+  }
+
+  return blacklist;
 }

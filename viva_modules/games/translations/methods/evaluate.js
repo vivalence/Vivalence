@@ -10,7 +10,7 @@ export default async function evaluate({ scope, sentence }, ctx) {
 
   const evaluation = await evaluateSentence({ units, sentence }, ctx);
   const evaluations = await Promise.all(
-    units.map((unit) => evaluatePos({ unit, sentence, evaluation }, ctx))
+    units.map((unit) => evaluatePos({ unit, sentence, evaluation }, ctx)),
   );
 
   evaluations.map((evaluation) => evaluateByType({ ...evaluation, scope }, ctx));
@@ -29,7 +29,7 @@ function prettifyEvaluations({ evaluations, scope }, ctx) {
           else if (obj.type === "Tag") acc.tags.push(obj);
           return acc;
         },
-        { unit, tags: [] }
+        { unit, tags: [] },
       );
     })
     .map(({ unit, tags }) => {
@@ -86,7 +86,7 @@ async function evaluatePos({ unit, sentence, evaluation }, ctx) {
         acc["Tag:" + tag.id] = { $ref: "#/definitions/tag" };
         return acc;
       },
-      { ["Unit:" + unit.id]: { $ref: "#/definitions/unit" } }
+      { ["Unit:" + unit.id]: { $ref: "#/definitions/unit" } },
     ),
   };
   schema.properties.required = Object.keys(schema.properties);
@@ -125,7 +125,7 @@ async function evaluateSentence({ units, sentence }, ctx) {
         acc["token:" + unit.token] = { $ref: "#/definitions/token" };
         return acc;
       },
-      { "translation:whole": { $ref: "#/definitions/translation" } }
+      { "translation:whole": { $ref: "#/definitions/translation" } },
     ),
   };
   schema.properties.required = Object.keys(schema.properties);
@@ -140,8 +140,6 @@ async function evaluateSentence({ units, sentence }, ctx) {
 }
 
 async function isolatePos({ scope }, ctx) {
-  const language = ctx.runtime.statics.language;
-
   const hydratedScope = await ctx.runtime.call("/scope/hydrate", { scope });
 
   const units = hydratedScope.units.map((unit, index) => ({
@@ -167,6 +165,6 @@ async function isolatePos({ scope }, ctx) {
 const wrapTextWithTag = (str, start_char, end_char, tag) => {
   return `${str.substring(0, start_char)}<${tag}>${str.substring(
     start_char,
-    end_char
+    end_char,
   )}</${tag}>${str.substring(end_char)}`;
 };

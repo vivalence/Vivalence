@@ -31,6 +31,9 @@ export const initiateModel = (response) => {
       case "KNOWN":
         defaultModel.tau = 3.4;
         break;
+      case "NEUTRAL":
+        defaultModel.tau = 1.0;
+        break;
       case "UNKNOWN":
         defaultModel.tau = 0.26;
         break;
@@ -59,6 +62,9 @@ export const updateModel = (model, response, elapsedTime) => {
           break;
         case "KNOWN":
           model = ebisu.updateRecall(model, 1, 1, elapsedTime);
+          break;
+        case "NEUTRAL":
+          model = ebisu.updateRecall(model, 0.5, 1, elapsedTime);
           break;
         case "UNKNOWN":
           model = ebisu.updateRecall(model, 0, 1, elapsedTime);

@@ -1,14 +1,13 @@
 import { join } from "$std/path/mod.ts";
-import lock from "./lib/lock.js";
+import { blacklist as Blacklist } from "@vivalence/shared";
 import getData from "./lib/data.js";
-import queueToBlacklist from "./lib/queueToBlacklist.js";
 
 export default async function ({ scope, blacklist }, ctx) {
   const start = performance.now();
   const user = await ctx.runtime.locals.getUser();
   scope.user = { id: user.id };
 
-  blacklist = await queueToBlacklist({ blacklist, scope }, ctx);
+  blacklist = await Blacklist.fromQueue({ blacklist, scope }, ctx);
 
   const { tactic } = await getData({ scope }, ctx);
 

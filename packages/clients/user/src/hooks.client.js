@@ -3,9 +3,8 @@ import supabase from "$lib/supabase.js";
 import createCall from "$lib/call.js";
 
 export const handle = async (event) => {
-  event.locals = event.locals || {};
   event.data = event.data || {};
-  event.locals.supabase = supabase(event);
+  event.locals = event.locals || {};
 
   event.locals.getUser = async () => {
     const { data } = await event.locals.supabase.auth.getUser();
@@ -17,7 +16,8 @@ export const handle = async (event) => {
   };
 
   event.locals.call = createCall({});
-
+  event.locals.supabase = supabase(event);
   event.data.session = await event.locals.getSession();
+
   return event;
 };

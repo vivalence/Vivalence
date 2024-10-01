@@ -42,6 +42,7 @@ async function boot(runtime) {
   runtime.router.route("/install/tactic", install.tactic);
   runtime.router.route("/install/strategy", install.strategy);
   runtime.router.route("/install/unit", install.unit);
+  runtime.router.route("/install/tag", install.tag);
 
   runtime.router.route("/remove/unit", remove.unit);
 

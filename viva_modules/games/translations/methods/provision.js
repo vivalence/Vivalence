@@ -2,12 +2,12 @@ import Mustache from "mustache";
 import { GamePrompt } from "./lib/prompts.js";
 
 export default async function (inputs, ctx) {
-  const { scope, constraints, mask, language } = inputs;
+  const { scope, constraints, mask } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {
+    goal: mask.prompt.goal,
     constraints,
-    language,
-    innerPrompt: mask.prompt.inner,
+    language: ctx.runtime.statics.language,
   });
 
   const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
@@ -19,9 +19,16 @@ export default async function (inputs, ctx) {
   });
 
   const instruction = {
-    type: "TRANSLATIONS",
     instruction: {
-      sentence, // @lj TODO for feedback: deconstruct the sentence and send the deconstruction
+      sentence,
+      tokens: tokens
+        .map((token) => ({
+          // i oughtto add the annotations to the payload.
+          token: token.annotation.meta.token,
+          start_char: token.annotation.meta.start_char,
+          end_char: token.annotation.meta.end_char,
+        }))
+        .sort((a, b) => a.start_char - b.start_char),
     },
     scope: {
       ...scope,
@@ -29,9 +36,6 @@ export default async function (inputs, ctx) {
         .filter((t) => !!t.unit)
         .map((token) => ({
           id: token.unit.id,
-          token: token.annotation.meta.token,
-          start_char: token.annotation.meta.start_char,
-          end_char: token.annotation.meta.end_char,
           tags: token.unit.tags.map(({ id }) => ({ id })),
         })),
       tags: Array.from(

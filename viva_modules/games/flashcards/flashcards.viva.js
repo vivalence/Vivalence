@@ -5,24 +5,24 @@ import provision from "./methods/provision/index.js";
 import { bundler } from "@vivalence/shared";
 
 async function boot(runtime, Game) {
-  const bundlePath = join(dirname(fromFileUrl(import.meta.url)), "/game/Flashcards.svelte");
-  const gameUrl = join("/r", runtime.manifest.slug, "/g", Game.manifest.slug);
-  const bundle = bundler(bundlePath, gameUrl);
+  const bundle = bundler({
+    path: join(dirname(fromFileUrl(import.meta.url)), "/game/Flashcards.svelte"),
+    url: Game.manifest.url,
+  });
 
-  runtime.router.get(bundle.path, bundle.serve());
+  runtime.router.get(bundle.url, bundle.serve());
 
   runtime.router.route("/provision/fromTagIds", bundle.injectBundleUrl(), provision.fromTagIds);
   runtime.router.route("/provision/fromUnitIds", bundle.injectBundleUrl(), provision.fromUnitIds);
   runtime.router.route("/provision/fromUnits", bundle.injectBundleUrl(), provision.fromUnits);
 
   runtime.router.route("/evaluate", evaluate);
-  runtime.router.route("/status", (body, ctx) => ({ status: "ok" }));
 
   return runtime;
 }
 
 async function install(runtime, Game) {
-  await runtime.locals.supabase
+  const installation = await runtime.locals.supabase
     .from("Game")
     .update({
       mask: {
@@ -32,6 +32,7 @@ async function install(runtime, Game) {
       },
     })
     .eq("id", Game.manifest.id);
+  return !installation.error;
 }
 
 const manifest = {

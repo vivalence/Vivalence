@@ -1,25 +1,23 @@
 import Mustache from "mustache";
-import { GamePrompt } from "./lib/prompts.js";
+import { ProvisioningPrompt } from "./lib/prompts.js";
 
-export default async function (inputs, ctx) {
-  const { scope, prompt, mask, language } = inputs;
+export default async function provision(inputs, ctx) {
+  const { scope, constraints, mask } = inputs;
 
   const input = {
-    prompt: Mustache.render(GamePrompt.template, {
-      prompt,
-      language,
-      // innerPrompt: mask.prompt.inner,
+    prompt: Mustache.render(ProvisioningPrompt.template, {
+      constraints,
+      goal: mask.prompt.goal,
     }),
-    schema: GamePrompt.schema,
-    provider: GamePrompt.provider,
+    schema: ProvisioningPrompt.schema,
+    provider: ProvisioningPrompt.provider,
   };
 
-  const prose = await ctx.runtime.services.llm(input);
+  const response = await ctx.runtime.services.llm(input);
 
   const instruction = {
-    type: "PROSE",
-    instruction: { prose },
-    scope: { ...scope },
+    instruction: { prose: response.prose },
+    scope,
   };
 
   return instruction;

@@ -27,8 +27,6 @@ async function boot(runtime) {
 
 async function install(runtime) {
   const { tags } = installables(runtime);
-  // change to: schema() result in here.
-  // once other modules start writing schema, currrent approach will muddle
 
   const [ontologies, rest] = tags.reduce(
     (acc, tag) => (tag.ontology ? acc[0].push(tag.ontology) : acc[1].push(tag), acc),
@@ -50,7 +48,7 @@ const manifest = {
   type: "Ontology",
   slug: "langugage-universal-dependencies",
   name: "Langauges by Universal Dependencies",
-  version: "0.0.0",
+  version: "0.0.1",
 };
 
 export { manifest, schema, boot, install };

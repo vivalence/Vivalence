@@ -40,10 +40,9 @@ const tactic = {
   masks: {
     translations: {
       prompt: {
-        inner: `### Task:
+        goal: `
 Create a simple sentence to practice verb conjugation for language learners.
 
-### Instructions:
 1. Use the exact verb form provided without changing its tense, mood, or person.
 2. Create a natural sentence that correctly incorporates the given verb.
 3. Use simple, everyday vocabulary suitable for the learner's level.

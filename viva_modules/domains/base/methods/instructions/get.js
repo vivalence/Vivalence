@@ -66,9 +66,10 @@ async function provision(props, ctx) {
       userId: props.scope.user.id,
       strategyId: props.scope.strategy.id,
       tacticId: props.scope.tactic.id,
+      runtimeId: ctx.runtime.manifest.id,
     };
 
-    instructions.push({ type: "SIGNAL", instruction: { message: "REPETITION" } });
+    instructions.push({ type: "SIGNAL", signal: "REPETITION" });
 
     const { data, error } = await ctx.runtime.locals.supabase.from("Queue").insert(
       instructions.map((data, index) => ({

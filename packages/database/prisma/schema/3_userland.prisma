@@ -51,7 +51,7 @@ model Play {
   tagId     String?
 
   // USERLAND
-  memory    Memory  @relation(fields: [memoryId], references: [id])
+  memory    Memory  @relation(fields: [memoryId], references: [id], onDelete: Cascade)
   memoryId  String 
 
   // DATA
