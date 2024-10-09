@@ -22,7 +22,7 @@ const createBaseEmitter = () => {
       await executeMiddlewareChain(ctx, middlewares);
       const eventListeners = listeners.get(event) || new Set();
       for (const listener of eventListeners) {
-        await listener(ctx);
+        await listener(ctx.event.body, ctx);
       }
     },
     use: (middleware) => {
@@ -31,42 +31,26 @@ const createBaseEmitter = () => {
   };
 };
 
-const createSecurityDecorator = (baseEmitter, rules) => {
-  const checkSecurity = (emitterScope, listenerScope) =>
-    emitterScope === listenerScope || rules[listenerScope]?.includes(emitterScope);
-
+const createInSecurityDecorator = (baseEmitter) => {
   const secureEmitter = {
     ...baseEmitter,
     on: (event, listener, listenerScope) => {
       const [emitterScope, emitterEvent] = event.split(":");
-      if (checkSecurity(emitterScope, listenerScope)) {
-        baseEmitter.on(event, listener);
-      } else {
-        console.warn("[INVALID EVENTBUS LISTENER] - event, listener", event, listenerScope);
-      }
+      baseEmitter.on(event, listener);
     },
-    scope: (scope) => ({
-      on: (event, listener) => secureEmitter.on(event, listener, scope),
-      emit: (event, body) => secureEmitter.emit(`${scope}:${event}`, body),
+    scope: () => ({
+      on: (event, listener) => secureEmitter.on(event, listener),
+      emit: (event, body) => secureEmitter.emit(event, body),
     }),
   };
 
   return secureEmitter;
 };
 
+// this used to be something. i lobotomized it. might rebuild later. keeping scope.
 const createSecureEventEmitter = () => {
   const baseEmitter = createBaseEmitter();
-  // this might be fairly meaningless.
-  const rules = {
-    // @emitter:@permitted-consumer - ontology can be consumed by corpus domain and games
-    "@corpus": ["@domain", "@ontology", "@game", "@strategy", "@tactic"],
-    "@ontology": ["@corpus", "@domain", "@game", "@strategy", "@tactic"],
-    "@domain": ["@corpus", "@ontology", "@game", "@strategy", "@tactic"],
-    "@game": [],
-    "@strategy": ["@domain", "@corpus"],
-    "@tactic": ["@corpus"],
-  };
-  return createSecurityDecorator(baseEmitter, rules);
+  return createInSecurityDecorator(baseEmitter);
 };
 
 export default createSecureEventEmitter;

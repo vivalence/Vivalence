@@ -1,4 +1,5 @@
 export const EvalTranslationPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
   provider: { api: "groq", model: "llama3-70b-8192", max_tokens: 8192, temperature: 0.8 },
   schema: {
     title: "Evaluation of Translation",
@@ -42,6 +43,7 @@ Tag: "{{name}}" "{{branch}}:{{leaf}}"
 `,
 };
 export const EvalTokensPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
   provider: {
     api: "anthropic",
     model: "claude-3-haiku-20240307",

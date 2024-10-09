@@ -28,6 +28,18 @@
     "@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.15",
     "daisyui": "npm:daisyui@4.12.10",
     "mustache": "npm:mustache@4.2.0",
-    "openai/": "https://deno.land/x/openai@v4.62.1/"
+    "@anthropic-ai/sdk": "npm:@anthropic-ai/sdk",
+    "openai/": "https://deno.land/x/openai@4.67.2/",
+    "openai": "npm:openai@4.67.2",
+    "three": "npm:three@0.169.0/build/three.module.js",
+    "json-logic-js": "npm:json-logic-js@2.0.5",
+    "ajv": "npm:ajv@8.17.1",
+    "ajv-errors": "npm:ajv-errors@3.0.0",
+    "troika-three-text": "npm:troika-three-text@0.49.0",
+    "@threejs-kit/instanced-sprite-mesh": "npm:@threejs-kit/instanced-sprite-mesh@2.4.6",
+    "three-mesh-bvh": "npm:three-mesh-bvh@0.7.1",
+    "three-perf": "npm:three-perf@1.0.10",
+    "@dimforge/rapier3d-compat": "https://cdn.skypack.dev/@dimforge/rapier3d-compat",
+    "@dimforge/rapier2d-compat": "https://cdn.skypack.dev/@dimforge/rapier2d-compat"
   }
 }

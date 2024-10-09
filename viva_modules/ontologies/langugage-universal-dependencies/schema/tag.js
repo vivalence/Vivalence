@@ -10,22 +10,19 @@ export default (schema) => {
       traits: {
         type: "array",
         description: "the traits implemented by the tag",
+        enum: ["ONTOLOGICAL", "LEARNABLE", "COMPLETABLE", "DEPENDENCY", "STRUCTURAL"],
       },
       slug: {
         type: "string",
         description:
-          "the unit's slug. functions as a unique identifier for the unit across runtimes.",
+          "the tags's slug. functions as a unique identifier for the tags across runtimes.",
       },
       data: {
         type: "object",
-        description: "the schema of a unit's data.",
-        properties: {},
-        required: ["known", "learning", "index", "example"],
-        additionalProperties: false,
       },
     },
     required: ["slug", "data", "traits"],
-    additionalProperties: false,
+    additionalProperties: true,
   };
   return schema;
 };

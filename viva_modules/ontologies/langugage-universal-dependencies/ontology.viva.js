@@ -28,6 +28,12 @@ async function boot(runtime) {
 async function install(runtime) {
   const { tags } = installables(runtime);
 
+  for (const tag of tags) {
+    const installed = await runtime.call("/install/tag", { tag });
+    console.log("ontology tag install:", installed);
+  }
+  return true;
+
   const [ontologies, rest] = tags.reduce(
     (acc, tag) => (tag.ontology ? acc[0].push(tag.ontology) : acc[1].push(tag), acc),
     [[], []],
@@ -48,7 +54,7 @@ const manifest = {
   type: "Ontology",
   slug: "langugage-universal-dependencies",
   name: "Langauges by Universal Dependencies",
-  version: "0.0.1",
+  version: "0.0.2",
 };
 
 export { manifest, schema, boot, install };

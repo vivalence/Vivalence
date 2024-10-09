@@ -11,6 +11,7 @@ const success = (manifest, runtime) => {
 export default async function install({ runtimes, ...params }) {
   for (const runtime of runtimes.values()) {
     for (const { manifest, Module } of [
+      runtime.domain,
       runtime.ontology,
       ...runtime.corpora.values(),
       ...runtime.games.values(),

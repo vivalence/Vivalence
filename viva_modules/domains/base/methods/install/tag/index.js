@@ -1,23 +1,44 @@
+import { deepEquals, deepMerge } from "@vivalence/shared";
+
 export default async function (body, ctx) {
   let { tag } = body;
+  let operation = null;
 
-  if (!tag.slug) throw new Error("Tag slug is required");
+  tag.data = tag.data || {};
+  for (const trait of tag.traits) {
+    tag.data[trait] = tag.data[trait] || {};
+  }
+
+  if (!tag.slug) {
+    const slug = await ctx.runtime.call("/tags/slugFrom", { tag });
+    if (!slug) throw new Error("Tag slug is required", tag);
+    if (slug.error) throw new Error("Error generating slug", slug.error);
+    tag.slug = slug;
+  }
 
   // const issues = await ctx.runtime.call("/diagnostics/validate/tag", { tag: { ...tag } });
   // if (issues[0]) throw new Error("Invalid unit", issues);
 
   const existingTag = await getTag(tag, ctx);
-  if (existingTag) {
-    const { data, error } = await ctx.runtime.locals.supabase
-      .from("Tag")
-      .update({ ...tag })
-      .eq("id", existingTag.id)
-      .select("*")
-      .single();
 
-    if (error) throw error;
-    tag = data;
+  if (existingTag) {
+    const mergedTag = deepMerge(existingTag, tag);
+    mergedTag.traits = [...new Set(mergedTag.traits)];
+    if (deepEquals(mergedTag, existingTag)) tag = existingTag;
+    else {
+      console.log("Merged Tag UPDATE!");
+      operation = "update";
+      const { data, error } = await ctx.runtime.locals.supabase
+        .from("Tag")
+        .update(mergedTag)
+        .eq("id", existingTag.id)
+        .select("*")
+        .single();
+      if (error) throw error;
+      tag = data;
+    }
   } else {
+    operation = "create";
     const { data, error } = await ctx.runtime.locals.supabase
       .from("Tag")
       .insert({ runtimeId: ctx.runtime.manifest.id, ...tag })
@@ -29,7 +50,7 @@ export default async function (body, ctx) {
   }
 
   // const valid = await forceTagValidity(tag, ctx);
-  return { tag };
+  return { tag, operation };
 }
 
 async function getTag(tag, ctx) {

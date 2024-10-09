@@ -1,7 +1,6 @@
 import blacklist from "./src/blacklist/index.js";
-import shuffle from "./src/shuffle.js";
-import deepMerge from "./src/deepMerge.js";
-import id from "./src/id.js";
+import validator from "./src/validator/index.js";
+import { deepMerge, deepEquals, id, shuffle } from "./src/lib/index.js";
 
-export { blacklist, deepMerge, id, shuffle };
-export default { blacklist, deepMerge, id, shuffle };
+export { deepEquals, deepMerge, id, shuffle, blacklist, validator };
+export default { deepEquals, deepMerge, id, shuffle, blacklist, validator };

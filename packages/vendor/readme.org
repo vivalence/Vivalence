@@ -1,0 +1,123 @@
+#+TITLE: Vendor Directory: Managing Submodules
+#+AUTHOR: Your Name
+#+DATE: [2024-10-01 Tue]
+
+* Introduction
+This directory (=/vendor=) contains third-party dependencies managed as Git submodules. This README explains how to work with these submodules effectively, with a focus on the Threlte submodule.
+
+* Adding a New Submodule
+We use a custom script to add new submodules. Here's the script for adding the Threlte submodule:
+
+#+BEGIN_SRC bash
+#!/bin/bash
+SUBMODULE_PATH="packages/vendor/threlte"
+REPO_URL="git@github.com:threlte/threlte.git"
+git submodule add $REPO_URL $SUBMODULE_PATH
+#+END_SRC
+
+This script:
+1. Defines the submodule path and repository URL.
+2. Adds the submodule to our repository.
+
+* Configuring Sparse Checkout
+After adding the submodule, you can configure sparse checkout to only retrieve specific files. However, this step is currently commented out in the script:
+
+#+BEGIN_SRC bash
+git config core.sparseCheckout true
+# Create the sparse-checkout file
+cat <<EOT > .git/modules/packages/vendor/threlte/info/sparse-checkout
+packages/*/src/**/*.js
+packages/*/src/**/*.ts
+packages/*/src/**/*.svelte
+EOT
+#+END_SRC
+
+If you decide to use sparse checkout:
+1. Uncomment these lines in the script.
+2. This will enable sparse checkout for the submodule.
+3. It will create a sparse-checkout file specifying which files to include.
+
+* Fetching Submodule Content
+The script for fetching submodule content is also commented out:
+
+#+BEGIN_SRC bash
+cd $SUBMODULE_PATH
+# Fetch the content
+git fetch --depth 1 origin main
+# Checkout the main branch
+git checkout main
+# Go back to the root directory
+cd ../../..
+#+END_SRC
+
+If you decide to use this:
+1. Uncomment these lines in the script.
+2. It will navigate to the submodule directory.
+3. Fetch the latest changes from the main branch with a depth of 1.
+4. Checkout the main branch.
+5. Return to the root directory.
+
+* Updating Submodules
+We use a separate script to update submodules:
+
+#+BEGIN_SRC bash
+#!/bin/bash
+SUBMODULE_PATH="packages/vendor/threlte"
+# Navigate to the submodule directory
+cd $SUBMODULE_PATH
+# Fetch the latest changes
+git fetch origin main
+# Reset to the latest commit on main
+git reset --hard origin/main
+# Update the working tree
+git read-tree -mu HEAD
+# Go back to the root of the main repository
+cd ../../..
+# Stage the submodule update
+git add $SUBMODULE_PATH
+echo "Threlte submodule updated. Don't forget to commit the changes in the main repository."
+#+END_SRC
+
+This script:
+1. Navigates to the submodule directory.
+2. Fetches the latest changes from the main branch.
+3. Resets the submodule to the latest commit on main.
+4. Updates the working tree.
+5. Returns to the root directory and stages the submodule update.
+6. Reminds you to commit the changes in the main repository.
+
+* Best Practices
+1. Always commit and push changes in a submodule directory separately.
+2. After updating a submodule, commit the changes in the main repository.
+3. Communicate submodule changes to your team to ensure everyone is working with the correct versions.
+4. If you decide to use sparse checkout, make sure to uncomment and configure the relevant parts of the script.
+
+* Cloning the Repository with Submodules
+When cloning the repository, use one of these methods to include submodules:
+
+** Method 1 (two steps)
+#+BEGIN_SRC bash
+git clone <repository-url>
+cd <repository-name>
+git submodule init
+git submodule update
+#+END_SRC
+
+** Method 2 (one step)
+#+BEGIN_SRC bash
+git clone --recurse-submodules <repository-url>
+#+END_SRC
+
+* Checking Submodule Status
+To check the status of all submodules:
+#+BEGIN_SRC bash
+git submodule status
+#+END_SRC
+
+* Running Commands on All Submodules
+To run a command on all submodules:
+#+BEGIN_SRC bash
+git submodule foreach '<command>'
+#+END_SRC
+
+By following these guidelines, you can effectively manage third-party dependencies as submodules within your monorepo structure. Note that some features like sparse checkout are currently commented out in the scripts - adjust as needed for your specific use case.

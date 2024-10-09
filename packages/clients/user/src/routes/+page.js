@@ -1,4 +1,5 @@
 import { handle } from "../hooks.client.js";
+import dependencies from "$lib/dependencies.js";
 
 export const load = async (event) => {
   const { data, locals } = await handle(event);
@@ -9,6 +10,15 @@ export const load = async (event) => {
     .contains("traits", ["DEPENDENCY"]);
 
   if (error) console.error(error);
+
+  for (const tag of tags) {
+    await dependencies(tag, {
+      runtime: {
+        locals,
+        manifest: tag.runtime,
+      },
+    });
+  }
 
   return { ...data, locals, tags };
 };

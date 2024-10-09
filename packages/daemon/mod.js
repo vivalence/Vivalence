@@ -24,10 +24,10 @@ await [
   routes,
   serve,
   install,
+  dev,
   userland,
   modules,
   launch,
-  dev,
   ticker("up"),
   daemonize,
 ].reduce((acc, fn) => acc.then(fn), Promise.resolve());

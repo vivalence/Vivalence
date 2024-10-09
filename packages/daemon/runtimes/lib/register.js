@@ -95,6 +95,7 @@ async function getModuleManifest(Module, runtime) {
 async function register(Module, runtime) {
   const module = { ...Module };
 
+  delete module.schema;
   module.router = createRouter();
   module.bus =
     Module.manifest.type === "Runtime"

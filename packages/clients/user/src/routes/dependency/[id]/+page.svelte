@@ -18,7 +18,7 @@
       scope: { dependency: { tag: { id: tag.id } } },
     };
 
-    const { data: instructions, error } = await locals.call(`/t/${tactic.slug}`, input);
+    const { data: instructions, error } = await locals.call(`/t/${tactic.slug}/provision`, input);
     if (error) throw error;
     console.log("pulled new instructions", instructions);
 

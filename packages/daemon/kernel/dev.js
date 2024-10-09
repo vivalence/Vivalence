@@ -1,5 +1,19 @@
 export default async function dev(params) {
   // const runtime = params.runtimes.values().next().value;
+
+  // // console.log(runtime.schema);
+  // const {
+  //   data: [unit],
+  //   error,
+  // } = await runtime.locals.supabase
+  //   .from("Unit")
+  //   .select("*")
+  //   .eq("runtimeId", runtime.manifest.id)
+  //   .eq("annotation->>pos", "noun");
+
+  // if (unit) await runtime.bus.emit("unit:memorystatuschange", { unit, memory: {}, scope: {} });
+
+  // const runtime = params.runtimes.values().next().value;
   // console.log(runtime.manifest);
   // console.log(runtime.tactics.get("article-morphology-gender-and-number").manifest);
 

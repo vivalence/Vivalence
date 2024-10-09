@@ -1,5 +1,5 @@
 import config from "@vivalence/config";
-import { OpenAI } from "https://deno.land/x/openai/mod.ts";
+import { OpenAI } from "openai";
 
 export default () => {
   const KEY = config.env.get("PRIVATE_GROQ_API_KEY");

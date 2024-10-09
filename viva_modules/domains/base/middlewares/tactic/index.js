@@ -13,7 +13,7 @@ export default (tactic) => {
 
   tactic.router.middleware.push(async (ctx, next) => {
     const url = new URL(ctx.request.url).pathname.split("/");
-    const slug = url[url.indexOf("g") + 1];
+    const slug = url[url.indexOf("t") + 1];
     ctx.state.tactic = ctx.runtime.tactics.get(slug).manifest;
     await next();
   });

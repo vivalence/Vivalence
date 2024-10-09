@@ -1,14 +1,24 @@
+import { deepMerge } from "@vivalence/shared";
+
 export default (runtime) => {
   const schema = runtime.schema;
 
   const tags = Object.entries(schema.annotations).reduce((tags, [branch, leafs]) => {
     if (branch === "lemma") return tags;
-    tags.push({ ontology: { branch } });
+    const tag = { traits: ["ONTOLOGICAL"], data: { ONTOLOGICAL: { branch } } };
+    tags.push(tag);
+
     return leafs.enum.reduce((tags, leaf) => {
-      tags.push({ ontology: { branch, leaf } });
+      const tag = { traits: ["ONTOLOGICAL"], data: { ONTOLOGICAL: { branch, leaf } } };
+
+      const { traits, data } = runtime.schema.meta[branch]?.traits?.[leaf] || {};
+      if (traits) tag.traits.push(...traits);
+      if (data) tag.data = deepMerge(tag.data, data);
+
+      tags.push(tag);
       return tags;
     }, tags);
   }, []);
 
-  return { units: [], tags };
+  return { tags };
 };
