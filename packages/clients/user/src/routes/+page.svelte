@@ -12,17 +12,17 @@
   </div>
 
   {#each data.tags as tag}
-  <div class="card bg-base-100 w-96 shadow-xl">
-    <div class="card-body">
-      <h2 class="card-title">{tag.name}</h2>
-      {#if tag.description}
-      <p>{tag.description}</p>
-      {/if}
+    <div class="card bg-base-300 w-96 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">{tag.name}</h2>
+        {#if tag.description}
+          <p>{tag.description}</p>
+        {/if}
 
-      <div class="card-actions justify-end">
-        <button class="btn btn-primary" on:click="{to(tag)}">Learn Now</button>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary" on:click={to(tag)}>Learn Now</button>
+        </div>
       </div>
     </div>
-  </div>
   {/each}
 </div>

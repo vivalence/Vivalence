@@ -1,12 +1,12 @@
 import config from "@vivalence/config";
 
 import createServerServices from "@vivalence/services/server.js";
+// createValidator
+import { validator } from "@vivalence/shared";
 
 import getRuntimes from "../lib/viva/module-loader.js";
 
 import supabase from "../lib/supabase/index.js";
-import createValidator from "../lib/validator/create.js";
-// import createRouter from "../server/router/create.js";
 import createEmitter from "../lib/emitter/create.js";
 
 import register from "./lib/register.js";
@@ -19,10 +19,7 @@ function runtimeMiddleware(runtime) {
   function middlewareRuntime(ctx) {
     delete ctx.locals;
     ctx.runtime = runtimes.get(runtime["#symbol"]);
-
-    if (!ctx.runtime.locals.supabase) {
-      ctx.runtime.locals.supabase = supabase.createUserClient(ctx);
-    }
+    if (!ctx.runtime.locals) ctx.runtime.locals = {};
 
     ctx.runtime.locals.getUser = async () => {
       const { data, error } = await ctx.runtime.locals.supabase.auth.getUser();
@@ -34,14 +31,24 @@ function runtimeMiddleware(runtime) {
     return ctx.runtime;
   }
 
-  runtime.bus.use((ctx, next) => {
+  runtime.bus.use(async (ctx, next) => {
     ctx.runtime = middlewareRuntime(ctx);
-    ctx.runtime.locals.supabase = supabase.createAdminClient();
-    next();
+
+    if (!ctx.runtime.locals.supabase) {
+      ctx.runtime.locals.supabase = supabase.createAdminClient();
+      delete ctx.runtime.locals.getUser;
+    }
+
+    await next();
   });
 
   runtime.router.middleware.push(async (ctx, next) => {
     ctx.runtime = middlewareRuntime(ctx);
+
+    if (!ctx.runtime.locals.supabase) {
+      ctx.runtime.locals.supabase = supabase.createUserClient(ctx);
+    }
+
     await next();
   });
   return runtime;
@@ -51,7 +58,7 @@ async function buildRuntime(Runtime) {
   const services = createServerServices("");
 
   const locals = {
-    validate: createValidator(),
+    validate: validator.schema(),
     supabase: supabase.createAdminClient(),
     services,
   };

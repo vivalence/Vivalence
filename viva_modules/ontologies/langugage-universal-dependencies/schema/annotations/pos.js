@@ -21,7 +21,16 @@ export const pos = {
     "verb",
   ],
 };
+
 export const meta = {
+  traits: {
+    adj: {
+      traits: ["COMPLETABLE"],
+    },
+    noun: {
+      traits: ["COMPLETABLE"],
+    },
+  },
   enums: {
     adj: {
       enum: "adj",
@@ -67,7 +76,8 @@ export const meta = {
     part: {
       enum: "part",
       title: "Particle",
-      description: "A word that has grammatical function but does not fit into the main parts of speech.",
+      description:
+        "A word that has grammatical function but does not fit into the main parts of speech.",
     },
     pron: {
       enum: "pron",

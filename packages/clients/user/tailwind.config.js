@@ -12,14 +12,11 @@ const config = {
     "../../ui/src/**/*.{html,svelte}",
     "../../../viva_modules/**/*.svelte",
   ],
-  darkMode: ["class", '[data-theme="night"]'],
+  darkMode: ["class", '[data-theme="dark"]'],
   daisyui: {
     themes: [
-      {
-        dark: {
-          ...require("daisyui/src/theming/themes")["dark"],
-        },
-      },
+      { dark: { ...require("daisyui/src/theming/themes")["dark"] } },
+      { light: { ...require("daisyui/src/theming/themes")["light"] } },
     ],
   },
 };

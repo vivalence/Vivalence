@@ -23,6 +23,8 @@ import tagsReview from "./tags/review.js";
 import tagsWeakest from "./tags/weakest.js";
 import tagFromSlug from "./tags/fromSlug.js";
 import tagsFromOntology from "./tags/fromOntology.js";
+import tagsSlugFrom from "./tags/slugFrom.js";
+import tagsCompleteable from "./tags/completable.js";
 
 import weakestUnitsFromTagIds from "./units/weakest/fromTagIds.js";
 import weakestUnitsFromUnitIds from "./units/weakest/fromUnitIds.js";
@@ -68,6 +70,8 @@ async function boot(runtime) {
   runtime.router.route("/tags/weakest", tagsWeakest);
   runtime.router.route("/tags/fromSlug", tagFromSlug);
   runtime.router.route("/tags/fromOntology", tagsFromOntology);
+  runtime.router.route("/tags/slugFrom", tagsSlugFrom);
+  runtime.router.route("/tags/completable", tagsCompleteable);
 
   runtime.router.route("/units/fromTagIds", unitsFromTagIds);
   runtime.router.route("/units/fromUnitIds", unitsFromUnitIds);

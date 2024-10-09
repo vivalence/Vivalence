@@ -63,10 +63,9 @@ model Tag {
 enum TagTraitsEnum {
   ONTOLOGICAL // subject matter attribute
   STRUCTURAL // organizing of units into sets or categories
-  LEARNABLE // higher order feature that one can master
   DEPENDENCY // defines preconditions, conditions and a way to master the condition
-  // COMPLETABLE // contains a set where each can be mastered
-  // TACTICAL
+  LEARNABLE // higher order feature that can be mastered
+  COMPLETABLE // contains a set of units where each can be mastered
 }
 
 model Unit {

@@ -1,5 +1,5 @@
 import config from "@vivalence/config";
-import { Anthropic } from "npm:@anthropic-ai/sdk";
+import { Anthropic } from "@anthropic-ai/sdk";
 
 export default () => {
   const KEY = config.env.get("PRIVATE_ANTHROPIC_API_KEY");

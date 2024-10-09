@@ -1,11 +1,5 @@
 import { deepMerge } from "@vivalence/shared";
-import * as m1 from "./curricula/index.js";
-
-const manifest = {
-  type: "Runtime",
-  slug: "eng2esp",
-  name: "English to Spanish using Universal Dependencies",
-};
+import curricula from "./curricula/index.js";
 
 const modules = deepMerge(
   {
@@ -13,13 +7,24 @@ const modules = deepMerge(
     ontology: await import(
       "@vivalence/ontologies/langugage-universal-dependencies/ontology.viva.js"
     ),
+
     corpora: [await import("@vivalence/corpora/eng-to-esp/corpus.viva.js")],
-    games: [],
+    games: [
+      await import("@vivalence/games/prose/prose.viva.js"),
+      await import("@vivalence/games/translations/translations.viva.js"),
+      await import("@vivalence/games/flashcards/flashcards.viva.js"),
+    ],
     tactics: [await import("@vivalence/tactics/applying-verb-conjugations/tactic.viva.js")],
     strategies: [],
   },
-  m1.modules,
+  ...curricula,
 );
+
+const manifest = {
+  type: "Runtime",
+  slug: "eng2esp",
+  name: "English to Spanish using Universal Dependencies",
+};
 
 export { manifest, modules };
 

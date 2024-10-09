@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "TagTraitsEnum" ADD VALUE 'COMPLETABLE';

@@ -114,6 +114,7 @@ enum MemoryStatusEnum {
 enum MemoryTypeEnum {
   EBISU_v2
   EBISU_v3
+  CONTACTED
 }
 
 
