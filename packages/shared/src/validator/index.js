@@ -1,4 +1,5 @@
 import schema from "./schema.js";
-import logic from "./logic.js";
+import jsonlogic from "./jsonlogic.js";
+import jsonata from "./jsonata.js";
 
-export default { schema, logic };
+export default { schema, jsonlogic, jsonata };

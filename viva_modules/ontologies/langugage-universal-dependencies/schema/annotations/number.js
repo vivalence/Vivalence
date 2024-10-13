@@ -8,6 +8,34 @@ export const number = {
   enum: ["sing", "plur"],
 };
 export const meta = {
+  config: {
+    tags: {
+      "number:*": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            type: "BOOLEAN",
+          },
+        },
+      },
+      "number:sing": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+      "number:plur": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+    },
+  },
   enums: {
     sing: {
       slug: "sing",

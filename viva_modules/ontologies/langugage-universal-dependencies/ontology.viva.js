@@ -1,11 +1,15 @@
 import classification from "./methods/classification/index.js";
 import diagnostics from "./methods/diagnostics/index.js";
 import remedy from "./methods/remedy/index.js";
+import identity from "./methods/identity/index.js";
 
 import schema from "./schema/index.js";
 import installables from "./installables/index.js";
 
 async function boot(runtime) {
+  runtime.router.route("/identity/unit", identity.unit);
+  runtime.router.route("/identity/tag", identity.tag);
+
   runtime.router.route("/classification/unitFromAnnotation", classification.unitFromAnnotation);
   runtime.router.route("/classification/annotationsFromText", classification.annotationsFromText);
   runtime.router.route("/classification/unitsFromText", classification.unitsFromText);
@@ -26,35 +30,21 @@ async function boot(runtime) {
 }
 
 async function install(runtime) {
-  const { tags } = installables(runtime);
+  const { tags } = await installables(runtime);
 
+  // TODO: parallelize
   for (const tag of tags) {
-    const installed = await runtime.call("/install/tag", { tag });
+    const installed = await runtime.call("/tags/install", { tag });
     console.log("ontology tag install:", installed);
   }
   return true;
-
-  const [ontologies, rest] = tags.reduce(
-    (acc, tag) => (tag.ontology ? acc[0].push(tag.ontology) : acc[1].push(tag), acc),
-    [[], []],
-  );
-
-  const issues = await runtime.call("/diagnostics/predict/tags", { ontologies });
-
-  const remedies = [];
-  for (const issue of issues) {
-    const remedy = await runtime.call("/remedy", { issue });
-    remedies.push(remedy);
-  }
-
-  return remedies.every((remedy) => remedy.resolved) && rest.length === 0;
 }
 
 const manifest = {
   type: "Ontology",
   slug: "langugage-universal-dependencies",
   name: "Langauges by Universal Dependencies",
-  version: "0.0.2",
+  version: "0.0.3",
 };
 
 export { manifest, schema, boot, install };

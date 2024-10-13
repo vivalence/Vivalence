@@ -10,6 +10,7 @@ export default function createRouter() {
 
   error(router);
 
+  router.create = createRouter;
   router.route = route(router);
   router.caller = caller;
   router.middleware = [];

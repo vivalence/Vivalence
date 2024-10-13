@@ -2,14 +2,8 @@ export default async function dev(params) {
   // const runtime = params.runtimes.values().next().value;
 
   // // console.log(runtime.schema);
-  // const {
-  //   data: [unit],
-  //   error,
-  // } = await runtime.locals.supabase
-  //   .from("Unit")
-  //   .select("*")
-  //   .eq("runtimeId", runtime.manifest.id)
-  //   .eq("annotation->>pos", "noun");
+  // const { data, error } = await runtime.locals.supabase.from("Memory").update({ type: "BAYESIAN" });
+  // console.log(data, error);
 
   // if (unit) await runtime.bus.emit("unit:memorystatuschange", { unit, memory: {}, scope: {} });
 

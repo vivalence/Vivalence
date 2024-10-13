@@ -29,6 +29,7 @@ model Tactic {
   @@unique([slug, runtimeId] )
 }
 
+
 model Tag {
   // ABOUT
   id        String   @id @default(dbgenerated("uuid_generate_v4()"))
@@ -63,7 +64,6 @@ model Tag {
 enum TagTraitsEnum {
   ONTOLOGICAL // subject matter attribute
   STRUCTURAL // organizing of units into sets or categories
-  DEPENDENCY // defines preconditions, conditions and a way to master the condition
   LEARNABLE // higher order feature that can be mastered
   COMPLETABLE // contains a set of units where each can be mastered
 }
@@ -94,6 +94,61 @@ model Unit {
   data         Json     @default("{}")
 
   @@unique([slug, runtimeId])
+}
+
+model Dependency {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  slug      String   
+  name      String  
+  description String?
+
+  // RUNTIME
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
+
+  corpus    Corpus?   @relation(fields: [corpusId], references: [id], onDelete: Cascade) 
+  corpusId  String?
+
+  // CORPUS
+  preconditions  Condition[] @relation("Preconditions", references: [id])
+  conditions     Condition[] @relation("Conditions", references: [id])
+  itinerary      Json        @default("{}")
+
+  // DATA
+  satisfied      Boolean       @default(false)
+
+  @@unique([slug, runtimeId])
+}
+
+model Condition {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  description String?
+
+  // RUNTIME
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
+
+  corpus    Corpus?   @relation(fields: [corpusId], references: [id], onDelete: Cascade) 
+  corpusId  String?
+
+  // CORPUS
+  conditionFor       Dependency? @relation("Conditions", fields: [conditionForId], references: [id], onDelete: Cascade)
+  conditionForId     String?
+
+  preconditionFor    Dependency? @relation("Preconditions", fields: [preconditionForId], references: [id], onDelete: Cascade)
+  preconditionForId  String?
+
+  scope              Json     @default("{}")
+
+  // DATA
+  assertion Json     @default("{}")
+  met       Boolean  @default(false)
 }
 
 

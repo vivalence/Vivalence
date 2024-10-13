@@ -1,5 +1,5 @@
 import eventhandlers from "./eventhandlers/index.js";
-import methods from "./methods/index.js";
+import methods from "./methods/boot.js";
 import middlewares from "./middlewares/index.js";
 
 async function boot(runtime) {
