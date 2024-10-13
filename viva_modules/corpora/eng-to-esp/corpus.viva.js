@@ -5,7 +5,7 @@ import predictables from "./schema/predictables/index.js";
 async function install(runtime) {
   // let { units, tags } = predictables(runtime);
   // console.log("installing", tags);
-  return false;
+  return true;
 
   const [annotations, unitRest] = units.reduce(
     (acc, unit) => (unit.annotation ? acc[0].push(unit.annotation) : acc[1].push(unit), acc),

@@ -61,8 +61,10 @@ model Runtime {
   memories   Memory[]
 
   // TRANSIENT
-  HEAD  HEAD[]
-  Queue Queue?
+  HEAD       HEAD[]
+  Dependency Dependency[]
+  Condition  Condition[]
+  Queue      Queue?
 
   @@unique([slug])
 }
@@ -120,9 +122,11 @@ model Corpus {
 
   // CORPUS
   // optional, in case of ownership
-  tactics Tactic[]
-  units   Unit[]
-  tags    Tag[]
+  tactics    Tactic[]
+  units      Unit[]
+  tags       Tag[]
+  Dependency Dependency[]
+  Condition  Condition[]
 
   @@unique([slug, runtimeId])
 }
@@ -215,7 +219,6 @@ model Tag {
 enum TagTraitsEnum {
   ONTOLOGICAL // subject matter attribute
   STRUCTURAL // organizing of units into sets or categories
-  DEPENDENCY // defines preconditions, conditions and a way to master the condition
   LEARNABLE // higher order feature that can be mastered
   COMPLETABLE // contains a set of units where each can be mastered
 }
@@ -246,6 +249,60 @@ model Unit {
   data       Json @default("{}")
 
   @@unique([slug, runtimeId])
+}
+
+model Dependency {
+  // ABOUT
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  slug        String
+  name        String
+  description String?
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
+
+  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: Cascade)
+  corpusId String?
+
+  // CORPUS
+  preconditions Condition[] @relation("Preconditions")
+  conditions    Condition[] @relation("Conditions")
+  itinerary     Json        @default("{}")
+
+  // DATA
+  satisfied Boolean @default(false)
+
+  @@unique([slug, runtimeId])
+}
+
+model Condition {
+  // ABOUT
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String
+
+  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: Cascade)
+  corpusId String?
+
+  // CORPUS
+  conditionFor   Dependency? @relation("Conditions", fields: [conditionForId], references: [id], onDelete: Cascade)
+  conditionForId String?
+
+  preconditionFor   Dependency? @relation("Preconditions", fields: [preconditionForId], references: [id], onDelete: Cascade)
+  preconditionForId String?
+
+  scope Json @default("{}")
+
+  // DATA
+  assertion Json    @default("{}")
+  met       Boolean @default(false)
 }
 
 model Strategy {
@@ -292,8 +349,8 @@ model Play {
   gameId String
 
   // CORPUS
-  tactic   Tactic @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId String
+  tactic   Tactic? @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId String?
 
   unit   Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId String?
@@ -305,9 +362,12 @@ model Play {
   memoryId String
 
   // DATA
-  history  Json     @default("[]")
-  nextPlay DateTime
-  lastPlay DateTime
+  history Json @default("[]")
+  signal  Json @default("{}")
+
+  nextIn Int      @default(0)
+  nextAt DateTime @default(now())
+  lastAt DateTime @default(now())
 
   @@unique([userId, unitId, tagId, gameId, tacticId])
   @@index([userId], name: "userIdIndexOnPlay")
@@ -342,11 +402,16 @@ model Memory {
   plays Play[]
 
   // DATA
-  type     MemoryTypeEnum   @default(EBISU_v2)
-  status   MemoryStatusEnum @default(UNKNOWN)
-  state    Json             @default("{}")
-  lastSeen DateTime         @default(now())
-  history  Json             @default("[]")
+  type    MemoryTypeEnum   @default(BAYESIAN)
+  falvor  MemoryFlavorEnum @default(INDIVIDUAL)
+  status  MemoryStatusEnum @default(UNKNOWN)
+  state   Json             @default("{}")
+  history Json             @default("[]")
+  signal  Json             @default("{}")
+
+  nextIn Int      @default(0)
+  nextAt DateTime @default(now())
+  lastAt DateTime @default(now())
 
   @@unique([unitId, userId, tagId])
   @@index([unitId], name: "unitIdIndexOnMemory")
@@ -354,17 +419,22 @@ model Memory {
   @@index([tagId], name: "tagIdIndexOnMemory")
 }
 
+enum MemoryFlavorEnum {
+  RELATIONAL // Memory strenght is a function of its relations. only on tags.
+  INDIVIDUAL // default for units. 
+}
+
 enum MemoryStatusEnum {
-  UNKNOWN // not yet being learned
-  LEARNING // being learned 
+  UNTOUCHED // should not exist in database
+  UNKNOWN // not yet being learned but touched
+  LEARNING // being actively learned 
   KNOWN // sufficiently learned
   GRADUATED // sufficiently learned and not Showing anymore
 }
 
 enum MemoryTypeEnum {
-  EBISU_v2
-  EBISU_v3
-  CONTACTED
+  BOOLEAN
+  BAYESIAN
 }
 
 model Queue {

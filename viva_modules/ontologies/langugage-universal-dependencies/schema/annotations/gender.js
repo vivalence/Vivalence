@@ -8,6 +8,34 @@ export const gender = {
 };
 
 export const meta = {
+  config: {
+    tags: {
+      "gender:*": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            type: "BOOLEAN",
+          },
+        },
+      },
+      "gender:fem": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+      "gender:masc": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+    },
+  },
   enums: {
     fem: { enum: "fem", title: "Feminine", description: "" },
     masc: { enum: "masc", title: "Masculine", description: "" },

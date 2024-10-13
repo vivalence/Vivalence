@@ -1,5 +1,5 @@
 export const pos = {
-  $id: "unit.annotation.pos",
+  $id: "ontology.pos",
   type: "string",
   title: "Part of Speech",
   description: "The part of speech category. ",
@@ -23,12 +23,14 @@ export const pos = {
 };
 
 export const meta = {
-  traits: {
-    adj: {
-      traits: ["COMPLETABLE"],
-    },
-    noun: {
-      traits: ["COMPLETABLE"],
+  config: {
+    tags: {
+      "pos:adj": {
+        traits: ["COMPLETABLE"],
+      },
+      "pos:noun": {
+        traits: ["COMPLETABLE"],
+      },
     },
   },
   enums: {

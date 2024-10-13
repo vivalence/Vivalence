@@ -21,6 +21,7 @@ export default async function install({ runtimes, ...params }) {
       let installed = false;
 
       if (Module.install && typeof Module.install === "function") {
+        console.log("[RUNTIME] installing", manifest);
         installed = !!(await Module.install(runtime, { ...Module, manifest }));
       } else if (Module.install === undefined && manifest.id) {
         installed = true;

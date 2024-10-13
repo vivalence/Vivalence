@@ -19,8 +19,7 @@ const SubjectResolvers = {
     // return tag;
   },
   "TAG[LEARNABLE]": async (subject, ctx) => {
-    // i could also search for the memory directly.
-
+    // i could also search for the memory directly if i could guarantee the id.
     let query = ctx.runtime.locals.supabase
       .from("Tag")
       .select("*, memory:Memory(id,status,unitId)")

@@ -1,7 +1,6 @@
 import config from "@vivalence/config";
 
 import createServerServices from "@vivalence/services/server.js";
-// createValidator
 import { validator } from "@vivalence/shared";
 
 import getRuntimes from "../lib/viva/module-loader.js";

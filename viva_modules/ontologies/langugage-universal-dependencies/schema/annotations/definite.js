@@ -8,6 +8,34 @@ export const definite = {
 };
 
 export const meta = {
+  config: {
+    tags: {
+      "definite:*": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            type: "BOOLEAN",
+          },
+        },
+      },
+      "definite:def": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+      "definite:ind": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
+    },
+  },
   enums: {
     def: { enum: "def", title: "Definite", description: "" },
     ind: { enum: "ind", title: "Indefinite", description: "" },

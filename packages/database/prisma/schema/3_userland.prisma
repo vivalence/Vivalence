@@ -35,15 +35,15 @@ model Play {
   userId    String 
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtime   Runtime      @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId String  
 
-  game      Game        @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  game      Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
   gameId    String
 
   // CORPUS
-  tactic    Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId  String 
+  tactic    Tactic?      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId  String?
 
   unit      Unit?        @relation(fields: [unitId], references: [id], onDelete: Cascade)
   unitId    String? 
@@ -51,13 +51,17 @@ model Play {
   tagId     String?
 
   // USERLAND
-  memory    Memory  @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  memory    Memory        @relation(fields: [memoryId], references: [id], onDelete: Cascade)
   memoryId  String 
 
   // DATA
-  history   Json        @default("[]")
-  nextPlay  DateTime
-  lastPlay  DateTime
+  history   Json          @default("[]")
+  signal    Json          @default("{}") 
+
+  nextIn    Int             @default(0)
+  nextAt    DateTime        @default(now())
+  lastAt    DateTime        @default(now())
+
 
   @@index([userId], name: "userIdIndexOnPlay")
   @@index([gameId], name: "gameIdIndexOnPlay")
@@ -92,11 +96,16 @@ model Memory {
   plays     Play[]
 
   // DATA
-  type      MemoryTypeEnum   @default(EBISU_v2)
+  type      MemoryTypeEnum   @default(BAYESIAN)
+  falvor    MemoryFlavorEnum @default(INDIVIDUAL)
   status    MemoryStatusEnum @default(UNKNOWN)
   state     Json             @default("{}")
-  lastSeen  DateTime         @default(now())
   history   Json             @default("[]")
+  signal    Json             @default("{}") 
+
+  nextIn    Int             @default(0)
+  nextAt    DateTime        @default(now())
+  lastAt    DateTime        @default(now())
 
   @@index([unitId], name: "unitIdIndexOnMemory")
   @@index([userId], name: "userIdIndexOnMemory")
@@ -104,17 +113,22 @@ model Memory {
   @@unique([unitId, userId, tagId])
 }
 
-enum MemoryStatusEnum {
-  UNKNOWN // not yet being learned
-  LEARNING // being learned 
-  KNOWN // sufficiently learned
-  GRADUATED // sufficiently learned and not Showing anymore
+enum MemoryTypeEnum {
+  BOOLEAN
+  BAYESIAN
 }
 
-enum MemoryTypeEnum {
-  EBISU_v2
-  EBISU_v3
-  CONTACTED
+enum MemoryFlavorEnum {
+  RELATIONAL // Memory strenght is a function of its relations. only on tags.
+  INDIVIDUAL // default for units. 
+}
+
+enum MemoryStatusEnum {
+  UNTOUCHED // should not exist in database
+  UNKNOWN // not yet being learned but touched
+  LEARNING // being actively learned 
+  KNOWN // sufficiently learned
+  GRADUATED // sufficiently learned and not Showing anymore
 }
 
 
