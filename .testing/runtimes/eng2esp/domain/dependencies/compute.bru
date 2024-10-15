@@ -1,0 +1,20 @@
+meta {
+  name: compute
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/dependencies/compute
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "dependency": {
+      "id": "baf9e2fa-a891-4637-a93c-560dfb4987fb"
+      
+    }
+  }
+}

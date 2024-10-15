@@ -17,10 +17,12 @@ import serve from "./server/serve.js";
 const ticker = tick(start);
 
 await [
+  ticker("start"),
   cleanupPorts,
   supabase,
   server,
   build,
+  ticker("built"),
   routes,
   serve,
   install,

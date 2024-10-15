@@ -12,16 +12,16 @@ model Queue {
   runtimeId   String  @unique 
 
   // CORPUS
-  tactic      Tactic      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId    String
-  tag         Tag?         @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId       String?
+  tactic       Tactic?     @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId     String?
+  dependency   Dependency? @relation(fields: [dependencyId], references: [id], onDelete: Cascade)
+  dependencyId String?
 
   // USERLAND
   strategy    Strategy?      @relation(fields: [strategyId], references: [id], onDelete: Cascade)
   strategyId  String?
   
- // DATA
+  // DATA
   index       Int             @default(0)
   status      QueueStatusEnum @default(PENDING)
   data        Json            @default("{}")

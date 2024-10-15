@@ -107,7 +107,8 @@ async function register(Module, runtime) {
     return module;
   }
 
-  module.manifest = deepMerge(Module.manifest, await getModuleManifest(Module, runtime));
+  const manifest = await getModuleManifest(Module, runtime);
+  module.manifest = deepMerge(Module.manifest, manifest);
 
   return module;
 }

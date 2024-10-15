@@ -51,9 +51,11 @@ model Runtime {
   games    Game[]
 
   // CORPUS
-  tactics Tactic[]
-  units   Unit[]
-  tags    Tag[]
+  tactics      Tactic[]
+  units        Unit[]
+  tags         Tag[]
+  dependencies Dependency[]
+  conditions   Condition[]
 
   // USERLAND
   strategies Strategy[]
@@ -61,10 +63,8 @@ model Runtime {
   memories   Memory[]
 
   // TRANSIENT
-  HEAD       HEAD[]
-  Dependency Dependency[]
-  Condition  Condition[]
-  Queue      Queue?
+  HEAD  HEAD[]
+  queue Queue[]
 
   @@unique([slug])
 }
@@ -122,11 +122,11 @@ model Corpus {
 
   // CORPUS
   // optional, in case of ownership
-  tactics    Tactic[]
-  units      Unit[]
-  tags       Tag[]
-  Dependency Dependency[]
-  Condition  Condition[]
+  tactics      Tactic[]
+  units        Unit[]
+  tags         Tag[]
+  dependencies Dependency[]
+  conditions   Condition[]
 
   @@unique([slug, runtimeId])
 }
@@ -210,7 +210,6 @@ model Tag {
   // DATA
   traits TagTraitsEnum[] @default([])
   data   Json            @default("{}")
-  Queue  Queue[]
 
   @@unique([slug, runtimeId])
   @@index([name], name: "nameIndexOnTag")
@@ -272,17 +271,22 @@ model Dependency {
   conditions    Condition[] @relation("Conditions")
   itinerary     Json        @default("{}")
 
+  // TRANSIENT
+  queue Queue[]
+
   // DATA
-  satisfied Boolean @default(false)
+  available Boolean @default(false) // all preconditions met
+  satisfied Boolean @default(false) // all conditions met
 
   @@unique([slug, runtimeId])
 }
 
 model Condition {
   // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  description String?
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
@@ -303,6 +307,9 @@ model Condition {
   // DATA
   assertion Json    @default("{}")
   met       Boolean @default(false)
+
+  @@index([conditionForId], name: "conditionForIndexOnCondition")
+  @@index([preconditionForId], name: "preconditionForIndexOnCondition")
 }
 
 model Strategy {
@@ -419,6 +426,11 @@ model Memory {
   @@index([tagId], name: "tagIdIndexOnMemory")
 }
 
+enum MemoryTypeEnum {
+  BOOLEAN
+  BAYESIAN
+}
+
 enum MemoryFlavorEnum {
   RELATIONAL // Memory strenght is a function of its relations. only on tags.
   INDIVIDUAL // default for units. 
@@ -430,11 +442,6 @@ enum MemoryStatusEnum {
   LEARNING // being actively learned 
   KNOWN // sufficiently learned
   GRADUATED // sufficiently learned and not Showing anymore
-}
-
-enum MemoryTypeEnum {
-  BOOLEAN
-  BAYESIAN
 }
 
 model Queue {
@@ -451,10 +458,10 @@ model Queue {
   runtimeId String  @unique
 
   // CORPUS
-  tactic   Tactic  @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId String
-  tag      Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId    String?
+  tactic       Tactic?     @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId     String?
+  dependency   Dependency? @relation(fields: [dependencyId], references: [id], onDelete: Cascade)
+  dependencyId String?
 
   // USERLAND
   strategy   Strategy? @relation(fields: [strategyId], references: [id], onDelete: Cascade)

@@ -1,0 +1,19 @@
+meta {
+  name: compute
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/conditions/compute
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "condition": {
+      "id": "9f32f768-cc5d-46e1-9617-b57c6047bd6a"
+    }
+  }
+}
