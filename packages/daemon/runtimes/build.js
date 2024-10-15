@@ -87,14 +87,21 @@ async function buildRuntime(Runtime) {
 async function build(Runtime) {
   let runtime = await buildRuntime(Runtime);
 
-  Runtime.modules.domain = await register(Runtime.modules.domain, runtime);
-  Runtime.modules.ontology = await register(Runtime.modules.ontology, runtime);
-  Runtime.modules.corpora = await register.many(Runtime.modules.corpora, runtime);
-  Runtime.modules.games = await register.many(Runtime.modules.games, runtime);
-  Runtime.modules.tactics = await register.many(Runtime.modules.tactics, runtime);
-  Runtime.modules.strategies = await register.many(Runtime.modules.strategies, runtime);
+  Runtime.modules = Object.fromEntries(
+    await Promise.all(
+      Object.entries({
+        domain: register(Runtime.modules.domain, runtime),
+        ontology: register(Runtime.modules.ontology, runtime),
+        corpora: register.many(Runtime.modules.corpora, runtime),
+        games: register.many(Runtime.modules.games, runtime),
+        tactics: register.many(Runtime.modules.tactics, runtime),
+        strategies: register.many(Runtime.modules.strategies, runtime),
+      }).map(async ([key, promise]) => [key, await promise]),
+    ),
+  );
 
   runtime = runtimeMiddleware({ ...runtime, ...Runtime.modules });
+
   runtime = (await Runtime.boot(runtime, { ...Runtime, manifest: runtime.manifest })) || runtime;
 
   runtime.domain = await boot(Runtime.modules.domain, runtime);

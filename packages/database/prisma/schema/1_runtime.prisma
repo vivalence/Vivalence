@@ -22,6 +22,8 @@ model Runtime {
   tactics Tactic[]
   units   Unit[]
   tags    Tag[]
+  dependencies Dependency[]
+  conditions   Condition[]
 
   // USERLAND
   strategies Strategy[]
@@ -30,7 +32,8 @@ model Runtime {
 
 
   // TRANSIENT
-  HEAD       HEAD[]
+  HEAD         HEAD[]
+  queue        Queue[]
 
   @@unique([slug])
 }
@@ -88,9 +91,11 @@ model Corpus {
 
   // CORPUS
   // optional, in case of ownership
-  tactics Tactic[]
-  units   Unit[]
-  tags    Tag[]
+  tactics        Tactic[]
+  units          Unit[]
+  tags           Tag[]
+  dependencies   Dependency[]
+  conditions     Condition[]
 
   @@unique([slug, runtimeId])
 }

@@ -12,7 +12,6 @@
   </div>
 
   {#each data.dependencies as dependency}
-    {console.log(dependency)}
     <div class="card bg-base-300 w-96 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">{dependency.name}</h2>

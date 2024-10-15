@@ -7,7 +7,6 @@ export default async function (body, ctx) {
   if (!dependency.slug) throw new Error("Dependency slug is required", dependency);
 
   const existingDependency = await read(dependency, ctx);
-  // console.log("existingDependency", existingDependency);
 
   if (existingDependency) {
     const data = await update({ new: dependency, old: existingDependency }, ctx);

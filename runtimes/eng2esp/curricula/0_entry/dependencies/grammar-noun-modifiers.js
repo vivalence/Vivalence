@@ -5,7 +5,7 @@ const nounmodifiers1 = {
   preconditions: [],
   conditions: [{ slug: "gender:*" }, { slug: "number:*" }, { slug: "definite:*" }].map((tag) => ({
     scope: { tag },
-    assertion: { jsonata: `$all($, $ != null and $ != "UNTOUCHED")` },
+    assertion: { jsonata: `$count($[$ = null or $ = "UNTOUCHED"]) = 0` },
   })),
   itinerary: {
     tactic: {

@@ -113,12 +113,16 @@ model Dependency {
   corpusId  String?
 
   // CORPUS
-  preconditions  Condition[] @relation("Preconditions", references: [id])
-  conditions     Condition[] @relation("Conditions", references: [id])
+  preconditions  Condition[] @relation("Preconditions")
+  conditions     Condition[] @relation("Conditions")
   itinerary      Json        @default("{}")
 
+  // TRANSIENT
+  queue      Queue[]
+
   // DATA
-  satisfied      Boolean       @default(false)
+  available      Boolean       @default(false) // all preconditions met
+  satisfied      Boolean       @default(false) // all conditions met
 
   @@unique([slug, runtimeId])
 }
@@ -149,6 +153,9 @@ model Condition {
   // DATA
   assertion Json     @default("{}")
   met       Boolean  @default(false)
+
+  @@index([conditionForId], name: "conditionForIndexOnCondition")
+  @@index([preconditionForId], name: "preconditionForIndexOnCondition")
 }
 
 

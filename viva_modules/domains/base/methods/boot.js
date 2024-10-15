@@ -13,9 +13,11 @@ import strategies from "./strategies/index.js";
 async function boot(runtime) {
   runtime.router.route("/dependencies/install", dependencies.install);
   runtime.router.route("/dependencies/remove", dependencies.remove);
+  runtime.router.route("/dependencies/compute", dependencies.compute);
 
   runtime.router.route("/conditions/install", conditions.install);
   runtime.router.route("/conditions/remove", conditions.remove);
+  runtime.router.route("/conditions/compute", conditions.compute);
 
   runtime.router.route("/games/fromSlug", games.fromSlug);
 

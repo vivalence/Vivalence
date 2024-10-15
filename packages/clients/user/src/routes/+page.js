@@ -2,32 +2,25 @@ import { handle } from "../hooks.client.js";
 // import dependencies from "$lib/dependencies.js";
 
 export const load = async (event) => {
-  const { data, locals } = await handle(event);
+  const { locals } = await handle(event);
 
-  const { data: dependencies, error } = await locals.supabase
+  const { data, error } = await locals.supabase
     .from("Dependency")
-    .select(`*, runtime:Runtime (id, slug)`);
+    .select(`id, runtime:Runtime (id, slug)`);
 
   if (error) console.error(error);
 
-  for (const dependency of dependencies) {
-    async function readCondition(type) {
-      const { data, error } = await ctx.runtime.locals.supabase
-        .from("Condition")
-        .select()
-        .eq(`runtimeId`, dependency.runtime.id)
-        .eq(`${type}ForId`, dependency.id);
-      if (error) throw error;
-      return data;
-    }
-    const [conditions, preconditions] = await Promise.all([
-      readCondition("condition"),
-      readCondition("precondition"),
-    ]);
-    dependency.conditions = conditions;
-    dependency.preconditions = preconditions;
+  let dependencies = [];
+  for (const { id, runtime } of data) {
+    // async function readCondition(type) {const { data, error } = await locals.supabase .from("Condition") .select() .eq(`runtimeId`, dependency.runtime.id) .eq(`${type}ForId`, dependency.id); if (error) throw error; return data;} const [conditions, preconditions] = await Promise.all([readCondition("condition"), readCondition("precondition"),]); dependency.conditions = conditions; dependency.preconditions = preconditions;
+    const { data: dependency, error } = await event.locals.call(
+      `/r/${runtime.slug}/dependencies/compute`,
+      { dependency: { id } },
+    );
+    if (error) console.error(error);
+    dependencies.push(dependency);
   }
-  console.log(dependencies);
 
+  console.log(dependencies);
   return { ...data, locals, dependencies };
 };

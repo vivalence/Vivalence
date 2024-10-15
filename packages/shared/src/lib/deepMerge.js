@@ -10,7 +10,7 @@ export default function deepMerge(...objects) {
         const oVal = obj[key];
 
         if (Array.isArray(oVal)) {
-          prev[key] = Array.isArray(pVal) ? [...pVal, ...oVal] : oVal;
+          prev[key] = Array.isArray(pVal) ? Array.from(new Set([...pVal, ...oVal])) : oVal;
         } else if (isObject(oVal)) {
           prev[key] = isObject(pVal) ? deepMerge(pVal, oVal) : oVal;
           // } else if (oVal === undefined || oVal === null) {prev[key] = pVal;
