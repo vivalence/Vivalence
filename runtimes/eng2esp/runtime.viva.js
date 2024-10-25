@@ -1,29 +1,26 @@
-import { deepMerge } from "@vivalence/shared";
-import curricula from "./curricula/index.js";
-
-const modules = deepMerge(
-  {
-    domain: await import("@vivalence/domains/base/domain.viva.js"),
-    ontology: await import(
-      "@vivalence/ontologies/langugage-universal-dependencies/ontology.viva.js"
-    ),
-
-    corpora: [await import("@vivalence/corpora/eng-to-esp/corpus.viva.js")],
-    games: [
-      await import("@vivalence/games/prose/prose.viva.js"),
-      await import("@vivalence/games/translations/translations.viva.js"),
-      await import("@vivalence/games/flashcards/flashcards.viva.js"),
-    ],
-    tactics: [await import("@vivalence/tactics/applying-verb-conjugations/tactic.viva.js")],
-    strategies: [],
-  },
-  ...curricula,
-);
-
 const manifest = {
-  type: "Runtime",
+  type: "runtime",
   slug: "eng2esp",
   name: "English to Spanish using Universal Dependencies",
 };
 
-export { manifest, modules };
+const modules = {
+  domain: "@vivalence/domain/base",
+  ontology: "@vivalence/ontology/language",
+  corpora: ["@vivalence/corpus/eng-to-esp"],
+  strategies: [],
+};
+
+const services = {
+  llm: "@vivalence/service/litellm",
+  nlp: "@vivalence/service/stanza-nlp",
+};
+
+const statics = { language: { known: "english", learning: "spanish" } };
+
+export { manifest, modules, services, statics };
+
+// await import("./curricula/0/corpus.viva.js"),
+// // database: { slug: "postgres" },
+// database: { slug: "supabase" },
+// identity: { slug: "supabase" },

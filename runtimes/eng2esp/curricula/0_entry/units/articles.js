@@ -3,11 +3,11 @@ export default [
     data: {
       index: 1,
       known: "the",
+      learning: "la",
       example: {
         known: "The moon shines in the night.",
         learning: "La luna brilla en la noche.",
       },
-      learning: "la",
     },
     annotation: {
       pos: "det",
@@ -140,11 +140,11 @@ export default [
     data: {
       index: 8,
       known: "some",
+      learning: "unas",
       example: {
         known: "Some beautiful flowers.",
         learning: "Unas flores bonitas. ",
       },
-      learning: "unas",
     },
     annotation: {
       pos: "det",

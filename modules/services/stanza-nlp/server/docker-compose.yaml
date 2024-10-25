@@ -1,0 +1,14 @@
+version: '3'
+services:
+  stanza-nlp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stanza-nlp-1
+    container_name: stanza-nlp
+#    command: "pip install aiohttp; /usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 -k sync script:app"
+    command: "/usr/local/bin/gunicorn -w 4 -b 0.0.0.0:5000 --timeout 0 -k sync script:app"
+    volumes:
+      - ./script.py:/app/stanza/script.py 
+    ports:
+      - 5000:5000

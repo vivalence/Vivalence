@@ -1,3 +1,54 @@
+The planetscale education system.
+
+infinitely personalized, hackable, cybernetically enhanced, wikipedia style, federated, emacs inspired, procedurally generated, fair use, functional deno.ts. touring complete. cracked. interstellar. 
+
+
+When the Foundation was founded, Harry Seldon sold it to the emperor as a colony to backup humanities skills and knowledge. That colony must have used a software system to encode all those skills in transit.
+This is that system.
+
+what does in transit mean?
+it means the space between our brains. the resting place where information resides before someone picks it up to learn it. and after it was encoded by those who already mastered it.
+vivalence is a system to encode and practice skills.
+
+whats a skill?
+
+how does it work? hierarchy of knowledge, measurability, critical path, games.
+whats a users primary focus? dependencies and games. you play games untill a dependency is met. then you play more difficult games.
+
+
+vivalence is an adjective. „with vivalence“.
+
+learn to play interstellar on an epiano in 10 weeks. 
+make the documentation for your software project interactive in 10 days. 
+
+business pricing 
+self hosted - 30cent per user per day, 3€ per month. 30€ per year. metered LLM. 
+hosted 25€ - per user per month / 250 € per year. 1MT/1BT included. 
+
+
+run your own curriculum while you learn. 
+
+wallace and grommet train tracks. 
+you learning things (train) - vivalence (track)
+
+create a shared brainspace. 
+
+classified, procedurally generated. measured. 
+
+chart the graph of your learning trajectory for the next schmuk.
+
+
+
+* comparisons
+how does it compare to Anki?
+how does it compare to LLMs?
+
+* inspirations
+emacs for hackability and longevity
+spacex for scale and ambition
+public education for the motivation
+
+
 * identity
 ** why
 make learning anything as easy as trinity learning to fly a b-21 helicopter.
@@ -32,3 +83,10 @@ you dont know shit.
 ** service
 *** provide value 
 *** solve the problem
+
+
+
+
+enough yapping.
+kill $(ps -eo pid,pgid | jq -sr '.[] | select(.group == "yapper") | .pid' <(awk '{print "{\"pid\": "$1", \"group\": "$2"}"}'))
+

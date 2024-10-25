@@ -1,6 +1,6 @@
 import provision from "./provision.js";
 
-const tactic = {
+const data = {
   relations: {
     tags: {
       aspects: [],
@@ -21,7 +21,6 @@ Assume the reader is an absolute beginner encountering this grammatical aspect f
 Include examples to reinforce understanding.`,
       },
     },
-
     translations: {
       prompt: {
         goal: `
@@ -40,11 +39,11 @@ The goal is for the user to translate that sentence for practice.
 };
 
 const manifest = {
-  type: "Tactic",
+  type: "tactic",
   name: "Grammar Branch Introduction",
   slug: "ontological-branch-introduction",
   version: "0.0.7",
   description: "",
 };
 
-export { manifest, tactic, provision };
+export { manifest, data, provision };

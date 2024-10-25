@@ -1,0 +1,11 @@
+{
+  "name": "@vivalence/runner/cli",
+  "version": "0.0.1",
+  "exports": "./unknown.js",
+  "tasks": {
+    "permit": "DENO_ROLE=client deno run -A",
+    "run:dev": "deno task permit ",
+    "build": "deno run -A --node-modules-dir npm:vite build",
+    "test": "",
+  },
+}

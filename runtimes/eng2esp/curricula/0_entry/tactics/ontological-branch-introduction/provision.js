@@ -284,8 +284,8 @@ export default async function provision(inputs, ctx) {
   let blacklist = inputs.blacklist;
   const language = ctx.runtime.statics.language;
 
-  const [aspect] = await ctx.runtime.call("/memory/filter/tags", {
-    accept: tactic.masks.aspect.memory.accept,
+  const [aspect] = await ctx.runtime.call("/memory/filter/tags/byStatus", {
+    status: tactic.masks.aspect.memory.accept,
     tags: tags.aspects,
     take: 1,
     blacklist,

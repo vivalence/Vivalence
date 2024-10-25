@@ -1,0 +1,29 @@
+model User {
+  // ABOUT
+  id        String          @id @unique // same as auth."users".id
+  roles     UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+  config    Json  @default("{}")
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+
+  // RUNTIME
+  runtimes   Runtime[]   
+  strategies Strategy[] 
+
+  // USERLAND
+  plays       Play[]           
+  memories    Memory[]          
+
+  // TRANSIENT
+  queue       Queue[]
+  HEAD        HEAD[]
+}
+
+enum UserRolesEnum {
+  ADMIN
+  USER
+  GUEST
+}
+
+

@@ -25,7 +25,7 @@ const nounmodifiers1 = {
 
 const nounmodifiers2 = {
   name: "Practice: Noun Modifiers",
-  slug: "dependency:noun-modifiers:2",
+  slug: "noun-modifiers:2",
   description: "20 Nouns and 5 of each Noun Modifier are known",
   preconditions: [{ scope: { dependency: { slug: "noun-modifiers:1" } } }],
   conditions: [
@@ -46,20 +46,20 @@ const nounmodifiers2 = {
     })),
   ],
   itinerary: {
-    tactic: {
-      // slug: "ontological-branch-introduction",
-      // relations: {
-      //   units: {},
-      //   tags: {
-      //     root: { slug: "pos:noun" },
-      //     aspects: [{ slug: "gender:*" }, { slug: "number:*" }, { slug: "definite:*" }],
-      //   },
-      //   games: {},
-      // },
-      // masks: {
-      //   aspect: { memory: { accept: [null] } },
-      // },
-    },
+    // tactic: {
+    // slug: "ontological-branch-introduction",
+    // relations: {
+    //   units: {},
+    //   tags: {
+    //     root: { slug: "pos:noun" },
+    //     aspects: [{ slug: "gender:*" }, { slug: "number:*" }, { slug: "definite:*" }],
+    //   },
+    //   games: {},
+    // },
+    // masks: {
+    //   aspect: { memory: { accept: [null] } },
+    // },
+    // },
   },
 };
 
