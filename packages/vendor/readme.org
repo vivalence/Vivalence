@@ -1,5 +1,5 @@
 #+TITLE: Vendor Directory: Managing Submodules
-#+AUTHOR: Your Name
+#+AUTHOR: Claude
 #+DATE: [2024-10-01 Tue]
 
 * Introduction

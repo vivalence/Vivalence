@@ -1,0 +1,60 @@
+* Stanza NLP Service
+** Features
+   - On-Demand Model Downloads: Automatically downloads necessary Stanza models for different languages as required.
+   - Pipeline Caching: Quick second-response times by caching pipelines.
+
+https://universaldependencies.org/u/upos/index.html
+https://universaldependencies.org/u/feat/index.html
+** Usage
+
+*** Run the Docker Container
+    #+begin_src bash
+    docker run -p 5000:5000 -v stanza_resources:/root/stanza_resources vivalence/dockerized-stanza-nlp
+    #+end_src
+
+*** Run Docker Compose 
+    #+begin_src yaml
+      version: '3'
+      services:
+        stanza-nlp:
+          image: vivalence/dockerized-stanza-nlp
+          ports:
+            - "5000:5000"
+          volumes:
+            - stanza_resources:/root/stanza_resources
+      volumes:
+        stanza_resources: # model cache dir
+    #+end_src
+
+** Data Structure / API Interface
+   - POST request to /nlp endpoint with the following JSON structure:
+     #+begin_src json
+     {
+       "language": "en",
+       "text": "Hello World",
+       "processors": "tokenize,mwt,pos,lemma,depparse"
+     }
+     #+end_src
+
+** Response
+   - The service returns a JSON response containing processed NLP data:
+     #+begin_src json
+     {
+       "sentences": [
+         {
+           "text": "Hello World",
+           "tokens": [
+             {"text": "Hello", "lemma": "hello", "pos": "INTJ"},
+             {"text": "World", "lemma": "world", "pos": "NOUN"}
+           ],
+           "dependencies": [
+             {"dep": "root", "governor": 0, "dependent": 2},
+             {"dep": "discourse", "governor": 2, "dependent": 1}
+           ]
+         }
+       ],
+       "entities": []
+     }
+     #+end_src
+     - Includes tokenized sentences, POS tags, lemmas, and dependency parse information.
+

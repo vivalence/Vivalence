@@ -1,37 +1,47 @@
 console.log("Daemon starting...");
 const start = performance.now();
 
-import { cleanupPorts, launch, daemonize, tick } from "./kernel/index.js";
-import dev from "./kernel/dev.js";
-import userland from "./kernel/userland.js";
-import modules from "./modules/index.js";
-import supabase from "./lib/supabase/index.js";
+import cleanup from "./lib/cleanup-ports.js";
+import daemonize from "./lib/daemonize.js";
 
-import build from "./runtimes/build.js";
-import routes from "./runtimes/routes.js";
-import install from "./runtimes/install.js";
+import registry from "./modules/registry/index.js";
+import server from "./modules/server/index.js";
+import supabase from "./modules/supabase/index.js";
 
-import server from "./server/server.js";
-import serve from "./server/serve.js";
+import runtimes from "./runtimes/index.js";
 
-const ticker = tick(start);
+const ticker = (name) => (daemon) => {
+  console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
+  return daemon;
+};
 
-await [
-  ticker("start"),
-  cleanupPorts,
-  supabase,
-  server,
-  build,
-  ticker("built"),
-  routes,
-  serve,
-  install,
-  dev,
-  userland,
-  modules,
-  launch,
-  ticker("up"),
-  daemonize,
-].reduce((acc, fn) => acc.then(fn), Promise.resolve());
+(async (daemon) =>
+  await [
+    ticker("init"),
+    cleanup,
+    registry.init,
+    server.create,
 
-console.log("Daemon has shut down");
+    supabase,
+    // database.init,
+    // identity.init,
+    // management.init,
+
+    runtimes.discover,
+    runtimes.runtime,
+    runtimes.register,
+    runtimes.modules,
+    runtimes.boot,
+    runtimes.serve,
+    // database.serve,
+    // identity.serve,
+    // management.serve,
+    server.serve,
+    ticker("up"),
+    runtimes.install,
+
+    // runtimes.garbage,
+    // runtimes.userland,
+    // ticker("up"),
+    daemonize,
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))({ runtimes: new Map() });

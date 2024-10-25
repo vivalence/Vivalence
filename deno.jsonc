@@ -1,43 +1,17 @@
 {
+  "importMap": "./import_map.json",
   "workspace": [
     "./config",
-    "./packages/clients/user",
-    "./packages/ui",
     "./packages/shared",
-    "./packages/services",
+    "./packages/schema",
+    "./packages/registry",
+    "./packages/interfaces/display",
   ],
-  "importMap": "./import_map.json",
   "tasks": {
     "daemon:dev": "DENO_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
-    "clients:user:dev": "DENO_ROLE=client deno run -A packages/clients/user/mod.js --dev",
-    "prisma:schema": "DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/schema.js",
-    "prisma:migrate": "deno task prisma:schema && DENO_ROLE=sudo deno run -A packages/database/prisma/scripts/migrate.js",
-    "db": "DENO_ROLE=sudo deno run --watch -A packages/database/src/index.js",
-  },
+    "clients:web:dev": "DENO_ROLE=client deno run -A packages/clients/web/mod.js --dev",
 
-  "compilerOptions": {
-    "allowJs": true,
-    "lib": ["deno.window", "dom"],
-    "strict": true,
-  },
-  "lint": {
-    "files": {
-      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx"],
-    },
-    "rules": {
-      "tags": ["recommended"],
-    },
-  },
-  "fmt": {
-    "files": {
-      "include": ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.md"],
-      "exclude": ["**/*.svelte", "**/*.viva"],
-    },
-    "options": {
-      "useTabs": false,
-      "singleQuote": false,
-      "lineWidth": 100,
-      "indentWidth": 2,
-    },
+    "schema:compile": "DENO_ROLE=sudo deno run -A packages/schema/compile.js",
+    "schema:deploy": "deno task schema:compile && DENO_ROLE=sudo deno run -A packages/schema/deploy.js",
   },
 }

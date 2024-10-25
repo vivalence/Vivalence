@@ -1,8 +1,0 @@
-{
-  "name": "@vivalence/services",
-  "version": "0.0.1",
-  "exports": {
-    "./server.js": "./mod.js"
-    ".": "./mod.js"
-  }
-}

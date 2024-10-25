@@ -25,9 +25,11 @@ if (!initialized) {
       ...config.env,
       PROVISION_THRESHOLD: 2,
       DAEMON_PORT: env.DAEMON_PORT,
-      VIVA_MODULES_DIR: `${ROOT_DIR}/viva_modules`,
+
+      VIVA_MODULES_DIR: `${ROOT_DIR}/modules`,
       VIVA_PACKAGES_DIR: `${ROOT_DIR}/packages`,
       VIVA_RUNTIMES_DIR: `${ROOT_DIR}/runtimes`,
+
       PRIVATE_SUPABASE_ADMIN_KEY: env.PRIVATE_SUPABASE_ADMIN_KEY,
       PRIVATE_DATABASE_URL: env.PRIVATE_DATABASE_URL,
       PRIVATE_SERVICE_NLP_URL: env.PRIVATE_SERVICE_NLP_URL,
@@ -52,7 +54,7 @@ if (!initialized) {
       ...env,
       ...config.env,
       DATABASE_URL: env.PRIVATE_DATABASE_URL,
-      PRISMA_DIR: `${ROOT_DIR}/packages/database/prisma`,
+      SCHEMA_ROOT_DIR: `${ROOT_DIR}/packages/schema`,
     };
   }
 

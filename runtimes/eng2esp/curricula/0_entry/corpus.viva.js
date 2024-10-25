@@ -1,12 +1,7 @@
 import dependencies from "./dependencies/index.js";
-// import units from "./units/index.js";
-
-const units = [];
-// const dependencies = [];
+import units from "./units/index.js";
 
 async function install(runtime, Corpus) {
-  return true;
-
   for (const unit of units) {
     unit.corpusId = Corpus.manifest.id;
     const installed = await runtime.call("/install/unit", { unit });
@@ -17,14 +12,26 @@ async function install(runtime, Corpus) {
     const installed = await runtime.call("/dependencies/install", { dependency });
     console.log("corpus dependency installed:", installed);
   }
-  return false;
+  return true;
 }
 
 const manifest = {
-  type: "Corpus",
+  type: "corpus",
   slug: "eng2esp.entry",
   name: "English to Spanish - Entry",
-  version: "0.0.1",
+  version: "0.0.2",
 };
 
-export { manifest, install };
+const curriculum = {
+  units: [],
+  tags: [],
+  dependencies: [],
+};
+
+const modules = {
+  games: [],
+  tactics: [await import("./tactics/ontological-branch-introduction/tactic.viva.js")],
+  strategies: [],
+};
+
+export { manifest, modules, curriculum, install };
