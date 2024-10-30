@@ -3,7 +3,10 @@ import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 
 export default async function (config) {
   const ENV_ROOT = dirname(fromFileUrl(import.meta.url));
-  const env = await load({ envPath: join(ENV_ROOT, "..", ".env") });
+  const env = await load({
+    allowEmptyValues: true,
+    envPath: join(ENV_ROOT, "..", ".env"),
+  });
 
   const ROOT_DIR = Deno.cwd();
 
