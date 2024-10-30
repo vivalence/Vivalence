@@ -1,10 +1,10 @@
 {
-  "name": "@vivalence/clients/user",
+  "name": "@vivalence/clients/web",
   "version": "0.0.1",
   "exports": "./unknown.js",
   "tasks": {
     "permit": "DENO_ROLE=client deno run -A --node-modules-dir",
-    "user:dev": "deno task permit npm:vite",
+    "web:dev": "deno task permit npm:vite",
     "build": "deno run -A --node-modules-dir npm:vite build",
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "serve": "deno run --allow-net --allow-read https://deno.land/std@0.157.0/http/file_server.ts dist/",

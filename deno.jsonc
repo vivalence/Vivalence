@@ -2,16 +2,22 @@
   "importMap": "./import_map.json",
   "workspace": [
     "./config",
+    "./packages/viva",
     "./packages/shared",
     "./packages/schema",
     "./packages/registry",
-    "./packages/interfaces/display",
+    "./packages/interfaces",
+    "./packages/clients/web",
   ],
   "tasks": {
-    "daemon:dev": "DENO_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
-    "clients:web:dev": "DENO_ROLE=client deno run -A packages/clients/web/mod.js --dev",
+    "viva:dev": "VIVA_ROLE=sudo deno run --watch -A ./packages/viva/viva.js",
+    "viva:install": "deno install --global -f -A -n viva ./packages/viva/cli.js",
+    "viva": "VIVA_ROLE=sudo deno run -A ./packages/viva/viva.js",
 
-    "schema:compile": "DENO_ROLE=sudo deno run -A packages/schema/compile.js",
-    "schema:deploy": "deno task schema:compile && DENO_ROLE=sudo deno run -A packages/schema/deploy.js",
+    "daemon:dev": "VIVA_ROLE=daemon deno run -A --watch packages/daemon/mod.js",
+    "clients:web:dev": "VIVA_ROLE=client deno run -A packages/clients/web/mod.js",
+
+    "schema:compile": "VIVA_ROLE=sudo deno run -A packages/schema/compile.js",
+    "schema:deploy": "deno task schema:compile && VIVA_ROLE=sudo deno run -A packages/schema/deploy.js",
   },
 }

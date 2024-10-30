@@ -2,7 +2,7 @@ import config from "@vivalence/config";
 import { OpenAI } from "openai";
 
 export default () => {
-  const KEY = config.env.get("PRIVATE_GROQ_API_KEY");
+  const KEY = config.env.get("GROQ_API_KEY");
   if (!KEY) throw new Error("GROQ API key is required");
 
   const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.groq.com/openai/v1" });

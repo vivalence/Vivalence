@@ -36,6 +36,11 @@ Your rights under this License will terminate automatically if you fail to compl
 ## Limitations
 You must not move, change, disable, or circumvent the license key functionality in the Software; or modify any portion of the Software protected by the license key to enable access to the protected functionality without a valid license key or remove the protected functionality.
 
+<!-- i need to add to the licence that you cant build a sync service, or a store, or a payment system, for vivalence. -->
+### Limitations on Commercial Use
+You must not use the Software for any Commercial Use without a separate license agreement. You must not use the Software to create a competing product or service, including but not limited to a syncronization service, a store, or a payment system, for Vivalence.
+
+
 ## Redistribution
 The Terms and Conditions apply to all copies, modifications and derivatives of the Software.
 If you redistribute any copies, modifications or derivatives of the Software, you must include a copy of or a link to these Terms and Conditions and not remove any copyright or other proprietary notices provided in or with the Software.

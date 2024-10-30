@@ -8,7 +8,7 @@ const args = Deno.args;
 let process;
 async function startProcess() {
   process = Deno.run({
-    cmd: ["deno", "task", `-c`, `${dir}/deno.jsonc`, `user:dev`],
+    cmd: ["deno", "task", `-c`, `${dir}/deno.jsonc`, `web:dev`],
   });
   return await process.status();
 }

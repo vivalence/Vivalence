@@ -1,16 +1,27 @@
+import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
+
 import register from "./lib.js";
 
-async function init({ root }) {
-  const registry = await register.init({ root });
+let initialized = false;
+
+async function init(registryConfig = {}) {
+  if (!initialized) {
+    if (!registryConfig.modulesRootDir)
+      registryConfig.modulesRootDir = config.env.get("VIVA_MODULES_DIR");
+    await register.init(registryConfig);
+  }
+  initialized = true;
 }
 
 async function load(query) {
+  if (!initialized) await init();
   if (typeof query !== "string" && query.manifest) return query;
   return deepClone(await register.lookup(query));
 }
 
 async function loadMany(many) {
+  if (!initialized) await init();
   return await Promise.all(many.map((query) => load(query)));
 }
 

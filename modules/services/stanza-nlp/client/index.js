@@ -1,9 +1,9 @@
 import config from "@vivalence/config";
 
 export default () => {
-  const { PRIVATE_SERVICE_NLP_URL: URL, PRIVATE_SERVICE_NLP_KEY: KEY } = config.env;
+  const { SERVICE_NLP_URL: URL, SERVICE_NLP_KEY: KEY } = config.env;
 
-  if (!URL || KEY) throw new Error("SERVICES NLP URL not found in environment");
+  if (!URL || !KEY) throw new Error("SERVICE NLP URL not found in environment");
 
   const headers = {
     "Content-Type": "application/json",

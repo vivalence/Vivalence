@@ -1,0 +1,14 @@
+import env from "./env.js";
+
+let config = {};
+
+let initialized = false;
+
+if (!initialized) {
+  config = await [
+    //
+    env,
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(config));
+}
+
+export default config;

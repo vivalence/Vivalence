@@ -1,2 +1,0 @@
--- AlterEnum
-ALTER TYPE "TagTypeEnum" ADD VALUE 'COMPLETEABLE';

@@ -1,11 +1,18 @@
 import createMemoryProfiler from "./memory-profiler.js";
 
-export default async function dev(params) {
-  const profiler = createMemoryProfiler(1000);
-  profiler.start();
+export default async function dev(daemon) {
+  const runtime = daemon.runtimes.values().next().value;
 
+  let query = runtime.locals.supabase
+    .from("Runtime")
+    //
+    .select("*");
+
+  console.log(await query.maybeSingle());
+
+  // const profiler = createMemoryProfiler(1000);
+  // profiler.start();
   // console.log(Deno.memoryUsage());
-  // const runtime = params.runtimes.values().next().value;
 
   // // console.log(runtime.schema);
   // const { data, error } = await runtime.locals.supabase.from("Memory").update({ type: "BAYESIAN" });
@@ -56,5 +63,5 @@ export default async function dev(params) {
   // console.log("call(body).response", await call("/instructions/provision", body));
   // console.log("call(body).response", await call("/units/pending", body));
 
-  return params;
+  return daemon;
 }

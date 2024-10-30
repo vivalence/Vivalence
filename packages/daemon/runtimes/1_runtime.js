@@ -15,8 +15,8 @@ export default async function (daemon) {
 
       runtime.locals = {
         validate: validator.schema(),
-        // To Be Depracated; in favor of runtime.database and runtime.identity.
-        supabase: daemon.supabase.createAdminClient(),
+        // To Be superseeded; in favor of service.database and service.identity.
+        supabase: daemon.services.supabase.createAdminClient(),
       };
 
       runtime.schema = [modules.Ontology, ...modules.Corpora] //
