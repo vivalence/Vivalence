@@ -18,7 +18,7 @@ export default function execution(runtime, daemon) {
     ctx.runtime = middleware(ctx);
 
     if (!ctx.runtime.locals.supabase) {
-      ctx.runtime.locals.supabase = supabase.createAdminClient();
+      ctx.runtime.locals.supabase = daemon.services.supabase.createAdminClient();
       delete ctx.runtime.locals.getUser;
     }
 
@@ -28,7 +28,7 @@ export default function execution(runtime, daemon) {
     ctx.runtime = middleware(ctx);
 
     if (!ctx.runtime.locals.supabase) {
-      ctx.runtime.locals.supabase = supabase.createUserClient(ctx);
+      ctx.runtime.locals.supabase = daemon.services.supabase.createUserClient(ctx);
     }
 
     await next();

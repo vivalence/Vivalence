@@ -28,10 +28,13 @@ export default defineConfig({
     alias: {
       $lib: join(root, "./src/lib"),
       $components: join(root, "./src/components"),
-      "$trajectory/": join(root, "./src/trajectory/"),
-      $trajectory: join(root, "./src/trajectory/index.js"),
-      $instructions: join(root, "./src/instructions/Instructions.svelte"),
-      "@vivalence/ui": join(root, "../../ui/mod.js"),
+
+      "$trajectory/": join(root, "./src/components/trajectory/"),
+      $trajectory: join(root, "./src/components/trajectory/index.js"),
+
+      $instructions: join(root, "./src/components/instructions/Instructions.svelte"),
+
+      "@vivalence/ui": join(root, "../../interfaces/display/mod.js"),
       "@vivalence/shared": join(root, "../../shared/client.js"),
       "@threlte/core": join(root, "../../vendor/threlte/packages/core/src/lib/index.ts"),
       "@threlte/extras": join(root, "../../vendor/threlte/packages/extras/src/lib/index.ts"),

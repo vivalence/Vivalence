@@ -1,4 +1,4 @@
-import { Application, Router } from "https://deno.land/x/oak/mod.ts";
+import { Application, Router } from "oak";
 import cors from "./middlewares/cors.js";
 import auth from "./middlewares/auth.js";
 

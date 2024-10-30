@@ -22,18 +22,23 @@ export default async function install(daemon) {
         const promises = [];
         for (const [key, resources] of Object.entries(curriculum)) {
           resources
-            .map((resource) => ({ corpusId: module.manifest.id, ...resource }))
-            .map((resource) => ({ [curriculumTypeMap[type]]: resource }))
+            .map((resource) =>
+              module.manifest.type === "corpus"
+                ? { corpusId: module.manifest.id, ...resource }
+                : resource,
+            )
+            .map((resource) => ({ [curriculumTypeMap[key]]: resource }))
             .map((resource) => runtime.call(`/${key}/install`, resource))
             .forEach((promise) => promises.push(promise));
         }
         const installations = await Promise.all(promises);
-        console.log("installations", installations);
-        // module.manifest.installed = installations.every(({ status }) => status === "success");
+        module.manifest.installed = installations.every(({ status }) => status === "success");
+        console.log("installations", installations.length);
       } else if (module.manifest.id) {
         module.manifest.installed = true;
       }
 
+      console.log("install done @", module.manifest);
       if (module.manifest.installed) success(module.manifest, runtime);
       else console.warn("NO Install happened on:", module.manifest);
     }

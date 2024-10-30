@@ -2,7 +2,7 @@ import config from "@vivalence/config";
 import { Anthropic } from "@anthropic-ai/sdk";
 
 export default () => {
-  const KEY = config.env.get("PRIVATE_ANTHROPIC_API_KEY");
+  const KEY = config.env.get("ANTHROPIC_API_KEY");
   if (!KEY) throw new Error("Anthropic API key is required");
 
   const client = new Anthropic({ apiKey: KEY });

@@ -16,20 +16,7 @@ export default function route(router) {
     }
 
     router.all(path, ...middleware, async (ctx) => {
-      let body = {};
-      try {
-        if (ctx.request.body) {
-          if (typeof ctx.request.body.json === "function") {
-            body = await ctx.request.body.json();
-          } else if (typeof ctx.request.body === "object") {
-            body = ctx.request.body;
-          }
-        }
-      } catch (e) {
-        console.error("[ERROR] @daemon/server/router/route.js - body parsing");
-
-        console.error(e);
-      }
+      const body = await parseBody(ctx);
       try {
         const data = await handler(body, ctx);
         if (data && data.error) throw data.error;
@@ -44,3 +31,57 @@ export default function route(router) {
     });
   };
 }
+
+async function parseBody(ctx) {
+  // CLAUDE CODE - beware
+  const { method, body, headers = {} } = ctx.request;
+
+  // GET requests - return query params
+  if (method === "GET") {
+    return ctx.request.query || {};
+  }
+
+  // No body present
+  if (!body) {
+    return {};
+  }
+
+  try {
+    // Handle different body types
+    switch (true) {
+      case typeof body.json === "function":
+        return await body.json();
+
+      case typeof body === "object":
+        return body;
+
+      case typeof body === "string":
+        return safeParseJson(body);
+
+      default:
+        return {};
+    }
+  } catch (error) {
+    logError(error, ctx);
+    return {};
+  }
+}
+
+// Helper functions
+const safeParseJson = (str) => {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return { rawBody: str };
+  }
+};
+
+const logError = (error, ctx) => {
+  const { method, path } = ctx.request;
+  console.error("Body Parse Error:", {
+    error,
+    method,
+    path,
+    contentType: ctx.request.headers["content-type"],
+  });
+};

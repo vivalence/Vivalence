@@ -36,22 +36,32 @@ async function buildSchema(dirPath) {
 }
 
 async function compile() {
-  console.log("Compiling schema...");
   try {
+    console.log("Compiling schema...");
     const root = config.env.get("SCHEMA_ROOT_DIR");
     const schemasDirectory = join(root, "./schema");
+
     const schema = await buildSchema(schemasDirectory);
     console.log("Schema built.");
 
-    const schemaPath = join(root, "./schema.prisma");
+    const schemaPath = join(root, "./dist/schema.prisma");
+
     await Deno.writeTextFile(schemaPath, schema);
     console.log("Schema file written to disk.");
 
     const process = await Deno.run({
       cmd: ["deno", "run", "-A", "npm:prisma", "format", `--schema=${schemaPath}`],
     }).status();
-
     console.log("Schema compiled successfully.");
+
+    console.log("Compiling sql...");
+    await Deno.run({
+      cwd: join(root, "sql"),
+      cmd: ["bash", "compile_sql.sh"],
+    }).status();
+
+    console.log("sql compiled successfully to: ");
+    console.log(join(root, "./dist/compiled.sql"));
 
     console.log("Exiting...");
     Deno.exit(0);
