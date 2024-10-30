@@ -24,7 +24,7 @@ export default async function loadServices() {
   for (const [serviceKey, service] of Object.entries(config.services)) {
     const Service = new Command();
 
-    for (const command of Object.values(await service.server())) {
+    for (const command of Object.values(await service.service())) {
       Service.command(command.name).action(command.action).description(command.description);
     }
 
