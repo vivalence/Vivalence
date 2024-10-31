@@ -39,8 +39,9 @@ async function compile() {
   try {
     console.log("Compiling schema...");
     const root = config.env.get("SCHEMA_ROOT_DIR");
-    const schemasDirectory = join(root, "./schema");
+    await Deno.mkdir(join(root, "./dist"), { recursive: true });
 
+    const schemasDirectory = join(root, "./schema");
     const schema = await buildSchema(schemasDirectory);
     console.log("Schema built.");
 

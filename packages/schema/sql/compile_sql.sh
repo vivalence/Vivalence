@@ -10,7 +10,7 @@ echo '-- PERMISSIONS' >> $out
 cat permissions/*.sql >> $out
 
 echo '-- RLS' >> $out
-cat rls/**/*.sql >> $out
+# cat rls/**/*.sql >> $out
 cat rls/*.sql >> $out
 
 echo '-- Hooks' >> $out
