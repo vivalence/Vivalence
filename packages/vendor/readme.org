@@ -44,7 +44,6 @@ The script for fetching submodule content is also commented out:
 cd $SUBMODULE_PATH
 # Fetch the content
 git fetch --depth 1 origin main
-# Checkout the main branch
 git checkout main
 # Go back to the root directory
 cd ../../..

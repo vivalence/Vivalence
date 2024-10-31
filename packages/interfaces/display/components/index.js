@@ -1,4 +1,4 @@
-import Card from "./Card/Card.svelte";
+import Card from "./card/Card.svelte";
 import Widget from "./widget/Widget.svelte";
 import Button from "./button/Button.svelte";
 import Loader from "./loader/Loader.svelte";
