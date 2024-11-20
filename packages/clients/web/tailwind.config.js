@@ -4,18 +4,7 @@ import theme from "./themes/tailwind.map.js";
 
 const config = {
   purge: false,
-  theme: {
-    colors: theme.colors,
-    fontSize: theme.font.size,
-    fontFamily: theme.font.family,
-    boxShadow: theme.boxShadow,
-    dropShadow: theme.dropShadow,
-    container: theme.container,
-    borderRadius: theme.borderRadius,
-    extend: {
-      animation: theme.animation,
-    },
-  },
+  theme: theme,
   plugins: [typography],
   content: [
     "./src/**/*.{html,svelte,css}",
