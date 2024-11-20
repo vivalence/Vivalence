@@ -1,0 +1,2156 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 40
+// Generated: 2024-11-17T15:07:48.729Z
+// Source directory: .
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+./
+├── conjugations/
+├── ├── game/
+├── ├── ├── components/
+├── ├── ├── ├── Footer.svelte
+├── ├── ├── ├── intToRoman.js
+├── ├── ├── ├── Label.svelte
+├── ├── ├── ├── Prompt.svelte
+├── ├── ├── ├── Table.svelte
+├── ├── ├── └── TableRow.svelte
+├── ├── ├── Conjugations.svelte
+├── ├── └── store.js
+├── ├── methods/
+├── ├── ├── lib/
+├── ├── ├── ├── index.js
+├── ├── ├── └── prompts.js
+├── ├── ├── evaluate.js
+├── ├── └── provision.js
+├── └── conjugations.viva.js
+├── flashcards/
+├── ├── game/
+├── ├── ├── components/
+├── ├── ├── ├── Card.stories.svelte~
+├── ├── ├── ├── Card.svelte~
+├── ├── ├── ├── Controls.svelte~
+├── ├── ├── └── Panable.svelte
+├── ├── ├── bak.store.js
+├── ├── ├── bak.svelte
+├── ├── ├── Flashcards.svelte
+├── ├── ├── game.svelte.js
+├── ├── └── state.svelte.js
+├── ├── methods/
+├── ├── ├── provision/
+├── ├── ├── ├── lib/
+├── ├── ├── ├── ├── from.js
+├── ├── ├── ├── └── make.js
+├── ├── ├── ├── fromTagIds.js
+├── ├── ├── ├── fromUnitIds.js
+├── ├── ├── ├── fromUnits.js
+├── ├── ├── └── index.js
+├── ├── └── evaluate.js
+├── └── flashcards.viva.js
+├── prose/
+├── ├── bundle/
+├── ├── └── Prose.svelte
+├── ├── methods/
+├── ├── ├── lib/
+├── ├── ├── └── prompts.js
+├── ├── ├── evaluate.js
+├── ├── └── provision.js
+├── └── prose.viva.js
+└── translations/
+└── ├── bundle/
+└── ├── ├── components/
+└── ├── ├── ├── Card.svelte
+└── ├── ├── ├── Container.svelte~
+└── ├── ├── └── Loader.svelte
+└── ├── ├── store.js
+└── ├── └── Translations.svelte
+└── ├── methods/
+└── ├── ├── lib/
+└── ├── ├── └── prompts.js
+└── ├── ├── evaluate.js
+└── ├── └── provision.js
+└── └── translations.viva.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: conjugations.viva.js
+// Path: ./conjugations/conjugations.viva.js
+// Size: 682 bytes
+// Last Modified: 2024-10-25T18:44:15.932Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
+import { bundler } from "@vivalence/shared";
+
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision.js";
+
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/Conjugations.svelte");
+
+const data = {
+  mask: {
+    tags: {
+      infinitive: { slug: "verbform:inf" },
+    },
+  },
+};
+
+const manifest = {
+  type: "game",
+  slug: "conjugations",
+  name: "Conjugations",
+  description: "Practice conjugating 6 verbs at a time in different tenses and moods.",
+  version: "0.0.0",
+};
+
+export { manifest, provision, evaluate, bundle, data };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Conjugations.svelte
+// Path: ./conjugations/game/Conjugations.svelte
+// Size: 899 bytes
+// Last Modified: 2024-09-17T16:15:35.436Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { onMount, onDestroy, getContext, tick } from "svelte";
+
+  import { createStore } from "./store.js";
+  import Prompt from "./components/Prompt.svelte";
+  import Table from "./components/Table.svelte";
+  import Footer from "./components/Footer.svelte";
+
+  export let trajectory;
+  export let locals;
+  export let scope;
+  export let instruction;
+
+  const store = createStore({ locals });
+
+  $: if (!$store.revealed) {
+    trajectory.use((t) => {
+      t.set(t.signals.keyboard["Enter"](), store.evaluate);
+    });
+  } else {
+    trajectory.use((t) => {
+      t.set(t.signals.keyboard["Enter"](), store.finish);
+    });
+  }
+
+  $: if (instruction && scope) {
+    store.update((s) => ({ ...s, instruction, scope }));
+  }
+</script>
+
+<section class="container mx-auto sm:px-10 md:px-24 mt-12 mb-20">
+  {#if $store.instruction}
+    <Prompt />
+    <Table />
+  {/if}
+</section>
+
+<Footer />
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: store.js
+// Path: ./conjugations/game/store.js
+// Size: 1492 bytes
+// Last Modified: 2024-09-17T12:13:49.808Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { get, writable } from "svelte/store";
+
+function ConjugationGameStore({ locals }) {
+  const Store = writable({
+    instruction: null,
+    scope: null,
+    inputs: {},
+    revealed: false,
+    loading: false,
+    evaluations: null,
+    error: null,
+  });
+
+  const setInput = (key, userInput) => {
+    Store.update((s) => ({ ...s, inputs: { ...s.inputs, [key]: userInput } }));
+  };
+
+  const reset = () => {
+    Store.update((s) => ({
+      instruction: null,
+      scope: null,
+      inputs: {},
+      revealed: false,
+      loading: false,
+      evaluations: null,
+      error: null,
+    }));
+  };
+
+  const evaluate = async () => {
+    const { instruction, inputs, scope } = get(Store);
+    Store.update((s) => ({ ...s, revealed: true, loading: true }));
+
+    try {
+      const params = { instruction, inputs, scope };
+      const { data: evaluations, error } = await locals.call("/g/conjugations/evaluate", params);
+      if (error) throw error;
+      Store.update((s) => ({ ...s, evaluations, error: null, revealed: true, loading: false }));
+    } catch (error) {
+      console.error("Evaluation error:", error);
+      Store.update((s) => ({ ...s, error, loading: false }));
+    }
+  };
+
+  const finish = () => {
+    locals.onGameFinish();
+    reset();
+  };
+
+  return { ...Store, setInput, finish, evaluate };
+}
+
+let store;
+
+export function createStore(input) {
+  if (!store) store = ConjugationGameStore(input);
+  return store;
+}
+
+export function getStore(input) {
+  return store;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Footer.svelte
+// Path: ./conjugations/game/components/Footer.svelte
+// Size: 573 bytes
+// Last Modified: 2024-09-17T14:11:34.990Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { getStore } from "../store.js";
+  const store = getStore();
+</script>
+
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100/80 py-6">
+  <div class="container mx-auto flex items-center justify-center">
+    {#if !$store.revealed}
+      <button
+        on:click={store.evaluate}
+        class={`btn btn-accent ${Object.keys($store.inputs).length !== 6 && "btn-outline"}`}
+        type="button">Check</button
+      >
+    {:else}
+      <button on:click={store.finish} class={`btn btn-accent btn`} type="button">Next</button>
+    {/if}
+  </div>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: intToRoman.js
+// Path: ./conjugations/game/components/intToRoman.js
+// Size: 383 bytes
+// Last Modified: 2024-09-17T12:36:56.807Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default function intToRoman(num) {
+  const values = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+  const numerals = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+  let result = "";
+  for (let i = 0; i < values.length; i++) {
+    while (num >= values[i]) {
+      result += numerals[i];
+      num -= values[i];
+    }
+  }
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Label.svelte
+// Path: ./conjugations/game/components/Label.svelte
+// Size: 523 bytes
+// Last Modified: 2024-09-17T13:53:59.673Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  export let evaluation;
+  const src =
+    evaluation.status === "KNOWN"
+      ? "/icons/heroicons/20/solid/check.svg"
+      : "/icons/heroicons/20/solid/x-mark.svg";
+</script>
+
+<span
+  class={`badge
+	${evaluation.status === "KNOWN" ? "badge-success" : "badge-error"}
+	${evaluation.feedback && "cursor-help"} `}
+>
+  {#if evaluation.status === "UNKNOWN" && evaluation.feedback}
+    <span class="w-5 h-5 text-lg mt-[-7px]">?</span>
+  {:else}
+    <img class="w-5 h-5" alt={evaluation.status} {src} />
+  {/if}
+</span>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Prompt.svelte
+// Path: ./conjugations/game/components/Prompt.svelte
+// Size: 824 bytes
+// Last Modified: 2024-09-18T12:02:16.403Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { getStore } from "../store.js";
+  const store = getStore();
+</script>
+
+<header class="card bg-base-100 rounded-t-xl rounded-b-none">
+  <div class="card-body">
+    <div class="flex flex-row">
+      <h1 class="card-title text-xl mr-2">
+        {$store.instruction.infinitive.known}
+      </h1>
+      {#if $store.revealed}
+        <h1 class="card-title text-2xl mr-2">-</h1>
+
+        <h1 class="card-title text-2xl">
+          {$store.instruction.infinitive.learning}
+        </h1>
+      {/if}
+    </div>
+    <div class="flex flex-row">
+      <label class="text-sm mr-2"> in: </label>
+      <label class="badge badge-secondary mr-2">
+        {$store.instruction.tense}
+      </label>
+
+      <label class="badge badge-secondary">
+        {$store.instruction.mood}
+      </label>
+    </div>
+  </div>
+</header>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Table.svelte
+// Path: ./conjugations/game/components/Table.svelte
+// Size: 632 bytes
+// Last Modified: 2024-09-17T12:35:02.678Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import TableRow from "./TableRow.svelte";
+
+  import { getStore } from "../store.js";
+  const store = getStore();
+</script>
+
+<div
+  class={`overflow-x-auto container bg-base-100 pt-4 pb-6 px-4 rounded-b-xl border-t-2 border-neutral`}
+>
+  <table class="table">
+    <thead>
+      <tr>
+        <th class="w-1">Person</th>
+        <th>Conjugation</th>
+        <th class={`text-neutral-content/${$store.revealed ? "100" : "0"}`}>Corrent Answer</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each $store.instruction.conjugations as conjugation}
+        <TableRow {conjugation} />
+      {/each}
+    </tbody>
+  </table>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: TableRow.svelte
+// Path: ./conjugations/game/components/TableRow.svelte
+// Size: 1615 bytes
+// Last Modified: 2024-09-17T14:09:17.711Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import Label from "./Label.svelte";
+  import toRoman from "./intToRoman.js";
+
+  import { getStore } from "../store.js";
+  const store = getStore();
+
+  export let conjugation;
+
+  let evaluation;
+  $: evaluation = $store.evaluations
+    ? $store.evaluations[conjugation.scope.unit.id].evaluation
+    : null;
+</script>
+
+<tr class="">
+  <td class="">
+    <p class="text-lg">{toRoman(conjugation.meta.index + 1)}</p>
+  </td>
+  <td class="max-w-xs flex flex-col">
+    <input
+      autocomplete="off"
+      autofocus={conjugation.meta.index === 0}
+      type="text"
+      placeholder={conjugation.known}
+      disabled={$store.revealed}
+      class={`input border-neutral-content/20 focus:border-content/50 disabled:text-neutral-content/75 placeholder-neutral-content/50 w-full input-sm text-lg`}
+      bind:value={$store.inputs[conjugation.scope.unit.id]}
+      on:input={(event) => store.setInput(conjugation.scope.unit.id, event.target.value)}
+    />
+  </td>
+
+  <td class={` ${!$store.revealed && "text-neutral-content/0"}`}>
+    {#if $store.revealed}
+      <div class="flex items-center justify-between icon-container">
+        <p class="text-lg mr-2">{conjugation.learning}</p>
+        {#if evaluation}
+          {#if evaluation.feedback}
+            <div class="tooltip tooltip-left" data-tip={evaluation.feedback}>
+              <Label {evaluation} />
+            </div>
+          {:else}
+            <Label {evaluation} />
+          {/if}
+        {/if}
+      </div>
+    {:else}
+      ..as if. try network?
+    {/if}
+  </td>
+</tr>
+
+<style>
+  .icon-container .tooltip {
+    display: inherit;
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: ./conjugations/methods/evaluate.js
+// Size: 2560 bytes
+// Last Modified: 2024-09-17T12:04:27.554Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { EvalPrompt } from "./lib/prompts.js";
+import { getPersonAndNumber } from "./lib/index.js";
+
+export default async function generate({ inputs, scope, instruction }, ctx) {
+  const { language } = ctx.runtime.statics;
+
+  const [scopeTags, personTags, numberTags] = await Promise.all([
+    ctx.runtime.call("/tags/fromTagIds", { tagIds: scope.tags.map((t) => t.id) }),
+    ctx.runtime.call("/tags/fromOntology", { branch: "person" }),
+    ctx.runtime.call("/tags/fromOntology", { branch: "number" }),
+  ]);
+
+  const tags = {
+    lemma: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "lemma"),
+    tense: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "tense"),
+    mood: scopeTags.find((tag) => tag.data.ONTOLOGICAL.branch === "mood"),
+    persons: personTags,
+    numbers: numberTags,
+  };
+
+  const promises = instruction.conjugations.map((conjugation) =>
+    evaluateConjugation({ conjugation, tags, language, inputs, scope }, ctx),
+  );
+
+  const result = await Promise.all(promises);
+
+  return result.reduce((acc, e) => ((acc[e.unit.id] = e), acc), {});
+}
+
+async function evaluateConjugation({ conjugation, tags, language, inputs, scope }, ctx) {
+  const { person, number } = getPersonAndNumber(conjugation.meta.index);
+  const personTag = tags.persons.find((tag) => tag.data.ONTOLOGICAL.leaf === person);
+  const numberTag = tags.numbers.find((tag) => tag.data.ONTOLOGICAL.leaf === number);
+
+  const part = {
+    language,
+    input: inputs[conjugation.scope.unit.id],
+    known: conjugation.known,
+    learning: conjugation.learning,
+    person: personTag.name,
+    number: numberTag.name,
+    verb: tags.lemma.name,
+    tense: tags.tense.name,
+    mood: tags.mood.name,
+  };
+
+  const prompt = Mustache.render(EvalPrompt.template, part);
+
+  const input = { prompt, schema: EvalPrompt.schema, provider: EvalPrompt.provider };
+  const evaluation = await ctx.runtime.services.llm(input);
+
+  // @lf i should rename this to /unit/review, evaluate or update or something
+  await ctx.runtime.call("/units/review", {
+    gameType: "CONJUGATIONS",
+    response: evaluation.status,
+    scope: { ...scope, tag: null, unit: { id: conjugation.scope.unit.id } },
+  });
+  for (const tag in conjugation.scope.tags) {
+    await ctx.runtime.call("/tags/review", {
+      gameType: "CONJUGATIONS",
+      response: evaluation.status,
+      scope: { ...scope, unit: null, tag: { id: tag.id } },
+    });
+  }
+
+  return {
+    evaluation,
+    index: conjugation.meta.index,
+    unit: { id: conjugation.scope.unit.id },
+  };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: provision.js
+// Path: ./conjugations/methods/provision.js
+// Size: 2005 bytes
+// Last Modified: 2024-09-17T17:23:00.902Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import fs from "node:fs";
+
+export default async function provision(inputs, ctx) {
+  const { tags, mask, blacklist, scope } = inputs;
+  const { language } = ctx.runtime.statics;
+
+  // // POST TENSE TAG //
+  const [tenseTag] = await ctx.runtime.call("/tags/fromTagIds", {
+    tagIds: [tags.tense.id],
+    take: 1,
+  });
+
+  // // POST INFINITIVE UNIT //
+  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", {
+    tagIds: [mask.tags.infinitive.id, tags.verb.id],
+    take: 1,
+  });
+
+  // // POST CONJUGATION UNITS //
+  const tagIds = [tags.verb.id, tags.tense.id, tags.mood.id];
+  const conjugationUnits = await ctx.runtime.call("/units/fromTagIds", { tagIds });
+
+  if (!infinitiveVerb || conjugationUnits.length !== 6) {
+    new Error("not the right number of conjugation units found", {
+      infinitiveVerb,
+      conjugationUnits,
+      inputs,
+    });
+  }
+
+  const conjugations = conjugationUnits.sort(sortByPerformer).map((unit, index) => ({
+    known: `${unit.data.known}`,
+    learning: `${unit.data.learning}`,
+    meta: { index },
+    scope: { unit: { id: unit.id } },
+  }));
+
+  scope.tags = tagIds.map((id) => ({ id }));
+  scope.units = conjugations.map(({ scope }) => scope.unit);
+
+  const instruction = {
+    type: "CONJUGATIONS",
+    instruction: {
+      tense: tenseTag.name,
+      mood: tags.mood.name,
+      infinitive: {
+        known: infinitiveVerb.data.known,
+        learning: infinitiveVerb.data.learning,
+      },
+      conjugations,
+    },
+    scope,
+  };
+
+  return instruction;
+}
+
+const sortByPerformer = (a, b) => {
+  const sumSortValues = (unit) =>
+    unit.tags
+      .filter((tag) => tag.traits.includes("ONTOLOGICAL"))
+      .reduce((sum, tag) => {
+        const { leaf, branch } = tag.data.ONTOLOGICAL;
+        if (branch === "person") return sum + parseInt(leaf);
+        if (branch === "number") return leaf === "sing" ? sum + 0 : sum + 10;
+        return sum;
+      }, 0);
+
+  return sumSortValues(a) - sumSortValues(b);
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: ./conjugations/methods/lib/index.js
+// Size: 236 bytes
+// Last Modified: 2024-09-13T21:41:16.835Z
+////////////////////////////////////////////////////////////////////////////////
+
+export function getPersonAndNumber(index) {
+  const persons = ["1", "2", "3", "1", "2", "3"];
+  const numbers = ["sing", "sing", "sing", "plur", "plur", "plur"];
+  return {
+    person: persons[index],
+    number: numbers[index],
+  };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: prompts.js
+// Path: ./conjugations/methods/lib/prompts.js
+// Size: 1469 bytes
+// Last Modified: 2024-09-17T11:45:22.511Z
+////////////////////////////////////////////////////////////////////////////////
+
+export const EvalPrompt = {
+  provider: { api: "anthropic", model: "claude-3-haiku-20240307" },
+  schema: {
+    title: "Evaluation of verb conjugation",
+    type: "object",
+    properties: {
+      reasoning: {
+        description: "Brief explanation of evaluation. Note any errors. Very brief, if correct.",
+        type: "string",
+      },
+      status: {
+        title: "Evaluation status",
+        description: "KNOWN: perfectly correct, UNKNOWN: any error",
+        enum: ["KNOWN", "UNKNOWN"],
+        type: "string",
+      },
+      feedback: {
+        description:
+          "Short statement about the mistake and correct response. Only for UNKNOWN status.",
+        type: "string",
+      },
+    },
+    required: ["reasoning", "status"],
+  },
+  template: `Assess the user's verb conjugation.
+
+Verb {{{verb}}} | {{{tense}}} | {{{person}}} | {{{number}}} | {{{mood}}}
+{{{language.known}}}: {{{known}}} | {{{language.learning}}}: {{{learning}}}
+User input: "{{{input}}}"
+
+Rules:
+- KNOWN: 100% correct (spelling, tense, person, number, mood)
+- UNKNOWN: Any error, including minor spelling mistakes
+- Ignore capitalization and extra spaces
+
+Respond with JSON:
+Did the user conjugate verb correctly?
+1. reasoning: Brief explanation, note any errors
+2. status: "KNOWN" or "UNKNOWN"
+3. feedback: If UNKNOWN, provide a very short statement about the mistake and correct response
+   Example feedback: "You used 'hablo' (I speak) instead of 'habla' (he/she/it speaks)."`,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: flashcards.viva.js
+// Path: ./flashcards/flashcards.viva.js
+// Size: 1734 bytes
+// Last Modified: 2024-11-15T15:10:24.398Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision/index.js";
+import { bundler } from "@vivalence/shared";
+
+async function boot(runtime, Game) {
+  const bundle = bundler({
+    entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
+    serve: runtime.manifest.url + Game.manifest.url,
+  });
+
+  runtime.router.get(bundle.url, bundle.serve());
+
+  runtime.router.route("/provision/fromTagIds", bundle.injectBundleUrl(), provision.fromTagIds);
+  runtime.router.route("/provision/fromUnitIds", bundle.injectBundleUrl(), provision.fromUnitIds);
+  runtime.router.route("/provision/fromUnits", bundle.injectBundleUrl(), provision.fromUnits);
+
+  runtime.router.route("/evaluate", evaluate);
+
+  return runtime;
+}
+
+const data = {
+  mask: {
+    back: "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
+    front:
+      "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n",
+  },
+};
+
+const manifest = {
+  type: "game",
+  slug: "flashcards",
+  name: "Flashcards",
+  description: "Flashcards game for learning vocabulary",
+};
+export { manifest, data, boot };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: bak.store.js
+// Path: ./flashcards/game/bak.store.js
+// Size: 684 bytes
+// Last Modified: 2024-09-09T11:04:45.955Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { get, writable } from "svelte/store";
+
+function FlashcardStore({ locals }) {
+  const Store = writable({
+    loading: true,
+    revealed: false,
+    scope: null,
+    instruction: null,
+  });
+
+  return {
+    ...Store,
+    reveal: () => {
+      Store.update((store) => ({ ...store, revealed: true }));
+    },
+    review: async (response) => {
+      const { scope } = get(Store);
+      locals.onGameFinish({ response, scope });
+      await locals.call("/g/flashcards/evaluate", { scope, response });
+    },
+  };
+}
+
+let store;
+
+export function createStore(input) {
+  if (!store) store = FlashcardStore(input);
+  return store;
+}
+
+export function getStore(input) {
+  return store;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: bak.svelte
+// Path: ./flashcards/game/bak.svelte
+// Size: 2250 bytes
+// Last Modified: 2024-09-09T11:43:02.468Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { getContext, onDestroy, onMount } from "svelte";
+
+  import Panable from "./components/Panable.svelte";
+
+  import { createStore } from "./store.js";
+
+  export let trajectory;
+  export let locals;
+  export let scope;
+  export let instruction;
+
+  const store = createStore({ locals });
+
+  $: if (scope && instruction) {
+    store.update((s) => ({ ...s, revealed: false, loading: false, scope, instruction }));
+  }
+
+  const onReview = (status) => () => store.review(status);
+
+  const onReveal = () => {
+    if (!$store.revealed) {
+      store.reveal();
+      trajectory.use((t) => {
+        t.set(t.signals.keyboard["1"](), onReview("UNKNOWN"));
+        t.set(t.signals.keyboard["2"](), onReview("KNOWN"));
+        t.set(t.signals.keyboard["3"](), onReview("GRADUATE"));
+      });
+    }
+  };
+
+  onMount(() => {
+    trajectory.use((t) => {
+      t.set(t.signals.keyboard["Space"](), onReveal);
+    });
+  });
+</script>
+
+<Panable
+  on:left={onReview("UNKNOWN")}
+  on:right={onReview("KNOWN")}
+  on:up={onReview("GRADUATE")}
+  on:tap={onReveal}
+>
+  <div class={`h-screen pb-36 select-none cursor-grab flex flex-col items-center justify-center `}>
+    {#if !$store.loading}
+      <div class="card bg-base-300 w-96 mb-4">
+        <div class="card-body">
+          {@html $store.instruction.front}
+        </div>
+      </div>
+
+      {#if $store.revealed}
+        <div class="card bg-base-100 w-96 shadow-xl">
+          <div class="card-body">
+            {@html $store.instruction.back}
+          </div>
+        </div>
+      {/if}
+    {/if}
+  </div>
+</Panable>
+
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-6 py-10">
+  <div class="container mx-auto flex items-center justify-center">
+    {#if !$store.revealed}
+      <button on:click={onReveal} class={`btn btn-primary`} type="button">Reveal</button>
+    {:else}
+      <button on:click={onReview("UNKNOWN")} class={`btn btn-error btn-outline mr-4`} type="button">
+        Unknown
+      </button>
+      <button on:click={onReview("KNOWN")} class={`btn btn-success btn-outline mr-4`} type="button">
+        Known
+      </button>
+      <button on:click={onReview("GRADUATE")} class={`btn btn-success`} type="button">
+        Graduate
+      </button>
+    {/if}
+  </div>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Flashcards.svelte
+// Path: ./flashcards/game/Flashcards.svelte
+// Size: 160 bytes
+// Last Modified: 2024-11-13T19:14:15.048Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  /* let { ...data } = $props(); */
+  console.log("Hello World from Flashcards");
+</script>
+
+<h1 class="text-palette-white">My flashcards Heading</h1>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: game.svelte.js
+// Path: ./flashcards/game/game.svelte.js
+// Size: 164 bytes
+// Last Modified: 2024-11-15T05:42:18.743Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { mount } from "svelte";
+import Game from "./Flashcards.svelte";
+
+export default async function (target, props) {
+  return mount(Game, { target, props });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: state.svelte.js
+// Path: ./flashcards/game/state.svelte.js
+// Size: 40 bytes
+// Last Modified: 2024-11-13T14:14:05.467Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default class GameState {
+  //
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Panable.svelte
+// Path: ./flashcards/game/components/Panable.svelte
+// Size: 2785 bytes
+// Last Modified: 2024-09-09T11:42:31.152Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
+  import { spring } from "svelte/motion";
+  import { pan } from "svelte-gestures";
+
+  const dispatch = createEventDispatcher();
+
+  const TAB_THRESHOLD = 50;
+  const HORIZONTAL_BIAS = 1.3;
+  const stiffness = 0.3;
+  const damping = 0.55;
+
+  let cancelled = false;
+  let xstart, ystart, yend, xend;
+
+  let x = spring(0, { stiffness, damping });
+  let y = spring(0, { stiffness, damping });
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      x.set(0);
+      y.set(0);
+      xstart = ystart = undefined;
+      xend = yend = undefined;
+      cancelled = true;
+    }
+  }
+
+  onMount(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  onDestroy(() => {
+    if (typeof window !== "undefined") {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  function handleStart(event) {
+    xstart = event.type === "touchstart" ? event.touches[0].clientX : event.clientX;
+    ystart = event.type === "touchstart" ? event.touches[0].clientY : event.clientY;
+    cancelled = xend = yend = undefined;
+  }
+
+  function handleEnd(event) {
+    if (cancelled) return;
+    xend = event.type === "touchend" ? event.changedTouches[0].clientX : event.clientX;
+    yend = event.type === "touchend" ? event.changedTouches[0].clientY : event.clientY;
+
+    const direction = determineDirection(xstart, ystart, xend, yend);
+    switch (direction) {
+      case "left":
+        dispatch("left");
+        break;
+      case "right":
+        dispatch("right");
+        break;
+      case "up":
+        dispatch("up");
+        break;
+      case "down":
+        dispatch("down");
+        break;
+      case "tap":
+        dispatch("tap");
+        break;
+    }
+
+    x.set(0);
+    y.set(0);
+  }
+
+  function handlePan(event) {
+    if (!xstart) {
+      xstart = event.detail.x;
+      ystart = event.detail.y;
+      console.log("pan start", xstart, ystart);
+    }
+    x.set(event.detail.x - xstart);
+    y.set(event.detail.y - ystart);
+  }
+
+  function determineDirection(xstart, ystart, xend, yend) {
+    const dx = xend - xstart;
+    const dy = yend - ystart;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < TAB_THRESHOLD) {
+      return "tap";
+    } else {
+      if (Math.abs(dx) * HORIZONTAL_BIAS > Math.abs(dy)) {
+        return dx > 0 ? "right" : "left";
+      } else {
+        return dy > 0 ? "down" : "up";
+      }
+    }
+  }
+</script>
+
+<div
+  class="h-full w-full"
+  style="touch-action: none; transform: translate({$x}px, {$y}px)"
+  on:mousedown={handleStart}
+  on:mouseup={handleEnd}
+  on:touchstart={handleStart}
+  on:touchend={handleEnd}
+  use:pan={{ delay: 30 }}
+  on:pan={handlePan}
+>
+  <slot />
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: ./flashcards/methods/evaluate.js
+// Size: 205 bytes
+// Last Modified: 2024-08-14T13:50:54.481Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default async function evaluate({ scope, response }, ctx) {
+  const result = await ctx.runtime.call("/units/review", {
+    gameType: "FLASHCARDS",
+    scope,
+    response,
+  });
+
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromTagIds.js
+// Path: ./flashcards/methods/provision/fromTagIds.js
+// Size: 320 bytes
+// Last Modified: 2024-09-09T10:03:59.798Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromTagIds(inputs, ctx) {
+  const { scope, tagIds, mask, blacklist, take } = inputs;
+
+  const units = await ctx.runtime.call("/units/fromTagIds", {
+    tagIds,
+    blacklist,
+    take: take || 5,
+  });
+
+  return await from({ scope, mask, units }, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromUnitIds.js
+// Path: ./flashcards/methods/provision/fromUnitIds.js
+// Size: 237 bytes
+// Last Modified: 2024-11-13T14:58:05.989Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromUnitIds({ scope, mask, unitIds }, ctx) {
+  const units = await ctx.runtime.call("/units/fromUnitIds", { unitIds });
+  return await from({ scope, mask, units }, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromUnits.js
+// Path: ./flashcards/methods/provision/fromUnits.js
+// Size: 158 bytes
+// Last Modified: 2024-09-09T10:03:59.326Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromUnits({ scope, mask, units }, ctx) {
+  return await from({ scope, mask, units }, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: ./flashcards/methods/provision/index.js
+// Size: 182 bytes
+// Last Modified: 2024-06-19T12:41:22.492Z
+////////////////////////////////////////////////////////////////////////////////
+
+import fromTagIds from "./fromTagIds.js";
+import fromUnitIds from "./fromUnitIds.js";
+import fromUnits from "./fromUnits.js";
+
+export default { fromTagIds, fromUnitIds, fromUnits };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: from.js
+// Path: ./flashcards/methods/provision/lib/from.js
+// Size: 484 bytes
+// Last Modified: 2024-11-13T15:48:12.382Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { deepMerge } from "@vivalence/shared";
+import make from "./make.js";
+
+export default async function from({ scope, mask, units, ...input }, ctx) {
+  const instructions = [];
+  for (const unit of units) {
+    const instruction = make({ mask, unit });
+
+    scope = deepMerge(scope, { unit: { id: unit.id } });
+    if (unit.tags?.length > 0) scope.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
+
+    instructions.push({ instruction, scope });
+  }
+
+  return instructions;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: make.js
+// Path: ./flashcards/methods/provision/lib/make.js
+// Size: 1635 bytes
+// Last Modified: 2024-11-13T15:09:16.377Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+
+const verbFlashcards = (mask, unit) => {
+  const { person, number, tense } = unit.annotation;
+  // TODO: maybe include the related PRONOUN?
+  const frontFooter = `${tense} - ${person} Person ${number}`;
+  const maskData = {
+    front: {
+      footer: `<h5>${frontFooter}</h5>`,
+    },
+  };
+  return flashcard(mask, unit, maskData);
+};
+
+const nounFlashcards = (mask, unit) => {
+  const { gender, number } = unit.annotation;
+  const article = ["fem"].includes(gender) ? "La " : "El ";
+  const frontFooter = [gender, number].filter((f) => f).join(" - ");
+
+  const maskData = {
+    front: {
+      footer: `<h5>${frontFooter}</h5>`,
+    },
+    back: {
+      header: `<h2>${article}${unit.data.learning}<h2>`,
+    },
+  };
+
+  return flashcard(mask, unit, maskData);
+};
+const flashcard = (mask, unit, maskData = {}) => {
+  maskData = {
+    front: {
+      header: `<h2>${unit.data.known}<h2>`,
+      content: unit.data.example.known ? `<p>${unit.data.example.known}<p>` : "",
+      ...(maskData.front || {}),
+    },
+    back: {
+      header: `<h2>${unit.data.learning}<h2>`,
+      content: unit.data.example.learning ? `<p>${unit.data.example.learning}<p>` : "",
+      ...(maskData.back || {}),
+    },
+  };
+
+  return {
+    front: Mustache.render(mask["front"], maskData),
+    back: Mustache.render(mask["back"], maskData),
+  };
+};
+
+export default function make({ mask, unit }, runtime) {
+  let maker;
+  if (["verb", "aux"].includes(unit.annotation.pos)) maker = verbFlashcards;
+  else if (["noun"].includes(unit.annotation.pos)) maker = nounFlashcards;
+  else maker = flashcard;
+
+  return maker(mask, unit);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: prose.viva.js
+// Path: ./prose/prose.viva.js
+// Size: 510 bytes
+// Last Modified: 2024-10-24T18:25:55.504Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
+import { bundler } from "@vivalence/shared";
+
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision.js";
+
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/bundle/Prose.svelte");
+
+const manifest = {
+  type: "game",
+  slug: "prose",
+  name: "Prose",
+  version: "0.0.0",
+  description: "Display a textblock",
+};
+
+export { manifest, bundle, provision, evaluate };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Prose.svelte
+// Path: ./prose/bundle/Prose.svelte
+// Size: 863 bytes
+// Last Modified: 2024-09-28T22:14:07.354Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { tick } from "svelte";
+  import { onMount } from "svelte";
+
+  export let locals;
+  export let game;
+  export let scope;
+  export let instruction;
+  export let trajectory;
+
+  const next = async () => {
+    locals.onGameFinish();
+    await locals.call(`/g/${game.slug}/evaluate`, { scope });
+  };
+
+  onMount(() => {
+    trajectory.set(trajectory.signals.keyboard.Enter(), next);
+  });
+</script>
+
+<div
+  class="container mx-auto w-full max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh] pb-20">
+  <div class="prose">{@html instruction.prose}</div>
+</div>
+
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-10 py-16">
+  <div
+    class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+    <button on:click="{next}" class="{`btn btn-neutral`}" type="button">Next</button>
+  </div>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: ./prose/methods/evaluate.js
+// Size: 661 bytes
+// Last Modified: 2024-09-28T22:21:46.938Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { deepMerge } from "@vivalence/shared";
+
+export default async function evaluate(inputs, ctx) {
+  const { scope } = inputs;
+  const perf = performance.now();
+
+  const review = {
+    gameType: "PROSE",
+    response: "NEUTRAL",
+    scope,
+  };
+
+  const evaluation = await Promise.all([
+    ctx.runtime.call(
+      "/tags/review",
+      deepMerge(review, { scope: { tag: { id: scope.aspect.tag.id } } }),
+    ),
+    ...scope.leafs.tags.map((leaf) =>
+      ctx.runtime.call("/tags/review", deepMerge(review, { scope: { tag: { id: leaf.id } } })),
+    ),
+  ]);
+
+  console.log(`[PERF] prose evaluate took ${performance.now() - perf}ms`);
+  return evaluation;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: provision.js
+// Path: ./prose/methods/provision.js
+// Size: 582 bytes
+// Last Modified: 2024-09-29T19:50:48.618Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { ProvisioningPrompt } from "./lib/prompts.js";
+
+export default async function provision(inputs, ctx) {
+  const { scope, constraints, mask } = inputs;
+
+  const input = {
+    prompt: Mustache.render(ProvisioningPrompt.template, {
+      constraints,
+      goal: mask.prompt.goal,
+    }),
+    schema: ProvisioningPrompt.schema,
+    provider: ProvisioningPrompt.provider,
+  };
+
+  const response = await ctx.runtime.services.llm(input);
+
+  const instruction = {
+    instruction: { prose: response.prose },
+    scope,
+  };
+
+  return instruction;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: prompts.js
+// Path: ./prose/methods/lib/prompts.js
+// Size: 2415 bytes
+// Last Modified: 2024-09-29T18:21:37.766Z
+////////////////////////////////////////////////////////////////////////////////
+
+export const ProvisioningPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
+  provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
+  schema: {
+    title: "Prose",
+    type: "object",
+    properties: {
+      planning: {
+        title: "Planning",
+        description: `1. summarize the task. 2. define markers of high quality and task success. 3. plan the prose structure.`,
+        type: "string",
+      },
+      prose: {
+        title: "Prose",
+        description: `The prose to be generated. HTML formatted, using the tailwind css typography helper class .prose.
+
+Available HTML elements in prose blocks:
+- Headings: <h1>Main Title</h1> to <h4>Sub-sub-heading</h4>
+- Paragraphs: <p>Regular text content goes here.</p>
+- Links: <a href="#">Clickable text</a>
+- Lists: 
+  <ul>
+    <li>Unordered item</li>
+  </ul>
+  <ol>
+    <li>Ordered item</li>
+  </ol>
+- Blockquotes: <blockquote>Quoted content</blockquote>
+- Inline code: <code>function()</code>
+- Code blocks: 
+  <pre><code>
+  function example() {
+    return 'Hello, World!';
+  }
+  </code></pre>
+- Strong/Bold: <strong>Important text</strong>
+- Emphasis/Italic: <em>Emphasized text</em>
+- Tables:
+  <table>
+    <thead><tr><th>Header</th></tr></thead>
+    <tbody><tr><td>Cell</td></tr></tbody>
+  </table>
+- Horizontal rule: <hr>`,
+        type: "string",
+      },
+    },
+    required: ["planning", "prose"],
+    additionalProperties: false,
+  },
+  template: `### Instructions
+You are an expert teacher generating educational content. Create prose in HTML format, optimized for Tailwind CSS typography.
+
+Your content will be rendered within a <article class="prose">{YOUR PROSE}</article> element, so only provide the inner HTML.
+<article class="prose>{prose}</article>. you generate {prose}. not article.prose.
+
+You are given an goal that you must follow. The goal is a specific objective that the prose must achieve. You must generate prose that satisfies this goal. the ultimate goal is educational.
+
+you are also given a set of constraints that you must follow. The constraints are about the specific topic, aspect, topic or theme that is to be covered in the prose. You must generate prose that satisfies these constraints.
+
+<GOAL>
+{{goal}}
+</GOAL>
+
+<CONSTRAINTS>
+Don't give any additional advice or further instructions to the reader. Dont moralize or be preachy. 
+{{#constraints}}
+{{.}}
+{{/constraints}}
+</CONSTRAINTS>
+`,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: translations.viva.js
+// Path: ./translations/translations.viva.js
+// Size: 877 bytes
+// Last Modified: 2024-10-25T18:48:33.497Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
+import { bundler } from "@vivalence/shared";
+
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision.js";
+
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/bundle/Translations.svelte");
+
+const data = {
+  mask: {
+    prompt: {
+      goal: `### Task:
+Create simple sentence to practice.
+
+### Instructions:
+Choose common, everyday nouns suitable for beginner level language learners.
+The statement must make sense, possibly occur in written text or conversation, and be clear for a language learner.
+`,
+    },
+  },
+};
+
+const manifest = {
+  type: "game",
+  slug: "translations",
+  name: "Translations",
+  version: "0.0.2",
+  description: "Practice translating sentences",
+};
+
+export { manifest, provision, evaluate, bundle, data };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: store.js
+// Path: ./translations/bundle/store.js
+// Size: 1460 bytes
+// Last Modified: 2024-09-05T16:34:21.481Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { get, writable } from "svelte/store";
+
+function GameStore({ locals }) {
+  const Store = writable({
+    instruction: null,
+    scope: null,
+    input: "",
+    revealed: false,
+    loading: false,
+    evaluation: null,
+  });
+
+  const evaluate = async () => {
+    Store.update((s) => ({ ...s, loading: true }));
+    const { scope, instruction, input } = get(Store);
+    const params = {
+      sentence: {
+        ...instruction.sentence,
+        translation: input,
+      },
+      scope,
+    };
+    const { data: evaluation, error } = await locals.call("/g/translations/evaluate", params);
+    if (error) throw error;
+    Store.update((s) => ({ ...s, evaluation, loading: false }));
+  };
+  const reset = () => {
+    Store.update((s) => ({
+      instruction: null,
+      scope: null,
+      input: "",
+      revealed: false,
+      loading: false,
+      feedback: null,
+      evaluation: null,
+    }));
+  };
+  return {
+    ...Store,
+    setInput: (input) => Store.update((s) => ({ ...s, input })),
+    setLoading: (loading) => Store.update((store) => ({ ...store, loading })),
+    evaluate,
+    commitTranslation: async () => {
+      Store.update((s) => ({ ...s, revealed: true }));
+      evaluate();
+    },
+    finishTranslation: () => {
+      locals.onGameFinish();
+      reset();
+    },
+  };
+}
+
+let store;
+
+export function createStore(input) {
+  if (!store) store = GameStore(input);
+  return store;
+}
+
+export function getStore(input) {
+  return store;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Translations.svelte
+// Path: ./translations/bundle/Translations.svelte
+// Size: 3001 bytes
+// Last Modified: 2024-09-18T13:35:47.317Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { tick } from "svelte";
+  import { getContext, onDestroy, onMount } from "svelte";
+
+  import Card from "./components/Card.svelte";
+  import { createStore } from "./store.js";
+
+  export let locals;
+  export let scope;
+  export let instruction;
+  export let trajectory;
+
+  const store = createStore({ locals });
+  const handleInput = (event) => store.setInput(event.target.value);
+
+  $: if (scope && instruction) {
+    store.update((s) => ({ ...s, scope, instruction }));
+  }
+
+  let inputState = "";
+  $: if ($store.evaluation)
+    switch ($store.evaluation.sentence.status) {
+      case "KNOWN":
+        inputState = "input-success";
+        break;
+      case "NEUTRAL":
+        inputState = "input-info";
+        break;
+      case "UNKNOWN":
+        inputState = "input-error";
+        break;
+    }
+
+  onMount(() => {
+    trajectory.set(trajectory.signals.keyboard.Enter(), () => {
+      if ($store.revealed) {
+        store.finishTranslation();
+      } else {
+        store.commitTranslation();
+      }
+    });
+  });
+</script>
+
+<div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh]">
+  <div class="flex flex-row items-center w-full justify-cente pb-20">
+    <div class="card bg-base-200 w-1/2 mb-2 mr-2">
+      <div class="card-body">
+        <p class="text-base-content/60 text-sm">English:</p>
+        <h2 class="card-title text-xl text-base-content italic">
+          {$store.instruction.sentence.known}
+        </h2>
+      </div>
+    </div>
+
+    {#if $store.revealed}
+      <div class="card bg-base-200 w-1/2">
+        <div class="card-body">
+          <p class="text-base-content/70 text-sm">Expected Spanish:</p>
+          <h2 class="card-title text-xl text-base-content italic">
+            {$store.instruction.sentence.learning}
+          </h2>
+        </div>
+      </div>
+    {/if}
+  </div>
+
+  {#if $store.revealed}
+    <div class="card bg-base-neutral">
+      <div class="card-body pt-0 pb-5">
+        <label class="text-base-content/60 text-sm">Feedback:</label>
+      </div>
+    </div>
+
+    {#if $store.evaluation}
+      <div class="flex flex-row flex-wrap pb-20">
+        {#each $store.evaluation.units as evaluation}
+          <Card {...evaluation} />
+        {/each}
+      </div>
+    {/if}
+  {/if}
+</div>
+
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-10 py-16">
+  <div
+    class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+    <input
+      class="{`input input-bordered ${inputState} w-full mr-2 `}"
+      type="text"
+      placeholder="Spanish translation here..."
+      bind:value="{$store.input}"
+      autofocus
+      on:input="{handleInput}" />
+    {#if !$store.revealed}
+      <button on:click="{store.commitTranslation}" class="{`btn btn-neutral`}" type="button">
+        Review
+      </button>
+    {:else}
+      <button on:click="{store.finishTranslation}" class="{`btn btn-neutral`}" type="button">
+        Next Game
+      </button>
+    {/if}
+  </div>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Card.svelte
+// Path: ./translations/bundle/components/Card.svelte
+// Size: 2515 bytes
+// Last Modified: 2024-09-07T00:17:15.284Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  // export let tags;
+  // export let known;
+  export let token;
+
+  export let evaluation;
+
+  let color = {};
+  let content = {};
+
+  $: switch (evaluation.status) {
+    case "KNOWN":
+      color.badge = "badge-success";
+      content.badge = "Ok";
+      break;
+    case "NEUTRAL":
+      color.badge = "badge-info";
+      content.badge = "Ish";
+      break;
+    case "UNKNOWN":
+      color.badge = "badge-error";
+      content.badge = "Mistake";
+      break;
+  }
+</script>
+
+<div class="card card-compact bg-base-200 mr-2 mb-2 w-60 flex-initial">
+  <div class="card-body">
+    <h2 class="card-title text-base-content">
+      {evaluation.correction || token}
+      <div class={`badge ${color.badge} gap-2`}>{content.badge}</div>
+    </h2>
+    {#if evaluation.feedback}
+      <p class="text-base-content/70 text-sm">{evaluation.feedback}</p>
+    {/if}
+  </div>
+</div>
+
+<!-- <div class={`p-4 border border-1 ${color.border} bg-surface-100/90 rounded-md h-full relative`}> -->
+<!--     {#if evaluation.feedback} -->
+<!--         <div class="card p-2 variant-filled-surface max-w-xs w-max" > -->
+<!--             <p class="text-m">{evaluation.feedback}</p> -->
+<!--             <div class="arrow" /> -->
+<!--         </div> -->
+<!--     {/if} -->
+
+<!--     <h3 class={`text-2xl font-bold ${color.text} mb-1`}> -->
+<!--         {token} -->
+<!--         {#if evaluation.correction && evaluation.status === "UNKNOWN"} -->
+<!--             <span class={`font-bold italic text-gray-700`}> {evaluation.correction}</span> -->
+<!--         {:else if evaluation.status === "KNOWN"} -->
+<!--         {/if} -->
+<!--     </h3> -->
+
+<!--     <\!-- {#if spoken} -\-> -->
+<!--     <\!--     <p class="text-gray-900 mb-2">{spoken}</p> -\-> -->
+<!--     <\!-- {/if} -\-> -->
+
+<!--     <\!-- {#if tags} -\-> -->
+<!--     <\!--     <div class="flex flex-wrap gap-1 mt-2 max-w-[calc(100%-1rem)]"> -\-> -->
+<!--     <\!--         {#each tags.filter((t) => t.name) as tag} -\-> -->
+<!--     <\!--             {#if tag.name} -\-> -->
+<!--     <\!--                 <span -\-> -->
+<!--     <\!--                     class={`flex-grow-0 flex-shrink-0 text-xs px-2 py-1 rounded-full text-gray-700 border ${color.border}`} -\-> -->
+<!--     <\!--                 > -\-> -->
+<!--     <\!--                     {tag.name} -\-> -->
+<!--     <\!--                 </span> -\-> -->
+<!--     <\!--             {/if} -\-> -->
+<!--     <\!--         {/each} -\-> -->
+<!--     <\!--     </div> -\-> -->
+<!--     <\!-- {/if} -\-> -->
+<!-- </div> -->
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Loader.svelte
+// Path: ./translations/bundle/components/Loader.svelte
+// Size: 430 bytes
+// Last Modified: 2024-09-06T20:06:22.658Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  // import { ProgressBar } from "@skeletonlabs/skeleton";
+</script>
+
+<!-- <ProgressBar value={undefined} /> -->
+
+PROGRESS BAR
+
+<!-- <ConicGradient -->
+<!--     stops={[ -->
+<!--         { color: "transparent", start: 0, end: 25 }, -->
+<!--         { color: "rgb(var(--color-primary-500))", start: 75, end: 100 } -->
+<!--     ]} -->
+<!--     spin -->
+<!--     regionCone="rotate-90">Loading</ConicGradient -->
+<!-- > -->
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: ./translations/methods/evaluate.js
+// Size: 5099 bytes
+// Last Modified: 2024-09-29T19:44:34.127Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { EvalTokensPrompt, EvalTranslationPrompt } from "./lib/prompts.js";
+
+export default async function evaluate({ scope, sentence }, ctx) {
+  const perf = performance.now();
+
+  const units = await isolatePos({ scope }, ctx);
+  delete scope.units;
+  delete scope.tags;
+
+  const evaluation = await evaluateSentence({ units, sentence }, ctx);
+  const evaluations = await Promise.all(
+    units.map((unit) => evaluatePos({ unit, sentence, evaluation }, ctx)),
+  );
+
+  evaluations.map((evaluation) => evaluateByType({ ...evaluation, scope }, ctx));
+  const result = prettifyEvaluations({ evaluations, scope }, ctx);
+
+  console.log(`[PERF] evaluate took ${performance.now() - perf}ms`);
+  return result;
+}
+
+function prettifyEvaluations({ evaluations, scope }, ctx) {
+  const units = evaluations
+    .map(({ evaluations, unit }) => {
+      return evaluations.reduce(
+        (acc, obj) => {
+          if (obj.type === "Unit") acc.unit = { ...unit, ...obj };
+          else if (obj.type === "Tag") acc.tags.push(obj);
+          return acc;
+        },
+        { unit, tags: [] },
+      );
+    })
+    .map(({ unit, tags }) => {
+      unit.tags = unit.tags.map((tag) => {
+        const evaluation = tags.find((tagEval) => tagEval.id === tag.id);
+        return { ...tag, evaluation: evaluation.evaluation };
+      });
+      return unit;
+    });
+
+  const errors = units.reduce((errors, unit) => {
+    unit.evaluation.status !== "KNOWN" && errors++;
+    return errors;
+  }, 0);
+
+  return { units, sentence: { status: errors === 0 ? "KNOWN" : "UNKNOWN" } };
+}
+
+async function evaluateByType({ scope, evaluations }, ctx) {
+  evaluations.map(({ type, id, evaluation }) => {
+    if (type === "Unit") {
+      ctx.runtime.call("/units/review", {
+        gameType: "TRANSLATIONS",
+        response: evaluation.status,
+        scope: { ...scope, unit: { id } },
+      });
+    } else if (type === "Tag") {
+      ctx.runtime.call("/tags/review", {
+        gameType: "TRANSLATIONS",
+        response: evaluation.status,
+        scope: { ...scope, tag: { id } },
+      });
+    }
+  });
+}
+
+async function evaluatePos({ unit, sentence, evaluation }, ctx) {
+  const prompt = Mustache.render(EvalTokensPrompt.template, {
+    part: unit,
+    language: ctx.runtime.statics.language,
+    evaluation: {
+      whole: evaluation["translation:whole"],
+      token: evaluation["token:" + unit.token],
+    },
+    sentence: {
+      ...sentence,
+      learning: wrapTextWithTag(sentence.learning, unit.start_char, unit.end_char, "PART"),
+    },
+  });
+  const schema = {
+    ...EvalTokensPrompt.schema,
+    properties: unit.tags.reduce(
+      (acc, tag) => {
+        acc["Tag:" + tag.id] = { $ref: "#/definitions/tag" };
+        return acc;
+      },
+      { ["Unit:" + unit.id]: { $ref: "#/definitions/unit" } },
+    ),
+  };
+  schema.properties.required = Object.keys(schema.properties);
+
+  const llmInput = { prompt, schema, provider: EvalTokensPrompt.provider };
+  const llmResponse = await ctx.runtime.locals.services.llm(llmInput);
+
+  const evaluations = Object.entries(llmResponse)
+    .map(([key, evaluation]) => {
+      let safeId;
+      const [type, unsafeId] = key.split(":");
+      if (type === "Unit") safeId = unit.id;
+      else if (type === "Tag") {
+        const tag = unit.tags.find((tag) => tag.id === unsafeId);
+        if (tag) safeId = tag.id;
+      }
+      return { type, id: safeId, evaluation };
+    })
+    .filter((evaluation) => !!evaluation.id)
+    .filter(({ evaluation }) => evaluation.status !== "NEUTRAL");
+
+  return { unit, evaluations };
+}
+
+async function evaluateSentence({ units, sentence }, ctx) {
+  const prompt = Mustache.render(EvalTranslationPrompt.template, {
+    parts: units,
+    language: ctx.runtime.statics.language,
+    sentence,
+  });
+
+  const schema = {
+    ...EvalTranslationPrompt.schema,
+    properties: units.reduce(
+      (acc, unit) => {
+        acc["token:" + unit.token] = { $ref: "#/definitions/token" };
+        return acc;
+      },
+      { "translation:whole": { $ref: "#/definitions/translation" } },
+    ),
+  };
+  schema.properties.required = Object.keys(schema.properties);
+
+  const evaluation = await ctx.runtime.locals.services.llm({
+    prompt,
+    schema,
+    provider: EvalTranslationPrompt.provider,
+  });
+
+  return evaluation;
+}
+
+async function isolatePos({ scope }, ctx) {
+  const hydratedScope = await ctx.runtime.call("/scope/hydrate", { scope });
+
+  const units = hydratedScope.units.map((unit, index) => ({
+    id: unit.id,
+    known: unit.data.known,
+    token: unit.token,
+    index: index + 1,
+    start_char: unit.start_char,
+    end_char: unit.end_char,
+    tags: unit.tags
+      .filter((tag) => tag.traits.includes("LEARNABLE"))
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        branch: tag.data.ONTOLOGICAL.branch,
+        leaf: tag.data.ONTOLOGICAL.leaf,
+      })),
+  }));
+
+  return units;
+}
+
+const wrapTextWithTag = (str, start_char, end_char, tag) => {
+  return `${str.substring(0, start_char)}<${tag}>${str.substring(
+    start_char,
+    end_char,
+  )}</${tag}>${str.substring(end_char)}`;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: provision.js
+// Path: ./translations/methods/provision.js
+// Size: 1471 bytes
+// Last Modified: 2024-09-29T21:19:10.831Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { GamePrompt } from "./lib/prompts.js";
+
+export default async function (inputs, ctx) {
+  const { scope, constraints, mask } = inputs;
+
+  const prompt = Mustache.render(GamePrompt.template, {
+    goal: mask.prompt.goal,
+    constraints,
+    language: ctx.runtime.statics.language,
+  });
+
+  const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
+
+  const sentence = await ctx.runtime.services.llm(input);
+
+  const tokens = await ctx.runtime.call("/classification/unitsFromText", {
+    text: sentence.learning,
+  });
+
+  const instruction = {
+    instruction: {
+      sentence,
+      tokens: tokens
+        .map((token) => ({
+          // i oughtto add the annotations to the payload.
+          token: token.annotation.meta.token,
+          start_char: token.annotation.meta.start_char,
+          end_char: token.annotation.meta.end_char,
+        }))
+        .sort((a, b) => a.start_char - b.start_char),
+    },
+    scope: {
+      ...scope,
+      units: tokens
+        .filter((t) => !!t.unit)
+        .map((token) => ({
+          id: token.unit.id,
+          tags: token.unit.tags.map(({ id }) => ({ id })),
+        })),
+      tags: Array.from(
+        tokens.reduce((acc, token) => {
+          token.unit?.tags?.forEach(({ id }) => {
+            if (!acc.has(id)) acc.add(id);
+          });
+          return acc;
+        }, new Set()),
+      ).map((id) => ({ id })),
+    },
+  };
+
+  return instruction;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: prompts.js
+// Path: ./translations/methods/lib/prompts.js
+// Size: 6335 bytes
+// Last Modified: 2024-10-07T21:48:24.459Z
+////////////////////////////////////////////////////////////////////////////////
+
+export const EvalTranslationPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
+  provider: { api: "groq", model: "llama3-70b-8192", max_tokens: 8192, temperature: 0.8 },
+  schema: {
+    title: "Evaluation of Translation",
+    type: "object",
+    definitions: {
+      translation: {
+        type: "string",
+        description: `In 3 short sentences: describe 1: the linguistic attributes of the original sentence and the provided translation. 2: argue if the user got the translation right over all. and 3: what errors where made and in what specific parts of speech. `,
+      },
+      token: {
+        type: "string",
+        description:
+          "In a sentence, describe 1: this <token> of the translation, 2: if the token is translated correctly?, 3: Are each tag attributes correct? and if there is an error 4: what would be the correctly translated word?",
+      },
+    },
+    properties: {},
+  },
+  template: `# TASK
+Evaluate a translated sentence. The translation is from {{{language.known}}} to {{{language.learning}}}.
+A: reason and describe the correctness of the translation as a whole.
+B: describe and evaluate each token:$token of speech individually.
+ignore capitalization. do not ignore severe spelling errors.
+ud = Universal Dependencies 
+
+### TRANSLATION
+original sentence: "{{{sentence.known}}}"
+original sentence: "{{{sentence.known}}}"
+expected translation: "{{{sentence.learning}}}" 
+user translation: "{{{sentence.translation}}}"
+user translation: "{{{sentence.translation}}}"
+
+### TOKENS / PARTS OF SPEECH
+{{#parts}}
+# Part {{index}}
+Token: "{{{known}}}":"{{{token}}}"
+{{#tags}}
+Tag: "{{name}}" "{{branch}}:{{leaf}}"
+{{/tags}}
+
+{{/parts}}
+`,
+};
+export const EvalTokensPrompt = {
+  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
+  provider: {
+    api: "anthropic",
+    model: "claude-3-haiku-20240307",
+    max_tokens: 1000,
+    temperature: 0.8,
+  },
+  schema: {
+    title: "Evaluations",
+    type: "object",
+    definitions: {
+      status: {
+        description: `KNOWN indicates correct usage of PART in the translation. UNKNOWN marks incorrect usage, including spelling and missing words. NEUTRAL applies for successful alternative use. Absence of PART is UNKNOWN.`,
+        enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
+        type: "string",
+      },
+      unit: {
+        type: "object",
+        description: "Evaluation of the unit / word.",
+        properties: {
+          status: { $ref: "#/definitions/status" },
+          correction: {
+            type: "string",
+            description: "If the status is UNKNOWN, provide the corrected word.",
+          },
+          feedback: {
+            type: "string",
+            description:
+              "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence.",
+          },
+        },
+        additionalProperties: false,
+        required: ["status"],
+      },
+      tag: {
+        type: "object",
+        description: "Evaluation of the universal dependency tags correctness.",
+        properties: { status: { $ref: "#/definitions/status" } },
+        required: ["status"],
+        additionalProperties: false,
+      },
+    },
+    properties: {
+      additionalProperties: false,
+    },
+  },
+  template: `# INSTRUCTIONS
+input: two evaluations of a translation. One for the whole translation and one for a specific <PART>.
+task: format and articulate the evaluation of the <PART> of speech.
+output: JSON. For the Unit a status enum and optional feedback and correction. For Tags respond with status enum. 
+
+If the learner used equivalent alternative vocabulary, then select NEUTRAL. if you are unsure, select NEUTRAL. If the <PART> is missing, then select UNKNOWN.
+If you reference the Unit, call it a word.
+You can improve the evaluation. If there are mistakes in the evaluation, correct the mistakes.
+
+### TRANSLATION
+from {{{language.known}}} to {{{language.learning}}}
+original sentence: "{{{sentence.known}}}"
+expected translation: "{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis) "{{{sentence.learning}}}" (the tag <PART> was added now for your emphasis)
+user translation: "{{{sentence.translation}}}"
+
+The <PART> you evaluate now is made up of the word (Unit) "{{part.token}}"
+and the UniversalDependencys (Tags) of{{#part.tags}} {{branch}}{{/part.tags}}.
+
+### EVALUATION
+of the whole translation:
+{{{evaluation.whole}}}
+
+of your specific <PART>:
+{{{evaluation.token}}}
+
+You can improve the evaluation. If there are mistakes in the evaluation, please correct them.
+
+### "Unit:{{part.id}}" {{{part.known}}} {{{part.token}}}
+{{#part.tags}}
+### "Tag:{{id}}" {{branch}}:{{leaf}} {{name}} 
+{{/part.tags}}`,
+};
+
+export const GamePrompt = {
+  // provider: {api: "anthropic", model: "claude-3-sonnet-20240229", temperature: 0.5, max_tokens: 256},
+  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
+  provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
+  schema: {
+    title: "LanguageLearningSentence",
+    type: "object",
+    properties: {
+      known: {
+        title: "Sentence in Known Language",
+        description: "Sentence in the familiar language",
+        type: "string",
+      },
+      learning: {
+        title: "Sentence in Learning Language",
+        description: "Sentence in the language to be learned",
+        type: "string",
+      },
+    },
+    required: ["known", "learning"],
+    additionalProperties: false,
+  },
+  template: `### Instructions
+You are an expert teacher generating educational content. 
+The learner's native language is {{language.known}} and the target language being learned is {{language.learning}}.
+
+You Generate one single sentence. in {{language.known}} and its translation in {{language.learning}}. as language learning material.
+
+You are given an goal that you must follow. The goal is a specific objective that the sentence and translation must achieve. the ultimate goal is educational.
+
+you are also given a set of constraints. You must generate a sentence that satisfies these constraints.
+
+<GOAL>
+{{goal}}
+</GOAL>
+
+<CONSTRAINTS>
+Don't use words more advanced than those provided. We want the learner to be successfull.
+The sentence must be semantically correct and either a reasonable or common thing to say.
+{{#constraints}}
+{{.}}
+{{/constraints}}
+</CONSTRAINTS>
+`,
+};

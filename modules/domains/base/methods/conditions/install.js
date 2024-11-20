@@ -1,26 +1,26 @@
-import { deepEquals, deepMerge } from "@vivalence/shared";
+import { deepEquals, deepMerge, strings } from "@vivalence/shared";
 
 export default async function (body, ctx) {
-  let { condition, type, dependencyId } = body;
+  let { condition, type } = body;
   let operation = null;
 
   const existingCondition = await read(condition, ctx);
 
+  let data;
   if (existingCondition) {
-    operation = "update";
-    condition = await update(
-      { conditions: { old: existingCondition, new: condition }, dependencyId },
-      ctx,
-    );
+    data = await update({ conditions: { old: existingCondition, new: condition } }, ctx);
   } else {
-    operation = "create";
-    condition = await create(body, ctx);
+    data = await create(body, ctx);
   }
+  condition = data.condition;
+  operation = data.operation;
 
-  return { condition, operation };
+  return { condition, operation, type };
 }
 
 async function update({ conditions }, ctx) {
+  let operation = null;
+
   let condition = {
     id: conditions.old.id,
     scope: conditions.old.scope,
@@ -47,24 +47,23 @@ async function update({ conditions }, ctx) {
 
     if (error) throw error;
     condition = data;
+    operation = "update";
   }
 
-  return condition;
+  return { condition, operation };
 }
 
-async function create({ condition, dependencyId, type }, ctx) {
+async function create({ condition, type }, ctx) {
+  let operation = "create";
   const { data, error } = await ctx.runtime.locals.supabase
     .from("Condition")
-    .insert({
-      runtimeId: ctx.runtime.manifest.id,
-      [`${type}ForId`]: dependencyId,
-      ...condition,
-    })
+    .insert({ runtimeId: ctx.runtime.manifest.id, ...condition })
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+
+  return { condition: data, operation };
 }
 
 async function read(condition, ctx) {

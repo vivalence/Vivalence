@@ -3,6 +3,39 @@ import { blacklist as Blacklist, shuffle } from "@vivalence/shared";
 const dummyInstructions = [
   {
     instruction: {
+      front: {
+        // "    <div class='header'>\n        <h2>the<h2>\n    </div>\n\n    <div class='content'>\n        <p>The girls sing.<p>\n    </div>\n\n",
+        header: "the",
+        content: "the girls sing",
+        footer: null,
+      },
+      back: {
+        // "    <div class='header'>\n        <h2>las<h2>\n    </div>\n\n    <div class='content'>\n        <p>Las niñas cantan. <p>\n    </div>\n\n",
+        header: "las",
+        content: "las niñas cantan",
+      },
+    },
+    scope: {
+      user: {
+        id: "02cc2c18-aece-4132-9863-225e8ae5dad2",
+      },
+      game: {
+        id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a",
+      },
+      unit: {
+        id: "e0587beb-6ec8-4e5c-9a3a-adc666e6bb08",
+      },
+    },
+    type: "GAME",
+    game: {
+      id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a",
+      slug: "flashcards",
+      url: "/r/eng2esp/g/flashcards",
+      bundle: "http://localhost:5175/r/eng2esp/g/flashcards/bundle/game.svelte.js",
+    },
+  },
+  {
+    instruction: {
       prose:
         "<h1>Understanding Nouns in Spanish: Gender</h1>\n<p>In Spanish, nouns are words that name people, places, things, or ideas. One important aspect of nouns in Spanish is gender. Nouns can be either <strong>feminine</strong> or <strong>masculine</strong>. This means that every noun is assigned a gender, which affects how we use other words with it, like articles and adjectives.</p>\n<h2>Feminine and Masculine Nouns</h2>\n<p>Feminine nouns usually end in <em>-a</em>, while masculine nouns often end in <em>-o</em>. Here are some examples:</p>\n<ul>\n    <li><strong>Feminine:</strong> <em>la casa</em> (the house), <em>la mesa</em> (the table)</li>\n    <li><strong>Masculine:</strong> <em>el perro</em> (the dog), <em>el libro</em> (the book)</li>\n</ul>\n<p>Remember, the gender of the noun affects the articles. Use <em>la</em> for feminine and <em>el</em> for masculine nouns.</p>",
     },
@@ -278,7 +311,7 @@ ${leafs.map((leaf) => leaf.name).join(", ")}.`,
 }
 
 export default async function provision(inputs, ctx) {
-  // return dummyInstructions;
+  return [dummyInstructions[0]];
   const { tactic, scope } = inputs;
   const { games, units, tags } = tactic.relations;
   let blacklist = inputs.blacklist;

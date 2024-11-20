@@ -28,6 +28,8 @@ async function createModule(runtime, Module) {
   }
   if (Module.manifest.description) insert.description = Module.manifest.description;
   if (Module.manifest.version) insert.version = Module.manifest.version;
+  if (Module.manifest.icon) insert.icon = Module.manifest.icon;
+
   if (["tactic", "game", "strategy"].includes(Module.manifest.type)) {
     insert = { ...insert, ...Module.data };
   }
@@ -48,6 +50,7 @@ async function updateModule(runtime, Module, manifest) {
   };
   if (Module.manifest.description) update.description = Module.manifest.description;
   if (Module.manifest.version) update.version = Module.manifest.version;
+  if (Module.manifest.icon) update.icon = Module.manifest.icon;
 
   if (["tactic", "game", "strategy"].includes(Module.manifest.type)) {
     update = { ...update, ...Module.data };

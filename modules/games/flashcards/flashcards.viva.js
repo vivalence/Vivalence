@@ -6,8 +6,8 @@ import { bundler } from "@vivalence/shared";
 
 async function boot(runtime, Game) {
   const bundle = bundler({
-    path: join(dirname(fromFileUrl(import.meta.url)), "/game/Flashcards.svelte"),
-    url: Game.manifest.url,
+    entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
+    serve: runtime.manifest.url + Game.manifest.url,
   });
 
   runtime.router.get(bundle.url, bundle.serve());

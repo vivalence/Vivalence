@@ -4,6 +4,7 @@ const nounmodifiers1 = {
   description: "All Noun Modifiers are introduced",
   preconditions: [],
   conditions: [{ slug: "gender:*" }, { slug: "number:*" }, { slug: "definite:*" }].map((tag) => ({
+    name: `Aspect "${tag.slug.split(":")[0]}" is introduced`,
     scope: { tag },
     assertion: { jsonata: `$count($[$ = null or $ = "UNTOUCHED"]) = 0` },
   })),
@@ -30,6 +31,7 @@ const nounmodifiers2 = {
   preconditions: [{ scope: { dependency: { slug: "noun-modifiers:1" } } }],
   conditions: [
     {
+      name: "20 Nouns are known",
       scope: { tag: { slug: "pos:noun" } },
       assertion: { jsonata: "$count($[$ in ['KNOWN', 'GRADUATED']]) >= 20" },
     },
@@ -41,6 +43,7 @@ const nounmodifiers2 = {
       { slug: "definite:def" },
       { slug: "definite:ind" },
     ].map((tag) => ({
+      name: `Aspect "${tag.slug.replace(":", " ")}" is known`,
       scope: { tag },
       assertion: { jsonata: "$count($[$ in ['KNOWN', 'GRADUATED']]) >= 5" },
     })),

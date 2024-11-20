@@ -3,19 +3,6 @@ import { deepClone } from "@vivalence/shared";
 import { join, dirname } from "$std/path/mod.ts";
 import { walk } from "$std/fs/mod.ts";
 
-const uniqueBySlug = (arr) => {
-  const seen = new Set();
-  return arr.flat().filter((item) => {
-    const val = item?.manifest?.slug;
-    if (seen.has(val)) {
-      console.warn(`Duplicate module found: ${item.manifest.type}:${val}`, item.manifest);
-      return false;
-    }
-    seen.add(val);
-    return true;
-  });
-};
-
 export default async function discover(daemon) {
   const entries = [];
   for await (const entry of walk(config.env.get("VIVA_RUNTIMES_DIR"), {
@@ -88,8 +75,22 @@ const ensure = (Runtime) => {
 
   return Runtime;
 };
+
 const validate = (Runtime) => {
   // More validation
 
   return Runtime;
+};
+
+const uniqueBySlug = (arr) => {
+  const seen = new Set();
+  return arr.flat().filter((item) => {
+    const val = item?.manifest?.slug;
+    if (seen.has(val)) {
+      console.warn(`Duplicate module found: ${item.manifest.type}:${val}`, item.manifest);
+      return false;
+    }
+    seen.add(val);
+    return true;
+  });
 };

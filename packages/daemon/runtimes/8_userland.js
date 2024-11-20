@@ -5,5 +5,5 @@ export default async function userland(daemon) {
     daemon.runtimes.set(key, runtime);
   }
 
-  return { runtimes, supabase, ...params };
+  return daemon;
 }

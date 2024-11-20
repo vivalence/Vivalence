@@ -1,3 +1,4 @@
+import { strings } from "@vivalence/shared";
 // import {validator, deepEquals, deepMerge } from "@vivalence/shared";
 
 export default async function (body, ctx) {
@@ -47,15 +48,14 @@ async function readDependency(dependency, ctx) {
 
 async function readCondition({ type, dependency }, ctx) {
   const { data, error } = await ctx.runtime.locals.supabase
-    .from("Condition")
-    .select()
-    .eq(`runtimeId`, ctx.runtime.manifest.id)
-    .eq(`${type}ForId`, dependency.id);
+    .from(`_${strings.capitalize(type)}`)
+    .select("A,B")
+    .eq("B", dependency.id);
 
   if (error) throw error;
   if (!data) throw new Error("condition not found");
 
   return await Promise.all(
-    data.map((condition) => ctx.runtime.call("/conditions/compute", { condition })),
+    data.map(({ A }) => ctx.runtime.call("/conditions/compute", { condition: { id: A } })),
   );
 }

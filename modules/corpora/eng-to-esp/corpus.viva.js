@@ -5,9 +5,10 @@ import curriculum from "./curriculum/index.js";
 
 const manifest = {
   type: "corpus",
-  slug: "eng-to-esp",
-  name: "English to Spanish",
-  version: "0.0.3",
+  slug: "cefr-eng-to-esp",
+  name: "CEFR - English to Spanish",
+  icon: { emoji: "🇪🇺" },
+  version: "0.0.5",
 };
 
 const modules = {
@@ -19,7 +20,5 @@ const modules = {
   tactics: [],
   strategies: [],
 };
-
-() => ({ _id });
 
 export { manifest, modules, curriculum, schema };

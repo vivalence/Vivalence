@@ -1,24 +1,29 @@
 import typography from "@tailwindcss/typography";
-import daisyui from "daisyui";
+import theme from "./themes/tailwind.map.js";
+// import theme from "./themes/dark.js";
 
 const config = {
   purge: false,
   theme: {
-    extend: {},
+    colors: theme.colors,
+    fontSize: theme.font.size,
+    fontFamily: theme.font.family,
+    boxShadow: theme.boxShadow,
+    dropShadow: theme.dropShadow,
+    container: theme.container,
+    borderRadius: theme.borderRadius,
+    extend: {
+      animation: theme.animation,
+    },
   },
-  plugins: [typography, daisyui],
+  plugins: [typography],
   content: [
-    "./src/**/*.{html,svelte}",
-    "../../ui/src/**/*.{html,svelte}",
-    "../../../viva_modules/**/*.svelte",
+    "./src/**/*.{html,svelte,css}",
+    "../../interfaces/display/**/*.{html,svelte,css}",
+    "../../../modules/games/**/*.{html,svelte,css}",
+    "./themes/**/*",
   ],
-  darkMode: ["class", '[data-theme="dark"]'],
-  daisyui: {
-    themes: [
-      { dark: { ...require("daisyui/src/theming/themes")["dark"] } },
-      { light: { ...require("daisyui/src/theming/themes")["light"] } },
-    ],
-  },
+  // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
 };
 
 export default config;

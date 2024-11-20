@@ -1,4 +1,4 @@
-import create from "./create.js";
+import init from "./init.js";
 import serve from "./serve.js";
 
-export default { create, serve };
+export default { init, serve };

@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import ListItem from './ListItem.svelte';
-  import trajectory from '$trajectory';
+  import trajectory from "$components/trajectory/index.js";
 
   export let trigger;
   export let active;

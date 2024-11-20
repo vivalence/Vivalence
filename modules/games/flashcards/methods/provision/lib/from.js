@@ -1,7 +1,7 @@
 import { deepMerge } from "@vivalence/shared";
 import make from "./make.js";
 
-export default async function from({ scope, mask, units }, ctx) {
+export default async function from({ scope, mask, units, ...input }, ctx) {
   const instructions = [];
   for (const unit of units) {
     const instruction = make({ mask, unit });
@@ -9,7 +9,7 @@ export default async function from({ scope, mask, units }, ctx) {
     scope = deepMerge(scope, { unit: { id: unit.id } });
     if (unit.tags?.length > 0) scope.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
 
-    instructions.push({ type: "FLASHCARDS", instruction, scope });
+    instructions.push({ instruction, scope });
   }
 
   return instructions;

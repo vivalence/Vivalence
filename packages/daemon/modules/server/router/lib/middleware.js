@@ -9,8 +9,10 @@ const wrap = (container) => (router) => {
 };
 
 export const pre = wrap((handler) => async (ctx, next) => {
-  const body = await ctx.request.body.json();
-  ctx.request.body.json = async () => await handler(body, ctx);
+  if (ctx.request.body.has) {
+    const body = await ctx.request.body.json();
+    ctx.request.body.json = async () => await handler(body, ctx);
+  }
   await next();
 });
 

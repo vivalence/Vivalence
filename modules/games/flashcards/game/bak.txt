@@ -1,0 +1,91 @@
+
+<script>
+  /* import Panable from "./components/Panable.svelte"; */
+  /* let { runtime, game, next, instruction } = ; */
+
+  const props = $props();
+  const state = new GameState(props);
+  const onReview = (status) => async () => await state.review(status);
+  const onReveal = () => state.reveal();
+
+</script>
+
+<!-- <div class="flashcards-container">
+     <!-- <Panable
+     on:left={onReview("UNKNOWN")}
+     on:right={onReview("KNOWN")}
+     on:up={onReview("GRADUATE")}
+     on:tap={onReveal}> -->
+<div class="content-area">
+    {#if state.instruction}
+	<div class="card front">
+            <div class="card-body">
+		{@html state.instruction.front}
+            </div>
+	</div>
+
+	{#if state.revealed}
+            <div class="card back">
+		<div class="card-body">
+		    {@html state.instruction.back}
+		</div>
+            </div>
+	{/if}
+    {/if}
+</div>
+<!-- </Panable> -->
+
+<div class="controls">
+    <div class="container">
+	{#if !state.revealed}
+            <button onclick={onReveal} class="btn btn-primary" type="button"> Reveal </button>
+	{:else}
+            <button onclick={onReview("UNKNOWN")} class="btn btn-error btn-outline" type="button">
+		Unknown
+            </button>
+            <button onclick={onReview("KNOWN")} class="btn btn-success btn-outline" type="button">
+		Known
+            </button>
+            <button onclick={onReview("GRADUATE")} class="btn btn-success" type="button">
+		Graduate
+            </button>
+	{/if}
+    </div>
+</div>
+</div>
+-->
+<style>
+  .flashcards-container {
+    @apply h-full flex flex-col;
+  }
+
+  .content-area {
+    @apply h-screen pb-36 select-none cursor-grab;
+    @apply flex flex-col items-center justify-center;
+  }
+
+  .card {
+    @apply w-96 mb-4;
+  }
+
+  .card.front {
+    @apply bg-base-300;
+  }
+
+  .card.back {
+    @apply bg-base-100 shadow-xl;
+  }
+
+  .controls {
+    @apply fixed bottom-0 left-0 right-0 w-full;
+    @apply bg-base-100 px-6 py-10;
+  }
+
+  .controls .container {
+    @apply container mx-auto flex items-center justify-center gap-4;
+  }
+
+  button {
+    @apply min-w-[100px];
+  }
+</style>
