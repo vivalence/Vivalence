@@ -1,12 +1,12 @@
-import Mustache from "npm:mustache";
+import Mustache from "mustache";
 
 const verbFlashcards = (mask, unit) => {
   const { person, number, tense } = unit.annotation;
   // TODO: maybe include the related PRONOUN?
-  const frontFooter = `${tense} - ${person} Person ${number}`;
+
   const maskData = {
     front: {
-      footer: `<h5>${frontFooter}</h5>`,
+      footer: `${tense} - ${person} Person ${number}`,
     },
   };
   return flashcard(mask, unit, maskData);
@@ -15,37 +15,37 @@ const verbFlashcards = (mask, unit) => {
 const nounFlashcards = (mask, unit) => {
   const { gender, number } = unit.annotation;
   const article = ["fem"].includes(gender) ? "La " : "El ";
-  const frontFooter = [gender, number].filter((f) => f).join(" - ");
 
   const maskData = {
     front: {
-      footer: `<h5>${frontFooter}</h5>`,
+      footer: [gender, number].filter((f) => f).join(" - "),
     },
     back: {
-      header: `<h2>${article}${unit.data.learning}<h2>`,
+      header: `${article} ${unit.data.learning}`,
     },
   };
 
   return flashcard(mask, unit, maskData);
 };
+
 const flashcard = (mask, unit, maskData = {}) => {
   maskData = {
     front: {
-      header: `<h2>${unit.data.known}<h2>`,
-      content: unit.data.example.known ? `<p>${unit.data.example.known}<p>` : "",
+      header: unit.data.known,
+      content: unit.data.example?.known,
+      footer: null,
       ...(maskData.front || {}),
     },
     back: {
-      header: `<h2>${unit.data.learning}<h2>`,
-      content: unit.data.example.learning ? `<p>${unit.data.example.learning}<p>` : "",
+      header: unit.data.learning,
+      content: unit.data.example?.learning,
+      footer: null,
       ...(maskData.back || {}),
     },
   };
 
-  return {
-    front: Mustache.render(mask["front"], maskData),
-    back: Mustache.render(mask["back"], maskData),
-  };
+  return maskData;
+  // return {front: Mustache.render(mask["front"], maskData), back: Mustache.render(mask["back"], maskData),};
 };
 
 export default function make({ mask, unit }, runtime) {

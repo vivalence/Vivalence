@@ -1,0 +1,918 @@
+* root structure/
+** core/                          # Core system functionality
+*** engine/                    # Core token engine
+    - registry.ts              # Central token registry
+    - resolver.ts              # Token resolution and computation
+    - context.ts              # Token context management
+*** runtime/
+    - cache.ts                # Token value caching
+    - compute.ts              # Token computation engine
+    - observe.ts              # Token usage observer
+
+** tokens/                        # Token definitions
+*** primitive/                 # Raw token values
+    - colors.ts
+    - typography.ts
+    - spacing.ts
+    - effects.ts
+*** semantic/                  # Semantic meanings
+    - backgrounds.ts
+    - foregrounds.ts
+    - interactions.ts
+    - feedback.ts
+*** composite/                 # Complex tokens
+    - elevation.ts            # Z-index and shadows
+    - motion.ts               # Animation and transitions
+    - layout.ts               # Grid and spacing systems
+
+** themes/                        # Theme system
+*** base/                     # Base theme definitions
+    - light.ts
+    - dark.ts
+*** variants/                 # Theme variants
+    - high-contrast.ts
+    - system.ts
+*** compositions/             # Theme composition tools
+    - create-theme.ts
+    - theme-variants.ts
+
+** components/                    # Component token system
+*** patterns/                 # Reusable patterns
+    - interactive.ts
+    - container.ts
+    - surface.ts
+*** variants/                 # Component variants
+    - create-variant.ts
+    - variant-composition.ts
+*** constraints/              # Component constraints
+    - spacing.ts
+    - color.ts
+    - typography.ts
+
+** utils/                        # Shared utilities
+*** generators/               # Code generation
+    - css.ts
+    - types.ts
+    - documentation.ts
+*** validation/               # Token validation
+    - schema.ts
+    - rules.ts
+*** optimization/             # Performance tools
+    - bundle.ts
+    - analysis.ts
+
+** types/                        # Type definitions
+- tokens.d.ts                 # Token type definitions
+- themes.d.ts                 # Theme type definitions
+- components.d.ts             # Component type definitions
+- system.d.ts                 # System type definitions
+
+** tools/                        # Development tools
+*** cli/                      # Command line tools
+    - generate.ts
+    - validate.ts
+    - analyze.ts
+*** dev/                      # Development tools
+    - inspector.ts
+    - debugger.ts
+
+** integration/                  # Framework integration
+*** frameworks/               # Framework-specific code
+    - react.ts
+    - vue.ts
+*** platforms/               # Platform-specific code
+    - web.ts
+    - native.ts
+
+** testing/                      # Testing utilities
+*** visual/                  # Visual testing
+    - snapshot.ts
+    - comparison.ts
+*** validation/              # Validation testing
+    - constraints.ts
+    - accessibility.ts
+* three patch
+** styles
+*** tokens
+**** core
+***** color-system.ts
+#+BEGIN_SRC typescript
+export type ColorScale = {
+  25: string;
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+  DEFAULT: string;
+};
+
+export const colorTokens = {
+  // Base palette from your original implementation
+  palette: {
+    white: "#F2F4F6",
+    black: "#030D0D",
+    gray: {
+      0: "#ffffff",
+      10: "#F3F5F7",
+      // ... (your existing gray scale)
+      950: "#000000",
+    } as ColorScale,
+    aqua: {
+      50: "#adfffa",
+      // ... (your existing aqua scale)
+      DEFAULT: "#00FFFB",
+    } as ColorScale,
+    // ... other color definitions
+  },
+  
+  // Opacity system
+  opacity: {
+    0: '0',
+    25: '0.25',
+    50: '0.5',
+    75: '0.75',
+    100: '1',
+  },
+
+  // Color intents/purposes
+  intent: {
+    info: 'var(--dv-intent-info)',
+    success: 'var(--dv-intent-success)',
+    warning: 'var(--dv-intent-warning)',
+    danger: 'var(--dv-intent-danger)',
+  }
+};
+#+END_SRC
+
+***** effects.ts
+#+BEGIN_SRC typescript
+export const effectTokens = {
+  shadows: {
+    sm: "0 1px 2px rgb(0, 0, 0, 0.05)",
+    DEFAULT: "1 1px 3px rgb(0, 0, 0, 0.1)",
+    md: "1px 4px 6px rgb(0, 0, 0, 0.4)",
+    lg: "4px 4px 8px rgb(0, 0, 0, 0.9)",
+    xl: "8px 8px 16px rgb(0, 0, 0, 0.99)",
+  },
+  transitions: {
+    duration: {
+      fast: '150ms',
+      normal: '250ms',
+      slow: '350ms'
+    },
+    timing: {
+      ease: 'ease',
+      linear: 'linear',
+      easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+      easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
+      easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    }
+  }
+};
+#+END_SRC
+
+**** semantic
+***** panel-tokens.ts
+#+BEGIN_SRC typescript
+import { colorTokens } from '../core/color-system';
+import { effectTokens } from '../core/effects';
+
+export const panelTokens = {
+  background: {
+    active: colorTokens.palette.gray[800],
+    inactive: colorTokens.palette.gray[700],
+    hover: colorTokens.palette.gray[600]
+  },
+  border: {
+    default: colorTokens.palette.gray[600],
+    active: colorTokens.palette.gray[400],
+    focus: colorTokens.palette.indigo[400]
+  },
+  shadow: {
+    active: effectTokens.shadows.md,
+    inactive: effectTokens.shadows.sm
+  },
+  state: {
+    loading: {
+      background: colorTokens.palette.gray[800],
+      foreground: colorTokens.palette.gray[200]
+    },
+    error: {
+      background: colorTokens.palette.red[500],
+      foreground: colorTokens.palette.white
+    }
+  }
+};
+#+END_SRC
+
+***** tab-tokens.ts
+#+BEGIN_SRC typescript
+import { colorTokens } from '../core/color-system';
+import { effectTokens } from '../core/effects';
+
+export const tabTokens = {
+  background: {
+    active: 'var(--dv-activegroup-visiblepanel-tab-background-color)',
+    inactive: 'var(--dv-inactivegroup-visiblepanel-tab-background-color)',
+    hover: 'var(--dv-tab-hover-background-color)'
+  },
+  text: {
+    active: 'var(--dv-activegroup-visiblepanel-tab-color)',
+    inactive: 'var(--dv-inactivegroup-visiblepanel-tab-color)'
+  },
+  border: {
+    active: 'var(--dv-tab-border-color)',
+    divider: 'var(--dv-tab-divider-color)'
+  },
+  closeButton: {
+    background: {
+      default: 'transparent',
+      hover: colorTokens.palette.gray[600]
+    },
+    icon: {
+      default: colorTokens.palette.gray[400],
+      hover: colorTokens.palette.white
+    }
+  }
+};
+#+END_SRC
+
+**** themes
+***** base-theme.ts
+#+BEGIN_SRC typescript
+import { colorTokens } from '../core/color-system';
+import { effectTokens } from '../core/effects';
+
+export const baseTheme = {
+  // CSS Variable definitions
+  variables: {
+    '--dv-background-color': colorTokens.palette.gray[900],
+    '--dv-foreground-color': colorTokens.palette.gray[100],
+    
+    // Group colors
+    '--dv-group-background-color': colorTokens.palette.gray[800],
+    '--dv-group-border-color': colorTokens.palette.gray[600],
+    
+    // Tab colors
+    '--dv-tab-background-color': colorTokens.palette.gray[700],
+    '--dv-tab-active-background-color': colorTokens.palette.gray[600],
+    
+    // Intent colors
+    '--dv-intent-info': colorTokens.palette.indigo[400],
+    '--dv-intent-success': colorTokens.palette.lime[400],
+    '--dv-intent-warning': colorTokens.palette.amber[400],
+    '--dv-intent-danger': colorTokens.palette.red[400],
+  },
+
+  // Generation helpers
+  createThemeVariables(prefix: string = '') {
+    return Object.entries(this.variables).reduce((acc, [key, value]) => {
+      acc[`${prefix}${key}`] = value;
+      return acc;
+    }, {} as Record<string, string>);
+  }
+};
+#+END_SRC
+
+***** dark.ts
+#+BEGIN_SRC typescript
+import { baseTheme } from './base-theme';
+import { colorTokens } from '../core/color-system';
+
+export const darkTheme = {
+  ...baseTheme,
+  variables: {
+    ...baseTheme.variables,
+    '--dv-background-color': colorTokens.palette.gray[900],
+    '--dv-foreground-color': colorTokens.palette.gray[100],
+    // Override specific dark theme colors
+  }
+};
+#+END_SRC
+
+**** utils
+***** theme-generator.ts
+#+BEGIN_SRC typescript
+import type { ColorScale } from '../core/color-system';
+
+export interface ThemeGeneratorOptions {
+  prefix?: string;
+  target?: 'css' | 'js' | 'scss';
+}
+
+export class ThemeGenerator {
+  static generateColorVariables(colors: Record<string, ColorScale>, options: ThemeGeneratorOptions = {}) {
+    const { prefix = '--dv-' } = options;
+    
+    return Object.entries(colors).reduce((acc, [colorName, scale]) => {
+      Object.entries(scale).forEach(([shade, value]) => {
+        acc[`${prefix}${colorName}-${shade}`] = value;
+      });
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+  static createThemeClass(name: string, variables: Record<string, string>) {
+    return `
+      .${name} {
+        ${Object.entries(variables)
+          .map(([key, value]) => `${key}: ${value};`)
+          .join('\n')}
+      }
+    `;
+  }
+}
+#+END_SRC
+** components
+*** layout
+***** grid.ts
+#+BEGIN_SRC typescript
+import { type Disposable } from '../../types';
+import { tabTokens } from '../../styles/semantic/tab-tokens';
+
+export interface GridComponentOptions {
+  dimensions?: { width: number; height: number };
+  spacing?: number;
+  minItemSize?: number;
+}
+
+export class GridComponent implements Disposable {
+  private _element: HTMLElement;
+  private _items: Map<string, HTMLElement> = new Map();
+  private _dimensions: { width: number; height: number };
+
+  constructor(options: GridComponentOptions = {}) {
+    this._element = document.createElement('div');
+    this._element.className = 'dv-grid';
+    this._dimensions = options.dimensions ?? { width: 0, height: 0 };
+    
+    // Apply grid tokens
+    this._element.style.setProperty('--dv-grid-spacing', `${options.spacing ?? 4}px`);
+    this._element.style.setProperty('--dv-grid-min-item', `${options.minItemSize ?? 100}px`);
+  }
+
+  addItem(id: string, element: HTMLElement, position?: { x: number; y: number }) {
+    this._items.set(id, element);
+    // Position logic
+  }
+
+  removeItem(id: string) {
+    const element = this._items.get(id);
+    if (element) {
+      element.remove();
+      this._items.delete(id);
+    }
+  }
+
+  dispose() {
+    this._items.clear();
+    this._element.remove();
+  }
+}
+#+END_SRC
+
+***** group-container.ts
+#+BEGIN_SRC typescript
+import { panelTokens } from '../../styles/semantic/panel-tokens';
+import { type Disposable } from '../../types';
+
+export interface GroupOptions {
+  id: string;
+  active?: boolean;
+  locked?: boolean;
+}
+
+export class GroupContainer implements Disposable {
+  private _element: HTMLElement;
+  private _header: HTMLElement;
+  private _content: HTMLElement;
+  private _active: boolean;
+
+  constructor(options: GroupOptions) {
+    this._element = document.createElement('div');
+    this._element.className = 'dv-group';
+    this._active = options.active ?? false;
+
+    // Setup header and content containers
+    this._header = this.createHeader();
+    this._content = this.createContent();
+    
+    this._element.appendChild(this._header);
+    this._element.appendChild(this._content);
+
+    this.updateStyles();
+  }
+
+  private updateStyles() {
+    const tokens = this._active ? 
+      panelTokens.background.active : 
+      panelTokens.background.inactive;
+      
+    this._element.style.backgroundColor = tokens;
+  }
+
+  setActive(active: boolean) {
+    this._active = active;
+    this.updateStyles();
+  }
+
+  dispose() {
+    this._element.remove();
+  }
+}
+#+END_SRC
+
+***** split-view.ts
+#+BEGIN_SRC typescript
+export type SplitDirection = 'horizontal' | 'vertical';
+
+export interface SplitViewOptions {
+  direction: SplitDirection;
+  proportions?: number[];
+  minSize?: number;
+}
+
+export class SplitView implements Disposable {
+  private _element: HTMLElement;
+  private _sash: HTMLElement;
+  private _panels: HTMLElement[] = [];
+  private _direction: SplitDirection;
+
+  constructor(options: SplitViewOptions) {
+    this._element = document.createElement('div');
+    this._element.className = `dv-split dv-split-${options.direction}`;
+    this._direction = options.direction;
+    
+    this._sash = this.createSash();
+    this.setupResizeHandling();
+  }
+
+  private setupResizeHandling() {
+    // Implement resize logic
+  }
+
+  addPanel(element: HTMLElement, index?: number) {
+    // Add panel logic
+  }
+
+  dispose() {
+    this._element.remove();
+  }
+}
+#+END_SRC
+
+*** panels
+***** panel-base.ts
+#+BEGIN_SRC typescript
+import { type Disposable } from '../../types';
+import { panelTokens } from '../../styles/semantic/panel-tokens';
+
+export interface PanelOptions {
+  id: string;
+  title: string;
+  content?: HTMLElement;
+  closeable?: boolean;
+}
+
+export abstract class PanelBase implements Disposable {
+  protected readonly _element: HTMLElement;
+  protected readonly _header: HTMLElement;
+  protected readonly _content: HTMLElement;
+  
+  readonly id: string;
+
+  constructor(options: PanelOptions) {
+    this.id = options.id;
+    
+    this._element = document.createElement('div');
+    this._element.className = 'dv-panel';
+    
+    this._header = this.createHeader(options);
+    this._content = this.createContent(options);
+    
+    this._element.appendChild(this._header);
+    this._element.appendChild(this._content);
+  }
+
+  protected abstract createHeader(options: PanelOptions): HTMLElement;
+  protected abstract createContent(options: PanelOptions): HTMLElement;
+
+  setActive(active: boolean) {
+    this._element.classList.toggle('active', active);
+    this.updateStyles(active);
+  }
+
+  private updateStyles(active: boolean) {
+    const tokens = active ? 
+      panelTokens.background.active : 
+      panelTokens.background.inactive;
+      
+    this._element.style.backgroundColor = tokens;
+  }
+
+  dispose(): void {
+    this._element.remove();
+  }
+}
+#+END_SRC
+
+***** panel-renderer.ts
+#+BEGIN_SRC typescript
+import { type Disposable } from '../../types';
+
+export type RenderMode = 'always' | 'onlyWhenVisible';
+
+export interface PanelRendererOptions {
+  mode?: RenderMode;
+  defaultMode?: RenderMode;
+}
+
+export class PanelRenderer implements Disposable {
+  private _visible: boolean = true;
+  private _mode: RenderMode;
+  private _element?: HTMLElement;
+  
+  constructor(options: PanelRendererOptions = {}) {
+    this._mode = options.mode ?? options.defaultMode ?? 'onlyWhenVisible';
+  }
+
+  setContent(element: HTMLElement) {
+    this._element = element;
+    this.updateVisibility();
+  }
+
+  setVisible(visible: boolean) {
+    this._visible = visible;
+    this.updateVisibility();
+  }
+
+  private updateVisibility() {
+    if (!this._element) {
+      return;
+    }
+
+    if (this._mode === 'always' || this._visible) {
+      this._element.style.display = '';
+    } else {
+      this._element.style.display = 'none';
+    }
+  }
+
+  dispose() {
+    this._element?.remove();
+  }
+}
+#+END_SRC
+
+*** dnd
+***** drag-controller.ts
+#+BEGIN_SRC typescript
+import { effectTokens } from '../../styles/core/effects';
+
+export interface DragOptions {
+  element: HTMLElement;
+  data: any;
+  overlay?: HTMLElement;
+}
+
+export class DragController {
+  private _overlay?: HTMLElement;
+  private _dragging: boolean = false;
+
+  constructor() {
+    this.setupDragListeners();
+  }
+
+  private setupDragListeners() {
+    document.addEventListener('dragover', this.onDragOver.bind(this));
+    document.addEventListener('drop', this.onDrop.bind(this));
+  }
+
+  startDrag(options: DragOptions) {
+    this._dragging = true;
+    this.showOverlay(options.overlay);
+  }
+
+  private showOverlay(overlay?: HTMLElement) {
+    if (overlay) {
+      this._overlay = overlay;
+      document.body.appendChild(overlay);
+      
+      // Apply overlay styles
+      overlay.style.position = 'fixed';
+      overlay.style.pointerEvents = 'none';
+      overlay.style.transition = effectTokens.transitions.timing.easeOut;
+    }
+  }
+
+  private hideOverlay() {
+    this._overlay?.remove();
+    this._overlay = undefined;
+  }
+}
+#+END_SRC
+** state
+*** core
+***** registry.ts
+#+BEGIN_SRC typescript
+export interface ComponentMetadata {
+  id: string;
+  type: string;
+  renderer: 'always' | 'onlyWhenVisible';
+  params?: Record<string, unknown>;
+}
+
+export class ComponentRegistry {
+  private _components = new Map<string, ComponentMetadata>();
+  private _factories = new Map<string, (...args: any[]) => any>();
+
+  register<T extends object>(
+    type: string, 
+    factory: (...args: any[]) => T
+  ) {
+    this._factories.set(type, factory);
+  }
+
+  create(metadata: ComponentMetadata) {
+    const factory = this._factories.get(metadata.type);
+    if (!factory) {
+      throw new Error(`No factory registered for component type: ${metadata.type}`);
+    }
+
+    const instance = factory(metadata);
+    this._components.set(metadata.id, metadata);
+    
+    return instance;
+  }
+
+  getMetadata(id: string) {
+    return this._components.get(id);
+  }
+}
+#+END_SRC
+
+***** layout-store.ts
+#+BEGIN_SRC typescript
+import { EventEmitter } from '../events/event-emitter';
+
+export interface LayoutNode {
+  id: string;
+  type: 'panel' | 'group' | 'grid';
+  children?: LayoutNode[];
+  params?: Record<string, unknown>;
+}
+
+export class LayoutStore {
+  private _layout: LayoutNode;
+  private _eventEmitter = new EventEmitter();
+
+  constructor(initialLayout?: LayoutNode) {
+    this._layout = initialLayout ?? { id: 'root', type: 'grid', children: [] };
+  }
+
+  getNode(id: string): LayoutNode | undefined {
+    return this.findNode(this._layout, id);
+  }
+
+  private findNode(node: LayoutNode, id: string): LayoutNode | undefined {
+    if (node.id === id) return node;
+    return node.children?.find(child => this.findNode(child, id));
+  }
+
+  updateNode(id: string, updates: Partial<LayoutNode>) {
+    const node = this.getNode(id);
+    if (node) {
+      Object.assign(node, updates);
+      this._eventEmitter.emit('layoutChanged', { node });
+    }
+  }
+
+  serialize(): string {
+    return JSON.stringify(this._layout);
+  }
+
+  deserialize(data: string) {
+    this._layout = JSON.parse(data);
+    this._eventEmitter.emit('layoutLoaded', { layout: this._layout });
+  }
+}
+#+END_SRC
+
+***** persistence.ts
+#+BEGIN_SRC typescript
+export interface SerializedState {
+  layout: string;
+  components: Record<string, any>;
+  theme: string;
+}
+
+export class PersistenceManager {
+  private readonly storageKey: string;
+
+  constructor(storageKey = 'dockview-state') {
+    this.storageKey = storageKey;
+  }
+
+  async save(state: SerializedState): Promise<void> {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(state));
+    } catch (error) {
+      console.error('Failed to save state:', error);
+    }
+  }
+
+  async load(): Promise<SerializedState | null> {
+    try {
+      const data = localStorage.getItem(this.storageKey);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error('Failed to load state:', error);
+      return null;
+    }
+  }
+}
+#+END_SRC
+
+*** events
+***** event-emitter.ts
+#+BEGIN_SRC typescript
+type EventListener = (...args: any[]) => void;
+
+export class EventEmitter {
+  private _listeners = new Map<string, Set<EventListener>>();
+
+  on(event: string, listener: EventListener): () => void {
+    const listeners = this._listeners.get(event) ?? new Set();
+    listeners.add(listener);
+    this._listeners.set(event, listeners);
+
+    return () => this.off(event, listener);
+  }
+
+  off(event: string, listener: EventListener) {
+    this._listeners.get(event)?.delete(listener);
+  }
+
+  emit(event: string, data?: any) {
+    this._listeners.get(event)?.forEach(listener => listener(data));
+  }
+}
+#+END_SRC
+
+***** event-types.ts
+#+BEGIN_SRC typescript
+export interface DockviewEvent {
+  timestamp: number;
+  type: string;
+}
+
+export interface LayoutChangeEvent extends DockviewEvent {
+  type: 'layoutChanged';
+  layout: any;
+}
+
+export interface PanelEvent extends DockviewEvent {
+  type: 'panel';
+  panelId: string;
+  action: 'added' | 'removed' | 'moved' | 'resized';
+}
+
+export interface GroupEvent extends DockviewEvent {
+  type: 'group';
+  groupId: string;
+  action: 'created' | 'deleted' | 'modified';
+}
+
+export interface DragEvent extends DockviewEvent {
+  type: 'drag';
+  action: 'start' | 'end' | 'enter' | 'leave';
+  source?: string;
+  target?: string;
+}
+#+END_SRC
+
+*** mutations
+***** mutation-types.ts
+#+BEGIN_SRC typescript
+export type MutationType = 
+  | 'ADD_PANEL'
+  | 'REMOVE_PANEL'
+  | 'MOVE_PANEL'
+  | 'RESIZE_PANEL'
+  | 'UPDATE_PANEL'
+  | 'CREATE_GROUP'
+  | 'DELETE_GROUP'
+  | 'MODIFY_GROUP'
+  | 'UPDATE_LAYOUT';
+
+export interface Mutation<T = any> {
+  type: MutationType;
+  payload: T;
+}
+#+END_SRC
+
+***** mutation-queue.ts
+#+BEGIN_SRC typescript
+import { EventEmitter } from '../events/event-emitter';
+import { Mutation } from './mutation-types';
+
+export class MutationQueue {
+  private _queue: Mutation[] = [];
+  private _processing = false;
+  private _events = new EventEmitter();
+
+  push(mutation: Mutation) {
+    this._queue.push(mutation);
+    this.processQueue();
+  }
+
+  private async processQueue() {
+    if (this._processing || this._queue.length === 0) {
+      return;
+    }
+
+    this._processing = true;
+    
+    while (this._queue.length > 0) {
+      const mutation = this._queue.shift()!;
+      try {
+        await this.executeMutation(mutation);
+        this._events.emit('mutationComplete', { mutation });
+      } catch (error) {
+        this._events.emit('mutationError', { mutation, error });
+      }
+    }
+
+    this._processing = false;
+  }
+
+  private async executeMutation(mutation: Mutation) {
+    switch (mutation.type) {
+      case 'ADD_PANEL':
+        // Handle panel addition
+        break;
+      case 'REMOVE_PANEL':
+        // Handle panel removal
+        break;
+      // ... other mutation handlers
+    }
+  }
+}
+#+END_SRC
+
+***** state-manager.ts
+#+BEGIN_SRC typescript
+import { EventEmitter } from '../events/event-emitter';
+import { LayoutStore } from '../core/layout-store';
+import { ComponentRegistry } from '../core/registry';
+import { MutationQueue } from './mutation-queue';
+import { PersistenceManager } from '../core/persistence';
+
+export class StateManager {
+  private _events = new EventEmitter();
+  private _layout: LayoutStore;
+  private _registry: ComponentRegistry;
+  private _mutations: MutationQueue;
+  private _persistence: PersistenceManager;
+
+  constructor() {
+    this._layout = new LayoutStore();
+    this._registry = new ComponentRegistry();
+    this._mutations = new MutationQueue();
+    this._persistence = new PersistenceManager();
+
+    this.setupEventHandlers();
+  }
+
+  private setupEventHandlers() {
+    this._mutations.on('mutationComplete', ({ mutation }) => {
+      this._events.emit('stateChanged', { mutation });
+    });
+  }
+
+  async saveState() {
+    const state = {
+      layout: this._layout.serialize(),
+      components: {}, // Serialize component state
+      theme: 'default' // Current theme
+    };
+    
+    await this._persistence.save(state);
+  }
+
+  async loadState() {
+    const state = await this._persistence.load();
+    if (state) {
+      this._layout.deserialize(state.layout);
+      // Restore component state
+      // Restore theme
+    }
+  }
+}
+#+END_SRC

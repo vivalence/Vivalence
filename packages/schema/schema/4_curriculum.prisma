@@ -84,8 +84,8 @@ model Dependency {
   corpusId       String?
 
   // CORPUS
-  preconditions  Condition[] @relation("Preconditions")
-  conditions     Condition[] @relation("Conditions")
+  preconditions  Condition[] @relation("Precondition")
+  conditions     Condition[] @relation("Condition")
   itinerary      Json        @default("{}")
 
   // TRANSIENT
@@ -115,19 +115,13 @@ model Condition {
   corpusId     String?
 
   // CORPUS
-  conditionFor       Dependency? @relation("Conditions", fields: [conditionForId], references: [id], onDelete: Cascade)
-  conditionForId     String?
+  conditionFor    Dependency[] @relation("Condition")
+  preconditionFor Dependency[] @relation("Precondition")
 
-  preconditionFor    Dependency? @relation("Preconditions", fields: [preconditionForId], references: [id], onDelete: Cascade)
-  preconditionForId  String?
-
-  scope              Json     @default("{}")
+  scope         Json     @default("{}")
 
   // DATA
   assertion     Json     @default("{}")
   met           Boolean  @default(false)
-
-  @@index([conditionForId], name: "conditionForIndexOnCondition")
-  @@index([preconditionForId], name: "preconditionForIndexOnCondition")
 }
 

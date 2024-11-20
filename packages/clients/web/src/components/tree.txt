@@ -1,0 +1,318 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 6
+// Generated: 2024-11-17T15:47:05.227Z
+// Source directory: Tree
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+Tree/
+├── context.js
+├── Node.svelte
+├── Row.svelte
+├── state.svelte.js
+├── Tree.svelte
+└── types.d.ts
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: context.js
+// Path: Tree/context.js
+// Size: 454 bytes
+// Last Modified: 2024-11-06T19:25:00.360Z
+////////////////////////////////////////////////////////////////////////////////
+
+import TreeState from "./state.svelte.js";
+
+const TREE_STATE_KEY = Symbol("TreeState");
+const context = new Map();
+
+export function initTreeState({ root, isOpen = true }) {
+  const state = new TreeState({ root, isOpen });
+  context.set(TREE_STATE_KEY, state);
+  return state;
+}
+
+export function getTreeState() {
+  const state = context.get(TREE_STATE_KEY);
+  if (!state) {
+    throw new Error("Navigation state context not found");
+  }
+  return state;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Node.svelte
+// Path: Tree/Node.svelte
+// Size: 2016 bytes
+// Last Modified: 2024-11-15T06:11:53.915Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script lang="ts">
+  import { goto } from "$app/navigation";
+  import { Text, Icon } from "@vivalence/ui";
+  import type { TreeNode } from "./types.d.ts";
+  import { getTreeState } from "./context.js";
+  import Row from "./Row.svelte";
+  import Self from "./Node.svelte";
+
+  const tree = getTreeState();
+  let { node } = $props<{ node: TreeNode }>();
+  let isOpen = $state(false);
+
+  function handleClick() {
+    const tree = getTreeState();
+    if (node.onclick) node.onclick({ ...node, isOpen });
+    if (node.href) {
+      goto(node.href);
+      tree.toggle();
+    }
+    if (node.nodes) {
+      if (node.type === "link") tree.setState(node);
+      if (node.type === "node") isOpen = !isOpen;
+    }
+  }
+  const classes = {};
+  if (node.type === "divider") {
+    classes["row"] = "";
+  }
+</script>
+
+{#if node.type !== "divider"}
+  <Row {classes}>
+    {#snippet nav()}
+      {#if node.type === "node" && node.nodes}
+        <a href="" onclick={() => (isOpen = !isOpen)}>
+          <Icon carbon="ChevronRight" size="sm" variant="nav" class={isOpen && "rotate-90"} />
+        </a>
+      {/if}
+    {/snippet}
+
+    {#snippet icon()}
+      {#if node.icon}
+        <Icon {...node.icon} size="sm" variant="ui" />
+      {/if}
+    {/snippet}
+
+    {#snippet content()}
+      {#if node.title}
+        {#if node.onclick || node.href}
+          <a href={node.href || ""} onclick={handleClick}>
+            <Text spacing="none">{node.title}</Text>
+          </a>
+        {:else}
+          <Text spacing="none">{node.title}</Text>
+        {/if}
+      {/if}
+    {/snippet}
+
+    {#snippet link()}
+      {#if node.type === "link"}
+        <a href={node.href || ""} onclick={handleClick}>
+          <Icon carbon="ChevronRight" size="sm" variant="nav" />
+        </a>
+      {/if}
+    {/snippet}
+  </Row>
+
+  {#if node.type === "node" && node.nodes && isOpen}
+    {#each node.nodes as childNode (childNode.title)}
+      <Self node={childNode} />
+    {/each}
+  {/if}
+{:else}
+  <hr class="border-t border-theme-border-1 my-1 mx-4" />
+{/if}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Row.svelte
+// Path: Tree/Row.svelte
+// Size: 1172 bytes
+// Last Modified: 2024-11-09T21:22:15.728Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  let { nav, icon, content, link, size = "md", classes } = $props();
+
+  const sizes = {
+    sm: "h-6 max-h-6",
+    md: "h-8 max-h-8",
+    lg: "h-10 max-h-10",
+    xl: "h-12 max-h-12",
+  };
+</script>
+
+<div class="row {sizes[size]} {classes?.row}">
+  <div class="icon icon1 {classes?.nav}">{@render nav?.()}</div>
+  <div class="icon icon2 {classes?.icon}">{@render icon?.()}</div>
+  <div class="content {classes?.content}">{@render content?.()}</div>
+  <div class="icon icon3 {classes?.link}">{@render link?.()}</div>
+</div>
+
+<style>
+  * {
+    /* border: 1px solid red; */
+  }
+  .row {
+    @apply items-center;
+    display: grid;
+    grid-template-areas: "icon1 icon2 content icon3";
+    grid-template-columns: 30px 30px 1fr 40px;
+    align-items: center;
+    min-width: 0;
+  }
+  .row > div {
+    @apply flex items-center w-full h-full;
+  }
+  .row > .icon {
+    @apply mx-auto justify-center text-center;
+  }
+
+  .icon1 {
+    grid-area: icon1;
+  }
+  .icon2 {
+    grid-area: icon2;
+  }
+  .content {
+    grid-area: content;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .icon3 {
+    grid-area: icon3;
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: state.svelte.js
+// Path: Tree/state.svelte.js
+// Size: 450 bytes
+// Last Modified: 2024-11-09T17:14:33.083Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default class TreeState {
+  root = {};
+  state = $state();
+  isOpen = $state();
+  isRoot = $state();
+
+  constructor({ root, isOpen = true }) {
+    this.isRoot = true;
+    this.root = root;
+    this.state = root;
+    this.isOpen = isOpen;
+  }
+
+  setState(newState) {
+    this.state = newState;
+    this.isRoot = false;
+  }
+
+  toggle() {
+    this.isOpen = !this.isOpen;
+  }
+
+  reset() {
+    this.state = this.root;
+    this.isRoot = true;
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Tree.svelte
+// Path: Tree/Tree.svelte
+// Size: 1390 bytes
+// Last Modified: 2024-11-13T15:24:02.626Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script lang="ts">
+  import { Text, Icon } from "@vivalence/ui";
+
+  import type { TreeNode } from "./types.d.ts";
+  import { getTreeState } from "./context.js";
+  import Node from "./Node.svelte";
+  import Row from "./Row.svelte";
+
+  const tree = getTreeState();
+  const closeTree = () => tree.toggle();
+  const handleBack = () => tree.reset();
+  // console.log(JSON.stringify(tree, null, 2));
+</script>
+
+<div class="flex flex-col font-sans-text h-full">
+  <Row
+    size="lg"
+    classes={{ row: "border-b border-theme-border-1", link: "border-l border-theme-border-1" }}>
+    {#snippet nav()}
+      {#if !tree.isRoot}
+        <a href="" onclick={handleBack}>
+          <Icon carbon="ChevronLeft" size="sm" variant="nav" />
+        </a>
+      {/if}
+    {/snippet}
+    {#snippet icon()}
+      <Icon {...tree.state.icon} size="md" variant="ui" />
+    {/snippet}
+    {#snippet content()}
+      <Text spacing="none">{tree.state.title}</Text>
+    {/snippet}
+    {#snippet link()}
+      <a href="" onclick={closeTree}>
+        <Icon carbon="DownToBottom" size="sm" variant="nav" class="rotate-90" />
+      </a>
+    {/snippet}
+  </Row>
+
+  {#if tree.state}
+    <div class="flex-grow">
+      {#each tree.state.nodes || [] as node (node.title)}
+        <Node {node} />
+      {/each}
+    </div>
+  {/if}
+  <div class="mt-auto"></div>
+</div>
+
+<style>
+  * {
+    /* border: 1px solid red; */
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: types.d.ts
+// Path: Tree/types.d.ts
+// Size: 440 bytes
+// Last Modified: 2024-11-06T01:01:09.947Z
+////////////////////////////////////////////////////////////////////////////////
+
+export type NodeType = "Link" | "Node" | "Divider";
+export type Variant = "primary" | "secondary" | "accent";
+
+export interface TreeNode {
+    title: string;
+    icon: string;
+    variant?: Variant;
+    type: NodeType;
+    nodes?: TreeNode[];
+    onClick?: () => void;
+    href?: string;
+    open?: Boolean;
+}
+
+export interface TreeStateContext {
+    open: Boolean;
+    top: TreeNode | null;
+    body: TreeNode[];
+    bottom: TreeNode[];
+}

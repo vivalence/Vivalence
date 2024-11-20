@@ -1,3 +1,6 @@
+import patchGameToInstruction from "./patchGameToInstruction.js";
+import loadGameData from "./loadGameData.js";
+
 export default (game) => {
   game.router.middleware.push(async (ctx, next) => {
     const perf = performance.now();
@@ -7,24 +10,12 @@ export default (game) => {
   });
 
   game.router.middleware.push(async (ctx, next) => {
-    const url = new URL(ctx.request.url).pathname.split("/");
+    const url = ctx.request.url.pathname.split("/");
     const slug = url[url.indexOf("g") + 1];
-    ctx.state.game = ctx.runtime.games.get(slug).manifest;
+    ctx.state.game = ctx.runtime.games.find((game) => game.manifest.slug === slug).manifest;
     await next();
   });
 
-  game.router.middleware.post((body, ctx) => {
-    if (body && typeof body !== "string") {
-      if (body.instruction) {
-        body.type = "GAME";
-        body.game = {
-          id: ctx.state.game.id,
-          slug: ctx.state.game.slug,
-          url: ctx.state.game.url,
-          bundle: ctx.state.game.bundle,
-        };
-      }
-    }
-    return body;
-  });
+  game.router.middleware.pre(loadGameData);
+  game.router.middleware.post(patchGameToInstruction);
 };

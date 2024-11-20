@@ -1,82 +1,71 @@
-import config from "@vivalence/config";
 import { dirname, fromFileUrl, basename, join } from "$std/path/mod.ts";
 import { colors } from "jsr:@cliffy/ansi@1.0.0-rc.7/colors";
 
-// @lj: all these belong into packages/viva/
-import { compose, docker } from "./lib/docker.js";
-import containerTable from "./lib/table.js";
-import processEnvFile from "./lib/env.js";
-
 const dir = dirname(fromFileUrl(import.meta.url));
 const composePath = join(dir, "./docker-compose.yml");
-const envPath = join(dir, "./.env.example");
-const newPath = envPath.replace(".env.example", ".env");
+const exampleEnvPath = join(dir, "./.env.example");
 
-const setupEnv = async () => {
-  try {
-    await processEnvFile({ from: envPath, to: newPath }, config);
-  } catch (e) {
-    console.error("Failed to create .env file");
-    console.error(e);
-    throw e;
-  }
-};
+const service = { path: composePath };
 
-const ps = async () => {
-  await setupEnv();
+const status = (viva) => ({
+  name: "status",
+  description: "Check the status of Supabase services",
+  action: async () => {
+    console.log(colors.blue("Checking the status of Supabase services..."));
+    await viva.locals.compose.ps(service);
+  },
+});
 
-  console.log(containerTable(await docker.ps()));
-};
+const up = (viva) => ({
+  name: "up",
+  description: "Start Supabase services",
+  action: async () => {
+    console.log(colors.blue("Starting Supabase services..."));
 
-const up = async () => {
-  await setupEnv();
+    const { ok, error } = await viva.locals.compose.up(service);
 
-  console.log(colors.blue("Starting Supabase services..."));
-  const { ok, error } = await compose.up({ path: composePath });
+    if (!ok || error) {
+      console.error(colors.red("Failed to start Supabase services"));
+      console.error(error);
+      return;
+    }
 
-  if (error) {
-    console.error(colors.red("Failed to start Supabase services"));
-    throw error;
-  }
+    await viva.locals.compose.ps(service);
 
-  console.log(containerTable(await docker.ps()));
-  console.log(colors.green("✓ Supabase services started successfully"));
-};
+    console.log(colors.green("✓ Supabase services started successfully"));
+  },
+});
 
-const down = async () => {
-  await setupEnv();
+const down = (viva) => ({
+  name: "down",
+  description: "Stop Supabase services",
+  action: async () => {
+    console.log(colors.blue("Stopping Supabase services..."));
 
-  console.log(colors.blue("Stopping Supabase services..."));
-  const { ok, error } = await compose.down({ path: composePath });
+    const { ok, error } = await viva.locals.compose.down(service);
 
-  if (error) {
-    console.error(colors.red("Failed to start Supabase services"));
-    throw error;
-  }
+    if (!ok || error) {
+      console.error(colors.red("Failed to start Supabase services"));
+      console.error(error);
+      return;
+    }
 
-  console.log(containerTable(await docker.ps()));
-  console.log(colors.green("✓ Supabase services started successfully"));
-};
+    await viva.locals.compose.ps(service);
 
-async function server() {
-  return {
-    status: {
-      name: "status",
-      description: "Check the status of Supabase services",
-      action: ps,
-    },
+    console.log(colors.green("✓ Supabase services started successfully"));
+  },
+});
 
-    up: {
-      name: "up",
-      description: "Start Supabase services",
-      action: up,
-    },
-
-    down: {
-      name: "down",
-      description: "Stop Supabase services",
-      action: down,
-    },
-  };
+export default async function (viva) {
+  return [status, up, down].reduce((acc, fn) => {
+    const command = fn(viva);
+    acc[command.name] = {
+      ...command,
+      action: async () => {
+        await viva.locals.env.fromExampleEnv(exampleEnvPath);
+        await command.action();
+      },
+    };
+    return acc;
+  }, {});
 }
-export default server;

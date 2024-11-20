@@ -1,7 +1,7 @@
 {
-  "name": "@vivalence/clients/web",
+  "name": "@vivalence/web",
   "version": "0.0.1",
-  "exports": "./unknown.js",
+  "exports": "./null.js",
   "tasks": {
     "permit": "DENO_ROLE=client deno run -A --node-modules-dir",
     "web:dev": "deno task permit npm:vite",

@@ -1,0 +1,15 @@
+meta {
+  name: provision:fromUnitIds
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/flashcards/provision/fromUnitIds
+  body: json
+  auth: none
+}
+
+body:json {
+  {"unitIds":["e0587beb-6ec8-4e5c-9a3a-adc666e6bb08"]}
+}

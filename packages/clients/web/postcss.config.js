@@ -1,8 +1,9 @@
-import autoprefixer from "npm:autoprefixer@10.4.19";
-import tailwindcss from "npm:tailwindcss@3.4.7";
+import autoprefixer from "autoprefixer";
+import tailwindcss from "tailwindcss";
+import vivalenceDesignSystem from "./themes/postcss.plugin.js";
 
 const config = {
-  plugins: [tailwindcss(), autoprefixer],
+  plugins: [vivalenceDesignSystem, tailwindcss(), autoprefixer],
 };
 
 export default config;
