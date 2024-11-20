@@ -1,9 +1,9 @@
 // src/plugins/postcss-theme-builder.js
 import postcss from "postcss";
 
-import colors from "./semantic/colors.js";
-import tokens from "./semantic/tokens.js";
-import themes from "./variants/index.js";
+import colors from "./root/colors.js";
+import tokens from "./root/tokens.js";
+import themes from "./themes/index.js";
 
 const processValue = (value, theme) => {
   if (typeof value === "function") {
@@ -98,7 +98,7 @@ const generateCSS = ({ themes }) => {
 
 const plugin = (options = {}) => {
   return {
-    postcssPlugin: "vivalence-design-system",
+    postcssPlugin: "vivalence-design-system-weaving",
     Once: async (root, result) => {
       // console.log("designsystem starts");
 
