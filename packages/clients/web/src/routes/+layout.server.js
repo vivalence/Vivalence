@@ -7,5 +7,8 @@ export const load = async ({ route, locals, ...params }) => {
     throw redirect(307, `/auth`);
   }
 
-  return { user };
+  const { data: runtimes, error } = await locals.call("/api/user/runtimes/view");
+  if (error) throw error;
+
+  return { user, runtimes };
 };

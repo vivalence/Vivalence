@@ -1,31 +1,27 @@
 <script>
-  import Component from "./Component.svelte";
-  import { onMount } from "svelte";
+  import { onMount, unmount, onDestroy } from "svelte";
 
-  export let bundle;
-  export let data;
+  const { bundle, payload } = $props();
 
-  export let trajectory;
-  export let locals;
+  let component = $state(null);
+  let target = $state(null);
 
-  let component = null;
+  onMount(async () => {
+    const { default: Component } = await import(/* @vite-ignore */ bundle);
+    component = await Component(target, payload);
+  });
 
-  async function fetchAndCompileAST() {
-    const response = await locals.call.raw(bundle, null, { method: "GET" });
-    const text = await response.text();
-    const blob = new Blob([text], { type: "application/javascript" });
-    const url = URL.createObjectURL(blob);
-    const { default: Widget } = await import(/* @vite-ignore */ url);
-    component = Widget;
-  }
-
-  onMount(() => {
-    fetchAndCompileAST();
+  onDestroy(() => {
+    component && unmount(component);
   });
 </script>
 
-{#if Component}
-  <Component this="{component}" {...data} {trajectory} {locals} />
-{:else}
-  <p>Loading component...</p>
-{/if}
+<div class="bsp-node">
+  <div id="widget-container" class="bsp-node" bind:this={target} />
+
+  {#if !component}
+    <div class="bsp-chain-end">
+      <span class="text-theme-text-1">Loading component...</span>
+    </div>
+  {/if}
+</div>

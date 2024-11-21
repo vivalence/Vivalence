@@ -1,6 +1,9 @@
 import { join } from "$std/path/mod.ts";
 import { deepMerge, blacklist as Blacklist } from "@vivalence/shared";
 
+// i must catch missing relations. notify some remedy system.
+// tell whoever called this that their relation is invalid.
+
 export default async function buildRelations(body, ctx) {
   async function resolveRelation(resourceType, relation) {
     if (Array.isArray(relation)) {
@@ -26,8 +29,8 @@ export default async function buildRelations(body, ctx) {
           if (typeof mask === "object") {
             richRelations[relationName].mask[maskType] = await resolveResource(maskType, mask);
           } else {
-            console.log("@tactic middleware resolveResource");
-            console.log("mask type is not object", maskType, mask);
+            // console.log("@tactic middleware resolveResource");
+            // console.log("mask type is not object", maskType, mask);
             // throw new Error("Not implemented");
           }
         }

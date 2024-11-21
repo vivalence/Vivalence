@@ -1,115 +1,123 @@
 <script>
-  import '../app.css';
-  import { page } from '$app/stores';
-  import { onMount } from "svelte";
+  import "../style/app.css";
+  import "../style/bsp/bsp.css";
 
-  import trajectory from "$trajectory";
-  import * as keyboard from "$trajectory/signals/keyboard/index.js";
-  import Drawer from '$trajectory/ui/drawer/Drawer.svelte'
+  import { writable } from "svelte/store";
 
-  onMount(() => {
-    trajectory.initialize($page.data.locals)
-    trajectory.root()
-    keyboard.initialize()
-  })
-  // onMount(() => {
-  //   const simulateKeyPress = (key) => {
-  //     if (document && KeyboardEvent) {
-  // 	const event = new KeyboardEvent("keydown", {
-  // 	  key,
-  // 	  code: `Key${key.toUpperCase()}`,
-  // 	  keyCode: key.charCodeAt(0),
-  // 	  charCode: key.charCodeAt(0),
-  // 	  bubbles: true,
-  // 	});
-  // 	document.dispatchEvent(event);
-  //     }};
-  //   simulateKeyPress('c');
-  // });
+  import { initTreeState } from "$components/Tree/context.js";
+  import Tree from "$components/Tree/Tree.svelte";
 
-</script> 
+  let { data, children } = $props();
 
-<slot />
+  const tree = initTreeState({ root: data.menuData, isOpen: false });
+</script>
 
-{#if !$page.url.pathname.startsWith('/auth')}
-    <Drawer />
-{/if}
+<div class="layout">
+  <header class="topbar">
+    <div class="logo">VIVALENCE</div>
+    <div class="center"></div>
+    <div class="account"></div>
+  </header>
 
-<!--     import { setContext, onMount } from "svelte";
-<!-- 	 import { writable } from "svelte/store"; -->
-<!--     import { afterNavigate, invalidate } from "$app/navigation"; -->
-<!--     import { AppShell, AppBar } from "@skeletonlabs/skeleton"; -->
-<!--     import { dev } from "$app/environment"; -->
-<!--     import { computePosition, autoUpdate, offset, shift, flip, arrow } from "@floating-ui/dom"; -->
-<!--     import { storePopup, initializeStores  } from "@skeletonlabs/skeleton"; -->
-<!--     import DebugTool from "$components/_debug/DebugTool.svelte"; -->
+  <div class="content m-6">
+    {#if tree.isOpen}
+      <aside class="sidebar grid-container mr-6">
+        <Tree />
+      </aside>
+    {:else}
+      <button class="sidebar-open" on:click={() => tree.toggle(true)}>
+        <span>></span>
+      </button>
+    {/if}
 
-<!--     import "../app.pcss"; -->
-<!--     initializeStores(); -->
-<!--     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow }); -->
+    <main class="main grid-container">
+      {@render children()}
+    </main>
+  </div>
 
-<!--     export let data; -->
-<!--     let { locals } = data; -->
-<!--     let session; -->
+  <div class="bottom grid-container m-6 mt-0">
+    <button class="fixed p-2 rounded"> Toggle Left </button>
+  </div>
+</div>
 
-<!--     const FooterComponent = writable(null); -->
-<!--     setContext("page-footer", FooterComponent); -->
+<style>
+  * {
+    /* border: 1px solid red; */
+  }
+  .layout {
+    @apply bg-skeleton-app-surface;
+  }
+  .grid-container {
+    @apply bg-skeleton-surface-1 border-skeleton-boundary-1 rounded-lg shadow-md border;
+  }
+  .topbar {
+    @apply bg-skeleton-surface-1 border-skeleton-boundary-1 shadow-md border-b;
+    .logo {
+      @apply px-6 font-brand font-bold text-palette-white;
+      font-size: 50px;
+      margin-top: -14px;
+      text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.91);
+      /* drop-shadow: 3px 3px 6px rgba(0, 0, 0, 0.91); */
+    }
+  }
+  .sidebar {
+    @apply w-64 p-0;
+  }
+  .sidebar-open {
+    @apply w-12 h-12 bg-skeleton-surface-1 border-skeleton-boundary-1 text-skeleton-contrast-1 rounded-lg shadow-md border;
+    position: absolute;
+    transform: translateX(-110%);
+    span {
+      margin-right: -15px;
+    }
+  }
+  .layout {
+    display: grid;
+    height: 100vh;
+    grid-template-areas:
+      "topbar topbar"
+      "content content"
+      "bottom bottom";
+    grid-template-rows: 50px minmax(0, 1fr) auto;
+    grid-template-columns: subgrid;
 
-<!--     afterNavigate((params) => { -->
-<!--         const isNewPage = params.from?.url.pathname !== params.to?.url.pathname; -->
-<!--         const elemPage = document.querySelector("#page"); -->
-<!--         if (isNewPage && elemPage !== null) { -->
-<!--             elemPage.scrollTop = 0; -->
-<!--         } -->
-<!--     }); -->
+    .topbar {
+      grid-area: topbar;
+      display: grid;
+      grid-template-areas: "logo center account";
+      grid-template-columns: auto 1fr auto;
 
-<!--     onMount(async () => { -->
-<!--         session = await locals.getSession(); -->
-<!--         const { data } = locals.supabase.auth.onAuthStateChange((event, _session) => { -->
-<!--             if (_session?.expires_at !== session?.expires_at) { -->
-<!--                 invalidate("supabase:auth"); -->
-<!--             } -->
-<!--         }); -->
-<!--         return () => data.subscription.unsubscribe(); -->
-<!--     }); -->
+      .logo {
+        grid-area: logo;
+      }
 
-<!-- <AppShell> -->
-<!--     <svelte:fragment slot="header"> -->
-<!--         <AppBar -->
-<!--             gridColumns="grid-cols-3" -->
-<!--             slotDefault="place-self-center" -->
-<!--             slotTrail="place-content-end" -->
-<!--             background="bg-surface-900" -->
-<!--         > -->
-<!--             <svelte:fragment slot="lead">{" "}</svelte:fragment> -->
+      .center {
+        grid-area: center;
+      }
+      .account {
+        grid-area: account;
+      }
+    }
 
-<!--             <a href="/"> -->
-<!--                 <img src={"/logo/vivalence-white.svg"} alt="Logo" class="h-8 mx-auto" /> -->
-<!--             </a> -->
+    .content {
+      grid-area: content;
+      display: grid;
+      grid-template-areas: "sidebar main";
+      grid-template-columns: auto 1fr;
 
-<!--             <svelte:fragment slot="trail"> -->
-<!--                 {#if session} -->
-<!--                     <form method="POST" action="auth?/signout"> -->
-<!--                         <button>Logout</button> -->
-<!--                     </form> -->
-<!--                 {:else} -->
-<!--                     <a href="/auth">Login</a> -->
-<!--                 {/if} -->
-<!--             </svelte:fragment> -->
-<!--         </AppBar> -->
-<!--     </svelte:fragment> -->
+      .sidebar {
+        grid-area: sidebar;
+      }
 
-<!--     <slot /> -->
+      .main {
+        grid-area: main;
+        overflow-x: auto;
+      }
+    }
 
-<!--     <svelte:fragment slot="footer"> -->
-<!--         {#if typeof $FooterComponent === "string"} -->
-<!--             {@html $FooterComponent} -->
-<!--         {:else if typeof $FooterComponent === "function"} -->
-<!--             <svelte:component this={$FooterComponent} /> -->
-<!--         {/if} -->
-<!--     </svelte:fragment> -->
-<!-- </AppShell> -->
-
-<!-- {#if dev} -->
-<!--     <DebugTool {locals} /> -->
-<!-- {/if} -->
+    .bottom {
+      grid-area: bottom;
+      display: none;
+    }
+  }
+</style>

@@ -15,9 +15,10 @@ export const handle = async (event) => {
     return data.session;
   };
 
-  event.locals.call = createCall({});
   event.locals.supabase = supabase(event);
-  event.data.session = await event.locals.getSession();
+  event.session = await event.locals.getSession();
+
+  event.locals.call = createCall({});
 
   return event;
 };

@@ -1,0 +1,9 @@
+{
+  "name": "@vivalence/viva",
+  "exports": {
+    "cli": "./cli.js",
+    "viva": "./mod.js",
+    ".": "./mod.js",
+  },
+  "version": "0.0.1",
+}

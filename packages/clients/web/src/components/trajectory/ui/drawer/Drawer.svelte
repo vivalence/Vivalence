@@ -1,5 +1,5 @@
 <script>
-  import trajectory from "$trajectory";
+  import trajectory from "$components/trajectory/index.js";
 
   $: ({ map, mode } = trajectory);
 

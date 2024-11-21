@@ -16,9 +16,11 @@ export default async function install(daemon) {
       if (typeof module.Module.install === "function") {
         module.manifest.installed = !!(await module.Module.install(runtime, module.Module));
       } else if (module.Module.curriculum) {
+        // get curriculum
         let curriculum = module.Module.curriculum;
         if (typeof curriculum === "function") curriculum = await curriculum(runtime, module.Module);
 
+        // install curriculum using {resource}/install
         const promises = [];
         for (const [key, resources] of Object.entries(curriculum)) {
           resources

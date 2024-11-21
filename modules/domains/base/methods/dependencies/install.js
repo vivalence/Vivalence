@@ -1,4 +1,4 @@
-import { deepEquals, deepMerge } from "@vivalence/shared";
+import { deepEquals, deepMerge, strings } from "@vivalence/shared";
 
 export default async function (body, ctx) {
   let { dependency } = body;
@@ -8,16 +8,24 @@ export default async function (body, ctx) {
 
   const existingDependency = await read(dependency, ctx);
 
+  let data;
   if (existingDependency) {
-    const data = await update({ new: dependency, old: existingDependency }, ctx);
-    operation = data.operation;
-    dependency = data.dependency;
+    // data.dependency, data.operation
+    data = await update({ new: dependency, old: existingDependency }, ctx);
   } else {
-    dependency = await create(dependency, ctx);
-    operation = "create";
+    data = await create(dependency, ctx);
   }
+  dependency.id = data.dependency.id;
 
-  return { dependency, operation, status: "success" };
+  const [conditions, preconditions] = await bruteForceConditions({ dependency }, ctx);
+
+  dependency = await ctx.runtime.call("/dependencies/compute", { dependency });
+
+  return {
+    dependency: { ...dependency, conditions, preconditions },
+    operation: data.operation,
+    status: "success",
+  };
 }
 
 async function read({ id, slug }, ctx) {
@@ -32,68 +40,55 @@ async function read({ id, slug }, ctx) {
   const { data: dependency, error } = await query.maybeSingle();
   if (error && error.code !== "PGRST116") throw error;
 
-  if (dependency) {
-    async function readCondition(type) {
-      const { data, error } = await ctx.runtime.locals.supabase
-        .from("Condition")
-        .select()
-        .eq(`${type}ForId`, dependency.id);
-      if (error) throw error;
-      return data;
-    }
-    const [conditions, preconditions] = await Promise.all([
-      readCondition("condition"),
-      readCondition("precondition"),
-    ]);
-    dependency.conditions = conditions;
-    dependency.preconditions = preconditions;
-  }
-
   return dependency;
 }
 
-async function handleConditions({ conditions, dependencyId }, ctx) {
-  const remaining = [...(conditions.old || [])];
-  const updated = [];
+// this used to be smart but i fucking lost my fucking nerve. BUUUURRRNNNNNN
+async function bruteForceConditions({ type, dependency }, ctx) {
+  async function deleteOldConditions(type) {
+    const oldRelations = await ctx.runtime.locals.supabase
+      .from(`_${strings.capitalize(type)}`)
+      .select("A,B")
+      .eq(`B`, dependency.id);
 
-  for (const newCondition of conditions.new || []) {
-    const matchIndex = remaining.findIndex((oldCondition) => {
-      return deepEquals(
-        {
-          scope: newCondition.scope,
-          assertion: newCondition.assertion,
-          corpusId: newCondition.corpusId || null,
-        },
-        {
-          scope: oldCondition.scope,
-          assertion: oldCondition.assertion,
-          corpusId: oldCondition.corpusId || null,
-        },
+    await ctx.runtime.locals.supabase
+      .from("Condition")
+      .delete()
+      .in(
+        "id",
+        oldRelations.data.map((r) => r.A),
       );
-    });
+  }
+  await Promise.all(["condition", "precondition"].map(deleteOldConditions));
 
-    if (matchIndex !== -1) {
-      updated.push({
-        condition: remaining[matchIndex],
-        operation: null,
-      });
-      remaining.splice(matchIndex, 1);
-    } else {
-      const installed = await ctx.runtime.call("/conditions/install", {
-        condition: newCondition,
-        type: conditions.type,
-        dependencyId,
-      });
-      if (installed.error) throw installed.error;
-      updated.push(installed);
-    }
+  async function createNewConditions(type) {
+    return await Promise.all(
+      dependency[type + "s"].map((condition) => {
+        condition.corpusId = dependency.corpusId;
+        return ctx.runtime.call("/conditions/install", { condition, type });
+      }),
+    );
   }
 
-  for (const { id } of remaining) {
-    const removed = await ctx.runtime.call("/conditions/remove", { id });
+  const [conditions, preconditions] = await Promise.all(
+    ["condition", "precondition"].map(createNewConditions),
+  );
+
+  async function createRelations(conditions) {
+    return await Promise.all(
+      conditions.map(({ type, condition }) =>
+        ctx.runtime.locals.supabase
+          .from(`_${strings.capitalize(type)}`)
+          .upsert({ A: condition.id, B: dependency.id }, { onConflict: "A,B" })
+          .select()
+          .single(),
+      ),
+    );
   }
 
-  return updated;
+  const relations = await Promise.all([conditions, preconditions].map(createRelations));
+
+  return [conditions, preconditions];
 }
 
 async function create(params, ctx) {
@@ -107,22 +102,7 @@ async function create(params, ctx) {
 
   if (error) throw error;
 
-  conditions = await handleConditions(
-    {
-      conditions: { new: conditions, type: "condition" },
-      dependencyId: dependency.id,
-    },
-    ctx,
-  );
-  preconditions = await handleConditions(
-    {
-      conditions: { new: preconditions, type: "precondition" },
-      dependencyId: dependency.id,
-    },
-    ctx,
-  );
-
-  return { ...dependency, conditions, preconditions };
+  return { dependency, operation: "create" };
 }
 
 async function update(dependencies, ctx) {
@@ -135,29 +115,6 @@ async function update(dependencies, ctx) {
     description: dependencies.old.description,
   };
   let operation = null;
-
-  const conditions = await handleConditions(
-    {
-      conditions: {
-        new: dependencies.new.conditions,
-        old: dependencies.old.conditions,
-        type: "condition",
-      },
-      dependencyId: dependency.id,
-    },
-    ctx,
-  );
-  const preconditions = await handleConditions(
-    {
-      conditions: {
-        new: dependencies.new.preconditions,
-        old: dependencies.old.preconditions,
-        type: "precondition",
-      },
-      dependencyId: dependency.id,
-    },
-    ctx,
-  );
 
   const mergedDependency = deepMerge(dependency, {
     itinerary: dependencies.new.itinerary,
@@ -182,8 +139,9 @@ async function update(dependencies, ctx) {
     if (error) throw error;
     dependency = data;
   }
+
   return {
     operation,
-    dependency: { ...dependency, conditions, preconditions },
+    dependency,
   };
 }

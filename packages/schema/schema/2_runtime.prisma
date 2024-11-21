@@ -6,6 +6,7 @@ model Runtime {
   installed    Boolean  @default(false)
   name         String?
   description  String?
+  icon         Json?
 
   createdAt    DateTime @default(now()) 
   updatedAt    DateTime @default(now()) @updatedAt
@@ -14,8 +15,8 @@ model Runtime {
   users        User[] 
 
   // RUNTIME
-  domain       Domain?
-  ontology     Ontology?
+  domain       Domain?  
+  ontology     Ontology? 
   corpora      Corpus[]
   games        Game[]
 
@@ -99,7 +100,7 @@ model Strategy {
 
   // DATA
   traits       StrategyTraitsEnum[] @default([])
-  data         Json @default("{}")
+  data         Json   @default("{}")
 
   @@unique([slug, runtimeId])
 }

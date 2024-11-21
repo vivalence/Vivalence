@@ -1,6 +1,5 @@
 import { validator, deepEquals, deepMerge, monads } from "@vivalence/shared";
 
-// TODO: Refactor to monadic
 export default async function (body, ctx) {
   const condition = await read(body.condition, ctx);
 

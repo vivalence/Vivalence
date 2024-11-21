@@ -1,6 +1,6 @@
 import config from "@vivalence/config";
 
-async function clients(daemon) {
+async function init(daemon) {
   daemon.services = daemon.services || {};
 
   for (const [serviceKey, serviceSlug] of Object.entries(config.services)) {
@@ -11,4 +11,4 @@ async function clients(daemon) {
   return daemon;
 }
 
-export default { clients };
+export default { init };
