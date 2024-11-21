@@ -62,18 +62,17 @@
   };
 
   const colors = {
-    "1": "text-theme-text-1",
-    "2": "text-theme-text-2",
-    "3": "text-theme-text-3",
-    "4": "text-theme-text-4",
-    placeholder: "text-theme-text-placeholder",
-    contrast: "text-theme-text-contrast",
-    hint: "text-theme-text-hint",
-    disabled: "text-theme-text-disabled",
-    success: "text-theme-text-success",
-    warning: "text-theme-text-warning",
-    danger: "text-theme-text-danger",
-    inverse: "text-theme-text-inverse",
+    "1": "text-skeleton-contrast-1",
+    "2": "text-skeleton-contrast-2",
+    "3": "text-skeleton-contrast-3",
+    "system-info": "text-system-info-contrast",
+    "system-success": "text-system-success-contrast",
+    "system-warning": "text-system-warning-contrast",
+    "system-error": "text-system-error-contrast",
+    "system-disabled": "text-system-disabled-contrast",
+    "theme-primary": "text-theme-primary-contrast",
+    "theme-secondary": "text-theme-secondary-contrast",
+    "theme-accent": "text-theme-accent-contrast",
   };
 
   const colorClass = colors[color] || color;

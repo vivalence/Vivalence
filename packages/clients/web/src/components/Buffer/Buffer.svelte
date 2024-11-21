@@ -1,39 +1,32 @@
 <script>
-  import { Widget, Loader } from "@vivalence/ui";
+  import { Text } from "@vivalence/ui";
+  import { onMount } from "svelte";
+  import { Loader } from "@vivalence/ui";
   import { id } from "@vivalence/shared";
-
   import BufferState from "./state.svelte.js";
 
-  const { runtime, instructions, SignalHandler } = $props();
+  const { onMode, pull, onCompleted } = $props();
 
-  const state = new BufferState({ runtime, instructions });
+  let state = new BufferState({ pull, onCompleted });
 
-  let payload = $derived({
-    runtime,
-    game: {
-      ...state.active?.game,
-      call: runtime.call.wrap(`/g/${state.active?.game?.slug}`),
-    },
-    next: state.next,
-    instruction: state.active?.instruction,
+  let [Component, componentProps] = $derived.by(() => {
+    if (state.active) return onMode(state.active);
+    else return [null, null];
   });
 
-  /* $inspect("state", state); */
-  /* $inspect("payload", payload); */
+  onMount(() => {
+    state.pull();
+  });
 </script>
 
-<div class="grid-chain-node">
-  {#if state.active}
+<div class="bsp-node">
+  {#if state.active && Component}
     {#key id(state.active)}
-      {#if state.active.type === "SIGNAL"}
-        <SignalHandler data={state.active} />
-      {:else if state.active.type === "GAME"}
-        <Widget bundle={state.active.game.bundle} {payload} />
-      {/if}
+      <Component next={state.next} {...componentProps} />
     {/key}
   {:else if state.status === "PULLING"}
     <Loader />
   {:else}
-    {state.next()}
+    <Text>Buffer</Text>
   {/if}
 </div>

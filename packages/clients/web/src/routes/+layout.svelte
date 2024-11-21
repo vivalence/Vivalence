@@ -1,5 +1,7 @@
 <script>
-  import "../app.css";
+  import "../style/app.css";
+  import "../style/bsp/bsp.css";
+
   import { writable } from "svelte/store";
 
   import { initTreeState } from "$components/Tree/context.js";
@@ -10,7 +12,7 @@
   const tree = initTreeState({ root: data.menuData, isOpen: false });
 </script>
 
-<div class="layout bg-theme-ui-background">
+<div class="layout">
   <header class="topbar">
     <div class="logo">VIVALENCE</div>
     <div class="center"></div>
@@ -42,11 +44,14 @@
   * {
     /* border: 1px solid red; */
   }
+  .layout {
+    @apply bg-skeleton-app-surface;
+  }
   .grid-container {
-    @apply bg-theme-ui-1 rounded-lg shadow-md border border-theme-border-1;
+    @apply bg-skeleton-surface-1 border-skeleton-boundary-1 rounded-lg shadow-md border;
   }
   .topbar {
-    @apply bg-theme-ui-1 shadow-md border-b border-theme-border-1;
+    @apply bg-skeleton-surface-1 border-skeleton-boundary-1 shadow-md border-b;
     .logo {
       @apply px-6 font-brand font-bold text-palette-white;
       font-size: 50px;
@@ -59,7 +64,7 @@
     @apply w-64 p-0;
   }
   .sidebar-open {
-    @apply w-12 h-12 bg-theme-ui-1 text-palette-white rounded-lg shadow-md border border-theme-border-1;
+    @apply w-12 h-12 bg-skeleton-surface-1 border-skeleton-boundary-1 text-skeleton-contrast-1 rounded-lg shadow-md border;
     position: absolute;
     transform: translateX(-110%);
     span {

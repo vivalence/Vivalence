@@ -47,7 +47,7 @@
       {#each dependency.conditions as condition}
         <div class="condition-item">
           <Icon carbon="CheckmarkOutline" size="sm" variant={condition.met ? "success" : "ui"} />
-          <Text spacing="none" size="md" weight="light" class="ml-2 overflow-ellipsis"
+          <Text spacing="none" size="sm" weight="light" class="ml-2 overflow-ellipsis"
             >{condition.name}</Text>
         </div>
       {/each}
@@ -57,7 +57,7 @@
 
 <style>
   .card {
-    @apply flex flex-col bg-theme-ui-1 border border-theme-border-1 rounded-lg p-4;
+    @apply flex flex-col bg-skeleton-surface-1 border border-skeleton-boundary-1 rounded-lg p-4;
   }
 
   .header {
@@ -79,11 +79,11 @@
       @apply flex-1 h-3 rounded;
 
       &.success {
-        @apply bg-system-success-2;
+        @apply bg-system-success-surface;
       }
 
       &.incomplete {
-        @apply bg-theme-border-2;
+        @apply bg-system-error-surface;
       }
     }
   }
@@ -97,10 +97,10 @@
   }
 
   .text-success {
-    @apply text-theme-text-success;
+    @apply text-system-success-contrast;
   }
 
   .text-gray {
-    @apply text-theme-text-1;
+    @apply text-skeleton-contrast-1;
   }
 </style>

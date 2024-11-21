@@ -1,6 +1,5 @@
 import typography from "@tailwindcss/typography";
-import theme from "./themes/tailwind.map.js";
-// import theme from "./themes/dark.js";
+import theme from "./src/style/tailwind-classes.js";
 
 const config = {
   purge: false,

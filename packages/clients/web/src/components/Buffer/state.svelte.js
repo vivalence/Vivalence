@@ -4,20 +4,18 @@ import { env } from "$env/dynamic/public";
 const QUEUE_THRESHOLD = parseInt(env["PUBLIC_QUEUE_THRESHOLD"]);
 
 export default class BufferState {
-  runtime = {};
-  instructions = {};
+  handlers = {};
+
   status = $state("IDLE");
   active = $state(null);
   queue = $state([]);
 
-  constructor({ runtime, instructions }) {
-    this.runtime = runtime;
-    this.instructions = instructions;
-    this.pull();
+  constructor({ onCompleted, pull }) {
+    this.handlers = { onCompleted, pull };
   }
 
   next() {
-    if (this.active) this.instructions.completed({ ...this.active });
+    if (this.active) this.handlers.onCompleted({ ...this.active });
     if (this.queue.length > 0) this.active = this.queue.shift();
     this.pull();
   }
@@ -26,7 +24,7 @@ export default class BufferState {
     if (this.queue.length >= QUEUE_THRESHOLD) return;
     this.status = "PULLING";
 
-    const instructions = await this.instructions.pull({
+    const instructions = await this.handlers.pull({
       take: QUEUE_THRESHOLD,
       blacklist: this.blacklist(),
     });
@@ -37,16 +35,15 @@ export default class BufferState {
   }
 
   blacklist() {
+    // maybe doesnt belond here at all.
+    // this would be prettier as a reducer.
     let blacklist = { units: [], tags: [] };
 
     [this.active, ...this.queue]
-      .filter((x) => x)
-      .filter((x) => x.type === "GAME")
+      .filter((x) => x?.scope)
       .forEach((item) => {
         blacklist = fromScope({ blacklist, scope: item.scope });
       });
-    // .reduce((scopes, item) => {if (item.type !== "SIGNAL") scopes.push(item.scope); return scopes;}, [])
-    // .map((scope) => {blacklist = fromScope({ blacklist, scope });});
 
     return blacklist;
   }

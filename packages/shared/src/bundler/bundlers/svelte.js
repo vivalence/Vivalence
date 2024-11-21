@@ -28,9 +28,9 @@ export default async function (entry) {
           if (["css_unused_selector"].includes(warning.code) || warning.code.startsWith("a11y-"))
             return;
 
-          console.warn("[Game Build Warnings:]");
-          console.warn(warning);
-          console.warn("");
+          // console.warn("[Game Build Warnings:]");
+          // console.warn(warning);
+          // console.warn("");
         },
         compilerOptions: {
           filename: basename(entry),

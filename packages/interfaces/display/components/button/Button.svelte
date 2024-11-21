@@ -12,20 +12,23 @@
   } = $props();
 
   const variants = {
-    accent: "bg-theme-accent text-theme-text-accent hover:bg-theme-hover-accent",
-
     primary:
-      "bg-theme-primary text-theme-text-4 hover:bg-interactive-hover-primary focus:bg-interactive-focus-primary",
-
+      "bg-theme-primary-surface border-theme-primary-boundary text-theme-primary-contrast hover:bg-theme-primary-hover-surface focus:bg-theme-primary-focus-surface",
     secondary:
-      "bg-theme-secondary text-theme-text-4 hover:bg-interactive-hover-secondary focus:bg-interactive-focus-secondary",
-
+      "bg-theme-secondary-surface border-theme-secondary-boundary text-theme-secondary-contrast hover:bg-theme-secondary-hover-surface focus:bg-theme-secondary-focus-surface",
+    accent:
+      "bg-theme-accent-surface border-theme-accent-boundary text-theme-accent-contrast hover:bg-theme-accent-hover-surface focus:bg-theme-accent-focus-surface",
+    info: "bg-system-info-surface border-system-info-boundary text-system-info-contrast hover:bg-system-info-hover-surface focus:bg-system-info-focus-surface",
     success:
-      "bg-system-success-bg text-system-success-text hover:bg-system-success-hover-bg hover:text-system-success-hover-text",
+      "bg-system-success-surface border-system-success-boundary text-system-success-contrast hover:bg-system-success-hover-surface focus:bg-system-success-focus-surface",
     warning:
-      "bg-system-warning-bg text-system-warning-text hover:bg-system-warning-hover-bg hover:text-system-warning-hover-text",
+      "bg-system-warning-surface border-system-warning-boundary text-system-warning-contrast hover:bg-system-warning-hover-surface focus:bg-system-warning-focus-surface",
     danger:
-      "bg-system-danger-bg text-system-danger-text hover:text-system-danger-hover-text hover:bg-system-danger-hover-bg",
+      "bg-system-danger-surface border-system-danger-boundary text-system-danger-contrast hover:bg-system-danger-hover-surface focus:bg-system-danger-focus-surface",
+    error:
+      "bg-system-error-surface border-system-error-boundary text-system-error-contrast hover:bg-system-error-hover-surface focus:bg-system-error-focus-surface",
+    disabled:
+      "bg-system-disabled-surface border-system-disabled-boundary text-system-disabled-contrast",
   };
 
   const sizes = {

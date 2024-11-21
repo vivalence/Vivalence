@@ -2,18 +2,23 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  const { data, locals } = $props();
+  let { instruction, runtime, dependency } = $props();
+  /* console.log("Signal Handler: instruction, runtime, dependency", instruction, runtime, dependency); */
 
-  let ui;
+  let ui = $state();
 
   onMount(() => {
-    switch (data.signal) {
+    switch (instruction.signal) {
       case "COMPLETED":
-        ui = "<h1>Dependency Satisfied</h1>";
-        /* setTimeout(() => goto("/"), 2000); */
+        ui = "Dependency Satisfied";
+        setTimeout(() => goto(`/runtime/${runtime.slug}/dependencies/view`), 2000);
         break;
       case "REPETITION":
-        ui = "<h1>Repetition of Tactic</h1>";
+        ui = "Repetition of Tactic";
+        /* setTimeout(() => locals.onGameFinish(), 2000); */
+        break;
+      case "ERROR":
+        ui = instruction.error.message;
         /* setTimeout(() => locals.onGameFinish(), 2000); */
         break;
       default:
@@ -23,7 +28,7 @@
 </script>
 
 {#if ui}
-  <section class="container mx-auto sm:px-10 md:px-24 mt-12 mb-20">
+  <section class="container text-skeleton-contrast-1 mx-auto sm:px-10 md:px-24 mt-12 mb-20">
     {@html ui}
   </section>
 {/if}

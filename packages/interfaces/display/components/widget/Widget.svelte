@@ -7,8 +7,8 @@
   let target = $state(null);
 
   onMount(async () => {
-    const { default: Game } = await import(/* @vite-ignore */ bundle);
-    component = await Game(target, payload);
+    const { default: Component } = await import(/* @vite-ignore */ bundle);
+    component = await Component(target, payload);
   });
 
   onDestroy(() => {
@@ -16,11 +16,11 @@
   });
 </script>
 
-<div class="grid-chain-node">
-  <div id="widget-container" class="grid-chain-node" bind:this={target} />
+<div class="bsp-node">
+  <div id="widget-container" class="bsp-node" bind:this={target} />
 
   {#if !component}
-    <div class="grid-chain-end">
+    <div class="bsp-chain-end">
       <span class="text-theme-text-1">Loading component...</span>
     </div>
   {/if}
