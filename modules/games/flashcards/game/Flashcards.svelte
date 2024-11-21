@@ -1,80 +1,111 @@
-<script>
-  import { getContext, onDestroy, onMount } from "svelte";
+<script module>
+  export class GameState {
+    instruction = $state(null);
 
-  import Panable from "./components/Panable.svelte";
+    runtime;
+    game;
+    next;
 
-  import { createStore } from "./store.js";
+    revealed = $state(true);
 
-  export let trajectory;
-  export let locals;
-  export let scope;
-  export let instruction;
+    constructor({ instruction }) {
+      /* constructor({ runtime, game, next, instruction }) {this.runtime = runtime; this.game = game; this.next = next; */
+      this.instruction = instruction;
+    }
 
-  const store = createStore({ locals });
+    reveal() {
+      this.revealed = true;
+    }
 
-  $: if (scope && instruction) {
-    store.update((s) => ({ ...s, revealed: false, loading: false, scope, instruction }));
-  }
-
-  const onReview = (status) => () => store.review(status);
-
-  const onReveal = () => {
-    if (!$store.revealed) {
-      store.reveal();
-      trajectory.use((t) => {
-        t.set(t.signals.keyboard["1"](), onReview("UNKNOWN"));
-        t.set(t.signals.keyboard["2"](), onReview("KNOWN"));
-        t.set(t.signals.keyboard["3"](), onReview("GRADUATE"));
+    async review(response) {
+      await this.game.call("/evaluate", {
+        // scope: this.scope,
+        // response,
       });
     }
-  };
 
-  onMount(() => {
-    trajectory.use((t) => {
-      t.set(t.signals.keyboard["Space"](), onReveal);
-    });
-  });
+    reset() {
+      this.instruction = null;
+      this.scope = null;
+      this.revealed = false;
+      this.loading = true;
+    }
+  }
 </script>
 
-<Panable
-  on:left={onReview("UNKNOWN")}
-  on:right={onReview("KNOWN")}
-  on:up={onReview("GRADUATE")}
-  on:tap={onReveal}
->
-  <div class={`h-screen pb-36 select-none cursor-grab flex flex-col items-center justify-center `}>
-    {#if !$store.loading}
-      <div class="card bg-base-300 w-96 mb-4">
-        <div class="card-body">
-          {@html $store.instruction.front}
-        </div>
-      </div>
+<script>
+  import { Text, Button } from "@vivalence/ui";
 
-      {#if $store.revealed}
-        <div class="card bg-base-100 w-96 shadow-xl">
-          <div class="card-body">
-            {@html $store.instruction.back}
-          </div>
-        </div>
-      {/if}
-    {/if}
+  const { gameState } = $props();
+
+  const onReview = (status) => async () => await gameState.review(status);
+
+  const reveal = () => gameState.reveal();
+</script>
+
+{#snippet card(card, color, classes)}
+  <div
+    class={`card h-1/2 lg:h-auto lg:max-h-full lg:w-1/2 p-4 rounded-lg shadow-md border border-skeleton-boundary-1 ${classes} `}>
+    <Text size="2xl" {color}>
+      {@html card.header}
+    </Text>
+    <Text size="md" {color}>
+      {@html card.content}
+    </Text>
+    <Text size="md" {color}>
+      {@html card.footer}
+    </Text>
   </div>
-</Panable>
+{/snippet}
 
-<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-6 py-10">
-  <div class="container mx-auto flex items-center justify-center">
-    {#if !$store.revealed}
-      <button on:click={onReveal} class={`btn btn-primary`} type="button">Reveal</button>
+<div class="grid-chain-node root">
+  <div class="grid-chain-node content grid-cols-6 grid-rows-6" onclick={reveal}>
+    <div
+      class={`grid-chain-end flashcard p-8 gap-4
+      col-span-4 col-start-2 row-span-4 row-start-3 lg:col-span-4 lg:col-start-2 lg:row-span-2 lg:row-start-3
+      flex flex-col justify-end lg:flex-row lg:justify-start`}>
+      {@render card(gameState.instruction.front, "1", "front bg-skeleton-surface-1 ")}
+
+      {#if gameState.revealed}
+        {@render card(gameState.instruction.back, "2", "back bg-skeleton-surface-2 ")}
+      {/if}
+    </div>
+  </div>
+
+  <div
+    class={`grid-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1 flex justify-center gap-2`}>
+    {#if gameState.revealed}
+      <Button size="xl" variant="warning" onclick={onReview("UNKNOWN")}>Unknown</Button>
+      <Button size="xl" variant="success" onclick={onReview("KNOWN")}>Known</Button>
+      <Button size="xl" variant="accent" onclick={onReview("GRADUATE")}>Graduate</Button>
     {:else}
-      <button on:click={onReview("UNKNOWN")} class={`btn btn-error btn-outline mr-4`} type="button">
-        Unknown
-      </button>
-      <button on:click={onReview("KNOWN")} class={`btn btn-success btn-outline mr-4`} type="button">
-        Known
-      </button>
-      <button on:click={onReview("GRADUATE")} class={`btn btn-success`} type="button">
-        Graduate
-      </button>
+      <Button size="xl" onclick={reveal}>Reveal</Button>
     {/if}
   </div>
 </div>
+
+<style>
+  .root {
+    grid-template-rows: 1fr auto;
+  }
+
+  .content {
+    .flashcard {
+    }
+    .card {
+      .header {
+      }
+      .content {
+      }
+      .footer {
+      }
+
+      .front {
+      }
+      .back {
+      }
+    }
+  }
+  .menu {
+  }
+</style>

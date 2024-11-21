@@ -1,14 +1,25 @@
 import createMemoryProfiler from "./memory-profiler.js";
 
 export default async function dev(daemon) {
-  const runtime = daemon.runtimes.values().next().value;
+  // const runtime = daemon.runtimes.values().next().value;
+  // console.log(runtime.manifest.url, new URL(runtime.manifest.url, "file://"));
 
-  let query = runtime.locals.supabase
-    .from("Runtime")
-    //
-    .select("*");
+  // let query = await runtime.locals.supabase
+  //   .from("Dependency")
+  //   .select(`*, _Precondition(*)`)
+  //   .eq("runtimeId", runtime.manifest.id);
 
-  console.log(await query.maybeSingle());
+  // console.log(query);
+  // if (input.dependency?.id) query = query.eq("id", input.dependency.id);
+
+  // const { data: dependencies, error } = await query;
+
+  // let query = runtime.locals.supabase
+  //   .from("Runtime")
+  //   //
+  //   .select("*");
+
+  // console.log(await query.maybeSingle());
 
   // const profiler = createMemoryProfiler(1000);
   // profiler.start();

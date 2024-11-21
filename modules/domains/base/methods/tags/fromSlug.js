@@ -6,7 +6,7 @@ export default async function (body, ctx) {
     .select("id, data, name, description, slug, traits, runtimeId")
     .eq("slug", slug)
     .eq("runtimeId", ctx.runtime.manifest.id)
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
   return data;

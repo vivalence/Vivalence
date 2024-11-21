@@ -6,8 +6,8 @@ import { bundler } from "@vivalence/shared";
 
 async function boot(runtime, Game) {
   const bundle = bundler({
-    path: join(dirname(fromFileUrl(import.meta.url)), "/game/Flashcards.svelte"),
-    url: Game.manifest.url,
+    entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
+    serve: runtime.manifest.url + Game.manifest.url,
   });
 
   runtime.router.get(bundle.url, bundle.serve());
@@ -23,9 +23,8 @@ async function boot(runtime, Game) {
 
 const data = {
   mask: {
-    back: "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
-    front:
-      "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n",
+    // back: "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
+    // front: "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n",
   },
 };
 

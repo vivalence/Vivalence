@@ -1,0 +1,314 @@
+# -*- mode: org; llms-standard: v1; implements: llms.txt; tangle-target: concat.js -*-
+
+#+TITLE: Functional BSP css valence
+#+AUTHOR: [Generated via LLM]
+#+DATE: [2024-11-20 Wed]
+#+PROPERTY: header-args:css :tangle ./bsp.css :viva "#! ...
+#+PROPERTY: llms-version 1.0
+#+PROPERTY: implements llms.txt
+
+* BSP Grid System
+** Introduction
+BSP (Binary Space Partition) Grid System provides a composable and powerful layout system based on grid templates and dimensional controls.
+
+** Core Concepts
+*** BSP Node
+- Basic grid container
+- Always fills parent
+- No default gap
+- Coordinates child placement
+
+*** Template Types
+**** Base Templates (h*/v*)
+- h1-h9: Horizontal divisions
+- v1-v9: Vertical divisions
+- Expect specific number of children
+
+**** 12-Unit System
+- t-12h: 12-column horizontal grid
+- t-12v: 12-row vertical grid
+- t-12g: 12x12 full grid
+
+**** Complex Templates
+- t-triple-[t|r|b|l]: Triple layouts with large section
+- t-quad: Four equal sections
+- t-explorer: File explorer layout
+- t-dashboard: Dashboard layout
+- t-mail: Email client layout
+
+** Usage
+*** Basic Layout
+#+BEGIN_SRC html
+<div class="bsp-node h2">
+  <div>Left</div>
+  <div>Right</div>
+</div>
+#+END_SRC
+
+*** Template Usage
+#+BEGIN_SRC html
+<div class="bsp-node t-triple-b">
+  <div class="t-triple-b-top-l">Top Left</div>
+  <div class="t-triple-b-top-r">Top Right</div>
+  <div class="t-triple-b-bottom">Bottom</div>
+</div>
+#+END_SRC
+
+*** Grid Control
+#+BEGIN_SRC html
+<div class="bsp-node t-12g">
+  <div class="span-h6 span-v4">Large Area</div>
+</div>
+#+END_SRC
+
+** Class Reference
+*** Core
+- bsp-node: Base grid container
+
+*** Flow Control
+- f-row: Row flow
+- f-col: Column flow
+- f-dense: Dense packing
+- f-reverse: Reverse flow
+
+*** Spacing
+- gap-1: 0.25rem
+- gap-2: 0.5rem
+- gap-3: 0.75rem
+- gap-4: 1rem
+
+*** Grid Coverage
+- span-h[1-12]: Horizontal spans
+- span-v[1-12]: Vertical spans
+- start-h[1-12]: Horizontal start
+- start-v[1-12]: Vertical start
+
+** Implementation
+*** Core
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* BSP Core */
+.bsp-node {
+  display: grid;
+  width: 100%;
+  height: 100%;
+}
+#+END_SRC
+
+*** Base Templates - Horizontal
+
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Base Templates - Horizontal (1-9) */
+.h1 { grid-template-columns: 1fr; }
+.h2 { grid-template-columns: repeat(2, 1fr); }
+.h3 { grid-template-columns: repeat(3, 1fr); }
+.h4 { grid-template-columns: repeat(4, 1fr); }
+.h5 { grid-template-columns: repeat(5, 1fr); }
+.h6 { grid-template-columns: repeat(6, 1fr); }
+.h7 { grid-template-columns: repeat(7, 1fr); }
+.h8 { grid-template-columns: repeat(8, 1fr); }
+.h9 { grid-template-columns: repeat(9, 1fr); }
+#+END_SRC
+
+*** Base Templates - Vertical
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Base Templates - Vertical (1-9) */
+.v1 { grid-template-rows: 1fr; }
+.v2 { grid-template-rows: repeat(2, 1fr); }
+.v3 { grid-template-rows: repeat(3, 1fr); }
+.v4 { grid-template-rows: repeat(4, 1fr); }
+.v5 { grid-template-rows: repeat(5, 1fr); }
+.v6 { grid-template-rows: repeat(6, 1fr); }
+.v7 { grid-template-rows: repeat(7, 1fr); }
+.v8 { grid-template-rows: repeat(8, 1fr); }
+.v9 { grid-template-rows: repeat(9, 1fr); }
+#+END_SRC
+
+*** 12-Unit System
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* 12-Unit System */
+.t-12h {
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.t-12v {
+  grid-template-rows: repeat(12, 1fr);
+}
+
+.t-12g {
+  grid-template: repeat(12, 1fr) / repeat(12, 1fr);
+}
+#+END_SRC
+
+*** Triple Templates
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Triple Templates */
+.t-triple-t {
+  grid-template:
+    "top top" 2fr
+    "bottom-l bottom-r" 1fr / 1fr 1fr;
+}
+
+.t-triple-t-top { grid-area: top; }
+.t-triple-t-bottom-l { grid-area: bottom-l; }
+.t-triple-t-bottom-r { grid-area: bottom-r; }
+
+.t-triple-b {
+  grid-template:
+    "top-l top-r" 1fr
+    "bottom bottom" 2fr / 1fr 1fr;
+}
+
+.t-triple-b-top-l { grid-area: top-l; }
+.t-triple-b-top-r { grid-area: top-r; }
+.t-triple-b-bottom { grid-area: bottom; }
+
+.t-triple-l {
+  grid-template:
+    "left right-t" 1fr
+    "left right-b" 1fr / 2fr 1fr;
+}
+
+.t-triple-l-left { grid-area: left; }
+.t-triple-l-right-t { grid-area: right-t; }
+.t-triple-l-right-b { grid-area: right-b; }
+
+.t-triple-r {
+  grid-template:
+    "left-t right" 1fr
+    "left-b right" 1fr / 1fr 2fr;
+}
+
+.t-triple-r-right { grid-area: right; }
+.t-triple-r-left-t { grid-area: left-t; }
+.t-triple-r-left-b { grid-area: left-b; }
+#+END_SRC
+
+*** Complex Templates
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Complex Templates */
+.t-explorer {
+  grid-template:
+    "tree content preview" 1fr
+    "tree content preview" 1fr / 1fr 2fr 1fr;
+}
+
+.t-explorer-tree { grid-area: tree; }
+.t-explorer-content { grid-area: content; }
+.t-explorer-preview { grid-area: preview; }
+
+.t-dashboard {
+  grid-template:
+    "header header header" auto
+    "sidebar main widgets" 1fr
+    "footer footer footer" auto / 1fr 3fr 1fr;
+}
+
+.t-dashboard-header { grid-area: header; }
+.t-dashboard-sidebar { grid-area: sidebar; }
+.t-dashboard-main { grid-area: main; }
+.t-dashboard-widgets { grid-area: widgets; }
+.t-dashboard-footer { grid-area: footer; }
+
+.t-mail {
+  grid-template:
+    "folders list detail" 1fr
+    "folders list detail" 1fr / 200px minmax(300px, 1fr) minmax(400px, 2fr);
+}
+
+.t-mail-folders { grid-area: folders; }
+.t-mail-list { grid-area: list; }
+.t-mail-detail { grid-area: detail; }
+#+END_SRC
+
+*** Grid Coverage
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Grid Coverage */
+.span-h1 { grid-column: span 1; }
+.span-h2 { grid-column: span 2; }
+.span-h3 { grid-column: span 3; }
+.span-h4 { grid-column: span 4; }
+.span-h5 { grid-column: span 5; }
+.span-h6 { grid-column: span 6; }
+.span-h7 { grid-column: span 7; }
+.span-h8 { grid-column: span 8; }
+.span-h9 { grid-column: span 9; }
+.span-h10 { grid-column: span 10; }
+.span-h11 { grid-column: span 11; }
+.span-h12 { grid-column: span 12; }
+
+.span-v1 { grid-row: span 1; }
+.span-v2 { grid-row: span 2; }
+.span-v3 { grid-row: span 3; }
+.span-v4 { grid-row: span 4; }
+.span-v5 { grid-row: span 5; }
+.span-v6 { grid-row: span 6; }
+.span-v7 { grid-row: span 7; }
+.span-v8 { grid-row: span 8; }
+.span-v9 { grid-row: span 9; }
+.span-v10 { grid-row: span 10; }
+.span-v11 { grid-row: span 11; }
+.span-v12 { grid-row: span 12; }
+#+END_SRC
+
+*** Starting Positions
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Starting Positions */
+.start-h1 { grid-column-start: 1; }
+.start-h2 { grid-column-start: 2; }
+.start-h3 { grid-column-start: 3; }
+.start-h4 { grid-column-start: 4; }
+.start-h5 { grid-column-start: 5; }
+.start-h6 { grid-column-start: 6; }
+.start-h7 { grid-column-start: 7; }
+.start-h8 { grid-column-start: 8; }
+.start-h9 { grid-column-start: 9; }
+.start-h10 { grid-column-start: 10; }
+.start-h11 { grid-column-start: 11; }
+.start-h12 { grid-column-start: 12; }
+
+.start-v1 { grid-row-start: 1; }
+.start-v2 { grid-row-start: 2; }
+.start-v3 { grid-row-start: 3; }
+.start-v4 { grid-row-start: 4; }
+.start-v5 { grid-row-start: 5; }
+.start-v6 { grid-row-start: 6; }
+.start-v7 { grid-row-start: 7; }
+.start-v8 { grid-row-start: 8; }
+.start-v9 { grid-row-start: 9; }
+.start-v10 { grid-row-start: 10; }
+.start-v11 { grid-row-start: 11; }
+.start-v12 { grid-row-start: 12; }
+#+END_SRC
+
+*** Flow Control
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Flow Control */
+.f-row { grid-auto-flow: row; }
+.f-col { grid-auto-flow: column; }
+.f-dense { grid-auto-flow: dense; }
+.f-reverse { grid-auto-flow: dense row-reverse; }
+#+END_SRC
+
+*** Spacing
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Spacing */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+#+END_SRC
+
+*** Utilities
+#+BEGIN_SRC css :tangle ./bsp.css 
+/* Utilities */
+.bsp-contain > * {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.bsp-stretch > * {
+  width: 100%;
+  height: 100%;
+}
+#+END_SRC

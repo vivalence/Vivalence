@@ -1,18 +1,22 @@
-import annotations from "./annotations.js";
+// import dependencies from "./dependencies/index.js";
+// import units from "./units/index.js";
 
-export default (runtime) => {
-  const schema = runtime.schema;
-  const { units, lemmas } = annotations().reduce(
-    (acc, annotation) => {
-      acc.units.push({ annotation });
-      if (["verb"].includes(annotation.pos)) acc.lemmas.add(annotation.lemma);
-      return acc;
-    },
-    { units: [], lemmas: new Set() },
-  );
+// async function install(runtime, Corpus) {
+//   for (const unit of units) {
+//     unit.corpusId = Corpus.manifest.id;
+//     const installed = await runtime.call("/units/install", { unit });
+//   }
 
-  const tags = Array.from(lemmas).map((lemma) => ({ ontology: { branch: "lemma", leaf: lemma } }));
-  // console.log(tags, units);
+//   for (const dependency of dependencies) {
+//     dependency.corpusId = Corpus.manifest.id;
+//     const installed = await runtime.call("/dependencies/install", { dependency });
+//   }
 
-  return {};
-};
+//   return true;
+// }
+
+// const curriculum = {
+//   units: [],
+//   tags: [],
+//   dependencies: [],
+// };

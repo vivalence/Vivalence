@@ -1,0 +1,459 @@
+const createNumberedType = (prefix, count = 3) => {
+  return Array.from({ length: count }, (_, i) => i + 1).reduce(
+    (nums, num) => ({
+      ...nums,
+      [num]: `var(--colors-${prefix}-${num})`,
+    }),
+    {},
+  );
+};
+
+const createSemanticVariant = (prefix) => ({
+  surface: `var(--colors-${prefix}-surface)`,
+  contrast: `var(--colors-${prefix}-contrast)`,
+  boundary: `var(--colors-${prefix}-boundary)`,
+  "hover-surface": `var(--colors-${prefix}-hover-surface)`,
+  "hover-contrast": `var(--colors-${prefix}-hover-contrast)`,
+  "hover-boundary": `var(--colors-${prefix}-hover-boundary)`,
+});
+
+export default {
+  colors: {
+    palette: {
+      white: "var(--colors-palette-white)",
+      black: "var(--colors-palette-black)",
+      gray: {
+        //suck a dick.
+        0: "var(--colors-palette-gray-0)",
+        10: "var(--colors-palette-gray-10)",
+        20: "var(--colors-palette-gray-20)",
+        30: "var(--colors-palette-gray-30)",
+        40: "var(--colors-palette-gray-40)",
+        50: "var(--colors-palette-gray-50)",
+        60: "var(--colors-palette-gray-60)",
+        70: "var(--colors-palette-gray-70)",
+        80: "var(--colors-palette-gray-80)",
+        90: "var(--colors-palette-gray-90)",
+        100: "var(--colors-palette-gray-100)",
+        200: "var(--colors-palette-gray-200)",
+        300: "var(--colors-palette-gray-300)",
+        400: "var(--colors-palette-gray-400)",
+        500: "var(--colors-palette-gray-500)",
+        600: "var(--colors-palette-gray-600)",
+        700: "var(--colors-palette-gray-700)",
+        800: "var(--colors-palette-gray-800)",
+        900: "var(--colors-palette-gray-900)",
+        1000: "var(--colors-palette-gray-1000)",
+      },
+    },
+    "skeleton-app-surface": "var(--colors-skeleton-app-surface)",
+    "skeleton-surface": createNumberedType("skeleton-surface", 3),
+    "skeleton-contrast": createNumberedType("skeleton-contrast", 3),
+    "skeleton-boundary": createNumberedType("skeleton-boundary", 3),
+
+    "system-info": createSemanticVariant("system-info"),
+    "system-success": createSemanticVariant("system-success"),
+    "system-warning": createSemanticVariant("system-warning"),
+    "system-error": createSemanticVariant("system-error"),
+    "system-danger": createSemanticVariant("system-danger"),
+    "system-disabled": createSemanticVariant("system-disabled"),
+
+    "theme-primary": createSemanticVariant("theme-primary"),
+    "theme-secondary": createSemanticVariant("theme-secondary"),
+    "theme-accent": createSemanticVariant("theme-accent"),
+  },
+
+  // For now only family and size, needs to be expanded
+  fontFamily: {
+    brand: "var(--font-family-brand)",
+    "serif-head": "var(--font-family-serif-head)",
+    "serif-text": "var(--font-family-serif-text)",
+    "sans-head": "var(--font-family-sans-head)",
+    "sans-text": "var(--font-family-sans-text)",
+    code: "var(--font-family-code)",
+  },
+  fontSize: {
+    xs: ["var(--font-size-xs)", "var(--line-height-xs)"],
+    sm: ["var(--font-size-sm)", "var(--line-height-sm)"],
+    base: ["var(--font-size-base)", "var(--line-height-base)"],
+    md: ["var(--font-size-base)", "var(--line-height-base)"],
+    lg: ["var(--font-size-lg)", "var(--line-height-lg)"],
+    xl: ["var(--font-size-xl)", "var(--line-height-xl)"],
+    "2xl": ["var(--font-size-2xl)", "var(--line-height-2xl)"],
+    "3xl": ["var(--font-size-3xl)", "var(--line-height-3xl)"],
+    "4xl": ["var(--font-size-4xl)", "var(--line-height-4xl)"],
+    "5xl": ["var(--font-size-5xl)", "var(--line-height-5xl)"],
+    "6xl": ["var(--font-size-6xl)", "var(--line-height-6xl)"],
+    "7xl": ["var(--font-size-7xl)", "var(--line-height-7xl)"],
+    "8xl": ["var(--font-size-8xl)", "var(--line-height-8xl)"],
+  },
+  // tokens
+  boxShadow: {
+    sm: "var(--box-shadow-sm)",
+    DEFAULT: "var(--box-shadow-default)",
+    md: "var(--box-shadow-md)",
+    lg: "var(--box-shadow-lg)",
+    xl: "var(--box-shadow-xl)",
+  },
+  dropShadow: {
+    sm: "var(--drop-shadow-sm)",
+    DEFAULT: "var(--drop-shadow-default)",
+    md: "var(--drop-shadow-md)",
+    lg: "var(--drop-shadow-lg)",
+    xl: "var(--drop-shadow-xl)",
+    none: "var(--drop-shadow-none)",
+  },
+  borderRadius: {
+    none: "var(--border-radius-none)",
+    sm: "var(--border-radius-sm)",
+    DEFAULT: "var(--border-radius-default)",
+    lg: "var(--border-radius-lg)",
+    full: "var(--border-radius-full)",
+  },
+  extend: {
+    spacing: {
+      0: "var(--spacing-0)",
+      1: "var(--spacing-1)",
+      2: "var(--spacing-2)",
+      3: "var(--spacing-3)",
+      4: "var(--spacing-4)",
+      6: "var(--spacing-6)",
+      8: "var(--spacing-8)",
+    },
+    animation: {
+      "spin-slow": "var(--animation-spin-slow)",
+    },
+    container: {
+      center: false,
+      padding: {
+        DEFAULT: "var(--container-padding-default)",
+        sm: "var(--container-padding-sm)",
+        lg: "var(--container-padding-lg)",
+      },
+    },
+    screens: {
+      xs: "320px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
+  },
+};
+// const createSystemColors = () => {
+//   const variants = ["info", "success", "warning", "error", "disabled"];
+//   return variants.reduce(
+//     (acc, variant) => ({
+//       ...acc,
+//       [`system-${variant}`]: createColorType("system", variant),
+//     }),
+//     {},
+//   );
+// };
+
+// const createThemeColors = () => {
+//   const variants = ["primary", "secondary", "accent"];
+//   return variants.reduce(
+//     (acc, variant) => ({
+//       ...acc,
+//       [`theme-${variant}`]: createColorType("theme", variant),
+//     }),
+//     {},
+//   );
+// };
+
+// export default {
+//   theme: {
+//     extend: {
+//       colors: {
+//         // Basic colors
+//         white: "var(--color-palette-white)",
+//         black: "var(--color-palette-black)",
+//         gray: createGrayScale(),
+
+//         // Skeleton system
+//         skeleton: createNumberedType("skeleton"),
+
+//         // System colors
+//         ...createSystemColors(),
+
+//         // Theme colors
+//         ...createThemeColors(),
+//       },
+//     },
+//   },
+// };
+
+// export default {
+//   font: {
+//     family: {
+//       brand: "var(--font-family-brand)",
+//       "serif-head": "var(--font-family-serif-head)",
+//       "serif-text": "var(--font-family-serif-text)",
+//       "sans-head": "var(--font-family-sans-head)",
+//       "sans-text": "var(--font-family-sans-text)",
+//       code: "var(--font-family-code)",
+//     },
+//     size: {
+//       xs: ["var(--font-size-xs)", "var(--line-height-xs)"],
+//       sm: ["var(--font-size-sm)", "var(--line-height-sm)"],
+//       base: ["var(--font-size-base)", "var(--line-height-base)"],
+//       lg: ["var(--font-size-lg)", "var(--line-height-lg)"],
+//       xl: ["var(--font-size-xl)", "var(--line-height-xl)"],
+//       "2xl": ["var(--font-size-2xl)", "var(--line-height-2xl)"],
+//       "3xl": ["var(--font-size-3xl)", "var(--line-height-3xl)"],
+//       "4xl": ["var(--font-size-4xl)", "var(--line-height-4xl)"],
+//       "5xl": ["var(--font-size-5xl)", "var(--line-height-5xl)"],
+//       "6xl": ["var(--font-size-6xl)", "var(--line-height-6xl)"],
+//       "7xl": ["var(--font-size-7xl)", "var(--line-height-7xl)"],
+//       "8xl": ["var(--font-size-8xl)", "var(--line-height-8xl)"],
+//     },
+//   },
+//   boxShadow: {
+//     sm: "var(--box-shadow-sm)",
+//     DEFAULT: "var(--box-shadow-default)",
+//     md: "var(--box-shadow-md)",
+//     lg: "var(--box-shadow-lg)",
+//     xl: "var(--box-shadow-xl)",
+//   },
+//   dropShadow: {
+//     sm: "var(--drop-shadow-sm)",
+//     DEFAULT: "var(--drop-shadow-default)",
+//     md: "var(--drop-shadow-md)",
+//     lg: "var(--drop-shadow-lg)",
+//     xl: "var(--drop-shadow-xl)",
+//     none: "var(--drop-shadow-none)",
+//   },
+//   container: {
+//     center: false,
+//     padding: {
+//       DEFAULT: "var(--container-padding-default)",
+//       sm: "var(--container-padding-sm)",
+//       lg: "var(--container-padding-lg)",
+//     },
+//   },
+//   borderRadius: {
+//     none: "var(--border-radius-none)",
+//     sm: "var(--border-radius-sm)",
+//     DEFAULT: "var(--border-radius-default)",
+//     lg: "var(--border-radius-lg)",
+//     full: "var(--border-radius-full)",
+//   },
+//   animation: {
+//     "spin-slow": "var(--animation-spin-slow)",
+//   },
+//   spacing: {
+//     0: "var(--spacing-0)",
+//     1: "var(--spacing-1)",
+//     2: "var(--spacing-2)",
+//     3: "var(--spacing-3)",
+//     4: "var(--spacing-4)",
+//     6: "var(--spacing-6)",
+//     8: "var(--spacing-8)",
+//   },
+//   colors: {
+//     palette: {
+//       white: "var(--color-palette-white)",
+//       black: "var(--color-palette-black)",
+//       gray: {
+//         0: "var(--color-palette-gray-0)",
+//         10: "var(--color-palette-gray-10)",
+//         20: "var(--color-palette-gray-20)",
+//         30: "var(--color-palette-gray-30)",
+//         40: "var(--color-palette-gray-40)",
+//         50: "var(--color-palette-gray-50)",
+//         60: "var(--color-palette-gray-60)",
+//         70: "var(--color-palette-gray-70)",
+//         80: "var(--color-palette-gray-80)",
+//         90: "var(--color-palette-gray-90)",
+//         100: "var(--color-palette-gray-100)",
+//         200: "var(--color-palette-gray-200)",
+//         300: "var(--color-palette-gray-300)",
+//         400: "var(--color-palette-gray-400)",
+//         500: "var(--color-palette-gray-500)",
+//         600: "var(--color-palette-gray-600)",
+//         700: "var(--color-palette-gray-700)",
+//         800: "var(--color-palette-gray-800)",
+//         900: "var(--color-palette-gray-900)",
+//         950: "var(--color-palette-gray-950)",
+//       },
+//     },
+//     system: {
+//       info: {
+//         text: "var(--color-system-info-text)",
+//         bg: "var(--color-system-info-bg)",
+//         border: "var(--color-system-info-border)",
+//         hover: {
+//           text: "var(--color-system-info-hover-text)",
+//           bg: "var(--color-system-info-hover-bg)",
+//           border: "var(--color-system-info-hover-border)",
+//         },
+
+//         // depracated
+//         1: "var(--color-system-info-1)",
+//         2: "var(--color-system-info-2)",
+//         3: "var(--color-system-info-3)",
+//       },
+//       success: {
+//         text: "var(--color-system-success-text)",
+//         bg: "var(--color-system-success-bg)",
+//         border: "var(--color-system-success-border)",
+//         hover: {
+//           text: "var(--color-system-success-hover-text)",
+//           bg: "var(--color-system-success-hover-bg)",
+//           border: "var(--color-system-success-hover-border)",
+//         },
+//         // depracated
+//         1: "var(--color-system-success-1)",
+//         2: "var(--color-system-success-2)",
+//         3: "var(--color-system-success-3)",
+//       },
+//       warning: {
+//         text: "var(--color-system-warning-text)",
+//         bg: "var(--color-system-warning-bg)",
+//         border: "var(--color-system-warning-border)",
+//         hover: {
+//           text: "var(--color-system-warning-hover-text)",
+//           bg: "var(--color-system-warning-hover-bg)",
+//           border: "var(--color-system-warning-hover-border)",
+//         },
+//         // depracated
+//         1: "var(--color-system-warning-1)",
+//         2: "var(--color-system-warning-2)",
+//         3: "var(--color-system-warning-3)",
+//       },
+//       danger: {
+//         text: "var(--color-system-danger-text)",
+//         bg: "var(--color-system-danger-bg)",
+//         border: "var(--color-system-danger-border)",
+//         hover: {
+//           text: "var(--color-system-danger-hover-text)",
+//           bg: "var(--color-system-danger-hover-bg)",
+//           border: "var(--color-system-danger-hover-border)",
+//         },
+//         // depracated
+//         1: "var(--color-system-danger-1)",
+//         2: "var(--color-system-danger-2)",
+//         3: "var(--color-system-danger-3)",
+//       },
+//       disabled: {
+//         text: "var(--color-system-disabled-text)",
+//         bg: "var(--color-system-disabled-bg)",
+//         border: "var(--color-system-disabled-border)",
+//         hover: {
+//           text: "var(--color-system-disabled-hover-text)",
+//           bg: "var(--color-system-disabled-hover-bg)",
+//           border: "var(--color-system-disabled-hover-border)",
+//         },
+//         // depracated
+//         1: "var(--color-system-disabled-1)",
+//         2: "var(--color-system-disabled-2)",
+//         3: "var(--color-system-disabled-3)",
+//       },
+//     },
+//     interactive: {
+//       active: {
+//         accent: "var(--color-interactive-active-accent)",
+//         primary: "var(--color-interactive-active-primary)",
+//         secondary: "var(--color-interactive-active-secondary)",
+//         inverse: "var(--color-interactive-active-inverse)",
+//         ui: "var(--color-interactive-active-ui)",
+//         border: "var(--color-interactive-active-border)",
+//         field: "var(--color-interactive-active-field)",
+//       },
+//       hover: {
+//         accent: "var(--color-interactive-hover-accent)",
+//         primary: "var(--color-interactive-hover-primary)",
+//         secondary: "var(--color-interactive-hover-secondary)",
+//         inverse: "var(--color-interactive-hover-inverse)",
+//         ui: "var(--color-interactive-hover-ui)",
+//         field: "var(--color-interactive-hover-field)",
+//       },
+//       focus: {
+//         accent: "var(--color-interactive-focus-accent)",
+//         secondary: "var(--color-interactive-focus-secondary)",
+//         danger: "var(--color-interactive-focus-danger)",
+//       },
+//     },
+//     skeleton: {
+//       1: "var(--color-skeleton-1)",
+//       2: "var(--color-skeleton-2)",
+//     },
+//     theme: {
+//       accent: "var(--color-theme-accent)",
+//       primary: "var(--color-theme-primary)",
+//       secondary: "var(--color-theme-secondary)",
+//       contrast: "var(--color-theme-contrast)",
+//       link: "var(--color-theme-link)",
+//       text: {
+//         1: "var(--color-theme-text-1)",
+//         2: "var(--color-theme-text-2)",
+//         3: "var(--color-theme-text-3)",
+//         4: "var(--color-theme-text-4)",
+//         placeholder: "var(--color-theme-text-placeholder)",
+//         contrast: "var(--color-theme-text-contrast)",
+//         hint: "var(--color-theme-text-hint)",
+//         disabled: "var(--color-theme-text-disabled)",
+//         success: "var(--color-theme-text-success)",
+//         warning: "var(--color-theme-text-warning)",
+//         danger: "var(--color-theme-text-danger)",
+//         inverse: "var(--color-theme-text-inverse)",
+//       },
+//       icon: {
+//         1: "var(--color-theme-icon-1)",
+//         2: "var(--color-theme-icon-2)",
+//         3: "var(--color-theme-icon-3)",
+//         contrast: "var(--color-theme-icon-contrast)",
+//         disabled: "var(--color-theme-icon-disabled)",
+//         inverse: "var(--color-theme-icon-inverse)",
+//       },
+//       ui: {
+//         overlay: "var(--color-theme-ui-overlay)",
+//         background: "var(--color-theme-ui-background)",
+//         1: "var(--color-theme-ui-1)",
+//         2: "var(--color-theme-ui-2)",
+//         3: "var(--color-theme-ui-3)",
+//         4: "var(--color-theme-ui-4)",
+//       },
+//       border: {
+//         1: "var(--color-theme-border-1)",
+//         2: "var(--color-theme-border-2)",
+//         3: "var(--color-theme-border-3)",
+//         4: "var(--color-theme-border-4)",
+//       },
+//       field: {
+//         1: "var(--color-theme-field-1)",
+//         2: "var(--color-theme-field-2)",
+//       },
+//     },
+//     semantic: {
+//       components: {
+//         card: {},
+//         button: {
+//           accent: {
+//             bg: "var(--color-semantic-components-button-accent-bg)",
+//             border: "var(--color-semantic-components-button-accent-border)",
+//             text: "var(--color-semantic-components-button-accent-text)",
+//           },
+//           // primary:
+//         },
+//         input: {
+//           bg: "var(--color-semantic-components-input-bg)",
+//           border: "var(--color-semantic-components-input-border)",
+//           shadow: "var(--color-semantic-components-input-shadow)",
+//           text: "var(--color-semantic-components-input-text)",
+//         },
+//       },
+//     },
+//   },
+//   screens: {
+//     // going to be tokens:
+//     xs: "320px",
+//     sm: "640px",
+//     md: "768px",
+//     lg: "1024px",
+//     xl: "1280px",
+//     "2xl": "1536px",
+//   },
+// };

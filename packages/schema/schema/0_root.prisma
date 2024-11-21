@@ -1,5 +1,7 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  relationMode = "foreignKeys"
+
 }
 

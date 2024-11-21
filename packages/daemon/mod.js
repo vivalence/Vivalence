@@ -5,6 +5,7 @@ import cleanup from "./lib/cleanup-ports.js";
 import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
+import api from "./modules/api/index.js";
 import registry from "./modules/registry/index.js";
 import server from "./modules/server/index.js";
 import services from "./modules/services/index.js";
@@ -21,26 +22,21 @@ const ticker = (name) => (daemon) => {
     ticker("init"),
     cleanup,
     registry.init,
-    server.create,
-    services.clients,
-    // TODO: management.init,
-    // ticker("services setup"),
+    server.init,
+    services.init,
+    api.init,
     runtimes.discover,
-    // ticker("runtimes discovered"),
     runtimes.runtime,
-    // ticker("runtimes setup"),
     runtimes.register,
-    // ticker("runtimes registered"),
     runtimes.modules,
-    // ticker("runtime modules setup"),
     runtimes.boot,
-    // ticker("runtime modules booted"),
     runtimes.serve,
-    // TODO: management.serve,
+    api.serve,
     server.serve,
-    // ticker("daemon serving"),
     runtimes.install,
+    dev,
     // TODO: runtimes.garbage,
+
     runtimes.userland,
     ticker("up"),
     daemonize,

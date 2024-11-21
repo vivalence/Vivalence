@@ -1,0 +1,233 @@
+{
+  "tactic": {
+    "id": "ca0a9d08-5400-430a-85b3-81e6ff5fd6e9",
+    "createdAt": "2024-11-21T02:49:17.356",
+    "updatedAt": "2024-11-21T02:49:17.356",
+    "name": "Morphology of Articles with gender and number",
+    "relations": {
+      "tags": {
+        "noun": {
+          "id": "d0c332ce-bb4f-4a44-bdbb-7c312ef25869",
+          "data": {
+            "COMPLETABLE": {
+              "type": "BAYESIAN",
+              "flavor": "INDIVIDUAL"
+            },
+            "ONTOLOGICAL": {
+              "leaf": "noun",
+              "branch": "pos"
+            }
+          },
+          "name": "Part of Speech: Noun",
+          "description": null,
+          "slug": "pos:noun",
+          "traits": ["ONTOLOGICAL", "COMPLETABLE"],
+          "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+        },
+        "article": {
+          "id": "95fe4ee4-f865-4fb0-b813-95fb9cee29cf",
+          "data": {
+            "ONTOLOGICAL": {
+              "leaf": "art",
+              "branch": "prontype"
+            }
+          },
+          "name": "Pronoun Type: Article",
+          "description": null,
+          "slug": "prontype:art",
+          "traits": ["ONTOLOGICAL"],
+          "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+        },
+        "genders": [
+          {
+            "id": "c44c752c-5ffd-44ef-aba0-aec1ff6f5e5b",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "masc",
+                "branch": "gender"
+              }
+            },
+            "name": "Gender: Masculine",
+            "description": null,
+            "slug": "gender:masc",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          },
+          {
+            "id": "9d3cc2c7-328f-444f-b57f-4e9a569cbee6",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "fem",
+                "branch": "gender"
+              }
+            },
+            "name": "Gender: Feminine",
+            "description": null,
+            "slug": "gender:fem",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          }
+        ],
+        "numbers": [
+          {
+            "id": "0abef2d9-aad0-412c-9210-a42e8016c040",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "sing",
+                "branch": "number"
+              }
+            },
+            "name": "Number: Singular",
+            "description": null,
+            "slug": "number:sing",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          },
+          {
+            "id": "1152f824-f00f-4ceb-a87f-c34b42de0c56",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "plur",
+                "branch": "number"
+              }
+            },
+            "name": "Number: Plural",
+            "description": null,
+            "slug": "number:plur",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          }
+        ],
+        "adjective": {
+          "id": "54b62eec-d2a0-4910-a0f9-6a92f3a9f201",
+          "data": {
+            "COMPLETABLE": {
+              "type": "BAYESIAN",
+              "flavor": "INDIVIDUAL"
+            },
+            "ONTOLOGICAL": {
+              "leaf": "adj",
+              "branch": "pos"
+            }
+          },
+          "name": "Part of Speech: Adjective",
+          "description": null,
+          "slug": "pos:adj",
+          "traits": ["ONTOLOGICAL", "COMPLETABLE"],
+          "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+        },
+        "definites": [
+          {
+            "id": "38748818-4ff3-4635-a740-ff8d8647140d",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "def",
+                "branch": "definite"
+              }
+            },
+            "name": "Definiteness: Definite",
+            "description": null,
+            "slug": "definite:def",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          },
+          {
+            "id": "8fb8917a-c4d1-49c8-8512-801202757fd7",
+            "data": {
+              "LEARNABLE": {
+                "type": "BAYESIAN",
+                "flavor": "RELATIONAL"
+              },
+              "ONTOLOGICAL": {
+                "leaf": "ind",
+                "branch": "definite"
+              }
+            },
+            "name": "Definiteness: Indefinite",
+            "description": null,
+            "slug": "definite:ind",
+            "traits": ["ONTOLOGICAL", "LEARNABLE"],
+            "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+          }
+        ]
+      },
+      "games": {
+        "flashcards": {
+          "id": "5ef2ee19-0558-4c73-aa48-c99d449bcd5a",
+          "createdAt": "2024-10-24T22:18:00.505",
+          "updatedAt": "2024-10-24T22:18:00.505",
+          "name": "Flashcards",
+          "installed": true,
+          "version": "0.0.0",
+          "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477",
+          "slug": "flashcards",
+          "mask": {
+            "back": "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
+            "front": "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n"
+          },
+          "description": "Flashcards game for learning vocabulary"
+        }
+      },
+      "units": {}
+    },
+    "runtimeId": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477",
+    "masks": {
+      "translations": {
+        "prompt": {
+          "goal": "\nCreate simple statements to practice the usage of present tense verbs with a noun for A1 language learners.\nUsage of present tense verbs and nouns on A1 level.\n1 VERB + 1 NOUN\n\nThe sentence should be made up of 2 parts. One (1) verb in the present tense and one (1) noun.\nChoose common, everyday nouns suitable for A1 level language learners.\nThe statement must make sense, possibly occur in written text or conversation, and be clear for a language learner.\nI will provide the verb. Take the provided verb exactly. Don't change its tense or person. \n\n### Examples:\nHe eats bread. - Él come pan. (Masculine Singular)\nShe reads a book. - Ella lee un libro. (Feminine Singular)\nThey play soccer. - Ellos juegan fútbol. (Masculine Plural)\n\n"
+        }
+      }
+    },
+    "slug": "article-morphology-practice",
+    "description": "Learn how to properly use gender and number of vocabulary by repetition of flashcards.",
+    "installed": true,
+    "version": "0.0.4",
+    "data": {
+      "masks": {},
+      "relations": {
+        "tags": {},
+        "games": {},
+        "units": {}
+      }
+    }
+  },
+  "scope": {
+    "tactic": {
+      "id": "ca0a9d08-5400-430a-85b3-81e6ff5fd6e9"
+    },
+    "dependency": {
+      "slug": "noun-modifiers:2"
+    },
+    "user": {
+      "id": "02cc2c18-aece-4132-9863-225e8ae5dad2"
+    }
+  },
+  "blacklist": {
+    "units": [],
+    "tags": []
+  },
+  "language": {
+    "known": "english",
+    "learning": "spanish"
+  }
+}

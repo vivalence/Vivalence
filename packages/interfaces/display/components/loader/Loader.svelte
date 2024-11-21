@@ -2,7 +2,7 @@
   import { onDestroy, onMount } from "svelte";
   import expressions from "./expressions.js";
 
-  export let load;
+  let { load } = $props();
 
   expressions.random = (int) =>
     expressions[Math.floor(Math.random() * int + expressions.length) % expressions.length];
