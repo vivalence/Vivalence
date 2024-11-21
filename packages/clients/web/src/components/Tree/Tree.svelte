@@ -15,7 +15,10 @@
 <div class="flex flex-col font-sans-text h-full">
   <Row
     size="lg"
-    classes={{ row: "border-b border-theme-border-1", link: "border-l border-theme-border-1" }}>
+    classes={{
+      row: "border-b border-skeleton-boundary-1",
+      link: "border-l border-skeleton-boundary-1",
+    }}>
     {#snippet nav()}
       {#if !tree.isRoot}
         <a href="" onclick={handleBack}>

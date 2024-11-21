@@ -46,7 +46,7 @@ export default defineConfig({
     fs: { allow: ["../../.."] },
     watch: {
       include: [
-        "./themes/**/*",
+        "./src/**/*",
         "../../../modules/games/**/*.{html,svelte.js,svelte,css}",
         "../../interfaces/display/**/*",
         "../../shared/**/*",

@@ -20,12 +20,8 @@ export default async function getGameData(input, ctx) {
 
   blacklist = await Blacklist.fromQueue({ blacklist, scope }, ctx);
 
-  console.log("{ ...input, mask, scope, blacklist, language: ctx.runtime.statics.language }", {
-    ...input,
-    mask,
-    scope,
-    blacklist,
-    language: ctx.runtime.statics.language,
-  });
+  // console.log("{ ...input, mask, scope, blacklist, language: ctx.runtime.statics.language }", {
+  // ...input, mask, scope, blacklist, language: ctx.runtime.statics.language,});
+
   return { ...input, mask, scope, blacklist, language: ctx.runtime.statics.language };
 }

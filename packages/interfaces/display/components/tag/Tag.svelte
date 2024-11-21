@@ -7,15 +7,20 @@
     class: className = "",
   } = $props();
 
-  // Tag variants
+  const makeVariant = (variant) =>
+    `bg-${variant}-surface border-${variant}-boundary text-${variant}-contrast`;
+
   const variants = {
-    default: "bg-theme-ui-1 border-theme-border-1 text-theme-text-1",
-    primary: "bg-theme-primary/10 border-theme-primary/20 text-theme-primary",
-    secondary: "bg-theme-secondary/10 border-theme-secondary/20 text-theme-secondary",
-    accent: "bg-theme-accent/10 border-theme-accent/20 text-theme-accent",
-    success: "bg-system-success-3 border-system-success-2 text-system-success-1",
-    warning: "bg-system-warning-3 border-system-warning-2 text-system-warning-1",
-    danger: "bg-system-danger-3 border-system-danger-2 text-system-danger-1",
+    default: makeVariant("skeleton-1"),
+    primary: makeVariant("theme-primary"),
+    secondary: makeVariant("theme-secondary"),
+    accent: makeVariant("theme-accent"),
+    info: makeVariant("system-info"),
+    success: makeVariant("system-success"),
+    warning: makeVariant("system-warning"),
+    danger: makeVariant("system-danger"),
+    error: makeVariant("system-error"),
+    disabled: makeVariant("system-disabled"),
   };
 
   // Size variants
