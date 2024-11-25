@@ -1,7 +1,7 @@
 import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
 
-export default (options = {}) => {
+function create(options = {}) {
   const ajv = new Ajv({
     allErrors: true,
     verbose: true,
@@ -11,12 +11,15 @@ export default (options = {}) => {
   });
 
   ajvErrors(ajv);
+
   ajv.addKeyword({ keyword: "slug", validate: () => true, errors: false });
   ajv.addKeyword({ keyword: "meta", validate: () => true, errors: false });
 
   return (schema, data) => {
     const validation = ajv.compile(schema);
     const valid = validation(data);
-    return { isValid: valid, errors: validation.errors };
+    return { data, valid, isValid: valid, errors: validation.errors };
   };
-};
+}
+
+export default create;

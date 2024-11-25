@@ -36,11 +36,14 @@ export default (schema) => {
     numtype,
     numform,
     polarity,
-  }).reduce((acc, [key, value]) => {
-    acc.annotations[key] = value[key];
-    if (value.meta) acc.meta[key] = value.meta;
-    return acc;
-  }, { annotations: {}, meta: {} });
+  }).reduce(
+    (acc, [key, value]) => {
+      acc.annotations[key] = value[key];
+      if (value.meta) acc.meta[key] = value.meta;
+      return acc;
+    },
+    { annotations: {}, meta: {} },
+  );
 
   return { ...schema, annotations, meta };
 };

@@ -1,14 +1,16 @@
+import identity from "./identity.js";
 import env from "./env.js";
 import services from "./services.js";
 
-const config = {};
+const config = { services: {}, env: {} };
 
 let initialized = false;
 if (!initialized) {
   await [
     //
-    env,
+    identity,
     services,
+    env,
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(config));
   initialized = true;
 }

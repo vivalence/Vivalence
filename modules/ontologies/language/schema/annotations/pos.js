@@ -24,16 +24,6 @@ export const pos = {
 
 export const meta = {
   slug: "pos",
-  config: {
-    tags: {
-      "pos:adj": {
-        traits: ["COMPLETABLE"],
-      },
-      "pos:noun": {
-        traits: ["COMPLETABLE"],
-      },
-    },
-  },
   enums: {
     adj: {
       enum: "adj",

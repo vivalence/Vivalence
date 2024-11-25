@@ -22,8 +22,10 @@ export default async function (daemon) {
       runtime.schema = [modules.Ontology, ...modules.Corpora] //
         .reduce((s, { schema = (s) => s }) => schema(s) || s, {});
 
-      runtime.services = Object.keys(Services) //
-        .reduce((acc, slug) => ({ ...acc, [slug]: Services[slug].client(runtime) }), {});
+      runtime.services = Object.keys(Services).reduce(
+        (acc, slug) => ({ ...acc, [slug]: Services[slug].client(runtime) }),
+        { ...daemon.services }, // unsafe
+      );
 
       runtime.router = createRouter();
       runtime.bus = createEmitter();

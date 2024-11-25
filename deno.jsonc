@@ -7,12 +7,13 @@
     "./packages/registry",
     "./packages/interfaces",
     "./packages/clients/web",
-    "./packages/clients/viva",
+    "./packages/viva",
   ],
   "tasks": {
-    "viva:dev": "VIVA_ROLE=sudo deno run --watch -A ./packages/viva/mod.js",
-    "viva": "VIVA_ROLE=sudo deno run -A ./packages/viva/mod.js",
-    "viva:install": "deno install --global -f -A -n viva ./packages/viva/cli.js",
+    // "viva:dev": "VIVA_ROLE=sudo deno run --watch -A ./packages/viva/mod.js",
+    // "viva": "deno task viva:install && VIVA_ROLE=sudo deno run -A ./packages/viva/mod.js",
+
+    "viva:install": "deno install --global -f -A -n viva ./packages/viva/mod.js",
 
     "daemon:dev": "VIVA_ROLE=daemon deno run --watch -A  packages/daemon/mod.js",
     "clients:web:dev": "VIVA_ROLE=client deno run -A packages/clients/web/mod.js",

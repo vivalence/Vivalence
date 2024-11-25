@@ -5,7 +5,7 @@ export default async function (config) {
   const ENV_ROOT = dirname(fromFileUrl(import.meta.url));
   const env = await load({
     allowEmptyValues: true,
-    envPath: join(ENV_ROOT, "..", ".env"),
+    envPath: join(ENV_ROOT, "../..", ".env"),
   });
 
   const ROOT_DIR = Deno.cwd();
@@ -34,7 +34,14 @@ export default async function (config) {
       VIVA_RUNTIMES_DIR: `${ROOT_DIR}/runtimes`,
 
       SUPABASE_SERVICE_KEY: env.SUPABASE_SERVICE_KEY,
+
       DATABASE_URL: env.DATABASE_URL,
+      DATABASE_PORT: env.DATABASE_PORT,
+      DATABASE_SCHEMA: env.DATABASE_SCHEMA,
+      DATABASE_DB: env.DATABASE_DB,
+      DATABASE_USER: env.DATABASE_USER,
+      DATABASE_PASSWORD: env.DATABASE_PASSWORD,
+
       SERVICE_NLP_URL: env.SERVICE_NLP_URL,
       SERVICE_NLP_KEY: env.SERVICE_NLP_KEY,
       OPENAI_API_KEY: env.OPENAI_API_KEY,

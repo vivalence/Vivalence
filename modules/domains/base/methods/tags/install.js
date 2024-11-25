@@ -1,15 +1,14 @@
 import { deepEquals, deepMerge } from "@vivalence/shared";
+// {"tag":{"name":"Numeral","data":{"ONTOLOGICAL":{"leaf":"num","branch":"pos"}},"traits":["ONTOLOGICAL"],"slug":"pos:num","description":null}}
 
 export default async function (body, ctx) {
   let { tag } = body;
   let operation = null;
 
-  if (!tag.slug) throw new Error("Bounce: Tag slug is required", tag);
-
-  // const issues = await ctx.runtime.call("/diagnostics/validate/tag", { tag: { ...tag } });
-  // if (issues[0]) throw new Error("Invalid unit", issues);
+  if (!tag.slug) return formatMissingSlugIssue(tag);
 
   const existingTag = await read(tag, ctx);
+
   if (existingTag) {
     tag = await update({ new: tag, old: existingTag }, ctx);
     operation = "update";
@@ -18,7 +17,6 @@ export default async function (body, ctx) {
     operation = "create";
   }
 
-  // const valid = await forceTagValidity(tag, ctx);
   return { tag, operation, status: "success" };
 }
 
@@ -63,17 +61,14 @@ async function read(tag, ctx) {
 
 async function update(tags, ctx) {
   // this whole logic is flawed, it will allways update.
-
   let tag = {
     id: tags.old.id,
-    corpusId: tags.old.corpusId,
     name: tags.old.name,
     slug: tags.old.slug,
     description: tags.old.description,
     traits: tags.old.traits,
     data: tags.old.data,
   };
-  delete tag.data.test;
 
   let mergedTag = deepMerge(tag, tags.new);
   mergedTag.traits = [...new Set(mergedTag.traits)];
@@ -84,7 +79,11 @@ async function update(tags, ctx) {
 
   const { data, error } = await ctx.runtime.locals.supabase
     .from("Tag")
-    .update({ ...mergedTag, updatedAt: new Date().toISOString() })
+    .update({
+      ...mergedTag,
+      corpusId: tags.old.corpusId, // tag allways belongs to original source.
+      updatedAt: new Date().toISOString(),
+    })
     .eq("id", tag.id)
     .select("*")
     .single();
@@ -108,6 +107,10 @@ async function create(tag, ctx) {
   return data;
 }
 
+// TODO: reimplement tag validation
+// const issues = await ctx.runtime.call("/diagnostics/validate/tag", { tag: { ...tag } });
+// if (issues[0]) throw new Error("Invalid unit", issues);
+// const valid = await forceTagValidity(tag, ctx);
 async function forceTagValidity(tag, ctx) {
   const maxItterations = 3;
   let itteration = 0;
@@ -127,4 +130,20 @@ async function forceTagValidity(tag, ctx) {
   }
 
   return { success: false, status: "invalid", unit };
+}
+
+function formatMissingSlugIssue(tag) {
+  return {
+    tag,
+    operation: null,
+    issues: [
+      {
+        message: `Tag slug is required.`,
+        path: ["tag", "slug"],
+        violation: "required",
+        tag,
+      },
+    ],
+    status: "invalid",
+  };
 }

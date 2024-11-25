@@ -10,8 +10,8 @@ async function boot(runtime) {
 const manifest = {
   type: "ontology",
   slug: "language",
-  name: "Langauges by Universal Dependencies",
-  version: "0.0.3",
+  name: "Langauge after Universal Dependencies",
+  version: "0.0.7",
 };
 
 export { manifest, schema, boot, curriculum };
