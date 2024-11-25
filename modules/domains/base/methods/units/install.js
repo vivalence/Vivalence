@@ -1,16 +1,26 @@
+import { deepMerge } from "@vivalence/shared";
+
+const unitSkeleton = {
+  data: { index: null, example: { known: null, learning: null }, known: null, learning: null },
+};
+
 export default async function (body, ctx) {
-  let unit = { ...body.unit };
+  let unit = deepMerge(unitSkeleton, body.unit);
   let operation = null;
   let issues = [];
   let status = "success";
 
   if (!unit.slug) unit.slug = await ctx.runtime.call("/identity/unit", { unit });
-  const issues = await ctx.runtime.call("/diagnostics/validate/unit", { unit });
-  if (issues[0]) throw new Error("Invalid unit", issues);
+  issues = await ctx.runtime.call("/diagnostics/validate/unit", { unit });
+  if (issues[0]) {
+    console.log("Unit validation issue /units/install", unit, issues);
+    throw new Error("Invalid unit", issues);
+  }
 
   const existingUnit = await getUnit(unit, ctx);
+
   if (existingUnit) {
-    unit = await updateUnit(unit, ctx);
+    unit = await updateUnit({ new: unit, old: existingUnit }, ctx);
     operation = "update";
   } else {
     unit = await newUnit(unit, ctx);
@@ -20,10 +30,12 @@ export default async function (body, ctx) {
   unit.tags = unit.tags.map(({ tag }) => tag);
 
   const valid = await forceUnitValidity(unit, ctx);
+
   if (valid.status === "invalid") {
     status = "invalid";
     operation = "remedy";
     issues.push(valid.remedy);
+    // delete unit
   }
 
   return { unit, operation, status, ...valid };
@@ -68,18 +80,19 @@ async function getUnit(unit, ctx) {
   return data;
 }
 
-async function updateUnit(unit, ctx) {
+async function updateUnit(units, ctx) {
   const { data, error } = await ctx.runtime.locals.supabase
     .from("Unit")
-    .update({ ...unit })
-    .eq("id", unit.id)
-    .select("*, tags:_TagToUnit(tag:A(*))")
+    .update({ ...units.new })
+    .eq("id", units.old.id)
+    .select("*, tags:_TagToUnit(tag:A(id,slug,data,traits))")
     .single();
 
   if (error) throw error;
 
   return data;
 }
+
 async function newUnit(unit, ctx) {
   const { data, error } = await ctx.runtime.locals.supabase
     .from("Unit")

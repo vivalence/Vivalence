@@ -37,5 +37,8 @@ export default (schema) => {
     { required: { branch: "number", leaf: "plur" } },
   ];
 
+  schema.units.propn = schema.units.noun;
+  schema.constraints.propn = schema.constraints.noun;
+
   return schema;
 };

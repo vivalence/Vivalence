@@ -6,7 +6,6 @@ async function boot(runtime) {
   await middlewares.boot(runtime);
   await methods.boot(runtime);
   await eventhandlers.boot(runtime);
-
   return runtime;
 }
 

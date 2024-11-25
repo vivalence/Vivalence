@@ -1,9 +1,15 @@
+import pg from "npm:pg";
 import { validator, deepEquals, deepMerge, monads } from "@vivalence/shared";
 
 export default async function (body, ctx) {
+  const user = await ctx.runtime.services.identity.getUser();
+
   const condition = await read(body.condition, ctx);
 
   const met = await conditionResolver(condition, ctx);
+  // console.log("met", met);
+  // This might blow up in the future. probably when the first memories run through here
+  // hello future me, if you're reading this, you're welcome.
 
   const { data } = await ctx.runtime.locals.supabase
     .from("Condition")
@@ -36,72 +42,27 @@ async function conditionResolver(condition, ctx) {
   let met;
 
   if (condition.scope.tag) {
+    // console.log("condition", condition);
     const tag = await ctx.runtime.call("/tags/fromSlug", { slug: condition.scope.tag.slug });
+    // console.log("tag", tag);
 
     const traits = tag.traits;
     const flavor = tag.data.LEARNABLE?.flavor || tag.data.COMPLETABLE?.flavor;
 
     let memories = [];
+    // console.log(traits, flavor);
     if (traits.includes("LEARNABLE") && flavor === "INDIVIDUAL") {
-      const { data, error } = await ctx.runtime.locals.supabase
-        .from("Memory")
-        .select("id, tagId, unitId, status")
-        .eq("tagId", tag.id)
-        .is("unitId", null)
-        .maybeSingle();
-      if (error) throw error;
-      memories.push(data?.status);
+      memories = await learnableIndividual({ tag }, ctx);
     } else if (traits.includes("LEARNABLE") && flavor === "RELATIONAL") {
-      const { data: relations } = await ctx.runtime.locals.supabase
-        .from("_TagToUnit")
-        .select("*")
-        .eq("A", tag.id);
-
-      const unitIds = relations.map((relation) => relation.B);
-      const { data } = await ctx.runtime.locals.supabase
-        .from("Memory")
-        .select("id, tagId, unitId, status")
-        .eq("tagId", tag.id)
-        .in("unitId", unitIds);
-
-      unitIds
-        .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
-        .map((status) => memories.push(status));
+      memories = await learnableRelational({ tag }, ctx);
     } else if (tag.traits.includes("COMPLETABLE") && flavor === "INDIVIDUAL") {
-      const { data: relations } = await ctx.runtime.locals.supabase
-        .from("_TagToUnit")
-        .select("*")
-        .eq("A", tag.id);
-
-      const unitIds = relations.map((relation) => relation.B);
-
-      const { data } = await ctx.runtime.locals.supabase
-        .from("Memory")
-        .select("id, tagId, unitId, status")
-        .in("unitId", unitIds)
-        .is("tagId", null);
-
-      unitIds
-        .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
-        .map((status) => memories.push(status));
+      memories = await completableIndividual({ tag }, ctx);
     } else if (tag.traits.includes("COMPLETABLE") && flavor === "RELATIONAL") {
-      const { data: relations } = await ctx.runtime.locals.supabase
-        .from("_TagToUnit")
-        .select(
-          "A, unit:Unit(id, memories:Memory(id, unitId, tagId, status), relations:_TagToUnit(A, B))",
-        )
-        .eq("A", tag.id);
-
-      relations.map(({ unit }) =>
-        unit.relations.map(({ A, B }) => {
-          memories.push(
-            unit.memories.find((memory) => memory.unitId === B && memory.tagId === A)?.status ||
-              "UNTOUCHED",
-          );
-        }),
-      );
+      memories = await completableRelational({ tag }, ctx);
     }
+
     met = await validator.jsonata(condition.assertion.jsonata, memories);
+    met = false;
   } else if (condition.scope.dependency) {
     const dependency = await ctx.runtime.call("/dependencies/compute", condition.scope);
     met = dependency.satisfied;
@@ -110,114 +71,93 @@ async function conditionResolver(condition, ctx) {
   return met;
 }
 
-// import { Result, resultify, tryCatchAsync, sequence } from './ResultModule.js';
+async function learnableIndividual({ tag }, ctx) {
+  let memories = [];
+  const { data, error } = await ctx.runtime.locals.supabase
+    .from("Memory")
+    .select("id, tagId, unitId, status")
+    .eq("tagId", tag.id)
+    .is("unitId", null)
+    .maybeSingle();
+  if (error) throw error;
+  memories.push(data?.status);
+  return memories;
+}
+async function learnableRelational({ tag }, ctx) {
+  const user = await ctx.runtime.services.identity.getUser();
 
-// const getTag = resultify((ctx, slug) => ctx.runtime.call("/tags/fromSlug", { slug }));
+  let memories = [];
+  const { data: relations } = await ctx.runtime.locals.supabase
+    .from("_TagToUnit")
+    .select("*")
+    .eq("A", tag.id);
 
-// const getMemories = async (ctx, tag) => {
-//   const { traits, data } = tag;
-//   const flavor = data.LEARNABLE?.flavor || data.COMPLETABLE?.flavor;
+  const unitIds = relations.map((relation) => relation.B);
 
-//   if (traits.includes("LEARNABLE")) {
-//     return flavor === "INDIVIDUAL"
-//       ? getIndividualLearnableMemories(ctx, tag)
-//       : getRelationalLearnableMemories(ctx, tag);
-//   } else if (traits.includes("COMPLETABLE")) {
-//     return flavor === "INDIVIDUAL"
-//       ? getIndividualCompletableMemories(ctx, tag)
-//       : getRelationalCompletableMemories(ctx, tag);
-//   }
+  const { rows: data } = await ctx.runtime.services.db.query(
+    `WITH unit_ids AS (SELECT UNNEST($1::text[]) AS unit_id)
+SELECT id, "userId", "tagId", "unitId", status
+FROM "Memory"
+WHERE "tagId" = $2
+AND "userId" = $3
+AND "unitId" IN (SELECT unit_id FROM unit_ids); `,
 
-//   return Result.failure(new Error("Unsupported tag type"));
-// };
+    [unitIds, tag.id, user.id],
+  );
 
-// const getIndividualLearnableMemories = resultify(async (ctx, tag) => {
-//   const { data, error } = await ctx.runtime.locals.supabase
-//     .from("Memory")
-//     .select("id, tagId, unitId, status")
-//     .eq("tagId", tag.id)
-//     .is("unitId", null)
-//     .maybeSingle();
-//   if (error) throw error;
-//   return [data?.status];
-// });
+  unitIds
+    .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
+    .map((status) => memories.push(status));
 
-// const getRelationalLearnableMemories = resultify(async (ctx, tag) => {
-//   const { data: relations, error: relationsError } = await ctx.runtime.locals.supabase
-//     .from("_TagToUnit")
-//     .select("*")
-//     .eq("A", tag.id);
-//   if (relationsError) throw relationsError;
+  return memories;
+}
 
-//   const unitIds = relations.map((relation) => relation.B);
-//   const { data, error } = await ctx.runtime.locals.supabase
-//     .from("Memory")
-//     .select("id, tagId, unitId, status")
-//     .eq("tagId", tag.id)
-//     .in("unitId", unitIds);
-//   if (error) throw error;
+async function completableIndividual({ tag }, ctx) {
+  const user = await ctx.runtime.services.identity.getUser();
 
-//   return unitIds.map((unitId) =>
-//     data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED"
-//   );
-// });
+  let memories = [];
+  const { data: relations } = await ctx.runtime.locals.supabase
+    .from("_TagToUnit")
+    .select("*")
+    .eq("A", tag.id);
 
-// const getIndividualCompletableMemories = resultify(async (ctx, tag) => {
-//   const { data: relations, error: relationsError } = await ctx.runtime.locals.supabase
-//     .from("_TagToUnit")
-//     .select("*")
-//     .eq("A", tag.id);
-//   if (relationsError) throw relationsError;
+  const unitIds = relations.map((relation) => relation.B);
 
-//   const unitIds = relations.map((relation) => relation.B);
-//   const { data, error } = await ctx.runtime.locals.supabase
-//     .from("Memory")
-//     .select("id, tagId, unitId, status")
-//     .in("unitId", unitIds)
-//     .is("tagId", null);
-//   if (error) throw error;
+  const { rows: data } = await ctx.runtime.services.db.query(
+    `WITH unit_ids AS (SELECT UNNEST($1::text[]) AS unit_id)
+SELECT id, "userId", "tagId", "unitId", status
+FROM "Memory"
+WHERE "tagId" = $2
+AND "userId" = $3
+AND "unitId" IN (SELECT unit_id FROM unit_ids); `,
 
-//   return unitIds.map((unitId) =>
-//     data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED"
-//   );
-// });
+    [unitIds, tag.id, user.id],
+  );
 
-// const getRelationalCompletableMemories = resultify(async (ctx, tag) => {
-//   const { data: relations, error } = await ctx.runtime.locals.supabase
-//     .from("_TagToUnit")
-//     .select(
-//       "A, unit:Unit(id, memories:Memory(id, unitId, tagId, status), relations:_TagToUnit(A, B))"
-//     )
-//     .eq("A", tag.id);
-//   if (error) throw error;
+  unitIds
+    .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
+    .map((status) => memories.push(status));
 
-//   return relations.flatMap(({ unit }) =>
-//     unit.relations.map(({ A, B }) =>
-//       unit.memories.find((memory) => memory.unitId === B && memory.tagId === A)?.status || "UNTOUCHED"
-//     )
-//   );
-// });
+  return memories;
+}
+async function completableRelational({ tag }, ctx) {
+  let memories = [];
 
-// const validateMemories = resultify((validator, condition, memories) =>
-//   validator.jsonata(condition.assertion.jsonata, memories)
-// );
+  const { data: relations } = await ctx.runtime.locals.supabase
+    .from("_TagToUnit")
+    .select(
+      "A, unit:Unit(id, memories:Memory(id, unitId, tagId, status), relations:_TagToUnit(A, B))",
+    )
+    .eq("A", tag.id);
 
-// // Main function
-// async function processTag(ctx, condition, validator) {
-//   return await getTag(ctx, condition.scope.tag.slug)
-//     .flatMap(tag => getMemories(ctx, tag))
-//     .flatMap(memories => validateMemories(validator, condition, memories));
-// }
+  relations.map(({ unit }) =>
+    unit.relations.map(({ A, B }) => {
+      memories.push(
+        unit.memories.find((memory) => memory.unitId === B && memory.tagId === A)?.status ||
+          "UNTOUCHED",
+      );
+    }),
+  );
 
-// // Usage
-// export async function handler(ctx) {
-//   const { condition, validator } = ctx.req.param();
-//   const result = await processTag(ctx, condition, validator);
-
-//   if (result.isFailure()) {
-//     console.error(result.value);
-//     return ctx.json({ error: result.value.message }, 500);
-//   }
-
-//   return ctx.json({ met: result.value }, 200);
-// }
+  return memories;
+}

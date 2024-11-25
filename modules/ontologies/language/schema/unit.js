@@ -1,6 +1,10 @@
 // allOf: Object.values(PoS).map((pos) => {const statement = {if: {properties: {pos: { const: pos.schema.properties.annotation.properties.pos.enum }}}, then: {required: pos.schema.properties.annotation.required}}; if (pos.schema.properties.annotation.allOf) {statement.then.allOf = pos.schema.properties.annotation.allOf;} return statement;})
 
 // really maybe more of a domain thing.
+// actually kind of mixed.
+// patches or applies domain defaults.
+// in this case, patches.
+
 export default (schema) => {
   schema.unit = {
     type: "object",
@@ -23,22 +27,22 @@ export default (schema) => {
             description: "the word by itself, in the language to be learned",
           },
           index: {
-            type: "integer",
+            type: ["integer", "null"],
             description:
               "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000",
           },
           example: {
-            type: "object",
+            type: ["object", "null"],
             description:
               "a simple example of how the word is used in a sentence in both languages.",
             properties: {
               learning: {
-                type: "string",
+                type: ["string", "null"],
                 description:
                   "a very simple example of how the word is used in the language to be learned in the form of a full sentence",
               },
               known: {
-                type: "string",
+                type: ["string", "null"],
                 description:
                   "a very simple example of how the word is used in the known language in the form of the translated full sentence",
               },

@@ -17,6 +17,16 @@ const ticker = (name) => (daemon) => {
   return daemon;
 };
 
+let daemon = {
+  process: null,
+  registrty: null,
+  Modules: { services: {} },
+  services: {},
+  app: null,
+  router: null,
+  runtimes: new Map(),
+};
+
 (async (daemon) =>
   await [
     ticker("init"),
@@ -39,5 +49,5 @@ const ticker = (name) => (daemon) => {
 
     runtimes.userland,
     ticker("up"),
-    daemonize,
-  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))({ runtimes: new Map() });
+    // daemonize,
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

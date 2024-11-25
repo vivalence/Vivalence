@@ -1,4 +1,5 @@
 // really maybe more of a domain thing.
+
 export default (schema) => {
   schema.tag = {
     type: "object",

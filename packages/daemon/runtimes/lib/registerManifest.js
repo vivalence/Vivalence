@@ -1,6 +1,24 @@
 import { strings } from "@vivalence/shared";
 const select = "id, slug, version, installed, name";
 
+export default async function registerModuleManifest(runtime, Module) {
+  const user = await runtime.services.identity.getUser();
+  // console.log("will register modules in users name, user");
+
+  let manifest = await findModule(runtime, Module);
+
+  if (!manifest) {
+    manifest = await createModule(runtime, Module);
+  } else if (Module.manifest.version && manifest.version !== Module.manifest.version) {
+    manifest = await updateModule(runtime, Module, manifest);
+  }
+
+  if (["runtime", "game", "tactic", "strategy"].includes(Module.manifest.type)) {
+    manifest.url = `/${Module.manifest.type[0]}/${manifest.slug}`;
+  }
+
+  return manifest;
+}
 async function findModule(runtime, Module) {
   let query = runtime.locals.supabase
     .from(strings.capitalize(Module.manifest.type))
@@ -68,20 +86,4 @@ async function updateModule(runtime, Module, manifest) {
     throw error;
   }
   return data;
-}
-
-export default async function registerModuleManifest(runtime, Module) {
-  // console.log("registerModule", Module);
-  let manifest = await findModule(runtime, Module);
-  if (!manifest) {
-    manifest = await createModule(runtime, Module);
-  } else if (Module.manifest.version && manifest.version !== Module.manifest.version) {
-    manifest = await updateModule(runtime, Module, manifest);
-  }
-
-  if (["runtime", "game", "tactic", "strategy"].includes(Module.manifest.type)) {
-    manifest.url = `/${Module.manifest.type[0]}/${manifest.slug}`;
-  }
-
-  return manifest;
 }

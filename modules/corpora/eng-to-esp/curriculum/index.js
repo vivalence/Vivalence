@@ -1,22 +1,8 @@
-// import dependencies from "./dependencies/index.js";
-// import units from "./units/index.js";
+import dependencies from "./data/dependencies.js";
+import tags from "./data/tags.js";
+import units from "./data/units.js";
 
-// async function install(runtime, Corpus) {
-//   for (const unit of units) {
-//     unit.corpusId = Corpus.manifest.id;
-//     const installed = await runtime.call("/units/install", { unit });
-//   }
+// const curriculum = { tags, dependencies, units };
+const curriculum = { dependencies };
 
-//   for (const dependency of dependencies) {
-//     dependency.corpusId = Corpus.manifest.id;
-//     const installed = await runtime.call("/dependencies/install", { dependency });
-//   }
-
-//   return true;
-// }
-
-// const curriculum = {
-//   units: [],
-//   tags: [],
-//   dependencies: [],
-// };
+export default curriculum;
