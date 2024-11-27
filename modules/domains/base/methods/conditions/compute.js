@@ -1,5 +1,5 @@
-import pg from "npm:pg";
-import { validator, deepEquals, deepMerge, monads } from "@vivalence/shared";
+import pg from "pg";
+import { validators, deepEquals, deepMerge, monads } from "@vivalence/shared";
 
 export default async function (body, ctx) {
   const user = await ctx.runtime.services.identity.getUser();
@@ -61,7 +61,7 @@ async function conditionResolver(condition, ctx) {
       memories = await completableRelational({ tag }, ctx);
     }
 
-    met = await validator.jsonata(condition.assertion.jsonata, memories);
+    met = await validators.jsonata(condition.assertion.jsonata, memories);
     met = false;
   } else if (condition.scope.dependency) {
     const dependency = await ctx.runtime.call("/dependencies/compute", condition.scope);

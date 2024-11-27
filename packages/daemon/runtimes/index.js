@@ -6,7 +6,7 @@ import boot from "./4_boot.js";
 import serve from "./5_serve.js";
 import install from "./6_install.js";
 // import garbage from "./7_garbage.js";
-import userland from "./8_userland.js";
+// import userland from "./8_userland.js";
 
 export default {
   discover,
@@ -17,5 +17,5 @@ export default {
   serve,
   install,
   // garbage,
-  userland,
+  // userland,
 };

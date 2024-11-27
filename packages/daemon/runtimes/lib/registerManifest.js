@@ -3,7 +3,6 @@ const select = "id, slug, version, installed, name";
 
 export default async function registerModuleManifest(runtime, Module) {
   const user = await runtime.services.identity.getUser();
-  // console.log("will register modules in users name, user");
 
   let manifest = await findModule(runtime, Module);
 
@@ -19,6 +18,7 @@ export default async function registerModuleManifest(runtime, Module) {
 
   return manifest;
 }
+
 async function findModule(runtime, Module) {
   let query = runtime.locals.supabase
     .from(strings.capitalize(Module.manifest.type))

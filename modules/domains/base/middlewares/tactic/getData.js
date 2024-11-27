@@ -13,9 +13,7 @@ export default async function getData(body, ctx) {
 
   if (error) throw error;
 
-  const tactic = data;
-
-  tactic.data = deepMerge(tactic.data, { masks, relations });
+  let tactic = deepMerge(data, { masks, relations });
   scope.tactic = { id: tactic.id };
 
   const user = await ctx.runtime.locals.getUser();

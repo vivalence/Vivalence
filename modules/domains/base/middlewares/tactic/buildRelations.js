@@ -11,6 +11,7 @@ export default async function buildRelations(body, ctx) {
     } else if (typeof relation === "object" && relation.slug) {
       return await ctx.runtime.call(`/${resourceType}/fromSlug`, relation);
     } else if (typeof relation === "object" && relation.id) {
+      console.log("Not implemented - tacti middleware buildRelation");
       // throw new Error("Not implemented");
       return relation;
     } else {
@@ -29,7 +30,7 @@ export default async function buildRelations(body, ctx) {
           if (typeof mask === "object") {
             richRelations[relationName].mask[maskType] = await resolveResource(maskType, mask);
           } else {
-            // console.log("@tactic middleware resolveResource");
+            console.log("@tactic middleware resolveResource");
             // console.log("mask type is not object", maskType, mask);
             // throw new Error("Not implemented");
           }

@@ -1,5 +1,5 @@
 import blacklist from "./src/blacklist/index.js";
-import validator from "./src/validator/index.js";
+import validators from "./src/validators/index.js";
 import bundler from "./src/bundler/index.js";
 import { strings, time, deepClone, deepMerge, deepEquals, id, shuffle } from "./src/lib/index.js";
 import monads from "./src/monads/index.js";
@@ -15,7 +15,7 @@ export {
   shuffle,
   blacklist,
   bundler,
-  validator,
+  validators,
 };
 
 export default {
@@ -29,5 +29,5 @@ export default {
   shuffle,
   blacklist,
   bundler,
-  validator,
+  validators,
 };

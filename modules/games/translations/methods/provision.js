@@ -12,7 +12,8 @@ export default async function (inputs, ctx) {
 
   const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
 
-  const sentence = await ctx.runtime.services.llm(input);
+  // const sentence = await ctx.runtime.services.llm(input);
+  const sentence = { known: "The book is masculine.", learning: "El libro es masculino." };
 
   const tokens = await ctx.runtime.call("/classification/unitsFromText", {
     text: sentence.learning,

@@ -1,7 +1,0 @@
-{
-  "name": "@vivalence/viva",
-  "exports": {
-    ".": "./mod.js",
-  },
-  "version": "0.0.1",
-}

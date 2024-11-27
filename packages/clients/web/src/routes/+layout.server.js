@@ -1,14 +1,11 @@
 import { redirect } from "@sveltejs/kit";
 
-export const load = async ({ route, locals, ...params }) => {
-  const user = await locals.getUser();
+export const load = async ({ aperture, identity, ...params }) => {
+  const user = await identity.getUser();
 
-  if (!user && route.id !== "/auth") {
-    throw redirect(307, `/auth`);
-  }
+  // if (!user && route.id !== "/auth") {throw redirect(307, `/auth`);}
 
-  const { data: runtimes, error } = await locals.call("/api/user/runtimes/view");
+  const { data: runtimes, error } = await aperture.call("/runtimes/all");
   if (error) throw error;
-
   return { user, runtimes };
 };

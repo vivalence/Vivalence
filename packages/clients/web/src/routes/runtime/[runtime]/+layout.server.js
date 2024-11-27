@@ -1,7 +1,5 @@
-export async function load({ locals, route, params }) {
-  const { data: runtime, error } = await locals.call("/api/user/runtime/view", {
-    runtime: { slug: params.runtime },
-  });
-
+export async function load({ aperture, params }) {
+  const { data: runtime, error } = await aperture.call(`/runtime/${params.runtime}`);
+  console.log("runtime", runtime);
   return { runtime };
 }

@@ -17,7 +17,7 @@ const transformRuntimeToMenu = (runtimes) => {
               title: "Levels",
               icon: { carbon: "ScisControlTower" },
               type: "link",
-              href: `/runtime/${runtime.slug}/dependencies/view`,
+              href: `/runtime/${runtime.slug}/dependencies`,
             },
 
             //   {
