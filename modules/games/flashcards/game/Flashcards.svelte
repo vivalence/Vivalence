@@ -18,6 +18,8 @@
     }
 
     async review(response) {
+      // todo
+      console.log("this.game.call(eval) not implemented");
       await this.game.call("/evaluate", {
         // scope: this.scope,
         // response,

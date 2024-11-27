@@ -5,10 +5,10 @@ import cleanup from "./lib/cleanup-ports.js";
 import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
-import api from "./modules/api/index.js";
-import registry from "./modules/registry/index.js";
-import server from "./modules/server/index.js";
-import services from "./modules/services/index.js";
+import aperture from "./aperture/index.js";
+import registry from "./registry/index.js";
+import server from "./server/index.js";
+import services from "./services/index.js";
 
 import runtimes from "./runtimes/index.js";
 
@@ -19,12 +19,13 @@ const ticker = (name) => (daemon) => {
 
 let daemon = {
   process: null,
-  registrty: null,
-  Modules: { services: {} },
+  registry: null,
+  aperture: null,
   services: {},
-  app: null,
   router: null,
+  server: null,
   runtimes: new Map(),
+  // controller: null
 };
 
 (async (daemon) =>
@@ -34,20 +35,17 @@ let daemon = {
     registry.init,
     server.init,
     services.init,
-    api.init,
+    aperture.init,
     runtimes.discover,
     runtimes.runtime,
     runtimes.register,
     runtimes.modules,
     runtimes.boot,
     runtimes.serve,
-    api.serve,
+    aperture.serve,
     server.serve,
     runtimes.install,
     dev,
-    // TODO: runtimes.garbage,
-
-    runtimes.userland,
+    // runtimes.userland,
     ticker("up"),
-    // daemonize,
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

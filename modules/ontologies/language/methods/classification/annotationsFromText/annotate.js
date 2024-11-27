@@ -1,3 +1,5 @@
+import { validators } from "@vivalence/shared";
+
 export default function annotate(token, ctx) {
   const feats = parseFeats(token.feats);
 
@@ -16,7 +18,8 @@ export default function annotate(token, ctx) {
   const schema = ctx.runtime.schema.units[annotation.pos].properties.annotation;
   schema.additionalProperties = false;
 
-  const { isValid, errors } = ctx.runtime.locals.validate(schema, annotation);
+  const validate = validators.ajv();
+  const { isValid, errors } = validate(schema, annotation);
 
   annotation.meta = {
     token: token.token,

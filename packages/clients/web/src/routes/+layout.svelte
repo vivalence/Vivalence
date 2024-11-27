@@ -14,7 +14,7 @@
 
 <div class="layout">
   <header class="topbar">
-    <div class="logo">VIVALENCE</div>
+    <a href="/"><div class="logo">VIVALENCE</div></a>
     <div class="center"></div>
     <div class="account"></div>
   </header>

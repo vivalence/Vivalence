@@ -10,7 +10,7 @@ const manifest = {
 
 const relations = {
   tags: {
-    aspects: [],
+    aspect: [],
   },
   games: {
     prose: { slug: "prose" },

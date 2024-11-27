@@ -3,10 +3,6 @@ import { env } from "$env/dynamic/public";
 // there is a way to make this elegantly recursive.
 function createCall(event) {
   const req = async (url, body = {}, params = {}) => {
-    // console.log("event", event.cookies.getAll());
-    // console.log("event", event.request.headers.get("cookie"));
-    // console.log("event", event.request.headers.cookie);
-
     let cookie = event?.request?.headers?.get("cookie");
     if (!cookie && params?.cookie) cookie = params.cookie;
 
@@ -27,8 +23,6 @@ function createCall(event) {
       credentials: "include",
     };
     if (options.method !== "GET") options.body = JSON.stringify(body);
-
-    // console.log("options", options);
 
     return await fetch(new URL(url).toString(), options);
   };
