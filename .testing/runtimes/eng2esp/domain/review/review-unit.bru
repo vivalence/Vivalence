@@ -1,0 +1,64 @@
+meta {
+  name: review-unit
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/review/unit
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "signal": "NEUTRAL",
+    "scope": {
+      "dependency": {
+        "id": "34de578b-985b-44f1-81a0-6d2ca43ea72c"
+      },
+      "tactic": {
+        "id": "71c4ed7d-1a4a-4017-a794-01267d601e4b"
+      },
+      "user": {
+        "id": "localhost"
+      },
+      "game": {
+        "id": "877e1133-477a-4739-9eea-f74676381fb8"
+      },
+      "unit": {
+        "id": "989b7dbd-e43f-4d76-825a-8e3da543f07a"
+      },
+      "tag": {
+        "id": "0862498e-5a83-41a3-994a-9d00f638cf65"
+      }
+    }
+  }
+}
+
+docs {
+    # get weakest tags from a list of tags
+    returns data {
+        "id": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+        "createdAt": "2024-04-19T04:39:00.468",
+        "updatedAt": "2024-04-19T04:39:00.468",
+        "name": "Verb Haber",
+        "type": [
+            "STRUCTURAL",
+            "COMPLETABLE"
+        ],
+        "data": {
+            "STRUCTURAL": {},
+            "COMPLETABLE": {}
+        },
+        "memory": {
+            "id": "6f91e955-70c8-47c0-85f5-258cf4a05a4e",
+            "state": [4, 4, 0.26],
+            "tagId": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+            "status": "UNKNOWN",
+            "unitId": null,
+            "lastSeen": "2024-04-22T18:38:05.999",
+            "strength": -22.92964389442014
+        }
+    }
+}

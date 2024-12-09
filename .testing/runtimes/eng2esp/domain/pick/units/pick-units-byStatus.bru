@@ -1,0 +1,53 @@
+meta {
+  name: pick-units-byStatus
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/pick/units/byStatus
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "status": [
+      "UNKNOWN","LEARNING"
+    ],
+    "unitIds": [
+      "d44a3b53-97ab-446b-aeaa-ba9691938caf",
+      "e48e5ccc-6ba8-41a1-8699-5853f989be01",
+      "f88b8eeb-f928-4819-851c-c8750af7113c",
+      "4f4f47a1-e62e-4657-9e4f-bf66e8c45007",
+      "29ebb7de-1a52-4f72-80f0-628ab250bb7f",
+      "6576c566-209d-4dfa-a2e4-42f15829edfd",
+      "41dfc148-0cce-423a-8f44-02122d520088",
+      "898ad137-d0fa-4b42-8957-451e1e361a4e",
+      "723d2b30-9b57-4368-8984-d29b46ed725e",
+      "04c49f1e-ca93-41ed-9175-5e3565d68c53",
+      "966d6a18-9cc0-4fd5-9951-25599735cd04",
+      "fe6beb8e-ed7a-471e-9292-3f720641ed1b",
+      "c6e6b6c6-802f-4f5b-8ed0-1fdc2ad03aab",
+      "91af7967-e2d2-4d09-a48d-f3dfbc2562d1",
+      "be0b9848-a5d2-40ec-83a6-13c264b28401",
+      "e3cd0c4e-dde6-42fe-a2a7-542a9f9e4e04",
+      "0fd30f47-8e00-446e-9542-87ba7a205510",
+      "77adb35d-050c-437c-8113-5fdf0e781d11",
+      "fc5bf2f9-dbb2-4561-ad79-952365b8130f",
+      "68513240-3f21-4e4d-b080-7ab48ebef433"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": []
+    },
+    "take": 5
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

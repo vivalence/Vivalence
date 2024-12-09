@@ -1,0 +1,37 @@
+meta {
+  name: pick-units-pending
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/pick/units/pending
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tagIds": [
+      "9fd9e512-24f2-4400-a555-e9bd25982320",
+      "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": []
+    },
+    "take": 1,
+    "scope": {
+      "user": {
+        "id": "localhost"
+      },
+      "tactic": {
+        "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359"
+      }
+    }
+  }
+}
+
+docs {
+  due by play
+}
