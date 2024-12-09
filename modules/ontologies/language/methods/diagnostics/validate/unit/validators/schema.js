@@ -1,3 +1,5 @@
+import { validators } from "@vivalence/shared";
+
 export default async function schema({ unit }, ctx) {
   const issues = [];
 
@@ -6,8 +8,8 @@ export default async function schema({ unit }, ctx) {
     if (!schema) {
       throw new Error(`Schema not found for pos: ${unit.annotation.pos}`);
     }
-
-    const { isValid, errors } = ctx.runtime.locals.validate(schema, unit);
+    const validate = validators.ajv();
+    const { isValid, errors } = validate(schema, unit);
     if (!isValid) errors.map(buildError(unit)).forEach((e) => issues.push(e));
   } catch (e) {
     issues.push({ message: e.message, context: { error: e, unit }, violation: "ERROR", path: [] });

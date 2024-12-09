@@ -6,7 +6,7 @@ export default (game) => {
     const perf = performance.now();
     await next();
     const time = performance.now() - perf;
-    console.log(`[GAME] method - ${time}ms`);
+    // console.log(`[GAME] method - ${time}ms`);
   });
 
   game.router.middleware.push(async (ctx, next) => {

@@ -33,10 +33,9 @@ model Play {
   history   Json          @default("[]")
   signal    Json          @default("{}") 
 
-  nextIn    Int             @default(0)
+  nextIn    Decimal         @default(0.0)
   nextAt    DateTime        @default(now())
   lastAt    DateTime        @default(now())
-
 
   @@index([userId], name: "userIdIndexOnPlay")
   @@index([gameId], name: "gameIdIndexOnPlay")
@@ -78,7 +77,7 @@ model Memory {
   history   Json             @default("[]")
   signal    Json             @default("{}") 
 
-  nextIn    Int             @default(0)
+  nextIn    Decimal         @default(0.0)
   nextAt    DateTime        @default(now())
   lastAt    DateTime        @default(now())
 

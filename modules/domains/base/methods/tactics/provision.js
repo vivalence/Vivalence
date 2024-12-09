@@ -1,88 +1,69 @@
 import { join } from "$std/path/mod.ts";
-
 import { deepMerge, blacklist as Blacklist } from "@vivalence/shared";
 
-// import getData from "./lib/data.js";
+export default async function (body, ctx) {
+  let { tactic, scope, blacklist } = body;
+  const user = await ctx.runtime.services.identity.getUser();
 
-// everything here can / ought to be moved into tactic middlewares.
-export default async function ({ masks, relations, scope, blacklist }, ctx) {
-  const start = performance.now();
-  const user = await ctx.runtime.locals.getUser();
+  scope.tactic = { id: tactic.id };
   scope.user = { id: user.id };
 
   blacklist = await Blacklist.fromQueue({ blacklist, scope }, ctx);
 
-  let { data: tactic, error } = await ctx.runtime.locals.supabase
-    .from("Tactic")
-    .select(`*`)
-    .eq("id", scope.tactic.id)
-    .single();
-  if (error) throw error;
+  tactic = await buildRelations(tactic, ctx);
 
-  tactic = deepMerge(tactic, { masks, relations });
-  tactic.relations = await buildRelations({ tactic, scope }, ctx);
+  const input = { tactic, scope, blacklist };
+  const instructions = await ctx.runtime.call(`/t/${tactic.slug}/provision`, input);
 
-  const inputs = {
-    language: { learning: "spanish", known: "english" },
-    tactic,
-    scope,
-    blacklist,
-  };
+  if (
+    instructions?.length > 0 &&
+    !instructions.find((i) => i.type === "SIGNAL" && i.signal === "COMPLETED")
+  ) {
+    instructions.push({ type: "SIGNAL", signal: "REPETITION" });
+  }
 
-  const instructions = await ctx.runtime.call(join("/t", tactic.slug), inputs);
-
-  const end = performance.now();
-  console.log(`PROVISIONING ${instructions.length}  took ${(end - start) / 1000} seconds`);
   return instructions;
 }
 
-// this must be massively cleaned.
-async function buildRelations({ tactic, scope }, ctx) {
+async function buildRelations(tactic, ctx) {
   async function resolveRelation(resourceType, relation) {
     if (Array.isArray(relation)) {
-      return await Promise.all(
-        relation.map(async ({ slug }) =>
-          slug ? await ctx.runtime.call(`/${resourceType}/fromSlug`, { slug }) : relation,
-        ),
-      );
+      return await Promise.all(relation.map(async (r) => await resolveRelation(resourceType, r)));
     } else if (typeof relation === "object" && relation.slug) {
-      return relation.slug
-        ? await ctx.runtime.call(`/${resourceType}/fromSlug`, relation)
-        : relation;
+      return await ctx.runtime.call(`/${resourceType}/fromSlug`, relation);
+    } else if (typeof relation === "object" && relation.id) {
+      console.log("Not implemented - tacti middleware buildRelation");
+      return relation;
     } else {
       return relation;
     }
   }
 
   async function resolveResource(resourceType, relations) {
-    const richRelations = await Object.entries(relations).reduce(
-      async (acc, [relationName, relationDetail]) => {
-        acc = await acc;
-        acc[relationName] = await resolveRelation(resourceType, relationDetail, ctx);
-        if (resourceType === "games" && acc[relationName].mask) {
-          // resolve tags units and games defined in game mask.
-          Object.entries(acc[relationName].mask).forEach(async ([maskType, mask]) => {
+    const richRelations = {};
+    for (const [relationName, relationDetail] of Object.entries(relations)) {
+      richRelations[relationName] = await resolveRelation(resourceType, relationDetail);
+
+      if (resourceType === "games") {
+        if (richRelations[relationName].mask)
+          for (const [maskType, mask] of Object.entries(richRelations[relationName].mask)) {
             if (typeof mask === "object") {
-              acc[relationName].mask[maskType] = await resolveResource(maskType, mask);
+              richRelations[relationName].mask[maskType] = await resolveResource(maskType, mask);
+            } else if (typeof mask === "string") {
+              richRelations[relationName].mask[maskType] = mask;
+            } else {
+              console.log("@tactic middleware resolve mask type is not object", maskType, mask);
             }
-          });
-        }
-        return acc;
-      },
-      {},
-    );
+          }
+      }
+    }
 
     return richRelations;
   }
 
-  const relations = await Object.entries(tactic.relations).reduce(
-    async (acc, [resourceType, relation]) => {
-      acc = await acc;
-      acc[resourceType] = await resolveResource(resourceType, relation, ctx);
-      return acc;
-    },
-    { games: {}, units: {}, tags: {} },
-  );
+  for (const [resourceType, relation] of Object.entries(tactic.relations)) {
+    tactic.relations[resourceType] = await resolveResource(resourceType, relation);
+  }
 
-  return relations;
+  return tactic;
 }

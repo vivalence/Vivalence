@@ -1,37 +1,22 @@
+import onRequest from "./lib/middlewares/onRequest.js";
+
+import diagnostics from "./diagnostics/index.js";
+import dependencies from "./dependencies/index.js";
 import dependency from "./dependency/index.js";
+import instructions from "./instructions/index.js";
 
-import dependencies from "./dependencies.js";
-
-// create router for this scope. add slug middleware .
-export default async function runtime(aperture) {
+export default async function (aperture) {
   const router = aperture.router.create();
 
-  router.middleware.push(async (ctx, next) => {
-    const url = new URL(ctx.request.url).pathname.split("/");
-    const slug = url[url.indexOf("runtime") + 1];
+  router.route("/", (i, ctx) => ctx.runtime.manifest);
 
-    for (const [_, runtime] of ctx.daemon.runtimes) {
-      if (runtime.manifest.slug === slug) {
-        ctx.state.runtime = runtime.manifest;
-        break;
-      }
-    }
-    if (!ctx.state.runtime) throw new Error("No Runtime found");
+  await [
+    instructions,
+    dependency,
+    dependencies, //
+    diagnostics,
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve({ router }));
 
-    await next();
-  });
-
-  router.route("/", (i, ctx) => ctx.state.runtime);
-  router.route("/dependencies", dependencies);
-
-  await dependency({ router });
-
-  aperture.router.use(
-    "/runtime/:slug",
-    ...router.middleware,
-    router.routes(),
-    router.allowedMethods(),
-  );
-
+  aperture.router.use("/runtime/:slug", onRequest, router.routes(), router.allowedMethods());
   return aperture;
 }

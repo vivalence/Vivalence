@@ -23,6 +23,7 @@ model Unit {
   // DATA
   annotation   Json     @default("{}")
   data         Json     @default("{}")
+  index        Int?      
 
   @@unique([slug, runtimeId])
 }
@@ -76,6 +77,11 @@ model Dependency {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
 
+  // APP
+  // Not yet used. under consideration. irrelevant for singleplayer.
+  // user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // userId      String
+
   // RUNTIME
   runtime        Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
   runtimeId      String
@@ -106,6 +112,11 @@ model Condition {
 
   createdAt    DateTime @default(now())
   updatedAt    DateTime @default(now()) @updatedAt
+
+  // APP
+  // Not yet used. under consideration. irrelevant for singleplayer.
+  // user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // userId      String
 
   // RUNTIME
   runtime      Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)

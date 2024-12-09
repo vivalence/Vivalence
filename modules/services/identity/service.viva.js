@@ -1,4 +1,5 @@
 import client from "./client/mod.js";
+import service from "./service/mod.js";
 
 const manifest = {
   type: "service",
@@ -6,4 +7,4 @@ const manifest = {
   name: "Identity service. Provides user authentication, authorization and licencing. Works by - Entitlements to services, traits, strategies, and resources.",
 };
 
-export { manifest, client };
+export { manifest, client, service };

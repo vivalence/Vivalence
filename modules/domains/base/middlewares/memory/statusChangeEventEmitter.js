@@ -1,6 +1,6 @@
-export default (memory, ctx) => {
-  if (memory.statusChange) {
-    ctx.runtime.emit("MemoryStatusChange", { memory });
+export default (input, ctx) => {
+  if (input?.statusChange) {
+    ctx.runtime.bus.emit("MemoryStatusChange", input);
   }
-  return body;
+  return input;
 };

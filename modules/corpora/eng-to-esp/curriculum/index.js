@@ -4,5 +4,4 @@ import units from "./data/units.js";
 
 // const curriculum = { tags, dependencies, units };
 const curriculum = { dependencies };
-
 export default curriculum;

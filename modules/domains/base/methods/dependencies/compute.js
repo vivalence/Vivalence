@@ -1,6 +1,6 @@
 import { strings } from "@vivalence/shared";
-// import {validator, deepEquals, deepMerge } from "@vivalence/shared";
 
+// dependency = await ctx.runtime.call("/dependencies/compute", { dependency });
 export default async function (body, ctx) {
   const dependency = await readDependency(body.dependency, ctx);
 

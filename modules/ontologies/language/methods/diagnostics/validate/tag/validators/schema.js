@@ -1,3 +1,5 @@
+import { validators } from "@vivalence/shared";
+
 export default async function schema({ tag }, ctx) {
   const issues = [];
 
@@ -7,8 +9,8 @@ export default async function schema({ tag }, ctx) {
     if (!schema) {
       throw new Error(`Schema not found for tag: ${tag}`);
     }
-
-    const { isValid, errors } = ctx.runtime.locals.validate(schema, tag);
+    const validate = validators.ajv();
+    const { isValid, errors } = validate(schema, tag);
     if (!isValid) errors.map(buildError(tag)).forEach((e) => issues.push(e));
   } catch (e) {
     issues.push({ message: e.message, context: { error: e, tag }, violation: "ERROR", path: [] });

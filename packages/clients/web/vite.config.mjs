@@ -22,6 +22,7 @@ import "three-perf";
 import "@dimforge/rapier3d-compat";
 import "@dimforge/rapier2d-compat";
 import "mitt";
+import "tinykeys";
 
 const root = dirname(fromFileUrl(import.meta.url));
 

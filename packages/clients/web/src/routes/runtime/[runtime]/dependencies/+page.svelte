@@ -58,7 +58,7 @@
     {/if}
   </div>
 
-  <div class="bsp-node v row dependency">
+  <div class="bsp-chain-end dependency gap-2 flex flex-col">
     {#if activeDependency}
       <DependencyCard
         dependency={activeDependency}
@@ -88,6 +88,8 @@
 </div>
 
 <style>
+  .dependency {
+  }
   .dependencies {
     /* background-color: gray; */
     @apply gap-2;

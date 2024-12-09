@@ -17,9 +17,6 @@ export default function createRouter() {
   router.middleware = [];
   router.middleware.pre = pre(router);
   router.middleware.post = post(router);
-  router.middleware.compose = {};
-  router.middleware.compose.pre = router.middleware.pre.compose;
-  router.middleware.compose.post = router.middleware.post.compose;
 
   router.mw = router.middleware;
 

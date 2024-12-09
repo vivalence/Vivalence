@@ -10,29 +10,31 @@ export default () => {
   return async function groq({ prompt, schema, provider }) {
     const messages = [{ role: "user", content: prompt }];
 
-    if (schema) {
-      messages.unshift({
-        role: "user",
-        content:
-          `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
-          `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
-      });
-    }
-
     const completion = {
       messages,
-      model: provider.model || "llama2-70b-4096",
+      model: provider.model,
       max_tokens: provider.max_tokens || 4096,
-      temperature: provider.temperature || 0.8,
+      temperature: provider.temperature || 0.7,
     };
+
+    if (schema) {
+      completion["response_format"] = { type: "json_object" };
+      messages.unshift({
+        role: "user",
+        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(schema, null, 2)}. apply the properties.`,
+      });
+    }
+    // console.log("groq completion", completion);
 
     let response, text, result;
     try {
       response = await client.chat.completions.create(completion);
+      // console.log("groq response", response);
       text = response.choices[0].message.content;
       result = schema ? JSON.parse(text) : text;
       return result;
     } catch (error) {
+      console.log("groq error", error);
       throw new Error(JSON.stringify({ error, response, text, result }));
     }
   };

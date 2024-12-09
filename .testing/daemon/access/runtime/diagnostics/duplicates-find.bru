@@ -1,0 +1,15 @@
+meta {
+  name: duplicates-find
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/aperture/runtime/{{RUNTIME_SLUG}}/diagnostics/duplicates/find
+  body: json
+  auth: none
+}
+
+body:json {
+  {}
+}

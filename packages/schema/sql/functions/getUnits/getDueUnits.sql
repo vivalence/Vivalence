@@ -1,7 +1,9 @@
 CREATE OR REPLACE FUNCTION get_due_units(
-    tag_ids TEXT[],
-    game_id TEXT,
-    tactic_id TEXT,
+    tag_ids TEXT[] DEFAULT NULL,
+    game_id TEXT DEFAULT NULL,
+    tactic_id TEXT DEFAULT NULL,
+    user_id TEXT DEFAULT NULL,
+    runtime_id TEXT DEFAULT NULL,
     due_lt TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     blacklist TEXT[] DEFAULT NULL,
     take_limit INT DEFAULT NULL
@@ -9,38 +11,39 @@ CREATE OR REPLACE FUNCTION get_due_units(
 RETURNS SETOF public."Unit" AS $$
 BEGIN
     RETURN QUERY
-    WITH required_tags AS (
-        SELECT UNNEST(tag_ids) AS tag_id
+    WITH matching_plays AS (
+        SELECT 
+            p."unitId",
+            MIN(p."nextAt") as earliest_next_at
+        FROM "Play" p
+        WHERE p."nextAt" < due_lt
+            AND (tactic_id IS NULL OR p."tacticId" = tactic_id)
+            AND (game_id IS NULL OR p."gameId" = game_id)
+            AND (user_id IS NULL OR p."userId" = user_id)
+            AND (runtime_id IS NULL OR p."runtimeId" = runtime_id)
+        GROUP BY p."unitId"
     ),
-    unit_tags AS (
-        SELECT tu."B" AS unit_id, COUNT(DISTINCT tu."A") AS matched_tags
-        FROM public."_TagToUnit" tu
-        INNER JOIN required_tags rt ON rt.tag_id = tu."A"
-        GROUP BY tu."B"
-        HAVING COUNT(DISTINCT tu."A") = (SELECT COUNT(*) FROM required_tags)
+    matching_units AS (
+        SELECT DISTINCT u.id
+        FROM public."Unit" u
+        WHERE (
+            tag_ids IS NULL 
+            OR (
+                SELECT COUNT(DISTINCT tu."A")
+                FROM public."_TagToUnit" tu
+                WHERE tu."B" = u.id
+                AND tu."A" = ANY(tag_ids)
+            ) = array_length(tag_ids, 1)
+        )
+        AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist)))
     )
     SELECT u.*
     FROM public."Unit" u
-    INNER JOIN unit_tags ut ON ut.unit_id = u.id
-    WHERE EXISTS (
-        SELECT 1
-        FROM "Play" p
-        WHERE p."unitId" = u.id
-        AND p."tacticId" = tactic_id
-        AND p."gameId" = game_id
-        AND p."nextPlay" < due_lt
-        AND p."userId" = auth.uid()::text
-    )
-    AND NOT EXISTS (
-        SELECT 1
-        FROM public."Memory" m
-        WHERE m."unitId" = u.id
-        AND m."tagId" IS NULL
-        AND m."userId" = auth.uid()::text
-        AND m."status" IN ('KNOWN', 'GRADUATED')
-    )
-    AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist)))
+    INNER JOIN matching_plays mp ON mp."unitId" = u.id
+    INNER JOIN matching_units mu ON mu.id = u.id
+    ORDER BY mp.earliest_next_at ASC
     LIMIT take_limit;
 END;
 $$ LANGUAGE plpgsql;
 
+-- CREATE OR REPLACE FUNCTION get_due_units(tag_ids TEXT[] DEFAULT NULL, game_id TEXT DEFAULT NULL, tactic_id TEXT DEFAULT NULL, user_id TEXT DEFAULT NULL, runtime_id TEXT DEFAULT NULL, due_lt TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, blacklist TEXT[] DEFAULT NULL, take_limit INT DEFAULT NULL) RETURNS SETOF public."Unit" AS $$ BEGIN RETURN QUERY WITH unit_tags AS (SELECT DISTINCT tu."B" AS unit_id FROM public."_TagToUnit" tu WHERE CASE WHEN tag_ids IS NOT NULL THEN tu."A" = ANY(tag_ids) AND (SELECT COUNT(DISTINCT sub_tu."A") FROM public."_TagToUnit" sub_tu WHERE sub_tu."B" = tu."B" AND sub_tu."A" = ANY(tag_ids)) = array_length(tag_ids, 1) ELSE true END) SELECT u.* FROM public."Unit" u LEFT JOIN unit_tags ut ON ut.unit_id = u.id WHERE (tag_ids IS NULL OR ut.unit_id IS NOT NULL) AND EXISTS (SELECT 1 FROM "Play" p WHERE p."unitId" = u.id AND p."nextAt" < due_lt AND (tactic_id IS NULL OR p."tacticId" = tactic_id) AND (game_id IS NULL OR p."gameId" = game_id) AND (user_id IS NULL OR p."userId" = user_id) AND (runtime_id IS NULL OR p."runtimeId" = runtime_id)) AND (blacklist IS NULL OR NOT(u.id = ANY(blacklist))) LIMIT take_limit; END; $$ LANGUAGE plpgsql;

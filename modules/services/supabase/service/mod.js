@@ -1,5 +1,5 @@
 import { dirname, fromFileUrl, basename, join } from "$std/path/mod.ts";
-import { colors } from "jsr:@cliffy/ansi@1.0.0-rc.7/colors";
+import { colors } from "@vivalence/interfaces-cli";
 
 const dir = dirname(fromFileUrl(import.meta.url));
 const composePath = join(dir, "./docker-compose.yml");

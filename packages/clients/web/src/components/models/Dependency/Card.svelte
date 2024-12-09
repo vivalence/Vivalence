@@ -36,7 +36,7 @@
 
   <div class="footer">
     <div class="progress-bar">
-      {#each dependency.conditions as condition}
+      {#each dependency.conditions.sort((c) => c.met) as condition}
         <div class="bar-segment {condition.met ? 'success' : 'incomplete'}" />
       {/each}
     </div>
@@ -44,7 +44,7 @@
 
   {#if isExpanded}
     <div class="condition-list">
-      {#each dependency.conditions as condition}
+      {#each dependency.conditions.sort((c) => c.met) as condition}
         <div class="condition-item">
           <Icon carbon="CheckmarkOutline" size="sm" variant={condition.met ? "success" : "ui"} />
           <Text spacing="none" size="sm" weight="light" class="ml-2 overflow-ellipsis"
@@ -79,7 +79,7 @@
       @apply flex-1 h-3 rounded;
 
       &.success {
-        @apply bg-system-success-surface;
+        @apply bg-system-success-contrast;
       }
 
       &.incomplete {

@@ -1,7 +1,7 @@
 const createColorType = (color) => ({
-  surface: color[400],
-  contrast: color[800],
-  boundary: color[900],
+  surface: color[500],
+  contrast: color[200],
+  boundary: color[300],
   hover: {
     surface: color[300],
     contrast: color[700],
@@ -23,21 +23,26 @@ export default async function (ds) {
     skeleton: {
       app: {
         surface: palette.gray[900],
+        link: palette.aqua[300],
       },
+      // maybe i should invert these.
       surface: {
         1: palette.gray[800],
-        2: palette.gray[100],
-        3: palette.gray[500],
+        2: palette.gray[900],
+        3: palette.gray[400],
+        4: palette.gray[100],
       },
       contrast: {
-        1: palette.gray[100],
-        2: palette.gray[800],
-        3: palette.gray[500],
+        1: palette.gray[200],
+        2: palette.gray[300],
+        3: palette.gray[800],
+        4: palette.gray[500],
       },
       boundary: {
-        1: palette.gray[600],
+        1: palette.gray[300],
         2: palette.gray[300],
-        3: palette.gray[300],
+        3: palette.gray[500],
+        4: palette.gray[400],
       },
     },
 

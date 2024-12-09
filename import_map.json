@@ -34,6 +34,7 @@
     "@dimforge/rapier2d-compat": "https://cdn.skypack.dev/@dimforge/rapier2d-compat",
     "@dimforge/rapier3d-compat": "https://cdn.skypack.dev/@dimforge/rapier3d-compat",
     "carbon-icons-svelte": "https://cdn.skypack.dev/@dimforge/carbon-icons-svelte@12.13.0",
+    "tinykeys": "npm:tinykeys@3.0.0",
 
     "oak": "jsr:@oak/oak@16.1.0",
     "ebisu-js": "npm:ebisu-js@2.1.3",

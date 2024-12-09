@@ -1,4 +1,12 @@
 import fromScope from "./fromScope.js";
 import fromQueue from "./fromQueue.js";
 
-export default { fromScope, fromQueue };
+function init(blacklist = {}) {
+  blacklist.units = blacklist.units || [];
+  blacklist.tags = blacklist.tags || [];
+  blacklist.queue = blacklist.queue || [];
+
+  return blacklist;
+}
+
+export default { fromScope, fromQueue, init };

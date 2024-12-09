@@ -5,7 +5,7 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
 
-const bundle = join(dirname(fromFileUrl(import.meta.url)), "/bundle/Translations.svelte");
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
 
 const data = {
   mask: {

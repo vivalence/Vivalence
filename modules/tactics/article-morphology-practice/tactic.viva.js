@@ -1,17 +1,27 @@
 import provision from "./provision.js";
 
+const manifest = {
+  type: "tactic",
+  name: "Morphology of Articles",
+  description: "Practice the use of articles in different contexts.",
+  slug: "article-morphology-practice",
+  version: "0.0.4",
+};
+
 const relations = {
   tags: {
     article: { slug: "prontype:art" },
-    noun: { slug: "pos:noun" },
-    adjective: { slug: "pos:adj" },
-    numbers: [{ slug: "number:sing" }, { slug: "number:plur" }],
-    genders: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
-    definites: [{ slug: "definite:def" }, { slug: "definite:ind" }],
+    vocabulary: { slug: "pos:noun" },
+    morphology: [],
+    // adjective: { slug: "pos:adj" },
+    // numbers: [{ slug: "number:sing" }, { slug: "number:plur" }],
+    // genders: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
+    // definites: [{ slug: "definite:def" }, { slug: "definite:ind" }],
   },
   games: {
     flashcards: { slug: "flashcards" },
-    // translations: { slug: "translations" },
+    translations: { slug: "translations" },
+    prose: { slug: "prose" },
   },
 };
 
@@ -19,6 +29,7 @@ const masks = {
   translations: {
     prompt: {
       goal: `
+
 Create simple statements to practice the usage of present tense verbs with a noun for A1 language learners.
 Usage of present tense verbs and nouns on A1 level.
 1 VERB + 1 NOUN
@@ -39,14 +50,5 @@ They play soccer. - Ellos juegan fútbol. (Masculine Plural)
 };
 
 const data = { relations, masks };
-
-const manifest = {
-  type: "tactic",
-  name: "Morphology of Articles with gender and number",
-  slug: "article-morphology-practice",
-  version: "0.0.4",
-  description:
-    "Learn how to properly use gender and number of vocabulary by repetition of flashcards.",
-};
 
 export { manifest, data, provision };

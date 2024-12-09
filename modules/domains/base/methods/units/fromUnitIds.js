@@ -6,8 +6,9 @@ export default async function (body, ctx) {
     .from("Unit")
     .select("*")
     .eq("runtimeId", ctx.runtime.manifest.id)
-    .in("id", unitIds);
-
+    .in("id", unitIds)
+    .order("data->>index", { ascending: true });
   if (error) throw error;
-  return data;
+  units = data.sort((a, b) => (a.data.index ?? Infinity) - (b.data.index ?? Infinity));
+  return units;
 }

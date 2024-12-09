@@ -4,12 +4,12 @@ model Queue {
   updatedAt   DateTime       @updatedAt @default(now())
 
   // APP
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String
 
   // RUNTIME
-  runtime     Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId   String  @unique 
+  runtime     Runtime      @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String   
 
   // CORPUS
   game         Game?       @relation(fields: [gameId], references: [id], onDelete: Cascade)

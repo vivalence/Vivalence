@@ -7,7 +7,6 @@ const FLASHCARD_COUNT = 5;
 // genders numbers definite []
 
 export default async (inputs, ctx) => {
-  console.log(JSON.stringify(inputs, null, 2));
   const language = ctx.runtime.statics.language;
   const { tactic, scope } = inputs;
   const { games, units, tags } = tactic.relations;

@@ -1,0 +1,25 @@
+meta {
+  name: runtime:instructions:dependency
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/access/v1/runtime/{{RUNTIME_SLUG}}/instructions/dependency/feed
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "take": 200000000000000000000000,
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "queue": []
+    },
+    "dependency": {
+      "id": "ddbf4c0f-a059-46da-aa76-d1b450ba7ef1"
+    }
+  }
+}
