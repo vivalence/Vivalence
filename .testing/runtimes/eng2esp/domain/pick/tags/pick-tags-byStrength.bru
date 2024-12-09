@@ -1,0 +1,52 @@
+meta {
+  name: pick-tags-byStrength
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/pick/tags/byStrength
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tagIds": [
+      "2e0fe449-b539-48f8-aeee-6c9959365f8c",
+      "82758521-b342-489f-8c33-7cecb6756cd2"
+    ],
+    "take": 2,
+    "blacklist": {
+      "units": [],
+      "tags": []
+    }
+  }
+}
+
+docs {
+    # get weakest tags from a list of tags
+    returns data {
+        "id": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+        "createdAt": "2024-04-19T04:39:00.468",
+        "updatedAt": "2024-04-19T04:39:00.468",
+        "name": "Verb Haber",
+        "type": [
+            "STRUCTURAL",
+            "COMPLETABLE"
+        ],
+        "data": {
+            "STRUCTURAL": {},
+            "COMPLETABLE": {}
+        },
+        "memory": {
+            "id": "6f91e955-70c8-47c0-85f5-258cf4a05a4e",
+            "state": [4, 4, 0.26],
+            "tagId": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+            "status": "UNKNOWN",
+            "unitId": null,
+            "lastSeen": "2024-04-22T18:38:05.999",
+            "strength": -22.92964389442014
+        }
+    }
+}

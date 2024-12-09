@@ -1,0 +1,32 @@
+meta {
+  name: pick-units-byStrength
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/pick/units/byStrength
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tagIds": [
+      "9fd9e512-24f2-4400-a555-e9bd25982320",
+      "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"
+    ],
+    "blacklist": {
+      "units": ["fc26fe07-46be-484f-96e7-8995619839b2"],
+      "tags": []
+    },
+    "take": 5
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}
