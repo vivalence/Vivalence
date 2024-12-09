@@ -1,11 +1,11 @@
-import eventhandlers from "./eventhandlers/index.js";
+import events from "./events/index.js";
 import methods from "./methods/boot.js";
 import middlewares from "./middlewares/index.js";
 
 async function boot(runtime) {
   await middlewares.boot(runtime);
   await methods.boot(runtime);
-  await eventhandlers.boot(runtime);
+  await events.boot(runtime);
   return runtime;
 }
 

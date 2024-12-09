@@ -9,20 +9,12 @@ const manifest = {
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
-  version: "0.0.12",
+  version: "0.0.13",
 };
 
 const modules = {
-  games: [
-    "@vivalence/game/flashcards",
-    "@vivalence/game/translations",
-    "@vivalence/game/prose",
-    // "@vivalence/game/conjugations",
-  ],
-  tactics: [
-    "@vivalence/tactic/ontological-branch-introduction",
-    "@vivalence/tactic/article-morphology-practice",
-  ],
+  games: ["@vivalence/game/flashcards", "@vivalence/game/translations", "@vivalence/game/prose"],
+  tactics: ["@vivalence/tactic/article-practice"],
   strategies: [],
 };
 

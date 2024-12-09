@@ -3,7 +3,15 @@ import createMemoryProfiler from "./memory-profiler.js";
 export default async function dev(daemon) {
   const runtime = daemon.runtimes.values().next().value;
 
-  const user = await runtime.services.identity.getUser();
+  // console.log(result);
+  // console.log(JSON.stringify(result.map((u) => u.id)));
+
+  // const [definiteness] = await runtime.call("/memory/filter/tags/byStrength", {
+  //   tags: definite,
+  //   take: 1,
+  // });
+
+  // console.log(definiteness);
 
   // console.log("user", user);
 

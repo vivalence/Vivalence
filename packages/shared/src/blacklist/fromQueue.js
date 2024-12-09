@@ -1,12 +1,13 @@
 import fromScope from "./fromScope.js";
 
 export default async function fromQueue({ blacklist, scope }, ctx) {
-  let query = ctx.runtime.locals.supabase
+  blacklist = { units: [], tags: [], ...blacklist };
+  let query = ctx.runtime.services.supabase
     .from("Queue")
     .select("id, runtimeId, userId, dependencyId, gameId, tacticId, data")
     .eq("runtimeId", ctx.runtime.manifest.id);
 
-  if (scope.instruction) query = query.eq("id", scope.instruction.id);
+  if (scope.queue) query = query.eq("id", scope.queue.id);
   if (scope.dependency) query = query.eq("dependencyId", scope.dependency.id);
   if (scope.tactic) query = query.eq("tacticId", scope.tactic.id);
   if (scope.game) query = query.eq("gameId", scope.game.id);

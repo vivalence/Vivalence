@@ -12,8 +12,6 @@ export default async function install(daemon) {
       ...runtime.strategies,
     ]) {
       if (module.manifest.installed) continue;
-      // console.log("installing @", module.manifest);
-      // continue;
 
       if (typeof module.Module.install === "function") {
         module.manifest.installed = !!(await module.Module.install(runtime, module.Module));
@@ -22,11 +20,9 @@ export default async function install(daemon) {
       } else if (module.manifest.id) {
         module.manifest.installed = true;
       }
-      // module.manifest.installed = false;
 
       if (module.manifest.installed) success(module.manifest, runtime);
       else console.warn("NO Install happened on:", module.manifest);
-      // console.log("install done @", module.manifest);
     }
   }
   return daemon;
@@ -51,12 +47,6 @@ async function installCurriculum(runtime, module) {
   }
 
   const installations = await Promise.all(promises);
-
-  // console.log(
-  //   "installations",
-  //   // installations.filter(({ status }) => status !== "success"),
-  //   installations,
-  // );
   return installations.every(({ status }) => status === "success");
 }
 

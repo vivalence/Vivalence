@@ -12,8 +12,7 @@ export default async function (inputs, ctx) {
 
   const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
 
-  // const sentence = await ctx.runtime.services.llm(input);
-  const sentence = { known: "The book is masculine.", learning: "El libro es masculino." };
+  const sentence = await ctx.runtime.services.llm(input);
 
   const tokens = await ctx.runtime.call("/classification/unitsFromText", {
     text: sentence.learning,
@@ -24,7 +23,6 @@ export default async function (inputs, ctx) {
       sentence,
       tokens: tokens
         .map((token) => ({
-          // i oughtto add the annotations to the payload.
           token: token.annotation.meta.token,
           start_char: token.annotation.meta.start_char,
           end_char: token.annotation.meta.end_char,
@@ -38,6 +36,11 @@ export default async function (inputs, ctx) {
         .map((token) => ({
           id: token.unit.id,
           tags: token.unit.tags.map(({ id }) => ({ id })),
+          token: {
+            token: token.annotation.meta.token,
+            start_char: token.annotation.meta.start_char,
+            end_char: token.annotation.meta.end_char,
+          },
         })),
       tags: Array.from(
         tokens.reduce((acc, token) => {

@@ -1,15 +1,15 @@
 console.log("Daemon starting...");
 const start = performance.now();
 
+import registry from "@vivalence/registry";
+import { services } from "@vivalence/shared";
+
 import cleanup from "./lib/cleanup-ports.js";
 import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
 import aperture from "./aperture/index.js";
-import registry from "./registry/index.js";
 import server from "./server/index.js";
-import services from "./services/index.js";
-
 import runtimes from "./runtimes/index.js";
 
 const ticker = (name) => (daemon) => {
@@ -32,9 +32,9 @@ let daemon = {
   await [
     ticker("init"),
     cleanup,
-    registry.init,
+    registry.mount,
+    services.mount,
     server.init,
-    services.init,
     aperture.init,
     runtimes.discover,
     runtimes.runtime,

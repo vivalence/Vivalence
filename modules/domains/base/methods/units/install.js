@@ -1,10 +1,10 @@
 import { deepMerge } from "@vivalence/shared";
 
-const unitSkeleton = {
-  data: { index: null, example: { known: null, learning: null }, known: null, learning: null },
-};
-
 export default async function (body, ctx) {
+  const unitSkeleton = {
+    data: { index: null, example: { known: null, learning: null }, known: null, learning: null },
+  };
+
   let unit = deepMerge(unitSkeleton, body.unit);
   let operation = null;
   let issues = [];
@@ -69,7 +69,6 @@ async function getUnit(unit, ctx) {
     .from("Unit")
     .select("*, tags: _TagToUnit(tag:A(*))")
     .eq("runtimeId", ctx.runtime.manifest.id);
-
   if (unit.id) query = query.eq("id", unit.id);
   else if (unit.slug) query = query.eq("slug", unit.slug);
   const { data, error } = await query.single();

@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  let { instruction, runtime, dependency } = $props();
+  let { instruction, runtime, dependency, next } = $props();
   /* console.log("Signal Handler: instruction, runtime, dependency", instruction, runtime, dependency); */
 
   let ui = $state();
@@ -10,16 +10,15 @@
   onMount(() => {
     switch (instruction.signal) {
       case "COMPLETED":
-        ui = "Dependency Satisfied";
-        setTimeout(() => goto(`/runtime/${runtime.slug}/dependencies/view`), 2000);
+        ui = "Dependency satisfied";
+        setTimeout(() => goto(`/runtime/${runtime.slug}/dependencies`), 2000);
         break;
       case "REPETITION":
-        ui = "Repetition of Tactic";
-        /* setTimeout(() => locals.onGameFinish(), 2000); */
+        ui = "Rep master general.";
+        setTimeout(() => next(), 2000);
         break;
       case "ERROR":
         ui = instruction.error.message;
-        /* setTimeout(() => locals.onGameFinish(), 2000); */
         break;
       default:
         break;

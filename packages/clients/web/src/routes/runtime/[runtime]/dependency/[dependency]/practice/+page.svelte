@@ -1,78 +1,77 @@
 <script>
   import { Widget } from "@vivalence/ui";
+  import { id, blacklist as Blacklist } from "@vivalence/shared";
+  import { fromScope } from "$lib/blacklist.js";
   import Buffer from "$components/Buffer/Buffer.svelte";
   import SignalHandler from "./components/SignalHandler.svelte";
 
   const { data } = $props();
-  const { locals, dependency } = data;
+  const { locals, dependency, aperture } = data;
 
   const runtime = {
     ...data.runtime,
-    call: locals.call.wrap(`/r/${data.runtime?.slug}`),
+    call: locals.call.wrap(data.runtime?.url),
   };
 
-  async function pull({ take, blacklist }) {
+  const Modes = {
+    GAME: (instruction) => [
+      Widget,
+      {
+        ...instruction,
+        runtime,
+        game: { ...instruction.game, call: locals.call.wrap(instruction.game.url) },
+        bundle: instruction.game.bundle,
+      },
+    ],
+    SIGNAL: (instruction) => [SignalHandler, { instruction, runtime, dependency }],
+  };
+
+  async function pull({ take, buffer = null }) {
     try {
-      const tactic = dependency.itinerary?.tactic;
+      let blacklist = Blacklist.init();
 
-      const input = {
-        relations: tactic?.relations,
-        masks: tactic?.masks,
-        blacklist,
-        scope: {
-          dependency: { id: dependency.id },
-          tactic: { slug: tactic.slug },
-        },
-      };
+      [buffer.active, ...buffer.queue]
+        .filter((x) => x?.scope)
+        .forEach((item) => {
+          blacklist = Blacklist.fromScope({ blacklist, scope: item.scope });
+        });
 
-      const { data: instructions, error } = await runtime.call(
-        `/t/${tactic.slug}/provision`,
+      const input = { take, blacklist, dependency: { id: dependency.id } };
+      const result = await aperture.call(
+        `/runtime/${runtime.slug}/instructions/dependency/feed`,
         input,
       );
 
-      if (error) throw error;
-
+      if (result.error) throw result.error;
+      const instructions = result.data.instructions;
       return instructions;
     } catch (e) {
+      console.log("[practive.page.svelte pull]uncaught error", e);
       return [
         {
           type: "SIGNAL",
           signal: "ERROR",
-          error: { message: "Something went wrong. Please try again later.", ...e },
+          error: {
+            message: "Something went wrong while pulling the next dependency instruction.",
+            ...e,
+          },
         },
       ];
     }
   }
 
-  async function onCompleted(instruction) {
-    console.log("practive.page.svelte OnComplete finished with instruction", instruction);
-  }
+  const render = (instruction) => {
+    console.log(instruction);
+    if (Modes[instruction?.type]) return Modes[instruction?.type](instruction);
+    else [null, {}];
+  };
 
-  // not sure i like the object declaration here. lets see.
-  const Modes = {
-    GAME: {
-      component: Widget,
-      onState: (instruction) => ({
-        instruction,
-        runtime,
-        game: {
-          ...instruction.game,
-          call: runtime.call.wrap(`/g/${instruction.game.slug}`),
-        },
-      }),
-    },
-    SIGNAL: {
-      component: SignalHandler,
-      onState: (instruction) => ({ instruction, runtime, dependency }),
-    },
-  };
-  const onMode = (instruction) => {
-    const mode = Modes[instruction?.type];
-    if (!mode) return [null, null];
-    return [mode.component, mode.onState(instruction)];
-  };
+  async function onNext({ prev, next }) {
+    const result = await aperture.call(`/runtime/${runtime.slug}/instructions/remove`, prev);
+    console.log("[/practice/+page.svelte] Buffer onNext remove");
+  }
 </script>
 
 <div class="bsp-chain-root">
-  <Buffer {onMode} {onCompleted} {pull} />
+  <Buffer {pull} {render} {onNext} />
 </div>

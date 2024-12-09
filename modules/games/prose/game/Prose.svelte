@@ -1,34 +1,49 @@
 <script>
-  /* import { Text, Button } from "@vivalence/ui"; */
+  import { Button } from "@vivalence/ui";
   import { tick, onMount } from "svelte";
 
-  /* export let locals;
-   * export let game;
-   * export let scope;
-   * export let instruction;
-   * export let trajectory; */
-  const { ...props } = $props();
-  console.log("prose props", props);
+  const { next, game, instruction, scope } = $props();
 
-  const next = async () => {
-    console.log("this.game.call(eval) not implemented");
-    /* locals.onGameFinish(); */
-    /* await locals.call(`/g/${game.slug}/evaluate`, { scope }); */
+  const onNextButton = async () => {
+    game.call(`/evaluate`, { scope });
+    next(); // Must be last.
   };
 
-  onMount(() => {
-    /* trajectory.set(trajectory.signals.keyboard.Enter(), next); */
-  });
+  //onMount(() => {trajectory.set(trajectory.signals.keyboard.Enter(), next);});
 </script>
 
-<div
-  class="container mx-auto w-full max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh] pb-20">
-  <!-- <div class="prose">{@html instruction.prose}</div> -->
-</div>
+<div class="bsp-node root">
+  <div class="bsp-node v prose-container p-8">
+    <div class="bsp-chain-end prose rounded-lg border border-skeleton-boundary-1 p-4 lg:p-8">
+      {@html instruction.prose}
+    </div>
+  </div>
 
-<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-10 py-16">
   <div
-    class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
-    <button onclick={next} class={`btn btn-neutral`} type="button">Next</button>
+    class={`bsp-chain-end footer menu p-4 shadow-md border-t border-skeleton-boundary-1 flex justify-center gap-2`}>
+    <div
+      class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+      <Button size="xl" onclick={onNextButton}>Next</Button>
+    </div>
   </div>
 </div>
+
+<style>
+  .root {
+    grid-template:
+      "body " 1fr
+      "footer" auto;
+  }
+  .prose-container {
+    grid-area: body;
+    grid-template: "left main right" 1fr 3fr 1fr;
+    /* overflow-y: auto; */
+  }
+  .prose {
+    grid-area: main;
+  }
+
+  .footer {
+    grid-area: footer;
+  }
+</style>

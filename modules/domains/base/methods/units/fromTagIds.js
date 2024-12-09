@@ -2,12 +2,8 @@ export default async function (body, ctx) {
   const { tagIds, blacklist, take } = body;
 
   // Step 1: Get units that have all the required tags
-  let query = ctx.runtime.locals.supabase.from("_TagToUnit").select("*").in("A", tagIds);
-
-  if (blacklist && blacklist.units && blacklist.units.length > 0) {
-    query = query.not("B", "in", `(${blacklist.units.join(",")})`);
-  }
-
+  let query = ctx.runtime.services.supabase.from("_TagToUnit").select("*").in("A", tagIds);
+  if (blacklist?.units?.length > 0) query = query.not("B", "in", `(${blacklist.units.join(",")})`);
   const { data: matchedRelations, error: matchError } = await query;
   if (matchError) throw matchError;
 
@@ -24,23 +20,26 @@ export default async function (body, ctx) {
     .map(([unitId, _]) => unitId);
 
   // Step 4: Fetch full data for fully matched units
-  query = ctx.runtime.locals.supabase
-    .from("Unit")
-    .select(`*, tags:_TagToUnit(tag:A(*)) `)
-    .eq("runtimeId", ctx.runtime.manifest.id)
-    .in("id", fullyMatchedUnitIds);
+  const { rows: units } = await ctx.runtime.services.db.sql(
+    `SELECT unit.*
+FROM "Unit" unit
+WHERE unit.id = ANY($1::text[])
+ORDER BY (data->>'index')::numeric
+LIMIT CASE 
+  WHEN $2::integer IS NULL THEN NULL 
+  ELSE $2::integer 
+END;
+`,
 
-  if (take !== null) {
-    query = query.limit(parseInt(take));
-  }
-  const { data: units, error: unitsError } = await query;
-  if (unitsError) throw unitsError;
+    [fullyMatchedUnitIds, take],
+  );
 
-  // Step 5: Format the tags for each unit
-  const formattedUnits = units.map((unit) => ({
-    ...unit,
-    tags: unit.tags.map(({ tag }) => tag),
-  }));
+  // // Step 5: Format the tags for each unit
+  // const formattedUnits = units.map((unit) => ({
+  //   ...unit,
+  //   // tags: unit.tags.map(({ tag }) => tag),
+  // }));
+  // console
 
-  return formattedUnits;
+  return units;
 }

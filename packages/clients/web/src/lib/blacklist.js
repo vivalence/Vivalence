@@ -1,3 +1,4 @@
+// ought to be importorted from shared...
 function removeDuplicatesFromBlacklist(blacklist) {
   // Remove duplicates from the 'units' array
   if (blacklist.units && Array.isArray(blacklist.units)) {
@@ -10,8 +11,8 @@ function removeDuplicatesFromBlacklist(blacklist) {
   }
 
   // Add additional arrays like 'instructions' if needed
-  if (blacklist.instructions && Array.isArray(blacklist.instructions)) {
-    blacklist.instructions = Array.from(new Set(blacklist.instructions));
+  if (blacklist.queue && Array.isArray(blacklist.queue)) {
+    blacklist.queue = Array.from(new Set(blacklist.queue));
   }
 
   return blacklist;

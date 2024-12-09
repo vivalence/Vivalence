@@ -11,7 +11,7 @@
     `bg-${variant}-surface border-${variant}-boundary text-${variant}-contrast`;
 
   const variants = {
-    default: makeVariant("skeleton-1"),
+    default: `bg-skeleton-surface-1 border-skeleton-boundary-1 text-skeleton-contrast-1`,
     primary: makeVariant("theme-primary"),
     secondary: makeVariant("theme-secondary"),
     accent: makeVariant("theme-accent"),

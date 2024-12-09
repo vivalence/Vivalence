@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/status
+  url: {{DAEMON_SERVER_URL}}/access/v1/runtime/{{RUNTIME_SLUG}}
   body: json
   auth: none
 }

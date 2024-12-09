@@ -62,10 +62,10 @@ you are also given a set of constraints that you must follow. The constraints ar
 </GOAL>
 
 <CONSTRAINTS>
-Don't give any additional advice or further instructions to the reader. Dont moralize or be preachy. 
+Don't give any additional advice or further instructions to the reader. Dont moralize or be preachy. Avoid overly generic or placeholder statements. Limit the explanation to specific, relevant information.
+Don't give any additional advice or further instructions to the reader! Dont moralize or be preachy! Avoid overly generic or placeholder statements. Limit the explanation to specific, relevant information.
 {{#constraints}}
 {{.}}
 {{/constraints}}
-</CONSTRAINTS>
-`,
+</CONSTRAINTS>`,
 };

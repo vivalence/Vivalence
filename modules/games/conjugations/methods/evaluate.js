@@ -51,15 +51,13 @@ async function evaluateConjugation({ conjugation, tags, language, inputs, scope 
   const evaluation = await ctx.runtime.services.llm(input);
 
   // @lf i should rename this to /unit/review, evaluate or update or something
-  await ctx.runtime.call("/units/review", {
-    gameType: "CONJUGATIONS",
-    response: evaluation.status,
+  await ctx.runtime.call("/review/unit", {
+    signal: evaluation.status,
     scope: { ...scope, tag: null, unit: { id: conjugation.scope.unit.id } },
   });
   for (const tag in conjugation.scope.tags) {
-    await ctx.runtime.call("/tags/review", {
-      gameType: "CONJUGATIONS",
-      response: evaluation.status,
+    await ctx.runtime.call("/review/tag", {
+      signal: evaluation.status,
       scope: { ...scope, unit: null, tag: { id: tag.id } },
     });
   }

@@ -20,6 +20,7 @@ export default async function injectGameCaller(body, ctx) {
 
     body.tactic.relations.games[relationName].provision = (input) => {
       return body.tactic.relations.games[relationName].call("/provision", input);
+      // might want to migrate
     };
   });
 

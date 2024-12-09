@@ -7,11 +7,12 @@ export default async function (body, ctx) {
   const condition = await read(body.condition, ctx);
 
   const met = await conditionResolver(condition, ctx);
-  // console.log("met", met);
   // This might blow up in the future. probably when the first memories run through here
   // hello future me, if you're reading this, you're welcome.
+  // Fuck you past me, all you had to do was not hardcode a fucking     // met = false;
+  // But otherwise this doesnt seem entirely unreasonable.
 
-  const { data } = await ctx.runtime.locals.supabase
+  const { data } = await ctx.runtime.services.supabase
     .from("Condition")
     .update({ met, updatedAt: new Date().toISOString() })
     .eq("id", condition.id)
@@ -24,7 +25,7 @@ export default async function (body, ctx) {
 async function read(condition, ctx) {
   if (!condition?.id) throw new Error("Condition id is required");
 
-  let query = ctx.runtime.locals.supabase
+  let query = ctx.runtime.services.supabase
     .from("Condition")
     .select("*")
     .eq("runtimeId", ctx.runtime.manifest.id)
@@ -38,19 +39,17 @@ async function read(condition, ctx) {
   return data;
 }
 
+// related to /pick/get ie implements same logic.
 async function conditionResolver(condition, ctx) {
   let met;
 
   if (condition.scope.tag) {
-    // console.log("condition", condition);
     const tag = await ctx.runtime.call("/tags/fromSlug", { slug: condition.scope.tag.slug });
-    // console.log("tag", tag);
 
     const traits = tag.traits;
     const flavor = tag.data.LEARNABLE?.flavor || tag.data.COMPLETABLE?.flavor;
 
     let memories = [];
-    // console.log(traits, flavor);
     if (traits.includes("LEARNABLE") && flavor === "INDIVIDUAL") {
       memories = await learnableIndividual({ tag }, ctx);
     } else if (traits.includes("LEARNABLE") && flavor === "RELATIONAL") {
@@ -62,7 +61,6 @@ async function conditionResolver(condition, ctx) {
     }
 
     met = await validators.jsonata(condition.assertion.jsonata, memories);
-    met = false;
   } else if (condition.scope.dependency) {
     const dependency = await ctx.runtime.call("/dependencies/compute", condition.scope);
     met = dependency.satisfied;
@@ -73,28 +71,28 @@ async function conditionResolver(condition, ctx) {
 
 async function learnableIndividual({ tag }, ctx) {
   let memories = [];
-  const { data, error } = await ctx.runtime.locals.supabase
+  const { data, error } = await ctx.runtime.services.supabase
     .from("Memory")
     .select("id, tagId, unitId, status")
     .eq("tagId", tag.id)
     .is("unitId", null)
     .maybeSingle();
   if (error) throw error;
-  memories.push(data?.status);
+  memories.push(data?.status || "UNTOUCHED");
   return memories;
 }
 async function learnableRelational({ tag }, ctx) {
   const user = await ctx.runtime.services.identity.getUser();
 
   let memories = [];
-  const { data: relations } = await ctx.runtime.locals.supabase
+  const { data: relations } = await ctx.runtime.services.supabase
     .from("_TagToUnit")
     .select("*")
     .eq("A", tag.id);
 
   const unitIds = relations.map((relation) => relation.B);
 
-  const { rows: data } = await ctx.runtime.services.db.query(
+  const { rows: data } = await ctx.runtime.services.db.sql(
     `WITH unit_ids AS (SELECT UNNEST($1::text[]) AS unit_id)
 SELECT id, "userId", "tagId", "unitId", status
 FROM "Memory"
@@ -107,7 +105,7 @@ AND "unitId" IN (SELECT unit_id FROM unit_ids); `,
 
   unitIds
     .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
-    .map((status) => memories.push(status));
+    .map((status) => memories.push(status || "UNTOUCHED"));
 
   return memories;
 }
@@ -116,14 +114,14 @@ async function completableIndividual({ tag }, ctx) {
   const user = await ctx.runtime.services.identity.getUser();
 
   let memories = [];
-  const { data: relations } = await ctx.runtime.locals.supabase
+  const { data: relations } = await ctx.runtime.services.supabase
     .from("_TagToUnit")
     .select("*")
     .eq("A", tag.id);
 
   const unitIds = relations.map((relation) => relation.B);
 
-  const { rows: data } = await ctx.runtime.services.db.query(
+  const { rows: data } = await ctx.runtime.services.db.sql(
     `WITH unit_ids AS (SELECT UNNEST($1::text[]) AS unit_id)
 SELECT id, "userId", "tagId", "unitId", status
 FROM "Memory"
@@ -136,14 +134,14 @@ AND "unitId" IN (SELECT unit_id FROM unit_ids); `,
 
   unitIds
     .map((unitId) => data.find((memory) => memory.unitId === unitId)?.status || "UNTOUCHED")
-    .map((status) => memories.push(status));
+    .map((status) => memories.push(status || "UNTOUCHED"));
 
   return memories;
 }
 async function completableRelational({ tag }, ctx) {
   let memories = [];
 
-  const { data: relations } = await ctx.runtime.locals.supabase
+  const { data: relations } = await ctx.runtime.services.supabase
     .from("_TagToUnit")
     .select(
       "A, unit:Unit(id, memories:Memory(id, unitId, tagId, status), relations:_TagToUnit(A, B))",

@@ -37,8 +37,12 @@ export default function createDBClient() {
     });
 
     client = {
-      query: async (text, params, callback) => {
-        return await pool.query(text, params, callback);
+      sql: async (text, params) => {
+        return await pool.query(text, params);
+      },
+      query: async (text, params) => {
+        console.log("usage of serivces.db.query is deprecated. Please use services.db.sql instead");
+        return await pool.query(text, params);
       },
     };
   }

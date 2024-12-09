@@ -1,118 +1,84 @@
 <script>
-  export class GameState {
-    instruction = $state(null);
-    scope = $state(null);
-    input = $state("");
-    revealed = $state(false);
-    loading = $state(false);
-    evaluation = $state(null);
+  import { onMount, onDestroy } from "svelte";
+  import { Text, Button, Input } from "@vivalence/ui";
 
-    runtime;
-    game;
-    next;
+  import Card from "./Card.svelte";
 
-    constructor({ instruction, runtime, game, next }) {
-      this.instruction = instruction;
-      this.runtime = runtime;
-      this.game = game;
-      this.next = next;
-    }
+  let loading = $state(false);
+  let evaluations = $state([]);
+  let input = $state("");
+  let revealed = $state(false);
 
-    async evaluate() {
-      this.loading = true;
-      const params = {
-        sentence: {
-          ...this.instruction.sentence,
-          translation: this.input,
-        },
-        scope: this.scope,
-      };
-      const { data: evaluation, error } = await this.game.call("/evaluate", params);
-      if (error) throw error;
-      this.evaluation = evaluation;
-      this.loading = false;
-    }
+  const { instruction, runtime, scope, game, next, keybindings } = $props();
 
-    setInput(input) {
-      this.input = input;
-    }
-
-    async commitTranslation() {
-      this.revealed = true;
-      await this.evaluate();
-    }
-
-    async finishTranslation() {
-      await this.next();
-      this.reset();
-    }
-
-    reset() {
-      this.instruction = null;
-      this.scope = null;
-      this.input = "";
-      this.revealed = false;
-      this.loading = false;
-      this.evaluation = null;
-    }
+  async function evaluate() {
+    revealed = true;
+    loading = true;
+    const params = { sentence: { ...instruction.sentence, translation: input }, scope };
+    const { data, error } = await game.call("/evaluate", params);
+    evaluations = data;
+    loading = false;
   }
-</script>
 
-<script>
-  import { Text, Button, } from "@vivalence/ui";
- import Card from "./components/Card.svelte";
+  const handleInput = (event) => (input = event.target.value);
 
-  const { gameState } = $props();
+  let inputState = $derived(
+    {
+      KNOWN: "input-success",
+      NEUTRAL: "input-info",
+      UNKNOWN: "input-error",
+    }[evaluation?.sentence.status],
+  );
 
-  const handleInput = (event) => gameState.setInput(event.target.value);
+  const onEvaluate = () => evaluate();
+  const onNext = () => next();
 
-  let inputState = $derived.by(() => {
-    if (!gameState.evaluation) return "";
-    switch (gameState.evaluation.sentence.status) {
-      case "KNOWN":
-        return "input-success";
-      case "NEUTRAL":
-        return "input-info";
-      case "UNKNOWN":
-        return "input-error";
-    }
+  keybindings({
+    Enter: () => {
+      console.log("Enter trasn", instruction.sentence, revealed);
+      if (!revealed) onEvaluate();
+      else onNext();
+    },
   });
 </script>
 
-<div class="grid-chain-node root">
-  <div class="grid-chain-node content">
+<div class="bsp-node root">
+  <div class="bsp-node content">
     <div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh]">
-      <div class="flex flex-row items-center w-full justify-center pb-20">
-        <div class="w-1/2 mb-2 mr-2">
-          <div>
-            <Text size="sm" color="muted">English:</Text>
-            <Text size="xl" italic>{gameState.instruction.sentence.known}</Text>
-          </div>
+      <div class="flex flex-col items-center w-full justify-center pb-8">
+        <div class="w-full mb-2">
+          <Text size="sm">English:</Text>
+          <Text size="xl" italic>{instruction.sentence.known}</Text>
         </div>
 
-        {#if gameState.revealed}
-          <div class="w-1/2">
-            <div>
-              <Text size="sm" color="muted">Expected Spanish:</Text>
-              <Text size="xl" italic>{gameState.instruction.sentence.learning}</Text>
-            </div>
+        {#if revealed}
+          <div class="w-full mb-2">
+            <Text size="sm">Expected:</Text>
+            <Text size="xl" italic>{instruction.sentence.learning}</Text>
+          </div>
+          <div class="w-full mb-2">
+            <Text size="sm">Given:</Text>
+            <Text size="xl" italic>{input}</Text>
           </div>
         {/if}
       </div>
 
-      {#if gameState.revealed}
-        <div variant="neutral">
+      {#if revealed}
+        <div>
           <div>
-            <div>Feedback:</CardTitle>
+            {#if evaluations.length > 0}
+              <Text size="sm">Feedback:</Text>
+            {/if}
+            {#if loading}
+              <Text size="md">Loading...</Text>
+            {/if}
           </div>
-          
-          {#if gameState.evaluation}
-            <div>
-              <div class="flex flex-row flex-wrap pb-20">
-                {#each gameState.evaluation.units as evaluation}
-                    <!-- <FeedbackCard {...evaluation} /> -->
-                {/each}
-              </div>
+
+          {#if evaluations}
+            <div class="flex flex-row flex-wrap">
+              {#each evaluations as evaluation}
+                <Card {...evaluation} />
+              {/each}
             </div>
           {/if}
         </div>
@@ -120,35 +86,41 @@
     </div>
   </div>
 
-  <div class="grid-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
-    <div class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
-      <input
+  <div class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
+    <div
+      class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+      <Input
         class={`input input-bordered ${inputState} w-full mr-2`}
-        type="text"
         placeholder="Spanish translation here..."
-        value={gameState.input}
+        type="text"
+        size="xl"
         autofocus
-        oninput={handleInput}
-      />
-      
-      {#if !gameState.revealed}
-        <Button size="xl" onclick={() => gameState.commitTranslation()}>Review</Button>
+        disabled={revealed}
+        bind:value={input}
+        oninput={handleInput} />
+
+      {#if !revealed}
+        <Button size="xl" onclick={onEvaluate}>Commit</Button>
       {:else}
-        <Button size="xl" onclick={() => gameState.finishTranslation()}>Next Game</Button>
+        <Button size="xl" onclick={onNext}>Next</Button>
       {/if}
     </div>
   </div>
 </div>
 
 <style>
+  * {
+    /* border: 1px solid red; */
+  }
   .root {
     grid-template-rows: 1fr auto;
   }
 
   .content {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-template-rows: repeat(6, 1fr);
+    /* display: grid; */
+    /* grid-template-columns: repeat(6, 1fr); */
+    /* grid-template-rows: repeat(6, 1fr); */
+    /* @apply rounded-lg border border-skeleton-boundary-1 */
   }
 
   .menu {

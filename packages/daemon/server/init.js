@@ -10,5 +10,12 @@ export default async function server(daemon) {
   daemon.router = createRouter();
   daemon.server.use(cors);
   daemon.server.use(auth);
+
+  daemon.router.use(async (ctx, next) => {
+    // trace:
+    // console.log(ctx.request.url.pathname);
+    await next();
+  });
+
   return daemon;
 }

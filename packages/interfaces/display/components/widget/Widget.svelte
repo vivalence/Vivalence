@@ -1,18 +1,21 @@
 <script>
-  import { onMount, unmount, onDestroy } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
-  const { bundle, payload } = $props();
+  const { bundle, ...props } = $props();
 
+  let dismount = $state(null);
   let component = $state(null);
   let target = $state(null);
 
   onMount(async () => {
     const { default: Component } = await import(/* @vite-ignore */ bundle);
-    component = await Component(target, payload);
+    await Component(target, props);
+    component = true;
   });
 
   onDestroy(() => {
-    component && unmount(component);
+    // Component unmounting not working.
+    component = false;
   });
 </script>
 
@@ -21,7 +24,7 @@
 
   {#if !component}
     <div class="bsp-chain-end">
-      <span class="text-theme-text-1">Loading component...</span>
+      <span class="text-theme-text-1">Loading widget...</span>
     </div>
   {/if}
 </div>

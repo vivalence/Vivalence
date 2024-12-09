@@ -14,11 +14,11 @@ const verbFlashcards = (mask, unit) => {
 
 const nounFlashcards = (mask, unit) => {
   const { gender, number } = unit.annotation;
-  const article = ["fem"].includes(gender) ? "La " : "El ";
+  const article = ["fem"].includes(gender) ? "La" : "El";
 
   const maskData = {
     front: {
-      footer: [gender, number].filter((f) => f).join(" - "),
+      footer: [{ masc: "Masculine", fem: "Feminine" }[gender]].filter((f) => f).join(" - "),
     },
     back: {
       header: `${article} ${unit.data.learning}`,
@@ -32,13 +32,13 @@ const flashcard = (mask, unit, maskData = {}) => {
   maskData = {
     front: {
       header: unit.data.known,
-      content: unit.data.example?.known,
+      content: unit.data.example?.known && `<i>${unit.data.example?.known}</i>`,
       footer: null,
       ...(maskData.front || {}),
     },
     back: {
       header: unit.data.learning,
-      content: unit.data.example?.learning,
+      content: unit.data.example?.learning && `<i>${unit.data.example?.learning}</i>`,
       footer: null,
       ...(maskData.back || {}),
     },

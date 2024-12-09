@@ -69,7 +69,6 @@ const defaultModuleBoot = {
   },
   game: async (runtime, Game) => {
     const bundle = bundler({ entry: Game.bundle, serve: runtime.manifest.url + Game.manifest.url });
-
     runtime.router.get(bundle.url, bundle.serve());
     // this should be handled by domain middlewares
     runtime.router.route("/provision", bundle.injectBundleUrl(), Game.provision);

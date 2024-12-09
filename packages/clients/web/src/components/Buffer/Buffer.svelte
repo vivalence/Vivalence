@@ -1,32 +1,52 @@
 <script>
-  import { Text } from "@vivalence/ui";
   import { onMount } from "svelte";
-  import { Loader } from "@vivalence/ui";
-  import { id } from "@vivalence/shared";
+  import { Loader, Text } from "@vivalence/ui";
+  import { id, deepClone } from "@vivalence/shared";
   import BufferState from "./state.svelte.js";
+  import { createKeybindingsHandler } from "tinykeys";
 
-  const { onMode, pull, onCompleted } = $props();
+  let { render, pull, onNext } = $props();
+  let keyhandler = $state();
 
-  let state = new BufferState({ pull, onCompleted });
+  let bufferState = new BufferState({ pull, onNext });
 
   let [Component, componentProps] = $derived.by(() => {
-    if (state.active) return onMode(state.active);
-    else return [null, null];
+    if (bufferState.active) {
+      let [Component, componentProps] = render(bufferState.active);
+      return [Component, componentProps];
+      // @lj
+      // deepClone fails. causes reactivity issues. props not isolated.
+      // f.E. next updates state.active before previous game is unmounted
+      // => game.call(/eval) happens to the wrong game
+    } else {
+      return [null, null];
+    }
   });
 
+  function next() {
+    bufferState.next();
+  }
+
+  function keybindings(map) {
+    window.removeEventListener("keydown", keyhandler);
+    keyhandler = createKeybindingsHandler(map);
+    window.addEventListener("keydown", keyhandler);
+  }
+
   onMount(() => {
-    state.pull();
+    bufferState.pull();
+    return () => {
+      window.removeEventListener("keydown", keyhandler);
+    };
   });
 </script>
 
 <div class="bsp-node">
-  {#if state.active && Component}
-    {#key id(state.active)}
-      <Component next={state.next} {...componentProps} />
+  {#if bufferState.active && Component}
+    {#key id(bufferState.active)}
+      <Component {...$state.snapshot(componentProps)} {next} {keybindings} />
     {/key}
-  {:else if state.status === "PULLING"}
-    <Loader />
   {:else}
-    <Text>Buffer</Text>
+    <Loader load={() => bufferState.pull()} />
   {/if}
 </div>

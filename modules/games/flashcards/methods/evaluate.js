@@ -1,9 +1,4 @@
-export default async function evaluate({ scope, response }, ctx) {
-  const result = await ctx.runtime.call("/units/review", {
-    gameType: "FLASHCARDS",
-    scope,
-    response,
-  });
-
+export default async function evaluate({ scope, signal }, ctx) {
+  const result = await ctx.runtime.call("/review/unit", { scope, signal });
   return result;
 }

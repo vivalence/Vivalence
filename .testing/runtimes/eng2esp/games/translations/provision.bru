@@ -5,13 +5,13 @@ meta {
 }
 
 post {
-  url: {{DAEMON_SERVER_URL}}/access/v1/runtime/{{RUNTIME_SLUG}}/status
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/translations/provision
   body: json
   auth: none
 }
 
 body:json {
-   {
+  {
     "mask": {
       "prompt": {
         "goal": "\nYou're given an explanation of a grammatical concept, that includes examples.\nYour task is to extract an example sentence from the explanation.\nThe goal is for the user to translate that sentence for practice.\n\n1. Extract a sentence from the explanation that demonstrates the concept. \n2. Use simple, everyday vocabulary suitable for the learner's level.\n3. The sentence should be clear, concise, and make sense in conversation or writing.\n4. Ensure the sentence untilizes correct grammar and vocabulary.\n"
@@ -32,7 +32,7 @@ body:json {
       }
     },
     "constraints": [
-      "The grammatical concept and examples are provided in this prose: \"<p>In Spanish, nouns have a gender. This means that every noun is classified as either masculine or feminine. Understanding noun gender is important because it affects how we use adjectives and articles in sentences. For example, the word <strong>\\\"libro\\\"</strong> (book) is masculine, while <strong>\\\"mesa\\\"</strong> (table) is feminine.</p>\\n\\n<p>Here are some examples of masculine and feminine nouns:</p>\\n<ul>\\n  <li><strong>Masculine:</strong> <code>el perro</code> (the dog), <code>el coche</code> (the car), <code>el niño</code> (the boy)</li>\\n  <li><strong>Feminine:</strong> <code>la gata</code> (the female cat), <code>la casa</code> (the house), <code>la niña</code> (the girl)</li>\\n</ul>\" ",
+      "The grammatical concept and examples are provided in this prose: <h1>Nouns in Spanish: Number</h1>\\n<p>In Spanish, nouns can be either <strong>singular</strong> or <strong>plural</strong>. A <em>singular noun</em> refers to one item, while a <em>plural noun</em> refers to more than one item. Understanding the difference between singular and plural is important for proper communication.</p>\\n<h2>Singular Nouns</h2>\\n<ul>\\n    <li><strong>el libro</strong> (the book)</li>\\n    <li><strong>la casa</strong> (the house)</li>\\n    <li><strong>el perro</strong> (the dog)</li>\\n</ul>\\n<h2>Plural Nouns</h2>\\n<ul>\\n    <li><strong>los libros</strong> (the books)</li>\\n    <li><strong>las casas</strong> (the houses)</li>\\n    <li><strong>los perros</strong> (the dogs)</li>\\n</ul>\\n<p>To form the plural in Spanish, you usually add <strong>-s</strong> or <strong>-es</strong> to the singular form. For example, <strong>libro</strong> becomes <strong>libros</strong> and <strong>casa</strong> becomes <strong>casas</strong>.</p> ",
       "the sentence should be extracted from the prose examples.",
       "extract accurately, without adding vocabulary thats not in the prose. this is first contact.",
       "conceptual example: 'x es masculino.' or 'y es femenino.'",

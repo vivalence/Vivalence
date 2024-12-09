@@ -1,0 +1,36 @@
+* known issue
+Error: Build failed with 2 errors:
+modules/games/translations/game/components/Card.svelte:3:21:
+ERROR: Could not read from file:
+/Users/finn/vivalence/code/vivalence/modules/games/translations/game/components/Users/finn/vivalence/code/vivalence/packages/interfaces/display/mod.js
+
+modules/games/translations/game/Translations.svelte:3:21:
+ERROR: Could not read from file:
+/Users/finn/vivalence/code/vivalence/modules/games/translations/game/Users/finn/vivalence/code/vivalence/packages/interfaces/display/mod.js
+
+
+
+/Users/finn/vivalence/code/vivalence/modules/games/translations/game/components
++
+/Users/finn/vivalence/code/vivalence/packages/interfaces/display/mod.js
+
+somewhere in build happens this concatenation.
+whereever the component is, we take the path in imports as absolute, take the filepath were in as absolute. and concat Component path / import path.
+fuck.
+
+this creates issues on two levels.
+i can not import relative from any level but the targeted (root) level.
+i can not import absolutely.
+
+i need to access somewhere in the builder and overwrite this behavior.
+where?
+
+for now ill just hack that shit an only import from top level.
+
+that combined with the issues from:
+https://github.com/sveltejs/svelte/discussions/14298#discussioncomment-11375167
+is quite a lot of issues.
+point of architecture tax. thats for sure.
+point of failure?
+point of itteration.
+

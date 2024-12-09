@@ -1,4 +1,5 @@
 export default function fromScope({ blacklist, scope }) {
+  blacklist = { units: [], tags: [], queue: [], ...blacklist };
   const extractIds = (obj) => {
     if (obj.unit) {
       blacklist.units.push(obj.unit.id);
@@ -24,14 +25,17 @@ export default function fromScope({ blacklist, scope }) {
       });
     }
 
+    if (obj.queue) {
+      if (obj.queue.id) blacklist.queue.push(obj.queue.id);
+    }
+
     Object.keys(obj).forEach((key) => {
-      if (["unit", "units", "tag", "tags"].includes(key)) return;
+      if (["unit", "units", "tag", "tags", "queue"].includes(key)) return;
       if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
         extractIds(obj[key]);
       }
     });
   };
-
   extractIds(scope);
   return removeDuplicatesFromBlacklist(blacklist);
 }
@@ -45,8 +49,8 @@ function removeDuplicatesFromBlacklist(blacklist) {
     blacklist.tags = Array.from(new Set(blacklist.tags));
   }
 
-  if (blacklist.instructions && Array.isArray(blacklist.instructions)) {
-    blacklist.instructions = Array.from(new Set(blacklist.instructions));
+  if (blacklist.queue && Array.isArray(blacklist.queue)) {
+    blacklist.queue = Array.from(new Set(blacklist.queue));
   }
 
   return blacklist;
