@@ -12,7 +12,7 @@ module.exports = {
   plugins: [
     require.resolve("prettier-plugin-svelte", {
       // @lj: i tried everything on my end. no other solution works. i dont know why. gotta be hardcoded. some deno/node weirdness.
-      paths: ["/Users/finn/.nvm/versions/node/v20.17.0/lib/node_modules"],
+      paths: ["/usr/local/lib/node_modules/prettier-plugin-svelte"],
     }),
   ],
 

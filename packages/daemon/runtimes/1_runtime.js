@@ -1,10 +1,9 @@
-import config from "@vivalence/config";
 import { validators } from "@vivalence/shared";
 
 import executionMiddleware from "./lib/executionMiddleware.js";
-import registerManifest from "./lib/registerManifest.js";
-import createRouter from "../server/router/create.js";
+// import registerManifest from "./lib/registerManifest.js";
 import createEmitter from "../emitter/create.js";
+import createRouter from "../server/router/create.js";
 
 export default async function (daemon) {
   for (const [key, runtime] of daemon.runtimes.entries()) {
