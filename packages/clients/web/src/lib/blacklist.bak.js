@@ -37,6 +37,10 @@ export function fromScope({ blacklist, scope }) {
       extractIds(obj.tag);
     }
 
+    if (obj.queue) {
+      if (obj.queue.id) blacklist.queue.push(obj.queue.id);
+    }
+
     if (obj.tags && Array.isArray(obj.tags)) {
       obj.tags.forEach((tag) => {
         blacklist.tags.push(tag.id);
@@ -45,7 +49,7 @@ export function fromScope({ blacklist, scope }) {
     }
 
     Object.keys(obj).forEach((key) => {
-      if (["unit", "units", "tag", "tags"].includes(key)) return;
+      if (["unit", "units", "tag", "tags", "queue"].includes(key)) return;
       if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
         extractIds(obj[key]);
       }

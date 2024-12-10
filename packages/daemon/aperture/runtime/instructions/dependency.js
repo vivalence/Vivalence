@@ -92,6 +92,7 @@ async function provision({ dependency, scope, blacklist }, ctx) {
     const input = { blacklist, scope, tactic: deepMerge(tactic, dependency.itinerary?.tactic) };
 
     instructions = await ctx.runtime.call(`/tactics/provision`, input);
+    // console.log("provisioned instructions", instructions.map((i) => i.instruction),);
 
     if (instructions.length > 0) {
       const queue = await ctx.runtime.services.supabase

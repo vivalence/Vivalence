@@ -1,2 +1,2 @@
-import filter from "../lib/byStatus.js";
-export default filter("tags");
+import byStatus from "../lib/byStatus.js";
+export default byStatus("tags");

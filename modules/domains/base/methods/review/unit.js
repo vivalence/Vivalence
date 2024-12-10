@@ -2,6 +2,14 @@ export default async function (body, ctx) {
   const { scope, signal } = body;
   delete scope.tag;
 
+  if (scope.units?.length > 0) {
+    scope.units.map(async (unit) => {
+      await ctx.runtime.call("/review/unit", { signal, scope: { ...scope, units: null, unit } });
+    });
+  }
+
+  if (!scope.unit?.id) return { status: "bounce", message: "Unit required" };
+
   const { data: unit, error } = await ctx.runtime.services.supabase
     .from("Unit")
     .select("*")
