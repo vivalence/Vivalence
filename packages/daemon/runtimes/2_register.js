@@ -22,7 +22,7 @@ export default async function (daemon) {
     try {
       runtime.Module = await registerModule(runtime, runtime.Module);
       runtime.manifest = runtime.Module.manifest;
-
+      
       const [Domain, Ontology, Corpora, Games, Tactics, , Strategies] = await Promise.all([
         registerModule(runtime, runtime.Module.modules.Domain),
         registerModule(runtime, runtime.Module.modules.Ontology),

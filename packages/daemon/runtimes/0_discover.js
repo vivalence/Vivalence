@@ -1,7 +1,6 @@
+import { walk } from "$std/fs/mod.ts";
 import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
-import { join, dirname } from "$std/path/mod.ts";
-import { walk } from "$std/fs/mod.ts";
 
 export default async function discover(daemon) {
   const entries = [];
@@ -17,6 +16,7 @@ export default async function discover(daemon) {
   for await (const entry of entries) {
     try {
       let Runtime = deepClone(await import(entry.path));
+      
       if (Runtime.default) Runtime = Runtime.default;
       if (!Runtime || !Runtime.manifest) throw new Error(`Invalid module structure at ${path}`);
       if (Runtime.manifest.type !== "runtime") continue;
@@ -53,8 +53,11 @@ export default async function discover(daemon) {
       Runtime = validate(Runtime);
 
       const { slug, version } = Runtime.manifest;
+
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
-      daemon.runtimes.set(symbol, { ["#symbol"]: symbol, Module: Runtime });
+      const runtime = { ["#symbol"]: symbol, Module: Runtime };
+      daemon.runtimes.set(symbol, runtime);
+
     } catch (error) {
       console.error(`Failed to import potential runtime module at ${entry.path}`);
       console.error(`${error.message}`);

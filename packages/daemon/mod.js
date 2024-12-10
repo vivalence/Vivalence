@@ -5,12 +5,12 @@ import registry from "@vivalence/registry";
 import { services } from "@vivalence/shared";
 
 import cleanup from "./lib/cleanup-ports.js";
-import daemonize from "./lib/daemonize.js";
+// import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
 import aperture from "./aperture/index.js";
-import server from "./server/index.js";
 import runtimes from "./runtimes/index.js";
+import server from "./server/index.js";
 
 const ticker = (name) => (daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
