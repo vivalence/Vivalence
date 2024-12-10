@@ -75,7 +75,7 @@
           </div>
 
           {#if evaluations}
-            <div class="flex flex-row flex-wrap">
+            <div class="flex flex-col flex-wrap">
               {#each evaluations as evaluation}
                 <Card {...evaluation} />
               {/each}

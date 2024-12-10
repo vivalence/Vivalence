@@ -12,7 +12,8 @@
 
   let [Component, componentProps] = $derived.by(() => {
     if (bufferState.active) {
-      let [Component, componentProps] = render(bufferState.active);
+      const rendered = render(bufferState.active);
+      let [Component, componentProps] = rendered;
       return [Component, componentProps];
       // @lj
       // deepClone fails. causes reactivity issues. props not isolated.

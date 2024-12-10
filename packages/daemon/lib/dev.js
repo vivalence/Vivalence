@@ -3,8 +3,20 @@ import createMemoryProfiler from "./memory-profiler.js";
 export default async function dev(daemon) {
   const runtime = daemon.runtimes.values().next().value;
 
-  // console.log(result);
-  // console.log(JSON.stringify(result.map((u) => u.id)));
+  // let { data: queue } = await runtime.services.supabase.from("Queue").select(`*`);
+  // for (const item of queue) {
+  //   if (!item.data.instruction) console.log("NO", item.data);
+  //   else console.log(item.data.instruction.sentence || item.data.instruction.back);
+  // }
+
+  // const tag = await runtime.call("/tags/fromSlug", { slug: "pos:noun" });
+  // console.log("tag", tag);
+
+  // const flashcard = await runtime.call("/g/flashcards/provision/fromTagIds", {
+  //   tagIds: [tag.id],
+  //   take: 1,
+  // });
+  // console.log("flashcard", flashcard);
 
   // const [definiteness] = await runtime.call("/memory/filter/tags/byStrength", {
   //   tags: definite,
