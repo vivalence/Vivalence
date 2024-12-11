@@ -8,16 +8,17 @@ import cleanup from "./lib/cleanup-ports.js";
 // import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
+import { Daemon } from "../../types/types.d.ts";
 import aperture from "./aperture/index.js";
 import runtimes from "./runtimes/index.js";
 import server from "./server/index.js";
 
-const ticker = (name) => (daemon) => {
+const ticker = (name: string) => (daemon: Daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
   return daemon;
 };
 
-let daemon = {
+const daemon: Daemon = {
   process: null,
   registry: null,
   aperture: null,
