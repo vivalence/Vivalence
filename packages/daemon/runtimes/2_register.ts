@@ -1,29 +1,27 @@
+import { Daemon, Module, Runtime, RuntimeModule } from "../../../types/types.d.ts";
 import registerManifest from "./lib/registerManifest.js";
 
-const registerModule = async (runtime, Module) => {
+const registerModule = async (runtime: Runtime, Module: Partial<RuntimeModule>) => {
   Module.manifest = {
     ...Module.manifest,
     ...(await registerManifest(runtime, Module)),
   };
 
-  return Module;
+  return Module as Module;
 };
 
-const registerModules = async (runtime, Modules) => {
-  return Promise.all(
-    Modules.map(async (Module) => {
-      return registerModule(runtime, Module);
-    }),
-  );
-};
+const registerModules = (runtime: Runtime, Modules: Module[]) =>
+  Promise.all(Modules.map((Module) => registerModule(runtime, Module)));
 
-export default async function (daemon) {
+export default async function (daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries()) {
     try {
       runtime.Module = await registerModule(runtime, runtime.Module);
-      runtime.manifest = runtime.Module.manifest;
-      
-      const [Domain, Ontology, Corpora, Games, Tactics, , Strategies] = await Promise.all([
+      runtime.Module.manifest && (runtime.manifest = runtime.Module.manifest);
+
+      if (!runtime.Module.modules) continue;
+
+      const [Domain, Ontology, Corpora, Games, Tactics, Strategies] = await Promise.all([
         registerModule(runtime, runtime.Module.modules.Domain),
         registerModule(runtime, runtime.Module.modules.Ontology),
         registerModules(runtime, runtime.Module.modules.Corpora),

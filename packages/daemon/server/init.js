@@ -1,6 +1,6 @@
-import { Application, Router } from "oak";
-import cors from "./middlewares/cors.js";
+import { Application } from "oak";
 import auth from "./middlewares/auth.js";
+import cors from "./middlewares/cors.js";
 
 import createRouter from "./router/create.js";
 
