@@ -1,7 +1,5 @@
-import registry from "@vivalence/registry";
-import config from "@vivalence/config";
-import { Command } from "jsr:@cliffy/command@1.0.0-rc.7";
 import { colors } from "jsr:@cliffy/ansi@1.0.0-rc.7/colors";
+import { Command } from "jsr:@cliffy/command@1.0.0-rc.7";
 
 export default async function loadServices(viva) {
   const Compile = new Command()

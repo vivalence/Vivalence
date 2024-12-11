@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
 import Together from "together-ai";
+import config from "../../../../config/src/mod.ts";
 
 export default () => {
   const KEY = config.env.get("TOGETHERAI_API_KEY");

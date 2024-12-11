@@ -1,12 +1,12 @@
 // You've found the entry point. Ground zero. Welcome.
 
-import config from "@vivalence/config";
+import { colors } from "@vivalence/interfaces-cli";
 import registry from "@vivalence/registry";
 import { services as serviceHelpers } from "@vivalence/shared";
-import { colors } from "@vivalence/interfaces-cli";
+import config from "../../../config/src/mod.ts";
 
-import locals from "./locals/index.js";
 import commands from "./commands/index.js";
+import locals from "./locals/index.js";
 
 let viva = {
   input: Deno.args,

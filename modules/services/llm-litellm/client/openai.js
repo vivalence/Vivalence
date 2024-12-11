@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
 import { OpenAI } from "openai";
+import config from "../../../../config/src/mod.ts";
 
 export default () => {
   const KEY = config.env.get("OPENAI_API_KEY");

@@ -29,7 +29,20 @@ export interface Daemon {
   server: any; // Oak server instance
   services: Record<string, ServiceClient>;
   process?: any;
-  aperture?: any;
+  aperture?: Aperture | null;
+}
+
+export interface Aperture {
+  router: RouterWithExtensions | null;
+}
+
+export interface Config {
+  env: EnvironmentConfig;
+}
+
+export interface EnvironmentConfig {
+  get: (key: string) => string | undefined;
+  [key: string]: unknown;
 }
 
 /**
@@ -51,23 +64,40 @@ export type CallFunction = (path: string, body?: any, params?: CallParams) => Pr
  * Runtime module configuration and state
  */
 export interface Runtime {
+  locals?: RuntimeLocals;
+  default?: Runtime;
   "#symbol": symbol;
   manifest: Manifest;
   Module: RuntimeModule;
   statics: Record<string, any>;
   schema: Record<string, any>;
-  services: Record<string, ServiceClient>;
 
   call?: CallFunction;
-  router: RouterWithExtensions;
+  router: Router<Record<string, any>>;
   bus: EventBus;
 
-  domain: ModuleInstance;
-  ontology: ModuleInstance;
-  corpora: ModuleInstance[];
-  games: ModuleInstance[];
-  tactics: ModuleInstance[];
-  strategies: ModuleInstance[];
+  Services: Record<string, Module>;
+  Domain: Module;
+  Ontology: Module;
+  Corpora: Module[];
+  Games: Module[];
+  Tactics: Module[];
+  Strategies: Module[];
+
+  domain: Module | string;
+  ontology: Module | string;
+  corpora: (Module | string)[];
+  games: (Module | string)[];
+  tactics: (Module | string)[];
+  strategies: (Module | string)[];
+
+  services: Record<string, Module>;
+  modules: Runtime;
+}
+export interface RuntimeModule extends Runtime {
+  boot?: BootFunction;
+  install?: InstallFunction;
+  curriculum?: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
 }
 
 /**
@@ -79,34 +109,14 @@ export interface RuntimeLocals {
   getUser?: () => Promise<User>;
 }
 
-/**
- * Module configuration
- */
-export interface RuntimeModule {
-  manifest: Manifest;
-  services?: Record<string, string>;
-  modules: {
-    Domain: Module;
-    Ontology: Module;
-    Corpora: Module[];
-    Games: Module[];
-    Tactics: Module[];
-    Strategies: Module[];
-  };
-  statics?: Record<string, any>;
-  boot?: BootFunction;
-  install?: InstallFunction;
-  curriculum?: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
-}
-
 // Module Types
 
-export interface ModuleInstance {
-  router: RouterWithExtensions;
-  bus: EventBus;
-  manifest: Manifest;
-  Module: Module;
-}
+// export interface Module {
+//   router: RouterWithExtensions;
+//   bus: EventBus;
+//   manifest: Manifest;
+//   Module: Module;
+// }
 
 export interface Module {
   manifest: Manifest;
@@ -117,6 +127,8 @@ export interface Module {
   bundle?: string;
   schema?: (schema: any) => any;
   data?: Record<string, any>;
+  modules?: Runtime;
+  client?: (runtime: Runtime) => any;
 }
 
 export interface Manifest {
@@ -253,8 +265,8 @@ export type InstallFunction = (runtime: Runtime, module: Module) => Promise<bool
 
 export interface Registry {
   init: () => Promise<void>;
-  load: (slug: string) => Promise<Module>;
-  loadMany: (slugs: string[]) => Promise<Module[]>;
+  load: (slug: string | Module) => Promise<Module>;
+  loadMany: (slugs: (string | Module)[]) => Promise<Module[]>;
 }
 
 export interface ServiceClient {

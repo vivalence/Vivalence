@@ -1,8 +1,8 @@
-import identity from "./identity.js";
 import env from "./env.js";
+import identity from "./identity.js";
 import services from "./services.js";
 
-const config = { services: {}, env: {} };
+const config: Config = { services: {}, env: {} };
 
 let initialized = false;
 if (!initialized) {

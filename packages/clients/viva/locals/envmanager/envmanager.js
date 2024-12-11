@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "../../../../../config/src/mod.ts";
 
 const parseLine = (line) => {
   if (!line || line.startsWith("#")) {

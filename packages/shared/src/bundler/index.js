@@ -1,5 +1,5 @@
-import { dirname, fromFileUrl, join, basename } from "$std/path/mod.ts";
-import config from "@vivalence/config";
+import { basename, dirname, join } from "$std/path/mod.ts";
+import config from "../../../../config/src/mod.ts";
 import bundlers from "./bundlers/index.js";
 
 function createBundler(input) {

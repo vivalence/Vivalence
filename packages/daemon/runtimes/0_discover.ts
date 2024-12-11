@@ -1,9 +1,12 @@
 import { walk } from "$std/fs/mod.ts";
-import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
+import path from "node:path";
+import config from "../../../config/src/mod.ts";
+import { Daemon, Module, Runtime, RuntimeModule } from "../../../types/types.d.ts";
 
-export default async function discover(daemon) {
+export default async function discover(daemon: Daemon) {
   const entries = [];
+
   for await (const entry of walk(config.env.get("VIVA_RUNTIMES_DIR"), {
     maxDepth: 3,
     includeFiles: true,
@@ -15,8 +18,8 @@ export default async function discover(daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime = deepClone(await import(entry.path));
-      
+      let Runtime: RuntimeModule = deepClone(await import(entry.path));
+
       if (Runtime.default) Runtime = Runtime.default;
       if (!Runtime || !Runtime.manifest) throw new Error(`Invalid module structure at ${path}`);
       if (Runtime.manifest.type !== "runtime") continue;
@@ -24,6 +27,8 @@ export default async function discover(daemon) {
       Runtime = ensure(Runtime);
 
       Runtime.Services = {};
+
+      if (!daemon.registry) continue;
       for await (const [slug, service] of Object.entries(Runtime.services || {})) {
         Runtime.Services[slug] = await daemon.registry.load(service);
       }
@@ -37,10 +42,15 @@ export default async function discover(daemon) {
 
       await Promise.all(
         Runtime.modules.Corpora.map(async (Corpus) => {
-          Runtime.modules.Games.push(...(await daemon.registry.loadMany(Corpus.modules.games)));
-          Runtime.modules.Tactics.push(...(await daemon.registry.loadMany(Corpus.modules.tactics)));
+          if (!daemon.registry || !Corpus?.manifest) return;
+          Runtime.modules.Games.push(
+            ...(await daemon.registry.loadMany(Corpus.modules?.games ?? [])),
+          );
+          Runtime.modules.Tactics.push(
+            ...(await daemon.registry.loadMany(Corpus.modules?.tactics ?? [])),
+          );
           Runtime.modules.Strategies.push(
-            ...(await daemon.registry.loadMany(Corpus.modules.strategies)),
+            ...(await daemon.registry.loadMany(Corpus.modules?.strategies ?? [])),
           );
         }),
       );
@@ -56,9 +66,8 @@ export default async function discover(daemon) {
 
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
       const runtime = { ["#symbol"]: symbol, Module: Runtime };
-      daemon.runtimes.set(symbol, runtime);
-
-    } catch (error) {
+      daemon.runtimes.set(symbol, runtime as Runtime);
+    } catch (error: any) {
       console.error(`Failed to import potential runtime module at ${entry.path}`);
       console.error(`${error.message}`);
       console.error(error);
@@ -67,7 +76,7 @@ export default async function discover(daemon) {
   return daemon;
 }
 
-const ensure = (Runtime) => {
+const ensure = (Runtime: Runtime) => {
   if (!Runtime.modules.domain) throw new Error(`Runtime module missing domain module`);
   if (!Runtime.modules.ontology) throw new Error(`Runtime module missing ontology module`);
   if (!Runtime.modules.corpora) throw new Error(`Runtime module missing corpora modules`);
@@ -79,13 +88,13 @@ const ensure = (Runtime) => {
   return Runtime;
 };
 
-const validate = (Runtime) => {
+const validate = (Runtime: Runtime) => {
   // More validation
 
   return Runtime;
 };
 
-const uniqueBySlug = (arr) => {
+const uniqueBySlug = (arr: Module[]) => {
   const seen = new Set();
   return arr.flat().filter((item) => {
     const val = item?.manifest?.slug;

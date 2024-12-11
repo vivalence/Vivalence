@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
 import { OpenAI } from "openai";
+import config from "../../../../config/src/mod.ts";
 
 export default () => {
   const KEY = config.env.get("GROQ_API_KEY");
@@ -21,7 +21,11 @@ export default () => {
       completion["response_format"] = { type: "json_object" };
       messages.unshift({
         role: "user",
-        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(schema, null, 2)}. apply the properties.`,
+        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(
+          schema,
+          null,
+          2,
+        )}. apply the properties.`,
       });
     }
     // console.log("groq completion", completion);
