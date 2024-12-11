@@ -1,5 +1,4 @@
-import config from "@vivalence/config";
-import { dirname, fromFileUrl, basename, join } from "$std/path/mod.ts";
+import { dirname, fromFileUrl } from "$std/path/mod.ts";
 
 const currentModulePath = fromFileUrl(import.meta.url);
 const dir = dirname(currentModulePath);

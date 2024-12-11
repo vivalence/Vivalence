@@ -1,4 +1,3 @@
-import config from "@vivalence/config";
 import { bundler } from "@vivalence/shared";
 
 async function bootModule(runtime, module, Module) {

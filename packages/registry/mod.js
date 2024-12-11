@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
+import config from "../../config/src/mod.ts";
 
 import register from "./lib.js";
 

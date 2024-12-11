@@ -1,8 +1,7 @@
 import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
-import config from "@vivalence/config";
+import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
-import { bundler } from "@vivalence/shared";
 
 async function boot(runtime, Game) {
   const bundle = bundler({
@@ -35,4 +34,4 @@ const manifest = {
   name: "Flashcards",
   description: "Flashcards game for learning vocabulary",
 };
-export { manifest, data, boot };
+export { boot, data, manifest };

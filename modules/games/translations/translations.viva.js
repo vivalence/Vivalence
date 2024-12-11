@@ -1,6 +1,4 @@
 import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
-import config from "@vivalence/config";
-import { bundler } from "@vivalence/shared";
 
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
@@ -29,4 +27,4 @@ const manifest = {
   description: "Practice translating sentences",
 };
 
-export { manifest, provision, evaluate, bundle, data };
+export { bundle, data, evaluate, manifest, provision };

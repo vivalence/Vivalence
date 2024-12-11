@@ -1,9 +1,9 @@
-import config from "@vivalence/config";
-import { join, fromFileUrl, dirname, basename } from "$std/path/mod.ts";
+import { basename, dirname, fromFileUrl } from "$std/path/mod.ts";
+import config from "../../../../../config/src/mod.ts";
 
 import esbuild from "esbuild";
-import sveltePlugin from "esbuild-svelte";
 import { cache } from "esbuild-plugin-cache";
+import sveltePlugin from "esbuild-svelte";
 
 export default async function (entry) {
   const build = await esbuild.build({

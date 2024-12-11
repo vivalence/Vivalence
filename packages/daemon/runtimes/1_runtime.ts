@@ -2,10 +2,11 @@ import { validators } from "@vivalence/shared";
 
 import executionMiddleware from "./lib/executionMiddleware.js";
 // import registerManifest from "./lib/registerManifest.js";
+import { Daemon } from "../../../types/types.d.ts";
 import createEmitter from "../emitter/create.js";
 import createRouter from "../server/router/create.js";
 
-export default async function (daemon) {
+export default function (daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries()) {
     try {
       const { modules, Services } = runtime.Module;
@@ -16,7 +17,7 @@ export default async function (daemon) {
         .reduce((s, { schema = (s) => s }) => schema(s) || s, { validate: validators.ajv() });
 
       runtime.services = Object.keys(Services).reduce(
-        (acc, slug) => ({ ...acc, [slug]: Services[slug].client(runtime) }),
+        (acc, slug) => ({ ...acc, [slug]: Services[slug].client?.(runtime) }),
         { ...daemon.services }, // unsafe
       );
 

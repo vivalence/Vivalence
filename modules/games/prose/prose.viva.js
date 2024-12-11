@@ -1,6 +1,4 @@
 import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
-import config from "@vivalence/config";
-import { bundler } from "@vivalence/shared";
 
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
@@ -15,4 +13,4 @@ const manifest = {
   description: "Display a textblock",
 };
 
-export { manifest, bundle, provision, evaluate };
+export { bundle, evaluate, manifest, provision };
