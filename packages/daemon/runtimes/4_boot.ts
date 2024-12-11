@@ -1,6 +1,7 @@
 import { bundler } from "@vivalence/shared";
+import { Daemon, Module, Runtime, RuntimeModule } from "../../../types/types.d.ts";
 
-async function bootModule(runtime, module, Module) {
+async function bootModule(runtime: Runtime, module: RuntimeModule, Module: Module) {
   const scopedModule = { ...runtime, router: module.router, bus: module.bus };
 
   const boot = module.Module.boot || defaultModuleBoot[module.manifest.type];
@@ -17,14 +18,14 @@ async function bootModule(runtime, module, Module) {
   return { ...bootedModule, manifest: module.manifest, Module: module.Module };
 }
 
-async function bootModules(runtime, modules, Module) {
+async function bootModules(runtime: Runtime, modules: RuntimeModule[], Module: Module) {
   if (!modules) return [];
   return await Promise.all(
     modules.map(async (module) => await bootModule(runtime, module, Module)),
   );
 }
 
-export default async function (daemon) {
+export default async function (daemon: Daemon) {
   for (let [key, runtime] of daemon.runtimes.entries()) {
     try {
       const Module = runtime.Module;

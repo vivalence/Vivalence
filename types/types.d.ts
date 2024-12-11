@@ -68,12 +68,12 @@ export interface Runtime {
   default?: Runtime;
   "#symbol": symbol;
   manifest: Manifest;
-  Module: RuntimeModule;
+  Module: Partial<Runtime>;
   statics: Record<string, any>;
   schema: Record<string, any>;
 
   call?: CallFunction;
-  router: Router<Record<string, any>>;
+  router: RouterWithExtensions | null;
   bus: EventBus;
 
   Services: Record<string, Module>;
@@ -91,7 +91,7 @@ export interface Runtime {
   tactics: (Module | string)[];
   strategies: (Module | string)[];
 
-  services: Record<string, Module>;
+  services: Record<string, any>;
   modules: Runtime;
 }
 export interface RuntimeModule extends Runtime {
