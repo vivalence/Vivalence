@@ -1,4 +1,6 @@
-export default async function install(daemon) {
+import { Daemon } from "../../../types/types.d.ts";
+
+export default function install(daemon: Daemon) {
   for (const runtime of daemon.runtimes.values()) {
     // find all installed modules that dont have an owner anymore and uninstall them.
     // then sometheing something about the orphaned curriculum.

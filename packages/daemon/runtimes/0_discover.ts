@@ -2,7 +2,7 @@ import { walk } from "$std/fs/mod.ts";
 import { deepClone } from "@vivalence/shared";
 import path from "node:path";
 import config from "../../../config/src/mod.ts";
-import { Daemon, Module, Runtime, RuntimeModule } from "../../../types/types.d.ts";
+import { Daemon, Loadable, Module, Runtime, Service } from "../../../types/types.d.ts";
 
 export default async function discover(daemon: Daemon) {
   const entries = [];
@@ -18,10 +18,10 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime: RuntimeModule = deepClone(await import(entry.path));
+      let Runtime: Runtime = deepClone(await import(entry.path));
 
       if (Runtime.default) Runtime = Runtime.default;
-      if (!Runtime || !Runtime.manifest) throw new Error(`Invalid module structure at ${path}`);
+      if (!Runtime?.manifest) throw new Error(`Invalid module structure at ${path}`);
       if (Runtime.manifest.type !== "runtime") continue;
 
       Runtime = ensure(Runtime);
@@ -29,29 +29,41 @@ export default async function discover(daemon: Daemon) {
       Runtime.Services = {};
 
       if (!daemon.registry) continue;
-      for await (const [slug, service] of Object.entries(Runtime.services || {})) {
-        Runtime.Services[slug] = await daemon.registry.load(service);
+
+      for await (const [slug, service] of Object.entries(Runtime.services ?? {})) {
+        Runtime.Services[slug] = await daemon.registry.load<Service>(service);
       }
 
-      Runtime.modules.Domain = await daemon.registry.load(Runtime.modules.domain);
-      Runtime.modules.Ontology = await daemon.registry.load(Runtime.modules.ontology);
-      Runtime.modules.Corpora = await daemon.registry.loadMany(Runtime.modules.corpora);
+      Runtime.modules.Domain = await daemon.registry.load<Module>(
+        Runtime.modules.domain as Loadable,
+      );
+      Runtime.modules.Ontology = await daemon.registry.load<Module>(
+        Runtime.modules.ontology as Loadable,
+      );
+      Runtime.modules.Corpora = await daemon.registry.loadMany<Module>(
+        Runtime.modules.corpora as Loadable[],
+      );
       Runtime.modules.Games = [];
       Runtime.modules.Tactics = [];
-      Runtime.modules.Strategies = await daemon.registry.loadMany(Runtime.modules.strategies);
+      Runtime.modules.Strategies = await daemon.registry.loadMany<Module>(
+        Runtime.modules.strategies as Loadable[],
+      );
 
       await Promise.all(
         Runtime.modules.Corpora.map(async (Corpus) => {
           if (!daemon.registry || !Corpus?.manifest) return;
-          Runtime.modules.Games.push(
-            ...(await daemon.registry.loadMany(Corpus.modules?.games ?? [])),
-          );
-          Runtime.modules.Tactics.push(
-            ...(await daemon.registry.loadMany(Corpus.modules?.tactics ?? [])),
-          );
-          Runtime.modules.Strategies.push(
-            ...(await daemon.registry.loadMany(Corpus.modules?.strategies ?? [])),
-          );
+
+          if (!Array.isArray(Runtime.modules.Games)) return;
+          const games = await daemon.registry.loadMany<Module>(Corpus.modules.games);
+          Runtime.modules.Games.push(...games);
+
+          if (!Array.isArray(Runtime.modules.Tactics)) return;
+          const tactics = await daemon.registry.loadMany<Module>(Corpus.modules.tactics);
+          Runtime.modules.Tactics.push(...tactics);
+
+          if (!Array.isArray(Runtime.modules.Strategies)) return;
+          const strategies = await daemon.registry.loadMany<Module>(Corpus.modules.strategies);
+          Runtime.modules.Strategies.push(...strategies);
         }),
       );
 
@@ -66,13 +78,15 @@ export default async function discover(daemon: Daemon) {
 
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
       const runtime = { ["#symbol"]: symbol, Module: Runtime };
-      daemon.runtimes.set(symbol, runtime as Runtime);
+
+      daemon.runtimes.set(symbol, runtime);
     } catch (error: any) {
       console.error(`Failed to import potential runtime module at ${entry.path}`);
       console.error(`${error.message}`);
       console.error(error);
     }
   }
+
   return daemon;
 }
 
@@ -96,12 +110,15 @@ const validate = (Runtime: Runtime) => {
 
 const uniqueBySlug = (arr: Module[]) => {
   const seen = new Set();
+
   return arr.flat().filter((item) => {
     const val = item?.manifest?.slug;
+
     if (seen.has(val)) {
       console.warn(`Duplicate module found: ${item.manifest.type}:${val}`, item.manifest);
       return false;
     }
+
     seen.add(val);
     return true;
   });

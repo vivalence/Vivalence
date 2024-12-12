@@ -1,10 +1,10 @@
 import { bundler } from "@vivalence/shared";
-import { Daemon, Module, Runtime, RuntimeModule } from "../../../types/types.d.ts";
+import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
 
-async function bootModule(runtime: Runtime, module: RuntimeModule, Module: Module) {
+async function bootModule(runtime: Runtime, module: Module, Module: Module) {
   const scopedModule = { ...runtime, router: module.router, bus: module.bus };
 
-  const boot = module.Module.boot || defaultModuleBoot[module.manifest.type];
+  const boot = module.Module.boot ?? defaultModuleBoot[module.manifest.type as string];
   if (!boot) return { ...scopedModule, manifest: module.manifest, Module: module.Module };
 
   const bootedModule = await boot(scopedModule, module.Module, Module);
@@ -18,7 +18,7 @@ async function bootModule(runtime: Runtime, module: RuntimeModule, Module: Modul
   return { ...bootedModule, manifest: module.manifest, Module: module.Module };
 }
 
-async function bootModules(runtime: Runtime, modules: RuntimeModule[], Module: Module) {
+async function bootModules(runtime: Runtime, modules: Module[], Module: Module) {
   if (!modules) return [];
   return await Promise.all(
     modules.map(async (module) => await bootModule(runtime, module, Module)),
@@ -26,11 +26,11 @@ async function bootModules(runtime: Runtime, modules: RuntimeModule[], Module: M
 }
 
 export default async function (daemon: Daemon) {
-  for (let [key, runtime] of daemon.runtimes.entries()) {
+  for (let [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     try {
       const Module = runtime.Module;
 
-      Module.boot = Module.boot || defaultModuleBoot["runtime"];
+      Module.boot = Module.boot ?? defaultModuleBoot["runtime"];
       runtime = await Module.boot(runtime, Module);
       if (!runtime) throw new Error("Module boot failed");
 
@@ -58,21 +58,32 @@ export default async function (daemon: Daemon) {
   return daemon;
 }
 
-const defaultModuleBoot = {
-  runtime: (runtime) => runtime,
-  tactic: async (runtime, Tactic) => {
+const defaultModuleBoot: { [key: string]: (...args: any[]) => Runtime } = {
+  runtime: (runtime: Runtime) => runtime,
+
+  tactic: (runtime: Runtime, Tactic: Module) => {
     if (!Tactic.provision) {
       throw new Error("Tactic module must export provision method");
     }
-    runtime.router.route("/provision", Tactic.provision);
+
+    runtime.router?.route("/provision", Tactic.provision);
     return runtime;
   },
-  game: async (runtime, Game) => {
-    const bundle = bundler({ entry: Game.bundle, serve: runtime.manifest.url + Game.manifest.url });
+
+  game: (runtime: Runtime, Game: Module) => {
+    const bundle = bundler({
+      entry: Game.bundle,
+      serve: runtime.manifest.url + (Game.manifest.url ?? ""),
+    });
+
+    if (!runtime.router) return runtime;
+
     runtime.router.get(bundle.url, bundle.serve());
     // this should be handled by domain middlewares
-    runtime.router.route("/provision", bundle.injectBundleUrl(), Game.provision);
-    runtime.router.route("/evaluate", Game.evaluate);
+    Game.provision && runtime.router.route("/provision", bundle.injectBundleUrl(), Game.provision);
+    Game.evaluate && runtime.router.route("/evaluate", Game.evaluate);
     return runtime;
   },
 };
+
+export type DefaultModuleBoot = typeof defaultModuleBoot;
