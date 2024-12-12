@@ -1,7 +1,8 @@
 import { strings } from "@vivalence/shared";
+import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
 
-export default async function install(daemon) {
-  for (const runtime of daemon.runtimes.values()) {
+export default async function install(daemon: Daemon) {
+  for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     for (const module of [
       runtime,
       runtime.domain,
@@ -28,12 +29,13 @@ export default async function install(daemon) {
   return daemon;
 }
 
-async function installCurriculum(runtime, module) {
+async function installCurriculum(runtime: Runtime, module: Module) {
   // might want to enforce tags->units->dependencies order.
   let curriculum = module.Module.curriculum;
   if (typeof curriculum === "function") curriculum = await curriculum(runtime, module.Module);
 
   const promises = [];
+
   for (const [key, resources] of Object.entries(curriculum)) {
     resources
       .map((resource) =>

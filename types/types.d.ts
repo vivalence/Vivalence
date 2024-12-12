@@ -19,17 +19,100 @@ export interface User {
 export type UserRole = "ADMIN" | "USER" | "GUEST";
 
 // Core Types
-
+// DAEMON
 export interface Daemon {
-  runtimes: Map<symbol, Runtime>;
+  runtimes: Map<symbol, Pick<Runtime, "#symbol" | "Module">>;
+  router: RouterWithExtensions;
+  registry: Registry;
+  server: any; // Oak server instance
+  services: Record<string, Service>;
   abort?: AbortController;
   app?: Application;
-  router: RouterWithExtensions | null;
-  registry: Registry | null;
-  server: any; // Oak server instance
-  services: Record<string, ServiceClient>;
   process?: any;
   aperture?: Aperture | null;
+}
+
+export type Runtime = {
+  // clean
+  Services: Record<string, Service>;
+  services: Record<string, Service>;
+  schema: (schema: any) => any;
+  router: RouterWithExtensions;
+  bus: EventBus;
+  call: CallFunction;
+
+  "#symbol": symbol;
+  locals?: RuntimeLocals;
+  default?: Runtime;
+} & Modules &
+  Module;
+
+// SERVICE
+export interface Service<T = any> {
+  manifest: ServiceManifest;
+  client: T;
+  service: any;
+}
+
+export interface ServiceManifest {
+  type: "service";
+  slug: string;
+  name: string;
+}
+
+/**
+ * Runtime local dependencies and utilities
+ */
+export interface RuntimeLocals {
+  validate: ValidatorSchema;
+  supabase: SupabaseClient;
+  getUser?: () => Promise<User>;
+}
+
+export interface Module {
+  manifest: Manifest;
+  modules: Modules;
+  Module: Module;
+  router: RouterWithExtensions;
+  bus: EventBus;
+  statics: Record<string, any>;
+  bundle: string;
+  curriculum: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
+  evaluate: RouteHandler;
+  install: InstallFunction;
+  provision: RouteHandler;
+  boot: ((runtime: Runtime) => Runtime) | BootFunction;
+  schema: (schema: any) => any;
+
+  // data?: Record<string, any>;
+  // client?: (runtime: Runtime) => any;
+}
+export interface Modules {
+  domain: Module;
+  ontology: Module;
+  corpora: Module[];
+  games: Module[];
+  tactics: Module[];
+  strategies: Module[];
+
+  Domain: Module;
+  Ontology: Module;
+  Corpora: Module[];
+  Games: Module[];
+  Tactics: Module[];
+  Strategies: Module[];
+}
+
+export interface Manifest {
+  id: string;
+  type: ModuleType;
+  slug: string;
+  name: string;
+  version: string;
+  description?: string;
+  url: string;
+  installed?: boolean;
+  runtimeId?: string;
 }
 
 export interface Aperture {
@@ -52,96 +135,13 @@ export interface RouterWithExtensions extends Router {
   create: () => RouterWithExtensions;
   route: (path: string, ...handlers: RouteHandler[]) => void;
   call: {
-    create: (ctx: RouteContext) => CallFunction;
+    create: (ctx: Partial<RouteContext>) => CallFunction;
   };
   middleware: MiddlewareCollection;
   mw: MiddlewareCollection;
 }
 
 export type CallFunction = (path: string, body?: any, params?: CallParams) => Promise<any>;
-
-/**
- * Runtime module configuration and state
- */
-export interface Runtime {
-  locals?: RuntimeLocals;
-  default?: Runtime;
-  "#symbol": symbol;
-  manifest: Manifest;
-  Module: Partial<Runtime>;
-  statics: Record<string, any>;
-  schema: Record<string, any>;
-
-  call?: CallFunction;
-  router: RouterWithExtensions | null;
-  bus: EventBus;
-
-  Services: Record<string, Module>;
-  Domain: Module;
-  Ontology: Module;
-  Corpora: Module[];
-  Games: Module[];
-  Tactics: Module[];
-  Strategies: Module[];
-
-  domain: Module | string;
-  ontology: Module | string;
-  corpora: (Module | string)[];
-  games: (Module | string)[];
-  tactics: (Module | string)[];
-  strategies: (Module | string)[];
-
-  services: Record<string, any>;
-  modules: Runtime;
-}
-export interface RuntimeModule extends Runtime {
-  boot?: BootFunction;
-  install?: InstallFunction;
-  curriculum?: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
-}
-
-/**
- * Runtime local dependencies and utilities
- */
-export interface RuntimeLocals {
-  validate: ValidatorSchema;
-  supabase: SupabaseClient;
-  getUser?: () => Promise<User>;
-}
-
-// Module Types
-
-// export interface Module {
-//   router: RouterWithExtensions;
-//   bus: EventBus;
-//   manifest: Manifest;
-//   Module: Module;
-// }
-
-export interface Module {
-  manifest: Manifest;
-  boot?: BootFunction;
-  install?: InstallFunction;
-  provision?: RouteHandler;
-  evaluate?: RouteHandler;
-  bundle?: string;
-  schema?: (schema: any) => any;
-  data?: Record<string, any>;
-  modules?: Runtime;
-  client?: (runtime: Runtime) => any;
-}
-
-export interface Manifest {
-  id?: string;
-  type: ModuleType;
-  slug: string;
-  name: string;
-  version?: string;
-  description?: string;
-  url?: string;
-  installed?: boolean;
-  runtimeId?: string;
-}
 
 export type ModuleType =
   | "runtime"
@@ -210,7 +210,7 @@ export interface EventContext {
 export type RouteHandler = (body: any, ctx: RouteContext) => Promise<any> | any;
 
 export interface RouteContext extends Context {
-  runtime?: Runtime;
+  runtime: Runtime;
   locals?: Record<string, any>;
   event?: any;
   cookies?: Map<string, string>;
@@ -262,11 +262,11 @@ export type BootFunction = (
 export type InstallFunction = (runtime: Runtime, module: Module) => Promise<boolean>;
 
 // Registry & Services
-
+export type Loadable = Module | Service;
 export interface Registry {
   init: () => Promise<void>;
-  load: (slug: string | Module) => Promise<Module>;
-  loadMany: (slugs: (string | Module)[]) => Promise<Module[]>;
+  load: <T>(slug: string | Loadable) => Promise<T>;
+  loadMany: <T>(slugs: (string | Loadable)[]) => Promise<T[]>;
 }
 
 export interface ServiceClient {
