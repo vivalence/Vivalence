@@ -73,7 +73,7 @@ const status = ({ memory }) => {
         if (typeof signal === "string") signal = { enum: signal };
         if (!signal.enum && signal.ratio) {
           const ratio = signal.ratio.success / signal.ratio.total;
-          signal.enum = ratio >= 0.5 ? "SUCCESS" : "FAILURE";
+          signal.enum = ratio >= 0.5 ? "SUCCESS" : "MISTAKE";
         }
         return signal;
       })
@@ -84,10 +84,14 @@ const status = ({ memory }) => {
     return recentSignals.every((signal) => condition.includes(signal.enum));
   };
 
-  const isUnknown = memory.nextIn < 1 || checkLastResponses(3, ["FAILURE", "MISTAKE"]);
+  // const isUnknown = memory.nextIn < 1 || checkLastResponses(3, ["FAILURE", "MISTAKE"]);
+  // const isLearning = memory.nextIn >= 1;
+  // const isKnown = memory.nextIn > 24 * 7 && checkLastResponses(3, ["SUCCESS", "MASTERY"]);
+  // const isGraduated = memory.nextIn > 24 * 14 && checkLastResponses(5, ["SUCCESS", "MASTERY"]);
+  const isUnknown = memory.nextIn < 1;
   const isLearning = memory.nextIn >= 1;
-  const isKnown = memory.nextIn > 24 * 7 && checkLastResponses(3, ["SUCCESS", "MASTERY"]);
-  const isGraduated = memory.nextIn > 24 * 14 && checkLastResponses(5, ["SUCCESS", "MASTERY"]);
+  const isKnown = memory.nextIn > 24 * 7;
+  const isGraduated = memory.nextIn > 24 * 14;
 
   if (isUnknown) {
     return "UNKNOWN";

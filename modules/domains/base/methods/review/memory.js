@@ -1,4 +1,4 @@
-import getMemoryDriver from "../../memory/index.js";
+import { getMemoryDriver, validateSignal } from "../../memory/index.js";
 
 export default async function ({ scope, signal }, ctx) {
   if (!scope.user) {
@@ -6,6 +6,8 @@ export default async function ({ scope, signal }, ctx) {
     if (!user) throw new Error("User not found");
     scope.user = { id: user.id };
   }
+
+  signal = validateSignal(signal);
 
   const memory = await read({ scope }, ctx);
 
@@ -94,6 +96,8 @@ export async function update({ signal, scope, memory }, ctx) {
   const history = [...memory.history, { signal, state, nextIn, nextAt, lastAt, scope }];
   const status = MemoryDriver.status({ memory: { state, nextIn, history } });
   history[history.length - 1].status = status;
+  // limit history to 10
+  if (history.length > 10) history.shift();
 
   const { data, error } = await ctx.runtime.services.supabase
     .from("Memory")

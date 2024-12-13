@@ -1,7 +1,7 @@
-// might want to refactor this into a reducer
-export default async function (body, ctx) {
-  const { scope, signal } = body;
+import { validateSignal } from "../../memory/index.js";
 
+// might want to refactor this into a reducer
+export default async function ({ scope, signal }, ctx) {
   if (scope.tags?.length > 0) {
     scope.tags.map(async (tag) => {
       // should i handle the return?
@@ -10,6 +10,8 @@ export default async function (body, ctx) {
   }
 
   if (!scope.tag?.id) return { status: "bounce", message: "Tag required" };
+
+  signal = validateSignal(signal);
 
   const { data: tag, error: te } = await ctx.runtime.services.supabase
     .from("Tag")

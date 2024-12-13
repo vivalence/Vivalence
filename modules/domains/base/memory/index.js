@@ -60,7 +60,26 @@ function validateDriver(scope, { type, flavor }) {
   return true;
 }
 
-async function getMemoryDriver({ scope, memory = null }, ctx) {
+export function validateSignal(signal) {
+  if (typeof signal === "string") signal = { enum: signal };
+
+  // check that signal.enum is valid enum.
+  if (!signal.enum) throw new Error("signal.enum is required");
+  if (!["MASTERY", "SUCCESS", "NEUTRAL", "MISTAKE", "FAILURE"].includes(signal.enum))
+    throw new Error(
+      `signal.enum must be one of 'MASTERY', 'SUCCESS', 'NEUTRAL', 'MISTAKE', 'FAILURE', but got ${signal.enum} instead.`,
+    );
+
+  return signal;
+}
+
+// MASTERY +10
+// SUCCESS  +1
+// NEUTRAL   0
+// MISTAKE  -1
+// FAILURE -10
+
+export async function getMemoryDriver({ scope, memory = null }, ctx) {
   let driver = drivers[memory?.type];
   if (!driver || !memory) [driver, memory] = await getDriver(scope, ctx);
   validateDriver(scope, memory);

@@ -40,7 +40,7 @@ export default async function provision(inputs, ctx) {
   const vocabulary = await ctx.runtime.call("/pick/units/pending", {
     tagIds: [tags.vocabulary.id, gender.id],
     blacklist,
-    scope,
+    scope: { ...scope, game: { id: games.translations.id } },
     take: TRANSLATIONS_COUNT * TRANSLATIONS_VOCAB_PROMPTSIZE,
   });
 

@@ -13,7 +13,7 @@ export default async function server(daemon) {
 
   daemon.router.use(async (ctx, next) => {
     // trace Entry:
-    console.log(ctx.request.url.pathname);
+    // console.log(ctx.request.url.pathname);
     await next();
   });
 
