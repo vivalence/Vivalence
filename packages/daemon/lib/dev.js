@@ -1,7 +1,38 @@
 import createMemoryProfiler from "./memory-profiler.js";
-
+const QUERY = {
+  tagIds: ["9fd9e512-24f2-4400-a555-e9bd25982320", "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"],
+  blacklist: { units: [], tags: [], queue: [] },
+  scope: {
+    user: { id: "localhost" },
+    runtime: { id: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+    dependency: { id: "ddbf4c0f-a059-46da-aa76-d1b450ba7ef1" },
+    game: { id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a" },
+    tactic: { id: "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
+  },
+  take: 1,
+};
 export default async function dev(daemon) {
+  console.json = (value) => console.log(JSON.stringify(value, null, 2));
   const runtime = daemon.runtimes.values().next().value;
+
+  // const [unit] = await runtime.call("/pick/units/pending", QUERY);
+  // console.json(unit);
+
+  // let { data } = await runtime.services.supabase
+  //   .from("Play")
+  //   // .select(`id, updatedAt, signal, nextAt, lastAt, nextIn `)
+  //   .select(`*`)
+  //   .eq("userId", "localhost")
+  //   .eq("tacticId", QUERY.scope.tactic.id)
+  //   .eq("gameId", QUERY.scope.game.id)
+  //   .eq("tagId", null);
+  // // .eq("unitId", unit.id);
+
+  // data.forEach((play) => {
+  //   delete play.history;
+  // });
+
+  // console.json({ plays: data, count: data.length });
 
   // let { data: queue } = await runtime.services.supabase.from("Queue").select(`*`);
   // for (const item of queue) {

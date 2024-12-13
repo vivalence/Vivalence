@@ -14,11 +14,17 @@ export default async function ({ take, ...body }, ctx) {
     .eq("id", body.dependency.id)
     .single();
 
+  const tactic = await ctx.runtime.call(`/tactics/fromSlug`, {
+    slug: dependency.itinerary.tactic.slug,
+  });
+
   let blacklist = Blacklist.init(body.blacklist);
+
   let scope = {
     user: { id: user.id },
     runtime: { id: ctx.runtime.manifest.id },
     dependency: { id: dependency.id },
+    tactic: { id: tactic.id },
   };
 
   const counted = await count({ scope, blacklist }, ctx);
@@ -26,7 +32,7 @@ export default async function ({ take, ...body }, ctx) {
 
   if (counted <= take || counted <= config.env.get("PROVISION_THRESHOLD")) {
     status = "provisioning";
-    provision({ dependency, scope, blacklist }, ctx);
+    provision({ dependency, tactic, scope, blacklist }, ctx);
   }
 
   return { instructions, status };
@@ -41,8 +47,7 @@ async function count({ scope, blacklist }, ctx) {
     .eq("runtimeId", ctx.runtime.manifest.id)
     .eq("userId", scope.user?.id)
     .eq("dependencyId", scope.dependency?.id)
-    // .eq("tacticId", scope.tactic?.id)
-    // .eq("gameId", scope.game?.id)
+    .eq("tacticId", scope.tactic?.id)
     .not("id", "in", `(${blacklist.queue.join(",")})`);
 
   if (result.error) {
@@ -61,6 +66,7 @@ async function read({ scope, blacklist, take }, ctx) {
     .eq("runtimeId", ctx.runtime.manifest.id)
     .eq("userId", scope.user?.id)
     .eq("dependencyId", scope.dependency?.id)
+    .eq("tacticId", scope.tactic?.id)
     .order("createdAt", { ascending: true })
     .order("index", { ascending: true })
     .limit(take);
@@ -77,22 +83,16 @@ async function read({ scope, blacklist, take }, ctx) {
   });
 }
 
-async function provision({ dependency, scope, blacklist }, ctx) {
+async function provision({ dependency, tactic, blacklist, scope }, ctx) {
   if (lock.has(scope)) return { status: "locked" };
   lock.set(scope);
 
   let instructions, error;
   try {
-    const tactic = await ctx.runtime.call(`/tactics/fromSlug`, {
-      slug: dependency.itinerary.tactic.slug,
-    });
-
     blacklist = await Blacklist.fromQueue({ blacklist, scope }, ctx);
-
     const input = { blacklist, scope, tactic: deepMerge(tactic, dependency.itinerary?.tactic) };
 
     instructions = await ctx.runtime.call(`/tactics/provision`, input);
-    // console.log("provisioned instructions", instructions.map((i) => i.instruction),);
 
     if (instructions.length > 0) {
       const queue = await ctx.runtime.services.supabase
@@ -102,6 +102,7 @@ async function provision({ dependency, scope, blacklist }, ctx) {
             runtimeId: ctx.runtime.manifest.id,
             userId: scope.user.id,
             dependencyId: dependency.id,
+            tacticId: tactic.id,
             data,
             index,
           })),
