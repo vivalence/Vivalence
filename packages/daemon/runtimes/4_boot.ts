@@ -1,10 +1,10 @@
 import { bundler } from "@vivalence/shared";
-import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
+import { BootFunction, Daemon, Module, ModuleRuntime, Runtime } from "../../../types/types.d.ts";
 
-async function bootModule(runtime: Runtime, module: Module, Module: Module) {
+async function bootModule(runtime: Runtime, module: ModuleRuntime, Module: Module) {
   const scopedModule = { ...runtime, router: module.router, bus: module.bus };
 
-  const boot = module.Module.boot ?? defaultModuleBoot[module.manifest.type as string];
+  const boot = module.Module.boot ?? defaultModuleBoot[module.manifest.type];
   if (!boot) return { ...scopedModule, manifest: module.manifest, Module: module.Module };
 
   const bootedModule = await boot(scopedModule, module.Module, Module);
@@ -18,8 +18,9 @@ async function bootModule(runtime: Runtime, module: Module, Module: Module) {
   return { ...bootedModule, manifest: module.manifest, Module: module.Module };
 }
 
-async function bootModules(runtime: Runtime, modules: Module[], Module: Module) {
+async function bootModules(runtime: Runtime, modules: ModuleRuntime[], Module: Module) {
   if (!modules) return [];
+
   return await Promise.all(
     modules.map(async (module) => await bootModule(runtime, module, Module)),
   );
@@ -58,8 +59,8 @@ export default async function (daemon: Daemon) {
   return daemon;
 }
 
-const defaultModuleBoot: { [key: string]: (...args: any[]) => Runtime } = {
-  runtime: (runtime: Runtime) => runtime,
+const defaultModuleBoot: { [key: string]: BootFunction } = {
+  runtime: (runtime: Runtime) => Promise.resolve(runtime),
 
   tactic: (runtime: Runtime, Tactic: Module) => {
     if (!Tactic.provision) {
@@ -67,7 +68,8 @@ const defaultModuleBoot: { [key: string]: (...args: any[]) => Runtime } = {
     }
 
     runtime.router?.route("/provision", Tactic.provision);
-    return runtime;
+
+    return Promise.resolve(runtime);
   },
 
   game: (runtime: Runtime, Game: Module) => {
@@ -76,13 +78,15 @@ const defaultModuleBoot: { [key: string]: (...args: any[]) => Runtime } = {
       serve: runtime.manifest.url + (Game.manifest.url ?? ""),
     });
 
-    if (!runtime.router) return runtime;
+    if (!runtime.router) return Promise.resolve(runtime);
 
     runtime.router.get(bundle.url, bundle.serve());
+
     // this should be handled by domain middlewares
     Game.provision && runtime.router.route("/provision", bundle.injectBundleUrl(), Game.provision);
     Game.evaluate && runtime.router.route("/evaluate", Game.evaluate);
-    return runtime;
+
+    return Promise.resolve(runtime);
   },
 };
 

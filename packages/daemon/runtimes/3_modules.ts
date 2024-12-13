@@ -1,12 +1,11 @@
-import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
+import { Daemon, Module, ModuleRuntime, Runtime } from "../../../types/types.d.ts";
 
-const createModule = (runtime: Runtime, Module: Module) =>
-  ({
-    router: runtime.router?.create(),
-    bus: runtime.bus.scope(),
-    manifest: Module.manifest,
-    Module,
-  } as Runtime);
+const createModule = (runtime: Runtime, Module: Module): ModuleRuntime => ({
+  router: runtime.router?.create(),
+  bus: runtime.bus.scope(),
+  manifest: Module.manifest,
+  Module,
+});
 
 const instantiateModules = (runtime: Runtime, modules: Module[]) => {
   if (!Array.isArray(modules)) return [];
@@ -22,15 +21,12 @@ export default function (daemon: Daemon) {
 
       if (!Module.modules) continue;
 
-      runtime.domain = createModule(runtime as Runtime, Module.modules.Domain as Module);
-      runtime.ontology = createModule(runtime as Runtime, Module.modules.Ontology as Module);
-      runtime.corpora = instantiateModules(runtime as Runtime, Module.modules.Corpora as Module[]);
-      runtime.games = instantiateModules(runtime as Runtime, Module.modules.Games as Module[]);
-      runtime.tactics = instantiateModules(runtime as Runtime, Module.modules.Tactics as Module[]);
-      runtime.strategies = instantiateModules(
-        runtime as Runtime,
-        Module.modules.Strategies as Module[],
-      );
+      runtime.domain = createModule(runtime, Module.modules.Domain);
+      runtime.ontology = createModule(runtime, Module.modules.Ontology);
+      runtime.corpora = instantiateModules(runtime, Module.modules.Corpora);
+      runtime.games = instantiateModules(runtime, Module.modules.Games);
+      runtime.tactics = instantiateModules(runtime, Module.modules.Tactics);
+      runtime.strategies = instantiateModules(runtime, Module.modules.Strategies);
 
       daemon.runtimes.set(key, runtime);
     } catch (e) {

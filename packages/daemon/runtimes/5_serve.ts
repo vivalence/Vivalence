@@ -9,7 +9,7 @@ export default function serve(daemon: Daemon) {
         if (!module.router) continue;
 
         runtime.router.use(
-          // ...(module.router.middleware as any[]),
+          ...module.router.middleware,
           module.router.routes(),
           module.router.allowedMethods(),
         );

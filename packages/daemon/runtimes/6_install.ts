@@ -1,8 +1,8 @@
 import { strings } from "@vivalence/shared";
-import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
+import { Daemon, Manifest, ModuleRuntime, Runtime } from "../../../types/types.d.ts";
 
 export default async function install(daemon: Daemon) {
-  for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
+  for (const [, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     for (const module of [
       runtime,
       runtime.domain,
@@ -29,33 +29,37 @@ export default async function install(daemon: Daemon) {
   return daemon;
 }
 
-async function installCurriculum(runtime: Runtime, module: Module) {
+async function installCurriculum(runtime: Runtime, module: ModuleRuntime) {
   // might want to enforce tags->units->dependencies order.
   let curriculum = module.Module.curriculum;
   if (typeof curriculum === "function") curriculum = await curriculum(runtime, module.Module);
 
-  const promises = [];
+  const promises: Promise<{ status: string }>[] = [];
 
   for (const [key, resources] of Object.entries(curriculum)) {
     resources
-      .map((resource) =>
+      .map((resource: any) =>
         runtime.manifest.type === "corpus"
           ? { corpusId: module.manifest.id, ...resource }
           : resource,
       )
-      .map((resource) => ({ [curriculumTypeMap[key]]: resource }))
-      .map((resource) => runtime.call(`/${key}/install`, resource))
-      .forEach((promise) => promises.push(promise));
+      .map((resource: any) => ({ [curriculumTypeMap[key]]: resource }))
+      .map((resource: any) => runtime.call(`/${key}/install`, resource))
+      .forEach((promise: Promise<{ status: string }>) => promise && promises.push(promise));
   }
 
   const installations = await Promise.all(promises);
   return installations.every(({ status }) => status === "success");
 }
 
-const curriculumTypeMap = { units: "unit", tags: "tag", dependencies: "dependency" };
+const curriculumTypeMap: Record<string, string> = {
+  units: "unit",
+  tags: "tag",
+  dependencies: "dependency",
+};
 
-const success = async (manifest, runtime) => {
-  await runtime.locals.supabase
+const success = async (manifest: Manifest, runtime: Runtime) => {
+  await runtime.services?.supabase
     .from(strings.capitalize(manifest.type))
     .update({ installed: true })
     .eq("id", manifest.id);
