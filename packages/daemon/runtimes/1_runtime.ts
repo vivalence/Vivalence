@@ -1,5 +1,3 @@
-import { validators } from "@vivalence/shared";
-
 import executionMiddleware from "./lib/executionMiddleware.js";
 // import registerManifest from "./lib/registerManifest.js";
 import { Daemon, RouterWithExtensions, Runtime } from "../../../types/types.d.ts";
@@ -16,9 +14,10 @@ export default function (daemon: Daemon) {
         const { Ontology, Corpora } = modules;
         const corporaArray = Corpora;
 
+        runtime.schema = {};
         runtime.schema = [Ontology, ...corporaArray].reduce(
-          (s, { schema = (s) => s }) => schema(s) ?? s,
-          { validate: validators.ajv() },
+          (s, { schema = (s) => s }) => (typeof schema === "function" ? schema(s) ?? s : s),
+          runtime.schema,
         );
       }
 
@@ -29,13 +28,8 @@ export default function (daemon: Daemon) {
         );
       }
 
-      // runtime.
       runtime.locals = {
-        // deprecated
         validate: runtime.schema.validate,
-        // deprecated / is superseeded; in favor of service.database and service.identity.
-        // supabase: daemon.services.supabase.createAdminClient(),
-        supabase: runtime.services.supabase,
       };
 
       runtime.router = createRouter() as RouterWithExtensions;

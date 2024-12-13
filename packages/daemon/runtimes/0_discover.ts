@@ -2,7 +2,8 @@ import { walk } from "$std/fs/mod.ts";
 import { deepClone } from "@vivalence/shared";
 import path from "node:path";
 import config from "../../../config/src/mod.ts";
-import { Daemon, Loadable, Module, Runtime, Service } from "../../../types/types.d.ts";
+import { Daemon, Module, Runtime, Service } from "../../../types/types.d.ts";
+type Key = keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics">;
 
 export default async function discover(daemon: Daemon) {
   const entries = [];
@@ -18,7 +19,7 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime: Runtime = deepClone(await import(entry.path));
+      let Runtime: Module = deepClone(await import(entry.path));
 
       if (Runtime.default) Runtime = Runtime.default;
       if (!Runtime?.manifest) throw new Error(`Invalid module structure at ${path}`);
@@ -34,19 +35,13 @@ export default async function discover(daemon: Daemon) {
         Runtime.Services[slug] = await daemon.registry.load<Service>(service);
       }
 
-      Runtime.modules.Domain = await daemon.registry.load<Module>(
-        Runtime.modules.domain as Loadable,
-      );
-      Runtime.modules.Ontology = await daemon.registry.load<Module>(
-        Runtime.modules.ontology as Loadable,
-      );
-      Runtime.modules.Corpora = await daemon.registry.loadMany<Module>(
-        Runtime.modules.corpora as Loadable[],
-      );
+      Runtime.modules.Domain = await daemon.registry.load<Module>(Runtime.modules.domain);
+      Runtime.modules.Ontology = await daemon.registry.load<Module>(Runtime.modules.ontology);
+      Runtime.modules.Corpora = await daemon.registry.loadMany<Module>(Runtime.modules.corpora);
       Runtime.modules.Games = [];
       Runtime.modules.Tactics = [];
       Runtime.modules.Strategies = await daemon.registry.loadMany<Module>(
-        Runtime.modules.strategies as Loadable[],
+        Runtime.modules.strategies,
       );
 
       await Promise.all(
@@ -90,7 +85,7 @@ export default async function discover(daemon: Daemon) {
   return daemon;
 }
 
-const ensure = (Runtime: Runtime) => {
+const ensure = (Runtime: Module) => {
   if (!Runtime.modules.domain) throw new Error(`Runtime module missing domain module`);
   if (!Runtime.modules.ontology) throw new Error(`Runtime module missing ontology module`);
   if (!Runtime.modules.corpora) throw new Error(`Runtime module missing corpora modules`);
