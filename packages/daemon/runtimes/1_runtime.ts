@@ -1,4 +1,4 @@
-import executionMiddleware from "./lib/executionMiddleware.js";
+import executionMiddleware from "./lib/executionMiddleware.ts";
 // import registerManifest from "./lib/registerManifest.js";
 import { Daemon, RouterWithExtensions, Runtime } from "../../../types/types.d.ts";
 import createEmitter from "../emitter/create.js";
@@ -16,7 +16,8 @@ export default function (daemon: Daemon) {
 
         runtime.schema = {};
         runtime.schema = [Ontology, ...corporaArray].reduce(
-          (s, { schema = (s) => s }) => (typeof schema === "function" ? schema(s) ?? s : s),
+          (s, { schema = (s: Record<string, unknown>) => s }) =>
+            typeof schema === "function" ? schema(s) ?? s : s,
           runtime.schema,
         );
       }
@@ -29,7 +30,7 @@ export default function (daemon: Daemon) {
       }
 
       runtime.locals = {
-        validate: runtime.schema.validate,
+        validate: runtime.schema.validate as Function,
       };
 
       runtime.router = createRouter() as RouterWithExtensions;

@@ -1,5 +1,5 @@
 import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
-import registerManifest from "./lib/registerManifest.js";
+import registerManifest from "./lib/registerManifest.ts";
 
 const registerModule = async (runtime: Runtime, Module: Module) => {
   Module.manifest = {

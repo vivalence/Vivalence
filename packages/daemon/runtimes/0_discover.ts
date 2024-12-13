@@ -3,7 +3,10 @@ import { deepClone } from "@vivalence/shared";
 import path from "node:path";
 import config from "../../../config/src/mod.ts";
 import { Daemon, Module, Runtime, Service } from "../../../types/types.d.ts";
-type Key = keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics">;
+type Key = Record<
+  keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics" | "default" | "Services">,
+  Record<string, unknown>
+>;
 
 export default async function discover(daemon: Daemon) {
   const entries = [];
@@ -19,7 +22,7 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime: Module = deepClone(await import(entry.path));
+      let Runtime = deepClone(await import(entry.path));
 
       if (Runtime.default) Runtime = Runtime.default;
       if (!Runtime?.manifest) throw new Error(`Invalid module structure at ${path}`);
@@ -31,8 +34,8 @@ export default async function discover(daemon: Daemon) {
 
       if (!daemon.registry) continue;
 
-      for await (const [slug, service] of Object.entries(Runtime.services ?? {})) {
-        Runtime.Services[slug] = await daemon.registry.load<Service>(service);
+      for await (const [slug, service] of Object.entries(Runtime.services)) {
+        Runtime.Services[slug] = await daemon.registry.load<Service>(service as string);
       }
 
       Runtime.modules.Domain = await daemon.registry.load<Module>(Runtime.modules.domain);
@@ -45,19 +48,23 @@ export default async function discover(daemon: Daemon) {
       );
 
       await Promise.all(
-        Runtime.modules.Corpora.map(async (Corpus) => {
+        Runtime.modules.Corpora.map(async (Corpus: Key) => {
           if (!daemon.registry || !Corpus?.manifest) return;
 
           if (!Array.isArray(Runtime.modules.Games)) return;
-          const games = await daemon.registry.loadMany<Module>(Corpus.modules.games);
+          const games = await daemon.registry.loadMany<Module>(Corpus.modules.games as string[]);
           Runtime.modules.Games.push(...games);
 
           if (!Array.isArray(Runtime.modules.Tactics)) return;
-          const tactics = await daemon.registry.loadMany<Module>(Corpus.modules.tactics);
+          const tactics = await daemon.registry.loadMany<Module>(
+            Corpus.modules.tactics as string[],
+          );
           Runtime.modules.Tactics.push(...tactics);
 
           if (!Array.isArray(Runtime.modules.Strategies)) return;
-          const strategies = await daemon.registry.loadMany<Module>(Corpus.modules.strategies);
+          const strategies = await daemon.registry.loadMany<Module>(
+            Corpus.modules.strategies as string[],
+          );
           Runtime.modules.Strategies.push(...strategies);
         }),
       );
@@ -85,7 +92,7 @@ export default async function discover(daemon: Daemon) {
   return daemon;
 }
 
-const ensure = (Runtime: Module) => {
+const ensure = (Runtime: Key) => {
   if (!Runtime.modules.domain) throw new Error(`Runtime module missing domain module`);
   if (!Runtime.modules.ontology) throw new Error(`Runtime module missing ontology module`);
   if (!Runtime.modules.corpora) throw new Error(`Runtime module missing corpora modules`);

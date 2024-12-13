@@ -2,7 +2,7 @@ import { Daemon, Runtime } from "../../../types/types.d.ts";
 
 export default function serve(daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
-    if (!runtime.router || !runtime.manifest.url) continue;
+    if (!runtime.router || !runtime.manifest?.url) continue;
 
     try {
       for (const module of [runtime.domain, runtime.ontology, ...runtime.corpora]) {
@@ -16,7 +16,7 @@ export default function serve(daemon: Daemon) {
       }
 
       for (const module of [...runtime.games, ...runtime.tactics, ...runtime.strategies]) {
-        if (!module.router || !module.manifest.url) continue;
+        if (!module.router || !module.manifest?.url) continue;
 
         runtime.router.use(
           module.manifest.url,
