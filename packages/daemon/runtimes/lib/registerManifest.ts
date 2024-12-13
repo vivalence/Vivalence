@@ -1,8 +1,9 @@
 import { strings } from "@vivalence/shared";
+import { Manifest, Module, Runtime } from "../../../../types/types.d.ts";
 const select = "id, slug, version, installed, name";
 
-export default async function registerModuleManifest(runtime, Module) {
-  const user = await runtime.services.identity.getUser();
+export default async function registerModuleManifest(runtime: Runtime, Module: Module) {
+  // const user = await runtime.services.identity.getUser();
 
   let manifest = await findModule(runtime, Module);
 
@@ -13,14 +14,16 @@ export default async function registerModuleManifest(runtime, Module) {
   }
 
   if (["runtime", "game", "tactic", "strategy"].includes(Module.manifest.type)) {
-    manifest.url = `/${Module.manifest.type[0]}/${manifest.slug}`;
+    manifest && (manifest.url = `/${Module.manifest.type[0]}/${manifest.slug}`);
   }
 
   return manifest;
 }
 
-async function findModule(runtime, Module) {
-  let query = runtime.locals.supabase
+async function findModule(runtime: Runtime, Module: Module) {
+  if (!runtime.Services.supabase) return;
+
+  let query = runtime.Services.supabase
     .from(strings.capitalize(Module.manifest.type))
     .select(select)
     .eq("slug", Module.manifest.slug);
@@ -30,20 +33,26 @@ async function findModule(runtime, Module) {
   }
 
   const { error, data } = await query.single();
+
   if (error && error.code !== "PGRST116") {
     throw error;
   }
-  return data;
+
+  return data as Manifest;
 }
 
-async function createModule(runtime, Module) {
-  let insert = {
+async function createModule(runtime: Runtime, Module: Module) {
+  if (!runtime.Services.supabase) return;
+
+  let insert: Record<string, unknown> = {
     slug: Module.manifest.slug,
     name: Module.manifest.name,
   };
+
   if (!["runtime"].includes(Module.manifest.type)) {
     insert.runtimeId = runtime.Module.manifest.id;
   }
+
   if (Module.manifest.description) insert.description = Module.manifest.description;
   if (Module.manifest.version) insert.version = Module.manifest.version;
   if (Module.manifest.icon) insert.icon = Module.manifest.icon;
@@ -51,21 +60,27 @@ async function createModule(runtime, Module) {
   if (["tactic", "game", "strategy"].includes(Module.manifest.type)) {
     insert = { ...insert, ...Module.data };
   }
-  const { data, error } = await runtime.locals.supabase
+
+  const { data, error } = await runtime.Services.supabase
     .from(strings.capitalize(Module.manifest.type))
     .insert(insert)
     .select(select)
     .single();
+
   if (error) throw error;
-  return data;
+
+  return data as Manifest;
 }
 
-async function updateModule(runtime, Module, manifest) {
-  let update = {
+async function updateModule(runtime: Runtime, Module: Module, manifest: Manifest) {
+  if (!runtime.Services.supabase) return;
+
+  let update: Record<string, unknown> = {
     slug: Module.manifest.slug,
     name: Module.manifest.name,
     installed: false,
   };
+
   if (Module.manifest.description) update.description = Module.manifest.description;
   if (Module.manifest.version) update.version = Module.manifest.version;
   if (Module.manifest.icon) update.icon = Module.manifest.icon;
@@ -73,17 +88,20 @@ async function updateModule(runtime, Module, manifest) {
   if (["tactic", "game", "strategy"].includes(Module.manifest.type)) {
     update = { ...update, ...Module.data };
   }
-  let query = runtime.locals.supabase
+
+  const query = runtime.Services.supabase
     .from(strings.capitalize(Module.manifest.type))
     .update(update)
-    .select(select)
-    .eq("id", manifest.id);
+    .eq("id", manifest.id)
+    .select(select);
 
   const { data, error } = await query.single();
+
   if (error) {
     console.error("[updateManifestError]");
     console.error(error);
     throw error;
   }
-  return data;
+
+  return data as Manifest;
 }

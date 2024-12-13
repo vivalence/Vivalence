@@ -9,15 +9,15 @@ import { Application, Context, Middleware, Router } from "oak";
 
 // User Types
 
-// export interface User {
-//   id: string;
-//   roles: UserRole[];
-//   config: Record<string, any>;
-//   createdAt: Date;
-//   updatedAt: Date;
-// }
+export interface User {
+  id: string;
+  roles: UserRole[];
+  config: Record<string, any>;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-// export type UserRole = "ADMIN" | "USER" | "GUEST";
+export type UserRole = "ADMIN" | "USER" | "GUEST";
 
 // Core Types
 // DAEMON
@@ -26,19 +26,20 @@ export interface Daemon {
   router: RouterWithExtensions;
   registry: Registry | null;
   server: any; // Oak server instance
-  services: Record<string, Service>;
+  services: Services;
   abort?: AbortController;
   app?: Application;
   process?: any;
 }
 
+export type Services = Record<string, Service> & {
+  supabase?: SupabaseClient;
+  identity?: any;
+};
 export type Runtime = {
   // clean
-  Services: Record<string, Service>;
-  services: Record<string, Service> & {
-    supabase: SupabaseClient;
-    identity?: any;
-  };
+  Services: Services;
+  services: Services;
   schema: Record<string, unknown>;
   router: RouterWithExtensions;
   bus: EventBus;
@@ -67,8 +68,9 @@ export interface ServiceManifest {
  * Runtime local dependencies and utilities
  */
 export interface RuntimeLocals {
-  validate: Function;
-  // getUser?: () => Promise<User>;
+  validate?: Function;
+  _isLegacy?: boolean;
+  getUser?: () => Promise<User>;
 }
 
 export interface Module {
@@ -85,9 +87,11 @@ export interface Module {
   boot: BootFunction;
   schema: {};
   default?: Module;
+  data?: Record<string, any>;
 
   modules: Modules;
   services: Record<string, string | string[]>;
+  Services?: Services;
 }
 
 type ModuleRuntime = Pick<Runtime, "router" | "bus" | "manifest" | "Module">;
@@ -108,14 +112,15 @@ export interface Modules {
 }
 
 export interface Manifest {
-  id: string;
+  id?: string;
   type: ModuleType;
   slug: string;
   name: string;
   version: string;
-  url: string;
+  url?: string;
   description?: string;
   installed?: boolean;
+  icon?: string;
 }
 export type ModuleType =
   | "runtime"
@@ -234,13 +239,14 @@ export interface EventBus {
 export type EventListener = (body: any, ctx: EventContext) => Promise<void> | void;
 export type EventMiddleware = (ctx: EventContext, next: () => Promise<void>) => Promise<void>;
 
-export interface EventContext {
-  event: {
+export type EventContext = {
+  event?: {
     name: string;
     body: any;
   };
   runtime?: Runtime;
-}
+  services?: Services;
+} & Context<Record<string, any>, Record<string, any>>;
 
 // Routing
 

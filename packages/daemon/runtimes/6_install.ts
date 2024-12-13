@@ -12,7 +12,8 @@ export default async function install(daemon: Daemon) {
       ...runtime.tactics,
       ...runtime.strategies,
     ]) {
-      if (module.manifest.installed) continue;
+      if (module.manifest?.installed) continue;
+      if (!module.manifest) continue;
 
       if (typeof module.Module.install === "function") {
         module.manifest.installed = !!(await module.Module.install(runtime, module.Module));
@@ -37,6 +38,8 @@ async function installCurriculum(runtime: Runtime, module: ModuleRuntime) {
   const promises: Promise<{ status: string }>[] = [];
 
   for (const [key, resources] of Object.entries(curriculum)) {
+    if (!runtime.manifest) continue;
+
     resources
       .map((resource: any) =>
         runtime.manifest.type === "corpus"
@@ -59,7 +62,9 @@ const curriculumTypeMap: Record<string, string> = {
 };
 
 const success = async (manifest: Manifest, runtime: Runtime) => {
-  await runtime.services?.supabase
+  if (!runtime.Services?.supabase) return;
+
+  await runtime.Services.supabase
     .from(strings.capitalize(manifest.type))
     .update({ installed: true })
     .eq("id", manifest.id);
