@@ -1,7 +1,7 @@
 export default async function (body, ctx) {
   const { tagIds = [], blacklist = { tags: [] } } = body;
 
-  const { data: tags, error } = await ctx.runtime.locals.supabase
+  const { data: tags, error } = await ctx.runtime.services.supabase
     .from("Tag")
     .select("id, data, name, description, slug, traits")
     .eq("runtimeId", ctx.runtime.manifest.id)

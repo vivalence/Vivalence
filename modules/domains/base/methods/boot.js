@@ -29,11 +29,13 @@ async function boot(runtime) {
   route("/pick/units/pending", pick.units.pending);
 
   route("/tags/fromOntology", tags.fromOntology);
+  route("/tags/fromSlugs", tags.fromSlugs);
   route("/tags/fromSlug", tags.fromSlug);
   route("/tags/fromTagIds", tags.fromTagIds);
   route("/tags/fromUnit", tags.fromUnit);
   route("/tags/install", tags.install);
 
+  route("/units/fromSlugs", units.fromSlugs);
   route("/units/fromSlug", units.fromSlug);
   route("/units/fromTagIds", units.fromTagIds);
   route("/units/fromUnitIds", units.fromUnitIds);
