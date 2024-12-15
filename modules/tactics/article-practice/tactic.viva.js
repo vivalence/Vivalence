@@ -5,24 +5,23 @@ const manifest = {
   name: "article morphology intro",
   description: "",
   slug: "article-practice",
-  version: "0.0.3",
+  version: "0.0.4",
 };
 
 const relations = {
   tags: {
-    vocabulary: { slug: "pos:noun" },
+    vocabulary: { slug: "vocabulary:a1" },
+    nouns: { slug: "pos:noun" },
+    // adjectives: { slug: "pos:adj" },
     article: { slug: "prontype:art" },
-    definite: [
-      { slug: "definite:def", description: "Definite form is familiar" },
-      { slug: "definite:ind", description: "Indefinite form is familiar" },
-    ],
     gender: [
-      { slug: "gender:masc", description: "Masculine form is familiar" },
-      { slug: "gender:fem", description: "Feminine form is familiar" },
+      // { slug: "gender:masc", }, { slug: "gender:fem", },
     ],
     number: [
-      { slug: "number:sing", description: "Singular form is familiar" },
-      { slug: "number:plur", description: "Plural form is familiar" },
+      // { slug: "number:sing", }, { slug: "number:plur", },
+    ],
+    definite: [
+      // { slug: "definite:def", }, { slug: "definite:ind", },
     ],
   },
   games: {
@@ -33,7 +32,8 @@ const relations = {
 };
 
 const masks = {
-  flashcards: { status: [null, "UNTOUCHED", "UNKNOWN"] },
+  reps: 6,
+  weakness_threshold: ["UNTOUCHED", "UNKNOWN", "LEARNING"],
   prose: {
     prompt: {
       goal: `The reader is a language learner that is practicing sentence translations with focus on a specific grammatical concept.
@@ -51,11 +51,20 @@ The user is practicing the usage of Articles in spanish.
 The article must agree and be demonstrated.
 Your task is to create a very very short and simple sentence, using specific vocabulary and following grammatical constraints.
 
+Dont ever use vocabulary thats more advanced than whats provided.
+Create very very very simple statements. Like a child would say or use for practice.
+The statement is just there to practice the article. thats it. nothing more.
+The English form must unambiguously indicate which Spanish article is expected.
+
 You're given a list of nouns, which serves as the available vocabulary. 
 You're given grammatical constraints for: definiteness, gender, and number. 
 The sentence must be simple, because a A1 language learner will translate that sentence for practice.
 Important: the sentence must follow the provided grammar and vocabulary.
-Aim for 2 to 4 words for the sentence.
+
+Aim for 2 to 4 words for the sentence. Dont ever go longer than 4 words.
+Follow this simple template: '[article] [noun]'.
+
+No verbs.
 `,
     },
   },

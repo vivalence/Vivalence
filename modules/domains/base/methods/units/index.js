@@ -1,5 +1,6 @@
 // import due from "./due.js";
 import fromSlug from "./fromSlug.js";
+import fromSlugs from "./fromSlugs.js";
 import fromTagIds from "./fromTagIds.js";
 import fromUnitIds from "./fromUnitIds.js";
 import install from "./install.js";
@@ -9,6 +10,7 @@ import remove from "./remove.js";
 
 export default {
   // due,
+  fromSlugs,
   fromSlug,
   fromTagIds,
   fromUnitIds,

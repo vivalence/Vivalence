@@ -1,38 +1,6 @@
-export default [
-  {
-    pos: {
-      "pos:num": { traits: ["COMPLETABLE"] },
-      "pos:adj": { traits: ["COMPLETABLE"] },
-      "pos:noun": { traits: ["COMPLETABLE"] },
-    },
-  },
-  {
-    number: {
-      "number:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
-      "number:sing": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-      "number:plur": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-    },
-  },
-  {
-    gender: {
-      "gender:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
-      "gender:fem": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-      "gender:masc": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-    },
-  },
-  {
-    definite: {
-      "definite:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
-      "definite:def": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-      "definite:ind": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
-    },
-  },
-].reduce((acc, obj) => {
-  Object.values(obj)
-    .map(Object.entries)
-    .flat()
-    .map(([slug, tag]) => {
-      acc.push({ slug, ...tag });
-    });
-  return acc;
-}, []);
+import completables from "./tags/completables.js";
+import learnables from "./tags/learnables.js";
+import lemmas from "./tags/lemmas.js";
+import structural from "./tags/structural.js";
+
+export default [...completables, ...learnables, ...lemmas, ...structural];

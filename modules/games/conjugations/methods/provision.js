@@ -1,5 +1,4 @@
 import Mustache from "mustache";
-import fs from "node:fs";
 
 export default async function provision(inputs, ctx) {
   const { tags, mask, blacklist, scope } = inputs;

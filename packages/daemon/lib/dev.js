@@ -1,38 +1,41 @@
 import createMemoryProfiler from "./memory-profiler.js";
-const QUERY = {
-  tagIds: ["9fd9e512-24f2-4400-a555-e9bd25982320", "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"],
-  blacklist: { units: [], tags: [], queue: [] },
-  scope: {
-    user: { id: "localhost" },
-    runtime: { id: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
-    dependency: { id: "ddbf4c0f-a059-46da-aa76-d1b450ba7ef1" },
-    game: { id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a" },
-    tactic: { id: "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
-  },
-  take: 1,
-};
+// const QUERY = {tagIds: ["9fd9e512-24f2-4400-a555-e9bd25982320", "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"], blacklist: { units: [], tags: [], queue: [] }, scope: {game: { id: "877e1133-477a-4739-9eea-f74676381fb8" }, user: { id: "localhost" }, tactic: { id: "1a7ea88f-5c65-4f06-be53-e68b59da3359" }, runtime: { id: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" }, dependency: { id: "ddbf4c0f-a059-46da-aa76-d1b450ba7ef1" }, unit: { id: "043a851a-45f0-4fd4-b45c-cbfce8d66d17" }, memory: { id: "71271861-1685-4755-8982-15854c5f0e5d" },}, take: 1,};
 export default async function dev(daemon) {
   console.json = (value) => console.log(JSON.stringify(value, null, 2));
-  const runtime = daemon.runtimes.values().next().value;
+  // const runtime = daemon.runtimes.values().next().value;
 
   // const [unit] = await runtime.call("/pick/units/pending", QUERY);
   // console.json(unit);
 
-  // let { data } = await runtime.services.supabase
+  // let { data, error } = await runtime.services.supabase
   //   .from("Play")
-  //   // .select(`id, updatedAt, signal, nextAt, lastAt, nextIn `)
   //   .select(`*`)
   //   .eq("userId", "localhost")
   //   .eq("tacticId", QUERY.scope.tactic.id)
   //   .eq("gameId", QUERY.scope.game.id)
-  //   .eq("tagId", null);
-  // // .eq("unitId", unit.id);
+  //   .filter("tagId", "is", null)
+  //   .eq("unitId", unit.id);
 
   // data.forEach((play) => {
   //   delete play.history;
   // });
 
   // console.json({ plays: data, count: data.length });
+  // const play = data[0]; // lastAt: "2024-12-13T22:17:22.793", nextAt: "2024-12-14T06:25:08.314",/
+
+  // const nextAt = new Date(play.nextAt);
+  // const now = new Date();
+
+  // const formatDate = (date) => {
+  //   return date.toISOString().replace("T", " ").substring(0, 19);
+  // };
+
+  // console.log("Next at: ", formatDate(nextAt)); // "2024-12-14 06:25:08"
+  // console.log("Now:     ", formatDate(now)); // "2024-12-13 22:17:22"
+
+  // if (nextAt > now) {
+  //   console.error(`Invalid timing: nextAt (${play.nextAt}) is in the future`);
+  // }
 
   // let { data: queue } = await runtime.services.supabase.from("Queue").select(`*`);
   // for (const item of queue) {

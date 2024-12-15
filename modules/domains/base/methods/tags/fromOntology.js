@@ -17,7 +17,7 @@
 export default async function (body, ctx) {
   const { leaf, branch, take, blacklist } = body;
 
-  let query = ctx.runtime.locals.supabase
+  let query = ctx.runtime.services.supabase
     .from("Tag")
     .select("id, data, name, description, slug, traits, runtimeId")
     .eq("runtimeId", ctx.runtime.manifest.id);
