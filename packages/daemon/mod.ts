@@ -10,7 +10,7 @@ import dev from "./lib/dev.js";
 
 import { Daemon } from "../../types/types.d.ts";
 import aperture from "./aperture/index.js";
-import runtimes from "./runtimes/index.js";
+import runtimes from "./runtimes/index.ts";
 import server from "./server/index.js";
 
 const ticker = (name: string) => (daemon: Daemon) => {

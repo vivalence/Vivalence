@@ -34,6 +34,7 @@
     "npm:@sveltejs/vite-plugin-svelte@4.0.0": "4.0.0_svelte@5.1.9__acorn@8.14.0_vite@5.4.10",
     "npm:@tailwindcss/typography@0.5.15": "0.5.15_tailwindcss@3.4.14__postcss@8.4.47",
     "npm:@threejs-kit/instanced-sprite-mesh@2.4.6": "2.4.6_three@0.169.0_three-instanced-uniforms-mesh@0.49.1__three@0.169.0",
+    "npm:@types/node@*": "22.5.4",
     "npm:ajv-errors@3.0.0": "3.0.0_ajv@8.17.1",
     "npm:ajv@8.17.1": "8.17.1",
     "npm:autoprefixer@10.4.20": "10.4.20_postcss@8.4.47",
@@ -58,6 +59,7 @@
     "npm:prisma@*": "5.21.1",
     "npm:svelte-emoji@1.0.2": "1.0.2",
     "npm:svelte@5.1.9": "5.1.9_acorn@8.14.0",
+    "npm:svelte@5.2.2": "5.2.2_acorn@8.14.0",
     "npm:tailwindcss@3.4.14": "3.4.14_postcss@8.4.47",
     "npm:three-mesh-bvh@0.7.1": "0.7.1_three@0.169.0",
     "npm:three-perf@1.0.10": "1.0.10_three@0.169.0",
@@ -603,7 +605,7 @@
         "sade",
         "set-cookie-parser",
         "sirv",
-        "svelte",
+        "svelte@5.1.9_acorn@8.14.0",
         "tiny-glob",
         "vite"
       ]
@@ -613,7 +615,7 @@
       "dependencies": [
         "@sveltejs/vite-plugin-svelte",
         "debug",
-        "svelte",
+        "svelte@5.1.9_acorn@8.14.0",
         "vite"
       ]
     },
@@ -625,7 +627,7 @@
         "deepmerge",
         "kleur",
         "magic-string",
-        "svelte",
+        "svelte@5.1.9_acorn@8.14.0",
         "vite",
         "vitefu"
       ]
@@ -1113,7 +1115,7 @@
       "dependencies": [
         "@jridgewell/trace-mapping",
         "esbuild@0.24.0",
-        "svelte"
+        "svelte@5.1.9_acorn@8.14.0"
       ]
     },
     "esbuild@0.21.5": {
@@ -1333,6 +1335,12 @@
     },
     "is-reference@3.0.2": {
       "integrity": "sha512-v3rht/LgVcsdZa3O2Nqs+NMowLOxeOm7Ay9+/ARQ2F+qEoANRcqrjAZKGN0v8ymUetZGgkp26LTnGT7H0Qo9Pg==",
+      "dependencies": [
+        "@types/estree"
+      ]
+    },
+    "is-reference@3.0.3": {
+      "integrity": "sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==",
       "dependencies": [
         "@types/estree"
       ]
@@ -1822,7 +1830,25 @@
         "axobject-query",
         "esm-env",
         "esrap",
-        "is-reference",
+        "is-reference@3.0.2",
+        "locate-character",
+        "magic-string",
+        "zimmerframe"
+      ]
+    },
+    "svelte@5.2.2_acorn@8.14.0": {
+      "integrity": "sha512-eHIJRcvA6iuXdRGMESTmBtWTQCcCiol4gyH9DA60ybS35W1x27cvtbndNvWDqX72blyf+AYeQ4gzZ0XGg3L8sw==",
+      "dependencies": [
+        "@ampproject/remapping",
+        "@jridgewell/sourcemap-codec",
+        "@types/estree",
+        "acorn",
+        "acorn-typescript",
+        "aria-query",
+        "axobject-query",
+        "esm-env",
+        "esrap",
+        "is-reference@3.0.3",
         "locate-character",
         "magic-string",
         "zimmerframe"

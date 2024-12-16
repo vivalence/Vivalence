@@ -1,8 +1,11 @@
 import { strings } from "@vivalence/shared";
-import { Manifest, Module, Runtime } from "../../../../types/types.d.ts";
+import { Manifest, Module, ModuleInstaller, RuntimeInstaller } from "../../../../types/types.d.ts";
 const select = "id, slug, version, installed, name";
 
-export default async function registerModuleManifest(runtime: Runtime, Module: Module) {
+export default async function registerModuleManifest(
+  runtime: RuntimeInstaller,
+  Module: ModuleInstaller,
+) {
   // const user = await runtime.services.identity.getUser();
 
   let manifest = await findModule(runtime, Module);
@@ -20,8 +23,8 @@ export default async function registerModuleManifest(runtime: Runtime, Module: M
   return manifest;
 }
 
-async function findModule(runtime: Runtime, Module: Module) {
-  if (!runtime.Services.supabase) return;
+async function findModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
+  if (!runtime.Services?.supabase) return;
 
   let query = runtime.Services.supabase
     .from(strings.capitalize(Module.manifest.type))
@@ -41,7 +44,7 @@ async function findModule(runtime: Runtime, Module: Module) {
   return data as Manifest;
 }
 
-async function createModule(runtime: Runtime, Module: Module) {
+async function createModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
   if (!runtime.Services.supabase) return;
 
   let insert: Record<string, unknown> = {
@@ -72,8 +75,8 @@ async function createModule(runtime: Runtime, Module: Module) {
   return data as Manifest;
 }
 
-async function updateModule(runtime: Runtime, Module: Module, manifest: Manifest) {
-  if (!runtime.Services.supabase) return;
+async function updateModule(runtime: RuntimeInstaller, Module: Module, manifest: Manifest) {
+  if (!runtime.Services?.supabase) return;
 
   let update: Record<string, unknown> = {
     slug: Module.manifest.slug,
@@ -89,13 +92,13 @@ async function updateModule(runtime: Runtime, Module: Module, manifest: Manifest
     update = { ...update, ...Module.data };
   }
 
-  const query = runtime.Services.supabase
-    .from(strings.capitalize(Module.manifest.type))
-    .update(update)
-    .eq("id", manifest.id)
-    .select(select);
+  const query = runtime.Services?.supabase
+    ?.from?.(strings.capitalize(Module.manifest.type))
+    ?.update(update)
+    ?.eq("id", manifest.id)
+    ?.select(select);
 
-  const { data, error } = await query.single();
+  const { data, error } = await query?.single();
 
   if (error) {
     console.error("[updateManifestError]");

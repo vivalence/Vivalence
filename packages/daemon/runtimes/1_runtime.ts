@@ -1,22 +1,30 @@
-import executionMiddleware from "./lib/executionMiddleware.ts";
-// import registerManifest from "./lib/registerManifest.js";
-import { Daemon, RouterWithExtensions, Runtime } from "../../../types/types.d.ts";
+import {
+  Daemon,
+  Module,
+  RouterWithExtensions,
+  Runtime,
+  UnknownObject,
+} from "../../../types/types.d.ts";
 import createEmitter from "../emitter/create.js";
 import createRouter from "../server/router/create.js";
+import executionMiddleware from "./lib/executionMiddleware.ts";
 
 export default function (daemon: Daemon) {
-  for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
+  for (const [key, runtime] of daemon.runtimes.entries()) {
     try {
-      const { modules, Services } = runtime.Module;
-      runtime.statics = runtime.Module.statics ?? {};
+      const { modules, Services, statics } = runtime.Module ?? {};
+      runtime.statics = statics;
 
       if (modules) {
         const { Ontology, Corpora } = modules;
-        const corporaArray = Corpora;
+        const corporaArray = Corpora ?? [];
+
+        // Required for TS to infer types. Check if reflects the logic
+        const modulesArray = [Ontology, ...corporaArray] as Module[];
 
         runtime.schema = {};
-        runtime.schema = [Ontology, ...corporaArray].reduce(
-          (s, { schema = (s: Record<string, unknown>) => s }) =>
+        runtime.schema = modulesArray.reduce(
+          (s, { schema = (s: UnknownObject) => s }) =>
             typeof schema === "function" ? schema(s) ?? s : s,
           runtime.schema,
         );
@@ -24,21 +32,31 @@ export default function (daemon: Daemon) {
 
       if (Services) {
         runtime.services = Object.keys(Services).reduce(
-          (acc, slug) => ({ ...acc, [slug]: Services[slug].client?.(runtime) }),
+          (acc, slug) => {
+            if (typeof Services[slug]?.client === "function") {
+              return {
+                ...acc,
+                [slug]: Services[slug].client(runtime),
+              };
+            }
+
+            return acc;
+          },
           { ...daemon.services },
         );
       }
 
       runtime.locals = {
         // TODO: type better
-        validate: runtime.schema.validate as () => unknown,
+        validate: runtime.schema?.validate as () => unknown,
       };
 
       runtime.router = createRouter() as RouterWithExtensions;
       runtime.bus = createEmitter();
 
-      executionMiddleware(runtime, daemon);
-
+      // Also currently the best solution to switch from
+      // one context to another
+      executionMiddleware(runtime as Runtime, daemon);
       daemon.runtimes.set(key, runtime);
     } catch (e) {
       console.error("[runtime build error]", e);

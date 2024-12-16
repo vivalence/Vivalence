@@ -2,38 +2,29 @@ import { walk } from "$std/fs/mod.ts";
 import { deepClone } from "@vivalence/shared";
 import path from "node:path";
 import config from "../../../config/src/mod.ts";
-import { Daemon, Module, Runtime, Service } from "../../../types/types.d.ts";
+import {
+  Daemon,
+  Module,
+  RuntimeDescription,
+  RuntimeInstaller,
+  Service,
+} from "../../../types/types.d.ts";
 
-type RuntimeManifestKeys = keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics">;
-type RuntimeManifest = Record<RuntimeManifestKeys, Record<string, unknown>> & {
-  default?: RuntimeManifest;
-};
-type DeepPartial<T> = T extends object
-  ? {
-      [P in keyof T]?: DeepPartial<T[P]>;
-    }
-  : T;
-export type RuntimeInstaller = DeepPartial<Runtime>;
-
-const installModule = async (
-  daemon: Daemon,
-  moduleDescriptor: unknown,
-): Promise<Module | undefined> => {
-  if (!daemon.registry) return;
-  if (typeof moduleDescriptor !== "string") return;
+const discoverModule = async (daemon: Daemon, moduleDescriptor: unknown): Promise<Module> => {
+  if (!daemon.registry) throw new Error("Registry is not initialized");
+  if (typeof moduleDescriptor !== "string") throw new Error("Module descriptor is not a string");
 
   return await daemon.registry.load<Module>(moduleDescriptor);
 };
 
-const installModules = async (daemon: Daemon, moduleDescriptors: unknown): Promise<Module[]> => {
+const discoverModules = async (daemon: Daemon, moduleDescriptors: unknown): Promise<Module[]> => {
   if (!Array.isArray(moduleDescriptors)) return [];
 
   const modules = await Promise.all(
-    moduleDescriptors.map((moduleDescriptor) => installModule(daemon, moduleDescriptor)),
+    moduleDescriptors.map((moduleDescriptor) => discoverModule(daemon, moduleDescriptor)),
   );
 
-  // TODO: simplify
-  return modules.filter((module) => typeof module !== "undefined");
+  return modules.filter((module) => module);
 };
 
 export default async function discover(daemon: Daemon) {
@@ -50,66 +41,65 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime = deepClone(await import(entry.path)) as RuntimeManifest;
+      let RuntimeDescription = deepClone(await import(entry.path)) as RuntimeDescription;
 
-      if (Runtime.default) Runtime = Runtime.default;
-      if (!Runtime?.manifest) throw new Error(`Invalid module structure at ${path}`);
-      if (Runtime.manifest.type !== "runtime") continue;
+      if (RuntimeDescription.default) RuntimeDescription = RuntimeDescription.default;
+      if (!RuntimeDescription?.manifest) throw new Error(`Invalid module structure at ${path}`);
+      if (RuntimeDescription.manifest.type !== "runtime") continue;
 
-      const RuntimeContainer: RuntimeInstaller = ensure(Runtime);
+      const RuntimeInstaller: RuntimeInstaller = ensure(RuntimeDescription);
 
       if (!daemon.registry) continue;
 
       // Creating and registering services
-      RuntimeContainer.Services = {};
-      for await (const [slug, service] of Object.entries(Runtime.services)) {
-        RuntimeContainer.Services[slug] = await daemon.registry.load<Service>(service as string);
+      RuntimeInstaller.Services = {};
+      for await (const [slug, service] of Object.entries(RuntimeDescription.services)) {
+        if (typeof service !== "string") continue;
+        RuntimeInstaller.Services[slug] = await daemon.registry.load<Service>(service);
       }
 
       // Creating and registering modules
-      RuntimeContainer.modules = {};
-      RuntimeContainer.modules.Domain = await installModule(daemon, Runtime.modules.domain);
-      RuntimeContainer.modules.Ontology = await installModule(daemon, Runtime.modules.ontology);
-      RuntimeContainer.modules.Corpora = await installModules(daemon, Runtime.modules.corpora);
-      RuntimeContainer.modules.Strategies = await installModules(
-        daemon,
-        Runtime.modules.strategies,
-      );
-      RuntimeContainer.modules.Games = [];
-      RuntimeContainer.modules.Tactics = [];
+      RuntimeInstaller.modules = {
+        Domain: await discoverModule(daemon, RuntimeDescription.modules.domain),
+        Ontology: await discoverModule(daemon, RuntimeDescription.modules.ontology),
+        Corpora: await discoverModules(daemon, RuntimeDescription.modules.corpora),
+        Games: [],
+        Tactics: [],
+        Strategies: await discoverModules(daemon, RuntimeDescription.modules.strategies),
+      };
 
       // TODO: null-checks
-      if (Array.isArray(Runtime.modules.Corpora)) {
+      if (Array.isArray(RuntimeDescription.modules.Corpora)) {
         await Promise.all(
-          Runtime.modules.Corpora?.map(async (Corpus) => {
-            if (!daemon.registry) return Promise.resolve();
+          RuntimeDescription.modules.Corpora?.map(async (Corpus) => {
+            if (!daemon.registry) throw new Error("Registry is not initialized");
 
             const games = await daemon.registry.loadMany<Module>(Corpus.modules.games);
-            RuntimeContainer.modules?.Games?.push(...games);
+            RuntimeInstaller.modules?.Games?.push(...games);
 
             const tactics = await daemon.registry.loadMany<Module>(Corpus.modules.tactics);
-            RuntimeContainer.modules?.Tactics?.push(...tactics);
+            RuntimeInstaller.modules?.Tactics?.push(...tactics);
 
             const strategies = await daemon.registry.loadMany<Module>(Corpus.modules.strategies);
-            RuntimeContainer.modules?.Strategies?.push(...strategies);
+            RuntimeInstaller.modules?.Strategies?.push(...strategies);
           }),
         );
       }
 
       // TODO: fix casting
-      RuntimeContainer.modules.Corpora = uniqueBySlug(RuntimeContainer.modules.Corpora as Module[]);
-      RuntimeContainer.modules.Games = uniqueBySlug(RuntimeContainer.modules.Games as Module[]);
-      RuntimeContainer.modules.Tactics = uniqueBySlug(RuntimeContainer.modules.Tactics as Module[]);
-      RuntimeContainer.modules.Strategies = uniqueBySlug(
-        RuntimeContainer.modules.Strategies as Module[],
+      RuntimeInstaller.modules.Corpora = uniqueBySlug(RuntimeInstaller.modules.Corpora as Module[]);
+      RuntimeInstaller.modules.Games = uniqueBySlug(RuntimeInstaller.modules.Games as Module[]);
+      RuntimeInstaller.modules.Tactics = uniqueBySlug(RuntimeInstaller.modules.Tactics as Module[]);
+      RuntimeInstaller.modules.Strategies = uniqueBySlug(
+        RuntimeInstaller.modules.Strategies as Module[],
       );
 
-      Runtime = validate(Runtime);
+      RuntimeDescription = validate(RuntimeDescription);
 
-      const { slug, version } = Runtime.manifest;
+      const { slug, version } = RuntimeDescription.manifest;
 
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
-      const runtime = { ["#symbol"]: symbol, Module: RuntimeContainer };
+      const runtime = { ["#symbol"]: symbol, Module: RuntimeInstaller };
 
       daemon.runtimes.set(symbol, runtime);
     } catch (error: unknown) {
@@ -122,19 +112,23 @@ export default async function discover(daemon: Daemon) {
   return daemon;
 }
 
-const ensure = (Runtime: RuntimeManifest): RuntimeInstaller => {
-  if (!Runtime.modules.domain) throw new Error(`Runtime module missing domain module`);
-  if (!Runtime.modules.ontology) throw new Error(`Runtime module missing ontology module`);
-  if (!Runtime.modules.corpora) throw new Error(`Runtime module missing corpora modules`);
+const ensure = (RuntimeDescription: RuntimeDescription) => {
+  if (!RuntimeDescription.modules.domain) throw new Error(`Runtime module missing domain module`);
+  if (!RuntimeDescription.modules.ontology)
+    throw new Error(`Runtime module missing ontology module`);
+  if (!RuntimeDescription.modules.corpora)
+    throw new Error(`Runtime module missing corpora modules`);
 
-  if (!Runtime.modules.strategies) Runtime.modules.strategies = [];
-  if (!Runtime.modules.games) Runtime.modules.games = [];
-  if (!Runtime.modules.tactics) Runtime.modules.tactics = [];
+  if (!RuntimeDescription.modules.strategies) RuntimeDescription.modules.strategies = [];
+  if (!RuntimeDescription.modules.games) RuntimeDescription.modules.games = [];
+  if (!RuntimeDescription.modules.tactics) RuntimeDescription.modules.tactics = [];
 
-  return Runtime as unknown as RuntimeInstaller;
+  // This one here is meant to deal with some magic again
+  // for the sake of thelling polimorphic types apart
+  return RuntimeDescription as RuntimeInstaller;
 };
 
-const validate = (Runtime: RuntimeManifest) => {
+const validate = (Runtime: RuntimeDescription) => {
   // More validation
 
   return Runtime;
