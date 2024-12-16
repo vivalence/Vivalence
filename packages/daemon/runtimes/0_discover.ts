@@ -3,10 +3,38 @@ import { deepClone } from "@vivalence/shared";
 import path from "node:path";
 import config from "../../../config/src/mod.ts";
 import { Daemon, Module, Runtime, Service } from "../../../types/types.d.ts";
-type Key = Record<
-  keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics" | "default" | "Services">,
-  Record<string, unknown>
->;
+
+type RuntimeManifestKeys = keyof Pick<Runtime, "modules" | "services" | "manifest" | "statics">;
+type RuntimeManifest = Record<RuntimeManifestKeys, Record<string, unknown>> & {
+  default?: RuntimeManifest;
+};
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;
+export type RuntimeInstaller = DeepPartial<Runtime>;
+
+const installModule = async (
+  daemon: Daemon,
+  moduleDescriptor: unknown,
+): Promise<Module | undefined> => {
+  if (!daemon.registry) return;
+  if (typeof moduleDescriptor !== "string") return;
+
+  return await daemon.registry.load<Module>(moduleDescriptor);
+};
+
+const installModules = async (daemon: Daemon, moduleDescriptors: unknown): Promise<Module[]> => {
+  if (!Array.isArray(moduleDescriptors)) return [];
+
+  const modules = await Promise.all(
+    moduleDescriptors.map((moduleDescriptor) => installModule(daemon, moduleDescriptor)),
+  );
+
+  // TODO: simplify
+  return modules.filter((module) => typeof module !== "undefined");
+};
 
 export default async function discover(daemon: Daemon) {
   const entries = [];
@@ -22,69 +50,71 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let Runtime = deepClone(await import(entry.path));
+      let Runtime = deepClone(await import(entry.path)) as RuntimeManifest;
 
       if (Runtime.default) Runtime = Runtime.default;
       if (!Runtime?.manifest) throw new Error(`Invalid module structure at ${path}`);
       if (Runtime.manifest.type !== "runtime") continue;
 
-      Runtime = ensure(Runtime);
-
-      Runtime.Services = {};
+      const RuntimeContainer: RuntimeInstaller = ensure(Runtime);
 
       if (!daemon.registry) continue;
 
+      // Creating and registering services
+      RuntimeContainer.Services = {};
       for await (const [slug, service] of Object.entries(Runtime.services)) {
-        Runtime.Services[slug] = await daemon.registry.load<Service>(service as string);
+        RuntimeContainer.Services[slug] = await daemon.registry.load<Service>(service as string);
       }
 
-      Runtime.modules.Domain = await daemon.registry.load<Module>(Runtime.modules.domain);
-      Runtime.modules.Ontology = await daemon.registry.load<Module>(Runtime.modules.ontology);
-      Runtime.modules.Corpora = await daemon.registry.loadMany<Module>(Runtime.modules.corpora);
-      Runtime.modules.Games = [];
-      Runtime.modules.Tactics = [];
-      Runtime.modules.Strategies = await daemon.registry.loadMany<Module>(
+      // Creating and registering modules
+      RuntimeContainer.modules = {};
+      RuntimeContainer.modules.Domain = await installModule(daemon, Runtime.modules.domain);
+      RuntimeContainer.modules.Ontology = await installModule(daemon, Runtime.modules.ontology);
+      RuntimeContainer.modules.Corpora = await installModules(daemon, Runtime.modules.corpora);
+      RuntimeContainer.modules.Strategies = await installModules(
+        daemon,
         Runtime.modules.strategies,
       );
+      RuntimeContainer.modules.Games = [];
+      RuntimeContainer.modules.Tactics = [];
 
-      await Promise.all(
-        Runtime.modules.Corpora.map(async (Corpus: Key) => {
-          if (!daemon.registry || !Corpus?.manifest) return;
+      // TODO: null-checks
+      if (Array.isArray(Runtime.modules.Corpora)) {
+        await Promise.all(
+          Runtime.modules.Corpora?.map(async (Corpus) => {
+            if (!daemon.registry) return Promise.resolve();
 
-          if (!Array.isArray(Runtime.modules.Games)) return;
-          const games = await daemon.registry.loadMany<Module>(Corpus.modules.games as string[]);
-          Runtime.modules.Games.push(...games);
+            const games = await daemon.registry.loadMany<Module>(Corpus.modules.games);
+            RuntimeContainer.modules?.Games?.push(...games);
 
-          if (!Array.isArray(Runtime.modules.Tactics)) return;
-          const tactics = await daemon.registry.loadMany<Module>(
-            Corpus.modules.tactics as string[],
-          );
-          Runtime.modules.Tactics.push(...tactics);
+            const tactics = await daemon.registry.loadMany<Module>(Corpus.modules.tactics);
+            RuntimeContainer.modules?.Tactics?.push(...tactics);
 
-          if (!Array.isArray(Runtime.modules.Strategies)) return;
-          const strategies = await daemon.registry.loadMany<Module>(
-            Corpus.modules.strategies as string[],
-          );
-          Runtime.modules.Strategies.push(...strategies);
-        }),
+            const strategies = await daemon.registry.loadMany<Module>(Corpus.modules.strategies);
+            RuntimeContainer.modules?.Strategies?.push(...strategies);
+          }),
+        );
+      }
+
+      // TODO: fix casting
+      RuntimeContainer.modules.Corpora = uniqueBySlug(RuntimeContainer.modules.Corpora as Module[]);
+      RuntimeContainer.modules.Games = uniqueBySlug(RuntimeContainer.modules.Games as Module[]);
+      RuntimeContainer.modules.Tactics = uniqueBySlug(RuntimeContainer.modules.Tactics as Module[]);
+      RuntimeContainer.modules.Strategies = uniqueBySlug(
+        RuntimeContainer.modules.Strategies as Module[],
       );
-
-      Runtime.modules.Corpora = uniqueBySlug(Runtime.modules.Corpora);
-      Runtime.modules.Games = uniqueBySlug(Runtime.modules.Games);
-      Runtime.modules.Tactics = uniqueBySlug(Runtime.modules.Tactics);
-      Runtime.modules.Strategies = uniqueBySlug(Runtime.modules.Strategies);
 
       Runtime = validate(Runtime);
 
       const { slug, version } = Runtime.manifest;
 
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
-      const runtime = { ["#symbol"]: symbol, Module: Runtime };
+      const runtime = { ["#symbol"]: symbol, Module: RuntimeContainer };
 
       daemon.runtimes.set(symbol, runtime);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Failed to import potential runtime module at ${entry.path}`);
-      console.error(`${error.message}`);
+      console.error(`${(error as Error).message}`);
       console.error(error);
     }
   }
@@ -92,7 +122,7 @@ export default async function discover(daemon: Daemon) {
   return daemon;
 }
 
-const ensure = (Runtime: Key) => {
+const ensure = (Runtime: RuntimeManifest): RuntimeInstaller => {
   if (!Runtime.modules.domain) throw new Error(`Runtime module missing domain module`);
   if (!Runtime.modules.ontology) throw new Error(`Runtime module missing ontology module`);
   if (!Runtime.modules.corpora) throw new Error(`Runtime module missing corpora modules`);
@@ -101,17 +131,19 @@ const ensure = (Runtime: Key) => {
   if (!Runtime.modules.games) Runtime.modules.games = [];
   if (!Runtime.modules.tactics) Runtime.modules.tactics = [];
 
-  return Runtime;
+  return Runtime as unknown as RuntimeInstaller;
 };
 
-const validate = (Runtime: Runtime) => {
+const validate = (Runtime: RuntimeManifest) => {
   // More validation
 
   return Runtime;
 };
 
-const uniqueBySlug = (arr: Module[]) => {
+const uniqueBySlug = (arr?: Module[]) => {
   const seen = new Set();
+
+  if (!arr) return [];
 
   return arr.flat().filter((item) => {
     const val = item?.manifest?.slug;
