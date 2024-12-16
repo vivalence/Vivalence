@@ -1,28 +1,27 @@
-import { defineConfig } from "vite";
-import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { fromFileUrl, dirname, join } from "$std/path/mod.ts";
+import { defineConfig } from "vite";
 
 // https://github.com/bluwy/create-vite-extra/tree/master/template-deno-svelte/src
-import "svelte";
-import "@sveltejs/kit";
-import "@sveltejs/vite-plugin-svelte";
-import "postcss";
-import "tailwindcss";
-import "autoprefixer";
-import "@tailwindcss/typography";
 import "@supabase/ssr";
 import "@supabase/supabase-js";
+import "@sveltejs/kit";
+import "@sveltejs/vite-plugin-svelte";
+import "@tailwindcss/typography";
+import "autoprefixer";
+import "postcss";
+import "svelte";
+import "tailwindcss";
 
-import "three";
-import "troika-three-text";
+import "@dimforge/rapier2d-compat";
+import "@dimforge/rapier3d-compat";
 import "@threejs-kit/instanced-sprite-mesh";
+import "mitt";
+import "three";
 import "three-mesh-bvh";
 import "three-perf";
-import "@dimforge/rapier3d-compat";
-import "@dimforge/rapier2d-compat";
-import "mitt";
 import "tinykeys";
+import "troika-three-text";
 
 const root = dirname(fromFileUrl(import.meta.url));
 

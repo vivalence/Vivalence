@@ -17,4 +17,5 @@ module.exports = {
   ],
 
   overrides: [{ files: "*.svelte", options: { parser: "svelte" } }],
+  arrowParens: "always",
 };

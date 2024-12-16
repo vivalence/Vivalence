@@ -1,25 +1,31 @@
-import { Daemon, Module, Runtime } from "../../../types/types.d.ts";
+import { Daemon, Module, RuntimeInstaller } from "../../../types/types.d.ts";
 import registerManifest from "./lib/registerManifest.ts";
 
-const registerModule = async (runtime: Runtime, Module: Module) => {
+const registerModule = async (runtime: RuntimeInstaller, Module: Module) => {
+  const newManifest = await registerManifest(runtime, Module);
+
   Module.manifest = {
     ...Module.manifest,
-    ...(await registerManifest(runtime, Module)),
+    ...newManifest,
   };
 
-  return Module;
+  // Also change of context
+  return Module as Module;
 };
 
-const registerModules = (runtime: Runtime, Modules: Module[]) =>
+const registerModules = (runtime: RuntimeInstaller, Modules: Module[]) =>
   Promise.all(Modules.map((Module) => registerModule(runtime, Module)));
 
+const isSafe = (Module: Module) => Module?.manifest?.type === "runtime";
+
 export default async function (daemon: Daemon) {
-  for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
+  for (const [key, runtime] of daemon.runtimes.entries()) {
+    // Should not happen, only for safety
+    if (!runtime.Module?.modules) continue;
+
     try {
       runtime.Module = await registerModule(runtime, runtime.Module);
-      runtime.Module.manifest && (runtime.manifest = runtime.Module.manifest);
-
-      if (!runtime.Module.modules) continue;
+      runtime.manifest = runtime.Module?.manifest;
 
       const [Domain, Ontology, Corpora, Games, Tactics, Strategies] = await Promise.all([
         registerModule(runtime, runtime.Module.modules.Domain),

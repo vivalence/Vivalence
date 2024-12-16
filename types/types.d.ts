@@ -1,3 +1,20 @@
+import type { DeepWritable } from "ts-essentials";
+export type Entries<T> = [keyof T, any][];
+export type RuntimeManifestKeys = keyof Pick<
+  Runtime,
+  "modules" | "services" | "manifest" | "statics"
+>;
+export type RuntimeDescription = Record<RuntimeManifestKeys, Record<string, unknown>> & {
+  default?: RuntimeDescription;
+};
+export type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>;
+    }
+  : T;
+export type RuntimeInstaller = DeepWritable<Runtime>;
+export type ModuleInstaller = DeepPartial<Module>;
+
 /**
  * Type definitions for Daemon server
  * @package @vivalence/daemon
@@ -22,8 +39,9 @@ export type UserRole = "ADMIN" | "USER" | "GUEST";
 // Core Types
 // DAEMON
 export interface Daemon {
-  runtimes: Map<symbol, Pick<Runtime, "#symbol">>;
-  router: RouterWithExtensions;
+  aperture: Aperture | null;
+  runtimes: Map<symbol, RuntimeInstaller>;
+  router: RouterWithExtensions | null;
   registry: Registry | null;
   server: any; // Oak server instance
   services: Services;
@@ -38,8 +56,8 @@ export type Services = Record<string, Service> & {
 };
 export type Runtime = {
   // clean
-  Services: Services;
-  services: Services;
+  Services?: Services;
+  services?: Record<string, string | string[]>;
   schema: Record<string, unknown>;
   router: RouterWithExtensions;
   bus: EventBus;
@@ -54,22 +72,6 @@ export type Runtime = {
   modules: Modules;
   Module: Module;
 } & Modules;
-
-export interface Modules {
-  domain: ModuleRuntime;
-  ontology: ModuleRuntime;
-  corpora: ModuleRuntime[];
-  games: ModuleRuntime[];
-  tactics: ModuleRuntime[];
-  strategies: ModuleRuntime[];
-
-  Domain: Module;
-  Ontology: Module;
-  Corpora: Module[];
-  Games: Module[];
-  Tactics: Module[];
-  Strategies: Module[];
-}
 
 // SERVICE
 export interface Service<C = any, S = any> {
@@ -93,35 +95,37 @@ export interface RuntimeLocals {
   getUser?: () => Promise<User>;
 }
 
+type UnknownObject = Record<string, unknown>;
 export interface Module {
   manifest: Manifest;
   Module: Module;
   router: RouterWithExtensions;
   bus: EventBus;
-  statics: Record<string, any>;
+  statics: UnknownObject;
   bundle: string;
   curriculum: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
   evaluate: RouteHandler;
   install: InstallFunction;
   provision: RouteHandler;
   boot: BootFunction;
-  schema: {};
+  schema: UnknownObject | ((schema: UnknownObject) => UnknownObject);
   default?: Module;
-  data?: Record<string, any>;
+  data?: UnknownObject;
 
   modules: Modules;
-  services: Record<string, string | string[]>;
+  services?: Record<string, string | string[]>;
   Services?: Services;
+  locals?: RuntimeLocals;
 }
 
 type ModuleRuntime = Pick<Runtime, "router" | "bus" | "manifest" | "Module">;
 export interface Modules {
-  domain: ModuleRuntime;
-  ontology: ModuleRuntime;
-  corpora: ModuleRuntime[];
-  games: ModuleRuntime[];
-  tactics: ModuleRuntime[];
-  strategies: ModuleRuntime[];
+  domain?: ModuleRuntime;
+  ontology?: ModuleRuntime;
+  corpora?: ModuleRuntime[];
+  games?: ModuleRuntime[];
+  tactics?: ModuleRuntime[];
+  strategies?: ModuleRuntime[];
 
   Domain: Module;
   Ontology: Module;
