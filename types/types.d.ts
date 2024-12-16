@@ -22,7 +22,7 @@ export type UserRole = "ADMIN" | "USER" | "GUEST";
 // Core Types
 // DAEMON
 export interface Daemon {
-  runtimes: Map<symbol, Pick<Runtime, "#symbol" | "Module">>;
+  runtimes: Map<symbol, Pick<Runtime, "#symbol">>;
   router: RouterWithExtensions;
   registry: Registry | null;
   server: any; // Oak server instance
@@ -45,11 +45,31 @@ export type Runtime = {
   bus: EventBus;
   call: CallFunction;
 
+  statics: Record<string, any>;
+  manifest: Manifest;
   "#symbol": symbol;
   locals?: RuntimeLocals;
   default?: Runtime;
-} & Modules &
-  Module;
+
+  modules: Modules;
+  Module: Module;
+} & Modules;
+
+export interface Modules {
+  domain: ModuleRuntime;
+  ontology: ModuleRuntime;
+  corpora: ModuleRuntime[];
+  games: ModuleRuntime[];
+  tactics: ModuleRuntime[];
+  strategies: ModuleRuntime[];
+
+  Domain: Module;
+  Ontology: Module;
+  Corpora: Module[];
+  Games: Module[];
+  Tactics: Module[];
+  Strategies: Module[];
+}
 
 // SERVICE
 export interface Service<C = any, S = any> {
@@ -68,7 +88,7 @@ export interface ServiceManifest {
  * Runtime local dependencies and utilities
  */
 export interface RuntimeLocals {
-  validate?: Function;
+  validate?: () => unknown;
   _isLegacy?: boolean;
   getUser?: () => Promise<User>;
 }
