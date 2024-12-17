@@ -1,6 +1,6 @@
 import { blacklist as Blacklist, array } from "@vivalence/shared";
 
-const TRANSLATIONS_VOCAB_PROMPTSIZE = 3;
+const TRANSLATIONS_VOCAB_PROMPTSIZE = 4;
 
 export default async function provision(inputs, ctx) {
   const { tactic, scope } = inputs;
@@ -28,7 +28,6 @@ export default async function provision(inputs, ctx) {
   });
   instructions.push(...conceptFlashcard);
 
-  console.log("tactic", tactic);
   const nouns = await ctx.runtime.call("/pick/units/pending", {
     tagIds: [tags.vocabulary.id, tags.nouns.id, gender.id],
     blacklist,
@@ -44,14 +43,19 @@ export default async function provision(inputs, ctx) {
       take: tactic.masks.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
     });
   }
-  console.log("nouns.length, adjectives.length", nouns.length, adjectives.length);
 
   let translations = [];
   for (const vocabulary of array.chunk(nouns, TRANSLATIONS_VOCAB_PROMPTSIZE)) {
     if (adjectives.length > 0) {
       vocabulary.push(...adjectives.splice(0, TRANSLATIONS_VOCAB_PROMPTSIZE));
     }
-    const constraints = translationConstraints({ gender, number, definiteness, vocabulary });
+    const constraints = translationConstraints({
+      gender,
+      number,
+      definiteness,
+      vocabulary,
+      tactic,
+    });
     const translation = games.translations.call("/provision", { constraints });
     translations.push(translation);
   }
@@ -87,9 +91,10 @@ The concept should be explained clearly with examples that demonstrate all three
 
 Example output should test understanding of the correct article form for this combination.`;
 }
-function translationConstraints({ gender, number, definiteness, vocabulary }) {
+function translationConstraints({ gender, number, definiteness, vocabulary, tactic }) {
   return [
-    // ... tactic.mask.translations.prompt.constraints.
+    // i'd guess the arrays merge, which will result in contradicting constraints.
+    ...(tactic.masks.translations?.constraints ?? []),
     "Create a simple statement with an article given the following constraints:",
     `gender: ${gender.name}`,
     `number: ${number.name}`,

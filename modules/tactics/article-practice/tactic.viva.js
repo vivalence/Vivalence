@@ -5,7 +5,7 @@ const manifest = {
   name: "article morphology intro",
   description: "",
   slug: "article-practice",
-  version: "0.0.4",
+  version: "0.0.5",
 };
 
 const relations = {
@@ -45,8 +45,8 @@ Around 150 words or 2 paragraphs.
     },
   },
   translations: {
-    prompt: {
-      goal: `
+    constraints: [],
+    goal: `
 The user is practicing the usage of Articles in spanish.
 The article must agree and be demonstrated.
 Your task is to create a very very short and simple sentence, using specific vocabulary and following grammatical constraints.
@@ -61,12 +61,10 @@ You're given grammatical constraints for: definiteness, gender, and number.
 The sentence must be simple, because a A1 language learner will translate that sentence for practice.
 Important: the sentence must follow the provided grammar and vocabulary.
 
-Aim for 2 to 4 words for the sentence. Dont ever go longer than 4 words.
 Follow this simple template: '[article] [noun]'.
 
 No verbs.
 `,
-    },
   },
 };
 

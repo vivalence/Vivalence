@@ -5,7 +5,7 @@ export default async function (inputs, ctx) {
   const { scope, constraints, mask } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {
-    goal: mask.prompt.goal,
+    goal: mask.goal,
     constraints,
     language: ctx.runtime.statics.language,
   });

@@ -1084,4 +1084,25 @@ export default [
     slug: "polarity:neg",
     description: null,
   },
+  {
+    name: "Suffix -er",
+    data: { ONTOLOGICAL: { branch: "suffix", leaf: "er" } },
+    traits: ["ONTOLOGICAL"],
+    slug: "suffix:er",
+    description: null,
+  },
+  {
+    name: "Suffix -ir",
+    data: { ONTOLOGICAL: { branch: "suffix", leaf: "ir" } },
+    traits: ["ONTOLOGICAL"],
+    slug: "suffix:ir",
+    description: null,
+  },
+  {
+    name: "Suffix -ar",
+    data: { ONTOLOGICAL: { branch: "suffix", leaf: "ar" } },
+    traits: ["ONTOLOGICAL"],
+    slug: "suffix:ar",
+    description: null,
+  },
 ];

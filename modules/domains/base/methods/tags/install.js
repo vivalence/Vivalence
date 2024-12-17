@@ -1,3 +1,4 @@
+import config from "@vivalence/config";
 import { deepEquals, deepMerge, array } from "@vivalence/shared";
 
 // {"tag":{"name":"Numeral","data":{"ONTOLOGICAL":{"leaf":"num","branch":"pos"}},"traits":["ONTOLOGICAL"],"slug":"pos:num","description":null}}
@@ -43,7 +44,6 @@ function ensureMemory(tag) {
     tag.data.LEARNABLE.type = tag.data.LEARNABLE.type || "BAYESIAN";
     tag.data.LEARNABLE.flavor = tag.data.LEARNABLE.flavor || "INDIVIDUAL";
   } else if (tag.traits.includes("COMPLETABLE")) {
-    tag.data.COMPLETABLE.type = tag.data.COMPLETABLE.type || "BAYESIAN";
     tag.data.COMPLETABLE.flavor = tag.data.COMPLETABLE.flavor || "INDIVIDUAL";
   }
 
@@ -169,7 +169,7 @@ async function connectStructuralTagToUnits(tag, ctx) {
   if (error) throw error;
 
   const created = [];
-  for (const units of array.chunk(data, 30)) {
+  for (const units of array.chunk(data, config.env.get("INSTALL_CHUNK_SIZE"))) {
     for (const unit of units) {
       const create = ctx.runtime.services.supabase //
         .from("_TagToUnit")
@@ -177,6 +177,6 @@ async function connectStructuralTagToUnits(tag, ctx) {
       created.push(create);
     }
     await Promise.all(created);
-    console.log("create", created.length, "/", data.length);
+    console.log("tag install - structural relations created:", created.length, "/", data.length);
   }
 }

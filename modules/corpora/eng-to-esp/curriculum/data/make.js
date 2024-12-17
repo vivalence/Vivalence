@@ -1,5 +1,49 @@
-// import units from "./units.js";
+// // import units from "./units.js";
+// import aux from "./units/aux.js";
+// import verbs from "./units/verb.bak.js";
 // import fs from "node:fs";
+
+// function makeLemmas() {
+//   const lemmas = Array.from(new Set([...verbs, ...aux].map((verb) => verb.annotation.lemma))).map(
+//     (lemma) => ({
+//       name: `Lemma: ${lemma}`,
+//       slug: `lemma:${lemma}`,
+//       data: {
+//         ONTOLOGICAL: { branch: "lemma", leaf: lemma },
+//         COMPLETABLE: { flavor: "INDIVIDUAL" },
+//       },
+//       traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+//     }),
+//   );
+//   console.log(lemmas[0], lemmas.length);
+//   const currentDir = new URL(".", import.meta.url).pathname;
+//   const filePath = `${currentDir}/tags/lemmas.js`;
+//   fs.unlinkSync(filePath);
+//   fs.writeFileSync(filePath, `export default ${JSON.stringify(lemmas)};`);
+// }
+// makeLemmas();
+
+// function addSuffixAnnotation() {
+//   const vocabulary = [];
+//   for (const verb of verbs) {
+//     verb.annotation.suffix = verb.annotation.lemma.slice(-2);
+//     if (!["er", "ir", "ar"].includes(verb.annotation.suffix)) {
+//       verb.annotation.suffix = verb.annotation.suffix
+//         .normalize("NFD")
+//         .replace(/[\u0300-\u036f]/g, "");
+//     }
+//     if (["er", "ir", "ar"].includes(verb.annotation.suffix)) {
+//       vocabulary.push(verb);
+//     }
+//   }
+
+//   const currentDir = new URL(".", import.meta.url).pathname;
+//   // const filePath = `${currentDir}/units/aux.js`;
+//   const filePath = `${currentDir}/units/verb.js`;
+//   fs.unlinkSync(filePath);
+//   fs.writeFileSync(filePath, `export default ${JSON.stringify(vocabulary)};`);
+// }
+// addSuffixAnnotation();
 
 // function makeStructurals() {
 //   const vocabulary = units
@@ -30,26 +74,6 @@
 //   fs.writeFileSync(filePath, `export default ${JSON.stringify([tag])};`);
 // }
 // makeStructurals();
-
-// function makeLemmas() {
-//   const verbs = units
-//     .filter((unit) => ["verb", "adverb"].includes(unit.annotation.pos))
-//     .filter((unit) => unit.data.index < 400);
-//   const lemmas = Array.from(new Set(verbs.map((verb) => verb.annotation.lemma))).map((lemma) => ({
-//     name: `Lemma: ${lemma}`,
-//     slug: `lemma:${lemma}`,
-//     data: {
-//       ONTOLOGICAL: { branch: "lemma", leaf: lemma },
-//       COMPLETABLE: { type: "BAYESIAN", flavor: "INDIVIDUAL" },
-//     },
-//     traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
-//   }));
-//   console.log(lemmas[0], lemmas.length);
-//   const currentDir = new URL(".", import.meta.url).pathname;
-//   const filePath = `${currentDir}/tags/lemmas.js`;
-//   fs.unlinkSync(filePath);
-//   fs.writeFileSync(filePath, `export default ${JSON.stringify(lemmas)};`);
-// }
 
 // import units from "./units.bak.js";
 // import fs from "node:fs";

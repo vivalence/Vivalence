@@ -7,8 +7,6 @@ export default async function provision(inputs, ctx) {
   // 1. SELECT VERB TO PRACTICE
   const [verb] = await ctx.runtime.call("/pick/tags/byStrength", {
     tags: tags.target, // Verb lemmas
-    blacklist,
-    take: 1,
   });
 
   // Get required modifiers (tense, mood)

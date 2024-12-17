@@ -4,6 +4,14 @@ export default async function dev(daemon) {
   console.json = (value) => console.log(JSON.stringify(value, null, 2));
   // const runtime = daemon.runtimes.values().next().value;
 
+  // const data = await runtime.services.supabase
+  //   .from("Unit")
+  //   .select(`*, _TagToUnit(Tag(slug))`)
+  //   .eq("id", "b3053fef-3052-452b-a0e6-f1f9b12aca5a")
+  //   .single();
+
+  // console.json(data);
+
   // const [unit] = await runtime.call("/pick/units/pending", QUERY);
   // console.json(unit);
 

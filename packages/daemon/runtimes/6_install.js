@@ -1,3 +1,4 @@
+import config from "@vivalence/config";
 import { strings, array } from "@vivalence/shared";
 
 export default async function install(daemon) {
@@ -49,8 +50,7 @@ async function installCurriculum(runtime, module) {
   // const installations = await Promise.all(promises);
   const installations = [];
 
-  for (const chunk of array.chunk(promises, 20)) {
-    // for (const promise of chunk) {
+  for (const chunk of array.chunk(promises, config.env.get("INSTALL_CHUNK_SIZE"))) {
     await Promise.all(
       chunk.map(async (promise) => {
         try {
@@ -69,7 +69,7 @@ async function installCurriculum(runtime, module) {
       }),
     );
   }
-  console.log("installations ", installations.length, installations[0]);
+  console.log("installations ", installations.length);
 
   return installations.every(({ status }) => status === "success");
 }
