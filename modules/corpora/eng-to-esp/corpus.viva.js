@@ -8,12 +8,22 @@ const manifest = {
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
-  version: "0.0.1x",
+  version: "0.0.20",
 };
 
 const modules = {
-  games: ["@vivalence/game/flashcards", "@vivalence/game/translations", "@vivalence/game/prose"],
-  tactics: ["@vivalence/tactic/article-practice"],
+  games: [
+    //
+    "@vivalence/game/conjugations",
+    "@vivalence/game/flashcards",
+    "@vivalence/game/translations",
+    "@vivalence/game/prose",
+  ],
+  tactics: [
+    //
+    "@vivalence/tactic/article-practice",
+    "@vivalence/tactic/verb-conjugation-practice",
+  ],
   strategies: [],
 };
 

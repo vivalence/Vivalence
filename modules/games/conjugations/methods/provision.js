@@ -4,21 +4,12 @@ export default async function provision(inputs, ctx) {
   const { tags, mask, blacklist, scope } = inputs;
   const { language } = ctx.runtime.statics;
 
-  // // POST TENSE TAG //
-  const [tenseTag] = await ctx.runtime.call("/tags/fromTagIds", {
-    tagIds: [tags.tense.id],
-    take: 1,
-  });
-
-  // // POST INFINITIVE UNIT //
-  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", {
-    tagIds: [mask.tags.infinitive.id, tags.verb.id],
-    take: 1,
-  });
-
-  // // POST CONJUGATION UNITS //
   const tagIds = [tags.verb.id, tags.tense.id, tags.mood.id];
   const conjugationUnits = await ctx.runtime.call("/units/fromTagIds", { tagIds });
+
+  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", {
+    tagIds: [mask.tags.infinitive.id, tags.verb.id],
+  });
 
   if (!infinitiveVerb || conjugationUnits.length !== 6) {
     new Error("not the right number of conjugation units found", {
@@ -28,6 +19,7 @@ export default async function provision(inputs, ctx) {
     });
   }
 
+  console.json(conjugationUnits);
   const conjugations = conjugationUnits.sort(sortByPerformer).map((unit, index) => ({
     known: `${unit.data.known}`,
     learning: `${unit.data.learning}`,
@@ -41,7 +33,7 @@ export default async function provision(inputs, ctx) {
   const instruction = {
     type: "CONJUGATIONS",
     instruction: {
-      tense: tenseTag.name,
+      tense: tags.tense.name,
       mood: tags.mood.name,
       infinitive: {
         known: infinitiveVerb.data.known,
@@ -52,7 +44,7 @@ export default async function provision(inputs, ctx) {
     scope,
   };
 
-  return instruction;
+  return [instruction];
 }
 
 const sortByPerformer = (a, b) => {

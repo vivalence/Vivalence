@@ -1,19 +1,20 @@
 import { blacklist as Blacklist, shuffle } from "@vivalence/shared";
 
-export default async (inputs, { runtime }) => {
+export default async (inputs, ctx) => {
   const { language, tactic, scope } = inputs;
   const { games, units, tags } = tactic.relations;
   let blacklist = inputs.blacklist;
 
-  const [verb] = await runtime.call("/tags/weakest", {
-    tags: tags.verbs,
-    blacklist,
-    take: 1,
-  });
+  const [[verb], [tense], [mood]] = await Promise.all([
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.verbs, blacklist }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.tenses }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.moods }),
+  ]);
+  if (!verb || !tense || !mood) return [];
 
   // CONJUGATIONS
   const conjugations = await games.conjugations.call("/provision", {
-    tags: { mood: tags.mood, tense: tags.tense, verb },
+    tags: { mood, tense, verb },
     blacklist,
   });
   blacklist = Blacklist.fromScope({ blacklist, scope: conjugations.scope });

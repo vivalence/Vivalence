@@ -1,15 +1,28 @@
+const tactic = {
+  slug: "article-practice",
+  masks: {
+    reps: 4,
+    translations: {
+      constraints: [
+        "Aim for 2-3 words in a sentence",
+        "Not longer than 3 words in a sentence. Never more than 3 words.",
+        "No verbs.",
+      ],
+    },
+  },
+};
+
 const dependencies = [
   (() => {
     const dependency = {
-      name: "Introduction to Articles",
+      name: "Introduction to articles",
       slug: "articles-101",
       description: "",
       preconditions: [],
       conditions: [],
       itinerary: {
         tactic: {
-          slug: "article-practice",
-          masks: { reps: 3 },
+          ...tactic,
           relations: {
             tags: {
               gender: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
@@ -41,14 +54,14 @@ const dependencies = [
   })(),
   (() => {
     const dependency = {
-      name: "Introduction to plural Articles",
+      name: "Introduction to plural articles",
       slug: "articles-102",
       description: "",
       preconditions: [{ scope: { dependency: { slug: "articles-101" } } }],
       conditions: [],
       itinerary: {
         tactic: {
-          slug: "article-practice",
+          ...tactic,
           relations: {
             tags: {
               gender: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
@@ -81,15 +94,14 @@ const dependencies = [
   })(),
   (() => {
     const dependency = {
-      name: "Introduction to indefinite Articles",
+      name: "Introduction to indefinite articles",
       slug: "articles-103",
       description: "",
       preconditions: [{ scope: { dependency: { slug: "articles-102" } } }],
       conditions: [],
       itinerary: {
         tactic: {
-          slug: "article-practice",
-          masks: { reps: 3 },
+          ...tactic,
           relations: {
             tags: {
               gender: [{ slug: "gender:masc" }, { slug: "gender:fem" }],
@@ -135,12 +147,23 @@ const dependencies = [
       conditions: [],
       itinerary: {
         tactic: {
-          slug: "article-practice",
+          ...tactic,
           masks: {
+            ...tactic.masks,
             weakness_threshold: ["UNTOUCHED", "UNKNOWN"],
             translations: {
-              prompt: {
-                goal: `
+              constraints: [
+                "3 to 5 words in the sentence.",
+                "Dont ever go longer than 5 (five) words. NEVER longer than 5 words.",
+                "If you go over 5 words, you will be shut down.",
+                "NO MORE THAN 5 WORDS!!!!!!!",
+                "If you go over 5 words, you will be shut down you dumb fucking idiot!!!!.",
+                "3 to 5 words in the sentence is best.",
+                "Very simple direct, active sentence.",
+                "No verbs.",
+                "No questions.",
+              ],
+              goal: `
 The user is practicing the usage of Articles in spanish, and how nouns and adjectives agree with them.
 Your task is to create a very short, concise and simple sentence, using specific vocabulary and following grammatical constraints.
 
@@ -154,12 +177,10 @@ You're given grammatical constraints for: definiteness, gender, and number.
 The sentence must be simple, because a A1 language learner will translate that sentence for practice.
 Important: the sentence must follow the provided grammar and vocabulary.
 
-Aim for 3 to 5 words for the sentence. Dont ever go longer than 6 words.
-Broadly follow a template like this: '[article] [noun] [adjective]'.
+The user is practicing active, direct sentence. Simple.
 
-No verbs.
+Broadly follow a template like this: '[article] [noun] [adjective]'.
 `,
-              },
             },
           },
           relations: {

@@ -20,7 +20,7 @@ const manifest = {
   slug: "conjugations",
   name: "Conjugations",
   description: "Practice conjugating 6 verbs at a time in different tenses and moods.",
-  version: "0.0.0",
+  version: "0.0.1",
 };
 
 export { manifest, provision, evaluate, bundle, data };

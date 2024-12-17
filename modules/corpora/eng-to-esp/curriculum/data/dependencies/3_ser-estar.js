@@ -5,7 +5,7 @@ export const dependencies = [
     name: "Basic Ser Usage",
     slug: "ser-basic",
     description: "Master fundamental uses of ser for identity and inherent traits",
-    preconditions: [{ scope: { dependency: { slug: "subject-verbs-basic" } } }],
+    preconditions: [{ scope: { dependency: { slug: "verbs-101" } } }],
     conditions: [
       {
         name: "Ser conjugation mastery",

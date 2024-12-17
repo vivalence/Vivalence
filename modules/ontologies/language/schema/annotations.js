@@ -16,12 +16,14 @@ import * as prepcase from "./annotations/prepcase.js";
 import * as numtype from "./annotations/numtype.js";
 import * as numform from "./annotations/numform.js";
 import * as polarity from "./annotations/polarity.js";
+import * as suffix from "./annotations/suffix.js";
 
 export default (schema) => {
   const { annotations, meta } = Object.entries({
     pos,
     lemma,
     verbform,
+    suffix,
     tense,
     mood,
     person,

@@ -27,9 +27,13 @@ async function required(issue, ctx) {
 
       resolved = { resolved: !result.error, issue, tag: requiredTag, unit, from: "annotation" };
     } else {
-      // console.log("required tag not found", ontology, unit.id, unit.data.annotation);
-      // console.log(JSON.stringify(issue, null, 2));
-      resolved = { resolved: false, issue, error: { message: "required tag not found" } };
+      console.log("required tag not found", ontology, unit.id, unit.data.annotation);
+      console.json(issue);
+      resolved = {
+        resolved: false,
+        issue,
+        error: { message: "Remedy failure: [unit tag]:required - tag not found" },
+      };
     }
   })();
 

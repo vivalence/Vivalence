@@ -14,11 +14,12 @@ export default (schema) => {
           tense: { ...schema.annotations.tense },
           mood: { ...schema.annotations.mood },
           person: { ...schema.annotations.person },
-          gender: { ...schema.annotations.gender },
           number: { ...schema.annotations.number },
+          gender: { ...schema.annotations.gender },
           aspect: { ...schema.annotations.aspect },
+          suffix: { ...schema.annotations.suffix },
         },
-        required: ["pos", "lemma", "verbform"],
+        required: ["pos", "lemma", "verbform", "suffix"],
         allOf: [
           {
             if: { properties: { verbform: { const: "fin" } }, required: ["verbform"] },
@@ -79,6 +80,9 @@ export default (schema) => {
     { unique: { branch: "mood" } },
     { unique: { branch: "person" } },
     { unique: { branch: "aspect" } },
+    { unique: { branch: "suffix" } },
+    { required: { branch: "lemma" } },
+    { required: { branch: "suffix" } },
     {
       some: [
         { required: { branch: "pos", leaf: "verb" } },

@@ -47,7 +47,7 @@
 </script>
 
 <div class="dependencies bsp-chain-root h3 p-2">
-  <div class="bsp-node v row preconditions">
+  <div class="bsp-node-end flex flex-col preconditions">
     {#if activeDependency}
       {#each preconditionDependencies as dependency}
         <DependencyCard
@@ -75,7 +75,7 @@
     {/if}
   </div>
 
-  <div class="bsp-node v row dependent">
+  <div class="bsp-chain-end flex flex-col gap-2">
     {#if activeDependency}
       {#each dependentDependencies as dependency}
         <DependencyCard
