@@ -1,4 +1,4 @@
-import { Daemon } from "../../../types/types.d.ts";
+import { Daemon } from "@vivalence/types";
 
 export default function install(daemon: Daemon) {
   for (const runtime of daemon.runtimes.values()) {

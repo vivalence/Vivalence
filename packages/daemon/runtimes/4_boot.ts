@@ -1,24 +1,27 @@
 import { bundler } from "@vivalence/shared";
-import { BootFunction, Daemon, Module, ModuleRuntime, Runtime } from "../../../types/types.d.ts";
+import { BootFunction, Daemon, Module, Runtime, RuntimeModule } from "@vivalence/types";
 
-async function bootModule(runtime: Runtime, module: ModuleRuntime, Module: Module) {
+async function bootModule(runtime: Runtime, module: RuntimeModule, Module: RuntimeModule) {
   const scopedModule = { ...runtime, router: module.router, bus: module.bus };
 
-  const boot = module.Module.boot ?? defaultModuleBoot[module.manifest.type];
-  if (!boot) return { ...scopedModule, manifest: module.manifest, Module: module.Module };
+  const boot = module.Module?.boot ?? defaultModuleBoot[module.manifest?.type ?? "runtime"];
+  if (!boot || !module.Module)
+    return { ...scopedModule, manifest: module.manifest, Module: module.Module };
 
   const bootedModule = await boot(scopedModule, module.Module, Module);
 
   if (!bootedModule) {
     throw new Error(
-      `Boot method for ${module.manifest.type}:${module.manifest.slug} must return runtime`,
+      `Boot method for ${module.manifest?.type ?? "runtime"}:${
+        module.manifest?.slug
+      } must return runtime`,
     );
   }
 
   return { ...bootedModule, manifest: module.manifest, Module: module.Module };
 }
 
-async function bootModules(runtime: Runtime, modules: ModuleRuntime[], Module: Module) {
+async function bootModules(runtime: Runtime, modules: Module[], Module: RuntimeModule) {
   if (!modules) return [];
 
   return await Promise.all(

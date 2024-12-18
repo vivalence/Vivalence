@@ -1,4 +1,4 @@
-import config from "../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 import { walk } from "$std/fs/mod.ts";
 import { basename, join } from "$std/path/mod.ts";

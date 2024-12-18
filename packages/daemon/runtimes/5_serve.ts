@@ -1,11 +1,15 @@
-import { Daemon, Runtime } from "../../../types/types.d.ts";
+import { Daemon, Module, Runtime } from "@vivalence/types";
 
 export default function serve(daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     if (!runtime.router || !runtime.manifest?.url) continue;
 
     try {
-      for (const module of [runtime.domain, runtime.ontology, ...runtime.corpora]) {
+      for (const module of [
+        runtime.domain,
+        runtime.ontology,
+        ...(runtime.corpora ?? []),
+      ] as Module[]) {
         if (!module.router) continue;
 
         runtime.router.use(

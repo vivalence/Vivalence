@@ -1,5 +1,5 @@
 import { basename, dirname, join } from "$std/path/mod.ts";
-import config from "../../../../config/src/mod.ts";
+import config from "@vivalence/config";
 import bundlers from "./bundlers/index.js";
 
 function createBundler(input) {

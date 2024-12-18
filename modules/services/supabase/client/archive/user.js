@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import config from "../../../../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 let supabaseUserClient;
 

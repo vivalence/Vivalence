@@ -1,28 +1,85 @@
-import type { DeepWritable } from "ts-essentials";
-export type Entries<T> = [keyof T, any][];
-export type RuntimeManifestKeys = keyof Pick<
-  Runtime,
-  "modules" | "services" | "manifest" | "statics"
->;
-export type RuntimeDescription = Record<RuntimeManifestKeys, Record<string, unknown>> & {
-  default?: RuntimeDescription;
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SecureCookieMap } from "jsr:@oak/commons@0.11/cookie_map";
+import type { Application, Context, Middleware, Router } from "oak";
+import type { Writable } from "ts-essentials";
+export type { DeepWritable, Writable } from "ts-essentials";
+
+//
+//
+// This is a manifest file for runtimes, simple object / blueprint
+export type VivaModuleDescription = {
+  modules: Record<string, unknown>;
+  services: Record<string, unknown>;
+  manifest: Record<string, unknown>;
+  statics: Record<string, unknown>;
 };
+
+export type Services = Record<string, Service> & {
+  supabase?: SupabaseClient;
+  identity?: any;
+};
+
+export interface Service<C = any, S = any> {
+  manifest: ServiceManifest;
+  client: (runtime: Runtime) => C;
+  service: () => S;
+}
+
+export type RuntimeDescription = Partial<VivaModuleDescription> & {
+  modules?: {
+    Domain?: VivaModuleDescription;
+    Ontology?: VivaModuleDescription;
+    Corpora?: VivaModuleDescription[];
+    Games?: VivaModuleDescription[];
+    Tactics?: VivaModuleDescription[];
+    Strategies?: VivaModuleDescription[];
+  };
+
+  Services?: Services;
+};
+
+export type Runtime = {
+  "#symbol"?: symbol;
+
+  Services?: Services;
+  services?: Record<string, string | string[]>;
+  schema?: Record<string, unknown>;
+  router?: RouterWithExtensions;
+  bus?: EventBus;
+  call?: CallFunction;
+
+  statics?: Record<string, any>;
+  manifest?: Manifest;
+  locals?: RuntimeLocals;
+  default?: Runtime;
+
+  modules?: Modules;
+  Module?: Module;
+} & Modules;
+
+export interface Modules {
+  domain?: RuntimeModule;
+  ontology?: RuntimeModule;
+  corpora?: RuntimeModule[];
+  games?: RuntimeModule[];
+  tactics?: RuntimeModule[];
+  strategies?: RuntimeModule[];
+}
+//
+//
+//
+
 export type DeepPartial<T> = T extends object
   ? {
       [P in keyof T]?: DeepPartial<T[P]>;
     }
   : T;
-export type RuntimeInstaller = DeepWritable<Runtime>;
-export type ModuleInstaller = DeepPartial<Module>;
+export type ModuleInstaller = Writable<Module>;
 
 /**
  * Type definitions for Daemon server
  * @package @vivalence/daemon
  */
-
-import { SupabaseClient } from "@supabase/supabase-js";
-import { SecureCookieMap } from "jsr:@oak/commons@0.11/cookie_map";
-import { Application, Context, Middleware, Router } from "oak";
 
 // User Types
 
@@ -40,7 +97,7 @@ export type UserRole = "ADMIN" | "USER" | "GUEST";
 // DAEMON
 export interface Daemon {
   aperture: Aperture | null;
-  runtimes: Map<symbol, RuntimeInstaller>;
+  runtimes: Map<symbol, any>;
   router: RouterWithExtensions | null;
   registry: Registry | null;
   server: any; // Oak server instance
@@ -48,36 +105,6 @@ export interface Daemon {
   abort?: AbortController;
   app?: Application;
   process?: any;
-}
-
-export type Services = Record<string, Service> & {
-  supabase?: SupabaseClient;
-  identity?: any;
-};
-export type Runtime = {
-  // clean
-  Services?: Services;
-  services?: Record<string, string | string[]>;
-  schema: Record<string, unknown>;
-  router: RouterWithExtensions;
-  bus: EventBus;
-  call: CallFunction;
-
-  statics: Record<string, any>;
-  manifest: Manifest;
-  "#symbol": symbol;
-  locals?: RuntimeLocals;
-  default?: Runtime;
-
-  modules: Modules;
-  Module: Module;
-} & Modules;
-
-// SERVICE
-export interface Service<C = any, S = any> {
-  manifest: ServiceManifest;
-  client: (runtime: Runtime) => C;
-  service: () => S;
 }
 
 export interface ServiceManifest {
@@ -95,7 +122,8 @@ export interface RuntimeLocals {
   getUser?: () => Promise<User>;
 }
 
-type UnknownObject = Record<string, unknown>;
+export type UnknownObject = Record<string, unknown>;
+
 export interface Module {
   manifest: Manifest;
   Module: Module;
@@ -108,7 +136,7 @@ export interface Module {
   install: InstallFunction;
   provision: RouteHandler;
   boot: BootFunction;
-  schema: UnknownObject | ((schema: UnknownObject) => UnknownObject);
+  schema: UnknownObject;
   default?: Module;
   data?: UnknownObject;
 
@@ -118,22 +146,7 @@ export interface Module {
   locals?: RuntimeLocals;
 }
 
-type ModuleRuntime = Pick<Runtime, "router" | "bus" | "manifest" | "Module">;
-export interface Modules {
-  domain?: ModuleRuntime;
-  ontology?: ModuleRuntime;
-  corpora?: ModuleRuntime[];
-  games?: ModuleRuntime[];
-  tactics?: ModuleRuntime[];
-  strategies?: ModuleRuntime[];
-
-  Domain: Module;
-  Ontology: Module;
-  Corpora: Module[];
-  Games: Module[];
-  Tactics: Module[];
-  Strategies: Module[];
-}
+export type RuntimeModule = Pick<Runtime, "router" | "bus" | "manifest" | "Module">;
 
 export interface Manifest {
   id?: string;
@@ -299,36 +312,9 @@ export type MiddlewareExecutor = (handler: RouteHandler) => void;
 export type MiddlewareComposer = (...args: any[]) => RouteHandler;
 
 // Function Types
-
 export type BootFunction = (
   runtime: Runtime,
   module: Module,
-  parentModule?: Module,
-) => Promise<Runtime>;
+  parentModule?: RuntimeModule,
+) => Promise<Module | Runtime>;
 export type InstallFunction = (runtime: Runtime, module: Module) => Promise<boolean>;
-
-// Registry & Services
-
-// export interface ServiceClient {
-//   createUserClient: (ctx: RouteContext) => SupabaseClient;
-//   createAdminClient: () => SupabaseClient;
-// }
-
-// Validation
-
-// export interface ValidatorSchema {
-//   validate: any;
-//   scope?: () => any;
-//   schema?: (schema: any) => any;
-// }
-
-// Queue Types
-
-// export interface Queue {
-//   id: string;
-//   status: QueueStatus;
-//   index: number;
-//   data: Record<string, any>;
-// }
-
-// export type QueueStatus = "PENDING" | "PROCESSING" | "DONE" | "FAILED";

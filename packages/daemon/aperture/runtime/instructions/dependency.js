@@ -1,5 +1,5 @@
+import config from "@vivalence/config";
 import { blacklist as Blacklist, deepMerge } from "@vivalence/shared";
-import config from "../../../../../config/src/mod.ts";
 
 import lock from "./lib/lock.js";
 

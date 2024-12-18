@@ -1,9 +1,9 @@
 // You've found the entry point. Ground zero. Welcome.
 
+import config from "@vivalence/config";
 import { colors } from "@vivalence/interfaces-cli";
 import registry from "@vivalence/registry";
 import { services as serviceHelpers } from "@vivalence/shared";
-import config from "../../../config/src/mod.ts";
 
 import commands from "./commands/index.js";
 import locals from "./locals/index.js";

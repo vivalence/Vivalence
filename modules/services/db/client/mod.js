@@ -1,5 +1,5 @@
+import config from "@vivalence/config";
 import pg from "pg";
-import config from "../../../../config/src/mod.ts";
 
 const { Pool } = pg;
 

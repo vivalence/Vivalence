@@ -1,5 +1,5 @@
 {
   "name": "@vivalence/config",
-  "exports": { ".": "./src/mod.js" },
+  "exports": { ".": "./src/mod.ts" },
   "version": "0.0.1",
 }

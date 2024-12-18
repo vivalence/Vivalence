@@ -8,7 +8,7 @@ import cleanup from "./lib/cleanup-ports.js";
 // import daemonize from "./lib/daemonize.js";
 import dev from "./lib/dev.js";
 
-import { Daemon } from "../../types/types.d.ts";
+import { Daemon } from "@vivalence/types";
 import aperture from "./aperture/index.js";
 import runtimes from "./runtimes/index.ts";
 import server from "./server/index.js";

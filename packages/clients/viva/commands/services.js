@@ -1,6 +1,6 @@
+import config from "@vivalence/config";
 import { Command, colors } from "@vivalence/interfaces-cli";
 import registry from "@vivalence/registry";
-import config from "../../../../config/src/mod.ts";
 
 export default async function loadServiceCommands(viva) {
   const services = {};
