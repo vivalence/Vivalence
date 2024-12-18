@@ -1,23 +1,17 @@
 import { walk } from "$std/fs/mod.ts";
+import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
+import { Daemon, RuntimeDescription, Service, VivaModuleDescription } from "@vivalence/types";
 import path from "node:path";
-import config from "../../../config/src/mod.ts";
-import {
-  Daemon,
-  Module,
-  RuntimeDescription,
-  RuntimeInstaller,
-  Service,
-} from "../../../types/types.d.ts";
 
-const discoverModule = async (daemon: Daemon, moduleDescriptor: unknown): Promise<Module> => {
+const discoverModule = async (daemon: Daemon, moduleDescriptor: unknown) => {
   if (!daemon.registry) throw new Error("Registry is not initialized");
   if (typeof moduleDescriptor !== "string") throw new Error("Module descriptor is not a string");
 
-  return await daemon.registry.load<Module>(moduleDescriptor);
+  return await daemon.registry.load<VivaModuleDescription>(moduleDescriptor);
 };
 
-const discoverModules = async (daemon: Daemon, moduleDescriptors: unknown): Promise<Module[]> => {
+const discoverModules = async (daemon: Daemon, moduleDescriptors: unknown) => {
   if (!Array.isArray(moduleDescriptors)) return [];
 
   const modules = await Promise.all(
@@ -41,65 +35,70 @@ export default async function discover(daemon: Daemon) {
 
   for await (const entry of entries) {
     try {
-      let RuntimeDescription = deepClone(await import(entry.path)) as RuntimeDescription;
+      const VivaModuleDescription = deepClone(await import(entry.path)) as VivaModuleDescription;
 
-      if (RuntimeDescription.default) RuntimeDescription = RuntimeDescription.default;
-      if (!RuntimeDescription?.manifest) throw new Error(`Invalid module structure at ${path}`);
-      if (RuntimeDescription.manifest.type !== "runtime") continue;
+      // if (RuntimeDescription.default) RuntimeDescription = RuntimeDescription.default;
+      if (!VivaModuleDescription?.manifest) throw new Error(`Invalid module structure at ${path}`);
+      if (VivaModuleDescription.manifest.type !== "runtime") continue;
 
-      const RuntimeInstaller: RuntimeInstaller = ensure(RuntimeDescription);
+      ensure(VivaModuleDescription);
 
       if (!daemon.registry) continue;
 
       // Creating and registering services
-      RuntimeInstaller.Services = {};
-      for await (const [slug, service] of Object.entries(RuntimeDescription.services)) {
+      let RuntimeDescription: RuntimeDescription = {};
+      RuntimeDescription.Services = {};
+
+      for await (const [slug, service] of Object.entries(VivaModuleDescription.services)) {
         if (typeof service !== "string") continue;
-        RuntimeInstaller.Services[slug] = await daemon.registry.load<Service>(service);
+        RuntimeDescription.Services[slug] = await daemon.registry.load<Service>(service);
       }
 
       // Creating and registering modules
-      RuntimeInstaller.modules = {
-        Domain: await discoverModule(daemon, RuntimeDescription.modules.domain),
-        Ontology: await discoverModule(daemon, RuntimeDescription.modules.ontology),
-        Corpora: await discoverModules(daemon, RuntimeDescription.modules.corpora),
+      RuntimeDescription.modules = {
+        Domain: await discoverModule(daemon, VivaModuleDescription.modules.domain),
+        Ontology: await discoverModule(daemon, VivaModuleDescription.modules.ontology),
+        Corpora: await discoverModules(daemon, VivaModuleDescription.modules.corpora),
         Games: [],
         Tactics: [],
-        Strategies: await discoverModules(daemon, RuntimeDescription.modules.strategies),
+        Strategies: await discoverModules(daemon, VivaModuleDescription.modules.strategies),
       };
 
       // TODO: null-checks
-      if (Array.isArray(RuntimeDescription.modules.Corpora)) {
+      if (Array.isArray(VivaModuleDescription.modules.Corpora)) {
         await Promise.all(
-          RuntimeDescription.modules.Corpora?.map(async (Corpus) => {
+          VivaModuleDescription.modules.Corpora.map(async (Corpus) => {
             if (!daemon.registry) throw new Error("Registry is not initialized");
 
-            const games = await daemon.registry.loadMany<Module>(Corpus.modules.games);
-            RuntimeInstaller.modules?.Games?.push(...games);
+            const games = await daemon.registry.loadMany<VivaModuleDescription>(
+              Corpus.modules.games,
+            );
+            RuntimeDescription.modules?.Games?.push(...games);
 
-            const tactics = await daemon.registry.loadMany<Module>(Corpus.modules.tactics);
-            RuntimeInstaller.modules?.Tactics?.push(...tactics);
+            const tactics = await daemon.registry.loadMany<VivaModuleDescription>(
+              Corpus.modules.tactics,
+            );
+            RuntimeDescription.modules?.Tactics?.push(...tactics);
 
-            const strategies = await daemon.registry.loadMany<Module>(Corpus.modules.strategies);
-            RuntimeInstaller.modules?.Strategies?.push(...strategies);
+            const strategies = await daemon.registry.loadMany<VivaModuleDescription>(
+              Corpus.modules.strategies,
+            );
+            RuntimeDescription.modules?.Strategies?.push(...strategies);
           }),
         );
       }
 
-      // TODO: fix casting
-      RuntimeInstaller.modules.Corpora = uniqueBySlug(RuntimeInstaller.modules.Corpora as Module[]);
-      RuntimeInstaller.modules.Games = uniqueBySlug(RuntimeInstaller.modules.Games as Module[]);
-      RuntimeInstaller.modules.Tactics = uniqueBySlug(RuntimeInstaller.modules.Tactics as Module[]);
-      RuntimeInstaller.modules.Strategies = uniqueBySlug(
-        RuntimeInstaller.modules.Strategies as Module[],
-      );
+      RuntimeDescription.modules.Corpora = uniqueBySlug(RuntimeDescription.modules.Corpora);
+      RuntimeDescription.modules.Games = uniqueBySlug(RuntimeDescription.modules.Games);
+      RuntimeDescription.modules.Tactics = uniqueBySlug(RuntimeDescription.modules.Tactics);
+      RuntimeDescription.modules.Strategies = uniqueBySlug(RuntimeDescription.modules.Strategies);
 
       RuntimeDescription = validate(RuntimeDescription);
 
-      const { slug, version } = RuntimeDescription.manifest;
+      const { slug, version } = VivaModuleDescription.manifest;
 
       const symbol = Symbol(slug + (version ? `@${version}` : ""));
-      const runtime = { ["#symbol"]: symbol, Module: RuntimeInstaller };
+      const runtime = { ["#symbol"]: symbol, Module: RuntimeDescription };
 
       daemon.runtimes.set(symbol, runtime);
     } catch (error: unknown) {
@@ -112,38 +111,37 @@ export default async function discover(daemon: Daemon) {
   return daemon;
 }
 
-const ensure = (RuntimeDescription: RuntimeDescription) => {
-  if (!RuntimeDescription.modules.domain) throw new Error(`Runtime module missing domain module`);
-  if (!RuntimeDescription.modules.ontology)
+const ensure = (VivaModuleDescription: VivaModuleDescription) => {
+  if (!VivaModuleDescription.modules.domain)
+    throw new Error(`Runtime module missing domain module`);
+  if (!VivaModuleDescription.modules.ontology)
     throw new Error(`Runtime module missing ontology module`);
-  if (!RuntimeDescription.modules.corpora)
+  if (!VivaModuleDescription.modules.corpora)
     throw new Error(`Runtime module missing corpora modules`);
 
-  if (!RuntimeDescription.modules.strategies) RuntimeDescription.modules.strategies = [];
-  if (!RuntimeDescription.modules.games) RuntimeDescription.modules.games = [];
-  if (!RuntimeDescription.modules.tactics) RuntimeDescription.modules.tactics = [];
+  if (!VivaModuleDescription.modules.strategies) VivaModuleDescription.modules.strategies = [];
+  if (!VivaModuleDescription.modules.games) VivaModuleDescription.modules.games = [];
+  if (!VivaModuleDescription.modules.tactics) VivaModuleDescription.modules.tactics = [];
 
-  // This one here is meant to deal with some magic again
-  // for the sake of thelling polimorphic types apart
-  return RuntimeDescription as RuntimeInstaller;
+  return VivaModuleDescription;
 };
 
-const validate = (Runtime: RuntimeDescription) => {
+const validate = (RuntimeDescription: RuntimeDescription) => {
   // More validation
 
-  return Runtime;
+  return RuntimeDescription;
 };
 
-const uniqueBySlug = (arr?: Module[]) => {
+const uniqueBySlug = (arr?: VivaModuleDescription[]) => {
   const seen = new Set();
 
   if (!arr) return [];
 
   return arr.flat().filter((item) => {
-    const val = item?.manifest?.slug;
+    const val = item.manifest?.slug;
 
     if (seen.has(val)) {
-      console.warn(`Duplicate module found: ${item.manifest.type}:${val}`, item.manifest);
+      console.warn(`Duplicate module found: ${item.manifest?.type}:${val}`, item.manifest);
       return false;
     }
 

@@ -1,4 +1,4 @@
-import config from "../../../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 import { createClient } from "@supabase/supabase-js";
 

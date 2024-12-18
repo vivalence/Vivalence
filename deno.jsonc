@@ -9,7 +9,9 @@
     "./packages/clients/viva",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
+    "./packages/types",
   ],
+  "nodeModulesDirs": "auto",
   "tasks": {
     "viva:install": "deno install --global -f -A -n viva ./packages/clients/viva/cli-entry.js $PWD",
     "viva": "VIVA_ROLE=sudo deno run -A ./packages/clients/viva/mod.js",

@@ -1,5 +1,5 @@
+import config from "@vivalence/config";
 import { colors } from "@vivalence/interfaces-cli";
-import config from "../../../../config/src/mod.ts";
 
 const create = (viva) => ({
   name: "create",

@@ -1,8 +1,8 @@
-import { Daemon, Module, ModuleRuntime, Runtime } from "../../../types/types.d.ts";
+import { Daemon, Module, Runtime, RuntimeModule } from "@vivalence/types";
 
-const createModule = (runtime: Runtime, Module: Module): ModuleRuntime => ({
+const createModule = (runtime: Runtime, Module: Module): RuntimeModule => ({
   router: runtime.router?.create(),
-  bus: runtime.bus.scope(),
+  bus: runtime.bus?.scope(),
   manifest: Module.manifest,
   Module,
 });

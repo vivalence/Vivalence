@@ -1,18 +1,15 @@
 import { strings } from "@vivalence/shared";
-import { Manifest, Module, ModuleInstaller, RuntimeInstaller } from "../../../../types/types.d.ts";
+import { Manifest, Module, ModuleInstaller, Runtime } from "@vivalence/types";
 const select = "id, slug, version, installed, name";
 
-export default async function registerModuleManifest(
-  runtime: RuntimeInstaller,
-  Module: ModuleInstaller,
-) {
+export default async function registerModuleManifest(runtime: Runtime, Module: ModuleInstaller) {
   // const user = await runtime.services.identity.getUser();
 
   let manifest = await findModule(runtime, Module);
 
   if (!manifest) {
     manifest = await createModule(runtime, Module);
-  } else if (Module.manifest.version && manifest.version !== Module.manifest.version) {
+  } else if (Module.manifest?.version && manifest.version !== Module.manifest.version) {
     manifest = await updateModule(runtime, Module, manifest);
   }
 
@@ -23,7 +20,7 @@ export default async function registerModuleManifest(
   return manifest;
 }
 
-async function findModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
+async function findModule(runtime: Runtime, Module: ModuleInstaller) {
   if (!runtime.Services?.supabase) return;
 
   let query = runtime.Services.supabase
@@ -32,7 +29,7 @@ async function findModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
     .eq("slug", Module.manifest.slug);
 
   if (!["runtime"].includes(Module.manifest.type)) {
-    query = query.eq("runtimeId", runtime.Module.manifest.id);
+    query = query.eq("runtimeId", runtime.Module?.manifest.id);
   }
 
   const { error, data } = await query.single();
@@ -44,8 +41,8 @@ async function findModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
   return data as Manifest;
 }
 
-async function createModule(runtime: RuntimeInstaller, Module: ModuleInstaller) {
-  if (!runtime.Services.supabase) return;
+async function createModule(runtime: Runtime, Module: ModuleInstaller) {
+  if (!runtime.Services?.supabase) return;
 
   let insert: Record<string, unknown> = {
     slug: Module.manifest.slug,
@@ -53,7 +50,7 @@ async function createModule(runtime: RuntimeInstaller, Module: ModuleInstaller) 
   };
 
   if (!["runtime"].includes(Module.manifest.type)) {
-    insert.runtimeId = runtime.Module.manifest.id;
+    insert.runtimeId = runtime.Module?.manifest.id;
   }
 
   if (Module.manifest.description) insert.description = Module.manifest.description;
@@ -75,7 +72,7 @@ async function createModule(runtime: RuntimeInstaller, Module: ModuleInstaller) 
   return data as Manifest;
 }
 
-async function updateModule(runtime: RuntimeInstaller, Module: Module, manifest: Manifest) {
+async function updateModule(runtime: Runtime, Module: Module, manifest: Manifest) {
   if (!runtime.Services?.supabase) return;
 
   let update: Record<string, unknown> = {

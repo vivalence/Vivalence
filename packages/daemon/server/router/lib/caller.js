@@ -1,6 +1,6 @@
 import { join } from "$std/path/mod.ts";
+import config from "@vivalence/config";
 import { compose } from "oak/middleware";
-import config from "../../../../../config/src/mod.ts";
 
 import notFoundMiddleware from "../../middlewares/notFound.js";
 

@@ -1,5 +1,5 @@
+import config from "@vivalence/config";
 import { deepMerge } from "@vivalence/shared";
-import config from "../../../../config/src/mod.ts";
 
 async function mount(client) {
   client.services = deepMerge({}, client.services);

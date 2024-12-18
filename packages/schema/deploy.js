@@ -1,5 +1,5 @@
 import { join } from "$std/path/mod.ts";
-import config from "../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 async function deploy() {
   const SCHEMA_PATH = join(config.env.get("SCHEMA_ROOT_DIR"), "./dist/schema.prisma");

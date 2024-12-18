@@ -1,5 +1,5 @@
 // import url from "@vivalence/config";
-import config from "../../../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 export default () => {
   const { SERVICE_NLP_URL, SERVICE_NLP_KEY } = config.env;

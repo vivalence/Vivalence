@@ -1,5 +1,5 @@
 import { basename, dirname, fromFileUrl } from "$std/path/mod.ts";
-import config from "../../../../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 import esbuild from "esbuild";
 import { cache } from "esbuild-plugin-cache";

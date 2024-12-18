@@ -2,7 +2,7 @@ import env from "./env.js";
 import identity from "./identity.js";
 import services from "./services.js";
 
-const config: Config = { services: {}, env: {} };
+const config = { services: {}, env: {} };
 
 let initialized = false;
 if (!initialized) {

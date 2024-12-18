@@ -1,4 +1,4 @@
-import config from "../../../config/src/mod.ts";
+import config from "@vivalence/config";
 
 export default function cleanupPorts(daemon) {
   (async () => {

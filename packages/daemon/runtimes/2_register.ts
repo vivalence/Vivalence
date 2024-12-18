@@ -1,28 +1,22 @@
-import { Daemon, Module, RuntimeInstaller } from "../../../types/types.d.ts";
+import { Daemon, Module, Runtime } from "@vivalence/types";
 import registerManifest from "./lib/registerManifest.ts";
 
-const registerModule = async (runtime: RuntimeInstaller, Module: Module) => {
-  const newManifest = await registerManifest(runtime, Module);
+const registerModule = async (runtime: Runtime, module: Module): Promise<Module> => {
+  const newManifest = await registerManifest(runtime, module);
 
-  Module.manifest = {
-    ...Module.manifest,
+  module.manifest = {
+    ...module.manifest,
     ...newManifest,
   };
 
-  // Also change of context
-  return Module as Module;
+  return module;
 };
 
-const registerModules = (runtime: RuntimeInstaller, Modules: Module[]) =>
-  Promise.all(Modules.map((Module) => registerModule(runtime, Module)));
-
-const isSafe = (Module: Module) => Module?.manifest?.type === "runtime";
+const registerModules = (runtime: Runtime, moduleRecords: Module[]) =>
+  Promise.all(moduleRecords.map((Module) => registerModule(runtime, Module)));
 
 export default async function (daemon: Daemon) {
-  for (const [key, runtime] of daemon.runtimes.entries()) {
-    // Should not happen, only for safety
-    if (!runtime.Module?.modules) continue;
-
+  for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     try {
       runtime.Module = await registerModule(runtime, runtime.Module);
       runtime.manifest = runtime.Module?.manifest;
