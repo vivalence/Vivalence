@@ -1,68 +1,80 @@
-import { blacklist as Blacklist, shuffle } from "@vivalence/shared";
+import { blacklist as Blacklist, deepClone, array } from "@vivalence/shared";
 
 export default async (inputs, ctx) => {
-  const { language, tactic, scope } = inputs;
+  const { tactic, scope } = inputs;
   const { games, units, tags } = tactic.relations;
-  let blacklist = inputs.blacklist;
+  let blacklist = deepClone(inputs.blacklist);
+  const language = ctx.runtime.statics.language;
 
-  const [[verb], [tense], [mood]] = await Promise.all([
-    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.verbs, blacklist }),
+  const [[verb], [tense], [mood], [aspect]] = await Promise.all([
+    ctx.runtime.call("/pick/tags/byStrength", {
+      tags: tags.verbs,
+      blacklist: tactic.masks.apply_blacklist?.verbs && blacklist,
+    }),
     ctx.runtime.call("/pick/tags/byStrength", { tags: tags.tenses }),
     ctx.runtime.call("/pick/tags/byStrength", { tags: tags.moods }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.aspects }),
   ]);
-  if (!verb || !tense || !mood) return [];
+  if (!verb || !tense || !mood || !aspect) return []; // add some <empty> instruction here.
 
   // CONJUGATIONS
-  const conjugations = await games.conjugations.call("/provision", {
-    tags: { mood, tense, verb },
+  let conjugations = [];
+  // if (verb passes tactc.masks.conjugations.threshold)
+  const [conjugation] = await games.conjugations.call("/provision", {
+    tags: { mood, tense, verb, aspect },
     blacklist,
   });
-  blacklist = Blacklist.fromScope({ blacklist, scope: conjugations.scope });
+  blacklist = Blacklist.fromScope({ blacklist, scope: conjugation.scope });
+  conjugations.push(conjugation);
 
   // TRANSLATIONS
-  const [unit] = await runtime.call("/units/weakest/fromTagIds", {
-    tagIds: [verb.id, tags.tense.id, tags.mood.id],
-    take: 1,
+  const translations = [];
+  const verbUnits = await ctx.runtime.call("/pick/units/byStrength", {
+    unitIds: conjugation.scope.units.map((unit) => unit.id), // tagIds: [verb.id, tense.id, mood.id, aspect.id],
+    take: tactic.masks.translations.reps,
   });
+  let vocabulary = await ctx.runtime.call("/pick/units/pending", {
+    scope: { ...scope, game: { id: games.translations.id } },
+    blacklist,
+    tagIds: [tags.vocabulary.id, tags.nouns.id],
+    take: 5 + verbUnits.length,
+  });
+  for (const unit of verbUnits) {
+    const constraints = [];
+    constraints.push(
+      `VERB: ${language.learning}='${unit.data.learning}' - ${language.known}='${unit.data.known}'`,
+    );
+    [tense, mood, aspect].map((t) => constraints.push(t.name));
+    constraints.push(
+      `NOUN: In case of ser/estar, chose a noun that highlights the lasting/temporary aspect of the verb.`,
+    );
+    const format = (unit) =>
+      `Possible ${tags.nouns.name}: ${unit.data.learning} - ${unit.data.known}`;
+    constraints.push(vocabulary.map(format));
 
-  const constraints = [];
-  constraints.push(`VERB: ${unit.data.learning} - ${unit.data.known}`);
-  [tags.tense, tags.mood].map((t) => constraints.push(t.name));
-  constraints.push(
-    `NOUN: In case of ser/estar, chose a noun that highlights the lasting/temporary aspect of the verb.`,
-  );
-  constraints.push(`GRAMMAR: Allways without the pronoun in spanish!`);
+    const [translation] = await games.translations.call(`/provision`, { constraints });
 
-  for (const tag of tags.vocabulary) {
-    const units = await runtime.call("/units/pending", {
-      scope: { ...scope, game: { id: games.translations.id } },
-      blacklist,
-      tagIds: [tags.structural.id, tag.id],
-      take: 3,
-    });
-    units.forEach((unit) => {
-      constraints.push(`possible "${tag.name}": "${unit.data.learning} - ${unit.data.known}"`);
-    });
+    translations.push(translation);
+    blacklist = Blacklist.fromScope({ blacklist, scope: translation.scope });
+    vocabulary = vocabulary.filter(
+      (unit) => !translation.scope.units.map((unit) => unit.id).includes(unit.id),
+    );
   }
 
-  const translations = await games.translations.call(`/provision`, { constraints });
-
-  blacklist = Blacklist.fromScope({ blacklist, scope: translations.scope });
-
   // FLASHCARDS
-  // from the weakest units of translations and conjugations
-  const weakUnits = await Promise.all(
-    [
-      [translations.scope.units, 3],
-      [conjugations.scope.units, 2],
-    ].map(([units, take]) =>
-      runtime.call("/memory/filter/units", { accept: ["UNKNOWN", "LEARNING"], units, take }),
-    ),
+  let weakUnits = [
+    translations.map(({ scope }) => scope.units.map((unit) => unit.id)).flat(),
+    conjugations.map(({ scope }) => scope.units.map((unit) => unit.id)).flat(),
+  ].map((unitIds) =>
+    ctx.runtime.call("/pick/units/byStatus", {
+      status: tactic.masks.flashcards.threshold,
+      unitIds,
+      blacklist: inputs.blacklist,
+    }),
   );
+  weakUnits = await Promise.all(weakUnits);
+  weakUnits = array.shuffle(weakUnits.flat()).slice(0, tactic.masks.flashcards.reps);
+  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
 
-  const flashcards = await games.flashcards.call("/provision/fromUnitIds", {
-    unitIds: weakUnits.flat().map((u) => u.id),
-  });
-
-  return [...shuffle(flashcards), conjugations, translations];
+  return [array.shuffle(flashcards), conjugations, array.shuffle(translations)].flat();
 };

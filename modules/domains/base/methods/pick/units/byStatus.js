@@ -1,3 +1,5 @@
-import filter from "../lib/byStatus.js";
+import byStatus from "../lib/byStatus.js";
 
-export default filter("units");
+export default async function (input, ctx) {
+  return await byStatus("units")(input, ctx);
+}

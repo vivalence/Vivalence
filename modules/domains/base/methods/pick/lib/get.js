@@ -14,7 +14,6 @@ export const getResourceMemory = (resourceType) => async (resource, ctx) => {
   if (resourceType === "Unit") query = query.order("index", { ascending: true });
 
   const { data, error } = await query.limit(1).maybeSingle();
-
   if (error) throw error;
 
   resource.memory = data?.Memory[0];

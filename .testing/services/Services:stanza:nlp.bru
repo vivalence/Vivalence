@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: https://stanza.vivalence.com/nlp
+  url: http://localhost:5555/nlp
   body: json
   auth: none
 }
@@ -17,7 +17,7 @@ headers {
 body:json {
   {
     "language": "es",
-    "text": "aprendo cada día un poco más.",
+    "text": "yo vivo",
     "processors": "tokenize,mwt,pos,lemma,depparse"
   }
 }

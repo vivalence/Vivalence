@@ -11,9 +11,11 @@ export default async function provision(inputs, ctx) {
   // blacklist only if tags.x is longer than one.
   // maybe i need a picker for pending with fallback weakest.
   // something like a pipeline would be nice. where i define a bunch of pickers and it runs until take is satisfied.
-  const [gender] = await ctx.runtime.call("/pick/tags/byStrength", { tags: tags.gender });
-  const [number] = await ctx.runtime.call("/pick/tags/byStrength", { tags: tags.number });
-  const [definiteness] = await ctx.runtime.call("/pick/tags/byStrength", { tags: tags.definite });
+  const [[gender], [number], [definiteness]] = await Promise.all([
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.gender }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.number }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.definite }),
+  ]);
 
   const instructions = [];
   if (!definiteness || !gender || !number) return instructions;
@@ -28,23 +30,23 @@ export default async function provision(inputs, ctx) {
   });
   instructions.push(...conceptFlashcard);
 
+  let translations = [];
   const nouns = await ctx.runtime.call("/pick/units/pending", {
-    tagIds: [tags.vocabulary.id, tags.nouns.id, gender.id],
-    blacklist,
     scope: { ...scope, game: { id: games.translations.id } },
-    take: tactic.masks.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
+    blacklist,
+    tagIds: [tags.vocabulary.id, tags.nouns.id, gender.id],
+    take: tactic.masks.translations.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
   });
   let adjectives = [];
   if (tags.adjectives) {
     adjectives = await ctx.runtime.call("/pick/units/pending", {
-      tagIds: [tags.vocabulary.id, tags.adjectives.id],
-      blacklist,
       scope: { ...scope, game: { id: games.translations.id } },
-      take: tactic.masks.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
+      blacklist,
+      tagIds: [tags.vocabulary.id, tags.adjectives.id],
+      take: tactic.masks.translations.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
     });
   }
 
-  let translations = [];
   for (const vocabulary of array.chunk(nouns, TRANSLATIONS_VOCAB_PROMPTSIZE)) {
     if (adjectives.length > 0) {
       vocabulary.push(...adjectives.splice(0, TRANSLATIONS_VOCAB_PROMPTSIZE));
@@ -59,21 +61,20 @@ export default async function provision(inputs, ctx) {
     const translation = games.translations.call("/provision", { constraints });
     translations.push(translation);
   }
-  translations = await Promise.all(translations);
-  console.log("translations.length", translations.length);
+  translations = (await Promise.all(translations)).flat();
 
+  const unitIds = translations
+    .map((t) => t.scope.units)
+    .flat()
+    .map((u) => u.id);
   const weakUnits = await ctx.runtime.call("/pick/units/byStatus", {
-    unitIds: translations
-      .map((t) => t.scope.units)
-      .flat()
-      .map((u) => u.id),
-    status: tactic.masks.weakness_threshold,
+    status: tactic.masks.flashcards.threshold,
+    unitIds,
     blacklist,
   });
   const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
   instructions.push(...flashcards, ...translations);
 
-  console.log("instructions.length", instructions.length);
   return instructions;
 }
 

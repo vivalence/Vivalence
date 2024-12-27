@@ -23,7 +23,7 @@ const manifest = {
   type: "game",
   slug: "translations",
   name: "Translations",
-  version: "0.0.3",
+  version: "0.0.4",
   description: "Practice translating sentences",
 };
 

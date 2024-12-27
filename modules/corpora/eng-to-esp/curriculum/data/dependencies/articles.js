@@ -1,7 +1,6 @@
 const tactic = {
   slug: "article-practice",
   masks: {
-    reps: 4,
     translations: {
       constraints: [
         "Aim for 2-3 words in a sentence",
@@ -16,7 +15,7 @@ const dependencies = [
   (() => {
     const dependency = {
       name: "Introduction to articles",
-      slug: "articles-101",
+      slug: "articles:101",
       description: "",
       preconditions: [],
       conditions: [],
@@ -36,16 +35,16 @@ const dependencies = [
 
     function makeCondition(tag, count) {
       dependency.conditions.push({
-        name: tag.description + "is in progress",
+        name: `${tag.description} learning (${count})`,
         scope: { tag: { slug: tag.slug } },
         assertion: { jsonata: `$count($[$ in ['LEARNING','KNOWN','GRADUATED']]) >= ${count}` },
       });
     }
 
     for (const tag of [
-      { slug: "gender:masc", description: "Masculine form is " },
-      { slug: "gender:fem", description: "Feminine form is " },
-      { slug: "number:sing", description: "Singular form is " },
+      { slug: "gender:masc", description: "Masculine form is" },
+      { slug: "gender:fem", description: "Feminine form is" },
+      { slug: "number:sing", description: "Singular form is" },
     ]) {
       makeCondition(tag, 3);
     }
@@ -55,9 +54,9 @@ const dependencies = [
   (() => {
     const dependency = {
       name: "Introduction to plural articles",
-      slug: "articles-102",
+      slug: "articles:102",
       description: "",
-      preconditions: [{ scope: { dependency: { slug: "articles-101" } } }],
+      preconditions: [{ scope: { dependency: { slug: "articles:101" } } }],
       conditions: [],
       itinerary: {
         tactic: {
@@ -75,17 +74,17 @@ const dependencies = [
 
     function makeCondition(tag, count) {
       dependency.conditions.push({
-        name: tag.description + "is in progress",
+        name: `${tag.description} learning (${count})`,
         scope: { tag: { slug: tag.slug } },
         assertion: { jsonata: `$count($[$ in ['LEARNING','KNOWN','GRADUATED']]) >= ${count}` },
       });
     }
 
     for (const tag of [
-      { slug: "gender:masc", description: "Masculine form is " },
-      { slug: "gender:fem", description: "Feminine form is " },
-      { slug: "number:sing", description: "Singular form is " },
-      { slug: "number:plur", description: "Plural form is " },
+      { slug: "gender:masc", description: "Masculine form is" },
+      { slug: "gender:fem", description: "Feminine form is" },
+      { slug: "number:sing", description: "Singular form is" },
+      { slug: "number:plur", description: "Plural form is" },
     ]) {
       makeCondition(tag, 5);
     }
@@ -95,9 +94,9 @@ const dependencies = [
   (() => {
     const dependency = {
       name: "Introduction to indefinite articles",
-      slug: "articles-103",
+      slug: "articles:103",
       description: "",
-      preconditions: [{ scope: { dependency: { slug: "articles-102" } } }],
+      preconditions: [{ scope: { dependency: { slug: "articles:102" } } }],
       conditions: [],
       itinerary: {
         tactic: {
@@ -115,23 +114,23 @@ const dependencies = [
 
     function makeCondition(tag, count) {
       dependency.conditions.push({
-        name: tag.description + "is in progress",
+        name: `${tag.description} learning (${count})`,
         scope: { tag: { slug: tag.slug } },
         assertion: { jsonata: `$count($[$ in ['LEARNING','KNOWN','GRADUATED']]) >= ${count}` },
       });
     }
 
     for (const tag of [
-      { slug: "gender:masc", description: "Masculine form is " },
-      { slug: "gender:fem", description: "Feminine form is " },
-      { slug: "number:sing", description: "Singular form is " },
-      { slug: "number:plur", description: "Plural form is " },
+      { slug: "gender:masc", description: "Masculine form is" },
+      { slug: "gender:fem", description: "Feminine form is" },
+      { slug: "number:sing", description: "Singular form is" },
+      { slug: "number:plur", description: "Plural form is" },
     ]) {
       makeCondition(tag, 10);
     }
     for (const tag of [
-      { slug: "definite:def", description: "Definite form is " },
-      { slug: "definite:ind", description: "Indefinite form is " },
+      { slug: "definite:def", description: "Definite form is" },
+      { slug: "definite:ind", description: "Indefinite form is" },
     ]) {
       makeCondition(tag, 1);
     }
@@ -141,9 +140,9 @@ const dependencies = [
   (() => {
     const dependency = {
       name: "Articles with adjective agreement",
-      slug: "articles-104",
+      slug: "articles:104",
       description: "",
-      preconditions: [{ scope: { dependency: { slug: "articles-103" } } }],
+      preconditions: [{ scope: { dependency: { slug: "articles:103" } } }],
       conditions: [],
       itinerary: {
         tactic: {
@@ -197,17 +196,17 @@ Broadly follow a template like this: '[article] [noun] [adjective]'.
 
     function makeCondition(tag, count) {
       dependency.conditions.push({
-        name: tag.description + "is known",
+        name: `${tag.description} known (${count})`,
         scope: { tag: { slug: tag.slug } },
         assertion: { jsonata: `$count($[$ in ['KNOWN','GRADUATED']]) >= ${count}` },
       });
     }
 
     for (const tag of [
-      { slug: "gender:masc", description: "Masculine form is " },
-      { slug: "gender:fem", description: "Feminine form is " },
-      { slug: "number:sing", description: "Singular form is " },
-      { slug: "number:plur", description: "Plural form is " },
+      { slug: "gender:masc", description: "Masculine form is" },
+      { slug: "gender:fem", description: "Feminine form is" },
+      { slug: "number:sing", description: "Singular form is" },
+      { slug: "number:plur", description: "Plural form is" },
     ]) {
       makeCondition(tag, 10);
     }

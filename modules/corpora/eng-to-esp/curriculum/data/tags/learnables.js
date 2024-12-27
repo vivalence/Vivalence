@@ -5,6 +5,27 @@
 
 export default [
   {
+    // temporary hack
+    lemma: {
+      // TODO: "lemma:beber": { traits: ["COMPLETABLE"] }, "lemma:viajar": { traits: ["COMPLETABLE"] }, "lemma:aprender": { traits: ["COMPLETABLE"] },
+      "lemma:hablar": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:vivir": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:comer": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:estar": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:ser": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:correr": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:leer": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:escribir": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:trabajar": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:estudiar": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:escuchar": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:ver": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:ir": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:venir": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:querer": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:poder": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "lemma:poner": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+    },
     number: {
       "number:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
       "number:sing": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
@@ -16,6 +37,17 @@ export default [
       "gender:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
       "gender:fem": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
       "gender:masc": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+    },
+  },
+  {
+    aspect: {
+      "aspect:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
+      "aspect:imp": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "aspect:perf": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "aspect:prog": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "aspect:prosp": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "aspect:iter": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "aspect:hab": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
     },
   },
   {

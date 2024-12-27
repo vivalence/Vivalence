@@ -59,6 +59,7 @@ The sentence must be semantically correct and either a reasonable or common thin
 </CONSTRAINTS>
 `,
 };
+
 export const EvalTranslationPrompt = {
   provider: sentenceEvalProvider,
   schema: {
@@ -98,6 +99,7 @@ Note: Ignore capitalization. Do not ignore severe spelling errors. Missing count
 ### TRANSLATION
 original sentence: "{{{sentence.known}}}"
 original sentence: "{{{sentence.known}}}"
+expected translation: "{{{sentence.learning}}}" 
 expected translation: "{{{sentence.learning}}}" 
 user translation: "{{{sentence.translation}}}"
 user translation: "{{{sentence.translation}}}"
@@ -147,8 +149,10 @@ BAD: [{"status": "UNKNOWN"}, {TAG: {"status": "UNKNOWN"}}] // OR ANYTHING ELSE T
 input: two evaluations of a translation. One for the whole translation and one for a specific <PART>.
 task: format and articulate the evaluation of the <PART> of speech.
 
+# Notes
 If the learner used equivalent alternative vocabulary, then select NEUTRAL. if you are unsure, select NEUTRAL. If the <PART> is missing, then select UNKNOWN.
 If you reference the Unit, call it a word.
+Dont feedback anything thats expected.
 
 ### TRANSLATION
 from {{{language.known}}} to {{{language.learning}}}.

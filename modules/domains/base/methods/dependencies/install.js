@@ -3,29 +3,42 @@ import { deepEquals, deepMerge, strings } from "@vivalence/shared";
 export default async function (body, ctx) {
   let { dependency } = body;
   let operation = null;
+  try {
+    if (!dependency.slug) throw new Error("Dependency slug is required", dependency);
 
-  if (!dependency.slug) throw new Error("Dependency slug is required", dependency);
+    dependency = validate(dependency, ctx);
 
-  const existingDependency = await read(dependency, ctx);
+    const existingDependency = await read(dependency, ctx);
 
-  let data;
-  if (existingDependency) {
-    // data.dependency, data.operation
-    data = await update({ new: dependency, old: existingDependency }, ctx);
-  } else {
-    data = await create(dependency, ctx);
+    let data;
+    if (existingDependency) {
+      // data.dependency, data.operation
+      data = await update({ new: dependency, old: existingDependency }, ctx);
+    } else {
+      data = await create(dependency, ctx);
+    }
+    dependency.id = data.dependency.id;
+
+    const [conditions, preconditions] = await bruteFuckingForceConditions({ dependency }, ctx);
+
+    dependency = await ctx.runtime.call("/dependencies/compute", { dependency });
+
+    return {
+      dependency: { ...dependency, conditions, preconditions },
+      operation: data.operation,
+      status: "success",
+    };
+  } catch (e) {
+    console.log(e);
+    console.log(dependency);
+    throw e;
   }
-  dependency.id = data.dependency.id;
+}
 
-  const [conditions, preconditions] = await bruteForceConditions({ dependency }, ctx);
-
-  dependency = await ctx.runtime.call("/dependencies/compute", { dependency });
-
-  return {
-    dependency: { ...dependency, conditions, preconditions },
-    operation: data.operation,
-    status: "success",
-  };
+function validate(dependency, ctx) {
+  if (!dependency.conditions) dependency.conditions = [];
+  if (!dependency.preconditions) dependency.preconditions = [];
+  return dependency;
 }
 
 async function read({ id, slug }, ctx) {
@@ -44,22 +57,16 @@ async function read({ id, slug }, ctx) {
 }
 
 // this used to be smart but i fucking lost my fucking nerve. BUUUURRRNNNNNN
-async function bruteForceConditions({ type, dependency }, ctx) {
+async function bruteFuckingForceConditions({ dependency }, ctx) {
   async function deleteOldConditions(type) {
-    const oldRelations = await ctx.runtime.locals.supabase
+    const oldRelations = await ctx.runtime.services.supabase
       .from(`_${strings.capitalize(type)}`)
       .select("A,B")
       .eq(`B`, dependency.id);
 
-    await ctx.runtime.locals.supabase
-      .from("Condition")
-      .delete()
-      .in(
-        "id",
-        oldRelations.data.map((r) => r.A),
-      );
+    const ids = oldRelations.data.map((r) => r.A);
+    await ctx.runtime.services.supabase.from("Condition").delete().in("id", ids);
   }
-  await Promise.all(["condition", "precondition"].map(deleteOldConditions));
 
   async function createNewConditions(type) {
     return await Promise.all(
@@ -70,14 +77,10 @@ async function bruteForceConditions({ type, dependency }, ctx) {
     );
   }
 
-  const [conditions, preconditions] = await Promise.all(
-    ["condition", "precondition"].map(createNewConditions),
-  );
-
   async function createRelations(conditions) {
     return await Promise.all(
       conditions.map(({ type, condition }) =>
-        ctx.runtime.locals.supabase
+        ctx.runtime.services.supabase
           .from(`_${strings.capitalize(type)}`)
           .upsert({ A: condition.id, B: dependency.id }, { onConflict: "A,B" })
           .select()
@@ -86,6 +89,9 @@ async function bruteForceConditions({ type, dependency }, ctx) {
     );
   }
 
+  const types = ["condition", "precondition"];
+  await Promise.all(types.map(deleteOldConditions));
+  const [conditions, preconditions] = await Promise.all(types.map(createNewConditions));
   const relations = await Promise.all([conditions, preconditions].map(createRelations));
 
   return [conditions, preconditions];

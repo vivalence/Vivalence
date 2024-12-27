@@ -36,14 +36,12 @@ export default async function ({ scope, signal }, ctx) {
   }
 
   const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", { scope, signal });
-  if (statusChange)
-    (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+  // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
 
   if (tag.data["LEARNABLE"].flavor === "RELATIONAL") {
     delete scope.unit;
     const { statusChange } = await ctx.runtime.call("/review/memory", { scope, signal });
-    if (statusChange)
-      (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+    // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
   }
 
   scope.memory = { id: memory.id };

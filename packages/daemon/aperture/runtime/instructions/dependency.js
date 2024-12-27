@@ -8,11 +8,10 @@ export default async function ({ take, ...body }, ctx) {
   let status = "success";
   const user = await ctx.runtime.services.identity.getUser();
 
-  const { data: dependency, error } = await ctx.runtime.services.supabase
-    .from("Dependency")
-    .select("*")
-    .eq("id", body.dependency.id)
-    .single();
+  let query = ctx.runtime.services.supabase.from("Dependency").select("*");
+  if (body.dependency.id) query = query.eq("id", body.dependency.id);
+  if (body.dependency.slug) query = query.eq("slug", body.dependency.slug);
+  const { data: dependency, error } = await query.single();
 
   const tactic = await ctx.runtime.call(`/tactics/fromSlug`, {
     slug: dependency.itinerary.tactic.slug,
@@ -95,18 +94,15 @@ async function provision({ dependency, tactic, blacklist, scope }, ctx) {
     instructions = await ctx.runtime.call(`/tactics/provision`, input);
 
     if (instructions.length > 0) {
-      const queue = await ctx.runtime.services.supabase
-        .from("Queue") //
-        .insert(
-          instructions.map((data, index) => ({
-            runtimeId: ctx.runtime.manifest.id,
-            userId: scope.user.id,
-            dependencyId: dependency.id,
-            tacticId: tactic.id,
-            data,
-            index,
-          })),
-        );
+      const inserts = instructions.map((data, index) => ({
+        runtimeId: ctx.runtime.manifest.id,
+        userId: scope.user.id,
+        dependencyId: dependency.id,
+        tacticId: tactic.id,
+        data,
+        index,
+      }));
+      const insert = await ctx.runtime.services.supabase.from("Queue").insert(inserts);
     }
   } catch (err) {
     console.error(`[PROVISIONING ERROR]`);

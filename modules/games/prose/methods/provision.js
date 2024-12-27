@@ -15,5 +15,5 @@ export default async function provision(inputs, ctx) {
 
   const response = await ctx.runtime.services.llm(input);
 
-  return { scope, instruction: { prose: response.prose } };
+  return [{ scope, instruction: { prose: response.prose } }];
 }

@@ -1,16 +1,121 @@
 import createMemoryProfiler from "./memory-profiler.js";
 // const QUERY = {tagIds: ["9fd9e512-24f2-4400-a555-e9bd25982320", "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"], blacklist: { units: [], tags: [], queue: [] }, scope: {game: { id: "877e1133-477a-4739-9eea-f74676381fb8" }, user: { id: "localhost" }, tactic: { id: "1a7ea88f-5c65-4f06-be53-e68b59da3359" }, runtime: { id: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" }, dependency: { id: "ddbf4c0f-a059-46da-aa76-d1b450ba7ef1" }, unit: { id: "043a851a-45f0-4fd4-b45c-cbfce8d66d17" }, memory: { id: "71271861-1685-4755-8982-15854c5f0e5d" },}, take: 1,};
+const tags = [
+  {
+    id: "2022a48c-2a5c-445e-87ad-be55d9a2def3",
+    data: {
+      STRUCTURAL: {},
+      COMPLETABLE: {
+        type: "BAYESIAN",
+        flavor: "INDIVIDUAL",
+      },
+      ONTOLOGICAL: {
+        leaf: "hablar",
+        branch: "lemma",
+      },
+    },
+    name: "Lemma: hablar",
+    description: null,
+    slug: "lemma:hablar",
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+    runtimeId: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477",
+  },
+  {
+    id: "7d3f2752-6868-4347-9602-1b86b871bd16",
+    data: {
+      STRUCTURAL: {},
+      COMPLETABLE: {
+        type: "BAYESIAN",
+        flavor: "INDIVIDUAL",
+      },
+      ONTOLOGICAL: {
+        leaf: "comer",
+        branch: "lemma",
+      },
+    },
+    name: "Lemma: comer",
+    description: null,
+    slug: "lemma:comer",
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+    runtimeId: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477",
+  },
+  {
+    id: "5fab9f2d-e505-4b23-a232-c6f416fa0fea",
+    data: {
+      STRUCTURAL: {},
+      COMPLETABLE: {
+        type: "BAYESIAN",
+        flavor: "INDIVIDUAL",
+      },
+      ONTOLOGICAL: {
+        leaf: "vivir",
+        branch: "lemma",
+      },
+    },
+    name: "Lemma: vivir",
+    description: null,
+    slug: "lemma:vivir",
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+    runtimeId: "92d1ace6-146e-4b8d-a5ef-5882eaaa9477",
+  },
+];
+
 export default async function dev(daemon) {
-  console.json = (value) => console.log(JSON.stringify(value, null, 2));
-  // const runtime = daemon.runtimes.values().next().value;
+  const runtime = daemon.runtimes.values().next().value;
 
-  // const data = await runtime.services.supabase
-  //   .from("Unit")
-  //   .select(`*, _TagToUnit(Tag(slug))`)
-  //   .eq("id", "b3053fef-3052-452b-a0e6-f1f9b12aca5a")
-  //   .single();
+  // const stuffj = await runtime.call("/pick/tags/byStrength", { tags });
 
-  // console.json(data);
+  // console.json(stuffj);
+
+  // const data = await runtime.call("/tags/fromTagIds", {
+  //   tagIds: tags,
+  // });
+  // console.log(data);
+  // const data = await runtime.call("/units/fromTagSlugs", {
+  //   tagSlugs: ["lemma:decir", "tense:pres", "mood:ind"],
+  // });
+
+  // console.json([
+  //   data.map((unit) => {
+  //     delete unit.tags;
+  //     delete unit.createdAt;
+  //     delete unit.updatedAt;
+  //     delete unit.corpusId;
+  //     delete unit.runtimeId;
+  //     delete unit.index;
+  //     delete unit.data.index;
+  //     delete unit.data.example;
+  //     return unit;
+  //   }),
+  //   data.length,
+  // ]);
+
+  // let index = 0;
+  // for (const verb of verbs) {
+  //   let install;
+  //   try {
+  //     install = await runtime.call("/units/install", { unit: verb });
+  //   } catch (error) {
+  //     console.log("ERROR with verb:", verb);
+  //     console.error(error);
+  //   }
+  //   delete install.unit.tags;
+  //   console.log(index, install.status);
+  //   index += 1;
+  // }
+
+  // for (const id of [
+  //   "0d1e554c-4655-4845-97af-0b25ce755bcc",
+  //   "057e071b-6548-4592-85d4-2214fe44720e",
+  // ]) {
+  //   let remove;
+  //   try {
+  //     remove = await runtime.call("/units/remove", { unit: { id } });
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  //   console.json(remove);
+  // }
 
   // const [unit] = await runtime.call("/pick/units/pending", QUERY);
   // console.json(unit);

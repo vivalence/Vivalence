@@ -9,7 +9,7 @@ export default async function (body, ctx) {
   const met = await conditionResolver(condition, ctx);
   // This might blow up in the future. probably when the first memories run through here
   // hello future me, if you're reading this, you're welcome.
-  // Fuck you past me, all you had to do was not hardcode a fucking     // met = false;
+  // Fuck you past me, all you had to do was not hardcode a fucking  // met = false;
   // But otherwise this doesnt seem entirely unreasonable.
 
   const { data } = await ctx.runtime.services.supabase
