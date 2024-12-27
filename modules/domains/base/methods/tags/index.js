@@ -1,4 +1,5 @@
 import fromOntology from "./fromOntology.js";
+import fromSlugs from "./fromSlugs.js";
 import fromSlug from "./fromSlug.js";
 import fromTagIds from "./fromTagIds.js";
 import fromUnit from "./fromUnit.js";
@@ -8,6 +9,7 @@ import install from "./install.js";
 
 export default {
   fromOntology,
+  fromSlugs,
   fromSlug,
   fromTagIds,
   fromUnit,

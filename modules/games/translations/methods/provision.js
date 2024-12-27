@@ -1,11 +1,17 @@
 import Mustache from "mustache";
 import { GamePrompt } from "./lib/prompts.js";
+import fs from "node:fs";
+import path from "node:path";
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __filename = path.basename("instructions.json");
+const __filepath = path.join(__dirname, __filename);
 
 export default async function (inputs, ctx) {
   const { scope, constraints, mask } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {
-    goal: mask.prompt.goal,
+    goal: mask.goal,
     constraints,
     language: ctx.runtime.statics.language,
   });
@@ -53,5 +59,6 @@ export default async function (inputs, ctx) {
     },
   };
 
-  return instruction;
+  fs.appendFileSync(__filepath, JSON.stringify(instruction) + ",\n");
+  return [instruction];
 }

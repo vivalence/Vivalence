@@ -21,6 +21,11 @@ export default function createRouter() {
   router.mw = router.middleware;
 
   router.route("/status", (body, ctx) => ({ status: "ok" }));
+  router.use(async (ctx, next) => {
+    // trace everything:
+    // console.log(ctx.request.url.pathname);
+    await next();
+  });
 
   return router;
 }

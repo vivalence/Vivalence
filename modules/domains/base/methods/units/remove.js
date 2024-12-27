@@ -1,5 +1,5 @@
 export default async function ({ unit }, ctx) {
-  let statement = ctx.runtime.locals.supabase
+  let statement = ctx.runtime.services.supabase
     .from("Unit")
     .delete()
     .eq("runtimeId", ctx.runtime.manifest.id);

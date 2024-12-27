@@ -1,7 +1,7 @@
 export default async function (body, ctx) {
   const { slug } = body;
 
-  const { data, error } = await ctx.runtime.locals.supabase
+  const { data, error } = await ctx.runtime.services.supabase
     .from("Unit")
     .select("*")
     .eq("slug", slug)

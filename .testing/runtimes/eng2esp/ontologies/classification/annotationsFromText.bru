@@ -1,0 +1,17 @@
+meta {
+  name: annotationsFromText
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/classification/annotationsFromText
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "text": "yo vivo ."
+  }
+}

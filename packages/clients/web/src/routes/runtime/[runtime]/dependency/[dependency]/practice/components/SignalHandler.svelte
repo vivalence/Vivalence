@@ -15,7 +15,7 @@
         break;
       case "REPETITION":
         ui = "Rep master general.";
-        setTimeout(() => next(), 2000);
+        setTimeout(() => next(), 1000);
         break;
       case "ERROR":
         ui = instruction.error.message;

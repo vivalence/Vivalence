@@ -1,0 +1,532 @@
+[
+  {
+    "instruction": {
+      "sentence": { "known": "the lonely man", "learning": "el hombre solo" },
+      "tokens": [
+        { "token": "el", "start_char": 0, "end_char": 2 },
+        { "token": "hombre", "start_char": 3, "end_char": 9 },
+        { "token": "solo", "start_char": 10, "end_char": 14 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "377c8052-c607-417c-9c27-5e6e557ed66b" },
+      "tactic": { "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+            { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" }
+          ],
+          "token": { "token": "el", "start_char": 0, "end_char": 2 }
+        },
+        {
+          "id": "f26d92ec-4676-4f6a-b5fd-026a2107d298",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "hombre", "start_char": 3, "end_char": 9 }
+        },
+        {
+          "id": "c6a26d3a-4c78-441c-9a29-6920ebf859d9",
+          "tags": [{ "id": "89342448-c19a-445c-947e-1d75c12d7648" }],
+          "token": { "token": "solo", "start_char": 10, "end_char": 14 }
+        }
+      ],
+      "tags": [
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+        { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+        { "id": "89342448-c19a-445c-947e-1d75c12d7648" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "the large place", "learning": "el lugar grande" },
+      "tokens": [
+        { "token": "el", "start_char": 0, "end_char": 2 },
+        { "token": "lugar", "start_char": 3, "end_char": 8 },
+        { "token": "grande", "start_char": 9, "end_char": 15 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "377c8052-c607-417c-9c27-5e6e557ed66b" },
+      "tactic": { "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+            { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" }
+          ],
+          "token": { "token": "el", "start_char": 0, "end_char": 2 }
+        },
+        {
+          "id": "fb7d56cb-74c3-4186-97f4-5b7f10a1448c",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "lugar", "start_char": 3, "end_char": 8 }
+        },
+        {
+          "id": "73d8e9dc-a479-4159-ba83-181900ba10b7",
+          "tags": [
+            { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "grande", "start_char": 9, "end_char": 15 }
+        }
+      ],
+      "tags": [
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+        { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+        { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "The small country", "learning": "El país pequeño" },
+      "tokens": [
+        { "token": "El", "start_char": 0, "end_char": 2 },
+        { "token": "país", "start_char": 3, "end_char": 7 },
+        { "token": "pequeño", "start_char": 8, "end_char": 15 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "377c8052-c607-417c-9c27-5e6e557ed66b" },
+      "tactic": { "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+            { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" }
+          ],
+          "token": { "token": "El", "start_char": 0, "end_char": 2 }
+        },
+        {
+          "id": "af1d6f62-f45e-4fae-b151-ca16be5459dc",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "país", "start_char": 3, "end_char": 7 }
+        },
+        {
+          "id": "7f7b4a0d-759c-41ef-9f36-edbcce652b50",
+          "tags": [
+            { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "pequeño", "start_char": 8, "end_char": 15 }
+        }
+      ],
+      "tags": [
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+        { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+        { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "The good son", "learning": "El hijo bueno" },
+      "tokens": [
+        { "token": "El", "start_char": 0, "end_char": 2 },
+        { "token": "hijo", "start_char": 3, "end_char": 7 },
+        { "token": "bueno", "start_char": 8, "end_char": 13 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "377c8052-c607-417c-9c27-5e6e557ed66b" },
+      "tactic": { "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+            { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" }
+          ],
+          "token": { "token": "El", "start_char": 0, "end_char": 2 }
+        },
+        {
+          "id": "4bbb820f-a092-4ccd-9b48-a045b61de1c5",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "hijo", "start_char": 3, "end_char": 7 }
+        },
+        {
+          "id": "f2f71b27-5e1f-4a34-9381-4a910f47b381",
+          "tags": [
+            { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "bueno", "start_char": 8, "end_char": 13 }
+        }
+      ],
+      "tags": [
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "82758521-b342-489f-8c33-7cecb6756cd2" },
+        { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+        { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "You all live in this country", "learning": "vivís en este país" },
+      "tokens": [
+        { "token": "vivís", "start_char": 0, "end_char": 5 },
+        { "token": "en", "start_char": 6, "end_char": 8 },
+        { "token": "este", "start_char": 9, "end_char": 13 },
+        { "token": "país", "start_char": 14, "end_char": 18 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91" },
+      "tactic": { "id": "227c6d6e-4659-41cd-b477-6a37e104e6ef" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "aaf95006-4369-4295-bd63-b62bc65750a4",
+          "tags": [
+            { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+            { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+            { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+            { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+            { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+            { "id": "a29af5ea-a87b-4b0e-9c00-6efc165973a2" },
+            { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+            { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" }
+          ],
+          "token": { "token": "vivís", "start_char": 0, "end_char": 5 }
+        },
+        {
+          "id": "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+          "tags": [{ "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" }],
+          "token": { "token": "en", "start_char": 6, "end_char": 8 }
+        },
+        {
+          "id": "9547fab9-a869-4883-a520-cceaafc085ba",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "1e096fc8-c861-485b-a824-97ee861828a3" }
+          ],
+          "token": { "token": "este", "start_char": 9, "end_char": 13 }
+        },
+        {
+          "id": "af1d6f62-f45e-4fae-b151-ca16be5459dc",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "país", "start_char": 14, "end_char": 18 }
+        }
+      ],
+      "tags": [
+        { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+        { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+        { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+        { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+        { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+        { "id": "a29af5ea-a87b-4b0e-9c00-6efc165973a2" },
+        { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+        { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" },
+        { "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" },
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "1e096fc8-c861-485b-a824-97ee861828a3" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "They live in this place", "learning": "Viven en este lugar" },
+      "tokens": [
+        { "token": "Viven", "start_char": 0, "end_char": 5 },
+        { "token": "en", "start_char": 6, "end_char": 8 },
+        { "token": "este", "start_char": 9, "end_char": 13 },
+        { "token": "lugar", "start_char": 14, "end_char": 19 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91" },
+      "tactic": { "id": "227c6d6e-4659-41cd-b477-6a37e104e6ef" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "5d2cedd1-97c1-4fa2-8549-32a690152565",
+          "tags": [
+            { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+            { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+            { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+            { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+            { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+            { "id": "e526045b-2dc0-4c68-bdd8-ec69a38b1e68" },
+            { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+            { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" }
+          ],
+          "token": { "token": "Viven", "start_char": 0, "end_char": 5 }
+        },
+        {
+          "id": "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+          "tags": [{ "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" }],
+          "token": { "token": "en", "start_char": 6, "end_char": 8 }
+        },
+        {
+          "id": "9547fab9-a869-4883-a520-cceaafc085ba",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "1e096fc8-c861-485b-a824-97ee861828a3" }
+          ],
+          "token": { "token": "este", "start_char": 9, "end_char": 13 }
+        },
+        {
+          "id": "fb7d56cb-74c3-4186-97f4-5b7f10a1448c",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "lugar", "start_char": 14, "end_char": 19 }
+        }
+      ],
+      "tags": [
+        { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+        { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+        { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+        { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+        { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+        { "id": "e526045b-2dc0-4c68-bdd8-ec69a38b1e68" },
+        { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+        { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" },
+        { "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" },
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "1e096fc8-c861-485b-a824-97ee861828a3" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "We live in this city", "learning": "Vivimos en esta ciudad" },
+      "tokens": [
+        { "token": "Vivimos", "start_char": 0, "end_char": 7 },
+        { "token": "en", "start_char": 8, "end_char": 10 },
+        { "token": "esta", "start_char": 11, "end_char": 15 },
+        { "token": "ciudad", "start_char": 16, "end_char": 22 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91" },
+      "tactic": { "id": "227c6d6e-4659-41cd-b477-6a37e104e6ef" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "aaf95006-4369-4295-bd63-b62bc65750a4",
+          "tags": [
+            { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+            { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+            { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+            { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+            { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+            { "id": "a29af5ea-a87b-4b0e-9c00-6efc165973a2" },
+            { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+            { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" }
+          ],
+          "token": { "token": "Vivimos", "start_char": 0, "end_char": 7 }
+        },
+        {
+          "id": "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+          "tags": [{ "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" }],
+          "token": { "token": "en", "start_char": 8, "end_char": 10 }
+        },
+        {
+          "id": "9547fab9-a869-4883-a520-cceaafc085ba",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "1e096fc8-c861-485b-a824-97ee861828a3" }
+          ],
+          "token": { "token": "esta", "start_char": 11, "end_char": 15 }
+        },
+        {
+          "id": "2781b308-02af-4afe-a3ee-1902097a273b",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "ciudad", "start_char": 16, "end_char": 22 }
+        }
+      ],
+      "tags": [
+        { "id": "b7136ccd-d124-4ca8-a5e3-038fee3878be" },
+        { "id": "b3b03701-d446-43f2-bd93-24092f7d7f68" },
+        { "id": "00618d23-c70c-44ac-aa2b-478248c11507" },
+        { "id": "fe4c0992-2ddf-4968-b80f-7bed496bc3e5" },
+        { "id": "0ea53893-0fbc-4669-b17a-37404dec7d2f" },
+        { "id": "a29af5ea-a87b-4b0e-9c00-6efc165973a2" },
+        { "id": "3b9d0998-5f98-4560-a7a6-7ad24614d90a" },
+        { "id": "5fab9f2d-e505-4b23-a232-c6f416fa0fea" },
+        { "id": "c216d4a2-002f-47c1-9292-41d7f8d71def" },
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "1e096fc8-c861-485b-a824-97ee861828a3" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+        { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" }
+      ]
+    }
+  },
+  {
+    "instruction": {
+      "sentence": { "known": "You live a good life", "learning": "Vives una buena vida" },
+      "tokens": [
+        { "token": "Vives", "start_char": 0, "end_char": 5 },
+        { "token": "una", "start_char": 6, "end_char": 9 },
+        { "token": "buena", "start_char": 10, "end_char": 15 },
+        { "token": "vida", "start_char": 16, "end_char": 20 }
+      ]
+    },
+    "scope": {
+      "user": { "id": "localhost" },
+      "runtime": { "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477" },
+      "dependency": { "id": "b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91" },
+      "tactic": { "id": "227c6d6e-4659-41cd-b477-6a37e104e6ef" },
+      "game": { "id": "877e1133-477a-4739-9eea-f74676381fb8" },
+      "units": [
+        {
+          "id": "c81b4c42-574f-4f81-b774-09c8af5399d7",
+          "tags": [
+            { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+            { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "2e0fe449-b539-48f8-aeee-6c9959365f8c" },
+            { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" }
+          ],
+          "token": { "token": "una", "start_char": 6, "end_char": 9 }
+        },
+        {
+          "id": "f2f71b27-5e1f-4a34-9381-4a910f47b381",
+          "tags": [
+            { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+            { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" }
+          ],
+          "token": { "token": "buena", "start_char": 10, "end_char": 15 }
+        },
+        {
+          "id": "37f2c7df-a479-483b-9525-b267cbc476ee",
+          "tags": [
+            { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" },
+            { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" },
+            { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" }
+          ],
+          "token": { "token": "vida", "start_char": 16, "end_char": 20 }
+        }
+      ],
+      "tags": [
+        { "id": "50e93054-0261-4deb-8c51-09af4cfa000c" },
+        { "id": "0862498e-5a83-41a3-994a-9d00f638cf65" },
+        { "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab" },
+        { "id": "2e0fe449-b539-48f8-aeee-6c9959365f8c" },
+        { "id": "c8a22d68-3937-4406-920b-2ab6ed4494ff" },
+        { "id": "b8bc49dd-5610-4407-9340-40cca206aa60" },
+        { "id": "9fd9e512-24f2-4400-a555-e9bd25982320" }
+      ]
+    }
+  },
+
+{"instruction":{"sentence":{"known":"You all live in the city","learning":"Vivís en la ciudad"},"tokens":[{"token":"Vivís","start_char":0,"end_char":5},{"token":"en","start_char":6,"end_char":8},{"token":"la","start_char":9,"end_char":11},{"token":"ciudad","start_char":12,"end_char":18}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"aaf95006-4369-4295-bd63-b62bc65750a4","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"}],"token":{"token":"Vivís","start_char":0,"end_char":5}},{"id":"eb378c20-ef86-4cac-8e8f-c087f2d79a50","tags":[{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"}],"token":{"token":"en","start_char":6,"end_char":8}},{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":9,"end_char":11}},{"id":"2781b308-02af-4afe-a3ee-1902097a273b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"ciudad","start_char":12,"end_char":18}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"},{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"They live in the city","learning":"Ellos viven en la ciudad"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"viven","start_char":6,"end_char":11},{"token":"en","start_char":12,"end_char":14},{"token":"la","start_char":15,"end_char":17},{"token":"ciudad","start_char":18,"end_char":24}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"5d2cedd1-97c1-4fa2-8549-32a690152565","tags":[{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"}],"token":{"token":"viven","start_char":6,"end_char":11}},{"id":"eb378c20-ef86-4cac-8e8f-c087f2d79a50","tags":[{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"}],"token":{"token":"en","start_char":12,"end_char":14}},{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":15,"end_char":17}},{"id":"2781b308-02af-4afe-a3ee-1902097a273b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"ciudad","start_char":18,"end_char":24}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"},{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"We live in a beautiful way","learning":"Vivimos de una forma hermosa"},"tokens":[{"token":"Vivimos","start_char":0,"end_char":7},{"token":"de","start_char":8,"end_char":10},{"token":"una","start_char":11,"end_char":14},{"token":"forma","start_char":15,"end_char":20},{"token":"hermosa","start_char":21,"end_char":28}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"aaf95006-4369-4295-bd63-b62bc65750a4","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"}],"token":{"token":"Vivimos","start_char":0,"end_char":7}},{"id":"84dc0c83-e8ea-4485-bfa6-2c760fb4f92b","tags":[{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"}],"token":{"token":"de","start_char":8,"end_char":10}},{"id":"c81b4c42-574f-4f81-b774-09c8af5399d7","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"2e0fe449-b539-48f8-aeee-6c9959365f8c"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"una","start_char":11,"end_char":14}},{"id":"aa67423e-ba90-4f61-9232-c981c09a35c3","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"forma","start_char":15,"end_char":20}},{"id":"6cc0f096-051f-4ec2-b4a1-02ee7b7075c2","tags":[{"id":"b8bc49dd-5610-4407-9340-40cca206aa60"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"}],"token":{"token":"hermosa","start_char":21,"end_char":28}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"},{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"2e0fe449-b539-48f8-aeee-6c9959365f8c"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"b8bc49dd-5610-4407-9340-40cca206aa60"}]}},
+{"instruction":{"sentence":{"known":"You live in the city","learning":"Tú vives en la ciudad"},"tokens":[{"token":"Tú","start_char":0,"end_char":2},{"token":"vives","start_char":3,"end_char":8},{"token":"en","start_char":9,"end_char":11},{"token":"la","start_char":12,"end_char":14},{"token":"ciudad","start_char":15,"end_char":21}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"13d6e9c8-66de-40c9-9a31-265914d79d9e","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"}],"token":{"token":"vives","start_char":3,"end_char":8}},{"id":"eb378c20-ef86-4cac-8e8f-c087f2d79a50","tags":[{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"}],"token":{"token":"en","start_char":9,"end_char":11}},{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":12,"end_char":14}},{"id":"2781b308-02af-4afe-a3ee-1902097a273b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"ciudad","start_char":15,"end_char":21}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5fab9f2d-e505-4b23-a232-c6f416fa0fea"},{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the day","learning":"el día"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"día","start_char":3,"end_char":6}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":3,"end_char":6}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the country","learning":"el país"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"país","start_char":3,"end_char":7}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"af1d6f62-f45e-4fae-b151-ca16be5459dc","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"país","start_char":3,"end_char":7}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the president","learning":"el presidente"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"presidente","start_char":3,"end_char":13}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"21795228-dae7-4ade-9c78-35f11e573286","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"presidente","start_char":3,"end_char":13}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the man","learning":"el hombre"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"hombre","start_char":3,"end_char":9}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"f26d92ec-4676-4f6a-b5fd-026a2107d298","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"hombre","start_char":3,"end_char":9}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the son","learning":"el hijo"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"hijo","start_char":3,"end_char":7}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"4bbb820f-a092-4ccd-9b48-a045b61de1c5","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"hijo","start_char":3,"end_char":7}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the world","learning":"el mundo"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"mundo","start_char":3,"end_char":8}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"9228caab-040a-4fec-9eae-e3216b90fc82","tags":[{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}],"token":{"token":"mundo","start_char":3,"end_char":8}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the father","learning":"el padre"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"padre","start_char":3,"end_char":8}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"b120e056-13fc-4f54-a543-a01757448a72","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"padre","start_char":3,"end_char":8}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the government","learning":"el gobierno"},"tokens":[{"token":"el","start_char":0,"end_char":2},{"token":"gobierno","start_char":3,"end_char":11}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":0,"end_char":2}},{"id":"0f083958-dfbd-4e93-9c5e-b320d41cdd0b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"gobierno","start_char":3,"end_char":11}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the truth","learning":"la verdad"},"tokens":[{"token":"la","start_char":0,"end_char":2},{"token":"verdad","start_char":3,"end_char":9}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":0,"end_char":2}},{"id":"dbc4c574-e093-445a-ac9b-a11985f16c94","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"verdad","start_char":3,"end_char":9}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"learning":"la hora","known":"the hour"},"tokens":[{"token":"la","start_char":0,"end_char":2},{"token":"hora","start_char":3,"end_char":7}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":0,"end_char":2}},{"id":"a22f2331-5048-48a6-bfa6-c74b675a7197","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"hora","start_char":3,"end_char":7}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the city","learning":"la ciudad"},"tokens":[{"token":"la","start_char":0,"end_char":2},{"token":"ciudad","start_char":3,"end_char":9}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":0,"end_char":2}},{"id":"2781b308-02af-4afe-a3ee-1902097a273b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"ciudad","start_char":3,"end_char":9}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"the woman","learning":"la mujer"},"tokens":[{"token":"la","start_char":0,"end_char":2},{"token":"mujer","start_char":3,"end_char":8}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"c041ee59-5090-4bd9-9865-6dfd32dfe9f6"},"tactic":{"id":"1a7ea88f-5c65-4f06-be53-e68b59da3359"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e6259d35-7351-4312-921b-3c9a3fb7dcfd","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"la","start_char":0,"end_char":2}},{"id":"c4dd20db-3f5e-4bcf-a292-b9ec617108c0","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"mujer","start_char":3,"end_char":8}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"You ran to the place","learning":"Tú corrías al lugar"},"tokens":[{"token":"Tú","start_char":0,"end_char":2},{"token":"a","start_char":null,"end_char":null},{"token":"el","start_char":null,"end_char":null},{"token":"corrías","start_char":3,"end_char":10},{"token":"lugar","start_char":14,"end_char":19}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"bcdbeb48-bf5d-4dcd-a1d3-aa0b1d6210bf"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"fcf58e16-7c41-46b7-ae53-6aadf12163ac","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"}],"token":{"token":"corrías","start_char":3,"end_char":10}},{"id":"ec6197f0-8cb3-4198-b1a5-cd1918524041","tags":[{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"}],"token":{"token":"a","start_char":null,"end_char":null}},{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":null,"end_char":null}},{"id":"fb7d56cb-74c3-4186-97f4-5b7f10a1448c","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"lugar","start_char":14,"end_char":19}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"},{"id":"c216d4a2-002f-47c1-9292-41d7f8d71def"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"I run every day","learning":"Yo corro cada día"},"tokens":[{"token":"Yo","start_char":0,"end_char":2},{"token":"corro","start_char":3,"end_char":8},{"token":"cada","start_char":9,"end_char":13},{"token":"día","start_char":14,"end_char":17}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"bcdbeb48-bf5d-4dcd-a1d3-aa0b1d6210bf"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"6748f9fb-2011-452d-ac7e-5c7cd274131a","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"5c8e1777-0732-477a-97be-2a37c0a57fd0"}],"token":{"token":"cada","start_char":9,"end_char":13}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":14,"end_char":17}}],"tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"5c8e1777-0732-477a-97be-2a37c0a57fd0"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}]}},
+{"instruction":{"sentence":{"learning":"Tú corres","known":"You run"},"tokens":[{"token":"Tú","start_char":0,"end_char":2},{"token":"corres","start_char":3,"end_char":9}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"bcdbeb48-bf5d-4dcd-a1d3-aa0b1d6210bf"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"8c47072f-af43-40fe-9e72-663dc2f63b1a","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"}],"token":{"token":"corres","start_char":3,"end_char":9}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"}]}},
+{"instruction":{"sentence":{"learning":"Nosotros corremos","known":"We run"},"tokens":[{"token":"Nosotros","start_char":0,"end_char":8},{"token":"corremos","start_char":9,"end_char":17}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"bcdbeb48-bf5d-4dcd-a1d3-aa0b1d6210bf"},"tactic":{"id":"227c6d6e-4659-41cd-b477-6a37e104e6ef"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"964067ee-401b-4c74-a682-e76fa020e492","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Nosotros","start_char":0,"end_char":8}},{"id":"fcf58e16-7c41-46b7-ae53-6aadf12163ac","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"}],"token":{"token":"corremos","start_char":9,"end_char":17}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"a29af5ea-a87b-4b0e-9c00-6efc165973a2"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"5810ba41-a6b2-4748-899b-9df79f94d77b"}]}},
+{"instruction":{"sentence":{"known":"They see a thing","learning":"Ellos ven una cosa"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"ven","start_char":6,"end_char":9},{"token":"una","start_char":10,"end_char":13},{"token":"cosa","start_char":14,"end_char":18}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":6,"end_char":9}},{"id":"c81b4c42-574f-4f81-b774-09c8af5399d7","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"2e0fe449-b539-48f8-aeee-6c9959365f8c"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"una","start_char":10,"end_char":13}},{"id":"3a92242d-18cf-4c46-a8ab-df07b4b01a2b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"cosa","start_char":14,"end_char":18}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"2e0fe449-b539-48f8-aeee-6c9959365f8c"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"They see the things every day","learning":"Ellos ven las cosas cada día"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"ven","start_char":6,"end_char":9},{"token":"las","start_char":10,"end_char":13},{"token":"cosas","start_char":14,"end_char":19},{"token":"cada","start_char":20,"end_char":24},{"token":"día","start_char":25,"end_char":28}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":6,"end_char":9}},{"id":"0c738001-15a4-4ebf-aa24-7339d8539967","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"las","start_char":10,"end_char":13}},{"id":"3a92242d-18cf-4c46-a8ab-df07b4b01a2b","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"}],"token":{"token":"cosas","start_char":14,"end_char":19}},{"id":"6748f9fb-2011-452d-ac7e-5c7cd274131a","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"5c8e1777-0732-477a-97be-2a37c0a57fd0"}],"token":{"token":"cada","start_char":20,"end_char":24}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":25,"end_char":28}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"0862498e-5a83-41a3-994a-9d00f638cf65"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"5c8e1777-0732-477a-97be-2a37c0a57fd0"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}]}},
+{"instruction":{"sentence":{"known":"They see the day","learning":"Ellos ven el día"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"ven","start_char":6,"end_char":9},{"token":"el","start_char":10,"end_char":12},{"token":"día","start_char":13,"end_char":16}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":6,"end_char":9}},{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":10,"end_char":12}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":13,"end_char":16}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"They see the days go by.","learning":"Ven los días pasar."},"tokens":[{"token":"Ven","start_char":0,"end_char":3},{"token":"los","start_char":4,"end_char":7},{"token":"días","start_char":8,"end_char":12},{"token":"pasar","start_char":13,"end_char":18},{"token":".","start_char":18,"end_char":19}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e991ccc8-1f23-4539-a943-56433784fa73","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"08c7d940-ca21-4e6c-ba6e-ebd3f43adc54"}],"token":{"token":"Ven","start_char":0,"end_char":3}},{"id":"c9ab372c-2f51-4945-8265-e5df8ed3225b","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"los","start_char":4,"end_char":7}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"}],"token":{"token":"días","start_char":8,"end_char":12}},{"id":"6c84ff72-efaa-49d4-a0ba-0943f9e75cdc","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"4209c8fe-6808-4487-841f-11f07c1fd976"},{"id":"f6757362-621f-47a7-9d22-a92cf6b927ba"},{"id":"e2de6db8-5c3c-4913-a1fc-3852fccf194d"}],"token":{"token":"pasar","start_char":13,"end_char":18}},{"id":"fee35d8a-f8d3-492a-beca-d2d94244df31","tags":[{"id":"f068a606-b4b9-46f8-a619-42ff071420fc"}],"token":{"token":".","start_char":18,"end_char":19}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"08c7d940-ca21-4e6c-ba6e-ebd3f43adc54"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"4209c8fe-6808-4487-841f-11f07c1fd976"},{"id":"f6757362-621f-47a7-9d22-a92cf6b927ba"},{"id":"e2de6db8-5c3c-4913-a1fc-3852fccf194d"},{"id":"f068a606-b4b9-46f8-a619-42ff071420fc"}]}},
+{"instruction":{"sentence":{"known":"They see the day","learning":"Ven el día"},"tokens":[{"token":"Ven","start_char":0,"end_char":3},{"token":"el","start_char":4,"end_char":6},{"token":"día","start_char":7,"end_char":10}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"e991ccc8-1f23-4539-a943-56433784fa73","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"08c7d940-ca21-4e6c-ba6e-ebd3f43adc54"}],"token":{"token":"Ven","start_char":0,"end_char":3}},{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":4,"end_char":6}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":7,"end_char":10}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"fe4c0992-2ddf-4968-b80f-7bed496bc3e5"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"08c7d940-ca21-4e6c-ba6e-ebd3f43adc54"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"known":"They see it","learning":"Lo ven"},"tokens":[{"token":"Lo","start_char":0,"end_char":2},{"token":"ven","start_char":3,"end_char":6}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":3,"end_char":6}}],"tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}]}},
+{"instruction":{"sentence":{"known":"They see the day","learning":"Ellos ven el día"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"ven","start_char":6,"end_char":9},{"token":"el","start_char":10,"end_char":12},{"token":"día","start_char":13,"end_char":16}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":6,"end_char":9}},{"id":"043a851a-45f0-4fd4-b45c-cbfce8d66d17","tags":[{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"}],"token":{"token":"el","start_char":10,"end_char":12}},{"id":"b447473f-dd03-49cf-a14c-ac753bd74dbe","tags":[{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"}],"token":{"token":"día","start_char":13,"end_char":16}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"},{"id":"50e93054-0261-4deb-8c51-09af4cfa000c"},{"id":"274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"},{"id":"82758521-b342-489f-8c33-7cecb6756cd2"},{"id":"c8a22d68-3937-4406-920b-2ab6ed4494ff"},{"id":"9fd9e512-24f2-4400-a555-e9bd25982320"}]}},
+{"instruction":{"sentence":{"learning":"Ellos lo ven","known":"They see it"},"tokens":[{"token":"Ellos","start_char":0,"end_char":5},{"token":"lo","start_char":6,"end_char":8},{"token":"ven","start_char":9,"end_char":12}]},"scope":{"user":{"id":"localhost"},"runtime":{"id":"92d1ace6-146e-4b8d-a5ef-5882eaaa9477"},"dependency":{"id":"e2c4bdbe-39ec-4d96-a258-063e7de30d12"},"tactic":{"id":"14c3ca7f-67ba-420e-9709-08fd6ccd4991"},"game":{"id":"877e1133-477a-4739-9eea-f74676381fb8"},"units":[{"id":"608b04be-abc9-4ba9-9bfb-d8016e1ca477","tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"}],"token":{"token":"Ellos","start_char":0,"end_char":5}},{"id":"51d6c352-4df8-40eb-9dde-0b05c10c1095","tags":[{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}],"token":{"token":"ven","start_char":9,"end_char":12}}],"tags":[{"id":"2544162b-1a4d-4034-b54b-1f4ce1653288"},{"id":"d192bf8b-e0ce-41f5-a3e0-7bd86e44927b"},{"id":"0ea53893-0fbc-4669-b17a-37404dec7d2f"},{"id":"e526045b-2dc0-4c68-bdd8-ec69a38b1e68"},{"id":"728e20cc-9a27-4c2f-929c-82e0f81ac137"},{"id":"b7136ccd-d124-4ca8-a5e3-038fee3878be"},{"id":"b3b03701-d446-43f2-bd93-24092f7d7f68"},{"id":"00618d23-c70c-44ac-aa2b-478248c11507"},{"id":"3b9d0998-5f98-4560-a7a6-7ad24614d90a"},{"id":"4cb3a5f9-befd-40c2-835d-e3951975a3d6"},{"id":"9c411f00-792d-4484-b3e3-744b000f6a53"}]}},

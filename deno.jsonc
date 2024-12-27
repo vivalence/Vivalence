@@ -17,7 +17,11 @@
     "viva": "VIVA_ROLE=sudo deno run -A ./packages/clients/viva/mod.js",
     "viva:dev": "VIVA_ROLE=sudo deno run --watch -A ./packages/clients/viva/mod.js",
 
+<<<<<<< HEAD
     "daemon:dev": "VIVA_ROLE=daemon deno run --watch -A  packages/daemon/mod.ts",
+=======
+    "daemon:dev": "VIVA_ROLE=daemon deno run --watch -A packages/daemon/mod.js",
+>>>>>>> main
     "web:dev": "VIVA_ROLE=client deno run -A packages/clients/web/mod.js",
 
     "schema:compile": "VIVA_ROLE=sudo deno run -A packages/schema/compile.js",

@@ -12,6 +12,10 @@ export default function annotate(token, ctx) {
     annotation[key] = feats[key];
   }
 
+  if (["verb", "aux"].includes(annotation.pos)) {
+    annotation.suffix = token.lemma.slice(-2);
+  }
+
   if (!ctx.runtime.schema.units[annotation.pos]) {
     throw new Error(`Schema not found for pos: ${annotation.pos}`);
   }

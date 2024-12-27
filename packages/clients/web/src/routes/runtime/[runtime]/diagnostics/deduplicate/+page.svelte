@@ -28,7 +28,7 @@
   async function remedyDuplicates() {
     while (duplicates.length > 0) {
       remedying.push(true);
-      const input = { issue: duplicates.pop() };
+      const input = { issue: duplicates.shift() };
       const result = await aperture.call(
         `/runtime/${runtime.slug}/diagnostics/duplicates/remedy`,
         input,
@@ -43,6 +43,7 @@
   <div>
     <Text>index: {index * BATCHSIZE}</Text>
     <Button onclick={() => (index += 1)}>Bump Index</Button>
+    <Button onclick={() => (index -= 1)}>Slurp Index</Button>
     <br />
 
     <Button onclick={findDuplicates}>

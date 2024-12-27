@@ -94,7 +94,10 @@ const querybuilders = {
     return query;
   },
   verbs: function (query, annotation) {
-    query = query.eq("annotation->>verbform", annotation.verbform);
+    query = query
+      .eq("annotation->>verbform", annotation.verbform)
+      .eq("annotation->>suffix", annotation.suffix);
+
     if (annotation.verbform === "fin") {
       query = query
         .eq("annotation->>mood", annotation.mood)
@@ -102,6 +105,7 @@ const querybuilders = {
         .eq("annotation->>person", annotation.person)
         .eq("annotation->>number", annotation.number);
     }
+
     return query;
   },
   default: function (query, annotation) {

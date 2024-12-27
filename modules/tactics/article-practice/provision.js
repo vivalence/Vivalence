@@ -1,7 +1,6 @@
 import { blacklist as Blacklist, array } from "@vivalence/shared";
 
-const TRANSLATIONS_VOCAB_GROUPSIZE = 3;
-const TRANSLATIONS_COUNT = 6;
+const TRANSLATIONS_VOCAB_PROMPTSIZE = 4;
 
 export default async function provision(inputs, ctx) {
   const { tactic, scope } = inputs;
@@ -9,86 +8,99 @@ export default async function provision(inputs, ctx) {
   const language = ctx.runtime.statics.language;
   let blacklist = inputs.blacklist;
 
-  const [definiteness] = await ctx.runtime.call("/pick/tags/byStrength", {
-    tags: tags.definite,
-    take: 1,
-  });
-  const [gender] = await ctx.runtime.call("/pick/tags/byStrength", {
-    tags: tags.gender,
-    take: 1,
-  });
-  const [number] = await ctx.runtime.call("/pick/tags/byStrength", {
-    tags: tags.number,
-    take: 1,
-  });
+  // blacklist only if tags.x is longer than one.
+  // maybe i need a picker for pending with fallback weakest.
+  // something like a pipeline would be nice. where i define a bunch of pickers and it runs until take is satisfied.
+  const [[gender], [number], [definiteness]] = await Promise.all([
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.gender }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.number }),
+    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.definite }),
+  ]);
 
-  const vocabulary = await ctx.runtime.call("/pick/units/pending", {
-    tagIds: [tags.vocabulary.id, gender.id],
-    blacklist,
-    scope,
-    take: TRANSLATIONS_COUNT * TRANSLATIONS_VOCAB_GROUPSIZE,
-  });
-  console.log(definetness, gender, number, vocabulary);
+  const instructions = [];
+  if (!definiteness || !gender || !number) return instructions;
 
-  let translations = [];
-  for (const vocab of array.chunk(vocabulary, TRANSLATIONS_VOCAB_GROUPSIZE)) {
-    const constraints = translationConstraints({ gender, number, definiteness, vocab });
-    const translation = games.translations.call("/provision", { constraints });
-    translations.push(translation);
-  }
-  translations = await Promise.all(translations);
-
-  const unitIds = translations.map((t) => t.scope.units).flat();
-  const weakUnits = await ctx.runtime.call("/pick/units/byStatus", {
-    status: tactic.masks.flashcards.status,
-    unitIds: unitIds.map((u) => u.id),
-    take: translations.length,
-  });
-  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
+  // possiblly add prose if number,gender,definiteness have no memory.
   // const constraints = proseConstraints({ gender, number, definiteness, translations, language });
   // const prose = await games.prose.call("/provision", { constraints });
 
-  return [...flashcards, ...translations];
+  const conceptFlashcard = await games.flashcards.call("/provision/fromLLM", {
+    concept: flashcardConcept({ gender, number, definiteness }),
+    scope: { tags: [{ id: definiteness.id }, { id: number.id }, { id: gender.id }] },
+  });
+  instructions.push(...conceptFlashcard);
+
+  let translations = [];
+  const nouns = await ctx.runtime.call("/pick/units/pending", {
+    scope: { ...scope, game: { id: games.translations.id } },
+    blacklist,
+    tagIds: [tags.vocabulary.id, tags.nouns.id, gender.id],
+    take: tactic.masks.translations.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
+  });
+  let adjectives = [];
+  if (tags.adjectives) {
+    adjectives = await ctx.runtime.call("/pick/units/pending", {
+      scope: { ...scope, game: { id: games.translations.id } },
+      blacklist,
+      tagIds: [tags.vocabulary.id, tags.adjectives.id],
+      take: tactic.masks.translations.reps * TRANSLATIONS_VOCAB_PROMPTSIZE,
+    });
+  }
+
+  for (const vocabulary of array.chunk(nouns, TRANSLATIONS_VOCAB_PROMPTSIZE)) {
+    if (adjectives.length > 0) {
+      vocabulary.push(...adjectives.splice(0, TRANSLATIONS_VOCAB_PROMPTSIZE));
+    }
+    const constraints = translationConstraints({
+      gender,
+      number,
+      definiteness,
+      vocabulary,
+      tactic,
+    });
+    const translation = games.translations.call("/provision", { constraints });
+    translations.push(translation);
+  }
+  translations = (await Promise.all(translations)).flat();
+
+  const unitIds = translations
+    .map((t) => t.scope.units)
+    .flat()
+    .map((u) => u.id);
+  const weakUnits = await ctx.runtime.call("/pick/units/byStatus", {
+    status: tactic.masks.flashcards.threshold,
+    unitIds,
+    blacklist,
+  });
+  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
+  instructions.push(...flashcards, ...translations);
+
+  return instructions;
 }
 
-function translationConstraints({ gender, number, definiteness, vocab }) {
+function flashcardConcept({ gender, number, definiteness }) {
+  const def = definiteness.data.ONTOLOGICAL;
+  const gen = gender.data.ONTOLOGICAL;
+  const num = number.data.ONTOLOGICAL;
+
+  return `Generate a flashcard for the article that correctly marks:
+${definiteness.name} (${def.branch}:${def.leaf}) 
+${gender.name} (${gen.branch}:${gen.leaf}) 
+${number.name} (${num.branch}:${num.leaf})  
+
+The concept should be explained clearly with examples that demonstrate all three properties working together.
+
+Example output should test understanding of the correct article form for this combination.`;
+}
+function translationConstraints({ gender, number, definiteness, vocabulary, tactic }) {
   return [
+    // i'd guess the arrays merge, which will result in contradicting constraints.
+    ...(tactic.masks.translations?.constraints ?? []),
     "Create a simple statement with an article given the following constraints:",
     `gender: ${gender.name}`,
     `number: ${number.name}`,
     `definiteness: ${definiteness.name}`,
-    `vocabulary: known / learning`,
-    ...vocab.map((unit) => `${unit.data.known} / ${unit.data.learning}`),
-    "Dont ever use vocabulary thats more advanced than whats provided.",
-    "Dont ever go longer than 4 words.",
-    "Create very very very simple statements. Like a child would say or use for practice.",
-    "The statement is just there to practice the article. thats it. nothing more.",
-    "Dont include an article. Just the noun.",
-    "Follow this simple template: '[article] [noun]'",
-    "The English form must unambiguously indicate which Spanish article is expected",
-  ];
-}
-function proseConstraints({ gender, number, definiteness, translations, language }) {
-  return [
-    `The learner's native language is ${language.known} and the target language being learned is ${language.learning}.`,
-    `You create a short explainer. Explain the relationship between articles / article morphology, and the gender, number and definiteness.`,
-    `The user will read this explainer, and translate a few statements afterward.`,
-    `The sentences are these:`,
-    translations.map((t) => JSON.stringify(t.instruction.sentence)).join(", "),
-    `use the some of the sentences to explain the relationship between articles and the grammatical features.`,
-    `The grammatical features to be explained are: Gender: ${gender.name}. Number: ${number.name}. Definiteness: ${definiteness.name}.`,
-    `The explainer should be simple and easy to understand. It should be written in a way that a child could understand it.`,
-    `Use the following template/structure to write the explainer:`,
-    `
-{Comparing article usage between source and target languages}
-
-{Core rules explanation:
-- how [x1] affects articles
-- how [x2] affects articles  
-- how [x3] affects articles}
-
-{Pattern demonstration showing rules working together with concrete examples}
-`,
-    "Around 150 words or 2 paragraphs. Never more than 180 words or 3 paragraphs.",
+    `vocabulary (language known / language learning):`,
+    ...vocabulary.map((unit) => `${unit.data.known} / ${unit.data.learning}`),
   ];
 }

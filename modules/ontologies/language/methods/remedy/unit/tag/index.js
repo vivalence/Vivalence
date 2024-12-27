@@ -27,9 +27,13 @@ async function required(issue, ctx) {
 
       resolved = { resolved: !result.error, issue, tag: requiredTag, unit, from: "annotation" };
     } else {
-      // console.log("required tag not found", ontology, unit.id, unit.data.annotation);
-      // console.log(JSON.stringify(issue, null, 2));
-      resolved = { resolved: false, issue, error: { message: "required tag not found" } };
+      console.log("required tag not found", ontology, unit.id, unit.data.annotation);
+      console.json(issue);
+      resolved = {
+        resolved: false,
+        issue,
+        error: { message: "Remedy failure: [unit tag]:required - tag not found" },
+      };
     }
   })();
 
@@ -42,7 +46,7 @@ async function unique(issue, ctx) {
   let resolved = [];
 
   await (async function fromAnnotation() {
-    const annotation = unit.data.annotation;
+    const annotation = unit.annotation;
 
     const tags = unit.tags
       .filter((tag) => {
@@ -63,7 +67,7 @@ async function unique(issue, ctx) {
 
     // delete all tags that match the constraint but are not in the annotation
     for (const tag of tags) {
-      const result = await ctx.runtime.locals.supabase
+      const result = await ctx.runtime.services.supabase
         .from("_TagToUnit")
         .delete()
         .eq("A", tag.id)
@@ -98,6 +102,6 @@ async function forbidden(issue, ctx) {
 }
 
 export default {
-  handlers: { required }, // forbidden,unique
+  handlers: { required, unique }, // forbidden,unique
   path: ["tag"],
 };

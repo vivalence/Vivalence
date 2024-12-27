@@ -16,6 +16,7 @@ export default async function (body, ctx) {
       // user_id: await ctx.runtime.services.identity.getUser().id
       // runtime_id: ctx.runtime.manifest.id
     };
+    // console.json({ params, methodname });
 
     const { data, error } = await ctx.runtime.services.supabase.rpc(methodname, params);
 

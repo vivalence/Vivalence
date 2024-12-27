@@ -65,7 +65,7 @@ async function forceUnitValidity(unit, ctx) {
 }
 
 async function getUnit(unit, ctx) {
-  let query = ctx.runtime.locals.supabase
+  let query = ctx.runtime.services.supabase
     .from("Unit")
     .select("*, tags: _TagToUnit(tag:A(*))")
     .eq("runtimeId", ctx.runtime.manifest.id);
@@ -80,7 +80,7 @@ async function getUnit(unit, ctx) {
 }
 
 async function updateUnit(units, ctx) {
-  const { data, error } = await ctx.runtime.locals.supabase
+  const { data, error } = await ctx.runtime.services.supabase
     .from("Unit")
     .update({ ...units.new })
     .eq("id", units.old.id)
@@ -93,7 +93,7 @@ async function updateUnit(units, ctx) {
 }
 
 async function newUnit(unit, ctx) {
-  const { data, error } = await ctx.runtime.locals.supabase
+  const { data, error } = await ctx.runtime.services.supabase
     .from("Unit")
     .insert({ runtimeId: ctx.runtime.manifest.id, ...unit })
     .select("*, tags:_TagToUnit(tag:A(*))")

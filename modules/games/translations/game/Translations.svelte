@@ -44,7 +44,7 @@
 
 <div class="bsp-node root">
   <div class="bsp-node content">
-    <div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb-[20vh]">
+    <div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb---[20vh]">
       <div class="flex flex-col items-center w-full justify-center pb-8">
         <div class="w-full mb-2">
           <Text size="sm">English:</Text>
@@ -75,7 +75,7 @@
           </div>
 
           {#if evaluations}
-            <div class="flex flex-row flex-wrap">
+            <div class="flex flex-col flex-wrap">
               {#each evaluations as evaluation}
                 <Card {...evaluation} />
               {/each}

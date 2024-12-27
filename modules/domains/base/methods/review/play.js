@@ -1,9 +1,13 @@
+import { validateSignal } from "../../memory/index.js";
+
 export default async function ({ scope, lastAt, nextAt, nextIn, signal }, ctx) {
   if (!scope.user) {
     const user = await ctx.runtime.services.identity.getUser();
     if (!user) throw new Error("User not found");
     scope.user = { id: user.id };
   }
+
+  signal = validateSignal(signal);
 
   const play = await read({ scope }, ctx);
 

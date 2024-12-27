@@ -1,5 +1,17 @@
-export default async function (body, ctx) {
-  const { scope, signal } = body;
+import { validateSignal } from "../../memory/index.js";
+
+// might want to refactor this into a reducer
+export default async function ({ scope, signal }, ctx) {
+  if (scope.tags?.length > 0) {
+    scope.tags.map(async (tag) => {
+      // should i handle the return?
+      await ctx.runtime.call("/review/tag", { signal, scope: { ...scope, tags: null, tag } });
+    });
+  }
+
+  if (!scope.tag?.id) return { status: "bounce", message: "Tag required" };
+
+  signal = validateSignal(signal);
 
   const { data: tag, error: te } = await ctx.runtime.services.supabase
     .from("Tag")
@@ -24,9 +36,13 @@ export default async function (body, ctx) {
   }
 
   const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", { scope, signal });
+  // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
 
-  if (statusChange)
-    (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+  if (tag.data["LEARNABLE"].flavor === "RELATIONAL") {
+    delete scope.unit;
+    const { statusChange } = await ctx.runtime.call("/review/memory", { scope, signal });
+    // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+  }
 
   scope.memory = { id: memory.id };
 
