@@ -29,6 +29,8 @@ const daemon: Daemon = {
   // controller: null
 };
 
+console.json = (value) => console.log(JSON.stringify(value, null, 2));
+
 (async (daemon) =>
   await [
     ticker("init"),

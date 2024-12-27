@@ -11,7 +11,7 @@ const manifest = {
   type: "ontology",
   slug: "language",
   name: "Langauge after Universal Dependencies",
-  version: "0.0.7",
+  version: "0.0.8",
 };
 
 export { manifest, schema, boot, curriculum };

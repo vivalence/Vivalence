@@ -1,3 +1,3 @@
-import filter from "../lib/byStrength.js";
+import byStrength from "../lib/byStrength.js";
 
-export default filter("units");
+export default byStrength("units");

@@ -42,7 +42,7 @@ export const meta = {
     },
     aux: {
       enum: "aux",
-      title: "Auxiliary",
+      title: "Auxiliary Verb",
       description: "A verb used in forming tenses, moods, and voices.",
     },
     cconj: {

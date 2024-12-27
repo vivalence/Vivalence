@@ -1,7 +1,6 @@
 <script>
   import { Widget } from "@vivalence/ui";
   import { id, blacklist as Blacklist } from "@vivalence/shared";
-  import { fromScope } from "$lib/blacklist.js";
   import Buffer from "$components/Buffer/Buffer.svelte";
   import SignalHandler from "./components/SignalHandler.svelte";
 
@@ -14,6 +13,7 @@
   };
 
   const Modes = {
+    SIGNAL: (instruction) => [SignalHandler, { instruction, runtime, dependency }],
     GAME: (instruction) => [
       Widget,
       {
@@ -23,7 +23,6 @@
         bundle: instruction.game.bundle,
       },
     ],
-    SIGNAL: (instruction) => [SignalHandler, { instruction, runtime, dependency }],
   };
 
   async function pull({ take, buffer = null }) {
@@ -42,6 +41,7 @@
         input,
       );
 
+      console.log("feed result", result.data.status);
       if (result.error) throw result.error;
       const instructions = result.data.instructions;
       return instructions;
@@ -61,14 +61,12 @@
   }
 
   const render = (instruction) => {
-    console.log(instruction);
     if (Modes[instruction?.type]) return Modes[instruction?.type](instruction);
     else [null, {}];
   };
 
   async function onNext({ prev, next }) {
-    const result = await aperture.call(`/runtime/${runtime.slug}/instructions/remove`, prev);
-    console.log("[/practice/+page.svelte] Buffer onNext remove");
+    await aperture.call(`/runtime/${runtime.slug}/instructions/remove`, prev);
   }
 </script>
 

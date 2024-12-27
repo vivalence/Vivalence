@@ -1,25 +1,14 @@
 import Mustache from "mustache";
-import fs from "node:fs";
 
 export default async function provision(inputs, ctx) {
   const { tags, mask, blacklist, scope } = inputs;
   const { language } = ctx.runtime.statics;
 
-  // // POST TENSE TAG //
-  const [tenseTag] = await ctx.runtime.call("/tags/fromTagIds", {
-    tagIds: [tags.tense.id],
-    take: 1,
-  });
-
-  // // POST INFINITIVE UNIT //
-  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", {
-    tagIds: [mask.tags.infinitive.id, tags.verb.id],
-    take: 1,
-  });
-
-  // // POST CONJUGATION UNITS //
-  const tagIds = [tags.verb.id, tags.tense.id, tags.mood.id];
+  let tagIds = [tags.verb.id, tags.tense.id, tags.mood.id, tags.aspect.id];
   const conjugationUnits = await ctx.runtime.call("/units/fromTagIds", { tagIds });
+
+  tagIds = [mask.tags.infinitive.id, tags.verb.id];
+  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", { tagIds });
 
   if (!infinitiveVerb || conjugationUnits.length !== 6) {
     new Error("not the right number of conjugation units found", {
@@ -33,17 +22,32 @@ export default async function provision(inputs, ctx) {
     known: `${unit.data.known}`,
     learning: `${unit.data.learning}`,
     meta: { index },
-    scope: { unit: { id: unit.id } },
+    scope: {
+      unit: {
+        id: unit.id,
+      },
+      tags: unit.tags
+        .filter((tag) => tag.traits.includes("LEARNABLE"))
+        .map((tag) => ({ id: tag.id })),
+    },
   }));
 
-  scope.tags = tagIds.map((id) => ({ id }));
   scope.units = conjugations.map(({ scope }) => scope.unit);
+  scope.tags = Array.from(
+    new Set([
+      ...conjugations
+        .map(({ scope }) => scope.tags)
+        .map((tags) => tags.map(({ id }) => id))
+        .flat(),
+    ]),
+  ).map((id) => ({ id }));
 
   const instruction = {
     type: "CONJUGATIONS",
     instruction: {
-      tense: tenseTag.name,
+      tense: tags.tense.name,
       mood: tags.mood.name,
+      aspect: tags.aspect.name,
       infinitive: {
         known: infinitiveVerb.data.known,
         learning: infinitiveVerb.data.learning,
@@ -53,7 +57,7 @@ export default async function provision(inputs, ctx) {
     scope,
   };
 
-  return instruction;
+  return [instruction];
 }
 
 const sortByPerformer = (a, b) => {

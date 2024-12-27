@@ -16,6 +16,7 @@
   const loadStatus = () => {
     if (load) {
       load();
+      console.log("load function called");
     } else {
       console.log("No load function provided");
     }
@@ -23,8 +24,8 @@
   };
 
   onMount(() => {
-    loadStatus();
-    /* interval = setInterval(loadStatus, Math.random() * VARIANCE + MINIMUM); */
+    /* loadStatus(); */
+    interval = setInterval(loadStatus, Math.random() * VARIANCE + MINIMUM);
   });
 
   onDestroy(() => {

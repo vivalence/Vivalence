@@ -20,7 +20,7 @@ export default async function (body, ctx) {
     .map(([unitId, _]) => unitId);
 
   // Step 4: Fetch full data for fully matched units
-  const { rows: units } = await ctx.runtime.services.db.sql(
+  const { rows: units, ...rest } = await ctx.runtime.services.db.sql(
     `SELECT unit.*
 FROM "Unit" unit
 WHERE unit.id = ANY($1::text[])
@@ -28,18 +28,22 @@ ORDER BY (data->>'index')::numeric
 LIMIT CASE 
   WHEN $2::integer IS NULL THEN NULL 
   ELSE $2::integer 
-END;
-`,
-
+END;`,
     [fullyMatchedUnitIds, take],
   );
 
-  // // Step 5: Format the tags for each unit
-  // const formattedUnits = units.map((unit) => ({
-  //   ...unit,
-  //   // tags: unit.tags.map(({ tag }) => tag),
-  // }));
-  // console
+  const { data: tagRelations, error: tagsError } = await ctx.runtime.services.supabase //
+    .from("_TagToUnit")
+    .select("*, Tag(*)")
+    .in("B", fullyMatchedUnitIds);
 
-  return units;
+  // // Step 5: Format the tags for each unit
+  const formattedUnits = units.map((unit) => ({
+    ...unit,
+    tags: tagRelations
+      .filter((tagRelation) => tagRelation.B === unit.id)
+      .map((tagRelation) => tagRelation.Tag),
+  }));
+
+  return formattedUnits;
 }

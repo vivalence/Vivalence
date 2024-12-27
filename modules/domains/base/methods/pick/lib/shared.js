@@ -22,6 +22,8 @@ export default (resourceType) => async (body, ctx) => {
     resources = resources.filter((r) => !blacklist[resourceType].includes(r.id));
 
   resources = await Promise.all(resources.map((r) => get[resourceType](r, ctx)));
+
   resources = await sort(resources);
+
   return resources;
 };

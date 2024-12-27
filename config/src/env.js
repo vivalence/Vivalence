@@ -20,8 +20,9 @@ export default async function (config) {
     CLIENTS_USER_URL: env.CLIENTS_USER_URL,
     SUPABASE_URL: env.SUPABASE_URL,
     SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,
-    QUEUE_THRESHOLD: 2,
+    QUEUE_THRESHOLD: 8,
     CACHE_AGE_SECONDS: 1,
+    INSTALL_CHUNK_SIZE: 500,
   };
 
   if (Deno.env.get("VIVA_ROLE") === "daemon") {

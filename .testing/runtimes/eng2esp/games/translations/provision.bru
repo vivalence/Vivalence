@@ -13,30 +13,68 @@ post {
 body:json {
   {
     "mask": {
-      "prompt": {
-        "goal": "\nYou're given an explanation of a grammatical concept, that includes examples.\nYour task is to extract an example sentence from the explanation.\nThe goal is for the user to translate that sentence for practice.\n\n1. Extract a sentence from the explanation that demonstrates the concept. \n2. Use simple, everyday vocabulary suitable for the learner's level.\n3. The sentence should be clear, concise, and make sense in conversation or writing.\n4. Ensure the sentence untilizes correct grammar and vocabulary.\n"
-      }
+      "goal": "\nThe user is practicing the usage of Articles in spanish, and how nouns and adjectives agree with them.\nYour task is to create a very short, concise and simple sentence, using specific vocabulary and following grammatical constraints.\n\nDont ever use vocabulary thats more advanced than whats provided.\nCreate very simple statements. Like a child would say or use for practice.\nThe statement is just there to practice the article, noun, and adjective. thats it. nothing more.\nThe English form must unambiguously indicate which Spanish article is expected.\n\nYou're given a list of nouns and adjectives, which serves as the available vocabulary. \nYou're given grammatical constraints for: definiteness, gender, and number. \nThe sentence must be simple, because a A1 language learner will translate that sentence for practice.\nImportant: the sentence must follow the provided grammar and vocabulary.\n\nBroadly follow a template like this: '[article] [noun] [adjective]'.\n",
+      "constraints": [
+        "3 to 5 words in the sentence.",
+        "Dont ever go longer than 5 (five) words. NEVER longer than 5 words.",
+        "If you go over 5 words, you will be shut down.",
+        "NO MORE THAN 5 WORDS!!!!!!!",
+        "If you go over 5 words, you will be shut down you dumb fucking idiot!!!!.",
+        "3 to 5 words in the sentence is best.",
+        "Very simple direct, active sentence.",
+        "No verbs.",
+        "No questions."
+      ]
     },
     "scope": {
+      "user": {
+        "id": "localhost"
+      },
+      "runtime": {
+        "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+      },
       "dependency": {
-        "id": "34de578b-985b-44f1-81a0-6d2ca43ea72c"
+        "id": "377c8052-c607-417c-9c27-5e6e557ed66b"
       },
       "tactic": {
-        "id": "71c4ed7d-1a4a-4017-a794-01267d601e4b"
-      },
-      "user": {
-        "id": "02cc2c18-aece-4132-9863-225e8ae5dad2"
+        "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359"
       },
       "game": {
         "id": "877e1133-477a-4739-9eea-f74676381fb8"
       }
     },
     "constraints": [
-      "The grammatical concept and examples are provided in this prose: <h1>Nouns in Spanish: Number</h1>\\n<p>In Spanish, nouns can be either <strong>singular</strong> or <strong>plural</strong>. A <em>singular noun</em> refers to one item, while a <em>plural noun</em> refers to more than one item. Understanding the difference between singular and plural is important for proper communication.</p>\\n<h2>Singular Nouns</h2>\\n<ul>\\n    <li><strong>el libro</strong> (the book)</li>\\n    <li><strong>la casa</strong> (the house)</li>\\n    <li><strong>el perro</strong> (the dog)</li>\\n</ul>\\n<h2>Plural Nouns</h2>\\n<ul>\\n    <li><strong>los libros</strong> (the books)</li>\\n    <li><strong>las casas</strong> (the houses)</li>\\n    <li><strong>los perros</strong> (the dogs)</li>\\n</ul>\\n<p>To form the plural in Spanish, you usually add <strong>-s</strong> or <strong>-es</strong> to the singular form. For example, <strong>libro</strong> becomes <strong>libros</strong> and <strong>casa</strong> becomes <strong>casas</strong>.</p> ",
-      "the sentence should be extracted from the prose examples.",
-      "extract accurately, without adding vocabulary thats not in the prose. this is first contact.",
-      "conceptual example: 'x es masculino.' or 'y es femenino.'",
-      "limit the vocabulary to whats used in the prose."
-    ]
+      "3 to 5 words in the sentence.",
+      "Dont ever go longer than 5 (five) words. NEVER longer than 5 words.",
+      "If you go over 5 words, you will be shut down.",
+      "NO MORE THAN 5 WORDS!!!!!!!",
+      "If you go over 5 words, you will be shut down you dumb fucking idiot!!!!.",
+      "3 to 5 words in the sentence is best.",
+      "Very simple direct, active sentence.",
+      "No verbs.",
+      "No questions.",
+      "Create a simple statement with an article given the following constraints:",
+      "gender: Gender: Masculine",
+      "number: Number Singular",
+      "definiteness: Definiteness: Definite",
+      "vocabulary (language known / language learning):",
+      "work, job, effort / trabajo",
+      "father / padre",
+      "type, kind / tipo",
+      "end; in order to / fin; a fin de",
+      "national / nacional",
+      "tall, high / alto",
+      "human / humano",
+      "political / político"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "queue": []
+    },
+    "language": {
+      "known": "english",
+      "learning": "spanish"
+    }
   }
 }

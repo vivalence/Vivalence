@@ -1,5 +1,5 @@
 export default async function ({ scope }, ctx) {
-  if (!scope.queue) return { status: 404, error: "Queue not found" };
+  if (!scope.queue?.id) return { status: 404, error: "Queue not found" };
 
   const deleteRequest = await ctx.runtime.services.supabase //
     .from("Queue")
