@@ -82,7 +82,6 @@ const dependency = [
       },
     },
   },
-
   {
     name: "Action Expression Integration",
     slug: "action-expression-mastery",

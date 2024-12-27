@@ -1,5 +1,10 @@
+let lastCall = null;
+
 function boot(runtime) {
   runtime.bus.on("MemoryStatusChange", async (input, ctx) => {
+    if (lastCall && new Date() - lastCall < 60 * 1000) return;
+    lastCall = new Date();
+
     // Brute force tralala
     const { data: dependencies } = await ctx.runtime.services.supabase
       .from("Dependency")

@@ -8,7 +8,7 @@ const manifest = {
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
-  version: "0.0.20",
+  version: "0.0.2x",
 };
 
 const modules = {
@@ -21,8 +21,10 @@ const modules = {
   ],
   tactics: [
     //
+    "@vivalence/tactic/spaced-repetition",
     "@vivalence/tactic/article-practice",
     "@vivalence/tactic/verb-conjugation-practice",
+    "@vivalence/tactic/pronominalization-practice",
   ],
   strategies: [],
 };

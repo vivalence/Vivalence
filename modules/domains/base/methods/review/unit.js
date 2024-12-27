@@ -24,8 +24,7 @@ export default async function ({ scope, signal }, ctx) {
 
   const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", { scope, signal });
 
-  if (statusChange)
-    (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Unit", { unit, memory, scope }))();
+  // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Unit", { unit, memory, scope }))();
 
   scope.memory = { id: memory.id };
 

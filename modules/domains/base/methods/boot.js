@@ -35,6 +35,7 @@ async function boot(runtime) {
   route("/tags/fromUnit", tags.fromUnit);
   route("/tags/install", tags.install);
 
+  route("/units/fromTagSlugs", units.fromTagSlugs);
   route("/units/fromSlugs", units.fromSlugs);
   route("/units/fromSlug", units.fromSlug);
   route("/units/fromTagIds", units.fromTagIds);

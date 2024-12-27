@@ -46,7 +46,7 @@ async function unique(issue, ctx) {
   let resolved = [];
 
   await (async function fromAnnotation() {
-    const annotation = unit.data.annotation;
+    const annotation = unit.annotation;
 
     const tags = unit.tags
       .filter((tag) => {
@@ -67,7 +67,7 @@ async function unique(issue, ctx) {
 
     // delete all tags that match the constraint but are not in the annotation
     for (const tag of tags) {
-      const result = await ctx.runtime.locals.supabase
+      const result = await ctx.runtime.services.supabase
         .from("_TagToUnit")
         .delete()
         .eq("A", tag.id)
@@ -102,6 +102,6 @@ async function forbidden(issue, ctx) {
 }
 
 export default {
-  handlers: { required }, // forbidden,unique
+  handlers: { required, unique }, // forbidden,unique
   path: ["tag"],
 };

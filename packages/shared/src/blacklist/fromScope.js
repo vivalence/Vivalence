@@ -36,7 +36,7 @@ export default function fromScope({ blacklist, scope }) {
       }
     });
   };
-  extractIds(scope);
+  if (scope) extractIds(scope);
   return removeDuplicatesFromBlacklist(blacklist);
 }
 

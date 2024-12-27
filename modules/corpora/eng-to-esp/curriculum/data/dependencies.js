@@ -1,7 +1,9 @@
-// import articleModifiersIntro from "./dependencies/article-modifiers.js";
-// /Users/finn/vivalence/code/vivalence/modules/corpora/eng-to-esp/curriculum/data/dependencies/1_foundational.js
+import articles from "./dependencies/articles.js";
+import pronouns from "./dependencies/pronouns.js";
+import verbs from "./dependencies/verb-regularity.js";
+import ser_estar from "./dependencies/ser-estar.js";
+import objects from "./dependencies/objects.js";
+// mastery
 
-import foundational from "./dependencies/1_foundational.js";
-import foundational_verbs from "./dependencies/2_verb_foundational.js";
-
-export default [...foundational, ...foundational_verbs];
+// export default [...foundational, ...foundational_verbs, ...ser_estar];
+export default [...pronouns, ...articles, ...verbs, ...ser_estar, ...objects];

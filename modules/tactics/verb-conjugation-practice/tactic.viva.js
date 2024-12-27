@@ -4,7 +4,7 @@ const manifest = {
   type: "tactic",
   name: "Verb Conjugation",
   slug: "verb-conjugation-practice",
-  version: "0.0.x",
+  version: "0.0.7",
   description:
     "Conjugate a set of verbs for a given tense and mood. Supported by flashcards and a translation.",
 };
@@ -13,24 +13,37 @@ const data = {
   relations: {
     units: {},
     tags: {
-      vocabulary: { slug: "structural:a1" },
-      // some way to pass peronal pronouns / yo/tu/el/la
-      // pronouns: [{ slug: "prontype:prs" }],
+      vocabulary: { slug: "vocabulary:a1" },
+      nouns: { slug: "pos:noun" },
+      // adjectives: { slug: "pos:adj" },
+      // some way to pass peronal pronouns / yo/tu/el/la - pronouns: [{ slug: "prontype:prs" }],
 
-      moods: [{ slug: "mood:ind" }],
-      tenses: [{ slug: "tense:pres" }],
       verbs: [],
+      tenses: [],
+      moods: [],
+      aspects: [],
     },
     games: {
       prose: { slug: "prose" },
-      translations: { slug: "translations" },
+      translations: {
+        slug: "translations",
+      },
       flashcards: { slug: "flashcards" },
       conjugations: { slug: "conjugations" },
     },
   },
   masks: {
+    apply_blacklist: { verb: true },
+
+    conjugations: {
+      threshold: ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN"],
+    },
+    flashcards: {
+      threshold: ["UNTOUCHED", "UNKNOWN", "LEARNING"],
+      reps: 4,
+    },
     translations: {
-      constraints: [],
+      reps: 4,
       goal: `
 Create a simple sentence to practice verb conjugation for language learners.
 

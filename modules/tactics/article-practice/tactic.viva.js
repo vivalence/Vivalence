@@ -5,7 +5,7 @@ const manifest = {
   name: "article morphology intro",
   description: "",
   slug: "article-practice",
-  version: "0.0.5",
+  version: "0.0.6",
 };
 
 const relations = {
@@ -14,15 +14,9 @@ const relations = {
     nouns: { slug: "pos:noun" },
     // adjectives: { slug: "pos:adj" },
     article: { slug: "prontype:art" },
-    gender: [
-      // { slug: "gender:masc", }, { slug: "gender:fem", },
-    ],
-    number: [
-      // { slug: "number:sing", }, { slug: "number:plur", },
-    ],
-    definite: [
-      // { slug: "definite:def", }, { slug: "definite:ind", },
-    ],
+    gender: [], // { slug: "gender:masc", }, { slug: "gender:fem", },
+    number: [], // { slug: "number:sing", }, { slug: "number:plur", },
+    definite: [], // { slug: "definite:def", }, { slug: "definite:ind", },
   },
   games: {
     translations: { slug: "translations" },
@@ -32,8 +26,10 @@ const relations = {
 };
 
 const masks = {
-  reps: 6,
-  weakness_threshold: ["UNTOUCHED", "UNKNOWN", "LEARNING"],
+  flashcards: {
+    reps: 4,
+    threshold: ["UNTOUCHED", "UNKNOWN", "LEARNING"],
+  },
   prose: {
     prompt: {
       goal: `The reader is a language learner that is practicing sentence translations with focus on a specific grammatical concept.
@@ -45,7 +41,7 @@ Around 150 words or 2 paragraphs.
     },
   },
   translations: {
-    constraints: [],
+    reps: 4,
     goal: `
 The user is practicing the usage of Articles in spanish.
 The article must agree and be demonstrated.

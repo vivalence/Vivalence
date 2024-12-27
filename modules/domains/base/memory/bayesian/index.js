@@ -88,10 +88,10 @@ const status = ({ memory }) => {
   // const isLearning = memory.nextIn >= 1;
   // const isKnown = memory.nextIn > 24 * 7 && checkLastResponses(3, ["SUCCESS", "MASTERY"]);
   // const isGraduated = memory.nextIn > 24 * 14 && checkLastResponses(5, ["SUCCESS", "MASTERY"]);
-  const isUnknown = memory.nextIn < 1;
-  const isLearning = memory.nextIn >= 1;
+  const isUnknown = memory.nextIn < 6;
+  const isLearning = memory.nextIn >= 6;
   const isKnown = memory.nextIn > 24 * 7;
-  const isGraduated = memory.nextIn > 24 * 14;
+  const isGraduated = memory.nextIn > 24 * 45;
 
   if (isUnknown) {
     return "UNKNOWN";

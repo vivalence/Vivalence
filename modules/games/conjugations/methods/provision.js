@@ -4,12 +4,11 @@ export default async function provision(inputs, ctx) {
   const { tags, mask, blacklist, scope } = inputs;
   const { language } = ctx.runtime.statics;
 
-  const tagIds = [tags.verb.id, tags.tense.id, tags.mood.id];
+  let tagIds = [tags.verb.id, tags.tense.id, tags.mood.id, tags.aspect.id];
   const conjugationUnits = await ctx.runtime.call("/units/fromTagIds", { tagIds });
 
-  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", {
-    tagIds: [mask.tags.infinitive.id, tags.verb.id],
-  });
+  tagIds = [mask.tags.infinitive.id, tags.verb.id];
+  const [infinitiveVerb] = await ctx.runtime.call("/units/fromTagIds", { tagIds });
 
   if (!infinitiveVerb || conjugationUnits.length !== 6) {
     new Error("not the right number of conjugation units found", {
@@ -19,22 +18,36 @@ export default async function provision(inputs, ctx) {
     });
   }
 
-  console.json(conjugationUnits);
   const conjugations = conjugationUnits.sort(sortByPerformer).map((unit, index) => ({
     known: `${unit.data.known}`,
     learning: `${unit.data.learning}`,
     meta: { index },
-    scope: { unit: { id: unit.id } },
+    scope: {
+      unit: {
+        id: unit.id,
+      },
+      tags: unit.tags
+        .filter((tag) => tag.traits.includes("LEARNABLE"))
+        .map((tag) => ({ id: tag.id })),
+    },
   }));
 
-  scope.tags = tagIds.map((id) => ({ id }));
   scope.units = conjugations.map(({ scope }) => scope.unit);
+  scope.tags = Array.from(
+    new Set([
+      ...conjugations
+        .map(({ scope }) => scope.tags)
+        .map((tags) => tags.map(({ id }) => id))
+        .flat(),
+    ]),
+  ).map((id) => ({ id }));
 
   const instruction = {
     type: "CONJUGATIONS",
     instruction: {
       tense: tags.tense.name,
       mood: tags.mood.name,
+      aspect: tags.aspect.name,
       infinitive: {
         known: infinitiveVerb.data.known,
         learning: infinitiveVerb.data.learning,

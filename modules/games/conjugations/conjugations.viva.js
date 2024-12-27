@@ -5,7 +5,7 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
 
-const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/Conjugations.svelte");
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
 
 const data = {
   mask: {
@@ -20,7 +20,7 @@ const manifest = {
   slug: "conjugations",
   name: "Conjugations",
   description: "Practice conjugating 6 verbs at a time in different tenses and moods.",
-  version: "0.0.1",
+  version: "0.0.2",
 };
 
 export { manifest, provision, evaluate, bundle, data };

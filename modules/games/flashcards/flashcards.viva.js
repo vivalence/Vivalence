@@ -34,5 +34,6 @@ const manifest = {
   slug: "flashcards",
   name: "Flashcards",
   description: "Flashcards game for learning vocabulary",
+  version: "0.0.1",
 };
 export { manifest, data, boot };

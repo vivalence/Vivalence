@@ -1,31 +1,32 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Text, Button, Input } from "@vivalence/ui";
+  import { Text, Button, Input, Tag } from "@vivalence/ui";
 
   const { instruction, game, scope, keybindings, next } = $props();
+
   let revealed = $state(false);
-  let inputs = $state({});
-  let evaluations = $state([]);
+  let inputs = $state(
+    instruction.conjugations.reduce((acc, c) => ((acc[c.scope.unit.id] = ""), acc), {}),
+  );
+  let evaluations = $state({});
+
+  /* let completed = $derived(Object.keys(inputs).length === instruction.conjugations.length); */
 
   const evaluate = async () => {
     revealed = true;
     const params = {
       conjugations: instruction.conjugations.map((c) => ({
-        id: c.scope.unit.id,
+        ...c,
         input: inputs[c.scope.unit.id],
       })),
       scope,
     };
     const { data } = await game.call("/evaluate", params);
-    evaluations = data;
+    evaluations = data; // {[id]: {status, feedback}}
   };
 
   const onNext = () => {
     next();
-  };
-
-  const onInput = (id, value) => {
-    inputs = { ...inputs, [id]: value };
   };
 
   keybindings({
@@ -36,61 +37,68 @@
   });
 </script>
 
-<section class="container mx-auto mt-12 mb-20">
+<section class="bsp-node root">
   {#if instruction}
-    <header class="bg-base-100 rounded-t-xl p-4 shadow">
-      <!-- Updated card class -->
-      <div class="card-body">
-        <h1 class="text-xl font-bold">{instruction.infinitive.known}</h1>
-        {#if revealed}
-          <h1 class="text-2xl font-bold">- {instruction.infinitive.learning}</h1>
-        {/if}
-        <div>
-          <span class="badge badge-secondary">{instruction.tense}</span>
-          <span class="badge badge-secondary">{instruction.mood}</span>
+    <div class="bsp-chain-end container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh]">
+      <header class="bg-base-100 rounded-t-xl p-4 shadow-md">
+        <div class="flex gap-2">
+          <h1 class="text-xl font-bold">{instruction.infinitive.known}</h1>
+          {#if revealed}
+            <span class="text-xl font-bold">-</span>
+            <h1 class="text-xl font-bold">{instruction.infinitive.learning}</h1>
+          {/if}
         </div>
-      </div>
-    </header>
+        <div class="mt-3">
+          <Tag size="md">{instruction.tense}</Tag>
+          <Tag size="md">{instruction.mood}</Tag>
+        </div>
+      </header>
 
-    <div class="overflow-x-auto bg-base-100 py-6 px-4 rounded-b-xl border-t-2">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Person</th>
-            <th>Conjugation</th>
-            <th class={revealed ? "visible" : "invisible"}>Correct Answer</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each instruction.conjugations as conjugation, index}
+      <div class="overflow-x-auto bg-base-100 py-6 px-4 rounded-b-xl border-t-2">
+        <table class="">
+          <thead>
             <tr>
-              <td>{index + 1}</td>
-              <td>
-                <Input
-                  class={`input input-bordered input-lg w-full`}
-                  placeholder={conjugation.known}
-                  value={inputs[conjugation.scope.unit.id] || ""}
-                  oninput={(e) => onInput(conjugation.scope.unit.id, e.target.value)}
-                  disabled={revealed} />
-              </td>
-              <td>{revealed && conjugation.learning}</td>
+              <th class="">Person</th>
+              <th class="px-2 float-left">Conjugation</th>
+              <th class={`${revealed ? "visible" : "invisible"}`}>Correct Answer</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each instruction.conjugations as conjugation, index}
+              <tr>
+                <td class="">
+                  <span>
+                    {index + 1}
+                  </span>
+                </td>
+                <td class="px-2">
+                  <Input
+                    placeholder={conjugation.known}
+                    autofocus={index === 0}
+                    bind:value={inputs[conjugation.scope.unit.id]}
+                    disabled={revealed} />
+                </td>
+                <td class="">
+                  <span>
+                    {revealed ? conjugation.learning : ""}
+                  </span>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="fixed bottom-0 w-full bg-base-100 py-6 flex justify-center">
-      {#if !revealed}
-        <button
-          class="btn btn-accent"
-          on:click={evaluate}
-          disabled={Object.keys(inputs).length !== instruction.conjugations.length}>
-          Check
-        </button>
-      {:else}
-        <button class="btn btn-accent" on:click={onNext}>Next</button>
-      {/if}
+    <!-- <div class="fixed bottom-0 w-full bg-base-100 py-6 flex justify-center"> -->
+    <div class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
+      <div class="max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+        {#if !revealed}
+          <Button variant="primary" size="xl" onclick={evaluate}>Check</Button>
+        {:else}
+          <Button size="xl" onclick={onNext}>Next</Button>
+        {/if}
+      </div>
     </div>
   {/if}
 </section>
@@ -107,10 +115,7 @@
     background-color: #f8fafc;
   }
 
-  .shadow {
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
+  /* .shadow {box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);} */
   .badge {
     display: inline-block;
     padding: 0.2rem 0.4rem;
