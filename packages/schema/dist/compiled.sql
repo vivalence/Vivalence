@@ -490,6 +490,7 @@ BEGIN
             MIN(p."nextAt") as earliest_next_at
         FROM "Play" p
         WHERE p."nextAt" < due_lt
+	    AND p."tagId" IS NULL
             AND (tactic_id IS NULL OR p."tacticId" = tactic_id)
             AND (game_id IS NULL OR p."gameId" = game_id)
             AND (user_id IS NULL OR p."userId" = user_id)

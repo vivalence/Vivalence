@@ -13,7 +13,7 @@ class Identity {
   }
 }
 
-export default async function (config) {
+export default function (config) {
   const identity = new Identity(config);
 
   config.identity = identity;

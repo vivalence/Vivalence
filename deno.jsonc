@@ -2,6 +2,7 @@
   "importMap": "./import_map.json",
   "workspace": [
     "./config",
+    "./types",
     "./packages/shared",
     "./packages/schema",
     "./packages/registry",
@@ -9,7 +10,6 @@
     "./packages/clients/viva",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
-    "./packages/types"
   ],
   "nodeModulesDirs": "auto",
   "tasks": {
@@ -21,6 +21,6 @@
     "web:dev": "VIVA_ROLE=client deno run -A packages/clients/web/mod.js",
 
     "schema:compile": "VIVA_ROLE=sudo deno run -A packages/schema/compile.js",
-    "schema:deploy": "deno task schema:compile && VIVA_ROLE=sudo deno run -A packages/schema/deploy.js"
-  }
+    "schema:deploy": "deno task schema:compile && VIVA_ROLE=sudo deno run -A packages/schema/deploy.js",
+  },
 }
