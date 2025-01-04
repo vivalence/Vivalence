@@ -1,29 +1,31 @@
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_PATH")
   relationMode = "foreignKeys"
 }
 
+
+
 model User {
   // ABOUT
-  id     String          @id @unique // same as auth."users".id
-  roles  UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
-  config Json            @default("{}")
+  id        String          @id @unique // same as auth."users".id
+  roles     UserRolesEnum[] @default([USER]) // synced to raw_user_meta_data by pg hook
+  config    Json  	    @default("{}")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
 
   // RUNTIME
-  runtimes   Runtime[]
-  strategies Strategy[]
+  runtimes   Runtime[]   
+  strategies Strategy[] 
 
   // USERLAND
-  plays    Play[]
-  memories Memory[]
+  plays       Play[]           
+  memories    Memory[]          
 
   // TRANSIENT
-  queue Queue[]
-  HEAD  HEAD[]
+  queue       Queue[]
+  HEAD        HEAD[]
 }
 
 enum UserRolesEnum {
@@ -32,27 +34,30 @@ enum UserRolesEnum {
   GUEST
 }
 
+
+
+
 model Runtime {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
-  name        String?
-  description String?
-  icon        Json?
+  id           String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug         String  
+  version      String   @default("0.0.0")
+  installed    Boolean  @default(false)
+  name         String?
+  description  String?
+  icon         Json?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime @default(now()) 
+  updatedAt    DateTime @default(now()) @updatedAt
 
   // APP
-  users User[]
+  users        User[] 
 
   // RUNTIME
-  domain   Domain?
-  ontology Ontology?
-  corpora  Corpus[]
-  games    Game[]
+  domain       Domain?  
+  ontology     Ontology? 
+  corpora      Corpus[]
+  games        Game[]
 
   // CORPUS
   tactics      Tactic[]
@@ -62,78 +67,79 @@ model Runtime {
   conditions   Condition[]
 
   // USERLAND
-  strategies Strategy[]
-  plays      Play[]
-  memories   Memory[]
+  strategies   Strategy[]
+  plays        Play[]
+  memories     Memory[]
 
   // TRANSIENT
-  HEAD  HEAD[]
-  queue Queue[]
+  HEAD         HEAD[]
+  queue        Queue[]
 
   @@unique([slug])
 }
 
 model Domain {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
-  name        String?
-  description String?
+  id           String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug         String
+  version      String   @default("0.0.0")
+  installed    Boolean  @default(false)
+  name         String?
+  description  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique
+  runtime      Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId    String @unique 
 
   @@unique([slug, runtimeId])
 }
 
 model Ontology {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
-  name        String?
-  description String?
+  id           String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug         String
+  version      String   @default("0.0.0")
+  installed    Boolean  @default(false)
+  name         String?
+  description  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique
+  runtime      Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId    String  @unique
 
   @@unique([slug, runtimeId])
 }
 
+
 model Strategy {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String  @default("")
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
-  name        String
-  description String?
+  id           String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug         String   @default("")
+  version      String   @default("0.0.0")
+  installed    Boolean  @default(false)
+  name         String
+  description  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   // APP
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  user         User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime      Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId    String
 
   // DATA
-  traits StrategyTraitsEnum[] @default([])
-  data   Json                 @default("{}")
+  traits       StrategyTraitsEnum[] @default([])
+  data         Json   @default("{}")
 
   @@unique([slug, runtimeId])
 }
@@ -148,147 +154,149 @@ enum StrategyTraitsEnum {
   // INTERFACE
 }
 
+
 model Corpus {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
   slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
   name        String?
   description String?
   icon        Json?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime        Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId      String   
 
   // curriculum
-  units        Unit[]
-  tags         Tag[]
-  dependencies Dependency[]
-  conditions   Condition[]
+  units          Unit[]
+  tags           Tag[]
+  dependencies   Dependency[]
+  conditions     Condition[]
 
   @@unique([slug, runtimeId])
 }
 
 model Game {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
   slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
   name        String?
   description String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime     Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String  
 
   // USERLAND
-  plays Play[]
+  plays       Play[]
 
   // DATA
-  mask  Json    @default("{}")
-  queue Queue[]
+  mask        Json     @default("{}") 
+  queue       Queue[]
 
   @@unique([slug, runtimeId])
 }
 
 model Tactic {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
   slug        String
-  version     String  @default("0.0.0")
-  installed   Boolean @default(false)
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
   name        String?
   description String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime     Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String 
 
   // USERLAND
-  plays Play[]
+  plays       Play[]       
 
   // TRANSIENT
-  queue Queue[]
+  queue       Queue[]
 
   // DATA
-  relations Json @default("{}") // for grouping units, tags and games
-  masks     Json @default("{}") // for customizing games
+  relations   Json @default("{}") // for grouping units, tags and games
+  masks       Json @default("{}") // for customizing games
 
   @@unique([slug, runtimeId])
 }
 
+
 model Unit {
   // ABOUT
-  id   String @id @default(dbgenerated("uuid_generate_v4()"))
-  slug String
+  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug      String  
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
 
-  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: SetNull)
-  corpusId String?
+  corpus    Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId  String?
 
   // CORPUS
-  tags Tag[]
+  tags      Tag[]
 
   // USERLAND
-  plays  Play[]
-  memory Memory[]
+  plays        Play[]
+  memory       Memory[]
 
   // DATA
-  annotation Json @default("{}")
-  data       Json @default("{}")
-  index      Int?
+  annotation   Json     @default("{}")
+  data         Json     @default("{}")
+  index        Int?      
 
   @@unique([slug, runtimeId])
 }
 
 model Tag {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String
-  name        String
+  id          String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug        String   
+  name        String  
   description String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime     Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String
 
-  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: SetNull)
-  corpusId String?
+  corpus      Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId    String?
 
   // CORPUS
-  units Unit[]
+  units       Unit[]
 
   // USERLAND
-  memory Memory[]
-  plays  Play[]
+  memory      Memory[]        
+  plays       Play[]
 
   // DATA
-  traits TagTraitsEnum[] @default([])
-  data   Json            @default("{}")
+  traits      TagTraitsEnum[]  @default([])
+  data        Json             @default("{}")
 
-  @@unique([slug, runtimeId])
   @@index([name], name: "nameIndexOnTag")
+  @@unique([slug, runtimeId])
 }
 
 enum TagTraitsEnum {
@@ -300,13 +308,13 @@ enum TagTraitsEnum {
 
 model Dependency {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  slug        String
-  name        String
-  description String?
+  id             String   @id @default(dbgenerated("uuid_generate_v4()"))
+  slug           String   
+  name           String
+  description    String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
 
   // APP
   // Not yet used. under consideration. irrelevant for singleplayer.
@@ -314,35 +322,35 @@ model Dependency {
   // userId      String
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime        Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId      String
 
-  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: SetNull)
-  corpusId String?
+  corpus         Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId       String?
 
   // CORPUS
-  preconditions Condition[] @relation("Precondition")
-  conditions    Condition[] @relation("Condition")
-  itinerary     Json        @default("{}")
+  preconditions  Condition[] @relation("Precondition")
+  conditions     Condition[] @relation("Condition")
+  itinerary      Json        @default("{}")
 
   // TRANSIENT
-  queue Queue[]
+  queue          Queue[]
 
   // DATA
-  available Boolean @default(false) // all preconditions met
-  satisfied Boolean @default(false) // all conditions met
+  available      Boolean       @default(false) // all preconditions met
+  satisfied      Boolean       @default(false) // all conditions met
 
   @@unique([slug, runtimeId])
 }
 
 model Condition {
   // ABOUT
-  id          String  @id @default(dbgenerated("uuid_generate_v4()"))
-  name        String?
-  description String?
+  id           String   @id @default(dbgenerated("uuid_generate_v4()"))
+  name         String?
+  description  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
 
   // APP
   // Not yet used. under consideration. irrelevant for singleplayer.
@@ -350,111 +358,114 @@ model Condition {
   // userId      String
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime      Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId    String
 
-  corpus   Corpus? @relation(fields: [corpusId], references: [id], onDelete: SetNull)
-  corpusId String?
+  corpus       Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId     String?
 
   // CORPUS
   conditionFor    Dependency[] @relation("Condition")
   preconditionFor Dependency[] @relation("Precondition")
 
-  scope Json @default("{}")
+  scope         Json     @default("{}")
 
   // DATA
-  assertion Json    @default("{}")
-  met       Boolean @default(false)
+  assertion     Json     @default("{}")
+  met           Boolean  @default(false)
 }
+
+
 
 model Play {
   // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id        String      @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now()) @updatedAt
 
   // APP
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String 
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime   Runtime      @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String  
 
   // CORPUS
-  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId String
+  game      Game         @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId    String
 
-  tactic   Tactic? @relation(fields: [tacticId], references: [id], onDelete: Cascade)
-  tacticId String?
+  tactic    Tactic?      @relation(fields: [tacticId], references: [id], onDelete: Cascade)
+  tacticId  String?
 
-  unit   Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId String?
+  unit      Unit?        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId    String? 
 
-  tag   Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId String?
+  tag       Tag?         @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String?
 
   // USERLAND
-  memory   Memory @relation(fields: [memoryId], references: [id], onDelete: Cascade)
-  memoryId String
+  memory    Memory        @relation(fields: [memoryId], references: [id], onDelete: Cascade)
+  memoryId  String 
 
   // DATA
-  history Json @default("[]")
-  signal  Json @default("{}")
+  history   Json          @default("[]")
+  signal    Json          @default("{}") 
 
-  nextIn Decimal  @default(0.0)
-  nextAt DateTime @default(now())
-  lastAt DateTime @default(now())
+  nextIn    Decimal         @default(0.0)
+  nextAt    DateTime        @default(now())
+  lastAt    DateTime        @default(now())
 
-  @@unique([userId, unitId, tagId, gameId, tacticId])
   @@index([userId], name: "userIdIndexOnPlay")
   @@index([gameId], name: "gameIdIndexOnPlay")
   @@index([tacticId], name: "tacticIdIndexOnPlay")
   @@index([unitId], name: "unitIdIndexOnPlay")
   @@index([tagId], name: "tagIdIndexOnPlay")
   @@index([memoryId], name: "memoryIdIndexOnPlay")
+  @@unique([userId, unitId, tagId, gameId, tacticId])
 }
 
 model Memory {
   // ABOUT
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id        String           @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @default(now()) @updatedAt
 
   // APP
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String 
 
   // RUNTIME
   runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtimeId String 
 
   // CORPUS
-  tag    Tag?    @relation(fields: [tagId], references: [id], onDelete: Cascade)
-  tagId  String?
-  unit   Unit?   @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  unitId String?
+  tag       Tag?             @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId     String?
+  unit      Unit?            @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  unitId    String?
 
   // USERLAND
-  plays Play[]
+  plays     Play[]
 
   // DATA
-  type    String           @default("BAYESIAN")
-  flavor  MemoryFlavorEnum @default(INDIVIDUAL)
-  status  MemoryStatusEnum @default(UNKNOWN)
-  state   Json             @default("{}")
-  history Json             @default("[]")
-  signal  Json             @default("{}")
+  type      String           @default("BAYESIAN")
+  flavor    MemoryFlavorEnum @default(INDIVIDUAL)
+  status    MemoryStatusEnum @default(UNKNOWN)
+  state     Json             @default("{}")
+  history   Json             @default("[]")
+  signal    Json             @default("{}") 
 
-  nextIn Decimal  @default(0.0)
-  nextAt DateTime @default(now())
-  lastAt DateTime @default(now())
+  nextIn    Decimal         @default(0.0)
+  nextAt    DateTime        @default(now())
+  lastAt    DateTime        @default(now())
 
-  @@unique([unitId, userId, tagId])
   @@index([unitId], name: "unitIdIndexOnMemory")
   @@index([userId], name: "userIdIndexOnMemory")
   @@index([tagId], name: "tagIdIndexOnMemory")
+  @@unique([unitId, userId, tagId])
 }
+
 
 enum MemoryFlavorEnum {
   INDIVIDUAL // Memory strength is measured directly on the resource. 
@@ -469,18 +480,21 @@ enum MemoryStatusEnum {
   GRADUATED // sufficiently learned and not Showing anymore
 }
 
+
+
+
 model Queue {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id          String         @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt @default(now())
 
   // APP
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String
+  runtime     Runtime      @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String   
 
   // CORPUS
   game         Game?       @relation(fields: [gameId], references: [id], onDelete: Cascade)
@@ -491,9 +505,9 @@ model Queue {
   dependencyId String?
 
   // DATA
-  index  Int             @default(0)
-  status QueueStatusEnum @default(PENDING)
-  data   Json            @default("{}")
+  index       Int             @default(0)
+  status      QueueStatusEnum @default(PENDING)
+  data        Json            @default("{}")
 }
 
 enum QueueStatusEnum {
@@ -504,18 +518,18 @@ enum QueueStatusEnum {
 }
 
 model HEAD {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()"))
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id          String         @id @default(dbgenerated("uuid_generate_v4()"))
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt @default(now())
 
   // APP
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
 
   // RUNTIME
-  runtime   Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
-  runtimeId String  @unique
+  runtime     Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String  @unique 
 
   // 
-  data Json @default("{}")
+  data        Json           @default("{}")
 }

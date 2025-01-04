@@ -1,14 +1,14 @@
-import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
-
-export default async function (config) {
-  const services = {
+export default function (config) {
+  config.services = {
     ...config.services,
     nlp: "@vivalence/service/nlp-stanza",
-    supabase: "@vivalence/service/supabase",
-    db: "@vivalence/service/db",
+    database: "@vivalence/service/pglite",
     identity: "@vivalence/service/identity",
+
+    // DEPRACATED
+    // supabase: "@vivalence/service/supabase",
+    // db: "@vivalence/service/db",
   };
 
-  config.services = services;
   return config;
 }
