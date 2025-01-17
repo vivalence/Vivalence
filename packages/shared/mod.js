@@ -1,13 +1,17 @@
-import {
+import std, {
+  obj,
   array,
   strings,
   time,
+  id,
+  //api depracated
   deepClone,
   deepMerge,
   deepEquals,
-  id,
   shuffle,
 } from "./src/lib/index.js";
+
+import runtimes from "./src/runtimes/index.js";
 import monads from "./src/monads/index.js";
 import blacklist from "./src/blacklist/index.js";
 
@@ -16,19 +20,24 @@ import validators from "./src/validators/index.js";
 import services from "./src/services/index.js";
 
 export {
+  std,
+  obj,
   array,
   monads,
   strings,
   time,
-  deepClone,
-  deepMerge,
-  deepEquals,
   id,
-  shuffle,
   blacklist,
   bundler,
   validators,
   services,
+  runtimes,
+
+  //api depracated
+  deepClone,
+  deepMerge,
+  deepEquals,
+  shuffle,
 };
 
 // export default {monads, strings, time, deepMerge, deepClone, deepEquals, id, shuffle, blacklist, bundler, validators, services, registry,};

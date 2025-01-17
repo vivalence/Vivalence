@@ -1,6 +1,7 @@
 import deepClone from "./deepClone.js";
 import deepMerge from "./deepMerge.js";
 import deepEquals from "./deepEquals.js";
+
 import id from "./id.js";
 import strings from "./strings.js";
 import time from "./time.js";
@@ -13,4 +14,20 @@ const array = {
   chunk,
 };
 
-export { deepMerge, id, time, strings, shuffle, deepEquals, deepClone, array };
+const obj = { deepMerge, deepEquals, deepClone };
+const std = { id, time, strings, obj, array };
+export {
+  std,
+  array,
+  obj,
+  strings,
+  id,
+  time,
+
+  //api depracated
+  deepMerge,
+  shuffle,
+  deepEquals,
+  deepClone,
+};
+export default std;

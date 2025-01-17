@@ -1,8 +1,7 @@
-import { walk } from "$std/fs/mod.ts";
+import { walk } from "@std/fs";
 import config from "@vivalence/config";
 import { deepClone } from "@vivalence/shared";
 import { Daemon, RuntimeDescription, Service, VivaModuleDescription } from "@vivalence/types";
-import path from "node:path";
 
 const discoverModule = async (daemon: Daemon, moduleDescriptor: unknown) => {
   if (!daemon.registry) throw new Error("Registry is not initialized");
@@ -24,6 +23,7 @@ const discoverModules = async (daemon: Daemon, moduleDescriptors: unknown) => {
 export default async function discover(daemon: Daemon) {
   const entries = [];
 
+  // tobemoved @shared
   for await (const entry of walk(config.env.get("VIVA_RUNTIMES_DIR"), {
     maxDepth: 3,
     includeFiles: true,
@@ -38,7 +38,8 @@ export default async function discover(daemon: Daemon) {
       const VivaModuleDescription = deepClone(await import(entry.path)) as VivaModuleDescription;
 
       // if (RuntimeDescription.default) RuntimeDescription = RuntimeDescription.default;
-      if (!VivaModuleDescription?.manifest) throw new Error(`Invalid module structure at ${path}`);
+      if (!VivaModuleDescription?.manifest)
+        throw new Error(`Invalid module structure at ${entry.path}`);
       if (VivaModuleDescription.manifest.type !== "runtime") continue;
 
       ensure(VivaModuleDescription);

@@ -1,7 +1,13 @@
 {
   "name": "@vivalence/schema",
   "version": "0.0.1",
+
+  "tasks": {
+    "generate": "VIVA_ROLE=sudo deno run -A src/generate.js",
+  },
   "exports": {
     ".": "./mod.js",
+    // "compile": "./compile.js",
+    // "deploy": "./deploy.js",
   },
 }

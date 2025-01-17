@@ -4,8 +4,12 @@ import anthropic from "./anthropic.js";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export default () => {
-  const llms = { openai: openai(), groq: groq(), anthropic: anthropic() };
+export default (service, ctx) => {
+  const llms = {
+    openai: openai(service.config.env.openai),
+    groq: groq(service.config.env.groq),
+    anthropic: anthropic(service.config.env.anthropic),
+  };
 
   const retry = async (fn, maxRetries = 1, initialDelay = 1000) => {
     let delay = initialDelay;
