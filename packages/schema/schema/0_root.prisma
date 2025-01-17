@@ -1,6 +1,0 @@
-datasource db {
-  provider = "postgres"
-  url      = env("DATABASE_PATH")
-  relationMode = "foreignKeys"
-}
-

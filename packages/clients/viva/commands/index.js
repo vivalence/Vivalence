@@ -1,16 +1,17 @@
 import { Command, HelpCommand, colors } from "@vivalence/interfaces-cli";
 
 import loadServicesCommands from "./services.js";
-import loadSchemaCommands from "./schema.js";
+import loadRuntimesCommands from "./runtimes.js";
+// schema, daemon
 
 const commands = {
   help: async (viva) => await new HelpCommand(),
   services: loadServicesCommands,
-  schema: loadSchemaCommands,
+  runtimes: loadRuntimesCommands,
 };
 
 export default async function services(viva) {
-  console.log("- If the services dont match it, the daemon catch it.");
+  // console.log("- If the commands dont match it, the sage will catch it.");
 
   let tree = new Command().name("viva").version("0.0.1");
 

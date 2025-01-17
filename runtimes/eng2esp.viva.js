@@ -1,3 +1,5 @@
+import config from "@vivalence/config";
+
 const manifest = {
   type: "runtime",
   slug: "eng2esp",
@@ -13,8 +15,26 @@ const modules = {
 };
 
 const services = {
-  llm: "@vivalence/service/llm-litellm",
-  nlp: "@vivalence/service/nlp-stanza",
+  llm: {
+    service: "@vivalence/service/llm-litellm",
+    config: {
+      keys: {
+        openai: config.env.get("OPENAI_API_KEY"),
+        groq: config.env.get("GROQ_API_KEY"),
+        anthropic: config.env.get("ANTHROPIC_API_KEY"),
+      },
+    },
+  },
+  nlp: {
+    service: "@vivalence/service/nlp-stanza",
+    config: {
+      env: {
+        url: config.env.get("SERVICE_NLP_URL"),
+        port: config.env.get("SERVICE_NLP_PORT"),
+        key: config.env.get("SERVICE_NLP_KEY"),
+      },
+    },
+  },
 };
 
 const statics = { language: { known: "english", learning: "spanish" } };

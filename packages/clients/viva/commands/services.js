@@ -1,38 +1,50 @@
-import config from "@vivalence/config";
 import { Command, colors } from "@vivalence/interfaces-cli";
 import registry from "@vivalence/registry";
+import { obj } from "@vivalence/shared";
 
 export default async function loadServiceCommands(viva) {
-  const services = {};
-  const Commands = new Command().description("Manage Vivalence services");
-
-  for (const [serviceKey, serviceSlug] of Object.entries(config.services)) {
-    const service = await registry.load(serviceSlug);
-    if (!service?.service) continue;
-    services[serviceKey] = service;
-  }
-
-  Commands.command(
-    "list",
-    new Command()
-      .name("list")
-      .description("List all services")
-      .action(() => {
-        console.log(colors.bold("Services:"));
-        for (const [serviceKey, service] of Object.entries(services)) {
-          console.log(`  ${serviceKey}: ${service.manifest.name}`);
-        }
-      }),
+  const serviceConfigs = Object.entries(
+    obj.deepMerge(
+      viva.services,
+      (() => Object.values(viva.runtimes).reduce((s, r) => r.services, {}))(),
+    ),
   );
 
-  for (const [serviceKey, service] of Object.entries(services)) {
-    const commands = await service.service(viva);
+  const Services = {};
+  for (const [serviceKey, serviceConfig] of serviceConfigs) {
+    const Service = await registry.load(serviceConfig.service);
+    if (!Service?.service) continue;
+    // if key exists, warn and apply priority queue
+    Services[serviceKey] = Service;
+  }
 
-    const Service = new Command();
-    for (const command of Object.values(commands)) {
-      Service.command(command.name).action(command.action).description(command.description);
+  const Commands = new Command().description("Manage Vivalence services");
+
+  const ListCommand = new Command()
+    .name("list")
+    .description("List all services")
+    .action(() => {
+      // >> @interface-cli/component: display list/table
+      console.log(colors.bold("Services found in viva repo:"));
+      for (const [serviceKey, Service] of Object.entries(Services)) {
+        console.log(`  ${serviceKey}: ${Service.manifest.name}`);
+      }
+    });
+
+  Commands.command("list", ListCommand);
+
+  for (const [serviceKey, serviceConfig] of serviceConfigs) {
+    const Service = Services[serviceKey];
+    if (!Service) continue;
+
+    const commands = await Service.service(serviceConfig, viva);
+
+    const ServiceCommand = new Command();
+    for (const [verb, command] of Object.entries(commands)) {
+      ServiceCommand.command(verb).action(command.do).description(command.what);
     }
-    Commands.command(serviceKey, Service).description(service.manifest.name);
+
+    Commands.command(serviceKey, ServiceCommand).description(Service.manifest.name);
   }
 
   return Commands;

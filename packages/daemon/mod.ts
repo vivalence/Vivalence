@@ -12,6 +12,7 @@ import { Daemon } from "@vivalence/types";
 import aperture from "./aperture/index.js";
 import runtimes from "./runtimes/index.ts";
 import server from "./server/index.js";
+import entities from "./entities/index.js";
 
 const ticker = (name: string) => (daemon: Daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
@@ -38,13 +39,16 @@ const daemon: Daemon = {
     registry.mount,
     services.mount,
     server.init,
+    entities.init,
     aperture.init,
     runtimes.discover,
     runtimes.runtime,
     runtimes.register,
     runtimes.modules,
     runtimes.boot,
+    // runtimes.entities,
     runtimes.serve,
+    // entities.serve,
     aperture.serve,
     server.serve,
     runtimes.install,

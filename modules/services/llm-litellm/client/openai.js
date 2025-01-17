@@ -1,8 +1,6 @@
-import config from "@vivalence/config";
 import { OpenAI } from "openai";
 
-export default () => {
-  const KEY = config.env.get("OPENAI_API_KEY");
+export default (KEY) => {
   if (!KEY) throw new Error("OpenAI API key is required");
   const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.openai.com/v1" });
 

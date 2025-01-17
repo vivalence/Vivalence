@@ -124,8 +124,4 @@ const compose = {
   },
 };
 
-export default async function (viva) {
-  viva.locals.docker = docker;
-  viva.locals.compose = compose;
-  return viva;
-}
+export default { docker, compose };

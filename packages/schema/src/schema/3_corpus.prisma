@@ -1,0 +1,80 @@
+model Corpus {
+  // ABOUT
+  id          String   @id 
+  slug        String
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
+  name        String?
+  description String?
+  icon        Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime        Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId      String   
+
+  // curriculum
+  units          Unit[]
+  tags           Tag[]
+  dependencies   Dependency[]
+  conditions     Condition[]
+
+  @@unique([slug, runtimeId])
+}
+
+model Game {
+  // ABOUT
+  id          String   @id
+  slug        String
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
+  name        String?
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime     Runtime @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String  
+
+  // USERLAND
+  plays       Play[]
+
+  // DATA
+  mask        Json          @default("\"{}\"")
+  queue       Queue[]
+
+  @@unique([slug, runtimeId])
+}
+
+model Tactic {
+  // ABOUT
+  id          String   @id
+  slug        String
+  version     String   @default("0.0.0")
+  installed   Boolean  @default(false)
+  name        String?
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime     Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String 
+
+  // USERLAND
+  plays       Play[]       
+
+  // TRANSIENT
+  queue       Queue[]
+
+  // DATA
+  relations   Json  @default("\"{}\"") // for grouping units, tags and games
+  masks       Json  @default("\"{}\"") // for customizing games
+
+  @@unique([slug, runtimeId])
+}

@@ -1,19 +1,37 @@
-import config from "@vivalence/config";
-import { deepMerge } from "@vivalence/shared";
+import registry from "@vivalence/registry";
 
-async function mount(client) {
-  client.services = deepMerge({}, client.services);
+// client may be viva, daemon, or anything that implements {services}
+// in environments where registry is available
 
-  for (const [serviceKey, serviceSlug] of Object.entries(config.services)) {
-    const ServiceModule = await client.registry.load(serviceSlug);
+// viva or daemon ctx
+async function mountClients(ctx) {
+  for (const [serviceKey, serviceDefinition] of Object.entries(ctx.services)) {
+    // if (typeof serviceDefinition.service !=== 'string') do stuff.
+    const ServiceModule = await registry.load(serviceDefinition.service);
 
-    const service = await ServiceModule.client(client);
+    const service = await ServiceModule.client(service, ctx);
     service.Module = ServiceModule;
+    service.isMounted = true;
 
-    client.services[serviceKey] = service;
+    ctx.services[serviceKey] = service;
   }
 
-  return client;
+  return ctx;
 }
 
-export default { mount };
+async function mountServices(ctx) {
+  for (const [serviceKey, serviceDefinition] of Object.entries(ctx.services)) {
+    // if (typeof serviceDefinition.service !=== 'string') do stuff.
+    const ServiceModule = await registry.load(serviceDefinition.service);
+
+    const service = await ServiceModule.service(service, ctx);
+    service.Module = ServiceModule;
+    service.isMounted = true;
+
+    ctx.services[serviceKey] = service;
+  }
+
+  return ctx;
+}
+
+export default { mountClients, mountServices };

@@ -1,4 +1,5 @@
 {
+  "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
   "workspace": [
     "./config",
@@ -11,16 +12,17 @@
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
   ],
-  "nodeModulesDirs": "auto",
   "tasks": {
-    "viva:install": "deno install --global -f -A -n viva ./packages/clients/viva/cli-entry.js $PWD",
+    "install": "deno install --allow-scripts=npm:sqlite3",
+    "viva:install": "deno run install && deno install --global -f -A -n viva ./packages/clients/viva/cli-entry.js $PWD",
     "viva": "VIVA_ROLE=sudo deno run -A ./packages/clients/viva/mod.js",
     "viva:dev": "VIVA_ROLE=sudo deno run --watch -A ./packages/clients/viva/mod.js",
 
     "daemon:dev": "VIVA_ROLE=daemon deno run --watch -A  packages/daemon/mod.ts",
     "web:dev": "VIVA_ROLE=client deno run -A packages/clients/web/mod.js",
 
-    "schema:compile": "VIVA_ROLE=sudo deno run -A packages/schema/compile.js",
-    "schema:deploy": "deno task schema:compile && VIVA_ROLE=sudo deno run -A packages/schema/deploy.js",
+    // "schema:compile": "VIVA_ROLE=sudo deno run -A packages/schema/compile.js",
+    // "schema:deploy": "deno task schema:compile && VIVA_ROLE=sudo deno run -A packages/schema/deploy.js",
+    "schema:generate": "VIVA_ROLE=sudo deno run -A packages/schema/src/generate.js",
   },
 }

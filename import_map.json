@@ -1,12 +1,23 @@
 {
   "imports": {
     "$std/": "https://deno.land/std@0.224.0/",
+    "@std/path": "jsr:@std/path@1.0.8",
+    "@std/fs": "jsr:@std/fs@1.0.8",
+
+    "@libsql/client/node": "npm:@libsql/client/node",
+
+    "@mikro-orm/cli": "npm:@mikro-orm/cli@6.4.3",
+    "@mikro-orm/core": "npm:@mikro-orm/core@6.4.3",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.4.3",
+    "@mikro-orm/entity-generator": "npm:@mikro-orm/entity-generator@6.4.3",
+
     "ts-essentials": "npm:ts-essentials@9.3.0",
     "vite": "npm:vite@5.4.10",
 
-    "@electric-sql/pglite": "npm:@electric-sql/pglite@0.2.15",
+    "prisma": "npm:prisma@6.2.1",
+    "@prisma/client": "npm:@prisma/client",
+    "@db/sqlite": "jsr:@db/sqlite@0.12",
     "pg": "npm:pg@8.13.1",
-
     "@supabase/ssr": "npm:@supabase/ssr@0.4.1",
     "@supabase/supabase-js": "npm:@supabase/supabase-js@2.45.1",
 
@@ -44,15 +55,8 @@
     "autoprefixer": "npm:autoprefixer@10.4.20",
     "@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.15",
     "tailwindcss": "npm:tailwindcss@3.4.14",
-    "troika-three-text": "npm:troika-three-text@0.49.0",
-    "@threejs-kit/instanced-sprite-mesh": "npm:@threejs-kit/instanced-sprite-mesh@2.4.6",
-    "three-mesh-bvh": "npm:three-mesh-bvh@0.7.1",
-    "three-perf": "npm:three-perf@1.0.10",
-    "@dimforge/rapier2d-compat": "https://cdn.skypack.dev/@dimforge/rapier2d-compat",
-    "@dimforge/rapier3d-compat": "https://cdn.skypack.dev/@dimforge/rapier3d-compat",
-    "carbon-icons-svelte": "https://cdn.skypack.dev/@dimforge/carbon-icons-svelte@12.13.0",
-    "tinykeys": "npm:tinykeys@3.0.0",
 
+    "tinykeys": "npm:tinykeys@3.0.0",
     "mitt": "npm:mitt@3.0.1"
   }
 }
