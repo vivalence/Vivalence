@@ -12,7 +12,7 @@ export default (game) => {
   game.router.middleware.push(async (ctx, next) => {
     const url = ctx.request.url.pathname.split("/");
     const slug = url[url.indexOf("g") + 1];
-    ctx.state.game = ctx.runtime.games.find((game) => game.manifest.slug === slug).manifest;
+    ctx.state.game = ctx.runtime.modules.games.find((game) => game.entity.slug === slug).entity;
     await next();
   });
 

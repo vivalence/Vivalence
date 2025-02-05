@@ -23,6 +23,8 @@ async function install(viva) {
     await databaseService.install.do();
     console.log(colors.green("✓ database services started successfully"));
 
+    // TODO: migrations / schemad  deploy
+
     config.env.write("VIVA_SELF_INSTALLED", true);
 
     // console.log(colors.blue("Starting identity services..."));

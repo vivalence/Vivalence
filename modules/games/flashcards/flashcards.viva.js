@@ -3,10 +3,10 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
 
-async function boot(runtime, Game) {
+async function boot(runtime, game) {
   const bundle = bundler({
     entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
-    serve: runtime.manifest.url + Game.manifest.url,
+    serve: game.entity.url,
   });
 
   runtime.router.get(bundle.url, bundle.serve());

@@ -10,4 +10,7 @@
     // "compile": "./compile.js",
     // "deploy": "./deploy.js",
   },
+  "imports": {
+    "@mikro-orm/postgresql": "npm:@mikro-orm/postgresql@^6.4.3"
+  },
 }

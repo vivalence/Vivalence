@@ -1,0 +1,28 @@
+model User {
+  // ABOUT
+  id        String          @id  @default(autoincrement())
+  roles     UserRolesEnum[] @default([USER]) 
+  config    Json            @default("\"{}\"")
+
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @default(now()) @updatedAt
+
+  // RUNTIME
+  runtimes   Runtime[]   
+  strategies Strategy[] 
+
+  // USERLAND
+  plays       Play[]           
+  memories    Memory[]          
+
+  // TRANSIENT
+  queue       Queue[]
+  HEAD        HEAD[]
+}
+
+enum UserRolesEnum {ADMIN USER GUEST}
+
+
+
+
+// root repo daemon runtime curricula userland transient

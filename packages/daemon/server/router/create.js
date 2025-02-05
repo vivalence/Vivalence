@@ -5,8 +5,14 @@ import withError from "./lib/error.js";
 import { post, pre } from "./lib/middleware.js";
 import withRoute from "./lib/route.js";
 
+class VivaRouter extends Router {
+  constructor() {
+    super();
+  }
+}
+
 export default function createRouter() {
-  const router = new Router();
+  const router = new VivaRouter();
 
   withError(router);
 

@@ -6,9 +6,9 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default (service, ctx) => {
   const llms = {
-    openai: openai(service.config.env.openai),
-    groq: groq(service.config.env.groq),
-    anthropic: anthropic(service.config.env.anthropic),
+    openai: openai(service.config.keys.openai),
+    groq: groq(service.config.keys.groq),
+    anthropic: anthropic(service.config.keys.anthropic),
   };
 
   const retry = async (fn, maxRetries = 1, initialDelay = 1000) => {

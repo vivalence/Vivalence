@@ -1,12 +1,18 @@
+import config from "@vivalence/config";
+import { dirname } from "@std/path";
 import * as libsql from "@libsql/client/node";
 
-export const createClient = (databasePath) => {
-  const db = libsql.createClient({ url: databasePath });
+export const createClient = (config) => {
+  const { filePath } = valid(config);
+  const db = libsql.createClient({ url: filePath });
   return db;
 };
 
-export const createDatabase = async (databasePath) => {
-  const db = libsql.createClient({ url: databasePath });
+export const createDatabase = async (config) => {
+  await Deno.mkdir(dirname(config.filePath), { recursive: true });
+  const { filePath } = valid(config);
+
+  const db = libsql.createClient({ url: filePath });
 
   await db.execute("PRAGMA journal_mode = WAL;");
   await db.execute("PRAGMA busy_timeout = 5000;");
@@ -17,3 +23,17 @@ export const createDatabase = async (databasePath) => {
 
   return db;
 };
+
+export function valid(config) {
+  let { filePath } = config;
+
+  if (!filePath.startsWith("file:")) {
+    filePath = `file:` + filePath;
+  }
+
+  if (!filePath) {
+    throw new Error("[libsql] no database service defined");
+  }
+
+  return { filePath };
+}
