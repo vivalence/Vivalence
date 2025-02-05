@@ -1,6 +1,7 @@
 import config from "@vivalence/config";
 import { walk } from "@std/fs";
 import { obj } from "../lib/index.js";
+import { RuntimeEntity } from "@vivalence/schema";
 
 async function loadFromRepo() {
   const runtimes = {};
@@ -13,7 +14,11 @@ async function loadFromRepo() {
   })) {
     try {
       const RuntimeModule = obj.deepClone(await import(entry.path));
-      runtimes[RuntimeModule.manifest.slug] = RuntimeModule;
+      if (!RuntimeModule?.manifest) throw new Error(`Invalid module structure at ${entry.path}`);
+      if (RuntimeModule.manifest.type !== "runtime") continue;
+      RuntimeModule.Entity = RuntimeEntity;
+      // ensure(RuntimeModule)
+      runtimes[RuntimeModule.manifest.slug] = RuntimeModule.default ?? RuntimeModule;
     } catch (e) {
       console.error("[@shared RUNTIME loadFromRepo] error");
       console.error(e);

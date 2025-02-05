@@ -2,13 +2,13 @@ import { Daemon, Module, Runtime } from "@vivalence/types";
 
 export default function serve(daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
-    if (!runtime.router || !runtime.manifest?.url) continue;
+    if (!runtime.router || !runtime.entity.url) throw new Error("Cant serve Runtimes");
 
     try {
       for (const module of [
-        runtime.domain,
-        runtime.ontology,
-        ...(runtime.corpora ?? []),
+        runtime.modules.domain,
+        runtime.modules.ontology,
+        ...(runtime.modules.corpora ?? []),
       ] as Module[]) {
         if (!module.router) continue;
 
@@ -19,21 +19,20 @@ export default function serve(daemon: Daemon) {
         );
       }
 
-      for (const module of [...runtime.games, ...runtime.tactics, ...runtime.strategies]) {
-        if (!module.router || !module.manifest?.url) continue;
+      for (const module of [...runtime.modules.games, ...runtime.modules.tactics]) {
+        //, ...runtime.modules.strategies
+        if (!module.router || !module.entity.url) throw new Error("Cant serve modules");
 
         runtime.router.use(
-          module.manifest.url,
+          module.entity.url,
           ...module.router.middleware,
           module.router.routes(),
           module.router.allowedMethods(),
         );
       }
 
-      if (!daemon.router) continue;
-
       daemon.router.use(
-        runtime.manifest.url,
+        runtime.entity.url,
         ...runtime.router.middleware,
         runtime.router.routes(),
         runtime.router.allowedMethods(),

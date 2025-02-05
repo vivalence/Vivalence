@@ -5,13 +5,13 @@ const manifest = {
   slug: "eng2esp",
   name: "English to Spanish",
   icon: { emoji: "🇪🇸" },
-  version: "0.0.1",
+  version: "0.0.2",
 };
 
 const modules = {
   domain: "@vivalence/domain/base",
   ontology: "@vivalence/ontology/language",
-  corpora: ["@vivalence/corpus/cefr-eng-to-esp"],
+  curricula: ["@vivalence/curriculum/cefr-eng-to-esp"],
 };
 
 const services = {

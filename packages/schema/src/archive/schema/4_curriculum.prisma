@@ -1,0 +1,159 @@
+model Unit {
+  // ABOUT
+  id        String   @id 
+  slug      String  
+  traits    UnitTraitsEnum[]
+  traitData Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime   Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId String 
+
+  corpus    Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId  String?
+
+  // CORPUS
+  tags      Tag[]
+
+  // USERLAND
+  plays        Play[]
+  memory       Memory[]
+
+  // DATA
+  annotation   Json     
+  data         Json     // entity
+  index        Int?      
+
+  @@unique([slug, runtimeId])
+}
+
+enum  UnitTraitsEnum {
+  ONTOLOGYFREE
+  GENERATED
+  MANAGED
+  PERSISTED
+}
+
+model Tag {
+  // ABOUT
+  id          String   @id 
+  slug        String   
+  name        String  
+  description String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  // RUNTIME
+  runtime     Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId   String
+
+  corpus      Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId    String?
+
+  // CORPUS
+  units       Unit[]
+
+  // USERLAND
+  memory      Memory[]        
+  plays       Play[]
+
+  // DATA
+  traits      Json  
+  data        Json        
+
+  @@index([name], name: "nameIndexOnTag")
+  @@unique([slug, runtimeId])
+}
+
+enum TagTraitsEnum {
+  ONTOLOGICAL // subject matter attribute
+  STRUCTURAL // organizing of units into sets or categories
+  LEARNABLE // higher order feature that can be mastered
+  COMPLETABLE // contains a set of units where each can be mastered
+}
+
+model Dependency { // Milestone
+  // ABOUT
+  id             String   @id 
+  slug           String   
+  name           String
+  traits         DependencyTraits[]
+  description    String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  // APP
+  // Not yet used. under consideration. irrelevant for singleplayer.
+  // user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // userId      String
+
+  // RUNTIME
+  runtime        Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId      String
+
+  corpus         Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId       String?
+
+  // CORPUS
+  preconditions  Condition[] @relation("PreconditionRelation")
+  conditions     Condition[] @relation("ConditionRelation")
+  itinerary      Json  @default("\"{}\"") 
+  // availableLastCheckedAt 
+  // satisfiedLastCheckedAt 
+  // assessedAt
+  // resolvedAt
+
+
+  // TRANSIENT
+  queue          Queue[]
+  head           HEAD[]
+
+  // DATA
+  available      Boolean       @default(false) // all preconditions met
+  satisfied      Boolean       @default(false) // all conditions met
+
+  @@unique([slug, runtimeId])
+}
+
+enum DependencyTraits {
+milestone
+tactical
+}
+
+model Condition {
+  // ABOUT
+  id           String   @id 
+  name         String?
+  description  String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+
+  // APP
+  // Not yet used. under consideration. irrelevant for singleplayer.
+  // user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // userId      String
+
+  // RUNTIME
+  runtime      Runtime  @relation(fields: [runtimeId], references: [id], onDelete: Cascade)
+  runtimeId    String
+
+  corpus       Corpus?  @relation(fields: [corpusId], references: [id], onDelete: SetNull) 
+  corpusId     String?
+
+  // CORPUS
+  conditionFor    Dependency[] @relation("ConditionRelation")
+  preconditionFor Dependency[] @relation("PreconditionRelation")
+
+  // DATA
+  scope         Json   @default("\"{}\"") 
+  assertion     Json    @default("\"{}\"") 
+  met           Boolean  @default(false)
+}
+

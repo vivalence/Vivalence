@@ -1,4 +1,9 @@
 /runtimes/
+/data/
+
+data/
+migrations/
+
 node_modules
 **/node_modules
 

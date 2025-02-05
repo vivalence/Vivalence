@@ -1,6 +1,6 @@
-import { BaseEntity, EntitySchema, type Opt } from "@mikro-orm/core";
+import { BaseModuleEntity, EntitySchema, type Opt } from "@mikro-orm/core";
 
-export class PrismaMigrations extends BaseEntity {
+export class PrismaMigrations extends BaseModuleEntity {
   id!: string;
   checksum!: string;
   finishedAt?: Date;
@@ -26,9 +26,9 @@ export const PrismaMigrationsSchema = new EntitySchema({
   },
 });
 
-import { BaseEntity, EntitySchema } from "@mikro-orm/core";
+import { BaseModuleEntity, EntitySchema } from "@mikro-orm/core";
 
-export class Test extends BaseEntity {
+export class Test extends BaseModuleEntity {
   id!: number;
   bar!: string;
   foo!: unknown;

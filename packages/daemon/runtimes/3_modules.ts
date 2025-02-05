@@ -3,7 +3,7 @@ import { Daemon, Module, Runtime, RuntimeModule } from "@vivalence/types";
 const createModule = (runtime: Runtime, Module: Module): RuntimeModule => ({
   router: runtime.router?.create(),
   bus: runtime.bus?.scope(),
-  manifest: Module.manifest,
+  entity: Module.entity,
   Module,
 });
 
@@ -17,16 +17,15 @@ const instantiateModules = (runtime: Runtime, modules: Module[]) => {
 export default function (daemon: Daemon) {
   for (const [key, runtime] of daemon.runtimes.entries() as unknown as Map<symbol, Runtime>) {
     try {
-      const Module = runtime.Module;
-
-      if (!Module.modules) continue;
-
-      runtime.domain = createModule(runtime, Module.modules.Domain);
-      runtime.ontology = createModule(runtime, Module.modules.Ontology);
-      runtime.corpora = instantiateModules(runtime, Module.modules.Corpora);
-      runtime.games = instantiateModules(runtime, Module.modules.Games);
-      runtime.tactics = instantiateModules(runtime, Module.modules.Tactics);
-      runtime.strategies = instantiateModules(runtime, Module.modules.Strategies);
+      const Modules = runtime.Modules;
+      const modules = {};
+      modules.domain = createModule(runtime, Modules.Domain);
+      modules.ontology = createModule(runtime, Modules.Ontology);
+      modules.corpora = instantiateModules(runtime, Modules.Corpora);
+      modules.games = instantiateModules(runtime, Modules.Games);
+      modules.tactics = instantiateModules(runtime, Modules.Tactics);
+      modules.strategies = instantiateModules(runtime, Modules.Strategies);
+      runtime.modules = modules;
 
       daemon.runtimes.set(key, runtime);
     } catch (e) {

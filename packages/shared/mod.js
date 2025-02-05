@@ -5,6 +5,7 @@ import std, {
   time,
   id,
   //api depracated
+  uniqueBySlug,
   deepClone,
   deepMerge,
   deepEquals,
@@ -34,6 +35,7 @@ export {
   runtimes,
 
   //api depracated
+  uniqueBySlug,
   deepClone,
   deepMerge,
   deepEquals,

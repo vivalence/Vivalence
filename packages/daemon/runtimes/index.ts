@@ -1,5 +1,5 @@
-import discover from "./0_discover.ts";
-import runtime from "./1_runtime.ts";
+import discover from "./0_discover.js";
+import init from "./1_init.ts";
 import register from "./2_register.ts";
 import modules from "./3_modules.ts";
 import boot from "./4_boot.ts";
@@ -10,7 +10,7 @@ import install from "./6_install.ts";
 
 export default {
   discover,
-  runtime,
+  init,
   register,
   modules,
   boot,

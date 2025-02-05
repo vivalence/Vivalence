@@ -2,6 +2,8 @@ import deepClone from "./deepClone.js";
 import deepMerge from "./deepMerge.js";
 import deepEquals from "./deepEquals.js";
 
+import uniqueBySlug from "./uniqueBySlug.js";
+
 import id from "./id.js";
 import strings from "./strings.js";
 import time from "./time.js";
@@ -25,6 +27,7 @@ export {
   time,
 
   //api depracated
+  uniqueBySlug,
   deepMerge,
   shuffle,
   deepEquals,

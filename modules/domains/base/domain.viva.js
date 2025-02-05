@@ -3,6 +3,7 @@ import methods from "./methods/boot.js";
 import middlewares from "./middlewares/index.js";
 
 async function boot(runtime) {
+  console.log("RUNTIME DOMAIN BOOT");
   await middlewares.boot(runtime);
   await methods.boot(runtime);
   await events.boot(runtime);

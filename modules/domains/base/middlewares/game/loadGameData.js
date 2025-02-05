@@ -4,6 +4,7 @@ import { deepMerge, blacklist as Blacklist } from "@vivalence/shared";
 export default async function getGameData(input, ctx) {
   let { mask = {}, scope = {}, blacklist = {} } = input;
 
+  // TODO
   const { data: game, error } = await ctx.runtime.locals.supabase
     .from("Game")
     .select(`id,mask`)

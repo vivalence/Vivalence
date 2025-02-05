@@ -1,5 +1,5 @@
 import { load } from "$std/dotenv/mod.ts";
-import { join } from "$std/path/mod.ts";
+import { join, dirname } from "@std/path";
 
 export default async function (config) {
   const currentDir = new URL(".", import.meta.url).pathname;
@@ -46,7 +46,6 @@ export default async function (config) {
 
   const VIVA_REPO_ROOT_DIR = env["VIVA_REPO_ROOT_DIR"];
   if (!VIVA_REPO_ROOT_DIR) throw new Error("[config] Missing repo configuration.");
-  // const selfOffset = config.env.get("VIVA_SELF_INSTALL_PATH_OFFSET") || "../../";
   // config.env.write("VIVA_REPO_ROOT_DIR", join(import.module.path, selfOffset));
 
   const VIVA_DATABASE_PATH = join(VIVA_REPO_ROOT_DIR, env.VIVA_DATABASE_PATH);
@@ -58,11 +57,13 @@ export default async function (config) {
     VIVA_ROLE: Deno.env.get("VIVA_ROLE"),
     VIVA_REPO_ROOT_DIR,
     VIVA_DATABASE_PATH,
+    VIVA_DATABASE_MIGRATIONS_PATH: `${dirname(VIVA_DATABASE_PATH)}/migrations`,
     VIVA_MODULES_DIR: `${VIVA_REPO_ROOT_DIR}/modules`,
     VIVA_PACKAGES_DIR: `${VIVA_REPO_ROOT_DIR}/packages`,
     VIVA_RUNTIMES_DIR: `${VIVA_REPO_ROOT_DIR}/runtimes`,
     VIVA_SCHEMA_ROOT_DIR: `${VIVA_REPO_ROOT_DIR}/packages/schema`,
     VIVA_DAEMON_URL: env.VIVA_DAEMON_URL,
+    VIVA_DAEMON_PORT: env.VIVA_DAEMON_PORT,
     VIVA_CLIENT_WEB_URL: env.VIVA_CLIENTS_WEB_URL,
 
     // DEPRACATED
@@ -86,14 +87,16 @@ export default async function (config) {
       // DATABASE_USER: env.DATABASE_USER,
       // DATABASE_PASSWORD: env.DATABASE_PASSWORD,
 
-      // SERVICE_NLP_URL: env.SERVICE_NLP_URL,
-      // SERVICE_NLP_KEY: env.SERVICE_NLP_KEY,
+      SERVICE_NLP_URL: env.SERVICE_NLP_URL,
+      SERVICE_NLP_PORT: env.SERVICE_NLP_PORT,
+      SERVICE_NLP_KEY: env.SERVICE_NLP_KEY,
 
-      // OPENAI_API_KEY: env.OPENAI_API_KEY,
-      // PERPLEXITY_API_KEY: env.PERPLEXITY_API_KEY,
-      // ANYSCALE_API_KEY: env.ANYSCALE_API_KEY,
-      // GROQ_API_KEY: env.GROQ_API_KEY,
-      // ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
+      VIVALENCE_IDENTITY_KEY: env.VIVALENCE_IDENTITY_KEY,
+      OPENAI_API_KEY: env.OPENAI_API_KEY,
+      PERPLEXITY_API_KEY: env.PERPLEXITY_API_KEY,
+      ANYSCALE_API_KEY: env.ANYSCALE_API_KEY,
+      GROQ_API_KEY: env.GROQ_API_KEY,
+      ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY,
 
       // SUPABASE_SERVICE_KEY: env.SUPABASE_SERVICE_KEY,
     };

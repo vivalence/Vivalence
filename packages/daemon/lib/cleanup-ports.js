@@ -2,7 +2,7 @@ import config from "@vivalence/config";
 
 export default function cleanupPorts(daemon) {
   (async () => {
-    const port = config.env.DAEMON_PORT;
+    const port = config.env.VIVA_DAEMON_PORT;
     const p = Deno.run({ cmd: ["lsof", "-i", `:${port}`, "-t"], stdout: "piped", stderr: "piped" });
     const output = await p.output();
     const errors = await p.stderrOutput();
