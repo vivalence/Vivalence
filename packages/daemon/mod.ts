@@ -45,12 +45,10 @@ const daemon = {
 
     runtimes.modules,
     runtimes.boot,
-    // // runtimes.entities,
     runtimes.serve,
-    // // entities.serve,
     // aperture.serve,
     server.serve,
-    // runtimes.install,
+    runtimes.install,
     // dev,
     // runtimes.userland,
     ticker("up"),

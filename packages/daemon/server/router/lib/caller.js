@@ -4,9 +4,13 @@ import { compose } from "oak/middleware";
 
 import notFoundMiddleware from "../../middlewares/notFound.js";
 
-export default function createCall({ runtime, ...requestContext }) {
+export default function createScopedCallMethod({ runtime, ...requestContext }) {
   // return function createCall(requestContext) {
   return async function call(path, body = {}, params = {}) {
+    // console.log("CALLER"); console.log(config.env.get("VIVA_DAEMON_URL"), path);
+    // console.log(path);
+    // console.log(new URL(join(config.env.get("VIVA_DAEMON_URL"), path)));
+
     const ctx = {
       state: requestContext ? { ...requestContext.state } : {},
       locals: requestContext ? { ...requestContext.locals } : {},
@@ -16,7 +20,9 @@ export default function createCall({ runtime, ...requestContext }) {
         method: params.method || "POST",
         body: { json: async () => body },
         headers: requestContext?.request?.headers || new Headers(),
-        url: new URL(join(config.env.get("DAEMON_URL"), path)),
+        // url: new URL(join(config.env.get("VIVA_DAEMON_URL"), path)),
+        url: new URL(path, config.env.get("VIVA_DAEMON_URL")),
+        // url: path,
       },
       response: { body: {}, status: 404, headers: new Headers() },
       runtime: { ...runtime },

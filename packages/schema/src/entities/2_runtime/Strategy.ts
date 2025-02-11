@@ -18,6 +18,7 @@ export const StrategySchema = new EntitySchema<StrategyEntity, BaseModuleEntity>
   class: StrategyEntity,
   extends: BaseModuleSchema,
   tableName: "Strategy",
+  uniques: [{ properties: ["slug", "runtime"] }],
   // uniques: [{name: "Strategy_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Strategy_slug_runtime_key" ON public."Strategy" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
   properties: {
     user: {

@@ -3,14 +3,18 @@ import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
 // import { Play } from "../4_userland/Play.ts";
 // import { Queue } from "../5_transient/Queue.ts";
+
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
+// class VivaURL extends URL {#modulename; set modulename(value) {this.#modulename = value;} get modulename() {return this.#modulename;}}
 
 export class GameEntity extends BaseModuleEntity {
   runtime!: Rel<RuntimeEntity>;
   mask: any & Opt = "{}";
 
   get url() {
-    return new URL(`${this.runtime.url}/game/${this.slug}`);
+    const url = new URL(`${this.runtime.url}/game/${this.slug}`);
+    url.modulename = `/game/${this.slug}`;
+    return url;
   }
   // playCollection = new Collection<Play>(this);
   // queueCollection = new Collection<Queue>(this);
@@ -21,6 +25,7 @@ export const GameSchema = new EntitySchema<GameEntity, BaseModuleEntity>({
   extends: BaseModuleSchema,
   tableName: "Game",
   // uniques: [{name: "Game_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Game_slug_runtime_key" ON public."Game" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
+  uniques: [{ properties: ["slug", "runtime"] }],
   properties: {
     runtime: {
       kind: "m:1",

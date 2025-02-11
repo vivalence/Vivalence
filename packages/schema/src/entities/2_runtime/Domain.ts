@@ -10,6 +10,7 @@ export const DomainSchema = new EntitySchema<DomainEntity, BaseModuleEntity>({
   class: DomainEntity,
   extends: BaseModuleSchema,
   tableName: "Domain",
+  uniques: [{ properties: ["slug", "runtime"] }],
   // uniques: [{name: "Domain_runtime_key", expression: 'CREATE UNIQUE INDEX "Domain_runtime_key" ON public."Domain" USING btree ("runtime")', properties: ["runtime"],}, {name: "Domain_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Domain_slug_runtime_key" ON public."Domain" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
   properties: {
     runtime: {

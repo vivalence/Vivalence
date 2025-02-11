@@ -21,7 +21,7 @@ export default function (daemon: Daemon) {
       const modules = {};
       modules.domain = createModule(runtime, Modules.Domain);
       modules.ontology = createModule(runtime, Modules.Ontology);
-      modules.corpora = instantiateModules(runtime, Modules.Corpora);
+      modules.curricula = instantiateModules(runtime, Modules.Curricula);
       modules.games = instantiateModules(runtime, Modules.Games);
       modules.tactics = instantiateModules(runtime, Modules.Tactics);
       modules.strategies = instantiateModules(runtime, Modules.Strategies);

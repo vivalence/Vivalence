@@ -13,18 +13,18 @@ export const CurriculumSchema = new EntitySchema<CurriculumEntity, BaseModuleEnt
   extends: BaseModuleSchema,
   tableName: "Curriculum",
   // uniques: [{name: "Curriculum_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Curriculum_slug_runtime_key" ON public."Curriculum" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
+  uniques: [{ properties: ["slug", "runtime"] }],
   properties: {
     runtime: {
       kind: "m:1",
       entity: () => RuntimeEntity,
-      updateRule: "cascade",
-      deleteRule: "cascade",
+      inversedBy: (runtime) => runtime.curricula, //"curricula",
     },
     users: {
       kind: "m:n",
       entity: () => UserEntity,
-      inversedBy: "curricula",
-      pivotTable: "_CurriculumToUser",
+      //
+      mappedBy: "curricula",
     },
   },
 });

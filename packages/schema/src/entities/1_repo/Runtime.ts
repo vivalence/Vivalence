@@ -37,13 +37,17 @@ export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseModuleEntity>({
     users: {
       kind: "m:n",
       entity: () => UserEntity,
-      inversedBy: "runtimes",
-      pivotTable: "_RuntimeToUser",
+      mappedBy: "runtimes",
     },
     services: { kind: "1:m", entity: () => ServiceEntity, mappedBy: "runtime" },
     domain: { kind: "1:1", entity: () => DomainEntity, mappedBy: "runtime" },
     ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
-    curricula: { kind: "1:m", entity: () => CurriculumEntity, mappedBy: "runtime" },
+    curricula: {
+      kind: "1:m",
+      entity: () => CurriculumEntity,
+      mappedBy: (curriculum) => curriculum.runtime,
+    },
+
     url: { type: "method", persist: false, getter: true, getterName: "url" },
   },
 });

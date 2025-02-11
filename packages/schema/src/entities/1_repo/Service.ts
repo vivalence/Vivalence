@@ -16,7 +16,7 @@ export const ServiceSchema = new EntitySchema<ServiceEntity, BaseModuleEntity>({
   class: ServiceEntity,
   tableName: "Service",
   extends: BaseModuleSchema,
-  // uniques: [{name: "Service_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Service_slug_runtime_key" ON public."Service" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
+  uniques: [{ properties: ["slug", "runtime"] }],
   properties: {
     runtime: {
       kind: "m:1",

@@ -2,18 +2,16 @@ import { MikroORM, defineConfig } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations"; // or `@mikro-orm/migrations-mongodb`
 
 import config from "@vivalence/config";
-import { schemas, entities } from "@vivalence/schema";
+import { schemas, entities, daemonEntites } from "@vivalence/schema";
 
 async function init(daemon) {
   const orm = await MikroORM.init(
     defineConfig({
       dbName: config.env.get("VIVA_DATABASE_PATH"),
       entities: schemas,
-
       extensions: [Migrator],
-      discovery: { warnWhenNoEntities: false },
-      multipleStatements: true,
       // debug: true,
+      // discovery: { warnWhenNoEntities: false },
 
       migrations: {
         tableName: "_mikro_migrations",
@@ -43,25 +41,13 @@ async function init(daemon) {
 
   daemon.entities = { orm, em: orm.em.fork() };
 
-  await Object.entries(entities)
-    .filter(([key]) =>
-      [
-        "user",
-        "repoo",
-        "daemon",
-        "runtime",
-        "service",
-        "domain",
-        "ontology",
-        "curriculum",
-        "game",
-        "tactic",
-        "strategy",
-      ].includes(key),
-    )
-    .map(async ([key, entity]) => {
-      daemon.entities[key] = await daemon.entities.em.getRepository(entity);
-    });
+  // await Object.entries(entities) .filter(([key]) =>
+  //     ["user", "repoo", "daemon", "runtime", "service", "domain", "ontology", "curriculum", "game", "tactic", "strategy",].includes(key),
+  //   .map(async ([key, entity]) => {daemon.entities[key] = await daemon.entities.em.getRepository(entity);
+
+  await Object.entries(daemonEntites).map(async ([key, entity]) => {
+    daemon.entities[key] = await daemon.entities.em.getRepository(entity);
+  });
 
   return daemon;
 }

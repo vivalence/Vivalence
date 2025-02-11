@@ -7,11 +7,13 @@ practice everything like you mean to.
 
 
 vivalence is
-infinitely personalized, hackable, cybernetically enhanced, wikipedia style, federated, emacs inspired, procedurally generated, fair use, functional deno.ts.
-touring complete. cracked. interstellar.
+- designed to become the worlds education systems backbone. 
+- infinitely personalizable, hackable, cybernetically enhanced, wikipedia style, federated, emacs inspired, procedurally generated, fair use, generally cracked, functional deno.ts.
 
 enough yapping.
+```
 kill $(ps -eo pid,pgid | jq -sr '.[] | select(.group == "yapper") | .pid' <(awk '{print "{\"pid\": "$1", \"group\": "$2"}"}'))
+```
 
 
 

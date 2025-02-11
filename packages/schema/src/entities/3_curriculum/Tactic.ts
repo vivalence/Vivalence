@@ -11,7 +11,9 @@ export class TacticEntity extends BaseModuleEntity {
   relations: any & Opt = "{}";
   masks: any & Opt = "{}";
   get url() {
-    return new URL(`${this.runtime.url}/tactic/${this.slug}`);
+    const url = new URL(`${this.runtime.url}/tactic/${this.slug}`);
+    url.modulename = `/tactic/${this.slug}`;
+    return url;
   }
   // playCollection = new Collection<Play>(this);
   // queueCollection = new Collection<Queue>(this);
@@ -22,6 +24,7 @@ export const TacticSchema = new EntitySchema<TacticEntity, BaseModuleEntity>({
   extends: BaseModuleSchema,
   tableName: "Tactic",
   // uniques: [{name: "Tactic_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Tactic_slug_runtime_key" ON public."Tactic" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
+  uniques: [{ properties: ["slug", "runtime"] }],
   properties: {
     runtime: {
       kind: "m:1",
