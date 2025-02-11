@@ -6,10 +6,10 @@ export class BaseEntity extends MikroBaseEntity {
   createdAt!: Date & Opt;
   updatedAt!: Date & Opt;
 
-  constructor(data: Record<string, any> = {}) {
-    super();
-    Object.assign(this, data);
-  }
+  // constructor(data: Record<string, any> = {}) {
+  //   super();
+  //   Object.assign(this, data);
+  // }
 }
 
 export const BaseSchema = new EntitySchema<BaseEntity>({

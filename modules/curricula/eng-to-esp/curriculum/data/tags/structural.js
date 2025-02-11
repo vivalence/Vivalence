@@ -7,7 +7,7 @@ export default [
       STRUCTURAL: {
         relations: {
           units: [
-            { slug: "que:que-sconj" },
+            { slug: "que:que-sconj", annotation: {} },
             { slug: "dejar:dejar-verb-inf" },
             { slug: "también:también-adv" },
             { slug: "salir:salir-verb-inf" },

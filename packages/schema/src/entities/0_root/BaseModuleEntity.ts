@@ -10,8 +10,13 @@ export enum ModuleInstallationEnum {
 export class BaseModuleEntity extends BaseEntity {
   slug: string & Opt = "";
   version: string & Opt = "0.0.0";
+  name?: string;
+  description?: string;
   config: any & Opt = "{}";
   installation: ModuleInstallationEnum & Opt = ModuleInstallationEnum.PENDING;
+  get installed() {
+    return this.installation === ModuleInstallationEnum.INSTALLED;
+  }
 }
 
 export const BaseModuleSchema = new EntitySchema<BaseModuleEntity, BaseEntity>({
@@ -26,6 +31,8 @@ export const BaseModuleSchema = new EntitySchema<BaseModuleEntity, BaseEntity>({
       default: "0.0.0",
       // lazy: true
     },
+    name: { type: String, nullable: true },
+    description: { type: String, nullable: true },
     config: {
       type: "json",
       // defaultRaw: `"{}"`,
@@ -38,5 +45,7 @@ export const BaseModuleSchema = new EntitySchema<BaseModuleEntity, BaseEntity>({
       onCreate: () => ModuleInstallationEnum.PENDING,
       // lazy: true,
     },
+
+    installed: { type: "method", persist: false, getter: true, getterName: "installed" },
   },
 });

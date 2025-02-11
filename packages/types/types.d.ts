@@ -127,6 +127,7 @@ export interface Entity {
   // [string]: Record<string, any>;
 }
 
+export interface ModuleBootRuntime {}
 export interface Module {
   manifest: Manifest;
   Module: Module;

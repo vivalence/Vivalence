@@ -1,1 +1,13280 @@
-export default [{"name":"Lemma: dejar","slug":"lemma:dejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: salir","slug":"lemma:salir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"salir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evitar","slug":"lemma:evitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: establezcar","slug":"lemma:establezcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"establezcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mover","slug":"lemma:mover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: echar","slug":"lemma:echar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"echar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descubrir","slug":"lemma:descubrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descubrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entender","slug":"lemma:entender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pasar","slug":"lemma:pasar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pasar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: venir","slug":"lemma:venir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"venir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intentar","slug":"lemma:intentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destacar","slug":"lemma:destacar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destacar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: observar","slug":"lemma:observar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"observar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asegurar","slug":"lemma:asegurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asegurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aseguráir","slug":"lemma:aseguráir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aseguráir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: responder","slug":"lemma:responder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"responder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suponer","slug":"lemma:suponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nacer","slug":"lemma:nacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pedir","slug":"lemma:pedir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pedir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presentar","slug":"lemma:presentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imaginar","slug":"lemma:imaginar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imaginar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptar","slug":"lemma:aceptar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: olvidar","slug":"lemma:olvidar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"olvidar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: seguir","slug":"lemma:seguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"seguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contar","slug":"lemma:contar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: permitir","slug":"lemma:permitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"permitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: crear","slug":"lemma:crear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"crear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cambiar","slug":"lemma:cambiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cambiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: servir","slug":"lemma:servir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"servir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traer","slug":"lemma:traer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vender","slug":"lemma:vender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: crecer","slug":"lemma:crecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"crecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: decir","slug":"lemma:decir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"decir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mantener","slug":"lemma:mantener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mantener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pagar","slug":"lemma:pagar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pagar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: poder","slug":"lemma:poder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"poder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hablar","slug":"lemma:hablar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hablar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quedar","slug":"lemma:quedar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quedar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: construir","slug":"lemma:construir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"construir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: afirmar","slug":"lemma:afirmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"afirmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: notar","slug":"lemma:notar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"notar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: expresar","slug":"lemma:expresar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"expresar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ir","slug":"lemma:ir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: visitar","slug":"lemma:visitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"visitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pretender","slug":"lemma:pretender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pretender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: despertar","slug":"lemma:despertar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"despertar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sonreír","slug":"lemma:sonreír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sonreír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: insistir","slug":"lemma:insistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"insistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dar","slug":"lemma:dar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ver","slug":"lemma:ver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hacer","slug":"lemma:hacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: creer","slug":"lemma:creer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"creer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encontrar","slug":"lemma:encontrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encontrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pensar","slug":"lemma:pensar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pensar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llevar","slug":"lemma:llevar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llevar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deber","slug":"lemma:deber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llegar","slug":"lemma:llegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: explicar","slug":"lemma:explicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"explicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estudiar","slug":"lemma:estudiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estudiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: decidir","slug":"lemma:decidir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"decidir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desarrollar","slug":"lemma:desarrollar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desarrollar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reconocer","slug":"lemma:reconocer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reconocer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: saber","slug":"lemma:saber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"saber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: haber","slug":"lemma:haber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"haber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tener","slug":"lemma:tener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: morir","slug":"lemma:morir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"morir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: terminar","slug":"lemma:terminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"terminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convertir","slug":"lemma:convertir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convertir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: formar","slug":"lemma:formar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"formar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ofrecer","slug":"lemma:ofrecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ofrecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cumplir","slug":"lemma:cumplir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cumplir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: continuar","slug":"lemma:continuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"continuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: incluir","slug":"lemma:incluir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"incluir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apagar","slug":"lemma:apagar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apagar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: querer","slug":"lemma:querer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"querer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parecer","slug":"lemma:parecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mirar","slug":"lemma:mirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tomar","slug":"lemma:tomar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tomar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tratar","slug":"lemma:tratar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tratar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esperar","slug":"lemma:esperar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esperar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empezar","slug":"lemma:empezar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empezar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: subir","slug":"lemma:subir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"subir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: publicar","slug":"lemma:publicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"publicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diríar","slug":"lemma:diríar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diríar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dirigir","slug":"lemma:dirigir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dirigir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gustar","slug":"lemma:gustar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gustar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: existir","slug":"lemma:existir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"existir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ser","slug":"lemma:ser","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ser"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aprender","slug":"lemma:aprender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aprender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: compartir","slug":"lemma:compartir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"compartir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contestar","slug":"lemma:contestar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contestar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: depender","slug":"lemma:depender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"depender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: funcionar","slug":"lemma:funcionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"funcionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: señalar","slug":"lemma:señalar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"señalar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrar","slug":"lemma:entrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: separar","slug":"lemma:separar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"separar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: importar","slug":"lemma:importar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"importar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: necesitar","slug":"lemma:necesitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"necesitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conseguir","slug":"lemma:conseguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conseguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: usar","slug":"lemma:usar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"usar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: costar","slug":"lemma:costar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"costar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contener","slug":"lemma:contener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tocar","slug":"lemma:tocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soler","slug":"lemma:soler","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soler"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anduviér","slug":"lemma:anduviér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anduviér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presentár","slug":"lemma:presentár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presentár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudar","slug":"lemma:ayudar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: indiquir","slug":"lemma:indiquir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"indiquir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: terminir","slug":"lemma:terminir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"terminir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dijerar","slug":"lemma:dijerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dijerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estar","slug":"lemma:estar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: levantar","slug":"lemma:levantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"levantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: jugar","slug":"lemma:jugar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"jugar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: andar","slug":"lemma:andar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"andar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mejorar","slug":"lemma:mejorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mejorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: medir","slug":"lemma:medir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"medir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: manejar","slug":"lemma:manejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"manejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: localizar","slug":"lemma:localizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"localizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acabar","slug":"lemma:acabar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acabar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: necesitér","slug":"lemma:necesitér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"necesitér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: luchar","slug":"lemma:luchar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"luchar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: beber","slug":"lemma:beber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"beber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contemplar","slug":"lemma:contemplar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contemplar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pegar","slug":"lemma:pegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: relacionar","slug":"lemma:relacionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"relacionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cargar","slug":"lemma:cargar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cargar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suceder","slug":"lemma:suceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mandar","slug":"lemma:mandar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mandar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: saltar","slug":"lemma:saltar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"saltar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: eliminar","slug":"lemma:eliminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"eliminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: envolver","slug":"lemma:envolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"envolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: limitar","slug":"lemma:limitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"limitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bautizar","slug":"lemma:bautizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bautizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bajar","slug":"lemma:bajar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bajar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: partir","slug":"lemma:partir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"partir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: distinguir","slug":"lemma:distinguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"distinguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desaparecer","slug":"lemma:desaparecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desaparecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obligar","slug":"lemma:obligar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obligar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reír","slug":"lemma:reír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amar","slug":"lemma:amar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enviar","slug":"lemma:enviar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enviar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hallar","slug":"lemma:hallar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hallar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proporcionar","slug":"lemma:proporcionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proporcionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: volar","slug":"lemma:volar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"volar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proponer","slug":"lemma:proponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: romper","slug":"lemma:romper","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"romper"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: defender","slug":"lemma:defender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"defender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: informar","slug":"lemma:informar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"informar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recuperar","slug":"lemma:recuperar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recuperar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comparar","slug":"lemma:comparar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comparar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: doler","slug":"lemma:doler","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"doler"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: interrumpir","slug":"lemma:interrumpir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"interrumpir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: poner","slug":"lemma:poner","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"poner"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cortar","slug":"lemma:cortar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cortar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: salvar","slug":"lemma:salvar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"salvar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cruzar","slug":"lemma:cruzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cruzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: equilibrar","slug":"lemma:equilibrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"equilibrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caber","slug":"lemma:caber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: regalar","slug":"lemma:regalar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"regalar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: citar","slug":"lemma:citar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"citar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fumar","slug":"lemma:fumar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fumar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fabricar","slug":"lemma:fabricar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fabricar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lucir","slug":"lemma:lucir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lucir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: condenar","slug":"lemma:condenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"condenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: renunciar","slug":"lemma:renunciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"renunciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pudeér","slug":"lemma:pudeér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pudeér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preocupar","slug":"lemma:preocupar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preocupar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exigir","slug":"lemma:exigir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exigir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imponer","slug":"lemma:imponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reducir","slug":"lemma:reducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: celebrar","slug":"lemma:celebrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"celebrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atacar","slug":"lemma:atacar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atacar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: respirar","slug":"lemma:respirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"respirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asomar","slug":"lemma:asomar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asomar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pronunciar","slug":"lemma:pronunciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pronunciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: juzgar","slug":"lemma:juzgar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"juzgar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: odiar","slug":"lemma:odiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"odiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alejar","slug":"lemma:alejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: plantear","slug":"lemma:plantear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"plantear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: calcular","slug":"lemma:calcular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"calcular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agotar","slug":"lemma:agotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disminuir","slug":"lemma:disminuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disminuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alterar","slug":"lemma:alterar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alterar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: advertir","slug":"lemma:advertir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"advertir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comunicar","slug":"lemma:comunicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comunicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: avisar","slug":"lemma:avisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"avisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pisar","slug":"lemma:pisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asesinar","slug":"lemma:asesinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asesinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: identificar","slug":"lemma:identificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"identificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: limpiar","slug":"lemma:limpiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"limpiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cesar","slug":"lemma:cesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pasér","slug":"lemma:pasér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pasér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fallecer","slug":"lemma:fallecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fallecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: beneficiar","slug":"lemma:beneficiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"beneficiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evaluar","slug":"lemma:evaluar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evaluar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detallar","slug":"lemma:detallar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detallar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derir","slug":"lemma:derir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: viér","slug":"lemma:viér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"viér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: superar","slug":"lemma:superar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"superar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diseñar","slug":"lemma:diseñar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diseñar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: queserar","slug":"lemma:queserar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"queserar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aplastar","slug":"lemma:aplastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aplastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preguntar","slug":"lemma:preguntar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preguntar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sacar","slug":"lemma:sacar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sacar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocurrir","slug":"lemma:ocurrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocurrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inspirar","slug":"lemma:inspirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inspirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: programar","slug":"lemma:programar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"programar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: supistir","slug":"lemma:supistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"supistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentir","slug":"lemma:sentir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: constituir","slug":"lemma:constituir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"constituir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: incorporar","slug":"lemma:incorporar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"incorporar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bastar","slug":"lemma:bastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fundar","slug":"lemma:fundar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fundar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rechazar","slug":"lemma:rechazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rechazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: integrar","slug":"lemma:integrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"integrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transmitir","slug":"lemma:transmitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transmitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: requerir","slug":"lemma:requerir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"requerir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cometer","slug":"lemma:cometer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cometer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: girar","slug":"lemma:girar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"girar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: interpretar","slug":"lemma:interpretar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"interpretar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vencer","slug":"lemma:vencer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vencer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: devolver","slug":"lemma:devolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"devolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrancar","slug":"lemma:arrancar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrancar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: montar","slug":"lemma:montar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"montar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acudir","slug":"lemma:acudir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acudir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elevar","slug":"lemma:elevar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elevar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aclarar","slug":"lemma:aclarar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aclarar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: investigar","slug":"lemma:investigar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"investigar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: registrar","slug":"lemma:registrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"registrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agarrar","slug":"lemma:agarrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agarrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: confiar","slug":"lemma:confiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"confiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: facilitar","slug":"lemma:facilitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"facilitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: confesar","slug":"lemma:confesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"confesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resistir","slug":"lemma:resistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pasear","slug":"lemma:pasear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pasear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estimar","slug":"lemma:estimar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estimar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amenazar","slug":"lemma:amenazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amenazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrojar","slug":"lemma:arrojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consumir","slug":"lemma:consumir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consumir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: votar","slug":"lemma:votar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"votar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empujar","slug":"lemma:empujar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empujar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escoger","slug":"lemma:escoger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escoger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: engañar","slug":"lemma:engañar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"engañar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: carecer","slug":"lemma:carecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"carecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rendir","slug":"lemma:rendir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rendir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derivar","slug":"lemma:derivar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derivar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: repartir","slug":"lemma:repartir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"repartir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aguardar","slug":"lemma:aguardar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aguardar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: regir","slug":"lemma:regir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"regir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: internar","slug":"lemma:internar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"internar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sear","slug":"lemma:sear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llover","slug":"lemma:llover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resucitar","slug":"lemma:resucitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resucitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estuvistear","slug":"lemma:estuvistear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estuvistear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: extraer","slug":"lemma:extraer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"extraer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprometer","slug":"lemma:comprometer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprometer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: almacenar","slug":"lemma:almacenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"almacenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: finalizar","slug":"lemma:finalizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"finalizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrenar","slug":"lemma:entrenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hiciste","slug":"lemma:hiciste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hiciste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hecho","slug":"lemma:hecho","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hecho"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: calificar","slug":"lemma:calificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"calificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sacudir","slug":"lemma:sacudir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sacudir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hubiste","slug":"lemma:hubiste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hubiste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contratar","slug":"lemma:contratar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contratar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: murmurar","slug":"lemma:murmurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"murmurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prender","slug":"lemma:prender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vengar","slug":"lemma:vengar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vengar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suspender","slug":"lemma:suspender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suspender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ascender","slug":"lemma:ascender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ascender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nadar","slug":"lemma:nadar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nadar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llegár","slug":"lemma:llegár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llegár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estuviér","slug":"lemma:estuviér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estuviér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: corregir","slug":"lemma:corregir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"corregir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fallar","slug":"lemma:fallar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fallar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: guiar","slug":"lemma:guiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"guiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: curar","slug":"lemma:curar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"curar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: doblar","slug":"lemma:doblar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"doblar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deslizar","slug":"lemma:deslizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deslizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: creyerar","slug":"lemma:creyerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"creyerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sospechar","slug":"lemma:sospechar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sospechar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: replicar","slug":"lemma:replicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"replicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: expulsar","slug":"lemma:expulsar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"expulsar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acentuar","slug":"lemma:acentuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acentuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atrapar","slug":"lemma:atrapar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atrapar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: difundir","slug":"lemma:difundir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"difundir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: flotar","slug":"lemma:flotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"flotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amanecer","slug":"lemma:amanecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amanecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derrotar","slug":"lemma:derrotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derrotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fortalecer","slug":"lemma:fortalecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fortalecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prever","slug":"lemma:prever","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prever"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quedár","slug":"lemma:quedár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quedár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: volver","slug":"lemma:volver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"volver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: examinar","slug":"lemma:examinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"examinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descargar","slug":"lemma:descargar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descargar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrabar","slug":"lemma:entrabar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrabar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oscilar","slug":"lemma:oscilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oscilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imprimir","slug":"lemma:imprimir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imprimir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: picar","slug":"lemma:picar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"picar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aproximar","slug":"lemma:aproximar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aproximar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ligar","slug":"lemma:ligar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ligar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: titular","slug":"lemma:titular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"titular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cuestionar","slug":"lemma:cuestionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cuestionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consagrar","slug":"lemma:consagrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consagrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llamar","slug":"lemma:llamar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llamar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: calmar","slug":"lemma:calmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"calmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asociar","slug":"lemma:asociar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asociar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enloquecer","slug":"lemma:enloquecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enloquecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conocer","slug":"lemma:conocer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conocer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sembrar","slug":"lemma:sembrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sembrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: portar","slug":"lemma:portar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"portar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aburrir","slug":"lemma:aburrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aburrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: poblar","slug":"lemma:poblar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"poblar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pescar","slug":"lemma:pescar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pescar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: implementar","slug":"lemma:implementar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"implementar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arder","slug":"lemma:arder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resumir","slug":"lemma:resumir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resumir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: librar","slug":"lemma:librar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"librar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ahorrar","slug":"lemma:ahorrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ahorrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alegar","slug":"lemma:alegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atormentar","slug":"lemma:atormentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atormentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vivir","slug":"lemma:vivir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vivir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tratárar","slug":"lemma:tratárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tratárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acelerar","slug":"lemma:acelerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acelerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fluir","slug":"lemma:fluir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fluir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enriquecer","slug":"lemma:enriquecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enriquecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trazar","slug":"lemma:trazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: autorizar","slug":"lemma:autorizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"autorizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: generalizar","slug":"lemma:generalizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"generalizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resbalar","slug":"lemma:resbalar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resbalar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: datar","slug":"lemma:datar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"datar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acercar","slug":"lemma:acercar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acercar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tornar","slug":"lemma:tornar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tornar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: argumentar","slug":"lemma:argumentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"argumentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presionar","slug":"lemma:presionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ratificar","slug":"lemma:ratificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ratificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: navegar","slug":"lemma:navegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"navegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enojar","slug":"lemma:enojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sujetar","slug":"lemma:sujetar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sujetar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retornar","slug":"lemma:retornar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retornar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dañar","slug":"lemma:dañar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dañar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: felicitar","slug":"lemma:felicitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"felicitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aplaudir","slug":"lemma:aplaudir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aplaudir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reponer","slug":"lemma:reponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tejer","slug":"lemma:tejer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tejer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inundar","slug":"lemma:inundar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inundar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ofender","slug":"lemma:ofender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ofender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esforzar","slug":"lemma:esforzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esforzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soplar","slug":"lemma:soplar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soplar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: respaldar","slug":"lemma:respaldar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"respaldar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exagerar","slug":"lemma:exagerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exagerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perjudicar","slug":"lemma:perjudicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perjudicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: precipitar","slug":"lemma:precipitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"precipitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: propiciar","slug":"lemma:propiciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"propiciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convivir","slug":"lemma:convivir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convivir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reconstruir","slug":"lemma:reconstruir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reconstruir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: platicar","slug":"lemma:platicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"platicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recostar","slug":"lemma:recostar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recostar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: activar","slug":"lemma:activar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"activar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: planificar","slug":"lemma:planificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"planificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aferrar","slug":"lemma:aferrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aferrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: configurar","slug":"lemma:configurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"configurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: voltear","slug":"lemma:voltear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"voltear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reinar","slug":"lemma:reinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: improvisar","slug":"lemma:improvisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"improvisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pecar","slug":"lemma:pecar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pecar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disfrazar","slug":"lemma:disfrazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disfrazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coordinar","slug":"lemma:coordinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coordinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: erguir","slug":"lemma:erguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"erguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consolar","slug":"lemma:consolar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consolar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sumir","slug":"lemma:sumir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sumir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: volcar","slug":"lemma:volcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"volcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: procesar","slug":"lemma:procesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"procesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dialogar","slug":"lemma:dialogar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dialogar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: leer","slug":"lemma:leer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"leer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mojar","slug":"lemma:mojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alquilar","slug":"lemma:alquilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alquilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disculpar","slug":"lemma:disculpar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disculpar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrebatar","slug":"lemma:arrebatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrebatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: interrogar","slug":"lemma:interrogar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"interrogar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rematar","slug":"lemma:rematar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rematar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coser","slug":"lemma:coser","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coser"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: expandir","slug":"lemma:expandir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"expandir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reposar","slug":"lemma:reposar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reposar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: orar","slug":"lemma:orar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"orar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suprimir","slug":"lemma:suprimir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suprimir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: insultar","slug":"lemma:insultar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"insultar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presentir","slug":"lemma:presentir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presentir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alojar","slug":"lemma:alojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amontonar","slug":"lemma:amontonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amontonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recibir","slug":"lemma:recibir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recibir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: debistir","slug":"lemma:debistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"debistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conducir","slug":"lemma:conducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: verter","slug":"lemma:verter","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"verter"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oscurecer","slug":"lemma:oscurecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oscurecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pudrir","slug":"lemma:pudrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pudrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recobrar","slug":"lemma:recobrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recobrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: honrar","slug":"lemma:honrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"honrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ilustrar","slug":"lemma:ilustrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ilustrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bordar","slug":"lemma:bordar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bordar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desvanecer","slug":"lemma:desvanecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desvanecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: especificar","slug":"lemma:especificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"especificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: impregnar","slug":"lemma:impregnar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"impregnar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fundamentar","slug":"lemma:fundamentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fundamentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: torturar","slug":"lemma:torturar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"torturar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: producir","slug":"lemma:producir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"producir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: salpicar","slug":"lemma:salpicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"salpicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: repasar","slug":"lemma:repasar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"repasar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encajar","slug":"lemma:encajar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encajar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abusar","slug":"lemma:abusar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abusar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: licenciar","slug":"lemma:licenciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"licenciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alternar","slug":"lemma:alternar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alternar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encoger","slug":"lemma:encoger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encoger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: donar","slug":"lemma:donar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"donar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comencar","slug":"lemma:comencar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comencar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trabajar","slug":"lemma:trabajar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trabajar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: utilizar","slug":"lemma:utilizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"utilizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diluir","slug":"lemma:diluir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diluir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agachar","slug":"lemma:agachar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agachar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enmarcar","slug":"lemma:enmarcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enmarcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contagiar","slug":"lemma:contagiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contagiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encarar","slug":"lemma:encarar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encarar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comenzar","slug":"lemma:comenzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comenzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: realizar","slug":"lemma:realizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"realizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abrir","slug":"lemma:abrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: endurecer","slug":"lemma:endurecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"endurecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retratar","slug":"lemma:retratar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retratar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: indignar","slug":"lemma:indignar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"indignar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caer","slug":"lemma:caer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coronar","slug":"lemma:coronar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coronar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cancelar","slug":"lemma:cancelar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cancelar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: establecer","slug":"lemma:establecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"establecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coger","slug":"lemma:coger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trepar","slug":"lemma:trepar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trepar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apasionar","slug":"lemma:apasionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apasionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: humillar","slug":"lemma:humillar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"humillar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vacilar","slug":"lemma:vacilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vacilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trascender","slug":"lemma:trascender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trascender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rascar","slug":"lemma:rascar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rascar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: capacitar","slug":"lemma:capacitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"capacitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: insertar","slug":"lemma:insertar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"insertar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: concurrir","slug":"lemma:concurrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"concurrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prevalecer","slug":"lemma:prevalecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prevalecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: crujir","slug":"lemma:crujir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"crujir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: buscar","slug":"lemma:buscar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"buscar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escribir","slug":"lemma:escribir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escribir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recordar","slug":"lemma:recordar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recordar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentar","slug":"lemma:sentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resultar","slug":"lemma:resultar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resultar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mostrar","slug":"lemma:mostrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mostrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: correr","slug":"lemma:correr","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"correr"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comer","slug":"lemma:comer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: meter","slug":"lemma:meter","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"meter"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dormir","slug":"lemma:dormir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dormir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dedicar","slug":"lemma:dedicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dedicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sufrir","slug":"lemma:sufrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sufrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocupar","slug":"lemma:ocupar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocupar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: representar","slug":"lemma:representar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"representar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caminar","slug":"lemma:caminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: faltar","slug":"lemma:faltar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"faltar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acordar","slug":"lemma:acordar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acordar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iniciar","slug":"lemma:iniciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iniciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elegir","slug":"lemma:elegir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elegir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preparar","slug":"lemma:preparar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preparar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: significar","slug":"lemma:significar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"significar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cubrir","slug":"lemma:cubrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cubrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llorar","slug":"lemma:llorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: provocar","slug":"lemma:provocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"provocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abandonar","slug":"lemma:abandonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abandonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tirar","slug":"lemma:tirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: guardar","slug":"lemma:guardar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"guardar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gritar","slug":"lemma:gritar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gritar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: permanecer","slug":"lemma:permanecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"permanecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cuidar","slug":"lemma:cuidar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cuidar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: actuar","slug":"lemma:actuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"actuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: negar","slug":"lemma:negar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"negar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anunciar","slug":"lemma:anunciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anunciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disponer","slug":"lemma:disponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sostener","slug":"lemma:sostener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sostener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: colocar","slug":"lemma:colocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"colocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recoger","slug":"lemma:recoger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recoger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aprovechar","slug":"lemma:aprovechar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aprovechar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enfrentar","slug":"lemma:enfrentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enfrentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: corresponder","slug":"lemma:corresponder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"corresponder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escapar","slug":"lemma:escapar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escapar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: causar","slug":"lemma:causar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"causar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adquirir","slug":"lemma:adquirir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adquirir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disfrutar","slug":"lemma:disfrutar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disfrutar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recorrer","slug":"lemma:recorrer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recorrer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conservar","slug":"lemma:conservar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conservar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atender","slug":"lemma:atender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: definir","slug":"lemma:definir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"definir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: introducir","slug":"lemma:introducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"introducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transformar","slug":"lemma:transformar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transformar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encargar","slug":"lemma:encargar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encargar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: concluir","slug":"lemma:concluir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"concluir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asumir","slug":"lemma:asumir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asumir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exponer","slug":"lemma:exponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enterar","slug":"lemma:enterar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enterar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tender","slug":"lemma:tender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acostumbrar","slug":"lemma:acostumbrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acostumbrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soñar","slug":"lemma:soñar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soñar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: confirmar","slug":"lemma:confirmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"confirmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: denominar","slug":"lemma:denominar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"denominar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abordar","slug":"lemma:abordar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abordar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tragar","slug":"lemma:tragar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tragar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aspirar","slug":"lemma:aspirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aspirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encabezar","slug":"lemma:encabezar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encabezar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: criar","slug":"lemma:criar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"criar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: especializar","slug":"lemma:especializar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"especializar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deshacer","slug":"lemma:deshacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deshacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: designar","slug":"lemma:designar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"designar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estimular","slug":"lemma:estimular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estimular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: renovar","slug":"lemma:renovar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"renovar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: competir","slug":"lemma:competir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"competir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: absorber","slug":"lemma:absorber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"absorber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apostar","slug":"lemma:apostar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apostar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atribuir","slug":"lemma:atribuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atribuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: relatar","slug":"lemma:relatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"relatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: redactar","slug":"lemma:redactar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"redactar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evocar","slug":"lemma:evocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: despreciar","slug":"lemma:despreciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"despreciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: impartir","slug":"lemma:impartir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"impartir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anular","slug":"lemma:anular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: torcer","slug":"lemma:torcer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"torcer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: colar","slug":"lemma:colar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"colar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: postular","slug":"lemma:postular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"postular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ganar","slug":"lemma:ganar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ganar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perder","slug":"lemma:perder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detener","slug":"lemma:detener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pusistir","slug":"lemma:pusistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pusistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hablir","slug":"lemma:hablir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hablir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dejastear","slug":"lemma:dejastear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dejastear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encontrarás","slug":"lemma:encontrarás","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encontrarás"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: referir","slug":"lemma:referir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"referir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: controlar","slug":"lemma:controlar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"controlar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desear","slug":"lemma:desear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprender","slug":"lemma:comprender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mirár","slug":"lemma:mirár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mirár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vinir","slug":"lemma:vinir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vinir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: salgar","slug":"lemma:salgar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"salgar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desprender","slug":"lemma:desprender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desprender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: merir","slug":"lemma:merir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"merir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fracasar","slug":"lemma:fracasar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fracasar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mir","slug":"lemma:mir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tratéar","slug":"lemma:tratéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tratéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentiar","slug":"lemma:sentiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quesiérar","slug":"lemma:quesiérar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quesiérar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traspasar","slug":"lemma:traspasar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traspasar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contárar","slug":"lemma:contárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acerquar","slug":"lemma:acerquar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acerquar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: busquar","slug":"lemma:busquar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"busquar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: realizár","slug":"lemma:realizár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"realizár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empezár","slug":"lemma:empezár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empezár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: creír","slug":"lemma:creír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"creír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrastar","slug":"lemma:entrastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parecistar","slug":"lemma:parecistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parecistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: indicáir","slug":"lemma:indicáir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"indicáir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recordár","slug":"lemma:recordár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recordár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oír","slug":"lemma:oír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aparecer","slug":"lemma:aparecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aparecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entremar","slug":"lemma:entremar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entremar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: repetir","slug":"lemma:repetir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"repetir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: considerar","slug":"lemma:considerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"considerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: murar","slug":"lemma:murar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"murar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: produzcar","slug":"lemma:produzcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"produzcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comencer","slug":"lemma:comencer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comencer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preguntir","slug":"lemma:preguntir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preguntir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acompañar","slug":"lemma:acompañar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acompañar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preguntár","slug":"lemma:preguntár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preguntár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: impedir","slug":"lemma:impedir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"impedir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: permitár","slug":"lemma:permitár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"permitár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: siendo","slug":"lemma:siendo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"siendo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escuchar","slug":"lemma:escuchar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escuchar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: participar","slug":"lemma:participar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"participar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: viajar","slug":"lemma:viajar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"viajar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comenzár","slug":"lemma:comenzár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comenzár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pesar","slug":"lemma:pesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: declarar","slug":"lemma:declarar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"declarar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oyérar","slug":"lemma:oyérar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oyérar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: terminastar","slug":"lemma:terminastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"terminastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abriér","slug":"lemma:abriér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abriér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: follar","slug":"lemma:follar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"follar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oístear","slug":"lemma:oístear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oístear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: poseer","slug":"lemma:poseer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"poseer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lograr","slug":"lemma:lograr","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lograr"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: levantár","slug":"lemma:levantár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"levantár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: terminár","slug":"lemma:terminár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"terminár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vestir","slug":"lemma:vestir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vestir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oyerar","slug":"lemma:oyerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oyerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: jugoner","slug":"lemma:jugoner","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"jugoner"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trajistir","slug":"lemma:trajistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trajistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trajener","slug":"lemma:trajener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trajener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acomodar","slug":"lemma:acomodar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acomodar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consider","slug":"lemma:consider","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consider"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acabéar","slug":"lemma:acabéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acabéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tocastar","slug":"lemma:tocastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tocastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: formir","slug":"lemma:formir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"formir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trajer","slug":"lemma:trajer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trajer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: former","slug":"lemma:former","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"former"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alcanzar","slug":"lemma:alcanzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alcanzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cambiár","slug":"lemma:cambiár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cambiár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entretener","slug":"lemma:entretener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entretener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprar","slug":"lemma:comprar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprastar","slug":"lemma:comprastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: logrener","slug":"lemma:logrener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"logrener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: necesitár","slug":"lemma:necesitár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"necesitár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: teñir","slug":"lemma:teñir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"teñir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lográar","slug":"lemma:lográar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lográar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: batir","slug":"lemma:batir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"batir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desarrollár","slug":"lemma:desarrollár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desarrollár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acontecer","slug":"lemma:acontecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acontecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amparar","slug":"lemma:amparar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amparar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desarrollastar","slug":"lemma:desarrollastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desarrollastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exceder","slug":"lemma:exceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: come","slug":"lemma:come","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"come"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudastar","slug":"lemma:ayudastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tratener","slug":"lemma:tratener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tratener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cumplár","slug":"lemma:cumplár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cumplár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cayérar","slug":"lemma:cayérar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cayérar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudár","slug":"lemma:ayudár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: levanto","slug":"lemma:levanto","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"levanto"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentár","slug":"lemma:sentár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mostrastar","slug":"lemma:mostrastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mostrastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudo","slug":"lemma:ayudo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comar","slug":"lemma:comar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: expliquir","slug":"lemma:expliquir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"expliquir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mostrár","slug":"lemma:mostrár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mostrár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: levantá","slug":"lemma:levantá","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"levantá"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resultár","slug":"lemma:resultár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resultár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estado","slug":"lemma:estado","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estado"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llenar","slug":"lemma:llenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enseñar","slug":"lemma:enseñar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enseñar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prestar","slug":"lemma:prestar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prestar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convirtir","slug":"lemma:convirtir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convirtir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: afectar","slug":"lemma:afectar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"afectar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: yendo","slug":"lemma:yendo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"yendo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: teniendo","slug":"lemma:teniendo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"teniendo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rodear","slug":"lemma:rodear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rodear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agregar","slug":"lemma:agregar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agregar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emplear","slug":"lemma:emplear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emplear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: probar","slug":"lemma:probar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"probar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retirar","slug":"lemma:retirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estando","slug":"lemma:estando","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estando"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: determinar","slug":"lemma:determinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"determinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reflejar","slug":"lemma:reflejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reflejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dividir","slug":"lemma:dividir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dividir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agradecer","slug":"lemma:agradecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agradecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sumar","slug":"lemma:sumar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sumar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intervenir","slug":"lemma:intervenir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intervenir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proceder","slug":"lemma:proceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocultar","slug":"lemma:ocultar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocultar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: impulsar","slug":"lemma:impulsar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"impulsar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esconder","slug":"lemma:esconder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esconder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prometer","slug":"lemma:prometer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prometer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apartar","slug":"lemma:apartar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apartar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: modificar","slug":"lemma:modificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"modificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acostar","slug":"lemma:acostar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acostar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conversar","slug":"lemma:conversar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conversar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: completar","slug":"lemma:completar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"completar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ampliar","slug":"lemma:ampliar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ampliar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: brillar","slug":"lemma:brillar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"brillar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oir","slug":"lemma:oir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gastar","slug":"lemma:gastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: explotar","slug":"lemma:explotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"explotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reportar","slug":"lemma:reportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mentir","slug":"lemma:mentir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mentir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ajustar","slug":"lemma:ajustar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ajustar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presidir","slug":"lemma:presidir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presidir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: capturar","slug":"lemma:capturar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"capturar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desviar","slug":"lemma:desviar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desviar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: publiquir","slug":"lemma:publiquir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"publiquir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resaltar","slug":"lemma:resaltar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resaltar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reforzar","slug":"lemma:reforzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reforzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aliviar","slug":"lemma:aliviar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aliviar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: culminar","slug":"lemma:culminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"culminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sudar","slug":"lemma:sudar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sudar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aludir","slug":"lemma:aludir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aludir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tranquilizar","slug":"lemma:tranquilizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tranquilizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empeñar","slug":"lemma:empeñar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empeñar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comportar","slug":"lemma:comportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: graduar","slug":"lemma:graduar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"graduar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sancionar","slug":"lemma:sancionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sancionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emigrar","slug":"lemma:emigrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emigrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: complacer","slug":"lemma:complacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"complacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abundar","slug":"lemma:abundar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abundar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: compensar","slug":"lemma:compensar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"compensar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: restaurar","slug":"lemma:restaurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"restaurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exportar","slug":"lemma:exportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: latir","slug":"lemma:latir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"latir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: viviér","slug":"lemma:viviér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"viviér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esperáe","slug":"lemma:esperáe","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esperáe"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gemir","slug":"lemma:gemir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gemir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: revivir","slug":"lemma:revivir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"revivir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: restablecer","slug":"lemma:restablecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"restablecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estrechar","slug":"lemma:estrechar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estrechar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reformar","slug":"lemma:reformar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reformar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deteriorar","slug":"lemma:deteriorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deteriorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llamár","slug":"lemma:llamár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llamár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: condicionar","slug":"lemma:condicionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"condicionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: afilar","slug":"lemma:afilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"afilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dejastir","slug":"lemma:dejastir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dejastir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: poderar","slug":"lemma:poderar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"poderar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llamás","slug":"lemma:llamás","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llamás"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: espera","slug":"lemma:espera","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"espera"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trabajár","slug":"lemma:trabajár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trabajár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: buscárar","slug":"lemma:buscárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"buscárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tomo","slug":"lemma:tomo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tomo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pensárar","slug":"lemma:pensárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pensárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recibo","slug":"lemma:recibo","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recibo"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: creaste","slug":"lemma:creaste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"creaste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empecér","slug":"lemma:empecér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empecér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trabajir","slug":"lemma:trabajir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trabajir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empecer","slug":"lemma:empecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iaber","slug":"lemma:iaber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iaber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: explicastar","slug":"lemma:explicastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"explicastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: compremer","slug":"lemma:compremer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"compremer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traigar","slug":"lemma:traigar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traigar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acabárar","slug":"lemma:acabárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acabárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ofrezcer","slug":"lemma:ofrezcer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ofrezcer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: usir","slug":"lemma:usir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"usir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alcanzár","slug":"lemma:alcanzár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alcanzár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cambiér","slug":"lemma:cambiér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cambiér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aprendistar","slug":"lemma:aprendistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aprendistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: saquér","slug":"lemma:saquér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"saquér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostrar","slug":"lemma:demostrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: indicar","slug":"lemma:indicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"indicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mantuvistir","slug":"lemma:mantuvistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mantuvistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escuchár","slug":"lemma:escuchár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escuchár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: utilicéar","slug":"lemma:utilicéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"utilicéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dormar","slug":"lemma:dormar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dormar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intentéar","slug":"lemma:intentéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intentéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reconozcir","slug":"lemma:reconozcir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reconozcir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aparezcar","slug":"lemma:aparezcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aparezcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nazcar","slug":"lemma:nazcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nazcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nací","slug":"lemma:nací","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nací"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: duerma","slug":"lemma:duerma","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"duerma"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: echastar","slug":"lemma:echastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"echastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtener","slug":"lemma:obtener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptálse","slug":"lemma:aceptálse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptálse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dedicuir","slug":"lemma:dedicuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dedicuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprendir","slug":"lemma:comprendir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprendir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dedicárar","slug":"lemma:dedicárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dedicárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evitár","slug":"lemma:evitár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evitár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: olvido","slug":"lemma:olvido","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"olvido"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proteger","slug":"lemma:proteger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proteger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: instalar","slug":"lemma:instalar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"instalar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aprobar","slug":"lemma:aprobar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aprobar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtenger","slug":"lemma:obtenger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtenger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: manifestar","slug":"lemma:manifestar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"manifestar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recomendar","slug":"lemma:recomendar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recomendar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intentá","slug":"lemma:intentá","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intentá"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: establecistar","slug":"lemma:establecistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"establecistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: subiér","slug":"lemma:subiér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"subiér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sucediér","slug":"lemma:sucediér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sucediér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocupér","slug":"lemma:ocupér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocupér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrastrar","slug":"lemma:arrastrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrastrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: representár","slug":"lemma:representár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"representár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cerrar","slug":"lemma:cerrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cerrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arreglar","slug":"lemma:arreglar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arreglar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pintar","slug":"lemma:pintar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pintar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caminár","slug":"lemma:caminár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caminár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elecir","slug":"lemma:elecir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elecir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: importár","slug":"lemma:importár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"importár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cerreír","slug":"lemma:cerreír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cerreír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostráer","slug":"lemma:demostráer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostráer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: eligir","slug":"lemma:eligir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"eligir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destacuar","slug":"lemma:destacuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destacuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caminarér","slug":"lemma:caminarér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caminarér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iniciéar","slug":"lemma:iniciéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iniciéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: admitir","slug":"lemma:admitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"admitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostrastar","slug":"lemma:demostrastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostrastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: interesar","slug":"lemma:interesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"interesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: crezcar","slug":"lemma:crezcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"crezcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: matar","slug":"lemma:matar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"matar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: observer","slug":"lemma:observer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"observer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostrastear","slug":"lemma:demostrastear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostrastear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elejir","slug":"lemma:elejir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elejir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fijar","slug":"lemma:fijar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fijar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: envidiar","slug":"lemma:envidiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"envidiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enfermar","slug":"lemma:enfermar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enfermar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: palpar","slug":"lemma:palpar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"palpar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pulsar","slug":"lemma:pulsar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pulsar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pillar","slug":"lemma:pillar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pillar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estrellar","slug":"lemma:estrellar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estrellar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: percatar","slug":"lemma:percatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"percatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrodillar","slug":"lemma:arrodillar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrodillar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dispersar","slug":"lemma:dispersar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dispersar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: relajar","slug":"lemma:relajar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"relajar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vagar","slug":"lemma:vagar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vagar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: valer","slug":"lemma:valer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"valer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apoyar","slug":"lemma:apoyar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apoyar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lanzar","slug":"lemma:lanzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lanzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: divertir","slug":"lemma:divertir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"divertir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desempeñar","slug":"lemma:desempeñar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desempeñar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desconocer","slug":"lemma:desconocer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desconocer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: padecer","slug":"lemma:padecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"padecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: penetrar","slug":"lemma:penetrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"penetrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agitar","slug":"lemma:agitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: centrar","slug":"lemma:centrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"centrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detectar","slug":"lemma:detectar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detectar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cultivar","slug":"lemma:cultivar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cultivar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adivinar","slug":"lemma:adivinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adivinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: colaborar","slug":"lemma:colaborar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"colaborar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: valorar","slug":"lemma:valorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"valorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dibujar","slug":"lemma:dibujar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dibujar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emprender","slug":"lemma:emprender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emprender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reproducir","slug":"lemma:reproducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reproducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: secar","slug":"lemma:secar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"secar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: distribuir","slug":"lemma:distribuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"distribuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recurrir","slug":"lemma:recurrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recurrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: precisar","slug":"lemma:precisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"precisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: solucionar","slug":"lemma:solucionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"solucionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reaccionar","slug":"lemma:reaccionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reaccionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enterrar","slug":"lemma:enterrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enterrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dictar","slug":"lemma:dictar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dictar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abarcar","slug":"lemma:abarcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abarcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: concebir","slug":"lemma:concebir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"concebir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: combatir","slug":"lemma:combatir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"combatir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: seleccionar","slug":"lemma:seleccionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"seleccionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: satisfacer","slug":"lemma:satisfacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"satisfacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: provenir","slug":"lemma:provenir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"provenir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transportar","slug":"lemma:transportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estallar","slug":"lemma:estallar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estallar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conquistar","slug":"lemma:conquistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conquistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: regular","slug":"lemma:regular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"regular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: castigar","slug":"lemma:castigar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"castigar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lamentar","slug":"lemma:lamentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lamentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desplazar","slug":"lemma:desplazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desplazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: complicar","slug":"lemma:complicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"complicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: calentar","slug":"lemma:calentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"calentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: depositar","slug":"lemma:depositar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"depositar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: originar","slug":"lemma:originar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"originar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reflexionar","slug":"lemma:reflexionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reflexionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reemplazar","slug":"lemma:reemplazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reemplazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cansar","slug":"lemma:cansar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cansar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: captar","slug":"lemma:captar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"captar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vincular","slug":"lemma:vincular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vincular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inaugurar","slug":"lemma:inaugurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inaugurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: constar","slug":"lemma:constar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"constar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: protestar","slug":"lemma:protestar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"protestar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asignar","slug":"lemma:asignar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asignar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: educar","slug":"lemma:educar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"educar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: involucrar","slug":"lemma:involucrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"involucrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exclamar","slug":"lemma:exclamar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exclamar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: impresionar","slug":"lemma:impresionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"impresionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rogar","slug":"lemma:rogar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rogar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: clasificar","slug":"lemma:clasificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"clasificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acoger","slug":"lemma:acoger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acoger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: burlar","slug":"lemma:burlar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"burlar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: formular","slug":"lemma:formular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"formular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dotar","slug":"lemma:dotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reventar","slug":"lemma:reventar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reventar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reservar","slug":"lemma:reservar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reservar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cocinar","slug":"lemma:cocinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cocinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: frenar","slug":"lemma:frenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"frenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prevenir","slug":"lemma:prevenir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prevenir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cenar","slug":"lemma:cenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suspirar","slug":"lemma:suspirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suspirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proveer","slug":"lemma:proveer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proveer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asombrar","slug":"lemma:asombrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asombrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quebrar","slug":"lemma:quebrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quebrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descartar","slug":"lemma:descartar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descartar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: distraer","slug":"lemma:distraer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"distraer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sacrificar","slug":"lemma:sacrificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sacrificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: devorar","slug":"lemma:devorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"devorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demandar","slug":"lemma:demandar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demandar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contraer","slug":"lemma:contraer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contraer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agradar","slug":"lemma:agradar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agradar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: restringir","slug":"lemma:restringir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"restringir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentenciar","slug":"lemma:sentenciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentenciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proclamar","slug":"lemma:proclamar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proclamar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aconsejar","slug":"lemma:aconsejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aconsejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ahogar","slug":"lemma:ahogar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ahogar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: administrar","slug":"lemma:administrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"administrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evolucionar","slug":"lemma:evolucionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evolucionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vigilar","slug":"lemma:vigilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vigilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imitar","slug":"lemma:imitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: exhibir","slug":"lemma:exhibir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"exhibir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: morder","slug":"lemma:morder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"morder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enfocar","slug":"lemma:enfocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enfocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: multiplicar","slug":"lemma:multiplicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"multiplicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rodar","slug":"lemma:rodar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rodar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: extrañar","slug":"lemma:extrañar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"extrañar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fomentar","slug":"lemma:fomentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fomentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: subrayar","slug":"lemma:subrayar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"subrayar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estirar","slug":"lemma:estirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: negociar","slug":"lemma:negociar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"negociar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proseguir","slug":"lemma:proseguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proseguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: averiguar","slug":"lemma:averiguar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"averiguar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: residir","slug":"lemma:residir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"residir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estrenar","slug":"lemma:estrenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estrenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: editar","slug":"lemma:editar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"editar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: charlar","slug":"lemma:charlar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"charlar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: financiar","slug":"lemma:financiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"financiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intuir","slug":"lemma:intuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: narrar","slug":"lemma:narrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"narrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retroceder","slug":"lemma:retroceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retroceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tropezar","slug":"lemma:tropezar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tropezar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: explorar","slug":"lemma:explorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"explorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: herir","slug":"lemma:herir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"herir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reiterar","slug":"lemma:reiterar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reiterar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: posar","slug":"lemma:posar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"posar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consolidar","slug":"lemma:consolidar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consolidar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: heredar","slug":"lemma:heredar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"heredar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entusiasmar","slug":"lemma:entusiasmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entusiasmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adornar","slug":"lemma:adornar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adornar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desplegar","slug":"lemma:desplegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desplegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presenciar","slug":"lemma:presenciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presenciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: decorar","slug":"lemma:decorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"decorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disolver","slug":"lemma:disolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: restar","slug":"lemma:restar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"restar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destrozar","slug":"lemma:destrozar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destrozar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: triunfar","slug":"lemma:triunfar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"triunfar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agrupar","slug":"lemma:agrupar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agrupar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demorar","slug":"lemma:demorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inscribir","slug":"lemma:inscribir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inscribir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retomar","slug":"lemma:retomar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retomar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enredar","slug":"lemma:enredar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enredar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estremecer","slug":"lemma:estremecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estremecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anticipar","slug":"lemma:anticipar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anticipar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: complementar","slug":"lemma:complementar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"complementar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrevistar","slug":"lemma:entrevistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrevistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fascinar","slug":"lemma:fascinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fascinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: albergar","slug":"lemma:albergar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"albergar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: revolver","slug":"lemma:revolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"revolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preceder","slug":"lemma:preceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: paralizar","slug":"lemma:paralizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"paralizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reparar","slug":"lemma:reparar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reparar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: remontar","slug":"lemma:remontar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"remontar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arriesgar","slug":"lemma:arriesgar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arriesgar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tolerar","slug":"lemma:tolerar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tolerar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: espantar","slug":"lemma:espantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"espantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: profundizar","slug":"lemma:profundizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"profundizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: radicar","slug":"lemma:radicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"radicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emocionar","slug":"lemma:emocionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emocionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rozar","slug":"lemma:rozar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rozar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: concretar","slug":"lemma:concretar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"concretar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inducir","slug":"lemma:inducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: excluir","slug":"lemma:excluir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"excluir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parir","slug":"lemma:parir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apresurar","slug":"lemma:apresurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apresurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: velar","slug":"lemma:velar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"velar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: debatir","slug":"lemma:debatir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"debatir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acertar","slug":"lemma:acertar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acertar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emerger","slug":"lemma:emerger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emerger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bendecir","slug":"lemma:bendecir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bendecir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bloquear","slug":"lemma:bloquear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bloquear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: meditar","slug":"lemma:meditar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"meditar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desafiar","slug":"lemma:desafiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desafiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: seribir","slug":"lemma:seribir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"seribir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: er","slug":"lemma:er","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"er"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: feer","slug":"lemma:feer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"feer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: huberar","slug":"lemma:huberar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"huberar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tuvernear","slug":"lemma:tuvernear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tuvernear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tuvir","slug":"lemma:tuvir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tuvir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estuvistar","slug":"lemma:estuvistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estuvistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hicistir","slug":"lemma:hicistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hicistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hager","slug":"lemma:hager","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hager"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hiciér","slug":"lemma:hiciér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hiciér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dijistir","slug":"lemma:dijistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dijistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dijér","slug":"lemma:dijér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dijér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fuiste","slug":"lemma:fuiste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fuiste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: digir","slug":"lemma:digir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"digir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: visto","slug":"lemma:visto","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"visto"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: distar","slug":"lemma:distar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"distar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: distir","slug":"lemma:distir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"distir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dado","slug":"lemma:dado","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dado"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derar","slug":"lemma:derar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sepáir","slug":"lemma:sepáir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sepáir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pasár","slug":"lemma:pasár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pasár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ensayar","slug":"lemma:ensayar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ensayar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: protagonizar","slug":"lemma:protagonizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"protagonizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cazar","slug":"lemma:cazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derramar","slug":"lemma:derramar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derramar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intercambiar","slug":"lemma:intercambiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intercambiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suscribir","slug":"lemma:suscribir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suscribir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: chupar","slug":"lemma:chupar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"chupar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resonar","slug":"lemma:resonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suscitar","slug":"lemma:suscitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suscitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: insinuar","slug":"lemma:insinuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"insinuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preservar","slug":"lemma:preservar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preservar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: almorzar","slug":"lemma:almorzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"almorzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: idear","slug":"lemma:idear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"idear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suministrar","slug":"lemma:suministrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suministrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: debilitar","slug":"lemma:debilitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"debilitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: regar","slug":"lemma:regar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"regar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: persistir","slug":"lemma:persistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"persistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: filtrar","slug":"lemma:filtrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"filtrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: equivaler","slug":"lemma:equivaler","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"equivaler"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: avergonzar","slug":"lemma:avergonzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"avergonzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traicionar","slug":"lemma:traicionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traicionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: susurrar","slug":"lemma:susurrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"susurrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conllevar","slug":"lemma:conllevar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conllevar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: irritar","slug":"lemma:irritar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"irritar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resignar","slug":"lemma:resignar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resignar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asimilar","slug":"lemma:asimilar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asimilar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derrumbar","slug":"lemma:derrumbar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derrumbar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lastimar","slug":"lemma:lastimar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lastimar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desbordar","slug":"lemma:desbordar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desbordar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presumir","slug":"lemma:presumir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presumir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: refugiar","slug":"lemma:refugiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"refugiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rondar","slug":"lemma:rondar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rondar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: barrer","slug":"lemma:barrer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"barrer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apurar","slug":"lemma:apurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enfriar","slug":"lemma:enfriar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enfriar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transferir","slug":"lemma:transferir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transferir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enfatizar","slug":"lemma:enfatizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enfatizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recitar","slug":"lemma:recitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: recortar","slug":"lemma:recortar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"recortar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: empapar","slug":"lemma:empapar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"empapar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apoderar","slug":"lemma:apoderar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apoderar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: espiar","slug":"lemma:espiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"espiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contaminar","slug":"lemma:contaminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contaminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: predominar","slug":"lemma:predominar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"predominar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: implantar","slug":"lemma:implantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"implantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descuidar","slug":"lemma:descuidar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descuidar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: predicar","slug":"lemma:predicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"predicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transitar","slug":"lemma:transitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: topar","slug":"lemma:topar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"topar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: progresar","slug":"lemma:progresar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"progresar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: constatar","slug":"lemma:constatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"constatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: frotar","slug":"lemma:frotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"frotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: festejar","slug":"lemma:festejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"festejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escurrir","slug":"lemma:escurrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escurrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apelar","slug":"lemma:apelar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apelar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sustentar","slug":"lemma:sustentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sustentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: madurar","slug":"lemma:madurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"madurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: congelar","slug":"lemma:congelar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"congelar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: simular","slug":"lemma:simular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"simular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vaciar","slug":"lemma:vaciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vaciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reprimir","slug":"lemma:reprimir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reprimir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tumbar","slug":"lemma:tumbar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tumbar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enlazar","slug":"lemma:enlazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enlazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: yacer","slug":"lemma:yacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"yacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: despojar","slug":"lemma:despojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"despojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: plasmar","slug":"lemma:plasmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"plasmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perfeccionar","slug":"lemma:perfeccionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perfeccionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sobrepasar","slug":"lemma:sobrepasar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sobrepasar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: predecir","slug":"lemma:predecir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"predecir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desencadenar","slug":"lemma:desencadenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desencadenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tentar","slug":"lemma:tentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descifrar","slug":"lemma:descifrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descifrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: potenciar","slug":"lemma:potenciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"potenciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atentar","slug":"lemma:atentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dificultar","slug":"lemma:dificultar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dificultar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sellar","slug":"lemma:sellar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sellar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: duplicar","slug":"lemma:duplicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"duplicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: agravar","slug":"lemma:agravar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"agravar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: amarrar","slug":"lemma:amarrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"amarrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desenvolver","slug":"lemma:desenvolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desenvolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: derribar","slug":"lemma:derribar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"derribar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aflojar","slug":"lemma:aflojar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aflojar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: envejecer","slug":"lemma:envejecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"envejecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cagar","slug":"lemma:cagar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cagar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: invocar","slug":"lemma:invocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"invocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dejir","slug":"lemma:dejir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dejir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parezcar","slug":"lemma:parezcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parezcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hablár","slug":"lemma:hablár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hablár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: paber","slug":"lemma:paber","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"paber"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: segár","slug":"lemma:segár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"segár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encontrastar","slug":"lemma:encontrastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encontrastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llevir","slug":"lemma:llevir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llevir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encontrér","slug":"lemma:encontrér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encontrér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encontrár","slug":"lemma:encontrár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encontrár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: venger","slug":"lemma:venger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"venger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mirastir","slug":"lemma:mirastir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mirastir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: llaméar","slug":"lemma:llaméar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"llaméar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: miremer","slug":"lemma:miremer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"miremer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conozcar","slug":"lemma:conozcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conozcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tomastir","slug":"lemma:tomastir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tomastir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tomiar","slug":"lemma:tomiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tomiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tratáar","slug":"lemma:tratáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tratáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentiér","slug":"lemma:sentiér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentiér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acerquér","slug":"lemma:acerquér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acerquér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vivar","slug":"lemma:vivar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vivar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esperéar","slug":"lemma:esperéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esperéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esperastar","slug":"lemma:esperastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esperastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: esperár","slug":"lemma:esperár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"esperár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gustir","slug":"lemma:gustir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gustir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contéar","slug":"lemma:contéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gustárar","slug":"lemma:gustárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gustárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gustibar","slug":"lemma:gustibar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gustibar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trabajábar","slug":"lemma:trabajábar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trabajábar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contálar","slug":"lemma:contálar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contálar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: busquér","slug":"lemma:busquér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"busquér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perdistir","slug":"lemma:perdistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perdistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escribistir","slug":"lemma:escribistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escribistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: realizás","slug":"lemma:realizás","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"realizás"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: realicéar","slug":"lemma:realicéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"realicéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrár","slug":"lemma:entrár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: leyérar","slug":"lemma:leyérar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"leyérar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: permitír","slug":"lemma:permitír","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"permitír"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: produzcáar","slug":"lemma:produzcáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"produzcáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comencéar","slug":"lemma:comencéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comencéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: presentirse","slug":"lemma:presentirse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"presentirse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: produjér","slug":"lemma:produjér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"produjér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: produjir","slug":"lemma:produjir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"produjir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caístar","slug":"lemma:caístar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caístar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentibar","slug":"lemma:sentibar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentibar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sentastar","slug":"lemma:sentastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sentastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cambiábar","slug":"lemma:cambiábar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cambiábar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oirear","slug":"lemma:oirear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oirear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sacastar","slug":"lemma:sacastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sacastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sacer","slug":"lemma:sacer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sacer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: logréar","slug":"lemma:logréar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"logréar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consideráir","slug":"lemma:consideráir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consideráir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trajérar","slug":"lemma:trajérar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trajérar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: formár","slug":"lemma:formár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"formár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alcancemer","slug":"lemma:alcancemer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alcancemer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: jugastir","slug":"lemma:jugastir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"jugastir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: compráir","slug":"lemma:compráir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"compráir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lograstar","slug":"lemma:lograstar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lograstar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: jugár","slug":"lemma:jugár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"jugár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alcanzaste","slug":"lemma:alcanzaste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alcanzaste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alcanzáar","slug":"lemma:alcanzáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alcanzáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lográr","slug":"lemma:lográr","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lográr"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: corrar","slug":"lemma:corrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"corrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprár","slug":"lemma:comprár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pagár","slug":"lemma:pagár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pagár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coméar","slug":"lemma:coméar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coméar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cumplistir","slug":"lemma:cumplistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cumplistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: compréerse","slug":"lemma:compréerse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"compréerse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acabáar","slug":"lemma:acabáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acabáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudér","slug":"lemma:ayudér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cumpliér","slug":"lemma:cumpliér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cumpliér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: corristir","slug":"lemma:corristir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"corristir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: explicáar","slug":"lemma:explicáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"explicáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resultir","slug":"lemma:resultir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resultir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comistir","slug":"lemma:comistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ayudarar","slug":"lemma:ayudarar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ayudarar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mantar","slug":"lemma:mantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: osar","slug":"lemma:osar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"osar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mantuverar","slug":"lemma:mantuverar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mantuverar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mantenger","slug":"lemma:mantenger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mantenger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: metir","slug":"lemma:metir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"metir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escuchér","slug":"lemma:escuchér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escuchér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ofrecistar","slug":"lemma:ofrecistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ofrecistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escuchastar","slug":"lemma:escuchastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escuchastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: montener","slug":"lemma:montener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"montener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: levantéar","slug":"lemma:levantéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"levantéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aparecistir","slug":"lemma:aparecistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aparecistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocurriste","slug":"lemma:ocurriste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocurriste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aparezciar","slug":"lemma:aparezciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aparezciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traér","slug":"lemma:traér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: estudiár","slug":"lemma:estudiár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"estudiár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: utilizáar","slug":"lemma:utilizáar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"utilizáar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: utilizárar","slug":"lemma:utilizárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"utilizárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: intentár","slug":"lemma:intentár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"intentár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anduvir","slug":"lemma:anduvir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anduvir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descubriste","slug":"lemma:descubriste","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descubriste"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dor","slug":"lemma:dor","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dor"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: andavir","slug":"lemma:andavir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"andavir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nacistir","slug":"lemma:nacistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nacistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: durmar","slug":"lemma:durmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"durmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptár","slug":"lemma:aceptár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptastar","slug":"lemma:aceptastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: supusistir","slug":"lemma:supusistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"supusistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: durmir","slug":"lemma:durmir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"durmir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptéar","slug":"lemma:aceptéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aceptemer","slug":"lemma:aceptemer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aceptemer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: olvidár","slug":"lemma:olvidár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"olvidár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: echárar","slug":"lemma:echárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"echárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: publicastar","slug":"lemma:publicastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"publicastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: señalárar","slug":"lemma:señalárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"señalárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dedicastar","slug":"lemma:dedicastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dedicastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtuvistir","slug":"lemma:obtuvistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtuvistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sucedár","slug":"lemma:sucedár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sucedár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtender","slug":"lemma:obtender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtar","slug":"lemma:obtar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asegurár","slug":"lemma:asegurár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asegurár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dirijir","slug":"lemma:dirijir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dirijir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: evitir","slug":"lemma:evitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"evitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asegurés","slug":"lemma:asegurés","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asegurés"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sucedér","slug":"lemma:sucedér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sucedér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obtuviér","slug":"lemma:obtuviér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obtuviér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detenger","slug":"lemma:detenger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detenger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: olvidastar","slug":"lemma:olvidastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"olvidastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detever","slug":"lemma:detever","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detever"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dirigistir","slug":"lemma:dirigistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dirigistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: supar","slug":"lemma:supar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"supar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imaginéar","slug":"lemma:imaginéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imaginéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detar","slug":"lemma:detar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: detuvistar","slug":"lemma:detuvistar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"detuvistar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: imaginárar","slug":"lemma:imaginárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"imaginárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: establezcer","slug":"lemma:establezcer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"establezcer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: subar","slug":"lemma:subar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"subar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: incluyér","slug":"lemma:incluyér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"incluyér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: andover","slug":"lemma:andover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"andover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reconorer","slug":"lemma:reconorer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reconorer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suponger","slug":"lemma:suponger","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suponger"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: representirse","slug":"lemma:representirse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"representirse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocupáir","slug":"lemma:ocupáir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocupáir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: continuár","slug":"lemma:continuár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"continuár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocar","slug":"lemma:ocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suberér","slug":"lemma:suberér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suberér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deseár","slug":"lemma:deseár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deseár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: camener","slug":"lemma:camener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"camener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deseastar","slug":"lemma:deseastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deseastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: faltéar","slug":"lemma:faltéar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"faltéar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iniciárar","slug":"lemma:iniciárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iniciárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: solar","slug":"lemma:solar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"solar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iniciastar","slug":"lemma:iniciastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iniciastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: indicastar","slug":"lemma:indicastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"indicastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soliér","slug":"lemma:soliér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soliér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soliar","slug":"lemma:soliar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soliar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destaquar","slug":"lemma:destaquar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destaquar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: crecistir","slug":"lemma:crecistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"crecistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destacás","slug":"lemma:destacás","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destacás"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: faltá","slug":"lemma:faltá","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"faltá"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deseér","slug":"lemma:deseér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deseér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destacárar","slug":"lemma:destacárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destacárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iniciár","slug":"lemma:iniciár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iniciár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostrabar","slug":"lemma:demostrabar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostrabar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostrár","slug":"lemma:demostrár","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostrár"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elejar","slug":"lemma:elejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: demostréer","slug":"lemma:demostréer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"demostréer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: regresar","slug":"lemma:regresar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"regresar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parar","slug":"lemma:parar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aumentar","slug":"lemma:aumentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aumentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: unir","slug":"lemma:unir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"unir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aplicar","slug":"lemma:aplicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aplicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: extender","slug":"lemma:extender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"extender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convencer","slug":"lemma:convencer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convencer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: casar","slug":"lemma:casar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"casar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: generar","slug":"lemma:generar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"generar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: invitar","slug":"lemma:invitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"invitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: resolver","slug":"lemma:resolver","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"resolver"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pertenecer","slug":"lemma:pertenecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pertenecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sorprender","slug":"lemma:sorprender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sorprender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: firmar","slug":"lemma:firmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"firmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entregar","slug":"lemma:entregar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entregar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comentar","slug":"lemma:comentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: preferir","slug":"lemma:preferir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"preferir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reunir","slug":"lemma:reunir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reunir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: basar","slug":"lemma:basar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"basar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cantar","slug":"lemma:cantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: avanzar","slug":"lemma:avanzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"avanzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sonar","slug":"lemma:sonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: analizar","slug":"lemma:analizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"analizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: implicar","slug":"lemma:implicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"implicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: surgir","slug":"lemma:surgir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"surgir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mencionar","slug":"lemma:mencionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mencionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: merecer","slug":"lemma:merecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"merecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dominar","slug":"lemma:dominar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dominar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: solicitar","slug":"lemma:solicitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"solicitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apuntar","slug":"lemma:apuntar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apuntar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adoptar","slug":"lemma:adoptar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adoptar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: huir","slug":"lemma:huir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"huir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: nombrar","slug":"lemma:nombrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"nombrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: animar","slug":"lemma:animar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"animar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quemar","slug":"lemma:quemar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quemar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: lavar","slug":"lemma:lavar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"lavar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conformar","slug":"lemma:conformar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conformar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perdonar","slug":"lemma:perdonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perdonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: emitir","slug":"lemma:emitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"emitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inventar","slug":"lemma:inventar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inventar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: grabar","slug":"lemma:grabar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"grabar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acceder","slug":"lemma:acceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apreciar","slug":"lemma:apreciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apreciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sobrevivir","slug":"lemma:sobrevivir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sobrevivir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: invadir","slug":"lemma:invadir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"invadir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: admirar","slug":"lemma:admirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"admirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: jurar","slug":"lemma:jurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"jurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: orientar","slug":"lemma:orientar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"orientar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: organizar","slug":"lemma:organizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"organizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asistir","slug":"lemma:asistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destruir","slug":"lemma:destruir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destruir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bailar","slug":"lemma:bailar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bailar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: opinar","slug":"lemma:opinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"opinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: percibir","slug":"lemma:percibir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"percibir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: practicar","slug":"lemma:practicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"practicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gozar","slug":"lemma:gozar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gozar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descender","slug":"lemma:descender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ceder","slug":"lemma:ceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encerrar","slug":"lemma:encerrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encerrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: colgar","slug":"lemma:colgar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"colgar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: experimentar","slug":"lemma:experimentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"experimentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consultar","slug":"lemma:consultar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consultar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: armar","slug":"lemma:armar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"armar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inclinar","slug":"lemma:inclinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inclinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: temblar","slug":"lemma:temblar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"temblar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: concentrar","slug":"lemma:concentrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"concentrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acumular","slug":"lemma:acumular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acumular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asustar","slug":"lemma:asustar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asustar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rezar","slug":"lemma:rezar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rezar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: transcurrir","slug":"lemma:transcurrir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"transcurrir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: habitar","slug":"lemma:habitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"habitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alegrar","slug":"lemma:alegrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alegrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prolongar","slug":"lemma:prolongar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prolongar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: proyectar","slug":"lemma:proyectar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"proyectar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: bañar","slug":"lemma:bañar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"bañar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: clavar","slug":"lemma:clavar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"clavar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: circular","slug":"lemma:circular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"circular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: obedecer","slug":"lemma:obedecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"obedecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sobrar","slug":"lemma:sobrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sobrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: violar","slug":"lemma:violar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"violar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: optar","slug":"lemma:optar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"optar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diferenciar","slug":"lemma:diferenciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diferenciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: maldecir","slug":"lemma:maldecir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"maldecir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: forzar","slug":"lemma:forzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"forzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: iluminar","slug":"lemma:iluminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"iluminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: anotar","slug":"lemma:anotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"anotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: brotar","slug":"lemma:brotar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"brotar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fingir","slug":"lemma:fingir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fingir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: motivar","slug":"lemma:motivar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"motivar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tapar","slug":"lemma:tapar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tapar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: copiar","slug":"lemma:copiar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"copiar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: chocar","slug":"lemma:chocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"chocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: rescatar","slug":"lemma:rescatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"rescatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adorar","slug":"lemma:adorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: retener","slug":"lemma:retener","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"retener"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: planear","slug":"lemma:planear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"planear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: plantar","slug":"lemma:plantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"plantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disimular","slug":"lemma:disimular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disimular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sumergir","slug":"lemma:sumergir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sumergir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: actualizar","slug":"lemma:actualizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"actualizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: verificar","slug":"lemma:verificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"verificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conmover","slug":"lemma:conmover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conmover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mudar","slug":"lemma:mudar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mudar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alentar","slug":"lemma:alentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gestionar","slug":"lemma:gestionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gestionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: remitir","slug":"lemma:remitir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"remitir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encaminar","slug":"lemma:encaminar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encaminar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asentar","slug":"lemma:asentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atar","slug":"lemma:atar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hervir","slug":"lemma:hervir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hervir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contactar","slug":"lemma:contactar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contactar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sobresalir","slug":"lemma:sobresalir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sobresalir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrepentirse","slug":"lemma:arrepentirse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrepentirse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aislar","slug":"lemma:aislar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aislar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adherir","slug":"lemma:adherir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adherir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: largar","slug":"lemma:largar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"largar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desesperar","slug":"lemma:desesperar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desesperar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arruinar","slug":"lemma:arruinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arruinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quitar","slug":"lemma:quitar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quitar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: marcar","slug":"lemma:marcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"marcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: destinar","slug":"lemma:destinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"destinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ocasionar","slug":"lemma:ocasionar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ocasionar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entrever","slug":"lemma:entrever","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entrever"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desatar","slug":"lemma:desatar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desatar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: frustrar","slug":"lemma:frustrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"frustrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: arrugar","slug":"lemma:arrugar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"arrugar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: liderar","slug":"lemma:liderar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"liderar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: frecuentar","slug":"lemma:frecuentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"frecuentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: divisar","slug":"lemma:divisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"divisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: remediar","slug":"lemma:remediar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"remediar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: manipular","slug":"lemma:manipular","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"manipular"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: vibrar","slug":"lemma:vibrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"vibrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: florecer","slug":"lemma:florecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"florecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: deducir","slug":"lemma:deducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"deducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: remover","slug":"lemma:remover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"remover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asaltar","slug":"lemma:asaltar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asaltar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: desembocar","slug":"lemma:desembocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"desembocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: fundir","slug":"lemma:fundir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"fundir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: movilizar","slug":"lemma:movilizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"movilizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contrastar","slug":"lemma:contrastar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contrastar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: embarcar","slug":"lemma:embarcar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"embarcar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alertar","slug":"lemma:alertar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alertar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reanudar","slug":"lemma:reanudar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reanudar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: asentir","slug":"lemma:asentir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"asentir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diferir","slug":"lemma:diferir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diferir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: extinguir","slug":"lemma:extinguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"extinguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: incidir","slug":"lemma:incidir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"incidir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: calzar","slug":"lemma:calzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"calzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alarmar","slug":"lemma:alarmar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alarmar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: faltárar","slug":"lemma:faltárar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"faltárar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: naciér","slug":"lemma:naciér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"naciér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: suplicar","slug":"lemma:suplicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"suplicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entonar","slug":"lemma:entonar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entonar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: despegar","slug":"lemma:despegar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"despegar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: refirar","slug":"lemma:refirar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"refirar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: añadir","slug":"lemma:añadir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"añadir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: inquietar","slug":"lemma:inquietar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"inquietar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: afrontar","slug":"lemma:afrontar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"afrontar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: parezciar","slug":"lemma:parezciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"parezciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disputar","slug":"lemma:disputar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disputar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: escupir","slug":"lemma:escupir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"escupir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: diricir","slug":"lemma:diricir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"diricir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: olvidér","slug":"lemma:olvidér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"olvidér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consigáir","slug":"lemma:consigáir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consigáir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: usibar","slug":"lemma:usibar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"usibar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: entráar","slug":"lemma:entráar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"entráar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abristir","slug":"lemma:abristir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abristir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hubir","slug":"lemma:hubir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hubir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quedér","slug":"lemma:quedér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quedér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pudir","slug":"lemma:pudir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pudir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trabajés","slug":"lemma:trabajés","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trabajés"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pudertir","slug":"lemma:pudertir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pudertir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: saliér","slug":"lemma:saliér","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"saliér"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: durar","slug":"lemma:durar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"durar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: consistir","slug":"lemma:consistir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"consistir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: cobrar","slug":"lemma:cobrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"cobrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ordenar","slug":"lemma:ordenar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ordenar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: respetar","slug":"lemma:respetar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"respetar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encantar","slug":"lemma:encantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: componer","slug":"lemma:componer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"componer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: revelar","slug":"lemma:revelar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"revelar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ejercer","slug":"lemma:ejercer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ejercer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: situar","slug":"lemma:situar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"situar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: describir","slug":"lemma:describir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"describir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: robar","slug":"lemma:robar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"robar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: temer","slug":"lemma:temer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"temer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: contribuir","slug":"lemma:contribuir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"contribuir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: comprobar","slug":"lemma:comprobar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"comprobar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: discutir","slug":"lemma:discutir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"discutir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atravesar","slug":"lemma:atravesar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atravesar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: despedir","slug":"lemma:despedir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"despedir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aportar","slug":"lemma:aportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: golpear","slug":"lemma:golpear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"golpear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: molestar","slug":"lemma:molestar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"molestar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: marchar","slug":"lemma:marchar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"marchar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: someter","slug":"lemma:someter","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"someter"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: encender","slug":"lemma:encender","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"encender"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atreverse","slug":"lemma:atreverse","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atreverse"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: dudar","slug":"lemma:dudar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"dudar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soportar","slug":"lemma:soportar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soportar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: soltar","slug":"lemma:soltar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"soltar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: atraer","slug":"lemma:atraer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"atraer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: callar","slug":"lemma:callar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"callar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: hundir","slug":"lemma:hundir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"hundir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: trasladar","slug":"lemma:trasladar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"trasladar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: perseguir","slug":"lemma:perseguir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"perseguir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: coincidir","slug":"lemma:coincidir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"coincidir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: tardar","slug":"lemma:tardar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"tardar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: mezclar","slug":"lemma:mezclar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"mezclar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: saludar","slug":"lemma:saludar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"saludar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ingresar","slug":"lemma:ingresar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ingresar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: besar","slug":"lemma:besar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"besar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: promover","slug":"lemma:promover","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"promover"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alzar","slug":"lemma:alzar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alzar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: garantizar","slug":"lemma:garantizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"garantizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: confundir","slug":"lemma:confundir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"confundir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: prohibir","slug":"lemma:prohibir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"prohibir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: brindar","slug":"lemma:brindar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"brindar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ignorar","slug":"lemma:ignorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ignorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: influir","slug":"lemma:influir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"influir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sugerir","slug":"lemma:sugerir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sugerir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: abrazar","slug":"lemma:abrazar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"abrazar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: equivocar","slug":"lemma:equivocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"equivocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acusar","slug":"lemma:acusar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acusar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: privar","slug":"lemma:privar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"privar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: revisar","slug":"lemma:revisar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"revisar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: descansar","slug":"lemma:descansar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"descansar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ubicar","slug":"lemma:ubicar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ubicar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: apretar","slug":"lemma:apretar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"apretar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: operar","slug":"lemma:operar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"operar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: variar","slug":"lemma:variar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"variar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: otorgar","slug":"lemma:otorgar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"otorgar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: enamorar","slug":"lemma:enamorar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"enamorar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: reclamar","slug":"lemma:reclamar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"reclamar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: figurar","slug":"lemma:figurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"figurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convenir","slug":"lemma:convenir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convenir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: criticar","slug":"lemma:criticar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"criticar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: caracterizar","slug":"lemma:caracterizar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"caracterizar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: alimentar","slug":"lemma:alimentar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"alimentar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: aguantar","slug":"lemma:aguantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"aguantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: denunciar","slug":"lemma:denunciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"denunciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: ejecutar","slug":"lemma:ejecutar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"ejecutar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: acariciar","slug":"lemma:acariciar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"acariciar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: justificar","slug":"lemma:justificar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"justificar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: sustituir","slug":"lemma:sustituir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"sustituir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: pelear","slug":"lemma:pelear","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"pelear"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: respectar","slug":"lemma:respectar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"respectar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: quejar","slug":"lemma:quejar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"quejar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: procurar","slug":"lemma:procurar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"procurar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oler","slug":"lemma:oler","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oler"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conceder","slug":"lemma:conceder","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conceder"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: combinar","slug":"lemma:combinar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"combinar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: liberar","slug":"lemma:liberar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"liberar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: conectar","slug":"lemma:conectar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"conectar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: juntar","slug":"lemma:juntar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"juntar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: elaborar","slug":"lemma:elaborar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"elaborar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: convocar","slug":"lemma:convocar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"convocar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adelantar","slug":"lemma:adelantar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adelantar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: incrementar","slug":"lemma:incrementar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"incrementar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: efectuar","slug":"lemma:efectuar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"efectuar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: favorecer","slug":"lemma:favorecer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"favorecer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: traducir","slug":"lemma:traducir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"traducir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: borrar","slug":"lemma:borrar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"borrar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: oponer","slug":"lemma:oponer","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"oponer"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: disparar","slug":"lemma:disparar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"disparar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: gobernar","slug":"lemma:gobernar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"gobernar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: invertir","slug":"lemma:invertir","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"invertir"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]},{"name":"Lemma: adaptar","slug":"lemma:adaptar","data":{"ONTOLOGICAL":{"branch":"lemma","leaf":"adaptar"},"COMPLETABLE":{"flavor":"INDIVIDUAL"}},"traits":["ONTOLOGICAL","COMPLETABLE","STRUCTURAL"]}];
+export default [
+  {
+    name: "Lemma: dejar",
+    slug: "lemma:dejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: salir",
+    slug: "lemma:salir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "salir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evitar",
+    slug: "lemma:evitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: establezcar",
+    slug: "lemma:establezcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "establezcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mover",
+    slug: "lemma:mover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: echar",
+    slug: "lemma:echar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "echar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descubrir",
+    slug: "lemma:descubrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descubrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entender",
+    slug: "lemma:entender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pasar",
+    slug: "lemma:pasar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pasar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: venir",
+    slug: "lemma:venir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "venir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intentar",
+    slug: "lemma:intentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destacar",
+    slug: "lemma:destacar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destacar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: observar",
+    slug: "lemma:observar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "observar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asegurar",
+    slug: "lemma:asegurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asegurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aseguráir",
+    slug: "lemma:aseguráir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aseguráir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: responder",
+    slug: "lemma:responder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "responder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suponer",
+    slug: "lemma:suponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nacer",
+    slug: "lemma:nacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "nacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pedir",
+    slug: "lemma:pedir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pedir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presentar",
+    slug: "lemma:presentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imaginar",
+    slug: "lemma:imaginar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imaginar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptar",
+    slug: "lemma:aceptar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: olvidar",
+    slug: "lemma:olvidar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "olvidar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: seguir",
+    slug: "lemma:seguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "seguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contar",
+    slug: "lemma:contar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: permitir",
+    slug: "lemma:permitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "permitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: crear",
+    slug: "lemma:crear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "crear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cambiar",
+    slug: "lemma:cambiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cambiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: servir",
+    slug: "lemma:servir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "servir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traer",
+    slug: "lemma:traer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vender",
+    slug: "lemma:vender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: crecer",
+    slug: "lemma:crecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "crecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: decir",
+    slug: "lemma:decir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "decir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mantener",
+    slug: "lemma:mantener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mantener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pagar",
+    slug: "lemma:pagar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pagar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: poder",
+    slug: "lemma:poder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "poder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hablar",
+    slug: "lemma:hablar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hablar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quedar",
+    slug: "lemma:quedar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quedar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: construir",
+    slug: "lemma:construir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "construir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: afirmar",
+    slug: "lemma:afirmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "afirmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: notar",
+    slug: "lemma:notar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "notar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: expresar",
+    slug: "lemma:expresar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "expresar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ir",
+    slug: "lemma:ir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "ir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: visitar",
+    slug: "lemma:visitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "visitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pretender",
+    slug: "lemma:pretender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pretender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: despertar",
+    slug: "lemma:despertar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "despertar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sonreír",
+    slug: "lemma:sonreír",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sonreír" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: insistir",
+    slug: "lemma:insistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "insistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dar",
+    slug: "lemma:dar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "dar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ver",
+    slug: "lemma:ver",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "ver" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hacer",
+    slug: "lemma:hacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: creer",
+    slug: "lemma:creer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "creer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encontrar",
+    slug: "lemma:encontrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encontrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pensar",
+    slug: "lemma:pensar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pensar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llevar",
+    slug: "lemma:llevar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llevar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deber",
+    slug: "lemma:deber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llegar",
+    slug: "lemma:llegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: explicar",
+    slug: "lemma:explicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "explicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estudiar",
+    slug: "lemma:estudiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estudiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: decidir",
+    slug: "lemma:decidir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "decidir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desarrollar",
+    slug: "lemma:desarrollar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desarrollar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reconocer",
+    slug: "lemma:reconocer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reconocer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: saber",
+    slug: "lemma:saber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "saber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: haber",
+    slug: "lemma:haber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "haber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tener",
+    slug: "lemma:tener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: morir",
+    slug: "lemma:morir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "morir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: terminar",
+    slug: "lemma:terminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "terminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convertir",
+    slug: "lemma:convertir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convertir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: formar",
+    slug: "lemma:formar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "formar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ofrecer",
+    slug: "lemma:ofrecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ofrecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cumplir",
+    slug: "lemma:cumplir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cumplir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: continuar",
+    slug: "lemma:continuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "continuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: incluir",
+    slug: "lemma:incluir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "incluir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apagar",
+    slug: "lemma:apagar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apagar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: querer",
+    slug: "lemma:querer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "querer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parecer",
+    slug: "lemma:parecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mirar",
+    slug: "lemma:mirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tomar",
+    slug: "lemma:tomar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tomar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tratar",
+    slug: "lemma:tratar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tratar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esperar",
+    slug: "lemma:esperar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esperar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empezar",
+    slug: "lemma:empezar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empezar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: subir",
+    slug: "lemma:subir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "subir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: publicar",
+    slug: "lemma:publicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "publicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diríar",
+    slug: "lemma:diríar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diríar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dirigir",
+    slug: "lemma:dirigir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dirigir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gustar",
+    slug: "lemma:gustar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gustar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: existir",
+    slug: "lemma:existir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "existir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ser",
+    slug: "lemma:ser",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "ser" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aprender",
+    slug: "lemma:aprender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aprender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: compartir",
+    slug: "lemma:compartir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "compartir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contestar",
+    slug: "lemma:contestar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contestar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: depender",
+    slug: "lemma:depender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "depender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: funcionar",
+    slug: "lemma:funcionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "funcionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: señalar",
+    slug: "lemma:señalar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "señalar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrar",
+    slug: "lemma:entrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: separar",
+    slug: "lemma:separar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "separar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: importar",
+    slug: "lemma:importar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "importar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: necesitar",
+    slug: "lemma:necesitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "necesitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conseguir",
+    slug: "lemma:conseguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conseguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: usar",
+    slug: "lemma:usar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "usar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: costar",
+    slug: "lemma:costar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "costar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contener",
+    slug: "lemma:contener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tocar",
+    slug: "lemma:tocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soler",
+    slug: "lemma:soler",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soler" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anduviér",
+    slug: "lemma:anduviér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anduviér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presentár",
+    slug: "lemma:presentár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presentár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudar",
+    slug: "lemma:ayudar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: indiquir",
+    slug: "lemma:indiquir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "indiquir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: terminir",
+    slug: "lemma:terminir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "terminir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dijerar",
+    slug: "lemma:dijerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dijerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estar",
+    slug: "lemma:estar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: levantar",
+    slug: "lemma:levantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "levantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: jugar",
+    slug: "lemma:jugar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "jugar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: andar",
+    slug: "lemma:andar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "andar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mejorar",
+    slug: "lemma:mejorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mejorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: medir",
+    slug: "lemma:medir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "medir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: manejar",
+    slug: "lemma:manejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "manejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: localizar",
+    slug: "lemma:localizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "localizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acabar",
+    slug: "lemma:acabar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acabar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: necesitér",
+    slug: "lemma:necesitér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "necesitér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: luchar",
+    slug: "lemma:luchar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "luchar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: beber",
+    slug: "lemma:beber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "beber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contemplar",
+    slug: "lemma:contemplar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contemplar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pegar",
+    slug: "lemma:pegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: relacionar",
+    slug: "lemma:relacionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "relacionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cargar",
+    slug: "lemma:cargar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cargar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suceder",
+    slug: "lemma:suceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mandar",
+    slug: "lemma:mandar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mandar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: saltar",
+    slug: "lemma:saltar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "saltar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: eliminar",
+    slug: "lemma:eliminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "eliminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: envolver",
+    slug: "lemma:envolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "envolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: limitar",
+    slug: "lemma:limitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "limitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bautizar",
+    slug: "lemma:bautizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bautizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bajar",
+    slug: "lemma:bajar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bajar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: partir",
+    slug: "lemma:partir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "partir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: distinguir",
+    slug: "lemma:distinguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "distinguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desaparecer",
+    slug: "lemma:desaparecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desaparecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obligar",
+    slug: "lemma:obligar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obligar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reír",
+    slug: "lemma:reír",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "reír" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amar",
+    slug: "lemma:amar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "amar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enviar",
+    slug: "lemma:enviar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enviar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hallar",
+    slug: "lemma:hallar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hallar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proporcionar",
+    slug: "lemma:proporcionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proporcionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: volar",
+    slug: "lemma:volar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "volar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proponer",
+    slug: "lemma:proponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: romper",
+    slug: "lemma:romper",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "romper" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: defender",
+    slug: "lemma:defender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "defender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: informar",
+    slug: "lemma:informar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "informar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recuperar",
+    slug: "lemma:recuperar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recuperar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comparar",
+    slug: "lemma:comparar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comparar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: doler",
+    slug: "lemma:doler",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "doler" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: interrumpir",
+    slug: "lemma:interrumpir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "interrumpir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: poner",
+    slug: "lemma:poner",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "poner" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cortar",
+    slug: "lemma:cortar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cortar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: salvar",
+    slug: "lemma:salvar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "salvar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cruzar",
+    slug: "lemma:cruzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cruzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: equilibrar",
+    slug: "lemma:equilibrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "equilibrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caber",
+    slug: "lemma:caber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: regalar",
+    slug: "lemma:regalar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "regalar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: citar",
+    slug: "lemma:citar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "citar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fumar",
+    slug: "lemma:fumar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fumar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fabricar",
+    slug: "lemma:fabricar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fabricar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lucir",
+    slug: "lemma:lucir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lucir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: condenar",
+    slug: "lemma:condenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "condenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: renunciar",
+    slug: "lemma:renunciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "renunciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pudeér",
+    slug: "lemma:pudeér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pudeér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preocupar",
+    slug: "lemma:preocupar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preocupar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exigir",
+    slug: "lemma:exigir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exigir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imponer",
+    slug: "lemma:imponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reducir",
+    slug: "lemma:reducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: celebrar",
+    slug: "lemma:celebrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "celebrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atacar",
+    slug: "lemma:atacar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atacar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: respirar",
+    slug: "lemma:respirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "respirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asomar",
+    slug: "lemma:asomar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asomar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pronunciar",
+    slug: "lemma:pronunciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pronunciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: juzgar",
+    slug: "lemma:juzgar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "juzgar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: odiar",
+    slug: "lemma:odiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "odiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alejar",
+    slug: "lemma:alejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: plantear",
+    slug: "lemma:plantear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "plantear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: calcular",
+    slug: "lemma:calcular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "calcular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agotar",
+    slug: "lemma:agotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disminuir",
+    slug: "lemma:disminuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disminuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alterar",
+    slug: "lemma:alterar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alterar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: advertir",
+    slug: "lemma:advertir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "advertir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comunicar",
+    slug: "lemma:comunicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comunicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: avisar",
+    slug: "lemma:avisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "avisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pisar",
+    slug: "lemma:pisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asesinar",
+    slug: "lemma:asesinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asesinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: identificar",
+    slug: "lemma:identificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "identificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: limpiar",
+    slug: "lemma:limpiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "limpiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cesar",
+    slug: "lemma:cesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pasér",
+    slug: "lemma:pasér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pasér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fallecer",
+    slug: "lemma:fallecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fallecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: beneficiar",
+    slug: "lemma:beneficiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "beneficiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evaluar",
+    slug: "lemma:evaluar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evaluar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detallar",
+    slug: "lemma:detallar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detallar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derir",
+    slug: "lemma:derir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: viér",
+    slug: "lemma:viér",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "viér" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: superar",
+    slug: "lemma:superar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "superar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diseñar",
+    slug: "lemma:diseñar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diseñar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: queserar",
+    slug: "lemma:queserar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "queserar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aplastar",
+    slug: "lemma:aplastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aplastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preguntar",
+    slug: "lemma:preguntar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preguntar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sacar",
+    slug: "lemma:sacar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sacar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocurrir",
+    slug: "lemma:ocurrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocurrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inspirar",
+    slug: "lemma:inspirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inspirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: programar",
+    slug: "lemma:programar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "programar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: supistir",
+    slug: "lemma:supistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "supistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentir",
+    slug: "lemma:sentir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: constituir",
+    slug: "lemma:constituir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "constituir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: incorporar",
+    slug: "lemma:incorporar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "incorporar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bastar",
+    slug: "lemma:bastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fundar",
+    slug: "lemma:fundar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fundar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rechazar",
+    slug: "lemma:rechazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rechazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: integrar",
+    slug: "lemma:integrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "integrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transmitir",
+    slug: "lemma:transmitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transmitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: requerir",
+    slug: "lemma:requerir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "requerir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cometer",
+    slug: "lemma:cometer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cometer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: girar",
+    slug: "lemma:girar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "girar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: interpretar",
+    slug: "lemma:interpretar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "interpretar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vencer",
+    slug: "lemma:vencer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vencer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: devolver",
+    slug: "lemma:devolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "devolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrancar",
+    slug: "lemma:arrancar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrancar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: montar",
+    slug: "lemma:montar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "montar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acudir",
+    slug: "lemma:acudir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acudir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elevar",
+    slug: "lemma:elevar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elevar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aclarar",
+    slug: "lemma:aclarar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aclarar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: investigar",
+    slug: "lemma:investigar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "investigar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: registrar",
+    slug: "lemma:registrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "registrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agarrar",
+    slug: "lemma:agarrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agarrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: confiar",
+    slug: "lemma:confiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "confiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: facilitar",
+    slug: "lemma:facilitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "facilitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: confesar",
+    slug: "lemma:confesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "confesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resistir",
+    slug: "lemma:resistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pasear",
+    slug: "lemma:pasear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pasear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estimar",
+    slug: "lemma:estimar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estimar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amenazar",
+    slug: "lemma:amenazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "amenazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrojar",
+    slug: "lemma:arrojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consumir",
+    slug: "lemma:consumir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consumir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: votar",
+    slug: "lemma:votar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "votar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empujar",
+    slug: "lemma:empujar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empujar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escoger",
+    slug: "lemma:escoger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escoger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: engañar",
+    slug: "lemma:engañar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "engañar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: carecer",
+    slug: "lemma:carecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "carecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rendir",
+    slug: "lemma:rendir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rendir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derivar",
+    slug: "lemma:derivar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derivar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: repartir",
+    slug: "lemma:repartir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "repartir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aguardar",
+    slug: "lemma:aguardar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aguardar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: regir",
+    slug: "lemma:regir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "regir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: internar",
+    slug: "lemma:internar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "internar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sear",
+    slug: "lemma:sear",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "sear" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llover",
+    slug: "lemma:llover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resucitar",
+    slug: "lemma:resucitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resucitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estuvistear",
+    slug: "lemma:estuvistear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estuvistear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: extraer",
+    slug: "lemma:extraer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "extraer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprometer",
+    slug: "lemma:comprometer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprometer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: almacenar",
+    slug: "lemma:almacenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "almacenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: finalizar",
+    slug: "lemma:finalizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "finalizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrenar",
+    slug: "lemma:entrenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hiciste",
+    slug: "lemma:hiciste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hiciste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hecho",
+    slug: "lemma:hecho",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hecho" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: calificar",
+    slug: "lemma:calificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "calificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sacudir",
+    slug: "lemma:sacudir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sacudir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hubiste",
+    slug: "lemma:hubiste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hubiste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contratar",
+    slug: "lemma:contratar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contratar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: murmurar",
+    slug: "lemma:murmurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "murmurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prender",
+    slug: "lemma:prender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vengar",
+    slug: "lemma:vengar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vengar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suspender",
+    slug: "lemma:suspender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suspender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ascender",
+    slug: "lemma:ascender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ascender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nadar",
+    slug: "lemma:nadar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "nadar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llegár",
+    slug: "lemma:llegár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llegár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estuviér",
+    slug: "lemma:estuviér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estuviér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: corregir",
+    slug: "lemma:corregir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "corregir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fallar",
+    slug: "lemma:fallar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fallar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: guiar",
+    slug: "lemma:guiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "guiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: curar",
+    slug: "lemma:curar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "curar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: doblar",
+    slug: "lemma:doblar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "doblar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deslizar",
+    slug: "lemma:deslizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deslizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: creyerar",
+    slug: "lemma:creyerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "creyerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sospechar",
+    slug: "lemma:sospechar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sospechar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: replicar",
+    slug: "lemma:replicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "replicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: expulsar",
+    slug: "lemma:expulsar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "expulsar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acentuar",
+    slug: "lemma:acentuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acentuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atrapar",
+    slug: "lemma:atrapar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atrapar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: difundir",
+    slug: "lemma:difundir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "difundir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: flotar",
+    slug: "lemma:flotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "flotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amanecer",
+    slug: "lemma:amanecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "amanecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derrotar",
+    slug: "lemma:derrotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derrotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fortalecer",
+    slug: "lemma:fortalecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fortalecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prever",
+    slug: "lemma:prever",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prever" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quedár",
+    slug: "lemma:quedár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quedár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: volver",
+    slug: "lemma:volver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "volver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: examinar",
+    slug: "lemma:examinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "examinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descargar",
+    slug: "lemma:descargar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descargar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrabar",
+    slug: "lemma:entrabar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrabar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oscilar",
+    slug: "lemma:oscilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oscilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imprimir",
+    slug: "lemma:imprimir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imprimir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: picar",
+    slug: "lemma:picar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "picar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aproximar",
+    slug: "lemma:aproximar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aproximar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ligar",
+    slug: "lemma:ligar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ligar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: titular",
+    slug: "lemma:titular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "titular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cuestionar",
+    slug: "lemma:cuestionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cuestionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consagrar",
+    slug: "lemma:consagrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consagrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llamar",
+    slug: "lemma:llamar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llamar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: calmar",
+    slug: "lemma:calmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "calmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asociar",
+    slug: "lemma:asociar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asociar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enloquecer",
+    slug: "lemma:enloquecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enloquecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conocer",
+    slug: "lemma:conocer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conocer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sembrar",
+    slug: "lemma:sembrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sembrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: portar",
+    slug: "lemma:portar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "portar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aburrir",
+    slug: "lemma:aburrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aburrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: poblar",
+    slug: "lemma:poblar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "poblar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pescar",
+    slug: "lemma:pescar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pescar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: implementar",
+    slug: "lemma:implementar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "implementar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arder",
+    slug: "lemma:arder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resumir",
+    slug: "lemma:resumir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resumir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: librar",
+    slug: "lemma:librar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "librar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ahorrar",
+    slug: "lemma:ahorrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ahorrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alegar",
+    slug: "lemma:alegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atormentar",
+    slug: "lemma:atormentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atormentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vivir",
+    slug: "lemma:vivir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vivir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tratárar",
+    slug: "lemma:tratárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tratárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acelerar",
+    slug: "lemma:acelerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acelerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fluir",
+    slug: "lemma:fluir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fluir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enriquecer",
+    slug: "lemma:enriquecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enriquecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trazar",
+    slug: "lemma:trazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: autorizar",
+    slug: "lemma:autorizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "autorizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: generalizar",
+    slug: "lemma:generalizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "generalizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resbalar",
+    slug: "lemma:resbalar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resbalar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: datar",
+    slug: "lemma:datar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "datar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acercar",
+    slug: "lemma:acercar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acercar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tornar",
+    slug: "lemma:tornar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tornar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: argumentar",
+    slug: "lemma:argumentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "argumentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presionar",
+    slug: "lemma:presionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ratificar",
+    slug: "lemma:ratificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ratificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: navegar",
+    slug: "lemma:navegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "navegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enojar",
+    slug: "lemma:enojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sujetar",
+    slug: "lemma:sujetar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sujetar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retornar",
+    slug: "lemma:retornar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retornar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dañar",
+    slug: "lemma:dañar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dañar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: felicitar",
+    slug: "lemma:felicitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "felicitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aplaudir",
+    slug: "lemma:aplaudir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aplaudir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reponer",
+    slug: "lemma:reponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tejer",
+    slug: "lemma:tejer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tejer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inundar",
+    slug: "lemma:inundar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inundar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ofender",
+    slug: "lemma:ofender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ofender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esforzar",
+    slug: "lemma:esforzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esforzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soplar",
+    slug: "lemma:soplar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soplar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: respaldar",
+    slug: "lemma:respaldar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "respaldar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exagerar",
+    slug: "lemma:exagerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exagerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perjudicar",
+    slug: "lemma:perjudicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perjudicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: precipitar",
+    slug: "lemma:precipitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "precipitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: propiciar",
+    slug: "lemma:propiciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "propiciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convivir",
+    slug: "lemma:convivir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convivir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reconstruir",
+    slug: "lemma:reconstruir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reconstruir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: platicar",
+    slug: "lemma:platicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "platicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recostar",
+    slug: "lemma:recostar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recostar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: activar",
+    slug: "lemma:activar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "activar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: planificar",
+    slug: "lemma:planificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "planificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aferrar",
+    slug: "lemma:aferrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aferrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: configurar",
+    slug: "lemma:configurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "configurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: voltear",
+    slug: "lemma:voltear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "voltear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reinar",
+    slug: "lemma:reinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: improvisar",
+    slug: "lemma:improvisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "improvisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pecar",
+    slug: "lemma:pecar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pecar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disfrazar",
+    slug: "lemma:disfrazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disfrazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coordinar",
+    slug: "lemma:coordinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coordinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: erguir",
+    slug: "lemma:erguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "erguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consolar",
+    slug: "lemma:consolar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consolar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sumir",
+    slug: "lemma:sumir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sumir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: volcar",
+    slug: "lemma:volcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "volcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: procesar",
+    slug: "lemma:procesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "procesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dialogar",
+    slug: "lemma:dialogar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dialogar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: leer",
+    slug: "lemma:leer",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "leer" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mojar",
+    slug: "lemma:mojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alquilar",
+    slug: "lemma:alquilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alquilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disculpar",
+    slug: "lemma:disculpar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disculpar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrebatar",
+    slug: "lemma:arrebatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrebatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: interrogar",
+    slug: "lemma:interrogar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "interrogar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rematar",
+    slug: "lemma:rematar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rematar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coser",
+    slug: "lemma:coser",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coser" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: expandir",
+    slug: "lemma:expandir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "expandir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reposar",
+    slug: "lemma:reposar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reposar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: orar",
+    slug: "lemma:orar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "orar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suprimir",
+    slug: "lemma:suprimir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suprimir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: insultar",
+    slug: "lemma:insultar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "insultar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presentir",
+    slug: "lemma:presentir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presentir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alojar",
+    slug: "lemma:alojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amontonar",
+    slug: "lemma:amontonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "amontonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recibir",
+    slug: "lemma:recibir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recibir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: debistir",
+    slug: "lemma:debistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "debistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conducir",
+    slug: "lemma:conducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: verter",
+    slug: "lemma:verter",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "verter" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oscurecer",
+    slug: "lemma:oscurecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oscurecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pudrir",
+    slug: "lemma:pudrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pudrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recobrar",
+    slug: "lemma:recobrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recobrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: honrar",
+    slug: "lemma:honrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "honrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ilustrar",
+    slug: "lemma:ilustrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ilustrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bordar",
+    slug: "lemma:bordar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bordar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desvanecer",
+    slug: "lemma:desvanecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desvanecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: especificar",
+    slug: "lemma:especificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "especificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: impregnar",
+    slug: "lemma:impregnar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "impregnar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fundamentar",
+    slug: "lemma:fundamentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fundamentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: torturar",
+    slug: "lemma:torturar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "torturar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: producir",
+    slug: "lemma:producir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "producir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: salpicar",
+    slug: "lemma:salpicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "salpicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: repasar",
+    slug: "lemma:repasar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "repasar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encajar",
+    slug: "lemma:encajar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encajar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abusar",
+    slug: "lemma:abusar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abusar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: licenciar",
+    slug: "lemma:licenciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "licenciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alternar",
+    slug: "lemma:alternar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alternar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encoger",
+    slug: "lemma:encoger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encoger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: donar",
+    slug: "lemma:donar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "donar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comencar",
+    slug: "lemma:comencar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comencar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trabajar",
+    slug: "lemma:trabajar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trabajar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: utilizar",
+    slug: "lemma:utilizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "utilizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diluir",
+    slug: "lemma:diluir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diluir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agachar",
+    slug: "lemma:agachar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agachar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enmarcar",
+    slug: "lemma:enmarcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enmarcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contagiar",
+    slug: "lemma:contagiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contagiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encarar",
+    slug: "lemma:encarar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encarar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comenzar",
+    slug: "lemma:comenzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comenzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: realizar",
+    slug: "lemma:realizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "realizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abrir",
+    slug: "lemma:abrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: endurecer",
+    slug: "lemma:endurecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "endurecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retratar",
+    slug: "lemma:retratar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retratar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: indignar",
+    slug: "lemma:indignar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "indignar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caer",
+    slug: "lemma:caer",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "caer" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coronar",
+    slug: "lemma:coronar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coronar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cancelar",
+    slug: "lemma:cancelar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cancelar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: establecer",
+    slug: "lemma:establecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "establecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coger",
+    slug: "lemma:coger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trepar",
+    slug: "lemma:trepar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trepar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apasionar",
+    slug: "lemma:apasionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apasionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: humillar",
+    slug: "lemma:humillar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "humillar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vacilar",
+    slug: "lemma:vacilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vacilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trascender",
+    slug: "lemma:trascender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trascender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rascar",
+    slug: "lemma:rascar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rascar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: capacitar",
+    slug: "lemma:capacitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "capacitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: insertar",
+    slug: "lemma:insertar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "insertar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: concurrir",
+    slug: "lemma:concurrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "concurrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prevalecer",
+    slug: "lemma:prevalecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prevalecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: crujir",
+    slug: "lemma:crujir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "crujir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: buscar",
+    slug: "lemma:buscar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "buscar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escribir",
+    slug: "lemma:escribir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escribir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recordar",
+    slug: "lemma:recordar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recordar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentar",
+    slug: "lemma:sentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resultar",
+    slug: "lemma:resultar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resultar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mostrar",
+    slug: "lemma:mostrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mostrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: correr",
+    slug: "lemma:correr",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "correr" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comer",
+    slug: "lemma:comer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: meter",
+    slug: "lemma:meter",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "meter" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dormir",
+    slug: "lemma:dormir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dormir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dedicar",
+    slug: "lemma:dedicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dedicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sufrir",
+    slug: "lemma:sufrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sufrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocupar",
+    slug: "lemma:ocupar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocupar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: representar",
+    slug: "lemma:representar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "representar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caminar",
+    slug: "lemma:caminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: faltar",
+    slug: "lemma:faltar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "faltar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acordar",
+    slug: "lemma:acordar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acordar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iniciar",
+    slug: "lemma:iniciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iniciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elegir",
+    slug: "lemma:elegir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elegir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preparar",
+    slug: "lemma:preparar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preparar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: significar",
+    slug: "lemma:significar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "significar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cubrir",
+    slug: "lemma:cubrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cubrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llorar",
+    slug: "lemma:llorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: provocar",
+    slug: "lemma:provocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "provocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abandonar",
+    slug: "lemma:abandonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abandonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tirar",
+    slug: "lemma:tirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: guardar",
+    slug: "lemma:guardar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "guardar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gritar",
+    slug: "lemma:gritar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gritar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: permanecer",
+    slug: "lemma:permanecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "permanecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cuidar",
+    slug: "lemma:cuidar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cuidar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: actuar",
+    slug: "lemma:actuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "actuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: negar",
+    slug: "lemma:negar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "negar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anunciar",
+    slug: "lemma:anunciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anunciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disponer",
+    slug: "lemma:disponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sostener",
+    slug: "lemma:sostener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sostener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: colocar",
+    slug: "lemma:colocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "colocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recoger",
+    slug: "lemma:recoger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recoger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aprovechar",
+    slug: "lemma:aprovechar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aprovechar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enfrentar",
+    slug: "lemma:enfrentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enfrentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: corresponder",
+    slug: "lemma:corresponder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "corresponder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escapar",
+    slug: "lemma:escapar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escapar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: causar",
+    slug: "lemma:causar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "causar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adquirir",
+    slug: "lemma:adquirir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adquirir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disfrutar",
+    slug: "lemma:disfrutar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disfrutar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recorrer",
+    slug: "lemma:recorrer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recorrer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conservar",
+    slug: "lemma:conservar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conservar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atender",
+    slug: "lemma:atender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: definir",
+    slug: "lemma:definir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "definir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: introducir",
+    slug: "lemma:introducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "introducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transformar",
+    slug: "lemma:transformar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transformar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encargar",
+    slug: "lemma:encargar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encargar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: concluir",
+    slug: "lemma:concluir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "concluir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asumir",
+    slug: "lemma:asumir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asumir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exponer",
+    slug: "lemma:exponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enterar",
+    slug: "lemma:enterar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enterar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tender",
+    slug: "lemma:tender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acostumbrar",
+    slug: "lemma:acostumbrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acostumbrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soñar",
+    slug: "lemma:soñar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soñar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: confirmar",
+    slug: "lemma:confirmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "confirmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: denominar",
+    slug: "lemma:denominar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "denominar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abordar",
+    slug: "lemma:abordar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abordar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tragar",
+    slug: "lemma:tragar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tragar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aspirar",
+    slug: "lemma:aspirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aspirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encabezar",
+    slug: "lemma:encabezar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encabezar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: criar",
+    slug: "lemma:criar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "criar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: especializar",
+    slug: "lemma:especializar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "especializar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deshacer",
+    slug: "lemma:deshacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deshacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: designar",
+    slug: "lemma:designar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "designar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estimular",
+    slug: "lemma:estimular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estimular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: renovar",
+    slug: "lemma:renovar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "renovar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: competir",
+    slug: "lemma:competir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "competir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: absorber",
+    slug: "lemma:absorber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "absorber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apostar",
+    slug: "lemma:apostar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apostar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atribuir",
+    slug: "lemma:atribuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atribuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: relatar",
+    slug: "lemma:relatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "relatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: redactar",
+    slug: "lemma:redactar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "redactar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evocar",
+    slug: "lemma:evocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: despreciar",
+    slug: "lemma:despreciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "despreciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: impartir",
+    slug: "lemma:impartir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "impartir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anular",
+    slug: "lemma:anular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: torcer",
+    slug: "lemma:torcer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "torcer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: colar",
+    slug: "lemma:colar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "colar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: postular",
+    slug: "lemma:postular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "postular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ganar",
+    slug: "lemma:ganar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ganar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perder",
+    slug: "lemma:perder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detener",
+    slug: "lemma:detener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pusistir",
+    slug: "lemma:pusistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pusistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hablir",
+    slug: "lemma:hablir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hablir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dejastear",
+    slug: "lemma:dejastear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dejastear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encontrarás",
+    slug: "lemma:encontrarás",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encontrarás" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: referir",
+    slug: "lemma:referir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "referir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: controlar",
+    slug: "lemma:controlar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "controlar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desear",
+    slug: "lemma:desear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprender",
+    slug: "lemma:comprender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mirár",
+    slug: "lemma:mirár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mirár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vinir",
+    slug: "lemma:vinir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vinir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: salgar",
+    slug: "lemma:salgar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "salgar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desprender",
+    slug: "lemma:desprender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desprender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: merir",
+    slug: "lemma:merir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "merir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fracasar",
+    slug: "lemma:fracasar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fracasar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mir",
+    slug: "lemma:mir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "mir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tratéar",
+    slug: "lemma:tratéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tratéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentiar",
+    slug: "lemma:sentiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quesiérar",
+    slug: "lemma:quesiérar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quesiérar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traspasar",
+    slug: "lemma:traspasar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traspasar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contárar",
+    slug: "lemma:contárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acerquar",
+    slug: "lemma:acerquar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acerquar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: busquar",
+    slug: "lemma:busquar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "busquar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: realizár",
+    slug: "lemma:realizár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "realizár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empezár",
+    slug: "lemma:empezár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empezár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: creír",
+    slug: "lemma:creír",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "creír" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrastar",
+    slug: "lemma:entrastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parecistar",
+    slug: "lemma:parecistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parecistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: indicáir",
+    slug: "lemma:indicáir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "indicáir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recordár",
+    slug: "lemma:recordár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recordár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oír",
+    slug: "lemma:oír",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "oír" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aparecer",
+    slug: "lemma:aparecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aparecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entremar",
+    slug: "lemma:entremar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entremar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: repetir",
+    slug: "lemma:repetir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "repetir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: considerar",
+    slug: "lemma:considerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "considerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: murar",
+    slug: "lemma:murar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "murar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: produzcar",
+    slug: "lemma:produzcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "produzcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comencer",
+    slug: "lemma:comencer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comencer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preguntir",
+    slug: "lemma:preguntir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preguntir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acompañar",
+    slug: "lemma:acompañar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acompañar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preguntár",
+    slug: "lemma:preguntár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preguntár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: impedir",
+    slug: "lemma:impedir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "impedir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: permitár",
+    slug: "lemma:permitár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "permitár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: siendo",
+    slug: "lemma:siendo",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "siendo" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escuchar",
+    slug: "lemma:escuchar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escuchar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: participar",
+    slug: "lemma:participar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "participar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: viajar",
+    slug: "lemma:viajar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "viajar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comenzár",
+    slug: "lemma:comenzár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comenzár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pesar",
+    slug: "lemma:pesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: declarar",
+    slug: "lemma:declarar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "declarar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oyérar",
+    slug: "lemma:oyérar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oyérar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: terminastar",
+    slug: "lemma:terminastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "terminastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abriér",
+    slug: "lemma:abriér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abriér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: follar",
+    slug: "lemma:follar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "follar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oístear",
+    slug: "lemma:oístear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oístear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: poseer",
+    slug: "lemma:poseer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "poseer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lograr",
+    slug: "lemma:lograr",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lograr" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: levantár",
+    slug: "lemma:levantár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "levantár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: terminár",
+    slug: "lemma:terminár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "terminár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vestir",
+    slug: "lemma:vestir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vestir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oyerar",
+    slug: "lemma:oyerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oyerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: jugoner",
+    slug: "lemma:jugoner",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "jugoner" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trajistir",
+    slug: "lemma:trajistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trajistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trajener",
+    slug: "lemma:trajener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trajener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acomodar",
+    slug: "lemma:acomodar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acomodar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consider",
+    slug: "lemma:consider",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consider" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acabéar",
+    slug: "lemma:acabéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acabéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tocastar",
+    slug: "lemma:tocastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tocastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: formir",
+    slug: "lemma:formir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "formir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trajer",
+    slug: "lemma:trajer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trajer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: former",
+    slug: "lemma:former",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "former" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alcanzar",
+    slug: "lemma:alcanzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alcanzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cambiár",
+    slug: "lemma:cambiár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cambiár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entretener",
+    slug: "lemma:entretener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entretener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprar",
+    slug: "lemma:comprar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprastar",
+    slug: "lemma:comprastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: logrener",
+    slug: "lemma:logrener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "logrener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: necesitár",
+    slug: "lemma:necesitár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "necesitár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: teñir",
+    slug: "lemma:teñir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "teñir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lográar",
+    slug: "lemma:lográar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lográar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: batir",
+    slug: "lemma:batir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "batir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desarrollár",
+    slug: "lemma:desarrollár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desarrollár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acontecer",
+    slug: "lemma:acontecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acontecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amparar",
+    slug: "lemma:amparar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "amparar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desarrollastar",
+    slug: "lemma:desarrollastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desarrollastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exceder",
+    slug: "lemma:exceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: come",
+    slug: "lemma:come",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "come" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudastar",
+    slug: "lemma:ayudastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tratener",
+    slug: "lemma:tratener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tratener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cumplár",
+    slug: "lemma:cumplár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cumplár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cayérar",
+    slug: "lemma:cayérar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cayérar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudár",
+    slug: "lemma:ayudár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: levanto",
+    slug: "lemma:levanto",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "levanto" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentár",
+    slug: "lemma:sentár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mostrastar",
+    slug: "lemma:mostrastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mostrastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudo",
+    slug: "lemma:ayudo",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudo" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comar",
+    slug: "lemma:comar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: expliquir",
+    slug: "lemma:expliquir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "expliquir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mostrár",
+    slug: "lemma:mostrár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mostrár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: levantá",
+    slug: "lemma:levantá",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "levantá" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resultár",
+    slug: "lemma:resultár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resultár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estado",
+    slug: "lemma:estado",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estado" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llenar",
+    slug: "lemma:llenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enseñar",
+    slug: "lemma:enseñar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enseñar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prestar",
+    slug: "lemma:prestar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prestar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convirtir",
+    slug: "lemma:convirtir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convirtir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: afectar",
+    slug: "lemma:afectar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "afectar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: yendo",
+    slug: "lemma:yendo",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "yendo" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: teniendo",
+    slug: "lemma:teniendo",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "teniendo" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rodear",
+    slug: "lemma:rodear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rodear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agregar",
+    slug: "lemma:agregar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agregar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emplear",
+    slug: "lemma:emplear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emplear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: probar",
+    slug: "lemma:probar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "probar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retirar",
+    slug: "lemma:retirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estando",
+    slug: "lemma:estando",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estando" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: determinar",
+    slug: "lemma:determinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "determinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reflejar",
+    slug: "lemma:reflejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reflejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dividir",
+    slug: "lemma:dividir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dividir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agradecer",
+    slug: "lemma:agradecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agradecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sumar",
+    slug: "lemma:sumar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sumar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intervenir",
+    slug: "lemma:intervenir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intervenir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proceder",
+    slug: "lemma:proceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocultar",
+    slug: "lemma:ocultar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocultar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: impulsar",
+    slug: "lemma:impulsar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "impulsar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esconder",
+    slug: "lemma:esconder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esconder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prometer",
+    slug: "lemma:prometer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prometer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apartar",
+    slug: "lemma:apartar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apartar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: modificar",
+    slug: "lemma:modificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "modificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acostar",
+    slug: "lemma:acostar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acostar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conversar",
+    slug: "lemma:conversar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conversar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: completar",
+    slug: "lemma:completar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "completar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ampliar",
+    slug: "lemma:ampliar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ampliar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: brillar",
+    slug: "lemma:brillar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "brillar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oir",
+    slug: "lemma:oir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "oir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gastar",
+    slug: "lemma:gastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: explotar",
+    slug: "lemma:explotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "explotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reportar",
+    slug: "lemma:reportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mentir",
+    slug: "lemma:mentir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mentir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ajustar",
+    slug: "lemma:ajustar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ajustar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presidir",
+    slug: "lemma:presidir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presidir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: capturar",
+    slug: "lemma:capturar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "capturar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desviar",
+    slug: "lemma:desviar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desviar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: publiquir",
+    slug: "lemma:publiquir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "publiquir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resaltar",
+    slug: "lemma:resaltar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resaltar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reforzar",
+    slug: "lemma:reforzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reforzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aliviar",
+    slug: "lemma:aliviar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aliviar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: culminar",
+    slug: "lemma:culminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "culminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sudar",
+    slug: "lemma:sudar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sudar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aludir",
+    slug: "lemma:aludir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aludir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tranquilizar",
+    slug: "lemma:tranquilizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tranquilizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empeñar",
+    slug: "lemma:empeñar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empeñar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comportar",
+    slug: "lemma:comportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: graduar",
+    slug: "lemma:graduar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "graduar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sancionar",
+    slug: "lemma:sancionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sancionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emigrar",
+    slug: "lemma:emigrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emigrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: complacer",
+    slug: "lemma:complacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "complacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abundar",
+    slug: "lemma:abundar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abundar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: compensar",
+    slug: "lemma:compensar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "compensar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: restaurar",
+    slug: "lemma:restaurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "restaurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exportar",
+    slug: "lemma:exportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: latir",
+    slug: "lemma:latir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "latir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: viviér",
+    slug: "lemma:viviér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "viviér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esperáe",
+    slug: "lemma:esperáe",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esperáe" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gemir",
+    slug: "lemma:gemir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gemir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: revivir",
+    slug: "lemma:revivir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "revivir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: restablecer",
+    slug: "lemma:restablecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "restablecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estrechar",
+    slug: "lemma:estrechar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estrechar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reformar",
+    slug: "lemma:reformar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reformar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deteriorar",
+    slug: "lemma:deteriorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deteriorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llamár",
+    slug: "lemma:llamár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llamár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: condicionar",
+    slug: "lemma:condicionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "condicionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: afilar",
+    slug: "lemma:afilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "afilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dejastir",
+    slug: "lemma:dejastir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dejastir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: poderar",
+    slug: "lemma:poderar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "poderar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llamás",
+    slug: "lemma:llamás",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llamás" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: espera",
+    slug: "lemma:espera",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "espera" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trabajár",
+    slug: "lemma:trabajár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trabajár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: buscárar",
+    slug: "lemma:buscárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "buscárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tomo",
+    slug: "lemma:tomo",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "tomo" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pensárar",
+    slug: "lemma:pensárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pensárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recibo",
+    slug: "lemma:recibo",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recibo" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: creaste",
+    slug: "lemma:creaste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "creaste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empecér",
+    slug: "lemma:empecér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empecér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trabajir",
+    slug: "lemma:trabajir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trabajir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empecer",
+    slug: "lemma:empecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iaber",
+    slug: "lemma:iaber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iaber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: explicastar",
+    slug: "lemma:explicastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "explicastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: compremer",
+    slug: "lemma:compremer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "compremer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traigar",
+    slug: "lemma:traigar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traigar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acabárar",
+    slug: "lemma:acabárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acabárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ofrezcer",
+    slug: "lemma:ofrezcer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ofrezcer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: usir",
+    slug: "lemma:usir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "usir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alcanzár",
+    slug: "lemma:alcanzár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alcanzár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cambiér",
+    slug: "lemma:cambiér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cambiér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aprendistar",
+    slug: "lemma:aprendistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aprendistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: saquér",
+    slug: "lemma:saquér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "saquér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostrar",
+    slug: "lemma:demostrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: indicar",
+    slug: "lemma:indicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "indicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mantuvistir",
+    slug: "lemma:mantuvistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mantuvistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escuchár",
+    slug: "lemma:escuchár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escuchár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: utilicéar",
+    slug: "lemma:utilicéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "utilicéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dormar",
+    slug: "lemma:dormar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dormar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intentéar",
+    slug: "lemma:intentéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intentéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reconozcir",
+    slug: "lemma:reconozcir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reconozcir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aparezcar",
+    slug: "lemma:aparezcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aparezcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nazcar",
+    slug: "lemma:nazcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "nazcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nací",
+    slug: "lemma:nací",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "nací" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: duerma",
+    slug: "lemma:duerma",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "duerma" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: echastar",
+    slug: "lemma:echastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "echastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtener",
+    slug: "lemma:obtener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptálse",
+    slug: "lemma:aceptálse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptálse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dedicuir",
+    slug: "lemma:dedicuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dedicuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprendir",
+    slug: "lemma:comprendir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprendir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dedicárar",
+    slug: "lemma:dedicárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dedicárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evitár",
+    slug: "lemma:evitár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evitár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: olvido",
+    slug: "lemma:olvido",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "olvido" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proteger",
+    slug: "lemma:proteger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proteger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: instalar",
+    slug: "lemma:instalar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "instalar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aprobar",
+    slug: "lemma:aprobar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aprobar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtenger",
+    slug: "lemma:obtenger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtenger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: manifestar",
+    slug: "lemma:manifestar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "manifestar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recomendar",
+    slug: "lemma:recomendar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recomendar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intentá",
+    slug: "lemma:intentá",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intentá" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: establecistar",
+    slug: "lemma:establecistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "establecistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: subiér",
+    slug: "lemma:subiér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "subiér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sucediér",
+    slug: "lemma:sucediér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sucediér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocupér",
+    slug: "lemma:ocupér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocupér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrastrar",
+    slug: "lemma:arrastrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrastrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: representár",
+    slug: "lemma:representár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "representár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cerrar",
+    slug: "lemma:cerrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cerrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arreglar",
+    slug: "lemma:arreglar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arreglar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pintar",
+    slug: "lemma:pintar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pintar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caminár",
+    slug: "lemma:caminár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caminár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elecir",
+    slug: "lemma:elecir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elecir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: importár",
+    slug: "lemma:importár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "importár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cerreír",
+    slug: "lemma:cerreír",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cerreír" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostráer",
+    slug: "lemma:demostráer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostráer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: eligir",
+    slug: "lemma:eligir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "eligir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destacuar",
+    slug: "lemma:destacuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destacuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caminarér",
+    slug: "lemma:caminarér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caminarér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iniciéar",
+    slug: "lemma:iniciéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iniciéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: admitir",
+    slug: "lemma:admitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "admitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostrastar",
+    slug: "lemma:demostrastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostrastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: interesar",
+    slug: "lemma:interesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "interesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: crezcar",
+    slug: "lemma:crezcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "crezcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: matar",
+    slug: "lemma:matar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "matar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: observer",
+    slug: "lemma:observer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "observer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostrastear",
+    slug: "lemma:demostrastear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostrastear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elejir",
+    slug: "lemma:elejir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elejir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fijar",
+    slug: "lemma:fijar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fijar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: envidiar",
+    slug: "lemma:envidiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "envidiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enfermar",
+    slug: "lemma:enfermar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enfermar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: palpar",
+    slug: "lemma:palpar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "palpar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pulsar",
+    slug: "lemma:pulsar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pulsar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pillar",
+    slug: "lemma:pillar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pillar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estrellar",
+    slug: "lemma:estrellar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estrellar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: percatar",
+    slug: "lemma:percatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "percatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrodillar",
+    slug: "lemma:arrodillar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrodillar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dispersar",
+    slug: "lemma:dispersar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dispersar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: relajar",
+    slug: "lemma:relajar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "relajar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vagar",
+    slug: "lemma:vagar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vagar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: valer",
+    slug: "lemma:valer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "valer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apoyar",
+    slug: "lemma:apoyar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apoyar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lanzar",
+    slug: "lemma:lanzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lanzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: divertir",
+    slug: "lemma:divertir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "divertir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desempeñar",
+    slug: "lemma:desempeñar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desempeñar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desconocer",
+    slug: "lemma:desconocer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desconocer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: padecer",
+    slug: "lemma:padecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "padecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: penetrar",
+    slug: "lemma:penetrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "penetrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agitar",
+    slug: "lemma:agitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: centrar",
+    slug: "lemma:centrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "centrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detectar",
+    slug: "lemma:detectar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detectar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cultivar",
+    slug: "lemma:cultivar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cultivar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adivinar",
+    slug: "lemma:adivinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adivinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: colaborar",
+    slug: "lemma:colaborar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "colaborar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: valorar",
+    slug: "lemma:valorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "valorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dibujar",
+    slug: "lemma:dibujar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dibujar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emprender",
+    slug: "lemma:emprender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emprender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reproducir",
+    slug: "lemma:reproducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reproducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: secar",
+    slug: "lemma:secar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "secar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: distribuir",
+    slug: "lemma:distribuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "distribuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recurrir",
+    slug: "lemma:recurrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recurrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: precisar",
+    slug: "lemma:precisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "precisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: solucionar",
+    slug: "lemma:solucionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "solucionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reaccionar",
+    slug: "lemma:reaccionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reaccionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enterrar",
+    slug: "lemma:enterrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enterrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dictar",
+    slug: "lemma:dictar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dictar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abarcar",
+    slug: "lemma:abarcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abarcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: concebir",
+    slug: "lemma:concebir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "concebir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: combatir",
+    slug: "lemma:combatir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "combatir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: seleccionar",
+    slug: "lemma:seleccionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "seleccionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: satisfacer",
+    slug: "lemma:satisfacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "satisfacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: provenir",
+    slug: "lemma:provenir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "provenir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transportar",
+    slug: "lemma:transportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estallar",
+    slug: "lemma:estallar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estallar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conquistar",
+    slug: "lemma:conquistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conquistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: regular",
+    slug: "lemma:regular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "regular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: castigar",
+    slug: "lemma:castigar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "castigar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lamentar",
+    slug: "lemma:lamentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lamentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desplazar",
+    slug: "lemma:desplazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desplazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: complicar",
+    slug: "lemma:complicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "complicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: calentar",
+    slug: "lemma:calentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "calentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: depositar",
+    slug: "lemma:depositar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "depositar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: originar",
+    slug: "lemma:originar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "originar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reflexionar",
+    slug: "lemma:reflexionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reflexionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reemplazar",
+    slug: "lemma:reemplazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reemplazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cansar",
+    slug: "lemma:cansar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cansar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: captar",
+    slug: "lemma:captar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "captar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vincular",
+    slug: "lemma:vincular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vincular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inaugurar",
+    slug: "lemma:inaugurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inaugurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: constar",
+    slug: "lemma:constar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "constar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: protestar",
+    slug: "lemma:protestar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "protestar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asignar",
+    slug: "lemma:asignar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asignar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: educar",
+    slug: "lemma:educar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "educar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: involucrar",
+    slug: "lemma:involucrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "involucrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exclamar",
+    slug: "lemma:exclamar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exclamar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: impresionar",
+    slug: "lemma:impresionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "impresionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rogar",
+    slug: "lemma:rogar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rogar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: clasificar",
+    slug: "lemma:clasificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "clasificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acoger",
+    slug: "lemma:acoger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acoger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: burlar",
+    slug: "lemma:burlar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "burlar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: formular",
+    slug: "lemma:formular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "formular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dotar",
+    slug: "lemma:dotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reventar",
+    slug: "lemma:reventar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reventar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reservar",
+    slug: "lemma:reservar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reservar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cocinar",
+    slug: "lemma:cocinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cocinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: frenar",
+    slug: "lemma:frenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "frenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prevenir",
+    slug: "lemma:prevenir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prevenir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cenar",
+    slug: "lemma:cenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suspirar",
+    slug: "lemma:suspirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suspirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proveer",
+    slug: "lemma:proveer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proveer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asombrar",
+    slug: "lemma:asombrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asombrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quebrar",
+    slug: "lemma:quebrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quebrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descartar",
+    slug: "lemma:descartar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descartar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: distraer",
+    slug: "lemma:distraer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "distraer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sacrificar",
+    slug: "lemma:sacrificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sacrificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: devorar",
+    slug: "lemma:devorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "devorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demandar",
+    slug: "lemma:demandar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demandar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contraer",
+    slug: "lemma:contraer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contraer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agradar",
+    slug: "lemma:agradar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agradar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: restringir",
+    slug: "lemma:restringir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "restringir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentenciar",
+    slug: "lemma:sentenciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentenciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proclamar",
+    slug: "lemma:proclamar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proclamar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aconsejar",
+    slug: "lemma:aconsejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aconsejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ahogar",
+    slug: "lemma:ahogar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ahogar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: administrar",
+    slug: "lemma:administrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "administrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evolucionar",
+    slug: "lemma:evolucionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evolucionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vigilar",
+    slug: "lemma:vigilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vigilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imitar",
+    slug: "lemma:imitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: exhibir",
+    slug: "lemma:exhibir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "exhibir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: morder",
+    slug: "lemma:morder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "morder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enfocar",
+    slug: "lemma:enfocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enfocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: multiplicar",
+    slug: "lemma:multiplicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "multiplicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rodar",
+    slug: "lemma:rodar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rodar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: extrañar",
+    slug: "lemma:extrañar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "extrañar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fomentar",
+    slug: "lemma:fomentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fomentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: subrayar",
+    slug: "lemma:subrayar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "subrayar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estirar",
+    slug: "lemma:estirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: negociar",
+    slug: "lemma:negociar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "negociar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proseguir",
+    slug: "lemma:proseguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proseguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: averiguar",
+    slug: "lemma:averiguar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "averiguar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: residir",
+    slug: "lemma:residir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "residir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estrenar",
+    slug: "lemma:estrenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estrenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: editar",
+    slug: "lemma:editar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "editar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: charlar",
+    slug: "lemma:charlar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "charlar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: financiar",
+    slug: "lemma:financiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "financiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intuir",
+    slug: "lemma:intuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: narrar",
+    slug: "lemma:narrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "narrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retroceder",
+    slug: "lemma:retroceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retroceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tropezar",
+    slug: "lemma:tropezar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tropezar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: explorar",
+    slug: "lemma:explorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "explorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: herir",
+    slug: "lemma:herir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "herir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reiterar",
+    slug: "lemma:reiterar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reiterar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: posar",
+    slug: "lemma:posar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "posar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consolidar",
+    slug: "lemma:consolidar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consolidar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: heredar",
+    slug: "lemma:heredar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "heredar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entusiasmar",
+    slug: "lemma:entusiasmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entusiasmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adornar",
+    slug: "lemma:adornar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adornar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desplegar",
+    slug: "lemma:desplegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desplegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presenciar",
+    slug: "lemma:presenciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presenciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: decorar",
+    slug: "lemma:decorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "decorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disolver",
+    slug: "lemma:disolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: restar",
+    slug: "lemma:restar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "restar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destrozar",
+    slug: "lemma:destrozar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destrozar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: triunfar",
+    slug: "lemma:triunfar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "triunfar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agrupar",
+    slug: "lemma:agrupar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agrupar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demorar",
+    slug: "lemma:demorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inscribir",
+    slug: "lemma:inscribir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inscribir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retomar",
+    slug: "lemma:retomar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retomar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enredar",
+    slug: "lemma:enredar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enredar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estremecer",
+    slug: "lemma:estremecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estremecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anticipar",
+    slug: "lemma:anticipar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anticipar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: complementar",
+    slug: "lemma:complementar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "complementar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrevistar",
+    slug: "lemma:entrevistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrevistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fascinar",
+    slug: "lemma:fascinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fascinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: albergar",
+    slug: "lemma:albergar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "albergar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: revolver",
+    slug: "lemma:revolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "revolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preceder",
+    slug: "lemma:preceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: paralizar",
+    slug: "lemma:paralizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "paralizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reparar",
+    slug: "lemma:reparar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reparar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: remontar",
+    slug: "lemma:remontar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "remontar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arriesgar",
+    slug: "lemma:arriesgar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arriesgar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tolerar",
+    slug: "lemma:tolerar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tolerar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: espantar",
+    slug: "lemma:espantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "espantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: profundizar",
+    slug: "lemma:profundizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "profundizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: radicar",
+    slug: "lemma:radicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "radicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emocionar",
+    slug: "lemma:emocionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emocionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rozar",
+    slug: "lemma:rozar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rozar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: concretar",
+    slug: "lemma:concretar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "concretar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inducir",
+    slug: "lemma:inducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: excluir",
+    slug: "lemma:excluir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "excluir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parir",
+    slug: "lemma:parir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apresurar",
+    slug: "lemma:apresurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apresurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: velar",
+    slug: "lemma:velar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "velar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: debatir",
+    slug: "lemma:debatir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "debatir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acertar",
+    slug: "lemma:acertar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acertar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emerger",
+    slug: "lemma:emerger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emerger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bendecir",
+    slug: "lemma:bendecir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bendecir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bloquear",
+    slug: "lemma:bloquear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bloquear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: meditar",
+    slug: "lemma:meditar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "meditar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desafiar",
+    slug: "lemma:desafiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desafiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: seribir",
+    slug: "lemma:seribir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "seribir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: er",
+    slug: "lemma:er",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "er" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: feer",
+    slug: "lemma:feer",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "feer" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: huberar",
+    slug: "lemma:huberar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "huberar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tuvernear",
+    slug: "lemma:tuvernear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tuvernear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tuvir",
+    slug: "lemma:tuvir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tuvir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estuvistar",
+    slug: "lemma:estuvistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estuvistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hicistir",
+    slug: "lemma:hicistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hicistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hager",
+    slug: "lemma:hager",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hager" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hiciér",
+    slug: "lemma:hiciér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hiciér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dijistir",
+    slug: "lemma:dijistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dijistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dijér",
+    slug: "lemma:dijér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dijér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fuiste",
+    slug: "lemma:fuiste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fuiste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: digir",
+    slug: "lemma:digir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "digir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: visto",
+    slug: "lemma:visto",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "visto" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: distar",
+    slug: "lemma:distar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "distar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: distir",
+    slug: "lemma:distir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "distir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dado",
+    slug: "lemma:dado",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "dado" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derar",
+    slug: "lemma:derar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sepáir",
+    slug: "lemma:sepáir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sepáir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pasár",
+    slug: "lemma:pasár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pasár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ensayar",
+    slug: "lemma:ensayar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ensayar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: protagonizar",
+    slug: "lemma:protagonizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "protagonizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cazar",
+    slug: "lemma:cazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derramar",
+    slug: "lemma:derramar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derramar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intercambiar",
+    slug: "lemma:intercambiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intercambiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suscribir",
+    slug: "lemma:suscribir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suscribir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: chupar",
+    slug: "lemma:chupar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "chupar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resonar",
+    slug: "lemma:resonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suscitar",
+    slug: "lemma:suscitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suscitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: insinuar",
+    slug: "lemma:insinuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "insinuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preservar",
+    slug: "lemma:preservar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preservar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: almorzar",
+    slug: "lemma:almorzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "almorzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: idear",
+    slug: "lemma:idear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "idear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suministrar",
+    slug: "lemma:suministrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suministrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: debilitar",
+    slug: "lemma:debilitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "debilitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: regar",
+    slug: "lemma:regar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "regar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: persistir",
+    slug: "lemma:persistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "persistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: filtrar",
+    slug: "lemma:filtrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "filtrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: equivaler",
+    slug: "lemma:equivaler",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "equivaler" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: avergonzar",
+    slug: "lemma:avergonzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "avergonzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traicionar",
+    slug: "lemma:traicionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traicionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: susurrar",
+    slug: "lemma:susurrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "susurrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conllevar",
+    slug: "lemma:conllevar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conllevar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: irritar",
+    slug: "lemma:irritar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "irritar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resignar",
+    slug: "lemma:resignar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resignar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asimilar",
+    slug: "lemma:asimilar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asimilar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derrumbar",
+    slug: "lemma:derrumbar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derrumbar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lastimar",
+    slug: "lemma:lastimar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lastimar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desbordar",
+    slug: "lemma:desbordar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desbordar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presumir",
+    slug: "lemma:presumir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presumir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: refugiar",
+    slug: "lemma:refugiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "refugiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rondar",
+    slug: "lemma:rondar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rondar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: barrer",
+    slug: "lemma:barrer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "barrer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apurar",
+    slug: "lemma:apurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enfriar",
+    slug: "lemma:enfriar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enfriar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transferir",
+    slug: "lemma:transferir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transferir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enfatizar",
+    slug: "lemma:enfatizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enfatizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recitar",
+    slug: "lemma:recitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: recortar",
+    slug: "lemma:recortar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "recortar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: empapar",
+    slug: "lemma:empapar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "empapar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apoderar",
+    slug: "lemma:apoderar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apoderar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: espiar",
+    slug: "lemma:espiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "espiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contaminar",
+    slug: "lemma:contaminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contaminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: predominar",
+    slug: "lemma:predominar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "predominar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: implantar",
+    slug: "lemma:implantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "implantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descuidar",
+    slug: "lemma:descuidar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descuidar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: predicar",
+    slug: "lemma:predicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "predicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transitar",
+    slug: "lemma:transitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: topar",
+    slug: "lemma:topar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "topar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: progresar",
+    slug: "lemma:progresar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "progresar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: constatar",
+    slug: "lemma:constatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "constatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: frotar",
+    slug: "lemma:frotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "frotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: festejar",
+    slug: "lemma:festejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "festejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escurrir",
+    slug: "lemma:escurrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escurrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apelar",
+    slug: "lemma:apelar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apelar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sustentar",
+    slug: "lemma:sustentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sustentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: madurar",
+    slug: "lemma:madurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "madurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: congelar",
+    slug: "lemma:congelar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "congelar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: simular",
+    slug: "lemma:simular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "simular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vaciar",
+    slug: "lemma:vaciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vaciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reprimir",
+    slug: "lemma:reprimir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reprimir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tumbar",
+    slug: "lemma:tumbar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tumbar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enlazar",
+    slug: "lemma:enlazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enlazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: yacer",
+    slug: "lemma:yacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "yacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: despojar",
+    slug: "lemma:despojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "despojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: plasmar",
+    slug: "lemma:plasmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "plasmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perfeccionar",
+    slug: "lemma:perfeccionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perfeccionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sobrepasar",
+    slug: "lemma:sobrepasar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sobrepasar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: predecir",
+    slug: "lemma:predecir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "predecir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desencadenar",
+    slug: "lemma:desencadenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desencadenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tentar",
+    slug: "lemma:tentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descifrar",
+    slug: "lemma:descifrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descifrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: potenciar",
+    slug: "lemma:potenciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "potenciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atentar",
+    slug: "lemma:atentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dificultar",
+    slug: "lemma:dificultar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dificultar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sellar",
+    slug: "lemma:sellar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sellar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: duplicar",
+    slug: "lemma:duplicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "duplicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: agravar",
+    slug: "lemma:agravar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "agravar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: amarrar",
+    slug: "lemma:amarrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "amarrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desenvolver",
+    slug: "lemma:desenvolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desenvolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: derribar",
+    slug: "lemma:derribar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "derribar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aflojar",
+    slug: "lemma:aflojar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aflojar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: envejecer",
+    slug: "lemma:envejecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "envejecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cagar",
+    slug: "lemma:cagar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cagar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: invocar",
+    slug: "lemma:invocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "invocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dejir",
+    slug: "lemma:dejir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dejir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parezcar",
+    slug: "lemma:parezcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parezcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hablár",
+    slug: "lemma:hablár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hablár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: paber",
+    slug: "lemma:paber",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "paber" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: segár",
+    slug: "lemma:segár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "segár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encontrastar",
+    slug: "lemma:encontrastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encontrastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llevir",
+    slug: "lemma:llevir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llevir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encontrér",
+    slug: "lemma:encontrér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encontrér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encontrár",
+    slug: "lemma:encontrár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encontrár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: venger",
+    slug: "lemma:venger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "venger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mirastir",
+    slug: "lemma:mirastir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mirastir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: llaméar",
+    slug: "lemma:llaméar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "llaméar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: miremer",
+    slug: "lemma:miremer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "miremer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conozcar",
+    slug: "lemma:conozcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conozcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tomastir",
+    slug: "lemma:tomastir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tomastir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tomiar",
+    slug: "lemma:tomiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tomiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tratáar",
+    slug: "lemma:tratáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tratáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentiér",
+    slug: "lemma:sentiér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentiér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acerquér",
+    slug: "lemma:acerquér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acerquér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vivar",
+    slug: "lemma:vivar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vivar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esperéar",
+    slug: "lemma:esperéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esperéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esperastar",
+    slug: "lemma:esperastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esperastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: esperár",
+    slug: "lemma:esperár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "esperár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gustir",
+    slug: "lemma:gustir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gustir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contéar",
+    slug: "lemma:contéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gustárar",
+    slug: "lemma:gustárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gustárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gustibar",
+    slug: "lemma:gustibar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gustibar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trabajábar",
+    slug: "lemma:trabajábar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trabajábar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contálar",
+    slug: "lemma:contálar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contálar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: busquér",
+    slug: "lemma:busquér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "busquér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perdistir",
+    slug: "lemma:perdistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perdistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escribistir",
+    slug: "lemma:escribistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escribistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: realizás",
+    slug: "lemma:realizás",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "realizás" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: realicéar",
+    slug: "lemma:realicéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "realicéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrár",
+    slug: "lemma:entrár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: leyérar",
+    slug: "lemma:leyérar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "leyérar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: permitír",
+    slug: "lemma:permitír",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "permitír" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: produzcáar",
+    slug: "lemma:produzcáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "produzcáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comencéar",
+    slug: "lemma:comencéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comencéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: presentirse",
+    slug: "lemma:presentirse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "presentirse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: produjér",
+    slug: "lemma:produjér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "produjér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: produjir",
+    slug: "lemma:produjir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "produjir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caístar",
+    slug: "lemma:caístar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caístar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentibar",
+    slug: "lemma:sentibar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentibar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sentastar",
+    slug: "lemma:sentastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sentastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cambiábar",
+    slug: "lemma:cambiábar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cambiábar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oirear",
+    slug: "lemma:oirear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oirear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sacastar",
+    slug: "lemma:sacastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sacastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sacer",
+    slug: "lemma:sacer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sacer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: logréar",
+    slug: "lemma:logréar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "logréar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consideráir",
+    slug: "lemma:consideráir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consideráir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trajérar",
+    slug: "lemma:trajérar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trajérar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: formár",
+    slug: "lemma:formár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "formár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alcancemer",
+    slug: "lemma:alcancemer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alcancemer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: jugastir",
+    slug: "lemma:jugastir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "jugastir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: compráir",
+    slug: "lemma:compráir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "compráir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lograstar",
+    slug: "lemma:lograstar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lograstar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: jugár",
+    slug: "lemma:jugár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "jugár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alcanzaste",
+    slug: "lemma:alcanzaste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alcanzaste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alcanzáar",
+    slug: "lemma:alcanzáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alcanzáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lográr",
+    slug: "lemma:lográr",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lográr" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: corrar",
+    slug: "lemma:corrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "corrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprár",
+    slug: "lemma:comprár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pagár",
+    slug: "lemma:pagár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pagár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coméar",
+    slug: "lemma:coméar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coméar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cumplistir",
+    slug: "lemma:cumplistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cumplistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: compréerse",
+    slug: "lemma:compréerse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "compréerse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acabáar",
+    slug: "lemma:acabáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acabáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudér",
+    slug: "lemma:ayudér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cumpliér",
+    slug: "lemma:cumpliér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cumpliér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: corristir",
+    slug: "lemma:corristir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "corristir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: explicáar",
+    slug: "lemma:explicáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "explicáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resultir",
+    slug: "lemma:resultir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resultir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comistir",
+    slug: "lemma:comistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ayudarar",
+    slug: "lemma:ayudarar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ayudarar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mantar",
+    slug: "lemma:mantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: osar",
+    slug: "lemma:osar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "osar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mantuverar",
+    slug: "lemma:mantuverar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mantuverar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mantenger",
+    slug: "lemma:mantenger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mantenger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: metir",
+    slug: "lemma:metir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "metir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escuchér",
+    slug: "lemma:escuchér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escuchér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ofrecistar",
+    slug: "lemma:ofrecistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ofrecistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escuchastar",
+    slug: "lemma:escuchastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escuchastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: montener",
+    slug: "lemma:montener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "montener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: levantéar",
+    slug: "lemma:levantéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "levantéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aparecistir",
+    slug: "lemma:aparecistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aparecistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocurriste",
+    slug: "lemma:ocurriste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocurriste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aparezciar",
+    slug: "lemma:aparezciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aparezciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traér",
+    slug: "lemma:traér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: estudiár",
+    slug: "lemma:estudiár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "estudiár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: utilizáar",
+    slug: "lemma:utilizáar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "utilizáar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: utilizárar",
+    slug: "lemma:utilizárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "utilizárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: intentár",
+    slug: "lemma:intentár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "intentár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anduvir",
+    slug: "lemma:anduvir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anduvir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descubriste",
+    slug: "lemma:descubriste",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descubriste" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dor",
+    slug: "lemma:dor",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "dor" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: andavir",
+    slug: "lemma:andavir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "andavir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nacistir",
+    slug: "lemma:nacistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "nacistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: durmar",
+    slug: "lemma:durmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "durmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptár",
+    slug: "lemma:aceptár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptastar",
+    slug: "lemma:aceptastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: supusistir",
+    slug: "lemma:supusistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "supusistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: durmir",
+    slug: "lemma:durmir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "durmir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptéar",
+    slug: "lemma:aceptéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aceptemer",
+    slug: "lemma:aceptemer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aceptemer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: olvidár",
+    slug: "lemma:olvidár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "olvidár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: echárar",
+    slug: "lemma:echárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "echárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: publicastar",
+    slug: "lemma:publicastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "publicastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: señalárar",
+    slug: "lemma:señalárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "señalárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dedicastar",
+    slug: "lemma:dedicastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dedicastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtuvistir",
+    slug: "lemma:obtuvistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtuvistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sucedár",
+    slug: "lemma:sucedár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sucedár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtender",
+    slug: "lemma:obtender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtar",
+    slug: "lemma:obtar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asegurár",
+    slug: "lemma:asegurár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asegurár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dirijir",
+    slug: "lemma:dirijir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dirijir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: evitir",
+    slug: "lemma:evitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "evitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asegurés",
+    slug: "lemma:asegurés",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asegurés" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sucedér",
+    slug: "lemma:sucedér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sucedér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obtuviér",
+    slug: "lemma:obtuviér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obtuviér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detenger",
+    slug: "lemma:detenger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detenger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: olvidastar",
+    slug: "lemma:olvidastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "olvidastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detever",
+    slug: "lemma:detever",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detever" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dirigistir",
+    slug: "lemma:dirigistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dirigistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: supar",
+    slug: "lemma:supar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "supar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imaginéar",
+    slug: "lemma:imaginéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imaginéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detar",
+    slug: "lemma:detar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: detuvistar",
+    slug: "lemma:detuvistar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "detuvistar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: imaginárar",
+    slug: "lemma:imaginárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "imaginárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: establezcer",
+    slug: "lemma:establezcer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "establezcer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: subar",
+    slug: "lemma:subar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "subar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: incluyér",
+    slug: "lemma:incluyér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "incluyér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: andover",
+    slug: "lemma:andover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "andover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reconorer",
+    slug: "lemma:reconorer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reconorer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suponger",
+    slug: "lemma:suponger",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suponger" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: representirse",
+    slug: "lemma:representirse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "representirse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocupáir",
+    slug: "lemma:ocupáir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocupáir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: continuár",
+    slug: "lemma:continuár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "continuár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocar",
+    slug: "lemma:ocar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "ocar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suberér",
+    slug: "lemma:suberér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suberér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deseár",
+    slug: "lemma:deseár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deseár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: camener",
+    slug: "lemma:camener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "camener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deseastar",
+    slug: "lemma:deseastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deseastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: faltéar",
+    slug: "lemma:faltéar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "faltéar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iniciárar",
+    slug: "lemma:iniciárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iniciárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: solar",
+    slug: "lemma:solar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "solar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iniciastar",
+    slug: "lemma:iniciastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iniciastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: indicastar",
+    slug: "lemma:indicastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "indicastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soliér",
+    slug: "lemma:soliér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soliér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soliar",
+    slug: "lemma:soliar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soliar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destaquar",
+    slug: "lemma:destaquar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destaquar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: crecistir",
+    slug: "lemma:crecistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "crecistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destacás",
+    slug: "lemma:destacás",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destacás" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: faltá",
+    slug: "lemma:faltá",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "faltá" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deseér",
+    slug: "lemma:deseér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deseér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destacárar",
+    slug: "lemma:destacárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destacárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iniciár",
+    slug: "lemma:iniciár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iniciár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostrabar",
+    slug: "lemma:demostrabar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostrabar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostrár",
+    slug: "lemma:demostrár",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostrár" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elejar",
+    slug: "lemma:elejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: demostréer",
+    slug: "lemma:demostréer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "demostréer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: regresar",
+    slug: "lemma:regresar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "regresar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parar",
+    slug: "lemma:parar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aumentar",
+    slug: "lemma:aumentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aumentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: unir",
+    slug: "lemma:unir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "unir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aplicar",
+    slug: "lemma:aplicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aplicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: extender",
+    slug: "lemma:extender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "extender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convencer",
+    slug: "lemma:convencer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convencer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: casar",
+    slug: "lemma:casar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "casar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: generar",
+    slug: "lemma:generar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "generar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: invitar",
+    slug: "lemma:invitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "invitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: resolver",
+    slug: "lemma:resolver",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "resolver" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pertenecer",
+    slug: "lemma:pertenecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pertenecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sorprender",
+    slug: "lemma:sorprender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sorprender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: firmar",
+    slug: "lemma:firmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "firmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entregar",
+    slug: "lemma:entregar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entregar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comentar",
+    slug: "lemma:comentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: preferir",
+    slug: "lemma:preferir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "preferir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reunir",
+    slug: "lemma:reunir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reunir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: basar",
+    slug: "lemma:basar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "basar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cantar",
+    slug: "lemma:cantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: avanzar",
+    slug: "lemma:avanzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "avanzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sonar",
+    slug: "lemma:sonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: analizar",
+    slug: "lemma:analizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "analizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: implicar",
+    slug: "lemma:implicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "implicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: surgir",
+    slug: "lemma:surgir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "surgir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mencionar",
+    slug: "lemma:mencionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mencionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: merecer",
+    slug: "lemma:merecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "merecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dominar",
+    slug: "lemma:dominar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dominar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: solicitar",
+    slug: "lemma:solicitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "solicitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apuntar",
+    slug: "lemma:apuntar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apuntar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adoptar",
+    slug: "lemma:adoptar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adoptar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: huir",
+    slug: "lemma:huir",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "huir" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: nombrar",
+    slug: "lemma:nombrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "nombrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: animar",
+    slug: "lemma:animar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "animar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quemar",
+    slug: "lemma:quemar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quemar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: lavar",
+    slug: "lemma:lavar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "lavar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conformar",
+    slug: "lemma:conformar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conformar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perdonar",
+    slug: "lemma:perdonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perdonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: emitir",
+    slug: "lemma:emitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "emitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inventar",
+    slug: "lemma:inventar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inventar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: grabar",
+    slug: "lemma:grabar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "grabar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acceder",
+    slug: "lemma:acceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apreciar",
+    slug: "lemma:apreciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apreciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sobrevivir",
+    slug: "lemma:sobrevivir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sobrevivir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: invadir",
+    slug: "lemma:invadir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "invadir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: admirar",
+    slug: "lemma:admirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "admirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: jurar",
+    slug: "lemma:jurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "jurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: orientar",
+    slug: "lemma:orientar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "orientar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: organizar",
+    slug: "lemma:organizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "organizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asistir",
+    slug: "lemma:asistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destruir",
+    slug: "lemma:destruir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destruir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bailar",
+    slug: "lemma:bailar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bailar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: opinar",
+    slug: "lemma:opinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "opinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: percibir",
+    slug: "lemma:percibir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "percibir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: practicar",
+    slug: "lemma:practicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "practicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gozar",
+    slug: "lemma:gozar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gozar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descender",
+    slug: "lemma:descender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ceder",
+    slug: "lemma:ceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encerrar",
+    slug: "lemma:encerrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encerrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: colgar",
+    slug: "lemma:colgar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "colgar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: experimentar",
+    slug: "lemma:experimentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "experimentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consultar",
+    slug: "lemma:consultar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consultar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: armar",
+    slug: "lemma:armar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "armar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inclinar",
+    slug: "lemma:inclinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inclinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: temblar",
+    slug: "lemma:temblar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "temblar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: concentrar",
+    slug: "lemma:concentrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "concentrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acumular",
+    slug: "lemma:acumular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acumular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asustar",
+    slug: "lemma:asustar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asustar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rezar",
+    slug: "lemma:rezar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rezar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: transcurrir",
+    slug: "lemma:transcurrir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "transcurrir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: habitar",
+    slug: "lemma:habitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "habitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alegrar",
+    slug: "lemma:alegrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alegrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prolongar",
+    slug: "lemma:prolongar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prolongar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: proyectar",
+    slug: "lemma:proyectar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "proyectar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: bañar",
+    slug: "lemma:bañar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "bañar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: clavar",
+    slug: "lemma:clavar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "clavar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: circular",
+    slug: "lemma:circular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "circular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: obedecer",
+    slug: "lemma:obedecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "obedecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sobrar",
+    slug: "lemma:sobrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sobrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: violar",
+    slug: "lemma:violar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "violar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: optar",
+    slug: "lemma:optar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "optar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diferenciar",
+    slug: "lemma:diferenciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diferenciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: maldecir",
+    slug: "lemma:maldecir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "maldecir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: forzar",
+    slug: "lemma:forzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "forzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: iluminar",
+    slug: "lemma:iluminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "iluminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: anotar",
+    slug: "lemma:anotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "anotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: brotar",
+    slug: "lemma:brotar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "brotar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fingir",
+    slug: "lemma:fingir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fingir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: motivar",
+    slug: "lemma:motivar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "motivar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tapar",
+    slug: "lemma:tapar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tapar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: copiar",
+    slug: "lemma:copiar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "copiar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: chocar",
+    slug: "lemma:chocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "chocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: rescatar",
+    slug: "lemma:rescatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "rescatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adorar",
+    slug: "lemma:adorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: retener",
+    slug: "lemma:retener",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "retener" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: planear",
+    slug: "lemma:planear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "planear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: plantar",
+    slug: "lemma:plantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "plantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disimular",
+    slug: "lemma:disimular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disimular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sumergir",
+    slug: "lemma:sumergir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sumergir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: actualizar",
+    slug: "lemma:actualizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "actualizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: verificar",
+    slug: "lemma:verificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "verificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conmover",
+    slug: "lemma:conmover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conmover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mudar",
+    slug: "lemma:mudar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mudar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alentar",
+    slug: "lemma:alentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gestionar",
+    slug: "lemma:gestionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gestionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: remitir",
+    slug: "lemma:remitir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "remitir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encaminar",
+    slug: "lemma:encaminar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encaminar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asentar",
+    slug: "lemma:asentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atar",
+    slug: "lemma:atar",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "atar" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hervir",
+    slug: "lemma:hervir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hervir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contactar",
+    slug: "lemma:contactar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contactar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sobresalir",
+    slug: "lemma:sobresalir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sobresalir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrepentirse",
+    slug: "lemma:arrepentirse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrepentirse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aislar",
+    slug: "lemma:aislar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aislar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adherir",
+    slug: "lemma:adherir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adherir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: largar",
+    slug: "lemma:largar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "largar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desesperar",
+    slug: "lemma:desesperar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desesperar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arruinar",
+    slug: "lemma:arruinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arruinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quitar",
+    slug: "lemma:quitar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quitar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: marcar",
+    slug: "lemma:marcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "marcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: destinar",
+    slug: "lemma:destinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "destinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ocasionar",
+    slug: "lemma:ocasionar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ocasionar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entrever",
+    slug: "lemma:entrever",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entrever" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desatar",
+    slug: "lemma:desatar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desatar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: frustrar",
+    slug: "lemma:frustrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "frustrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: arrugar",
+    slug: "lemma:arrugar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "arrugar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: liderar",
+    slug: "lemma:liderar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "liderar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: frecuentar",
+    slug: "lemma:frecuentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "frecuentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: divisar",
+    slug: "lemma:divisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "divisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: remediar",
+    slug: "lemma:remediar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "remediar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: manipular",
+    slug: "lemma:manipular",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "manipular" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: vibrar",
+    slug: "lemma:vibrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "vibrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: florecer",
+    slug: "lemma:florecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "florecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: deducir",
+    slug: "lemma:deducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "deducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: remover",
+    slug: "lemma:remover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "remover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asaltar",
+    slug: "lemma:asaltar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asaltar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: desembocar",
+    slug: "lemma:desembocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "desembocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: fundir",
+    slug: "lemma:fundir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "fundir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: movilizar",
+    slug: "lemma:movilizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "movilizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contrastar",
+    slug: "lemma:contrastar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contrastar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: embarcar",
+    slug: "lemma:embarcar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "embarcar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alertar",
+    slug: "lemma:alertar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alertar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reanudar",
+    slug: "lemma:reanudar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reanudar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: asentir",
+    slug: "lemma:asentir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "asentir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diferir",
+    slug: "lemma:diferir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diferir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: extinguir",
+    slug: "lemma:extinguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "extinguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: incidir",
+    slug: "lemma:incidir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "incidir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: calzar",
+    slug: "lemma:calzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "calzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alarmar",
+    slug: "lemma:alarmar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alarmar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: faltárar",
+    slug: "lemma:faltárar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "faltárar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: naciér",
+    slug: "lemma:naciér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "naciér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: suplicar",
+    slug: "lemma:suplicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "suplicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entonar",
+    slug: "lemma:entonar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entonar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: despegar",
+    slug: "lemma:despegar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "despegar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: refirar",
+    slug: "lemma:refirar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "refirar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: añadir",
+    slug: "lemma:añadir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "añadir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: inquietar",
+    slug: "lemma:inquietar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "inquietar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: afrontar",
+    slug: "lemma:afrontar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "afrontar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: parezciar",
+    slug: "lemma:parezciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "parezciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disputar",
+    slug: "lemma:disputar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disputar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: escupir",
+    slug: "lemma:escupir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "escupir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: diricir",
+    slug: "lemma:diricir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "diricir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: olvidér",
+    slug: "lemma:olvidér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "olvidér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consigáir",
+    slug: "lemma:consigáir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consigáir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: usibar",
+    slug: "lemma:usibar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "usibar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: entráar",
+    slug: "lemma:entráar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "entráar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abristir",
+    slug: "lemma:abristir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abristir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hubir",
+    slug: "lemma:hubir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hubir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quedér",
+    slug: "lemma:quedér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quedér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pudir",
+    slug: "lemma:pudir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pudir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trabajés",
+    slug: "lemma:trabajés",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trabajés" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pudertir",
+    slug: "lemma:pudertir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pudertir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: saliér",
+    slug: "lemma:saliér",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "saliér" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: durar",
+    slug: "lemma:durar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "durar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: consistir",
+    slug: "lemma:consistir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "consistir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: cobrar",
+    slug: "lemma:cobrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "cobrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ordenar",
+    slug: "lemma:ordenar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ordenar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: respetar",
+    slug: "lemma:respetar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "respetar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encantar",
+    slug: "lemma:encantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: componer",
+    slug: "lemma:componer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "componer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: revelar",
+    slug: "lemma:revelar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "revelar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ejercer",
+    slug: "lemma:ejercer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ejercer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: situar",
+    slug: "lemma:situar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "situar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: describir",
+    slug: "lemma:describir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "describir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: robar",
+    slug: "lemma:robar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "robar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: temer",
+    slug: "lemma:temer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "temer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: contribuir",
+    slug: "lemma:contribuir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "contribuir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: comprobar",
+    slug: "lemma:comprobar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "comprobar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: discutir",
+    slug: "lemma:discutir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "discutir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atravesar",
+    slug: "lemma:atravesar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atravesar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: despedir",
+    slug: "lemma:despedir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "despedir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aportar",
+    slug: "lemma:aportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: golpear",
+    slug: "lemma:golpear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "golpear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: molestar",
+    slug: "lemma:molestar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "molestar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: marchar",
+    slug: "lemma:marchar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "marchar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: someter",
+    slug: "lemma:someter",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "someter" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: encender",
+    slug: "lemma:encender",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "encender" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atreverse",
+    slug: "lemma:atreverse",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atreverse" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: dudar",
+    slug: "lemma:dudar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "dudar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soportar",
+    slug: "lemma:soportar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soportar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: soltar",
+    slug: "lemma:soltar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "soltar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: atraer",
+    slug: "lemma:atraer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "atraer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: callar",
+    slug: "lemma:callar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "callar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: hundir",
+    slug: "lemma:hundir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "hundir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: trasladar",
+    slug: "lemma:trasladar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "trasladar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: perseguir",
+    slug: "lemma:perseguir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "perseguir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: coincidir",
+    slug: "lemma:coincidir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "coincidir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: tardar",
+    slug: "lemma:tardar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "tardar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: mezclar",
+    slug: "lemma:mezclar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "mezclar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: saludar",
+    slug: "lemma:saludar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "saludar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ingresar",
+    slug: "lemma:ingresar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ingresar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: besar",
+    slug: "lemma:besar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "besar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: promover",
+    slug: "lemma:promover",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "promover" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alzar",
+    slug: "lemma:alzar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alzar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: garantizar",
+    slug: "lemma:garantizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "garantizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: confundir",
+    slug: "lemma:confundir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "confundir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: prohibir",
+    slug: "lemma:prohibir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "prohibir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: brindar",
+    slug: "lemma:brindar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "brindar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ignorar",
+    slug: "lemma:ignorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ignorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: influir",
+    slug: "lemma:influir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "influir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sugerir",
+    slug: "lemma:sugerir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sugerir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: abrazar",
+    slug: "lemma:abrazar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "abrazar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: equivocar",
+    slug: "lemma:equivocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "equivocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acusar",
+    slug: "lemma:acusar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acusar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: privar",
+    slug: "lemma:privar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "privar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: revisar",
+    slug: "lemma:revisar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "revisar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: descansar",
+    slug: "lemma:descansar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "descansar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ubicar",
+    slug: "lemma:ubicar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ubicar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: apretar",
+    slug: "lemma:apretar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "apretar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: operar",
+    slug: "lemma:operar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "operar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: variar",
+    slug: "lemma:variar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "variar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: otorgar",
+    slug: "lemma:otorgar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "otorgar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: enamorar",
+    slug: "lemma:enamorar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "enamorar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: reclamar",
+    slug: "lemma:reclamar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "reclamar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: figurar",
+    slug: "lemma:figurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "figurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convenir",
+    slug: "lemma:convenir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convenir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: criticar",
+    slug: "lemma:criticar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "criticar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: caracterizar",
+    slug: "lemma:caracterizar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "caracterizar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: alimentar",
+    slug: "lemma:alimentar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "alimentar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: aguantar",
+    slug: "lemma:aguantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "aguantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: denunciar",
+    slug: "lemma:denunciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "denunciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: ejecutar",
+    slug: "lemma:ejecutar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "ejecutar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: acariciar",
+    slug: "lemma:acariciar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "acariciar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: justificar",
+    slug: "lemma:justificar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "justificar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: sustituir",
+    slug: "lemma:sustituir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "sustituir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: pelear",
+    slug: "lemma:pelear",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "pelear" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: respectar",
+    slug: "lemma:respectar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "respectar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: quejar",
+    slug: "lemma:quejar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "quejar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: procurar",
+    slug: "lemma:procurar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "procurar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oler",
+    slug: "lemma:oler",
+    data: { ONTOLOGICAL: { branch: "lemma", leaf: "oler" }, COMPLETABLE: { flavor: "INDIVIDUAL" } },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conceder",
+    slug: "lemma:conceder",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conceder" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: combinar",
+    slug: "lemma:combinar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "combinar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: liberar",
+    slug: "lemma:liberar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "liberar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: conectar",
+    slug: "lemma:conectar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "conectar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: juntar",
+    slug: "lemma:juntar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "juntar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: elaborar",
+    slug: "lemma:elaborar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "elaborar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: convocar",
+    slug: "lemma:convocar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "convocar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adelantar",
+    slug: "lemma:adelantar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adelantar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: incrementar",
+    slug: "lemma:incrementar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "incrementar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: efectuar",
+    slug: "lemma:efectuar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "efectuar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: favorecer",
+    slug: "lemma:favorecer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "favorecer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: traducir",
+    slug: "lemma:traducir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "traducir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: borrar",
+    slug: "lemma:borrar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "borrar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: oponer",
+    slug: "lemma:oponer",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "oponer" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: disparar",
+    slug: "lemma:disparar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "disparar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: gobernar",
+    slug: "lemma:gobernar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "gobernar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: invertir",
+    slug: "lemma:invertir",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "invertir" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+  {
+    name: "Lemma: adaptar",
+    slug: "lemma:adaptar",
+    data: {
+      ONTOLOGICAL: { branch: "lemma", leaf: "adaptar" },
+      COMPLETABLE: { flavor: "INDIVIDUAL" },
+    },
+    traits: ["ONTOLOGICAL", "COMPLETABLE", "STRUCTURAL"],
+  },
+];

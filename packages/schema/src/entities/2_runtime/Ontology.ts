@@ -11,6 +11,7 @@ export const OntologySchema = new EntitySchema<OntologyEntity, BaseModuleEntity>
   extends: BaseModuleSchema,
   tableName: "Ontology",
   // uniques: [{name: "Ontology_runtime_key", expression: 'CREATE UNIQUE INDEX "Ontology_runtime_key" ON public."Ontology" USING btree ("runtime")', properties: ["runtime"],}, {name: "Ontology_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Ontology_slug_runtime_key" ON public."Ontology" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
+  uniques: [{ properties: ["slug", "runtime"] }],
   properties: {
     runtime: {
       kind: "1:1",

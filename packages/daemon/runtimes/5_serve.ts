@@ -8,7 +8,7 @@ export default function serve(daemon: Daemon) {
       for (const module of [
         runtime.modules.domain,
         runtime.modules.ontology,
-        ...(runtime.modules.corpora ?? []),
+        ...(runtime.modules.curricula ?? []),
       ] as Module[]) {
         if (!module.router) continue;
 
@@ -24,7 +24,7 @@ export default function serve(daemon: Daemon) {
         if (!module.router || !module.entity.url) throw new Error("Cant serve modules");
 
         runtime.router.use(
-          module.entity.url,
+          module.entity.url.modulename,
           ...module.router.middleware,
           module.router.routes(),
           module.router.allowedMethods(),
@@ -32,7 +32,7 @@ export default function serve(daemon: Daemon) {
       }
 
       daemon.router.use(
-        runtime.entity.url,
+        runtime.entity.url.pathname,
         ...runtime.router.middleware,
         runtime.router.routes(),
         runtime.router.allowedMethods(),

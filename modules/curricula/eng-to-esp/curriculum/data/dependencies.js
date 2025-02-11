@@ -5,5 +5,5 @@ import ser_estar from "./dependencies/ser-estar.js";
 import objects from "./dependencies/objects.js";
 // mastery
 
-// export default [...foundational, ...foundational_verbs, ...ser_estar];
+// export default [...pronouns];
 export default [...pronouns, ...articles, ...verbs, ...ser_estar, ...objects];

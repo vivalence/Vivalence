@@ -5,16 +5,12 @@ const manifest = {
   name: "Spaced Repetition",
   description: "Spaced Repetition",
   slug: "spaced-repetition",
-  version: "0.0.1",
+  version: "0.0.3",
 };
 
 const relations = {
-  tags: {
-    scope: [],
-  },
-  games: {
-    flashcards: { slug: "flashcards" },
-  },
+  tags: { scope: [] },
+  games: { flashcards: { slug: "flashcards" } },
 };
 
 const masks = {

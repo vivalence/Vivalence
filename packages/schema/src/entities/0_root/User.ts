@@ -34,14 +34,19 @@ export const UserSchema = new EntitySchema<UserEntity, BaseSchema>({
     config: { type: "unknown", columnType: "json", defaultRaw: `"{}"` },
 
     runtimes: {
+      // indicates membership
       kind: "m:n",
       entity: () => RuntimeEntity,
-      mappedBy: "users",
+      inversedBy: "users",
+      pivotTable: "_UserToRuntime",
     },
     curricula: {
+      // indicates membership
+
       kind: "m:n",
       entity: () => CurriculumEntity,
-      mappedBy: "users",
+      inversedBy: "users",
+      pivotTable: "_CurriculumToUser",
     },
   },
 });
