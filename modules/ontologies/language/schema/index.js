@@ -1,6 +1,6 @@
-import annotations from "./annotations.js";
-import unit from "./unit.js";
+import entities from "./entities.js";
+import topology from "./topology.js";
 
-export default (schema) => {
-  return [annotations, unit].reduce((schema, type) => type(schema), schema);
+export default (ontology) => {
+  return [entities, topology].reduce((ontology, apply) => apply(ontology), ontology);
 };

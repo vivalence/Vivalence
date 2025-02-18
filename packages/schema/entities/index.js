@@ -39,6 +39,9 @@ import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 import { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./4_userland/Memory.ts";
 import { InstructionStatusEnum } from "./5_transient/Instruction.ts";
 
+import { NodeEntity } from "./3_ontology/Node.ts";
+import { RuleEntity } from "./3_ontology/Rule.ts";
+
 export const enums = {
   ModuleInstallation: ModuleInstallationEnum,
   MemoryType: MemoryTypeEnum,
@@ -99,6 +102,8 @@ export const entities = {
   memory: MemoryEntity,
   play: PlayEntity,
   instruction: InstructionEntity,
+  node: NodeEntity,
+  rule: RuleEntity,
 };
 
 export const schemas = [

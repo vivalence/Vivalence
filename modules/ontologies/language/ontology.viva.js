@@ -1,47 +1,74 @@
-import schema from "./schema/index.js";
-import methods from "./methods/boot.js";
-import curriculum from "./curriculum/index.js";
+import { entities as Entities } from "@vivalence/schema";
+
+import applySchema from "./schema/index.js";
+// import methods from "./methods/boot.js";
+// import curriculum from "./curriculum/index.js";
+
+class ClassifierSystem {}
+
+class RemedySystem {}
+// remedy could be a key implemented by Rule.
+
+// this.remedies = new Map({}); // exports a tree of handlers.
+// the domain hooks these into ??? or the ontology? how does this system get managed and provided?  needs hooks. needs paths.
 
 // i love this architecture.
 async function boot(runtime) {
   // nodes are computed to tree. rules used to construct schema. and both flow into assertions and remedy.
-  // runtime.ontology = {classifier:{}, remedy:{},} // sub-systems
-  // runtime.ontology = {rules:[], nodes:[],}; // Entities <Both Roles and Nodes recieve special handlers.
-  // ie both rules and nodes are entity types. and thus can be extended in type and as a group through mikro repositories.
-  // are stored in the database and on the ontology in parallel..
 
-  // runtime.schema = {interfaces:{}, signals:{}, entities:{}, units:{}, topology:{},}, };
-  // runtime.schema.entities: {}, // must be mapable to domain.entities[MikroEntity]
-  // runtime.schema.entities = {unit={}, tag={}, dependency={},}  //
-  // runtime.schema.units: {}, // can be computed on module boot
-  // runtime.schema.units = { adj={}, noun={}, verb={}, adv={} } // children of topological parents.
+  let ontology = {
+    classifier: new ClassifierSystem(),
+    remedy: new RemedySystem(), // sub-systems
+    rules: new Set(), // <Entities.rule[]>
+    nodes: new Map(), // <Entities.node[]>
+  };
 
-  // runtime.assert = {unit: () => {}, tag: () => {}, signal: ()=>{}, interface: () => {},};
-  // assert.entity.unit();
-  // assert.interface.signal()
-  // assert.units.definite()
-  // assert.topology.definite()
-  // assert.relations(Unit|Tag)
-  // assert.relations.tag() // scoped implementation of assert.relations('Tag"')
-  // assert.relations.unit()
+  ontology = applySchema(ontology);
 
-  // combining the nodes with the rules via entity and topology is killer
-  // <OntologyRule>{entity: "unit" topology: "pos" branch: "adj" traits: ["schematic"] data.schema: {type: "obj", properties:{}}}
-  // <OntologyRule>{entity: "unit" topology: "pos" branch/path?: "adj" traits: ["relational"] data.relations: [required:'',unique:""]}
-  //  <OntologyRule>. {entity: "unit" topology: "pos" branch: "adj" traits: ["schematic"] data.schema: {type: "obj", properties:{}}}
-  // [<OntologyRule>{traits: ["schematic"] entity: "unit" topology: "pos" branch: "adj" data.schema: {type: "obj", properties:{}}}]
-  // OntologyRules:{entity: "unit" topology: "pos" branch: "adj" traits: ["schematic"] data.schema: {type: "obj", properties:{}}
-  // } {entity: "unit" topology: "pos" branch/path?: "adj" traits: ["relational"] data.relations: [required:'',unique:""]
-  // } {entity: "tag" topology: null traits: ["schematic"] data.schema: {type: "Object" properties: {slug: {type: "string", description: "",},}
-  // selfcontaining memetic systems for the win.
-  // runtime.ontology.rules.find({ entity: "unit", branch: "adj", traits: ["schematic"] });
-  // making rules into an extendable database-aesque type is very very interesting.
-  // {<OntologyNode>trait:"ancestor", "branch", "leaf", "descendent", slug: "definite", children: [{ enum: "def", title: "Definite", description: "" }, { enum: "ind", title: "Indefinite", description: "" },],}
-  // [<OntologyNode>{slug: "definite", traits:["ancestor"], // implicit categorical trait. could be numeric. categoric guarantees the child prop. children: [{ slug: "def", name: "Definite", description: "" }, { slug: "ind", name: "Indefinite", description: "" },],}]
-  // [<OntologyNode>{slug: "pos", traits:["topological"], children: [{ slug: "def", name: "Definite", description: "" }, { slug: "ind", name: "Indefinite", description: "" },],}]
+  // runtime.schema = {
+  //   entities: {
+  //     // unit: {}, tag: {}
+  //   },
+  //   topography: {
+  //     // must be mapable to domain.entities[MikroEntity]
+  //     // computed children of topological parents: // adj={}, noun={}, verb={}, adv={}
+  //     // for child<Node> of nodes.ANCESTOR.where(trait topological) do schema.topography[child.] = {}
+  //   },
+  //   // interfaces: {
+  //   //   // signal: {}, // used by classifier.
+  //   //   // games and memory will nee to make their own types.
+  //   // },
+  // };
+  // now i need to construct the schema.
+  // no kinda dont.
+  // assert can be constructed from a query engine and factories.
+  // schema.entities&topography is the critical one. if i can solve that with query, all the better.
+  // but i think that would require the schema rules for unit to be applied as the base for typography.
+  // and i dont know if i can compute that at methodtime or if that requires preconstruction on boot.
+  // i will try either
 
-  runtime.remedy = {}; // exports a tree of handlers.
-  // the domain hooks these into ??? or the ontology? how does this system get managed and provided?  needs hooks. needs paths.
+  // ontology.rules.find({ entity: "unit", branch: "adj", traits: ["schematic"] });
+
+  async function assertFactory({ nodes, rules }, ctx) {
+    const assertions = {
+      // entities: { unit: () => {}, tag: () => {} },
+      topography: {}, // applies only to units. separated by topological traits, in effect by pos.
+    };
+
+    // for node<Node> of nodes.where(traits [topological ancestor])
+    //     assertions.topography[node.slug] = (node, ctx) => (entity, processors =['schematic', 'relational']) =>{}
+
+    return assertions;
+    // API
+    // assert.entities.unit(entity); ?? not really used i guess.
+    // assert.entities.tags(entity, ['schematic']) //
+    // assert.topography.definite(entity, ['schematic', 'relational']) // default is both. // relational checks
+    // assert.topography.definite(entity) // checks annotation,
+  }
+
+  const assert = assertFactory(ontology, ctx);
+
+  runtime.ontology = ontology;
 
   return runtime;
 }
@@ -51,7 +78,11 @@ const manifest = {
   slug: "language",
   name: "Langauge after Universal Dependencies",
   version: "0.0.8",
+  // traits:['memetic']
 };
 
 // features. maybe its not topology but feature.
-export { manifest, schema, boot, curriculum };
+export { manifest, boot, curriculum };
+
+// assert...(Unit|Tag) assert.relations.tag() // scoped implementation of assert.relations('Tag"') assert.relations.unit()
+// assert.interfaces.signal()
