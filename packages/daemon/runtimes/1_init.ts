@@ -14,6 +14,7 @@ export default async function (daemon: Daemon) {
       runtime = Object.assign(runtime, {
         entities: {},
         schema: {},
+        aperture: {},
         services: {},
         locals: {},
         router: createRouter(),
@@ -35,9 +36,13 @@ export default async function (daemon: Daemon) {
 
       // maybe this goes later.
       runtime.entities = { em: daemon.entities.orm.em.fork() };
-      await Object.entries(runtimeEntities).map(async ([key, entity]) => {
-        runtime.entities[key] = await runtime.entities.em.getRepository(entity);
-      });
+      await Promise.all(
+        Object.entries(runtimeEntities).map(async ([key, entity]) => {
+          runtime.entities[key] = await runtime.entities.em.getRepository(entity);
+        }),
+      );
+
+      // runtime.aperture.router = runtime.router.create();
 
       injectExecutionMiddleware(daemon, runtime);
 

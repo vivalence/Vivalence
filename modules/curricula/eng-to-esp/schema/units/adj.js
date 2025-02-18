@@ -9,11 +9,7 @@ export default (schema) => {
       annotation: {
         ...schema.unit.properties.annotation,
         properties: {
-          pos: {
-            ...schema.annotations.pos,
-            $id: "adj.annotation.pos",
-            enum: ["adj"],
-          },
+          pos: { ...schema.annotations.pos, $id: "adj.annotation.pos", enum: ["adj"] },
           lemma: { ...schema.annotations.lemma },
           gender: { ...schema.annotations.gender },
           number: { ...schema.annotations.number },

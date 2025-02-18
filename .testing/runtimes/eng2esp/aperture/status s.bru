@@ -1,0 +1,17 @@
+meta {
+  name: status s
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/runtime/eng2esp/aperture/status
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "THIS": "THAT"
+  }
+}

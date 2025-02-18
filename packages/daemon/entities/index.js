@@ -45,9 +45,11 @@ async function init(daemon) {
   //     ["user", "repoo", "daemon", "runtime", "service", "domain", "ontology", "curriculum", "game", "tactic", "strategy",].includes(key),
   //   .map(async ([key, entity]) => {daemon.entities[key] = await daemon.entities.em.getRepository(entity);
 
-  await Object.entries(daemonEntites).map(async ([key, entity]) => {
-    daemon.entities[key] = await daemon.entities.em.getRepository(entity);
-  });
+  await Promise.all(
+    Object.entries(daemonEntites).map(async ([key, entity]) => {
+      daemon.entities[key] = await daemon.entities.em.getRepository(entity);
+    }),
+  );
 
   return daemon;
 }

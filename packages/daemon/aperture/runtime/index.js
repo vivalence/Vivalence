@@ -1,22 +1,23 @@
-import onRequest from "./lib/middlewares/onRequest.js";
-
 import diagnostics from "./diagnostics/index.js";
 import dependencies from "./dependencies/index.js";
 import dependency from "./dependency/index.js";
 import instructions from "./instructions/index.js";
 
-export default async function (aperture) {
-  const router = aperture.router.create();
+export default async function applyRuntimeAperture(runtime) {
+  // runtime.aperture.router.middleware.push(async (ctx, next) => {
+  //   console.log("apply runtime aperture middleware", ctx.runtime.entity);
+  //   console.log("apply runtime aperture middleware", Object.keys(ctx.runtime));
+  //   await next();
+  // });
 
-  router.route("/", (i, ctx) => ctx.runtime.manifest);
+  // runtime.aperture.router.route("/runtime/get", (i, ctx) => ctx.runtime.entity);
 
-  await [
+  runtime.aperture = await [
     instructions,
     dependency,
     dependencies, //
     diagnostics,
-  ].reduce((acc, fn) => acc.then(fn), Promise.resolve({ router }));
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime.aperture));
 
-  aperture.router.use("/runtime/:slug", onRequest, router.routes(), router.allowedMethods());
-  return aperture;
+  return runtime;
 }

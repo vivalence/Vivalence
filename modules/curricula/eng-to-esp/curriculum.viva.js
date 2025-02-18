@@ -6,7 +6,7 @@ const manifest = {
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
-  version: "0.0.2x",
+  version: "0.0.3",
 };
 
 const modules = {
@@ -25,6 +25,11 @@ const modules = {
     "@vivalence/tactic/pronominalization-practice",
   ],
   strategies: [],
+  topologies: [
+    "@vivalence/topology/verbs/lemmas",
+    "@vivalence/topology/verbs/conjugations/ser",
+    "@vivalence/topology/verbs/conjugations/estar",
+  ], //
 };
 
 export { curriculum, manifest, modules, schema };

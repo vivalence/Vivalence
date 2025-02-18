@@ -27,10 +27,6 @@ export default async function (daemon: Daemon) {
       runtime.modules.tactics = tactics;
       // runtime.modules.strategies = strategies;
 
-      // todo boot aperture runtime level.
-      // maybe i can model the aperture as another module for this scope.
-      // symmetry. yum.
-
       daemon.runtimes.set(key, runtime);
     } catch (e) {
       console.error("[runtime boot error]", e);
