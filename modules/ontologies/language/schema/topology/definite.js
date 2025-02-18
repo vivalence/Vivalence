@@ -1,3 +1,4 @@
+// schematic rule
 export const definite = {
   $id: "unit.annotation.definite",
   type: "string",
@@ -7,6 +8,8 @@ export const definite = {
   enum: ["def", "ind"],
 };
 
+// nodes topology
+// EDITS: guarantee meta export and add topological trait to pos.
 export const meta = {
   slug: "definite",
   enums: {
