@@ -19,7 +19,7 @@ import * as polarity from "./annotations/polarity.js";
 import * as suffix from "./annotations/suffix.js";
 
 export default (schema) => {
-  const { annotations, meta } = Object.entries({
+  schema = Object.entries({
     pos,
     lemma,
     verbform,
@@ -41,11 +41,11 @@ export default (schema) => {
   }).reduce(
     (acc, [key, value]) => {
       acc.annotations[key] = value[key];
-      if (value.meta) acc.meta[key] = value.meta;
+      if (value.meta) acc.ontology[key] = value.meta;
       return acc;
     },
-    { annotations: {}, meta: {} },
+    { annotations: {}, ontology: {}, ...schema },
   );
 
-  return { ...schema, annotations, meta };
+  return schema;
 };

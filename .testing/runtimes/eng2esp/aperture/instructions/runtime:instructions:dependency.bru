@@ -1,0 +1,20 @@
+meta {
+  name: runtime:instructions:dependency
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/runtime/{{RUNTIME_SLUG}}/aperture/instructions/dependency/feed
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "take": 899999,
+    "dependency": {
+      "slug": "objects:direct"
+    }
+  }
+}

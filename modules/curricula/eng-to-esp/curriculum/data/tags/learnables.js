@@ -35,7 +35,14 @@ export default [
   {
     gender: {
       "gender:*": { traits: ["LEARNABLE"], data: { LEARNABLE: { type: "BOOLEAN" } } },
-      "gender:fem": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
+      "gender:fem": {
+        traits: ["LEARNABLE"],
+        data: {
+          LEARNABLE: {
+            flavor: "RELATIONAL",
+          },
+        },
+      },
       "gender:masc": { traits: ["LEARNABLE"], data: { LEARNABLE: { flavor: "RELATIONAL" } } },
     },
   },

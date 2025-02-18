@@ -1,6 +1,6 @@
-export * from "./src/entities/index.js";
+export * from "./entities/index.js";
 
-import deploy from "./src/deploy.js";
+import deploy from "./deploy.js";
 
 export { deploy };
 

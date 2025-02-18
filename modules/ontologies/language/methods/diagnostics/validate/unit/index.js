@@ -1,7 +1,7 @@
 import validatePos from "./validators/pos.js";
 import validateSchema from "./validators/schema.js";
 import validateTags from "./validators/tags.js";
-// import validateNLP from "./lib/nlp.js";
+// import validateNLPfromExample from "./lib/nlp.js";
 
 async function validate({ unit }, ctx) {
   const validators = [validatePos, validateSchema, validateTags]; //, validateNLP, ];
@@ -20,3 +20,10 @@ validate.tags = validateTags;
 // validate.example = validateNLP;
 
 export default validate;
+
+runtime.assertionFactory = (input) => {
+  //
+};
+runtime.assert = (input) => {
+  // const { object = {}, type = "", validations = [] } = input;
+};

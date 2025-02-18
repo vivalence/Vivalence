@@ -1,26 +1,33 @@
-import onRequest from "./lib/middlewares/onRequest.js";
-
-import runtime from "./runtime/index.js";
-import runtimes from "./runtimes/index.js";
-
-let aperture = { router: null };
+import bootDaemonAperture from "./daemon/boot.js";
+import runtimeAperture from "./runtime/index.js";
 
 async function init(daemon) {
-  aperture.router = daemon.router.create();
+  let aperture = { router: daemon.router.create(), pathname: "/aperture" };
+  daemon.aperture = aperture;
+  return daemon;
+}
 
-  aperture.router.middleware.push(onRequest(aperture, daemon));
+async function boot(daemon) {
+  daemon.aperture.router.middleware.push(async (ctx, next) => {
+    ctx.daemon = daemon;
+    ctx.aperture = daemon.aperture;
+    ctx.services = daemon.services;
+    ctx.entities = daemon.entities;
+    ctx.entities.em = daemon.entities.em.fork();
+    ctx.aperture.call = ctx.aperture.router.call.create(ctx);
+    await next();
+  });
 
-  daemon.aperture = await [
-    runtime,
-    runtimes, //
-  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(aperture));
-
+  daemon.aperture = await [bootDaemonAperture].reduce(
+    (acc, fn) => acc.then(fn),
+    Promise.resolve(daemon.aperture),
+  );
   return daemon;
 }
 
 async function serve(daemon) {
   daemon.router.use(
-    "/aperture",
+    daemon.aperture.pathname,
     ...daemon.aperture.router.middleware,
     daemon.aperture.router.routes(),
     daemon.aperture.router.allowedMethods(),
@@ -28,4 +35,4 @@ async function serve(daemon) {
   return daemon;
 }
 
-export default { init, serve };
+export default { init, boot, serve, runtime: runtimeAperture };
