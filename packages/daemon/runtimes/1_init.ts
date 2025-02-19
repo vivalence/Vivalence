@@ -22,13 +22,13 @@ export default async function (daemon: Daemon) {
         ctx: {},
       });
 
-      // Todo: make schema a Module.export and apply them to mikro.Embeddables.
-      const { Ontology, Curricula } = runtime.Modules;
-      runtime.schema = [Ontology, ...Curricula].reduce(
-        (s, { schema = (s: UnknownObject) => s }) =>
-          typeof schema === "function" ? (schema(s) ?? s) : s,
-        {},
-      );
+      // // Todo: make schema a Module.export and apply them to mikro.Embeddables.
+      // const { Ontology, Curricula } = runtime.Modules;
+      // runtime.schema = [Ontology, ...Curricula].reduce(
+      //   (s, { schema = (s: UnknownObject) => s }) =>
+      //     typeof schema === "function" ? (schema(s) ?? s) : s,
+      //   {},
+      // );
 
       // maybe pass the service Modules
       const services = await servicesHelper.mountClients(runtime.Modules.Runtime.services, runtime);
@@ -44,6 +44,7 @@ export default async function (daemon: Daemon) {
 
       // runtime.aperture.router = runtime.router.create();
 
+      // MOVE to after boot.
       injectExecutionMiddleware(daemon, runtime);
 
       daemon.runtimes.set(key, runtime);

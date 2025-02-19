@@ -37,6 +37,7 @@
     "jsonata": "npm:jsonata@2.0.5",
     "ajv": "npm:ajv@8.17.1",
     "ajv-errors": "npm:ajv-errors@3.0.0",
+    "zod": "npm:ajv",
 
     "esbuild": "npm:esbuild@latest",
     "esbuild-svelte": "npm:esbuild-svelte@latest",

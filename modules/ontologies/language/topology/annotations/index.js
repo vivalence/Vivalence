@@ -34,6 +34,7 @@ const topology = {
   reflex,
   definite,
   prontype,
+  prepcase,
   numtype,
   numform,
   polarity,

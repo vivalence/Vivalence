@@ -8,7 +8,7 @@
     "./packages/schema",
     "./packages/registry",
     "./packages/clients/web",
-    "./packages/clients/viva",
+    "./packages/viva",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
   ],

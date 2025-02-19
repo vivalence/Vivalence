@@ -1,5 +1,5 @@
 import curriculum from "./curriculum/index.js";
-import schema from "./schema/index.js";
+import topology from "./topology/index.js";
 
 const manifest = {
   type: "curriculum",
@@ -7,6 +7,7 @@ const manifest = {
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
   version: "0.0.3",
+  traits: ["TOPOLOGICAL"],
 };
 
 const modules = {
@@ -32,4 +33,4 @@ const modules = {
   ], //
 };
 
-export { curriculum, manifest, modules, schema };
+export { curriculum, manifest, modules, topology };

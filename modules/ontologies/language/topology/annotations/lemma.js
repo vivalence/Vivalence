@@ -1,0 +1,21 @@
+export const rule = {
+  slug: "lemma",
+  type: "string",
+  title: "Lemma",
+  description: "The canonical form or base form of a word.",
+  // enum: []
+};
+
+export const node = {
+  slug: "lemma",
+  name: "lemma",
+  description: "The canonical form or base form of a word.",
+  traits: ["ANCESTOR", "CATEGORICAL"], // FREE ?
+  data: {
+    ANCESTOR: [],
+  },
+};
+
+// export const meta = {
+//   slug: "lemma",
+// };

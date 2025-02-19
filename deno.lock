@@ -2770,6 +2770,7 @@
       "npm:@sveltejs/vite-plugin-svelte@4.0.0",
       "npm:@tailwindcss/typography@0.5.15",
       "npm:ajv-errors@3.0.0",
+      "npm:ajv@*",
       "npm:ajv@8.17.1",
       "npm:autoprefixer@10.4.20",
       "npm:ebisu-js@2.1.3",
