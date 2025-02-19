@@ -1,73 +1,38 @@
-import { entities as Entities } from "@vivalence/schema";
+// import { entities as Entities } from "@vivalence/schema";
 
-import applySchema from "./schema/index.js";
+import loadTopology from "./topology/index.js";
 // import methods from "./methods/boot.js";
 // import curriculum from "./curriculum/index.js";
 
-class ClassifierSystem {}
+// ontology.schema.get = (path, required) => {
+//   const requestedSchema = Array.from(ontology.rules)
+//     .filter((rule) => rule.traits.includes("SCHEMATIC"))
+//     .find((rule) => rule.path.join() === path.join());
+//   return requestedSchema.data.SCHEMATIC.json;
+// };
 
-class RemedySystem {}
-// remedy could be a key implemented by Rule.
-
-// this.remedies = new Map({}); // exports a tree of handlers.
-// the domain hooks these into ??? or the ontology? how does this system get managed and provided?  needs hooks. needs paths.
-
-// i love this architecture.
+// class Tree extends Map {} // tree: new Tree(ontology),
 async function boot(runtime) {
-  // nodes are computed to tree. rules used to construct schema. and both flow into assertions and remedy.
-
   let ontology = {
     classifier: new ClassifierSystem(),
     remedy: new RemedySystem(), // sub-systems
+    annotations: new Set(), // <Entities.annotation[]>
+    topographies: new Map(), // <Entities.topography[]>
     rules: new Set(), // <Entities.rule[]>
-    nodes: new Map(), // <Entities.node[]>
   };
 
-  ontology = applySchema(ontology);
+  ontology = loadTopology(ontology);
+  // console.log(ontology.annotations);
+  // build schema??
+  // schema.entities.unit
+  // schema.annotations.
 
-  // runtime.schema = {
-  //   entities: {
-  //     // unit: {}, tag: {}
-  //   },
-  //   topography: {
-  //     // must be mapable to domain.entities[MikroEntity]
-  //     // computed children of topological parents: // adj={}, noun={}, verb={}, adv={}
-  //     // for child<Node> of nodes.ANCESTOR.where(trait topological) do schema.topography[child.] = {}
-  //   },
-  //   // interfaces: {
-  //   //   // signal: {}, // used by classifier.
-  //   //   // games and memory will nee to make their own types.
-  //   // },
-  // };
-  // now i need to construct the schema.
-  // no kinda dont.
-  // assert can be constructed from a query engine and factories.
-  // schema.entities&topography is the critical one. if i can solve that with query, all the better.
-  // but i think that would require the schema rules for unit to be applied as the base for typography.
-  // and i dont know if i can compute that at methodtime or if that requires preconstruction on boot.
-  // i will try either
-
-  // ontology.rules.find({ entity: "unit", branch: "adj", traits: ["schematic"] });
-
-  async function assertFactory({ nodes, rules }, ctx) {
-    const assertions = {
-      // entities: { unit: () => {}, tag: () => {} },
-      topography: {}, // applies only to units. separated by topological traits, in effect by pos.
-    };
-
-    // for node<Node> of nodes.where(traits [topological ancestor])
-    //     assertions.topography[node.slug] = (node, ctx) => (entity, processors =['schematic', 'relational']) =>{}
-
-    return assertions;
-    // API
-    // assert.entities.unit(entity); ?? not really used i guess.
-    // assert.entities.tags(entity, ['schematic']) //
-    // assert.topography.definite(entity, ['schematic', 'relational']) // default is both. // relational checks
-    // assert.topography.definite(entity) // checks annotation,
+  for (const Curriculum of runtime.Modules.Curricula) {
+    ontology = Curriculum.schema(ontology);
   }
 
-  const assert = assertFactory(ontology, ctx);
-
+  // const assert = assertFactory(ontology);
+  // runtime.assert = assert;
   runtime.ontology = ontology;
 
   return runtime;
@@ -82,7 +47,85 @@ const manifest = {
 };
 
 // features. maybe its not topology but feature.
+const curriculum = {};
 export { manifest, boot, curriculum };
+
+// // returns Issue[]
+// const asserter = (ontology, ancestor, node) => {
+//   // console.log(node);
+//   return (entity, processors = ["schematic", "relational"]) => {
+//     // entity.type??
+//     // ontology.rules.find({ entity: "unit", branch: node.slug, traits: ["SCHEMATIC"] });
+//   };
+// };
+
+// function assertFactory(ontology) {
+//   const assertions = {
+//     // entities: { unit: () => {}, tag: () => {} },
+//     topography: {},
+//   };
+
+// console.log("ontology.nodes", runtime.modules.curricula[0].Module.schema);
+//   const topology = Array.from(ontology.nodes)
+//     .filter((node) => node.traits.includes("TOPOLOGICAL"))
+//     .filter((node) => node.traits.includes("ANCESTOR"));
+
+//   for (const ancestor of topology) {
+//     for (const child of ancestor.data["ANCESTOR"]) {
+//       assertions.topography[child.slug] = asserter(ontology, ancestor, child);
+//     }
+//   }
+
+//   // console.log("assertions ", assertions);
+
+//   return assertions;
+// }
+// const tree = new Map();
+// nodes are computed to tree. rules used to construct schema. and both flow into assertions and remedy.
+// tree = buildTree(tree, ontology);
+// // 4. Using multiple data types as keys
+// const map4 = new Map([
+//     ["pos", NodeEntity({slug:"pos"})],
+//     ["", NodeEntity({slug:"pos"})],
+//     [NodeEntity({slug: "pos"}), [
+// 	Node(pos:noun),
+// 	Node(pos:verb),
+//     ]],
+// ]);
+
+// assert factory API
+// assert.entities.unit(entity); ?? not really used i guess.
+// assert.entities.tags(entity, ['schematic']) //
+// assert.topography.definite(entity, ['schematic', 'relational']) // default is both. // relational checks
+// assert.topography.definite(entity) // checks annotation,
 
 // assert...(Unit|Tag) assert.relations.tag() // scoped implementation of assert.relations('Tag"') assert.relations.unit()
 // assert.interfaces.signal()
+
+// runtime.schema = {
+//   entities: {
+//     // unit: {}, tag: {}
+//   },
+//   topography: {
+//     // must be mapable to domain.entities[MikroEntity]
+//     // computed children of topological parents: // adj={}, noun={}, verb={}, adv={}
+//     // for child<Node> of nodes.ANCESTOR.where(trait topological) do schema.topography[child.] = {}
+//   },
+//   // interfaces: {
+//   //   // signal: {}, // used by classifier.
+//   //   // games and memory will nee to make their own types.
+//   // },
+// };
+// now i need to construct the schema.
+// no kinda dont.
+// assert can be constructed from a query engine and factories.
+// schema.entities&topography is the critical one. if i can solve that with query, all the better.
+// but i think that would require the schema rules for unit to be applied as the base for typography.
+// and i dont know if i can compute that at methodtime or if that requires preconstruction on boot.
+// i will try either
+
+class ClassifierSystem {}
+
+class RemedySystem {} // this.remedies = new Map({}); // exports a tree of handlers.
+// the domain hooks these into ??? or the ontology?
+// how does this system get managed and provided?  needs hooks. needs paths.

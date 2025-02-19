@@ -18,6 +18,9 @@ export { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 export { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./4_userland/Memory.ts";
 export { InstructionStatusEnum } from "./5_transient/Instruction.ts";
 
+export { AnnotationEntity } from "./3_ontology/Node.ts";
+export { RuleEntity } from "./3_ontology/Rule.ts";
+
 import { UserEntity, UserSchema } from "./0_root/User.ts";
 import { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
 import { ServiceEntity, ServiceSchema } from "./1_repo/Service.ts";
@@ -39,7 +42,7 @@ import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 import { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./4_userland/Memory.ts";
 import { InstructionStatusEnum } from "./5_transient/Instruction.ts";
 
-import { NodeEntity } from "./3_ontology/Node.ts";
+import { AnnotationEntity } from "./3_ontology/Node.ts";
 import { RuleEntity } from "./3_ontology/Rule.ts";
 
 export const enums = {
@@ -102,7 +105,7 @@ export const entities = {
   memory: MemoryEntity,
   play: PlayEntity,
   instruction: InstructionEntity,
-  node: NodeEntity,
+  node: AnnotationEntity,
   rule: RuleEntity,
 };
 
