@@ -12,9 +12,9 @@ export const node = {
   slug: "number",
   name: "number",
   description: "The grammatical number of a noun or verb, indicating singular or plural.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "sing",
         name: "Singular",

@@ -14,9 +14,9 @@ export const node = {
   slug: "definite",
   name: "definiteness",
   description: "Indicates whether a noun is definite or indefinite.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "def",
         name: "Definite",

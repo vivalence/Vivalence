@@ -10,9 +10,9 @@ export const node = {
   slug: "lemma",
   name: "lemma",
   description: "The canonical form or base form of a word.",
-  traits: ["ANCESTOR", "CATEGORICAL"], // FREE ?
+  traits: ["CATEGORICAL", "CATEGORICAL"], // FREE ?
   data: {
-    ANCESTOR: [],
+    CATEGORICAL: [],
   },
 };
 

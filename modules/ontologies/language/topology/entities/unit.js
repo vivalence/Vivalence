@@ -47,14 +47,12 @@ export default {
     },
     annotation: {
       type: "object",
-      description: "unit.annoatition schema",
+      description: "unit annoatition schema",
       properties: {
-        // here i either need to compute the annotationspace from the topology
-        // or compute this later.
-        // ...schema.annotations,
+        // computationall populated at ontology.boot
       },
-      // required: ["pos", "lemma"],
-      additionalProperties: true,
+      required: [],
+      additionalProperties: false,
     },
   },
   required: ["slug", "data", "annotation"],

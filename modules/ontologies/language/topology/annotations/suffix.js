@@ -11,9 +11,9 @@ export const node = {
   slug: "suffix",
   name: "suffix",
   description: "The suffix of the verb",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "er",
         name: "-er",

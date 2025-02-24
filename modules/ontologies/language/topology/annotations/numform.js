@@ -13,9 +13,9 @@ export const node = {
   name: "numeral form",
   description:
     "The form of numerals, indicating whether the number is expressed by digits, Roman numerals, or words.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "digit",
         name: "Digit",

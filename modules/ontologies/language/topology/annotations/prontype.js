@@ -12,9 +12,9 @@ export const node = {
   slug: "prontype",
   name: "pronoun type",
   description: "The type of pronoun.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "prs",
         name: "Personal",

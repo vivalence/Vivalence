@@ -16,22 +16,22 @@ export enum RuleTraitsEnum {
 export class RuleEntity extends BaseEntity {
   // slughash: string;
   traits: RuleTraitsEnum[] & Opt = [];
+  topology: string & Opt = "";
   // topology required, nullable.
   // if topology===null && trait[schematic] => is entity schema rule..
-  topology: string & Opt; // or Null
   // branch of topology, ie pos:adj
   // must guarantee lack of collision between topologies and entities
-  path: string[] & Opt;
+  branch: string[] & Opt;
   // path can be ${entity} ${togography}
   // path can be ${topology} ${annotation}
 
   data: any & Opt = "{}";
 
-  constructor(rule = { topology: "", traits: [], path: [], data: {} }) {
+  constructor(rule = { topology: "", traits: [], branch: [], data: {} }) {
     super();
     this.topology = rule.topology;
     this.traits = rule.traits;
-    this.path = rule.path;
+    this.branch = rule.branch;
     this.data = rule.data;
     // this.slughash = this.hash();
   }

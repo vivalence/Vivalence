@@ -11,9 +11,9 @@ export const node = {
   slug: "prepcase",
   name: "prepositional case",
   description: "Indicates the prepositional usage of a pronoun.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "pre",
         name: "Prepositional Case",

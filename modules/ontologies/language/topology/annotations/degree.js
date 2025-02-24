@@ -12,9 +12,9 @@ export const node = {
   slug: "degree",
   name: "degree",
   description: "The degree of comparison for adjectives and adverbs.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "abs",
         name: "Absolute",

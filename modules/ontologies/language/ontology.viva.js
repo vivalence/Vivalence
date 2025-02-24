@@ -1,38 +1,38 @@
-// import { entities as Entities } from "@vivalence/schema";
-
-import loadTopology from "./topology/index.js";
 // import methods from "./methods/boot.js";
 // import curriculum from "./curriculum/index.js";
+import {
+  AnnotationRepository,
+  TopographyRepository,
+  ConstraintRepository,
+} from "@vivalence/schema";
 
-// ontology.schema.get = (path, required) => {
-//   const requestedSchema = Array.from(ontology.rules)
-//     .filter((rule) => rule.traits.includes("SCHEMATIC"))
-//     .find((rule) => rule.path.join() === path.join());
-//   return requestedSchema.data.SCHEMATIC.json;
-// };
+// classifier:
+// remedy:
+// issues:
 
-// class Tree extends Map {} // tree: new Tree(ontology),
+import asserter from "./lib/asserter.js";
+import topology from "./topology/index.js";
+
 async function boot(runtime) {
   let ontology = {
-    classifier: new ClassifierSystem(),
-    remedy: new RemedySystem(), // sub-systems
-    annotations: new Set(), // <Entities.annotation[]>
-    topographies: new Map(), // <Entities.topography[]>
-    rules: new Set(), // <Entities.rule[]>
+    // classifier: new ClassifierSystem(),
+    // remedy: new RemedySystem(), // sub-systems
+    annotations: new AnnotationRepository(),
+    topographies: new TopographyRepository(),
+    constraints: new ConstraintsRepository(),
+    issues: new IssueRepository(),
   };
 
-  ontology = loadTopology(ontology);
-  // console.log(ontology.annotations);
-  // build schema??
-  // schema.entities.unit
-  // schema.annotations.
+  ontology = topology(ontology);
 
   for (const Curriculum of runtime.Modules.Curricula) {
-    ontology = Curriculum.schema(ontology);
+    ontology = Curriculum.topology(ontology);
   }
 
-  // const assert = assertFactory(ontology);
-  // runtime.assert = assert;
+  const assertions = { topography: {} };
+  const assert = asserter(ontology, assertions);
+
+  runtime.assert = assert;
   runtime.ontology = ontology;
 
   return runtime;
@@ -46,40 +46,18 @@ const manifest = {
   // traits:['memetic']
 };
 
-// features. maybe its not topology but feature.
 const curriculum = {};
+
 export { manifest, boot, curriculum };
 
-// // returns Issue[]
-// const asserter = (ontology, ancestor, node) => {
-//   // console.log(node);
-//   return (entity, processors = ["schematic", "relational"]) => {
-//     // entity.type??
-//     // ontology.rules.find({ entity: "unit", branch: node.slug, traits: ["SCHEMATIC"] });
-//   };
+// ontology.schema.get = (path, required) => {
+//   const requestedSchema = Array.from(ontology.rules)
+//     .filter((rule) => rule.traits.includes("SCHEMATIC"))
+//     .find((rule) => rule.path.join() === path.join());
+//   return requestedSchema.data.SCHEMATIC.json;
 // };
 
-// function assertFactory(ontology) {
-//   const assertions = {
-//     // entities: { unit: () => {}, tag: () => {} },
-//     topography: {},
-//   };
-
-// console.log("ontology.nodes", runtime.modules.curricula[0].Module.schema);
-//   const topology = Array.from(ontology.nodes)
-//     .filter((node) => node.traits.includes("TOPOLOGICAL"))
-//     .filter((node) => node.traits.includes("ANCESTOR"));
-
-//   for (const ancestor of topology) {
-//     for (const child of ancestor.data["ANCESTOR"]) {
-//       assertions.topography[child.slug] = asserter(ontology, ancestor, child);
-//     }
-//   }
-
-//   // console.log("assertions ", assertions);
-
-//   return assertions;
-// }
+// // returns Issue[]
 // const tree = new Map();
 // nodes are computed to tree. rules used to construct schema. and both flow into assertions and remedy.
 // tree = buildTree(tree, ontology);

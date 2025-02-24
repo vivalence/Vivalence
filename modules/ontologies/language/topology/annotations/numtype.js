@@ -12,9 +12,9 @@ export const node = {
   slug: "numtype",
   name: "numeral type",
   description: "The type of numeral.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "card",
         name: "Cardinal",
