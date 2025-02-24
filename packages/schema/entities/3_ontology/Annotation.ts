@@ -2,9 +2,10 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity } from "../0_root/BaseEntity.ts";
 
 export enum AnnotationTraitsEnum {
-  ANCESTOR = "ancestor",
-  TOPOLOGICAL = "topological",
   CATEGORICAL = "categorical",
+  // Only categorical (&@root) can be TOPOLOGICAL
+  TOPOLOGICAL = "topological",
+  ANCESTOR = "ancestor",
 
   // FUTURETENSE CONTINUOUS = "continuous", DISCRETE = "discrete",
 }
@@ -13,6 +14,7 @@ export class AnnotationEntity extends BaseEntity {
   // slug
   traits: AnnotationTraitsEnum[] & Opt = [];
   data: any & Opt = "{}";
+  topology: string & Opt = "";
 
   constructor(node = {}) {
     super();

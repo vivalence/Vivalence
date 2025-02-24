@@ -12,9 +12,9 @@ export const node = {
   slug: "reflexive",
   name: "reflexive",
   description: "Indicates whether a verb is reflexive.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "yes",
         name: "Reflexive",

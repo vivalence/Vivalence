@@ -12,9 +12,9 @@ export const node = {
   slug: "mood",
   name: "mood",
   description: "The grammatical mood of a verb, indicating modality.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "ind",
         name: "Indicative",

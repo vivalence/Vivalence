@@ -11,9 +11,9 @@ export const node = {
   slug: "polarity",
   name: "polarity",
   description: "The polarity of an adverb.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "neg",
         name: "Negative",

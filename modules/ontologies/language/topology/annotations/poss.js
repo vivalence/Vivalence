@@ -11,9 +11,9 @@ export const node = {
   slug: "possessive",
   name: "possessive",
   description: "Indicates whether a noun or pronoun shows possession.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "yes",
         name: "Possessive",

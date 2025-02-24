@@ -11,9 +11,9 @@ export const node = {
   slug: "person",
   name: "person",
   description: "The grammatical person of a verb, indicating the subject.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "1",
         name: "First Person",

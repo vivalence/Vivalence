@@ -18,7 +18,8 @@ export { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 export { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./4_userland/Memory.ts";
 export { InstructionStatusEnum } from "./5_transient/Instruction.ts";
 
-export { AnnotationEntity } from "./3_ontology/Node.ts";
+export { TopographyEntity } from "./3_ontology/Topography.ts";
+export { AnnotationEntity } from "./3_ontology/Annotation.ts";
 export { RuleEntity } from "./3_ontology/Rule.ts";
 
 import { UserEntity, UserSchema } from "./0_root/User.ts";
@@ -42,7 +43,8 @@ import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 import { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./4_userland/Memory.ts";
 import { InstructionStatusEnum } from "./5_transient/Instruction.ts";
 
-import { AnnotationEntity } from "./3_ontology/Node.ts";
+import { TopographyEntity } from "./3_ontology/Topography.ts";
+import { AnnotationEntity } from "./3_ontology/Annotation.ts";
 import { RuleEntity } from "./3_ontology/Rule.ts";
 
 export const enums = {
@@ -105,8 +107,9 @@ export const entities = {
   memory: MemoryEntity,
   play: PlayEntity,
   instruction: InstructionEntity,
-  node: AnnotationEntity,
-  rule: RuleEntity,
+  // topography: TopographyEntity,
+  // annotation: AnnotationEntity,
+  // rule: RuleEntity,
 };
 
 export const schemas = [

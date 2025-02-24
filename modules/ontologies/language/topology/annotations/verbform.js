@@ -12,9 +12,9 @@ export const node = {
   slug: "verbform",
   name: "verb form",
   description: "The form of a verb, indicating its function in a sentence.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "fin",
         name: "Finite",

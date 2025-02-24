@@ -13,9 +13,9 @@ export const node = {
   slug: "tense",
   name: "tense",
   description: "The time of action or state expressed by the verb.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "past",
         name: "Past",

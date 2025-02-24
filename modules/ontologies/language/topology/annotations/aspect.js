@@ -6,9 +6,9 @@ export const node = {
   slug: "aspect",
   name: "aspect",
   description: "The aspect of a verb, indicating the flow of time in the action.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "imp",
         name: "Imperfective",

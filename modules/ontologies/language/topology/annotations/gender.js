@@ -10,9 +10,9 @@ export const node = {
   slug: "gender",
   name: "gender",
   description: "The grammatical gender of a noun or pronoun.",
-  traits: ["ANCESTOR", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "CATEGORICAL"],
   data: {
-    ANCESTOR: [
+    CATEGORICAL: [
       {
         slug: "fem",
         name: "Feminine",
