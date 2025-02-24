@@ -15,12 +15,10 @@ const annotationFrom =
 
 const topographyAsserter = (ontology, topography) => {
   const unitSchemaRule = ruleFrom(ontology)({ branch: ["unit"], trait: "SCHEMATIC" });
-
   const schema = unitSchemaRule.data.json;
 
   topography.annotations.map(({ branch, required }) => {
     const annotation = annotationFrom(ontology)({ branch });
-
     schema.properties.annotation.properties[annotation.slug] = {
       type: "string", // from categorical
       title: annotation.name,
