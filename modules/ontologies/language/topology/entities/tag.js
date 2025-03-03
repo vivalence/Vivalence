@@ -23,6 +23,7 @@ export default {
     },
   },
   required: ["slug", "data", "traits"],
+  additionalProperties: true,
 };
 
 // return schema;

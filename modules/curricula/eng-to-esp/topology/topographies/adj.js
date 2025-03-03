@@ -10,4 +10,13 @@ export default {
     { branch: ["number"], required: true },
     { branch: ["degree"] },
   ],
+  relations: [
+    { unique: { branch: "pos" } },
+    { required: { branch: "pos", leaf: "adj" } },
+    { required: { branch: "gender", leaf: "masc" } },
+    { required: { branch: "gender", leaf: "fem" } },
+    { required: { branch: "number", leaf: "sing" } },
+    { required: { branch: "number", leaf: "plur" } },
+    { unique: { branch: "degree" } },
+  ],
 };

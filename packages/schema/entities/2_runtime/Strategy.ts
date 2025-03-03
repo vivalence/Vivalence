@@ -1,6 +1,6 @@
 import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
-import { UserEntity } from "../0_root/User.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 
 export enum StrategyTraitsEnum {

@@ -1,16 +1,9 @@
-export const rule = {
-  slug: "gender",
-  type: "string",
-  title: "Gender",
-  description:
-    "The grammatical gender of a noun or pronoun. Possible values: 'fem' (Feminine: Female gender), 'masc' (Masculine: Male gender).",
-  enum: ["fem", "masc"],
-};
+// export const rule = {slug: "gender", type: "string", title: "Gender", description: "The grammatical gender of a noun or pronoun. Possible values: 'fem' (Feminine: Female gender), 'masc' (Masculine: Male gender).", enum: ["fem", "masc"],};
 export const node = {
   slug: "gender",
   name: "gender",
   description: "The grammatical gender of a noun or pronoun.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL"],
   data: {
     CATEGORICAL: [
       {

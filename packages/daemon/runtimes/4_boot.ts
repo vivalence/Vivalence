@@ -11,6 +11,7 @@ export default async function (daemon: Daemon) {
       if (!runtime) throw new Error("Module boot failed");
       runtime.Module = Runtime;
 
+      // they should probably boot staged.
       const [domain, ontology, corpora, games, tactics, strategies] = await Promise.all([
         bootModule(runtime, runtime.modules.domain),
         bootModule(runtime, runtime.modules.ontology),
@@ -20,11 +21,11 @@ export default async function (daemon: Daemon) {
         // bootModules(runtime, runtime.modules.strategies),
       ]);
 
-      runtime.modules.domain = domain;
-      runtime.modules.ontology = ontology;
-      runtime.modules.corpora = corpora;
-      runtime.modules.games = games;
-      runtime.modules.tactics = tactics;
+      runtime.domain = domain;
+      runtime.ontology = ontology;
+      runtime.corpora = corpora;
+      runtime.games = games;
+      runtime.tactics = tactics;
       // runtime.modules.strategies = strategies;
 
       daemon.runtimes.set(key, runtime);

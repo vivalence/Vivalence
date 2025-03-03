@@ -2,7 +2,7 @@ import curriculum from "./curriculum/index.js";
 import topology from "./topology/index.js";
 
 const manifest = {
-  type: "curriculum",
+  type: "curriculum", // corpus
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
   icon: { emoji: "🇪🇺" },
@@ -26,11 +26,7 @@ const modules = {
     "@vivalence/tactic/pronominalization-practice",
   ],
   strategies: [],
-  topologies: [
-    "@vivalence/topology/verbs/lemmas",
-    "@vivalence/topology/verbs/conjugations/ser",
-    "@vivalence/topology/verbs/conjugations/estar",
-  ], //
+  // topologies: ["@vivalence/topology/nouns", "@vivalence/topology/verbs",],
 };
 
-export { curriculum, manifest, modules, topology };
+export { manifest, modules, curriculum, topology };

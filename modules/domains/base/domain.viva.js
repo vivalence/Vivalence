@@ -1,11 +1,15 @@
+import entities from "./entities/index.js";
 import events from "./events/index.js";
 import methods from "./methods/boot.js";
 import middlewares from "./middlewares/index.js";
 
+// move the curriculum.install here.
 async function boot(runtime) {
+  await entities.boot(runtime);
   await middlewares.boot(runtime);
   await methods.boot(runtime);
   await events.boot(runtime);
+
   return runtime;
 }
 

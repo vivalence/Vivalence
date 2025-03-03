@@ -11,9 +11,9 @@ export default function serve(daemon: Daemon) {
       );
 
       for (const module of [
-        runtime.modules.domain,
-        runtime.modules.ontology,
-        ...(runtime.modules.curricula ?? []),
+        runtime.domain,
+        runtime.ontology,
+        ...(runtime.curricula ?? []),
       ] as Module[]) {
         if (!module.router) continue;
 
@@ -24,7 +24,7 @@ export default function serve(daemon: Daemon) {
         );
       }
 
-      for (const module of [...runtime.modules.games, ...runtime.modules.tactics]) {
+      for (const module of [...runtime.games, ...runtime.tactics]) {
         //, ...runtime.modules.strategies
         if (!module.router || !module.entity.url) throw new Error("Cant serve modules");
 

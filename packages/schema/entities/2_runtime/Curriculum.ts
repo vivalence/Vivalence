@@ -1,12 +1,12 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
-import { UserEntity } from "../0_root/User.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { TagEntity } from "../3_curriculum/Tag.ts";
-import { UnitEntity } from "../3_curriculum/Unit.ts";
-import { DependencyEntity } from "../3_curriculum/Dependency.ts";
-import { ConditionEntity } from "../3_curriculum/Condition.ts";
+import { TagEntity } from "../4_curriculum/Tag.ts";
+import { UnitEntity } from "../4_curriculum/Unit.ts";
+import { DependencyEntity } from "../4_curriculum/Dependency.ts";
+import { ConditionEntity } from "../4_curriculum/Condition.ts";
 
 export class CurriculumEntity extends BaseModuleEntity {
   users = new Collection<UserEntity>(this);

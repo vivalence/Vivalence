@@ -1,14 +1,16 @@
 import adj from "./adj.js";
-// import adp from "./units/adp.js";
-// import adv from "./units/adv.js";
-// import cconj from "./units/cconj.js";
-// import det from "./units/det.js";
-// import intj from "./units/intj.js";
-// import noun from "./units/noun.js";
-// import num from "./units/num.js";
-// import pron from "./units/pron.js";
-// import sconj from "./units/sconj.js";
-// import punct from "./units/punct.js";
-// import verb from "./units/verb.js";
+import adp from "./adp.js";
+import adv from "./adv.js";
+import aux from "./aux.js";
+import cconj from "./cconj.js";
+import det from "./det.js";
+import intj from "./intj.js";
+import noun from "./noun.js";
+import num from "./num.js";
+import pron from "./pron.js";
+import propn from "./propn.js";
+import sconj from "./sconj.js";
+import punct from "./punct.js";
+import verb from "./verb.js";
 
-export default { adj };
+export default { adj, adp, adv, aux, cconj, det, intj, noun, num, pron, propn, sconj, punct, verb };

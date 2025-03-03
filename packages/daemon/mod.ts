@@ -1,23 +1,24 @@
 const start = performance.now();
 
-// import {Daemon} from "@vivalence/types"
-import registry from "@vivalence/registry";
-
-import cleanup from "./lib/cleanup-ports.js";
-import services from "./services/index.js";
 // import daemonize from "./lib/daemonize.js";
 // import dev from "./lib/dev.js";
-
 // import { Daemon } from "@vivalence/types";
-import aperture from "./aperture/index.js";
+// import {Daemon} from "@vivalence/types"
+
+import registry from "@vivalence/registry";
+import cleanup from "./lib/cleanup-ports.js";
+import services from "./services/index.js";
+
+import server from "./locals/server/index.js";
+import routes from "./routes/index.js";
 import runtimes from "./runtimes/index.ts";
-import server from "./server/index.js";
 import entities from "./entities/index.js";
 
 const ticker = (name: string) => (daemon: Daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
   return daemon;
 };
+// console.json=data
 
 const daemon = {
   // <IntelligentMap>
@@ -38,8 +39,8 @@ const daemon = {
     registry.mount,
     services.init,
     server.init,
-    aperture.init,
-    aperture.boot,
+    routes.init,
+    routes.boot,
     runtimes.discover,
     entities.init,
     runtimes.init,
@@ -48,7 +49,7 @@ const daemon = {
     runtimes.boot,
     runtimes.apertures,
     runtimes.serve,
-    aperture.serve,
+    routes.serve,
     server.serve,
     runtimes.install,
     // hooks.runtime.postInstall

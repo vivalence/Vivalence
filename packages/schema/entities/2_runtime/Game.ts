@@ -3,8 +3,8 @@ import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { PlayEntity } from "../4_userland/Play.ts";
-import { InstructionEntity } from "../5_transient/Instruction.ts";
+import { PlayEntity } from "../5_userland/Play.ts";
+import { InstructionEntity } from "../6_transient/Instruction.ts";
 
 // class VivaURL extends URL {#modulename; set modulename(value) {this.#modulename = value;} get modulename() {return this.#modulename;}}
 

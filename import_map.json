@@ -1,11 +1,13 @@
 {
   "imports": {
     "$std/": "https://deno.land/std@0.224.0/",
-    "@std/path": "jsr:@std/path@1.0.8",
+    "@std/path": "jsr:@std/path@^1.0.8",
     "@std/encoding": "jsr:@std/encoding@1.0.7",
     "@std/encoding/hex": "jsr:@std/encoding@1.0.7/hex",
     "@std/crypto": "jsr:@std/crypto@1.0.4",
-    "@std/fs": "jsr:@std/fs@1.0.8",
+    "@std/fs": "jsr:@std/fs@^1.0.8",
+    "fs-extra": "npm:fs-extra",
+
     "@stdlib/utils": "https://cdn.jsdelivr.net/gh/stdlib-js/utils@deno/mod.js",
 
     "uuid": "npm:uuid@11.0.5",
@@ -37,7 +39,8 @@
     "jsonata": "npm:jsonata@2.0.5",
     "ajv": "npm:ajv@8.17.1",
     "ajv-errors": "npm:ajv-errors@3.0.0",
-    "zod": "npm:ajv",
+    "zod": "npm:zod",
+    "json-schema-to-zod": "npm:json-schema-to-zod",
 
     "esbuild": "npm:esbuild@latest",
     "esbuild-svelte": "npm:esbuild-svelte@latest",

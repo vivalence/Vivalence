@@ -1,7 +1,7 @@
 import { EntitySchema, Collection, type Rel } from "@mikro-orm/core";
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { TagEntity } from "../3_curriculum/Tag.ts";
+import { TagEntity } from "../4_curriculum/Tag.ts";
 
 export class OntologyEntity extends BaseModuleEntity {
   runtime!: Rel<RuntimeEntity>;

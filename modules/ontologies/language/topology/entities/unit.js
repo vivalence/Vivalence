@@ -56,7 +56,7 @@ export default {
     },
   },
   required: ["slug", "data", "annotation"],
-  additionalProperties: false,
+  additionalProperties: true,
 };
 // allOf: Object.values(PoS).map((pos) => {const statement = {if: {properties: {pos: { const: pos.schema.properties.annotation.properties.pos.enum }}}, then: {required: pos.schema.properties.annotation.required}}; if (pos.schema.properties.annotation.allOf) {statement.then.allOf = pos.schema.properties.annotation.allOf;} return statement;})
 

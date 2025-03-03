@@ -5,8 +5,8 @@ import { schemas, entities, runtimeEntities } from "@vivalence/schema";
 
 import injectExecutionMiddleware from "./lib/executionMiddleware.ts";
 
-import createEmitter from "../emitter/create.js";
-import createRouter from "../server/router/create.js";
+import createEmitter from "../locals/emitter/create.js";
+import createRouter from "../locals/server/router/create.js";
 
 export default async function (daemon: Daemon) {
   for (let [key, runtime] of daemon.runtimes.entries()) {
