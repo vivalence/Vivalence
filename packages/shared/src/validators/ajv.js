@@ -1,8 +1,10 @@
-import Ajv from "ajv";
+import AJV from "ajv";
 import ajvErrors from "ajv-errors";
 
-function create(options = {}) {
-  const ajv = new Ajv({
+export { AJV };
+
+export default function makeAjv(options = {}) {
+  const instance = new AJV({
     allErrors: true,
     verbose: true,
     $data: true,
@@ -10,16 +12,21 @@ function create(options = {}) {
     ...options,
   });
 
-  ajvErrors(ajv);
+  ajvErrors(instance);
 
-  ajv.addKeyword({ keyword: "slug", validate: () => true, errors: false });
-  ajv.addKeyword({ keyword: "meta", validate: () => true, errors: false });
-
-  return (schema, data) => {
-    const validation = ajv.compile(schema);
-    const valid = validation(data);
-    return { data, valid, isValid: valid, errors: validation.errors };
-  };
+  // ajv.addKeyword({ keyword: "slug", validate: () => true, errors: false });
+  // ajv.addKeyword({ keyword: "meta", validate: () => true, errors: false });
+  return instance;
 }
 
-export default create;
+// function schema(options = {}) {
+//   const ajv = makeAjv(options);
+//   return (schema, data) => {
+//     const validation = ajv.compile(schema);
+//     const valid = validation(data);
+//     // translate to std issue format.
+
+//     return { data, valid, isValid: valid, errors: validation.errors };
+
+//   };
+// }

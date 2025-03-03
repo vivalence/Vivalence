@@ -4,6 +4,7 @@ import std, {
   strings,
   time,
   id,
+  hash,
   //api depracated
   uniqueBySlug,
   deepClone,
@@ -33,6 +34,7 @@ export {
   validators,
   services,
   runtimes,
+  hash,
 
   //api depracated
   uniqueBySlug,

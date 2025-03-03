@@ -1,0 +1,93 @@
+import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { BaseCurriculumEntity, BaseCurriculumSchema } from "../0_root/BaseCurriculumEntity.ts";
+import { RuntimeEntity } from "../1_repo/Runtime.ts";
+import { OntologyEntity } from "../2_runtime/Ontology.ts";
+import { CurriculumEntity } from "../2_runtime/Curriculum.ts";
+import { PlayEntity } from "../5_userland/Play.ts";
+import { MemoryEntity } from "../5_userland/Memory.ts";
+import { UnitEntity } from "../4_curriculum/Unit.ts";
+
+export enum TagTraitsEnum {
+  ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
+  STRUCTURAL = "STRUCTURAL", // organizing of units into sets or categories
+  LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
+  COMPLETABLE = "COMPLETABLE", // contains a set of units where each can be mastered
+  AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
+}
+
+export class TagEntity extends BaseCurriculumEntity {
+  runtime!: Rel<RuntimeEntity>;
+  ontology?: Rel<OntologyEntity>;
+  curriculum?: Rel<CurriculumEntity>;
+  units = new Collection<UnitEntity>(this);
+  ancestor?: Rel<TagEntity>;
+  decendants = new Collection<TagEntity>(this);
+  plays = new Collection<PlayEntity>(this);
+  memories = new Collection<MemoryEntity>(this);
+
+  traits: TagTraitsEnum[] & Opt = [];
+  data: any & Opt = "{}";
+}
+
+// function onCreate(args) {console.log("onupsert tag args", args); console.log("onupsert tag this", this);} // hooks: {beforeUpsert: [onCreate],},
+
+export const TagSchema = new EntitySchema<TagEntity, BaseCurriculumEntity>({
+  class: TagEntity,
+  extends: BaseCurriculumSchema,
+  tableName: "Tag",
+  uniques: [{ properties: ["slug", "runtime"] }],
+  properties: {
+    runtime: {
+      kind: "m:1",
+      entity: () => RuntimeEntity,
+      fieldName: "runtime",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+    ontology: {
+      kind: "m:1",
+      entity: () => OntologyEntity,
+      fieldName: "ontology",
+      updateRule: "cascade",
+      deleteRule: "set null",
+      nullable: true,
+    },
+    curriculum: {
+      kind: "m:1",
+      entity: () => CurriculumEntity,
+      fieldName: "curriculum",
+      updateRule: "cascade",
+      deleteRule: "set null",
+      nullable: true,
+    },
+    units: {
+      kind: "m:n",
+      entity: () => UnitEntity,
+      inversedBy: "tags",
+      pivotTable: "_TagToUnit",
+    },
+    ancestor: {
+      kind: "m:1",
+      entity: () => TagEntity,
+      fieldName: "ancestor",
+      inversedBy: "decendants",
+      nullable: true,
+    },
+    decendants: {
+      kind: "1:m",
+      entity: () => TagEntity,
+      mappedBy: (tag) => tag.ancestor,
+    },
+    memories: { kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.tag },
+    plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.tag },
+    traits: {
+      columnType: "json",
+      defaultRaw: `"[]"`,
+      enum: true,
+      array: true,
+      items: () => TagTraitsEnum,
+      default: [],
+    },
+    data: { type: "json" },
+  },
+});

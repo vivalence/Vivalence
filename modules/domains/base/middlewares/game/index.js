@@ -11,8 +11,11 @@ export default (game) => {
 
   game.router.middleware.push(async (ctx, next) => {
     const url = ctx.request.url.pathname.split("/");
-    const slug = url[url.indexOf("g") + 1];
+    const slug = url[url.indexOf("game") + 1];
+    // console.log(Object.keys(ctx.runtime), Object.keys(ctx.runtime.modules));
     ctx.state.game = ctx.runtime.modules.games.find((game) => game.entity.slug === slug).entity;
+    // todo throw 404 if no
+    if (!ctx.state.game) throw new Error("404 game no skibidi");
     await next();
   });
 

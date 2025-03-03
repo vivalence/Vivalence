@@ -2,7 +2,7 @@ import config from "@vivalence/config";
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
-import { UserEntity } from "../0_root/User.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { ServiceEntity } from "../1_repo/Service.ts";
 import { DomainEntity } from "../2_runtime/Domain.ts";
 import { GameEntity } from "../2_runtime/Game.ts";

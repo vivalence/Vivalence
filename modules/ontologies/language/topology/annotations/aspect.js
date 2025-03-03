@@ -1,4 +1,4 @@
-export const rule = {};
+// export const rule = {};
 
 // export const meta = {slug: "aspect", enums: {imp: {enum: "imp", title: "Imperfective", description: "An action or state that is ongoing or repeated",}, perf: {enum: "perf", title: "Perfective", description: "An action or state that is completed",}, prog: {enum: "prog", title: "Progressive", description: "An action or state that is in progress",}, hab: {enum: "hab", title: "Habitual", description: "An action that takes place habitually",}, iter: {enum: "iter", title: "Iterative", description: "An action that is repeated",}, prosp: {enum: "prosp", title: "Prospective", description: "An action that is expected to take place",},},};
 

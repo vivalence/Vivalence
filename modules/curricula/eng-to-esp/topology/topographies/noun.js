@@ -1,31 +1,16 @@
-export default (schema) => {
-  schema.units.noun = {
-    ...schema.unit,
-    title: "Noun",
-    description: "A noun is a word that represents a person, place, or thing.",
-    properties: {
-      ...schema.unit.properties,
-      annotation: {
-        ...schema.unit.properties.annotation,
-        properties: {
-          pos: { ...schema.annotations.pos, $id: "noun.annotation.pos", enum: ["noun", "propn"] },
-          lemma: { ...schema.annotations.lemma },
-          gender: { ...schema.annotations.gender },
-          number: { ...schema.annotations.number },
-        },
-        required: ["pos", "lemma", "gender", "number"],
-      },
-    },
-  };
-
-  schema.constraints.noun = [
+export default {
+  slug: "noun",
+  name: "Noun",
+  description: "A noun is a word that represents a person, place, or thing.",
+  annotations: [
+    { branch: ["pos"], required: true },
+    { branch: ["lemma"], required: true },
+    { branch: ["gender"], required: true },
+    { branch: ["number"], required: true },
+  ],
+  relations: [
     { unique: { branch: "pos" } },
-    {
-      some: [
-        { required: { branch: "pos", leaf: "noun" } },
-        { required: { branch: "pos", leaf: "propn" } },
-      ],
-    },
+    { required: { branch: "pos", leaf: "noun" } },
     { unique: { branch: "gender" } },
     {
       some: [
@@ -35,10 +20,5 @@ export default (schema) => {
     },
     { required: { branch: "number", leaf: "sing" } },
     { required: { branch: "number", leaf: "plur" } },
-  ];
-
-  schema.units.propn = schema.units.noun;
-  schema.constraints.propn = schema.constraints.noun;
-
-  return schema;
+  ],
 };

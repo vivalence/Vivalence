@@ -1,6 +1,6 @@
 import classification from "./classification/index.js";
 import diagnostics from "./diagnostics/index.js";
-import remedy from "./remedy/index.js";
+// import remedy from "./remedy/index.js";
 import identity from "./identity/index.js";
 
 async function boot(runtime) {
@@ -24,7 +24,7 @@ async function boot(runtime) {
   runtime.router.route("/diagnostics/validate/tag", diagnostics.validate.tag);
   runtime.router.route("/diagnostics/validate/tag/schema", diagnostics.validate.tag.schema);
 
-  runtime.router.route("/remedy", remedy);
+  // runtime.router.route("/remedy", remedy);
 
   return runtime;
 }

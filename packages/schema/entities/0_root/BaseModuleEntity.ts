@@ -1,3 +1,4 @@
+// TODO rename to BaseRuntimeEntity
 import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseSchema, BaseEntity } from "../0_root/BaseEntity.ts";
 

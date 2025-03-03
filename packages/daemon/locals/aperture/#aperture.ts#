@@ -1,0 +1,92 @@
+import { Router } from "oak";
+import { ApertureOptions, Handler, ApertureContext } from "./types.ts";
+import { normalize, joinPaths } from "./path.ts";
+import { createRouteHandler } from "./handler.ts";
+
+export class Aperture {
+  basePath: string;
+  parent: Aperture | null = null;
+  descendants: Aperture[] = [];
+  routes: Map<string, Handler> = new Map();
+  router: Router;
+  middleware: {
+    native: any[];
+    pre: any[];
+    post: any[];
+  };
+
+  constructor(options: ApertureOptions = {}) {
+    this.basePath = options.basePath || "";
+    this.router = new Router();
+    this.middleware = {
+      native: [],
+      pre: [],
+      post: [],
+    };
+  }
+
+  use(middleware: any): Aperture {
+    this.middleware.native.push(middleware);
+    return this;
+  }
+
+  pre(middleware: any): Aperture {
+    this.middleware.pre.push(middleware);
+    return this;
+  }
+
+  post(middleware: any): Aperture {
+    this.middleware.post.push(middleware);
+    return this;
+  }
+
+  open(path: string, handler: Handler): Aperture {
+    const normalizedPath = normalize(path);
+    this.routes.set(normalizedPath, handler);
+
+    this.router.all(normalizedPath, async (ctx) => {
+      const routeHandler = createRouteHandler(handler, this.middleware.pre, this.middleware.post);
+      await routeHandler.handler(undefined, ctx as ApertureContext);
+    });
+
+    return this;
+  }
+
+  branch(path: string): Aperture {
+    const normalizedPath = normalize(path);
+    const branchAperture = new Aperture({
+      basePath: normalizedPath,
+    });
+
+    branchAperture.parent = this;
+    this.descendants.push(branchAperture);
+
+    return branchAperture;
+  }
+
+  async serve(router: Router) {
+    // First have all descendants serve with the provided router
+    for (const descendant of this.descendants) {
+      await descendant.serve(this.router);
+    }
+
+    // Apply native middleware to this aperture's router
+    for (const middleware of this.middleware.native) {
+      this.router.use(middleware);
+    }
+
+    // Mount this aperture's router on the provided router
+    router.use(
+      this.basePath,
+      ...this.middleware.native,
+      this.router.routes(),
+      this.router.allowedMethods(),
+    );
+
+    return this;
+  }
+}
+
+export default {
+  create: (options = {}) => new Aperture(options),
+};
