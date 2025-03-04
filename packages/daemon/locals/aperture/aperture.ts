@@ -1,4 +1,5 @@
 import { Router, Middleware } from "oak";
+import { compose } from "oak/middleware";
 import { Handler, ApertureContext } from "./types.ts";
 import Path from "./path.ts";
 
@@ -48,12 +49,11 @@ export default class Aperture {
   }
 
   branch(path: string): Aperture {
-    const branchPath = this.path.join(path);
-    const branchAperture = new Aperture(branchPath);
+    const aperture = new Aperture(this.path.join(path));
 
-    this.descendants.push(branchAperture);
+    this.descendants.push(aperture);
 
-    return branchAperture;
+    return aperture;
   }
 
   compose(force = false) {
@@ -98,9 +98,9 @@ export default class Aperture {
     return this.composed;
   }
   serve(router: Router) {
-    router.use(this.path.toString(), this.compose());
+    this.compose();
+    router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
     return this;
-    // router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
   }
 }
 

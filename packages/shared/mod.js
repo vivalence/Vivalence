@@ -13,7 +13,6 @@ import std, {
   shuffle,
 } from "./src/lib/index.js";
 
-import runtimes from "./src/runtimes/index.js";
 import monads from "./src/monads/index.js";
 import blacklist from "./src/blacklist/index.js";
 
@@ -33,7 +32,6 @@ export {
   bundler,
   validators,
   services,
-  runtimes,
   hash,
 
   //api depracated

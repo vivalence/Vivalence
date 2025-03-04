@@ -38,10 +38,10 @@ const createInSecurityDecorator = (baseEmitter) => {
       const [emitterScope, emitterEvent] = event.split(":");
       baseEmitter.on(event, listener);
     },
-    scope: () => ({
+    branch: () => ({
       on: (event, listener) => secureEmitter.on(event, listener),
       emit: (event, body) => secureEmitter.emit(event, body),
-      scope: () => secureEmitter.scope(),
+      branch: () => secureEmitter.branch(),
     }),
   };
 
@@ -54,4 +54,6 @@ const createSecureEventEmitter = () => {
   return createInSecurityDecorator(baseEmitter);
 };
 
-export default createSecureEventEmitter;
+export default {
+  create: createSecureEventEmitter,
+};

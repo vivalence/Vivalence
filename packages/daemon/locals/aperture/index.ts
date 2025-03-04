@@ -9,4 +9,16 @@ export function create(options: ApertureOptions = {}) {
   return new Aperture(path);
 }
 
-export default { create };
+export function context(path, body, params) {
+  return {
+    request: {
+      body,
+      url: new URL(path, "http://internal"),
+      method: params.method || "POST",
+      headers: new Headers(),
+    },
+    response: { body: {}, status: 404, headers: new Headers() },
+  };
+}
+
+export default { create, context };

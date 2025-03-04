@@ -1,9 +1,11 @@
 import { BootFunction, Runtime, RuntimeModule } from "@vivalence/types";
 import { bundler } from "@vivalence/shared";
 
-export async function bootModule(runtime: Runtime, module: RuntimeModule) {
+export async function bootModule(module: RuntimeModule, runtime: Runtime) {
   const scopedModuleRuntime = { ...runtime, router: module.router, bus: module.bus };
+
   const boot = module.Module.boot ?? defaultModuleBoot[module.Module.manifest.type];
+
   if (!boot) return { ...scopedModuleRuntime, entity: module.entity, Module: module.Module };
 
   const bootedModule = await boot(scopedModuleRuntime, module);
@@ -17,7 +19,7 @@ export async function bootModule(runtime: Runtime, module: RuntimeModule) {
   return { ...bootedModule, entity: module.entity, Module: module.Module };
 }
 
-export async function bootModules(runtime: Runtime, modules: RuntimeModule[]) {
+export async function bootModules(modules: RuntimeModule[], runtime: Runtime) {
   if (!modules) return [];
 
   return await Promise.all(modules.map(async (module) => await bootModule(runtime, module)));

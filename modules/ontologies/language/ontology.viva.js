@@ -5,7 +5,7 @@ import {
   IssueRepository,
 } from "@vivalence/schema";
 
-import routes from "./routes/boot.js";
+import aperture from "./aperture/boot.js";
 import curriculum from "./curriculum/index.js";
 import topology from "./topology/index.js";
 import asserter from "./locals/asserter.js";

@@ -1,0 +1,17 @@
+meta {
+  name: statussecond
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "THIS": "THAT"
+  }
+}

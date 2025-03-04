@@ -1,7 +1,3 @@
-import { Application, Router } from "oak";
-import { Router } from "oak";
-import Aperture from "../locals/aperture/index.ts";
-
 // this method is off.
 // why is this a decorator?
 const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
@@ -69,15 +65,9 @@ export default {
     await runtime.aperture.compose();
 
     runtime.call = async (path, body = {}, params = {}) => {
-      const ctx = {
-        request: {
-          body,
-          url: new URL(path, "http://internal"),
-          method: params.method || "POST",
-          headers: new Headers(),
-        },
-        response: { body: {}, status: 404, headers: new Headers() },
-      };
+      // const ctx = {request: {body, url: new URL(path, "http://internal"), method: params.method || "POST", headers: new Headers(),}, response: { body: {}, status: 404, headers: new Headers() },};
+
+      const ctx = Aperture.context(path, body, params);
 
       // const tmpRouter = new Router();
 
