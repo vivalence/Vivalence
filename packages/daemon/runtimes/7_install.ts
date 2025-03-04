@@ -2,6 +2,7 @@ import { strings, array } from "@vivalence/shared";
 import config from "@vivalence/config";
 import { Daemon, Manifest, Runtime, RuntimeModule } from "@vivalence/types";
 import { enums, TagEntity } from "@vivalence/schema";
+import createInstallContext from "./lib/createInstallContext.js";
 
 export default async function install(daemon: Daemon) {
   for (const runtime of daemon.runtimes.values() as unknown as Map<symbol, Runtime>) {

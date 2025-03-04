@@ -1,12 +1,12 @@
 import { Application } from "oak";
-import { Aperture } from "./aperture.ts";
+import Aperture from "./locals/aperture/index.ts";
+// import { Aperture } from "./aperture.ts";
 // import bootDaemonAperture from "./daemon/boot.js";
 // import runtimeAperture from "./runtime/index.js";
 
 export default {
   init: (daemon) => {
-    const options = {};
-    daemon.aperture = new Aperture(options);
+    daemon.aperture = Aperture.create({});
 
     // load some root level middlewares.
     // including the ctx creation for the daemon-level routes
@@ -22,6 +22,14 @@ export default {
     // one level outsite the runtime, so it happens only once.
     // which keeps the entitymap and other state alive.
     // neat
+    // daemon level:
+    // use cors
+    // use auth
+    // use context
+    // use callable
+    // use entitymap
+
+    //
     return daemon;
   },
   serve: (daemon: any) => {
@@ -29,7 +37,7 @@ export default {
 
     await daemon.aperture.serve(server);
 
-    daemon.server = server.listen({ port: 8080 });
+    server.listen({ port: 8080 });
 
     return daemon;
   },
