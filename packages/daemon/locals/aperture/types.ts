@@ -1,19 +1,14 @@
-import { Context as OakContext, RouterContext } from "oak";
+import { Context as OakContext, Middleware } from "oak";
+import Path from "./path.ts";
 
-export interface ApertureContext extends RouterContext {
+export interface ApertureContext extends OakContext {
   aperture: {
-    body?: any;
-    result?: any;
+    data?: any;
   };
 }
 
-export type Handler = (body: any, ctx: ApertureContext) => Promise<any> | any;
-
-export interface RouteHandler {
-  path: string;
-  handler: Handler;
-}
+export type Handler = (ctx: ApertureContext) => Promise<any> | any;
 
 export interface ApertureOptions {
-  basePath?: string;
+  path?: string | Path;
 }
