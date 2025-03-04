@@ -6,18 +6,19 @@ import registry from "@vivalence/registry";
 // viva or daemon ctx
 async function mountClients(ServicesMap, ctx) {
   const serviceClients = {};
+
   for (const [serviceKey, serviceDefinition] of Object.entries(ServicesMap)) {
     // if (typeof serviceDefinition.service !=== 'string') do stuff.
 
     const ServiceModule = await registry.load(serviceDefinition.service);
 
-    const service = await ServiceModule.client(serviceDefinition, ctx);
+    const client = await ServiceModule.client(serviceDefinition, ctx);
 
-    service.Module = ServiceModule;
-    service.Module.config = serviceDefinition;
-    service.isMounted = true;
+    client.Module = ServiceModule;
+    client.Module.config = serviceDefinition;
+    client.isMounted = true;
 
-    serviceClients[serviceKey] = service;
+    serviceClients[serviceKey] = client;
   }
 
   return serviceClients;

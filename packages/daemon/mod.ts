@@ -9,7 +9,9 @@ import registry from "@vivalence/registry";
 import cleanup from "./lib/cleanup-ports.js";
 import services from "./services/index.js";
 
-import aperture from "./locals/aperture/index.ts";
+import emitter from "./locals/emitter/index.js";
+
+import aperture from "./aperture/index.ts";
 // import routes from "./routes/index.js";
 import runtimes from "./runtimes/index.ts";
 import entities from "./entities/index.js";
@@ -25,6 +27,7 @@ const daemon = {
   process: null,
   registry: null,
   aperture: null,
+  emitter: emitter.create(),
   services: {},
   runtimes: new Map(),
   server: null,
@@ -38,16 +41,17 @@ const daemon = {
     registry.mount,
     services.init,
     aperture.init,
-    runtimes.discover,
     entities.init,
     runtimes.init,
-    runtimes.register,
-    runtimes.modules,
-    runtimes.boot,
-    runtimes.apertures,
+
+    // runtimes.init,
+    // runtimes.register,
+    // runtimes.modules,
+    // runtimes.boot,
+    // runtimes.apertures,
     runtimes.serve,
     aperture.serve,
-    runtimes.install,
+    // runtimes.install,
     // hooks.runtime.postInstall
     // dev,
     // runtimes.userland,
