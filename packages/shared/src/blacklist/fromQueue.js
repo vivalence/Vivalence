@@ -1,24 +1,31 @@
 import fromScope from "./fromScope.js";
 
-export default async function fromQueue({ blacklist, scope }, ctx) {
+export default async function fromInstructionQueue({ blacklist, scope }, ctx) {
   blacklist = { units: [], tags: [], ...blacklist };
-  let query = ctx.runtime.services.supabase
-    .from("Queue")
-    .select("id, runtimeId, userId, dependencyId, gameId, tacticId, data")
-    .eq("runtimeId", ctx.runtime.manifest.id);
 
-  if (scope.queue) query = query.eq("id", scope.queue.id);
-  if (scope.dependency) query = query.eq("dependencyId", scope.dependency.id);
-  if (scope.tactic) query = query.eq("tacticId", scope.tactic.id);
-  if (scope.game) query = query.eq("gameId", scope.game.id);
-  if (scope.user) query = query.eq("userId", scope.user.id);
+  // Build criteria object for MikroORM query
+  const criteria = {
+    runtime: ctx.runtime.entity.id,
+  };
 
-  const { data: queue = [], error } = await query;
-  if (error) throw error;
+  // Conditionally add filters based on scope
+  if (scope.queue) criteria.id = scope.queue.id;
+  if (scope.dependency) criteria.dependency = scope.dependency.id;
+  if (scope.tactic) criteria.tactic = scope.tactic.id;
+  if (scope.game) criteria.game = scope.game.id;
+  if (scope.user) criteria.user = scope.user.id;
 
+  // Execute the MikroORM query
+  const queue =
+    (await ctx.runtime.entities.instruction.find(criteria, {
+      fields: ["id", "runtime", "user", "dependency", "game", "tactic", "data"],
+    })) || [];
+
+  // Process instructions to update the blacklist
   queue.map((instruction) => {
-    if (instruction.data.type !== "SIGNAL")
+    if (instruction.data.type !== "SIGNAL") {
       blacklist = fromScope({ blacklist, scope: instruction.data.scope });
+    }
   });
 
   return fromScope({ blacklist, scope });

@@ -1,14 +1,12 @@
-import entities from "./entities/index.js";
 import events from "./events/index.js";
-import aperture from "./aperture/boot.js";
-import middlewares from "./middlewares/index.js";
+import aperture from "./aperture/index.js";
+// import middlewares from "./middlewares/index.js";
 
 // move the curriculum.install here.
-async function boot(runtime) {
-  await entities.boot(runtime);
-  await middlewares.boot(runtime);
-  await aperture.boot(runtime);
-  await events.boot(runtime);
+function boot(runtime) {
+  // await middlewares.boot(runtime);
+  aperture.boot(runtime);
+  events.boot(runtime);
 
   return runtime;
 }

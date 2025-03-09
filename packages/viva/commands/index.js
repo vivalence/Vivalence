@@ -1,39 +1,23 @@
-import { Command, HelpCommand, colors } from "@vivalence/interfaces-cli";
+import { colors } from "@cliffy/ansi/colors";
 
-import loadServicesCommands from "./services.js";
-import loadRuntimesCommands from "./runtimes.js";
-// schema, daemon
+import loadSchemaCommands from "./schema.js";
 
-const commands = {
-  help: async (viva) => await new HelpCommand(),
-  services: loadServicesCommands,
-  runtimes: loadRuntimesCommands,
+const baseMiddleware = async (ctx, next) => {
+  ctx.base = {
+    version: "0.1.0",
+    timestamp: new Date().toISOString(),
+  };
+  await next();
 };
 
-export default async function services(viva) {
-  // console.log("- If the commands dont match it, the sage will catch it.");
+export default async function loadCommands(viva) {
+  viva.trajectory.use(baseMiddleware);
 
-  let tree = new Command().name("viva").version("0.0.1");
+  viva.trajectory.url("/services", async () => ({ status: "Not implemented yet" }));
+  viva.trajectory.url("/runtimes", async () => ({ status: "Not implemented yet" }));
+  viva.trajectory.url("/help", async () => ({ status: "Help system" }));
 
-  for (const [name, command] of Object.entries(commands)) {
-    // why doesnt this execute twice on --watch mode???
-    // also, how can i stop this from killing the entire process?
-    // also, i must only handoff cli control when it matches. otherwise do OVER;
-    tree = tree.command(name, await command(viva));
-  }
-
-  await tree // .noExit() .throwErrors()
-    .error((error, cmd) => {
-      console.error(colors.red("[UNDER services error]"));
-      if (error) {
-        cmd.showHelp();
-      }
-      console.error(error);
-      Deno.exit(error ? error.exitCode : 1);
-    })
-    .parse(viva.input);
-
-  // console.log(colors.white("[OVER tree ]"));
+  await loadSchemaCommands(viva);
 
   return viva;
 }

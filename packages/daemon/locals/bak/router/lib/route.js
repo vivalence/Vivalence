@@ -33,21 +33,17 @@ export default function route(router) {
 }
 
 async function parseBody(ctx) {
-  // CLAUDE CODE - beware
   const { method, body, headers = {} } = ctx.request;
 
-  // GET requests - return query params
   if (method === "GET") {
     return ctx.request.query || {};
   }
 
-  // No body present
   if (!body) {
     return {};
   }
 
   try {
-    // Handle different body types
     switch (true) {
       case typeof body.json === "function":
         return await body.json();

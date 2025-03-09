@@ -8,6 +8,7 @@ class Identity {
     this.singleplayer = {
       user: {
         id: "localhost",
+        roles: ["ADMIN"],
       },
     };
   }
@@ -17,7 +18,7 @@ export default function (config) {
   const identity = new Identity(config);
 
   config.identity = identity;
-  config.env["MODE"] = identity.mode;
+  config.env["VIVA_IDENTITY_MODE"] = identity.mode;
 
   return config;
 }

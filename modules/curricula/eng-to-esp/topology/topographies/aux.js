@@ -1,11 +1,13 @@
+import { obj } from "@vivalence/shared";
+
 import verb from "./verb.js";
 
-const aux = {
+const aux = obj.deepClone({
   ...verb,
   slug: "aux",
   name: "aux verb",
   description: " i dont have the system yet so get off my back. ",
-};
+});
 
 aux.relations = aux.relations.map((relation) => {
   if (relation.required?.branch === "pos" && relation.required?.leaf === "verb") {

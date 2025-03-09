@@ -1,10 +1,5 @@
 const start = performance.now();
 
-// import daemonize from "./lib/daemonize.js";
-// import dev from "./lib/dev.js";
-// import { Daemon } from "@vivalence/types";
-// import {Daemon} from "@vivalence/types"
-
 import registry from "@vivalence/registry";
 import cleanup from "./lib/cleanup-ports.js";
 import services from "./services/index.js";
@@ -12,7 +7,6 @@ import services from "./services/index.js";
 import emitter from "./locals/emitter/index.js";
 
 import aperture from "./aperture/index.ts";
-// import routes from "./routes/index.js";
 import runtimes from "./runtimes/index.ts";
 import entities from "./entities/index.js";
 
@@ -31,7 +25,6 @@ const daemon = {
   services: {},
   runtimes: new Map(),
   server: null,
-  // controller: null
 };
 
 (async (daemon) =>
@@ -39,21 +32,11 @@ const daemon = {
     ticker("init"),
     cleanup,
     registry.mount,
-    services.init,
-    aperture.init,
     entities.init,
+    aperture.init,
+    services.init,
     runtimes.init,
-
-    // runtimes.init,
-    // runtimes.register,
-    // runtimes.modules,
-    // runtimes.boot,
-    // runtimes.apertures,
     runtimes.serve,
     aperture.serve,
-    // runtimes.install,
-    // hooks.runtime.postInstall
-    // dev,
-    // runtimes.userland,
     ticker("up"),
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

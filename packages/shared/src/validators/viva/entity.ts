@@ -10,9 +10,11 @@ export default async function validateEntity(schema: JsonSchema, entity: any): P
   const valid = validate(entity);
 
   if (!valid && validate.errors) {
-    validate.errors.forEach((error: AjvValidationError) => {
-      issues.push(buildIssue(entity, error));
-    });
+    validate.errors
+      .filter((error: AjvValidationError) => error.keyword !== "if")
+      .forEach((error: AjvValidationError) => {
+        issues.push(buildIssue(entity, error));
+      });
   }
 
   return issues;
@@ -50,13 +52,13 @@ function buildIssue(entity: any, error: AjvValidationError): Issue {
       path: [...path, error.params.additionalProperty],
       context,
     };
-  } else if (error.keyword === "if") {
-    return {
-      message: `Conditional validation failed at ${error.instancePath}`,
-      violation: "conditional",
-      path,
-      context,
-    };
+    // } else if (error.keyword === "if") {
+    //   return {
+    //     message: `Conditional validation failed at ${error.instancePath}`,
+    //     violation: "conditional",
+    //     path,
+    //     context,
+    //   };
   }
 
   return {

@@ -39,7 +39,7 @@ export const GameSchema = new EntitySchema<GameEntity, BaseModuleEntity>({
     },
     mask: { type: "json" },
     url: { type: "method", persist: false, getter: true, getterName: "url" },
-    plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.game },
+    plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: "game" },
     instructions: {
       kind: "1:m",
       entity: () => InstructionEntity,

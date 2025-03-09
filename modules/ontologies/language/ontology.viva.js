@@ -5,7 +5,7 @@ import {
   IssueRepository,
 } from "@vivalence/schema";
 
-import aperture from "./aperture/boot.js";
+import aperture from "./aperture/index.js";
 import curriculum from "./curriculum/index.js";
 import topology from "./topology/index.js";
 import asserter from "./locals/asserter.js";
@@ -31,8 +31,6 @@ async function boot(runtime) {
   ].reduce((ontology, topology) => topology(ontology), ontology);
 
   ontology.assert = asserter(ontology);
-
-  await routes.boot(runtime);
 
   return ontology;
 }

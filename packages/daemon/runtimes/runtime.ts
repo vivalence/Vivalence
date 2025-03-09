@@ -1,6 +1,7 @@
 export default class Runtime {
-  Modules = {};
+  Module = {};
   entity = null;
+  Modules = {};
   entities = null;
   aperture = null;
   emitter = null;

@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run --allow-env --allow-read --allow-write --allow-net --allow-run
+
 try {
   const process = Deno.run({
     cmd: [

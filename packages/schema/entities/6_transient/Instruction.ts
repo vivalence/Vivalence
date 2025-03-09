@@ -1,6 +1,7 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 import { GameEntity } from "../2_runtime/Game.ts";
 import { DependencyEntity } from "../4_curriculum/Dependency.ts";
@@ -14,7 +15,7 @@ export enum InstructionStatusEnum {
 }
 
 export class InstructionEntity extends BaseEntity {
-  // user!: Rel<User>;
+  user!: Rel<UserEntity>;
   runtime!: Rel<RuntimeEntity>;
   dependency?: Rel<DependencyEntity>;
   tactic?: Rel<TacticEntity>;
@@ -31,6 +32,14 @@ export const InstructionSchema = new EntitySchema<InstructionEntity, BaseEntity>
   tableName: "Instruction",
   properties: {
     // user: {kind: "m:1", entity: () => User, fieldName: "user", updateRule: "cascade", deleteRule: "cascade",},
+    user: {
+      kind: "m:1",
+      entity: () => UserEntity,
+      inversedBy: "instructions",
+      fieldName: "user",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
     runtime: {
       kind: "m:1",
       entity: () => RuntimeEntity,

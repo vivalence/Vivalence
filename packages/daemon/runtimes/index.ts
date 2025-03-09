@@ -6,19 +6,12 @@ import entities from "./entities.ts";
 import services from "./services.ts";
 import register from "./register.ts";
 import module from "./module.ts";
+import install from "./install.ts";
 
 export default {
   async init(daemon) {
     for (const RuntimeModule of await discover(daemon)) {
-      const runtime = await [
-        entities,
-        register,
-        services,
-        aperture.init,
-        emitter,
-        module,
-        // runtimes.apertures,
-      ]
+      const runtime = await [entities, register, services, aperture.init, emitter, module, statics]
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(new Runtime(RuntimeModule)));
 
@@ -27,24 +20,25 @@ export default {
     return daemon;
   },
   async serve(daemon) {
-    console.log("serve runtime");
     for (const runtime of daemon.runtimes.values()) {
-      await [
-        // runtimes.serve,
-        aperture.serve,
-        // runtimes.install,
-        // runtimes.userland,
-      ]
+      await [aperture.serve, install]
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime));
     }
+
     return daemon;
   },
 };
 
+function statics(daemon: Daemon) {
+  return async (runtime: any) => {
+    runtime.statics = runtime.Module.statics;
+    return runtime;
+  };
+}
 function emitter(daemon: Daemon) {
   return async (runtime: any) => {
-    runtime.emitter = daemon.aperture.branch();
+    runtime.emitter = daemon.emitter.branch();
     return runtime;
   };
 }

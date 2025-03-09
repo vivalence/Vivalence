@@ -1,6 +1,7 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 import { PlayEntity } from "../5_userland/Play.ts";
 
@@ -30,6 +31,7 @@ export enum MemoryStatusEnum {
 }
 
 export class MemoryEntity extends BaseEntity {
+  user!: Rel<UserEntity>;
   runtime!: Rel<RuntimeEntity>;
   unit?: Rel<UnitEntity>;
   tag?: Rel<TagEntity>;
@@ -55,7 +57,13 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
   // indexes: [{name: "tagIndexOnMemory", expression: 'CREATE INDEX "tagIndexOnMemory" ON public."Memory" USING btree ("tag")', properties: ["tag"],}, {name: "unitIndexOnMemory", expression: 'CREATE INDEX "unitIndexOnMemory" ON public."Memory" USING btree ("unit")', properties: ["unit"],}, {name: "userIndexOnMemory", expression: 'CREATE INDEX "userIndexOnMemory" ON public."Memory" USING btree ("user")', properties: ["user"],},],
   // uniques: [{ properties: ["unit", "tag", "runtime"] }],
   properties: {
-    // user: {kind: "m:1", entity: () => User, fieldName: "user", updateRule: "cascade", deleteRule: "cascade", index: "userIndexOnMemory",},
+    user: {
+      kind: "m:1",
+      entity: () => UserEntity,
+      fieldName: "user",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
     runtime: {
       kind: "m:1",
       entity: () => RuntimeEntity,
@@ -103,8 +111,9 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     state: { type: "json" },
     history: { type: "json" },
     signal: { type: "json" },
-    nextIn: { type: Number, defaultRaw: `0.0` },
-    nextAt: { type: Date, lazy: true },
-    lastAt: { type: Date, lazy: true },
+
+    nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
+    nextAt: { type: Date, lazy: true, fieldName: "nextAt" },
+    lastAt: { type: Date, lazy: true, fieldName: "lastAt" },
   },
 });
