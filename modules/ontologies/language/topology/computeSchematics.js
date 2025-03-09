@@ -9,7 +9,7 @@ export default function (ontology) {
       for (let { slug } of data["CATEGORICAL"]) {
         const topography = ontology.topographies.find((t) => slug === t.slug);
         if (!topography) continue;
-
+        if (slug !== "verb") continue;
         ontology.constraints.create({
           topology: topography.topology,
           branch: [entityType, slug],
@@ -37,19 +37,33 @@ function computeSchematic(rootSchema, topography, annotations) {
   };
 
   topography.annotations
+    .filter(({ branch }) => !!branch)
     .map(({ branch, required }) => [
       annotations.find((a) => [a.slug].join() === branch.join()),
       required,
     ])
     .reduce(
-      (schema, [annotation, required]) => schematicAnnotation(annotation, schema, required),
+      (schema, [annotation, required]) => branchAnnotation(annotation, schema, required),
       SCHEMATIC.properties.annotation,
     );
 
+  topography.annotations
+    .filter(({ condition }) => !!condition)
+    .reduce(
+      (schema, condition) => conditionAnnotation(schema, condition),
+      SCHEMATIC.properties.annotation,
+    );
+
+  // if (topography.slug === "verb") console.log(JSON.stringify(SCHEMATIC, null, 2));
   return SCHEMATIC;
 }
 
-function schematicAnnotation(annotation, schema, required = false) {
+function conditionAnnotation(schema, condition) {
+  schema.allOf.push(condition.condition);
+  return schema;
+}
+
+function branchAnnotation(annotation, schema, required = false) {
   schema.properties[annotation.slug] = {
     title: annotation.name,
     description: annotation.description,

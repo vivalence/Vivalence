@@ -17,6 +17,7 @@ function createBundler(input) {
     return bundles.get(path);
   };
 
+  // still not happy about this.
   bundler.injectBundleUrl = () => async (ctx, next) => {
     const rootpath = new URL(input.serve, config.env.get("DAEMON_URL")).toString();
     const bundlepath = join("/", BASE_URL, basename(input.entry));

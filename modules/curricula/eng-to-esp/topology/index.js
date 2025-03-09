@@ -22,6 +22,7 @@ export default (ontology) => {
 
     delete topography.constraints;
     topography.topology = topology;
+
     ontology.topographies.create(topography);
   });
 

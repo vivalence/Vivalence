@@ -1,27 +1,28 @@
 import { blacklist as Blacklist, deepClone, array } from "@vivalence/shared";
 
 export default async (inputs, ctx) => {
-  const { tactic, scope } = inputs;
-  const { games, units, tags } = tactic.relations;
+  const { scope, masks, relations } = inputs;
+  const { games, tags } = relations;
   let blacklist = deepClone(inputs.blacklist);
   const language = ctx.runtime.statics.language;
 
   const [[verb], [tense], [person], [number]] = await Promise.all([
-    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.verbs, blacklist }),
-    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.tenses }),
-    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.persons }),
-    ctx.runtime.call("/pick/tags/byStrength", { tags: tags.numbers }),
+    ctx.runtime.call("/pick/tag/byStrength", { tags: tags.verbs, blacklist }),
+    ctx.runtime.call("/pick/tag/byStrength", { tags: tags.tenses }),
+    ctx.runtime.call("/pick/tag/byStrength", { tags: tags.persons }),
+    ctx.runtime.call("/pick/tag/byStrength", { tags: tags.numbers }),
   ]);
   // if (!verb || !tense || !mood || !aspect) return []; // add some <empty> instruction here.
 
-  const [action] = await ctx.runtime.call("/units/fromTagIds", {
-    tagIds: [verb.id, tense.id, person.id, number.id],
-  });
+  const tagIds = [verb.id, tense.id, person.id, number.id];
+
+  const $and = tagIds.map((id) => ({ tags: { id } }));
+  const units = await ctx.runtime.entities.unit.find({ $and });
+  const [action] = units;
 
   const instructions = [];
-
   // TRANSLATIONS
-  let vocabulary = await ctx.runtime.call("/pick/units/pending", {
+  const vocabulary = await ctx.runtime.call("/pick/units/pending", {
     scope: { ...scope, game: { id: games.nounform.id } },
     blacklist,
     tagIds: [tags.vocabulary.id, tags.nouns.id],
@@ -53,11 +54,12 @@ export default async (inputs, ctx) => {
   let weakUnits = instructions.map(({ scope }) => scope.units.map((unit) => unit.id)).flat();
 
   weakUnits = await ctx.runtime.call("/pick/units/byStatus", {
-    status: tactic.masks.flashcards.threshold,
+    status: masks.flashcards.threshold,
     unitIds: weakUnits,
     blacklist: inputs.blacklist,
   });
-  weakUnits = array.shuffle(weakUnits).slice(0, tactic.masks.flashcards.reps);
+  weakUnits = array.shuffle(weakUnits).slice(0, masks.flashcards.reps);
+
   const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
 
   return [flashcards, instructions].flat();

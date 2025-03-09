@@ -9,14 +9,17 @@ async function boot(runtime, game) {
     serve: game.entity.url,
   });
 
-  runtime.router.get(bundle.url, bundle.serve());
+  runtime.aperture.router.get(bundle.url, bundle.serve());
 
-  runtime.router.route("/provision/fromTagIds", bundle.injectBundleUrl(), provision.fromTagIds);
-  runtime.router.route("/provision/fromUnitIds", bundle.injectBundleUrl(), provision.fromUnitIds);
-  runtime.router.route("/provision/fromUnits", bundle.injectBundleUrl(), provision.fromUnits);
-  runtime.router.route("/provision/fromLLM", bundle.injectBundleUrl(), provision.fromLLM);
+  runtime.aperture
+    .branch("/provision")
+    .use(bundle.injectBundleUrl())
+    .open("/fromTagIds", provision.fromTagIds)
+    .open("/fromUnitIds", provision.fromUnitIds)
+    .open("/fromUnits", provision.fromUnits)
+    .open("/fromLLM", provision.fromLLM);
 
-  runtime.router.route("/evaluate", evaluate);
+  runtime.aperture.open("/evaluate", evaluate);
 
   return runtime;
 }

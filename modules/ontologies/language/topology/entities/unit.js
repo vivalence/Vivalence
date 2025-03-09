@@ -53,6 +53,7 @@ export default {
       },
       required: [],
       additionalProperties: false,
+      allOf: [],
     },
   },
   required: ["slug", "data", "annotation"],

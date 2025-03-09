@@ -3,6 +3,9 @@ import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 import { CurriculumEntity } from "../2_runtime/Curriculum.ts";
 // import { DependencyEntity } from "../3_curriculum/Dependency.ts";
+import { MemoryEntity } from "../5_userland/Memory.ts";
+import { PlayEntity } from "../5_userland/Play.ts";
+import { InstructionEntity } from "../6_transient/Instruction.ts";
 
 export enum UserRolesEnum {
   USER = "USER",
@@ -15,6 +18,9 @@ export enum UserRolesEnum {
 export class UserEntity extends BaseEntity {
   runtimes = new Collection<RuntimeEntity>(this);
   curricula = new Collection<CurriculumEntity>(this);
+  instructions = new Collection<InstructionEntity>(this);
+  memories = new Collection<Memoryntity>(this);
+  plays = new Collection<Playntity>(this);
   // dependencies = new Collection<DependencyEntity>(this);
 
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
@@ -44,11 +50,24 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       inversedBy: "users",
       pivotTable: "_CurriculumToUser",
     },
-    // dependencies: {
-    //   // indicates ownership
-    //   kind: "1:m",
-    //   entity: () => DependencyEntity,
-    // },
+    instructions: {
+      // indicates ownership
+      kind: "1:m",
+      entity: () => InstructionEntity,
+      mappedBy: "user",
+    },
+    memories: {
+      // indicates ownership
+      kind: "1:m",
+      entity: () => MemoryEntity,
+      mappedBy: "user",
+    },
+    plays: {
+      // indicates ownership
+      kind: "1:m",
+      entity: () => PlayEntity,
+      mappedBy: "user",
+    },
 
     roles: {
       items: () => UserRolesEnum,
@@ -59,7 +78,7 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       columnType: "json",
     },
 
-    config: { type: "json" },
+    config: { type: "json", defaultRaw: `{}`, onCreate: () => ({}) },
   },
 });
 

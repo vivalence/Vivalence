@@ -1,6 +1,7 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
+import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 import { GameEntity } from "../2_runtime/Game.ts";
 import { DependencyEntity } from "../4_curriculum/Dependency.ts";
@@ -11,7 +12,7 @@ import { UnitEntity } from "../4_curriculum/Unit.ts";
 import { MemoryEntity } from "../5_userland/Memory.ts";
 
 export class PlayEntity extends BaseEntity {
-  // user!: Rel<User>;
+  user!: Rel<UserEntity>;
   runtime!: Rel<RuntimeEntity>;
   dependency?: Rel<DependencyEntity>;
   tactic?: Rel<TacticEntity>;
@@ -35,7 +36,13 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
   // uniques: [{ properties: ["unit", "tag", "game", "tactic"] }],
 
   properties: {
-    // user: {kind: "m:1", entity: () => User, fieldName: "user", updateRule: "cascade", deleteRule: "cascade", index: "userIndexOnPlay",},
+    user: {
+      kind: "m:1",
+      entity: () => UserEntity,
+      fieldName: "user",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
     runtime: {
       kind: "m:1",
       entity: () => RuntimeEntity,
@@ -92,8 +99,8 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
     },
     history: { type: "json" },
     signal: { type: "json" },
-    nextIn: { type: Number, defaultRaw: `0.0` },
-    nextAt: { type: Date, lazy: true },
-    lastAt: { type: Date, lazy: true },
+    nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
+    nextAt: { type: Date, lazy: true, fieldName: "nextAt" },
+    lastAt: { type: Date, lazy: true, fieldName: "lastAt" },
   },
 });

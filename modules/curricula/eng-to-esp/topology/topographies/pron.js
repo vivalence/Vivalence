@@ -12,6 +12,15 @@ export default {
     { branch: ["gender"] },
     { branch: ["prepcase"] },
     { branch: ["reflex"] },
+
+    {
+      condition: {
+        if: { properties: { prontype: { const: "prs" } }, required: ["prontype"] },
+        then: {
+          required: ["person", "number"],
+        },
+      },
+    },
   ],
 
   relations: [
@@ -23,27 +32,16 @@ export default {
     { unique: { branch: "number" } },
     { required: { branch: "pos", leaf: "pron" } },
     { required: { branch: "prontype" } },
+    {
+      condition: {
+        if: { required: { branch: "prontype", leaf: "prs" } },
+        then: [
+          { required: { branch: "person" } },
+          { required: { branch: "number" } },
+          { unique: { branch: "reflex" } },
+          { unique: { branch: "prepcase" } },
+        ],
+      },
+    },
   ],
 };
-
-// annotation: {
-// allOf: [
-//   {
-//     if: { properties: { prontype: { const: "prs" } }, required: ["prontype"] },
-//     then: {
-//       required: ["person", "number"],
-//     },
-//   },
-// ],
-
-// {
-//   condition: {
-//     if: { required: { branch: "prontype", leaf: "prs" } },
-//     then: [
-//       { required: { branch: "person" } },
-//       { required: { branch: "number" } },
-//       { unique: { branch: "reflex" } },
-//       { unique: { branch: "prepcase" } },
-//     ],
-//   },
-// },

@@ -13,6 +13,60 @@ export default {
     { branch: ["number"] },
     { branch: ["gender"] },
     { branch: ["aspect"] },
+    {
+      condition: {
+        if: { properties: { verbform: { const: "fin" } }, required: ["verbform"] },
+        then: {
+          required: ["tense", "mood", "person", "number", "aspect"],
+          properties: { gender: { not: {} } },
+        },
+      },
+    },
+    {
+      condition: {
+        if: { properties: { verbform: { const: "inf" } }, required: ["verbform"] },
+        then: {
+          properties: {
+            tense: { not: {} },
+            mood: { not: {} },
+            person: { not: {} },
+            number: { not: {} },
+            aspect: { not: {} },
+            gender: { not: {} },
+          },
+        },
+      },
+    },
+    {
+      condition: {
+        if: { properties: { verbform: { const: "part" } }, required: ["verbform"] },
+        then: {
+          properties: {
+            gender: { not: {} },
+            number: { not: {} },
+            tense: { not: {} },
+            mood: { not: {} },
+            person: { not: {} },
+            aspect: { not: {} },
+          },
+        },
+      },
+    },
+    {
+      condition: {
+        if: { properties: { verbform: { const: "ger" } }, required: ["verbform"] },
+        then: {
+          properties: {
+            tense: { not: {} },
+            mood: { not: {} },
+            person: { not: {} },
+            number: { not: {} },
+            aspect: { not: {} },
+            gender: { not: {} },
+          },
+        },
+      },
+    },
   ],
   relations: [
     { unique: { branch: "pos" } },
@@ -23,71 +77,65 @@ export default {
     { unique: { branch: "person" } },
     { unique: { branch: "aspect" } },
     { unique: { branch: "suffix" } },
+    { required: { branch: "pos", leaf: "verb" } },
     { required: { branch: "lemma" } },
     { required: { branch: "suffix" } },
+    { required: { branch: "verbform" } },
+    {
+      condition: {
+        if: { required: { branch: "verbform", leaf: "fin" } },
+        then: [
+          { required: { branch: "tense" } },
+          { required: { branch: "mood" } },
+          { required: { branch: "person" } },
+          { required: { branch: "number" } },
+          { required: { branch: "aspect" } },
+          { unique: { branch: "number" } },
+          { forbidden: { branch: "gender" } },
+        ],
+      },
+    },
+    {
+      condition: {
+        if: { required: { branch: "verbform", leaf: "ger" } },
+        then: [
+          { forbidden: { branch: "tense" } },
+          { forbidden: { branch: "mood" } },
+          { forbidden: { branch: "person" } },
+          { forbidden: { branch: "number" } },
+          { forbidden: { branch: "aspect" } },
+          { forbidden: { branch: "gender" } },
+        ],
+      },
+    },
+    {
+      condition: {
+        if: { required: { branch: "verbform", leaf: "inf" } },
+        then: [
+          { forbidden: { branch: "tense" } },
+          { forbidden: { branch: "mood" } },
+          { forbidden: { branch: "person" } },
+          { forbidden: { branch: "number" } },
+          { forbidden: { branch: "aspect" } },
+          { forbidden: { branch: "gender" } },
+        ],
+      },
+    },
+    {
+      condition: {
+        if: { required: { branch: "verbform", leaf: "part" } },
+        then: [
+          { forbidden: { branch: "gender" } },
+          { forbidden: { branch: "number" } },
+          { forbidden: { branch: "tense" } },
+          { forbidden: { branch: "mood" } },
+          { forbidden: { branch: "person" } },
+          { forbidden: { branch: "aspect" } },
+        ],
+      },
+    },
   ],
 };
-
-// {
-//   some: [
-//     { required: { branch: "pos", leaf: "verb" } },
-//     { required: { branch: "pos", leaf: "aux" } },
-//   ],
-// },
-// {
-//   condition: {
-//     if: { required: { branch: "verbform", leaf: "fin" } },
-//     then: [
-//       { required: { branch: "mood" } },
-//       { required: { branch: "tense" } },
-//       { required: { branch: "mood" } },
-//       { required: { branch: "person" } },
-//       { required: { branch: "number" } },
-//       { required: { branch: "aspect" } },
-//       { unique: { branch: "number" } },
-//       { forbidden: { branch: "gender" } },
-//     ],
-//   },
-// },
-// {
-//   condition: {
-//     if: { required: { branch: "verbform", leaf: "inf" } },
-//     then: [
-//       { forbidden: { branch: "tense" } },
-//       { forbidden: { branch: "mood" } },
-//       { forbidden: { branch: "person" } },
-//       { forbidden: { branch: "number" } },
-//       { forbidden: { branch: "aspect" } },
-//       { forbidden: { branch: "gender" } },
-//     ],
-//   },
-// },
-// {
-//   condition: {
-//     if: { required: { branch: "verbform", leaf: "part" } },
-//     then: [
-//       { forbidden: { branch: "gender" } },
-//       { forbidden: { branch: "number" } },
-//       { forbidden: { branch: "tense" } },
-//       { forbidden: { branch: "mood" } },
-//       { forbidden: { branch: "person" } },
-//       { forbidden: { branch: "aspect" } },
-//     ],
-//   },
-// },
-// {
-//   condition: {
-//     if: { required: { branch: "verbform", leaf: "ger" } },
-//     then: [
-//       { forbidden: { branch: "tense" } },
-//       { forbidden: { branch: "mood" } },
-//       { forbidden: { branch: "person" } },
-//       { forbidden: { branch: "number" } },
-//       { forbidden: { branch: "aspect" } },
-//       { forbidden: { branch: "gender" } },
-//     ],
-//   },
-// },
 // annotations:
 // allOf: [
 //   {
