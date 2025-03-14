@@ -29,7 +29,7 @@ const viva = {
   trajectory: createTrajectory(),
 };
 
-const walk = async (viva) => {
+const run = async (viva) => {
   console.log("viva.input", Deno.args);
   // const renderer = new Renderer();
   // const walker = new Walker(v, renderer);
