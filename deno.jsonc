@@ -11,6 +11,7 @@
     "./packages/viva",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
+    "./packages/shared/src/trajectory",
   ],
   "tasks": {
     "deno:install": "deno install --allow-scripts=npm:sqlite3",

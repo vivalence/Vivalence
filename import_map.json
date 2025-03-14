@@ -1,6 +1,8 @@
 {
   "imports": {
+    "asserts": "https://deno.land/std/testing/asserts.ts",
     "$std/": "https://deno.land/std@0.224.0/",
+    "$std/assert": "jsr:@std/assert",
     "@std/path": "jsr:@std/path@^1.0.8",
     "@std/encoding": "jsr:@std/encoding@1.0.7",
     "@std/encoding/hex": "jsr:@std/encoding@1.0.7/hex",
