@@ -1,0 +1,15 @@
+{
+  "name": "@vivalence/trajectory",
+  "version": "0.1.0",
+  "exports": {
+    ".": "./mod.ts",
+  },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/",
+    "test:key": "deno test -A --no-check --watch tests/key.test.ts",
+    "test:simulation": "viva test $path",
+    "viva": "viva session --runtime=module-editor $path",
+    "tangle": "emacs tangle ./trajectory.design.org",
+    "patch": "bash ./create.sh",
+  },
+}
