@@ -7,11 +7,11 @@
     "./packages/shared",
     "./packages/schema",
     "./packages/registry",
+    "./packages/trajectory",
     "./packages/clients/web",
     "./packages/viva",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",
-    "./packages/shared/src/trajectory",
   ],
   "tasks": {
     "deno:install": "deno install --allow-scripts=npm:sqlite3",

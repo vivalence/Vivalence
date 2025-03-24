@@ -1,17 +1,14 @@
-// mod.js - Main module with boot sequence
+// @lj you found ground zero. congrats
 import config from "@vivalence/config";
-
 import { colors } from "@cliffy/ansi/colors";
 
-// Core components
-import { createTrajectory } from "./shared/trajectory/index.js";
-// import { Walker } from "./lib/walker.js";
-// import { Renderer } from "./renderer/cli.js";
+import { Trajectory, parsers } from "@vivalence/trajectory";
 
 import boot from "./lib/boot.js";
-import captureProcess from "./lib/process.js";
 import locals from "./locals/index.js";
-import commands from "./commands/index.js";
+import entities from "./lib/entities.js";
+import trajectory from "./trajectories/index.js";
+import run from "./lib/run.js";
 
 const start = performance.now();
 
@@ -20,36 +17,23 @@ const ticker = (name) => (viva) => {
   return viva;
 };
 
-// Initialize viva object
-const viva = {
+(async (viva) =>
+  await [
+    ticker("init"),
+    boot,
+    locals,
+    entities,
+    trajectory,
+    run,
+    ticker("done"),
+    // (viva) => viva.process.doShutdown(),
+  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(viva)))({
   process: null,
   services: config.services,
   registry: {},
   locals: {},
-  trajectory: createTrajectory(),
-};
+  trajectory: new Trajectory([parsers.path]),
+});
 
-const run = async (viva) => {
-  console.log("viva.input", Deno.args);
-  // const renderer = new Renderer();
-  // const walker = new Walker(v, renderer);
-
-  const ctx = { viva: viva };
-  // const result = await viva.trajectory.traverse(initialPath, ctx);
-  // execute(result, initialPath, ctx);
-
-  // await walker.start();
-  return viva;
-};
-
-(async (viva) =>
-  await [
-    ticker("init"),
-    captureProcess,
-    // registry.mount,
-    locals,
-    boot,
-    commands,
-    walk,
-    ticker("complete"),
-  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(viva)))(viva);
+// registry.boot,
+// repository.boot,

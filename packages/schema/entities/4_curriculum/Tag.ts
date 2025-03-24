@@ -19,9 +19,11 @@ export class TagEntity extends BaseCurriculumEntity {
   runtime!: Rel<RuntimeEntity>;
   ontology?: Rel<OntologyEntity>;
   curriculum?: Rel<CurriculumEntity>;
+
+  // ancestor?: Rel<TagEntity>;
+  // decendants = new Collection<TagEntity>(this);
   units = new Collection<UnitEntity>(this);
-  ancestor?: Rel<TagEntity>;
-  decendants = new Collection<TagEntity>(this);
+
   plays = new Collection<PlayEntity>(this);
   memories = new Collection<MemoryEntity>(this);
 
@@ -66,18 +68,18 @@ export const TagSchema = new EntitySchema<TagEntity, BaseCurriculumEntity>({
       inversedBy: "tags",
       pivotTable: "_TagToUnit",
     },
-    ancestor: {
-      kind: "m:1",
-      entity: () => TagEntity,
-      fieldName: "ancestor",
-      inversedBy: "decendants",
-      nullable: true,
-    },
-    decendants: {
-      kind: "1:m",
-      entity: () => TagEntity,
-      mappedBy: (tag) => tag.ancestor,
-    },
+    // ancestor: {
+    //   kind: "m:1",
+    //   entity: () => TagEntity,
+    //   fieldName: "ancestor",
+    //   inversedBy: "decendants",
+    //   nullable: true,
+    // },
+    // decendants: {
+    //   kind: "1:m",
+    //   entity: () => TagEntity,
+    //   mappedBy: (tag) => tag.ancestor,
+    // },
     memories: { kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.tag },
     plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.tag },
     traits: {
@@ -88,6 +90,12 @@ export const TagSchema = new EntitySchema<TagEntity, BaseCurriculumEntity>({
       items: () => TagTraitsEnum,
       default: [],
     },
-    data: { type: "json" },
+    data: {
+      type: "json",
+      // nullable: true,
+
+      // defaultRaw: `"{}"`,
+      // default: {},
+    },
   },
 });
