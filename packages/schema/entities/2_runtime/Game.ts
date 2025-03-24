@@ -29,6 +29,7 @@ export const GameSchema = new EntitySchema<GameEntity, BaseModuleEntity>({
   tableName: "Game",
   // uniques: [{name: "Game_slug_runtime_key", expression: 'CREATE UNIQUE INDEX "Game_slug_runtime_key" ON public."Game" USING btree (slug, "runtime")', properties: ["slug", "runtime"],},],
   uniques: [{ properties: ["slug", "runtime"] }],
+  indexes: [],
   properties: {
     runtime: {
       kind: "m:1",
@@ -39,7 +40,12 @@ export const GameSchema = new EntitySchema<GameEntity, BaseModuleEntity>({
     },
     mask: { type: "json" },
     url: { type: "method", persist: false, getter: true, getterName: "url" },
-    plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: "game" },
+    plays: {
+      //
+      kind: "1:m",
+      entity: () => PlayEntity,
+      mappedBy: (play) => play.game,
+    },
     instructions: {
       kind: "1:m",
       entity: () => InstructionEntity,

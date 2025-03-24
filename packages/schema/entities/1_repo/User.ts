@@ -78,7 +78,10 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       columnType: "json",
     },
 
-    config: { type: "json", defaultRaw: `{}`, onCreate: () => ({}) },
+    config: {
+      type: "json",
+      // defaultRaw: `"{}"`, onCreate: () => ({})
+    },
   },
 });
 

@@ -32,7 +32,9 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
   class: PlayEntity,
   extends: BaseSchema,
   tableName: "Play",
+
   // indexes: [{name: "gameIndexOnPlay", expression: 'CREATE INDEX "gameIndexOnPlay" ON public."Play" USING btree ("game")', properties: ["game"],}, {name: "memoryIndexOnPlay", expression: 'CREATE INDEX "memoryIndexOnPlay" ON public."Play" USING btree ("memory")', properties: ["memory"],}, {name: "tacticIndexOnPlay", expression: 'CREATE INDEX "tacticIndexOnPlay" ON public."Play" USING btree ("tactic")', properties: ["tactic"],}, {name: "tagIndexOnPlay", expression: 'CREATE INDEX "tagIndexOnPlay" ON public."Play" USING btree ("tag")', properties: ["tag"],}, {name: "unitIndexOnPlay", expression: 'CREATE INDEX "unitIndexOnPlay" ON public."Play" USING btree ("unit")', properties: ["unit"],}, {name: "userIndexOnPlay", expression: 'CREATE INDEX "userIndexOnPlay" ON public."Play" USING btree ("user")', properties: ["user"],},],
+  indexes: [],
   // uniques: [{ properties: ["unit", "tag", "game", "tactic"] }],
 
   properties: {

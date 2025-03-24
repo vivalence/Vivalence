@@ -14,7 +14,8 @@ async function init(daemon) {
       // discovery: { warnWhenNoEntities: false },
 
       migrations: {
-        tableName: "_mikro_migrations",
+        // tableName: "_mikro_migrations",
+        tableName: config.env.get("VIVA_DATABASE_MIGRATIONS_TABLE"),
         path: config.env.get("VIVA_DATABASE_MIGRATIONS_PATH"),
         glob: "!(*.d).{js,ts}", // how to match migration files (all .js and .ts files, but not .d.ts)
         transactional: true, // wrap each migration in a transaction
