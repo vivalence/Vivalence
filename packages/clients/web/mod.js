@@ -1,3 +1,7 @@
+// @lj:
+// this file executes to local deno.json
+// its a bit of a hack.
+// future headache.
 import { dirname, fromFileUrl } from "$std/path/mod.ts";
 
 const currentModulePath = fromFileUrl(import.meta.url);
@@ -7,7 +11,7 @@ const args = Deno.args;
 let process;
 async function startProcess() {
   process = Deno.run({
-    cmd: ["deno", "task", `-c`, `${dir}/deno.jsonc`, `web:dev`],
+    cmd: ["deno", "task", `-c`, `${dir}/deno.jsonc`, `dev`],
   });
   return await process.status();
 }

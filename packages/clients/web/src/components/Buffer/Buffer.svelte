@@ -1,7 +1,8 @@
 <script>
   import { onMount } from "svelte";
-  import { Loader, Text } from "@vivalence/ui";
-  import { id, deepClone } from "@vivalence/shared";
+  import { Loader, Text } from "@vivalence/interface";
+  import { id } from "@vivalence/shared";
+
   import BufferState from "./state.svelte.js";
   import { createKeybindingsHandler } from "tinykeys";
 

@@ -1,15 +1,18 @@
-import createCall from "$lib/call.js";
+import createCall from "@vivalence/local-lib/call.js";
 
 export const handle = async (event) => {
-  event.data = event.data || {};
-  event.locals = event.locals || {};
+  const ctx = {
+    event,
+    locals: {},
+    identity: {},
+    call: null,
+    // entities
+    // aperture
+  };
 
-  event.identity = { getUser: async () => ({ id: "localhost" }) };
-  event.locals.getUser = event.identity.getUser;
+  ctx.identity = { getUser: async () => await Promise.resolve({ id: "localhost" }) };
 
-  // i should differentiate between aperture call and daemon/runtime call
-  event.locals.call = createCall({});
-  event.aperture = { call: event.locals.call.wrap("/aperture") };
+  ctx.call = createCall({});
 
-  return event;
+  return ctx;
 };

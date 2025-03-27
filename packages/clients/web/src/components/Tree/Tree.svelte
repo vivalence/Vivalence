@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Text, Icon } from "@vivalence/ui";
+  import { Text, Icon } from "@vivalence/interface";
 
   import type { TreeNode } from "./types.d.ts";
   import { getTreeState } from "./context.js";
