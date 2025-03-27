@@ -1,5 +1,5 @@
 <script>
-  import { Text } from "@vivalence/ui";
+  import { Text } from "@vivalence/interface";
 </script>
 
 <div class="container mx-auto flex justify-center items-center h-full">

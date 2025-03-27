@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Text, Icon } from "@vivalence/ui";
+  import { Text, Icon } from "@vivalence/interface";
   import type { TreeNode } from "./types.d.ts";
   import { getTreeState } from "./context.js";
   import Row from "./Row.svelte";

@@ -87,6 +87,7 @@
     "npm:tinykeys@3.0.0": "3.0.0",
     "npm:ts-essentials@9.3.0": "9.3.0_typescript@5.7.3",
     "npm:uuid@11.0.5": "11.0.5",
+    "npm:vite@*": "5.4.10",
     "npm:vite@5.4.10": "5.4.10",
     "npm:zod@*": "3.24.2"
   },

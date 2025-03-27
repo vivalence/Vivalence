@@ -3,43 +3,37 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
 // https://github.com/bluwy/create-vite-extra/tree/master/template-deno-svelte/src
-import "@supabase/ssr";
-import "@supabase/supabase-js";
-import "@sveltejs/kit";
-import "@sveltejs/vite-plugin-svelte";
-import "@tailwindcss/typography";
-import "autoprefixer";
-import "postcss";
 import "svelte";
-import "tailwindcss";
+import "@sveltejs/kit";
 
-import "@dimforge/rapier2d-compat";
-import "@dimforge/rapier3d-compat";
-import "@threejs-kit/instanced-sprite-mesh";
-import "mitt";
-import "three";
-import "three-mesh-bvh";
-import "three-perf";
-import "tinykeys";
-import "troika-three-text";
+import "tailwindcss";
+import "postcss";
+import "autoprefixer";
+import "@tailwindcss/typography";
+import "@sveltejs/vite-plugin-svelte";
+
+// import "mitt";
+// import "three";
+// import "tinykeys";
 
 const root = dirname(fromFileUrl(import.meta.url));
 
 export default defineConfig({
   resolve: {
     alias: {
-      $lib: join(root, "./src/lib"),
-      $components: join(root, "./src/components"),
-      $icons: join(root, "./static/icons"),
+      "@vivalence/local-lib/": join(root, "./src/hooks/"),
+      "@vivalence/components/": join(root, "./src/components/"),
+      "@vivalence/icons/": join(root, "./static/icons/"),
 
-      "@vivalence/ui": join(root, "../../interfaces/display/mod.js"),
+      "@vivalence/interface": join(root, "../../interfaces/display/mod.js"),
       "@vivalence/shared": join(root, "../../shared/client.js"),
 
       "@threlte/core": join(root, "../../vendor/threlte/packages/core/src/lib/index.ts"),
       "@threlte/extras": join(root, "../../vendor/threlte/packages/extras/src/lib/index.ts"),
       "@threlte/rapier": join(root, "../../vendor/threlte/packages/rapier/src/lib/index.ts"),
     },
-    extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".svelte", ".mjs", ".svg"],
+    extensions: [".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
+    // @lj: .mjs for threejs
   },
   plugins: [sveltekit()],
   server: {

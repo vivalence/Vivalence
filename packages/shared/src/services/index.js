@@ -1,3 +1,4 @@
+// depracated?
 import registry from "@vivalence/registry";
 
 // client may be viva, daemon, or anything that implements {services}

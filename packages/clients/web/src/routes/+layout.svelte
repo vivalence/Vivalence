@@ -2,14 +2,8 @@
   import "../style/app.css";
   import "../style/bsp/bsp.css";
 
-  import { writable } from "svelte/store";
-
-  import { initTreeState } from "$components/Tree/context.js";
-  import Tree from "$components/Tree/Tree.svelte";
-
-  let { data, children } = $props();
-
-  const tree = initTreeState({ root: data.menuData, isOpen: false });
+  import Menu from "./sidebar.svelte";
+  let { children } = $props();
 </script>
 
 <div class="layout">
@@ -20,15 +14,7 @@
   </header>
 
   <div class="content m-6">
-    {#if tree.isOpen}
-      <aside class="sidebar grid-container mr-6">
-        <Tree />
-      </aside>
-    {:else}
-      <button class="sidebar-open" on:click={() => tree.toggle(true)}>
-        <span>></span>
-      </button>
-    {/if}
+    <Menu />
 
     <main class="main grid-container">
       {@render children()}
@@ -64,12 +50,7 @@
     @apply w-64 p-0;
   }
   .sidebar-open {
-    @apply w-12 h-12 bg-skeleton-surface-1 border-skeleton-boundary-1 text-skeleton-contrast-1 rounded-lg shadow-md border;
-    position: absolute;
-    transform: translateX(-110%);
-    span {
-      margin-right: -15px;
-    }
+    @apply w-12 h-12 rounded-lg shadow-md border;
   }
   .layout {
     display: grid;

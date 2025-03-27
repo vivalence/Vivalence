@@ -4,7 +4,7 @@ import std, {
   strings,
   time,
   id,
-  hash,
+  // hash,
   //api depracated
   uniqueBySlug,
   deepClone,
@@ -12,6 +12,7 @@ import std, {
   deepEquals,
   shuffle,
 } from "./src/lib/index.js";
+import hash from "./src/lib/hash.ts";
 
 import monads from "./src/monads/index.js";
 import blacklist from "./src/blacklist/index.js";
@@ -19,6 +20,8 @@ import blacklist from "./src/blacklist/index.js";
 import bundler from "./src/bundler/index.js";
 import validators from "./src/validators/index.js";
 import services from "./src/services/index.js";
+
+std.hash = hash;
 
 export {
   std,
