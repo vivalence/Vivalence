@@ -1,8 +1,8 @@
 <script>
   import "../style/app.css";
   import "../style/bsp/bsp.css";
-
   import Menu from "./sidebar.svelte";
+
   let { children } = $props();
 </script>
 
