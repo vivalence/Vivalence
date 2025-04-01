@@ -10,35 +10,18 @@ export default class Aperture {
   router: Router;
 
   descendants: Aperture[] = [];
-  middleware: {
-    native: Middleware[];
-    pre: Middleware[];
-    post: Middleware[];
-  };
+  middleware: Middleware[];
   // handlers: any;
 
   constructor(path: Path) {
     this.path = path;
     this.router = new Router();
-    this.middleware = {
-      native: [],
-      pre: [],
-      post: [],
-    };
+    this.middleware = [];
   }
 
   use(middleware: Middleware): Aperture {
-    this.middleware.native.push(middleware);
-    return this;
-  }
-
-  pre(middleware: Middleware): Aperture {
-    this.middleware.pre.push(middleware);
-    return this;
-  }
-
-  post(middleware: Middleware): Aperture {
-    this.middleware.post.push(middleware);
+    // this.middleware.push(middleware);
+    this.router.use(middleware);
     return this;
   }
 
@@ -62,34 +45,6 @@ export default class Aperture {
     if (force) this.composed = null;
 
     if (!this.composed) {
-      this.router.use(async (ctx, next) => {
-        for (const middleware of this.middleware.pre) {
-          await new Promise<void>((resolve) => {
-            middleware(ctx, () => {
-              resolve();
-              return Promise.resolve();
-            });
-          });
-        }
-        await next();
-      });
-
-      for (const middleware of this.middleware.native) {
-        this.router.use(middleware);
-      }
-
-      this.router.use(async (ctx, next) => {
-        await next();
-        for (const middleware of this.middleware.post) {
-          await new Promise<void>((resolve) => {
-            middleware(ctx, () => {
-              resolve();
-              return Promise.resolve();
-            });
-          });
-        }
-      });
-
       for (const descendant of this.descendants) {
         descendant.serve(this.router);
       }
@@ -100,6 +55,9 @@ export default class Aperture {
     return this.composed;
   }
   serve(router: Router) {
+    // const composed = this.compose();
+    // router.use(this.path.toString(), composed);
+
     this.compose();
     router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
     return this;

@@ -5442,6 +5442,7 @@
       "npm:ajv-errors@3.0.0",
       "npm:ajv@8.17.1",
       "npm:autoprefixer@10.4.20",
+      "npm:dockview-core@4.2.2",
       "npm:ebisu-js@2.1.3",
       "npm:esbuild-plugin-cache@*",
       "npm:esbuild-svelte@latest",

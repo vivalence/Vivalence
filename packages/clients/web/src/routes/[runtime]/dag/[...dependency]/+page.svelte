@@ -1,11 +1,11 @@
 <script>
   import { goto } from "$app/navigation";
-  import { Text } from "@vivalence/interface";
   import DependencyCard from "@vivalence/components/views/Dependency/Card.svelte";
 
+  let { data } = $props();
 
-  const { data } = $props();
-  const { dependencies, runtime } = data;
+  const { dependencies } = data;
+
 
   const rootDependencies = dependencies.filter(
     (d) => !d.preconditions || d.preconditions.length === 0,
@@ -36,8 +36,9 @@
   );
 
   function handleButtonClick(dependency) {
-    goto(`/runtime/${runtime.slug}/dependency/${dependency.slug}/practice`);
+    goto(`/${dependency.runtime.slug}/buffers/${dependency.slug}`);
   }
+
   function handleTitleClick(dependency) {
     if (dependency?.id !== activeDependencyId) {
       activeDependencyId = dependency.id;
@@ -92,12 +93,11 @@
   .dependency {
   }
   .dependencies {
-    /* background-color: gray; */
+    color: gray;
     @apply gap-2;
   }
 
   .row {
-    /* background-color: yellow; */
     @apply gap-2;
   }
 </style>
