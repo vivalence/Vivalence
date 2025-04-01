@@ -1,6 +1,9 @@
-import { handle } from "../hooks.client.js";
+import context from "@client/context";
+import sidebar from "./sidebar.js";
 
 export const load = async (event) => {
-  const ctx = await handle(event);
-  return { _event: event, ctx };
+  const ctx = await context(event);
+  const menudata = await sidebar(ctx);
+
+  return { ctx, menudata };
 };

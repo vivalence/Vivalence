@@ -28,7 +28,7 @@ function createCall(event) {
   };
 
   const call = async (path, body, params) => {
-    const url = new URL(path, env.PUBLIC_DAEMON_URL).toString();
+    const url = new URL(path, env.PUBLIC_VIVA_DAEMON_URL).toString();
     const response = await req(url, body, params);
     return await response.json();
   };

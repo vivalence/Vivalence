@@ -1,15 +1,14 @@
-<script lang="ts">
+<script >
   import { Text, Icon } from "@vivalence/interface";
 
-  import type { TreeNode } from "./types.d.ts";
   import { getTreeState } from "./context.js";
+
   import Node from "./Node.svelte";
   import Row from "./Row.svelte";
 
   const tree = getTreeState();
   const closeTree = () => tree.toggle();
   const handleBack = () => tree.reset();
-  // console.log(JSON.stringify(tree, null, 2));
 </script>
 
 <div class="flex flex-col font-sans-text h-full">

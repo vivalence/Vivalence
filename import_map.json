@@ -61,6 +61,7 @@
     "autoprefixer": "npm:autoprefixer@10.4.20",
     "@tailwindcss/typography": "npm:@tailwindcss/typography@0.5.15",
     "tailwindcss": "npm:tailwindcss@3.4.14",
+    "dockview-core": "npm:dockview-core@4.2.2",
 
     "tinykeys": "npm:tinykeys@3.0.0",
     "mitt": "npm:mitt@3.0.1",

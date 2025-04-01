@@ -1,5 +1,5 @@
 import config from "@vivalence/config";
-import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { Collection, EntitySchema, type Rel } from "@mikro-orm/core";
 
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
 import { UserEntity } from "../1_repo/User.ts";

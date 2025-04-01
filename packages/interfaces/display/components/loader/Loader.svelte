@@ -16,9 +16,9 @@
   const loadStatus = () => {
     if (load) {
       load();
-      console.log("load function called");
+      console.log("@interfaces Loader.svelte load function called");
     } else {
-      console.log("No load function provided");
+      console.log("@interfaces Loader.svelte No load function provided");
     }
     counter++;
   };

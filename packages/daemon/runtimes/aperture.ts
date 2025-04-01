@@ -6,26 +6,30 @@ const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
   await next();
 };
 
-const entityMiddleware = (runtime) => async (ctx, next) => {
-  // for entities and SOMEHOW also update all repository entities.
-  //   ctx.runtime.entities.em = runtime.entities.em.fork();
+function v1(aperture) {
+  aperture.open("/status", (body, ctx) => ({
+    status: "runtime:/status ok",
+    runtime: ctx.runtime.entity.slug,
+    timestamp: new Date().toISOString(),
+  }));
 
-  await next();
-};
+  aperture.open("/entities/:entity/:repo", async (body, ctx) => {
+    const entity = ctx.runtime.entities[ctx.params.entity];
+    return await ctx.runtime.entities.em[ctx.params.repo](
+      entity.entityName,
+      body.where,
+      body.options,
+    );
+  });
+}
 
 export default {
   init: (daemon: Daemon) => async (runtime: Runtime) => {
     runtime.aperture = daemon.aperture
-      .use(entityMiddleware(runtime))
-      // .use(runtimeAuth(runtime))
-      // .use(runtimeCall(runtime))
-      .branch(runtime.entity.url.pathname)
+      .branch(`/aperture/v1/runtime/${runtime.entity.slug}`)
       .use(runtimeContextMiddleware(runtime));
 
-    runtime.aperture.open("/status", (ctx) => ({
-      status: "runtime:/status ok",
-      timestamp: new Date().toISOString(),
-    }));
+    v1(runtime.aperture);
 
     return runtime;
   },

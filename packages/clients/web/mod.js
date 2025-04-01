@@ -3,6 +3,7 @@
 // its a bit of a hack.
 // future headache.
 import { dirname, fromFileUrl } from "$std/path/mod.ts";
+import config from "@vivalence/config";
 
 const currentModulePath = fromFileUrl(import.meta.url);
 const dir = dirname(currentModulePath);
