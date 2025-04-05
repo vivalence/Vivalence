@@ -4,20 +4,23 @@ export default async function discover(daemon) {
   const Runtimes = [];
 
   for await (const RuntimeModule of await loadFromRepo()) {
-    const [Domain, Ontology, Curricula] = await Promise.all([
+    const [Domain, Ontology, Corpora] = await Promise.all([
       await loadModule(RuntimeModule.modules.domain, daemon),
       await loadModule(RuntimeModule.modules.ontology, daemon),
-      await loadModules(RuntimeModule.modules.curricula, daemon), // corpora
+      await loadModules(RuntimeModule.modules.corpora, daemon), // corpora
     ]);
 
+    // some clever multiplexing based on domain spec.
     const Strategies = {};
     const Games = [];
     const Tactics = [];
 
     await Promise.all(
-      Curricula.map(async (Curriculum) => {
-        Games.push(...(await loadModules(Curriculum.modules.games, daemon)));
-        Tactics.push(...(await loadModules(Curriculum.modules.tactics, daemon)));
+      Corpora.map(async (Corpus) => {
+        // DOMAIN.games?
+        // ONTOLOGY.tactics?
+        Games.push(...(await loadModules(Corpus.modules.games, daemon)));
+        Tactics.push(...(await loadModules(Corpus.modules.tactics, daemon)));
         // Strategies.assign((await daemon.registry.loadModuleMap(Corpus.modules.strategies)));
       }),
     );
@@ -27,7 +30,7 @@ export default async function discover(daemon) {
       Domain,
       // should be handled by domain:
       Ontology,
-      Curricula,
+      Corpora,
       Strategies,
       Games,
       Tactics,

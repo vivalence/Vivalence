@@ -3,19 +3,27 @@ import { Collection, EntitySchema, type Rel } from "@mikro-orm/core";
 
 import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
 import { UserEntity } from "../1_repo/User.ts";
-import { ServiceEntity } from "../1_repo/Service.ts";
-import { DomainEntity } from "../2_runtime/Domain.ts";
-import { GameEntity } from "../2_runtime/Game.ts";
-import { OntologyEntity } from "../2_runtime/Ontology.ts";
-import { CurriculumEntity } from "../2_runtime/Curriculum.ts";
+import { ServiceEntity } from "../2_module/Service.ts";
+import { DomainEntity } from "../2_module/Domain.ts";
+// import { GameEntity } from "../2_module/Game.ts";
+import { OntologyEntity } from "../2_module/Ontology.ts";
+import { CorpusEntity } from "../2_module/Corpus.ts";
 
 export class RuntimeEntity extends BaseModuleEntity {
   users = new Collection<UserEntity>(this);
   services = new Collection<ServiceEntity>(this);
   domain?: Rel<DomainEntity>;
+
+  // users
+  // services
+  // domain
+  // modules
+  // ?entities
+
+  // modules
   ontology?: Rel<OntologyEntity>;
-  curricula = new Collection<CurriculumEntity>(this);
-  games = new Collection<GameEntity>(this);
+  corpora = new Collection<CorpusEntity>(this);
+  // games = new Collection<GameEntity>(this);
   // strategies = new Collection<StrategyEntity>(this);
 
   get url() {
@@ -37,12 +45,8 @@ export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseModuleEntity>({
     services: { kind: "1:m", entity: () => ServiceEntity, mappedBy: "runtime" },
     domain: { kind: "1:1", entity: () => DomainEntity, mappedBy: "runtime" },
     ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
-    games: { kind: "1:m", entity: () => GameEntity, mappedBy: "runtime" },
-    curricula: {
-      kind: "1:m",
-      entity: () => CurriculumEntity,
-      mappedBy: (curriculum) => curriculum.runtime,
-    },
+    corpora: { kind: "1:m", entity: () => CorpusEntity, mappedBy: (c) => c.runtime },
+    // games: { kind: "1:m", entity: () => GameEntity, mappedBy: "runtime" },
 
     url: { type: "method", persist: false, getter: true, getterName: "url" },
   },

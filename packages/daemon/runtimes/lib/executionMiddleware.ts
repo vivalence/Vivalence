@@ -16,6 +16,7 @@ export default function (daemon: Daemon, runtime: Runtime) {
       entities[key].em = entities.em;
     }
     ctx.runtime.entities = entities;
+    ctx.entities = ctx.runtime.entities;
 
     return ctx;
   }

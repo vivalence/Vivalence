@@ -1,9 +1,9 @@
-import { blacklist as Blacklist, deepMerge } from "@vivalence/shared";
+import { Scope } from "@vivalence/shared";
 import lock from "./lib/lock.js";
 
-export default async function provision({ dependency, blacklist, scope }, ctx) {
+export default async function provision({ dependency, ...body }, ctx) {
   const user = await ctx.runtime.services.identity.getUser();
-  scope.user = { id: user.id };
+  const scope = new Scope({ ...body.scope, user: { id: user.id } });
 
   if (lock.has(scope)) return { status: "locked" };
   lock.set(scope);
@@ -15,7 +15,7 @@ export default async function provision({ dependency, blacklist, scope }, ctx) {
     const itinerary = dependency.itinerary.tactic;
 
     const input = {
-      blacklist,
+      blacklist: body.blacklist,
       scope,
       tactic: { slug: itinerary.slug },
       relations: itinerary.relations,
@@ -23,26 +23,20 @@ export default async function provision({ dependency, blacklist, scope }, ctx) {
     };
 
     instructions = await ctx.runtime.call(`/provision/tactic`, input);
-    console.log(
-      "/Users/finn/vivalence/code/vivalence/modules/domains/base/aperture/methods/provision/dependency.js instructions",
-      instructions,
-    );
-    // instructions = [];
 
     if (instructions.length > 0) {
-      // Create queue entries one by one
       for (let i = 0; i < instructions.length; i++) {
+        if (instructions[i].type === "SIGNAL") continue;
         ctx.runtime.entities.instruction.create({
           runtime: ctx.runtime.entity.id,
           user: user.id,
           dependency: dependency.id,
-          tactic: tactic.id,
+          tactic: instructions[i].scope.tactic.id,
           data: instructions[i],
           index: i,
         });
       }
 
-      // Persist all created entities at once
       await ctx.runtime.entities.em.flush();
     }
   } catch (err) {

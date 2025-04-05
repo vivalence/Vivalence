@@ -11,7 +11,7 @@
   const handleBack = () => tree.reset();
 </script>
 
-<div class="flex flex-col font-sans-text h-full">
+<div class="bsp-node flex flex-col font-sans-text h-full">
   <Row
     size="lg"
     classes={{

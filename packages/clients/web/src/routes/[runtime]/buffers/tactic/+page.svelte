@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
 
-  import Buffer from "@vivalence/components/Buffer/Buffer.svelte";
+  import { Buffer } from "@vivalence/interface";
   import SignalHandler from "./components/SignalHandler.svelte";
 
   export let data;

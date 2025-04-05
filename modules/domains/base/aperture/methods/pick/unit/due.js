@@ -1,12 +1,17 @@
-export default async function getDueUnits(inputs, ctx) {
-  const { tagIds, blacklist, take, dueLt = new Date().toISOString(), scope = {} } = inputs;
-  console.log("inputs:", { tagIds, blacklist, take, dueLt, scope });
+import { Blacklist, Scope } from "@vivalence/shared";
+
+export default async function getDueUnits(input, ctx) {
+  const { tagIds, take, dueLt = new Date().toISOString() } = input;
+
   const user = await ctx.runtime.services.identity.getUser();
-  scope.user = { id: user.id };
+  const blacklist = new Blacklist(input.blacklist);
+  const scope = new Scope({
+    ...input.scope,
+    user: { id: user.id },
+    runtime: { id: ctx.runtime.entity.id },
+  });
 
-  const unitRepository = ctx.runtime.entities.unit;
-  const qb = unitRepository.createQueryBuilder("u");
-
+  const qb = ctx.runtime.entities.unit.createQueryBuilder("u");
   qb.where({ runtime: ctx.runtime.entity.id });
 
   if (blacklist?.units && blacklist.units.length > 0) {
@@ -62,7 +67,6 @@ export default async function getDueUnits(inputs, ctx) {
   }
 
   const units = await qb.getResultList();
-  console.log("units fetched:", units.length);
   return units;
 }
 

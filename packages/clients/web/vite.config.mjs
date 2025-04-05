@@ -8,13 +8,13 @@ import config from "@vivalence/config";
 import "svelte";
 import "@sveltejs/kit";
 
-import "dockview-core";
 import "tailwindcss";
 import "postcss";
 import "autoprefixer";
 import "@tailwindcss/typography";
 import "@sveltejs/vite-plugin-svelte";
 
+// import "dockview-core";
 // import "mitt";
 // import "three";
 // import "tinykeys";
@@ -24,10 +24,10 @@ const root = dirname(fromFileUrl(import.meta.url));
 export default defineConfig({
   resolve: {
     alias: {
-      "@client/context": join(root, "./src/hooks.client.js"),
-      "@vivalence/local-lib/": join(root, "./src/hooks/"),
-      "@vivalence/components/": join(root, "./src/components/"),
-      "@vivalence/icons/": join(root, "./static/icons/"),
+      "@client/lib/": join(root, "./src/lib/"),
+      "@client/components/": join(root, "./src/components/"),
+      "@client/icons/": join(root, "./static/icons/"),
+      "@client/context": join(root, "./src/context.js"),
 
       "@vivalence/interface": join(root, "../../interfaces/display/mod.js"),
       "@vivalence/shared": join(root, "../../shared/client.js"),

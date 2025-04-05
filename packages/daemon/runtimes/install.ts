@@ -6,20 +6,17 @@ import { enums, TagEntity } from "@vivalence/schema";
 export default function install(daemon: Daemon) {
   return async (runtime: Runtime) => {
     const modules = [
-      runtime,
       runtime.domain,
       runtime.ontology,
-      ...runtime.curricula,
+      ...runtime.corpora,
       ...runtime.games,
       ...runtime.tactics,
     ].filter((module) => module.entity.installed === false);
 
     for (const module of modules) {
-      const install = getInstaller(module);
-      if (!install) continue;
-
       try {
-        await install(runtime, module);
+        const install = getInstaller(module);
+        if (install) await install(runtime, module);
         module.entity.installation = enums.ModuleInstallation.INSTALLED;
       } catch (e) {
         console.log("installation error");
@@ -35,12 +32,13 @@ export default function install(daemon: Daemon) {
 
 function getInstaller(module: RuntimeModule) {
   if (typeof module.Module.install === "function") return module.Module.install;
-  if (!["ontology", "curriculum"].includes(module.Module.manifest.type)) return null;
+  if (!["ontology", "corpus"].includes(module.Module.manifest.type)) return null;
   if (!module.Module.curriculum) throw new Error("L Daemon error: curriculum not found on module");
   if (typeof module.Module.curriculum === "function") return module.Module.curriculum;
   return installCurriculum;
 }
 
+// move to domain
 async function installCurriculum(runtime: Runtime, module: RuntimeModule) {
   // TODO: might want to enforce tags->units->dependencies order.
   const curriculum = module.Module.curriculum;
@@ -63,7 +61,7 @@ async function installCurriculum(runtime: Runtime, module: RuntimeModule) {
     for (const resource of resources) {
       resource.runtime = runtime.entity.id;
       if (module.Module.manifest.type === "ontology") resource.ontology = module.entity.id;
-      if (module.Module.manifest.type === "curriculum") resource.curriculum = module.entity.id;
+      if (module.Module.manifest.type === "corpus") resource.corpus = module.entity.id;
     }
   }
 

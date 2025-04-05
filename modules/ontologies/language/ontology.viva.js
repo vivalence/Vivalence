@@ -26,7 +26,7 @@ async function boot(runtime) {
 
   ontology = [
     topology,
-    ...runtime.Modules.Curricula.map((C) => C.topology),
+    ...runtime.Modules.Corpora.map((C) => C.topology),
     topology.computeSchematics,
   ].reduce((ontology, topology) => topology(ontology), ontology);
 

@@ -9,7 +9,7 @@
   };
 </script>
 
-<div class="row {sizes[size]} {classes?.row}">
+<div class="bsp-node row {sizes[size]} {classes?.row}">
   <div class="icon icon1 {classes?.nav}">{@render nav?.()}</div>
   <div class="icon icon2 {classes?.icon}">{@render icon?.()}</div>
   <div class="content {classes?.content}">{@render content?.()}</div>

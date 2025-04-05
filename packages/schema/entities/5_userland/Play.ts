@@ -3,11 +3,12 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
 import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { GameEntity } from "../2_runtime/Game.ts";
-import { DependencyEntity } from "../4_curriculum/Dependency.ts";
-import { TacticEntity } from "../4_curriculum/Tactic.ts";
-import { TagEntity } from "../4_curriculum/Tag.ts";
-import { UnitEntity } from "../4_curriculum/Unit.ts";
+import { GameEntity } from "../2_module/Game.ts";
+
+import { TacticEntity } from "../2_module/Tactic.ts";
+import { DependencyEntity } from "../4_data/Dependency.ts";
+import { TagEntity } from "../4_data/Tag.ts";
+import { UnitEntity } from "../4_data/Unit.ts";
 
 import { MemoryEntity } from "../5_userland/Memory.ts";
 

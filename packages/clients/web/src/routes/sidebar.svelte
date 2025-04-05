@@ -4,8 +4,8 @@
 
   import { writable } from "svelte/store";
 
-  import { initTreeState } from "@vivalence/components/Tree/context.js";
-  import Tree from "@vivalence/components/Tree/Tree.svelte";
+  import { initTreeState } from "@client/components/Tree/context.js";
+  import Tree from "@client/components/Tree/Tree.svelte";
 
   let { menudata } = $props();
 
