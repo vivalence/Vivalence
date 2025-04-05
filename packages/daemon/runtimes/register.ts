@@ -6,17 +6,17 @@ export default function registerRuntimeModules(daemon: Daemon) {
     await registerModule(daemon, runtime, runtime.Modules.Runtime);
     runtime.entity = runtime.Modules.Runtime.entity;
 
-    const [Domain, Ontology, Curricula, Games, Tactics, Strategies] = await Promise.all([
+    const [Domain, Ontology, Corpora, Games, Tactics, Strategies] = await Promise.all([
       registerModule(daemon, runtime, runtime.Modules.Domain),
       registerModule(daemon, runtime, runtime.Modules.Ontology),
-      registerModules(daemon, runtime, runtime.Modules.Curricula),
+      registerModules(daemon, runtime, runtime.Modules.Corpora),
       registerModules(daemon, runtime, runtime.Modules.Games),
       registerModules(daemon, runtime, runtime.Modules.Tactics),
       // registerModules(daemon, runtime, runtime.Modules.Strategies),
     ]);
     runtime.Modules.Domain = Domain;
     runtime.Modules.Ontology = Ontology;
-    runtime.Modules.Curricula = Curricula;
+    runtime.Modules.Corpora = Corpora;
     runtime.Modules.Games = Games;
     runtime.Modules.Tactics = Tactics;
     // runtime.Modules.Strategies = Strategies;

@@ -15,7 +15,8 @@ import std, {
 import hash from "./src/lib/hash.ts";
 
 import monads from "./src/monads/index.js";
-import blacklist from "./src/blacklist/index.js";
+import Blacklist from "./src/blacklist/index.js";
+import Scope from "./src/Scope/index.js";
 
 import bundler from "./src/bundler/index.js";
 import validators from "./src/validators/index.js";
@@ -31,7 +32,8 @@ export {
   strings,
   time,
   id,
-  blacklist,
+  Scope,
+  Blacklist,
   bundler,
   validators,
   services,

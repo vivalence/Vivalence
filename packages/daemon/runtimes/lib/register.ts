@@ -39,6 +39,7 @@ async function findModule(daemon: Daemon, runtime: Runtime, Module: Module) {
 async function createModule(daemon: Daemon, runtime: Runtime, Module: ModuleInstaller) {
   let insert: Record<string, unknown> = {
     ...Module.manifest,
+    installation: enums.ModuleInstallation.PENDING,
     config: { manifest: Module.manifest },
   };
 
@@ -54,7 +55,7 @@ async function createModule(daemon: Daemon, runtime: Runtime, Module: ModuleInst
     };
   }
 
-  if (["runtime", "curriculum"].includes(Module.manifest.type)) {
+  if (["runtime", "corpus"].includes(Module.manifest.type)) {
     insert.config = { ...insert.config, modules: Module.modules };
   }
 
@@ -71,6 +72,7 @@ async function updateModule(daemon: Daemon, runtime: Runtime, Module: Module, en
   let update: Record<string, unknown> = {
     id: entity.id,
     ...Module.manifest,
+    installation: enums.ModuleInstallation.PENDING,
     config: { manifest: Module.manifest },
   };
 
@@ -82,7 +84,7 @@ async function updateModule(daemon: Daemon, runtime: Runtime, Module: Module, en
     };
   }
 
-  if (["runtime", "curriculum"].includes(Module.manifest.type)) {
+  if (["runtime", "corpus"].includes(Module.manifest.type)) {
     update.config = { ...update.config, modules: Module.modules };
   }
 

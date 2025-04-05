@@ -34,6 +34,7 @@ const daemon = {
     registry.mount,
     entities.init,
     aperture.init,
+
     services.init,
     runtimes.init,
     runtimes.serve,

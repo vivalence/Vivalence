@@ -1,6 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
-  import DependencyCard from "@vivalence/components/views/Dependency/Card.svelte";
+  import DependencyCard from "@client/components/views/Dependency/Card.svelte";
 
   let { data } = $props();
 

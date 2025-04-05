@@ -3,9 +3,9 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
 import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { GameEntity } from "../2_runtime/Game.ts";
-import { DependencyEntity } from "../4_curriculum/Dependency.ts";
-import { TacticEntity } from "../4_curriculum/Tactic.ts";
+import { GameEntity } from "../2_module/Game.ts";
+import { TacticEntity } from "../2_module/Tactic.ts";
+import { DependencyEntity } from "../4_data/Dependency.ts";
 
 export enum InstructionStatusEnum {
   PENDING = "PENDING",
@@ -24,6 +24,7 @@ export class InstructionEntity extends BaseEntity {
   index: number & Opt = 0;
   status: InstructionStatusEnum & Opt = InstructionStatusEnum.PENDING;
   data: any & Opt = "{}";
+  // type instruction, scope, bundle
 }
 
 export const InstructionSchema = new EntitySchema<InstructionEntity, BaseEntity>({

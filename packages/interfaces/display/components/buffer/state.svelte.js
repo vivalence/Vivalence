@@ -1,34 +1,35 @@
-import { env } from "$env/dynamic/public";
-
-const QUEUE_THRESHOLD = parseInt(env["PUBLIC_QUEUE_THRESHOLD"]);
-
 export default class BufferState {
-  handlers = {};
+  handlers = {
+    pull: null,
+    onNext: [],
+  };
 
+  threshold = 0;
   status = $state("IDLE");
   active = $state(null);
   queue = $state([]);
 
-  constructor({ onNext, pull }) {
-    this.handlers = { onNext, pull };
+  constructor(threshold, pull) {
+    this.threshold = threshold;
+    this.handlers.pull = pull;
   }
 
   next() {
     this.status = "NEXT";
+    // TODO: deepclone
     let prev = { ...this.active };
     this.active = null;
     if (this.queue.length > 0) this.active = this.queue.shift();
-
-    this.handlers.onNext({ prev, next: this.active });
+    this.handlers.onNext.map((f) => f(prev, this.active));
     this.status = "IDLE";
     this.pull();
   }
 
   async pull() {
-    if (this.queue.length >= QUEUE_THRESHOLD) return;
+    if (this.queue.length >= this.threshold) return;
     this.status = "PULLING";
-    const instructions = await this.handlers.pull({ take: QUEUE_THRESHOLD, buffer: this });
-    this.queue.push(...instructions);
+
+    this.queue.push(...(await this.handlers.pull(this)));
     if (!this.active) this.active = this.queue.shift();
     this.status = "IDLE";
   }
@@ -37,5 +38,8 @@ export default class BufferState {
     this.active = null;
     this.queue = [];
     this.status = "IDLE";
+  }
+  onNext(fn) {
+    this.handlers.onNext.push(fn);
   }
 }

@@ -9,7 +9,7 @@ export async function loadFromRepo() {
   const Runtimes = [];
 
   for await (const entry of walk(config.env.get("VIVA_RUNTIMES_DIR"), {
-    maxDepth: 3,
+    maxDepth: 4,
     includeFiles: true,
     includeDirs: false,
     match: [/\.viva\.js$/],

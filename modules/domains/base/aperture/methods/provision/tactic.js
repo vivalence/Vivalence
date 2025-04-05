@@ -1,25 +1,20 @@
-// import { join } from "$std/path/mod.ts";
 import { join } from "$std/path/mod.ts";
-import { deepMerge, blacklist as Blacklist } from "@vivalence/shared";
+import { deepMerge, Scope, Blacklist } from "@vivalence/shared";
 
 export default async function (body, ctx) {
-  let { tactic = {}, masks = {}, relations = {}, scope, blacklist } = body;
   const user = await ctx.runtime.services.identity.getUser();
-  tactic = await ctx.runtime.entities.tactic.findOneOrFail({ slug: tactic.slug });
 
-  scope.tactic = { id: tactic.id };
-  scope.user = { id: user.id };
+  const tactic = await ctx.runtime.entities.tactic.findOneOrFail({ slug: body.tactic.slug });
+  const scope = new Scope({ ...body.scope, user: { id: user.id }, tactic: { id: tactic.id } });
+  const blacklist = await new Blacklist(body.blacklist).fromQueue(scope, ctx);
 
-  blacklist = await Blacklist.fromInstructionQueue({ blacklist, scope }, ctx);
-
+  let { masks = {}, relations = {} } = body;
   masks = deepMerge({}, tactic.masks, masks);
-
   relations = deepMerge({}, tactic.relations, relations);
   relations = await buildRelations(relations, ctx);
   relations = injectGameCaller({ relations, masks, scope }, ctx);
 
-  const input = { tactic, relations, masks, scope, blacklist };
-
+  const input = { tactic: { ...tactic, relations, masks }, scope, blacklist };
   const instructions = await ctx.runtime.call(`/tactic/${tactic.slug}/provision`, input);
 
   if (
@@ -37,6 +32,7 @@ const relationsToEntitiesMap = {
   units: "unit",
   games: "game",
 };
+
 async function buildRelations(relations, ctx) {
   async function resolveRelation(resourceType, relation) {
     if (Array.isArray(relation)) {
@@ -87,7 +83,7 @@ function injectGameCaller({ relations, masks, scope }, ctx) {
   Object.entries(relations.games).forEach(([relationName, game]) => {
     relations.games[relationName].call = (path, input) => {
       return ctx.runtime.call(
-        join("/g", game.slug, path),
+        join(game.url.modulename, path),
         deepMerge(
           { mask: deepMerge(game.mask, masks[relationName]) },
           { scope: deepMerge(scope, { game: { id: game.id } }) },

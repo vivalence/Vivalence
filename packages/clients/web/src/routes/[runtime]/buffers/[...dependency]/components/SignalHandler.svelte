@@ -2,23 +2,24 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
 
-  let { instruction, runtime, dependency, next } = $props();
-  /* console.log("Signal Handler: instruction, runtime, dependency", instruction, runtime, dependency); */
+  let { ctx, signal, release } = $props();
+  console.log("Signal Handler: ", ctx, signal, releace);
 
   let ui = $state();
 
   onMount(() => {
-    switch (instruction.signal) {
+    switch (signal.type) {
       case "COMPLETED":
         ui = "Dependency satisfied";
-        setTimeout(() => goto(`/runtime/${runtime.slug}/dependencies`), 2000);
+        throw new Error("expected, ctx.runtime not defined in dependency buffer signal handler");
+        setTimeout(() => goto(`/runtime/${ctx.runtime.slug}/dependencies`), 2000);
         break;
       case "REPETITION":
         ui = "Rep master general.";
         setTimeout(() => next(), 1000);
         break;
       case "ERROR":
-        ui = instruction.error.message;
+        ui = signal.error.message;
         break;
       default:
         break;

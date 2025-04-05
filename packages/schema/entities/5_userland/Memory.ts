@@ -5,8 +5,8 @@ import { UserEntity } from "../1_repo/User.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
 import { PlayEntity } from "../5_userland/Play.ts";
 
-import { TagEntity } from "../4_curriculum/Tag.ts";
-import { UnitEntity } from "../4_curriculum/Unit.ts";
+import { TagEntity } from "../4_data/Tag.ts";
+import { UnitEntity } from "../4_data/Unit.ts";
 
 // import { User } from "../0_root/User.ts";
 

@@ -1,21 +1,22 @@
 import config from "@vivalence/config";
-import { blacklist as Blacklist, deepMerge } from "@vivalence/shared";
+import { Blacklist, Scope, deepMerge } from "@vivalence/shared";
 
-export default async function ({ take, ...body }, ctx) {
+export default async function ({ take, ...input }, ctx) {
   let status = "success";
+
   const user = await ctx.runtime.services.identity.getUser();
 
-  const dependency = await ctx.runtime.entities.dependency.findOneOrFail(body.dependency);
-
-  let blacklist = Blacklist.init(body.blacklist);
-
-  let scope = {
+  const blacklist = new Blacklist(input.blacklist);
+  const scope = new Scope({
+    ...input.scope,
     user: { id: user.id },
-    runtime: { id: ctx.runtime.entity.id }, // Changed from manifest.id to entity.id
-    dependency: { id: dependency.id },
-  };
+    runtime: { id: ctx.runtime.entity.id },
+  });
+
+  const dependency = await ctx.runtime.entities.dependency.findOneOrFail(scope.dependency);
 
   const counted = await count({ scope, blacklist }, ctx);
+
   const instructions = await read({ scope, blacklist, take }, ctx);
 
   if (counted <= take || counted <= config.env.get("INSTRUCTION_PROVISION_FLOOR")) {
@@ -58,7 +59,7 @@ async function read({ scope, blacklist, take }, ctx) {
   // Transform data similarly to original
   return queueEntries.map((entry) => {
     const data = { ...entry.data };
-    data.scope = { ...data.scope, queue: { id: entry.id } };
+    data.scope = new Scope({ ...data.scope, instruction: { id: entry.id } });
     return data;
   });
 }

@@ -21,9 +21,17 @@ function createBundler(input) {
   bundler.injectBundleUrl = () => async (ctx, next) => {
     const rootpath = new URL(input.serve, config.env.get("DAEMON_URL")).toString();
     const bundlepath = join("/", BASE_URL, basename(input.entry));
-    ctx.state.game = ctx.state.game || {};
-    ctx.state.game.bundle = rootpath + bundlepath;
+    ctx.state.bundle = { url: new URL(rootpath + bundlepath) };
     await next();
+    if (ctx.response.body) {
+      if (Array.isArray(ctx.response.body)) {
+        ctx.response.body.forEach((body) => {
+          body.bundle = ctx.state.bundle;
+        });
+      } else {
+        ctx.response.body.bundle = ctx.state.bundle;
+      }
+    }
   };
 
   bundler.url = `/${BASE_URL}/:filename`;

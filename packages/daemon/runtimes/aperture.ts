@@ -43,8 +43,6 @@ export default {
       return ctx.response.body;
     };
 
-    // console.log("runtime call game status", await runtime.call("/game/flashcards/status"));
-
     return runtime;
   },
 };

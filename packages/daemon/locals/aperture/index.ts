@@ -11,6 +11,7 @@ export function create(options: ApertureOptions = {}) {
 
 export function context(path, body, params) {
   return {
+    state: {},
     request: {
       body,
       url: new URL(path, "http://internal"),

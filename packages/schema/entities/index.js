@@ -7,18 +7,18 @@ export { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 
 export { UserEntity, UserSchema } from "./1_repo/User.ts";
 export { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
-export { ServiceEntity, ServiceSchema } from "./1_repo/Service.ts";
 
-export { OntologyEntity, OntologySchema } from "./2_runtime/Ontology.ts";
-export { CurriculumEntity, CurriculumSchema } from "./2_runtime/Curriculum.ts";
-export { DomainEntity, DomainSchema } from "./2_runtime/Domain.ts";
-export { GameEntity, GameSchema } from "./2_runtime/Game.ts";
-export { StrategyEntity, StrategySchema } from "./2_runtime/Strategy.ts";
+export { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
+export { OntologyEntity, OntologySchema } from "./2_module/Ontology.ts";
+export { CorpusEntity, CorpusSchema } from "./2_module/Corpus.ts";
+export { DomainEntity, DomainSchema } from "./2_module/Domain.ts";
+export { GameEntity, GameSchema } from "./2_module/Game.ts";
+export { StrategyEntity, StrategySchema } from "./2_module/Strategy.ts";
+export { TacticEntity, TacticSchema } from "./2_module/Tactic.ts";
 
-export { TacticEntity, TacticSchema } from "./4_curriculum/Tactic.ts";
-export { TagEntity, TagSchema } from "./4_curriculum/Tag.ts";
-export { ConditionEntity, ConditionSchema } from "./4_curriculum/Condition.ts";
-export { DependencyEntity, DependencySchema } from "./4_curriculum/Dependency.ts";
+export { TagEntity, TagSchema } from "./4_data/Tag.ts";
+export { ConditionEntity, ConditionSchema } from "./4_data/Condition.ts";
+export { DependencyEntity, DependencySchema } from "./4_data/Dependency.ts";
 
 export { MemoryEntity, MemorySchema } from "./5_userland/Memory.ts";
 export { PlayEntity, PlaySchema } from "./5_userland/Play.ts";
@@ -28,10 +28,10 @@ export { InstructionEntity, InstructionSchema } from "./6_transient/Instruction.
 export { InstructionStatusEnum } from "./6_transient/Instruction.ts";
 
 //
-export { TopographyEntity, TopographyRepository } from "./3_ontology/Topography.ts";
-export { AnnotationEntity, AnnotationRepository } from "./3_ontology/Annotation.ts";
-export { ConstraintEntity, ConstraintRepository } from "./3_ontology/Constraint.ts";
-export { IssueEntity, IssueRepository } from "./3_ontology/Issue.ts";
+export { TopographyEntity, TopographyRepository } from "./3_topology/Topography.ts";
+export { AnnotationEntity, AnnotationRepository } from "./3_topology/Annotation.ts";
+export { ConstraintEntity, ConstraintRepository } from "./3_topology/Constraint.ts";
+export { IssueEntity, IssueRepository } from "./3_topology/Issue.ts";
 
 //
 //
@@ -47,19 +47,19 @@ import { InstructionStatusEnum } from "./6_transient/Instruction.ts";
 // ENTITIES
 import { UserEntity, UserSchema } from "./1_repo/User.ts";
 import { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
-import { ServiceEntity, ServiceSchema } from "./1_repo/Service.ts";
 
-import { GameEntity, GameSchema } from "./2_runtime/Game.ts";
-import { StrategyEntity, StrategySchema } from "./2_runtime/Strategy.ts";
-import { OntologyEntity, OntologySchema } from "./2_runtime/Ontology.ts";
-import { CurriculumEntity, CurriculumSchema } from "./2_runtime/Curriculum.ts";
-import { DomainEntity, DomainSchema } from "./2_runtime/Domain.ts";
+import { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
+import { GameEntity, GameSchema } from "./2_module/Game.ts";
+import { StrategyEntity, StrategySchema } from "./2_module/Strategy.ts";
+import { OntologyEntity, OntologySchema } from "./2_module/Ontology.ts";
+import { CorpusEntity, CorpusSchema } from "./2_module/Corpus.ts";
+import { DomainEntity, DomainSchema } from "./2_module/Domain.ts";
+import { TacticEntity, TacticSchema } from "./2_module/Tactic.ts";
 
-import { TacticEntity, TacticSchema } from "./4_curriculum/Tactic.ts";
-import { TagEntity, TagSchema } from "./4_curriculum/Tag.ts";
-import { UnitEntity, UnitSchema } from "./4_curriculum/Unit.ts";
-import { ConditionEntity, ConditionSchema } from "./4_curriculum/Condition.ts";
-import { DependencyEntity, DependencySchema } from "./4_curriculum/Dependency.ts";
+import { TagEntity, TagSchema } from "./4_data/Tag.ts";
+import { UnitEntity, UnitSchema } from "./4_data/Unit.ts";
+import { ConditionEntity, ConditionSchema } from "./4_data/Condition.ts";
+import { DependencyEntity, DependencySchema } from "./4_data/Dependency.ts";
 
 import { MemoryEntity, MemorySchema } from "./5_userland/Memory.ts";
 import { PlayEntity, PlaySchema } from "./5_userland/Play.ts";
@@ -88,7 +88,7 @@ export const daemonEntites = {
   service: ServiceEntity,
   domain: DomainEntity,
   ontology: OntologyEntity,
-  curriculum: CurriculumEntity,
+  corpus: CorpusEntity,
   game: GameEntity,
   tactic: TacticEntity,
 
@@ -100,7 +100,7 @@ export const runtimeEntities = {
   service: ServiceEntity,
   domain: DomainEntity,
   ontology: OntologyEntity,
-  curriculum: CurriculumEntity,
+  corpus: CorpusEntity,
   // issue: IssueEntity,
   // ABOVE TO BE moved into daemon entities. (in memory)
   //
@@ -121,7 +121,7 @@ export const entities = {
   user: UserEntity,
   runtime: RuntimeEntity,
   ontology: OntologyEntity,
-  curriculum: CurriculumEntity,
+  corpus: CorpusEntity,
   domain: DomainEntity,
   service: ServiceEntity,
   game: GameEntity,
@@ -143,7 +143,7 @@ export const schemas = [
   UserSchema,
   RuntimeSchema,
   OntologySchema,
-  CurriculumSchema,
+  CorpusSchema,
   DomainSchema,
   ServiceSchema,
   GameSchema,

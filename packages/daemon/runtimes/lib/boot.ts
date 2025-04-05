@@ -25,9 +25,8 @@ export async function bootModules(modules: RuntimeModule[], runtime: Runtime) {
   return await Promise.all(modules.map(async (module) => await bootModule(module, runtime)));
 }
 
+// move to domain and read from runtime.domain.boot
 export const defaultModuleBoot: { [key: string]: BootFunction } = {
-  runtime: (runtime: Runtime) => Promise.resolve(runtime),
-
   // move to domain?
   tactic: (runtime: Runtime, tactic: RuntimeModule) => {
     // assert handlers
