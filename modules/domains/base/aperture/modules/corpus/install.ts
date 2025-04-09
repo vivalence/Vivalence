@@ -6,10 +6,10 @@ import { RouteContext } from "@vivalence/types";
 
 const resourceTypeMap = { units: "unit", tags: "tag", dependencies: "dependency" };
 
-export default async function (curriculum: any, ctx: RouteContext) {
+export default async function (corpus: any, ctx: RouteContext) {
   // TODO: might want to enforce tags->units->dependencies order.
   const promises = [];
-  for (const [key, resources] of Object.entries(curriculum)) {
+  for (const [key, resources] of Object.entries(corpus)) {
     resources
       .map((resource) => ({ [resourceTypeMap[key]]: resource }))
       .map((resource) => () => ctx.runtime.call(`/${resourceTypeMap[key]}/install`, resource))
@@ -28,7 +28,7 @@ export default async function (curriculum: any, ctx: RouteContext) {
     const result = await promise();
     installations.push(result);
     i++;
-    console.log("curriculum (linear) install:", i, result.status, result.operation);
+    console.log("corpus (linear) install:", i, result.status, result.operation);
   }
 
   await ctx.runtime.entities.em.flush();

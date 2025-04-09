@@ -2,7 +2,7 @@ import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { defineConfig } from "vite";
 
-import config from "@vivalence/config";
+// import config from "@vivalence/config";
 
 // https://github.com/bluwy/create-vite-extra/tree/master/template-deno-svelte/src
 import "svelte";
@@ -47,7 +47,7 @@ export default defineConfig({
       ignored: ["**/node_modules/**", "**/#*/**", "**/#*"],
       include: [
         "./src/**/*",
-        "../../../modules/games/**/*.{html,svelte.js,svelte,css}",
+        "../../../modules/domain/**/games/**/*.{html,svelte.js,svelte,css}",
         "../../interfaces/display/**/*",
         "../../shared/**/*",
       ],

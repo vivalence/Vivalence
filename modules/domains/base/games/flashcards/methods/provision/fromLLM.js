@@ -10,7 +10,7 @@ export default async function fromLLM(inputs, ctx) {
 
   const input = { prompt, schema: Prompt.schema, provider: Prompt.provider };
   const instruction = await ctx.runtime.services.llm(input);
-  return [{ instruction, scope }];
+  return [{ type: "GAME", instruction, scope }];
 }
 
 const provisionProvider = {

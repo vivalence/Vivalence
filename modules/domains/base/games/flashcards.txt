@@ -1,0 +1,910 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 16
+// Generated: 2025-04-08T21:49:55.881Z
+// Source directory: flashcards
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+flashcards/
+├── game/
+├── ├── archive/
+├── ├── ├── bak.store.js
+├── ├── ├── bak.svelte
+├── ├── ├── bak.txt
+├── ├── └── Panable.svelte
+├── ├── components/
+├── ├── ├── Card.stories.svelte~
+├── ├── ├── Card.svelte~
+├── ├── ├── Controls.svelte~
+├── ├── └── Panable.svelte
+├── ├── Flashcards.svelte
+├── └── game.svelte.js
+├── methods/
+├── ├── provision/
+├── ├── ├── lib/
+├── ├── ├── ├── from.js
+├── ├── ├── └── make.js
+├── ├── ├── fromLLM.js
+├── ├── ├── fromTagIds.js
+├── ├── ├── fromUnitIds.js
+├── ├── ├── fromUnits.js
+├── ├── └── index.js
+├── └── evaluate.js
+├── types/
+├── └── index.js
+└── flashcards.viva.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: flashcards.viva.js
+// Path: flashcards/flashcards.viva.js
+// Size: 1680 bytes
+// Last Modified: 2025-04-07T14:24:01.423Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import { bundler } from "@vivalence/shared";
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision/index.js";
+
+async function boot(runtime, game) {
+  const bundle = bundler({
+    entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
+    serve: game.entity.url.pathname,
+  });
+
+  runtime.aperture.router.get(bundle.url, bundle.serve());
+
+  runtime.aperture
+    .branch("/provision")
+    .use(bundle.injectBundleUrl())
+    .open("/fromTagIds", provision.fromTagIds)
+    .open("/fromUnitIds", provision.fromUnitIds)
+    .open("/fromUnits", provision.fromUnits)
+    .open("/fromLLM", provision.fromLLM);
+
+  runtime.aperture.open("/evaluate", evaluate);
+
+  return runtime;
+}
+
+const data = {
+  mask: {
+    // back: "{{#back.header}}\n    <div class='header'>\n        {{{back.header}}}\n    </div>\n{{/back.header}}\n\n{{#back.content}}\n    <div class='content'>\n        {{{back.content}}}\n    </div>\n{{/back.content}}\n\n{{#back.footer}}\n    <div class='footer'>\n    {{{back.footer}}}\n    </div>\n{{/back.footer}}\n",
+    // front: "{{#front.header}}\n    <div class='header'>\n        {{{front.header}}}\n    </div>\n{{/front.header}}\n\n{{#front.content}}\n    <div class='content'>\n        {{{front.content}}}\n    </div>\n{{/front.content}}\n\n{{#front.footer}}\n    <div class='footer'>\n        {{{front.footer}}}\n    </div>\n{{/front.footer}}\n",
+  },
+};
+
+const manifest = {
+  type: "game",
+  slug: "flashcards",
+  name: "Flashcards",
+  description: "Flashcards game for learning vocabulary",
+  version: "0.0.1",
+};
+export { boot, data, manifest };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Flashcards.svelte
+// Path: flashcards/game/Flashcards.svelte
+// Size: 2262 bytes
+// Last Modified: 2025-04-07T14:30:02.350Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { onMount, onDestroy } from "svelte";
+  import { Text, Button } from "@vivalence/interface";
+
+  const { instruction, ctx, release, ...props } = $props();
+  console.log("{ instruction, ctx, release }", { instruction, ctx, release, ...props });
+  let revealed = $state(false);
+
+  const onReview = (signal) => {
+    game.call("/evaluate", { scope, signal });
+    release();
+  };
+
+  const reveal = () => (revealed = true);
+
+  // keybinding({Enter: () => {if (!revealed) reveal(); else onReview("SUCCESS");},});
+</script>
+
+{#snippet card(card, color, classes)}
+  <div
+    class={`card h-1/2 lg:h-auto lg:max-h-full lg:w-1/2 p-4 rounded-lg shadow-md border border-skeleton-boundary-1 ${classes} `}>
+    <Text size="2xl" {color}>
+      {@html card.header}
+    </Text>
+    <Text size="md" {color}>
+      {@html card.content}
+    </Text>
+    <Text size="sm" class="mt-4" {color}>
+      {@html card.footer}
+    </Text>
+  </div>
+{/snippet}
+
+<div class="bsp-node root">
+  <div class="bsp-node content grid-cols-6 grid-rows-6" onclick={reveal}>
+    <div
+      class={`bsp-chain-end flashcard p-8 gap-4
+      col-span-4 col-start-2 row-span-4 row-start-3 lg:col-span-4 lg:col-start-2 lg:row-span-2 lg:row-start-3
+      flex flex-col justify-end lg:flex-row lg:justify-start`}>
+      {@render card(instruction.front, "1", "front bg-skeleton-surface-1 ")}
+
+      {#if revealed}
+        {@render card(instruction.back, "2", "back bg-skeleton-surface-2 ")}
+      {/if}
+    </div>
+  </div>
+
+  <div
+    class={`bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1 flex justify-center gap-2`}>
+    {#if revealed}
+      <Button size="xl" variant="warning" onclick={() => onReview("MISTAKE")}>Unknown</Button>
+      <Button size="xl" variant="success" onclick={() => onReview("SUCCESS")}>Known</Button>
+      <Button size="xl" variant="accent" onclick={() => onReview("MASTERY")}>Graduate</Button>
+    {:else}
+      <Button size="xl" onclick={reveal}>Reveal</Button>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .root {
+    grid-template-rows: 1fr auto;
+  }
+
+  .content {
+    .flashcard {
+    }
+    .card {
+      .header {
+      }
+      .content {
+      }
+      .footer {
+      }
+
+      .front {
+      }
+      .back {
+      }
+    }
+  }
+  .menu {
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: game.svelte.js
+// Path: flashcards/game/game.svelte.js
+// Size: 188 bytes
+// Last Modified: 2024-12-09T01:56:24.542Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { mount } from "svelte";
+import Game from "./Flashcards.svelte";
+// Types, state, keymaps, etc.
+
+export default async function (target, props) {
+  mount(Game, { target, props });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: bak.store.js
+// Path: flashcards/game/archive/bak.store.js
+// Size: 684 bytes
+// Last Modified: 2024-11-21T21:09:52.880Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { get, writable } from "svelte/store";
+
+function FlashcardStore({ locals }) {
+  const Store = writable({
+    loading: true,
+    revealed: false,
+    scope: null,
+    instruction: null,
+  });
+
+  return {
+    ...Store,
+    reveal: () => {
+      Store.update((store) => ({ ...store, revealed: true }));
+    },
+    review: async (response) => {
+      const { scope } = get(Store);
+      locals.onGameFinish({ response, scope });
+      await locals.call("/g/flashcards/evaluate", { scope, response });
+    },
+  };
+}
+
+let store;
+
+export function createStore(input) {
+  if (!store) store = FlashcardStore(input);
+  return store;
+}
+
+export function getStore(input) {
+  return store;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: bak.svelte
+// Path: flashcards/game/archive/bak.svelte
+// Size: 2250 bytes
+// Last Modified: 2024-11-21T21:09:52.880Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { getContext, onDestroy, onMount } from "svelte";
+
+  import Panable from "./components/Panable.svelte";
+
+  import { createStore } from "./store.js";
+
+  export let trajectory;
+  export let locals;
+  export let scope;
+  export let instruction;
+
+  const store = createStore({ locals });
+
+  $: if (scope && instruction) {
+    store.update((s) => ({ ...s, revealed: false, loading: false, scope, instruction }));
+  }
+
+  const onReview = (status) => () => store.review(status);
+
+  const onReveal = () => {
+    if (!$store.revealed) {
+      store.reveal();
+      trajectory.use((t) => {
+        t.set(t.signals.keyboard["1"](), onReview("UNKNOWN"));
+        t.set(t.signals.keyboard["2"](), onReview("KNOWN"));
+        t.set(t.signals.keyboard["3"](), onReview("GRADUATE"));
+      });
+    }
+  };
+
+  onMount(() => {
+    trajectory.use((t) => {
+      t.set(t.signals.keyboard["Space"](), onReveal);
+    });
+  });
+</script>
+
+<Panable
+  on:left={onReview("UNKNOWN")}
+  on:right={onReview("KNOWN")}
+  on:up={onReview("GRADUATE")}
+  on:tap={onReveal}
+>
+  <div class={`h-screen pb-36 select-none cursor-grab flex flex-col items-center justify-center `}>
+    {#if !$store.loading}
+      <div class="card bg-base-300 w-96 mb-4">
+        <div class="card-body">
+          {@html $store.instruction.front}
+        </div>
+      </div>
+
+      {#if $store.revealed}
+        <div class="card bg-base-100 w-96 shadow-xl">
+          <div class="card-body">
+            {@html $store.instruction.back}
+          </div>
+        </div>
+      {/if}
+    {/if}
+  </div>
+</Panable>
+
+<div class="fixed bottom-0 left-0 right-0 w-full bg-base-100 px-6 py-10">
+  <div class="container mx-auto flex items-center justify-center">
+    {#if !$store.revealed}
+      <button on:click={onReveal} class={`btn btn-primary`} type="button">Reveal</button>
+    {:else}
+      <button on:click={onReview("UNKNOWN")} class={`btn btn-error btn-outline mr-4`} type="button">
+        Unknown
+      </button>
+      <button on:click={onReview("KNOWN")} class={`btn btn-success btn-outline mr-4`} type="button">
+        Known
+      </button>
+      <button on:click={onReview("GRADUATE")} class={`btn btn-success`} type="button">
+        Graduate
+      </button>
+    {/if}
+  </div>
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Panable.svelte
+// Path: flashcards/game/archive/Panable.svelte
+// Size: 2785 bytes
+// Last Modified: 2024-11-21T21:09:52.880Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
+  import { spring } from "svelte/motion";
+  import { pan } from "svelte-gestures";
+
+  const dispatch = createEventDispatcher();
+
+  const TAB_THRESHOLD = 50;
+  const HORIZONTAL_BIAS = 1.3;
+  const stiffness = 0.3;
+  const damping = 0.55;
+
+  let cancelled = false;
+  let xstart, ystart, yend, xend;
+
+  let x = spring(0, { stiffness, damping });
+  let y = spring(0, { stiffness, damping });
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      x.set(0);
+      y.set(0);
+      xstart = ystart = undefined;
+      xend = yend = undefined;
+      cancelled = true;
+    }
+  }
+
+  onMount(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  onDestroy(() => {
+    if (typeof window !== "undefined") {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  function handleStart(event) {
+    xstart = event.type === "touchstart" ? event.touches[0].clientX : event.clientX;
+    ystart = event.type === "touchstart" ? event.touches[0].clientY : event.clientY;
+    cancelled = xend = yend = undefined;
+  }
+
+  function handleEnd(event) {
+    if (cancelled) return;
+    xend = event.type === "touchend" ? event.changedTouches[0].clientX : event.clientX;
+    yend = event.type === "touchend" ? event.changedTouches[0].clientY : event.clientY;
+
+    const direction = determineDirection(xstart, ystart, xend, yend);
+    switch (direction) {
+      case "left":
+        dispatch("left");
+        break;
+      case "right":
+        dispatch("right");
+        break;
+      case "up":
+        dispatch("up");
+        break;
+      case "down":
+        dispatch("down");
+        break;
+      case "tap":
+        dispatch("tap");
+        break;
+    }
+
+    x.set(0);
+    y.set(0);
+  }
+
+  function handlePan(event) {
+    if (!xstart) {
+      xstart = event.detail.x;
+      ystart = event.detail.y;
+      console.log("pan start", xstart, ystart);
+    }
+    x.set(event.detail.x - xstart);
+    y.set(event.detail.y - ystart);
+  }
+
+  function determineDirection(xstart, ystart, xend, yend) {
+    const dx = xend - xstart;
+    const dy = yend - ystart;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < TAB_THRESHOLD) {
+      return "tap";
+    } else {
+      if (Math.abs(dx) * HORIZONTAL_BIAS > Math.abs(dy)) {
+        return dx > 0 ? "right" : "left";
+      } else {
+        return dy > 0 ? "down" : "up";
+      }
+    }
+  }
+</script>
+
+<div
+  class="h-full w-full"
+  style="touch-action: none; transform: translate({$x}px, {$y}px)"
+  on:mousedown={handleStart}
+  on:mouseup={handleEnd}
+  on:touchstart={handleStart}
+  on:touchend={handleEnd}
+  use:pan={{ delay: 30 }}
+  on:pan={handlePan}
+>
+  <slot />
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Panable.svelte
+// Path: flashcards/game/components/Panable.svelte
+// Size: 2713 bytes
+// Last Modified: 2024-11-21T21:09:52.881Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { createEventDispatcher } from "svelte";
+
+  const dispatch = createEventDispatcher();
+
+  const TAB_THRESHOLD = 50;
+  const HORIZONTAL_BIAS = 1.3;
+
+  let coords = $state({
+    start: { x: undefined, y: undefined },
+    end: { x: undefined, y: undefined },
+    current: { x: 0, y: 0 },
+  });
+
+  let cancelled = $state(false);
+
+  $effect(() => {
+    if (typeof window !== "undefined") {
+      window.addEventListener("keydown", handleKeyDown);
+      return () => window.removeEventListener("keydown", handleKeyDown);
+    }
+  });
+
+  function handleKeyDown(event) {
+    if (event.key === "Escape") {
+      resetPosition();
+      cancelled = true;
+    }
+  }
+
+  function handleStart(event) {
+    const { clientX, clientY } = event instanceof TouchEvent ? event.touches[0] : event;
+
+    coords.start = { x: clientX, y: clientY };
+    cancelled = false;
+    coords.end = { x: undefined, y: undefined };
+  }
+
+  function handleEnd(event) {
+    if (cancelled) return;
+
+    const { clientX, clientY } = event instanceof TouchEvent ? event.changedTouches[0] : event;
+
+    coords.end = { x: clientX, y: clientY };
+
+    if (coords.start.x !== undefined && coords.start.y !== undefined) {
+      const direction = determineDirection();
+      dispatchDirection(direction);
+    }
+
+    resetPosition();
+  }
+
+  function handlePan(event) {
+    if (coords.start.x === undefined) {
+      coords.start = {
+        x: event.detail.x,
+        y: event.detail.y,
+      };
+    }
+
+    coords.current = {
+      x: event.detail.x - coords.start.x,
+      y: event.detail.y - coords.start.y,
+    };
+  }
+
+  function resetPosition() {
+    coords.current = { x: 0, y: 0 };
+    coords.start = { x: undefined, y: undefined };
+    coords.end = { x: undefined, y: undefined };
+  }
+
+  function determineDirection() {
+    if (!coords.start.x || !coords.start.y || !coords.end.x || !coords.end.y) {
+      return "tap";
+    }
+
+    const dx = coords.end.x - coords.start.x;
+    const dy = coords.end.y - coords.start.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < TAB_THRESHOLD) return "tap";
+
+    if (Math.abs(dx) * HORIZONTAL_BIAS > Math.abs(dy)) {
+      return dx > 0 ? "right" : "left";
+    }
+    return dy > 0 ? "down" : "up";
+  }
+
+  function dispatchDirection(direction) {
+    dispatch(direction);
+  }
+</script>
+
+<div
+  class="panable"
+  style="transform: translate({coords.current.x}px, {coords.current.y}px)"
+  on:mousedown={handleStart}
+  on:mouseup={handleEnd}
+  on:touchstart={handleStart}
+  on:touchend={handleEnd}
+  use:pan={{ delay: 30 }}
+  on:pan={handlePan}>
+  <slot />
+</div>
+
+<style>
+  .panable {
+    @apply h-full w-full;
+    touch-action: none;
+    transition: transform 0.1s ease;
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: flashcards/methods/evaluate.js
+// Size: 208 bytes
+// Last Modified: 2024-12-27T12:10:42.153Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default async function evaluate({ scope, signal }, ctx) {
+  return [
+    await ctx.runtime.call("/review/unit", { scope, signal }),
+    await ctx.runtime.call("/review/tag", { scope, signal }),
+  ];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromLLM.js
+// Path: flashcards/methods/provision/fromLLM.js
+// Size: 3935 bytes
+// Last Modified: 2025-04-07T13:24:13.981Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+
+export default async function fromLLM(inputs, ctx) {
+  const { scope, concept } = inputs;
+
+  const prompt = Mustache.render(Prompt.template, {
+    concept,
+    language: ctx.runtime.statics.language,
+  });
+
+  const input = { prompt, schema: Prompt.schema, provider: Prompt.provider };
+  const instruction = await ctx.runtime.services.llm(input);
+  return [{ type: "GAME", instruction, scope }];
+}
+
+const provisionProvider = {
+  api: "anthropic",
+  model: "claude-3-5-sonnet-latest",
+  temperature: 0.7,
+  max_tokens: 300,
+};
+export const Prompt = {
+  provider: provisionProvider,
+  schema: {
+    title: "GrammaticalConceptFlashcard",
+    type: "object",
+    properties: {
+      front: {
+        type: "object",
+        properties: {
+          header: {
+            type: ["string", "null"],
+            description: "Clear question about the grammatical concept",
+          },
+          content: {
+            type: ["string", "null"],
+            description:
+              "Concept explanation with practical examples in parentheses, using HTML for emphasis",
+          },
+          footer: {
+            type: ["string", "null"],
+            description:
+              "Optional specific signal, pattern, or context that helps identify when or where this grammatical concept applies",
+          },
+        },
+        required: ["header", "content", "footer"],
+      },
+      back: {
+        type: "object",
+        properties: {
+          header: {
+            type: ["string", "null"],
+            description: "The correct answer",
+          },
+          content: {
+            type: ["string", "null"],
+            description: "Grammatical explanation in target language, using HTML for emphasis",
+          },
+          footer: {
+            type: ["string", "null"],
+            description:
+              "Optional technical detail about formation, usage, or limitation that's crucial for correct application",
+          },
+        },
+        required: ["header", "content", "footer"],
+      },
+    },
+    required: ["front", "back"],
+  },
+  template: `### Example outputs:
+{
+ "front": {
+   "header": "What case is used for:",
+   "content": "<i>indirect objects</i> receiving an action",
+   "footer": "like: giving a book to someone"
+ },
+ "back": {
+   "header": "Dativ",
+   "content": "Der Dativ bezeichnet den <b>Empfänger</b> einer Handlung",
+   "footer": null
+ }
+}
+
+{
+ "front": {
+   "header": "What verb aspect shows:",
+   "content": "single completed action in the past",
+   "footer": null
+ },
+ "back": {
+   "header": "совершенный вид",
+   "content": "глагол совершенного вида, обозначающий завершённое действие",
+   "footer": "часто образуется с помощью приставок про-/по-"
+ }
+}
+
+### Instructions
+You are an expert language teacher creating flashcards to teach grammatical concepts.
+Generate a flashcard that tests the learner's understanding of the provided grammatical concept.
+Use HTML tags (<i>, <b>, <em>) to emphasize key terms and distinctions.
+The language learner is going from {{{language.known}}} to {{{language.learning}}}.
+
+<CONCEPT>
+{{concept}}
+</CONCEPT>
+
+Guidelines:
+1. Front header must frame this as a clear question about what the grammatical concept marks/shows/indicates
+2. Front content must include technical terms 
+3. Back header must show the correct form/answer
+4. Back content must give the grammatical explanation in the target language
+5. All explanations must be clear enough for a language learner to understand
+6. Examples should use common, basic vocabulary
+7. Use footers optionally when they provide distinct value through identifying signals or crucial application details or practical examples
+8. Use HTML tags to highlight key terms and important distinctions
+9. Don't give away the answer in the front (DONT EVER NEVER EVER DO THIS!!!)
+`,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromTagIds.js
+// Path: flashcards/methods/provision/fromTagIds.js
+// Size: 320 bytes
+// Last Modified: 2024-09-09T10:03:59.798Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromTagIds(inputs, ctx) {
+  const { scope, tagIds, mask, blacklist, take } = inputs;
+
+  const units = await ctx.runtime.call("/units/fromTagIds", {
+    tagIds,
+    blacklist,
+    take: take || 5,
+  });
+
+  return await from({ scope, mask, units }, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromUnitIds.js
+// Path: flashcards/methods/provision/fromUnitIds.js
+// Size: 237 bytes
+// Last Modified: 2024-11-13T14:58:05.989Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromUnitIds({ scope, mask, unitIds }, ctx) {
+  const units = await ctx.runtime.call("/units/fromUnitIds", { unitIds });
+  return await from({ scope, mask, units }, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: fromUnits.js
+// Path: flashcards/methods/provision/fromUnits.js
+// Size: 153 bytes
+// Last Modified: 2025-04-05T19:00:26.177Z
+////////////////////////////////////////////////////////////////////////////////
+
+import from from "./lib/from.js";
+
+export default async function fromUnits({ scope, mask, units }, ctx) {
+  return await from({ scope, mask, units });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: flashcards/methods/provision/index.js
+// Size: 227 bytes
+// Last Modified: 2024-12-07T02:51:09.014Z
+////////////////////////////////////////////////////////////////////////////////
+
+import fromTagIds from "./fromTagIds.js";
+import fromUnitIds from "./fromUnitIds.js";
+import fromUnits from "./fromUnits.js";
+import fromLLM from "./fromLLM.js";
+
+export default { fromTagIds, fromUnitIds, fromUnits, fromLLM };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: from.js
+// Path: flashcards/methods/provision/lib/from.js
+// Size: 515 bytes
+// Last Modified: 2025-04-07T13:24:14.202Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { deepMerge } from "@vivalence/shared";
+import make from "./make.js";
+
+export default async function from({ scope, mask, units }) {
+  const instructions = [];
+  for (const unit of units) {
+    const instruction = make({ mask, unit });
+
+    scope = deepMerge(scope, { unit: { id: unit.id } });
+
+    if (unit.tags.initialized && unit.tags?.length > 0)
+      scope.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
+
+    instructions.push({ type: "GAME", instruction, scope });
+  }
+
+  return instructions;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: make.js
+// Path: flashcards/methods/provision/lib/make.js
+// Size: 1575 bytes
+// Last Modified: 2025-04-05T19:00:10.959Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+
+const verbFlashcards = (mask, unit) => {
+  const { person, number, tense } = unit.annotation;
+  // TODO: maybe include the related PRONOUN?
+
+  const maskData = {
+    front: {
+      footer: `${tense} - ${person} Person ${number}`,
+    },
+  };
+  return flashcard(mask, unit, maskData);
+};
+
+const nounFlashcards = (mask, unit) => {
+  const { gender, number } = unit.annotation;
+  const article = ["fem"].includes(gender) ? "La" : "El";
+
+  const maskData = {
+    front: {
+      footer: [{ masc: "Masculine", fem: "Feminine" }[gender]].filter((f) => f).join(" - "),
+    },
+    back: {
+      header: `${article} ${unit.data.learning}`,
+    },
+  };
+
+  return flashcard(mask, unit, maskData);
+};
+
+const flashcard = (mask, unit, maskData = {}) => {
+  maskData = {
+    front: {
+      header: unit.data.known,
+      content: unit.data.example?.known && `<i>${unit.data.example?.known}</i>`,
+      footer: null,
+      ...(maskData.front || {}),
+    },
+    back: {
+      header: unit.data.learning,
+      content: unit.data.example?.learning && `<i>${unit.data.example?.learning}</i>`,
+      footer: null,
+      ...(maskData.back || {}),
+    },
+  };
+
+  return maskData;
+  // return {front: Mustache.render(mask["front"], maskData), back: Mustache.render(mask["back"], maskData),};
+};
+
+export default function make({ mask, unit }) {
+  let maker;
+  if (["verb", "aux"].includes(unit.annotation.pos)) maker = verbFlashcards;
+  else if (["noun"].includes(unit.annotation.pos)) maker = nounFlashcards;
+  else maker = flashcard;
+
+  return maker(mask, unit);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: flashcards/types/index.js
+// Size: 700 bytes
+// Last Modified: 2024-12-27T12:10:42.154Z
+////////////////////////////////////////////////////////////////////////////////
+
+const instruction = {
+  instruction: {
+    front: {
+      header: "year",
+      content: "<i>he didn’t find out until almost a year later</i>",
+      footer: "Masculine",
+    },
+    back: {
+      header: "El año",
+      content: "<i>no lo supo hasta casi un año después</i>",
+      footer: null,
+    },
+  },
+  scope: {
+    user: { id: "localhost" },
+    game: { id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a" },
+    unit: { id: "3be77640-bdfa-4625-bbfa-bacb137cbbd7" },
+  },
+  type: "GAME",
+  game: {
+    id: "5ef2ee19-0558-4c73-aa48-c99d449bcd5a",
+    slug: "flashcards",
+    url: "/r/eng2esp/g/flashcards",
+    bundle: "http://localhost:5175/r/eng2esp/g/flashcards/bundle/game.svelte.js",
+  },
+};

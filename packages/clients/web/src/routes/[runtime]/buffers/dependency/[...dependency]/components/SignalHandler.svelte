@@ -3,7 +3,7 @@
   import { goto } from "$app/navigation";
 
   let { ctx, signal, release } = $props();
-  console.log("Signal Handler: ", ctx, signal, releace);
+  // console.log("Signal Handler: ", ctx, signal, releace);
 
   let ui = $state();
 

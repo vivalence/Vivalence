@@ -41,10 +41,9 @@ async function count({ scope, blacklist }, ctx) {
 }
 
 async function read({ scope, blacklist, take }, ctx) {
-  // MikroORM find with criteria and options
   const queueEntries = await ctx.runtime.entities.instruction.find(
     {
-      // status: "PENDING", // Commented out as in original
+      // status: "PENDING",
       runtime: ctx.runtime.entity.id,
       user: scope.user?.id,
       dependency: scope.dependency?.id,
@@ -56,7 +55,6 @@ async function read({ scope, blacklist, take }, ctx) {
     },
   );
 
-  // Transform data similarly to original
   return queueEntries.map((entry) => {
     const data = { ...entry.data };
     data.scope = new Scope({ ...data.scope, instruction: { id: entry.id } });

@@ -1,33 +1,24 @@
 import Mustache from "mustache";
 import { GamePrompt } from "./lib/prompts.js";
-import fs from "fs-extra";
+import fs from "node:fs";
 import path from "node:path";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const __filename = path.basename("instructions.json");
 const __filepath = path.join(__dirname, __filename);
 
-export default async function provision(inputs, ctx) {
+export default async function (inputs, ctx) {
   const { scope, constraints, mask } = inputs;
 
-  // Render the prompt template with our enhanced context
   const prompt = Mustache.render(GamePrompt.template, {
     goal: mask.goal,
-    constraints: processedConstraints,
+    constraints,
     language: ctx.runtime.statics.language,
   });
 
-  // Prepare input for the LLM
-  const input = {
-    prompt,
-    schema: GamePrompt.schema,
-    provider: GamePrompt.provider,
-  };
+  const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
 
-  // Generate the sentence pair
   const sentence = await ctx.runtime.services.llm(input);
-
-  // const topography = ctx.runtime.ontology.classify(signal)
 
   const tokens = await ctx.runtime.call("/classification/unitsFromText", {
     text: sentence.learning,
@@ -36,7 +27,6 @@ export default async function provision(inputs, ctx) {
   const instruction = {
     instruction: {
       sentence,
-      pattern: patternUsed,
       tokens: tokens
         .map((token) => ({
           token: token.annotation.meta.token,
@@ -69,10 +59,6 @@ export default async function provision(inputs, ctx) {
     },
   };
 
-  // Log generated instruction if debug mode is enabled
-  if (mask.debug) {
-    fs.appendFileSync(__filepath, JSON.stringify(instruction) + ",\n");
-  }
-
+  fs.appendFileSync(__filepath, JSON.stringify(instruction) + ",\n");
   return [instruction];
 }

@@ -11,10 +11,12 @@ import { TagEntity } from "../4_data/Tag.ts";
 import { UnitEntity } from "../4_data/Unit.ts";
 
 import { MemoryEntity } from "../5_userland/Memory.ts";
+import { SessionEntity } from "../6_transient/Session.ts";
 
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   runtime!: Rel<RuntimeEntity>;
+  session?: Rel<SessionEntity>;
   dependency?: Rel<DependencyEntity>;
   tactic?: Rel<TacticEntity>;
   game?: Rel<GameEntity>;
@@ -52,6 +54,14 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       fieldName: "runtime",
       updateRule: "cascade",
       deleteRule: "cascade",
+    },
+    session: {
+      kind: "m:1",
+      entity: () => SessionEntity,
+      fieldName: "session",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+      nullable: true,
     },
     dependency: {
       kind: "m:1",

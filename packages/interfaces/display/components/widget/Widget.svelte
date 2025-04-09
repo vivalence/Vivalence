@@ -1,15 +1,15 @@
 <script>
   import { onMount, onDestroy } from "svelte";
 
-  const { bundle, ctx } = $props();
+  const { bundle, ...props } = $props();
 
   let dismount = $state(null);
   let component = $state(null);
   let dom = $state(null);
 
   onMount(async () => {
-    const { default: Component } = await import(/* @vite-ignore */ bundle);
-    await Component(dom, ctx);
+    const { default: Component } = await import(/* @vite-ignore */ bundle.url);
+    await Component(dom, props);
     component = true;
   });
 

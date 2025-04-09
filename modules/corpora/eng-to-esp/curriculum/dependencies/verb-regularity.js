@@ -1,3 +1,20 @@
+// Example constraints from verb conjugation tactic
+const constraints = [
+  "VERB: comer (to eat) - Must use this exact verb",
+  "TENSE: preterite - Use simple past tense to describe a completed action",
+  "MOOD: indicative - Express a factual completed action",
+  "ASPECT: perfective - Show the action as completed",
+  "PERSON: 1st person singular (yo) - The subject must be 'I'",
+  "PATTERN: statement - Create a simple declarative sentence",
+  "VERB FOCUS: The sentence should clearly demonstrate proper verb conjugation",
+  "EXAMPLE FORM: 'comí' is the target form to practice (1st person preterite of comer)",
+  "TEMPORAL MARKER: Include a time expression typical for preterite (like ayer, la semana pasada)",
+  "COMPLEXITY: A1-A2 level vocabulary except for the target verb form",
+  "CONTEXT: Use a typical eating situation that would naturally use preterite tense",
+  "NOUN COMPLEMENT: Include a direct object that would commonly be eaten",
+  "SENTENCE STRUCTURE: Subject + Verb + Object + Time Expression",
+];
+
 const dependencies = [
   {
     name: "Introduction to regular Verbs",

@@ -11,7 +11,7 @@ export default async function from({ scope, mask, units }) {
     if (unit.tags.initialized && unit.tags?.length > 0)
       scope.unit.tags = unit.tags.map((tag) => ({ id: tag.id }));
 
-    instructions.push({ instruction, scope });
+    instructions.push({ type: "GAME", instruction, scope });
   }
 
   return instructions;

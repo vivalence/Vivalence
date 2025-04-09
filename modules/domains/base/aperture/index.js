@@ -1,7 +1,7 @@
 // import review from "./review/index.js";
 // import pick from "./pick/index.js";
 
-import curriculum from "./modules/curriculum/index.js";
+import corpus from "./modules/corpus/index.js";
 import dependency from "./entities/dependency/index.js";
 import tag from "./entities/tag/index.js";
 import unit from "./entities/unit/index.js";
@@ -18,7 +18,7 @@ import pick from "./methods/pick/index.js";
 // import memoryStatus from "../middlewares/memory/statusChangeEventEmitter.js";
 
 function boot(runtime) {
-  runtime.aperture.open("/curriculum/install", curriculum.install);
+  runtime.aperture.open("/corpus/install", corpus.install);
   runtime.aperture.open("/tag/install", tag.install);
 
   runtime.aperture.open("/feed/dependency", feed.dependency);

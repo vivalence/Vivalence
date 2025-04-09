@@ -1,23 +1,19 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Text, Button } from "@vivalence/ui";
+  import { Text, Button } from "@vivalence/interface";
 
-  const { instruction, game, scope, keybindings, next } = $props();
+  const { instruction, ctx, release, ...props } = $props();
+  console.log("{ instruction, ctx, release }", { instruction, ctx, release, ...props });
   let revealed = $state(false);
 
   const onReview = (signal) => {
     game.call("/evaluate", { scope, signal });
-    next();
+    release();
   };
 
   const reveal = () => (revealed = true);
 
-  keybindings({
-    Enter: () => {
-      if (!revealed) reveal();
-      else onReview("SUCCESS");
-    },
-  });
+  // keybinding({Enter: () => {if (!revealed) reveal(); else onReview("SUCCESS");},});
 </script>
 
 {#snippet card(card, color, classes)}

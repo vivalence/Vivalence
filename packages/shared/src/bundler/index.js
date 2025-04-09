@@ -17,12 +17,18 @@ function createBundler(input) {
     return bundles.get(path);
   };
 
-  // still not happy about this.
   bundler.injectBundleUrl = () => async (ctx, next) => {
-    const rootpath = new URL(input.serve, config.env.get("DAEMON_URL")).toString();
+    //@lj this function shouldnt be here or know all these details.
+    const rootpath = new URL(
+      "/aperture/v1" + input.serve,
+      config.env.get("VIVA_DAEMON_URL"),
+    ).toString();
     const bundlepath = join("/", BASE_URL, basename(input.entry));
+
     ctx.state.bundle = { url: new URL(rootpath + bundlepath) };
+
     await next();
+
     if (ctx.response.body) {
       if (Array.isArray(ctx.response.body)) {
         ctx.response.body.forEach((body) => {

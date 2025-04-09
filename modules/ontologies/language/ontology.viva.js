@@ -32,6 +32,7 @@ async function boot(runtime) {
 
   ontology.assert = asserter(ontology);
 
+  // console.log(JSON.stringify(ontology.annotations, null, null));
   return ontology;
 }
 

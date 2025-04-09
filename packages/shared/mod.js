@@ -16,7 +16,7 @@ import hash from "./src/lib/hash.ts";
 
 import monads from "./src/monads/index.js";
 import Blacklist from "./src/blacklist/index.js";
-import Scope from "./src/Scope/index.js";
+import Scope from "./src/scope/index.js";
 
 import bundler from "./src/bundler/index.js";
 import validators from "./src/validators/index.js";

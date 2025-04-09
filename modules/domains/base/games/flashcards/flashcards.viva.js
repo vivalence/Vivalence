@@ -6,7 +6,7 @@ import provision from "./methods/provision/index.js";
 async function boot(runtime, game) {
   const bundle = bundler({
     entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
-    serve: game.entity.url,
+    serve: game.entity.url.pathname,
   });
 
   runtime.aperture.router.get(bundle.url, bundle.serve());

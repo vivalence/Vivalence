@@ -4,11 +4,11 @@ export default async () => {
   const ctx = await context();
   const runtimes = await ctx.daemon("/entities/runtime/find", {
     options: {
-      populate: ["ontology", "curricula", "domain"],
+      populate: ["ontology", "corpora", "domain"],
     },
   });
 
-  // const runtimes = await ctx.daemon(`/entities/runtime/getAll`);
+  // const sessions = await ctx.daemon(`/entities/session/getAll`); console.log("sessions", sessions);
   // const tag = await ctx.runtime(`/entities/tag/findOne`, { slug: "" });
   // const { data: runtimes, error } = await ctx.call(`/daemon/entities/runtime/getAll`);
 
@@ -30,8 +30,15 @@ export default async () => {
               type: "link",
               href: `/${runtime.slug}/dag/dependency`,
             },
+            {
+              title: "test session",
+              icon: { carbon: "ScisControlTower" },
+              type: "link",
+              href: `/${runtime.slug}/buffers/session/test`,
+            },
 
             //   {
+
             //     title: "Environment",
             //     icon: { carbon: "ZAxis" },
             //     type: "node",
