@@ -1,0 +1,1339 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 11
+// Generated: 2025-04-08T21:21:21.306Z
+// Source directory: translations/
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+/
+├── game/
+├── ├── Card.svelte
+├── ├── game.svelte.js
+├── └── Translations.svelte
+├── methods/
+├── ├── lib/
+├── ├── ├── evaluations.js
+├── ├── └── prompts.js
+├── ├── evaluate.js
+├── ├── instructions.json
+├── └── provision.js
+├── types/
+├── ├── evaluation.d.js
+├── ├── instruction.d.ts
+├── └── provision.d.ts
+└── translations.viva.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: translations.viva.js
+// Path: translations//translations.viva.js
+// Size: 762 bytes
+// Last Modified: 2025-01-02T19:58:24.216Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+
+import evaluate from "./methods/evaluate.js";
+import provision from "./methods/provision.js";
+
+const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
+
+const data = {
+  mask: {
+    goal: `### Task:
+Create simple sentence to practice.
+
+### Instructions:
+Choose common, everyday nouns suitable for beginner level language learners.
+The statement must make sense, possibly occur in written text or conversation, and be clear for a language learner.
+`,
+  },
+};
+
+const manifest = {
+  type: "game",
+  slug: "translations",
+  name: "Translations",
+  version: "0.0.4",
+  description: "Practice translating sentences",
+};
+
+export { bundle, data, evaluate, manifest, provision };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Card.svelte
+// Path: translations//game/Card.svelte
+// Size: 296 bytes
+// Last Modified: 2024-12-09T04:43:05.377Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { Text, Tag } from "@vivalence/ui";
+
+  let { unit, evaluation } = $props();
+</script>
+
+<div class="mb-3">
+  {#if evaluation.correction}
+    <Text>{evaluation.correction}</Text>
+  {/if}
+
+  {#if evaluation.feedback}
+    <Text size="sm">{evaluation.feedback}</Text>
+  {/if}
+</div>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: game.svelte.js
+// Path: translations//game/game.svelte.js
+// Size: 173 bytes
+// Last Modified: 2024-12-09T01:56:20.895Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { mount } from "svelte";
+import Game from "./Translations.svelte";
+
+export default async function (target, props) {
+  mount(Game, { target, props: { ...props } });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: Translations.svelte
+// Path: translations//game/Translations.svelte
+// Size: 3451 bytes
+// Last Modified: 2024-12-27T12:10:42.154Z
+////////////////////////////////////////////////////////////////////////////////
+
+<script>
+  import { onMount, onDestroy } from "svelte";
+  import { Text, Button, Input } from "@vivalence/ui";
+
+  import Card from "./Card.svelte";
+
+  let loading = $state(false);
+  let evaluations = $state([]);
+  let input = $state("");
+  let revealed = $state(false);
+
+  const { instruction, runtime, scope, game, next, keybindings } = $props();
+
+  async function evaluate() {
+    revealed = true;
+    loading = true;
+    const params = { sentence: { ...instruction.sentence, translation: input }, scope };
+    const { data, error } = await game.call("/evaluate", params);
+    evaluations = data;
+    loading = false;
+  }
+
+  const handleInput = (event) => (input = event.target.value);
+
+  let inputState = $derived(
+    {
+      KNOWN: "input-success",
+      NEUTRAL: "input-info",
+      UNKNOWN: "input-error",
+    }[evaluation?.sentence.status],
+  );
+
+  const onEvaluate = () => evaluate();
+  const onNext = () => next();
+
+  keybindings({
+    Enter: () => {
+      console.log("Enter trasn", instruction.sentence, revealed);
+      if (!revealed) onEvaluate();
+      else onNext();
+    },
+  });
+</script>
+
+<div class="bsp-node root">
+  <div class="bsp-node content">
+    <div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb---[20vh]">
+      <div class="flex flex-col items-center w-full justify-center pb-8">
+        <div class="w-full mb-2">
+          <Text size="sm">English:</Text>
+          <Text size="xl" italic>{instruction.sentence.known}</Text>
+        </div>
+
+        {#if revealed}
+          <div class="w-full mb-2">
+            <Text size="sm">Expected:</Text>
+            <Text size="xl" italic>{instruction.sentence.learning}</Text>
+          </div>
+          <div class="w-full mb-2">
+            <Text size="sm">Given:</Text>
+            <Text size="xl" italic>{input}</Text>
+          </div>
+        {/if}
+      </div>
+
+      {#if revealed}
+        <div>
+          <div>
+            {#if evaluations.length > 0}
+              <Text size="sm">Feedback:</Text>
+            {/if}
+            {#if loading}
+              <Text size="md">Loading...</Text>
+            {/if}
+          </div>
+
+          {#if evaluations}
+            <div class="flex flex-col flex-wrap">
+              {#each evaluations as evaluation}
+                <Card {...evaluation} />
+              {/each}
+            </div>
+          {/if}
+        </div>
+      {/if}
+    </div>
+  </div>
+
+  <div class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
+    <div
+      class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+      <Input
+        class={`input input-bordered ${inputState} w-full mr-2`}
+        placeholder="Spanish translation here..."
+        type="text"
+        size="xl"
+        autofocus
+        disabled={revealed}
+        bind:value={input}
+        oninput={handleInput} />
+
+      {#if !revealed}
+        <Button size="xl" onclick={onEvaluate}>Commit</Button>
+      {:else}
+        <Button size="xl" onclick={onNext}>Next</Button>
+      {/if}
+    </div>
+  </div>
+</div>
+
+<style>
+  * {
+    /* border: 1px solid red; */
+  }
+  .root {
+    grid-template-rows: 1fr auto;
+  }
+
+  .content {
+    /* display: grid; */
+    /* grid-template-columns: repeat(6, 1fr); */
+    /* grid-template-rows: repeat(6, 1fr); */
+    /* @apply rounded-lg border border-skeleton-boundary-1 */
+  }
+
+  .menu {
+    grid-template-columns: 1fr;
+    align-items: center;
+  }
+</style>
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluate.js
+// Path: translations//methods/evaluate.js
+// Size: 1859 bytes
+// Last Modified: 2024-12-19T09:59:51.372Z
+////////////////////////////////////////////////////////////////////////////////
+
+import evaluationHelpers from "./lib/evaluations.js";
+
+export default async function evaluate({ scope, sentence }, ctx) {
+  const perf = performance.now();
+  const units = await isolatePos({ scope }, ctx);
+  delete scope.units;
+  delete scope.tags;
+  const evaluation = await evaluationHelpers.sentence({ units, sentence }, ctx);
+  const evaluate = (unit) => evaluationHelpers.tokens({ unit, sentence, evaluation }, ctx);
+  const evaluations = await Promise.all(units.map(evaluate));
+  sendToReview({ evaluations, scope }, ctx);
+  console.log("Evaluation took: ", performance.now() - perf);
+  return evaluations;
+}
+
+async function isolatePos({ scope }, ctx) {
+  const hydratedScope = await ctx.runtime.call("/scope/hydrate", { scope });
+
+  const units = hydratedScope.units.map((unit, index) => ({
+    id: unit.id,
+    known: unit.data.known,
+    index: index + 1,
+    token: unit.token?.token,
+    start_char: unit.token?.start_char,
+    end_char: unit.token?.end_char,
+    tags: unit.tags
+      .filter((tag) => tag.traits.includes("LEARNABLE"))
+      .map((tag) => ({
+        id: tag.id,
+        name: tag.name,
+        branch: tag.data.ONTOLOGICAL.branch,
+        leaf: tag.data.ONTOLOGICAL.leaf,
+      })),
+  }));
+
+  return units;
+}
+
+async function sendToReview({ evaluations, scope }, ctx) {
+  evaluations.map(async ({ unit, evaluation }) => {
+    const evalScope = { ...scope, unit: { id: unit.id } };
+
+    await ctx.runtime.call("/review/unit", {
+      signal: mapSignal(evaluation.status),
+      scope: evalScope,
+    });
+    await unit.tags.map(async ({ id }) => {
+      await ctx.runtime.call("/review/tag", {
+        signal: mapSignal(evaluation.status),
+        scope: { ...evalScope, tag: { id } },
+      });
+    });
+  });
+}
+
+const mapSignal = (status) =>
+  ({
+    KNOWN: "SUCCESS",
+    UNKNOWN: "MISTAKE",
+    NEUTRAL: "NEUTRAL",
+  })[status];
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: provision.js
+// Path: translations//methods/provision.js
+// Size: 1901 bytes
+// Last Modified: 2024-12-27T12:10:42.155Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { GamePrompt } from "./lib/prompts.js";
+import fs from "node:fs";
+import path from "node:path";
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const __filename = path.basename("instructions.json");
+const __filepath = path.join(__dirname, __filename);
+
+export default async function (inputs, ctx) {
+  const { scope, constraints, mask } = inputs;
+
+  const prompt = Mustache.render(GamePrompt.template, {
+    goal: mask.goal,
+    constraints,
+    language: ctx.runtime.statics.language,
+  });
+
+  const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
+
+  const sentence = await ctx.runtime.services.llm(input);
+
+  const tokens = await ctx.runtime.call("/classification/unitsFromText", {
+    text: sentence.learning,
+  });
+
+  const instruction = {
+    instruction: {
+      sentence,
+      tokens: tokens
+        .map((token) => ({
+          token: token.annotation.meta.token,
+          start_char: token.annotation.meta.start_char,
+          end_char: token.annotation.meta.end_char,
+        }))
+        .sort((a, b) => a.start_char - b.start_char),
+    },
+    scope: {
+      ...scope,
+      units: tokens
+        .filter((t) => !!t.unit)
+        .map((token) => ({
+          id: token.unit.id,
+          tags: token.unit.tags.map(({ id }) => ({ id })),
+          token: {
+            token: token.annotation.meta.token,
+            start_char: token.annotation.meta.start_char,
+            end_char: token.annotation.meta.end_char,
+          },
+        })),
+      tags: Array.from(
+        tokens.reduce((acc, token) => {
+          token.unit?.tags?.forEach(({ id }) => {
+            if (!acc.has(id)) acc.add(id);
+          });
+          return acc;
+        }, new Set()),
+      ).map((id) => ({ id })),
+    },
+  };
+
+  fs.appendFileSync(__filepath, JSON.stringify(instruction) + ",\n");
+  return [instruction];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluations.js
+// Path: translations//methods/lib/evaluations.js
+// Size: 1985 bytes
+// Last Modified: 2024-12-09T04:31:00.897Z
+////////////////////////////////////////////////////////////////////////////////
+
+import Mustache from "mustache";
+import { EvalTokensPrompt, EvalTranslationPrompt } from "./prompts.js";
+
+async function evaluateTokens({ unit, sentence, evaluation }, ctx) {
+  const input = {
+    prompt: Mustache.render(EvalTokensPrompt.template, {
+      part: unit,
+      language: ctx.runtime.statics.language,
+      evaluation: {
+        whole: evaluation["translation:whole"],
+        token: evaluation["token:" + unit.token],
+      },
+      sentence: {
+        ...sentence,
+        learning: wrapTextWithTag(sentence.learning, unit.start_char, unit.end_char, "PART"),
+      },
+    }),
+    schema: { ...EvalTokensPrompt.schema },
+    provider: EvalTokensPrompt.provider,
+  };
+
+  return { unit, evaluation: await ctx.runtime.services.llm(input) };
+}
+
+async function evaluateSentence({ units, sentence }, ctx) {
+  const prompt = Mustache.render(EvalTranslationPrompt.template, {
+    parts: units,
+    language: ctx.runtime.statics.language,
+    sentence,
+  });
+
+  const schema = {
+    ...EvalTranslationPrompt.schema,
+    properties: units.reduce(
+      (acc, unit) => {
+        acc["token:" + unit.token] = { $ref: "#/definitions/token" };
+        return acc;
+      },
+      { "translation:whole": { $ref: "#/definitions/translation" } },
+    ),
+  };
+  schema.required = Object.keys(schema.properties);
+
+  const evaluation = await ctx.runtime.services.llm({
+    prompt,
+    schema,
+    provider: EvalTranslationPrompt.provider,
+  });
+
+  return evaluation;
+}
+
+const wrapTextWithTag = (str, start_char, end_char, tag) => {
+  return `${str.substring(0, start_char)}<${tag}>${str.substring(
+    start_char,
+    end_char,
+  )}</${tag}>${str.substring(end_char)}`;
+};
+
+export default {
+  sentence: evaluateSentence,
+  tokens: evaluateTokens,
+};
+
+// properties: unit.tags.reduce((acc, tag) => {acc["Tag:" + tag.id] = { $ref: "#/definitions/tag" }; return acc;}, { ["Unit:" + unit.id]: { $ref: "#/definitions/unit" } },),},
+// input.schema.required = Object.keys(input.schema.properties);
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: prompts.js
+// Path: translations//methods/lib/prompts.js
+// Size: 8255 bytes
+// Last Modified: 2024-12-27T12:10:42.155Z
+////////////////////////////////////////////////////////////////////////////////
+
+const provisionProvider = {
+  api: "anthropic",
+  model: "claude-3-5-sonnet-latest",
+  temperature: 0.7,
+  max_tokens: 300,
+};
+const sentenceEvalProvider = {
+  api: "groq",
+  model: "llama-3.3-70b-versatile",
+};
+const tokenEvalProvider = {
+  api: "groq",
+  model: "gemma2-9b-it",
+  // model: "llama-3.3-70b-versatile",
+};
+
+export const GamePrompt = {
+  provider: provisionProvider,
+  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
+  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
+  schema: {
+    title: "LanguageLearningSentence",
+    type: "object",
+    properties: {
+      known: {
+        title: "Sentence in Known Language",
+        description: "Sentence in the familiar language",
+        type: "string",
+      },
+      learning: {
+        title: "Sentence in Learning Language",
+        description: "Sentence in the language to be learned",
+        type: "string",
+      },
+    },
+    required: ["learning", "known"],
+    additionalProperties: false,
+  },
+  template: `### Instructions
+You are an expert teacher generating educational content. 
+The learner's native language is {{language.known}} and the target language being learned is {{language.learning}}.
+
+You Generate one single sentence. in {{language.known}} and its translation in {{language.learning}}. as language learning material.
+
+You are given an goal that you must follow. The goal is a specific objective that the sentence and translation must achieve. the ultimate goal is educational.
+
+you are also given a set of constraints. You must generate a sentence that satisfies these constraints.
+
+<GOAL>
+{{goal}}
+</GOAL>
+
+<CONSTRAINTS>
+Don't use words more advanced than those provided. We want the learner to be successfull.
+The sentence must be semantically correct and either a reasonable or common thing to say.
+{{#constraints}}
+{{.}}
+{{/constraints}}
+</CONSTRAINTS>
+`,
+};
+
+export const EvalTranslationPrompt = {
+  provider: sentenceEvalProvider,
+  schema: {
+    title: "Evaluation of Translation",
+    type: "object",
+    description: `GLOBAL INSTRUCTION: Stay !concise, dense and compact! in your responses. Never mention formatting (<>) or the prompt itself.`,
+    definitions: {
+      translation: {
+        type: "string",
+        description: `In 3 !concise, dense and compact! sentences 1: the linguistic attributes of the original sentence and the provided translation. 2: argue if the user got the translation right over all. and 3: what errors where made and in what specific parts of speech. `,
+      },
+      token: {
+        type: "string",
+        description:
+          "In one !concise, dense and compact! sentence 1: identify the <token> in the user translation. 2(only if there is an error): assess if the token is translated correctly. 3: Are each ud annotation correct? 4(only if there is an error): what would be the correction?",
+      },
+    },
+    properties: {},
+    additionalProperties: false,
+  },
+  template: `# TASK
+Evaluate and assess the correctness of the translated sentence below.
+The translation is by a language learner, from {{{language.known}}} to {{{language.learning}}}.
+The learner is translating from their native language to a language they are learning.
+
+You are given:
+The original sentence in {{{language.known}}}.
+An expected translation, which should serve as an orientation, but not a absolute source of truth.
+And the 'user translation', which is the thing you must evaluate.
+The list of tokens that make up the sentence and the Universal Dependencies (ud) annotations for each token.
+
+Task A: Reason and describe the correctness of the translation as a whole.
+Task B: Describe and evaluate each individual token individually, with respect payed to each ud annotation.
+Note: Ignore capitalization. Do not ignore severe spelling errors. Missing counts as failure.
+
+
+### TRANSLATION
+original sentence: "{{{sentence.known}}}"
+original sentence: "{{{sentence.known}}}"
+expected translation: "{{{sentence.learning}}}" 
+expected translation: "{{{sentence.learning}}}" 
+user translation: "{{{sentence.translation}}}"
+user translation: "{{{sentence.translation}}}"
+user translation: "{{{sentence.translation}}}"
+
+### TOKENS / PARTS OF SPEECH (universal dependencies - ud)
+{{#parts}}
+| token index | token known | token learning | ud name | ud branch | ud leaf |
+{{#tags}}
+| {{index}} | {{{known}}} | {{{token}}} | {{name}} | {{branch}} | {{leaf}} |
+{{/tags}}
+{{/parts}}
+`,
+};
+export const EvalTokensPrompt = {
+  provider: tokenEvalProvider,
+  schema: {
+    type: "object",
+    title: "Evaluation of Token",
+    description: `GLOBAL INSTRUCTION: Stay !concise, dense and compact! in your responses. Never mention formatting (<>), annotation (ud) or the prompt itself. Dont show how the sausage is made.`,
+    properties: {
+      status: {
+        type: "string",
+        enum: ["KNOWN", "UNKNOWN", "NEUTRAL"],
+        description: `KNOWN indicates correct usage of PART in the translation. UNKNOWN marks incorrect usage, including spelling and missing words. NEUTRAL applies for successful alternative use. Absence of PART is UNKNOWN.`,
+      },
+      correction: {
+        type: ["string", "null"],
+        description: "If the status is UNKNOWN, provide the corrected word.",
+      },
+      feedback: {
+        type: ["string", "null"],
+        description:
+          "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence. Leave empty if feedback is not necessary/positive.",
+      },
+    },
+    required: ["status", "correction", "feedback"],
+    additionalProperties: false,
+  },
+  template: `
+# EXAMPLES of GOOD JSON OUTPUT:
+GOOD: {"status": "KNOWN", "correction": null, "feedback": null}
+GOOD: {"status": "UNKNOWN", "correction": "...", "feedback": "..."}
+BAD: [{"status": "UNKNOWN"}, {TAG: {"status": "UNKNOWN"}}] // OR ANYTHING ELSE THAN A SINGLE OBJECT WITH status, correction, feedback
+
+# INSTRUCTIONS
+input: two evaluations of a translation. One for the whole translation and one for a specific <PART>.
+task: format and articulate the evaluation of the <PART> of speech.
+
+# Notes
+If the learner used equivalent alternative vocabulary, then select NEUTRAL. if you are unsure, select NEUTRAL. If the <PART> is missing, then select UNKNOWN.
+If you reference the Unit, call it a word.
+Dont feedback anything thats expected.
+
+### TRANSLATION
+from {{{language.known}}} to {{{language.learning}}}.
+original sentence:
+"{{{sentence.known}}}"
+"{{{sentence.known}}}"
+
+expected translation: (the tag <PART> was added now for your emphasis)
+"{{{sentence.learning}}}" 
+"{{{sentence.learning}}}" 
+
+user translation:
+"{{{sentence.translation}}}"
+"{{{sentence.translation}}}"
+
+The <PART> you evaluate now is made up of the word (Unit) "{{part.token}}"
+and the Universal Dependencys (Tags) of{{#part.tags}} {{branch}}{{/part.tags}}.
+
+### EVALUATION
+of the whole translation:
+{{{evaluation.whole}}}
+
+of your specific <PART>:
+{{{evaluation.token}}}
+
+`,
+};
+
+// definitions: {
+// unit: {
+//   type: "object",
+//   description: "Evaluation of the unit / word.",
+//   properties: {
+//     status: { $ref: "#/definitions/status" },
+//     correction: {
+//       type: ["string", "null"],
+//       description: "If the status is UNKNOWN, provide the corrected word.",
+//     },
+//     feedback: {
+//       type: ["string", "null"],
+//       description:
+//         "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence. Leave empty if feedback is not necessary/positive.",
+//     },
+//   },
+//   additionalProperties: false,
+//   required: ["status", "correction", "feedback"],
+// },
+// tag: {
+//   type: "object",
+//   description:
+//     "Evaluation of the universal dependency annotation tags correctness. The tag is KNOWN if correct usage is demonstrated.",
+//   properties: { status: { $ref: "#/definitions/status" } },
+//   required: ["status"],
+//   additionalProperties: false,
+// },
+// },
+// ### IDs IDENTITIES AND REFERENCES (everything inside "", including the type, is part of the id)
+// ID | token known | token learning
+// "Unit:{{part.id}}" | {{{part.known}}} | {{{part.token}}}
+
+// ID | annotation pretty | annotation code
+// {{#part.tags}}
+// "Tag:{{id}}"  | {{name}} | {{branch}}:{{leaf}}
+// {{/part.tags}}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: evaluation.d.js
+// Path: translations//types/evaluation.d.js
+// Size: 8256 bytes
+// Last Modified: 2024-12-03T15:24:42.236Z
+////////////////////////////////////////////////////////////////////////////////
+
+const responses = [
+  [
+    {
+      type: "Unit",
+      id: "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "El",
+        feedback:
+          "The article 'el' should be capitalized as 'El' to match the expected translation.",
+      },
+    },
+    {
+      type: "Tag",
+      id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "82758521-b342-489f-8c33-7cecb6756cd2",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "aac99573-e056-4973-bae8-df9bb173ecb1",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+    },
+    {
+      type: "Tag",
+      id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "1357cb6c-c7a1-4cff-beb7-e187f9f933ad",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "está",
+        feedback: "The word 'está' is missing in your translation.",
+      },
+    },
+    {
+      type: "Tag",
+      id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "en",
+        feedback: "The word 'en' is missing from the user translation.",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "e6259d35-7351-4312-921b-3c9a3fb7dcfd",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+    },
+    {
+      type: "Tag",
+      id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "82758521-b342-489f-8c33-7cecb6756cd2",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "989b7dbd-e43f-4d76-825a-8e3da543f07a",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+    },
+    {
+      type: "Tag",
+      id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+    {
+      type: "Tag",
+      id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      evaluation: {
+        status: "KNOWN",
+      },
+    },
+  ],
+  [
+    {
+      type: "Unit",
+      id: "fee35d8a-f8d3-492a-beca-d2d94244df31",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+    },
+  ],
+];
+
+export default {
+  data: [
+    {
+      type: "Unit",
+      id: "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "El",
+        feedback:
+          "The article 'el' should be capitalized as 'El' to match the expected translation.",
+      },
+      known: "the",
+      index: 1,
+      token: "El",
+      start_char: 0,
+      end_char: 2,
+      tags: [
+        {
+          type: "Tag",
+          id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Gender: Masculine",
+          branch: "gender",
+          leaf: "masc",
+        },
+        {
+          type: "Tag",
+          id: "82758521-b342-489f-8c33-7cecb6756cd2",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Definiteness: Definite",
+          branch: "definite",
+          leaf: "def",
+        },
+        {
+          type: "Tag",
+          id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Number Singular",
+          branch: "number",
+          leaf: "sing",
+        },
+      ],
+    },
+    {
+      type: "Unit",
+      id: "aac99573-e056-4973-bae8-df9bb173ecb1",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+      known: "book",
+      index: 2,
+      token: "libro",
+      start_char: 3,
+      end_char: 8,
+      tags: [
+        {
+          type: "Tag",
+          id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Gender: Masculine",
+          branch: "gender",
+          leaf: "masc",
+        },
+        {
+          type: "Tag",
+          id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Number Singular",
+          branch: "number",
+          leaf: "sing",
+        },
+      ],
+    },
+    {
+      type: "Unit",
+      id: "1357cb6c-c7a1-4cff-beb7-e187f9f933ad",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "está",
+        feedback: "The word 'está' is missing in your translation.",
+      },
+      known: "he/she/it is",
+      index: 3,
+      token: "está",
+      start_char: 9,
+      end_char: 13,
+      tags: [
+        {
+          type: "Tag",
+          id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Number Singular",
+          branch: "number",
+          leaf: "sing",
+        },
+      ],
+    },
+    {
+      type: "Unit",
+      id: "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+      evaluation: {
+        status: "UNKNOWN",
+        correction: "en",
+        feedback: "The word 'en' is missing from the user translation.",
+      },
+      known: "in, on",
+      index: 4,
+      token: "en",
+      start_char: 14,
+      end_char: 16,
+      tags: [],
+    },
+    {
+      type: "Unit",
+      id: "e6259d35-7351-4312-921b-3c9a3fb7dcfd",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+      known: "the",
+      index: 5,
+      token: "la",
+      start_char: 17,
+      end_char: 19,
+      tags: [
+        {
+          type: "Tag",
+          id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Gender: Feminine",
+          branch: "gender",
+          leaf: "fem",
+        },
+        {
+          type: "Tag",
+          id: "82758521-b342-489f-8c33-7cecb6756cd2",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Definiteness: Definite",
+          branch: "definite",
+          leaf: "def",
+        },
+        {
+          type: "Tag",
+          id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Number Singular",
+          branch: "number",
+          leaf: "sing",
+        },
+      ],
+    },
+    {
+      type: "Unit",
+      id: "989b7dbd-e43f-4d76-825a-8e3da543f07a",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+      known: "table, board",
+      index: 6,
+      token: "mesa",
+      start_char: 20,
+      end_char: 24,
+      tags: [
+        {
+          type: "Tag",
+          id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Gender: Feminine",
+          branch: "gender",
+          leaf: "fem",
+        },
+        {
+          type: "Tag",
+          id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          evaluation: {
+            status: "KNOWN",
+          },
+          name: "Number Singular",
+          branch: "number",
+          leaf: "sing",
+        },
+      ],
+    },
+    {
+      type: "Unit",
+      id: "fee35d8a-f8d3-492a-beca-d2d94244df31",
+      evaluation: {
+        status: "KNOWN",
+        correction: null,
+        feedback: null,
+      },
+      known: "period",
+      index: 7,
+      token: ".",
+      start_char: 24,
+      end_char: 25,
+      tags: [],
+    },
+  ],
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: instruction.d.ts
+// Path: translations//types/instruction.d.ts
+// Size: 4745 bytes
+// Last Modified: 2024-12-01T15:37:39.876Z
+////////////////////////////////////////////////////////////////////////////////
+
+const instruction = {
+  instruction: {
+    sentence: {
+      known: "The book is on the table.",
+      learning: "El libro está en la mesa.",
+    },
+    tokens: [
+      {
+        token: "El",
+        start_char: 0,
+        end_char: 2,
+      },
+      {
+        token: "libro",
+        start_char: 3,
+        end_char: 8,
+      },
+      {
+        token: "está",
+        start_char: 9,
+        end_char: 13,
+      },
+      {
+        token: "en",
+        start_char: 14,
+        end_char: 16,
+      },
+      {
+        token: "la",
+        start_char: 17,
+        end_char: 19,
+      },
+      {
+        token: "mesa",
+        start_char: 20,
+        end_char: 24,
+      },
+      {
+        token: ".",
+        start_char: 24,
+        end_char: 25,
+      },
+    ],
+  },
+  scope: {
+    dependency: {
+      id: "34de578b-985b-44f1-81a0-6d2ca43ea72c",
+    },
+    tactic: {
+      id: "71c4ed7d-1a4a-4017-a794-01267d601e4b",
+    },
+    user: {
+      id: "localhost",
+    },
+    game: {
+      id: "877e1133-477a-4739-9eea-f74676381fb8",
+    },
+    units: [
+      {
+        id: "043a851a-45f0-4fd4-b45c-cbfce8d66d17",
+        tags: [
+          {
+            id: "c8a22d68-3937-4406-920b-2ab6ed4494ff",
+          },
+          {
+            id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+          },
+          {
+            id: "82758521-b342-489f-8c33-7cecb6756cd2",
+          },
+          {
+            id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          },
+          {
+            id: "50e93054-0261-4deb-8c51-09af4cfa000c",
+          },
+        ],
+      },
+      {
+        id: "aac99573-e056-4973-bae8-df9bb173ecb1",
+        tags: [
+          {
+            id: "9fd9e512-24f2-4400-a555-e9bd25982320",
+          },
+          {
+            id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+          },
+          {
+            id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          },
+        ],
+      },
+      {
+        id: "1357cb6c-c7a1-4cff-beb7-e187f9f933ad",
+        tags: [
+          {
+            id: "e526045b-2dc0-4c68-bdd8-ec69a38b1e68",
+          },
+          {
+            id: "00618d23-c70c-44ac-aa2b-478248c11507",
+          },
+          {
+            id: "b3b03701-d446-43f2-bd93-24092f7d7f68",
+          },
+          {
+            id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          },
+          {
+            id: "3b9d0998-5f98-4560-a7a6-7ad24614d90a",
+          },
+        ],
+      },
+      {
+        id: "eb378c20-ef86-4cac-8e8f-c087f2d79a50",
+        tags: [
+          {
+            id: "c216d4a2-002f-47c1-9292-41d7f8d71def",
+          },
+        ],
+      },
+      {
+        id: "e6259d35-7351-4312-921b-3c9a3fb7dcfd",
+        tags: [
+          {
+            id: "c8a22d68-3937-4406-920b-2ab6ed4494ff",
+          },
+          {
+            id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+          },
+          {
+            id: "82758521-b342-489f-8c33-7cecb6756cd2",
+          },
+          {
+            id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          },
+          {
+            id: "50e93054-0261-4deb-8c51-09af4cfa000c",
+          },
+        ],
+      },
+      {
+        id: "989b7dbd-e43f-4d76-825a-8e3da543f07a",
+        tags: [
+          {
+            id: "9fd9e512-24f2-4400-a555-e9bd25982320",
+          },
+          {
+            id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+          },
+          {
+            id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+          },
+        ],
+      },
+      {
+        id: "fee35d8a-f8d3-492a-beca-d2d94244df31",
+        tags: [
+          {
+            id: "f068a606-b4b9-46f8-a619-42ff071420fc",
+          },
+        ],
+      },
+    ],
+    tags: [
+      {
+        id: "c8a22d68-3937-4406-920b-2ab6ed4494ff",
+      },
+      {
+        id: "d192bf8b-e0ce-41f5-a3e0-7bd86e44927b",
+      },
+      {
+        id: "82758521-b342-489f-8c33-7cecb6756cd2",
+      },
+      {
+        id: "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab",
+      },
+      {
+        id: "50e93054-0261-4deb-8c51-09af4cfa000c",
+      },
+      {
+        id: "9fd9e512-24f2-4400-a555-e9bd25982320",
+      },
+      {
+        id: "e526045b-2dc0-4c68-bdd8-ec69a38b1e68",
+      },
+      {
+        id: "00618d23-c70c-44ac-aa2b-478248c11507",
+      },
+      {
+        id: "b3b03701-d446-43f2-bd93-24092f7d7f68",
+      },
+      {
+        id: "3b9d0998-5f98-4560-a7a6-7ad24614d90a",
+      },
+      {
+        id: "c216d4a2-002f-47c1-9292-41d7f8d71def",
+      },
+      {
+        id: "0862498e-5a83-41a3-994a-9d00f638cf65",
+      },
+      {
+        id: "f068a606-b4b9-46f8-a619-42ff071420fc",
+      },
+    ],
+  },
+  type: "GAME",
+  game: {
+    id: "877e1133-477a-4739-9eea-f74676381fb8",
+    slug: "translations",
+    url: "/r/eng2esp/g/translations",
+    bundle: "http://localhost:5175/r/eng2esp/g/translations/bundle/Translations.svelte",
+  },
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: provision.d.ts
+// Path: translations//types/provision.d.ts
+// Size: 1994 bytes
+// Last Modified: 2024-11-25T17:55:08.909Z
+////////////////////////////////////////////////////////////////////////////////
+
+const provisioninput = {
+  mask: {
+    prompt: {
+      goal: "\nYou're given an explanation of a grammatical concept, that includes examples.\nYour task is to extract an example sentence from the explanation.\nThe goal is for the user to translate that sentence for practice.\n\n1. Extract a sentence from the explanation that demonstrates the concept. \n2. Use simple, everyday vocabulary suitable for the learner's level.\n3. The sentence should be clear, concise, and make sense in conversation or writing.\n4. Ensure the sentence untilizes correct grammar and vocabulary.\n",
+    },
+  },
+  scope: {
+    dependency: {
+      id: "34de578b-985b-44f1-81a0-6d2ca43ea72c",
+    },
+    tactic: {
+      id: "71c4ed7d-1a4a-4017-a794-01267d601e4b",
+    },
+    user: {
+      id: "02cc2c18-aece-4132-9863-225e8ae5dad2",
+    },
+    game: {
+      id: "877e1133-477a-4739-9eea-f74676381fb8",
+    },
+  },
+  constraints: [
+    'The grammatical concept and examples are provided in this prose: "<p>In Spanish, nouns have a gender. This means that every noun is classified as either masculine or feminine. Understanding noun gender is important because it affects how we use adjectives and articles in sentences. For example, the word <strong>\\"libro\\"</strong> (book) is masculine, while <strong>\\"mesa\\"</strong> (table) is feminine.</p>\\n\\n<p>Here are some examples of masculine and feminine nouns:</p>\\n<ul>\\n  <li><strong>Masculine:</strong> <code>el perro</code> (the dog), <code>el coche</code> (the car), <code>el niño</code> (the boy)</li>\\n  <li><strong>Feminine:</strong> <code>la gata</code> (the female cat), <code>la casa</code> (the house), <code>la niña</code> (the girl)</li>\\n</ul>" ',
+    "the sentence should be extracted from the prose examples.",
+    "extract accurately, without adding vocabulary thats not in the prose. this is first contact.",
+    "conceptual example: 'x es masculino.' or 'y es femenino.'",
+    "limit the vocabulary to whats used in the prose.",
+  ],
+};

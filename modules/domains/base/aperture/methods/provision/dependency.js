@@ -10,8 +10,6 @@ export default async function provision({ dependency, ...body }, ctx) {
 
   let instructions, error;
   try {
-    // const tacticRef = await ctx.runtime.entities.tactic.getRef({slug: dependency.itinerary.tactic.slug,});
-
     const itinerary = dependency.itinerary.tactic;
 
     const input = {

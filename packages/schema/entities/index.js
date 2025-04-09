@@ -27,6 +27,9 @@ export { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./5_userland
 export { InstructionEntity, InstructionSchema } from "./6_transient/Instruction.ts";
 export { InstructionStatusEnum } from "./6_transient/Instruction.ts";
 
+export { SessionEntity, SessionSchema } from "./6_transient/Session.ts";
+export { SessionTraitsEnum } from "./6_transient/Session.ts";
+
 //
 export { TopographyEntity, TopographyRepository } from "./3_topology/Topography.ts";
 export { AnnotationEntity, AnnotationRepository } from "./3_topology/Annotation.ts";
@@ -43,6 +46,7 @@ export { IssueEntity, IssueRepository } from "./3_topology/Issue.ts";
 import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 import { MemoryTypeEnum, MemoryFlavorEnum, MemoryStatusEnum } from "./5_userland/Memory.ts";
 import { InstructionStatusEnum } from "./6_transient/Instruction.ts";
+// import { SessionTraitsEnum } from "./6_transient/Session.ts";
 
 // ENTITIES
 import { UserEntity, UserSchema } from "./1_repo/User.ts";
@@ -65,6 +69,7 @@ import { MemoryEntity, MemorySchema } from "./5_userland/Memory.ts";
 import { PlayEntity, PlaySchema } from "./5_userland/Play.ts";
 
 import { InstructionEntity, InstructionSchema } from "./6_transient/Instruction.ts";
+import { SessionEntity, SessionSchema } from "./6_transient/Session.ts";
 
 // import { TopographyEntity } from "./3_ontology/Topography.ts";
 // import { AnnotationEntity } from "./3_ontology/Annotation.ts";
@@ -76,6 +81,7 @@ export const enums = {
   MemoryFlavor: MemoryFlavorEnum,
   MemoryStatus: MemoryStatusEnum,
   InstructionStatus: InstructionStatusEnum,
+  // SessionTraits: SessionTraitsEnum,
 };
 
 export const vivaEntities = {};
@@ -115,6 +121,7 @@ export const runtimeEntities = {
   memory: MemoryEntity,
   play: PlayEntity,
   instruction: InstructionEntity,
+  session: SessionEntity,
 };
 
 export const entities = {
@@ -134,6 +141,7 @@ export const entities = {
   memory: MemoryEntity,
   play: PlayEntity,
   instruction: InstructionEntity,
+  session: SessionEntity,
   // topography: TopographyEntity,
   // annotation: AnnotationEntity,
   // rule: RuleEntity,
@@ -156,6 +164,7 @@ export const schemas = [
   MemorySchema,
   PlaySchema,
   InstructionSchema,
+  SessionSchema,
 ];
 
 // export default schemas;

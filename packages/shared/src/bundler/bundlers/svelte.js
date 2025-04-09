@@ -1,16 +1,20 @@
-import { basename, dirname, fromFileUrl } from "$std/path/mod.ts";
+import { basename, dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
-
 import esbuild from "esbuild";
-import { cache } from "esbuild-plugin-cache";
 import sveltePlugin from "esbuild-svelte";
+import { cache } from "esbuild-plugin-cache";
+import vivaloader from "./loader.js";
+// console.log(cache, cache.toString());
+
+const root = join(dirname(fromFileUrl(import.meta.url)), "../../../../../");
+const SVELTE_VERSION = "svelte";
 
 export default async function (entry) {
   const build = await esbuild.build({
     entryPoints: [entry],
     mainFields: ["svelte", "browser", "module", "main"],
     conditions: ["svelte", "browser"],
-    // external: ["$app/environment", "@vivalence/ui"],
+    // external: ["$app/environment"],
     target: "es6",
     format: "esm",
     write: false,
@@ -20,17 +24,27 @@ export default async function (entry) {
     minify: true,
     bundle: true,
     outdir: dirname(entry),
-    // outExtension: { ".js": ".svelte" },
     plugins: [
-      cache(svelteImportMap),
+      cache({
+        importmap: {
+          imports: {
+            svelte: SVELTE_VERSION,
+            "svelte/": `${SVELTE_VERSION}/`,
+          },
+        },
+      }),
+      vivaloader({
+        importmap: {
+          imports: {
+            "@vivalence/shared": join(root, "packages/shared/client.js"),
+            "@vivalence/interface": join(root, "packages/interfaces/display/mod.js"),
+          },
+        },
+      }),
       sveltePlugin({
         filterWarnings: (warning, handler) => {
           if (["css_unused_selector"].includes(warning.code) || warning.code.startsWith("a11y-"))
             return;
-
-          // console.warn("[Game Build Warnings:]");
-          // console.warn(warning);
-          // console.warn("");
         },
         compilerOptions: {
           filename: basename(entry),
@@ -42,24 +56,14 @@ export default async function (entry) {
   return build.outputFiles;
 }
 
-// const SVELTE_VERSION = "https://esm.sh/svelte@5.1.9";
-const root = dirname(fromFileUrl(import.meta.url));
-const SVELTE_VERSION = "svelte";
+// "@vivalence/shared": join(root, "../../../../../packages/shared/client.js") ,
+// "@vivalence/shared": join(root, "packages/shared/client.js"),
 
-const svelteImportMap = {
-  importmap: {
-    // has issues with :repo@vivalence/xzy imports, dueto ununderstood path resolution issue
-    imports: {
-      svelte: SVELTE_VERSION,
-      "svelte/": `${SVELTE_VERSION}/`,
-      tinykeys: "https://esm.sh/tinykeys@3.0.0",
-      // "@vivalence/ui": join(root, "../../../../../packages/interfaces/display/mod.js"),
-      "@vivalence/ui": `../../../../packages/interfaces/display/mod.js`,
+// "@vivalence/interface": "../../../../../../packages/interfaces/display/mod.js",
+// "@vivalence/interface": "file:/" + join(root, "../../../../interfaces/display/mod.js"),
 
-      // "@vivalence/shared": join(root, "../../shared/client.js"),
-      // ugly. absolute or repo imports not working. doesnt import nested packages.
-      // "svelte-gestures": "https://esm.sh/svelte-gestures@5.0.4",
-      // "@rwh/keystrokes": "https://esm.sh/@rwh/keystrokes@1.5.6",
-    },
-  },
-};
+// "@vivalence/shared": join(root, "../../shared/client.js"),
+// ugly. absolute or repo imports not working. doesnt import nested packages.
+// "svelte-gestures": "https://esm.sh/svelte-gestures@5.0.4",
+// "@rwh/keystrokes": "https://esm.sh/@rwh/keystrokes@1.5.6",
+// tinykeys: "https://esm.sh/tinykeys@3.0.0",

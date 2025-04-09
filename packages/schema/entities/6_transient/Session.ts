@@ -1,68 +1,48 @@
 // UNCONNCECTED
-import { BaseEntity, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { Runtime } from "../1_repo/Runtime.ts";
-import { User } from "../0_root/User.ts";
+import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { BaseDataEntity, BaseDataSchema } from "../0_root/BaseDataEntity.ts";
+import { RuntimeEntity } from "../1_repo/Runtime.ts";
+import { UserEntity } from "../1_repo/User.ts";
 
-// traits: [Agentic]
-export class Session extends BaseEntity {
-  id!: string;
-  slug: string & Opt = "";
-  version: string & Opt = "0.0.0";
-  createdAt!: Date & Opt;
-  updatedAt!: Date & Opt;
-  user!: Rel<User>;
-  runtime!: Rel<Runtime>;
-  traits?: string[];
-  data: any & Opt = "{}";
+export enum SessionTraitsEnum {
+  AGENTIC = "AGENTIC",
 }
 
-export const SessionSchema = new EntitySchema({
-  class: Session,
+export class SessionEntity extends BaseDataEntity {
+  user!: Rel<UserEntity>;
+  runtime!: Rel<RuntimeEntity>;
+  traits: SessionTraitsEnum[] & Opt = [];
+  itinerary: any & Opt = "{}";
+}
+
+export const SessionSchema = new EntitySchema<SessionEntity, BaseDataEntity>({
+  class: SessionEntity,
+  extends: BaseDataSchema,
   tableName: "Session",
-  uniques: [
-    {
-      name: "Session_slug_runtime_key",
-      expression:
-        'CREATE UNIQUE INDEX "Session_slug_runtime_key" ON public."Session" USING btree (slug, "runtime")',
-      properties: ["slug", "runtime"],
-    },
-  ],
   properties: {
-    id: { primary: true, type: "text" },
-    slug: { type: "text" },
-    version: { type: "text" },
-    createdAt: {
-      type: "datetime",
-      fieldName: "createdAt",
-      columnType: "timestamp(3)",
-      defaultRaw: `CURRENT_TIMESTAMP`,
-    },
-    updatedAt: {
-      type: "datetime",
-      fieldName: "updatedAt",
-      columnType: "timestamp(3)",
-      defaultRaw: `CURRENT_TIMESTAMP`,
-    },
     user: {
       kind: "m:1",
-      entity: () => User,
+      entity: () => UserEntity,
       fieldName: "user",
       updateRule: "cascade",
       deleteRule: "cascade",
     },
     runtime: {
       kind: "m:1",
-      entity: () => Runtime,
+      entity: () => RuntimeEntity,
       fieldName: "runtime",
       updateRule: "cascade",
       deleteRule: "cascade",
     },
     traits: {
-      type: "string[]",
-      columnType: "SessionTraitsEnum[]",
-      nullable: true,
-      defaultRaw: `ARRAY[]::"SessionTraitsEnum"[]`,
+      columnType: "json",
+      defaultRaw: `"[]"`,
+      enum: true,
+      array: true,
+      items: () => SessionTraitsEnum,
+      default: [],
     },
-    data: { type: "json" },
+
+    itinerary: { type: "json" },
   },
 });

@@ -13,7 +13,7 @@
 </script>
 
 {#if tree.isOpen}
-  <aside class="sidebar grid-container mr-6">
+  <aside class="sidebar bsp-chain-root grid-container mr-6">
     <Tree />
   </aside>
 {:else}
@@ -25,7 +25,6 @@
 <style>
   .sidebar {
     @apply w-64 p-0;
-
     @apply bg-skeleton-surface-1 border-skeleton-boundary-1 text-skeleton-contrast-1;
     @apply rounded-lg shadow-md border;
   }

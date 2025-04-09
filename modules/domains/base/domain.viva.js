@@ -12,6 +12,7 @@ function boot(runtime) {
 }
 
 // TODO
+// default boot methods for games and tactics
 // const modules = {memory: ["@vivalence/memory/bayesian", "@vivalence/memory/boolean"]};
 
 const manifest = {

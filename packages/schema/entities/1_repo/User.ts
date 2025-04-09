@@ -6,6 +6,7 @@ import { CorpusEntity } from "../2_module/Corpus.ts";
 import { MemoryEntity } from "../5_userland/Memory.ts";
 import { PlayEntity } from "../5_userland/Play.ts";
 import { InstructionEntity } from "../6_transient/Instruction.ts";
+import { SessionEntity } from "../6_transient/Session.ts";
 
 export enum UserRolesEnum {
   USER = "USER",
@@ -19,8 +20,9 @@ export class UserEntity extends BaseEntity {
   runtimes = new Collection<RuntimeEntity>(this);
   corpora = new Collection<CorpusEntity>(this);
   instructions = new Collection<InstructionEntity>(this);
-  memories = new Collection<Memoryntity>(this);
-  plays = new Collection<Playntity>(this);
+  memories = new Collection<MemoryEntity>(this);
+  plays = new Collection<PlayEntity>(this);
+  sessions = new Collection<SessionEntity>(this);
   // dependencies = new Collection<DependencyEntity>(this);
 
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
@@ -60,6 +62,12 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       // indicates ownership
       kind: "1:m",
       entity: () => MemoryEntity,
+      mappedBy: "user",
+    },
+    sessions: {
+      // indicates ownership
+      kind: "1:m",
+      entity: () => SessionEntity,
       mappedBy: "user",
     },
     plays: {

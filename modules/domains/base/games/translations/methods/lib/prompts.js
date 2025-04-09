@@ -16,8 +16,6 @@ const tokenEvalProvider = {
 
 export const GamePrompt = {
   provider: provisionProvider,
-  // provider: { api: "openai", model: "gpt-4o-mini-2024-07-18" },
-  // provider: { api: "openai", model: "gpt-4o-2024-08-06" },
   schema: {
     title: "LanguageLearningSentence",
     type: "object",
@@ -36,27 +34,62 @@ export const GamePrompt = {
     required: ["learning", "known"],
     additionalProperties: false,
   },
-  template: `### Instructions
-You are an expert teacher generating educational content. 
+  template: `
+### Context
+<SENTENCE_PATTERNS_GUIDE>
+When constructing your sentence, consider these common sentence patterns:
+
+STATEMENT: Create a simple declarative sentence that states a fact
+- Structure: Subject + Verb + Complement with natural word order
+
+QUESTION: Form an interrogative sentence using appropriate question structure
+- Structure: Question word + Verb + Subject (or appropriate inversion)
+
+NEGATION: Create a sentence with proper negation markers
+- Structure: Subject + Negation marker + Verb + Complement
+
+TEMPORAL: Include time expressions appropriate to the tense
+- Structure: (Time expression) + Subject + Verb + Complement
+
+CONDITIONAL: Form a conditional sentence showing cause and effect
+- Structure: [condition phrase] + [condition clause], [result clause]
+
+COMPARATIVE: Create a comparison between two elements
+- Structure: [Element 1] + [comparative term] + [Element 2]
+
+REFLEXIVE: Use a reflexive verb with proper pronoun agreement
+- Structure: Reflexive pronoun + Verb + Complement
+
+IMPERATIVE: Form a command using the imperative mood
+- Structure: Verb in imperative form + Complement
+
+
+<COMPLEXITY_LEVELS>
+A1 (Beginner): Very basic personal expressions, 300-500 most common words, present tense, simple sentences
+A2 (Elementary): Expressions for areas of immediate relevance, 1000-1500 common words, basic past/future tenses
+B1 (Intermediate): Clear standard speech on familiar matters, 2000-3500 words, all major tenses
+B2 (Upper Intermediate): Complex discussions in specialized fields, 3500-5000 words, all tenses, complex structures
+
+
+### Instructions
+You are an expert language teacher generating educational content. 
 The learner's native language is {{language.known}} and the target language being learned is {{language.learning}}.
-
-You Generate one single sentence. in {{language.known}} and its translation in {{language.learning}}. as language learning material.
-
-You are given an goal that you must follow. The goal is a specific objective that the sentence and translation must achieve. the ultimate goal is educational.
-
-you are also given a set of constraints. You must generate a sentence that satisfies these constraints.
+Generate one single sentence in {{language.known}} and its translation in {{language.learning}} as language learning material.
+You are given a GOAL that you must follow. The goal is a specific objective that the sentence and translation must achieve. The ultimate goal is educational.
+You are also given a set of CONSTRAINTS. You must generate a sentence that satisfies these constraints.
 
 <GOAL>
 {{goal}}
 </GOAL>
 
 <CONSTRAINTS>
-Don't use words more advanced than those provided. We want the learner to be successfull.
+Don't use words more advanced than those provided. We want the learner to be successful.
 The sentence must be semantically correct and either a reasonable or common thing to say.
 {{#constraints}}
 {{.}}
 {{/constraints}}
 </CONSTRAINTS>
+
 `,
 };
 
@@ -180,40 +213,3 @@ of your specific <PART>:
 
 `,
 };
-
-// definitions: {
-// unit: {
-//   type: "object",
-//   description: "Evaluation of the unit / word.",
-//   properties: {
-//     status: { $ref: "#/definitions/status" },
-//     correction: {
-//       type: ["string", "null"],
-//       description: "If the status is UNKNOWN, provide the corrected word.",
-//     },
-//     feedback: {
-//       type: ["string", "null"],
-//       description:
-//         "If the status is UNKNOWN, provide concise, factual feedback to the user. No more than a one sentence. Leave empty if feedback is not necessary/positive.",
-//     },
-//   },
-//   additionalProperties: false,
-//   required: ["status", "correction", "feedback"],
-// },
-// tag: {
-//   type: "object",
-//   description:
-//     "Evaluation of the universal dependency annotation tags correctness. The tag is KNOWN if correct usage is demonstrated.",
-//   properties: { status: { $ref: "#/definitions/status" } },
-//   required: ["status"],
-//   additionalProperties: false,
-// },
-// },
-// ### IDs IDENTITIES AND REFERENCES (everything inside "", including the type, is part of the id)
-// ID | token known | token learning
-// "Unit:{{part.id}}" | {{{part.known}}} | {{{part.token}}}
-
-// ID | annotation pretty | annotation code
-// {{#part.tags}}
-// "Tag:{{id}}"  | {{name}} | {{branch}}:{{leaf}}
-// {{/part.tags}}

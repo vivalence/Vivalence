@@ -36,7 +36,7 @@
   );
 
   function handleButtonClick(dependency) {
-    goto(`/${dependency.runtime.slug}/buffers/${dependency.slug}`);
+    goto(`/${dependency.runtime.slug}/buffers/dependency/${dependency.slug}`);
   }
 
   function handleTitleClick(dependency) {
