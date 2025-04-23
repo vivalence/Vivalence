@@ -1,33 +1,18 @@
 import { Daemon } from "@vivalence/types";
-import { services as servicesHelper } from "@vivalence/shared";
-
-class ServiceManager {
-  clients = {};
-  constructor() {
-    return new Proxy(this, {
-      get(target, prop, receiver) {
-        if (prop in target) return Reflect.get(target, prop, receiver);
-        if (prop in target.clients) return target.clients[prop];
-        return undefined;
-      },
-    });
-  }
-  add(name, client) {
-    this.clients[name] = client;
-  }
-}
+import Repository from "@vivalence/repository";
 
 export default function loadRuntimeServices(daemon) {
   return async (runtime) => {
-    runtime.services = new ServiceManager();
+    runtime.services = new Repository.services.Clients().join(daemon.services);
+    await runtime.services.mount(runtime.config.services);
 
-    const clients = await servicesHelper.mountClients(runtime.Modules.Runtime.services, runtime);
+    // const clients = await Repository.services.mount.clients(runtime.config.services );
+    // [daemon.services, clients].map((services) => {
+    //   for (const [service, client] of Object.entries(services)) {
+    //     runtime.services.add(service, client);
+    //   }
+    // });
 
-    [daemon.services, clients].map((services) => {
-      for (const [service, client] of Object.entries(services)) {
-        runtime.services.add(service, client);
-      }
-    });
     return runtime;
   };
 }

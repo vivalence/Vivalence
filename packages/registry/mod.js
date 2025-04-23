@@ -16,7 +16,10 @@ export async function init(registryConfig = {}) {
 export async function load(query) {
   if (!initialized) await init();
   if (typeof query !== "string" && query.manifest) return query;
-  return deepClone(await register.lookup(query));
+  const module = await register.lookup(query);
+  // console.log(query, module);
+  // return deepClone(module);
+  return module;
 }
 
 export async function loadMany(many) {

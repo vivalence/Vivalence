@@ -2,6 +2,26 @@
 import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseSchema, BaseEntity } from "../0_root/BaseEntity.ts";
 
+export class BaseModuleRepository extends Array {
+  "#entity": any; // "#entity": AnnotationEntity;
+  public async add(entity: any) {
+    super.push(entity);
+  }
+  public async create(data: any) {
+    super.push(new this["#entity"](data));
+    // if (data.id) return await em.findOne(this.entityName, data.id);
+    // if (!data.slug) data.slug = hash([data.scope, data.assertion]);
+    // const entity = await em.findOne(this.entityName, { slug: data.slug, runtime: data.runtime });
+    // if (entity) return entity;
+    // return em.create(this.entityName, data);
+  }
+  public delete(entity: any) {
+    //
+  }
+  // public async find(data: any) {}
+  // public async findOne(data: any) {}
+}
+
 export enum ModuleInstallationEnum {
   PENDING = "PENDING",
   INSTALLED = "INSTALLED",
@@ -18,6 +38,10 @@ export class BaseModuleEntity extends BaseEntity {
   get installed() {
     return this.installation === ModuleInstallationEnum.INSTALLED;
   }
+  // install: Function
+  // boot?: Function
+  // traits
+  //
 }
 
 export const BaseModuleSchema = new EntitySchema<BaseModuleEntity, BaseEntity>({

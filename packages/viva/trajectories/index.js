@@ -1,9 +1,12 @@
 // import { colors } from "@cliffy/ansi/colors";
 
-import schema from "./schema/index.js";
+import services from "./services/index.js";
+// import schema from "./schema/index.js";
 
 export default async function (viva) {
-  return await schema(viva);
+  await services({ ...viva, trajectory: viva.trajectory.branch((p) => p.path("services")) });
+  return viva;
+
   // viva.trajectory.use(async (ctx, next) => {
   //   ctx.base = {
   //     version: "0.1.0",

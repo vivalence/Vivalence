@@ -13,6 +13,14 @@ function v1(aperture) {
     timestamp: new Date().toISOString(),
   }));
 
+  aperture.open("/modules/:module/:repo", async (body, ctx) => {
+    const module = ctx.runtime.domain.modules.get(ctx.params.module);
+    return await ctx.runtime.domain.modules.em[ctx.params.repo](
+      module.type,
+      body.where,
+      body.options,
+    );
+  });
   aperture.open("/entities/:entity/:repo", async (body, ctx) => {
     const entity = ctx.runtime.entities[ctx.params.entity];
     return await ctx.runtime.entities.em[ctx.params.repo](

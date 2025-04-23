@@ -1,5 +1,5 @@
 import client from "./client/index.js";
-import service from "./service/mod.js";
+// import service from "./service/mod.js";
 
 const manifest = {
   type: "service",
@@ -7,4 +7,10 @@ const manifest = {
   name: "Stanza NLP service",
 };
 
-export { manifest, client, service };
+async function boot(host) {
+  host.trajectory.path("/create", () => {
+    console.log("created nlp service");
+  });
+}
+
+export { manifest, boot, client };

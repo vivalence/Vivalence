@@ -61,10 +61,12 @@ export default class Walker {
     askForDirections: (trajectory: Trajectory) => Promise<Signal[]>,
   ): Promise<Step> {
     let steps = [];
-    let maxSteps = 10;
+    let maxSteps = 20;
 
     try {
-      while (!this.resolved && steps.length < maxSteps--) {
+      while (!this.resolved) {
+        if (0 > maxSteps--) throw new TraversalError(null, "MAX_STEPS_REACHED");
+
         if (signals.length > 0) {
           steps.push(await this.traverse(signals.shift()!));
         } else {
@@ -73,6 +75,7 @@ export default class Walker {
       }
       return steps;
     } catch (error) {
+      console.error("WALKER ERROR", error);
       if (!this.resolved) {
         this.resolved = true;
         this.deferred.reject(error);

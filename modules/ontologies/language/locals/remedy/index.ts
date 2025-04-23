@@ -7,7 +7,7 @@ interface RemedyFactoryInput {
   processors?: any;
 }
 
-export default class RemedySystem {
+export default class Remedy {
   private registry: RemedyHandler[] = new Array();
 
   private remedies(path: any[], violation: any): RemedyHandler[] {

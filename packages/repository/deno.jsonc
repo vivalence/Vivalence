@@ -1,0 +1,9 @@
+{
+  "name": "@vivalence/repository",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    // "./server": "./mod.js",
+    // "./client": "./client.js",
+  },
+}

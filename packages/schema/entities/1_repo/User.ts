@@ -1,12 +1,12 @@
 import { Collection, EntitySchema, type Opt } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
 import { RuntimeEntity } from "../1_repo/Runtime.ts";
-import { CorpusEntity } from "../2_module/Corpus.ts";
-// import { DependencyEntity } from "../3_curriculum/Dependency.ts";
-import { MemoryEntity } from "../5_userland/Memory.ts";
-import { PlayEntity } from "../5_userland/Play.ts";
-import { InstructionEntity } from "../6_transient/Instruction.ts";
-import { SessionEntity } from "../6_transient/Session.ts";
+// import { CorpusEntity } from "../2_module/Corpus.ts";
+// // import { DependencyEntity } from "../3_curriculum/Dependency.ts";
+// import { MemoryEntity } from "../5_userland/Memory.ts";
+// import { PlayEntity } from "../5_userland/Play.ts";
+// import { InstructionEntity } from "../6_transient/Instruction.ts";
+// import { SessionEntity } from "../6_transient/Session.ts";
 
 export enum UserRolesEnum {
   USER = "USER",
@@ -18,11 +18,11 @@ export enum UserRolesEnum {
 
 export class UserEntity extends BaseEntity {
   runtimes = new Collection<RuntimeEntity>(this);
-  corpora = new Collection<CorpusEntity>(this);
-  instructions = new Collection<InstructionEntity>(this);
-  memories = new Collection<MemoryEntity>(this);
-  plays = new Collection<PlayEntity>(this);
-  sessions = new Collection<SessionEntity>(this);
+  // corpora = new Collection<CorpusEntity>(this);
+  // instructions = new Collection<InstructionEntity>(this);
+  // memories = new Collection<MemoryEntity>(this);
+  // plays = new Collection<PlayEntity>(this);
+  // sessions = new Collection<SessionEntity>(this);
   // dependencies = new Collection<DependencyEntity>(this);
 
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
@@ -45,37 +45,37 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       inversedBy: "users",
       pivotTable: "_UserToRuntime",
     },
-    corpora: {
-      // indicates membership/ ie. allows access
-      kind: "m:n",
-      entity: () => CorpusEntity,
-      inversedBy: "users",
-      pivotTable: "_CurriculumToUser",
-    },
-    instructions: {
-      // indicates ownership
-      kind: "1:m",
-      entity: () => InstructionEntity,
-      mappedBy: "user",
-    },
-    memories: {
-      // indicates ownership
-      kind: "1:m",
-      entity: () => MemoryEntity,
-      mappedBy: "user",
-    },
-    sessions: {
-      // indicates ownership
-      kind: "1:m",
-      entity: () => SessionEntity,
-      mappedBy: "user",
-    },
-    plays: {
-      // indicates ownership
-      kind: "1:m",
-      entity: () => PlayEntity,
-      mappedBy: "user",
-    },
+    // corpora: {
+    //   // indicates membership/ ie. allows access
+    //   kind: "m:n",
+    //   entity: () => CorpusEntity,
+    //   inversedBy: "users",
+    //   pivotTable: "_CurriculumToUser",
+    // },
+    // instructions: {
+    //   // indicates ownership
+    //   kind: "1:m",
+    //   entity: () => InstructionEntity,
+    //   mappedBy: "user",
+    // },
+    // memories: {
+    //   // indicates ownership
+    //   kind: "1:m",
+    //   entity: () => MemoryEntity,
+    //   mappedBy: "user",
+    // },
+    // sessions: {
+    //   // indicates ownership
+    //   kind: "1:m",
+    //   entity: () => SessionEntity,
+    //   mappedBy: "user",
+    // },
+    // plays: {
+    //   // indicates ownership
+    //   kind: "1:m",
+    //   entity: () => PlayEntity,
+    //   mappedBy: "user",
+    // },
 
     roles: {
       items: () => UserRolesEnum,
