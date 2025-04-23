@@ -3,19 +3,18 @@ export default class Runtime {
   entities = null;
   emitter = null;
   services = null;
-  //self
-  Module = {};
-  entity = null;
-  //
-  Modules = {};
-  //modules
-  domain = null;
-  ontology = null;
-  corpora = null;
-  games = null;
-  tactics = null;
-  // strategies = null;
-  constructor(Modules: any) {
-    this.Modules = Modules;
+  hooks = null;
+  config = {};
+  // domain = {};
+  // services = {};
+  // //modules
+  // domain = null;
+  // ontology = null;
+  // corpora = null;
+  // games = null;
+  // tactics = null;
+  // // strategies = null;
+  constructor(config: any) {
+    this.config = config;
   }
 }

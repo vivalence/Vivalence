@@ -1,14 +1,13 @@
 const start = performance.now();
 
 import registry from "@vivalence/registry";
+
 import cleanup from "./lib/cleanup-ports.js";
+
 import services from "./services/index.js";
-
-import emitter from "./locals/emitter/index.js";
-
 import aperture from "./aperture/index.ts";
 import runtimes from "./runtimes/index.ts";
-import entities from "./entities/index.js";
+import emitter from "./locals/emitter/index.js";
 
 const ticker = (name: string) => (daemon: Daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
@@ -32,12 +31,11 @@ const daemon = {
     ticker("init"),
     cleanup,
     registry.mount,
-    entities.init,
     aperture.init,
 
     services.init,
     runtimes.init,
-    runtimes.serve,
-    aperture.serve,
+    // runtimes.serve,
+    // aperture.serve,
     ticker("up"),
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

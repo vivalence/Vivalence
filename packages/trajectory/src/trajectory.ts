@@ -1,7 +1,7 @@
 import { Step, Signal, Pattern, Middleware, Context, Effect } from "../types.ts";
 import { compose } from "./lib.ts";
 
-// type Parsers : {signal,pattern}
+type PatternFunction = Function<Pattern[]>;
 
 export default class Trajectory {
   descendants: Map<Pattern, Trajectory>;
@@ -24,55 +24,47 @@ export default class Trajectory {
     return docs;
   }
 
+  private get parserFactory() {
+    const patterns = {};
+    for (const parser of this.parsers) patterns[parser.type] = parser.pattern;
+    return patterns;
+  }
+
   use(middleware: Middleware): Trajectory {
     this.middlewares.push(middleware);
     return this;
   }
 
-  open(patterns: Pattern[], effect: Effect): Trajectory {
+  open(patterns: Pattern[] | PatternFunction, effect: Effect): Trajectory {
+    if (typeof patterns === "function") {
+      patterns = patterns(this.parserFactory);
+    }
+
     if (patterns.length === 0) throw new Error("Requires pattern");
     this.branch(() => patterns.slice(0, -1)).effects.set(patterns[patterns.length - 1], effect);
     return this;
   }
 
-  branch(patternFn: any): Trajectory {
-    const parsers = {};
-
-    for (const parser of this.parsers) {
-      parsers[parser.type] = parser.pattern;
+  branch(patterns: Pattern[] | PatternFunction): Trajectory {
+    if (typeof patterns === "function") {
+      patterns = patterns(this.parserFactory);
     }
-
-    const patterns = patternFn(parsers);
 
     if (patterns.length === 0) return this;
-    //
 
-    const firstPattern = patterns[0];
-    let nextTrajectory = this.descendants.get(firstPattern);
+    let descendant = Array.from(this.descendants.entries()).find(
+      ([pattern]) => pattern.hash === patterns[0].hash,
+    )?.[1];
 
-    if (!nextTrajectory) {
-      nextTrajectory = new Trajectory(this.parsers);
-      this.descendants.set(firstPattern, nextTrajectory);
+    if (!descendant) {
+      descendant = new Trajectory(this.parsers);
+      this.descendants.set(patterns[0], descendant);
     }
 
-    return patterns.length > 1 ? nextTrajectory.branch(() => patterns.slice(1)) : nextTrajectory;
+    return patterns.length > 1 ? descendant.branch(() => patterns.slice(1)) : descendant;
   }
-  // branch(patterns: Pattern[]): Trajectory {
-  //   if (patterns.length === 0) return this;
-  //   //
 
-  //   const firstPattern = patterns[0];
-  //   let nextTrajectory = this.descendants.get(firstPattern);
-
-  //   if (!nextTrajectory) {
-  //     nextTrajectory = new Trajectory(this.parsers);
-  //     this.descendants.set(firstPattern, nextTrajectory);
-  //   }
-
-  //   return patterns.length > 1 ? nextTrajectory.branch(patterns.slice(1)) : nextTrajectory;
-  // }
-
-  match(signal: Signal): { effect?: Match<Effect>; descendant?: Match<Trajectory> } {
+  match(signal: Signal): { step: any; effect?: Match<Effect>; descendant?: Match<Trajectory> } {
     for (const [pattern, effect] of this.effects.entries()) {
       const step = pattern.match(signal);
       if (step !== null) {
@@ -98,6 +90,7 @@ export default class Trajectory {
       ]),
     ];
   }
+  // branch(patterns: Pattern[]): Trajectory {if (patterns.length === 0) return this; const firstPattern = patterns[0]; let nextTrajectory = this.descendants.get(firstPattern); if (!nextTrajectory) {nextTrajectory = new Trajectory(this.parsers); this.descendants.set(firstPattern, nextTrajectory);} return patterns.length > 1 ? nextTrajectory.branch(patterns.slice(1)) : nextTrajectory;}
 }
 
 // import { Params, Signal, Pattern } from "../types.ts";

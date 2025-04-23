@@ -6,23 +6,18 @@ import { UserEntity } from "../1_repo/User.ts";
 import { ServiceEntity } from "../2_module/Service.ts";
 import { DomainEntity } from "../2_module/Domain.ts";
 // import { GameEntity } from "../2_module/Game.ts";
-import { OntologyEntity } from "../2_module/Ontology.ts";
-import { CorpusEntity } from "../2_module/Corpus.ts";
+// import { OntologyEntity } from "../2_module/Ontology.ts";
+// import { CorpusEntity } from "../2_module/Corpus.ts";
 
 export class RuntimeEntity extends BaseModuleEntity {
   users = new Collection<UserEntity>(this);
   services = new Collection<ServiceEntity>(this);
-  domain?: Rel<DomainEntity>;
-
-  // users
-  // services
-  // domain
-  // modules
-  // ?entities
+  domain!: Rel<DomainEntity>;
+  // strategies = new Collection<StrategyEntity>(this);
 
   // modules
-  ontology?: Rel<OntologyEntity>;
-  corpora = new Collection<CorpusEntity>(this);
+  // ontology?: Rel<OntologyEntity>;
+  // corpora = new Collection<CorpusEntity>(this);
   // games = new Collection<GameEntity>(this);
   // strategies = new Collection<StrategyEntity>(this);
 
@@ -44,8 +39,8 @@ export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseModuleEntity>({
     },
     services: { kind: "1:m", entity: () => ServiceEntity, mappedBy: "runtime" },
     domain: { kind: "1:1", entity: () => DomainEntity, mappedBy: "runtime" },
-    ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
-    corpora: { kind: "1:m", entity: () => CorpusEntity, mappedBy: (c) => c.runtime },
+    // ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
+    // corpora: { kind: "1:m", entity: () => CorpusEntity, mappedBy: (c) => c.runtime },
     // games: { kind: "1:m", entity: () => GameEntity, mappedBy: "runtime" },
 
     url: { type: "method", persist: false, getter: true, getterName: "url" },

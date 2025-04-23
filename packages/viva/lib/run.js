@@ -1,6 +1,5 @@
 import { parsers, Walker, Deferred } from "@vivalence/trajectory";
 import { Prompt } from "@vivalence/interfaces-cli";
-// console.log(Prompt);
 
 export default async (viva) => {
   const signal = parsers.path.signal(Deno.args.join("/"));
@@ -19,13 +18,6 @@ export default async (viva) => {
 
   const handler = await deferred.promise;
   const result = await handler(viva);
-  console.log("result ", result);
+
   return viva;
 };
-
-// // const result = await viva.trajectory.traverse(initialPath, ctx);
-// execute(result, initialPath, ctx);
-// const ctx = { viva: viva };
-
-// // await walker.start();
-// return viva;

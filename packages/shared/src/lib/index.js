@@ -8,17 +8,18 @@ import id from "./id.js";
 import strings from "./strings.js";
 import time from "./time.js";
 
-// import hash from "./hash.ts";
+import hash from "./hash.ts";
 import chunk from "./chunk.js";
 import shuffle from "./shuffle.js";
 
 const array = {
   shuffle,
   chunk,
+  hash: hash.array,
 };
 
-const obj = { deepMerge, deepEquals, deepClone };
-const std = { id, time, strings, obj, array };
+const obj = { hash: hash.object, deepMerge, deepEquals, deepClone };
+const std = { id, hash, time, strings, obj, array };
 export {
   std,
   array,
@@ -26,7 +27,7 @@ export {
   strings,
   id,
   time,
-  // hash,
+  hash,
 
   //api depracated
   uniqueBySlug,

@@ -1,3 +1,4 @@
+import { hash } from "@vivalence/shared";
 import { Signal } from "./signal.ts";
 
 export interface PatternDocs {
@@ -17,6 +18,9 @@ export class Pattern<T = any> {
     this.type = type;
     this.match = match;
     this.docs = docs;
+  }
+  get hash() {
+    return hash.object(this);
   }
 
   matchWithDocs(

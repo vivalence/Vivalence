@@ -1,14 +1,15 @@
-// @lj you found ground zero. congrats
-import config from "@vivalence/config";
 import { colors } from "@cliffy/ansi/colors";
 
 import { Trajectory, parsers } from "@vivalence/trajectory";
 
 import boot from "./lib/boot.js";
 import locals from "./locals/index.js";
-import entities from "./lib/entities.js";
 import trajectory from "./trajectories/index.js";
 import run from "./lib/run.js";
+
+// import config from "@vivalence/config";
+// import Repository from "@vivalence/repository";
+// import entities from "./lib/entities.js";
 
 const start = performance.now();
 
@@ -22,18 +23,15 @@ const ticker = (name) => (viva) => {
     ticker("init"),
     boot,
     locals,
-    entities,
     trajectory,
     run,
     ticker("done"),
     // (viva) => viva.process.doShutdown(),
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(viva)))({
   process: null,
-  services: config.services,
-  registry: {},
   locals: {},
   trajectory: new Trajectory([parsers.path]),
+  // services: await Repository.services.load(),
+  // runtimes: await Repository.runtimes.load(),
+  // registry: {},
 });
-
-// registry.boot,
-// repository.boot,

@@ -1,5 +1,6 @@
-import config from "@vivalence/config";
-import { dirname } from "@std/path";
+// import config from "@vivalence/config";
+import * as path from "@std/path";
+import * as fs from "@std/fs";
 import * as libsql from "@libsql/client/node";
 
 export const createClient = (config) => {
@@ -9,8 +10,8 @@ export const createClient = (config) => {
 };
 
 export const createDatabase = async (config) => {
-  await Deno.mkdir(dirname(config.filePath), { recursive: true });
   const { filePath } = valid(config);
+  await fs.ensureDir(path.dirname(filePath));
 
   const db = libsql.createClient({ url: filePath });
 

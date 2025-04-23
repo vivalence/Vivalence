@@ -79,11 +79,12 @@ export function pattern(input: string | KeyPatternInput): Pattern<KeySignalValue
           modifiers.every((m) => keyData.modifiers.includes(m)) &&
           modifiers.length === keyData.modifiers.length;
 
-        return keyMatches && modifiersMatch ? {} : null;
+        return keyMatches && modifiersMatch ? signal : null;
       },
       mergedDocs,
     );
   });
 }
+
 export const type = "key";
 export default { signal, pattern, type };

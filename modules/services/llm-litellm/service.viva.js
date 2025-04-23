@@ -6,4 +6,10 @@ const manifest = {
   name: "LLM",
 };
 
-export { manifest, client };
+async function boot(host) {
+  host.trajectory.path("/create", () => {
+    console.log("created llm service");
+  });
+}
+
+export { manifest, boot, client };

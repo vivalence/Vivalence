@@ -43,7 +43,7 @@ export function pattern(input: string | PathPatternInput): Pattern<string>[] {
       const paramName = segment.substring(1);
       matchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
-        return { [paramName]: signal.value };
+        return { ...signal, [paramName]: signal.value };
       };
 
       defaultDocs = {
@@ -55,7 +55,7 @@ export function pattern(input: string | PathPatternInput): Pattern<string>[] {
     } else if (segment === "*") {
       matchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
-        return {};
+        return signal;
       };
 
       defaultDocs = {
@@ -66,7 +66,7 @@ export function pattern(input: string | PathPatternInput): Pattern<string>[] {
     } else {
       matchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
-        return signal.value === segment ? {} : null;
+        return signal.value === segment ? signal : null;
       };
 
       defaultDocs = {
