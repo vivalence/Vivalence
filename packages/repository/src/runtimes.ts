@@ -8,7 +8,6 @@ export async function load() {
   for await (const RuntimeConfig of await loadFromRepo()) {
     const domain = await loadModule(RuntimeConfig.domain);
     const modules = await loadModuleMap(RuntimeConfig.modules);
-
     const services = await loadServices(RuntimeConfig.services);
 
     Runtimes.push({

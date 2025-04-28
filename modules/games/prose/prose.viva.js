@@ -13,4 +13,4 @@ const manifest = {
   description: "Display a textblock",
 };
 
-export { bundle, evaluate, manifest, provision };
+export { manifest, bundle, evaluate, provision };

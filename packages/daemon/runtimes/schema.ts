@@ -2,10 +2,9 @@ import { MikroORM, defineConfig } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
 import config from "@vivalence/config";
 import * as path from "@std/path";
-import * as fs from "@std/fs";
+// import * as fs from "@std/fs";
 
-// import { schemas, entities, daemonEntites } from "@vivalence/schema";
-
+// import { StrategySchema, ServiceSchema } from "@vivalence/schema";
 // import { Daemon } from "@vivalence/types";
 // import { runtimeEntities } from "@vivalence/schema";
 // import { RuntimeEntity } from "@vivalence/schema";
@@ -18,8 +17,9 @@ export default function schema(daemon: Daemon) {
     const orm = await MikroORM.init(
       defineConfig({
         dbName: services.database.config.filePath,
-        entities: domain.schema.schemas,
+        entities: domain.schema.database,
         extensions: [Migrator],
+        strict: false,
         migrations: {
           tableName: config.env.get("VIVA_DATABASE_MIGRATIONS_TABLE"),
           path: path.join(path.dirname(services.database.config.filePath), "migrations"),
@@ -33,11 +33,11 @@ export default function schema(daemon: Daemon) {
 
     runtime.entities = { orm, em: orm.em.fork() };
 
-    await Promise.all(
-      Object.entries(daemonEntites).map(async ([key, entity]) => {
-        runtime.entities[key] = await runtime.entities.em.getRepository(entity);
-      }),
-    );
+    // await Promise.all(
+    //   Object.entries(daemonEntites).map(async ([key, entity]) => {
+    //     runtime.entities[key] = await runtime.entities.em.getRepository(entity);
+    //   }),
+    // );
 
     return runtime;
   };

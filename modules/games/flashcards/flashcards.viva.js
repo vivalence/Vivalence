@@ -3,25 +3,20 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
 
-async function boot(runtime, game) {
-  const bundle = bundler({
-    entry: join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
-    serve: game.entity.url.pathname,
-  });
+const bundle = bundler(join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"));
 
+async function boot(runtime) {
   runtime.aperture.router.get(bundle.url, bundle.serve());
 
   runtime.aperture
     .branch("/provision")
-    .use(bundle.injectBundleUrl())
+    .use(bundle.injectBundlePath(runtime.aperture.path))
     .open("/fromTagIds", provision.fromTagIds)
     .open("/fromUnitIds", provision.fromUnitIds)
     .open("/fromUnits", provision.fromUnits)
     .open("/fromLLM", provision.fromLLM);
 
   runtime.aperture.open("/evaluate", evaluate);
-
-  return runtime;
 }
 
 const data = {
@@ -38,4 +33,5 @@ const manifest = {
   description: "Flashcards game for learning vocabulary",
   version: "0.0.1",
 };
-export { boot, data, manifest };
+
+export { manifest, boot, data, provision, bundle };

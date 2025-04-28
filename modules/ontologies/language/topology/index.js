@@ -1,29 +1,11 @@
 import annotations from "./annotations/index.js";
-import entities from "./entities/index.js";
+import constraints from "./constraints/index.js";
 import remedies from "./remedies/index.ts";
-import computeSchematics from "./computeSchematics.js";
 
-function topology(ontology) {
-  const topology = "ud";
-  Object.entries(entities).map(([type, entity]) => {
-    ontology.constraints.create({
-      branch: [type],
-      traits: ["SCHEMATIC"],
-      data: { SCHEMATIC: entity },
-      topology,
-    });
-  });
+const topology = "ud";
+[annotations, remedies, constraints].flat().forEach((entity) => {
+  entity.topology = topology;
+  return entity;
+});
 
-  Object.values(annotations).map(({ node }) => {
-    node.topology = topology;
-    ontology.annotations.create(node);
-  });
-
-  remedies.map((r) => ontology.remedy.register(r));
-
-  return ontology;
-}
-
-topology.computeSchematics = computeSchematics;
-
-export default topology;
+export default { annotations, remedies, constraints };

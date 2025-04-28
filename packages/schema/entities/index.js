@@ -11,9 +11,13 @@ export { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 
 export { UserEntity, UserSchema } from "./1_repo/User.ts";
 export { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
-export { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
 export { DomainEntity, DomainSchema } from "./2_module/Domain.ts";
+export { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
+export { StrategyEntity, StrategySchema } from "./2_module/Strategy.ts";
 
+// const database = ;
+
+// export default { database };
 //
 //
 // IMPORTS

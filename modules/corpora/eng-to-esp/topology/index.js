@@ -1,30 +1,23 @@
 import topographies from "./topographies/index.js";
 
-// alternative future syntax.
-// export default {topographies:[], rules:[], annotations:[],remedies:[], classifier:{}}
+const topology = "eng2esp";
 
-export default (ontology) => {
-  const topology = "eng2esp";
+[topographies].flat().forEach((entity) => {
+  entity.topology = topology;
+  return entity;
+});
 
-  Object.values(topographies).map(({ relations, ...topography }) => {
-    // TODO: pull annotation entities into TopographyEntity.annotations;
+const constraints = [];
+topographies.forEach(({ relations = [], ...topography }) => {
+  for (const relation of relations) {
+    constraints.push({
+      branch: ["unit", topography.slug],
+      traits: ["RELATIONAL"],
+      data: { RELATIONAL: relation },
+      topology,
+    });
+  }
+  return topography;
+});
 
-    if (relations) {
-      for (const relation of relations) {
-        ontology.constraints.create({
-          branch: ["unit", topography.slug],
-          traits: ["RELATIONAL"],
-          data: { RELATIONAL: relation },
-          topology,
-        });
-      }
-    }
-
-    delete topography.constraints;
-    topography.topology = topology;
-
-    ontology.topographies.create(topography);
-  });
-
-  return ontology;
-};
+export default { topographies, constraints };

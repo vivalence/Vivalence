@@ -1,41 +1,36 @@
+import { Daemon } from "@vivalence/types";
 import Repository from "@vivalence/repository";
 
 import Runtime from "./runtime.ts";
 
 import aperture from "./aperture.ts";
 import schema from "./schema.ts";
-
 import services from "./services.ts";
-import register from "./register.ts";
 
-// import module from "./module.ts";
-
+// import boot from "./boot.ts";
 // import bootHook from "./bootHook.ts";
 
 export default {
-  async init(daemon) {
+  async init(daemon: Daemon) {
     for (const RuntimeConfig of await Repository.runtimes.load()) {
-      // console.log("RuntimeConfig ", RuntimeConfig);
-
       const runtime = await [
-        //
+        emitter,
         services,
         schema,
-        emitter,
-        // register,
-        // module,
-        // aperture.init,
+        aperture.init,
+        boot,
+        //
       ]
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(new Runtime(RuntimeConfig)));
 
-      // daemon.runtimes.set(runtime.entity.slug, runtime);
+      daemon.runtimes.set(runtime.config.manifest.slug, runtime);
     }
     return daemon;
   },
-  async serve(daemon) {
+  async serve(daemon: Daemon) {
     for (const runtime of daemon.runtimes.values()) {
-      await [aperture.serve, postBootHook]
+      await [aperture.serve] //postServeHook
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime));
     }
@@ -44,10 +39,9 @@ export default {
   },
 };
 
-function postBootHook(daemon: Daemon) {
+function boot(daemon: Daemon) {
   return async (runtime: any) => {
-    // runtime.statics = runtime.Module.statics;
-    return runtime;
+    return (await runtime.config.domain.boot(runtime)) || runtime;
   };
 }
 

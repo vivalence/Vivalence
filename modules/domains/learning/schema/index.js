@@ -3,10 +3,10 @@
 // import { InstructionStatusEnum } from "./6_transient/Instruction.ts";
 
 // ENTITIES
-import { OntologyEntity, OntologySchema } from "./2_module/Ontology.ts";
-import { GameEntity, GameSchema } from "./2_module/Game.ts";
-import { CorpusEntity, CorpusSchema } from "./2_module/Corpus.ts";
-import { TacticEntity, TacticSchema } from "./2_module/Tactic.ts";
+// import { OntologyEntity, OntologySchema } from "./2_module/Ontology.ts";
+// import { GameEntity, GameSchema } from "./2_module/Game.ts";
+// import { CorpusEntity, CorpusSchema } from "./2_module/Corpus.ts";
+// import { TacticEntity, TacticSchema } from "./2_module/Tactic.ts";
 
 import { TagEntity, TagSchema } from "./4_data/Tag.ts";
 import { UnitEntity, UnitSchema } from "./4_data/Unit.ts";
@@ -19,6 +19,11 @@ import { PlayEntity, PlaySchema } from "./5_userland/Play.ts";
 import { InstructionEntity, InstructionSchema } from "./6_transient/Instruction.ts";
 import { SessionEntity, SessionSchema } from "./6_transient/Session.ts";
 
+import { TopographyRepository } from "./3_topology/Topography.ts";
+import { AnnotationRepository } from "./3_topology/Annotation.ts";
+import { ConstraintRepository } from "./3_topology/Constraint.ts";
+import { IssueRepository } from "./3_topology/Issue.ts";
+
 export const enums = {
   // // ModuleInstallation: ModuleInstallationEnum,
   // MemoryType: MemoryTypeEnum,
@@ -28,11 +33,18 @@ export const enums = {
   // // SessionTraits: SessionTraitsEnum,
 };
 
-export const entities = {
-  ontology: OntologyEntity,
-  corpus: CorpusEntity,
-  game: GameEntity,
-  tactic: TacticEntity,
+// const modules = {
+//   ontology: OntologyEntity,
+//   corpus: CorpusEntity,
+//   game: GameEntity,
+//   tactic: TacticEntity,
+// };
+
+const entities = {
+  // ontology: OntologyEntity,
+  // corpus: CorpusEntity,
+  // game: GameEntity,
+  // tactic: TacticEntity,
 
   tag: TagEntity,
   unit: UnitEntity,
@@ -47,12 +59,11 @@ export const entities = {
   // // rule: RuleEntity,
 };
 
-export const schemas = [
-  OntologySchema,
-  CorpusSchema,
-  GameSchema,
-  TacticSchema,
-
+const database = [
+  // OntologySchema,
+  // CorpusSchema,
+  // GameSchema,
+  // TacticSchema,
   TagSchema,
   UnitSchema,
   ConditionSchema,
@@ -62,10 +73,12 @@ export const schemas = [
   InstructionSchema,
   SessionSchema,
 ];
-const repos = {
-  AnnotationRepository,
-  TopographyRepository,
-  IssueRepository,
-  ConstraintRepository,
+
+const repositories = {
+  annotation: AnnotationRepository,
+  topography: TopographyRepository,
+  issue: IssueRepository,
+  constraint: ConstraintRepository,
 };
-export default { enums, entities, schemas, repos };
+
+export default { enums, entities, database, repositories };

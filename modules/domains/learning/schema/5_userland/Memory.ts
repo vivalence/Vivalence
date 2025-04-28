@@ -1,7 +1,7 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "@vivalence/schema";
-import { UserEntity, RuntimeEntity } from "@vivalence/schema";
+import { UserEntity } from "@vivalence/schema";
 
 import { PlayEntity } from "../5_userland/Play.ts";
 
@@ -30,7 +30,7 @@ export enum MemoryStatusEnum {
 
 export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  runtime!: Rel<RuntimeEntity>;
+  // runtime!: Rel<RuntimeEntity>;
   unit?: Rel<UnitEntity>;
   tag?: Rel<TagEntity>;
   plays = new Collection<PlayEntity>(this);
@@ -61,13 +61,7 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    runtime: {
-      kind: "m:1",
-      entity: () => RuntimeEntity,
-      fieldName: "runtime",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
+    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     unit: {
       kind: "m:1",
       entity: () => UnitEntity,

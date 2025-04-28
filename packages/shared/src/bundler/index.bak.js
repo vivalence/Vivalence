@@ -2,9 +2,9 @@ import { basename, dirname, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
 import bundlers from "./bundlers/index.js";
 
-function createBundler(entry) {
+function createBundler(input) {
   const bundles = new Map();
-  const BUNDLE_URL = "bundles";
+  const BASE_URL = "bundle";
 
   const bundler = async (path) => {
     const type = path.includes(".svelte") ? "svelte" : path.split(".").pop();
@@ -17,14 +17,15 @@ function createBundler(entry) {
     return bundles.get(path);
   };
 
-  bundler.injectBundlePath = (basePath) => async (ctx, next) => {
-    // const ctxPath = new URL(ctx.runtime.url.scope, gameURL.scope).toString();
-    const url = new URL(join(basePath.toString(), BUNDLE_URL, basename(entry)));
+  bundler.injectBundleUrl = () => async (ctx, next) => {
+    //@lj this function shouldnt be here or know all these details.
+    const rootpath = new URL(
+      "/aperture/v1" + input.serve,
+      config.env.get("VIVA_DAEMON_URL"),
+    ).toString();
+    const bundlepath = join("/", BASE_URL, basename(input.entry));
 
-    //     "/aperture/v1" + game.entity.url.pathname,
-    //     config.env.get("VIVA_DAEMON_URL"),
-
-    ctx.state.bundle = { url };
+    ctx.state.bundle = { url: new URL(rootpath + bundlepath) };
 
     await next();
 
@@ -39,10 +40,9 @@ function createBundler(entry) {
     }
   };
 
-  bundler.url = `/${BUNDLE_URL}/:filename`;
-
+  bundler.url = `/${BASE_URL}/:filename`;
   bundler.serve = () => async (ctx) => {
-    const path = join(dirname(entry), ctx.params.filename);
+    const path = join(dirname(input.entry), ctx.params.filename);
     const bundle = await bundler(path);
     if (bundle) {
       // if (!config.isDev) {const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS"); ctx.response.headers.set("Cache-Control", `max-age=${CACHE_AGE}`); ctx.response.headers.set("Expires", new Date(Date.now() + CACHE_AGE * 1000).toUTCString());}

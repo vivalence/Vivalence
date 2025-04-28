@@ -14,6 +14,7 @@ import std, {
 } from "./src/lib/index.js";
 // import hash from "./src/lib/hash.ts";
 
+import Path from "./src/Path.ts";
 import monads from "./src/monads/index.js";
 import Blacklist from "./src/blacklist/index.js";
 import Scope from "./src/scope/index.js";
@@ -23,6 +24,7 @@ import validators from "./src/validators/index.js";
 // import services from "./src/services/index.js";
 
 export {
+  Path,
   std,
   obj,
   array,

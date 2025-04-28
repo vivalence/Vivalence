@@ -1,6 +1,6 @@
 import { Collection, EntitySchema, type Opt } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
-import { RuntimeEntity } from "../1_repo/Runtime.ts";
+// import { RuntimeEntity } from "../1_repo/Runtime.ts";
 // import { CorpusEntity } from "../2_module/Corpus.ts";
 // // import { DependencyEntity } from "../3_curriculum/Dependency.ts";
 // import { MemoryEntity } from "../5_userland/Memory.ts";
@@ -17,7 +17,7 @@ export enum UserRolesEnum {
 // mostly ignored atm.
 
 export class UserEntity extends BaseEntity {
-  runtimes = new Collection<RuntimeEntity>(this);
+  // runtimes = new Collection<RuntimeEntity>(this);
   // corpora = new Collection<CorpusEntity>(this);
   // instructions = new Collection<InstructionEntity>(this);
   // memories = new Collection<MemoryEntity>(this);
@@ -38,13 +38,13 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
   extends: BaseSchema,
   tableName: "User",
   properties: {
-    runtimes: {
-      // indicates membership/ ie. allows access
-      kind: "m:n",
-      entity: () => RuntimeEntity,
-      inversedBy: "users",
-      pivotTable: "_UserToRuntime",
-    },
+    // runtimes: {
+    //   // indicates membership/ ie. allows access
+    //   kind: "m:n",
+    //   entity: () => RuntimeEntity,
+    //   inversedBy: "users",
+    //   pivotTable: "_UserToRuntime",
+    // },
     // corpora: {
     //   // indicates membership/ ie. allows access
     //   kind: "m:n",

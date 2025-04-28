@@ -1,2 +1,2 @@
 const post = () => {};
-export default { post };
+export default { boot: { post } };

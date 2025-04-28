@@ -1,10 +1,10 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseDataEntity, BaseDataSchema } from "@vivalence/schema";
-import { RuntimeEntity } from "@vivalence/schema";
+// import { RuntimeEntity } from "@vivalence/schema";
 
-import { OntologyEntity } from "../2_module/Ontology.ts";
-import { CorpusEntity } from "../2_module/Corpus.ts";
+// import { OntologyEntity } from "../2_module/Ontology.ts";
+// import { CorpusEntity } from "../2_module/Corpus.ts";
 
 import { UnitEntity } from "../4_data/Unit.ts";
 import { PlayEntity } from "../5_userland/Play.ts";
@@ -19,9 +19,9 @@ export enum TagTraitsEnum {
 }
 
 export class TagEntity extends BaseDataEntity {
-  runtime!: Rel<RuntimeEntity>;
-  ontology?: Rel<OntologyEntity>;
-  corpus?: Rel<CorpusEntity>;
+  // runtime!: Rel<RuntimeEntity>;
+  // ontology?: Rel<OntologyEntity>;
+  // corpus?: Rel<CorpusEntity>;
 
   ancestor?: Rel<TagEntity>;
   decendants = new Collection<TagEntity>(this);
@@ -40,31 +40,11 @@ export const TagSchema = new EntitySchema<TagEntity, BaseDataEntity>({
   class: TagEntity,
   extends: BaseDataSchema,
   tableName: "Tag",
-  uniques: [{ properties: ["slug", "runtime"] }],
+  uniques: [{ properties: ["slug"] }],
   properties: {
-    runtime: {
-      kind: "m:1",
-      entity: () => RuntimeEntity,
-      fieldName: "runtime",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
-    ontology: {
-      kind: "m:1",
-      entity: () => OntologyEntity,
-      fieldName: "ontology",
-      updateRule: "cascade",
-      deleteRule: "set null",
-      nullable: true,
-    },
-    corpus: {
-      kind: "m:1",
-      entity: () => CorpusEntity,
-      fieldName: "curriculum",
-      updateRule: "cascade",
-      deleteRule: "set null",
-      nullable: true,
-    },
+    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
+    // ontology: {kind: "m:1", entity: () => OntologyEntity, fieldName: "ontology", updateRule: "cascade", deleteRule: "set null", nullable: true,},
+    // corpus: {kind: "m:1", entity: () => CorpusEntity, fieldName: "curriculum", updateRule: "cascade", deleteRule: "set null", nullable: true,},
     units: {
       kind: "m:n",
       entity: () => UnitEntity,

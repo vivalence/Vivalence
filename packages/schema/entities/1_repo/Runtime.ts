@@ -35,10 +35,9 @@ export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseModuleEntity>({
     users: {
       kind: "m:n",
       entity: () => UserEntity,
-      mappedBy: "runtimes",
     },
-    services: { kind: "1:m", entity: () => ServiceEntity, mappedBy: "runtime" },
-    domain: { kind: "1:1", entity: () => DomainEntity, mappedBy: "runtime" },
+    services: { kind: "1:m", entity: () => ServiceEntity },
+    domain: { kind: "1:1", entity: () => DomainEntity },
     // ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
     // corpora: { kind: "1:m", entity: () => CorpusEntity, mappedBy: (c) => c.runtime },
     // games: { kind: "1:m", entity: () => GameEntity, mappedBy: "runtime" },
