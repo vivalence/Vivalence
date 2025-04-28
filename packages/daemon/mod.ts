@@ -16,7 +16,6 @@ const ticker = (name: string) => (daemon: Daemon) => {
 // console.json=data
 
 const daemon = {
-  // <IntelligentMap>
   process: null,
   registry: null,
   aperture: null,
@@ -32,10 +31,9 @@ const daemon = {
     cleanup,
     registry.mount,
     aperture.init,
-
     services.init,
     runtimes.init,
-    // runtimes.serve,
-    // aperture.serve,
+    runtimes.serve,
+    aperture.serve,
     ticker("up"),
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

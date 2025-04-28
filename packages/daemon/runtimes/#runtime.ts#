@@ -6,19 +6,16 @@ export default class Runtime {
   hooks = null;
 
   config = {};
+
+  get url() {
+    return `/aperture/v1/runtime/${this.config.manifest.slug}`;
+  }
+
   modules = {};
-
-  // get path() {
-  //   // const url = {
-  //   //   scope: `/runtime/${this.config.manifest.slug}`,
-  //   // };
-  //   return this.aperture.path;
-  // }
-
   // domain = {};
   // strategies = {};
 
-  constructor(config) {
+  constructor(config: any) {
     this.config = config;
   }
 }

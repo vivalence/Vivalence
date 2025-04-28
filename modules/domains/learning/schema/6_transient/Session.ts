@@ -1,7 +1,7 @@
 // UNCONNCECTED
 import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseDataEntity, BaseDataSchema } from "@vivalence/schema";
-import { UserEntity, RuntimeEntity } from "@vivalence/schema";
+import { UserEntity } from "@vivalence/schema";
 
 export enum SessionTraitsEnum {
   AGENTIC = "AGENTIC",
@@ -9,7 +9,7 @@ export enum SessionTraitsEnum {
 
 export class SessionEntity extends BaseDataEntity {
   user!: Rel<UserEntity>;
-  runtime!: Rel<RuntimeEntity>;
+  // runtime!: Rel<RuntimeEntity>;
   traits: SessionTraitsEnum[] & Opt = [];
   itinerary: any & Opt = "{}";
 }
@@ -26,13 +26,7 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseDataEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    runtime: {
-      kind: "m:1",
-      entity: () => RuntimeEntity,
-      fieldName: "runtime",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
+    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     traits: {
       columnType: "json",
       defaultRaw: `"[]"`,

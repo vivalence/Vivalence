@@ -13,4 +13,4 @@ import sconj from "./sconj.js";
 import punct from "./punct.js";
 import verb from "./verb.js";
 
-export default { adj, adp, adv, aux, cconj, det, intj, noun, num, pron, propn, sconj, punct, verb };
+export default [adj, adp, adv, aux, cconj, det, intj, noun, num, pron, propn, sconj, punct, verb];

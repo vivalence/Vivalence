@@ -3,14 +3,14 @@ import annotations from "../topology/annotations/index.js";
 
 const curriculum = { tags: [] };
 
-Object.values(annotations).forEach(({ node }) => {
-  if (node.traits.includes("CATEGORICAL")) {
-    node.data.CATEGORICAL.map((category) => {
+annotations.forEach((entity) => {
+  if (entity.traits.includes("CATEGORICAL")) {
+    entity.data.CATEGORICAL.map((category) => {
       curriculum.tags.push({
-        name: `${node.name} - ${category.name}`,
-        slug: `${node.slug}:${category.slug}`,
+        name: `${entity.name} - ${category.name}`,
+        slug: `${entity.slug}:${category.slug}`,
         description: `${category.description}`,
-        data: { ONTOLOGICAL: { branch: node.slug, leaf: category.slug } },
+        data: { ONTOLOGICAL: { branch: entity.slug, leaf: category.slug } },
         traits: ["ONTOLOGICAL"],
       });
     });

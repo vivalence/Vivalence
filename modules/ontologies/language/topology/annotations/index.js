@@ -1,24 +1,24 @@
-import * as pos from "./pos.js";
-import * as lemma from "./lemma.js";
-import * as verbform from "./verbform.js";
-import * as tense from "./tense.js";
-import * as mood from "./mood.js";
-import * as person from "./person.js";
-import * as number from "./number.js";
-import * as aspect from "./aspect.js";
-import * as gender from "./gender.js";
-import * as degree from "./degree.js";
-import * as poss from "./poss.js";
-import * as reflex from "./reflex.js";
-import * as definite from "./definite.js";
-import * as prontype from "./prontype.js";
-import * as prepcase from "./prepcase.js";
-import * as numtype from "./numtype.js";
-import * as numform from "./numform.js";
-import * as polarity from "./polarity.js";
-import * as suffix from "./suffix.js";
+import { node as pos } from "./pos.js";
+import { node as lemma } from "./lemma.js";
+import { node as verbform } from "./verbform.js";
+import { node as tense } from "./tense.js";
+import { node as mood } from "./mood.js";
+import { node as person } from "./person.js";
+import { node as number } from "./number.js";
+import { node as aspect } from "./aspect.js";
+import { node as gender } from "./gender.js";
+import { node as degree } from "./degree.js";
+import { node as poss } from "./poss.js";
+import { node as reflex } from "./reflex.js";
+import { node as definite } from "./definite.js";
+import { node as prontype } from "./prontype.js";
+import { node as prepcase } from "./prepcase.js";
+import { node as numtype } from "./numtype.js";
+import { node as numform } from "./numform.js";
+import { node as polarity } from "./polarity.js";
+import { node as suffix } from "./suffix.js";
 
-const topology = {
+export default [
   pos,
   lemma,
   verbform,
@@ -38,6 +38,4 @@ const topology = {
   numtype,
   numform,
   polarity,
-};
-
-export default topology;
+];

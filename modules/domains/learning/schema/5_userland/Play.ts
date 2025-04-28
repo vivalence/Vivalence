@@ -1,10 +1,10 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "@vivalence/schema";
-import { UserEntity, RuntimeEntity } from "@vivalence/schema";
+import { UserEntity } from "@vivalence/schema";
 
-import { GameEntity } from "../2_module/Game.ts";
-import { TacticEntity } from "../2_module/Tactic.ts";
+// import { GameEntity } from "../2_module/Game.ts";
+// import { TacticEntity } from "../2_module/Tactic.ts";
 
 import { DependencyEntity } from "../4_data/Dependency.ts";
 import { TagEntity } from "../4_data/Tag.ts";
@@ -15,11 +15,14 @@ import { SessionEntity } from "../6_transient/Session.ts";
 
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  runtime!: Rel<RuntimeEntity>;
+  // runtime!: Rel<RuntimeEntity>;
   session?: Rel<SessionEntity>;
   dependency?: Rel<DependencyEntity>;
-  tactic?: Rel<TacticEntity>;
-  game?: Rel<GameEntity>;
+  // tactic?: Rel<TacticEntity>;
+  // game?: Rel<GameEntity>;
+  tactic?: string;
+  game?: string;
+
   unit?: Rel<UnitEntity>;
   tag?: Rel<TagEntity>;
   memory!: Rel<MemoryEntity>;
@@ -48,13 +51,7 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    runtime: {
-      kind: "m:1",
-      entity: () => RuntimeEntity,
-      fieldName: "runtime",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
+    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     session: {
       kind: "m:1",
       entity: () => SessionEntity,
@@ -71,22 +68,11 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       deleteRule: "cascade",
       nullable: true,
     },
-    game: {
-      kind: "m:1",
-      entity: () => GameEntity,
-      fieldName: "game",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-      nullable: true,
-    },
-    tactic: {
-      kind: "m:1",
-      entity: () => TacticEntity,
-      fieldName: "tactic",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-      nullable: true,
-    },
+
+    game: { type: "string" },
+    tactic: { type: "string" },
+    // game: {kind: "m:1", entity: () => GameEntity, fieldName: "game", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
+    // tactic: {kind: "m:1", entity: () => TacticEntity, fieldName: "tactic", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     unit: {
       kind: "m:1",
       entity: () => UnitEntity,

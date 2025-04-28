@@ -1,7 +1,7 @@
 import { Router, Middleware } from "oak";
 import { compose } from "oak/middleware";
+import { Path } from "@vivalence/shared";
 import { Handler, ApertureContext } from "./types.ts";
-import Path from "./path.ts";
 import parser from "./parser.js";
 
 export default class Aperture {
@@ -36,7 +36,7 @@ export default class Aperture {
   }
 
   branch(path: string): Aperture {
-    const aperture = new Aperture(new Path(path));
+    const aperture = new Aperture(new Path(path, this.path));
     this.descendants.push(aperture);
     return aperture;
   }

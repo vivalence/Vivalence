@@ -1,19 +1,19 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseDataEntity, BaseDataSchema } from "@vivalence/schema";
-import { UserEntity, RuntimeEntity } from "@vivalence/schema";
+import { UserEntity } from "@vivalence/schema";
 
-import { CorpusEntity } from "../2_module/Corpus.ts";
+// import { CorpusEntity } from "../2_module/Corpus.ts";
 import { ConditionEntity } from "../4_data/Condition.ts";
 import { PlayEntity } from "../5_userland/Play.ts";
-import { InstructionEntity } from "../6_transient/Instruction.ts";
+// import { InstructionEntity } from "../6_transient/Instruction.ts";
 
 export class DependencyEntity extends BaseDataEntity {
   user!: Rel<UserEntity>;
-  runtime!: Rel<RuntimeEntity>;
-  corpus?: Rel<CorpusEntity>;
+  // runtime!: Rel<RuntimeEntity>;
+  // corpus?: Rel<CorpusEntity>;
   plays = new Collection<PlayEntity>(this);
-  instructions = new Collection<InstructionEntity>(this);
+  // instructions = new Collection<InstructionEntity>(this);
 
   conditions = new Collection<ConditionEntity>(this);
   preconditions = new Collection<ConditionEntity>(this);
@@ -35,7 +35,7 @@ export const DependencySchema = new EntitySchema<DependencyEntity, BaseDataEntit
   extends: BaseDataSchema,
   tableName: "Dependency",
   // must include user
-  uniques: [{ properties: ["slug", "runtime"] }],
+  uniques: [{ properties: ["slug"] }],
   properties: {
     user: {
       kind: "m:1",
@@ -44,27 +44,14 @@ export const DependencySchema = new EntitySchema<DependencyEntity, BaseDataEntit
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    runtime: {
-      kind: "m:1",
-      entity: () => RuntimeEntity,
-      fieldName: "runtime",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
-    corpus: {
-      kind: "m:1",
-      entity: () => CorpusEntity,
-      fieldName: "curriculum",
-      updateRule: "cascade",
-      deleteRule: "set null",
-      nullable: true,
-    },
+    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
+    // corpus: {kind: "m:1", entity: () => CorpusEntity, fieldName: "curriculum", updateRule: "cascade", deleteRule: "set null", nullable: true,},
     plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.dependency },
-    instructions: {
-      kind: "1:m",
-      entity: () => InstructionEntity,
-      mappedBy: (instruction) => instruction.dependency,
-    },
+    // instructions: {
+    //   kind: "1:m",
+    //   entity: () => InstructionEntity,
+    //   mappedBy: (instruction) => instruction.dependency,
+    // },
     conditions: {
       kind: "m:n",
       entity: () => ConditionEntity,
