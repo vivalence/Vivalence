@@ -1,4 +1,5 @@
 import { Daemon, Runtime } from "@vivalence/types";
+
 import Aperture from "../locals/aperture/index.ts";
 
 const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
@@ -9,11 +10,15 @@ const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
 function v1(aperture) {
   aperture.open("/status", (body, ctx) => ({
     status: "runtime:/status ok",
-    runtime: ctx.runtime.entity.slug,
+    runtime: ctx.runtime.config.manifest.slug,
     timestamp: new Date().toISOString(),
   }));
 
-  // aperture.open("/modules/:module/:repo", async (body, ctx) => {const module = ctx.runtime.domain.modules.get(ctx.params.module); return await ctx.runtime.domain.modules.em[ctx.params.repo](module.type, body.where, body.options,);});
+  aperture.open("/modules/:module/:method", async (body, ctx) => {
+    throw new Error("MODULES DONT IMPLEMENT ANY STANDARD INTERFACE, YET.", ctx.params, body);
+    // const module = ctx.runtime.modules[ctx.params.module];
+    // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
+  });
   aperture.open("/entities/:entity/:repo", async (body, ctx) => {
     const entity = ctx.runtime.entities[ctx.params.entity];
     return await ctx.runtime.entities.em[ctx.params.repo](

@@ -31,7 +31,7 @@ export class TagEntity extends BaseDataEntity {
   memories = new Collection<MemoryEntity>(this);
 
   traits: TagTraitsEnum[] & Opt = [];
-  data: any & Opt = "{}";
+  data: any & Opt = {};
 }
 
 // function onCreate(args) {console.log("onupsert tag args", args); console.log("onupsert tag this", this);} // hooks: {beforeUpsert: [onCreate],},
@@ -76,7 +76,6 @@ export const TagSchema = new EntitySchema<TagEntity, BaseDataEntity>({
     data: {
       type: "json",
       // nullable: true,
-
       // defaultRaw: `"{}"`,
       // default: {},
     },

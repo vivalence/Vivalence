@@ -11,16 +11,23 @@ import time from "./time.js";
 import hash from "./hash.ts";
 import chunk from "./chunk.js";
 import shuffle from "./shuffle.js";
+import sleep from "./sleep.js";
+import promise from "./promise.js";
+import { merge as mergeArray } from "./array.js";
 
 const array = {
   shuffle,
+  merge: mergeArray,
   chunk,
   hash: hash.array,
 };
 
 const obj = { hash: hash.object, deepMerge, deepEquals, deepClone };
-const std = { id, hash, time, strings, obj, array };
+
+const std = { id, hash, time, strings, obj, array, promise };
 export {
+  promise,
+  sleep,
   std,
   array,
   obj,

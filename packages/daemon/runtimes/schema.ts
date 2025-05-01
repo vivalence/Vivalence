@@ -1,7 +1,8 @@
-import { MikroORM, defineConfig } from "@mikro-orm/sqlite";
+import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-import config from "@vivalence/config";
 import * as path from "@std/path";
+
+import config from "@vivalence/config";
 // import * as fs from "@std/fs";
 
 // import { StrategySchema, ServiceSchema } from "@vivalence/schema";
@@ -33,11 +34,11 @@ export default function schema(daemon: Daemon) {
 
     runtime.entities = { orm, em: orm.em.fork() };
 
-    // await Promise.all(
-    //   Object.entries(daemonEntites).map(async ([key, entity]) => {
-    //     runtime.entities[key] = await runtime.entities.em.getRepository(entity);
-    //   }),
-    // );
+    await Promise.all(
+      Object.entries(domain.schema.entities).map(async ([key, entity]) => {
+        runtime.entities[key] = await runtime.entities.em.getRepository(entity);
+      }),
+    );
 
     return runtime;
   };

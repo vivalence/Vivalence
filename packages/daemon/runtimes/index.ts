@@ -3,18 +3,17 @@ import Repository from "@vivalence/repository";
 
 import Runtime from "./runtime.ts";
 
+import register from "./register.js";
+import install from "./install.ts";
 import aperture from "./aperture.ts";
 import schema from "./schema.ts";
 import services from "./services.ts";
-
-// import boot from "./boot.ts";
-// import bootHook from "./bootHook.ts";
 
 export default {
   async init(daemon: Daemon) {
     for (const RuntimeConfig of await Repository.runtimes.load()) {
       const runtime = await [
-        emitter,
+        register,
         services,
         schema,
         aperture.init,
@@ -22,7 +21,7 @@ export default {
         //
       ]
         .map((fn) => fn(daemon))
-        .reduce((acc, fn) => acc.then(fn), Promise.resolve(new Runtime(RuntimeConfig)));
+        .reduce((acc, fn) => acc.then(fn), Promise.resolve(new Runtime(RuntimeConfig, daemon)));
 
       daemon.runtimes.set(runtime.config.manifest.slug, runtime);
     }
@@ -30,7 +29,7 @@ export default {
   },
   async serve(daemon: Daemon) {
     for (const runtime of daemon.runtimes.values()) {
-      await [aperture.serve] //postServeHook
+      await [aperture.serve, install]
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime));
     }
@@ -42,12 +41,5 @@ export default {
 function boot(daemon: Daemon) {
   return async (runtime: any) => {
     return (await runtime.config.domain.boot(runtime)) || runtime;
-  };
-}
-
-function emitter(daemon: Daemon) {
-  return async (runtime: any) => {
-    runtime.emitter = daemon.emitter.branch();
-    return runtime;
   };
 }

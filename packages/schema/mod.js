@@ -1,8 +1,4 @@
-export * from "./entities/index.js";
-
-import deploy from "./deploy.js";
-
-export { deploy };
+export * from "./src/index.js";
 
 // import generate from "./src/generate.js";
 // import mikroConfig from "./src/mikro-orm.config.ts";

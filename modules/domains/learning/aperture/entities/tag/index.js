@@ -4,6 +4,7 @@
 // import fromTagIds from "./fromTagIds.js";
 // import fromUnit from "./fromUnit.js";
 import install from "./install.js";
+import validate from "./validate.js";
 // import pending from "./pending.js";
 // import review from "./review.js";
 
@@ -14,6 +15,6 @@ export default {
   // fromTagIds,
   // fromUnit,
   install,
-  // pending,
+  validate,
   // review,
 };

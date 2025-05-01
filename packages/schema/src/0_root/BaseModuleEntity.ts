@@ -33,7 +33,7 @@ export class BaseModuleEntity extends BaseEntity {
   version: string & Opt = "0.0.0";
   name?: string;
   description?: string;
-  config: any & Opt = "{}";
+  config: any & Opt = {};
   installation: ModuleInstallationEnum & Opt = ModuleInstallationEnum.PENDING;
   get installed() {
     return this.installation === ModuleInstallationEnum.INSTALLED;
@@ -54,7 +54,6 @@ export const BaseModuleSchema = new EntitySchema<BaseModuleEntity, BaseEntity>({
     version: {
       type: String,
       default: "0.0.0",
-      // lazy: true
     },
     name: { type: String, nullable: true },
     description: { type: String, nullable: true },

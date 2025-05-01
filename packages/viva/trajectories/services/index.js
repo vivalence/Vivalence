@@ -1,7 +1,8 @@
+import config from "@vivalence/config";
 import Repository from "@vivalence/repository";
 
 export default async function (viva) {
-  const services = await Repository.services.load();
+  const services = await Repository.services.load(config.services);
   const runtimes = await Repository.runtimes.load();
 
   for (const [serviceKey, service] of Object.entries(services)) {

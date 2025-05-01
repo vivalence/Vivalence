@@ -5,7 +5,7 @@
 // import fromTagSlugs from "./fromTagSlugs.js";
 // import fromUnitIds from "./fromUnitIds.js";
 import install from "./install.js";
-// import pending from "./pending.js";
+import validate from "./validate.js";
 // import remove from "./remove.js";
 // import review from "./review.js";
 
@@ -17,7 +17,7 @@ export default {
   // fromTagIds,
   // fromUnitIds,
   install,
-  // pending,
+  validate,
   // remove,
   // review,
 };

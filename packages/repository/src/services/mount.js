@@ -12,7 +12,8 @@ export default async function mount(configMap) {
     const client = await ServiceModule.client(serviceConfig);
 
     client.Module = ServiceModule;
-    client.config = serviceConfig;
+    client.service = serviceConfig.service;
+    client.config = serviceConfig.config;
     client.isMounted = true;
 
     serviceClients[serviceKey] = client;

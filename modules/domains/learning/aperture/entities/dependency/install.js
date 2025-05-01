@@ -1,12 +1,12 @@
 import { wrap } from "@mikro-orm/core";
-import { deepEquals, deepMerge, strings } from "@vivalence/shared";
+// import { deepEquals, deepMerge, strings } from "@vivalence/shared";
 
 export default async function installDependency(input, ctx) {
   let operation = null;
 
   if (!input.dependency.slug) throw new Error("Dependency slug is required");
 
-  const query = { runtime: ctx.runtime.entity.id };
+  const query = {};
   if (input.dependency.id) query.id = input.dependency.id;
   if (input.dependency.slug) query.slug = input.dependency.slug;
   let dependency = await ctx.runtime.entities.dependency.findOne(query);
@@ -25,13 +25,11 @@ export default async function installDependency(input, ctx) {
 
   await ctx.runtime.entities.em.flush();
 
-  // // dependency = await ctx.runtime.call("/dependencies/compute", { dependency });
-
   return { dependency, operation, status: "success" };
 }
 
 const expectCondition = (ctx) => (condition) => {
-  return ctx.runtime.entities.condition.expect({ ...condition, runtime: ctx.runtime.entity.id });
+  return ctx.runtime.entities.condition.expect({ ...condition });
 };
 
 async function expectConditions({ dependency, ...input }, ctx) {

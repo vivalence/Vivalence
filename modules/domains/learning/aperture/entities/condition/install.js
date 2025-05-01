@@ -3,7 +3,6 @@ export default async function (body, ctx) {
 
   let condition = await ctx.runtime.entities.condition.findOne({
     slug: input.condition.slug,
-    runtime: ctx.runtime.entity.id,
   });
 
   if (!condition) {

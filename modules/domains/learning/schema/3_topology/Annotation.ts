@@ -19,7 +19,7 @@ export class AnnotationRepository extends BaseDataRepository {
 export class AnnotationEntity extends BaseDataEntity {
   // slug
   traits: AnnotationTraitsEnum[] & Opt = [];
-  data: any & Opt = "{}";
+  data: any & Opt = {};
   topology: string & Opt = "";
 
   constructor(node = {}) {
