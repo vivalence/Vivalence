@@ -46,6 +46,7 @@ async function required(constraint: RequiredConstraint, relations: Relation[]): 
 }
 
 async function unique(constraint: UniqueConstraint, relations: Relation[]): Promise<Issue[]> {
+  // console.log(constraint, relations);
   const issues: Issue[] = [];
   const { branch, leaf } = constraint.unique;
   const unique = filterRelations(relations, branch, leaf);

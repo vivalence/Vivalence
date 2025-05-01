@@ -22,7 +22,7 @@ export class ConstraintEntity extends BaseDataEntity {
   traits: ConstraintTraitsEnum[] & Opt = [];
   topology: string & Opt = "";
   branch: string[] & Opt; // [${entity} ${togography}] || [${topology} ${annotation}]
-  data: any & Opt = "{}";
+  data: any & Opt = {};
 
   constructor(rule = { topology: "", traits: [], branch: [], data: {} }) {
     super();
@@ -49,7 +49,9 @@ export class ConstraintEntity extends BaseDataEntity {
     if (this.traits.includes("RELATIONAL")) {
       const relations = [];
       if (entity instanceof UnitEntity && entity.tags.isInitialized()) {
+        // console.log("entity", entity);
         entity.tags.map((tag) => tag.data.ONTOLOGICAL).map((r) => relations.push(r));
+        // console.log("relations", relations);
       }
       if (entity instanceof TagEntity) {
         // TODO

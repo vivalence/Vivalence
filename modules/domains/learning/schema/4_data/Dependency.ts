@@ -9,7 +9,7 @@ import { PlayEntity } from "../5_userland/Play.ts";
 // import { InstructionEntity } from "../6_transient/Instruction.ts";
 
 export class DependencyEntity extends BaseDataEntity {
-  user!: Rel<UserEntity>;
+  user?: Rel<UserEntity>;
   // runtime!: Rel<RuntimeEntity>;
   // corpus?: Rel<CorpusEntity>;
   plays = new Collection<PlayEntity>(this);
@@ -18,7 +18,7 @@ export class DependencyEntity extends BaseDataEntity {
   conditions = new Collection<ConditionEntity>(this);
   preconditions = new Collection<ConditionEntity>(this);
 
-  itinerary: any & Opt = "{}";
+  itinerary: any & Opt = {};
   available: boolean & Opt = false;
   satisfied: boolean & Opt = false;
 
@@ -43,6 +43,7 @@ export const DependencySchema = new EntitySchema<DependencyEntity, BaseDataEntit
       fieldName: "user",
       updateRule: "cascade",
       deleteRule: "cascade",
+      nullable: true,
     },
     // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     // corpus: {kind: "m:1", entity: () => CorpusEntity, fieldName: "curriculum", updateRule: "cascade", deleteRule: "set null", nullable: true,},

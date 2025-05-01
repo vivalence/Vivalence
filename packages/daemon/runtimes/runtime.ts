@@ -1,3 +1,5 @@
+import { Daemon } from "@vivalence/types";
+
 export default class Runtime {
   aperture = null;
   entities = null;
@@ -18,7 +20,8 @@ export default class Runtime {
   // domain = {};
   // strategies = {};
 
-  constructor(config) {
+  constructor(config: any, daemon: Daemon) {
     this.config = config;
+    this.emitter = daemon.emitter.branch();
   }
 }

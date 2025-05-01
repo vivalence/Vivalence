@@ -19,6 +19,7 @@ import pick from "./methods/pick/index.js";
 
 function boot(runtime) {
   runtime.aperture.open("/corpus/install", corpus.install);
+  runtime.aperture.open("/tag/validate", tag.validate);
   runtime.aperture.open("/tag/install", tag.install);
 
   runtime.aperture.open("/feed/dependency", feed.dependency);
@@ -31,6 +32,7 @@ function boot(runtime) {
   // route("/unit/fromTagIds", units.fromTagIds);
   // route("/unit/fromUnitIds", units.fromUnitIds);
   runtime.aperture.open("/unit/install", unit.install);
+  runtime.aperture.open("/unit/validate", unit.validate);
   // route("/unit/remove", units.remove);
 
   // route("/tactic/fromSlug", tactics.fromSlug);

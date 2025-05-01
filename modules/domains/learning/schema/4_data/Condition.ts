@@ -23,15 +23,15 @@ export class ConditionRepository extends EntityRepository<ConditionEntity> {
 export class ConditionEntity extends BaseDataEntity {
   [EntityRepositoryType]?: ConditionRepository; // [EntityRepositoryType]?: is such a beautiful pattern
 
-  user!: Rel<UserEntity>;
+  user?: Rel<UserEntity>;
   // runtime!: Rel<RuntimeEntity>;
   // corpus?: Rel<CorpusEntity>;
 
   isConditionTo = new Collection<DependencyEntity>(this);
   isPreconditionTo = new Collection<DependencyEntity>(this);
 
-  scope: any & Opt = "{}";
-  assertion: any & Opt = "{}";
+  scope: any & Opt = {};
+  assertion: any & Opt = {};
   met: boolean & Opt = false;
 
   // get slugHash() {return hash([this.scope, this.assertion]);}
@@ -63,6 +63,7 @@ export const ConditionSchema = new EntitySchema<ConditionEntity, BaseDataEntity>
       fieldName: "user",
       updateRule: "cascade",
       deleteRule: "cascade",
+      nullable: true,
     },
     // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     // corpus: {kind: "m:1", entity: () => CorpusEntity, fieldName: "curriculum", updateRule: "cascade", deleteRule: "set null", nullable: true,},

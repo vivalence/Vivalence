@@ -1,48 +1,41 @@
-import config from "@vivalence/config";
+// import config from "@vivalence/config";
 import { Collection, EntitySchema, type Rel } from "@mikro-orm/core";
 
-import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
-import { UserEntity } from "../1_repo/User.ts";
-import { ServiceEntity } from "../2_module/Service.ts";
-import { DomainEntity } from "../2_module/Domain.ts";
+import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
+// import { UserEntity } from "../1_repo/User.ts";
+// import { ServiceEntity } from "../2_module/Service.ts";
+// import { DomainEntity } from "../2_module/Domain.ts";
+import { ModuleEntity } from "../2_module/Module.ts";
 // import { GameEntity } from "../2_module/Game.ts";
 // import { OntologyEntity } from "../2_module/Ontology.ts";
 // import { CorpusEntity } from "../2_module/Corpus.ts";
 
-export class RuntimeEntity extends BaseModuleEntity {
-  users = new Collection<UserEntity>(this);
-  services = new Collection<ServiceEntity>(this);
-  domain!: Rel<DomainEntity>;
+export class RuntimeEntity extends BaseEntity {
+  // users = new Collection<UserEntity>(this);
+  // services = new Collection<ServiceEntity>(this);
+  // domain!: Rel<DomainEntity>;
   // strategies = new Collection<StrategyEntity>(this);
+  slug: string & Opt = "";
+  modules = new Collection<ModuleEntity>(this);
 
-  // modules
-  // ontology?: Rel<OntologyEntity>;
-  // corpora = new Collection<CorpusEntity>(this);
-  // games = new Collection<GameEntity>(this);
-  // strategies = new Collection<StrategyEntity>(this);
+  // modules = new Collection<ModuleEntity>(this);
 
-  get url() {
-    return new URL(`/runtime/${this.slug}`, config.env.get("VIVA_DAEMON_URL"));
-  }
+  // get url() {return new URL(`/runtime/${this.slug}`, config.env.get("VIVA_DAEMON_URL"));}
 }
 
-export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseModuleEntity>({
+export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseEntity>({
   class: RuntimeEntity,
-  extends: BaseModuleSchema,
+  extends: BaseSchema,
   tableName: "Runtime",
   uniques: [{ properties: ["slug"] }],
   properties: {
-    users: {
-      kind: "m:n",
-      entity: () => UserEntity,
-    },
-    services: { kind: "1:m", entity: () => ServiceEntity },
-    domain: { kind: "1:1", entity: () => DomainEntity },
-    // ontology: { kind: "1:1", entity: () => OntologyEntity, mappedBy: "runtime" },
-    // corpora: { kind: "1:m", entity: () => CorpusEntity, mappedBy: (c) => c.runtime },
-    // games: { kind: "1:m", entity: () => GameEntity, mappedBy: "runtime" },
+    slug: { type: String },
+    // users: {kind: "m:n", entity: () => UserEntity,},
+    modules: { kind: "1:m", entity: () => ModuleEntity, mappedBy: (module) => module.runtime },
+    // services: { kind: "1:m", entity: () => ServiceEntity },
+    // domain: { kind: "1:1", entity: () => DomainEntity },
 
-    url: { type: "method", persist: false, getter: true, getterName: "url" },
+    // url: { type: "method", persist: false, getter: true, getterName: "url" },
   },
 });
 

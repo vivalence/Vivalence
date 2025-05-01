@@ -25,16 +25,19 @@ export default function boot(runtime) {
     remedies = [],
     topographies = [],
     constraints = [],
+    classifiers = [],
   } of topologies) {
     constraints.forEach((c) => ontology.constraints.create(c));
     annotations.forEach((a) => ontology.annotations.create(a));
     topographies.forEach((t) => ontology.topographies.create(t));
     remedies.forEach((r) => ontology.remedy.register(r));
+    classifiers.forEach((c) => ontology.classifier.register(c));
   }
 
   schematics(ontology);
 
   ontology.assert = asserterFactory(ontology);
+
   // ontology.classify = new runtime.ontology.classifier.Parser(ontology);
 
   runtime.ontology = ontology;

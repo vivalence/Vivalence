@@ -1,12 +1,16 @@
 import hooks from "./hooks/index.js";
 import schema from "./schema/index.js";
 import bootHelper from "./boot/index.js";
+import installHelper from "./install/index.js";
 import events from "./events/index.js";
 import aperture from "./aperture/index.js";
 
 function boot(runtime) {
   runtime.modules.tactics = {};
   runtime.modules.games = {};
+  // runtime.modules.ontology = {};
+  // runtime.modules.corpora = {};
+  // runtime.modules.domain = {};
 
   bootHelper.ontology(runtime);
   bootHelper.corpora(runtime);
@@ -17,16 +21,12 @@ function boot(runtime) {
   events.boot(runtime);
 }
 
-function install() {
-  // runtime.ontology = [
-  //   runtime.modules.ontology.topology,
-  //   ...runtime.modules.corpora.map((C) => C.topology),
-  //   topology.computeSchematics,
-  // ].reduce((o, t) => t(o), runtime.ontology);
+async function install(module, runtime) {
+  if (module.manifest.traits.includes("TOPOLOGICAL")) await installHelper.topology(module, runtime);
+  if (module.manifest.traits.includes("CURRICULAR"))
+    await installHelper.curriculum(module, runtime);
 
-  // ontology.classifier.parser();
-
-  return true;
+  return runtime;
 }
 
 const manifest = {

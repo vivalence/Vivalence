@@ -10,8 +10,8 @@ export const createClient = (config) => {
 };
 
 export const createDatabase = async (config) => {
+  await fs.ensureDir(path.dirname(config.filePath));
   const { filePath } = valid(config);
-  await fs.ensureDir(path.dirname(filePath));
 
   const db = libsql.createClient({ url: filePath });
 

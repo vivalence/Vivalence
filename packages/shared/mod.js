@@ -1,10 +1,12 @@
 import std, {
+  promise,
   obj,
   array,
   strings,
   time,
   id,
   hash,
+  sleep,
   //api depracated
   uniqueBySlug,
   deepClone,
@@ -24,6 +26,7 @@ import validators from "./src/validators/index.js";
 // import services from "./src/services/index.js";
 
 export {
+  promise,
   Path,
   std,
   obj,
@@ -38,6 +41,7 @@ export {
   validators,
   // services,
   hash,
+  sleep,
 
   //api depracated
   uniqueBySlug,

@@ -11,13 +11,11 @@ export { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 
 export { UserEntity, UserSchema } from "./1_repo/User.ts";
 export { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
+export { ModuleEntity, ModuleSchema } from "./2_module/Module.ts";
 export { DomainEntity, DomainSchema } from "./2_module/Domain.ts";
 export { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
 export { StrategyEntity, StrategySchema } from "./2_module/Strategy.ts";
 
-// const database = ;
-
-// export default { database };
 //
 //
 // IMPORTS
@@ -25,35 +23,30 @@ export { StrategyEntity, StrategySchema } from "./2_module/Strategy.ts";
 //
 
 // ENUMS
-// import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
+import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
 
-// // ENTITIES
-// // import { BaseModuleEntity, BaseModuleSchema } from "./0_root/BaseModuleEntity.ts";
+// ENTITIES
+import { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
+import { ModuleEntity, ModuleSchema } from "./2_module/Module.ts";
 // import { UserEntity, UserSchema } from "./1_repo/User.ts";
-// import { RuntimeEntity, RuntimeSchema } from "./1_repo/Runtime.ts";
 // import { ServiceEntity, ServiceSchema } from "./2_module/Service.ts";
 // import { DomainEntity, DomainSchema } from "./2_module/Domain.ts";
 
-// // export const enums = {
-//   ModuleInstallation: ModuleInstallationEnum,
-// };
+export const enums = {
+  installation: ModuleInstallationEnum,
+};
 
-// export const entities = {
-//   // base: BaseEntity,
-//   // data: BaseDataEntity,
-//   // module: BaseModuleEntity,
-//   user: UserEntity,
-//   runtime: RuntimeEntity,
-//   domain: DomainEntity,
-//   service: ServiceEntity,
-//   // strategy: StrategyEntity,
-// };
+export const entities = {
+  runtime: RuntimeEntity,
+  module: ModuleEntity,
+  //   user: UserEntity,
+  //   domain: DomainEntity,
+  //   service: ServiceEntity,
+  //   strategy: StrategyEntity,
+};
 
-// // export const schemas = [
-// //    BaseModuleSchema,
-// //   UserSchema,
-// //   RuntimeSchema,
-// //   DomainSchema,
-// //   ServiceSchema,
-// //   // StrategySchema,
-// // ];
+export const database = [RuntimeSchema, ModuleSchema];
+
+export const repositories = {};
+
+export default { enums, entities, database, repositories };

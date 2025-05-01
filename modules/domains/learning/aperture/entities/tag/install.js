@@ -7,27 +7,29 @@ export default async function installTag(input, ctx) {
 
   if (!input.tag.slug) throw new Error("Slug missing");
 
-  let tag = await ctx.runtime.entities.tag.findOne({
-    slug: input.tag.slug,
-    runtime: ctx.runtime.entity.id,
-  });
+  let tag = await ctx.runtime.entities.tag.findOne({ slug: input.tag.slug });
 
   if (!tag) {
     tag = await ctx.runtime.entities.tag.create(input.tag);
-    await ctx.runtime.entities.em.flush();
+    // await ctx.runtime.entities.em.flush();
     operation = "create";
   } else {
-    tag = wrap(tag).assign(input.tag);
-    tag.traits = [...new Set(tag.traits)];
+    tag = wrap(tag).assign(
+      { ...input.tag, traits: array.merge(tag.traits, input.tag.traits) },
+      { mergeObjectProperties: true },
+    );
     operation = "update";
   }
 
+  if (!tag.data) tag.data = {};
   for (const trait of tag.traits) {
     tag.data[trait] = tag.data[trait] || {};
   }
 
   if (tag.traits.includes("STRUCTURAL") && input.tag.data.STRUCTURAL?.relations?.units?.length) {
     console.log("TODO implement structural relations.");
+    // would violate guaranteed order of installations and
+    // will fail on first install.
 
     //   const units = await ctx.runtime.entities.unit.find({
     //     where: {
@@ -45,7 +47,7 @@ export default async function installTag(input, ctx) {
   if (tag.traits.includes("LEARNABLE") && tag.traits.includes("COMPLETABLE")) {
     console.log("[TAG INSTALL] traits invalid", tag);
     const deleted = ctx.runtime.entities.em.remove(tag);
-    await ctx.runtime.entities.em.flush();
+    // await ctx.runtime.entities.em.flush();
     return { operation: "trait validation", status: "failure" };
   }
 
@@ -57,16 +59,15 @@ export default async function installTag(input, ctx) {
     tag.data.COMPLETABLE.flavor = tag.data.COMPLETABLE.flavor || "INDIVIDUAL";
   }
 
-  const issues = await ctx.runtime.ontology.assert.tag(tag);
+  const issues = await ctx.runtime.ontology.assert.tag(tag, ["SCHEMATIC"]);
   if (issues.length > 0) {
     console.log("[TAG INSTALL] ISSUES NOT RESOLVED. issues:", issues);
     ctx.runtime.entities.em.remove(tag);
-    await ctx.runtime.entities.em.flush();
+    // await ctx.runtime.entities.em.flush();
     return { operation: "validation", status: "failure", issues };
   }
 
   await ctx.runtime.entities.em.flush();
-
   return {
     tag,
     operation,

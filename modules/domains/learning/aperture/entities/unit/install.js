@@ -1,9 +1,5 @@
-import fs from "fs-extra";
-
-import * as path from "@std/path";
-
-import { deepMerge } from "@vivalence/shared";
 import { wrap } from "@mikro-orm/core";
+import { deepMerge } from "@vivalence/shared";
 
 export default async function installUnit(input, ctx) {
   let operation = "";
@@ -12,19 +8,15 @@ export default async function installUnit(input, ctx) {
   if (!input.unit.slug) throw new Error("Slug missing");
 
   let unit = await ctx.runtime.entities.unit.findOne(
-    {
-      slug: input.unit.slug,
-      runtime: ctx.runtime.entity.id,
-    },
+    { slug: input.unit.slug },
     { populate: ["updatedAt"] },
   );
 
   if (!unit) {
     unit = ctx.runtime.entities.unit.create(input.unit);
-    await ctx.runtime.entities.em.flush();
     operation = "create";
   } else {
-    unit = wrap(unit).assign(input.unit);
+    unit = wrap(unit).assign(input.unit, { mergeObjectProperties: true });
     operation = "update";
   }
 
@@ -34,9 +26,12 @@ export default async function installUnit(input, ctx) {
   unit.data.learning = unit.data.learning || null;
   unit.data.example = deepMerge(unit.data.example, { known: null, learning: null });
 
-  await unit.tags.init();
+  // await unit.tags.init();
   const asserter = ctx.runtime.ontology.assert.unit;
-  const issues = await ctx.runtime.ontology.remedy.factory({ entity: unit, asserter }, ctx);
+  const issues = await ctx.runtime.ontology.remedy.factory(
+    { entity: unit, asserter, processors: ["SCHEMATIC"] },
+    ctx,
+  );
 
   // console.log("issues", JSON.stringify(issues, null, 2));
 

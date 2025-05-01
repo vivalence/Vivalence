@@ -17,8 +17,8 @@ export class UnitEntity extends BaseDataEntity {
   memories = new Collection<MemoryEntity>(this);
   plays = new Collection<PlayEntity>(this);
 
-  annotation: any & Opt = "{}";
-  data: any & Opt = "{}";
+  annotation: any & Opt = {};
+  data: any & Opt = {};
   index?: number;
 }
 
