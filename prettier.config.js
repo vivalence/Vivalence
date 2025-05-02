@@ -2,7 +2,7 @@ module.exports = {
   tabWidth: 2,
   useTabs: false,
   singleQuote: false,
-  printWidth: 100,
+  printWidth: 120,
   semi: true,
   trailingComma: "all",
   bracketSpacing: true,
@@ -17,6 +17,13 @@ module.exports = {
     }),
   ],
 
-  overrides: [{ files: "*.svelte", options: { parser: "svelte" } }],
+  overrides: [
+    {
+      files: "*.svelte",
+      options: {
+        parser: "svelte",
+      },
+    },
+  ],
   arrowParens: "always",
 };

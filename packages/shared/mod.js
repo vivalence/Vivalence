@@ -1,4 +1,6 @@
 import std, {
+  fn,
+  random,
   promise,
   obj,
   array,
@@ -26,6 +28,7 @@ import validators from "./src/validators/index.js";
 // import services from "./src/services/index.js";
 
 export {
+  fn,
   promise,
   Path,
   std,
@@ -39,6 +42,7 @@ export {
   Blacklist,
   bundler,
   validators,
+  random,
   // services,
   hash,
   sleep,

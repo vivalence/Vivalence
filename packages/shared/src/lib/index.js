@@ -7,14 +7,19 @@ import uniqueBySlug from "./uniqueBySlug.js";
 import id from "./id.js";
 import strings from "./strings.js";
 import time from "./time.js";
+import once from "./once.js";
 
 import hash from "./hash.ts";
 import chunk from "./chunk.js";
 import shuffle from "./shuffle.js";
 import sleep from "./sleep.js";
+import random from "./random.js";
 import promise from "./promise.js";
 import { merge as mergeArray } from "./array.js";
 
+const fn = {
+  once,
+};
 const array = {
   shuffle,
   merge: mergeArray,
@@ -24,8 +29,10 @@ const array = {
 
 const obj = { hash: hash.object, deepMerge, deepEquals, deepClone };
 
-const std = { id, hash, time, strings, obj, array, promise };
+const std = { id, fn, hash, time, strings, obj, array, promise };
 export {
+  fn,
+  random,
   promise,
   sleep,
   std,
