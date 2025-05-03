@@ -1,11 +1,12 @@
 import topology from "./topology/index.js";
+import { validators } from "@vivalence/shared";
 
 const manifest = {
   type: "ontology",
   slug: "language",
-  name: "Langauge after Universal Dependencies",
+  name: "Language after Universal Dependencies",
   version: "0.1.0",
-  traits: ["TOPOLOGICAL", "DATASET"],
+  traits: ["BOOTABLE", "TOPOLOGICAL", "DATASET"],
 };
 
 export { manifest, topology };

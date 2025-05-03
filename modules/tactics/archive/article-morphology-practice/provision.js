@@ -1,4 +1,4 @@
-import { Blacklist, shuffle } from "@vivalence/shared";
+import { Blacklist, array } from "@vivalence/shared";
 
 const FLASHCARD_COUNT = 5;
 
@@ -31,7 +31,9 @@ export default async (inputs, ctx) => {
 
   // // TRANSLATIONS //
   const constraints = [];
-  constraints.push(`ARTICLE to use: "${articleUnit.data.learning} - ${articleUnit.data.known}"`);
+  constraints.push(
+    `ARTICLE to use: "${articleUnit.data.learning} - ${articleUnit.data.known}"`,
+  );
   [genderTag, numberTag].forEach((tag) =>
     constraints.push(
       `inflection must be in agreement with: "${tag.data["ONTOLOGICAL"].branch}: ${tag.data["ONTOLOGICAL"].leaf}"`,
@@ -53,7 +55,9 @@ export default async (inputs, ctx) => {
     });
   }
 
-  const translations = await games.translations.call(`/provision`, { constraints });
+  const translations = await games.translations.call(`/provision`, {
+    constraints,
+  });
 
   blacklist = Blacklist.fromScope({ blacklist, scope: translations.scope });
 
@@ -74,12 +78,17 @@ export default async (inputs, ctx) => {
       tagIds: [tags.structural.id, tag.id],
       scope: { ...scope, game: { id: games.flashcards.id } },
       blacklist,
-      take: Math.round((FLASHCARD_COUNT - weakTranslationUnits.length) / tags.vocabulary.length),
+      take: Math.round(
+        (FLASHCARD_COUNT - weakTranslationUnits.length) /
+          tags.vocabulary.length,
+      ),
     });
     flashcardUnits.push(...units);
   }
 
-  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: flashcardUnits });
+  const flashcards = await games.flashcards.call("/provision/fromUnits", {
+    units: flashcardUnits,
+  });
 
   return [...shuffle(flashcards), translations];
 };

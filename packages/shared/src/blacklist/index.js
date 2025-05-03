@@ -1,4 +1,4 @@
-export default class Blacklist {
+export class Blacklist {
   constructor(input = {}) {
     this.units = input.units || [];
     this.tags = input.tags || [];
@@ -36,7 +36,11 @@ export default class Blacklist {
 
       Object.keys(obj).forEach((key) => {
         if (["unit", "units", "tag", "tags", "queue"].includes(key)) return;
-        if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+        if (
+          typeof obj[key] === "object" &&
+          obj[key] !== null &&
+          !Array.isArray(obj[key])
+        ) {
           extractIds(obj[key]);
         }
       });
@@ -67,7 +71,8 @@ export default class Blacklist {
     });
 
     instructions.map((instruction) => {
-      if (instruction.data.type !== "SIGNAL") this.fromScope(instruction.data.scope);
+      if (instruction.data.type !== "SIGNAL")
+        this.fromScope(instruction.data.scope);
     });
 
     return this;

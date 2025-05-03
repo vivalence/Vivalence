@@ -62,6 +62,7 @@ function boot(runtime) {
   runtime.aperture.open("/pick/tag/pending", pick.tag.pending);
   runtime.aperture.open("/pick/unit/new", pick.unit.new);
   runtime.aperture.open("/pick/unit/due", pick.unit.due);
+  runtime.aperture.open("/pick/unit/byAnnotation", pick.unit.byAnnotation);
   runtime.aperture.open("/pick/unit/byStatus", pick.unit.byStatus);
   runtime.aperture.open("/pick/unit/byStrength", pick.unit.byStrength);
   runtime.aperture.open("/pick/unit/pending", pick.unit.pending);

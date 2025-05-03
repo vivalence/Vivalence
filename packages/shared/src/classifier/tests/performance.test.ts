@@ -1,5 +1,10 @@
 import { assertEquals } from "$std/assert";
-import { Paragraph, generateTestParagraph, createTestContext, createTestClassifier } from "./lib.ts";
+import {
+  Text,
+  generateTestParagraph,
+  createTestContext,
+  createTestClassifier,
+} from "./lib.ts";
 
 const CONCURRENCY = 5;
 
@@ -8,7 +13,7 @@ Deno.test("Performance Improvement with Caching", async () => {
   const testContext = createTestContext();
 
   const testParagraph = generateTestParagraph(8, 3);
-  const signal = new Paragraph(testParagraph);
+  const signal = new Text(testParagraph);
   // console.log("signal", signal);
 
   console.log("First run (no cache):");
@@ -30,10 +35,16 @@ Deno.test("Performance Improvement with Caching", async () => {
   console.log(`Duration: ${duration2.toFixed(2)}ms`);
   // console.log("features2[0]", features2[0]);
 
-  assertEquals(features1.length, features2.length, "Both runs should produce the same number of features");
+  assertEquals(
+    features1.length,
+    features2.length,
+    "Both runs should produce the same number of features",
+  );
 
   const improvementFactor = duration1 / duration2;
-  console.log(`\nPerformance improvement: ${improvementFactor.toFixed(2)}x faster`);
+  console.log(
+    `\nPerformance improvement: ${improvementFactor.toFixed(2)}x faster`,
+  );
 
   assertEquals(
     improvementFactor > 2,
@@ -47,12 +58,14 @@ Deno.test("Promise Resolution for Concurrent Processing", async () => {
   const testContext = createTestContext();
 
   const testParagraph = generateTestParagraph(8, 3);
-  const signal = new Paragraph(testParagraph);
+  const signal = new Text(testParagraph);
   // console.log("[signal]");
   // console.log(signal);
   await classifier.parse(signal, testContext);
 
-  console.log(`Starting ${CONCURRENCY} concurrent parse operations on the same signal`);
+  console.log(
+    `Starting ${CONCURRENCY} concurrent parse operations on the same signal`,
+  );
   const startTime = performance.now();
 
   const promises = Array(CONCURRENCY)
@@ -65,8 +78,12 @@ Deno.test("Promise Resolution for Concurrent Processing", async () => {
   const endTime = performance.now();
   const totalDuration = endTime - startTime;
 
-  console.log(`${CONCURRENCY} concurrent operations completed in: ${totalDuration.toFixed(2)}ms`);
-  console.log(`Average time per operation: ${(totalDuration / CONCURRENCY).toFixed(2)}ms`);
+  console.log(
+    `${CONCURRENCY} concurrent operations completed in: ${totalDuration.toFixed(2)}ms`,
+  );
+  console.log(
+    `Average time per operation: ${(totalDuration / CONCURRENCY).toFixed(2)}ms`,
+  );
 
   results.forEach((result, i) => {
     assertEquals(result.length, 64, `Result ${i} should have 64 features`);
@@ -86,13 +103,15 @@ Deno.test("Promise Resolution for Sequential Processing", async () => {
   let interval = performance.now();
 
   for (let i = 0; i < SEQUENCES; i++) {
-    const signal = new Paragraph(generateTestParagraph(8, 3));
+    const signal = new Text(generateTestParagraph(12, 3));
     const features = await classifier.parse(signal, testContext);
     // classifications.push(features);
     // const words = new Set(features.map((feature) => feature.token.word));
     // for (const bit of words) {information.add(bit);}
 
-    console.log(`[(interval)] (${(performance.now() - interval).toFixed(2)}ms)`);
+    console.log(
+      `[(interval)] (${(performance.now() - interval).toFixed(2)}ms)`,
+    );
     // [total] ${(performance.now() - seqStartTime).toFixed(2)}ms
     // const speed = parseInt((performance.now() - interval).toFixed());
     // console.log(" ");
@@ -121,8 +140,12 @@ Deno.test("Promise Resolution for Sequential Processing", async () => {
 
   const total = performance.now() - seqStartTime;
 
-  console.log(`${SEQUENCES} sequential operations completed in: ${total.toFixed(2)}ms`);
-  console.log(`Average time per sequential operation: ${(total / SEQUENCES).toFixed(2)}ms`);
+  console.log(
+    `${SEQUENCES} sequential operations completed in: ${total.toFixed(2)}ms`,
+  );
+  console.log(
+    `Average time per sequential operation: ${(total / SEQUENCES).toFixed(2)}ms`,
+  );
 
   // console.log(`\nEfficiency ratio: ${(seqDuration / totalDuration).toFixed(2)}`);
 });

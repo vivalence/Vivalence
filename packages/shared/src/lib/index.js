@@ -10,22 +10,16 @@ import time from "./time.js";
 import once from "./once.js";
 
 import hash from "./hash.ts";
-import chunk from "./chunk.js";
-import shuffle from "./shuffle.js";
 import sleep from "./sleep.js";
 import random from "./random.js";
 import promise from "./promise.js";
-import { merge as mergeArray } from "./array.js";
+import array from "./array.js";
 
 const fn = {
   once,
 };
-const array = {
-  shuffle,
-  merge: mergeArray,
-  chunk,
-  hash: hash.array,
-};
+
+array.hash = hash.array;
 
 const obj = { hash: hash.object, deepMerge, deepEquals, deepClone };
 
@@ -46,7 +40,6 @@ export {
   //api depracated
   uniqueBySlug,
   deepMerge,
-  shuffle,
   deepEquals,
   deepClone,
 };

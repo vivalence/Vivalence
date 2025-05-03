@@ -7,14 +7,16 @@ export interface Context {
   [key: string]: any;
 }
 
-// export interface Classification = Feature[][]
-
 export class Feature {
   token: Record<string, any> = {};
   annotation: Record<string, any> = {};
   signal?: Signal;
+  [key: string]: any;
 
-  constructor(data?: { token?: Record<string, any>; annotation?: Record<string, any> }) {
+  constructor(data?: {
+    token?: Record<string, any>;
+    annotation?: Record<string, any>;
+  }) {
     this.token = data?.token || {};
     this.annotation = data?.annotation || {};
   }
@@ -25,7 +27,10 @@ export class Feature {
   }
 
   get cached() {
-    const cache = JSON.stringify({ token: this.token, annotation: this.annotation });
+    const cache = JSON.stringify({
+      token: this.token,
+      annotation: this.annotation,
+    });
     return cache;
   }
 
@@ -38,6 +43,7 @@ export class Signal<T = any> {
   type: string;
   value: T;
   ancestor?: Signal;
+  generators: (typeof Signal)[] = [];
 
   constructor(type: string, value: T) {
     this.type = type;
@@ -50,11 +56,22 @@ export class Signal<T = any> {
 
   from(ancestor: Signal) {
     if (!this.ancestor) this.ancestor = ancestor;
+
+    if (!this.generators.includes(ancestor.constructor)) {
+      console.log(
+        `[CLASSIFIER WARNING] Signal: ${ancestor.constructor.name} is not a generator of ${this.constructor.name}`,
+      );
+    }
+
     return this;
   }
 }
 
-export type ParserFunction = (signal: T, ctx: Context, next: NextFunction) => Promise<Feature[]>;
+export type ParserFunction = (
+  signal: T,
+  ctx: Context,
+  next: NextFunction,
+) => Promise<Feature[]>;
 
 export class Parser<Signal> {
   constructor(public fn: ParserFunction) {}
