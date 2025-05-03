@@ -14,18 +14,29 @@ import std, {
   deepClone,
   deepMerge,
   deepEquals,
-  shuffle,
 } from "./src/lib/index.js";
-// import hash from "./src/lib/hash.ts";
 
 import Path from "./src/Path.ts";
 import monads from "./src/monads/index.js";
-import Blacklist from "./src/blacklist/index.js";
 import Scope from "./src/scope/index.js";
 
 import bundler from "./src/bundler/index.js";
 import validators from "./src/validators/index.js";
-// import services from "./src/services/index.js";
+
+export { Blacklist } from "./src/blacklist/index.js";
+export { Remedy } from "./src/remedy/index.ts";
+export {
+  Trajectory,
+  TrajectoryWalker,
+  TrajectoryDeferred,
+  TrajectoryParsers,
+} from "./src/trajectory/index.ts";
+export {
+  Classifier,
+  ClassifierSignal,
+  ClassifierFeature,
+  ClassifierParser,
+} from "./src/classifier/index.ts";
 
 export {
   fn,
@@ -39,7 +50,6 @@ export {
   time,
   id,
   Scope,
-  Blacklist,
   bundler,
   validators,
   random,
@@ -52,7 +62,6 @@ export {
   deepClone,
   deepMerge,
   deepEquals,
-  shuffle,
 };
 
 // export default {monads, strings, time, deepMerge, deepClone, deepEquals, id, shuffle, blacklist, bundler, validators, services, registry,};

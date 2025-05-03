@@ -12,11 +12,6 @@ const manifest = {
 
 // async function install(runtime) {const user = await runtime.services.identity.getUser(); console.log("user", user); console.log("{...session, runtime: runtime.entity.id, user: user.id,}", {...session, runtime: runtime.entity.id, user: user.id,}); const creation = runtime.entities.session.create({...session, runtime: runtime.entity.id, user: user.id,}); await runtime.entities.em.flush(); console.log("runtime.entities.session", creation); return runtime;}
 
-// const boot = async (runtime) => {
-//   console.log(Object.keys(runtime));
-//   console.log(runtime.ontology);
-//   // console.log(JSON.stringify(runtime.));
-//   return runtime;
-// };
+// function boot(runtime) {}
 
 export { manifest, curriculum, topology };

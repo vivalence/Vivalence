@@ -13,7 +13,8 @@ export default () => {
   };
 
   return async function nlp({ text }) {
-    if (!text || typeof text !== "string" || text.length === 0) throw new Error("Text required");
+    if (!text || typeof text !== "string" || text.length === 0)
+      throw new Error("Text required");
     if (text.length > 1000) throw new Error("Text too long");
 
     const response = await fetch(SERVICE_NLP_URL + "/nlp", {
@@ -28,6 +29,6 @@ export default () => {
 
     const analysis = await response.json();
 
-    return { analysis };
+    return analysis.sentences.map((s) => s.tokens);
   };
 };

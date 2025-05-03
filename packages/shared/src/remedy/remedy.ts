@@ -11,7 +11,9 @@ export default class Remedy {
   private registry: RemedyHandler[] = new Array();
 
   private remedies(path: any[], violation: any): RemedyHandler[] {
-    const matchingViolation = this.registry.filter((remedy) => remedy.violation === violation);
+    const matchingViolation = this.registry.filter(
+      (remedy) => remedy.violation === violation,
+    );
 
     const directMatches = matchingViolation.filter(
       (remedy) =>
@@ -29,7 +31,9 @@ export default class Remedy {
       const prefix = remedy.path.slice(0, -1);
       if (prefix.length > path.length) return false;
 
-      return prefix.every((segment, index) => segment === "*" || segment === path[index]);
+      return prefix.every(
+        (segment, index) => segment === "*" || segment === path[index],
+      );
     });
 
     return wildcardMatches.sort((a, b) => b.path.length - a.path.length);
@@ -78,7 +82,9 @@ export default class Remedy {
 
       for (let issue of issues) {
         if (allIssues.find((slug) => slug === issue.slug)) {
-          issue.markError({ message: `Repetition detected: ${iteration} ${issue.slug}` });
+          issue.markError({
+            message: `Repetition detected: ${iteration} ${issue.slug}`,
+          });
           unresolvedIssues.push(issue);
           break;
         }

@@ -9,7 +9,6 @@
     "./packages/registry",
     "./packages/viva",
     "./packages/repository",
-    "./packages/trajectory",
     "./packages/clients/web",
     "./packages/interfaces/cli",
     "./packages/interfaces/display",

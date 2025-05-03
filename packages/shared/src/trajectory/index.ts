@@ -5,6 +5,9 @@ import { Deferred } from "./src/lib.ts";
 import path from "./parsers/path.ts";
 import key from "./parsers/key.ts";
 
-export const parsers = { key, path };
+const parsers = { key, path };
 
-export { Trajectory, Walker, Deferred };
+export { Trajectory };
+export const TrajectoryWalker = Walker;
+export const TrajectoryDeferred = Deferred;
+export const TrajectoryParsers = parsers;

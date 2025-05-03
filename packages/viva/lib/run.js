@@ -1,18 +1,22 @@
-import { parsers, Walker, Deferred } from "@vivalence/trajectory";
+import {
+  TrajectoryParsers,
+  TrajectoryWalker,
+  TrajectoryDeferred,
+} from "@vivalence/shared";
 import { Prompt } from "@vivalence/interfaces-cli";
 
 export default async (viva) => {
-  const signal = parsers.path.signal(Deno.args.join("/"));
+  const signal = TrajectoryParsers.path.signal(Deno.args.join("/"));
 
-  const deferred = new Deferred();
-  const walker = new Walker(viva.trajectory, deferred);
+  const deferred = new TrajectoryDeferred();
+  const walker = new TrajectoryWalker(viva.trajectory, deferred);
 
   await walker.walk(signal, async (docs) => {
     const selection = await Prompt.Select.prompt({
       message: "",
       options: docs.map((d) => d.signal),
     });
-    const signal = parsers.path.signal(selection);
+    const signal = TrajectoryParsers.path.signal(selection);
     return signal;
   });
 

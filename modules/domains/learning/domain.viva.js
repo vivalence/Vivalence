@@ -6,6 +6,9 @@ import events from "./events/index.js";
 import aperture from "./aperture/index.js";
 
 function boot(runtime) {
+  aperture.boot(runtime);
+  events.boot(runtime);
+
   runtime.modules.tactics = {};
   runtime.modules.games = {};
   // runtime.modules.ontology = {};
@@ -16,15 +19,15 @@ function boot(runtime) {
   bootHelper.corpora(runtime);
   bootHelper.tactics(runtime);
   bootHelper.games(runtime);
-
-  aperture.boot(runtime);
-  events.boot(runtime);
 }
 
 async function install(module, runtime) {
-  if (module.manifest.traits.includes("TOPOLOGICAL")) await installHelper.topology(module, runtime);
+  if (module.manifest.traits.includes("TOPOLOGICAL"))
+    await installHelper.topology(module, runtime);
   if (module.manifest.traits.includes("CURRICULAR"))
     await installHelper.curriculum(module, runtime);
+
+  // const features = await runtime.ontology.classify.text('hola hombre.');
 
   return runtime;
 }

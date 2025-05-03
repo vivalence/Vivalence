@@ -1,6 +1,6 @@
 import { colors } from "@cliffy/ansi/colors";
 
-import { Trajectory, parsers } from "@vivalence/trajectory";
+import { Trajectory, TrajectoryParsers } from "@vivalence/shared";
 
 import boot from "./lib/boot.js";
 import locals from "./locals/index.js";
@@ -14,7 +14,9 @@ import run from "./lib/run.js";
 const start = performance.now();
 
 const ticker = (name) => (viva) => {
-  console.log(colors.blue(`[PERF] init to [${name}] in [${performance.now() - start}ms]`));
+  console.log(
+    colors.blue(`[PERF] init to [${name}] in [${performance.now() - start}ms]`),
+  );
   return viva;
 };
 
@@ -30,7 +32,7 @@ const ticker = (name) => (viva) => {
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(viva)))({
   process: null,
   locals: {},
-  trajectory: new Trajectory([parsers.path]),
+  trajectory: new Trajectory([TrajectoryParsers.path]),
   // services: await Repository.services.load(),
   // runtimes: await Repository.runtimes.load(),
   // registry: {},

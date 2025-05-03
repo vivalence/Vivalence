@@ -1,4 +1,4 @@
-import { Blacklist, shuffle } from "@vivalence/shared";
+import { Blacklist, array } from "@vivalence/shared";
 
 export default async function provision(inputs, ctx) {
   const { tactic, scope } = inputs;
@@ -44,7 +44,10 @@ export default async function provision(inputs, ctx) {
         "extract a different, second sentence from the prose.",
         "highlight a different aspect in the second sentence.",
       );
-      return [translations, await games.translations.call("/provision", { constraints })];
+      return [
+        translations,
+        await games.translations.call("/provision", { constraints }),
+      ];
     });
   const instructions = [prose, ...translations];
 
