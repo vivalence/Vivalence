@@ -4,7 +4,7 @@ export default async () => {
   const ctx = await context();
   const runtimes = await ctx.daemon("/entities/runtime/find", {
     options: {
-      populate: ["ontology", "corpora", "domain"],
+      // populate: ["ontology", "corpora", "domain"],
     },
   });
 
@@ -81,7 +81,11 @@ export default async () => {
         onclick: () => {
           const cookie = document.cookie;
           navigator.clipboard.writeText(cookie).then(
-            () => console.log("Async: Copying to clipboard was successful!", cookie),
+            () =>
+              console.log(
+                "Async: Copying to clipboard was successful!",
+                cookie,
+              ),
             (err) => console.error("Async: Could not copy text: ", err),
           );
         },

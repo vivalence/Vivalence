@@ -1,0 +1,23 @@
+meta {
+  name: stanza nlp
+  type: http
+  seq: 22
+}
+
+post {
+  url: http://localhost:5555/nlp
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "language": "es",
+    "text": "el vive.",
+    "processors": "tokenize,mwt,pos,lemma,depparse"
+  }
+}

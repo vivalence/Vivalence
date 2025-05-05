@@ -1,0 +1,11 @@
+meta {
+  name: discovery
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/status
+  body: json
+  auth: none
+}

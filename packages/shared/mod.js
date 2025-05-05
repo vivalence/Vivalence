@@ -7,7 +7,6 @@ import std, {
   strings,
   time,
   id,
-  hash,
   sleep,
   //api depracated
   uniqueBySlug,
@@ -15,6 +14,7 @@ import std, {
   deepMerge,
   deepEquals,
 } from "./src/lib/index.js";
+import hash from "./src/lib/hash.ts";
 
 import Path from "./src/Path.ts";
 import monads from "./src/monads/index.js";
@@ -38,6 +38,9 @@ export {
   ClassifierParser,
 } from "./src/classifier/index.ts";
 
+array.hash = hash.array;
+obj.hash = hash.object;
+
 export {
   fn,
   promise,
@@ -53,7 +56,6 @@ export {
   bundler,
   validators,
   random,
-  // services,
   hash,
   sleep,
 

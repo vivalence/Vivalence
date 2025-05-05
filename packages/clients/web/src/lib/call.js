@@ -34,7 +34,8 @@ function createCall(event) {
   };
 
   const wrap = (root) => {
-    const wrapped = (path, body, params) => call(`${root}${path}`, body, params);
+    const wrapped = (path, body, params) =>
+      call(`${root}${path}`, body, params);
     wrapped.wrap = wrap;
     wrapped.raw = req;
     return wrapped;
