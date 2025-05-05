@@ -1,4 +1,4 @@
-import { array, sleep } from "@vivalence/shared";
+import { array, sleep } from "./index.js";
 
 async function chunked(promises, CHUNK_SIZE, log = false) {
   const executions = [];
@@ -7,7 +7,12 @@ async function chunked(promises, CHUNK_SIZE, log = false) {
   const batchCount = Math.floor(promises.length / CHUNK_SIZE);
   const startTimeTotal = performance.now();
 
-  log && console.log("executed chunked [chunks] [total]:", batchCount, promises.length);
+  log &&
+    console.log(
+      "executed chunked [chunks] [total]:",
+      batchCount,
+      promises.length,
+    );
 
   for (const chunk of array.chunk(promises, CHUNK_SIZE)) {
     const startTimeChunk = performance.now();
@@ -31,14 +36,22 @@ async function chunked(promises, CHUNK_SIZE, log = false) {
   const endTimeTotal = performance.now();
   const totalDuration = endTimeTotal - startTimeTotal;
 
-  log && console.log("executed [chunks] [total]:", executions.length, executions.flat().length);
+  log &&
+    console.log(
+      "executed [chunks] [total]:",
+      executions.length,
+      executions.flat().length,
+    );
   log && console.log("performance summary:");
   log && console.log(`- total time: ${totalDuration.toFixed(2)}ms`);
   log &&
     console.log(
       `- average chunk time: ${(chunkTimings.reduce((a, b) => a + b, 0) / chunkTimings.length).toFixed(2)}ms`,
     );
-  log && console.log(`- per item time: ${(totalDuration / executions.flat().length).toFixed(2)}ms`);
+  log &&
+    console.log(
+      `- per item time: ${(totalDuration / executions.flat().length).toFixed(2)}ms`,
+    );
   log &&
     console.log(
       `- throughput: ${(executions.length / (totalDuration / 1000)).toFixed(2)} items/second`,
@@ -86,7 +99,10 @@ async function linear(promises, log = false) {
     console.log(
       `- average batch time: ${(batchTimings.reduce((a, b) => a + b, 0) / batchTimings.length).toFixed(2)}ms`,
     );
-  log && console.log(`- per item time: ${(totalDuration / installations.length).toFixed(2)}ms`);
+  log &&
+    console.log(
+      `- per item time: ${(totalDuration / installations.length).toFixed(2)}ms`,
+    );
   log &&
     console.log(
       `- throughput: ${(installations.length / (totalDuration / 1000)).toFixed(2)} items/second`,

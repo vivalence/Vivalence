@@ -4,7 +4,7 @@ const session = {
   slug: "test",
   itinerary: [
     {
-      for: { reps: 2 },
+      for: { reps: 2, every: "day" },
       do: {
         tactic: {
           slug: "sentences",
@@ -31,7 +31,7 @@ const session = {
       },
     },
     {
-      for: { reps: 2 },
+      for: { reps: 2, every: "day" },
       do: {
         tactic: {
           slug: "vocabulary",

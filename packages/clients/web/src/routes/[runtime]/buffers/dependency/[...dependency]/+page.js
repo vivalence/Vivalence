@@ -15,10 +15,8 @@ export const load = async (event) => {
   });
 
   const modes = {
-    SIGNAL: (instruction) => new BufferMode(SignalHandler, { ctx, ...instruction }),
-    GAME: (instruction) => {
-      return new BufferMode(Widget, { ctx, ...instruction });
-    },
+    SIGNAL: (i) => new BufferMode(SignalHandler, i, ctx),
+    WIDGET: (i) => new BufferMode(Widget, i, ctx),
   };
 
   const buffer = new BufferState(QUEUE_THRESHOLD, async (buffer) => {
@@ -27,9 +25,14 @@ export const load = async (event) => {
       const scope = new Scope({ dependency: { id: dependency.id } });
       const input = { take: QUEUE_THRESHOLD, blacklist, scope };
 
-      const { instructions, status } = await ctx.runtime(`/feed/dependency`, input);
+      const { instructions, status } = await ctx.runtime(
+        `/feed/dependency`,
+        input,
+      );
 
-      return instructions.map((instruction) => modes[instruction.type](instruction));
+      return instructions.map((instruction) =>
+        modes[instruction.type](instruction),
+      );
     } catch (e) {
       console.log("[practive.page.svelte pull]uncaught error", e);
       return [
@@ -37,7 +40,8 @@ export const load = async (event) => {
           signal: {
             type: "ERROR",
             error: {
-              message: "Something went wrong while pulling the next dependency instruction.",
+              message:
+                "Something went wrong while pulling the next dependency instruction.",
               ...e,
             },
           },

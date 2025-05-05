@@ -1,3 +1,4 @@
+// import createMcp from "@client/lib/mcp/index.js";
 import createCall from "@client/lib/call.js";
 import { browser } from "$app/environment";
 
@@ -29,15 +30,17 @@ function context(event) {
       // trajectory
     };
 
-    ctx.identity = { getUser: async () => await Promise.resolve({ id: "localhost" }) };
+    ctx.identity = {
+      getUser: async () => await Promise.resolve({ id: "localhost" }),
+    };
     ctx.call = createCall({});
-  }
+    ctx.daemon = ctx.call.wrap("/aperture/v1/daemon");
+    ctx.mcp = ctx.daemon.wrap("/mcp");
 
-  if (browser && !window.viva) {
-    window.viva = ctx;
+    if (browser && !window.viva) {
+      window.viva = ctx;
+    }
   }
-
-  ctx.daemon = ctx.call.wrap("/aperture/v1/daemon");
 
   if (event?.params.runtime) {
     ctx.runtime = ctx.call.wrap(`/aperture/v1/runtime/${event.params.runtime}`);

@@ -1,14 +1,22 @@
-vivalence is
-The planetscale education system.
+vivalence is an operating system for agentic symbolic ai, tasked to teach you whatever you want to be able to do.
 
 
+problems are soluable.
+problems are inevitable.
 
+the planetscale education system.
 practice everything like you mean to.
+
+
+fair source.
+categorically free for private use, forever. self hosting and hacking are part of the idea. go nuts.
+learn how to aquire a flat, predictable commercial use license.
+(licence cost rises logarithmically with with # of active users and rounds to 0 for anything below 1000 active users/year).
 
 
 vivalence is
 - designed to become the worlds education systems backbone. 
-- infinitely personalizable, hackable, cybernetically enhanced, wikipedia style, federated, emacs inspired, procedurally generated, fair use, generally cracked, functional deno.ts.
+- infinitely personalizable, hackable, emacs inspired, cybernetically enhanced, wikipedia style, federateable, procedurally generated, fair use, functional platform.
 
 enough yapping.
 ```
@@ -73,8 +81,9 @@ kill $(ps -eo pid,pgid | jq -sr '.[] | select(.group == "yapper") | .pid' <(awk 
 
 
 escape velocity. 
-When the Foundation was founded, Harry Seldon sold it to the emperor as a colony to backup humanities skills and knowledge. That colony must have used a software system to encode all those skills in transit.
+When the Foundation was founded, Harry Seldon sold it to the emperor as a colony to backup humanities skills and knowledge. That colony must have used some software system to encode all those skills for transit (not of space and time, but across generations).
 This is that system.
+
 
 what does in transit mean?
 it means the space between our brains. the resting place where information resides before someone picks it up to learn it. and after it was encoded by those who already mastered it.
@@ -83,32 +92,40 @@ vivalence is a system to encode and practice skills.
 whats a skill?
 
 how does it work? hierarchy of knowledge, measurability, critical path, games.
-whats a users primary focus? dependencies and games. you play games untill a dependency is met. then you play more difficult games.
 
+whats a users primary focus? goals and games. you play games untill a dependency is met. then you play more difficult games.
 
 vivalence is an adjective. „with vivalence“.
 
+build the young ladys illustrated primer.
+build a individualized, reactive museeum tour.
+teach your electricity for kids box to each kid individually.
+make the documentation for your software project interactive
+test a user's knowledge of each ontity in your documentation individually.
+
+
 learn to play interstellar on an epiano in 10 weeks. 
-make the documentation for your software project interactive in 10 days. 
-
-business pricing 
-self hosted - 30cent per user per day, 3€ per month. 30€ per year. metered LLM. 
-hosted 25€ - per user per month / 250 € per year. 1MT/1BT included. 
-
 
 run your own curriculum while you learn. 
 
-wallace and grommet train tracks. 
+create agents that write lessons like wallace and grommet lay train tracks. 
 you learning things (train) - vivalence (track)
-
-create a shared brainspace. 
-
 classified, procedurally generated. measured. 
 
-chart the graph of your learning trajectory for the next schmuk.
+create a shared brainspace, populated by symbols and tools.
 
+chart the graph of your learning trajectory for the next schmuk. like woodgrains worn of a long corridors floor between the sciences and the humanities.
+
+education is a qualitative trait we invoke. beeing well educated is axiomatically good.
 the philosophical wonder of education is that its both normative and procedural.
 it is allways good and more is better.
-and there is a thing, a sequence of steps thats refered to when we see it done right.
+education differs from the neutral record of information, also named knowledge.
+education is the quality thats refered when we aspire to live well.
+education is an aspiration. to be rolled up the hill for all of our eternity.
+the quality of the steps taken.
 
 
+
+* business pricing 
+self hosted - 30cent per user per day, 3€ per month. 30€ per year. metered LLM. 
+hosted 25€ - per user per month / 250 € per year. 1MT/1BT included. 

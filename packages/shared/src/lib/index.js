@@ -9,7 +9,6 @@ import strings from "./strings.js";
 import time from "./time.js";
 import once from "./once.js";
 
-import hash from "./hash.ts";
 import sleep from "./sleep.js";
 import random from "./random.js";
 import promise from "./promise.js";
@@ -19,11 +18,9 @@ const fn = {
   once,
 };
 
-array.hash = hash.array;
+const obj = { deepMerge, deepEquals, deepClone };
 
-const obj = { hash: hash.object, deepMerge, deepEquals, deepClone };
-
-const std = { id, fn, hash, time, strings, obj, array, promise };
+const std = { id, fn, time, strings, obj, array, promise };
 export {
   fn,
   random,
@@ -35,7 +32,6 @@ export {
   strings,
   id,
   time,
-  hash,
 
   //api depracated
   uniqueBySlug,

@@ -10,4 +10,16 @@ import Buffer from "./buffer/Buffer.svelte";
 import BufferState from "./buffer/state.svelte.js";
 import BufferMode from "./buffer/Mode.js";
 
-export { BufferMode, BufferState, Buffer, Button, Card, Icon, Input, Loader, Tag, Text, Widget };
+export {
+  BufferMode,
+  BufferState,
+  Buffer,
+  Button,
+  Card,
+  Icon,
+  Input,
+  Loader,
+  Tag,
+  Text,
+  Widget,
+};
