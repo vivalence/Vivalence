@@ -17,7 +17,5 @@
       size="8xl">VIVALENCE</Text>
   </div>
   
-  <div class="w-full max-w-2xl flex-grow">
-    <Discovery {ctx} />
-  </div>
+  <!-- <div class="w-full max-w-2xl flex-grow"> <Discovery {ctx} /> </div> -->
 </div>

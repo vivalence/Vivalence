@@ -5,7 +5,7 @@ export const node = {
   slug: "polarity",
   name: "polarity",
   description: "The polarity of an adverb.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL"],
   data: {
     CATEGORICAL: [
       {

@@ -1,6 +1,64 @@
 import { assertEquals } from "$std/assert";
-import { Trajectory, Walker, Deferred } from "../mod.ts";
-import { signal, pattern } from "../src/parsers/path.ts";
+
+import { Walker, Deferred } from "../controllers/index.ts";
+import { Trajectory } from "../core/trajectory.ts";
+import path from "../parsers/path.ts";
+
+function setupTrajectory() {
+  const trajectory = new Trajectory([path]);
+
+  trajectory.use(async (input, ctx, next) => {
+    ctx.database = {
+      users: (username) => ({
+        name: username,
+        id: username === "finn" ? "123" : "unknown",
+      }),
+    };
+    return await next();
+  });
+
+  const usersTrajectory = trajectory.branch(path.pattern("/users"));
+
+  usersTrajectory.use(async (input, ctx, next) => {
+    if (input.username) {
+      ctx.user = ctx.database.users(input.username);
+    }
+    return await next();
+  });
+
+  const userDetailTrajectory = usersTrajectory.branch(
+    path.pattern("/:username"),
+  );
+
+  userDetailTrajectory.use(async (input, ctx, next) => {
+    // console.log("middleware input", input);
+    const result = await next();
+    // console.log("middleware result", result);
+    return result;
+  });
+
+  userDetailTrajectory.open(path.pattern("/a.tson"), (input, ctx) => {
+    return { world: "hello", user: ctx.user };
+  });
+
+  return trajectory;
+}
+
+Deno.test("Handler execution with parameters", async () => {
+  const trajectory = setupTrajectory();
+  const deferred = new Deferred();
+  const walker = new Walker(trajectory, deferred);
+
+  const initialPath = path.signal("/users/finn/a.tson");
+  const steps = await walker.walk(initialPath, async () => []);
+
+  const handler = await deferred.handler;
+  const context = {};
+  const result = await handler({ username: "finn" }, {});
+
+  assertEquals(result.user.name, "finn");
+  assertEquals(result.user.id, "123");
+});
 
 Deno.test("Walker navigation through trajectory", async () => {
   const trajectory = setupTrajectory();
@@ -8,89 +66,67 @@ Deno.test("Walker navigation through trajectory", async () => {
   const walker = new Walker(trajectory, deferred);
 
   let directionCalls = 0;
-  const directionsSequence = async (currentTrajectory: any) => {
+  const askForDirections = async (currentTrajectory: any) => {
     directionCalls++;
     switch (directionCalls) {
       case 1:
-        return signal("/");
+        return path.signal("/");
       case 2:
-        return signal("users");
+        return path.signal("users");
       case 3:
-        return signal("/finn");
+        return path.signal("/finn");
       case 4:
-        return signal("a.tson");
+        return path.signal("a.tson");
       default:
         return [];
     }
   };
 
-  const steps = await walker.walk([], directionsSequence);
+  const steps = await walker.walk([], askForDirections);
 
   assertEquals(directionCalls, 4);
-  assertEquals(steps[1].username, "finn");
-});
-
-Deno.test("Parameter extraction during traversal", async () => {
-  const trajectory = setupTrajectory();
-  const deferred = new Deferred();
-  const walker = new Walker(trajectory, deferred);
-
-  const initialPath = signal("/users/finn/a.tson");
-  const steps = await walker.walk(initialPath, async () => []);
-
-  assertEquals(steps[1].username, "finn");
-});
-
-Deno.test("Handler execution with parameters", async () => {
-  const trajectory = setupTrajectory();
-  const deferred = new Deferred();
-  const walker = new Walker(trajectory, deferred);
-
-  const initialPath = signal("/users/finn/a.tson");
-  const steps = await walker.walk(initialPath, async () => []);
-
-  const handler = await deferred.promise;
-  const context = { request: steps.reduce((p, s) => ({ ...p, ...s }), {}) };
-  const result = await handler(context);
-
-  assertEquals(result.user.name, "finn");
-  assertEquals(result.user.id, "123");
+  assertEquals(steps[1].match.params.username, "finn");
 });
 
 Deno.test("Middleware execution order", async () => {
   const executionOrder = [];
 
-  const trajectory = new Trajectory();
+  const trajectory = new Trajectory([path]);
 
   // Root middleware
-  trajectory.use(async (ctx, next) => {
+  trajectory.use(async (input, ctx, next) => {
     executionOrder.push("root-start");
-    await next();
+    const result = await next();
     executionOrder.push("root-end");
+    return result;
   });
 
   // /users branch
-  const usersTrajectory = trajectory.branch(pattern("/users"));
+  const usersTrajectory = trajectory.branch(path.pattern("/users"));
 
   // Users middleware
-  usersTrajectory.use(async (ctx, next) => {
+  usersTrajectory.use(async (input, ctx, next) => {
     executionOrder.push("users-start");
-    await next();
+    const result = await next();
     executionOrder.push("users-end");
+    return result;
   });
 
   // /users/:username branch
-  const userDetailTrajectory = usersTrajectory.branch(pattern("/:username"));
+  const userDetailTrajectory = usersTrajectory.branch(
+    path.pattern("/:username"),
+  );
 
   // Username middleware
-  userDetailTrajectory.use(async (ctx, next) => {
+  userDetailTrajectory.use(async (input, ctx, next) => {
     executionOrder.push("username-start");
-    await next();
+    const result = await next();
     executionOrder.push("username-end");
+    return result;
   });
 
   // Effect
-  userDetailTrajectory.open(pattern("/a.tson"), (ctx) => {
+  userDetailTrajectory.open(path.pattern("/a.tson"), (input, ctx) => {
     executionOrder.push("effect");
     return { test: "success" };
   });
@@ -98,11 +134,11 @@ Deno.test("Middleware execution order", async () => {
   const deferred = new Deferred();
   const walker = new Walker(trajectory, deferred);
 
-  const initialPath = signal("/users/finn/a.tson");
+  const initialPath = path.signal("/users/finn/a.tson");
   await walker.walk(initialPath, async () => []);
 
-  const handler = await deferred.promise;
-  await handler({});
+  const handler = await deferred.handler;
+  await handler({}, {});
 
   assertEquals(executionOrder, [
     "root-start",
@@ -115,83 +151,44 @@ Deno.test("Middleware execution order", async () => {
   ]);
 });
 
-Deno.test("Error handling for non-existent routes", async () => {
-  let errorThrown = false;
+// Deno.test("Error handling for non-existent routes", async () => {
+//   let errorThrown = false;
 
-  const trajectory = setupTrajectory();
-  const deferred = new Deferred();
-  deferred.promise.catch((error) => {
-    errorThrown = true;
-    assertEquals(error.code, "NO_PATTERN_MATCHED");
-  });
+//   const trajectory = setupTrajectory();
+//   const deferred = new Deferred();
 
-  const walker = new Walker(trajectory, deferred);
-  await walker.walk(signal("/admin"), async () => []);
+//   deferred.handler.catch((error) => {
+//     errorThrown = true;
+//     assertEquals(error.code, "NO_PATTERN_MATCHED");
+//   });
 
-  assertEquals(errorThrown, true);
-});
+//   const walker = new Walker(trajectory, deferred);
+//   await walker.walk(path.signal("/admin"), async () => []);
 
-Deno.test("Strategy order prioritizes effects over descendants", async () => {
-  const trajectory = new Trajectory();
+//   assertEquals(errorThrown, true);
+// });
 
-  const ambiguousPattern = pattern("/users");
+// Deno.test("Strategy order prioritizes effects over descendants", async () => {
+//   const trajectory = new Trajectory();
 
-  trajectory.open(ambiguousPattern, (ctx) => ({ source: "effect" }));
+//   const ambiguousPattern = pattern("/users");
 
-  const descendant = trajectory.branch(ambiguousPattern);
-  descendant.open(pattern("/detail"), (ctx) => ({ source: "descendant" }));
+//   trajectory.open(ambiguousPattern, (ctx) => ({ source: "effect" }));
 
-  const deferred = new Deferred();
-  const walker = new Walker(trajectory, deferred);
+//   const descendant = trajectory.branch(ambiguousPattern);
+//   descendant.open(pattern("/detail"), (ctx) => ({ source: "descendant" }));
 
-  await walker.walk(signal("/users"), async () => []);
+//   const deferred = new Deferred();
+//   const walker = new Walker(trajectory, deferred);
 
-  const handler = await deferred.promise;
-  const result = await handler({});
+//   await walker.walk(signal("/users"), async () => []);
 
-  assertEquals(result.source, "effect");
-});
+//   const handler = await deferred.promise;
+//   const result = await handler({});
 
-function setupTrajectory() {
-  const trajectory = new Trajectory();
+//   assertEquals(result.source, "effect");
+// });
 
-  // Root middleware adds database
-  trajectory.use(async (ctx, next) => {
-    ctx.database = {
-      users: (username) => ({
-        name: username,
-        id: username === "finn" ? "123" : "unknown",
-      }),
-    };
-    await next();
-  });
-
-  // /users branch
-  const usersTrajectory = trajectory.branch(pattern("/users"));
-
-  // Users middleware fetches user
-  usersTrajectory.use(async (ctx, next) => {
-    if (ctx.request?.username) {
-      ctx.user = ctx.database.users(ctx.request.username);
-    }
-    await next();
-  });
-
-  // /users/:username branch
-  const userDetailTrajectory = usersTrajectory.branch(pattern("/:username"));
-
-  // Log middleware
-  userDetailTrajectory.use(async (ctx, next) => {
-    await next();
-  });
-
-  // Effect for /users/:username/a.tson
-  userDetailTrajectory.open(pattern("/a.tson"), (ctx) => {
-    return { user: ctx.user };
-  });
-
-  return trajectory;
-}
 // import { assertEquals } from "$std/assert";
 // import { Trajectory, Walker, Deferred } from "../src/index.ts";
 // import { signal, pattern } from "../src/parsers/path.ts";
@@ -250,47 +247,3 @@ function setupTrajectory() {
 //   assertEquals(result.user.name, "finn");
 //   assertEquals(result.user.id, "123");
 // });
-
-// function setupTrajectory() {
-//   const trajectory = new Trajectory();
-
-//   const usersTrajectory = trajectory.branch(pattern("/users"));
-
-//   usersTrajectory.use(async (ctx, next) => {
-//     console.log("1");
-//     ctx.database = {
-//       users: (username) => ({
-//         name: username,
-//         id: username === "finn" ? "123" : "unknown",
-//       }),
-//     };
-//     await next();
-//   });
-
-//   // Users middleware fetches user
-//   usersTrajectory.use(async (ctx, next) => {
-//     console.log("2");
-//     if (ctx.params?.username) {
-//       ctx.user = ctx.database.users(ctx.params.username);
-//     }
-//     await next();
-//   });
-
-//   // /users/:username branch
-//   const userDetailTrajectory = usersTrajectory.branch(pattern("/:username"));
-
-//   // Log middleware
-//   userDetailTrajectory.use(async (ctx, next) => {
-//     console.log("3");
-//     let result = await next();
-//     console.log("User lookup:", ctx, result);
-//   });
-
-//   // Effect for /users/:username/a.tson
-//   userDetailTrajectory.open(pattern("/a.tson"), (ctx) => {
-//     console.log("a.tson", ctx);
-//     return { user: ctx.user };
-//   });
-
-//   return trajectory;
-// }

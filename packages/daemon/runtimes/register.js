@@ -7,8 +7,12 @@ export default function register(daemon) {
     });
 
     if (!runtimeEntity) {
-      runtimeEntity = daemon.entities.runtime.create({ slug: runtime.config.manifest.slug });
+      runtimeEntity = daemon.entities.runtime.create({
+        slug: runtime.config.manifest.slug,
+      });
+      await daemon.entities.em.flush();
     }
+
     await runtimeEntity.modules.init();
 
     const modules = [
@@ -19,13 +23,18 @@ export default function register(daemon) {
     ];
 
     for (const module of modules) {
-      let moduleEntity = await daemon.entities.module.findOne({ slug: module.manifest.slug });
+      let moduleEntity = await daemon.entities.module.findOne({
+        slug: module.manifest.slug,
+      });
       if (!moduleEntity) {
         moduleEntity = daemon.entities.module.create({
           ...module.manifest,
           installation: enums.installation.PENDING,
         });
-      } else if (module.manifest.version && moduleEntity.version !== module.manifest.version) {
+      } else if (
+        module.manifest.version &&
+        moduleEntity.version !== module.manifest.version
+      ) {
         daemon.entities.em.assign(moduleEntity, {
           ...module.manifest,
           installation: enums.installation.PENDING,

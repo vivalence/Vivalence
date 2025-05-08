@@ -1,21 +1,19 @@
+import { ValenceRepository } from "@vivalence/schema";
 import { Daemon } from "@vivalence/types";
 
 export default class Runtime {
-  aperture = null;
-  entities = null;
-  emitter = null;
-  services = null;
-  hooks = null;
-
   config = {};
   modules = {};
 
-  // get path() {
-  //   // const url = {
-  //   //   scope: `/runtime/${this.config.manifest.slug}`,
-  //   // };
-  //   return this.aperture.path;
-  // }
+  aperture = null;
+  entities = null;
+  services = null;
+
+  emitter = null;
+  hooks = null;
+
+  ontology = {};
+  valences = new ValenceRepository();
 
   // domain = {};
   // strategies = {};
@@ -23,5 +21,6 @@ export default class Runtime {
   constructor(config: any, daemon: Daemon) {
     this.config = config;
     this.emitter = daemon.emitter.branch();
+    // aperture ?
   }
 }

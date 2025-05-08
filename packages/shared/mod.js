@@ -25,12 +25,12 @@ import validators from "./src/validators/index.js";
 
 export { Blacklist } from "./src/blacklist/index.js";
 export { Remedy } from "./src/remedy/index.ts";
-export {
-  Trajectory,
-  TrajectoryWalker,
-  TrajectoryDeferred,
-  TrajectoryParsers,
-} from "./src/trajectory/index.ts";
+// export {
+//   Trajectory,
+//   TrajectoryWalker,
+//   TrajectoryDeferred,
+//   TrajectoryParsers,
+// } from "./src/trajectory/index.ts";
 export {
   Classifier,
   ClassifierSignal,

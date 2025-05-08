@@ -1,13 +1,8 @@
-import Trajectory from "./src/trajectory.ts";
-import Walker from "./src/walker.ts";
-import { Deferred } from "./src/lib.ts";
+// import { Trajectory } from "./core/trajectory.ts";
+// import { Deferred, Walker } from "./controllers/index.ts";
 
-import path from "./parsers/path.ts";
-import key from "./parsers/key.ts";
+// export { Trajectory };
 
-const parsers = { key, path };
-
-export { Trajectory };
-export const TrajectoryWalker = Walker;
-export const TrajectoryDeferred = Deferred;
-export const TrajectoryParsers = parsers;
+// export const TrajectoryWalker = Walker;
+// export const TrajectoryDeferred = Deferred;
+// export const TrajectoryParsers = {}; // key, path

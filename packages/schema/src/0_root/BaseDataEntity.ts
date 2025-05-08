@@ -16,7 +16,9 @@ export class BaseDataRepository extends Array {
     super.push(entity);
   }
   public async create(data: any) {
-    super.push(new this["#entity"](data));
+    const entity = new this["#entity"](data);
+    super.push(entity);
+    return entity;
     // if (data.id) return await em.findOne(this.entityName, data.id);
     // if (!data.slug) data.slug = hash([data.scope, data.assertion]);
     // const entity = await em.findOne(this.entityName, { slug: data.slug, runtime: data.runtime });

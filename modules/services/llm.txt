@@ -1,0 +1,377 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 8
+// Generated: 2025-05-12T13:51:16.254Z
+// Source directory: llm
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+llm/
+├── client/
+├── ├── anthropic.js
+├── ├── anyscale.js
+├── ├── groq.js
+├── ├── index.js
+├── ├── openai.js
+├── ├── perplexity.js
+├── └── togetherai.js
+└── service.viva.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: service.viva.js
+// Path: llm/service.viva.js
+// Size: 275 bytes
+// Last Modified: 2025-04-24T08:39:22.531Z
+////////////////////////////////////////////////////////////////////////////////
+
+import client from "./client/index.js";
+
+const manifest = {
+  type: "service",
+  slug: "llm-litellm",
+  name: "LLM",
+};
+
+async function boot(host) {
+  host.trajectory.path("/create", () => {
+    console.log("created llm service");
+  });
+}
+
+export { manifest, boot, client };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: anthropic.js
+// Path: llm/client/anthropic.js
+// Size: 929 bytes
+// Last Modified: 2025-01-15T16:00:52.825Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { Anthropic } from "@anthropic-ai/sdk";
+
+export default (KEY) => {
+  if (!KEY) throw new Error("Anthropic API key is required");
+
+  const client = new Anthropic({ apiKey: KEY });
+
+  return async function anthropic({ prompt, schema, provider }) {
+    const completion = {
+      messages: [{ role: "user", content: [{ type: "text", text: prompt }] }],
+      model: provider.model || "claude-3-sonnet-20240229",
+      max_tokens: provider.max_tokens || 200,
+      temperature: provider.temperature || 0.3,
+    };
+
+    if (schema) {
+      completion.system =
+        `The return JSON schema is: ${JSON.stringify(schema)}.` +
+        `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`;
+    }
+    const response = await client.messages.create(completion);
+    const text = response.content[0].text;
+    return schema ? JSON.parse(text) : text;
+  };
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: anyscale.js
+// Path: llm/client/anyscale.js
+// Size: 1074 bytes
+// Last Modified: 2024-11-21T21:09:52.883Z
+////////////////////////////////////////////////////////////////////////////////
+
+import OpenAI from "openai";
+import { env } from "$env/dynamic/private";
+const { ANYSCALE_API_KEY, SYSTEM_MODE } = env;
+
+const anyscaleClient = new OpenAI({
+  apiKey: ANYSCALE_API_KEY || "",
+  baseURL: "https://api.endpoints.anyscale.com/v1",
+});
+// model: "mistralai/Mixtral-8x7B-Instruct-v0.1"
+
+export async function anyscale({ prompt, schema, provider }) {
+  const messages = [{ role: "user", content: prompt }];
+
+  if (schema) {
+    messages.unshift({
+      role: "user",
+      content: `The return JSON schema is: ${JSON.stringify(schema)}.` +
+        `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
+    });
+  }
+  const completion = {
+    messages,
+    model: provider.model,
+  };
+
+  if (schema && provider.model.startsWith("mistralai/")) {
+    completion["response_format"] = { type: "json_object", schema };
+  }
+
+  const response = await anyscaleClient.chat.completions.create(completion);
+  const text = response.choices[0].message.content;
+  return schema ? JSON.parse(text) : text;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: groq.js
+// Path: llm/client/groq.js
+// Size: 1330 bytes
+// Last Modified: 2025-01-15T16:00:59.322Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { OpenAI } from "openai";
+
+export default (KEY) => {
+  if (!KEY) throw new Error("GROQ API key is required");
+
+  const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.groq.com/openai/v1" });
+
+  return async function groq({ prompt, schema, provider }) {
+    const messages = [{ role: "user", content: prompt }];
+
+    const completion = {
+      messages,
+      model: provider.model,
+      max_tokens: provider.max_tokens || 4096,
+      temperature: provider.temperature || 0.7,
+    };
+
+    if (schema) {
+      completion["response_format"] = { type: "json_object" };
+      messages.unshift({
+        role: "user",
+        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(
+          schema,
+          null,
+          2,
+        )}. apply the properties.`,
+      });
+    }
+    // console.log("groq completion", completion);
+
+    let response, text, result;
+    try {
+      response = await client.chat.completions.create(completion);
+      // console.log("groq response", response);
+      text = response.choices[0].message.content;
+      result = schema ? JSON.parse(text) : text;
+      return result;
+    } catch (error) {
+      console.log("groq error", error);
+      throw new Error(JSON.stringify({ error, response, text, result }));
+    }
+  };
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: llm/client/index.js
+// Size: 1628 bytes
+// Last Modified: 2025-05-12T13:51:12.784Z
+////////////////////////////////////////////////////////////////////////////////
+
+import openai from "./openai.js";
+import groq from "./groq.js";
+import anthropic from "./anthropic.js";
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// const ai = new AxAI(ctx.services.llms.providers.profiles.STRATEGIST);
+// // {name: "openai", apiKey: process.env.OPENAI_API_KEY, config: {temperature: 0.2, model: "gpt-4o",},}
+// const Roles = [
+//   "QUICKBOT",
+//   "GENERALIST",
+//   "EXPERT",
+//   "REFORMER",
+//   "CREATOR",
+//   "STRATEGIST",
+
+//   "VAULTKEEPER",
+// ];
+
+export default (service, ctx) => {
+  const llms = {
+    openai: openai(service.config.keys.openai),
+    groq: groq(service.config.keys.groq),
+    anthropic: anthropic(service.config.keys.anthropic),
+  };
+
+  const retry = async (fn, maxRetries = 1, initialDelay = 1000) => {
+    let delay = initialDelay;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (attempt === maxRetries) throw error;
+        console.log(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+        await sleep(delay);
+        delay *= 2; // Exponential backoff
+      }
+    }
+  };
+
+  async function serve(inputs) {
+    const provider = inputs.provider;
+    if (!llms[provider.api])
+      throw new Error("Provider not found: " + provider.api);
+
+    try {
+      const result = await retry(() => llms[provider.api](inputs));
+      return result;
+    } catch (e) {
+      console.log("[llm error]");
+      console.error(e);
+      throw e;
+    }
+  }
+
+  serve.providers = {
+    profiles: {
+      STRATEGIST: {
+        //
+      },
+    },
+  };
+
+  return serve;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: openai.js
+// Path: llm/client/openai.js
+// Size: 935 bytes
+// Last Modified: 2025-01-15T16:01:16.408Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { OpenAI } from "openai";
+
+export default (KEY) => {
+  if (!KEY) throw new Error("OpenAI API key is required");
+  const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.openai.com/v1" });
+
+  return async function openai({ prompt, schema, provider }) {
+    const start = Date.now();
+    const messages = [{ role: "user", content: prompt }];
+    const completion = {
+      messages,
+      model: provider.model || "gpt-4o-2024-08-06", // gpt-4o-mini
+      max_tokens: provider.max_tokens || 4096,
+      temperature: provider.temperature || 0.5,
+    };
+
+    if (schema) {
+      completion["response_format"] = {
+        type: "json_schema",
+        json_schema: {
+          name: "response",
+          strict: true,
+          schema,
+        },
+      };
+    }
+
+    const response = await client.chat.completions.create(completion);
+    const text = JSON.parse(response.choices[0].message.content);
+    return text;
+  };
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: perplexity.js
+// Path: llm/client/perplexity.js
+// Size: 859 bytes
+// Last Modified: 2024-11-21T21:09:52.884Z
+////////////////////////////////////////////////////////////////////////////////
+
+import api from "api";
+import { env } from "$env/dynamic/private";
+const { PERPLEXITY_API_KEY, SYSTEM_MODE } = env;
+
+const perplexityClient = api("@pplx/v0#b2wdhb1klq5dn1d6");
+perplexityClient.auth(PERPLEXITY_API_KEY);
+
+export async function perplexity({ prompt, model, schema }) {
+  const start = Date.now();
+  const messages = [{ role: "user", content: prompt }];
+
+  if (schema) {
+    messages.unshift({
+      role: "system",
+      content: `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
+        `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
+    });
+  }
+  const chatCompletion = await perplexityClient.post_chat_completions({
+    model,
+    messages,
+  });
+
+  const response = JSON.parse(chatCompletion.data.choices[0].message.content);
+  return response;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: togetherai.js
+// Path: llm/client/togetherai.js
+// Size: 1368 bytes
+// Last Modified: 2024-12-27T12:10:34.692Z
+////////////////////////////////////////////////////////////////////////////////
+
+import config from "@vivalence/config";
+import Together from "together-ai";
+
+export default () => {
+  const KEY = config.env.get("TOGETHERAI_API_KEY");
+  if (!KEY) throw new Error("TOGETHERAI API key is required");
+
+  const together = new Together({ apiKey: KEY });
+
+  return async function togetherai({ prompt, schema, provider }) {
+    const messages = [{ role: "user", content: prompt }];
+
+    if (schema) {
+      messages.unshift({
+        role: "user",
+        content:
+          `The return JSON schema is: ${JSON.stringify(schema, null)}.` +
+          `Respond in JSON. No comments, syntax, newline, escape, decoration, special character or any other text or symbol is allowed.`,
+      });
+    }
+
+    const completion = {
+      messages,
+      model: provider.model,
+      max_tokens: provider.max_tokens || 4096,
+      temperature: provider.temperature || 0.7,
+      stream: false,
+    };
+
+    let response, text, result;
+    try {
+      response = await together.chat.completions.create(completion);
+
+      console.log(response);
+      // for await (const token of response) {
+      // }
+
+      text = response.choices[0].message.content;
+      result = schema ? JSON.parse(text) : text;
+      return result;
+    } catch (error) {
+      console.log("groq error", error);
+      throw new Error(JSON.stringify({ error, response, text, result }));
+    }
+  };
+};

@@ -1,91 +1,82 @@
-import { Signal } from "../src/signal.ts";
-import { Pattern, type PatternDocs } from "../src/pattern.ts";
+import { Signal, Pattern } from "../types/index.ts";
 
-export interface PathPatternInput {
-  match: string;
+export interface PathPattern {
+  path: string;
+  [key: string]: any | Record<any, any>;
+
+  input?: Record<string, any>;
+  output?: Record<string, any>;
   name?: string;
-  description?: string;
-  [key: string]: any;
+  valence?: string;
 }
 
-export function signal(input: string): Signal<string>[] {
+export interface PathSignal {
+  segment: string;
+}
+
+export function signal(input: string): Signal<PathSignal>[] {
   const normalized = input.startsWith("/") ? input : `/${input}`;
-  // console.log("signal input, normalized", input, normalized);
   const signals = normalized
     .split("/")
     .filter((segment) => segment.length > 0)
-    .map((segment) => new Signal<string>("path", segment));
-  // console.log("sinals", input, signals);
+    .map((segment) => new Signal<PathSignal>("path", { segment }));
   return signals;
 }
 
-export function pattern(input: string | PathPatternInput): Pattern<string>[] {
-  // console.log("path input", input);
-  let pathStr: string;
-  let customDocs: Record<string, any> = {};
+export function pattern(input: string | PathPattern): Pattern<PathSignal>[] {
+  let path;
+  let docs = {};
 
   if (typeof input === "string") {
-    pathStr = input;
+    path = input;
+    docs.path = path;
   } else {
-    pathStr = input.match;
-    customDocs = { ...input };
-    delete customDocs.match;
+    path = input.path;
+    docs = { ...input };
   }
 
-  const normalized = pathStr.startsWith("/") ? pathStr : `/${pathStr}`;
-  const segments = normalized.split("/").filter((segment) => segment.length > 0);
+  const segments = path //(path.startsWith("/") ? path : `/${path}`)
+    .split("/")
+    .filter((segment) => segment.length > 0);
 
-  const patterns = segments.map((segment) => {
-    let defaultDocs: Record<string, any> = {};
-    let matchFn;
+  const patterns = [];
+
+  for (const segment of segments) {
+    let segmentDocs: Record<string, any> = { segment };
+    let segementMatchFn;
 
     if (segment.startsWith(":")) {
       const paramName = segment.substring(1);
-      matchFn = (signal: Signal<any>) => {
+      segmentDocs.param = paramName;
+      segementMatchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
-        return { ...signal, [paramName]: signal.value };
-      };
-
-      defaultDocs = {
-        // type: "dynamic",
-        // description: `Captures any value as parameter "/:${paramName}"`,
-        // example: `For path "users/123", the value "123" would be captured as "${paramName}"`,
-        param: paramName,
+        return { ...signal, params: { [paramName]: signal.value.segment } };
       };
     } else if (segment === "*") {
-      matchFn = (signal: Signal<any>) => {
+      segementMatchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
         return signal;
       };
-
-      defaultDocs = {
-        // type: "wildcard",
-        // description: "Matches any value (wildcard)",
-        // example: "Matches any segment in this position",
-      };
     } else {
-      matchFn = (signal: Signal<any>) => {
+      segementMatchFn = (signal: Signal<any>) => {
         if (signal.type !== "path") return null;
-        return signal.value === segment ? signal : null;
-      };
-
-      defaultDocs = {
-        // type: "static",
-        // description: `Matches the exact segment "/${segment}"`,
-        signal: "/" + segment,
-        // example: `Only matches "/${segment}" exactly`,
+        return signal.value.segment === segment ? signal : null;
       };
     }
 
-    // Merge the default docs with any custom docs
-    const mergedDocs = {
-      ...defaultDocs,
-      ...customDocs,
-    };
+    const pattern = new Pattern<PathSignal>(
+      "path",
+      segementMatchFn,
+      segmentDocs,
+    );
+    patterns.push(pattern);
+  }
 
-    const pattern = new Pattern<string>("path", matchFn, mergedDocs);
-    return pattern;
-  });
+  patterns[patterns.length - 1].docs = {
+    ...docs,
+    ...patterns[patterns.length - 1].docs,
+  };
+
   return patterns;
 }
 

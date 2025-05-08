@@ -27,8 +27,9 @@
 
     "oak": "jsr:@oak/oak@16.1.0",
     "oak/middleware": "jsr:@oak/oak@16.1.0/middleware",
-
     "@oak/commons/cookie_map": "jsr:@oak/commons@0.11/cookie_map",
+
+    "@ax-llm/ax": "npm:@ax-llm/ax@^11.0",
     "@modelcontextprotocol/sdk/": "npm:@modelcontextprotocol/sdk@^1.10.0/",
 
     "ebisu-js": "npm:ebisu-js@2.1.3",
@@ -37,6 +38,7 @@
     "openai/": "https://deno.land/x/openai@4.67.2/",
     "openai": "npm:openai@4.67.2",
     "three": "npm:three@0.169.0/build/three.module.js",
+    "@sinclair/typebox": "npm:@sinclair/typebox",
     "json-logic-js": "npm:json-logic-js@2.0.5",
     "jsonata": "npm:jsonata@2.0.5",
     "ajv": "npm:ajv@8.17.1",

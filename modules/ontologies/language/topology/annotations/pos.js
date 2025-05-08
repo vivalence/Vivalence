@@ -8,6 +8,11 @@ export const node = {
   data: {
     CATEGORICAL: [
       {
+        slug: "sentence",
+        name: "Sentence",
+        description: "A complete, correct and meaningful sentence.",
+      },
+      {
         slug: "adj",
         name: "Adjective",
         description: "A word that modifies a noun or pronoun.",
@@ -15,12 +20,14 @@ export const node = {
       {
         slug: "adp",
         name: "Adposition",
-        description: "A word that shows the relationship between its object and another word.",
+        description:
+          "A word that shows the relationship between its object and another word.",
       },
       {
         slug: "adv",
         name: "Adverb",
-        description: "A word that modifies a verb, an adjective, or another adverb.",
+        description:
+          "A word that modifies a verb, an adjective, or another adverb.",
       },
       {
         slug: "aux",
@@ -30,7 +37,8 @@ export const node = {
       {
         slug: "cconj",
         name: "Coordinating Conjunction",
-        description: "A word that connects words, phrases, or clauses of equal rank.",
+        description:
+          "A word that connects words, phrases, or clauses of equal rank.",
       },
       {
         slug: "det",
@@ -40,14 +48,19 @@ export const node = {
       {
         slug: "intj",
         name: "Interjection",
-        description: "A word or phrase that expresses strong emotion or surprise.",
+        description:
+          "A word or phrase that expresses strong emotion or surprise.",
       },
       {
         slug: "noun",
         name: "Noun",
         description: "A word that refers to a person, place, thing, or idea.",
       },
-      { slug: "num", name: "Numeral", description: "A word that expresses a number." },
+      {
+        slug: "num",
+        name: "Numeral",
+        description: "A word that expresses a number.",
+      },
       // {slug: "part", name: "Particle", description: "A word that has grammatical function but does not fit into the main parts of speech.",},
       {
         slug: "pron",
@@ -57,12 +70,14 @@ export const node = {
       {
         slug: "propn",
         name: "Proper Noun",
-        description: "A noun that denotes a particular person, place, or thing.",
+        description:
+          "A noun that denotes a particular person, place, or thing.",
       },
       {
         slug: "punct",
         name: "Punctuation",
-        description: "A symbol that indicates the structure and organization of writing.",
+        description:
+          "A symbol that indicates the structure and organization of writing.",
       },
       {
         slug: "sconj",
