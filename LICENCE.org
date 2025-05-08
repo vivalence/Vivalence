@@ -1,0 +1,8 @@
+* todo
+** advertisement
+this product is not allowed to be used for one-to-many signaling sponsored by a third party in any shape way or form.
+
+
+** ip theft
+maybe one way to ensure that intellectual property theft is kept to a minimum, or at least force certain values, is
+to mandate that any derivative work that implements any IP, design, whatever, et al has to be published under a licence implementing the same constraints.

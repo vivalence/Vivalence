@@ -3,22 +3,16 @@
   import "../style/bsp/bsp.css";
   import "./+layout.css";
 
-  import Sidebar from "./sidebar.svelte";
+  // import Sidebar from "./sidebar.svelte";
 
   let { children, data } = $props();
 </script>
 
 <div class="bsp-chain-root layout">
-  <header class="topbar">
-    <a href="/"><div class="logo">VIVALENCE</div></a>
-    <div class="center"></div>
-    <div class="account"></div>
-  </header>
+  <!-- <header class="topbar"> <a href="/"><div class="logo">VIVALENCE</div></a> <div class="center"></div> <div class="account"></div> </header> -->
 
   <div class="bsp-node content m-6">
-    <aside class="bsp-node aside">
-      <Sidebar menudata={data.menudata} />
-    </aside>
+    <!-- <aside class="bsp-node aside"> <Sidebar menudata={data.menudata} /> </aside> -->
 
     <main class="bsp-node main">
       {@render children()}

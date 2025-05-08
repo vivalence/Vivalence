@@ -1,28 +1,6 @@
-import { Signal } from "../src/signal.ts";
-import { Pattern, type PatternDocs } from "../src/pattern.ts";
+import { Signal, Pattern } from "../types/index.ts";
 
-export interface KeySignalValue {
-  key: string;
-  modifiers: string[];
-}
-
-export function signal(input: string): Signal<KeySignalValue>[] {
-  return input
-    .split(" ")
-    .filter((key) => key.length > 0)
-    .map((key) => {
-      const parts = key.split("+");
-      const keyValue = parts.pop() || "";
-      const modifiers = parts;
-
-      return new Signal<KeySignalValue>("key", {
-        key: keyValue,
-        modifiers,
-      });
-    });
-}
-
-export interface KeyPatternInput {
+export interface KeyPattern {
   match: string;
   name?: string;
   description?: string;
@@ -33,8 +11,28 @@ export interface KeyPatternInput {
   [key: string]: any;
 }
 
-export function pattern(input: string | KeyPatternInput): Pattern<KeySignalValue>[] {
-  // Extract the key string and any custom docs from the input
+export interface KeySignal {
+  key: string;
+  modifiers: string[];
+}
+
+export function signal(input: string): Signal<KeySignal>[] {
+  return input
+    .split(" ")
+    .filter((key) => key.length > 0)
+    .map((key) => {
+      const parts = key.split("+");
+      const keyValue = parts.pop() || "";
+      const modifiers = parts;
+
+      return new Signal<KeySignal>("key", {
+        key: keyValue,
+        modifiers,
+      });
+    });
+}
+
+export function pattern(input: string | KeyPattern): Pattern<KeySignal>[] {
   let keyStr: string;
   let customDocs: Record<string, any> = {};
 
@@ -49,7 +47,7 @@ export function pattern(input: string | KeyPatternInput): Pattern<KeySignalValue
 
   const keyParts = keyStr.split(" ").filter((key) => key.length > 0);
 
-  return keyParts.map((key) => {
+  const keyPatterns = keyParts.map((key) => {
     const parts = key.split("+");
     const keyValue = parts.pop() || "";
     const modifiers = parts;
@@ -68,7 +66,7 @@ export function pattern(input: string | KeyPatternInput): Pattern<KeySignalValue
       ...customDocs,
     };
 
-    return new Pattern<KeySignalValue>(
+    return new Pattern<KeySignal>(
       "key",
       (signal: Signal<any>) => {
         if (signal.type !== "key") return null;
@@ -84,7 +82,9 @@ export function pattern(input: string | KeyPatternInput): Pattern<KeySignalValue
       mergedDocs,
     );
   });
+  return keyPatterns;
 }
 
 export const type = "key";
+
 export default { signal, pattern, type };

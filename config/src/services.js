@@ -1,15 +1,27 @@
-// import Repository from "@vivalence/repository";
-
 export default async function (config) {
   config.services = {
     ...config.services,
     llm: {
-      service: "@vivalence/service/llm-litellm",
+      service: "@vivalence/service/llm",
       config: {
-        keys: {
-          openai: config.env.get("OPENAI_API_KEY"),
-          groq: config.env.get("GROQ_API_KEY"),
+        providers: {
+          // openai: config.env.get("OPENAI_API_KEY"),
+          // groq: config.env.get("GROQ_API_KEY"),
           anthropic: config.env.get("ANTHROPIC_API_KEY"),
+        },
+        profiles: {
+          QUICKBOT: {
+            provider: "anthropic",
+            model: "claude-3-5-haiku-latest",
+            dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
+            params: { temperature: 0.7, max_tokens: 4000 },
+          },
+          STRATEGIST: {
+            provider: "anthropic",
+            model: "claude-3-7-sonnet-latest",
+            dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
+            params: { temperature: 0.7, max_tokens: 4000 },
+          },
         },
       },
     },

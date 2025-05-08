@@ -4,8 +4,16 @@ meta {
   seq: 1
 }
 
-get {
-  url: {{DAEMON_SERVER_URL}}/status
+post {
+  url: {{DAEMON_SERVER_URL}}/agents/discovery
   body: json
   auth: none
+}
+
+body:json {
+  {
+    "signal": {
+      "text": "I want to learn spanish."
+    }
+  }
 }

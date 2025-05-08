@@ -1,4 +1,0 @@
-datasource database {
-  provider = "sqlite" 
-  url      = env("PRISMA_DATABASE_SOURCE_TOKEN")
-}

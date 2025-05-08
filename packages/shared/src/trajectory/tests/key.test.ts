@@ -21,6 +21,6 @@ Deno.test("Key pattern matching", () => {
   const ctrlSMatch = patterns[0].match(ctrlSSignal);
   const gMatch = patterns[1].match(gSignal);
 
-  assertEquals(ctrlSMatch, {});
-  assertEquals(gMatch, {});
+  assertEquals(ctrlSMatch.value.modifiers, ["Ctrl"]);
+  assertEquals(gMatch.value.key, "g");
 });

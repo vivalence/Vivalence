@@ -14,7 +14,9 @@ export default async function provision(inputs, ctx) {
   });
 
   const translations = [];
-  const [translation] = await games.translations.call("/provision", { constraints });
+  const [translation] = await games.translations.call("/provision", {
+    constraints,
+  });
   if (translation) {
     translations.push(translation);
     blacklist.fromScope(translation.scope);

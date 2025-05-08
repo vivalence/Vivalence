@@ -1,5 +1,4 @@
 import topology from "./topology/index.js";
-import { validators } from "@vivalence/shared";
 
 const manifest = {
   type: "ontology",

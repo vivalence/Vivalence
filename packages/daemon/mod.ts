@@ -4,8 +4,7 @@ import registry from "@vivalence/registry";
 
 import cleanup from "./lib/cleanup-ports.js";
 
-import agents from "./agents/index.js";
-import mcp from "./mcp/index.js";
+// import agents from "./agents/index.js";
 import entities from "./entities/index.js";
 import services from "./services/index.js";
 import aperture from "./aperture/index.ts";
@@ -16,7 +15,6 @@ const ticker = (name: string) => (daemon: Daemon) => {
   console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
   return daemon;
 };
-// console.json=data
 
 const daemon = {
   process: null,
@@ -27,7 +25,6 @@ const daemon = {
   services: {},
   runtimes: new Map(),
   server: null,
-  mcp: null,
 };
 
 (async (daemon) =>
@@ -38,8 +35,7 @@ const daemon = {
     aperture.init,
     services.init,
     entities.init,
-    mcp,
-    agents,
+    // agents,
     runtimes.init,
     runtimes.serve,
     aperture.serve,
