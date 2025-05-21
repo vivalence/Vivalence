@@ -1,0 +1,41 @@
+meta {
+  name: pick-units-byStatus-fromUnitIds
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/pick/units/byStatus
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "status": [
+      "UNTOUCHED",
+      "UNKNOWN",
+      "LEARNING"
+    ],
+    "unitIds": [
+      "d4094c56-5328-44d9-b0c4-32d3421058a4",
+      "a97fc753-e034-4883-b0b4-5c56331541c8",
+      "2a481890-8f22-45f4-b8ce-db0feb07bd6b",
+      "5003dcb1-e8ef-4b27-b7f0-493865a79d2a",
+      "613fc166-b752-4fe2-b706-6f9e880b0007",
+      "ca7a2dd4-a305-4fd9-b131-b0f3946d5d92"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "queue": []
+    }
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

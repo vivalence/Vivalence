@@ -1,0 +1,75 @@
+meta {
+  name: unitFromAnnotation
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/classification/unitFromAnnotation
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "annotationx": {
+      "lemma": "beber",
+      "pos": "verb",
+      "mood": "ind",
+      "number": "sing",
+      "person": "3",
+      "tense": "pres",
+      "verbform": "fin",
+      "meta": {
+        "token": "bebe",
+        "index": 2,
+        "start_char": 5,
+        "end_char": 9,
+        "upos": "VERB",
+        "feats": "Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin"
+      }
+    },
+    "annotation": {
+      "lemma": "él",
+      "pos": "pron",
+      "gender": "fem",
+      "number": "sing",
+      "person": "3",
+      "prontype": "prs",
+      "meta": {
+        "token": "Ella",
+        "index": 1,
+        "start_char": 0,
+        "end_char": 4,
+        "upos": "PRON",
+        "feats": "Case=Acc,Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs"
+      }
+    },
+    "annotationB": {
+      "lemma": "agua",
+      "pos": "noun",
+      "gender": "fem",
+      "number": "sing",
+      "meta": {
+        "token": "agua",
+        "index": 3,
+        "start_char": 10,
+        "end_char": 14,
+        "upos": "NOUN",
+        "feats": "Gender=Fem|Number=Sing"
+      }
+    },
+    "annotationC": {
+      "lemma": ".",
+      "pos": "punct",
+      "meta": {
+        "token": ".",
+        "index": 4,
+        "start_char": 14,
+        "end_char": 15,
+        "upos": "PUNCT",
+        "feats": "PunctType=Peri"
+      }
+    }
+  }
+}

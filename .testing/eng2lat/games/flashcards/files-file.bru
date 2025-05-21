@@ -1,0 +1,17 @@
+meta {
+  name: files:file
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/runtime/{{RUNTIME_SLUG}}/game/flashcards/bundle/game.svelte.js
+  body: none
+  auth: none
+}
+
+body:json {
+  {
+    "space": []
+  }
+}

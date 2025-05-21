@@ -1,0 +1,11 @@
+meta {
+  name: files:file
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/prose/bundle/game.svelte.js
+  body: json
+  auth: none
+}

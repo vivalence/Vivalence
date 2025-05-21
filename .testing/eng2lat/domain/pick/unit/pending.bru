@@ -1,0 +1,44 @@
+meta {
+  name: pending
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{RUNTIME_SERVER_URL}}/pick/unit/pending
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "tagIds": [
+      "0194fba6-f586-7520-acca-a900d0025f5e",
+      "0194fba6-f58a-7028-b6dc-2682ff01a32f"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "instructions": []
+    },
+    "scope": {
+      "dependency": {
+        "id": "0194fba9-013f-72a1-aa4a-e722da1d47d5"
+      },
+      "user": {
+        "id": "localhost"
+      },
+      "runtime": {
+        "id": "0194fb9a-4aff-70ea-bbe8-5a6b42d13df9"
+      },
+      "tactic": {
+        "id": "0194fb9a-4b08-743d-95af-892f0e9c5772"
+      }
+    },
+    "take": 4
+  }
+}
+
+docs {
+  due by play
+}

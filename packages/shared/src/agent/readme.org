@@ -1,0 +1,5 @@
+for future need:
+
+https://mastra.ai/en/docs/agents/overview
+https://mastra.ai/en/docs/dag
+https://mastra.ai/en/docs/memory

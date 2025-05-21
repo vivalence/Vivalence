@@ -9,7 +9,9 @@ const QUEUE_THRESHOLD = 5;
 
 export const load = async (event) => {
   const ctx = await context(event);
+  const intent = event.intent;
 
+  // get
   const dependency = await ctx.runtime("/entities/dependency/findOne", {
     where: { slug: event.params.dependency },
   });
@@ -21,6 +23,8 @@ export const load = async (event) => {
 
   const buffer = new BufferState(QUEUE_THRESHOLD, async (buffer) => {
     try {
+      // if !intent.resolved
+      // if intent.traits.includes('constrained')
       const blacklist = new Blacklist().fromBuffer(buffer);
       const scope = new Scope({ dependency: { id: dependency.id } });
       const input = { take: QUEUE_THRESHOLD, blacklist, scope };
@@ -51,5 +55,5 @@ export const load = async (event) => {
   });
 
   // buffer.onNext((previous, next) => ctx.runtime(`/feed/remove`, next));
-  return { buffer };
+  return { buffer, intent };
 };

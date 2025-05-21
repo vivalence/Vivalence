@@ -15,6 +15,7 @@ const ResolutionTypeEnum = {
 };
 
 const ResolutionTraitEnum = {
+  CONSTRAINED: "CONSTRAINED",
   SCHEDULE: "SCHEDULE",
 };
 
@@ -32,8 +33,9 @@ class Intent {
     this.resolution = {
       type: null,
       traits: [],
+      input: {},
     };
-    this.state = {}; // when unresolved, state contains the conversation with the discovery agent.
+    this.context = {};
     this.history = [];
   }
 

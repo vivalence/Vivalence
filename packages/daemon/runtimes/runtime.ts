@@ -1,4 +1,4 @@
-import { ValenceRepository } from "@vivalence/schema";
+import { ValenceRepository } from "@vivalence/entities";
 import { Daemon } from "@vivalence/types";
 
 export default class Runtime {

@@ -1,4 +1,4 @@
-import { enums } from "@vivalence/schema";
+import { enums } from "@vivalence/entities";
 import { Daemon } from "@vivalence/types";
 
 export default function install(daemon: Daemon) {

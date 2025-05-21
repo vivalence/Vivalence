@@ -1,0 +1,30 @@
+meta {
+  name: unit:required
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/remedy
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "issue": {
+      "message": "unit missing.",
+      "path": [
+        "unit"
+      ],
+      "violation": "required",
+      "context": {
+        "annotation": {
+          "pos": "adp",
+          "lemma": "a"
+        }
+  
+      }
+    }
+  }
+}

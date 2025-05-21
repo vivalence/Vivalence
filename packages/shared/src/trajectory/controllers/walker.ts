@@ -3,7 +3,7 @@ import { TraversalError, Signal } from "../types/index.ts";
 
 import { Trajectory } from "../core/trajectory.ts";
 import { compose } from "../core/lib.ts";
-import { Deferred } from "./lib.ts";
+import { Deferred } from "./lib/index.ts";
 
 export class Walker {
   private trajectory: Trajectory;

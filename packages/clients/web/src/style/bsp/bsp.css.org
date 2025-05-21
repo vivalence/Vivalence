@@ -1,11 +1,11 @@
-# -*- mode: org; llms-standard: v1; implements: llms.txt; tangle-target: concat.js -*-
+# -*- mode: org; llms-standard: v1; implements: llms.org; tangle-target: .//bsp.css -*-
 
 #+TITLE: Functional BSP css valence
 #+AUTHOR: [Generated via LLM]
 #+DATE: [2024-11-20 Wed]
 #+PROPERTY: header-args:css :tangle ./bsp.css :viva "#! ...
 #+PROPERTY: llms-version 1.0
-#+PROPERTY: implements llms.txt
+#+PROPERTY: implements llms.org
 
 * BSP Grid System
 ** Introduction
@@ -86,11 +86,19 @@ BSP (Binary Space Partition) Grid System provides a composable and powerful layo
 ** Implementation
 *** Core
 #+BEGIN_SRC css :tangle ./bsp.css 
-/* BSP Core */
+.bsp-chain-root {
+    display: grid;
+    width: 100%;
+    height: 100%;
+}
 .bsp-node {
-  display: grid;
-  width: 100%;
-  height: 100%;
+    display: grid;
+}
+
+.bsp-node-flex {
+    display: flex;
+}
+.bsp-chain-end {
 }
 #+END_SRC
 

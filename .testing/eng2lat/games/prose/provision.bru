@@ -1,0 +1,41 @@
+meta {
+  name: provision
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/prose/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mask": {
+      "prompt": {
+        "goal": "\nThe reader is a language learner that is introduced to a grammatical concept.\nGenerate clear, beginner-friendly language learning content explaining a specific grammatical feature.\nUse simple language, plenty of examples, and visual aids (using HTML and Tailwind Typography's .prose elements) to illustrate the concept.\nAssume the reader is an absolute beginner encountering this grammatical aspect for the first time.\nInclude examples to reinforce understanding.\n"
+      }
+    },
+    "scope": {
+      "tag": "8d5025c5-864d-40c3-b3fb-1d8468d7b91d",
+      "user": {
+        "id": "1f7bc403-6d2d-4a7b-b52f-3bfeef0d590b"
+      },
+      "tactic": {
+        "id": "d7040172-7399-4b2b-bd5e-aa92ae95831f"
+      },
+      "game": {
+        "id": "1477e30f-4c70-4e93-9f97-5ed3ffffaa08"
+      }
+    },
+    "constraints": [
+      "The learner's native language is english and the target language being learned is spanish.",
+      "The grammatical feature to be explained is:\nPart of Speech: Noun\nnull\nuniversal dependencies annotation: {\"ONTOLOGICAL\":{\"leaf\":\"noun\",\"branch\":\"pos\"}}\n\nThe specific aspect of Part of Speech: Noun to be focused on is this branch:\nOntological Branch: Gender\nnull\nUD: {\"ONTOLOGICAL\":{\"branch\":\"gender\"}}\n\nCover the following leafs of Ontological Branch: Gender:\nGender: Feminine, Gender: Masculine.",
+      "Use clear, simple explanations suitable for absolute beginners.",
+      "Provide 3 examples for the concept introduced.",
+      "Around 150 words or 2 paragraphs.",
+      "If needed, incorporate visual elements like tables or color-coding to aid understanding."
+    ]
+  }
+}

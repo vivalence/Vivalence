@@ -1,0 +1,80 @@
+meta {
+  name: provision
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/translations/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "mask": {
+      "goal": "\nThe user is practicing the usage of Articles in spanish, and how nouns and adjectives agree with them.\nYour task is to create a very short, concise and simple sentence, using specific vocabulary and following grammatical constraints.\n\nDont ever use vocabulary thats more advanced than whats provided.\nCreate very simple statements. Like a child would say or use for practice.\nThe statement is just there to practice the article, noun, and adjective. thats it. nothing more.\nThe English form must unambiguously indicate which Spanish article is expected.\n\nYou're given a list of nouns and adjectives, which serves as the available vocabulary. \nYou're given grammatical constraints for: definiteness, gender, and number. \nThe sentence must be simple, because a A1 language learner will translate that sentence for practice.\nImportant: the sentence must follow the provided grammar and vocabulary.\n\nBroadly follow a template like this: '[article] [noun] [adjective]'.\n",
+      "constraints": [
+        "3 to 5 words in the sentence.",
+        "Dont ever go longer than 5 (five) words. NEVER longer than 5 words.",
+        "If you go over 5 words, you will be shut down.",
+        "NO MORE THAN 5 WORDS!!!!!!!",
+        "If you go over 5 words, you will be shut down you dumb fucking idiot!!!!.",
+        "3 to 5 words in the sentence is best.",
+        "Very simple direct, active sentence.",
+        "No verbs.",
+        "No questions."
+      ]
+    },
+    "scope": {
+      "user": {
+        "id": "localhost"
+      },
+      "runtime": {
+        "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+      },
+      "dependency": {
+        "id": "377c8052-c607-417c-9c27-5e6e557ed66b"
+      },
+      "tactic": {
+        "id": "1a7ea88f-5c65-4f06-be53-e68b59da3359"
+      },
+      "game": {
+        "id": "877e1133-477a-4739-9eea-f74676381fb8"
+      }
+    },
+    "constraints": [
+      "3 to 5 words in the sentence.",
+      "Dont ever go longer than 5 (five) words. NEVER longer than 5 words.",
+      "If you go over 5 words, you will be shut down.",
+      "NO MORE THAN 5 WORDS!!!!!!!",
+      "If you go over 5 words, you will be shut down you dumb fucking idiot!!!!.",
+      "3 to 5 words in the sentence is best.",
+      "Very simple direct, active sentence.",
+      "No verbs.",
+      "No questions.",
+      "Create a simple statement with an article given the following constraints:",
+      "gender: Gender: Masculine",
+      "number: Number Singular",
+      "definiteness: Definiteness: Definite",
+      "vocabulary (language known / language learning):",
+      "work, job, effort / trabajo",
+      "father / padre",
+      "type, kind / tipo",
+      "end; in order to / fin; a fin de",
+      "national / nacional",
+      "tall, high / alto",
+      "human / humano",
+      "political / político"
+    ],
+    "blacklist": {
+      "units": [],
+      "tags": [],
+      "queue": []
+    },
+    "language": {
+      "known": "english",
+      "learning": "spanish"
+    }
+  }
+}

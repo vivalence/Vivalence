@@ -1,0 +1,38 @@
+meta {
+  name: evaluate
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/prose/evaluate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "scope": {
+        "dependency": {
+          "id": "34de578b-985b-44f1-81a0-6d2ca43ea72c"
+        },
+        "tactic": {
+          "id": "71c4ed7d-1a4a-4017-a794-01267d601e4b"
+        },
+        "user": {
+          "id": "localhost"
+        },
+        "game": {
+          "id": "636a8a9f-ba24-4500-be91-6bc21119f5b1"
+        },
+        "tag": {
+          "id": "0e8dacef-796e-4dcd-994d-3142c512d0f6"
+        },
+        "tags": [
+          {
+            "id": "0e8dacef-796e-4dcd-994d-3142c512d0f6"
+          }
+        ]
+      }
+    }
+}

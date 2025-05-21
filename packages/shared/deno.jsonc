@@ -5,5 +5,8 @@
     ".": "./mod.js",
     "./server": "./mod.js",
     "./client": "./client.js",
+    "./trajectory": "./src/trajectory/index.ts",
+    "./classifier": "./src/classifier/index.ts",
+    "./agent": "./src/agent/index.js",
   },
 }
