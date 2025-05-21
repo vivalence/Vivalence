@@ -29,7 +29,8 @@
 
   {#if !component}
     <div class="bsp-chain-end">
-      <span class="text-theme-text-1">unknown widget.svelte error...</span>
+      <!-- <span class="text-theme-text-1">unknown widget.svelte error...</span> -->
+      <span class="text-theme-text-1">loading widget.svelte</span>
     </div>
   {/if}
 </div>

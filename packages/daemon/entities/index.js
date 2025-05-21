@@ -3,7 +3,7 @@ import { Migrator } from "@mikro-orm/migrations";
 import { dirname, join } from "@std/path";
 
 import config from "@vivalence/config";
-import { database, entities } from "@vivalence/schema";
+import { database, entities } from "@vivalence/entities";
 
 async function init(daemon) {
   const orm = await MikroORM.init(
@@ -14,7 +14,10 @@ async function init(daemon) {
       strict: false,
       migrations: {
         tableName: config.env.get("VIVA_DATABASE_MIGRATIONS_TABLE"),
-        path: join(dirname(daemon.services.database.config.filePath), "migrations"),
+        path: join(
+          dirname(daemon.services.database.config.filePath),
+          "migrations",
+        ),
       },
     }),
   );

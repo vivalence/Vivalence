@@ -1,2 +1,1 @@
-import Remedy from "./remedy.ts";
-export { Remedy };
+export { Remedy } from "./remedy.ts";

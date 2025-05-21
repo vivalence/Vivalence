@@ -1,7 +1,9 @@
+import entities from "./entities/index.js";
+
+import bootHelper from "./modules/boot/index.js";
+import installHelper from "./modules/install/index.js";
+
 import hooks from "./hooks/index.js";
-import schema from "./schema/index.js";
-import bootHelper from "./boot/index.js";
-import installHelper from "./install/index.js";
 import events from "./events/index.js";
 import aperture from "./aperture/index.js";
 
@@ -37,4 +39,4 @@ const manifest = {
   version: "0.0.2",
 };
 
-export { manifest, boot, install, schema, hooks };
+export { manifest, entities, boot, install, hooks };

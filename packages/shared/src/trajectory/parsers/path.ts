@@ -10,6 +10,14 @@ export interface PathPattern {
   valence?: string;
 }
 
+export interface PathDocs {
+  segment: string;
+  path: string;
+  valence?: string;
+  input?: Record<string, any>; // typebox
+  output?: Record<string, any>; // typebox
+}
+
 export interface PathSignal {
   segment: string;
 }
@@ -23,13 +31,20 @@ export function signal(input: string): Signal<PathSignal>[] {
   return signals;
 }
 
-export function pattern(input: string | PathPattern): Pattern<PathSignal>[] {
+export function pattern(
+  input: string | PathPattern,
+  valence: string | null,
+): Pattern<PathSignal>[] {
   let path;
   let docs = {};
 
   if (typeof input === "string") {
     path = input;
     docs.path = path;
+
+    if (typeof valence === "string") {
+      docs.valence = valence;
+    }
   } else {
     path = input.path;
     docs = { ...input };

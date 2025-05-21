@@ -1,4 +1,4 @@
-import { enums } from "@vivalence/schema";
+import { enums } from "@vivalence/entities";
 
 export default function register(daemon) {
   return async (runtime) => {

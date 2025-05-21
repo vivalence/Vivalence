@@ -1,0 +1,17 @@
+meta {
+  name: annotationsFromText
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{RUNTIME_SERVER_URL}}/classify
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "text": "yo vivo ."
+  }
+}

@@ -4,7 +4,7 @@ import bundlers from "./bundlers/index.js";
 
 function createBundler(entry) {
   const bundles = new Map();
-  const BUNDLE_URL = "bundles";
+  const BUNDLE_URL = "bundle";
 
   const bundler = async (path) => {
     const type = path.includes(".svelte") ? "svelte" : path.split(".").pop();
@@ -17,13 +17,21 @@ function createBundler(entry) {
     return bundles.get(path);
   };
 
+  bundler.absoluteUrl = (basePath) => {
+    const url = new URL(
+      join(
+        config.env.get("VIVA_DAEMON_URL"),
+        basePath.ancestor.toString(),
+        basePath.toString(),
+        BUNDLE_URL,
+        basename(entry),
+      ),
+    );
+    return url;
+  };
+
   bundler.injectBundlePath = (basePath) => async (ctx, next) => {
-    // const ctxPath = new URL(ctx.runtime.url.scope, gameURL.scope).toString();
-    const url = new URL(join(basePath.toString(), BUNDLE_URL, basename(entry)));
-
-    //     "/aperture/v1" + game.entity.url.pathname,
-    //     config.env.get("VIVA_DAEMON_URL"),
-
+    const url = bundler.absoluteUrl(basePath);
     ctx.state.bundle = { url };
 
     await next();

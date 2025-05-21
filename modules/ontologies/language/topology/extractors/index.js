@@ -1,12 +1,12 @@
-import { ClassifierSignal, ClassifierFeature } from "@vivalence/shared";
+import { Signal, Feature } from "@vivalence/shared/classifier";
 
-class Text extends ClassifierSignal {
+class Text extends Signal {
   constructor(value) {
     super("text", value);
   }
 }
 
-class Token extends ClassifierSignal {
+class Token extends Signal {
   generators = [Text];
   constructor(value) {
     super("token", value);
@@ -62,7 +62,7 @@ export default [
         annotation.suffix = token.lemma.slice(-2);
       }
 
-      return new ClassifierFeature({ annotation, token });
+      return new Feature({ annotation, token });
     },
   ],
 ];

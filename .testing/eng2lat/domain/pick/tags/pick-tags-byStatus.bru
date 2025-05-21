@@ -1,0 +1,37 @@
+meta {
+  name: pick-tags-byStatus
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/runtime/{{RUNTIME_SLUG}}/pick/tag/byStatus
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "status": [
+      "UNTOUCHED"
+    ],
+    "tagIds": [
+      "2e0fe449-b539-48f8-aeee-6c9959365f8c",
+      "82758521-b342-489f-8c33-7cecb6756cd2"
+    ],
+    "take": 2,
+    "blacklist": {
+      "units": [],
+      "tags": [
+        "0e8dacef-796e-4dcd-994d-3142c512d0f6"
+      ]
+    }
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

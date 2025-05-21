@@ -14,6 +14,11 @@ import std, {
   deepMerge,
   deepEquals,
 } from "./src/lib/index.js";
+
+// export * from "./src//index.ts";
+export * from "./src/trajectory/index.ts";
+export * from "./src/classifier/index.ts";
+
 import hash from "./src/lib/hash.ts";
 
 import Path from "./src/Path.ts";
@@ -25,18 +30,6 @@ import validators from "./src/validators/index.js";
 
 export { Blacklist } from "./src/blacklist/index.js";
 export { Remedy } from "./src/remedy/index.ts";
-// export {
-//   Trajectory,
-//   TrajectoryWalker,
-//   TrajectoryDeferred,
-//   TrajectoryParsers,
-// } from "./src/trajectory/index.ts";
-export {
-  Classifier,
-  ClassifierSignal,
-  ClassifierFeature,
-  ClassifierParser,
-} from "./src/classifier/index.ts";
 
 array.hash = hash.array;
 obj.hash = hash.object;

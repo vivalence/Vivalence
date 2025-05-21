@@ -3,7 +3,9 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
 
-const bundle = bundler(join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"));
+const bundle = bundler(
+  join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js"),
+);
 
 async function boot(runtime) {
   runtime.aperture.router.get(bundle.url, bundle.serve());

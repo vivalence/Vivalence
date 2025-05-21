@@ -5,10 +5,10 @@ import * as path from "@std/path";
 import config from "@vivalence/config";
 // import * as fs from "@std/fs";
 
-// import { StrategySchema, ServiceSchema } from "@vivalence/schema";
+// import { StrategySchema, ServiceSchema } from "@vivalence/entities";
 // import { Daemon } from "@vivalence/types";
-// import { runtimeEntities } from "@vivalence/schema";
-// import { RuntimeEntity } from "@vivalence/schema";
+// import { runtimeEntities } from "@vivalence/entities";
+// import { RuntimeEntity } from "@vivalence/entities";
 // function loadModuleEntities(value) {if (Array.isArray(value)) {value.forEach(loadModuleEntities);} else if (typeof value === "object" && value !== null && !value.manifest) {Object.values(value).forEach(loadModuleEntities);} else if (typeof value === "object" && value !== null && value.manifest && value.manifest.type) {value.Entity = entities[value.manifest.type];} else {throw new Error("Invalid module format");}}
 
 export default function schema(daemon: Daemon) {
@@ -18,12 +18,15 @@ export default function schema(daemon: Daemon) {
     const orm = await MikroORM.init(
       defineConfig({
         dbName: services.database.config.filePath,
-        entities: domain.schema.database,
+        entities: domain.entities.schema,
         extensions: [Migrator],
         strict: false,
         migrations: {
           tableName: config.env.get("VIVA_DATABASE_MIGRATIONS_TABLE"),
-          path: path.join(path.dirname(services.database.config.filePath), "migrations"),
+          path: path.join(
+            path.dirname(services.database.config.filePath),
+            "migrations",
+          ),
         },
       }),
     );
@@ -35,7 +38,7 @@ export default function schema(daemon: Daemon) {
     runtime.entities = { orm, em: orm.em.fork() };
 
     await Promise.all(
-      Object.entries(domain.schema.entities).map(async ([key, entity]) => {
+      Object.entries(domain.entities.schema).map(async ([key, entity]) => {
         runtime.entities[key] = await runtime.entities.em.getRepository(entity);
       }),
     );

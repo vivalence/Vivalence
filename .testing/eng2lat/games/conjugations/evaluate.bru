@@ -1,0 +1,93 @@
+meta {
+  name: evaluate
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/g/conjugations/evaluate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "conjugations": [
+      {
+        "meta": {
+          "index": 0
+        },
+        "known": "I speak",
+        "scope": {
+          "tags": [
+            {
+              "id": "b3b03701-d446-43f2-bd93-24092f7d7f68"
+            },
+            {
+              "id": "00618d23-c70c-44ac-aa2b-478248c11507"
+            },
+            {
+              "id": "274f0dd9-9f0d-45b2-92bb-d2bcdeca73ab"
+            },
+            {
+              "id": "a29af5ea-a87b-4b0e-9c00-6efc165973a2"
+            }
+          ],
+          "unit": {
+            "id": "d4094c56-5328-44d9-b0c4-32d3421058a4"
+          }
+        },
+        "learning": "hablo",
+        "input": "hablo"
+      }
+    ],
+    "scope": {
+      "game": {
+        "id": "d919d5c5-1640-40ad-9ed2-b7f1df5cb983"
+      },
+      "tags": [
+        {
+          "id": "4209c8fe-6808-4487-841f-11f07c1fd976"
+        },
+        {
+          "id": "2022a48c-2a5c-445e-87ad-be55d9a2def3"
+        }
+      ],
+      "user": {
+        "id": "localhost"
+      },
+      "units": [
+        {
+          "id": "d4094c56-5328-44d9-b0c4-32d3421058a4"
+        },
+        {
+          "id": "a97fc753-e034-4883-b0b4-5c56331541c8"
+        },
+        {
+          "id": "2a481890-8f22-45f4-b8ce-db0feb07bd6b"
+        },
+        {
+          "id": "5003dcb1-e8ef-4b27-b7f0-493865a79d2a"
+        },
+        {
+          "id": "613fc166-b752-4fe2-b706-6f9e880b0007"
+        },
+        {
+          "id": "ca7a2dd4-a305-4fd9-b131-b0f3946d5d92"
+        }
+      ],
+      "tactic": {
+        "id": "227c6d6e-4659-41cd-b477-6a37e104e6ef"
+      },
+      "runtime": {
+        "id": "92d1ace6-146e-4b8d-a5ef-5882eaaa9477"
+      },
+      "dependency": {
+        "id": "b9b7c856-dca4-4f1c-a06e-b67ed2c4ca91"
+      },
+      "queue": {
+        "id": "8d943ecf-6bac-450e-b4e2-0ef3e0062e70"
+      }
+    }
+  }
+}

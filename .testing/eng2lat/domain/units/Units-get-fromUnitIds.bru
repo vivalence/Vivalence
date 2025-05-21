@@ -1,0 +1,17 @@
+meta {
+  name: Units:get:fromUnitIds
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON_SERVER_URL}}/r/{{RUNTIME_SLUG}}/units/fromUnitIds
+  body: json
+  auth: none
+}
+
+body:json {
+    {
+        "unitIds": ["9183dd5b-281a-406d-addd-146357d9813d"],
+    }
+}
