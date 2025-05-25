@@ -5,6 +5,7 @@
     size = "md",
     spacing,
     weight = "regular",
+    mode = "default",
     color = "1",
     as = "p",
     text = "",
@@ -78,13 +79,18 @@
   const colorClass = colors[color] || color;
   const spacingClass = spacings[spacing || size];
   const base = "";
+
+  const modes = {
+    default: "",
+    centered: "flex items-center justify-center text-center",
+  };
 </script>
 
 <svelte:element
   this={as}
   {id}
-  class="{base} {variants[variant]} {sizes[size]} {spacingClass} {weights[
-    weight
-  ]} {colorClass} {className}">
+  class="{base} {modes[mode]} {variants[variant]} {sizes[
+    size
+  ]} {spacingClass} {weights[weight]} {colorClass} {className}">
   {@render children()}
 </svelte:element>

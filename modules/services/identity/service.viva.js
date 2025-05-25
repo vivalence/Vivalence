@@ -8,9 +8,12 @@ const manifest = {
 };
 
 async function boot(host) {
-  host.trajectory.path("/create", () => {
-    console.log("created identity service");
-  });
+  host.trajectory.open(
+    (p) => p.sig("/create"),
+    () => {
+      console.log("created identity service");
+    },
+  );
 }
 
 export { manifest, boot, client };

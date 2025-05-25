@@ -23,13 +23,19 @@ export class IssueEntity {
   data: any & Opt = {};
   error: any & Opt = {};
   history: string[] & Opt = [];
+  descendants: IssueEntity[] & Opt = [];
   constructor(data: any) {
-    Object.assign(this, data);
+    this.data = data;
     this.slug = hash.object(this.data);
   }
   markError(error: any) {
     this.error = error;
     this.status = IssueStatusEnum.ERROR;
+    return this;
+  }
+  spawn(issue: IssueEntity | any) {
+    if (!(issue instanceof IssueEntity)) issue = new IssueEntity(issue);
+    this.descendants.push(issue);
     return this;
   }
   resolve() {

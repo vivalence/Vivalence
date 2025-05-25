@@ -3,7 +3,7 @@ export default {
   name: "Determiner",
   description:
     "Determiners express the reference of a noun phrase in context, modifying nouns to indicate definiteness, specificity, and quantity. In Spanish, they agree in gender and number with the noun they modify. Categories include articles, demonstratives, possessives, and quantifiers.",
-  annotations: [
+  dimensions: [
     { branch: ["pos"], required: true },
     { branch: ["lemma"], required: true },
     { branch: ["prontype"], required: true },
@@ -14,13 +14,19 @@ export default {
     { branch: ["gender"] },
     {
       condition: {
-        if: { properties: { prontype: { const: "art" } }, required: ["prontype"] },
+        if: {
+          properties: { prontype: { const: "art" } },
+          required: ["prontype"],
+        },
         then: { required: ["definite"] },
       },
     },
     {
       condition: {
-        if: { properties: { prontype: { const: "prs" } }, required: ["prontype"] },
+        if: {
+          properties: { prontype: { const: "prs" } },
+          required: ["prontype"],
+        },
         then: { required: ["poss", "person"] },
       },
     },
@@ -40,7 +46,10 @@ export default {
     {
       condition: {
         if: { required: { branch: "prontype", leaf: "prs" } },
-        then: [{ required: { branch: "poss" } }, { required: { branch: "person" } }],
+        then: [
+          { required: { branch: "poss" } },
+          { required: { branch: "person" } },
+        ],
       },
     },
   ],

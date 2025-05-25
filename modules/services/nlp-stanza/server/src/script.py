@@ -88,7 +88,7 @@ def parse_doc(doc):
                 }
             )
 
-        annotated_sentences.append({"basicDependencies": deps, "tokens": tokens})
+        annotated_sentences.append({"tokens": tokens})
         if hasattr(sentence, "constituency") and sentence.constituency is not None:
             annotated_sentences[-1]["parse"] = str(sentence.constituency)
 
@@ -128,9 +128,7 @@ def get_data():
 
         annotated_sentences, serializable_entities = parse_doc(doc)
 
-        return json.dumps(
-            {"sentences": annotated_sentences, "entities": serializable_entities}
-        )
+        return json.dumps({"sentences": annotated_sentences})
 
     except Exception as e:
         print(e)

@@ -1,11 +1,10 @@
 {
   "imports": {
-    "asserts": "https://deno.land/std/testing/asserts.ts",
     "$std/": "https://deno.land/std@0.224.0/",
     "$std/assert": "jsr:@std/assert",
     "@std/path": "jsr:@std/path@^1.0.8",
     "@std/encoding": "jsr:@std/encoding@1.0.7",
-    "@std/encoding/hex": "jsr:@std/encoding@1.0.7/hex",
+    "@std/hex": "jsr:@std/encoding@1.0.7/hex",
     "@std/crypto": "jsr:@std/crypto@1.0.4",
     "@std/fs": "jsr:@std/fs@^1.0.8",
     "fs-extra": "npm:fs-extra",
@@ -29,9 +28,8 @@
     "oak/middleware": "jsr:@oak/oak@16.1.0/middleware",
     "@oak/commons/cookie_map": "jsr:@oak/commons@0.11/cookie_map",
 
-    "@ai/sdk/provider": "npm:@ai-sdk/provider",
-    "@ai/sdk/anthropic": "npm:@ai-sdk/anthropic",
     "@ai/sdk": "npm:ai",
+    "@ai/providers/anthropic": "npm:@ai-sdk/anthropic",
 
     "ebisu-js": "npm:ebisu-js@2.1.3",
     "mustache": "npm:mustache@4.2.0",
@@ -39,11 +37,14 @@
     "openai/": "https://deno.land/x/openai@4.67.2/",
     "openai": "npm:openai@4.67.2",
     "three": "npm:three@0.169.0/build/three.module.js",
+
     "@sinclair/typebox": "npm:@sinclair/typebox",
+    "@sinclair/typebox/value": "npm:@sinclair/typebox/value",
     "@sinclair/typebox/compiler": "npm:@sinclair/typebox/compiler",
     "json-logic-js": "npm:json-logic-js@2.0.5",
     "jsonata": "npm:jsonata@2.0.5",
     "ajv": "npm:ajv@8.17.1",
+    "ajv-formats": "npm:ajv-formats@3.0.1",
     "ajv-errors": "npm:ajv-errors@3.0.0",
     "zod": "npm:zod",
     "json-schema-to-zod": "npm:json-schema-to-zod",

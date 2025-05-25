@@ -7,16 +7,12 @@ import uniqueBySlug from "./uniqueBySlug.js";
 import id from "./id.js";
 import strings from "./strings.js";
 import time from "./time.js";
-import once from "./once.js";
+import fn from "./fn.js";
 
 import sleep from "./sleep.js";
 import random from "./random.js";
 import promise from "./promise.js";
 import array from "./array.js";
-
-const fn = {
-  once,
-};
 
 const obj = { deepMerge, deepEquals, deepClone };
 

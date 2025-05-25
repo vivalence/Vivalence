@@ -4,6 +4,7 @@
 // import fromTagIds from "./fromTagIds.js";
 // import fromTagSlugs from "./fromTagSlugs.js";
 // import fromUnitIds from "./fromUnitIds.js";
+import identity from "./identity.js";
 import install from "./install.js";
 import validate from "./validate.js";
 // import remove from "./remove.js";
@@ -16,6 +17,7 @@ export default {
   // fromSlug,
   // fromTagIds,
   // fromUnitIds,
+  identity,
   install,
   validate,
   // remove,

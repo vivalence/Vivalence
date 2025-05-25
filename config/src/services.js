@@ -1,26 +1,35 @@
 export default async function (config) {
   config.services = {
     ...config.services,
-    llm: {
-      service: "@vivalence/service/llm",
+    brain: {
+      service: "@vivalence/service/brain",
       config: {
         providers: {
           // openai: config.env.get("OPENAI_API_KEY"),
           // groq: config.env.get("GROQ_API_KEY"),
           anthropic: config.env.get("ANTHROPIC_API_KEY"),
+          // customName: {
+          //   name: "customName",
+          //   apiKey: config.env.get("SOME_API_KEY"),
+          //   baseURL: "",
+          // },
         },
         profiles: {
-          QUICKBOT: {
+          DRONE: {
             provider: "anthropic",
             model: "claude-3-5-haiku-latest",
             dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
-            params: { temperature: 0.7, max_tokens: 4000 },
+            params: { temperature: 0.7, maxTokens: 4000 },
           },
-          STRATEGIST: {
+          ACADEMIC: {
             provider: "anthropic",
             model: "claude-3-7-sonnet-latest",
             dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
-            params: { temperature: 0.7, max_tokens: 4000 },
+            params: {
+              thinking: { type: "enabled", budgetTokens: 12000 },
+              temperature: 0.7,
+              maxTokens: 20000,
+            },
           },
         },
       },

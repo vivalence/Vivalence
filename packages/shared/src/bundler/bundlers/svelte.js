@@ -37,13 +37,20 @@ export default async function (entry) {
         importmap: {
           imports: {
             "@vivalence/shared": join(root, "packages/shared/client.js"),
-            "@vivalence/interface": join(root, "packages/interfaces/display/mod.js"),
+            "@vivalence/interface": join(
+              root,
+              "packages/interfaces/display/mod.js",
+            ),
+            "@vivalence/schema": join(root, "packages/schema/mod.ts"),
           },
         },
       }),
       sveltePlugin({
         filterWarnings: (warning, handler) => {
-          if (["css_unused_selector"].includes(warning.code) || warning.code.startsWith("a11y-"))
+          if (
+            ["css_unused_selector"].includes(warning.code) ||
+            warning.code.startsWith("a11y-")
+          )
             return;
         },
         compilerOptions: {

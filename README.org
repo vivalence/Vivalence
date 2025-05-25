@@ -16,6 +16,7 @@ learn how to aquire a flat, predictable commercial use license.
 
 
 vivalence is
+- fair source, for profit, privately held, eu inc.
 - designed to become the worlds education systems backbone. 
 - infinitely personalizable, hackable, emacs inspired, cybernetically enhanced, wikipedia style, federateable, procedurally generated, fair use, functional platform.
 

@@ -1,18 +1,23 @@
 async function unique(issue: any, ctx: any) {
   const constraint = issue.data.context.constraint.unique;
-  const unit = issue.data.context.entity;
+  const unit = issue.data.context.unit;
 
   const tags = await unit.tags
     .filter((tag: any) => {
       return (
-        (constraint.branch ? tag.data.ONTOLOGICAL?.branch === constraint.branch : true) &&
-        (constraint.leaf ? tag.data.ONTOLOGICAL?.leaf === constraint.leaf : true)
+        (constraint.branch
+          ? tag.data.ONTOLOGICAL?.branch === constraint.branch
+          : true) &&
+        (constraint.leaf
+          ? tag.data.ONTOLOGICAL?.leaf === constraint.leaf
+          : true)
       );
     })
     .filter((tag: any) => {
       return !Object.keys(unit.annotation).some((key) => {
         return (
-          key === tag.data.ONTOLOGICAL.branch && unit.annotation[key] === tag.data.ONTOLOGICAL.leaf
+          key === tag.data.ONTOLOGICAL.branch &&
+          unit.annotation[key] === tag.data.ONTOLOGICAL.leaf
         );
       });
     });

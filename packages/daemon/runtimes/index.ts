@@ -6,7 +6,7 @@ import Runtime from "./runtime.ts";
 import register from "./register.js";
 import install from "./install.ts";
 import aperture from "./aperture.ts";
-import schema from "./schema.ts";
+import entities from "./entities.ts";
 import services from "./services.ts";
 
 export default {
@@ -15,13 +15,16 @@ export default {
       const runtime = await [
         register,
         services,
-        schema,
+        entities,
         aperture.init,
         boot,
         //
       ]
         .map((fn) => fn(daemon))
-        .reduce((acc, fn) => acc.then(fn), Promise.resolve(new Runtime(RuntimeConfig, daemon)));
+        .reduce(
+          (acc, fn) => acc.then(fn),
+          Promise.resolve(new Runtime(RuntimeConfig, daemon)),
+        );
 
       daemon.runtimes.set(runtime.config.manifest.slug, runtime);
     }

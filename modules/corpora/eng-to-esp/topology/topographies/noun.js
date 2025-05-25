@@ -2,7 +2,7 @@ export default {
   slug: "noun",
   name: "Noun",
   description: "A noun is a word that represents a person, place, or thing.",
-  annotations: [
+  dimensions: [
     { branch: ["pos"], required: true },
     { branch: ["lemma"], required: true },
     { branch: ["gender"], required: true },

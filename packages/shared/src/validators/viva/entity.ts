@@ -1,11 +1,14 @@
-import makeAjv from "../ajv.js";
+import { makeAjv } from "../ajv.js";
 
 import { JsonSchema, Issue, AjvValidationError } from "./types.d.ts";
 
-export default async function validateEntity(schema: JsonSchema, entity: any): Promise<Issue[]> {
+export default async function validateEntity(
+  schema: JsonSchema,
+  entity: any,
+): Promise<Issue[]> {
   const issues: Issue[] = [];
 
-  const ajv = makeAjv({ removeAdditional: false });
+  const ajv = makeAjv({ removeAdditional: "all" });
   const validate = ajv.compile(schema);
   const valid = validate(entity);
 

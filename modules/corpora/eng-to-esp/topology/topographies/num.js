@@ -3,7 +3,7 @@ export default {
   name: "Number",
   description:
     "Numbers are words that denote a quantity. They can be cardinal, ordinal, multiplicative, or fractional.",
-  annotations: [
+  dimensions: [
     { branch: ["pos"], required: true },
     { branch: ["lemma"], required: true },
     { branch: ["numtype"], required: true },

@@ -2,6 +2,6 @@
   "name": "@vivalence/types",
   "version": "0.0.1",
   "exports": {
-    ".": "./types.d.ts"
-  }
+    ".": "./types.d.ts",
+  },
 }

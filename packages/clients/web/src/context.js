@@ -1,20 +1,8 @@
 import { browser } from "$app/environment";
 import createCall from "./lib/call.js";
+import { Trajectory, parsers } from "@vivalence/trajectory";
 
 let ctx;
-
-// function keybindings(map) {
-//   window.removeEventListener("keydown", keyhandler);
-//   keyhandler = createKeybindingsHandler(map);
-//   window.addEventListener("keydown", keyhandler);
-// }
-
-// !important to hook into layout.
-// onMount(() => {
-//   return () => {
-//     window.removeEventListener("keydown", keyhandler);
-//   };
-// });
 
 function context(event) {
   if (!ctx) {
@@ -25,15 +13,17 @@ function context(event) {
       call: null,
       runtime: null,
       daemon: null,
-      // entities
-      // trajectory
+      // todo: rename vector
+      trajectory: new Trajectory([parsers.key]),
     };
+
+    // ctx.client.trajectory.branch((p) => p.key("p"));
 
     ctx.identity = {
       getUser: async () => await Promise.resolve({ id: "localhost" }),
     };
     ctx.call = createCall({});
-    ctx.daemon = ctx.call.wrap("/aperture/v1/daemon");
+    ctx.daemon = { call: ctx.call.wrap("/aperture/v1/daemon") };
 
     if (browser && !window.viva) {
       window.viva = ctx;
@@ -41,12 +31,16 @@ function context(event) {
   }
 
   if (event?.params.runtime) {
-    ctx.runtime = ctx.call.wrap(`/aperture/v1/runtime/${event.params.runtime}`);
+    ctx.runtime = {
+      call: ctx.call.wrap(`/aperture/v1/runtime/${event.params.runtime}`),
+    };
 
     if (event?.params.game) {
-      ctx.game = ctx.call.wrap(
-        `/aperture/v1/runtime/${event.params.runtime}/game/${event.params.game}`,
-      );
+      ctx.game = {
+        call: ctx.call.wrap(
+          `/aperture/v1/runtime/${event.params.runtime}/game/${event.params.game}`,
+        ),
+      };
     }
   }
 

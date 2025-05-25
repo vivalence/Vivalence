@@ -6,17 +6,17 @@ const composePath = join(dir, "./docker-compose.yml");
 const exampleEnvPath = join(dir, "./.env.source");
 const servicePath = { path: composePath };
 
-async function status(ctx) {
+async function status(_, ctx) {
   console.log(colors.blue("Checking the status of Stanza NLP services..."));
   await ctx.locals.compose.ps(servicePath);
 }
 
-async function build(host) {
+async function build(_, host) {
   console.log(colors.blue("Building Stanza NLP services..."));
   await host.locals.compose.build(servicePath);
 }
 
-async function up(host) {
+async function up(_, host) {
   console.log(colors.blue("Starting Stanza NLP services..."));
   const { ok, error } = await host.locals.compose.up(servicePath);
   if (!ok || error) {
@@ -28,7 +28,7 @@ async function up(host) {
   console.log(colors.green("✓ Stanza NLP services started successfully"));
 }
 
-async function down(host) {
+async function down(_, host) {
   console.log(colors.blue("Stopping Stanza NLP services..."));
   const { ok, error } = await host.locals.compose.down(servicePath);
   if (!ok || error) {
@@ -39,15 +39,16 @@ async function down(host) {
   await host.locals.compose.ps(servicePath);
   console.log(colors.green("✓ Stanza NLP services stopped successfully"));
 }
+
 export default function boot(host, service) {
-  host.trajectory.use(async (ctx, next) => {
+  host.trajectory.use(async (input, ctx, next) => {
     await ctx.locals.env.fromEnv(exampleEnvPath, service.config.env);
-    await next();
+    return await next();
   });
-  host.trajectory.path("/status", status);
-  host.trajectory.path("/up", up);
-  host.trajectory.path("/down", down);
-  host.trajectory.path("/build", build);
+  host.trajectory.open((p) => p.sig("/status"), status);
+  host.trajectory.open((p) => p.sig("/up"), up);
+  host.trajectory.open((p) => p.sig("/down"), down);
+  host.trajectory.open((p) => p.sig("/build"), build);
 }
 
 // const commands = {

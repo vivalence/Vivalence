@@ -2,7 +2,7 @@ export default {
   slug: "sentence",
   name: "Sentence",
   description: "Sentences are sentences",
-  annotations: [
+  dimensions: [
     { branch: ["pos"], required: true },
     // { branch: ["lemma"], required: true },
     // { branch: ["numtype"], required: true },

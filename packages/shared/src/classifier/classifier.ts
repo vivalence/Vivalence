@@ -1,39 +1,48 @@
 import { fn, array } from "@vivalence/shared";
 import type { Context } from "./types.ts";
-import { Feature, Parser, ParserFunction, Signal } from "./types.ts";
+import { Feature, Parser, ParserFunction, Signal, Form } from "./types.ts";
+import { UnknownFormError, InvalidOnError } from "./errors.ts";
 
 export class Classifier {
-  private signals: Map<typeof Signal, Parser[]>;
+  private signals: Map<Form, Parser[]>;
   private features: Map<string, string>;
   private promises: Map<string, Array<{ resolve: Function; reject: Function }>>;
+  private hooks: Parser[]; // Only apply on factory;
 
   constructor() {
+    this.hooks = [];
     this.signals = new Map();
     this.features = new Map();
     this.promises = new Map();
   }
-  get generators() {
+  get forms(): Form[] {
     return Array.from(this.signals.keys());
   }
-  register(generator: typeof Signal): Classifier {
-    if (!this.signals.has(generator)) {
-      this.signals.set(generator, []);
+  register(form: Form): Classifier {
+    if (!this.signals.has(form)) {
+      this.signals.set(form, []);
     }
-    return this.signals.get(generator);
+    return this.signals.get(form);
   }
-  on(generator: typeof Signal, parser: ParserFunction) {
-    this.register(generator).push(
-      parser instanceof Parser ? parser : new Parser(parser),
-    );
+  on(type: Form | Feature, parser: ParserFunction) {
+    if (type === Feature) this.hooks.push(parser);
+    else if (type.prototype instanceof Form) {
+      if (!(parser instanceof Parser)) parser = new Parser(parser);
+      this.register(type).push(parser);
+    } else throw new InvalidOnError();
+    return this;
   }
-  with(ctx: Context) {
+  factory(ctx: Context) {
     return new Proxy(this, {
-      get: (_: any, generatorName: string) => {
-        const generator = this.generators.find(
-          (g) => g.name.toLowerCase() === generatorName,
-        );
-        return (signal: any) => this.parse(new generator(signal), ctx);
-        // throw new Error(`No signal found for: ${generatorName}`);
+      get: (_: any, name: string) => {
+        const Form = this.forms.find((g) => g.name.toLowerCase() === name);
+        if (!Form) return undefined;
+        return async (signal: any) => {
+          const features = await this.parse(new Form(signal), ctx);
+          return await fn.reduceEach(this.hooks, features);
+        };
+
+        // if (!Form) throw new UnknownFormError(name);
       },
     });
   }
@@ -75,46 +84,32 @@ export class Classifier {
       this.promises.delete(k);
     }
   }
-  private context(ctx: Context, signal: Signal) {
-    ctx.cast = { feature: (f) => new Feature(f) };
-    // for (const generator of this.generators) {
-    //   for (const g of generator.generators) {
-    //     if (signal instanceof g) {
-    //       ctx.cast[g.name.toLowerCase()] = (s) => new generator(s);
-    //     }
-    //   }
-    // }
-    return ctx;
+  async extract(signal: Signal, parser, ctx: Context): Promise<Feature[]> {
+    let features = await this.find(parser, signal);
+    if (!features) {
+      features = await parser.parse(signal, ctx, this.forward(signal, ctx));
+      features = array.ensureFlat(features).filter((feature) => !!feature);
+      this.cache(parser, signal, features);
+    }
+    return features.map((feature) => feature.from(signal));
   }
   async parse(signal: Signal, ctx: Context): Promise<Feature[]> {
     if (!this.signals.has(signal.constructor))
-      throw new Error("Invoked parse with unknown Signal:", signal.constructor);
-    const FEATURES = [];
+      throw new UnknownFormError(signal.constructor);
+
+    let features = [];
     for (const parser of this.signals.get(signal.constructor)) {
-      let features = await this.find(parser, signal);
-      if (!features) {
-        features = array
-          .ensureFlat(
-            await parser.parse(
-              signal,
-              this.context(ctx, signal),
-              this.next(ctx, signal),
-            ),
-          )
-          .filter((feature) => !!feature);
-        this.cache(parser, signal, features);
-      }
-      FEATURES.push(features.map((feature) => feature.from(signal)));
+      features.push(await this.extract(signal, parser, ctx));
     }
-    return FEATURES.flat();
+    features = array.ensureFlat(features).filter((feature) => !!feature);
+    return features;
   }
-  next(ctx: Context, ancestor?: Signal) {
+  forward(ancestor?: Signal, ctx: Context) {
     return fn.once(async (signals: Signal[]): Promise<Feature[]> => {
-      return (
-        await Promise.all(
-          signals.map((signal) => this.parse(signal.from(ancestor), ctx)),
-        )
-      ).flat();
+      const features = signals
+        .map((signal) => signal.from(ancestor))
+        .map((signal) => this.parse(signal, ctx));
+      return (await Promise.all(features)).flat();
     });
   }
 }

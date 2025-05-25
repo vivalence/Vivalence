@@ -20,7 +20,7 @@ export class TopographyEntity extends BaseDataEntity {
   // [EntityRepositoryType]?: TopographyRepository;
   // slug from hash.
   traits: TopographyTraitsEnum[] & Opt = [];
-  annotations: any & Opt = [];
+  dimensions: any & Opt = [];
   // TODO:once using MikroRepository
   // annotations: new Collection<Annotation>(this)
   topology: string & Opt = "";

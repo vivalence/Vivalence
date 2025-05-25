@@ -9,6 +9,9 @@ import unit from "./entities/unit/index.js";
 import feed from "./methods/feed/index.js";
 import provision from "./methods/provision/index.js";
 import pick from "./methods/pick/index.js";
+import classify from "./methods/classify/index.js";
+import review from "./methods/review/index.js";
+
 // import conditions from "./conditions/index.js";
 // import scope from "./scope/index.js";
 // import tactics from "./tactics/index.js";
@@ -18,6 +21,8 @@ import pick from "./methods/pick/index.js";
 // import memoryStatus from "../middlewares/memory/statusChangeEventEmitter.js";
 
 function boot(runtime) {
+  runtime.aperture.open("/review/annotation", review.annotation);
+
   runtime.aperture.open("/corpus/install", corpus.install);
   runtime.aperture.open("/tag/validate", tag.validate);
   runtime.aperture.open("/tag/install", tag.install);
@@ -26,11 +31,14 @@ function boot(runtime) {
   runtime.aperture.open("/provision/dependency", provision.dependency);
   runtime.aperture.open("/provision/tactic", provision.tactic);
 
+  runtime.aperture.open("/classify/text", classify.text);
+  runtime.aperture.open("/classify/test", classify.test);
   // route("/unit/fromTagSlugs", units.fromTagSlugs);
   // route("/unit/fromSlugs", units.fromSlugs);
   // route("/unit/fromSlug", units.fromSlug);
   // route("/unit/fromTagIds", units.fromTagIds);
   // route("/unit/fromUnitIds", units.fromUnitIds);
+  runtime.aperture.open("/unit/identity", unit.identity);
   runtime.aperture.open("/unit/install", unit.install);
   runtime.aperture.open("/unit/validate", unit.validate);
   // route("/unit/remove", units.remove);

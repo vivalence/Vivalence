@@ -2,54 +2,15 @@ import { assertEquals } from "$std/assert";
 
 import { Walker, Deferred } from "../controllers/index.ts";
 import { Trajectory } from "../core/trajectory.ts";
-import path from "../parsers/path.ts";
-
-function setupTrajectory() {
-  const trajectory = new Trajectory([path]);
-
-  trajectory.use(async (input, ctx, next) => {
-    ctx.database = {
-      users: (username) => ({
-        name: username,
-        id: username === "finn" ? "123" : "unknown",
-      }),
-    };
-    return await next();
-  });
-
-  const usersTrajectory = trajectory.branch(path.pattern("/users"));
-
-  usersTrajectory.use(async (input, ctx, next) => {
-    if (input.username) {
-      ctx.user = ctx.database.users(input.username);
-    }
-    return await next();
-  });
-
-  const userDetailTrajectory = usersTrajectory.branch(
-    path.pattern("/:username"),
-  );
-
-  userDetailTrajectory.use(async (input, ctx, next) => {
-    // console.log("middleware input", input);
-    const result = await next();
-    // console.log("middleware result", result);
-    return result;
-  });
-
-  userDetailTrajectory.open(path.pattern("/a.tson"), (input, ctx) => {
-    return { world: "hello", user: ctx.user };
-  });
-
-  return trajectory;
-}
+import { createTrajectory } from "./lib/createTrajectory.js";
+import sig from "../parsers/sig.ts";
 
 Deno.test("Handler execution with parameters", async () => {
-  const trajectory = setupTrajectory();
+  const trajectory = createTrajectory();
   const deferred = new Deferred();
   const walker = new Walker(trajectory, deferred);
 
-  const initialPath = path.signal("/users/finn/a.tson");
+  const initialPath = sig.signal("/users/finn/a.tson");
   const steps = await walker.walk(initialPath, async () => []);
 
   const handler = await deferred.handler;
@@ -61,7 +22,7 @@ Deno.test("Handler execution with parameters", async () => {
 });
 
 Deno.test("Walker navigation through trajectory", async () => {
-  const trajectory = setupTrajectory();
+  const trajectory = createTrajectory();
   const deferred = new Deferred();
   const walker = new Walker(trajectory, deferred);
 
@@ -70,13 +31,13 @@ Deno.test("Walker navigation through trajectory", async () => {
     directionCalls++;
     switch (directionCalls) {
       case 1:
-        return path.signal("/");
+        return sig.signal("/");
       case 2:
-        return path.signal("users");
+        return sig.signal("users");
       case 3:
-        return path.signal("/finn");
+        return sig.signal("/finn");
       case 4:
-        return path.signal("a.tson");
+        return sig.signal("a.tson");
       default:
         return [];
     }
@@ -91,7 +52,7 @@ Deno.test("Walker navigation through trajectory", async () => {
 Deno.test("Middleware execution order", async () => {
   const executionOrder = [];
 
-  const trajectory = new Trajectory([path]);
+  const trajectory = new Trajectory([sig]);
 
   // Root middleware
   trajectory.use(async (input, ctx, next) => {
@@ -102,7 +63,7 @@ Deno.test("Middleware execution order", async () => {
   });
 
   // /users branch
-  const usersTrajectory = trajectory.branch(path.pattern("/users"));
+  const usersTrajectory = trajectory.branch(sig.pattern("/users"));
 
   // Users middleware
   usersTrajectory.use(async (input, ctx, next) => {
@@ -114,7 +75,7 @@ Deno.test("Middleware execution order", async () => {
 
   // /users/:username branch
   const userDetailTrajectory = usersTrajectory.branch(
-    path.pattern("/:username"),
+    sig.pattern("/:username"),
   );
 
   // Username middleware
@@ -126,7 +87,7 @@ Deno.test("Middleware execution order", async () => {
   });
 
   // Effect
-  userDetailTrajectory.open(path.pattern("/a.tson"), (input, ctx) => {
+  userDetailTrajectory.open(sig.pattern("/a.tson"), (input, ctx) => {
     executionOrder.push("effect");
     return { test: "success" };
   });
@@ -134,7 +95,7 @@ Deno.test("Middleware execution order", async () => {
   const deferred = new Deferred();
   const walker = new Walker(trajectory, deferred);
 
-  const initialPath = path.signal("/users/finn/a.tson");
+  const initialPath = sig.signal("/users/finn/a.tson");
   await walker.walk(initialPath, async () => []);
 
   const handler = await deferred.handler;

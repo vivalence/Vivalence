@@ -1,64 +1,70 @@
+import parser from "../parsers/sig.ts";
 import { Walker } from "./walker.ts";
 import { Deferred } from "./lib/index.ts";
-import { tools } from "./lib/prompts.js";
-
-const normalizePath = (path) => path.replace(/\/+/g, "/").replace(/\/$/, "");
 
 export class Agentic {
   constructor(trajectory) {
     this.trajectory = trajectory;
-    this.callables = [];
-    this.index = "";
+    this.tools = {};
+    this.stack = [`### Tools`];
+    this.seperator = "/";
     this.traverse();
   }
 
-  traverse(ancestorPath = "", trajectory = this.trajectory) {
+  onPattern(path, docs) {
+    this.stack.push(`### ${path}`);
+    if (docs.valence) this.stack.push(docs.valence);
+  }
+  onEffect(path, docs) {
+    this.stack.push(`"${this.denormalize(path)}":`);
+    if (docs.valence) this.stack.push(docs.valence);
+    if (docs.input) this.stack.push(`- input ${JSON.stringify(docs.input)}`);
+    if (docs.output) this.stack.push(`- output ${JSON.stringify(docs.output)}`);
+  }
+
+  get llmstxt() {
+    return "\n" + this.stack.join("\n") + "\n";
+  }
+
+  traverse(ancestorPath = this.seperator, trajectory = this.trajectory) {
     for (const [pattern, effect] of trajectory.effects.entries()) {
+      // TODO filter by pattern.type path
       const nodePath = `${ancestorPath}${pattern.docs.segment}`;
-      this.index += `\n$: "${nodePath}": ${pattern.docs.valence}`;
-      this.collect(nodePath, pattern.docs, effect);
+
+      this.onEffect(nodePath, pattern.docs);
+      this.onTool(nodePath, effect, pattern.docs);
     }
 
     for (const [pattern, descendant] of trajectory.descendants.entries()) {
-      const nodePath = `${ancestorPath}${pattern.docs.segment}_`;
+      const nodePath = `${ancestorPath}${pattern.docs.segment}${this.seperator}`;
 
-      if (pattern.docs.valence)
-        this.index += `\n@: "${nodePath}": \n${pattern.docs.valence}`;
+      this.onPattern(nodePath, pattern.docs);
 
       this.traverse(nodePath, descendant);
     }
   }
 
-  collect(path, docs, effect) {
-    let description = `\n### "${path}":`;
-    if (docs.valence)
-      description += `\n- valence: ${JSON.stringify(docs.valence)}`;
-    if (docs.input) description += `\n- input: ${JSON.stringify(docs.input)}`;
-    if (docs.output)
-      description += `\n- output: ${JSON.stringify(docs.output)}`;
+  onTool(path, effect, docs) {
+    this.tools[this.denormalize(path)] = {
+      valence: docs.valence,
+      input: docs.input,
+      execute: async (input) => {
+        const deferred = new Deferred();
+        const walker = new Walker(this.trajectory, deferred);
+        const signal = parser.signal(path);
 
-    this.callables.push({
-      name: path,
-      description,
-      parameters: docs.input,
-      func: async (input) => {
-        console.log("CALLABLE CALLED");
-        console.log(input);
-        console.log(path, docs);
-        // const signal = new Signal("sig", { path: patternInfo.fullPath });
-        // const deferred = new Deferred();
-        // const walker = new Walker(trajectory, deferred);
-        // try {
-        //   await walker.walk([signal], async () => {
-        //     throw new Error(`No handler found for ${patternInfo.fullPath}`);
-        //   });
-        //   const ctx = {};
-        //   const handler = await deferred.handler;
-        //   return await handler(input, ctx);
-        // } catch (error) {
-        //   throw error;
-        // }
+        await walker.walk(signal, async () => {
+          throw new Error(`No handler ${path}: ${JSON.stringify(docs)}`);
+        });
+
+        const ctx = {};
+        const handler = await deferred.handler;
+        const result = await handler(input, ctx);
+        return result;
       },
-    });
+    };
+  }
+  denormalize(path) {
+    return path.replaceAll(this.seperator, "_").slice(1);
   }
 }
