@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
 export default defineConfig({
   resolve: {
     alias: {
@@ -13,13 +12,19 @@ export default defineConfig({
       "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@client/icons/": join(__dirname, "./static/icons/"),
       "@client/context": join(__dirname, "./src/context.js"),
+
       "@vivalence/interface": join(
         __dirname,
         "../../interfaces/display/mod.js",
       ),
       "@vivalence/shared": join(__dirname, "../../shared/client.js"),
+      "@vivalence/schema": join(__dirname, "../../schema/mod.ts"),
+      "@vivalence/trajectory": join(
+        __dirname,
+        "../../shared/src/trajectory/index.ts",
+      ),
     },
-    extensions: [".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
+    extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },
   plugins: [sveltekit()],
   server: {

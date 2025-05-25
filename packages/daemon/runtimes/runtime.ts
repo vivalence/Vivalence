@@ -12,6 +12,7 @@ export default class Runtime {
   emitter = null;
   hooks = null;
 
+  schema = {};
   ontology = {};
   valences = new ValenceRepository();
 

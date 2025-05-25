@@ -1,68 +1,99 @@
 <script>
   import { onMount } from "svelte";
-  import { Text, Button, Input } from "@vivalence/interface";
+  import { Textarea, Text, Button, Input } from "@vivalence/interface";
 
-  // const props = $props(); console.log("props", props);
-  const { instruction, ctx, client } = $props();
+  const { intent, instruction, ctx } = $props();
 
-  let loading = $state(false);
-  let currentStep = $state("");
+  console.log(ctx);
   let prompt = $state("");
-  let userInput = $state("");
+  let input = $state("");
+  let loading = $state(false);
 
-  let learnables = $state(
-    new Map(
-      instruction.learnables.map((l) => [l.slug, { state: "todo", ...l }]),
-    ),
-  );
+  // ctx.client.trajectory.branch((p) => p.key("p"));
+  let learnables = $state({});
+  let session = $state([]);
+  let history = $state([]);
+  let step = $state("");
 
   async function initializeSession() {
     loading = true;
-    const response = await ctx.game("/generator", {
-      userInput,
-      currentStep: instruction.process.find(({ step }) => slug === currentStep),
-      process: instruction.process,
-      learnables: Object.fromEntries(learnables),
-    });
+    const response = await ctx.game.call("/provision", {});
+    session = response.session;
+    step = session.sort((a, b) => a.index - b.index)[0].slug;
+    learnables = response.learnables;
 
-    console.log("response", response);
-
-    // prompt = response.prompt;
-    // currentStep = response.nextStep;
-
-    // loading = false;
+    await doGenerator(step, input);
+    loading = false;
   }
 
-  // async function submitResponse() {loading = true; const discResponse = await game.call("/agents/discriminator", {step: currentStep, process: instruction.process, learnables: Object.fromEntries(learnablesState), prompt, userInput,}); Object.entries(discResponse.learnables).forEach(([slug, state]) => {if (learnablesState.has(slug)) {learnablesState.set(slug, {...learnablesState.get(slug), state,});}}); const genResponse = await game.call("/agents/generator", {currentStep, learnables: Object.fromEntries(learnablesState), process: instruction.process, lastUserMessage: userInput,}); prompt = genResponse.prompt; currentStep = genResponse.nextStep; userInput = ""; loading = false;}
+  async function doDiscriminator(stepCache, inputCache) {
+    const result = await ctx.game.call("/discriminator", {
+      learnables,
+      history,
+      step: stepCache,
+      input: inputCache,
+    });
+    console.log("discriminator result ", result);
+  }
+  async function doGenerator(stepCache, inputCache) {
+    const { activePrompt, activeStep } = await ctx.game.call("/generator", {
+      session,
+      learnables,
+      history,
+      step: stepCache,
+      input: inputCache,
+    });
+    prompt = activePrompt;
+    step = activeStep;
+    history.push({ role: "assistant", content: prompt });
+  }
+
+  async function submitResponse() {
+    loading = true;
+    const inputCache = input;
+    const stepCache = step;
+    input = "";
+    history.push({ role: "user", content: inputCache });
+    const discriminatorPromise = doDiscriminator(stepCache, inputCache);
+    await doGenerator(stepCache, inputCache);
+    loading = false;
+    await discriminatorPromise;
+  }
+
+  function setupListener() {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submitResponse();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }
+  onMount(setupListener);
   onMount(initializeSession);
 </script>
 
 <div class="bsp-node v2">
-  <div class="bsp-node prompt">
-    prompt
-    <!--   {#if loading} -->
-    <!--     <div class="loading">Loading...</div> -->
-    <!--   {:else} -->
-    <!--     {prompt} -->
-    <!--   {/if} -->
+  <div class="bsp-node prompt p-24 pt-32">
+    {#if loading}
+      <Text size="lg">Thinking...</Text>
+    {:else}
+      <Text size="xl">{@html prompt}</Text>
+    {/if}
   </div>
-
-  <div class="bsp-node response">
-    <textarea bind:value={userInput} placeholder="|" disabled={loading}
-    ></textarea>
-
-    <!--   <button on:click={submitResponse} disabled={loading || !userInput.trim()}> -->
-    <!--     Submit -->
-    <!--   </button> -->
+  <div class="bsp-node response p-24">
+    <Textarea
+      mode="centered"
+      size="xl"
+      autofocus
+      bind:value={input}
+      disabled={loading}></Textarea>
   </div>
 </div>
 
 <style>
+  * {
+  }
   .prompt {
-    background-color: red;
   }
   .response {
-    background-color: blue;
   }
-  /* .binary-space-partition {display: flex; flex-direction: column; height: 100vh;} .bsp {padding: 1rem;} .prompt {flex: 1; background-color: #f5f5f5; overflow-y: auto; white-space: pre-wrap;} .response {flex: 1; display: flex; flex-direction: column;} textarea {flex: 1; resize: none; padding: 0.5rem; font-size: 1rem;} button {margin-top: 0.5rem; padding: 0.5rem;} */
 </style>

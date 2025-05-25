@@ -2,7 +2,7 @@ export default {
   slug: "verb",
   name: "Verb",
   description: "A verb is a word that expresses an action or a state of being.",
-  annotations: [
+  dimensions: [
     { branch: ["pos"], required: true },
     { branch: ["lemma"], required: true },
     { branch: ["verbform"], required: true },
@@ -15,7 +15,10 @@ export default {
     { branch: ["aspect"] },
     {
       condition: {
-        if: { properties: { verbform: { const: "fin" } }, required: ["verbform"] },
+        if: {
+          properties: { verbform: { const: "fin" } },
+          required: ["verbform"],
+        },
         then: {
           required: ["tense", "mood", "person", "number", "aspect"],
           properties: { gender: { not: {} } },
@@ -24,7 +27,10 @@ export default {
     },
     {
       condition: {
-        if: { properties: { verbform: { const: "inf" } }, required: ["verbform"] },
+        if: {
+          properties: { verbform: { const: "inf" } },
+          required: ["verbform"],
+        },
         then: {
           properties: {
             tense: { not: {} },
@@ -39,7 +45,10 @@ export default {
     },
     {
       condition: {
-        if: { properties: { verbform: { const: "part" } }, required: ["verbform"] },
+        if: {
+          properties: { verbform: { const: "part" } },
+          required: ["verbform"],
+        },
         then: {
           properties: {
             gender: { not: {} },
@@ -54,7 +63,10 @@ export default {
     },
     {
       condition: {
-        if: { properties: { verbform: { const: "ger" } }, required: ["verbform"] },
+        if: {
+          properties: { verbform: { const: "ger" } },
+          required: ["verbform"],
+        },
         then: {
           properties: {
             tense: { not: {} },
@@ -136,7 +148,7 @@ export default {
     },
   ],
 };
-// annotations:
+// dimensions:
 // allOf: [
 //   {
 //     if: { properties: { verbform: { const: "fin" } }, required: ["verbform"] },

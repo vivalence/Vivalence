@@ -5,7 +5,15 @@ export default async function installUnit(input, ctx) {
   let operation = "";
   let status = "success";
 
-  if (!input.unit.slug) throw new Error("Slug missing");
+  if (!input.unit.slug)
+    input.unit.slug = await ctx.runtime.call("/unit/identity", input.unit);
+
+  const pre_issues = await ctx.runtime.ontology.assert //
+    .unit(input.unit, ["SCHEMATIC"]);
+  if (pre_issues.length > 0) {
+    console.error("[/unit/install] issues", pre_issues);
+    throw new Error("Slug missing");
+  }
 
   let unit = await ctx.runtime.entities.unit.findOne(
     { slug: input.unit.slug },
@@ -24,7 +32,10 @@ export default async function installUnit(input, ctx) {
   unit.data.index = unit.data.index || null;
   unit.data.known = unit.data.known || null;
   unit.data.learning = unit.data.learning || null;
-  unit.data.example = deepMerge(unit.data.example, { known: null, learning: null });
+  unit.data.example = deepMerge(unit.data.example, {
+    known: null,
+    learning: null,
+  });
 
   // await unit.tags.init();
   const asserter = ctx.runtime.ontology.assert.unit;
@@ -32,8 +43,6 @@ export default async function installUnit(input, ctx) {
     { entity: unit, asserter, processors: ["SCHEMATIC"] },
     ctx,
   );
-
-  // console.log("issues", JSON.stringify(issues, null, 2));
 
   if (issues.length > 0) {
     console.log("[UNIT INSTALL] ISSUES NOT RESOLVED. issues:", issues);

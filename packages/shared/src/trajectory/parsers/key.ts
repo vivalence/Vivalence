@@ -86,5 +86,5 @@ export function pattern(input: string | KeyPattern): Pattern<KeySignal>[] {
 }
 
 export const type = "key";
-
-export default { signal, pattern, type };
+export const key = { signal, pattern, type };
+export default key;

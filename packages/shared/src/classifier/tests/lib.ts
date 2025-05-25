@@ -10,7 +10,7 @@ export class Text extends Signal<string> {
 }
 
 export class Token extends Signal<string> {
-  generators = [Text];
+  forms = [Text];
   constructor(value: string) {
     super("token", value);
   }
@@ -61,16 +61,20 @@ export function createTestContext(): Context {
 }
 
 export function createTestClassifier(): Classifier {
-  const classifier = new Classifier(Text, Token);
+  const classifier = new Classifier();
 
-  classifier.on
-    .text(async (text: string, ctx: Context, next): Feature[] => {
+  classifier
+    .on(Feature, (feature: Feature, ctx: Context): Feature => {
+      feature.hooked = true;
+      return feature;
+    })
+    .on(Text, async (text: string, ctx: Context, forward): Feature[] => {
       const features = [];
       const tokens = (await ctx.signals.token(text)).flat();
-      (await next(tokens)).flat().map((f) => features.push(f));
+      (await forward(tokens)).flat().map((f) => features.push(f));
       return features;
     })
-    .token(async (token: string, ctx: Context, next): Feature[] => {
+    .on(Token, async (token: string, ctx: Context, forward): Feature[] => {
       const features = await ctx.features.token(token);
       return features;
     });

@@ -9,6 +9,7 @@ import { TagEntity } from "../data/Tag.ts";
 export enum ConstraintTraitsEnum {
   SCHEMATIC = "schematic",
   RELATIONAL = "relational",
+  EXISTENTIAL = "existential",
 }
 
 export class ConstraintRepository extends BaseDataRepository {
@@ -21,7 +22,7 @@ export class ConstraintRepository extends BaseDataRepository {
 export class ConstraintEntity extends BaseDataEntity {
   traits: ConstraintTraitsEnum[] & Opt = [];
   topology: string & Opt = "";
-  branch: string[] & Opt; // [${entity} ${togography}] || [${topology} ${annotation}]
+  branch: string[] & Opt; // [${entity} ${togography}] || [${topology} ${dimension}]
   data: any & Opt = {};
 
   constructor(rule = { topology: "", traits: [], branch: [], data: {} }) {
@@ -38,40 +39,41 @@ export class ConstraintEntity extends BaseDataEntity {
   async assert(entity: UnitEntity | TagEntity) {
     const issues = [];
 
+    let entityType = "";
+    if (entity instanceof UnitEntity) entityType = "unit";
+    else if (entity instanceof TagEntity) entityType = "tag";
+
     if (this.traits.includes("SCHEMATIC")) {
       const fails = await validators.viva.entity(this.data.SCHEMATIC, entity);
       for (const issue of fails) {
-        issue.context.entity = entity;
-        issue.path.unshift("unit"); // @lj temporary hardcode
-        issues.push(issue);
+        issue.context[entityType] = entity;
+        issue.path.unshift(entityType);
+        issues.push(new IssueEntity(issue));
       }
     }
 
     if (this.traits.includes("RELATIONAL")) {
-      const relations = [];
-      if (entity instanceof UnitEntity && entity.tags.isInitialized()) {
-        // console.log("entity", entity);
+      if (entity instanceof UnitEntity) {
+        if (!entity.tags.isInitialized()) await entity.tags.init();
+
+        const relations = [];
         entity.tags
           .map((tag) => tag.data.ONTOLOGICAL)
           .map((r) => relations.push(r));
-        // console.log("relations", relations);
-      }
-      if (entity instanceof TagEntity) {
-        // TODO
-      }
 
-      const fails = await validators.viva.relations(
-        this.data.RELATIONAL,
-        relations,
-      );
+        const fails = await validators.viva.relations(
+          this.data.RELATIONAL,
+          relations,
+        );
 
-      for (const issue of fails) {
-        issue.context.entity = entity;
-        issue.path = ["unit", "tags"]; // @lj temporary hardcode
-        issues.push(issue);
+        for (const issue of fails) {
+          issue.context["unit"] = entity;
+          issue.path = ["unit", "tags"];
+          issues.push(new IssueEntity(issue));
+        }
       }
     }
 
-    return issues.map((data) => new IssueEntity({ data }));
+    return issues;
   }
 }

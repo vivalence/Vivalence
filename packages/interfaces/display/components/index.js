@@ -9,8 +9,10 @@ import Widget from "./widget/Widget.svelte";
 import Buffer from "./buffer/Buffer.svelte";
 import BufferState from "./buffer/state.svelte.js";
 import BufferMode from "./buffer/Mode.js";
+import Textarea from "./textarea/Textarea.svelte";
 
 export {
+  Textarea,
   BufferMode,
   BufferState,
   Buffer,

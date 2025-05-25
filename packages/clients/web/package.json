@@ -10,9 +10,12 @@
     "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
     "lint": "prettier --plugin-search-dir . --check . && eslint .",
-    "format": "prettier --plugin-search-dir . --write ."
+    "format": "prettier --plugin-search-dir . --write .",
+    "tailwind-config-viewer": "npx tailwind-config-viewer -o",
+    "css:bsp": "npx postcss --config postcss.config.js src/style/bsp/bsp.css -o test-output.css"
   },
   "dependencies": {
+    "@sinclair/typebox": "^0.34.33",
     "@modelcontextprotocol/sdk": "^1.10.0",
     "@sveltejs/adapter-auto": "^3.3.1",
     "@sveltejs/kit": "^2.7.4",
@@ -22,6 +25,7 @@
     "bits-ui": "^1.4",
     "carbon-icons-svelte": "^13.3",
     "clsx": "^2.0.0",
+    "crypto-js": "^4.2.0",
     "dockview-core": "^4.2",
     "fs-extra": "^11.2.0",
     "mitt": "3.0.1",
@@ -37,10 +41,12 @@
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-svelte": "^2.35.0",
+    "postcss-cli": "^11.0.1",
     "prettier": "^3.1.0",
     "prettier-plugin-svelte": "^3.1.0",
     "svelte-check": "^3.6.0",
     "typescript": "^5.3.0",
     "vite": "^6.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }

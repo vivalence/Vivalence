@@ -1,16 +1,32 @@
 import AJV from "ajv";
 import ajvErrors from "ajv-errors";
+import addFormats from "ajv-formats";
 
-export { AJV };
-
-export default function makeAjv(options = {}) {
-  const instance = new AJV({
+export function makeAjv(options = {}) {
+  let instance = new AJV({
     allErrors: true,
     verbose: true,
     $data: true,
-    removeAdditional: true,
+    removeAdditional: "all",
     ...options,
   });
+
+  instance = addFormats(instance, [
+    "date-time",
+    "time",
+    "date",
+    "email",
+    "hostname",
+    "ipv4",
+    "ipv6",
+    "uri",
+    "uri-reference",
+    "uuid",
+    "uri-template",
+    "json-pointer",
+    "relative-json-pointer",
+    "regex",
+  ]);
 
   ajvErrors(instance);
 
@@ -18,6 +34,8 @@ export default function makeAjv(options = {}) {
   // ajv.addKeyword({ keyword: "meta", validate: () => true, errors: false });
   return instance;
 }
+export const ajv = makeAjv();
+export { AJV };
 
 // function schema(options = {}) {
 //   const ajv = makeAjv(options);

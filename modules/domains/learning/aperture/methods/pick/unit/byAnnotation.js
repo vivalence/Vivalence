@@ -1,11 +1,10 @@
 export default async function getUnitsByAnnotation({ annotation }, ctx) {
-  if (["space", "sym", "x"].includes(annotation.pos)) {
-    return null;
-  }
-
-  return await getUnit(annotation, ctx);
+  // if (["space", "sym", "x"].includes(annotation.pos)) return null;
+  // return await getUnit(annotation, ctx);
+  return await ctx.runtime.entities.unit.findOne({ annotation });
 }
 
+// legacy:
 async function getUnit(annotation, ctx) {
   let query = { lemma: annotation.lemma };
 
@@ -21,11 +20,11 @@ async function getUnit(annotation, ctx) {
     default:
       query = querybuilders.default(query, annotation);
   }
+
   return await ctx.runtime.entities.unit.findOne({ annotation: query });
 }
 
-// i might be able to compute these from the constraints.
-// pretty sure actually.
+// TODO: resolve from topography
 const querybuilders = {
   prontypes: function (query, annotation) {
     query.prontype = annotation.prontype;

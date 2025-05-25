@@ -8,10 +8,13 @@ const manifest = {
 };
 
 function boot(host, service) {
-  host.trajectory.path("/create", async () => {
-    const db = await createDatabase(service.config);
-    await db.close();
-  });
+  host.trajectory.open(
+    (p) => p.sig("/create"),
+    async () => {
+      const db = await createDatabase(service.config);
+      await db.close();
+    },
+  );
 }
 
 export { manifest, client, boot };

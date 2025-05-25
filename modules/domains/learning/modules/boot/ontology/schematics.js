@@ -1,89 +1,94 @@
 import { obj } from "@vivalence/shared";
 
-export default function schematics(ontology) {
-  const topographies = ontology.annotations.filter((a) =>
-    a.traits.includes("TOPOGRAPHICAL"),
-  );
-  const entitySchematic = ontology.constraints.find((c) =>
-    c.traits.includes("SCHEMATIC"),
-  );
+export default function schematics(runtime) {
+  return (ontology) => {
+    ontology.schema = {
+      units: {},
+      annotations: {},
+    };
 
-  for (const entityType of ["unit"]) {
-    for (const { data } of topographies) {
+    const topographicalDims = ontology.dimensions //
+      .filter((a) => a.traits.includes("TOPOGRAPHICAL"));
+    const entitySchematic = ontology.constraints //
+      .find((c) => c.traits.includes("SCHEMATIC"));
+
+    for (const { data } of topographicalDims) {
       for (let { slug } of data["CATEGORICAL"]) {
         const topography = ontology.topographies.find((t) => slug === t.slug);
         if (!topography) continue;
-        if (slug !== "verb") continue;
+
+        const schema = computeSchema(
+          entitySchematic.data.SCHEMATIC,
+          topography,
+          ontology.dimensions,
+        );
+
+        // TODO: reduce to single source of truth. maybe schema can be a getter.
+        ontology.schema.annotations[slug] = schema.properties.annotation;
         ontology.constraints.create({
           topology: topography.topology,
-          branch: [entityType, slug],
+          branch: ["annotation", slug],
           traits: ["SCHEMATIC"],
-          data: {
-            SCHEMATIC: computeSchematic(
-              entitySchematic.data.SCHEMATIC,
-              topography,
-              ontology.annotations,
-            ),
-          },
+          data: { SCHEMATIC: schema.properties.annotation },
+        });
+
+        ontology.schema.units[slug] = schema;
+        ontology.constraints.create({
+          topology: topography.topology,
+          branch: ["unit", slug],
+          traits: ["SCHEMATIC"],
+          data: { SCHEMATIC: schema },
         });
       }
     }
-  }
 
-  return ontology;
+    return ontology.schema;
+  };
 }
 
-function computeSchematic(rootSchema, topography, annotations) {
-  const SCHEMATIC = {
+// TODO: validate ontological integrity;
+function computeSchema(rootSchema, topography, dimensions) {
+  const schema = {
     ...obj.deepClone(rootSchema),
     title: topography.name,
     description: topography.description,
   };
 
-  topography.annotations
-    .filter(({ branch }) => !!branch)
-    .map(({ branch, required }) => [
-      annotations.find((a) => [a.slug].join() === branch.join()),
-      required,
-    ])
-    .reduce(
-      (schema, [annotation, required]) =>
-        branchAnnotation(annotation, schema, required),
-      SCHEMATIC.properties.annotation,
-    );
+  // resolve annotation schema from topographical dimensions
+  const branches = topography.dimensions.filter(({ branch }) => !!branch);
+  for (const { branch, required } of branches) {
+    const dimension = dimensions //
+      .find((dim) => [dim.slug].join() === branch.join());
 
-  topography.annotations
-    .filter(({ condition }) => !!condition)
-    .reduce(
-      (schema, condition) => conditionAnnotation(schema, condition),
-      SCHEMATIC.properties.annotation,
-    );
+    applyDimension(schema.properties.annotation, dimension, required);
+  }
 
-  // if (topography.slug === "verb") console.log(JSON.stringify(SCHEMATIC, null, 2));
-  return SCHEMATIC;
-}
+  // apply conditional dimensions
+  const conditions = topography.dimensions //
+    .filter((dimension) => !!dimension.condition)
+    .map(({ condition }) => schema.properties.annotation.allOf.push(condition));
 
-function conditionAnnotation(schema, condition) {
-  schema.allOf.push(condition.condition);
+  if (schema.properties.annotation.allOf.length === 0)
+    delete schema.properties.annotation.allOf;
+
   return schema;
 }
 
-function branchAnnotation(annotation, schema, required = false) {
-  schema.properties[annotation.slug] = {
-    title: annotation.name,
-    description: annotation.description,
+function applyDimension(schema, dimension, required = false) {
+  schema.properties[dimension.slug] = {
+    title: dimension.name,
+    description: dimension.description,
   };
 
-  if (annotation.traits.includes("CATEGORICAL")) {
-    schema.properties[annotation.slug].type = "string";
-    schema.properties[annotation.slug].enum = annotation.data.CATEGORICAL.map(
-      ({ slug }) => slug,
-    );
-  } else if (annotation.traits.includes("FREE")) {
-    schema.properties[annotation.slug].type = "string";
+  if (dimension.traits.includes("CATEGORICAL")) {
+    schema.properties[dimension.slug].type = "string";
+    schema.properties[dimension.slug].enum = //
+      dimension.data.CATEGORICAL.map(({ slug }) => slug);
+  } else if (dimension.traits.includes("FREE")) {
+    schema.properties[dimension.slug].type = "string";
   }
 
-  if (required) schema.required.push(annotation.slug);
+  if (required) schema.required.push(dimension.slug);
 
   return schema;
 }

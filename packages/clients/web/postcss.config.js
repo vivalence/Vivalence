@@ -1,6 +1,6 @@
 import autoprefixer from "autoprefixer";
 import tailwindcss from "tailwindcss";
-import vivalenceDesignSystem from "./src/style/design-system.js";
+import vivalenceDesignSystem from "./src/style/postcss-plugin.js";
 
 const config = {
   plugins: [vivalenceDesignSystem, tailwindcss(), autoprefixer],

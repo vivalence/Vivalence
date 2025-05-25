@@ -23,7 +23,7 @@ import {
 import { SessionEntity, SessionSchema } from "./transient/Session.ts";
 
 import { TopographyRepository } from "./topology/Topography.ts";
-import { AnnotationRepository } from "./topology/Annotation.ts";
+import { DimensionRepository } from "./topology/Dimension.ts";
 import { ConstraintRepository } from "./topology/Constraint.ts";
 import { IssueRepository } from "./topology/Issue.ts";
 
@@ -78,7 +78,7 @@ const schema = [
 ];
 
 const repositories = {
-  annotation: AnnotationRepository,
+  dimension: DimensionRepository,
   topography: TopographyRepository,
   issue: IssueRepository,
   constraint: ConstraintRepository,

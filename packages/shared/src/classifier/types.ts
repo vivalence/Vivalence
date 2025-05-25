@@ -1,6 +1,6 @@
 import { hash } from "@vivalence/shared";
 
-export type NextFunction = (signals: any[]) => Promise<Feature[]>;
+export type ForwardFunction = (signals: any[]) => Promise<Feature[]>;
 //
 
 export interface Context {
@@ -43,7 +43,7 @@ export class Signal<T = any> {
   type: string;
   value: T;
   ancestor?: Signal;
-  generators: (typeof Signal)[] = [];
+  forms: Form[] = [];
 
   constructor(type: string, value: T) {
     this.type = type;
@@ -57,9 +57,9 @@ export class Signal<T = any> {
   from(ancestor: Signal) {
     if (!this.ancestor) this.ancestor = ancestor;
 
-    if (!this.generators.includes(ancestor.constructor)) {
+    if (!this.forms.includes(ancestor.constructor)) {
       console.log(
-        `[CLASSIFIER WARNING] Signal: ${ancestor.constructor.name} is not a generator of ${this.constructor.name}`,
+        `[CLASSIFIER WARNING] Signal: ${ancestor.constructor.name} is not a form of ${this.constructor.name}`,
       );
     }
 
@@ -67,16 +67,22 @@ export class Signal<T = any> {
   }
 }
 
+export const Form = Signal;
+
 export type ParserFunction = (
   signal: T,
   ctx: Context,
-  next: NextFunction,
+  next: ForwardFunction,
 ) => Promise<Feature[]>;
 
 export class Parser<Signal> {
   constructor(public fn: ParserFunction) {}
 
-  parse(signal: Signal, ctx: Context, next: NextFunction): Promise<Feature[]> {
+  parse(
+    signal: Signal,
+    ctx: Context,
+    next: ForwardFunction,
+  ): Promise<Feature[]> {
     return this.fn(signal.value, ctx, next);
   }
 

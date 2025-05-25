@@ -32,12 +32,36 @@ Deno.test("Single Sentence Classification", async () => {
       "object",
       "Feature annotation should be an object",
     );
+
+    assertEquals(
+      features[0].hooked,
+      undefined,
+      "feature hooks only on factory",
+    );
     assertEquals(
       feature.annotation.level,
       "token",
       "Feature should be annotated as level token",
     );
   });
+});
+
+Deno.test("Factory classificationn", async () => {
+  const classifier = createTestClassifier();
+  const testContext = createTestContext();
+
+  assertEquals(classifier.hooks.length, 1, "should have feature hooks");
+
+  const sentenceText = "word1 word2 word3 word4 word5";
+  const features = await classifier.factory(testContext).text(sentenceText);
+
+  assertEquals(features[0].hooked, true, "should call feature hook");
+
+  assertEquals(
+    features.length,
+    5,
+    "Should produce exactly 5 features (one per word)",
+  );
 });
 
 Deno.test("Simple Paragraph Classification", async () => {

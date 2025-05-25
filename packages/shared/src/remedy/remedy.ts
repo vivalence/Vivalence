@@ -59,12 +59,13 @@ export class Remedy {
       }
     }
 
-    issue.markError({ message: "Irresolvable" });
+    issue.markError({ message: "Unresolved by handler" });
 
     return issue;
   }
 
   public async factory(input: RemedyFactoryInput, ctx: any): Promise<any[]> {
+    // TODO: rebuild
     const { asserter, entity, processors, maxIterations = 10 } = input;
     let allIssues: any[] = [];
     let iteration = 0;
@@ -104,7 +105,7 @@ export class Remedy {
       }
     }
 
-    const finalIssues = await asserter(entity);
+    const finalIssues = await asserter(entity, processors);
 
     for (const issue of finalIssues) {
       issue.markError({ message: "Irresolvable" });

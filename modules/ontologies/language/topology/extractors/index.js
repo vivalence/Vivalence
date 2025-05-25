@@ -7,62 +7,74 @@ class Text extends Signal {
 }
 
 class Token extends Signal {
-  generators = [Text];
+  forms = [Text];
   constructor(value) {
     super("token", value);
   }
 }
 
-export default [
+const extractors = new Map([
   [
     Text,
-    async (text, ctx, next) => {
-      const sentences = await ctx.services.nlp({ text });
-      const tokens = sentences.flat().map((token) => new Token(token));
-      return await next(tokens);
-    },
+    [
+      async (text, ctx, next) => {
+        const sentences = await ctx.services.nlp({ text });
+        const tokens = sentences.flat().map((token) => new Token(token));
+        return await next(tokens);
+      },
+    ],
   ],
   [
     Token,
-    function (token, ctx) {
-      const feats = parseFeats(token.feats);
+    [
+      async function (token, ctx) {
+        const annotation = {
+          lemma: token.lemma,
+          pos: token.upos.toLowerCase(),
+        };
 
-      function parseFeats(featsString = "") {
-        let feats = {};
-        if (!featsString) return feats;
+        const feats = parseFeats(token.feats);
+        for (const key in feats) {
+          annotation[key] = feats[key];
+        }
 
-        feats = featsString
-          .toLowerCase()
-          .split("|")
-          .reduce((acc, feat) => {
-            if (!feat || feat === "_") return acc;
-            let [key, value] = feat.split("=");
+        if (["verb", "aux"].includes(annotation.pos)) {
+          annotation.suffix = token.lemma.slice(-2);
+        }
 
-            if (!key || !value) return acc;
-            if (key.includes("[")) return acc;
-            if (value.includes(",")) value = value.split(",")[0];
+        const issues = await ctx.assert.annotation(annotation);
+        if (issues.length > 0) {
+          console.log("[TOKEN EXTRACTOR ISSUE]");
+          console.log({ token, annotation, issues });
+          return null;
+        }
 
-            acc[key] = value;
-            return acc;
-          }, feats);
-
-        return feats;
-      }
-
-      const annotation = {
-        lemma: token.lemma,
-        pos: token.upos.toLowerCase(),
-      };
-
-      for (const key in feats) {
-        annotation[key] = feats[key];
-      }
-
-      if (["verb", "aux"].includes(annotation.pos)) {
-        annotation.suffix = token.lemma.slice(-2);
-      }
-
-      return new Feature({ annotation, token });
-    },
+        return new Feature({ annotation, token });
+      },
+    ],
   ],
-];
+]);
+
+function parseFeats(featsString = "") {
+  let feats = {};
+  if (!featsString) return feats;
+
+  feats = featsString
+    .toLowerCase()
+    .split("|")
+    .reduce((acc, feat) => {
+      if (!feat || feat === "_") return acc;
+      let [key, value] = feat.split("=");
+
+      if (!key || !value) return acc;
+      if (key.includes("[")) return acc;
+      if (value.includes(",")) value = value.split(",")[0];
+
+      acc[key] = value;
+      return acc;
+    }, feats);
+
+  return feats;
+}
+
+export default extractors;
