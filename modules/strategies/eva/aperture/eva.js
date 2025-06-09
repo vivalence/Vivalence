@@ -12,6 +12,9 @@ const Input = Type.Object({
 export default async function (input, ctx) {
   let instructions = [];
 
+  // dont await instructions
+  // provision them
+
   const tools = new Trajectory([parsers.sig]) //
     .use(async (input, context, next) => {
       context.instructions = instructions;
@@ -79,7 +82,6 @@ export default async function (input, ctx) {
     instructions = instructions.flat();
   }
 
-  console.log(JSON.stringify({ agent: output, instructions }));
   return { agent: output, instructions };
 }
 // const exampleResponse = ;

@@ -31,6 +31,7 @@ export default {
   },
   async serve(daemon: Daemon) {
     for (const runtime of daemon.runtimes.values()) {
+      // console.log(runtime.schema.annotation);
       await [aperture.serve, install]
         .map((fn) => fn(daemon))
         .reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime));

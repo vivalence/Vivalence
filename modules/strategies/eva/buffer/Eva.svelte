@@ -1,9 +1,19 @@
+<script module>
+</script>
+
 <script>
   import { onMount, onDestroy } from "svelte";
   import { BufferMode, BufferState } from "@vivalence/interface";
   import { Loader, Desk, Text } from "@vivalence/interface";
 
   const { buffer, ctx, pushGame } = $props();
+
+  onMount(async () => {
+    if (!ctx.state.session) {
+      ctx.state.session = await ctx.strategy.call("/session/init");
+    }
+    console.log("ctx.state.session ", ctx.state.session);
+  });
 
   let agent = $state("Hello Finn, what can I do for you?");
   let input = $state("");
@@ -12,7 +22,7 @@
 
   async function doAgent(message) {
     const response = await ctx.strategy //
-      .call("/agent", { history, message });
+      .call("/agent", { session, message });
 
     agent = response.agent.text;
 
@@ -39,7 +49,6 @@
     await agentPromise;
     loading = false;
   }
-
 </script>
 
 <Desk {onSubmit} bind:input>

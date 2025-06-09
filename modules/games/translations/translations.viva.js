@@ -1,9 +1,12 @@
-import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+import { bundler } from "@vivalence/shared";
 
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision.js";
 
-const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
+const bundle = bundler.makePath(
+  import.meta.url,
+  "./buffer/translations.svelte.js",
+);
 
 const data = {
   mask: {

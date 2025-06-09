@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Text, Button, Input } from "@vivalence/ui";
+  import { Text, Button, Input } from "@vivalence/interface";
 
   import Card from "./Card.svelte";
 
@@ -9,13 +9,18 @@
   let input = $state("");
   let revealed = $state(false);
 
-  const { instruction, runtime, scope, game, next, keybindings } = $props();
+  // const { instruction, runtime, scope, game, next, keybindings } = $props();
+  const { buffer, instruction, ctx } = $props();
+  const { sentence } = instruction.data;
 
   async function evaluate() {
     revealed = true;
     loading = true;
-    const params = { sentence: { ...instruction.sentence, translation: input }, scope };
-    const { data, error } = await game.call("/evaluate", params);
+    const params = {
+      sentence: { ...sentence, translation: input },
+      scope: instruction.scope,
+    };
+    const { data, error } = await ctx.game.call("/evaluate", params);
     evaluations = data;
     loading = false;
   }
@@ -31,30 +36,25 @@
   );
 
   const onEvaluate = () => evaluate();
-  const onNext = () => next();
+  const onNext = () => buffer.release();
 
-  keybindings({
-    Enter: () => {
-      console.log("Enter trasn", instruction.sentence, revealed);
-      if (!revealed) onEvaluate();
-      else onNext();
-    },
-  });
+  // keybindings({Enter: () => {console.log("Enter trasn", sentence, revealed); if (!revealed) onEvaluate(); else onNext();},});
 </script>
 
 <div class="bsp-node root">
   <div class="bsp-node content">
-    <div class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb---[20vh]">
+    <div
+      class="container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh] mb---[20vh]">
       <div class="flex flex-col items-center w-full justify-center pb-8">
         <div class="w-full mb-2">
           <Text size="sm">English:</Text>
-          <Text size="xl" italic>{instruction.sentence.known}</Text>
+          <Text size="xl" italic>{sentence.known}</Text>
         </div>
 
         {#if revealed}
           <div class="w-full mb-2">
             <Text size="sm">Expected:</Text>
-            <Text size="xl" italic>{instruction.sentence.learning}</Text>
+            <Text size="xl" italic>{sentence.learning}</Text>
           </div>
           <div class="w-full mb-2">
             <Text size="sm">Given:</Text>
@@ -86,7 +86,8 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
+  <div
+    class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
     <div
       class="container max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
       <Input

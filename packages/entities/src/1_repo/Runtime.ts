@@ -19,6 +19,7 @@ export class RuntimeEntity extends BaseEntity {
   modules = new Collection<ModuleEntity>(this);
 
   // modules = new Collection<ModuleEntity>(this);
+  // valences={}
 
   // get url() {return new URL(`/runtime/${this.slug}`, config.env.get("VIVA_DAEMON_URL"));}
 }
@@ -31,7 +32,12 @@ export const RuntimeSchema = new EntitySchema<RuntimeEntity, BaseEntity>({
   properties: {
     slug: { type: String },
     // users: {kind: "m:n", entity: () => UserEntity,},
-    modules: { kind: "1:m", entity: () => ModuleEntity, mappedBy: (module) => module.runtime },
+    modules: {
+      kind: "1:m",
+      entity: () => ModuleEntity,
+      mappedBy: (module) => module.runtime,
+    },
+    // valences:{}
     // services: { kind: "1:m", entity: () => ServiceEntity },
     // domain: { kind: "1:1", entity: () => DomainEntity },
 

@@ -8,6 +8,7 @@ import {
 // import { RuntimeEntity } from "../1_repo/Runtime.ts";
 
 export enum StrategyTraitsEnum {
+  SESSIONAL = "SESSIONAL",
   AGENTIC = "AGENTIC",
   _ = "_",
 }

@@ -8,6 +8,7 @@ export default async function provision(inputs, ctx) {
   // // if no units pending, send signal 'faulty tactic config'.
   const unitIds = new Set();
   for (const tag of tags.scope) {
+    console.log(tag);
     await tag.units.init();
     for (const unit of tag.units) {
       unitIds.add(unit.id);

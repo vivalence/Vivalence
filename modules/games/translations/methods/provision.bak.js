@@ -1,22 +1,20 @@
 import Mustache from "mustache";
 import { GamePrompt } from "./lib/prompts.js";
-import fs from "node:fs";
-import path from "node:path";
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const __filename = path.basename("instructions.json");
-const __filepath = path.join(__dirname, __filename);
-
-export default async function (inputs, ctx) {
+export default async function provision(inputs, ctx) {
   const { scope, constraints, mask } = inputs;
 
   const prompt = Mustache.render(GamePrompt.template, {
     goal: mask.goal,
-    constraints,
+    constraints: processedConstraints,
     language: ctx.runtime.statics.language,
   });
 
-  const input = { prompt, schema: GamePrompt.schema, provider: GamePrompt.provider };
+  const input = {
+    prompt,
+    schema: GamePrompt.schema,
+    provider: GamePrompt.provider,
+  };
 
   const sentence = await ctx.runtime.services.llm(input);
 
@@ -27,6 +25,7 @@ export default async function (inputs, ctx) {
   const instruction = {
     instruction: {
       sentence,
+      pattern: patternUsed,
       tokens: tokens
         .map((token) => ({
           token: token.annotation.meta.token,
@@ -42,11 +41,6 @@ export default async function (inputs, ctx) {
         .map((token) => ({
           id: token.unit.id,
           tags: token.unit.tags.map(({ id }) => ({ id })),
-          token: {
-            token: token.annotation.meta.token,
-            start_char: token.annotation.meta.start_char,
-            end_char: token.annotation.meta.end_char,
-          },
         })),
       tags: Array.from(
         tokens.reduce((acc, token) => {
@@ -59,6 +53,5 @@ export default async function (inputs, ctx) {
     },
   };
 
-  fs.appendFileSync(__filepath, JSON.stringify(instruction) + ",\n");
   return [instruction];
 }

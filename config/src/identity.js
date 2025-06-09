@@ -9,6 +9,21 @@ class Identity {
       user: {
         id: "localhost",
         roles: ["ADMIN"],
+        // config:{[*clients]:{preferences, defaults}} // ?type serialized signature
+        intents: [
+          {
+            traits: ["bookmarked", "resolved"], // cron:'',
+            data: {
+              bookmark: { default: true },
+              resolution: {
+                runtime: "eng2esp",
+                strategy: "eva",
+                path: "/eng2esp/buffers/strategy/eva", // signature/signal: {},
+                state: {},
+              },
+            },
+          },
+        ],
       },
     };
   }

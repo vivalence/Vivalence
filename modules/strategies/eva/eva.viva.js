@@ -16,7 +16,9 @@ async function boot(runtime, strategy) {
     return await next();
   });
   runtime.aperture.router.get(bundle.get, bundle.serve);
-  runtime.aperture.open("/agent", aperture.agent);
+  runtime.aperture
+    .open("/session/init", aperture.init)
+    .open("/agent", aperture.agent);
   runtime.aperture.open("/status", () => ({ status: "ok" }));
 }
 

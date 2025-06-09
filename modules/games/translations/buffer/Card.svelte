@@ -1,5 +1,5 @@
 <script>
-  import { Text, Tag } from "@vivalence/ui";
+  import { Text, Tag } from "@vivalence/interface";
 
   let { unit, evaluation } = $props();
 </script>

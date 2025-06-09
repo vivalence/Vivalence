@@ -2,6 +2,7 @@
 #+AUTHOR: Vivalence
 #+DATE: 2025
 
+* TODO rename to shell client
 * Viva CLI Tool
   
 Viva is a powerful command-line tool for managing daemons, services, and runtimes. It provides a flexible and extensible architecture based on trajectories and signals.

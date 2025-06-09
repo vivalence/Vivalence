@@ -1,5 +1,5 @@
 import { Type, Static } from "@sinclair/typebox";
-import { Slug } from "@vivalence/schema";
+import { Slug } from "@vivalence/types/schema";
 
 export { Slug };
 

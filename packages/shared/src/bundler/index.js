@@ -1,4 +1,4 @@
-import { basename, dirname, join } from "$std/path/mod.ts";
+import { basename, fromFileUrl, dirname, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
 import bundlers from "./bundlers/index.js";
 
@@ -73,5 +73,9 @@ function makeBundler(entry) {
 
   return bundler;
 }
+
+makeBundler.makePath = (root, bundle) => {
+  return fromFileUrl(new URL(bundle, root));
+};
 
 export default makeBundler;

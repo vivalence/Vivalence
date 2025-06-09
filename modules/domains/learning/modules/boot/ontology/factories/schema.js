@@ -12,6 +12,8 @@ export default function schemaFactory(runtime) {
     runtime.schema.annotations[topography.slug] = schema.properties.annotation;
     runtime.schema.units[topography.slug] = schema;
   }
+  // console.log(JSON.stringify(runtime.schema.annotations));
+
   return runtime;
 }
 function computeAnnotationSchema(runtime) {

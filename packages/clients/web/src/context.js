@@ -9,6 +9,7 @@ async function context(event) {
   if (!ctx) {
     ctx = {
       event,
+      state: {},
       locals: {},
       identity: {},
       call: null,
@@ -17,12 +18,12 @@ async function context(event) {
       // todo: rename vector
       trajectory: new Trajectory([parsers.key]),
     };
-
     // ctx.client.trajectory.branch((p) => p.key("p"));
 
     ctx.identity = {
       getUser: async () => await Promise.resolve({ id: "localhost" }),
     };
+
     ctx.call = createCall({});
 
     ctx.daemon = { call: ctx.call.wrap("/aperture/v1/daemon") };
@@ -31,6 +32,11 @@ async function context(event) {
       window.viva = ctx;
     }
   }
+
+  // if event.route = /
+  // user = config.identity.getUser()
+  // intent = user.intents({bookmark:{default:true}})
+  // forward(intent.resolution.path)
 
   if (event?.params.runtime) {
     const runtime = event.params.runtime;

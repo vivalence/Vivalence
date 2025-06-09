@@ -1,10 +1,8 @@
-import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 import { bundler } from "@vivalence/shared";
 
 import aperture from "./aperture/index.js";
 
-const bundleRoot = dirname(fromFileUrl(import.meta.url));
-const bundlePath = join(bundleRoot, "./buffer/buffer.svelte.js");
+const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
 
 async function boot(runtime, game) {
   const bundle = bundler(bundlePath);

@@ -1,7 +1,4 @@
 import { Type, Static } from "@sinclair/typebox";
-import { Slug } from "@vivalence/schema";
-
-export { Slug };
 
 export const Planning = Type.String({
   description: `Go through the task step by step.`,

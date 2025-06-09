@@ -22,6 +22,7 @@ export class InstructionEntity extends BaseEntity {
   // tactic?: Rel<TacticEntity>; // tactic?: Rel<TacticEntity>;
   tactic?: string & Opt = null;
   game?: string & Opt = null;
+  // session?: string & Opt = null;
 
   index: number & Opt = 0;
   status: InstructionStatusEnum & Opt = InstructionStatusEnum.PENDING;
@@ -47,7 +48,6 @@ export const InstructionSchema = new EntitySchema<
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     // game: {kind: "m:1", entity: () => GameEntity, fieldName: "game", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     game: { type: "string", nullable: true },
     tactic: { type: "string", nullable: true },

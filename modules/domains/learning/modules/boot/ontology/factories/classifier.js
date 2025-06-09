@@ -7,6 +7,7 @@ export default function classifierFactory(runtime) {
     validate: runtime.validate,
     assert: runtime.assert,
     services: runtime.services,
+    entities: runtime.entities,
   };
 
   runtime.classify = runtime.ontology.classifier
@@ -29,6 +30,9 @@ export default function classifierFactory(runtime) {
         // console.log("/[classifier feature extraction error]");
         return null;
       }
+
+      feature.unit = await ctx.entities.unit //
+        .findOne({ annotation: feature.annotation }, { fields: ["id"] });
 
       return feature;
     })

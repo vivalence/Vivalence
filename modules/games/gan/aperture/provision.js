@@ -16,10 +16,8 @@ export default async function provisionByText(input, ctx) {
         const features = await ctx.runtime.classify.text(learnable.learning);
 
         for (const feature of features) {
-          const unit = await ctx.runtime.entities.unit //
-            .findOne({ annotation: feature.annotation }, { fields: ["id"] });
-
-          if (unit) scope.units.push({ id: unit.id });
+          if (feature.unit) scope.units.push({ id: feature.unit.id });
+          // const unit = await ctx.runtime.entities.unit.findOne({ annotation: feature.annotation }, { fields: ["id"] });
         }
       })(),
     );

@@ -27,6 +27,7 @@ export class UserEntity extends BaseEntity {
 
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
   config: any & Opt = "{}";
+  // intents = {}
 }
 
 // plays: {kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.runtime, lazy: true,}, memories: {kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.runtime, lazy: true,}, instructions: {kind: "1:m", entity: () => InstructionEntity, mappedBy: (instruction) => instruction.runtime, lazy: true,}, units: tags.
@@ -38,6 +39,8 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
   extends: BaseSchema,
   tableName: "User",
   properties: {
+    // intents : {}
+
     // runtimes: {
     //   // indicates membership/ ie. allows access
     //   kind: "m:n",

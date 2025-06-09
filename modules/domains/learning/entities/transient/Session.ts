@@ -1,22 +1,26 @@
-// UNCONNCECTED
-import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { BaseDataEntity, BaseDataSchema } from "@vivalence/entities";
+import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
+import { InstructionEntity } from "../transient/Instruction.ts";
 
 export enum SessionTraitsEnum {
   AGENTIC = "AGENTIC",
 }
 
-export class SessionEntity extends BaseDataEntity {
+export class SessionEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  // runtime!: Rel<RuntimeEntity>;
   traits: SessionTraitsEnum[] & Opt = [];
-  itinerary: any & Opt = "{}";
+
+  itinerary: any & Opt = {};
+  history: any & Opt = {};
+
+  strategy: string;
+  instructions = new Collection<InstructionEntity>(this);
 }
 
-export const SessionSchema = new EntitySchema<SessionEntity, BaseDataEntity>({
+export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
   class: SessionEntity,
-  extends: BaseDataSchema,
+  extends: BaseSchema,
   tableName: "Session",
   properties: {
     user: {
@@ -26,7 +30,6 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseDataEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     traits: {
       columnType: "json",
       defaultRaw: `"[]"`,
@@ -36,6 +39,8 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseDataEntity>({
       default: [],
     },
 
+    instructions: { kind: "m:n", entity: () => InstructionEntity },
+    strategy: { type: "string", nullable: true },
     itinerary: { type: "json" },
   },
 });

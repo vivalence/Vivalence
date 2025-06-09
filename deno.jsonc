@@ -5,7 +5,6 @@
     "./config",
     "./packages/types",
     "./packages/shared",
-    "./packages/schema",
     "./packages/entities",
     "./packages/registry",
     "./packages/repository",

@@ -12,7 +12,7 @@ export type { DeepWritable, Writable } from "ts-essentials";
 // };
 
 export type Services = Record<string, Service> & {
-  supabase?: SupabaseClient;
+  // supabase?: SupabaseClient;
   identity?: any;
 };
 
@@ -138,7 +138,9 @@ export interface Module {
   bus: EventBus;
   statics: UnknownObject;
   bundle: string;
-  curriculum: Curriculum | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
+  curriculum:
+    | Curriculum
+    | ((runtime: Runtime, module: Module) => Promise<Curriculum>);
   evaluate: RouteHandler;
   install: InstallFunction;
   provision: RouteHandler;
@@ -153,7 +155,10 @@ export interface Module {
   locals?: RuntimeLocals;
 }
 
-export type RuntimeModule = Pick<Runtime, "router" | "bus" | "manifest" | "Module">;
+export type RuntimeModule = Pick<
+  Runtime,
+  "router" | "bus" | "manifest" | "Module"
+>;
 
 export interface Manifest {
   id?: string;
@@ -280,8 +285,14 @@ export interface EventBus {
   scope: () => EventBus;
 }
 
-export type EventListener = (body: any, ctx: EventContext) => Promise<void> | void;
-export type EventMiddleware = (ctx: EventContext, next: () => Promise<void>) => Promise<void>;
+export type EventListener = (
+  body: any,
+  ctx: EventContext,
+) => Promise<void> | void;
+export type EventMiddleware = (
+  ctx: EventContext,
+  next: () => Promise<void>,
+) => Promise<void>;
 
 export type EventContext = {
   event?: {
@@ -324,4 +335,7 @@ export type BootFunction = (
   module: Module,
   parentModule?: RuntimeModule,
 ) => Promise<Module | Runtime>;
-export type InstallFunction = (runtime: Runtime, module: Module) => Promise<boolean>;
+export type InstallFunction = (
+  runtime: Runtime,
+  module: Module,
+) => Promise<boolean>;

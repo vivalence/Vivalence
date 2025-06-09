@@ -15,8 +15,32 @@ export default function constraintFactory(runtime) {
 
   existentialConstraints(runtime);
   tagConstraints(runtime);
+  // unitConstraints(runtime); // TODO
 
   return runtime;
+}
+
+function unitConstraints(runtime) {
+  runtime.ontology.constraints.create({
+    topology: "runtime",
+    branch: ["unit"],
+    traits: ["RELATIONAL"],
+    predicate: async (unit) => {
+      if (!(unit instanceof entities.unit))
+        throw new Error("predicate applies to other than entity type unit");
+
+      if (!unit.tags.isInitialized()) await unit.tags.init();
+      console.log("unit", unit);
+      // for every key:value in annotation, check that there is the appropriate relation.
+      // check that there are no other ontological relations besides whats in the annotation.
+
+      return issues.map((issue) => {
+        issue.path.unshift("unit");
+        issue.context.unit = unit;
+        return issue;
+      });
+    },
+  });
 }
 
 function tagConstraints(runtime) {
@@ -38,6 +62,7 @@ function tagConstraints(runtime) {
     },
   });
 }
+
 function existentialConstraints(runtime) {
   runtime.ontology.constraints.create({
     topology: "runtime",
@@ -133,7 +158,6 @@ function relationalConstraints(topography, runtime) {
       if (!(unit instanceof entities.unit))
         throw new Error("predicate applies to other than entity type unit");
 
-      // console.log("unit", unit);
       if (!unit.tags.isInitialized()) await unit.tags.init();
       const relations = unit.tags.map((tag) => tag.data.ONTOLOGICAL);
 

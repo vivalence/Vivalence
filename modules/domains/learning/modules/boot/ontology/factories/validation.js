@@ -4,7 +4,6 @@ export default function validationFactory(runtime) {
     unit: null,
     tag: null,
     annotation: null,
-    // existance: {},
     units: {},
     annotations: {},
   };
@@ -29,6 +28,7 @@ export default function validationFactory(runtime) {
   v.tag = factory(["tag"]);
 
   v.exists = {
+    // tag: async (tag) => {const validate = factory(["tag"]); const issues = await validate(tag, ["EXISTENTIAL"]); return issues.length === 0;},
     unit: async (unit) => {
       const validate = factory(["unit"]);
       const issues = await validate(unit, ["EXISTENTIAL"]);
