@@ -2,7 +2,6 @@ import get from "./get.js";
 import sort from "./sort.js";
 
 export default (resourceType) => async (body, ctx) => {
-  // console.log("resources", resourceType, body);
   const { blacklist = {}, take } = body;
   let resources = body[resourceType + "s"] || [];
 
@@ -21,12 +20,18 @@ export default (resourceType) => async (body, ctx) => {
 
   // Apply blacklist filtering
   if (blacklist[resourceType]?.length > 0) {
-    resources = resources.filter((r) => !blacklist[resourceType].includes(r.id));
+    resources = resources.filter(
+      (r) => !blacklist[resourceType].includes(r.id),
+    );
   }
 
   // Get memory for each resource and sort
+
   resources = Array.isArray(resources) ? resources : [];
-  resources = await Promise.all(resources.map((r) => get[resourceType](r, ctx)));
+  // console.log("resources pre get", resources);
+  resources = await Promise.all(
+    resources.map((r) => get[resourceType](r, ctx)),
+  );
   resources = await sort(resources);
 
   return resources;
@@ -44,26 +49,29 @@ async function getResourcesByTagIds(resourceType, body, ctx) {
     // Directly fetch tags by IDs
     return await ctx.runtime.entities.tag.find({
       id: { $in: tagIds },
-      runtime: ctx.runtime.entity.id,
       ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
     });
   } else if (resourceType === "unit") {
     // Find units that have ALL specified tags
-    const unitIds = await ctx.runtime.entities.em
-      .createQueryBuilder()
-      .select("DISTINCT tu.unit")
-      .from("_TagToUnit", "tu")
-      .where({ tag: { $in: tagIds } })
-      .groupBy("tu.unit")
-      .having("COUNT(DISTINCT tu.tag) = ?", [tagIds.length])
-      .execute("all");
+    const unitIds = await ctx.runtime.entities.em.execute(
+      `SELECT DISTINCT tu.unit_entity_id as unit
+	FROM _TagToUnit tu 
+	WHERE tu.tag_entity_id IN (${tagIds.map(() => "?").join(",")}) 
+	GROUP BY tu.unit_entity_id 
+	HAVING COUNT(DISTINCT tu.tag_entity_id) = ?`,
+      [...tagIds, tagIds.length],
+    );
+
+    // const unitIds = await ctx.runtime.entities.em .createQueryBuilder() .select("DISTINCT tu.unit_entity_id") .from("_TagToUnit", "tu") .where({ tag_entity_id: { $in: tagIds } }) .groupBy("tu.unit_entity_id") .having("COUNT(DISTINCT tu.tag_entity_id) = ?", [tagIds.length]) .execute("all");
+    // const unitIds = await ctx.runtime.entities.em .createQueryBuilder() .select("DISTINCT tu.unit") .from("_TagToUnit", "tu") .where({ tag: { $in: tagIds } }) .groupBy("tu.unit") .having("COUNT(DISTINCT tu.tag) = ?", [tagIds.length]) .execute("all");
 
     if (unitIds.length > 0) {
       return await ctx.runtime.entities.unit.find(
         {
           id: { $in: unitIds.map((u) => u.unit) },
-          runtime: ctx.runtime.entity.id,
-          ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+          ...(blacklist.units?.length > 0
+            ? { id: { $nin: blacklist.units } }
+            : {}),
         },
         { populate: ["tags"] },
       );
@@ -86,8 +94,9 @@ async function getResourcesByUnitIds(resourceType, body, ctx) {
     return await ctx.runtime.entities.unit.find(
       {
         id: { $in: unitIds },
-        runtime: ctx.runtime.entity.id,
-        ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+        ...(blacklist.units?.length > 0
+          ? { id: { $nin: blacklist.units } }
+          : {}),
       },
       { populate: ["tags"] },
     );
@@ -103,7 +112,6 @@ async function getResourcesByUnitIds(resourceType, body, ctx) {
     if (tagIds.length > 0) {
       return await ctx.runtime.entities.tag.find({
         id: { $in: tagIds.map((t) => t.tag) },
-        runtime: ctx.runtime.entity.id,
         ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
       });
     }

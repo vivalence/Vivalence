@@ -84,6 +84,7 @@ export function pattern(
       segementMatchFn,
       segmentDocs,
     );
+    pattern.slug = `${pattern.type}/${segment}`;
     patterns.push(pattern);
   }
 

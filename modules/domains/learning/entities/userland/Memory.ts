@@ -3,19 +3,17 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 
+import { TagEntity } from "../corpus/Tag.ts";
+import { UnitEntity } from "../corpus/Unit.ts";
 import { PlayEntity } from "../userland/Play.ts";
 
-import { TagEntity } from "../data/Tag.ts";
-import { UnitEntity } from "../data/Unit.ts";
-
-// traits: [Agentic]
-export enum MemoryTypeEnum {
+export enum MemoryDriverEnum {
   BAYESIAN = "BAYESIAN",
   BOOLEAN = "BOOLEAN",
   AGENTIC = "AGENTIC",
 }
 
-export enum MemoryFlavorEnum {
+export enum MemoryTypeEnum {
   INDIVIDUAL = "INDIVIDUAL",
   RELATIONAL = "RELATIONAL",
 }
@@ -30,13 +28,12 @@ export enum MemoryStatusEnum {
 
 export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  // runtime!: Rel<RuntimeEntity>;
   unit?: Rel<UnitEntity>;
   tag?: Rel<TagEntity>;
   plays = new Collection<PlayEntity>(this);
 
-  type: MemoryTypeEnum & Opt = MemoryTypeEnum.BAYESIAN;
-  flavor: MemoryFlavorEnum & Opt = MemoryFlavorEnum.INDIVIDUAL;
+  driver: MemoryDriverEnum & Opt = MemoryDriverEnum.BAYESIAN;
+  type: MemoryTypeEnum & Opt = MemoryTypeEnum.INDIVIDUAL;
   status: MemoryStatusEnum & Opt = MemoryStatusEnum.UNKNOWN;
 
   state: any & Opt = "{}";
@@ -80,17 +77,17 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     },
     plays: { kind: "1:m", entity: () => PlayEntity, mappedBy: "memory" },
 
+    driver: {
+      enum: true,
+      items: () => MemoryDriverEnum,
+      default: MemoryDriverEnum.BAYESIAN,
+      onCreate: () => MemoryDriverEnum.BAYESIAN,
+    },
     type: {
       enum: true,
       items: () => MemoryTypeEnum,
-      default: MemoryTypeEnum.BAYESIAN,
-      onCreate: () => MemoryTypeEnum.BAYESIAN,
-    },
-    flavor: {
-      enum: true,
-      items: () => MemoryFlavorEnum,
-      default: MemoryFlavorEnum.INDIVIDUAL,
-      onCreate: () => MemoryFlavorEnum.INDIVIDUAL,
+      default: MemoryTypeEnum.INDIVIDUAL,
+      onCreate: () => MemoryTypeEnum.INDIVIDUAL,
     },
     status: {
       enum: true,
@@ -104,7 +101,7 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     signal: { type: "json" },
 
     nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
-    nextAt: { type: Date, lazy: true, fieldName: "nextAt" },
-    lastAt: { type: Date, lazy: true, fieldName: "lastAt" },
+    nextAt: { type: Date, fieldName: "nextAt" },
+    lastAt: { type: Date, fieldName: "lastAt" },
   },
 });

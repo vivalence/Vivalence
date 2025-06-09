@@ -1,7 +1,7 @@
 export default async function getUnitsByAnnotation({ annotation }, ctx) {
+  return await ctx.runtime.entities.unit.findOne({ annotation });
   // if (["space", "sym", "x"].includes(annotation.pos)) return null;
   // return await getUnit(annotation, ctx);
-  return await ctx.runtime.entities.unit.findOne({ annotation });
 }
 
 // legacy:

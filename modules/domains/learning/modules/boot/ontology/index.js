@@ -1,12 +1,10 @@
-import { Classifier, Remedy } from "@vivalence/shared";
+import { Classifier, Remedy, fn } from "@vivalence/shared";
 
 import entities from "../../../entities/index.js";
 
-import classifierFactory from "./classifier.js";
-import asserterFactory from "./asserter.js";
-import schematics from "./schematics.js";
+import factories from "./factories/index.js";
 
-export default function boot(runtime) {
+export default async function boot(runtime) {
   const ontology = {
     dimensions: new entities.repositories.dimension(),
     topographies: new entities.repositories.topography(),
@@ -14,8 +12,8 @@ export default function boot(runtime) {
     issues: new entities.repositories.issue(),
     remedy: new Remedy(),
     classifier: new Classifier(),
-    schema: {},
   };
+  runtime.ontology = ontology;
 
   const topologies = [
     runtime.config.modules.ontology.topology,
@@ -29,9 +27,9 @@ export default function boot(runtime) {
     constraints = [],
     extractors = new Map(),
   } of topologies) {
-    constraints.forEach((c) => ontology.constraints.create(c));
     dimensions.forEach((a) => ontology.dimensions.create(a));
     topographies.forEach((t) => ontology.topographies.create(t));
+    constraints.forEach((c) => ontology.constraints.create(c));
     remedies.forEach((r) => ontology.remedy.register(r));
 
     extractors.entries().forEach(([form, parsers]) => {
@@ -42,9 +40,7 @@ export default function boot(runtime) {
   if (runtime.config.modules.ontology.boot)
     runtime.config.modules.ontology.boot(ontology);
 
-  ontology.schema = schematics(runtime)(ontology);
-  ontology.assert = asserterFactory(runtime)(ontology);
-  ontology.classify = classifierFactory(runtime)(ontology);
+  factories.reduce((r, f) => f(r), runtime);
 
-  runtime.ontology = ontology;
+  return runtime;
 }

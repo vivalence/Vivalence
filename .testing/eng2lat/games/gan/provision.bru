@@ -1,0 +1,17 @@
+meta {
+  name: provision
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{ENG2LAT}}/game/gan/provision
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+   "text":  "Practice first person singular verb forms in Latin for making assertions (e.g., 'I walk', 'I see', 'I love')"
+  } 
+}

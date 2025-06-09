@@ -27,8 +27,9 @@ export const Learnable = Type.Object(
     slug: Slug,
     status: Status,
     known: Type.String({
-      description:
-        "The term or concept in the user's known language, including concise examples of use.",
+      description: `The term, phrase or sentence in the user's known language, including concise examples of use.
+	No special characters. 
+	`,
       maxLength: 50,
     }),
     learning: Type.String({
@@ -38,7 +39,8 @@ export const Learnable = Type.Object(
     }),
   },
   {
-    description: "An item that can be learned or memorized",
+    description: `An item that can be learned or memorized. the slug is allways in the language to be learnt.
+	A Learnable only ever one single gender/plurality/case/tense. never multiple. no /`,
   },
 );
 
@@ -46,56 +48,39 @@ export const Learnables = Type.Array(Learnable, {
   description: `A collection of specific learnables to be learned. a learnable might be a word, a phrase, a grammatical insight, or any individual specific bit.`,
 });
 
-// session planner / trajectory agent
-const Clue = Type.String({
-  description: `# Clue 'a way to embed information'. Process of clue construction: 1: a list and explanation of the learnables(by slug) involved 2: the information known and unknown to the user 3: find one way to suggest the information to the user. it must require the user to do the thinking themselves. Its a way to spin the bit of information. Max length: 50 characters`,
-  // maxLength: 100,
-});
-
-const ExpectedResponse = Type.String({
-  description: `the response we expect from the user.`,
-  // maxLength: 25,
-});
-const Prompt = Type.String({
-  description: `
-    A Prompt is the most minimal and concise way possible to request the knowledge.
-    A prompt doesnt include chatter and there is no feel-good talk. A prompt is direct.
-    Without revealing the learnable. Its consise, direct and structured. No more than 200 characters.
-    """Good prompt example:
-	Lets start with the sentence "The girl sings."
-
-	Latin clues:
-	- 'girl' is 'puella'.
-	- 'canere' is the infinitive of 'to sing.
-	- For third person singular add "-it" to the stem "can-".
-
-	What's "the girl sings" in latin?
-    """
-    This prompt starts with the goal, give clues but not solutions, and then expects active learning.
-    Multiple lines, bits of information. We don't want full text or conversation.`,
-
-  // maxLength: 300,
-});
-
-const Message = Type.Object(
+export const Session = Type.Object(
   {
-    index: Type.Number(),
-    slug: Slug,
-    expectedResponse: ExpectedResponse,
-    clue: Clue,
-    prompt: Prompt,
+    dependencies: Type.Array(
+      Type.String({ description: "slug->slug, maybe slug->slug->slug" }),
+      {
+        description: "A DAG of conditions among the learnables.",
+      },
+    ),
+    sections: Type.Array(
+      Type.String({
+        description: `a single section for example: "(slug, slug, slug) 'must be mastered first'"`,
+      }),
+      {
+        description: `groups of learnables. set in stages.
+	first we cover the basics and preconditions.
+	then we cover the material, grouped into self-similar sections.
+	each starting small and moving up towards one final, bigger integration.`,
+      },
+    ),
   },
   {
     description: `
-A: define the learnable in slug and expectation.
-B: find a way to spin the learnable in a clue.
-C: Design a prompt.
- `,
+	Your Session Plan. This is your place to design a great learning journey.
+	A good session plan covers what things are to be learned, tracks dependencies between learnables, and defines implicit knowledge and preconditions.
+
+	A good session plan lays out an approach and a coherent perspective towards the session.
+	You can use differnt methods to structure a session.
+	Maybe defining stages and milestones is a good idea. Maybe create a DAG to map dependencies.
+
+	Our overarching methodology is active learning. At every step the user is expected to do some unit of mental work, by remembering, combining, changing, predicting, etc.
+	`,
   },
 );
-export const Session = Type.Array(Message, {
-  description: `a prediction of the conversation that teaches the learnables step by step.`,
-});
 
 export const History = Type.Array(
   Type.Object({

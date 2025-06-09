@@ -3,6 +3,7 @@ import { Scope, Blacklist, array } from "@vivalence/shared";
 export default async function provision(inputs, ctx) {
   const blacklist = new Blacklist(inputs.blacklist);
   const scope = new Scope(inputs.scope);
+
   const language = ctx.runtime.statics.language;
   const { games, tags } = inputs.tactic.relations;
 

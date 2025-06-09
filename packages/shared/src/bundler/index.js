@@ -2,9 +2,8 @@ import { basename, dirname, join } from "$std/path/mod.ts";
 import config from "@vivalence/config";
 import bundlers from "./bundlers/index.js";
 
-function createBundler(entry) {
+function makeBundler(entry) {
   const bundles = new Map();
-  const BUNDLE_URL = "bundle";
 
   const bundler = async (path) => {
     const type = path.includes(".svelte") ? "svelte" : path.split(".").pop();
@@ -17,22 +16,35 @@ function createBundler(entry) {
     return bundles.get(path);
   };
 
+  const BUNDLE_BASE_URL = "bundle";
+  bundler.get = `/${BUNDLE_BASE_URL}/:filename`;
+  bundler.path = entry;
+
   bundler.absoluteUrl = (basePath) => {
     const url = new URL(
       join(
         config.env.get("VIVA_DAEMON_URL"),
         basePath.ancestor.toString(),
         basePath.toString(),
-        BUNDLE_URL,
+        BUNDLE_BASE_URL,
         basename(entry),
       ),
     );
+
+    bundler.url = url;
+
     return url;
   };
 
-  bundler.injectBundlePath = (basePath) => async (ctx, next) => {
-    const url = bundler.absoluteUrl(basePath);
-    ctx.state.bundle = { url };
+  bundler.middleware = async (ctx, next) => {
+    if (!bundler.url)
+      throw new Error("Bundler middleware requires absoluteUrl");
+
+    ctx.state.bundle = {
+      type: "game",
+      url: ctx.game.bundle.url.href,
+      game: { slug: ctx.game.manifest.slug },
+    };
 
     await next();
 
@@ -47,19 +59,19 @@ function createBundler(entry) {
     }
   };
 
-  bundler.url = `/${BUNDLE_URL}/:filename`;
-
-  bundler.serve = () => async (ctx) => {
+  bundler.serve = async (ctx) => {
     const path = join(dirname(entry), ctx.params.filename);
     const bundle = await bundler(path);
     if (bundle) {
       // if (!config.isDev) {const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS"); ctx.response.headers.set("Cache-Control", `max-age=${CACHE_AGE}`); ctx.response.headers.set("Expires", new Date(Date.now() + CACHE_AGE * 1000).toUTCString());}
       ctx.response.body = bundle;
       ctx.response.type = "application/javascript";
+    } else {
+      throw new Error("Bundler Error", path);
     }
   };
 
   return bundler;
 }
 
-export default createBundler;
+export default makeBundler;

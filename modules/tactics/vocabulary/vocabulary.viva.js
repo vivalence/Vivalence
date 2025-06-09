@@ -12,7 +12,7 @@ const data = {
   relations: {
     tags: {
       // Core vocabulary scope
-      vocabulary: { slug: "vocabulary:a1" },
+      // vocabulary: { slug: "vocabulary:a1" },
 
       // Parts of speech
       nouns: { slug: "pos:noun" },

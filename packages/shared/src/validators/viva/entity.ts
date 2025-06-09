@@ -1,31 +1,38 @@
 import { makeAjv } from "../ajv.js";
-
 import { JsonSchema, Issue, AjvValidationError } from "./types.d.ts";
 
-export default async function validateEntity(
-  schema: JsonSchema,
-  entity: any,
-): Promise<Issue[]> {
-  const issues: Issue[] = [];
+export function precompiled(schema: JsonSchema) {
+  return compile(schema);
+}
 
-  const ajv = makeAjv({ removeAdditional: "all" });
+export function direct(schema: JsonSchema, entity: any): Issue[] {
+  const validate = compile(schema);
+  return validate(entity);
+}
+
+function compile(schema) {
+  const ajv = makeAjv({ removeAdditional: true });
   const validate = ajv.compile(schema);
-  const valid = validate(entity);
 
-  if (!valid && validate.errors) {
-    validate.errors
-      .filter((error: AjvValidationError) => error.keyword !== "if")
-      .forEach((error: AjvValidationError) => {
-        issues.push(buildIssue(entity, error));
-      });
-  }
+  return (entity: any) => {
+    if (!validate(entity)) return buildIssues(entity, validate);
+    else return [];
+  };
+}
 
+function buildIssues(entity, validate) {
+  const issues = [];
+  validate.errors
+    .filter((error: AjvValidationError) => error.keyword !== "if")
+    .forEach((error: AjvValidationError) => {
+      issues.push(buildIssue(entity, error));
+    });
   return issues;
 }
 
 function buildIssue(entity: any, error: AjvValidationError): Issue {
   const path = [...error.instancePath.split("/").filter((p: any) => p !== "")];
-  const context = { error, entity: entity };
+  const context = { error, entity };
 
   if (error.keyword === "enum") {
     return {

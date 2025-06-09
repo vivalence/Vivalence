@@ -5,12 +5,18 @@ meta {
 }
 
 post {
-  url: {{ENG2LAT}}/game/gan/learnables
+  url: {{ENG2LAT}}/game/gan/librarian
   body: json
   auth: none
 }
 
 body:json {
   {
+    "learnable": {
+      "status": "KNOWN",
+      "slug": "salve",
+      "known": "Hello (to one person)",
+      "learning": "Salve!"
+    }
   }
 }

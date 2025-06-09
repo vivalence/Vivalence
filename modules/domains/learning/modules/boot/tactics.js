@@ -1,4 +1,6 @@
-export default function boot(runtime) {
+export default async function boot(runtime) {
+  runtime.modules.tactics = {};
+
   for (const module of runtime.config.modules.tactics) {
     const tactic = {
       ...module,
@@ -6,13 +8,26 @@ export default function boot(runtime) {
       emitter: runtime.emitter.branch(),
     };
 
+    tactic.aperture.use(async (ctx, next) => {
+      ctx.tactic = tactic;
+      return await next();
+    });
+
     if (module.boot) {
-      module.boot({ ...runtime, aperture: tactic.aperture, emitter: tactic.emitter }, tactic);
+      await module.boot(
+        { ...runtime, aperture: tactic.aperture, emitter: tactic.emitter },
+        tactic,
+      );
     } else {
-      if (!module.provision) throw new Error("Tactic module must export provision method");
+      if (!module.provision)
+        throw new Error("Tactic module must export provision method");
       tactic.aperture.open("/provision", module.provision);
     }
 
+    tactic.aperture.open("/get", () => ({ manifest: tactic.manifest }));
+    tactic.aperture.open("/status", () => ({ status: "tactic ok" }));
+
     runtime.modules.tactics[tactic.manifest.slug] = tactic;
   }
+  return runtime;
 }

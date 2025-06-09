@@ -7,6 +7,7 @@ export default function boot(runtime) {
         emitter: runtime.emitter.branch(),
       });
   }
+  return runtime;
 }
 
 // tactics.boot

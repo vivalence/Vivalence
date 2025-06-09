@@ -1,4 +1,10 @@
-import { BaseEntity as MikroBaseEntity, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import {
+  types,
+  BaseEntity as MikroBaseEntity,
+  EntitySchema,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
 import { v7 } from "uuid";
 
 export class BaseEntity extends MikroBaseEntity {
@@ -23,12 +29,12 @@ export const BaseSchema = new EntitySchema<BaseEntity>({
       onCreate: () => v7(),
     },
     createdAt: {
-      type: Date,
+      type: types.datetime,
       onCreate: () => new Date(),
       lazy: true,
     },
     updatedAt: {
-      type: Date,
+      type: types.datetime,
       onCreate: () => new Date(),
       onUpdate: () => new Date(),
       lazy: true,

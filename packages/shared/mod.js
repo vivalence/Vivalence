@@ -1,5 +1,6 @@
 import std, {
   fn,
+  is,
   random,
   promise,
   obj,
@@ -34,6 +35,7 @@ array.hash = hash.array;
 obj.hash = hash.object;
 
 export {
+  is,
   fn,
   promise,
   Path,

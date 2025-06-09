@@ -1,0 +1,55 @@
+meta {
+  name: session
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{ENG2LAT}}/game/gan/session
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "text": "Practice first person singular verb forms in Latin for making assertions (e.g., 'I walk', 'I see', 'I love')",
+    "learnables": [
+      {
+        "slug": "i-walk",
+        "status": "UNKNOWN",
+        "known": "I walk",
+        "learning": "Ambulo"
+      },
+      {
+        "slug": "i-see",
+        "status": "UNKNOWN",
+        "known": "I see",
+        "learning": "Video"
+      },
+      {
+        "slug": "i-love",
+        "status": "UNKNOWN",
+        "known": "I love",
+        "learning": "Amo"
+      },
+      {
+        "slug": "i-hear",
+        "status": "UNKNOWN",
+        "known": "I hear",
+        "learning": "Audio"
+      },
+      {
+        "slug": "i-speak",
+        "status": "UNKNOWN",
+        "known": "I speak",
+        "learning": "Loquor"
+      },
+      {
+        "slug": "i-write",
+        "status": "UNKNOWN",
+        "known": "I write",
+        "learning": "Scribo"
+      }
+    ]
+  }
+}

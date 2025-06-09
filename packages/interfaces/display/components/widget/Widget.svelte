@@ -1,7 +1,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
 
-  const { bundle, ...props } = $props();
+  const { bundle, props } = $props();
 
   let dismount = $state(null);
   let component = $state(null);

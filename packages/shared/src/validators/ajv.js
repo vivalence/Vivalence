@@ -1,13 +1,13 @@
-import AJV from "ajv";
+import Ajv from "ajv";
 import ajvErrors from "ajv-errors";
 import addFormats from "ajv-formats";
 
 export function makeAjv(options = {}) {
-  let instance = new AJV({
+  let instance = new Ajv({
     allErrors: true,
     verbose: true,
     $data: true,
-    removeAdditional: "all",
+    removeAdditional: true,
     ...options,
   });
 
@@ -35,7 +35,7 @@ export function makeAjv(options = {}) {
   return instance;
 }
 export const ajv = makeAjv();
-export { AJV };
+export { Ajv };
 
 // function schema(options = {}) {
 //   const ajv = makeAjv(options);

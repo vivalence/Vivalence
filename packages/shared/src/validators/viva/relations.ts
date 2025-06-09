@@ -9,10 +9,10 @@ import {
   Issue,
 } from "./types.d.ts";
 
-export default async function validateRelations(
+export default function validateRelations(
   constraint: Constraint,
   relations: Relation[],
-): Promise<Issue[]> {
+): Issue[] {
   if ("required" in constraint) {
     return required(constraint, relations);
   } else if ("unique" in constraint) {
@@ -24,11 +24,16 @@ export default async function validateRelations(
   } else if ("condition" in constraint) {
     return conditional(constraint, relations);
   } else {
-    throw new Error(`[UNKNOWN RELATION CONSTRAINT]: ${JSON.stringify(constraint)}`);
+    throw new Error(
+      `[UNKNOWN RELATION CONSTRAINT]: ${JSON.stringify(constraint)}`,
+    );
   }
 }
 
-async function required(constraint: RequiredConstraint, relations: Relation[]): Promise<Issue[]> {
+function required(
+  constraint: RequiredConstraint,
+  relations: Relation[],
+): Issue[] {
   const issues: Issue[] = [];
   const { branch, leaf } = constraint.required;
   const required = filterRelations(relations, branch, leaf);
@@ -45,7 +50,7 @@ async function required(constraint: RequiredConstraint, relations: Relation[]): 
   return issues;
 }
 
-async function unique(constraint: UniqueConstraint, relations: Relation[]): Promise<Issue[]> {
+function unique(constraint: UniqueConstraint, relations: Relation[]): Issue[] {
   // console.log(constraint, relations);
   const issues: Issue[] = [];
   const { branch, leaf } = constraint.unique;
@@ -63,7 +68,10 @@ async function unique(constraint: UniqueConstraint, relations: Relation[]): Prom
   return issues;
 }
 
-async function forbidden(constraint: ForbiddenConstraint, relations: Relation[]): Promise<Issue[]> {
+function forbidden(
+  constraint: ForbiddenConstraint,
+  relations: Relation[],
+): Issue[] {
   const issues: Issue[] = [];
   const { branch, leaf } = constraint.forbidden;
   const forbidden = filterRelations(relations, branch, leaf);
@@ -80,20 +88,18 @@ async function forbidden(constraint: ForbiddenConstraint, relations: Relation[])
   return issues;
 }
 
-async function oneOf(constraint: SomeConstraint, relations: Relation[]): Promise<Issue[]> {
+function oneOf(constraint: SomeConstraint, relations: Relation[]): Issue[] {
   const issues: Issue[] = [];
 
-  const tests = await Promise.all(
-    constraint.some.map(async (c) => {
-      const testIssues = await validateRelations(c, relations);
-      return testIssues.map((error) => {
-        error.context.ancestor = error.context.ancestor
-          ? [...error.context.ancestor, constraint]
-          : [constraint];
-        return error;
-      });
-    }),
-  );
+  const tests = constraint.some.map((c) => {
+    const testIssues = validateRelations(c, relations);
+    return testIssues.map((error) => {
+      error.context.ancestor = error.context.ancestor
+        ? [...error.context.ancestor, constraint]
+        : [constraint];
+      return error;
+    });
+  });
 
   if (tests.every((e) => e.length > 0)) {
     tests.forEach((e) => issues.push(...e));
@@ -102,20 +108,22 @@ async function oneOf(constraint: SomeConstraint, relations: Relation[]): Promise
   return issues;
 }
 
-async function conditional(
+function conditional(
   constraint: ConditionConstraint,
   relations: Relation[],
-): Promise<Issue[]> {
+): Issue[] {
   const issues: Issue[] = [];
 
-  const conditionIssues = await validateRelations(constraint.condition.if, relations);
+  const conditionIssues = validateRelations(constraint.condition.if, relations);
   const conditionMet = conditionIssues.length === 0;
 
-  const constraintToValidate = conditionMet ? constraint.condition.then : constraint.condition.else;
+  const constraintToValidate = conditionMet
+    ? constraint.condition.then
+    : constraint.condition.else;
 
   if (constraintToValidate) {
     for (const c of constraintToValidate) {
-      const nestedIssues = await validateRelations(c, relations);
+      const nestedIssues = validateRelations(c, relations);
       nestedIssues.forEach((error) => {
         error.context.ancestor = error.context.ancestor
           ? [...error.context.ancestor, constraint]
@@ -134,8 +142,14 @@ function formatRelationRef(branch?: string, leaf?: string): string {
   return `${branchText}, ${leafText}`;
 }
 
-function filterRelations(relations: Relation[], branch?: string, leaf?: string): Relation[] {
+function filterRelations(
+  relations: Relation[],
+  branch?: string,
+  leaf?: string,
+): Relation[] {
   return relations.filter(
-    (relation) => (!branch || relation.branch === branch) && (!leaf || relation.leaf === leaf),
+    (relation) =>
+      (!branch || relation.branch === branch) &&
+      (!leaf || relation.leaf === leaf),
   );
 }

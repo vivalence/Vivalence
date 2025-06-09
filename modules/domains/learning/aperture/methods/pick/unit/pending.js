@@ -2,7 +2,7 @@ import getDueUnits from "./due.js";
 import getNewUnits from "./new.js";
 
 export default async function (body, ctx) {
-  const { scope, tagIds, blacklist, take = 1 } = body;
+  const { scope, tagIds, blacklist, status, take = 1 } = body;
 
   let debt = -take;
   const units = [];

@@ -7,6 +7,8 @@ function chunked(promises) {
 }
 
 export default async function curriculum({ curriculum }, runtime) {
+  console.log("domain tries to install curriculum");
+  throw new Error("domain/install/curriculum.js not implemented");
   const installations = {};
   const validations = {};
 
@@ -22,7 +24,9 @@ export default async function curriculum({ curriculum }, runtime) {
     log && console.log("\n\n[Unit installation:]");
 
     installations.units = await chunked(
-      curriculum.units.map((unit) => () => runtime.call(`/unit/install`, { unit })),
+      curriculum.units.map(
+        (unit) => () => runtime.call(`/unit/install`, { unit }),
+      ),
     );
   }
 
@@ -30,7 +34,8 @@ export default async function curriculum({ curriculum }, runtime) {
     log && console.log("\n\n[Dependency installation:]");
     installations.dependencies = await chunked(
       curriculum.dependencies.map(
-        (dependency) => () => runtime.call(`/dependency/install`, { dependency }),
+        (dependency) => () =>
+          runtime.call(`/dependency/install`, { dependency }),
       ),
     );
   }

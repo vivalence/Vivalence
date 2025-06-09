@@ -5,28 +5,37 @@ export const node = {
   slug: "degree",
   name: "degree",
   description: "The degree of comparison for adjectives and adverbs.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "abs",
         name: "Absolute",
         description: "An extreme degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "cmp",
         name: "Comparative",
         description: "A higher or lower degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "dim",
         name: "Diminutive",
         description: "A lesser degree or smaller version of something",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "sup",
         name: "Superlative",
         description: "The highest or lowest degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

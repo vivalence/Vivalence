@@ -1,0 +1,18 @@
+meta {
+  name: agent
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{ENG2LAT}}/strategy/eva/agent
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "history": [],
+    "message": "Lets practice some conversations."
+  }
+}

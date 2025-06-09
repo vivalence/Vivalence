@@ -6,6 +6,7 @@
 // CORE INFLECTED TOPOGRAPHIES
 // These carry the primary grammatical load in Latin through systematic inflection
 // =============================================================================
+import sentence from "./sentence.js";
 
 const noun = {
   slug: "noun",
@@ -99,9 +100,8 @@ const pron = {
     { branch: ["lemma"], required: true },
     { branch: ["prontype"], required: true }, // Personal/demonstrative/relative/interrogative
     { branch: ["case"], required: true }, // All pronouns inflect for case
-    { branch: ["number"], required: true }, // All pronouns show number
+    { branch: ["person"], required: false }, // All pronouns show person // error when gender neutral on "quis (quid)"
     { branch: ["gender"], required: false }, // Not all pronoun types have gender
-    { branch: ["person"], required: false }, // Only personal pronouns have person
     { branch: ["reflex"], required: false }, // Only reflexive pronouns need this
   ],
   relations: [
@@ -109,14 +109,7 @@ const pron = {
     { required: { branch: "pos", leaf: "pron" } },
     { required: { branch: "prontype" } }, // Type determines other requirements
     { required: { branch: "case" } }, // Case inflection is universal
-    { required: { branch: "number" } }, // Number inflection is universal
-    // Personal pronouns need person marking
-    {
-      condition: {
-        if: { required: { branch: "prontype", leaf: "prs" } },
-        then: [{ required: { branch: "person" } }],
-      },
-    },
+    // { required: { branch: "person" } }, // Personal pronouns need person marking
   ],
 };
 
@@ -336,6 +329,7 @@ const punct = {
 };
 
 export default [
+  sentence,
   // Core inflected classes - these drive Latin's grammatical system
   noun, // Foundation: establishes case relationships
   verb, // Action center: complex morphology with voice/mood/tense

@@ -45,11 +45,13 @@ export default async function (config) {
   });
 
   const VIVA_REPO_ROOT_DIR = env["VIVA_REPO_ROOT_DIR"];
-  if (!VIVA_REPO_ROOT_DIR) throw new Error("[config] Missing repo configuration.");
+  if (!VIVA_REPO_ROOT_DIR)
+    throw new Error("[config] Missing repo configuration.");
   // config.env.write("VIVA_REPO_ROOT_DIR", join(import.module.path, selfOffset));
 
   const VIVA_DATABASE_PATH = join(VIVA_REPO_ROOT_DIR, env.VIVA_DATABASE_PATH);
-  if (!VIVA_DATABASE_PATH) throw new Error("[config] Missing database configuration.");
+  if (!VIVA_DATABASE_PATH)
+    throw new Error("[config] Missing database configuration.");
 
   config.env = {
     ...config.env,
@@ -93,7 +95,7 @@ export default async function (config) {
       SERVICE_NLP_PORT: env.SERVICE_NLP_PORT,
       SERVICE_NLP_KEY: env.SERVICE_NLP_KEY,
 
-      VIVALENCE_IDENTITY_KEY: env.VIVALENCE_IDENTITY_KEY,
+      VIVA_IDENTITY_MODE: env.VIVA_IDENTITY_MODE,
       OPENAI_API_KEY: env.OPENAI_API_KEY,
       PERPLEXITY_API_KEY: env.PERPLEXITY_API_KEY,
       ANYSCALE_API_KEY: env.ANYSCALE_API_KEY,

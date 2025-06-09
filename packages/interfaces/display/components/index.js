@@ -10,8 +10,10 @@ import Buffer from "./buffer/Buffer.svelte";
 import BufferState from "./buffer/state.svelte.js";
 import BufferMode from "./buffer/Mode.js";
 import Textarea from "./textarea/Textarea.svelte";
+import Desk from "./desk/Desk.svelte";
 
 export {
+  Desk,
   Textarea,
   BufferMode,
   BufferState,

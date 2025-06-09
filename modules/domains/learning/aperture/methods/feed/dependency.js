@@ -10,16 +10,20 @@ export default async function ({ take, ...input }, ctx) {
   const scope = new Scope({
     ...input.scope,
     user: { id: user.id },
-    runtime: { id: ctx.runtime.entity.id },
   });
 
-  const dependency = await ctx.runtime.entities.dependency.findOneOrFail(scope.dependency);
+  const dependency = await ctx.runtime.entities.dependency.findOneOrFail(
+    scope.dependency,
+  );
 
   const counted = await count({ scope, blacklist }, ctx);
 
   const instructions = await read({ scope, blacklist, take }, ctx);
 
-  if (counted <= take || counted <= config.env.get("INSTRUCTION_PROVISION_FLOOR")) {
+  if (
+    counted <= take ||
+    counted <= config.env.get("INSTRUCTION_PROVISION_FLOOR")
+  ) {
     status = "provisioning";
     ctx.runtime.call("/provision/dependency", { dependency, scope, blacklist });
   }
@@ -44,7 +48,6 @@ async function read({ scope, blacklist, take }, ctx) {
   const queueEntries = await ctx.runtime.entities.instruction.find(
     {
       // status: "PENDING",
-      runtime: ctx.runtime.entity.id,
       user: scope.user?.id,
       dependency: scope.dependency?.id,
       id: { $nin: blacklist.instructions },

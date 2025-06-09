@@ -3,23 +3,20 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 
-// import { GameEntity } from "../2_module/Game.ts";
-// import { TacticEntity } from "../2_module/Tactic.ts";
-
-import { DependencyEntity } from "../data/Dependency.ts";
-import { TagEntity } from "../data/Tag.ts";
-import { UnitEntity } from "../data/Unit.ts";
+import { DependencyEntity } from "../corpus/Dependency.ts";
+import { TagEntity } from "../corpus/Tag.ts";
+import { UnitEntity } from "../corpus/Unit.ts";
 
 import { MemoryEntity } from "../userland/Memory.ts";
 import { SessionEntity } from "../transient/Session.ts";
 
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  // runtime!: Rel<RuntimeEntity>;
   session?: Rel<SessionEntity>;
   dependency?: Rel<DependencyEntity>;
-  // tactic?: Rel<TacticEntity>;
-  // game?: Rel<GameEntity>;
+
+  // Currently Tactic and Game dont touch the database as theyre kept as modules.
+  // tactic?: Rel<TacticEntity>; game?: Rel<GameEntity>;
   tactic?: string;
   game?: string;
 
@@ -27,6 +24,7 @@ export class PlayEntity extends BaseEntity {
   tag?: Rel<TagEntity>;
   memory!: Rel<MemoryEntity>;
 
+  data: any & Opt = {};
   history: any & Opt = "[]";
   signal: any & Opt = "{}";
   nextIn!: number & Opt;
@@ -41,7 +39,7 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
 
   // indexes: [{name: "gameIndexOnPlay", expression: 'CREATE INDEX "gameIndexOnPlay" ON public."Play" USING btree ("game")', properties: ["game"],}, {name: "memoryIndexOnPlay", expression: 'CREATE INDEX "memoryIndexOnPlay" ON public."Play" USING btree ("memory")', properties: ["memory"],}, {name: "tacticIndexOnPlay", expression: 'CREATE INDEX "tacticIndexOnPlay" ON public."Play" USING btree ("tactic")', properties: ["tactic"],}, {name: "tagIndexOnPlay", expression: 'CREATE INDEX "tagIndexOnPlay" ON public."Play" USING btree ("tag")', properties: ["tag"],}, {name: "unitIndexOnPlay", expression: 'CREATE INDEX "unitIndexOnPlay" ON public."Play" USING btree ("unit")', properties: ["unit"],}, {name: "userIndexOnPlay", expression: 'CREATE INDEX "userIndexOnPlay" ON public."Play" USING btree ("user")', properties: ["user"],},],
   indexes: [],
-  // uniques: [{ properties: ["unit", "tag", "game", "tactic"] }],
+  // uniques: [{ properties: ['user','session',"unit", "tag", "game", "tactic"] }],
 
   properties: {
     user: {
@@ -69,8 +67,8 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       nullable: true,
     },
 
-    game: { type: "string" },
-    tactic: { type: "string" },
+    game: { type: "string", nullable: true },
+    tactic: { type: "string", nullable: true },
     // game: {kind: "m:1", entity: () => GameEntity, fieldName: "game", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     // tactic: {kind: "m:1", entity: () => TacticEntity, fieldName: "tactic", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     unit: {
@@ -96,10 +94,15 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
+    data: {
+      type: "json",
+      defaultRaw: `"{}"`,
+      default: {},
+    },
     history: { type: "json" },
     signal: { type: "json" },
     nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
-    nextAt: { type: Date, lazy: true, fieldName: "nextAt" },
-    lastAt: { type: Date, lazy: true, fieldName: "lastAt" },
+    nextAt: { type: Date, fieldName: "nextAt" },
+    lastAt: { type: Date, fieldName: "lastAt" },
   },
 });

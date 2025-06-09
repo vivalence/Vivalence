@@ -17,6 +17,6 @@ export default class RemedyHandler {
   }
 
   async apply(issue: any, ctx: any): Promise<any> {
-    return this.handler(issue, ctx);
+    return await this.handler(issue, ctx);
   }
 }

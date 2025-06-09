@@ -1,7 +1,7 @@
 export default class BufferState {
   handlers = {
     pull: null,
-    onNext: [],
+    hooks: [],
   };
 
   threshold = 0;
@@ -14,23 +14,37 @@ export default class BufferState {
     this.handlers.pull = pull;
   }
 
-  next() {
+  next(promise) {
     this.status = "NEXT";
-    // TODO: deepclone
-    let prev = { ...this.active };
+    let prev = { ...this.active }; // TODO: deepclone
+
     this.active = null;
     if (this.queue.length > 0) this.active = this.queue.shift();
-    this.handlers.onNext.map((f) => f(prev, this.active));
+
+    this.hooks(prev, this.active, promise);
+
     this.status = "IDLE";
     this.pull();
   }
 
-  async pull() {
-    if (this.queue.length >= this.threshold) return;
-    this.status = "PULLING";
-
-    this.queue.push(...(await this.handlers.pull(this)));
+  push(mode) {
+    this.queue.push(mode);
     if (!this.active) this.active = this.queue.shift();
+  }
+
+  async pull() {
+    if (this.status === "PULLING") return;
+    if (this.queue.length >= this.threshold) return;
+
+    this.status = "PULLING";
+    try {
+      const modes = await this.handlers.pull(this);
+      this.queue.push(...modes);
+      if (!this.active) this.active = this.queue.shift();
+    } catch (error) {
+      console.log("[BUFFER PULL ERROR]", error);
+    }
+
     this.status = "IDLE";
   }
 
@@ -39,7 +53,14 @@ export default class BufferState {
     this.queue = [];
     this.status = "IDLE";
   }
+
   onNext(fn) {
-    this.handlers.onNext.push(fn);
+    this.handlers.hooks.push(fn);
+  }
+
+  hooks(prev, active, promise) {
+    [...prev.hooks, ...this.handlers.hooks].map((f) =>
+      f(prev, active, promise),
+    );
   }
 }

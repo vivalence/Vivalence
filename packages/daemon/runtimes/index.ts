@@ -4,7 +4,6 @@ import Repository from "@vivalence/repository";
 import Runtime from "./runtime.ts";
 
 import register from "./register.js";
-import install from "./install.ts";
 import aperture from "./aperture.ts";
 import entities from "./entities.ts";
 import services from "./services.ts";
@@ -43,6 +42,11 @@ export default {
 
 function boot(daemon: Daemon) {
   return async (runtime: any) => {
-    return (await runtime.config.domain.boot(runtime)) || runtime;
+    return await runtime.config.domain.boot(runtime, daemon);
+  };
+}
+function install(daemon: Daemon) {
+  return async (runtime: any) => {
+    return await runtime.config.domain.install(runtime, daemon);
   };
 }

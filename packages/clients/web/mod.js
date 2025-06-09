@@ -54,18 +54,22 @@ async function startServer() {
 
     return new Promise((resolve) => {
       serverProcess.on("close", (code) => {
+        console.log("serverprocess close: code", code);
         resolve(code);
       });
     });
   } catch (error) {
+    console.log("@web/mod.js [ERROR]", error);
     process.exit(1);
   }
 }
 
 function handleSignal(signal) {
   if (serverProcess) {
+    console.log("KILL SIGTERM");
     serverProcess.kill("SIGTERM");
   }
+  console.log("EXIT", signal);
   process.exit(0);
 }
 

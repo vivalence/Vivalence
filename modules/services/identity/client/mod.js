@@ -1,7 +1,8 @@
 import config from "@vivalence/config";
 
+// no access to ctx on boot means no access to database
 // needs to be instantiated in middleware.
-const makeIdentityClient = (ctx) => ({
+const makeIdentityClient = () => ({
   async getUser() {
     if (config.env.get("VIVA_IDENTITY_MODE") === "SINGLEPLAYER") {
       return config.identity.singleplayer.user;
@@ -11,7 +12,7 @@ const makeIdentityClient = (ctx) => ({
   },
 });
 
-export default async function identity(serviceConfig, ctx) {
+export default async function identity(serviceConfig) {
   // for now creates the default user.
   // return config.identity.singleplayer.user
 
@@ -21,5 +22,5 @@ export default async function identity(serviceConfig, ctx) {
   //   await ctx.entities.em.flush();
   // }
 
-  return makeIdentityClient(ctx);
+  return makeIdentityClient();
 }

@@ -1,8 +1,10 @@
 async function forbidden(issue: any, ctx: any) {
-  const { entity, error } = issue.data.context;
+  const { error, unit } = issue.context;
   // const forbiddenAnnotationKey = issue.path[issue.path.length - 1];
-  delete entity.annotation[error.params.additionalProperty];
-  return issue.resolve();
+  delete unit.annotation[error.params.additionalProperty];
+  await ctx.runtime.entities.em.flush();
+
+  return await issue.resolve();
 }
 
 export default {

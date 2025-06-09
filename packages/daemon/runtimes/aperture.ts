@@ -1,6 +1,7 @@
 import { Daemon, Runtime } from "@vivalence/types";
 
 import Aperture from "../locals/aperture/index.ts";
+import notFoundMiddleware from "../aperture/middlewares/notFound.js";
 
 const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
   ctx.runtime = runtime;
@@ -15,8 +16,39 @@ function v1(aperture) {
   }));
 
   aperture.open("/modules/:module/:method", async (body, ctx) => {
-    throw new Error("MODULES DONT IMPLEMENT ANY STANDARD INTERFACE, YET.", ctx.params, body);
-    // const module = ctx.runtime.modules[ctx.params.module];
+    const params = ctx.params;
+
+    if (!["game", "strategy", "tactic"].includes(params.module))
+      throw new Error("unsupported module");
+    if (!["findOne"].includes(params.method))
+      throw new Error("unsupported method");
+
+    const modules =
+      ctx.runtime.modules[
+        {
+          tactic: "tactics",
+          game: "games",
+          strategy: "strategies",
+        }[params.module]
+      ];
+
+    let module = {};
+    switch (params.method) {
+      case "findOne":
+        module = modules[body.where.slug];
+      // if (module.manifest.traits.includes("VIEWABLE")) module.bundle = modules[body.slug].bundle;
+    }
+
+    const result = {
+      manifest: module.manifest,
+    };
+    if (module.bundle) {
+      result.bundle = {
+        path: module.bundle.path,
+        url: module.bundle.url.href,
+      };
+    }
+    return result;
     // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
   });
   aperture.open("/entities/:entity/:repo", async (body, ctx) => {
@@ -33,6 +65,7 @@ export default {
   init: (daemon: Daemon) => async (runtime: Runtime) => {
     runtime.aperture = daemon.aperture
       .branch(`/aperture/v1/runtime/${runtime.config.manifest.slug}`)
+      .use(notFoundMiddleware)
       .use(runtimeContextMiddleware(runtime));
 
     v1(runtime.aperture);
@@ -46,6 +79,7 @@ export default {
     runtime.call = async (path, body = {}, params = {}) => {
       const ctx = Aperture.context(path, body, params);
       await runtime.aperture.composed(ctx);
+      if (ctx.response.status === 404) console.log("[404]", ctx.request);
       return ctx.response.body;
     };
 

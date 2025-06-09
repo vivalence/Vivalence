@@ -5,7 +5,7 @@ export const node = {
   slug: "numtype",
   name: "numeral type",
   description: "The type of numeral.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL"],
   data: {
     CATEGORICAL: [
       {

@@ -1,3 +1,4 @@
+import { is } from "@vivalence/shared";
 import type { Match, Middleware, Context, Effect } from "../types/index.ts";
 import { Signal, Pattern } from "../types/index.ts";
 import { compose } from "./lib.ts";
@@ -12,11 +13,9 @@ export class Trajectory {
     this.effects = new Map();
     this.descendants = new Map();
     this.middlewares = [];
-
-    // for (const parser of parsers) {this[parser.type] = (pattern, effect) => this.open(parser.pattern(pattern), effect);}
   }
 
-  get parser() {
+  get parserFunctions() {
     return this.parsers.reduce((a, p) => ((a[p.type] = p.pattern), a), {});
   }
 
@@ -37,21 +36,29 @@ export class Trajectory {
     return this;
   }
 
-  open(patterns: Pattern[] | PatternFunction, effect: Effect): Trajectory {
-    if (typeof patterns === "function") {
-      patterns = patterns(this.parser);
+  parse(patterns: any | Pattern[] | PatternFunction) {
+    if (is.fn(patterns)) {
+      patterns = patterns(this.parserFunctions);
+    } else if (is.object(patterns) && !is.array(patterns)) {
+      patterns = this.parsers[0].pattern(patterns);
     }
+    return patterns;
+  }
+  open(patterns: any, effect: Effect): Trajectory {
+    patterns = this.parse(patterns);
+
     if (patterns.length === 0) throw new Error("Requires pattern");
+
     this.branch(() => patterns.slice(0, -1)) //
       .effects.set(patterns[patterns.length - 1], effect);
 
     return this;
   }
 
-  branch(patterns: Pattern[] | PatternFunction): Trajectory {
-    if (typeof patterns === "function") {
-      patterns = patterns(this.parser);
-    }
+  // any is the Trajectory.defaultParser's pattern Input type. i can validate against that.
+  // this would allow strings as default inputs. important for aperture.
+  branch(patterns: any): Trajectory {
+    patterns = this.parse(patterns);
 
     if (patterns.length === 0) return this;
 

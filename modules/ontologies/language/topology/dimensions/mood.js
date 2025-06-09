@@ -5,28 +5,38 @@ export const node = {
   slug: "mood",
   name: "mood",
   description: "The grammatical mood of a verb, indicating modality.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "ind",
         name: "Indicative",
         description: "A mood used for statements of fact",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "sub",
         name: "Subjunctive",
         description: "A mood used for hypothetical or non-real actions",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "imp",
         name: "Imperative",
         description: "A mood used for commands or requests",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "cnd",
         name: "Conditional",
-        description: "A mood used to express conditions or hypothetical situations",
+        description:
+          "A mood used to express conditions or hypothetical situations",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

@@ -15,10 +15,9 @@ class Identity {
 }
 
 export default function (config) {
-  const identity = new Identity(config);
+  config.identity = new Identity(config);
 
-  config.identity = identity;
-  config.env["VIVA_IDENTITY_MODE"] = identity.mode;
+  // config.env["VIVA_IDENTITY_MODE"] = identity.mode;
 
   return config;
 }

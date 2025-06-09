@@ -18,7 +18,7 @@ export function context(path, body, params) {
       method: params.method || "POST",
       headers: new Headers(),
     },
-    response: { body: {}, status: 404, headers: new Headers() },
+    response: { body: {}, status: null, headers: new Headers() },
   };
 }
 

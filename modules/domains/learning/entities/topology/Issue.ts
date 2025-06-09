@@ -1,7 +1,12 @@
 import { hash } from "@vivalence/shared";
 import { type Opt } from "@mikro-orm/core";
 import { BaseDataEntity, BaseDataRepository } from "@vivalence/entities";
+import { ConstraintEntity } from "./Constraint.ts";
 
+export enum IssueViolationEnum {
+  forbidden = "forbidden",
+  required = "required",
+}
 export enum IssueStatusEnum {
   PENDING = "PENDING",
   PROCESSING = "PROCESSING",
@@ -17,34 +22,68 @@ export class IssueRepository extends BaseDataRepository {
 }
 
 export class IssueEntity {
+  violation: IssueViolationEnum & Opt = null;
+  path: string[] & Opt = [];
+  message: string & Opt = "";
+  context: any & Opt = {};
+
   slug: string;
-  index: number & Opt = 0;
   status: IssueStatusEnum & Opt = IssueStatusEnum.PENDING;
-  data: any & Opt = {};
+
   error: any & Opt = {};
   history: string[] & Opt = [];
+
   descendants: IssueEntity[] & Opt = [];
+  parent: IssueEntity & Opt = {};
+
+  constraint: ConstraintEntity & Opt = [];
+  entity: any & Opt = null;
+
   constructor(data: any) {
-    this.data = data;
-    this.slug = hash.object(this.data);
+    this.violation = data.violation;
+    this.path = data.path || [];
+    this.message = data.message;
+    this.context = data.context || {};
+    this.slug = hash.object(data);
   }
-  markError(error: any) {
+  onError(error: any) {
     this.error = error;
     this.status = IssueStatusEnum.ERROR;
+    console.log("[ISSUE ERROR]", this);
     return this;
   }
-  spawn(issue: IssueEntity | any) {
-    if (!(issue instanceof IssueEntity)) issue = new IssueEntity(issue);
-    this.descendants.push(issue);
+  spawn(issues: IssueEntity | IssueEntity[]) {
+    if (!Array.isArray(issues)) issues = [issues];
+    for (const issue of issues) {
+      issue.parent = this;
+      this.descendants.push(issue);
+    }
     return this;
   }
-  resolve() {
+  violates(constraint: ConstraintEntity) {
+    this.constraint = constraint;
+    return this;
+  }
+  of(entity) {
+    this.entity = entity;
+    return this;
+  }
+  async resolve() {
+    // Doesnt work yet, because individual constraints might spawn multiple issues and theyre resolved async.
+    // const issues = await this.constraint.test(this.entity);
+    // if (issues.length > 0)
+    //   this.onError({ issues, message: "constraint check on resolve failed" });
+    // else this.status = IssueStatusEnum.RESOLVED;
     this.status = IssueStatusEnum.RESOLVED;
     return this;
   }
   get resolved() {
     return this.status === IssueStatusEnum.RESOLVED;
   }
+  get hasSpawn() {
+    return this.descendants.filter((issue) => !issue.resolved).length > 0;
+  }
+  get hasError() {
+    return this.status === IssueStatusEnum.ERROR;
+  }
 }
-
-// export const IssueSchema = new EntitySchema<IssueEntity, BaseEntity>({class: IssueEntity, extends: BaseSchema, tableName: "Issue", properties: {user: {kind: "m:1", entity: () => User, fieldName: "user", updateRule: "cascade", deleteRule: "cascade",}, runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",}, game: {kind: "m:1", entity: () => GameEntity, fieldName: "game", updateRule: "cascade", deleteRule: "cascade", nullable: true,}, tactic: {kind: "m:1", entity: () => TacticEntity, fieldName: "tactic", updateRule: "cascade", deleteRule: "cascade", nullable: true,}, dependency: {kind: "m:1", entity: () => DependencyEntity, fieldName: "dependency", updateRule: "cascade", deleteRule: "cascade", nullable: true,}, index: { type: Number }, data: { type: "json" }, status: {enum: true, items: () => IssueStatusEnum, default: IssueStatusEnum.PENDING, onCreate: () => IssueStatusEnum.PENDING,},},});

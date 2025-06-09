@@ -59,7 +59,12 @@ export const node = {
         name: "Numeral",
         description: "A word that expresses a number.",
       },
-      // {slug: "part", name: "Particle", description: "A word that has grammatical function but does not fit into the main parts of speech.",},
+      {
+        slug: "part",
+        name: "Particle",
+        description:
+          "A word that has grammatical function but does not fit into the main parts of speech.",
+      },
       {
         slug: "pron",
         name: "Pronoun",

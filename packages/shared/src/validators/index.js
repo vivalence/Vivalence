@@ -1,15 +1,14 @@
-import { ajv, makeAjv, AJV } from "./ajv.js";
+import { ajv, makeAjv, Ajv } from "./ajv.js";
 import jsonlogic from "./jsonlogic.js";
 import jsonata from "./jsonata.js";
 
-import relations from "./viva/relations.ts";
-import entity from "./viva/entity.ts";
+import viva from "./viva/index.ts";
 
 export default {
-  viva: { entity, relations },
+  viva,
   ajv,
   makeAjv,
-  AJV,
+  Ajv,
   jsonlogic,
   jsonata,
 };

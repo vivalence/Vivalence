@@ -2,29 +2,28 @@ import { EntityRepositoryType, EntityRepository } from "@mikro-orm/core";
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseDataEntity, BaseDataRepository } from "@vivalence/entities";
 
-// import { BaseOntologyEntity } from "../0_root/BaseOntologyEntity.ts";
-// export class TopographyEntity extends BaseOntologyEntity {
-
 export class TopographyRepository extends BaseDataRepository {
   constructor(data: any) {
     super();
     this["#entity"] = TopographyEntity;
   }
-}
-
-export enum TopographyTraitsEnum {
-  _ = "_",
+  findOne(query) {
+    return this.find((topography) => {
+      return (
+        Object.entries(query).filter(
+          ([key, value]) => topography[key] === value,
+        ).length > 0
+      );
+    });
+  }
 }
 
 export class TopographyEntity extends BaseDataEntity {
-  // [EntityRepositoryType]?: TopographyRepository;
-  // slug from hash.
-  traits: TopographyTraitsEnum[] & Opt = [];
-  dimensions: any & Opt = [];
-  // TODO:once using MikroRepository
-  // annotations: new Collection<Annotation>(this)
+  // slug, name, descr from DataEntity
   topology: string & Opt = "";
-  data: any & Opt = {};
+  dimensions: any & Opt = [];
+  relations: any & Opt = [];
+  // [any]: any;
 
   constructor(node = {}) {
     super();

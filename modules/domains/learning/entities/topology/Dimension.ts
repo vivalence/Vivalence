@@ -2,11 +2,14 @@ import { type Opt, type Rel } from "@mikro-orm/core";
 import { BaseDataEntity, BaseDataRepository } from "@vivalence/entities";
 
 export enum DimensionTraitsEnum {
+  // Only categorical (&@root) can be TOPOLOGICAL
   FREE = "free",
   CATEGORICAL = "categorical",
-  // Only categorical (&@root) can be TOPOLOGICAL
-  TOPOLOGICAL = "topological",
+  TOPOGRAPHICAL = "topographical",
   ANCESTOR = "ancestor",
+  DESCENDANT = "descendant",
+  LEARNABLE = "learnable",
+  COMPLETABLE = "completable",
 }
 
 export class DimensionRepository extends BaseDataRepository {
@@ -14,19 +17,44 @@ export class DimensionRepository extends BaseDataRepository {
     super();
     this["#entity"] = DimensionEntity;
   }
+  findOne(query) {
+    return this.find((dimension) => {
+      return (
+        Object.entries(query).filter(([key, value]) => {
+          // if (key)
+          return dimension[key] === value;
+        }).length > 0
+      );
+    });
+  }
+  byTrait(trait) {
+    return this.filter((dim) => dim.traits.includes(trait));
+  }
+  get topographical() {
+    return this.byTrait("TOPOGRAPHICAL")
+      .map((dim) => dim.data.CATEGORICAL)
+      .flat();
+  }
 }
 
 export class DimensionEntity extends BaseDataEntity {
-  // slug
   traits: DimensionTraitsEnum[] & Opt = [];
   data: any & Opt = {};
   topology: string & Opt = "";
+
+  ancestor?: DimensionEntity & Opt = null;
+  descendants: DimensionEntity[] & Opt = [];
 
   constructor(node = {}) {
     super();
     Object.assign(this, node);
 
-    // assert traits
-    // if topological, then must be categorical
+    if (this.traits.includes("CATEGORICAL")) {
+      for (const descendant of this.data.CATEGORICAL) {
+        const dimension = new DimensionEntity(descendant);
+        dimension.ancestor = this;
+        this.descendants.push(dimension);
+      }
+    }
   }
 }

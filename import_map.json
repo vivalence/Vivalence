@@ -10,6 +10,7 @@
     "fs-extra": "npm:fs-extra",
 
     "@stdlib/utils": "https://cdn.jsdelivr.net/gh/stdlib-js/utils@deno/mod.js",
+    "@stdlib/assert": "https://cdn.jsdelivr.net/gh/stdlib-js/assert@deno/mod.js",
 
     "uuid": "npm:uuid@11.0.5",
 

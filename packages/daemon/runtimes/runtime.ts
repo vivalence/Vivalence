@@ -2,6 +2,7 @@ import { ValenceRepository } from "@vivalence/entities";
 import { Daemon } from "@vivalence/types";
 
 export default class Runtime {
+  statics = {};
   config = {};
   modules = {};
 
@@ -13,14 +14,11 @@ export default class Runtime {
   hooks = null;
 
   schema = {};
-  ontology = {};
   valences = new ValenceRepository();
-
-  // domain = {};
-  // strategies = {};
 
   constructor(config: any, daemon: Daemon) {
     this.config = config;
+    this.statics = config.statics;
     this.emitter = daemon.emitter.branch();
     // aperture ?
   }

@@ -20,6 +20,7 @@ export default function register(daemon) {
       ...runtime.config.modules.corpora,
       ...runtime.config.modules.games,
       ...runtime.config.modules.tactics,
+      ...runtime.config.modules.strategies,
     ];
 
     for (const module of modules) {
