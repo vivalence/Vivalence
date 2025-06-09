@@ -6,6 +6,7 @@ export default async function installTag(input, ctx) {
     status = "success";
 
   if (!input.tag.slug) throw new Error("Slug missing");
+  // if (!input.tag.slug) input.tag.slug = await ctx.runtime.call("/tag/identity", input.tag);
 
   let tag = await ctx.runtime.entities.tag.findOne({ slug: input.tag.slug });
 
@@ -26,7 +27,10 @@ export default async function installTag(input, ctx) {
     tag.data[trait] = tag.data[trait] || {};
   }
 
-  if (tag.traits.includes("STRUCTURAL") && input.tag.data.STRUCTURAL?.relations?.units?.length) {
+  if (
+    tag.traits.includes("STRUCTURAL") &&
+    input.tag.data.STRUCTURAL?.relations?.units?.length
+  ) {
     console.log("TODO implement structural relations.");
     // would violate guaranteed order of installations and
     // will fail on first install.
@@ -59,40 +63,18 @@ export default async function installTag(input, ctx) {
     tag.data.COMPLETABLE.flavor = tag.data.COMPLETABLE.flavor || "INDIVIDUAL";
   }
 
-  const issues = await ctx.runtime.ontology.assert.tag(tag, ["SCHEMATIC"]);
+  const issues = await ctx.runtime.validate.tag(tag, ["SCHEMATIC"]);
   if (issues.length > 0) {
     console.log("[TAG INSTALL] ISSUES NOT RESOLVED. issues:", issues);
     ctx.runtime.entities.em.remove(tag);
-    // await ctx.runtime.entities.em.flush();
     return { operation: "validation", status: "failure", issues };
   }
 
   await ctx.runtime.entities.em.flush();
+
   return {
     tag,
     operation,
     status: "success",
   };
-}
-
-// TODO:
-async function forceTagValidity(tag, ctx) {
-  const maxItterations = 3;
-  let itteration = 0;
-
-  while (itteration < maxItterations) {
-    const issues = await ctx.runtime.call("/diagnostics/validate/tag", { tag: { ...tag } });
-
-    if (!issues[0]) return { success: true, status: "valid", tag };
-
-    for (const issue of issues) {
-      const remedy = await ctx.runtime.call("/remedy", { issue });
-      if (!remedy.resolved) return { success: false, status: "invalid", remedy };
-    }
-
-    unit = await getUnit(tag, ctx);
-    itteration++;
-  }
-
-  return { success: false, status: "invalid", unit };
 }

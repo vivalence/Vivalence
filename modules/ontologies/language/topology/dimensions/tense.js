@@ -6,28 +6,37 @@ export const node = {
   slug: "tense",
   name: "tense",
   description: "The time of action or state expressed by the verb.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "past",
         name: "Past",
         description: "An action or state that occurred in the past",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "pres",
         name: "Present",
         description: "An action or state that is currently occurring",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "fut",
         name: "Future",
         description: "An action or state that will occur in the future",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "imp",
         name: "Imperfect",
         description: "A past action or state that was ongoing or repeated",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

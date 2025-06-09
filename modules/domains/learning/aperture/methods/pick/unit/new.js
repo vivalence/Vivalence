@@ -9,11 +9,10 @@ export default async function getNewUnits(input, ctx) {
   const scope = new Scope({
     ...input.scope,
     user: { id: user.id },
-    runtime: { id: ctx.runtime.entity.id },
   });
 
   const qb = ctx.runtime.entities.unit.createQueryBuilder("u");
-  qb.where({ runtime: ctx.runtime.entity.id });
+  qb.where({});
 
   if (blacklist.units?.length > 0) {
     qb.andWhere({ id: { $nin: blacklist.units } });
@@ -36,20 +35,17 @@ export default async function getNewUnits(input, ctx) {
         SELECT 1
         FROM Play p
         WHERE p.unit = u.id
-        ${scope.tactic?.id ? "AND p.tactic = ?" : ""}
-        ${scope.game?.id ? "AND p.game = ?" : ""}
+        ${scope.tactic?.slug ? "AND p.tactic = ?" : ""}
+        ${scope.game?.slug ? "AND p.game = ?" : ""}
         ${scope.user?.id ? "AND p.user = ?" : ""}
-        ${scope.runtime?.id ? "AND p.runtime = ?" : ""}
       )`,
     [
-      ...(scope.tactic?.id ? [scope.tactic.id] : []),
-      ...(scope.game?.id ? [scope.game.id] : []),
+      ...(scope.tactic?.slug ? [scope.tactic.slug] : []),
+      ...(scope.game?.slug ? [scope.game.slug] : []),
       ...(scope.user?.id ? [scope.user.id] : []),
-      ...(scope.runtime.id ? [scope.runtime.id] : []),
     ],
   );
 
-  qb.orderBy({ index: "ASC" });
   if (take) qb.limit(take);
 
   const units = await qb.getResultList();

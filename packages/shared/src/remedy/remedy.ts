@@ -1,16 +1,23 @@
 import RemedyHandler from "./handler.ts";
 
 interface RemedyFactoryInput {
+  constraints: any[];
+  entity: any;
+  maxIterations?: number;
+}
+
+interface RemedyAssFactoryInput {
   asserter: (entity: any, processors?: any) => Promise<any[]>;
   entity: any;
   maxIterations?: number;
   processors?: any;
 }
 
+// INSECURE: there are recursion failure modes
 export class Remedy {
   private registry: RemedyHandler[] = new Array();
 
-  private remedies(path: any[], violation: any): RemedyHandler[] {
+  private find(path: any[], violation: any): RemedyHandler[] {
     const matchingViolation = this.registry.filter(
       (remedy) => remedy.violation === violation,
     );
@@ -46,25 +53,41 @@ export class Remedy {
   public async apply(issue: any, ctx: any): Promise<any> {
     issue.status = "PROCESSING";
 
-    const remedies = this.remedies(issue.data.path, issue.data.violation);
+    const remedies = this.find(issue.path, issue.violation);
 
     if (remedies.length < 1) {
-      return issue.markError({ message: "Missing Remedy" });
+      return issue.onError({ message: "No Remedy" });
     }
 
     for (const remedy of remedies) {
       await remedy.apply(issue, ctx);
-      if (issue.resolved) {
-        return issue;
+
+      if (issue.hasSpawn) {
+        await this.many(issue.descendants, ctx); // INSECURE
+
+        if (!issue.hasSpawn) {
+          await this.apply(issue, ctx); // INSECURE
+        } else {
+          issue.onError({ message: "unresolved descendant" });
+        }
       }
+      if (issue.resolved) return;
+      if (issue.hasError) return;
     }
 
-    issue.markError({ message: "Unresolved by handler" });
-
-    return issue;
+    issue.onError({ message: "Unresolved by handler" });
   }
 
-  public async factory(input: RemedyFactoryInput, ctx: any): Promise<any[]> {
+  public async many(issues: any[], ctx: any) {
+    for (const issue of issues.filter((i) => !i.resolved)) {
+      await this.apply(issue, ctx);
+    }
+    return issues.filter((i) => !i.resolved);
+  }
+  public async assfactory(
+    input: RemedyAssFactoryInput,
+    ctx: any,
+  ): Promise<any[]> {
     // TODO: rebuild
     const { asserter, entity, processors, maxIterations = 10 } = input;
     let allIssues: any[] = [];

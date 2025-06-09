@@ -1,26 +1,112 @@
 <script>
   // // @lj // // deepClone fails. causes reactivity issues. props not isolated. // // f.E. next updates state.active before previous game is unmounted // // => game.call(/eval) happens to the wrong game
-  import { onMount } from "svelte";
+  import { onMount, onDestroy, unmount } from "svelte";
   import { id } from "@vivalence/shared";
   import { Loader } from "@vivalence/interface";
 
   let { buffer } = $props();
+
+  let component = $state(null);
+  let dom = $state(null);
+
   let Mode = $derived.by(() => buffer.active);
 
-  function release() {
-    buffer.next();
-  }
+  const dismount = async () => {
+    if (component) {
+      const promise = unmount(component);
+      component = null;
+      component = await promise;
+    }
+  };
+
+  const render = async (url, props) => {
+    const { default: Component } = await import(/* @vite-ignore */ url);
+    component = await Component(dom, props);
+  };
+
+  $effect(() => {
+    if (!Mode?.view.bundle) return;
+
+    const props = Mode.props; //{$state.snapshot(Mode.props)}
+
+    props.buffer = buffer;
+    props.buffer.release = (promise) => {
+      dismount();
+      buffer.next(promise);
+    };
+
+    render(Mode.view.bundle.url, props);
+  });
+
   onMount(() => {
     buffer.pull();
   });
+  onDestroy(() => {
+    console.log("onDestroy");
+    dismount();
+  });
+
+  // $inspect("[BUFFER COMPONENT]", component);
 </script>
 
-<div class="bsp-node">
-  {#if buffer.active && Mode?.Component}
-    {#key id(buffer.active)}
-      <Mode.Component {release} {...$state.snapshot(Mode.props)} />
-    {/key}
-  {:else}
-    <Loader load={() => buffer.pull()} />
-  {/if}
-</div>
+<!-- props={$state.snapshot(Mode.props)} -->
+
+{#key id(buffer.active)}
+  <div id="buffer-container" class="bsp-node" bind:this={dom} />
+{/key}
+
+{#if buffer.active && Mode?.view?.Component}
+  <Mode.view.Component {...Mode.props} />
+{:else if !component}
+  <Loader load={() => buffer.pull()} />
+{/if}
+
+<!-- <div class="bsp-node"> -->
+<!--   {#if buffer.active && Mode?.view?.bundle} -->
+<!--     {#key id(buffer.active)} -->
+<!--       <Mode.view.Component -->
+<!--         {release} -->
+<!--         bundle={$state.snapshot(Mode.view.bundle)} -->
+<!--         props={$state.snapshot(Mode.props)} /> -->
+<!--     {/key} -->
+<!--   {:else} -->
+<!--     <\!-- <Loader load={() => buffer.pull()} /> -\-> -->
+<!--   {/if} -->
+<!-- </div> -->
+
+<!-- <script> -->
+<!--   import { onMount, onDestroy } from "svelte"; -->
+
+<!--   const { bundle, props } = $props(); -->
+
+<!--   let dismount = $state(null); -->
+<!--   let component = $state(null); -->
+<!--   let dom = $state(null); -->
+
+<!--   onMount(async () => { -->
+<!--     const { default: Component } = await import(/* @vite-ignore */ bundle.url); -->
+<!--     await Component(dom, props); -->
+<!--     component = true; -->
+<!--   }); -->
+
+<!--   // @lj -->
+<!--   // deepClone fails. causes reactivity issues. props not isolated. -->
+<!--   // f.E. next updates state.active before previous game is unmounted -->
+<!--   // => game.call(/eval) happens to the wrong game -->
+<!--   onDestroy(() => { -->
+<!--     // Component unmounting not working. -->
+<!--     // @security lock. -->
+<!--     component = false; -->
+<!--   }); -->
+<!-- </script> -->
+
+<!-- <div class="bsp-node"> -->
+<!--   <div id="widget-container" class="bsp-node" bind:this={dom} /> -->
+
+<!--   {#if !component} -->
+<!--     <div class="bsp-chain-end"> -->
+<!--       <\!-- <span class="text-theme-text-1">unknown widget.svelte error...</span> -\-> -->
+<!--       <span class="text-theme-text-1">loading widget.svelte</span> -->
+<!--     </div> -->
+<!--   {/if} -->
+<!-- </div> -->

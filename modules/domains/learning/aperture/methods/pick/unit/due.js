@@ -8,11 +8,10 @@ export default async function getDueUnits(input, ctx) {
   const scope = new Scope({
     ...input.scope,
     user: { id: user.id },
-    runtime: { id: ctx.runtime.entity.id },
   });
 
   const qb = ctx.runtime.entities.unit.createQueryBuilder("u");
-  qb.where({ runtime: ctx.runtime.entity.id });
+  qb.where({});
 
   if (blacklist?.units && blacklist.units.length > 0) {
     qb.andWhere({ id: { $nin: blacklist.units } });
@@ -39,16 +38,16 @@ export default async function getDueUnits(input, ctx) {
 
   const playParams = [new Date(dueLt)];
 
-  if (scope.tactic?.id) {
+  if (scope.tactic?.slug) {
     playQuery += ` AND p.tactic = ?`;
-    playParams.push(scope.tactic.id);
+    playParams.push(scope.tactic.slug);
   } else {
     playQuery += ` AND p.tactic IS NULL`;
   }
 
-  if (scope.game?.id) {
+  if (scope.game?.slug) {
     playQuery += ` AND p.game = ?`;
-    playParams.push(scope.game.id);
+    playParams.push(scope.game.slug);
   } else {
     playQuery += ` AND p.game IS NULL`;
   }

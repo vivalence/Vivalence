@@ -9,6 +9,8 @@ function boot(runtime) {
     // const { data: dependencies } = await ctx.runtime.services.supabase .from("Dependency") .select("id");
     // const computed = await Promise.all(dependencies.map((dependency) => ctx.runtime.call("/dependencies/compute", { dependency })),);
   });
+
+  return runtime;
 }
 
 export default { boot };

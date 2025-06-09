@@ -4,7 +4,7 @@ const manifest = {
   type: "ontology",
   slug: "language",
   name: "Language after Universal Dependencies",
-  version: "0.1.0",
+  version: "0.1.1",
   traits: ["BOOTABLE", "TOPOLOGICAL", "DATASET"],
 };
 

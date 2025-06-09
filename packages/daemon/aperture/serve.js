@@ -5,16 +5,20 @@ import Aperture from "../locals/aperture/index.ts";
 
 import authMiddleware from "./middlewares/auth.js";
 import corsMiddleware from "./middlewares/cors.js";
+import notFoundMiddleware from "./middlewares/notFound.js";
 
 export default async (daemon) => {
   const app = new Application();
 
   app.use(corsMiddleware);
   app.use(authMiddleware);
+  app.use(notFoundMiddleware);
 
   app.use(daemon.aperture.compose());
 
-  daemon.server = app.listen({ port: parseInt(config.env.get("VIVA_DAEMON_PORT")) });
+  daemon.server = app.listen({
+    port: parseInt(config.env.get("VIVA_DAEMON_PORT")),
+  });
 
   daemon.call = async (path, body = {}, params = {}) => {
     const ctx = Aperture.context(path, body, params);

@@ -35,6 +35,7 @@ export default defineConfig({
       include: [
         "./src/**/*",
         "../../../modules/domain/**/games/**/*.{html,svelte.js,svelte,css}",
+        "../../../modules/domain/**/strategies/**/*.{html,svelte.js,svelte,css}",
         "../../interfaces/display/**/*",
         "../../shared/**/*",
       ],

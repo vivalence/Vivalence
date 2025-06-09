@@ -1,3 +1,4 @@
+import { hash, obj } from "@vivalence/shared";
 import { Agentic } from "@vivalence/shared/trajectory";
 // import { TypeCompiler } from "@sinclair/typebox/compiler";
 import validators from "@vivalence/shared/validators";
@@ -16,7 +17,6 @@ export class Agent {
     return this;
   }
 
-  // ears
   withInput(input) {
     this.input = input;
     // this.inputValidator = TypeCompiler.Compile(input);
@@ -24,7 +24,6 @@ export class Agent {
     return this;
   }
 
-  // mouth
   withOutput(output) {
     this.output = output;
     // this.outputValidator = TypeCompiler.Compile(output);
@@ -32,7 +31,6 @@ export class Agent {
     return this;
   }
 
-  // ... spin?
   withTemplate(template) {
     this.template = template;
     return this;
@@ -45,6 +43,11 @@ export class Agent {
 
   withContext(slug, textOrFn) {
     this.context.set(slug, textOrFn);
+    return this;
+  }
+
+  enhance(text) {
+    this.context.set(hash.string(text), text);
     return this;
   }
 
@@ -80,14 +83,45 @@ export class Agent {
   }
 
   parse(output) {
-    if (!this.outputValidator) return output;
+    let errors = [];
+    if (!this.outputValidator) return [output, errors];
     // if (!this.outputValidator.Check(output)) {// const errors = [...this.outputValidator.Errors(output)];
-    if (!this.outputValidator(output)) {
-      const errors = [...this.outputValidator.errors];
-      this.onIssues(errors);
-      // console.log("[OUTPUT VALIDATION ERRORS]", this.outputValidator);
+
+    if (!this.outputValidator(obj.stripOfNulls(output))) {
+      // console.log("@shared/agent.js [OUTPUT VALIDATION ERRORS]");
+      // console.log({output, rest, errors: this.outputValidator.errors, agent: this.slug,});
+      // console.log("/[OUTPUT VALIDATION ERRORS]");
+      errors = [...this.outputValidator.errors];
     }
-    return output;
+    return [output, errors];
+  }
+
+  async generate(input) {
+    this.check(["input", "output"]);
+    this.validate(input);
+
+    const response = await this.brain.generate.object({
+      schema: this.output,
+      system: this.system,
+      prompt: this.prompt(input),
+    });
+
+    let [object, errors] = this.parse(response.object);
+
+    if (errors.length === 0) return object;
+
+    const retry = await this.brain.generate.object({
+      schema: this.output,
+      system:
+        this.system +
+        "\n# Failure and retry:" +
+        JSON.stringify({ previousOutput: object, errors }),
+      prompt: this.prompt(input),
+    });
+
+    [object, errors] = this.parse(retry.object);
+    if (errors.length === 0) return object;
+    else this.onIssues(errors);
   }
 
   onIssues(issues) {
@@ -103,6 +137,18 @@ export class Agent {
     else return input;
   }
 
+  async do(input) {
+    this.check(["tools", "input"]);
+    this.validate(input);
+
+    const { text, messages } = await this.brain.call.tools({
+      system: this.system,
+      tools: this.tools,
+      prompt: this.prompt(input),
+    });
+
+    return { text, messages };
+  }
   check(what = []) {
     const issues = [];
     if (!this.brain) issues.push("Agent missing brain");
@@ -118,33 +164,8 @@ export class Agent {
       throw new Error(`Agent configuration incomplete: ${issues.join(", ")}`);
     }
   }
-
-  async do(input) {
-    this.check(["tools", "input"]);
-    this.validate(input);
-
-    const { text, messages } = await this.brain.call.tools({
-      system: this.system,
-      tools: this.tools,
-      prompt: this.prompt(input),
-    });
-
-    return { text, messages };
-  }
-
-  async generate(input) {
-    this.check(["input", "output"]);
-    this.validate(input);
-
-    const { object } = await this.brain.generate.object({
-      schema: this.output,
-      system: this.system,
-      prompt: this.prompt(input),
-    });
-
-    return this.parse(object);
-  }
 }
+
 // import { TypeCompiler } from "@sinclair/typebox/compiler";
 
 // export class Agent {

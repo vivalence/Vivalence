@@ -19,8 +19,9 @@ export class InstructionEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   // runtime!: Rel<RuntimeEntity>;
   // dependency?: Rel<DependencyEntity>;
-  // tactic?: Rel<TacticEntity>;
-  // game?: Rel<GameEntity>;
+  // tactic?: Rel<TacticEntity>; // tactic?: Rel<TacticEntity>;
+  tactic?: string & Opt = null;
+  game?: string & Opt = null;
 
   index: number & Opt = 0;
   status: InstructionStatusEnum & Opt = InstructionStatusEnum.PENDING;
@@ -48,6 +49,8 @@ export const InstructionSchema = new EntitySchema<
     },
     // runtime: {kind: "m:1", entity: () => RuntimeEntity, fieldName: "runtime", updateRule: "cascade", deleteRule: "cascade",},
     // game: {kind: "m:1", entity: () => GameEntity, fieldName: "game", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
+    game: { type: "string", nullable: true },
+    tactic: { type: "string", nullable: true },
     // tactic: {kind: "m:1", entity: () => TacticEntity, fieldName: "tactic", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     // dependency: {kind: "m:1", entity: () => DependencyEntity, fieldName: "dependency", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
     index: { type: Number },

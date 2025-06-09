@@ -1,44 +1,40 @@
-import sort from "./sort.js";
-
-// Migrated to use MikroORM entities instead of Supabase
-export const getResourceMemory = (resourceType) => async (resource, ctx) => {
-  const resourceEntityName = resourceType.toLowerCase();
-  const other = { Unit: "tag", Tag: "unit" };
-  const otherEntityName = other[resourceType].toLowerCase();
+export const getResourceMemory = (entityType) => async (entity, ctx) => {
+  const otherEntity = { unit: "tag", tag: "unit" }[entityType];
 
   try {
     // Build query criteria
     const criteria = {
-      id: resource.id,
-      runtime: ctx.runtime.entity.id,
+      id: entity.id,
     };
 
     // Find the resource with its memories
-    const resourceWithMemory = await ctx.runtime.entities[resourceEntityName].findOne(criteria, {
-      populate: ["memories"],
-      orderBy: resourceType === "Unit" ? { index: "ASC" } : undefined,
-    });
+    const resourceWithMemory = await ctx.runtime.entities[entityType].findOne(
+      criteria,
+      { populate: ["memories"] },
+    );
 
     if (!resourceWithMemory) {
-      resource.memory = null;
-      return resource;
+      entity.memory = null;
+      return entity;
     }
 
     // Filter memories that don't have the other entity type (e.g., for Unit, filter memories without tagId)
-    const memories = resourceWithMemory.memories.filter((mem) => !mem[otherEntityName]);
+    const memories = resourceWithMemory.memories.filter(
+      (mem) => !mem[otherEntity],
+    );
 
     // Assign the first memory to the resource (if available)
-    resource.memory = memories.length > 0 ? memories[0] : null;
+    entity.memory = memories.length > 0 ? memories[0] : null;
 
-    return resource;
+    return entity;
   } catch (error) {
-    console.error(`Error retrieving ${resourceType} memory:`, error);
+    console.error(`Error retrieving ${entityType} memory:`, error);
     throw error;
   }
 };
 
-export const getTagMemory = getResourceMemory("Tag");
-export const getUnitMemory = getResourceMemory("Unit");
+export const getTagMemory = getResourceMemory("tag");
+export const getUnitMemory = getResourceMemory("unit");
 
 export default {
   tag: getTagMemory,

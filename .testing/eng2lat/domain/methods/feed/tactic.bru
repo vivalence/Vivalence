@@ -1,0 +1,22 @@
+meta {
+  name: tactic
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ENG2LAT}}/feed/tactic
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "take": 899999,
+    "scope": {
+      "tactic": {
+        "slug": "spaced-repetition"
+      }
+    }
+  }
+}

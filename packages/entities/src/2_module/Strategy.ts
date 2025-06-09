@@ -1,5 +1,9 @@
 import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { BaseModuleEntity, BaseModuleSchema } from "../0_root/BaseModuleEntity.ts";
+import {
+  BaseModuleEntity,
+  BaseModuleSchema,
+} from "../0_root/BaseModuleEntity.ts";
+
 // import { UserEntity } from "../1_repo/User.ts";
 // import { RuntimeEntity } from "../1_repo/Runtime.ts";
 
@@ -15,7 +19,10 @@ export class StrategyEntity extends BaseModuleEntity {
   data: any & Opt = "{}";
 }
 
-export const StrategySchema = new EntitySchema<StrategyEntity, BaseModuleEntity>({
+export const StrategySchema = new EntitySchema<
+  StrategyEntity,
+  BaseModuleEntity
+>({
   class: StrategyEntity,
   extends: BaseModuleSchema,
   tableName: "Strategy",

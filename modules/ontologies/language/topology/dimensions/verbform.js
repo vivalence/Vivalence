@@ -5,28 +5,38 @@ export const node = {
   slug: "verbform",
   name: "verb form",
   description: "The form of a verb, indicating its function in a sentence.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "fin",
         name: "Finite",
         description: "A verb form that is limited by subject and tense",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "inf",
         name: "Infinitive",
         description: "The base form of a verb, usually preceded by 'to'",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "part",
         name: "Participle",
-        description: "A form of a verb used as an adjective or to form compound tenses",
+        description:
+          "A form of a verb used as an adjective or to form compound tenses",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "ger",
         name: "Gerund",
         description: "A verb form that functions as a noun",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

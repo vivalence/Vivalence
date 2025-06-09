@@ -4,23 +4,30 @@ export const node = {
   slug: "person",
   name: "person",
   description: "The grammatical person of a verb, indicating the subject.",
-  traits: ["CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "1",
         name: "First Person",
         description: "The speaker or writer",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "2",
         name: "Second Person",
         description: "The person being addressed",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "3",
         name: "Third Person",
         description: "The person or thing being talked about",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

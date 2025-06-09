@@ -5,6 +5,7 @@ export class Pattern<T = any> {
   readonly type: string;
   readonly match: (signal: Signal<any>) => Record<string, string> | null;
   readonly docs?: Record<string, any>;
+  slug: string;
 
   constructor(
     type: string,
@@ -32,3 +33,5 @@ export class Pattern<T = any> {
     };
   }
 }
+
+// export interface PatternInput= Record<string, string>

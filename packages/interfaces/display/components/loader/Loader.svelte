@@ -5,7 +5,9 @@
   let { load } = $props();
 
   expressions.random = (int) =>
-    expressions[Math.floor(Math.random() * int + expressions.length) % expressions.length];
+    expressions[
+      Math.floor(Math.random() * int + expressions.length) % expressions.length
+    ];
 
   const VARIANCE = 2000;
   const MINIMUM = 2000;
@@ -33,7 +35,7 @@
   });
 </script>
 
-<div class="flex flex-col container justify-center items-center h-screen">
+<div class="bsp-chain-end flex flex-col container justify-center items-center ">
   <progress class="progress progress-accent w-56"></progress>
   <div class="mt-3">{expressions.random(counter)} #{counter}</div>
 </div>

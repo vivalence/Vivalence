@@ -20,6 +20,7 @@ const extractors = new Map([
       async (text, ctx, next) => {
         const sentences = await ctx.services.nlp({ text });
         const tokens = sentences.flat().map((token) => new Token(token));
+
         return await next(tokens);
       },
     ],
@@ -29,23 +30,24 @@ const extractors = new Map([
     [
       async function (token, ctx) {
         const annotation = {
-          lemma: token.lemma,
+          lemma: token.lemma.toLowerCase(),
           pos: token.upos.toLowerCase(),
         };
+        if (["punct"].includes(annotation.pos)) return null;
 
         const feats = parseFeats(token.feats);
         for (const key in feats) {
-          annotation[key] = feats[key];
+          annotation[key] = feats[key].toLowerCase();
         }
 
         if (["verb", "aux"].includes(annotation.pos)) {
-          annotation.suffix = token.lemma.slice(-2);
+          annotation.suffix = token.lemma.slice(-2).toLowerCase();
         }
 
-        const issues = await ctx.assert.annotation(annotation);
+        const issues = await ctx.validate.annotation(annotation);
         if (issues.length > 0) {
-          console.log("[TOKEN EXTRACTOR ISSUE]");
-          console.log({ token, annotation, issues });
+          console.log("@ontology/extractors.js [TOKEN EXTRACTOR ISSUE]");
+          // console.log({ token, annotation, issues });
           return null;
         }
 

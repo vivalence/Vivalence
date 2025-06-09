@@ -14,12 +14,15 @@ const sortResources = (resources) => {
 async function sort(resources) {
   for (const resource of resources) {
     if (!resource.memory) continue;
-    const driver = drivers[resource.memory.type];
+    const driver = drivers[resource.memory.driver];
     if (!driver) {
-      console.log(`No driver found for memory type ${resource.memory.type}`, resource);
+      console.log(`No driver found for memory type ${resource.memory.driver}`);
+      console.log(resource.slug, resource.memory.driver, resource.memory.type);
       continue;
     }
-    resource.memory.strength = await driver.strength({ memory: resource.memory });
+    resource.memory.strength = await driver.strength({
+      memory: resource.memory,
+    });
   }
   const sorted = sortResources(resources);
   return sorted;

@@ -38,8 +38,13 @@ export class Classifier {
         const Form = this.forms.find((g) => g.name.toLowerCase() === name);
         if (!Form) return undefined;
         return async (signal: any) => {
-          const features = await this.parse(new Form(signal), ctx);
-          return await fn.reduceEach(this.hooks, features);
+          let features = await this.parse(new Form(signal), ctx);
+          const hooks = this.hooks.map(
+            (hook) => (feature) => hook(feature, ctx),
+          );
+          features = await fn.reduceEach(hooks, features);
+          features = array.ensureFlat(features).filter((feature) => !!feature);
+          return features;
         };
 
         // if (!Form) throw new UnknownFormError(name);
@@ -50,38 +55,38 @@ export class Classifier {
     return `${parser.hash}:${signal.hash}`;
   }
   private find(parser, signal) {
-    const k = this.key(parser, signal);
-    if (!this.features.has(k)) {
-      this.features.set(k, null);
+    const key = this.key(parser, signal);
+    if (!this.features.has(key)) {
+      this.features.set(key, null);
       return null;
     }
-    let features = this.features.get(k);
+    let features = this.features.get(key);
     if (features === null) {
       return this.expect(parser, signal);
     }
     return features.map((f) => new Feature().fromCache(f));
   }
-  private expect(parser, signal) {
-    const k = this.key(parser, signal);
-    return new Promise((resolve, reject) => {
-      if (!this.promises.has(k)) this.promises.set(k, []);
-      this.promises.get(k).push({ resolve, reject });
-    });
-  }
   private cache(parser, signal, features) {
-    const k = this.key(parser, signal);
-    if (!this.features.get(k)) {
+    const key = this.key(parser, signal);
+    if (!this.features.get(key)) {
       const cache = features.map((f) => f.cached);
-      this.features.set(k, cache);
+      this.features.set(key, cache);
       this.deliver(parser, signal, features);
     }
     return features;
   }
+  private expect(parser, signal) {
+    const key = this.key(parser, signal);
+    return new Promise((resolve, reject) => {
+      if (!this.promises.has(key)) this.promises.set(key, []);
+      this.promises.get(key).push({ resolve, reject });
+    });
+  }
   private deliver(parser, signal, features) {
-    const k = this.key(parser, signal);
-    if (this.promises.has(k)) {
-      this.promises.get(k).forEach(({ resolve }) => resolve(features));
-      this.promises.delete(k);
+    const key = this.key(parser, signal);
+    if (this.promises.has(key)) {
+      this.promises.get(key).forEach(({ resolve }) => resolve(features));
+      this.promises.delete(key);
     }
   }
   async extract(signal: Signal, parser, ctx: Context): Promise<Feature[]> {

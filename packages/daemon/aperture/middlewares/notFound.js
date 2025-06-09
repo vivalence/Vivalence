@@ -4,8 +4,12 @@ export default async function notFoundMiddleware(ctx, next) {
 
   await next();
 
-  if (ctx.response.status !== originalStatus || ctx.response.body !== originalBody) {
-    ctx.response.status = ctx.response.status === 404 ? 404 : ctx.response.status || 200;
+  if (
+    ctx.response.status !== originalStatus ||
+    ctx.response.body !== originalBody
+  ) {
+    ctx.response.status =
+      ctx.response.status === 404 ? 404 : ctx.response.status || 200;
   } else {
     ctx.response.status = 404;
     ctx.response.body = "URL Not Found";

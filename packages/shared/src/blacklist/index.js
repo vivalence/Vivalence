@@ -30,12 +30,13 @@ export class Blacklist {
         });
       }
 
-      if (obj.queue) {
-        if (obj.queue.id) this.instructions.push(obj.queue.id);
+      if (obj.instruction) {
+        if (obj.instruction.id) this.instructions.push(obj.instruction.id);
       }
 
       Object.keys(obj).forEach((key) => {
-        if (["unit", "units", "tag", "tags", "queue"].includes(key)) return;
+        if (["unit", "units", "tag", "tags", "instruction"].includes(key))
+          return;
         if (
           typeof obj[key] === "object" &&
           obj[key] !== null &&
@@ -56,19 +57,15 @@ export class Blacklist {
     return this;
   }
   async fromQueue(scope, ctx) {
-    const criteria = {
-      runtime: ctx.runtime.entity.id,
-    };
+    const criteria = {};
 
     if (scope.instruction) criteria.id = scope.instruction.id;
-    if (scope.dependency) criteria.dependency = scope.dependency.id;
-    if (scope.tactic) criteria.tactic = scope.tactic.id;
-    if (scope.game) criteria.game = scope.game.id;
+    // if (scope.dependency) criteria.dependency = scope.dependency.id;
+    if (scope.tactic) criteria.tactic = scope.tactic.slug;
+    if (scope.game) criteria.game = scope.game.slug;
     if (scope.user) criteria.user = scope.user.id;
 
-    const instructions = await ctx.runtime.entities.instruction.find(criteria, {
-      fields: ["id", "runtime", "user", "dependency", "game", "tactic", "data"],
-    });
+    const instructions = await ctx.runtime.entities.instruction.find(criteria);
 
     instructions.map((instruction) => {
       if (instruction.data.type !== "SIGNAL")

@@ -1,5 +1,5 @@
 import { Blacklist, Scope } from "@vivalence/shared";
-import { BufferMode, BufferState, Widget } from "@vivalence/interface";
+import { BufferMode, BufferState } from "@vivalence/interface";
 
 import context from "@client/context";
 import { env } from "$env/dynamic/public";
@@ -16,9 +16,11 @@ async function getIntent(buffer, ctx) {
   return {};
 }
 async function getInstruction(buffer, ctx) {
-  // const scope = new Scope({ dependency: { id: dependency.id } });
+  // const scope = new Scope({ game: { id: game.id } });
   // const input = { take: QUEUE_THRESHOLD,  scope };
-  // const { instructions } = await ctx.runtime(`/feed/dependency`, input);
+  // const { instructions } = await ctx.game.call(`/feed/game`, input);
+
+  // const { instructions } = await ctx.runtime(`/feed/game`, input);
   // return instructions.map((instruction) => BufferMode(instruction));
   return {};
 }
@@ -30,16 +32,12 @@ export const load = async (event) => {
     try {
       const intent = await getIntent(buffer, ctx);
       const instruction = await getInstruction(buffer, ctx);
+      // throw new Error("test");
       return [
-        new BufferMode(Widget, {
-          ctx,
-          // optionally intent or instruction
-          intent,
-          instruction,
-          bundle: {
-            url: "http://localhost:5175/aperture/v1/runtime/eng2lat/game/gan/bundle/buffer.svelte.js",
-          },
-        }),
+        new BufferMode(
+          { bundle: ctx.game.bundle },
+          { ctx, intent, instruction },
+        ),
       ];
     } catch (e) {
       return ErrorMode(e);

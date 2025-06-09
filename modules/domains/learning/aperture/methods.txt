@@ -1,0 +1,2337 @@
+////////////////////////////////////////////////////////////////////////////////
+// CONCATENATED FILES SUMMARY
+// Total files: 41
+// Generated: 2025-06-04T18:16:34.536Z
+// Source directory: methods/
+////////////////////////////////////////////////////////////////////////////////
+// FILE TREE
+/
+├── classify/
+├── ├── index.js
+├── ├── test.js
+├── └── text.js
+├── diagnostics/
+├── ├── duplicates.js
+├── └── index.js
+├── feed/
+├── ├── dependency.js
+├── ├── index.js
+├── └── remove.js
+├── pick/
+├── ├── lib/
+├── ├── ├── byStatus.js
+├── ├── ├── byStrength.js
+├── ├── ├── filter.js
+├── ├── ├── get.js
+├── ├── ├── shared.js
+├── ├── └── sort.js
+├── ├── tag/
+├── ├── ├── byStatus.js
+├── ├── ├── byStrength.js
+├── ├── ├── index.js
+├── ├── └── pending.js
+├── ├── unit/
+├── ├── ├── feeds/
+├── ├── ├── filters/
+├── ├── ├── finders/
+├── ├── ├── byAnnotation.js
+├── ├── ├── byStatus.js
+├── ├── ├── byStrength.js
+├── ├── ├── due.js
+├── ├── ├── index.js
+├── ├── ├── new.js
+├── ├── └── pending.js
+├── └── index.js
+├── provision/
+├── ├── lib/
+├── ├── └── lock.js
+├── ├── dependency.js
+├── ├── game.js
+├── ├── index.js
+├── ├── tactic.js
+├── └── tag.js
+├── review/
+├── ├── annotation.js
+├── ├── index.js
+├── ├── memory.js
+├── ├── play.js
+├── ├── scope.js
+├── ├── tag.js
+├── └── unit.js
+└── scope/
+└── ├── hydrate.js
+└── └── index.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//classify/index.js
+// Size: 91 bytes
+// Last Modified: 2025-05-27T15:55:00.581Z
+////////////////////////////////////////////////////////////////////////////////
+
+import text from "./text.js";
+import test from "./test.js";
+export default { text, test };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: test.js
+// Path: methods//classify/test.js
+// Size: 519 bytes
+// Last Modified: 2025-05-27T18:59:48.894Z
+////////////////////////////////////////////////////////////////////////////////
+
+import config from "@vivalence/config";
+
+export default async function ({ text }, ctx) {
+  const features = await ctx.runtime.ontology.classify.text(text);
+  // console.log(JSON.stringify(features.map((f) => f.annotation)));
+  console.log(features);
+  console.log(JSON.stringify(features));
+
+  //   for (const feature of features) {
+  //     const unit = await ctx.runtime.call("/pick/unit/byAnnotation", {
+  //       annotation: feature.annotation,
+  //     });
+  //     console.log("UNIT", feature, unit);
+  //   }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: text.js
+// Path: methods//classify/text.js
+// Size: 477 bytes
+// Last Modified: 2025-05-26T20:46:26.935Z
+////////////////////////////////////////////////////////////////////////////////
+
+import config from "@vivalence/config";
+
+export default async function ({ text }, ctx) {
+  console.log("classify", text);
+  //
+  //   const features = await ctx.runtime.ontology.classify.text(input.text);
+  //   console.log("FEATURES", features[0]);
+  //   for (const feature of features) {
+  //     const unit = await ctx.runtime.call("/pick/unit/byAnnotation", {
+  //       annotation: feature.annotation,
+  //     });
+  //     console.log("UNIT", feature, unit);
+  //   }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: duplicates.js
+// Path: methods//diagnostics/duplicates.js
+// Size: 0 bytes
+// Last Modified: 2025-03-06T21:35:49.536Z
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//diagnostics/index.js
+// Size: 0 bytes
+// Last Modified: 2025-03-06T21:35:49.490Z
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: dependency.js
+// Path: methods//feed/dependency.js
+// Size: 1834 bytes
+// Last Modified: 2025-04-07T13:24:14.252Z
+////////////////////////////////////////////////////////////////////////////////
+
+import config from "@vivalence/config";
+import { Blacklist, Scope, deepMerge } from "@vivalence/shared";
+
+export default async function ({ take, ...input }, ctx) {
+  let status = "success";
+
+  const user = await ctx.runtime.services.identity.getUser();
+
+  const blacklist = new Blacklist(input.blacklist);
+  const scope = new Scope({
+    ...input.scope,
+    user: { id: user.id },
+    runtime: { id: ctx.runtime.entity.id },
+  });
+
+  const dependency = await ctx.runtime.entities.dependency.findOneOrFail(scope.dependency);
+
+  const counted = await count({ scope, blacklist }, ctx);
+
+  const instructions = await read({ scope, blacklist, take }, ctx);
+
+  if (counted <= take || counted <= config.env.get("INSTRUCTION_PROVISION_FLOOR")) {
+    status = "provisioning";
+    ctx.runtime.call("/provision/dependency", { dependency, scope, blacklist });
+  }
+
+  return { instructions, status };
+}
+
+async function count({ scope, blacklist }, ctx) {
+  // MikroORM count method with where conditions
+  const count = await ctx.runtime.entities.instruction.count({
+    // status: "PENDING",
+    runtime: ctx.runtime.entity.id,
+    user: scope.user?.id,
+    dependency: scope.dependency?.id,
+    id: { $nin: blacklist.instructions },
+  });
+
+  return count;
+}
+
+async function read({ scope, blacklist, take }, ctx) {
+  const queueEntries = await ctx.runtime.entities.instruction.find(
+    {
+      // status: "PENDING",
+      runtime: ctx.runtime.entity.id,
+      user: scope.user?.id,
+      dependency: scope.dependency?.id,
+      id: { $nin: blacklist.instructions },
+    },
+    {
+      orderBy: [{ createdAt: "ASC" }, { index: "ASC" }],
+      limit: take,
+    },
+  );
+
+  return queueEntries.map((entry) => {
+    const data = { ...entry.data };
+    data.scope = new Scope({ ...data.scope, instruction: { id: entry.id } });
+    return data;
+  });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//feed/index.js
+// Size: 73 bytes
+// Last Modified: 2025-03-06T21:49:09.703Z
+////////////////////////////////////////////////////////////////////////////////
+
+import dependency from "./dependency.js";
+export default { dependency };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: remove.js
+// Path: methods//feed/remove.js
+// Size: 592 bytes
+// Last Modified: 2025-04-01T18:41:17.137Z
+////////////////////////////////////////////////////////////////////////////////
+
+// import config from "@vivalence/config";
+
+export default async function ({}, ctx) {
+  // let status = "success";
+  // const user = await ctx.runtime.services.identity.getUser();
+  // const dependency = await ctx.runtime.entities.dependency.findOneOrFail(body.dependency);
+  // const instruction = await ctx.runtime.entities.instruction.remove(body.instructionn);
+  // let scope = {
+  //   user: { id: user.id },
+  //   runtime: { id: ctx.runtime.entity.id }, // Changed from manifest.id to entity.id
+  //   dependency: { id: dependency.id },
+  // };
+  // return { instructions, status };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//pick/index.js
+// Size: 101 bytes
+// Last Modified: 2025-03-07T03:36:35.106Z
+////////////////////////////////////////////////////////////////////////////////
+
+import unit from "./unit/index.js";
+import tag from "./tag/index.js";
+
+export default { unit, tag };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStatus.js
+// Path: methods//pick/lib/byStatus.js
+// Size: 340 bytes
+// Last Modified: 2025-03-07T03:58:56.427Z
+////////////////////////////////////////////////////////////////////////////////
+
+import filter from "./filter.js";
+import shared from "./shared.js";
+
+export default (resourceType) => async (body, ctx) => {
+  let resources = await shared(resourceType)(body, ctx);
+
+  resources = resources.filter((r) => filter.byStatus(r, body.status));
+
+  if (body.take) resources = resources.slice(0, body.take);
+
+  return resources;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStrength.js
+// Path: methods//pick/lib/byStrength.js
+// Size: 231 bytes
+// Last Modified: 2025-03-07T03:59:41.918Z
+////////////////////////////////////////////////////////////////////////////////
+
+import shared from "./shared.js";
+
+export default (resourceType) => async (body, ctx) => {
+  let resources = await shared(resourceType)(body, ctx);
+  if (body.take) resources = resources.slice(0, body.take);
+  return resources;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: filter.js
+// Path: methods//pick/lib/filter.js
+// Size: 285 bytes
+// Last Modified: 2024-12-07T01:22:35.194Z
+////////////////////////////////////////////////////////////////////////////////
+
+export const byStatus = (resource, accept) => {
+  if (!resource.memory) {
+    if (accept.includes(null)) return true;
+    if (accept.includes("UNTOUCHED")) return true;
+  }
+
+  if (accept.includes(resource.memory?.status)) return true;
+
+  return false;
+};
+
+export default { byStatus };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: get.js
+// Path: methods//pick/lib/get.js
+// Size: 1306 bytes
+// Last Modified: 2025-06-04T14:04:56.993Z
+////////////////////////////////////////////////////////////////////////////////
+
+import sort from "./sort.js";
+
+// Migrated to use MikroORM entities instead of Supabase
+export const getResourceMemory = (entityType) => async (entity, ctx) => {
+  const otherEntity = { unit: "tag", tag: "unit" }[entityType];
+
+  try {
+    // Build query criteria
+    const criteria = {
+      id: entity.id,
+      runtime: ctx.runtime.entity.id,
+    };
+
+    // Find the resource with its memories
+    const resourceWithMemory = await ctx.runtime.entities[entityType].findOne(
+      criteria,
+      { populate: ["memories"] },
+    );
+
+    if (!resourceWithMemory) {
+      entity.memory = null;
+      return entity;
+    }
+
+    // Filter memories that don't have the other entity type (e.g., for Unit, filter memories without tagId)
+    const memories = resourceWithMemory.memories.filter(
+      (mem) => !mem[otherEntity],
+    );
+
+    // Assign the first memory to the resource (if available)
+    entity.memory = memories.length > 0 ? memories[0] : null;
+
+    return entity;
+  } catch (error) {
+    console.error(`Error retrieving ${entityType} memory:`, error);
+    throw error;
+  }
+};
+
+export const getTagMemory = getResourceMemory("tag");
+export const getUnitMemory = getResourceMemory("unit");
+
+export default {
+  tag: getTagMemory,
+  unit: getUnitMemory,
+  tags: getTagMemory,
+  units: getUnitMemory,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: shared.js
+// Path: methods//pick/lib/shared.js
+// Size: 7243 bytes
+// Last Modified: 2025-03-07T03:57:52.082Z
+////////////////////////////////////////////////////////////////////////////////
+
+import get from "./get.js";
+import sort from "./sort.js";
+
+export default (resourceType) => async (body, ctx) => {
+  // console.log("resources", resourceType, body);
+  const { blacklist = {}, take } = body;
+  let resources = body[resourceType + "s"] || [];
+
+  if (resources.length === 0) {
+    try {
+      if (body.tagIds?.length > 0) {
+        resources = await getResourcesByTagIds(resourceType, body, ctx);
+      } else if (body.unitIds?.length > 0) {
+        resources = await getResourcesByUnitIds(resourceType, body, ctx);
+      }
+    } catch (error) {
+      console.error(`Error fetching ${resourceType}:`, error);
+      resources = [];
+    }
+  }
+
+  // Apply blacklist filtering
+  if (blacklist[resourceType]?.length > 0) {
+    resources = resources.filter((r) => !blacklist[resourceType].includes(r.id));
+  }
+
+  // Get memory for each resource and sort
+  resources = Array.isArray(resources) ? resources : [];
+  resources = await Promise.all(resources.map((r) => get[resourceType](r, ctx)));
+  resources = await sort(resources);
+
+  return resources;
+};
+
+// Get resources by tag IDs
+async function getResourcesByTagIds(resourceType, body, ctx) {
+  const { tagIds, blacklist = {} } = body;
+
+  if (!tagIds || tagIds.length === 0) {
+    return [];
+  }
+
+  if (resourceType === "tag") {
+    // Directly fetch tags by IDs
+    return await ctx.runtime.entities.tag.find({
+      id: { $in: tagIds },
+      runtime: ctx.runtime.entity.id,
+      ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
+    });
+  } else if (resourceType === "unit") {
+    // Find units that have ALL specified tags
+    const unitIds = await ctx.runtime.entities.em
+      .createQueryBuilder()
+      .select("DISTINCT tu.unit")
+      .from("_TagToUnit", "tu")
+      .where({ tag: { $in: tagIds } })
+      .groupBy("tu.unit")
+      .having("COUNT(DISTINCT tu.tag) = ?", [tagIds.length])
+      .execute("all");
+
+    if (unitIds.length > 0) {
+      return await ctx.runtime.entities.unit.find(
+        {
+          id: { $in: unitIds.map((u) => u.unit) },
+          runtime: ctx.runtime.entity.id,
+          ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+        },
+        { populate: ["tags"] },
+      );
+    }
+  }
+
+  return [];
+}
+
+// Get resources by unit IDs
+async function getResourcesByUnitIds(resourceType, body, ctx) {
+  const { unitIds, blacklist = {} } = body;
+
+  if (!unitIds || unitIds.length === 0) {
+    return [];
+  }
+
+  if (resourceType === "unit") {
+    // Directly fetch units by IDs
+    return await ctx.runtime.entities.unit.find(
+      {
+        id: { $in: unitIds },
+        runtime: ctx.runtime.entity.id,
+        ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+      },
+      { populate: ["tags"] },
+    );
+  } else if (resourceType === "tag") {
+    // Find tags associated with any of the specified units
+    const tagIds = await ctx.runtime.entities.em
+      .createQueryBuilder()
+      .select("DISTINCT tu.tag")
+      .from("_TagToUnit", "tu")
+      .where({ unit: { $in: unitIds } })
+      .execute("all");
+
+    if (tagIds.length > 0) {
+      return await ctx.runtime.entities.tag.find({
+        id: { $in: tagIds.map((t) => t.tag) },
+        runtime: ctx.runtime.entity.id,
+        ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
+      });
+    }
+  }
+
+  return [];
+}
+
+// import get from "./get.js";
+// import sort from "./sort.js";
+
+// export default (resourceType) => async (body, ctx) => {
+//   console.log(resourceType, body);
+//   const { blacklist, take } = body;
+//   let resources = body[resourceType];
+
+//   if (!resources) {
+//     const params = { blacklist };
+
+//     if (body.tagIds) {
+//       params.tagIds = body.tagIds;
+//       resources = await ctx.runtime.call(`/${resourceType}/fromTagIds`, params);
+//     }
+//     if (body.unitIds) {
+//       params.unitIds = body.unitIds;
+//       resources = await ctx.runtime.call(`/${resourceType}/fromUnitIds`, params);
+//     }
+//   }
+
+//   if (blacklist?.[resourceType]?.length > 0)
+//     resources = resources.filter((r) => !blacklist[resourceType].includes(r.id));
+
+//   resources = await Promise.all(resources.map((r) => get[resourceType](r, ctx)));
+
+//   resources = await sort(resources);
+
+//   return resources;
+// };
+
+// import get from "./get.js";
+// import sort from "./sort.js";
+
+// export default (resourceType) => async (body, ctx) => {
+//   const { blacklist = {}, take } = body;
+//   let resources = body[resourceType] || [];
+
+//   if (resources.length === 0) {
+//     try {
+//       if (body.tagIds?.length > 0) {
+//         if (resourceType === "tag") {
+//           resources = await ctx.runtime.entities.tag.find({
+//             id: { $in: body.tagIds },
+//             runtime: ctx.runtime.entity.id,
+//             ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
+//           });
+//         } else if (resourceType === "unit") {
+//           const unitIds = await ctx.runtime.entities.em
+//             .createQueryBuilder()
+//             .select("DISTINCT tu.unit")
+//             .from("_TagToUnit", "tu")
+//             .where({ tag: { $in: body.tagIds } })
+//             .groupBy("tu.unit")
+//             .having("COUNT(DISTINCT tu.tag) = ?", [body.tagIds.length])
+//             .execute("all");
+
+//           if (unitIds.length > 0) {
+//             resources = await ctx.runtime.entities.unit.find(
+//               {
+//                 id: { $in: unitIds.map((u) => u.unit) },
+//                 ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+//               },
+//               { populate: ["tags"] },
+//             );
+//           }
+//         }
+//       } else if (body.unitIds?.length > 0) {
+//         if (resourceType === "unit") {
+//           resources = await ctx.runtime.entities.unit.find(
+//             {
+//               id: { $in: body.unitIds },
+//               ...(blacklist.units?.length > 0 ? { id: { $nin: blacklist.units } } : {}),
+//             },
+//             { populate: ["tags"] },
+//           );
+//         } else if (resourceType === "tag") {
+//           const tagIds = await ctx.runtime.entities.em
+//             .createQueryBuilder()
+//             .select("DISTINCT tu.tag")
+//             .from("_TagToUnit", "tu")
+//             .where({ unit: { $in: body.unitIds } })
+//             .execute("all");
+
+//           if (tagIds.length > 0) {
+//             resources = await ctx.runtime.entities.tag.find({
+//               id: { $in: tagIds.map((t) => t.tag) },
+//               ...(blacklist.tags?.length > 0 ? { id: { $nin: blacklist.tags } } : {}),
+//             });
+//           }
+//         }
+//       }
+//     } catch (error) {
+//       console.error(`Error fetching ${resourceType}:`, error);
+//     }
+//   }
+
+//   // Apply blacklist filtering
+//   if (blacklist[resourceType]?.length > 0) {
+//     resources = resources.filter((r) => !blacklist[resourceType].includes(r.id));
+//   }
+
+//   // Get memory for each resource and sort
+//   resources = Array.isArray(resources) ? resources : [];
+//   resources = await Promise.all(resources.map((r) => get[resourceType](r, ctx)));
+//   resources = await sort(resources);
+
+//   return resources;
+// };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: sort.js
+// Path: methods//pick/lib/sort.js
+// Size: 775 bytes
+// Last Modified: 2025-03-07T03:54:18.215Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { drivers } from "../../../../memory/index.js";
+
+const sortByMemory = (a, b) => {
+  if (!a.memory && !b.memory) return 0;
+  if (!a.memory) return -1;
+  if (!b.memory) return 1;
+  return a.memory.strength - b.memory.strength;
+};
+
+const sortResources = (resources) => {
+  return resources.sort(sortByMemory);
+};
+
+async function sort(resources) {
+  for (const resource of resources) {
+    if (!resource.memory) continue;
+    const driver = drivers[resource.memory.type];
+    if (!driver) {
+      console.log(`No driver found for memory type ${resource.memory.type}`, resource);
+      continue;
+    }
+    resource.memory.strength = await driver.strength({ memory: resource.memory });
+  }
+  const sorted = sortResources(resources);
+  return sorted;
+}
+
+export default sort;
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStatus.js
+// Path: methods//pick/tag/byStatus.js
+// Size: 75 bytes
+// Last Modified: 2025-03-07T03:34:14.657Z
+////////////////////////////////////////////////////////////////////////////////
+
+import byStatus from "../lib/byStatus.js";
+export default byStatus("tag");
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStrength.js
+// Path: methods//pick/tag/byStrength.js
+// Size: 141 bytes
+// Last Modified: 2025-03-07T03:34:14.622Z
+////////////////////////////////////////////////////////////////////////////////
+
+import byStrength from "../lib/byStrength.js";
+
+export default async function (input, ctx) {
+  return await byStrength("tag")(input, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//pick/tag/index.js
+// Size: 174 bytes
+// Last Modified: 2024-12-06T22:31:44.358Z
+////////////////////////////////////////////////////////////////////////////////
+
+import pending from "./pending.js";
+import byStatus from "./byStatus.js";
+import byStrength from "./byStrength.js";
+
+export default {
+  pending,
+  byStatus,
+  byStrength,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: pending.js
+// Path: methods//pick/tag/pending.js
+// Size: 3685 bytes
+// Last Modified: 2025-04-23T14:04:07.566Z
+////////////////////////////////////////////////////////////////////////////////
+
+// import { enums } from "@vivalence/schema";
+
+export default async function (body, ctx) {
+  const { scope, tagIds, blacklist, take = 1 } = body;
+
+  let debt = -take;
+  const tags = [];
+
+  // Try to get due tags first
+  if (debt < 0) {
+    const dueTags = await getDueTags({
+      scope,
+      tagIds,
+      blacklist,
+      take: Math.abs(debt),
+      ctx,
+    });
+
+    if (dueTags.length > 0) {
+      tags.push(...dueTags);
+      debt += dueTags.length;
+    }
+  }
+
+  // If we still need more tags, get new tags
+  if (debt < 0) {
+    const newTags = await getNewTags({
+      scope,
+      tagIds,
+      blacklist,
+      take: Math.abs(debt),
+      ctx,
+    });
+
+    if (newTags.length > 0) {
+      tags.push(...newTags);
+      debt += newTags.length;
+    }
+  }
+
+  return tags;
+}
+
+async function getDueTags({ scope, tagIds, blacklist, take, ctx }) {
+  try {
+    // Build query for finding due tags
+    const qb = ctx.runtime.entities.em.createQueryBuilder(ctx.runtime.entities.tag);
+
+    qb.select("t.*").from("Tag", "t").where({ runtime: ctx.runtime.entity.id });
+
+    // Apply tag IDs filter if provided
+    if (tagIds && tagIds.length > 0) {
+      qb.andWhere({ id: { $in: tagIds } });
+    }
+
+    // Apply blacklist filter if provided
+    if (blacklist && blacklist.tags && blacklist.tags.length > 0) {
+      qb.andWhere({ id: { $nin: blacklist.tags } });
+    }
+
+    // Make sure tag has a Play record for the game that is due
+    qb.andWhere(
+      `EXISTS (
+        SELECT 1 FROM Play p
+        WHERE p.tag = t.id
+        AND p.game = ?
+        AND p.nextAt < ?
+        AND p.user = ?
+      )`,
+      [scope.game?.id, new Date(), scope.user?.id],
+    );
+
+    // Make sure tag doesn't have a Memory with status KNOWN or GRADUATED
+    qb.andWhere(
+      `NOT EXISTS (
+        SELECT 1 FROM Memory m
+        WHERE m.tag = t.id
+        AND m.unit IS NULL
+        AND m.user = ?
+        AND m.status IN (?)
+      )`,
+      [scope.user?.id, [enums.MemoryStatus.KNOWN, enums.MemoryStatus.GRADUATED]],
+    );
+
+    // Apply limit
+    if (take) {
+      qb.limit(take);
+    }
+
+    // Execute query
+    const dueTags = await qb.getResult();
+    return dueTags;
+  } catch (error) {
+    console.error("Error fetching due tags:", error);
+    throw error;
+  }
+}
+
+async function getNewTags({ scope, tagIds, blacklist, take, ctx }) {
+  try {
+    // Build query for finding new tags
+    const qb = ctx.runtime.entities.em.createQueryBuilder(ctx.runtime.entities.tag);
+
+    qb.select("t.*").from("Tag", "t").where({ runtime: ctx.runtime.entity.id });
+
+    // Apply tag IDs filter if provided
+    if (tagIds && tagIds.length > 0) {
+      qb.andWhere({ id: { $in: tagIds } });
+    }
+
+    // Apply blacklist filter if provided
+    if (blacklist && blacklist.tags && blacklist.tags.length > 0) {
+      qb.andWhere({ id: { $nin: blacklist.tags } });
+    }
+
+    // Make sure tag doesn't have a Play record for the game
+    qb.andWhere(
+      `NOT EXISTS (
+        SELECT 1 FROM Play p
+        WHERE p.tag = t.id
+        AND p.game = ?
+        AND p.user = ?
+      )`,
+      [scope.game?.id, scope.user?.id],
+    );
+
+    // Make sure tag doesn't have a Memory with status KNOWN or GRADUATED
+    qb.andWhere(
+      `NOT EXISTS (
+        SELECT 1 FROM Memory m
+        WHERE m.tag = t.id
+        AND m.unit IS NULL
+        AND m.user = ?
+        AND m.status IN (?)
+      )`,
+      [scope.user?.id, [enums.MemoryStatus.KNOWN, enums.MemoryStatus.GRADUATED]],
+    );
+
+    // Apply limit
+    if (take) {
+      qb.limit(take);
+    }
+
+    // Execute query
+    const newTags = await qb.getResult();
+    return newTags;
+  } catch (error) {
+    console.error("Error fetching new tags:", error);
+    throw error;
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byAnnotation.js
+// Path: methods//pick/unit/byAnnotation.js
+// Size: 2303 bytes
+// Last Modified: 2025-05-28T17:18:55.611Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default async function getUnitsByAnnotation({ annotation }, ctx) {
+  // if (["space", "sym", "x"].includes(annotation.pos)) return null;
+  // return await getUnit(annotation, ctx);
+  return await ctx.runtime.entities.unit.findOne({ annotation });
+}
+
+// legacy:
+async function getUnit(annotation, ctx) {
+  let query = { lemma: annotation.lemma };
+
+  switch (annotation.pos) {
+    case "pron":
+    case "det":
+      query = querybuilders.prontypes(query, annotation);
+      break;
+    case "verb":
+    case "aux":
+      query = querybuilders.verbs(query, annotation);
+      break;
+    default:
+      query = querybuilders.default(query, annotation);
+  }
+
+  return await ctx.runtime.entities.unit.findOne({ annotation: query });
+}
+
+// TODO: resolve from topography
+const querybuilders = {
+  prontypes: function (query, annotation) {
+    query.prontype = annotation.prontype;
+
+    if (annotation.prontype === "prs") {
+      query.person = annotation.person;
+      query.number = annotation.number;
+    }
+
+    if (annotation.prontype === "art") {
+      query.gender = annotation.gender;
+      query.number = annotation.number;
+    }
+
+    ["definite", "prepcase", "reflex", "poss"].forEach((key) => {
+      if (annotation[key]) {
+        query[key] = annotation[key];
+      } else {
+        query[key] = null;
+      }
+    });
+
+    return query;
+  },
+
+  verbs: function (query, annotation) {
+    query.verbform = annotation.verbform;
+    query.suffix = annotation.suffix;
+
+    if (annotation.verbform === "fin") {
+      query.mood = annotation.mood;
+      query.tense = annotation.tense;
+      query.person = annotation.person;
+      query.number = annotation.number;
+    }
+
+    return query;
+  },
+
+  default: function (query, annotation) {
+    query.pos = annotation.pos;
+    return query;
+  },
+};
+
+// function makeUnits(data, annotation) {
+//   return data
+//     // .map((unit) => {unit.tags = makeTags(unit, annotation); return unit;})
+//     // .sort((a, b) => b.tags.length - a.tags.length);
+// }
+
+// function makeTags(unit, annotation) {return unit.tags .map(({ tag }) => tag) .filter((tag) => tag.traits.includes("ONTOLOGICAL") && tag.data.ONTOLOGICAL?.branch) .filter((tag) => annotation[tag.data.ONTOLOGICAL.branch] && annotation[tag.data.ONTOLOGICAL.branch] === tag.data.ONTOLOGICAL.leaf,);}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStatus.js
+// Path: methods//pick/unit/byStatus.js
+// Size: 136 bytes
+// Last Modified: 2025-03-07T03:34:14.588Z
+////////////////////////////////////////////////////////////////////////////////
+
+import byStatus from "../lib/byStatus.js";
+
+export default async function (input, ctx) {
+  return await byStatus("unit")(input, ctx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: byStrength.js
+// Path: methods//pick/unit/byStrength.js
+// Size: 83 bytes
+// Last Modified: 2025-03-07T03:34:14.441Z
+////////////////////////////////////////////////////////////////////////////////
+
+import byStrength from "../lib/byStrength.js";
+
+export default byStrength("unit");
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: due.js
+// Path: methods//pick/unit/due.js
+// Size: 8942 bytes
+// Last Modified: 2025-04-05T12:32:20.922Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { Blacklist, Scope } from "@vivalence/shared";
+
+export default async function getDueUnits(input, ctx) {
+  const { tagIds, take, dueLt = new Date().toISOString() } = input;
+
+  const user = await ctx.runtime.services.identity.getUser();
+  const blacklist = new Blacklist(input.blacklist);
+  const scope = new Scope({
+    ...input.scope,
+    user: { id: user.id },
+    runtime: { id: ctx.runtime.entity.id },
+  });
+
+  const qb = ctx.runtime.entities.unit.createQueryBuilder("u");
+  qb.where({ runtime: ctx.runtime.entity.id });
+
+  if (blacklist?.units && blacklist.units.length > 0) {
+    qb.andWhere({ id: { $nin: blacklist.units } });
+  }
+
+  if (tagIds && tagIds.length > 0) {
+    qb.andWhere(
+      `(
+        SELECT COUNT(DISTINCT tu.tag_entity_id)
+        FROM _TagToUnit tu
+        WHERE tu.unit_entity_id = u.id
+        AND tu.tag_entity_id IN (?)
+      ) = ?`,
+      [tagIds, tagIds.length],
+    );
+  }
+
+  let playQuery = `
+    SELECT 1
+    FROM Play p
+    WHERE p.unit = u.id
+    AND p.nextAt < ?
+  `;
+
+  const playParams = [new Date(dueLt)];
+
+  if (scope.tactic?.id) {
+    playQuery += ` AND p.tactic = ?`;
+    playParams.push(scope.tactic.id);
+  } else {
+    playQuery += ` AND p.tactic IS NULL`;
+  }
+
+  if (scope.game?.id) {
+    playQuery += ` AND p.game = ?`;
+    playParams.push(scope.game.id);
+  } else {
+    playQuery += ` AND p.game IS NULL`;
+  }
+
+  if (scope.user?.id) {
+    playQuery += ` AND p.user = ?`;
+    playParams.push(scope.user.id);
+  } else {
+    playQuery += ` AND p.user IS NULL`;
+  }
+
+  qb.andWhere(`EXISTS (${playQuery})`, playParams);
+
+  if (take) {
+    qb.limit(take);
+  }
+
+  const units = await qb.getResultList();
+  return units;
+}
+
+// export default async function getDueUnits(inputs, ctx) {
+//   const { tagIds, blacklist, take, dueLt = new Date().toISOString(), scope = {} } = inputs;
+
+//   console.log("inputs,", { tagIds, blacklist, take, dueLt, scope });
+
+//   const unitRepository = ctx.runtime.entities.unit;
+
+//   const qb = unitRepository.createQueryBuilder("u");
+
+//   qb.where({ runtime: ctx.runtime.entity.id });
+
+//   if (blacklist?.units && blacklist.units.length > 0) {
+//     qb.andWhere({ id: { $nin: blacklist.units } });
+//   }
+
+//   if (tagIds && tagIds.length > 0) {
+//     qb.andWhere(
+//       `(
+//           SELECT COUNT(DISTINCT tu.tag_entity_id)
+//           FROM _TagToUnit tu
+//           WHERE tu.unit_entity_id = u.id
+//           AND tu.tag_entity_id IN (?)
+//         ) = ?`,
+//       [tagIds, tagIds.length],
+//     );
+//   }
+
+//   qb.andWhere(
+//     `EXISTS (
+//           SELECT 1
+//           FROM Play p
+//           WHERE p.unit = u.id
+//           AND p.nextAt < ?
+//           AND p.tactic = ?
+//           AND p.game = ?
+//           AND p.user = ?
+//         )`,
+//     [new Date(dueLt), scope.tactic?.id, scope.game?.id, scope.user?.id],
+//   );
+
+//   const units = await qb.getResultList();
+//   console.log("units fetched:", units.length);
+//   return units;
+// }
+
+// import { enums } from "@vivalence/schema";
+
+// export default async function getDueUnits(inputs, ctx) {
+//   const { scope, blacklist, tagIds, take, dueLt = new Date().toISOString() } = inputs;
+//   const { tactic, strategy, user } = scope;
+
+//   try {
+//     // Use MikroORM query builder for complex query
+//     const qb = ctx.runtime.entities.em.createQueryBuilder(ctx.runtime.entities.unit);
+
+//     // Start with selecting units
+//     qb.select("u.*").from("Unit", "u").where({ runtime: ctx.runtime.entity.id });
+
+//     // Apply unit blacklist if provided
+//     if (blacklist?.units && blacklist.units.length > 0) {
+//       qb.andWhere({ id: { $nin: blacklist.units } });
+//     }
+
+//     // Apply tag filtering - ensure units have all the specified tags
+//     if (tagIds && tagIds.length > 0) {
+//       // First handle tag blacklist if provided
+//       let effectiveTagIds = tagIds;
+//       if (blacklist?.tags && blacklist.tags.length > 0) {
+//         effectiveTagIds = tagIds.filter((id) => !blacklist.tags.includes(id));
+//       }
+
+//       if (effectiveTagIds.length > 0) {
+//         // Ensure unit has all the specified tags by counting matches
+//         qb.andWhere(
+//           `(
+//             SELECT COUNT(DISTINCT tu.tag)
+//             FROM _TagToUnit tu
+//             WHERE tu.unit = u.id
+//             AND tu.tag IN (?)
+//           ) = ?`,
+//           [effectiveTagIds, effectiveTagIds.length],
+//         );
+//       }
+//     }
+
+//     // Join with plays that match criteria
+//     qb.andWhere(
+//       `EXISTS (
+//         SELECT 1
+//         FROM Play p
+//         WHERE p.unit = u.id
+//         AND p.nextAt < ?
+//         AND p.game = ?
+//         AND p.tactic = ?
+//         AND p.user = ?
+//       )`,
+//       [new Date(dueLt), strategy.id, tactic.id, user.id],
+//     );
+
+//     // Exclude units that have memories with KNOWN or GRADUATED status
+//     qb.andWhere(
+//       `NOT EXISTS (
+//         SELECT 1
+//         FROM Memory m
+//         WHERE m.unit = u.id
+//         AND m.tag IS NULL
+//         AND m.user = ?
+//         AND m.status IN (?)
+//       )`,
+//       [user.id, [enums.MemoryStatus.KNOWN, enums.MemoryStatus.GRADUATED]],
+//     );
+
+//     // Order by earliest next play time
+//     qb.orderBy(
+//       `(
+//         SELECT MIN(p.nextAt)
+//         FROM Play p
+//         WHERE p.unit = u.id
+//         AND p.game = ?
+//         AND p.tactic = ?
+//         AND p.user = ?
+//       )`,
+//       "ASC",
+//       [strategy.id, tactic.id, user.id],
+//     );
+
+//     // Apply take limit
+//     if (take) {
+//       qb.limit(take);
+//     }
+
+//     // Execute query and get raw units
+//     const rawUnits = await qb.getResult();
+
+//     // Now we need to fetch the tags for each unit
+//     // and format the response to match the expected structure
+//     const formattedUnits = await Promise.all(
+//       rawUnits.map(async (unit) => {
+//         // Fetch tags for this unit
+//         const tagToUnits = await ctx.runtime.entities.tagToUnit.find(
+//           { unit: unit.id },
+//           { populate: ["tag"] },
+//         );
+
+//         // Extract the tags
+//         const tags = tagToUnits.map((relation) => relation.tag);
+
+//         // Return the formatted unit
+//         return {
+//           ...unit,
+//           tags,
+//         };
+//       }),
+//     );
+
+//     return formattedUnits;
+//   } catch (error) {
+//     console.error("Error fetching due units:", error);
+//     throw error;
+//   }
+// }
+
+// // export default async function getDueUnits(inputs, ctx) {
+// //   throw new Error("UNTESTED CLAUDE GARBAGE!");
+// //   const { scope, blacklist, tagIds, take, dueLt = new Date().toISOString() } = inputs;
+// //   const { tactic, strategy, user } = scope;
+
+// //   try {
+// //     let query = ctx.runtime.services.supabase.from("_TagToUnit").select("B").in("A", tagIds);
+
+// //     // Apply tag blacklist
+// //     if (blacklist.tags && blacklist.tags.length > 0) {
+// //       query = query.not("A", "in", `(${blacklist.tags.join(",")})`);
+// //     }
+
+// //     const { data: matchedRelations, error: matchError } = await query;
+// //     if (matchError) throw matchError;
+
+// //     const unitIds = matchedRelations.map((r) => r.B);
+
+// //     let unitsQuery = ctx.runtime.services.supabase
+// //       .from("Unit")
+// //       .select(
+// //         `
+// //         *,
+// //         tags:_TagToUnit(tag:A(*)),
+// //         plays:Play!inner(*)
+// //       `,
+// //       )
+// //       .in("id", unitIds)
+// //       .eq("runtimeId", ctx.runtime.manifest.id)
+// //       .eq("plays.gameId", strategy.id)
+// //       .eq("plays.tacticId", tactic.id)
+// //       .eq("plays.userId", user.id)
+// //       .lt("plays.nextPlay", dueLt)
+// //       .not(
+// //         "id",
+// //         "in",
+// //         ctx.runtime.services.supabase
+// //           .from("Memory")
+// //           .select("unitId")
+// //           .is("tagId", null)
+// //           .eq("userId", user.id)
+// //           .in("status", ["KNOWN", "GRADUATED"]),
+// //       );
+
+// //     // Apply unit blacklist
+// //     if (blacklist.units && blacklist.units.length > 0) {
+// //       unitsQuery = unitsQuery.not("id", "in", `(${blacklist.units.join(",")})`);
+// //     }
+
+// //     // Apply take limit
+// //     if (take !== undefined) {
+// //       unitsQuery = unitsQuery.limit(take);
+// //     }
+
+// //     const { data: units, error: unitsError } = await unitsQuery;
+// //     if (unitsError) throw unitsError;
+
+// //     // Filter units that have all required tags
+// //     const fullyMatchedUnits = units.filter((unit) => unit.tags.length === tagIds.length);
+
+// //     // Format the tags for each unit
+// //     const formattedUnits = fullyMatchedUnits.map((unit) => ({
+// //       ...unit,
+// //       tags: unit.tags.map(({ tag }) => tag),
+// //     }));
+
+// //     return formattedUnits;
+// //   } catch (error) {
+// //     console.error("Error fetching due units:", error);
+// //     throw error;
+// //   }
+// // }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//pick/unit/index.js
+// Size: 321 bytes
+// Last Modified: 2025-05-05T15:46:46.355Z
+////////////////////////////////////////////////////////////////////////////////
+
+import due from "./due.js";
+import pending from "./pending.js";
+import byStatus from "./byStatus.js";
+import byStrength from "./byStrength.js";
+import newUnits from "./new.js";
+import byAnnotation from "./byAnnotation.js";
+
+export default {
+  new: newUnits,
+  due,
+  pending,
+  byStatus,
+  byStrength,
+  byAnnotation,
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: new.js
+// Path: methods//pick/unit/new.js
+// Size: 1542 bytes
+// Last Modified: 2025-04-05T13:01:07.090Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { Blacklist, Scope } from "@vivalence/shared";
+
+export default async function getNewUnits(input, ctx) {
+  const { tagIds, take } = input;
+
+  const user = await ctx.runtime.services.identity.getUser();
+  const blacklist = new Blacklist(input.blacklist);
+
+  const scope = new Scope({
+    ...input.scope,
+    user: { id: user.id },
+    runtime: { id: ctx.runtime.entity.id },
+  });
+
+  const qb = ctx.runtime.entities.unit.createQueryBuilder("u");
+  qb.where({ runtime: ctx.runtime.entity.id });
+
+  if (blacklist.units?.length > 0) {
+    qb.andWhere({ id: { $nin: blacklist.units } });
+  }
+
+  if (tagIds && tagIds.length > 0) {
+    qb.andWhere(
+      `(
+          SELECT COUNT(DISTINCT tu.tag_entity_id)
+          FROM _TagToUnit tu
+          WHERE tu.unit_entity_id = u.id
+          AND tu.tag_entity_id IN (?)
+        ) = ?`,
+      [tagIds, tagIds.length],
+    );
+  }
+
+  qb.andWhere(
+    `NOT EXISTS (
+        SELECT 1
+        FROM Play p
+        WHERE p.unit = u.id
+        ${scope.tactic?.id ? "AND p.tactic = ?" : ""}
+        ${scope.game?.id ? "AND p.game = ?" : ""}
+        ${scope.user?.id ? "AND p.user = ?" : ""}
+        ${scope.runtime?.id ? "AND p.runtime = ?" : ""}
+      )`,
+    [
+      ...(scope.tactic?.id ? [scope.tactic.id] : []),
+      ...(scope.game?.id ? [scope.game.id] : []),
+      ...(scope.user?.id ? [scope.user.id] : []),
+      ...(scope.runtime.id ? [scope.runtime.id] : []),
+    ],
+  );
+
+  qb.orderBy({ index: "ASC" });
+  if (take) qb.limit(take);
+
+  const units = await qb.getResultList();
+
+  return units;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: pending.js
+// Path: methods//pick/unit/pending.js
+// Size: 3432 bytes
+// Last Modified: 2025-04-05T13:01:21.766Z
+////////////////////////////////////////////////////////////////////////////////
+
+import getDueUnits from "./due.js";
+import getNewUnits from "./new.js";
+
+export default async function (body, ctx) {
+  const { scope, tagIds, blacklist, take = 1 } = body;
+
+  let debt = -take;
+  const units = [];
+
+  if (debt < 0) {
+    const dueUnits = await getDueUnits(
+      {
+        blacklist,
+        scope,
+        tagIds,
+        take: Math.abs(debt),
+      },
+      ctx,
+    );
+
+    if (dueUnits.length > 0) {
+      units.push(...dueUnits);
+      debt += dueUnits.length;
+    }
+  }
+
+  if (debt < 0) {
+    const newUnits = await getNewUnits(
+      {
+        scope,
+        blacklist,
+
+        tagIds,
+        take: Math.abs(debt),
+      },
+      ctx,
+    );
+
+    if (newUnits.length > 0) {
+      units.push(...newUnits);
+      debt += newUnits.length;
+    }
+  }
+
+  return units;
+}
+
+// async function getDueUnits({ tagIds, blacklist, take, scope, ctx }) {
+//   const qb = ctx.runtime.entities.em.createQueryBuilder(ctx.runtime.entities.unit);
+
+//   qb.select("u.*").from("Unit", "u").where({ runtime: ctx.runtime.entity.id });
+
+//   // if (blacklist && blacklist.length > 0) {
+//   //   qb.andWhere({ id: { $nin: blacklist } });
+//   // }
+
+//   // // If tag IDs are provided, ensure unit has all specified tags
+//   // if (tagIds && tagIds.length > 0) {
+//   //   // Count how many of the specified tags the unit has
+//   //   qb.andWhere(
+//   //     `(
+//   //         SELECT COUNT(DISTINCT tu.tag)
+//   //         FROM _TagToUnit tu
+//   //         WHERE tu.unit = u.id
+//   //         AND tu.tag IN (?)
+//   //       ) = ?`,
+//   //     [tagIds, tagIds.length],
+//   //   );
+//   // }
+
+//   // // Ensure unit has plays that are due
+//   // qb.andWhere(
+//   //   `EXISTS (
+//   //       SELECT 1
+//   //       FROM Play p
+//   //       WHERE p.unit = u.id
+//   //       AND p.tag IS NULL
+//   //       AND p.nextAt < ?
+//   //       ${scope.tactic?.id ? "AND p.tactic = ?" : ""}
+//   //       ${scope.game?.id ? "AND p.game = ?" : ""}
+//   //       ${scope.user?.id ? "AND p.user = ?" : ""}
+//   //     )`,
+//   //   [
+//   //     new Date(),
+//   //     ...(scope.tactic?.id ? [scope.tactic.id] : []),
+//   //     ...(scope.game?.id ? [scope.game.id] : []),
+//   //     ...(scope.user?.id ? [scope.user.id] : []),
+//   //   ],
+//   // );
+
+//   // // Ensure unit doesn't have memory with KNOWN or GRADUATED status
+//   // qb.andWhere(
+//   //   `NOT EXISTS (
+//   //       SELECT 1
+//   //       FROM Memory m
+//   //       WHERE m.unit = u.id
+//   //       AND m.tag IS NULL
+//   //       AND m.user = ?
+//   //       AND m.status IN (?)
+//   //     )`,
+//   //   [scope.user?.id, [enums.MemoryStatus.KNOWN, enums.MemoryStatus.GRADUATED]],
+//   // );
+
+//   // // Order by earliest nextAt
+//   // qb.orderBy(
+//   //   `(
+//   //       SELECT MIN(p.nextAt)
+//   //       FROM Play p
+//   //       WHERE p.unit = u.id
+//   //       AND p.tag IS NULL
+//   //       ${scope.tactic?.id ? "AND p.tactic = ?" : ""}
+//   //       ${scope.game?.id ? "AND p.game = ?" : ""}
+//   //       ${scope.user?.id ? "AND p.user = ?" : ""}
+//   //     )`,
+//   //   "ASC",
+//   //   [
+//   //     ...(scope.tactic?.id ? [scope.tactic.id] : []),
+//   //     ...(scope.game?.id ? [scope.game.id] : []),
+//   //     ...(scope.user?.id ? [scope.user.id] : []),
+//   //   ],
+//   // );
+
+//   // Apply limit
+//   if (take) {
+//     // qb.limit(take);
+//   }
+
+//   // Execute query
+//   const units = await qb.getResult();
+//   return units;
+// }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: dependency.js
+// Path: methods//provision/dependency.js
+// Size: 1614 bytes
+// Last Modified: 2025-04-07T13:29:27.460Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { Scope } from "@vivalence/shared";
+import lock from "./lib/lock.js";
+
+export default async function provision({ dependency, ...body }, ctx) {
+  const user = await ctx.runtime.services.identity.getUser();
+  const scope = new Scope({ ...body.scope, user: { id: user.id } });
+
+  if (lock.has(scope)) return { status: "locked" };
+  lock.set(scope);
+
+  let instructions, error;
+  try {
+    const itinerary = dependency.itinerary.tactic;
+
+    const input = {
+      blacklist: body.blacklist,
+      scope,
+      tactic: { slug: itinerary.slug },
+      relations: itinerary.relations,
+      masks: itinerary.masks,
+    };
+
+    instructions = await ctx.runtime.call(`/provision/tactic`, input);
+
+    if (instructions.length > 0) {
+      for (let i = 0; i < instructions.length; i++) {
+        if (instructions[i].type === "SIGNAL") continue;
+        ctx.runtime.entities.instruction.create({
+          runtime: ctx.runtime.entity.id,
+          user: user.id,
+          dependency: dependency.id,
+          tactic: instructions[i].scope.tactic.id,
+          data: instructions[i],
+          index: i,
+        });
+      }
+
+      await ctx.runtime.entities.em.flush();
+    }
+  } catch (err) {
+    console.error(`[PROVISIONING ERROR]`);
+    console.error(`[PROVISIONING ERROR] message`, err.message);
+    console.error(err);
+    console.log("JSON.stringify({ dependency, scope, blacklist })");
+    console.log(JSON.stringify({ dependency, scope, blacklist }));
+    console.error(`[/PROVISIONING ERROR]`);
+    error = err;
+  } finally {
+    lock.delete(scope);
+    if (error) throw error;
+    return instructions;
+  }
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: game.js
+// Path: methods//provision/game.js
+// Size: 0 bytes
+// Last Modified: 2025-03-06T20:04:59.247Z
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//provision/index.js
+// Size: 115 bytes
+// Last Modified: 2025-03-06T23:19:34.027Z
+////////////////////////////////////////////////////////////////////////////////
+
+import dependency from "./dependency.js";
+import tactic from "./tactic.js";
+export default { dependency, tactic };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: tactic.js
+// Path: methods//provision/tactic.js
+// Size: 3620 bytes
+// Last Modified: 2025-04-09T15:24:00.068Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { join } from "$std/path/mod.ts";
+import { deepMerge, Scope, Blacklist } from "@vivalence/shared";
+
+export default async function (body, ctx) {
+  const user = await ctx.runtime.services.identity.getUser();
+
+  const tactic = await ctx.runtime.entities.tactic.findOneOrFail({ slug: body.tactic.slug });
+  const scope = new Scope({ ...body.scope, user: { id: user.id }, tactic: { id: tactic.id } });
+  const blacklist = await new Blacklist(body.blacklist).fromQueue(scope, ctx);
+
+  let { masks = {}, relations = {} } = body;
+  masks = deepMerge({}, tactic.masks, masks);
+  relations = deepMerge({}, tactic.relations, relations);
+  relations = await buildRelations(relations, ctx);
+  relations = injectGameCaller({ relations, masks, scope }, ctx);
+
+  const input = { tactic: { ...tactic, relations, masks }, scope, blacklist };
+  const instructions = await ctx.runtime.call(`/tactic/${tactic.slug}/provision`, input);
+
+  if (
+    instructions?.length > 0 &&
+    !instructions.find((i) => i.type === "SIGNAL" && i.signal === "COMPLETED")
+  ) {
+    instructions.push({ type: "SIGNAL", signal: "REPETITION" });
+  }
+
+  return instructions;
+}
+
+const relationsToEntitiesMap = {
+  tags: "tag",
+  units: "unit",
+  games: "game",
+};
+
+async function buildRelations(relations, ctx) {
+  async function resolveRelation(resourceType, relation) {
+    if (Array.isArray(relation)) {
+      return await Promise.all(relation.map(async (r) => await resolveRelation(resourceType, r)));
+    } else if (typeof relation === "object" && relation.slug) {
+      const entity = ctx.runtime.entities[relationsToEntitiesMap[resourceType]];
+      return await entity.findOneOrFail(relation);
+    } else if (typeof relation === "object" && relation.id) {
+      console.log("Not implemented - tacti middleware buildRelation");
+      return relation;
+    } else {
+      return relation;
+    }
+  }
+
+  async function resolveResource(resourceType, relation) {
+    const richRelations = {};
+    for (const [relationName, relationDetail] of Object.entries(relation)) {
+      richRelations[relationName] = await resolveRelation(resourceType, relationDetail);
+
+      if (resourceType === "games") {
+        if (richRelations[relationName].mask)
+          for (const [maskType, mask] of Object.entries(richRelations[relationName].mask)) {
+            if (typeof mask === "object") {
+              richRelations[relationName].mask[maskType] = await resolveResource(maskType, mask);
+            } else if (typeof mask === "string") {
+              richRelations[relationName].mask[maskType] = mask;
+            } else {
+              console.log("@tactic middleware resolve mask type is not object", maskType, mask);
+            }
+          }
+      }
+    }
+
+    return richRelations;
+  }
+
+  for (const [resourceType, relation] of Object.entries(relations)) {
+    relations[resourceType] = await resolveResource(resourceType, relation);
+  }
+
+  return relations;
+}
+
+function injectGameCaller({ relations, masks, scope }, ctx) {
+  if (!relations && !relations.games) throw new Error("Invalid tactic");
+
+  Object.entries(relations.games).forEach(([relationName, game]) => {
+    relations.games[relationName].call = (path, input) => {
+      return ctx.runtime.call(
+        join(game.url.modulename, path),
+        deepMerge(
+          { mask: deepMerge(game.mask, masks[relationName]) },
+          { scope: deepMerge(scope, { game: { id: game.id } }) },
+          input,
+        ),
+      );
+    };
+
+    relations.games[relationName].provision = (input) => {
+      return relations.games[relationName].call("/provision", input);
+    };
+  });
+
+  return relations;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: tag.js
+// Path: methods//provision/tag.js
+// Size: 0 bytes
+// Last Modified: 2025-03-06T20:05:01.113Z
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: lock.js
+// Path: methods//provision/lib/lock.js
+// Size: 573 bytes
+// Last Modified: 2024-12-27T12:10:42.163Z
+////////////////////////////////////////////////////////////////////////////////
+
+const ProvisioningLock = new Map();
+
+const key = (scope) => `${scope.user.id}-${scope.dependency?.id}-${scope.tactic?.id}`;
+
+export default {
+  has: (scope) => {
+    // console.log("ProvisioningLock.has", key(scope), ProvisioningLock.has(key(scope)));
+    return ProvisioningLock.has(key(scope));
+  },
+  set: (scope) => {
+    return ProvisioningLock.set(key(scope), new Date());
+  },
+  delete: (scope) => {
+    // console.log("ProvisioningLock.delete", key(scope));
+    ProvisioningLock.delete(key(scope));
+    // console.log("ProvisioningLock", ProvisioningLock);
+  },
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: annotation.js
+// Path: methods//review/annotation.js
+// Size: 971 bytes
+// Last Modified: 2025-06-04T17:50:33.415Z
+////////////////////////////////////////////////////////////////////////////////
+
+// import { validateSignal } from "../../memory/index.js";
+
+export default async function ({ annotation, scope, signal }, ctx) {
+  const issues = await ctx.runtime.assert //
+    .annotation(annotation, ["SCHEMATIC", "EXISTENTIAL"]);
+  if (issues.length > 0) return { issues, status: "error", message: "invalid" };
+
+  const options = { fields: ["id"] };
+  const unit = await ctx.runtime.entities.unit.findOne({ annotation }, options);
+  const tags = await Promise.all(
+    Object.entries(annotation).map(async ([branch, leaf]) => {
+      const data = { ONTOLOGICAL: { branch, leaf } };
+      return await ctx.runtime.entities.tag.findOne({ data }, options);
+    }),
+  );
+
+  scope = {
+    unit: { id: "01971c62-b37b-73af-98e8-63dadb5bb9be" },
+    // tags: [{ id: "01973bb0-6200-7678-a8fa-b41a669c1884" }],
+  };
+  // scope.unit = { id: unit.id };
+  // scope.tags = tags.map((tag) => ({ id: tag.id }));
+
+  return await ctx.runtime.call("/review/scope", { signal, scope });
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//review/index.js
+// Size: 283 bytes
+// Last Modified: 2025-06-04T18:03:53.035Z
+////////////////////////////////////////////////////////////////////////////////
+
+// import memory from "./memory.js";
+// import play from "./play.js";
+// import tag from "./tag.js";
+// import unit from "./unit.js";
+import scope from "./scope.js";
+import annotation from "./annotation.js";
+import unit from "./unit.js";
+
+export default { annotation, unit, scope };
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: memory.js
+// Path: methods//review/memory.js
+// Size: 3366 bytes
+// Last Modified: 2025-06-04T15:00:10.889Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { getMemoryDriver, validateSignal } from "../../memory/index.js";
+
+export default async function ({ scope, signal }, ctx) {
+  if (!scope.user) {
+    const user = await ctx.runtime.services.identity.getUser();
+    if (!user) throw new Error("User not found");
+    scope.user = { id: user.id };
+  }
+
+  signal = validateSignal(signal);
+
+  const memory = await read({ scope }, ctx);
+
+  if (!memory) {
+    return await create({ scope, signal }, ctx);
+  } else {
+    return await update({ memory, signal, scope }, ctx);
+  }
+}
+
+export async function read({ scope }, ctx) {
+  let query = ctx.runtime.services.supabase
+    .from("Memory")
+    .select("*")
+    .eq("userId", scope.user.id)
+    .eq("runtimeId", ctx.runtime.manifest.id);
+
+  if (scope.unit) query = query.eq("unitId", scope.unit.id);
+  else query = query.filter("unitId", "is", null);
+
+  if (scope.tag) query = query.eq("tagId", scope.tag.id);
+  else query = query.filter("tagId", "is", null);
+
+  const { data: memory, error } = await query.limit(1).maybeSingle();
+  if (error) throw error;
+
+  return memory;
+}
+
+export async function create({ signal, scope }, ctx) {
+  const [MemoryDriver, { driver, type }] = await getMemoryDriver(
+    { scope },
+    ctx,
+  );
+  const lastAt = new Date().toISOString();
+
+  const state = MemoryDriver.initiate({ signal });
+  const { nextIn, nextAt } = MemoryDriver.schedule({ memory: { state } });
+
+  const history = [{ signal, state, nextIn, nextAt, lastAt, scope }];
+  const status = MemoryDriver.status({ memory: { state, nextIn, history } });
+  history[0].status = status;
+
+  const { data, error } = await ctx.runtime.services.supabase
+    .from("Memory")
+    .insert([
+      {
+        driver,
+        type,
+        status,
+        state,
+
+        nextAt,
+        nextIn,
+        lastAt,
+        history,
+
+        runtimeId: ctx.runtime.manifest.id,
+        userId: scope.user.id,
+        unitId: scope.unit?.id,
+        tagId: scope.tag?.id,
+      },
+    ])
+    .select("id")
+    .single();
+
+  if (error) throw error;
+
+  return {
+    id: data.id,
+    state,
+    status,
+    nextIn,
+    nextAt,
+    lastAt,
+    type,
+    driver,
+    history,
+    statusChange: { from: null, to: status },
+  };
+}
+
+export async function update({ signal, scope, memory }, ctx) {
+  const [MemoryDriver, { driver, type }] = await getMemoryDriver(
+    { scope, memory },
+    ctx,
+  );
+  const lastAt = new Date().toISOString();
+
+  const state = MemoryDriver.update({ memory, signal });
+  const { nextIn, nextAt } = MemoryDriver.schedule({ memory: { state } });
+  const history = [
+    ...memory.history,
+    { signal, state, nextIn, nextAt, lastAt, scope },
+  ];
+  const status = MemoryDriver.status({ memory: { state, nextIn, history } });
+  history[history.length - 1].status = status;
+  // limit history to 10
+  if (history.length > 10) history.shift();
+
+  const { data, error } = await ctx.runtime.services.supabase
+    .from("Memory")
+    .update({
+      state,
+      status,
+      nextAt,
+      nextIn,
+      lastAt,
+      history,
+      updatedAt: new Date().toISOString(),
+    })
+    .eq("id", memory.id);
+
+  if (error) throw error;
+
+  const change = { from: memory.status, to: status };
+
+  return {
+    id: memory.id,
+    state,
+    status,
+    nextIn,
+    nextAt,
+    lastAt,
+    type,
+    driver,
+    history,
+    statusChange: change.from !== change.to ? change : null,
+  };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: play.js
+// Path: methods//review/play.js
+// Size: 2472 bytes
+// Last Modified: 2024-12-27T12:10:42.147Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { validateSignal } from "../../memory/index.js";
+
+export default async function ({ scope, lastAt, nextAt, nextIn, signal }, ctx) {
+  if (!scope.user) {
+    const user = await ctx.runtime.services.identity.getUser();
+    if (!user) throw new Error("User not found");
+    scope.user = { id: user.id };
+  }
+
+  signal = validateSignal(signal);
+
+  const play = await read({ scope }, ctx);
+
+  if (!play) {
+    return await create({ scope, lastAt, nextIn, nextAt, signal }, ctx);
+  } else {
+    return await update({ play, lastAt, nextIn, nextAt, signal, scope }, ctx);
+  }
+}
+
+export async function read({ scope }, ctx) {
+  let query = ctx.runtime.services.supabase
+    .from("Play")
+    .select("*")
+    .eq("runtimeId", ctx.runtime.manifest.id)
+    .eq("memoryId", scope.memory.id)
+    .eq("gameId", scope.game.id)
+    .eq("userId", scope.user.id);
+
+  if (scope.tactic) query = query.eq("tacticId", scope.tactic.id);
+  else query = query.filter("tacticId", "is", null);
+
+  if (scope.unit) query = query.eq("unitId", scope.unit.id);
+  else query = query.filter("unitId", "is", null);
+
+  if (scope.tag) query = query.eq("tagId", scope.tag.id);
+  else query = query.filter("tagId", "is", null);
+
+  let { data: play, error } = await query.limit(1).maybeSingle();
+
+  if (error) throw error;
+  return play;
+}
+
+export async function create({ scope, lastAt, nextIn, nextAt, signal }, ctx) {
+  const history = [{ signal, nextIn, nextAt, lastAt, scope }];
+  const { data, error } = await ctx.runtime.services.supabase
+    .from("Play")
+    .insert([
+      {
+        runtimeId: ctx.runtime.manifest.id,
+        userId: scope.user.id,
+        memoryId: scope.memory.id,
+        gameId: scope.game.id,
+        tacticId: scope.tactic?.id,
+        unitId: scope.unit?.id,
+        tagId: scope.tag?.id,
+        nextAt,
+        nextIn,
+        lastAt,
+        history,
+      },
+    ])
+    .single()
+    .select("id");
+
+  if (error) throw error;
+
+  return { id: data.id, nextIn, nextAt, lastAt, history };
+}
+
+export async function update({ play, lastAt, nextIn, nextAt, signal, scope }, ctx) {
+  const history = [...play.history, { signal, nextIn, nextAt, lastAt, scope }];
+  const { data, error } = await ctx.runtime.services.supabase
+    .from("Play")
+    .update({
+      history,
+      nextAt,
+      nextIn,
+      lastAt,
+      updatedAt: new Date().toISOString(),
+    })
+    .eq("id", play.id);
+
+  if (error) throw error;
+
+  return { id: play.id, nextIn, nextAt, lastAt, history };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: scope.js
+// Path: methods//review/scope.js
+// Size: 992 bytes
+// Last Modified: 2025-06-04T17:48:56.895Z
+////////////////////////////////////////////////////////////////////////////////
+
+export default async function ({ scope, signal }, ctx) {
+  const reviews = [];
+
+  if (scope.unit) {
+    const input = { signal, scope };
+    const review = ctx.runtime.call("/review/unit", input);
+    reviews.push(review);
+  }
+
+  if (scope.tag) {
+    const input = { signal, scope };
+    const review = ctx.runtime.call("/review/tag", input);
+    reviews.push(review);
+  }
+
+  scope.tags?.map((tag) => {
+    const input = { signal, scope: { ...scope, tags: null, tag } };
+    const review = ctx.runtime.call("/review/tag", input);
+    reviews.push(review);
+  });
+
+  scope.unit?.tags?.map((tag) => {
+    const input = { signal, scope: { ...scope, tag } };
+    const review = ctx.runtime.call("/review/tag", input);
+    reviews.push(review);
+  });
+
+  scope.units?.map((unit) => {
+    const input = { signal, scope: { ...scope, units: null, unit } };
+    const review = ctx.runtime.call("/review/scope", input); // ish-safe
+    reviews.push(review);
+  });
+
+  return await Promise.all(reviews);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: tag.js
+// Path: methods//review/tag.js
+// Size: 2073 bytes
+// Last Modified: 2025-06-04T17:05:21.207Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { validateSignal } from "../../memory/index.js";
+
+// might want to refactor this into a reducer
+export default async function ({ scope, signal }, ctx) {
+  if (scope.tags?.length > 0) {
+    scope.tags.map(async (tag) => {
+      // should i handle the return?
+      await ctx.runtime.call("/review/tag", {
+        signal,
+        scope: { ...scope, tags: null, tag },
+      });
+    });
+  }
+
+  if (!scope.tag?.id) return { status: "bounce", message: "Tag required" };
+
+  signal = validateSignal(signal);
+
+  const { data: tag, error: te } = await ctx.runtime.services.supabase
+    .from("Tag")
+    .select("id, traits, data")
+    .eq("id", scope.tag.id)
+    .eq("runtimeId", ctx.runtime.manifest.id)
+    .single();
+
+  if (te || !tag) throw te || new Error("Tag not found");
+
+  if (!tag.traits.includes("LEARNABLE")) {
+    return { status: "bounce", message: "Invalid learnable tag flavor" };
+  }
+  if (tag.data["LEARNABLE"].type === "INDIVIDUAL") {
+    delete scope.unit;
+  } else if (tag.data["LEARNABLE"].type === "RELATIONAL") {
+    if (!scope.unit?.id) {
+      return {
+        status: "bounce",
+        message: "Unit required for relational learnable tags",
+      };
+    }
+  } else {
+    return { status: "bounce", message: "Invalid learnable tag flavor" };
+  }
+
+  const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", {
+    scope,
+    signal,
+  });
+  // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+
+  if (tag.data["LEARNABLE"].type === "RELATIONAL") {
+    delete scope.unit;
+    const { statusChange } = await ctx.runtime.call("/review/memory", {
+      scope,
+      signal,
+    });
+    // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Tag", { tag, memory, scope }))();
+  }
+
+  scope.memory = { id: memory.id };
+
+  const play = await ctx.runtime.call("/review/play", {
+    nextIn: memory.nextIn,
+    nextAt: memory.nextAt,
+    lastAt: memory.lastAt,
+    scope,
+    signal,
+  });
+
+  return { status: "success", memory, play, statusChange };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: unit.js
+// Path: methods//review/unit.js
+// Size: 1116 bytes
+// Last Modified: 2025-06-04T18:05:47.830Z
+////////////////////////////////////////////////////////////////////////////////
+
+import { validateSignal } from "../../../memory/index.js";
+
+export default async function ({ scope, signal }, ctx) {
+  delete scope.tag;
+
+  signal = validateSignal(signal);
+
+  // if (scope.units?.length > 0) {scope.units.map(async (unit) => {await ctx.runtime.call("/review/unit", {signal, scope: { ...scope, units: null, unit },});});}
+
+  if (!scope.unit?.id) return { status: "bounce", message: "Unit required" };
+
+  const { data: unit, error } = await ctx.runtime.services.supabase
+    .from("Unit")
+    .select("*")
+    .eq("id", scope.unit.id)
+    .eq("runtimeId", ctx.runtime.manifest.id)
+    .single();
+
+  if (error) throw error;
+
+  const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", {
+    scope,
+    signal,
+  });
+
+  // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Unit", { unit, memory, scope }))();
+
+  scope.memory = { id: memory.id };
+
+  const play = await ctx.runtime.call("/review/play", {
+    nextIn: memory.nextIn,
+    nextAt: memory.nextAt,
+    lastAt: memory.lastAt,
+    scope,
+    signal,
+  });
+
+  return { play, memory, statusChange };
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: hydrate.js
+// Path: methods//scope/hydrate.js
+// Size: 4475 bytes
+// Last Modified: 2024-12-27T12:10:42.147Z
+////////////////////////////////////////////////////////////////////////////////
+
+// export default async function hydrateScope({ scope }, ctx) {const fetchUnits = (ids) => ctx.runtime.services.supabase .from("Unit") .select("id, slug, data, annotation") .eq("runtimeId", ctx.runtime.manifest.id) .in("id", ids) .then(({ data }) => data); const fetchTags = (ids) => ctx.runtime.services.supabase .from("Tag") .select("id, slug, data, traits, name") .eq("runtimeId", ctx.runtime.manifest.id) .in("id", ids) .then(({ data }) => data); const hydrateUnit = async (value) => {if (!value?.id) return value; const [unitData] = await fetchUnits([value.id]); return { ...value, ...unitData };}; const hydrateTag = async (value) => {if (!value?.id) return value; const [tagData] = await fetchTags([value.id]); return { ...value, ...tagData };}; const hydrate = async (value, key) => {if (!value) return value; const isTagRelated = key === "tag" || key === "tags"; const hydrateFn = isTagRelated ? hydrateTag : hydrateUnit; return Array.isArray(value) ? Promise.all(value.map(hydrateFn)) : hydrateFn(value);}; return Object.fromEntries(await Promise.all(Object.entries(scope).map(async ([key, value]) => [key, await hydrate(value, key)]),),);}
+
+// claude insisted...
+const cache = new Map();
+const memoize = (fn, ttl = 60 * 60 * 1000) => {
+  return async (ids) => {
+    const now = Date.now();
+    const uncached = ids.filter((id) => {
+      const cached = cache.get(id);
+      return !cached || now - cached.timestamp > ttl;
+    });
+    if (uncached.length) {
+      const items = await fn(uncached);
+      items.forEach((item) => {
+        if (item) {
+          cache.set(item.id, {
+            data: item,
+            timestamp: now,
+          });
+        }
+      });
+    }
+    return ids.map((id) => {
+      const cached = cache.get(id);
+      return cached ? cached.data : null;
+    });
+  };
+};
+
+export default async function hydrateScope({ scope }, ctx) {
+  const fetchUnits = memoize((ids) =>
+    ctx.runtime.services.supabase
+      .from("Unit")
+      .select("id, slug, data, annotation")
+      .eq("runtimeId", ctx.runtime.manifest.id)
+      .in("id", ids)
+      .then(({ data }) => data),
+  );
+
+  const fetchTags = memoize((ids) =>
+    ctx.runtime.services.supabase
+      .from("Tag")
+      .select("id, slug, data, traits, name")
+      .eq("runtimeId", ctx.runtime.manifest.id)
+      .in("id", ids)
+      .then(({ data }) => data),
+  );
+
+  const hydrateTag = async (value) => {
+    if (!value?.id) return value;
+    const [tagData] = await fetchTags([value.id]);
+    return { ...value, ...tagData };
+  };
+
+  const hydrateUnit = async (value) => {
+    if (!value?.id) return value;
+    const [unitData] = await fetchUnits([value.id]);
+    if (!unitData) return value;
+
+    // Hydrate nested tags if they exist
+    const hydratedTags = value.tags ? await Promise.all(value.tags.map(hydrateTag)) : value.tags;
+
+    return {
+      ...value,
+      ...unitData,
+      tags: hydratedTags,
+    };
+  };
+
+  const hydrate = async (value, key) => {
+    if (!value) return value;
+    const isTagRelated = key === "tag" || key === "tags";
+    const hydrateFn = isTagRelated ? hydrateTag : hydrateUnit;
+    return Array.isArray(value) ? Promise.all(value.map(hydrateFn)) : hydrateFn(value);
+  };
+
+  return Object.fromEntries(
+    await Promise.all(
+      Object.entries(scope).map(async ([key, value]) => [key, await hydrate(value, key)]),
+    ),
+  );
+}
+// export default async function ({ scope }, ctx) {
+//   const hydrateToken = async (token) => {
+//     const tokenIds = token.tags.map(({ id }) => id);
+
+//     const [{ data: unit, error: unitError }, { data: tags, error: tagsError }] = await Promise.all([
+//       ctx.runtime.services.supabase
+//         .from("Unit")
+//         .select("id, slug, data, annotation")
+//         .eq("id", token.id)
+//         .eq("runtimeId", ctx.runtime.manifest.id)
+//         .single(),
+//       ctx.runtime.services.supabase
+//         .from("Tag")
+//         .select("id, slug, data, traits, name")
+//         .eq("runtimeId", ctx.runtime.manifest.id)
+//         .in("id", tokenIds),
+//     ]);
+//     if (unitError || tagsError) throw unitError || tagsError;
+//     return { ...token, ...unit, tags };
+//   };
+
+//     const unit = scope.unit && await hydrateToken(scope.unit);
+//     const tag = scope.tag && await hydrateToken(scope.tag);
+//   const units = await Promise.all(scope.units.map(hydrateToken));
+//   const tags = await Promise.all(scope.tags.map(hydrateToken));
+
+//     return { tag, unit, units, tags, };
+// }
+
+
+////////////////////////////////////////////////////////////////////////////////
+// File: index.js
+// Path: methods//scope/index.js
+// Size: 64 bytes
+// Last Modified: 2024-10-12T20:49:31.456Z
+////////////////////////////////////////////////////////////////////////////////
+
+import hydrate from "./hydrate.js";
+export default { hydrate };

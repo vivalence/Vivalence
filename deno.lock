@@ -6094,6 +6094,7 @@
     "https://deno.land/x/cors/mod.ts": "https://deno.land/x/cors@v1.2.2/mod.ts"
   },
   "remote": {
+    "https://cdn.jsdelivr.net/gh/stdlib-js/assert@deno/mod.js": "ebd4b9a0051f3e156d654f95d1e9e4f3a86e1c6dc1d1bcced3717d3680029e3d",
     "https://cdn.jsdelivr.net/gh/stdlib-js/utils@deno/mod.js": "99a23da9fd87426fde7f9d6bdf061eb3882122709937b6b17cf11d5c857f1c3a",
     "https://deno.land/std@0.161.0/_util/assert.ts": "e94f2eb37cebd7f199952e242c77654e43333c1ac4c5c700e929ea3aa5489f74",
     "https://deno.land/std@0.161.0/bytes/bytes_list.ts": "aba5e2369e77d426b10af1de0dcc4531acecec27f9b9056f4f7bfbf8ac147ab4",

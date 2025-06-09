@@ -3,13 +3,6 @@ import { Migrator } from "@mikro-orm/migrations";
 import * as path from "@std/path";
 
 import config from "@vivalence/config";
-// import * as fs from "@std/fs";
-
-// import { StrategySchema, ServiceSchema } from "@vivalence/entities";
-// import { Daemon } from "@vivalence/types";
-// import { runtimeEntities } from "@vivalence/entities";
-// import { RuntimeEntity } from "@vivalence/entities";
-// function loadModuleEntities(value) {if (Array.isArray(value)) {value.forEach(loadModuleEntities);} else if (typeof value === "object" && value !== null && !value.manifest) {Object.values(value).forEach(loadModuleEntities);} else if (typeof value === "object" && value !== null && value.manifest && value.manifest.type) {value.Entity = entities[value.manifest.type];} else {throw new Error("Invalid module format");}}
 
 export default function schema(daemon: Daemon) {
   return async (runtime: any) => {
@@ -18,7 +11,7 @@ export default function schema(daemon: Daemon) {
     const orm = await MikroORM.init(
       defineConfig({
         dbName: services.database.config.filePath,
-        entities: domain.entities.schema,
+        entities: domain.entities.database,
         extensions: [Migrator],
         strict: false,
         migrations: {

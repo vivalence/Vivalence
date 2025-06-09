@@ -1,4 +1,4 @@
-import client from "./client/index.js";
+import client from "./client/brainClient.js";
 
 const manifest = {
   type: "service",

@@ -25,8 +25,9 @@ async function unique(issue: any, ctx: any) {
   for (const tag of tags) {
     unit.tags.remove(tag);
   }
+  await ctx.runtime.entities.em.flush();
 
-  return issue.resolve();
+  return await issue.resolve();
 }
 
 export default {

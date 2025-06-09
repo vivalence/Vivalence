@@ -13,7 +13,8 @@ const FAILURE_SCALE = 0.1;
 
 const initiate = ({ signal = {} }) => {
   if (typeof signal === "string") signal = { enum: signal };
-  if (!signal.enum && !signal.ratio) throw new Error("No signal provided to initiate memory");
+  if (!signal.enum && !signal.ratio)
+    throw new Error("No signal provided to initiate memory");
 
   let alpha = 4,
     beta = 4,
@@ -61,7 +62,11 @@ const schedule = ({ memory }) => {
 };
 
 const strength = ({ memory }) => {
-  return ebisu.predictRecall(memory.state, time.hoursBetweenDates(memory.lastAt), true);
+  return ebisu.predictRecall(
+    memory.state,
+    time.hoursBetweenDates(memory.lastAt),
+    true,
+  );
 };
 
 const status = ({ memory }) => {
@@ -106,9 +111,11 @@ const status = ({ memory }) => {
 
 const update = ({ memory, signal }) => {
   if (typeof signal === "string") signal = { enum: signal };
-  if (!signal.enum && !signal.ratio) throw new Error("No valid signal provided to update memory");
+  if (!signal.enum && !signal.ratio)
+    throw new Error("No valid signal provided to update memory");
 
   const elapsedTime = time.hoursBetween(memory.lastAt);
+
   let state = memory.state;
 
   try {
@@ -153,7 +160,8 @@ const update = ({ memory, signal }) => {
     console.log("\n\n\n\n\n\n\n\n");
     console.log("[EBISU ERROR]");
     console.error(error);
-    console.log("\n\nCONTINUING\n\n\n\n\n\n");
+    console.log(signal, { ...memory, history: undefined });
+    console.log("CONTINUING\n");
   } finally {
     return state;
   }

@@ -1,3 +1,4 @@
 import dependency from "./dependency.js";
+import game from "./game.js";
 import tactic from "./tactic.js";
-export default { dependency, tactic };
+export default { game, dependency, tactic };

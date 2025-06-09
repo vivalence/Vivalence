@@ -1,5 +1,5 @@
 export { Blacklist } from "./src/blacklist/index.js";
-export { obj, array, strings, time, id } from "./src/lib/index.js";
+export { is, obj, array, strings, time, id } from "./src/lib/index.js";
 
 import hash from "./src/hash/client.js";
 

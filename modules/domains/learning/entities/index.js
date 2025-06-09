@@ -8,10 +8,11 @@
 // import { CorpusEntity, CorpusSchema } from "./2_module/Corpus.ts";
 // import { TacticEntity, TacticSchema } from "./2_module/Tactic.ts";
 
-import { TagEntity, TagSchema } from "./data/Tag.ts";
-import { UnitEntity, UnitSchema } from "./data/Unit.ts";
-import { ConditionEntity, ConditionSchema } from "./data/Condition.ts";
-import { DependencyEntity, DependencySchema } from "./data/Dependency.ts";
+import { UserEntity, UserSchema } from "@vivalence/entities";
+import { TagEntity, TagSchema } from "./corpus/Tag.ts";
+import { UnitEntity, UnitSchema } from "./corpus/Unit.ts";
+import { ConditionEntity, ConditionSchema } from "./corpus/Condition.ts";
+import { DependencyEntity, DependencySchema } from "./corpus/Dependency.ts";
 
 import { MemoryEntity, MemorySchema } from "./userland/Memory.ts";
 import { PlayEntity, PlaySchema } from "./userland/Play.ts";
@@ -43,12 +44,13 @@ export const enums = {
 //   tactic: TacticEntity,
 // };
 
-const entities = {
+export const entities = {
   // ontology: OntologyEntity,
   // corpus: CorpusEntity,
   // game: GameEntity,
   // tactic: TacticEntity,
 
+  user: UserEntity,
   tag: TagEntity,
   unit: UnitEntity,
   condition: ConditionEntity,
@@ -62,7 +64,7 @@ const entities = {
   // // rule: RuleEntity,
 };
 
-const schema = [
+export const database = [
   // OntologySchema,
   // CorpusSchema,
   // GameSchema,
@@ -77,11 +79,11 @@ const schema = [
   SessionSchema,
 ];
 
-const repositories = {
+export const repositories = {
   dimension: DimensionRepository,
   topography: TopographyRepository,
   issue: IssueRepository,
   constraint: ConstraintRepository,
 };
 
-export default { enums, entities, repositories, schema };
+export default { enums, entities, repositories, database };

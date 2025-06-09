@@ -1,6 +1,8 @@
 import curriculum from "./curriculum.js";
 
 export default async function topology({ topology }, runtime) {
+  console.log("domain tries to install topology");
+  throw new Error("domain/install/topology.js not implemented");
   if (topology.annotations?.length > 0) {
     const tags = [];
     topology.annotations.forEach((entity) => {

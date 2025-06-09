@@ -1,45 +1,63 @@
 <script>
   import { onMount } from "svelte";
-  import { Textarea, Text, Button, Input } from "@vivalence/interface";
+  import { Desk, Textarea, Text, Button, Input } from "@vivalence/interface";
 
-  const { intent, instruction, ctx } = $props();
+  const { release, intent, instruction, ctx } = $props();
 
-  console.log(ctx);
+  // console.log("@ GAN.svelte");
+  // console.log(ctx);
   let prompt = $state("");
   let input = $state("");
   let loading = $state(false);
 
   // ctx.client.trajectory.branch((p) => p.key("p"));
-  let learnables = $state({});
-  let session = $state([]);
+  let learnables = $state(instruction.data.learnables);
+  let evaluation = $state({});
+  let session = $state(instruction.data.session);
   let history = $state([]);
   let step = $state("");
 
+  $inspect("learnables", learnables);
+  $inspect("evaluation", evaluation);
+
   async function initializeSession() {
     loading = true;
-    const response = await ctx.game.call("/provision", {});
-    session = response.session;
-    step = session.sort((a, b) => a.index - b.index)[0].slug;
-    learnables = response.learnables;
-
-    await doGenerator(step, input);
+    await doGenerator("", input);
     loading = false;
   }
 
   async function doDiscriminator(stepCache, inputCache) {
-    const result = await ctx.game.call("/discriminator", {
-      learnables,
-      history,
-      step: stepCache,
-      input: inputCache,
-    });
-    console.log("discriminator result ", result);
+    const { evaluations, terminateSession } = await ctx.game.call(
+      "/discriminator",
+      {
+        learnables,
+        history,
+        step: stepCache,
+        input: inputCache,
+      },
+    );
+    evaluation = { ...evaluations, ...evaluation };
+    console.log("terminateSession", terminateSession);
+
+    if (terminateSession === true) {
+      console.log("termination signal received");
+      release();
+    }
+    // learnables = learnables.map((learnable) => {
+    //   if (evaluations[learnable.slug])
+    //     learnable.status = evaluations[learnable.slug];
+    //   return learnable;
+    // });
+
+    // console.log("learnables", learnables);
+    // console.log("evaluation", evaluation);
   }
+
   async function doGenerator(stepCache, inputCache) {
     const { activePrompt, activeStep } = await ctx.game.call("/generator", {
       session,
-      learnables,
       history,
+      learnables,
       step: stepCache,
       input: inputCache,
     });
@@ -48,7 +66,7 @@
     history.push({ role: "assistant", content: prompt });
   }
 
-  async function submitResponse() {
+  async function onSubmit() {
     loading = true;
     const inputCache = input;
     const stepCache = step;
@@ -60,18 +78,13 @@
     await discriminatorPromise;
   }
 
-  function setupListener() {
-    const handler = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submitResponse();
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }
-  onMount(setupListener);
+  // function setupListener() {const handler = (e) => {if ((e.metaKey || e.ctrlKey) && e.key === "Enter") onSubmit();}; window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);}
+  // onMount(setupListener);
   onMount(initializeSession);
 </script>
 
-<div class="bsp-node v2">
+<Desk {onSubmit} bind:input>
+  <!--     bind:value={input} -->
   <div class="bsp-node prompt p-24 pt-32">
     {#if loading}
       <Text size="lg">Thinking...</Text>
@@ -79,15 +92,17 @@
       <Text size="xl">{@html prompt}</Text>
     {/if}
   </div>
-  <div class="bsp-node response p-24">
-    <Textarea
-      mode="centered"
-      size="xl"
-      autofocus
-      bind:value={input}
-      disabled={loading}></Textarea>
-  </div>
-</div>
+</Desk>
+
+<!-- <div class="bsp-node response p-24"> -->
+<!--   <Textarea -->
+<!--     mode="centered" -->
+<!--     size="xl" -->
+<!--     autofocus -->
+<!--     bind:value={input} -->
+<!--     disabled={loading}></Textarea> -->
+<!-- </div> -->
+<!-- </div> <div class="bsp-node v2"> -->
 
 <style>
   * {

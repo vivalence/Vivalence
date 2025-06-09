@@ -1,0 +1,57 @@
+meta {
+  name: annotation
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{ENG2LAT}}/review/annotation
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "annotation": {
+      "lemma": "salo",
+      "pos": "verb",
+      "aspect": "imp",
+      "inflclass": "latx",
+      "mood": "imp",
+      "number": "sing",
+      "person": "2",
+      "tense": "pres",
+      "verbform": "fin",
+      "voice": "act"
+    },
+    "scope": {},
+    "signal": "SUCCESS"
+  }
+}
+
+docs {
+    # get weakest tags from a list of tags
+    returns data {
+        "id": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+        "createdAt": "2024-04-19T04:39:00.468",
+        "updatedAt": "2024-04-19T04:39:00.468",
+        "name": "Verb Haber",
+        "type": [
+            "STRUCTURAL",
+            "COMPLETABLE"
+        ],
+        "data": {
+            "STRUCTURAL": {},
+            "COMPLETABLE": {}
+        },
+        "memory": {
+            "id": "6f91e955-70c8-47c0-85f5-258cf4a05a4e",
+            "state": [4, 4, 0.26],
+            "tagId": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
+            "status": "UNKNOWN",
+            "unitId": null,
+            "lastSeen": "2024-04-22T18:38:05.999",
+            "strength": -22.92964389442014
+        }
+    }
+}

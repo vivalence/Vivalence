@@ -1,0 +1,3410 @@
+{
+  "annotations": {
+    "sentence": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        }
+      },
+      "required": [
+        "pos"
+      ],
+      "additionalProperties": false
+    },
+    "adj": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "degree": {
+          "title": "degree",
+          "description": "The degree of comparison for adjectives and adverbs.",
+          "type": "string",
+          "enum": [
+            "abs",
+            "cmp",
+            "dim",
+            "sup"
+          ]
+        },
+        "inflclass": {
+          "title": "inflection class",
+          "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+          "type": "string",
+          "enum": [
+            "indeura",
+            "indeuro",
+            "indeuri",
+            "indeurx",
+            "indeure",
+            "indeuru",
+            "latanom",
+            "lata",
+            "late",
+            "latx",
+            "lati",
+            "latpron"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "case",
+        "gender",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "adp": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "compound": {
+          "title": "compound",
+          "description": "Indicates whether a word is morphologically compound.",
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma"
+      ],
+      "additionalProperties": false
+    },
+    "adv": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "degree": {
+          "title": "degree",
+          "description": "The degree of comparison for adjectives and adverbs.",
+          "type": "string",
+          "enum": [
+            "abs",
+            "cmp",
+            "dim",
+            "sup"
+          ]
+        },
+        "advtype": {
+          "title": "adverb type",
+          "description": "Semantic classification of adverbs by function.",
+          "type": "string",
+          "enum": [
+            "loc",
+            "tim"
+          ]
+        },
+        "polarity": {
+          "title": "polarity",
+          "description": "The polarity of an adverb.",
+          "type": "string",
+          "enum": [
+            "neg"
+          ]
+        },
+        "compound": {
+          "title": "compound",
+          "description": "Indicates whether a word is morphologically compound.",
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma"
+      ],
+      "additionalProperties": false
+    },
+    "aux": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "verbform": {
+          "title": "verb form",
+          "description": "The form of a verb, indicating its function in a sentence.",
+          "type": "string",
+          "enum": [
+            "fin",
+            "inf",
+            "part",
+            "ger"
+          ]
+        },
+        "tense": {
+          "title": "tense",
+          "description": "The time of action or state expressed by the verb.",
+          "type": "string",
+          "enum": [
+            "past",
+            "pres",
+            "fut",
+            "imp"
+          ]
+        },
+        "mood": {
+          "title": "mood",
+          "description": "The grammatical mood of a verb, indicating modality.",
+          "type": "string",
+          "enum": [
+            "ind",
+            "sub",
+            "imp",
+            "cnd"
+          ]
+        },
+        "person": {
+          "title": "person",
+          "description": "The grammatical person of a verb, indicating the subject.",
+          "type": "string",
+          "enum": [
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "aspect": {
+          "title": "aspect",
+          "description": "The aspect of a verb, indicating the flow of time in the action.",
+          "type": "string",
+          "enum": [
+            "imp",
+            "perf",
+            "prog",
+            "hab",
+            "iter",
+            "prosp"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "verbform"
+      ],
+      "additionalProperties": false
+    },
+    "cconj": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "compound": {
+          "title": "compound",
+          "description": "Indicates whether a word is morphologically compound.",
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma"
+      ],
+      "additionalProperties": false
+    },
+    "det": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "prontype": {
+          "title": "Pronoun",
+          "description": "The type of pronoun.",
+          "type": "string",
+          "enum": [
+            "prs",
+            "art",
+            "int",
+            "exc",
+            "rel",
+            "dem",
+            "tot",
+            "neg",
+            "ind"
+          ]
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "numtype": {
+          "title": "numeral type",
+          "description": "The type of numeral.",
+          "type": "string",
+          "enum": [
+            "card",
+            "ord",
+            "mult",
+            "frac"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "prontype",
+        "case",
+        "gender",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "noun": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "inflclass": {
+          "title": "inflection class",
+          "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+          "type": "string",
+          "enum": [
+            "indeura",
+            "indeuro",
+            "indeuri",
+            "indeurx",
+            "indeure",
+            "indeuru",
+            "latanom",
+            "lata",
+            "late",
+            "latx",
+            "lati",
+            "latpron"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "case",
+        "gender",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "num": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "numtype": {
+          "title": "numeral type",
+          "description": "The type of numeral.",
+          "type": "string",
+          "enum": [
+            "card",
+            "ord",
+            "mult",
+            "frac"
+          ]
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "numform": {
+          "title": "numeral form",
+          "description": "The form of numerals, indicating whether the number is expressed by digits, Roman numerals, or words.",
+          "type": "string",
+          "enum": [
+            "digit",
+            "roman",
+            "word"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "numtype"
+      ],
+      "additionalProperties": false
+    },
+    "pron": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "prontype": {
+          "title": "Pronoun",
+          "description": "The type of pronoun.",
+          "type": "string",
+          "enum": [
+            "prs",
+            "art",
+            "int",
+            "exc",
+            "rel",
+            "dem",
+            "tot",
+            "neg",
+            "ind"
+          ]
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "person": {
+          "title": "person",
+          "description": "The grammatical person of a verb, indicating the subject.",
+          "type": "string",
+          "enum": [
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "reflex": {
+          "title": "reflexive",
+          "description": "Indicates whether a verb is reflexive.",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "prontype",
+        "case",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "propn": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "case": {
+          "title": "case",
+          "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+          "type": "string",
+          "enum": [
+            "nom",
+            "acc",
+            "gen",
+            "dat",
+            "abl",
+            "voc"
+          ]
+        },
+        "gender": {
+          "title": "gender",
+          "description": "The grammatical gender of a noun or pronoun.",
+          "type": "string",
+          "enum": [
+            "fem",
+            "masc",
+            "neut"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "nametype": {
+          "title": "name type",
+          "description": "Semantic classification of proper nouns and names.",
+          "type": "string",
+          "enum": [
+            "giv",
+            "sur",
+            "geo",
+            "lit",
+            "rel",
+            "nat"
+          ]
+        },
+        "foreign": {
+          "title": "foreign",
+          "description": "Indicates words borrowed from other languages.",
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "case",
+        "gender",
+        "number"
+      ],
+      "additionalProperties": false
+    },
+    "punct": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "pos",
+        "lemma"
+      ],
+      "additionalProperties": false
+    },
+    "sconj": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "compound": {
+          "title": "compound",
+          "description": "Indicates whether a word is morphologically compound.",
+          "type": "string",
+          "enum": [
+            "yes"
+          ]
+        },
+        "prontype": {
+          "title": "Pronoun",
+          "description": "The type of pronoun.",
+          "type": "string",
+          "enum": [
+            "prs",
+            "art",
+            "int",
+            "exc",
+            "rel",
+            "dem",
+            "tot",
+            "neg",
+            "ind"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma"
+      ],
+      "additionalProperties": false
+    },
+    "verb": {
+      "type": "object",
+      "description": "unit annoatition schema",
+      "properties": {
+        "pos": {
+          "title": "part of speech",
+          "description": "High level grammatical grouping. Used for annotation.",
+          "type": "string",
+          "enum": [
+            "sentence",
+            "adj",
+            "adp",
+            "adv",
+            "aux",
+            "cconj",
+            "det",
+            "intj",
+            "noun",
+            "num",
+            "pron",
+            "propn",
+            "punct",
+            "sconj",
+            "verb"
+          ]
+        },
+        "lemma": {
+          "title": "lemma",
+          "description": "The canonical form or base form of a word.",
+          "type": "string"
+        },
+        "verbform": {
+          "title": "verb form",
+          "description": "The form of a verb, indicating its function in a sentence.",
+          "type": "string",
+          "enum": [
+            "fin",
+            "inf",
+            "part",
+            "ger"
+          ]
+        },
+        "voice": {
+          "title": "voice",
+          "description": "Grammatical voice indicating the relationship between action and subject.",
+          "type": "string",
+          "enum": [
+            "act",
+            "pass"
+          ]
+        },
+        "aspect": {
+          "title": "aspect",
+          "description": "The aspect of a verb, indicating the flow of time in the action.",
+          "type": "string",
+          "enum": [
+            "imp",
+            "perf",
+            "prog",
+            "hab",
+            "iter",
+            "prosp"
+          ]
+        },
+        "tense": {
+          "title": "tense",
+          "description": "The time of action or state expressed by the verb.",
+          "type": "string",
+          "enum": [
+            "past",
+            "pres",
+            "fut",
+            "imp"
+          ]
+        },
+        "mood": {
+          "title": "mood",
+          "description": "The grammatical mood of a verb, indicating modality.",
+          "type": "string",
+          "enum": [
+            "ind",
+            "sub",
+            "imp",
+            "cnd"
+          ]
+        },
+        "person": {
+          "title": "person",
+          "description": "The grammatical person of a verb, indicating the subject.",
+          "type": "string",
+          "enum": [
+            "1",
+            "2",
+            "3"
+          ]
+        },
+        "number": {
+          "title": "number",
+          "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+          "type": "string",
+          "enum": [
+            "sing",
+            "plur"
+          ]
+        },
+        "inflclass": {
+          "title": "inflection class",
+          "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+          "type": "string",
+          "enum": [
+            "indeura",
+            "indeuro",
+            "indeuri",
+            "indeurx",
+            "indeure",
+            "indeuru",
+            "latanom",
+            "lata",
+            "late",
+            "latx",
+            "lati",
+            "latpron"
+          ]
+        }
+      },
+      "required": [
+        "pos",
+        "lemma",
+        "verbform",
+        "voice"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "units": {
+    "sentence": {
+      "type": "object",
+      "title": "Sentence",
+      "description": "Sentences are sentences",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            }
+          },
+          "required": [
+            "pos"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "adj": {
+      "type": "object",
+      "title": "Adjective",
+      "description": "A word modifying nouns by describing qualities or attributes. Latin adjectives must agree with their nouns in case, gender, and number.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "degree": {
+              "title": "degree",
+              "description": "The degree of comparison for adjectives and adverbs.",
+              "type": "string",
+              "enum": [
+                "abs",
+                "cmp",
+                "dim",
+                "sup"
+              ]
+            },
+            "inflclass": {
+              "title": "inflection class",
+              "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+              "type": "string",
+              "enum": [
+                "indeura",
+                "indeuro",
+                "indeuri",
+                "indeurx",
+                "indeure",
+                "indeuru",
+                "latanom",
+                "lata",
+                "late",
+                "latx",
+                "lati",
+                "latpron"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "case",
+            "gender",
+            "number"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "adp": {
+      "type": "object",
+      "title": "Adposition",
+      "description": "A word showing spatial, temporal, or abstract relationships. Latin prepositions govern specific cases of their objects.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "compound": {
+              "title": "compound",
+              "description": "Indicates whether a word is morphologically compound.",
+              "type": "string",
+              "enum": [
+                "yes"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "adv": {
+      "type": "object",
+      "title": "Adverb",
+      "description": "A word modifying verbs, adjectives, other adverbs, or entire clauses. May show degree distinctions.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "degree": {
+              "title": "degree",
+              "description": "The degree of comparison for adjectives and adverbs.",
+              "type": "string",
+              "enum": [
+                "abs",
+                "cmp",
+                "dim",
+                "sup"
+              ]
+            },
+            "advtype": {
+              "title": "adverb type",
+              "description": "Semantic classification of adverbs by function.",
+              "type": "string",
+              "enum": [
+                "loc",
+                "tim"
+              ]
+            },
+            "polarity": {
+              "title": "polarity",
+              "description": "The polarity of an adverb.",
+              "type": "string",
+              "enum": [
+                "neg"
+              ]
+            },
+            "compound": {
+              "title": "compound",
+              "description": "Indicates whether a word is morphologically compound.",
+              "type": "string",
+              "enum": [
+                "yes"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "aux": {
+      "type": "object",
+      "title": "Auxiliary",
+      "description": "A helping verb used to form compound tenses, passive voice, or periphrastic constructions. Inflects like main verbs.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "verbform": {
+              "title": "verb form",
+              "description": "The form of a verb, indicating its function in a sentence.",
+              "type": "string",
+              "enum": [
+                "fin",
+                "inf",
+                "part",
+                "ger"
+              ]
+            },
+            "tense": {
+              "title": "tense",
+              "description": "The time of action or state expressed by the verb.",
+              "type": "string",
+              "enum": [
+                "past",
+                "pres",
+                "fut",
+                "imp"
+              ]
+            },
+            "mood": {
+              "title": "mood",
+              "description": "The grammatical mood of a verb, indicating modality.",
+              "type": "string",
+              "enum": [
+                "ind",
+                "sub",
+                "imp",
+                "cnd"
+              ]
+            },
+            "person": {
+              "title": "person",
+              "description": "The grammatical person of a verb, indicating the subject.",
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "aspect": {
+              "title": "aspect",
+              "description": "The aspect of a verb, indicating the flow of time in the action.",
+              "type": "string",
+              "enum": [
+                "imp",
+                "perf",
+                "prog",
+                "hab",
+                "iter",
+                "prosp"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "verbform"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "cconj": {
+      "type": "object",
+      "title": "Coordinating Conjunction",
+      "description": "A word connecting elements of equal syntactic status. Generally invariant in Latin.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "compound": {
+              "title": "compound",
+              "description": "Indicates whether a word is morphologically compound.",
+              "type": "string",
+              "enum": [
+                "yes"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "det": {
+      "type": "object",
+      "title": "Determiner",
+      "description": "A word that introduces and specifies nouns. Latin determiners agree with their nouns in case, gender, and number.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "prontype": {
+              "title": "Pronoun",
+              "description": "The type of pronoun.",
+              "type": "string",
+              "enum": [
+                "prs",
+                "art",
+                "int",
+                "exc",
+                "rel",
+                "dem",
+                "tot",
+                "neg",
+                "ind"
+              ]
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "numtype": {
+              "title": "numeral type",
+              "description": "The type of numeral.",
+              "type": "string",
+              "enum": [
+                "card",
+                "ord",
+                "mult",
+                "frac"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "prontype",
+            "case",
+            "gender",
+            "number"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "noun": {
+      "type": "object",
+      "title": "Noun",
+      "description": "A word referring to persons, places, things, or concepts. Latin nouns inflect for case, gender, and number through systematic declension patterns.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "inflclass": {
+              "title": "inflection class",
+              "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+              "type": "string",
+              "enum": [
+                "indeura",
+                "indeuro",
+                "indeuri",
+                "indeurx",
+                "indeure",
+                "indeuru",
+                "latanom",
+                "lata",
+                "late",
+                "latx",
+                "lati",
+                "latpron"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "case",
+            "gender",
+            "number"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "num": {
+      "type": "object",
+      "title": "Numeral",
+      "description": "A word expressing number or quantity. Latin numerals inflect for case agreement with the nouns they modify.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "numtype": {
+              "title": "numeral type",
+              "description": "The type of numeral.",
+              "type": "string",
+              "enum": [
+                "card",
+                "ord",
+                "mult",
+                "frac"
+              ]
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "numform": {
+              "title": "numeral form",
+              "description": "The form of numerals, indicating whether the number is expressed by digits, Roman numerals, or words.",
+              "type": "string",
+              "enum": [
+                "digit",
+                "roman",
+                "word"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "numtype"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "pron": {
+      "type": "object",
+      "title": "Pronoun",
+      "description": "A word substituting for nouns or referring to participants in discourse. Latin pronouns inflect for case, number, and often gender and person.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "prontype": {
+              "title": "Pronoun",
+              "description": "The type of pronoun.",
+              "type": "string",
+              "enum": [
+                "prs",
+                "art",
+                "int",
+                "exc",
+                "rel",
+                "dem",
+                "tot",
+                "neg",
+                "ind"
+              ]
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "person": {
+              "title": "person",
+              "description": "The grammatical person of a verb, indicating the subject.",
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "reflex": {
+              "title": "reflexive",
+              "description": "Indicates whether a verb is reflexive.",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "prontype",
+            "case",
+            "number"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "propn": {
+      "type": "object",
+      "title": "Proper Noun",
+      "description": "A word naming specific persons, places, or entities. Inflects like common nouns but may have special name type marking.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "case": {
+              "title": "case",
+              "description": "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+              "type": "string",
+              "enum": [
+                "nom",
+                "acc",
+                "gen",
+                "dat",
+                "abl",
+                "voc"
+              ]
+            },
+            "gender": {
+              "title": "gender",
+              "description": "The grammatical gender of a noun or pronoun.",
+              "type": "string",
+              "enum": [
+                "fem",
+                "masc",
+                "neut"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "nametype": {
+              "title": "name type",
+              "description": "Semantic classification of proper nouns and names.",
+              "type": "string",
+              "enum": [
+                "giv",
+                "sur",
+                "geo",
+                "lit",
+                "rel",
+                "nat"
+              ]
+            },
+            "foreign": {
+              "title": "foreign",
+              "description": "Indicates words borrowed from other languages.",
+              "type": "string",
+              "enum": [
+                "yes"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "case",
+            "gender",
+            "number"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "punct": {
+      "type": "object",
+      "title": "Punctuation",
+      "description": "Orthographic symbols marking sentence structure and prosody. No grammatical features in Latin.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "pos",
+            "lemma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "sconj": {
+      "type": "object",
+      "title": "Subordinating Conjunction",
+      "description": "A word introducing dependent clauses. Generally invariant but may have pronominal origins.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "compound": {
+              "title": "compound",
+              "description": "Indicates whether a word is morphologically compound.",
+              "type": "string",
+              "enum": [
+                "yes"
+              ]
+            },
+            "prontype": {
+              "title": "Pronoun",
+              "description": "The type of pronoun.",
+              "type": "string",
+              "enum": [
+                "prs",
+                "art",
+                "int",
+                "exc",
+                "rel",
+                "dem",
+                "tot",
+                "neg",
+                "ind"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    },
+    "verb": {
+      "type": "object",
+      "title": "Verb",
+      "description": "A word expressing actions, states, or processes. Latin verbs show complex inflection for person, number, tense, mood, voice, and aspect.",
+      "properties": {
+        "slug": {
+          "type": "string",
+          "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+        },
+        "data": {
+          "type": "object",
+          "description": "the schema of a unit's data.",
+          "properties": {
+            "known": {
+              "type": "string",
+              "description": "the translation in the known language"
+            },
+            "learning": {
+              "type": "string",
+              "description": "the word by itself, in the language to be learned"
+            },
+            "index": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+            },
+            "example": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "a simple example of how the word is used in a sentence in both languages.",
+              "properties": {
+                "learning": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+                },
+                "known": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+                }
+              },
+              "additionalProperties": false,
+              "required": [
+                "known",
+                "learning"
+              ]
+            }
+          },
+          "required": [
+            "known",
+            "learning",
+            "index",
+            "example"
+          ],
+          "additionalProperties": false
+        },
+        "annotation": {
+          "type": "object",
+          "description": "unit annoatition schema",
+          "properties": {
+            "pos": {
+              "title": "part of speech",
+              "description": "High level grammatical grouping. Used for annotation.",
+              "type": "string",
+              "enum": [
+                "sentence",
+                "adj",
+                "adp",
+                "adv",
+                "aux",
+                "cconj",
+                "det",
+                "intj",
+                "noun",
+                "num",
+                "pron",
+                "propn",
+                "punct",
+                "sconj",
+                "verb"
+              ]
+            },
+            "lemma": {
+              "title": "lemma",
+              "description": "The canonical form or base form of a word.",
+              "type": "string"
+            },
+            "verbform": {
+              "title": "verb form",
+              "description": "The form of a verb, indicating its function in a sentence.",
+              "type": "string",
+              "enum": [
+                "fin",
+                "inf",
+                "part",
+                "ger"
+              ]
+            },
+            "voice": {
+              "title": "voice",
+              "description": "Grammatical voice indicating the relationship between action and subject.",
+              "type": "string",
+              "enum": [
+                "act",
+                "pass"
+              ]
+            },
+            "aspect": {
+              "title": "aspect",
+              "description": "The aspect of a verb, indicating the flow of time in the action.",
+              "type": "string",
+              "enum": [
+                "imp",
+                "perf",
+                "prog",
+                "hab",
+                "iter",
+                "prosp"
+              ]
+            },
+            "tense": {
+              "title": "tense",
+              "description": "The time of action or state expressed by the verb.",
+              "type": "string",
+              "enum": [
+                "past",
+                "pres",
+                "fut",
+                "imp"
+              ]
+            },
+            "mood": {
+              "title": "mood",
+              "description": "The grammatical mood of a verb, indicating modality.",
+              "type": "string",
+              "enum": [
+                "ind",
+                "sub",
+                "imp",
+                "cnd"
+              ]
+            },
+            "person": {
+              "title": "person",
+              "description": "The grammatical person of a verb, indicating the subject.",
+              "type": "string",
+              "enum": [
+                "1",
+                "2",
+                "3"
+              ]
+            },
+            "number": {
+              "title": "number",
+              "description": "The grammatical number of a noun or verb, indicating singular or plural.",
+              "type": "string",
+              "enum": [
+                "sing",
+                "plur"
+              ]
+            },
+            "inflclass": {
+              "title": "inflection class",
+              "description": "Morphological inflection class for nouns, adjectives, and verbs.",
+              "type": "string",
+              "enum": [
+                "indeura",
+                "indeuro",
+                "indeuri",
+                "indeurx",
+                "indeure",
+                "indeuru",
+                "latanom",
+                "lata",
+                "late",
+                "latx",
+                "lati",
+                "latpron"
+              ]
+            }
+          },
+          "required": [
+            "pos",
+            "lemma",
+            "verbform",
+            "voice"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "slug",
+        "data",
+        "annotation"
+      ],
+      "additionalProperties": true
+    }
+  },
+  "unit": {
+    "type": "object",
+    "title": "Unit",
+    "description": "A prototypical Unit schema. this schema is used as a template for all units. These are the implementation independent properties of this domain's units.",
+    "properties": {
+      "slug": {
+        "type": "string",
+        "description": "the unit's slug. functions as a unique identifier for the unit across runtimes."
+      },
+      "data": {
+        "type": "object",
+        "description": "the schema of a unit's data.",
+        "properties": {
+          "known": {
+            "type": "string",
+            "description": "the translation in the known language"
+          },
+          "learning": {
+            "type": "string",
+            "description": "the word by itself, in the language to be learned"
+          },
+          "index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "description": "the unit's index in the spanish vocabulary frequency dictionary. lower is more frequent. range: 1-5000"
+          },
+          "example": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "a simple example of how the word is used in a sentence in both languages.",
+            "properties": {
+              "learning": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "a very simple example of how the word is used in the language to be learned in the form of a full sentence"
+              },
+              "known": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "a very simple example of how the word is used in the known language in the form of the translated full sentence"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "known",
+              "learning"
+            ]
+          }
+        },
+        "required": [
+          "known",
+          "learning",
+          "index",
+          "example"
+        ],
+        "additionalProperties": false
+      },
+      "annotation": {
+        "type": "object",
+        "description": "unit annoatition schema",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false,
+        "allOf": []
+      }
+    },
+    "required": [
+      "slug",
+      "data",
+      "annotation"
+    ],
+    "additionalProperties": true
+  },
+  "tag": {
+    "type": "object",
+    "title": "tag",
+    "description": "",
+    "properties": {
+      "slug": {
+        "type": "string",
+        "description": "functions as a unique identifier for the tag across runtimes."
+      },
+      "traits": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "ONTOLOGICAL",
+            "STRUCTURAL",
+            "LEARNABLE",
+            "COMPLETABLE"
+          ]
+        }
+      },
+      "data": {
+        "type": "object",
+        "description": "the schema of a tags's data.",
+        "additionalProperties": true
+      }
+    },
+    "required": [
+      "slug",
+      "data",
+      "traits"
+    ],
+    "additionalProperties": true
+  },
+  "statics": {
+    "language": {
+      "type": "object",
+      "properties": {
+        "known": {
+          "type": "string"
+        },
+        "learning": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "known",
+        "learning"
+      ]
+    }
+  }
+}

@@ -9,7 +9,18 @@ const manifest = {
 };
 
 const relations = {
-  tags: { scope: [] },
+  tags: {
+    scope: [
+      { slug: "pos:noun" },
+      { slug: "pos:pron" },
+      { slug: "pos:adv" },
+      { slug: "pos:part" },
+      { slug: "pos:adp" },
+      { slug: "pos:det" },
+      { slug: "pos:verb" },
+      { slug: "pos:adj" },
+    ],
+  },
   games: { flashcards: { slug: "flashcards" } },
 };
 

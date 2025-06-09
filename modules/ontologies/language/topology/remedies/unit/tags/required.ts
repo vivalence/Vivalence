@@ -1,25 +1,32 @@
 async function required(issue: any, ctx: any) {
-  const unit = issue.data.context.unit;
+  const unit = issue.context.unit;
 
-  const constraint = issue.data.context.constraint.required;
+  if (!unit.tags.isInitialized())
+    return issue.onError({ message: "unit.tags must be initialized" });
 
-  const ONTOLOGICAL = {
-    branch: constraint.branch || null,
-    leaf: constraint.leaf || unit.annotation[constraint.branch] || null,
+  const constraint = issue.context.constraint.required;
+
+  const tagQuery = {
+    data: {
+      ONTOLOGICAL: {
+        branch: constraint.branch || null,
+        leaf: constraint.leaf || unit.annotation[constraint.branch] || null,
+      },
+    },
   };
 
-  const tag = await ctx.runtime.entities.tag.findOne({ data: { ONTOLOGICAL } });
+  const tagIssues = await ctx.runtime.validate.tag(tagQuery, ["EXISTENTIAL"]);
+  if (tagIssues.length > 0) return issue.spawn(tagIssues);
 
-  if (tag) {
-    unit.tags.add(tag);
-    issue.resolve();
-  } else {
-    issue.markError({
-      message: "Remedy failure: [unit tags]:required - tag not found",
-    });
-  }
+  const tag = await ctx.runtime.entities.tag.findOne(tagQuery);
 
-  return issue;
+  if (!tag) issue.onError({ message: "[unit tags]:required - tag not found" });
+
+  unit.tags.add(tag);
+
+  await ctx.runtime.entities.em.flush();
+
+  return await issue.resolve();
 }
 
 export default {

@@ -26,7 +26,6 @@ export default async function provision({ dependency, ...body }, ctx) {
       for (let i = 0; i < instructions.length; i++) {
         if (instructions[i].type === "SIGNAL") continue;
         ctx.runtime.entities.instruction.create({
-          runtime: ctx.runtime.entity.id,
           user: user.id,
           dependency: dependency.id,
           tactic: instructions[i].scope.tactic.id,

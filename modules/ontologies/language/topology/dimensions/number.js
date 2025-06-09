@@ -4,19 +4,25 @@
 export const node = {
   slug: "number",
   name: "number",
-  description: "The grammatical number of a noun or verb, indicating singular or plural.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  description:
+    "The grammatical number of a noun or verb, indicating singular or plural.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "sing",
         name: "Singular",
         description: "One person, place, thing, or idea",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "plur",
         name: "Plural",
         description: "More than one person, place, thing, or idea",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

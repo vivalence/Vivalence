@@ -1,63 +1,21 @@
 // import { validateSignal } from "../../memory/index.js";
 
-export default async function ({ annotation, signal }, ctx) {
-  console.log("review annotation", annotation, signal);
-  // input = {
-  //   annotation: {
-  //     lemma: "salo",
-  //     pos: "verb",
-  //     aspect: "imp",
-  //     inflclass: "latx",
-  //     mood: "imp",
-  //     number: "sing",
-  //     person: "2",
-  //     tense: "pres",
-  //     verbform: "fin",
-  //     voice: "act",
-  //     suffix: "lo",
-  //   },
-  //   signal: "SUCCESS",
-  // };
+export default async function ({ annotation, scope, signal }, ctx) {
+  const issues = await ctx.runtime.assert //
+    .annotation(annotation, ["SCHEMATIC", "EXISTENTIAL"]);
+  if (issues.length > 0) return { issues, status: "error", message: "invalid" };
 
-  // check if annotation exists. if not, remedy.
-  // once exists, review annotation.
+  const options = { fields: ["id"] };
+  const unit = await ctx.runtime.entities.unit.findOne({ annotation }, options);
+  const tags = await Promise.all(
+    Object.entries(annotation).map(async ([branch, leaf]) => {
+      const data = { ONTOLOGICAL: { branch, leaf } };
+      return await ctx.runtime.entities.tag.findOne({ data }, options);
+    }),
+  );
 
-  // signal one of: ["MASTERY", "SUCCESS", "NEUTRAL", "MISTAKE", "FAILURE"]
+  scope.unit = { id: unit.id };
+  scope.tags = tags.map((tag) => ({ id: tag.id }));
 
-  // delete scope.tag;
-
-  // signal = validateSignal(signal);
-
-  // if (scope.units?.length > 0) {
-  //   scope.units.map(async (unit) => {
-  //     await ctx.runtime.call("/review/unit", { signal, scope: { ...scope, units: null, unit } });
-  //   });
-  // }
-
-  // if (!scope.unit?.id) return { status: "bounce", message: "Unit required" };
-
-  // const { data: unit, error } = await ctx.runtime.services.supabase
-  //   .from("Unit")
-  //   .select("*")
-  //   .eq("id", scope.unit.id)
-  //   .eq("runtimeId", ctx.runtime.manifest.id)
-  //   .single();
-
-  // if (error) throw error;
-
-  // const { statusChange, ...memory } = await ctx.runtime.call("/review/memory", { scope, signal });
-
-  // // if (statusChange) (async () => await ctx.runtime.bus.emit("MemoryStatusChange:Unit", { unit, memory, scope }))();
-
-  // scope.memory = { id: memory.id };
-
-  // const play = await ctx.runtime.call("/review/play", {
-  //   nextIn: memory.nextIn,
-  //   nextAt: memory.nextAt,
-  //   lastAt: memory.lastAt,
-  //   scope,
-  //   signal,
-  // });
-
-  // return { play, memory, statusChange };
+  return await ctx.runtime.call("/review/scope", { signal, scope });
 }

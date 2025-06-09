@@ -1,66 +1,71 @@
 import { Type } from "@sinclair/typebox";
 import { Agent } from "@vivalence/shared/agent";
 
-function createSpanishUnitAgent(ctx) {
+async function required(issue, ctx) {
+  const annotation = issue.context.unit.annotation;
+  const { config, schema, validate } = ctx.runtime;
+
   const agent = new Agent("spanish-unit-generator", "Spanish Unit Generator")
     .withBrain(ctx.runtime.services.brain)
-    .withContext(
-      "terra",
+    .enhance(
       `### identity
 	You are inside viva, the agentic symbolic intelligence operating system.
         be a helpful, concise and diligent agent. All output is used for input into other llms! So, there is no need for niceties. `,
     )
-    .withContext(
-      "identity",
+    .enhance(
       `You are a language education specialist creating learning units from linguistic annotations. 
       You provide clear, simple translations and examples suitable for language learners.`,
     )
-    .withContext(
-      "task",
+    .enhance(
       `### Task: Complete Language Unit
-       You are given a Universal Dependencies annotation and must return a complete learning unit.
+       You are given a Universal Dependencies annotation and must return a complete learning unit. 
       `,
-    );
-
-  return agent;
-}
-
-async function required(issue, ctx) {
-  const annotation = issue.data.context.annotation;
-  const { config, ontology } = ctx.runtime;
-
-  const agent = createSpanishUnitAgent(ctx)
+    )
+    .enhance(
+      `# contextual information about the unit to be generated:
+	${JSON.stringify(issue.context)}
+    `,
+    )
     .withInput(
       Type.Object({
-        annotation: ontology.schema.annotations[annotation.pos],
-        language: ctx.runtime.schema.statics.language,
+        annotation: schema.annotations[annotation.pos],
+        language: schema.statics.language,
       }),
     )
-    .withOutput(ontology.schema.units[annotation.pos])
-    .withContext(
-      "context",
-      `# contextual information about the unit to be generated: ${JSON.stringify(issue.data.context)}`,
-    );
+    .withOutput(schema.units[annotation.pos]);
+
+  let unit;
 
   try {
-    const unit = await agent.generate({
+    unit = await agent.generate({
       annotation,
       language: config.statics.language,
     });
-    unit.slug = await ctx.runtime.call("/unit/identity", unit);
 
-    const issues = await ontology.assert.unit(unit, ["SCHEMATIC"]);
+    // console.log("@remedy/unit/required.js [GENERADED UNIT]", unit);
+
+    unit.slug = await ctx.runtime.call("/unit/identity", { ...unit });
+
+    // console.log("@remedy/unit/required.js [GENERADED slug]", unit.slug);
+
+    const issues = await validate.unit(unit, ["SCHEMATIC"]);
     if (issues.length > 0) {
-      issue.markError({ message: "generated invalid unit", issues, unit });
-    } else {
-      const installation = await ctx.runtime.call("/unit/install", { unit });
-
-      if (installation.status === "success") issue.resolve();
-      else issue.markError({ message: "installation fail", unit });
+      return issue.onError({ message: "generated invalid unit", issues, unit });
     }
+
+    const installation = await ctx.runtime.call("/unit/install", { unit });
+
+    if (installation.status === "success") return await issue.resolve();
+
+    return issue.onError({ message: "installation fail", unit });
   } catch (error) {
-    console.error("[REMEDY ERROR]@[/unit:required]", error);
-    issue.markError({ message: error.message, error });
+    console.error("");
+    console.error("[REMEDY ERROR]@[/unit:required]");
+    console.error(error);
+    console.log({ unit, annotation });
+    console.error("/[REMEDY ERROR]@[/unit:required]");
+    console.error("");
+    issue.onError({ ...error, message: error.message, unit, annotation });
   }
 
   return issue;

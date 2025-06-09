@@ -7,18 +7,23 @@ export const node = {
   slug: "definite",
   name: "definiteness",
   description: "Indicates whether a noun is definite or indefinite.",
-  traits: ["CATEGORICAL", "CATEGORICAL"],
+  traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
     CATEGORICAL: [
       {
         slug: "def",
         name: "Definite",
         description: "Refers to something specific or known",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "ind",
         name: "Indefinite",
         description: "Refers to something nonspecific or unknown",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
     ],
   },

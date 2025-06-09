@@ -3,7 +3,7 @@ export default [
     name: "Vocabulary: A1",
     slug: "vocabulary:a1",
     data: {
-      COMPLETABLE: { type: "BAYESIAN", flavor: "INDIVIDUAL" },
+      COMPLETABLE: { driver: "BAYESIAN", type: "INDIVIDUAL" },
       STRUCTURAL: {
         relations: {
           units: [
@@ -155,17 +155,27 @@ export default [
             { slug: "podía:imp-poder-ind-sing-3-verb-imp-fin" },
             { slug: "podían:imp-poder-ind-plur-2-verb-imp-fin" },
             { slug: "poder:imp-poder-ind-sing-1-verb-imp-fin" },
-            { slug: "definite:def;gender:fem;lemma:el;number:sing;pos:det;prontype:art" },
-            { slug: "definite:def;gender:fem;lemma:el;number:plur;pos:det;prontype:art" },
+            {
+              slug: "definite:def;gender:fem;lemma:el;number:sing;pos:det;prondriver:art",
+            },
+            {
+              slug: "definite:def;gender:fem;lemma:el;number:plur;pos:det;prondriver:art",
+            },
             { slug: "decía:imp-decir-ind-sing-1-verb-imp-fin" },
             { slug: "diréis:prosp-decir-ind-plur-2-verb-fut-fin" },
             { slug: "fuisteis:perf-ir-ind-plur-2-verb-past-fin" },
             { slug: "dijiste:perf-decir-ind-sing-2-verb-past-fin" },
-            { slug: "definite:def;gender:masc;lemma:el;number:sing;pos:det;prontype:art" },
-            { slug: "definite:ind;gender:fem;lemma:uno;number:plur;pos:det;prontype:art" },
+            {
+              slug: "definite:def;gender:masc;lemma:el;number:sing;pos:det;prondriver:art",
+            },
+            {
+              slug: "definite:ind;gender:fem;lemma:uno;number:plur;pos:det;prondriver:art",
+            },
             { slug: "además:además-adv" },
             { slug: "iba:prog-ir-ind-sing-1-verb-imp-fin" },
-            { slug: "definite:def;gender:masc;lemma:el;number:plur;pos:det;prontype:art" },
+            {
+              slug: "definite:def;gender:masc;lemma:el;number:plur;pos:det;prondriver:art",
+            },
             { slug: "gender:masc;lemma:año;number:sing;pos:noun" },
             { slug: "ibas:prog-ir-ind-sing-2-verb-imp-fin" },
             { slug: "dieron:perf-dar-ind-plur-2-verb-past-fin" },
@@ -174,17 +184,23 @@ export default [
             { slug: "viste:perf-ver-ind-sing-2-verb-past-fin" },
             { slug: "verás:prosp-ver-ind-sing-2-verb-fut-fin" },
             { slug: "veré:prosp-ver-ind-sing-1-verb-fut-fin" },
-            { slug: "definite:ind;gender:masc;lemma:uno;number:sing;pos:det;prontype:art" },
+            {
+              slug: "definite:ind;gender:masc;lemma:uno;number:sing;pos:det;prondriver:art",
+            },
             { slug: "gender:fem;lemma:gente;number:sing;pos:noun" },
             { slug: "gender:fem;lemma:persona;number:sing;pos:noun" },
             { slug: "dabas:prog-dar-ind-sing-2-verb-imp-fin" },
-            { slug: "definite:ind;gender:fem;lemma:uno;number:sing;pos:det;prontype:art" },
+            {
+              slug: "definite:ind;gender:fem;lemma:uno;number:sing;pos:det;prondriver:art",
+            },
             { slug: "nombre:masc-nombre-plur-noun" },
             { slug: "sabré:prosp-saber-ind-sing-1-verb-fut-fin" },
             { slug: "supisteis:perf-saber-ind-plur-2-verb-past-fin" },
             { slug: "sabrás:prosp-saber-ind-sing-2-verb-fut-fin" },
             { slug: "supiste:perf-saber-ind-sing-2-verb-past-fin" },
-            { slug: "definite:ind;gender:masc;lemma:uno;number:plur;pos:det;prontype:art" },
+            {
+              slug: "definite:ind;gender:masc;lemma:uno;number:plur;pos:det;prondriver:art",
+            },
             { slug: "gender:masc;lemma:mundo;number:sing;pos:noun" },
             { slug: "gender:masc;lemma:hombre;number:sing;pos:noun" },
             { slug: "saber:imp-saber-ind-plur-2-verb-imp-fin" },
