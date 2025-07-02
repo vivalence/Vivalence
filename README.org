@@ -15,13 +15,20 @@ fair source.
 categorically free for private use, forever. self hosting and hacking are part of the idea. go nuts.
 learn how to aquire a flat, predictable commercial use license.
 (licence cost rises logarithmically with with # of active users and rounds to 0 for anything below 1000 active users/year).
-(software is provided as is. there is no security implemented and this system is entirely open)
+(software is provided as is. there is no security implemented and this system is entirely open as of now. this is due to resource constraints and remedies are known to be required.)
+prices of licences are roughly oriennted at the price of gold as the true north of value. (delimiter / gauge)
+
+
+
+
 
 
 vivalence is
 - fair source, for profit, privately held, eu inc.
 - designed to become the worlds education systems backbone. 
-- infinitely personalizable, hackable, emacs inspired, cybernetically enhanced, wikipedia style, federateable, procedurally generated, fair use, functional platform.
+- a datadriven, ai-enabled, private application system, with a registry, a marketplace and shared abstractions.
+- infinitely personalizable, hackable, emacs inspired, cybernetically enhanced, federateable, procedurally generated, fair use, functional platform.
+- treats privacy and ownership as a saferoom against the tyranny of our advertisement incentivized internet.
 
 
 enough yapping.

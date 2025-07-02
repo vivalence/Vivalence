@@ -39,7 +39,7 @@ export class Trajectory {
   parse(patterns: any | Pattern[] | PatternFunction) {
     if (is.fn(patterns)) {
       patterns = patterns(this.parserFunctions);
-    } else if (is.object(patterns) && !is.array(patterns)) {
+    } else if (!is.array(patterns)) {
       patterns = this.parsers[0].pattern(patterns);
     }
     return patterns;

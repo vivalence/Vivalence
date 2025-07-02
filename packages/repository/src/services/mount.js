@@ -9,6 +9,7 @@ export default async function mount(configMap) {
     }
 
     const ServiceModule = await Registry.load(serviceConfig.service);
+
     const client = await ServiceModule.client(serviceConfig);
 
     client.Module = ServiceModule;

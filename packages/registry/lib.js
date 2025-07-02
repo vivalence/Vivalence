@@ -24,7 +24,9 @@ const parseModuleKey = (key) => {
 
   if (hasOwnerPrefix) {
     if (parts.length < 3) {
-      throw new Error(`Invalid module key format: ${key} - Expected @owner/type/slug[@version]`);
+      throw new Error(
+        `Invalid module key format: ${key} - Expected @owner/type/slug[@version]`,
+      );
     }
     return {
       owner: "@" + parts[0],
@@ -34,7 +36,9 @@ const parseModuleKey = (key) => {
     };
   } else {
     if (parts.length < 3) {
-      throw new Error(`Invalid module key format: ${key} - Expected owner/type/slug[@version]`);
+      throw new Error(
+        `Invalid module key format: ${key} - Expected owner/type/slug[@version]`,
+      );
     }
     return {
       owner: parts[0],
@@ -150,7 +154,7 @@ const lookup = (query) => {
 };
 
 const init = async (registryConfig) => {
-  const modules = await discover(registryConfig.modulesRootDir);
+  const modules = await discover(registryConfig.rootDir);
   registry.clear();
 
   const newRegistry = buildRegistry(modules);

@@ -1,0 +1,5 @@
+{
+  "name": "@vivalence/shell",
+  "version": "0.0.1",
+  "exports": "./mod.js",
+}

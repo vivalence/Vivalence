@@ -1,4 +1,3 @@
-// import Registry from "@vivalence/registry";
 import mount from "./mount.js";
 
 export default class ServiceClientManager {
@@ -17,19 +16,19 @@ export default class ServiceClientManager {
 
     return this;
   }
-  join(manager) {
-    for (const [service, client] of Object.entries(manager.clients)) {
-      this.add(service, client);
-    }
-    return this;
-  }
-  async mount(configMap) {
-    const services = await mount(configMap);
+  // join(manager) {
+  //   for (const [service, client] of Object.entries(manager.clients)) {
+  //     this.add(service, client);
+  //   }
+  //   return this;
+  // }
+  // async mount(configMap) {
+  //   const services = await mount(configMap);
 
-    for (const [key, client] of Object.entries(services)) {
-      this.add(key, client);
-    }
+  //   for (const [key, client] of Object.entries(services)) {
+  //     this.add(key, client);
+  //   }
 
-    return this;
-  }
+  //   return this;
+  // }
 }

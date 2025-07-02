@@ -1,17 +1,16 @@
-/runtimes/
-/data/
-
-data/
-migrations/
+viva/
 
 node_modules
 **/node_modules
 
+migrations/
 *.db
+
 .env
 .env.*
 **/.env
 **/.env.*
+!.env.source
 !.env.example
 
 .DS_Store

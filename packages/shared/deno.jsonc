@@ -6,6 +6,7 @@
     "./server": "./mod.js",
     "./client": "./client.js",
     "./trajectory": "./src/trajectory/index.ts",
+    "./repository": "./src/repository/index.js",
     "./remedy": "./src/remedy/index.ts",
     "./classifier": "./src/classifier/index.ts",
     "./agent": "./src/agent/index.js",
