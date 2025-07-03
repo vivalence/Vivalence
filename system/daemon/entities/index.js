@@ -7,15 +7,17 @@ import { dirname, join } from "@std/path";
 import { database, entities } from "@vivalence/entities";
 
 async function init(daemon) {
+  const { db } = config.services.database.config;
+
   const orm = await MikroORM.init(
     defineConfig({
-      dbName: config.services.database.config.db.path,
+      dbName: db.path,
       entities: database,
       extensions: [Migrator],
       strict: false,
       migrations: {
         tableName: "_mikro_migrations",
-        path: join(config.services.database.config.db.dir, "migrations"),
+        path: join(db.dir, "migrations"),
       },
     }),
   );

@@ -1,5 +1,6 @@
 import { EntitySchema, type Opt } from "@mikro-orm/core";
 import { BaseSchema, BaseEntity } from "../0_root/BaseEntity.ts";
+// [EntityRepositoryType]?: BaseOntologyRepository;
 // import { EntityRepositoryType, EntityRepository } from "@mikro-orm/core";
 // import { crypto } from "@std/crypto";
 // import { encodeHex } from "@std/encoding/hex";

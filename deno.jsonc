@@ -10,7 +10,6 @@
     "./packages/shared",
     "./packages/entities",
     "./packages/registry",
-    "./packages/repository",
     "./packages/interfaces/web",
     "./packages/interfaces/shell",
   ],

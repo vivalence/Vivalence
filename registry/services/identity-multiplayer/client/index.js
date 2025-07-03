@@ -1,12 +1,12 @@
-import { createHash } from "crypto";
-import jwt from "jsonwebtoken";
-
+// import { createHash } from "crypto";
+// import jwt from "jsonwebtoken";
+// {
+//     id: "localhost",
+//     roles: ["ADMIN"],
+//     shards:['@daemon/identity','@eng2lat/identity']
+// }
 const createIdentity = (secret = "your-secret-key") => {
   const users = new Map();
-  const sessions = new Map();
-
-  const hash = (password) =>
-    createHash("sha256").update(password).digest("hex");
 
   const generateToken = (user) =>
     jwt.sign({ id: user.id, username: user.username }, secret, {
@@ -20,6 +20,9 @@ const createIdentity = (secret = "your-secret-key") => {
       return null;
     }
   };
+
+  const hash = (password) =>
+    createHash("sha256").update(password).digest("hex");
 
   const createUser = (username, password) => {
     const id = crypto.randomUUID();
@@ -36,58 +39,59 @@ const createIdentity = (secret = "your-secret-key") => {
     return { id: user.id, username: user.username };
   };
 
-  const middleware = () => async (ctx, next) => {
-    const token = ctx.request.headers.authorization?.replace("Bearer ", "");
-    const payload = token ? verifyToken(token) : null;
+  // const middleware = () => async (ctx, next) => {
+  //   const token = ctx.request.headers.authorization?.replace("Bearer ", "");
+  //   const payload = token ? verifyToken(token) : null;
 
-    ctx.state.user = payload;
-    ctx.state.isAuthenticated = !!payload;
+  //   ctx.state.user = payload;
+  //   ctx.state.isAuthenticated = !!payload;
 
-    await next();
-  };
+  //   await next();
+  // };
 
-  const requireAuth = () => async (ctx, next) => {
-    if (!ctx.state.isAuthenticated) {
-      ctx.response.status = 401;
-      ctx.response.body = { error: "Authentication required" };
-      return;
-    }
-    await next();
-  };
+  // const requireAuth = () => async (ctx, next) => {
 
-  const routes = {
-    login: async (ctx) => {
-      const { username, password } = await ctx.request.body();
+  //   if (!ctx.state.isAuthenticated) {
+  //     ctx.response.status = 401;
+  //     ctx.response.body = { error: "Authentication required" };
+  //     return;
+  //   }
+  //   await next();
+  // };
 
-      try {
-        const user = authenticate(username, password);
-        const token = generateToken(user);
+  // const routes = {
+  //   login: async (ctx) => {
+  //     const { username, password } = await ctx.request.body();
 
-        ctx.response.body = { token, user };
-      } catch (error) {
-        ctx.response.status = 401;
-        ctx.response.body = { error: error.message };
-      }
-    },
+  //     try {
+  //       const user = authenticate(username, password);
+  //       const token = generateToken(user);
 
-    register: async (ctx) => {
-      const { username, password } = await ctx.request.body();
+  //       ctx.response.body = { token, user };
+  //     } catch (error) {
+  //       ctx.response.status = 401;
+  //       ctx.response.body = { error: error.message };
+  //     }
+  //   },
 
-      if (users.has(username)) {
-        ctx.response.status = 409;
-        ctx.response.body = { error: "User already exists" };
-        return;
-      }
+  //   register: async (ctx) => {
+  //     const { username, password } = await ctx.request.body();
 
-      const user = createUser(username, password);
-      ctx.response.body = { message: "User created", user };
-    },
-  };
+  //     if (users.has(username)) {
+  //       ctx.response.status = 409;
+  //       ctx.response.body = { error: "User already exists" };
+  //       return;
+  //     }
+
+  //     const user = createUser(username, password);
+  //     ctx.response.body = { message: "User created", user };
+  //   },
+  // };
 
   return {
-    middleware,
-    requireAuth,
-    routes,
+    // middleware,
+    // requireAuth,
+    // routes,
     createUser,
     authenticate,
     verifyToken,

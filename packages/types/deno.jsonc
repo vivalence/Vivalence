@@ -4,5 +4,6 @@
   "exports": {
     ".": "./types.ts",
     "./schema": "./schema.ts",
+    "./classes": "./classes.ts",
   },
 }

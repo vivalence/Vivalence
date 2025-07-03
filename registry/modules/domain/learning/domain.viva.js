@@ -7,7 +7,7 @@ import modules from "./modules/index.js";
 import events from "./events/index.js";
 import aperture from "./aperture/index.js";
 
-async function boot(runtime, daemon) {
+async function boot(daemon, runtime) {
   return await fn.reduce(
     [
       // entities.boot,
@@ -24,7 +24,7 @@ async function boot(runtime, daemon) {
   );
 }
 
-async function install(runtime, daemon) {
+async function install(runtime) {
   async function ensureTags(runtime) {
     const promises = [];
     for (const dimension of runtime.ontology.dimensions) {

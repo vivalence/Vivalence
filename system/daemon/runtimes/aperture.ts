@@ -3,19 +3,26 @@ import { Daemon, Runtime } from "@vivalence/types";
 import Aperture from "../locals/aperture/index.ts";
 import notFoundMiddleware from "../aperture/middlewares/notFound.js";
 
-const runtimeContextMiddleware = (runtime) => async (ctx, next) => {
+const runtimeContext = (runtime) => async (ctx, next) => {
   ctx.runtime = runtime;
+
+  const token = ctx.request.auth.token;
+  const repository = runtime.entitites.user;
+
+  ctx.identity = await runtime.services.identity //
+    .authenticate(token, repository);
+
   await next();
 };
 
-function v1(aperture) {
-  aperture.open("/status", (body, ctx) => ({
+function v1(runtime) {
+  runtime.aperture.open("/status", (body, ctx) => ({
     status: "runtime:/status ok",
     runtime: ctx.runtime.config.manifest.slug,
     timestamp: new Date().toISOString(),
   }));
 
-  aperture.open("/modules/:module/:method", async (body, ctx) => {
+  runtime.aperture.open("/modules/:module/:method", async (body, ctx) => {
     const params = ctx.params;
 
     if (!["game", "strategy", "tactic"].includes(params.module))
@@ -51,7 +58,10 @@ function v1(aperture) {
     return result;
     // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
   });
-  aperture.open("/entities/:entity/:repo", async (body, ctx) => {
+
+  // .use(import secure() from "@vivalence/shared")
+  // .use(runtime.services.identity.secure())
+  runtime.aperture.open("/entities/:entity/:repo", async (body, ctx) => {
     const entity = ctx.runtime.entities[ctx.params.entity];
     return await ctx.runtime.entities.em[ctx.params.repo](
       entity.entityName,
@@ -64,11 +74,11 @@ function v1(aperture) {
 export default {
   init: (daemon: Daemon) => async (runtime: Runtime) => {
     runtime.aperture = daemon.aperture
-      .branch(`/aperture/v1/runtime/${runtime.config.manifest.slug}`)
+      .branch(`/aperture/v1/runtime/${runtime.entity.slug}`)
       .use(notFoundMiddleware)
-      .use(runtimeContextMiddleware(runtime));
+      .use(runtimeContext(runtime));
 
-    v1(runtime.aperture);
+    v1(runtime);
 
     return runtime;
   },

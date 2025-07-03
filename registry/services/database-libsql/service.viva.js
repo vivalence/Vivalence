@@ -11,7 +11,7 @@ function client(service, ctx) {
   return createClient(service.config);
 }
 
-function server(service, host) {
+function control(service, host) {
   host.trajectory.open("/create", async () => {
     // todo ensure dir
     const db = createClient(service.config);
@@ -27,4 +27,4 @@ function server(service, host) {
   });
 }
 
-export { manifest, client, server };
+export { manifest, client, control };

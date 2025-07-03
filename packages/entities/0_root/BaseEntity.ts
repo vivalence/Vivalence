@@ -1,7 +1,9 @@
 import {
   types,
-  BaseEntity as MikroBaseEntity,
   EntitySchema,
+  EntityRepositoryType,
+  BaseEntity as MikroBaseEntity,
+  EntityRepository as MikroBaseRepository,
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
@@ -41,9 +43,6 @@ export const BaseSchema = new EntitySchema<BaseEntity>({
     },
   },
 });
-
-// import { BaseEntity as MikroBaseEntity, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-// import { v7 } from 'uuid';
 
 // export class BaseEntity {
 //   id!: string;

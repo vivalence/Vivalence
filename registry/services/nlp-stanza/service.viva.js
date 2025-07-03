@@ -1,10 +1,17 @@
 import client from "./client/index.js";
-import server from "./server/mod.js";
+import control from "./server/mod.js";
 
 const manifest = {
   type: "service",
   slug: "nlp-stanza",
   name: "Stanza NLP service",
+  traits: ["STANDALONE"],
 };
 
-export { manifest, server, client };
+// const server/container = {
+//   dockerfile: { path: "./server/Dockerfile" },
+//   compose: { path: "./server/docker-compose.yml" },
+//   env: { template: { path: "" } },
+// };
+
+export { manifest, control, client };

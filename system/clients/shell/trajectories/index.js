@@ -14,7 +14,7 @@ async function services(client) {
     };
 
     // todo delete serviceconfig.config.client
-    if (service.server) await service.server(serviceconfig, host);
+    if (service.control) await service.control(serviceconfig, host);
   }
 
   for (const [runtimeslug, runtimeconfig] of Object.entries(runtimes)) {
@@ -27,7 +27,7 @@ async function services(client) {
       };
 
       // todo delete serviceconfig.config.client
-      if (service.server) await service.server(serviceconfig, host);
+      if (service.control) await service.control(serviceconfig, host);
     }
   }
 

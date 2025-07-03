@@ -6,9 +6,10 @@ const ticker = (name: string) => (daemon: Daemon) => {
 ticker("init")();
 
 import config from "@vivalence/config";
-import { loadServiceClients } from "@vivalence/shared/repository";
-
 import registry from "@vivalence/registry";
+
+import { loadServiceClients } from "./locals/loadServiceClients.js";
+
 import emitter from "./locals/emitter/index.js";
 import entities from "./entities/index.js";
 import aperture from "./aperture/index.ts";

@@ -8,10 +8,4 @@ const manifest = {
     "It's Artificial Intelligence in the investor pitch, Machine Learning in the job description, and linear algebra when you implement it.",
 };
 
-async function server(service, host) {
-  host.trajectory.open("/create", () => {
-    console.log("created ai service");
-  });
-}
-
-export { manifest, server, client };
+export { manifest, client };
