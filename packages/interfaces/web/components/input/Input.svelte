@@ -1,6 +1,6 @@
 <script>
   let {
-    id = "",
+    id = undefined,
     name = "",
     value = $bindable(""),
     label = "",

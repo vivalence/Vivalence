@@ -7,6 +7,7 @@ function hashString(string: string) {
   const hash = encodeHex(hashBuffer);
   return hash;
 }
+
 function object(object: object) {
   return hashString(
     JSON.stringify(

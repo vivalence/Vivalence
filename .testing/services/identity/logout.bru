@@ -1,0 +1,34 @@
+meta {
+  name: Logout
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{IDENTITY_AUTHORITY}}/logout
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+assert {
+  res.body: isJson
+}
+
+tests {
+  test("should logout successfully", function () {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+   
+  test("should return success flag", function () {
+    const data = res.getBody();
+    expect(data).to.have.property('success');
+    expect(data.success).to.equal(true);
+  });
+}

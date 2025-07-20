@@ -130,7 +130,7 @@ const normalizeLookupQuery = (query) => {
   };
 };
 
-const lookup = (query) => {
+export const lookup = (query) => {
   const { owner, type, slug, version } = normalizeLookupQuery(query);
 
   const ownerMap = registry.get(owner);
@@ -153,7 +153,7 @@ const lookup = (query) => {
   return matchingVersion ? slugMap.get(matchingVersion) : null;
 };
 
-const init = async (registryConfig) => {
+export const init = async (registryConfig) => {
   const modules = await discover(registryConfig.rootDir);
   registry.clear();
 

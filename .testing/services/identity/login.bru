@@ -1,0 +1,36 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{IDENTITY_AUTHORITY}}/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "finn",
+    "password": "biggusdickus"
+  }
+}
+
+assert {
+  res.body: isJson
+}
+
+tests {
+  test("should be able to login", function () {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+   
+  // test("should return tokens", function () {const data = res.getBody(); expect(data).to.have.property('accessToken'); expect(data).to.have.property('refreshToken'); expect(data).to.have.property('expiresIn'); expect(data).to.have.property('identity');}); test("should return valid identity", function () {const data = res.getBody(); expect(data.identity).to.have.property('id'); expect(data.identity).to.have.property('username'); expect(data.identity).to.have.property('roles'); expect(data.identity.username).to.equal('admin');});
+}
+
+vars:post-response {
+  accessToken: res.body.token.access
+  refreshToken: res.body.token.refresh
+}

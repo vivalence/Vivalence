@@ -1,0 +1,15 @@
+meta {
+  name: Status
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{IDENTITY_AUTHORITY}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+ {} 
+}

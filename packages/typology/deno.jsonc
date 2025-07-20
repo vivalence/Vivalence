@@ -1,0 +1,11 @@
+{
+  "name": "@vivalence/typology",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.ts",
+    "./types": "./types.d.ts",
+    "./schema": "./schema.ts",
+    "./classes": "./classes.ts",
+    // "./entities": "./entities.ts",
+  },
+}

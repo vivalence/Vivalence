@@ -10,9 +10,8 @@ const __dirname = dirname(__filename);
 let serverProcess;
 
 function setupEnvironment() {
-  Object.entries(config.env).forEach(([key, value]) => {
+  Object.entries(process.env).forEach(([key, value]) => {
     if (typeof value === "string") {
-      process.env[key] = value;
       if (key.startsWith("PUBLIC_")) {
         process.env[`VITE_${key}`] = value;
       }

@@ -10,5 +10,7 @@
     "./classifier": "./src/classifier/index.ts",
     "./agent": "./src/agent/index.js",
     "./validators": "./src/validators/index.js",
+    "./hash": "./src/hash/index.ts",
+    "./secure": "./src/secure/index.js",
   },
 }

@@ -1,9 +1,0 @@
-{
-  "name": "@vivalence/types",
-  "version": "0.0.1",
-  "exports": {
-    ".": "./types.ts",
-    "./schema": "./schema.ts",
-    "./classes": "./classes.ts",
-  },
-}

@@ -19,7 +19,8 @@ export async function init(registryConfig = {}) {
 
 export async function load(query) {
   await init();
-  if (typeof query !== "string" && query.manifest) return query;
+  // if (typeof query !== "string" && query.manifest) return query;
+  if (typeof query !== "string" && query.manifest) throw new Error();
   const module = await register.lookup(query);
   return module;
 }
@@ -38,6 +39,9 @@ export async function loadMap(many) {
         return [slug, await load(query)];
       } else if (Array.isArray(query)) {
         return [slug, await loadMany(query)];
+        // } else if (!!query.service) {
+        // console.log(slug, query);
+        // // return [slug, await load(query.service)];
       }
     }),
   );

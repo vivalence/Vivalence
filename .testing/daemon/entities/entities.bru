@@ -1,0 +1,11 @@
+meta {
+  name: entities
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{DAEMON_SERVER_URL}}/entities/runtime/find
+  body: json
+  auth: none
+}

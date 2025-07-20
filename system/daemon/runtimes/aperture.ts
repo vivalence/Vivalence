@@ -1,23 +1,21 @@
-import { Daemon, Runtime } from "@vivalence/types";
+import { Daemon, Runtime } from "@vivalence/typology/types";
+
+import { secure } from "@vivalence/shared";
 
 import Aperture from "../locals/aperture/index.ts";
 import notFoundMiddleware from "../aperture/middlewares/notFound.js";
+import { attachIdentity } from "../boot/identity.js";
+import { attachServices } from "../boot/services.js";
 
 const runtimeContext = (runtime) => async (ctx, next) => {
   ctx.runtime = runtime;
-
-  const token = ctx.request.auth.token;
-  const repository = runtime.entitites.user;
-
-  ctx.identity = await runtime.services.identity //
-    .authenticate(token, repository);
-
   await next();
 };
 
 function v1(runtime) {
-  runtime.aperture.open("/status", (body, ctx) => ({
+  runtime.aperture.open("/status", async (body, ctx) => ({
     status: "runtime:/status ok",
+    user: await ctx.identity.getUser(),
     runtime: ctx.runtime.config.manifest.slug,
     timestamp: new Date().toISOString(),
   }));
@@ -59,8 +57,6 @@ function v1(runtime) {
     // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
   });
 
-  // .use(import secure() from "@vivalence/shared")
-  // .use(runtime.services.identity.secure())
   runtime.aperture.open("/entities/:entity/:repo", async (body, ctx) => {
     const entity = ctx.runtime.entities[ctx.params.entity];
     return await ctx.runtime.entities.em[ctx.params.repo](
@@ -72,26 +68,41 @@ function v1(runtime) {
 }
 
 export default {
-  init: (daemon: Daemon) => async (runtime: Runtime) => {
-    runtime.aperture = daemon.aperture
-      .branch(`/aperture/v1/runtime/${runtime.entity.slug}`)
+  boot: async (daemon: Daemon, runtime: Runtime) => {
+    await attachServices(
+      runtime.services,
+      daemon.aperture //
+        .branch(`/attached/services/runtime/${runtime.entity.slug}`),
+    );
+
+    runtime.aperture = Aperture.create()
       .use(notFoundMiddleware)
       .use(runtimeContext(runtime));
 
+    attachIdentity(
+      runtime.aperture.branch("/identity").use(secure.authorize()),
+    );
     v1(runtime);
+    await runtime.register.domain.aperture(runtime);
 
     return runtime;
   },
 
-  serve: (daemon: Daemon) => async (runtime: Runtime) => {
-    await runtime.aperture.compose();
+  serve: async (daemon: Daemon, runtime: Runtime) => {
+    const composed = await runtime.aperture.compose(true);
 
     runtime.call = async (path, body = {}, params = {}) => {
       const ctx = Aperture.context(path, body, params);
-      await runtime.aperture.composed(ctx);
+      await composed(ctx);
       if (ctx.response.status === 404) console.log("[404]", ctx.request);
       return ctx.response.body;
     };
+
+    daemon.aperture
+      .branch(`/runtime/${runtime.entity.slug}`)
+      .use(secure.context(runtime.services.identity, runtime.entities.user))
+      .use(secure.authorize())
+      .descendants.push(runtime.aperture);
 
     return runtime;
   },

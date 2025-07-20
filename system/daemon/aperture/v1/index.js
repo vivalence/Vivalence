@@ -4,10 +4,6 @@ export default async function (aperture) {
     timestamp: new Date().toISOString(),
   }));
 
-  aperture.open("/identity/getUser", async (body, ctx) => {
-    //
-  });
-
   aperture.open("/entities/:entity/:repo", async (body, ctx) => {
     const entity = ctx.daemon.entities[ctx.params.entity];
     // const repo = entity[ctx.params.repo]; return await repo(body);

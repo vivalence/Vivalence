@@ -1,6 +1,6 @@
 import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../0_root/BaseEntity.ts";
-import { UserEntity } from "../1_system/User.ts";
+import { UserEntity } from "../3_userland/User.ts";
 import { IntentEntity } from "../3_userland/Intent.ts";
 
 export enum SessionTraitsEnum {

@@ -1,0 +1,9 @@
+{
+  "name": "@vivalence/vector",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    // "./parsers": "./.ts",
+    // "./controllers": "./.ts",
+  },
+}

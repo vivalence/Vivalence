@@ -10,10 +10,16 @@ export default defineConfig({
   resolve: {
     alias: {
       "@client/lib/": join(__dirname, "./src/lib/"),
+      "@client/app": join(__dirname, "./src/app.js"),
       "@client/components/": join(__dirname, "./src/components/"),
-      "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@client/icons/": join(__dirname, "./static/icons/"),
+      "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
+
+      //  # DEPRACATED
       "@client/context": join(__dirname, "./src/context.js"),
+      //  # IDEAS
+      //  # "@client/identity": join(__dirname, "./src/app.js"),
+      //  # "@client/entities": join(__dirname, "./src/lib/entities/index.js"),
 
       "@vivalence/interface": join(__packages, "./interfaces/web/mod.js"),
       "@vivalence/shared": join(__packages, "./shared/client.js"),
@@ -21,7 +27,6 @@ export default defineConfig({
         __packages,
         "./shared/src/trajectory/index.ts",
       ),
-      // "@vivalence/schema": join(__packages, "./schema/mod.ts"),
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },
@@ -33,9 +38,9 @@ export default defineConfig({
       ignored: ["**/node_modules/**", "**/#*/**", "**/#*"],
       include: [
         "./src/**/*",
-        "../../../modules/games/**/*.{html,svelte.js,svelte,css}",
-        "../../../modules/strategies/**/*.{html,svelte.js,svelte,css}",
-        "../../../packages/interfaces/display/**/*",
+        "../../../registry/modules/games/**/*.{html,svelte.js,svelte,css}",
+        "../../../registry/modules/strategies/**/*.{html,svelte.js,svelte,css}",
+        "../../../packages/interfaces/web/**/*",
         "../../../packages/shared/**/*",
       ],
     },

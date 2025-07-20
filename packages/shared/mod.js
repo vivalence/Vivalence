@@ -1,4 +1,5 @@
 import std, {
+  compose,
   fn,
   is,
   random,
@@ -22,6 +23,7 @@ export * from "./src/classifier/index.ts";
 export * from "./src/blacklist/index.js";
 export * from "./src/remedy/index.ts";
 
+import secure from "./src/secure/index.js";
 import hash from "./src/hash/index.ts";
 
 import Path from "./src/Path.ts";
@@ -35,6 +37,8 @@ array.hash = hash.array;
 obj.hash = hash.object;
 
 export {
+  compose,
+  secure,
   is,
   fn,
   promise,

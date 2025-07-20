@@ -1,0 +1,17 @@
+meta {
+  name: entities
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{RUNTIME_SERVER_URL}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "THIS": "THAT"
+  }
+}

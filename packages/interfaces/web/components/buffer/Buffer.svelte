@@ -19,23 +19,20 @@
     }
   };
 
-  const render = async (url, props) => {
+  const render = async (view, context) => {
+    const url = view.bundle.url;
     const { default: Component } = await import(/* @vite-ignore */ url);
-    component = await Component(dom, props);
+    component = await Component(dom, context);
   };
 
   $effect(() => {
     if (!Mode?.view.bundle) return;
 
-    const props = Mode.props; //{$state.snapshot(Mode.props)}
+    const view = Mode.view;
+    const context = Mode.context; //{$state.snapshot(Mode.props)}
 
-    props.buffer = buffer;
-    props.buffer.release = (promise) => {
-      dismount();
-      buffer.next(promise);
-    };
 
-    render(Mode.view.bundle.url, props);
+    render(view, context);
   });
 
   onMount(() => {
@@ -51,12 +48,12 @@
 
 <!-- props={$state.snapshot(Mode.props)} -->
 
-{#key id(buffer.active)}
+{#key id(Mode)}
   <div id="buffer-container" class="bsp-node" bind:this={dom} />
 {/key}
 
-{#if buffer.active && Mode?.view?.Component}
-  <Mode.view.Component {...Mode.props} />
+{#if Mode?.view?.Component}
+  <Mode.view.Component {...Mode.context} />
 {:else if !component}
   <Loader load={() => buffer.pull()} />
 {/if}

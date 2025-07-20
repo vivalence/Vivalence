@@ -1,7 +1,10 @@
 export default class BufferMode {
-  constructor(view, props, hooks = []) {
+  constructor(view, context, hooks = []) {
     this.view = view;
-    this.props = props;
+    this.context = context;
     this.hooks = hooks;
+  }
+  withContext(context) {
+    this.context = context;
   }
 }

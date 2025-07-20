@@ -1,9 +1,14 @@
-import context from "@client/context";
-import { env } from "$env/dynamic/public";
+import { auth, user } from "@client/app";
+// import user from "../lib/identity/user.js";
+// import { env } from "$env/dynamic/public";
 
 export const load = async (event) => {
-  const ctx = await context(event);
+  console.log("routes/page load auth.verify", await auth.verify());
+  // await user(app);
+  // app.call.use(app.identity.useIdentity);
+  // console.log(app.identity.getIdentity().shards[0]);
+  // if ! identity / redirect @login
+  // const ctx = await context(event);
 
-  //
-  return { ctx };
+  return {};
 };

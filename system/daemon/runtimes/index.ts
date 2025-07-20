@@ -1,40 +1,44 @@
 import config from "@vivalence/config";
-import registry from "@vivalence/registry";
-import { Daemon } from "@vivalence/types";
-import { Runtime } from "@vivalence/types/classes";
-
-import { loadServiceClients } from "../locals/loadServiceClients.js";
+import { Daemon } from "@vivalence/typology/types";
+import { Runtime } from "@vivalence/typology/classes";
 
 import register from "./register.js";
 import aperture from "./aperture.ts";
-import entities from "./entities.ts";
+import data from "./data.ts";
+
+import { ensure } from "./register.js";
+import { loadServiceClients } from "../boot/services.js";
+import emitter from "../locals/emitter/index.js";
 
 export default {
-  async init(daemon: Daemon) {
+  async boot(daemon: Daemon) {
     for (const runtimeconfig of Object.values(config.runtimes)) {
       const runtime = new Runtime(runtimeconfig);
 
-      [runtime.domain, runtime.modules, runtime.services] = await Promise.all([
-        registry.load(runtime.config.domain),
-        registry.loadMap(runtime.config.modules),
-        loadServiceClients(runtime.config.services),
-      ]);
+      runtime.entity = await ensure(daemon.entities.runtime, runtime.manifest);
+      runtime.emitter = emitter.create();
+      runtime.services = await loadServiceClients(runtime.config.services);
 
-      await [register, entities, aperture.init]
-        .map((fn) => fn(daemon))
-        .reduce((acc, fn) => acc.then(fn), Promise.resolve(runtime));
-
-      await runtime.domain.boot(daemon, runtime);
+      await register(daemon, runtime);
+      await data(daemon, runtime);
+      await aperture.boot(daemon, runtime);
+      await runtime.register.domain.boot(runtime);
 
       daemon.runtimes.set(runtime.entity.slug, runtime);
+      await daemon.entities.em.flush();
     }
     return daemon;
   },
   async serve(daemon: Daemon) {
     for (const runtime of daemon.runtimes.values()) {
-      // console.log(runtime.schema.annotation);
-      // aperture.serve, install
-      // return await runtime.config.domain.install(runtime);
+      await aperture.serve(daemon, runtime);
+    }
+
+    return daemon;
+  },
+  async install(daemon: Daemon) {
+    for (const runtime of daemon.runtimes.values()) {
+      await runtime.register.domain.install(runtime);
     }
 
     return daemon;

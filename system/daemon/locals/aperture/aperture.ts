@@ -10,18 +10,19 @@ export default class Aperture {
   router: Router;
 
   descendants: Aperture[] = [];
-  middleware: Middleware[];
+  middlewares: Middleware[];
   // handlers: any;
 
   constructor(path: Path) {
     this.path = path;
     this.router = new Router();
-    this.middleware = [];
+    this.middlewares = [];
   }
 
   use(middleware: Middleware): Aperture {
-    // this.middleware.push(middleware);
     this.router.use(middleware);
+    // middleware.router = this;
+    this.middlewares.push(middleware);
     return this;
   }
 
@@ -46,20 +47,31 @@ export default class Aperture {
 
     if (!this.composed) {
       for (const descendant of this.descendants) {
-        descendant.serve(this.router);
+        descendant.serve(this.router, force);
       }
 
-      this.composed = compose([this.router.routes(), this.router.allowedMethods()]);
+      // console.log("f", force);
+      this.composed = compose([
+        ...this.middlewares,
+        this.router.routes(),
+        this.router.allowedMethods(),
+      ]);
     }
 
     return this.composed;
   }
-  serve(router: Router) {
+  serve(router: Router, force = false) {
     // const composed = this.compose();
     // router.use(this.path.toString(), composed);
 
-    this.compose();
-    router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
+    this.compose(force);
+
+    // router.use(this.middleware);
+    router.use(
+      this.path.toString(),
+      this.router.routes(),
+      this.router.allowedMethods(),
+    );
     return this;
   }
 }

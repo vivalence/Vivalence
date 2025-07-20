@@ -8,20 +8,18 @@ ticker("init")();
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
-import { loadServiceClients } from "./locals/loadServiceClients.js";
+import { loadServiceClients } from "./boot/services.js";
+import entities from "./boot/entities.js";
+import aperture from "./aperture/index.ts";
 
 import emitter from "./locals/emitter/index.js";
-import entities from "./entities/index.js";
-import aperture from "./aperture/index.ts";
 import runtimes from "./runtimes/index.ts";
+
 import cleanup from "./lib/cleanup-ports.js";
 
 const daemon = {
   process: null,
-  registry: await registry.init(),
-  services: {
-    clients: await loadServiceClients(config.services),
-  },
+  services: await loadServiceClients(config.daemon.services),
   aperture: null,
   entities: {},
   runtimes: new Map(),
@@ -32,10 +30,11 @@ const daemon = {
 (async (daemon) =>
   await [
     cleanup,
-    aperture.init,
-    entities.init,
-    runtimes.init,
-    //     runtimes.serve,
-    //     aperture.serve,
+    aperture.boot,
+    entities.boot,
+    runtimes.boot,
+    runtimes.serve,
+    aperture.serve,
+    runtimes.install,
     ticker("up"),
   ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);

@@ -4,7 +4,6 @@ import config from "@vivalence/config";
 import Aperture from "../locals/aperture/index.ts";
 
 import v1 from "./v1/index.js";
-import authMiddleware from "./middlewares/auth.js";
 import corsMiddleware from "./middlewares/cors.js";
 import notFoundMiddleware from "./middlewares/notFound.js";
 
@@ -13,12 +12,10 @@ const contextMiddleware = (daemon) => async (ctx, next) => {
   await next();
 };
 
-async function init(daemon) {
+async function boot(daemon) {
   daemon.aperture = Aperture.create();
 
-  daemon.aperture.use(contextMiddleware(daemon));
-
-  v1(daemon.aperture.branch("/aperture/v1/daemon"));
+  v1(daemon.aperture.branch("/daemon").use(contextMiddleware(daemon)));
 
   return daemon;
 }
@@ -27,14 +24,12 @@ async function serve(daemon) {
   const app = new Application();
 
   app.use(corsMiddleware);
-  app.use(authMiddleware);
   app.use(notFoundMiddleware);
+  app.use(daemon.aperture.compose(true));
 
-  app.use(daemon.aperture.compose());
-
-  daemon.server = app.listen({
-    port: parseInt(config.env.get("VIVA_DAEMON_PORT")),
-  });
+  const PORT = parseInt(config.env.get("VIVA_DAEMON_PORT"));
+  daemon.server = app.listen({ port: PORT });
+  console.log("daemon listening on port:", PORT);
 
   daemon.call = async (path, body = {}, params = {}) => {
     const ctx = Aperture.context(path, body, params);
@@ -45,4 +40,4 @@ async function serve(daemon) {
   return daemon;
 }
 
-export default { init, serve };
+export default { boot, serve };
