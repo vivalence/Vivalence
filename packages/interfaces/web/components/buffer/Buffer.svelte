@@ -12,6 +12,7 @@
   let Mode = $derived.by(() => buffer.active);
 
   const dismount = async () => {
+    console.log("dismount");
     if (component) {
       const promise = unmount(component);
       component = null;
@@ -19,44 +20,40 @@
     }
   };
 
-  const render = async (view, context) => {
-    const url = view.bundle.url;
+  const render = async () => {
+    const url = Mode.view.url;
     const { default: Component } = await import(/* @vite-ignore */ url);
-    component = await Component(dom, context);
+    component = await Component(dom, Mode.context);
   };
 
   $effect(() => {
-    if (!Mode?.view.bundle) return;
-
-    const view = Mode.view;
-    const context = Mode.context; //{$state.snapshot(Mode.props)}
-
-
-    render(view, context);
+    if (!Mode?.view?.url) return;
+    render();
   });
 
   onMount(() => {
     buffer.pull();
   });
+
   onDestroy(() => {
     console.log("onDestroy");
     dismount();
   });
 
-  // $inspect("[BUFFER COMPONENT]", component);
+  // $inspect("[MODE]", Mode);
 </script>
 
 <!-- props={$state.snapshot(Mode.props)} -->
 
-{#key id(Mode)}
-  <div id="buffer-container" class="bsp-node" bind:this={dom} />
+{#key id(Mode?.id)}
+  {#if Mode?.view?.Component}
+    <Mode.view.Component {...Mode.context} />
+  {:else if Mode?.view?.url}
+    <div id="buffer-container" class="bsp-node" bind:this={dom} />
+  {:else if !component}
+    <Loader load={() => buffer.pull()} />
+  {/if}
 {/key}
-
-{#if Mode?.view?.Component}
-  <Mode.view.Component {...Mode.context} />
-{:else if !component}
-  <Loader load={() => buffer.pull()} />
-{/if}
 
 <!-- <div class="bsp-node"> -->
 <!--   {#if buffer.active && Mode?.view?.bundle} -->

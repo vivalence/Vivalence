@@ -1,5 +1,6 @@
 {
   "name": "@vivalence/daemon",
+  "description": "a deamon is something intelligent and agentic that doesnt have a soul.",
   "version": "0.0.1",
   "exports": "./mod.js",
 }

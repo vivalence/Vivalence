@@ -1,11 +1,11 @@
 import topographies from "./topographies/index.js";
 
-const topology = "eng2lat";
+// const topology = "eng2lat";
 
-topographies.forEach((entity) => {
-  entity.topology = topology;
-  return entity;
-});
+// topographies.forEach((entity) => {
+//   // entity.topology = topology;
+//   return entity;
+// });
 
 // const constraints = [];
 // topographies.forEach(({ relations = [], ...topography }) => {

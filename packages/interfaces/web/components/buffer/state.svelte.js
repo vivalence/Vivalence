@@ -5,11 +5,11 @@ export default class BufferState {
   };
 
   threshold = 0;
-  status = $state("STOP");
+  status = $state("IDLE");
   active = $state(null);
   queue = $state([]);
 
-  constructor(threshold) {
+  withThreshold(threshold) {
     this.threshold = threshold;
   }
 
@@ -38,7 +38,7 @@ export default class BufferState {
 
   async pull() {
     if (["STOP", "PULLING"].includes(this.status)) return;
-    if (this.queue.length >= this.threshold) return;
+    if (this.queue.length > this.threshold) return;
     this.status = "PULLING";
 
     try {
@@ -51,7 +51,7 @@ export default class BufferState {
     } catch (error) {
       this.error = error;
       this.status = "STOP";
-      console.log("[BUFFER PULL ERROR]", this);
+      console.log("[BUFFER PULL ERROR]", this, error);
     }
   }
 

@@ -1,44 +1,56 @@
 import { is, hash } from "@vivalence/shared";
 
-export const createParser = (parser, split, signatures) => {
-  const isType = (t) => t === parser;
+export const createParser = (id, parser, signatures) => {
+  const applies = (p) => p === id;
 
   return {
     signal: (signal) => {
-      return split.signal(signal).map((segment) => ({ type: parser, segment }));
+      return parser
+        .signal(signal)
+        .map((signature, index) => ({ parser: id, signature, index }));
     },
 
     pattern: (pattern, valence = false) => {
-      if (is.string(pattern)) pattern = { pattern };
+      if (is.string(pattern)) pattern = { trail: pattern };
       if (valence) pattern.valence = valence;
+      if (!pattern.trail) throw new Error("Pattern misses trail");
 
-      const patterns = split
-        .pattern(pattern.pattern)
-        .map((segment, index) => {
-          const [signature, , match] = signatures //
-            .find(([, probe]) => probe(segment));
+      return parser
+        .pattern(pattern)
+        .map((signature, index) => {
+          const [type, , match] = signatures //
+            .find(([, probe]) => probe(signature));
 
           return {
-            parser,
-            signature,
+            parser: id,
+            type,
             index,
-            segment,
             ...pattern,
-            match: (signal) =>
-              !isType(signal.type) ? null : match(segment)(signal),
+            signature,
+            match: (signal) => {
+              if (!applies(signal.parser)) return null;
+              const matchedSignal = match(signature)(signal);
+              if (!matchedSignal) return null;
+              else return { type, parser, ...matchedSignal };
+            },
           };
         })
         .map((pattern) => {
           pattern.hash = hash.array([
-            parser,
-            pattern.segment,
+            pattern.parser,
+            pattern.type,
             pattern.signature,
-            pattern.index,
           ]);
+
           return pattern;
         });
+    },
 
-      return patterns;
+    params: (matches) => {
+      return matches.reduce((params, match) => {
+        if (match.params) params = { ...match.params, ...params };
+        return params;
+      }, {});
     },
   };
 };

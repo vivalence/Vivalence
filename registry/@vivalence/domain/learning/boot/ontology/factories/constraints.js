@@ -21,7 +21,7 @@ export default function constraintFactory(runtime) {
 
 function unitConstraints(runtime) {
   runtime.ontology.constraint.create({
-    topology: "runtime",
+    // topology: "runtime",
     branch: ["unit"],
     traits: ["RELATIONAL"],
     predicate: async (unit) => {
@@ -46,7 +46,7 @@ function tagConstraints(runtime) {
   let validator = null;
 
   runtime.ontology.constraint.create({
-    topology: "runtime",
+    // topology: "runtime",
     branch: ["tag"],
     traits: ["SCHEMATIC"],
     predicate: async (tag) => {
@@ -64,7 +64,7 @@ function tagConstraints(runtime) {
 
 function existentialConstraints(runtime) {
   runtime.ontology.constraint.create({
-    topology: "runtime",
+    // topology: "runtime",
     branch: ["tag"],
     traits: ["EXISTENTIAL"],
     predicate: async (entity) => {
@@ -80,7 +80,7 @@ function existentialConstraints(runtime) {
     },
   });
   runtime.ontology.constraint.create({
-    topology: "runtime",
+    // topology: "runtime",
     branch: ["unit"],
     traits: ["EXISTENTIAL"],
     predicate: async (entity) => {
@@ -96,7 +96,7 @@ function existentialConstraints(runtime) {
     },
   });
   runtime.ontology.constraint.create({
-    topology: "runtime",
+    // topology: "runtime",
     branch: ["annotation"],
     traits: ["EXISTENTIAL"],
     predicate: async (annotation) => {
@@ -132,7 +132,7 @@ function schematicConstraint(entityType, topography, runtime) {
   let validator = null;
   const schema = runtime.schema[entityType + "s"][topography.slug];
   runtime.ontology.constraint.create({
-    topology: topography.topology,
+    // topology: topography.topology,
     branch: [entityType, topography.slug],
     traits: ["SCHEMATIC"],
     predicate: async (entity) => {
@@ -150,7 +150,7 @@ function schematicConstraint(entityType, topography, runtime) {
 
 function relationalConstraints(topography, runtime) {
   runtime.ontology.constraint.create({
-    topology: topography.topology,
+    // topology: topography.topology,
     branch: ["unit", topography.slug],
     traits: ["RELATIONAL"],
     predicate: async (unit) => {

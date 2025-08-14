@@ -11,7 +11,6 @@ import strings from "./strings.js";
 import time from "./time.js";
 import fn from "./fn.js";
 
-import compose from "./compose.ts";
 import sleep from "./sleep.js";
 import random from "./random.js";
 import promise from "./promise.js";
@@ -33,7 +32,6 @@ export {
   strings,
   id,
   time,
-  compose,
   //api depracated
   uniqueBySlug,
   deepMerge,

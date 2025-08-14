@@ -9,19 +9,23 @@
 import sentence from "./sentence.js";
 
 const noun = {
-  slug: "noun",
-  name: "Noun",
-  description:
-    "A word referring to persons, places, things, or concepts. Latin nouns inflect for case, gender, and number through systematic declension patterns.",
+  manifest: {
+    slug: "noun",
+    name: "Noun",
+    description:
+      "A word referring to persons, places, things, or concepts. Latin nouns inflect for case, gender, and number through systematic declension patterns.",
+  },
   dimensions: [
-    { branch: ["pos"], required: true },
+    // { branch: ["pos"], required: true },
+    { branch: ["pos", "noun"], required: true },
     { branch: ["lemma"], required: true },
     { branch: ["case"], required: true },
     { branch: ["gender"], required: true },
     { branch: ["number"], required: true },
     { branch: ["inflclass"], required: false },
   ],
-  relations: [
+  // relations: [
+  constraints: [
     { unique: { branch: "pos" } }, // @beef should be: every topographical instance requires one of dimension with branch trait TOPOGRAPHICAL
     { required: { branch: "pos", leaf: "noun" } }, // this is the de facto topographical identity
     { required: { branch: "case" } }, // every required dimension needs to be present as a relationship

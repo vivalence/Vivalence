@@ -7,8 +7,9 @@ export function withAuth(auth) {
   };
 }
 
-export function authorize() {
+export function authorize(auth) {
   return async (ctx, next) => {
+    ctx.auth = auth || ctx.auth;
     const { access } = ctx.auth.token;
     if (access) ctx.request.headers["Authorization"] = `Bearer ${access}`;
 

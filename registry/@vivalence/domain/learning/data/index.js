@@ -14,8 +14,6 @@ import { DimensionRepository } from "./ontology/Dimension.ts";
 import { ConstraintRepository } from "./ontology/Constraint.ts";
 import { IssueRepository } from "./ontology/Issue.ts";
 
-// import { InitialUserIndent } from "./datasets/User.ts";
-
 export default function (runtime) {
   const entities = {
     user: UserEntity,
@@ -47,15 +45,10 @@ export default function (runtime) {
     issue: new IssueRepository(),
   };
 
-  const datasets = [
-    // new InitialUserIndent()
-  ];
-
   return {
     schema, //
     entities,
     ontology,
-    datasets,
     enums: {},
   };
 }

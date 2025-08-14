@@ -14,7 +14,8 @@ export default async function (daemon, runtime) {
   runtime.register = {
     domain: register[0],
     modules: register[1],
-    // services: register[2],
+    // datasets: register[2],
+    // services: register[3],
   };
 
   for (const [slug, some] of Object.entries(runtime.register.modules)) {

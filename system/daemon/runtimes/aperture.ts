@@ -1,21 +1,15 @@
+import config from "@vivalence/config";
 import { Daemon, Runtime } from "@vivalence/typology/types";
-
 import { secure } from "@vivalence/shared";
 
 import Aperture from "../locals/aperture/index.ts";
 import notFoundMiddleware from "../aperture/middlewares/notFound.js";
-import { attachIdentity } from "../boot/identity.js";
-import { attachServices } from "../boot/services.js";
-
-const runtimeContext = (runtime) => async (ctx, next) => {
-  ctx.runtime = runtime;
-  await next();
-};
+import { inject } from "./lib.js";
 
 function v1(runtime) {
   runtime.aperture.open("/status", async (body, ctx) => ({
     status: "runtime:/status ok",
-    user: await ctx.identity.getUser(),
+    // user: await ctx.identity.getUser(),
     runtime: ctx.runtime.config.manifest.slug,
     timestamp: new Date().toISOString(),
   }));
@@ -23,36 +17,26 @@ function v1(runtime) {
   runtime.aperture.open("/modules/:module/:method", async (body, ctx) => {
     const params = ctx.params;
 
-    if (!["game", "strategy", "tactic"].includes(params.module))
-      throw new Error("unsupported module");
-    if (!["findOne"].includes(params.method))
-      throw new Error("unsupported method");
-
-    const modules =
-      ctx.runtime.modules[
-        {
-          tactic: "tactics",
-          game: "games",
-          strategy: "strategies",
-        }[params.module]
-      ];
+    const modules = ctx.runtime.modules[params.module];
+    if (!modules) throw new Error("unsupported module");
 
     let module = {};
     switch (params.method) {
       case "findOne":
         module = modules[body.where.slug];
-      // if (module.manifest.traits.includes("VIEWABLE")) module.bundle = modules[body.slug].bundle;
+        break;
+      default:
+        throw new Error("unsupported method");
     }
 
     const result = {
       manifest: module.manifest,
     };
-    if (module.bundle) {
-      result.bundle = {
-        path: module.bundle.path,
-        url: module.bundle.url.href,
-      };
+
+    if (module.manifest.traits.includes("VIEWABLE")) {
+      result.view = { url: module.view.url };
     }
+
     return result;
     // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
   });
@@ -69,20 +53,12 @@ function v1(runtime) {
 
 export default {
   boot: async (daemon: Daemon, runtime: Runtime) => {
-    await attachServices(
-      runtime.services,
-      daemon.aperture //
-        .branch(`/attached/services/runtime/${runtime.entity.slug}`),
-    );
-
     runtime.aperture = Aperture.create()
       .use(notFoundMiddleware)
-      .use(runtimeContext(runtime));
+      .use(inject(runtime));
 
-    attachIdentity(
-      runtime.aperture.branch("/identity").use(secure.authorize()),
-    );
     v1(runtime);
+
     await runtime.register.domain.aperture(runtime);
 
     return runtime;

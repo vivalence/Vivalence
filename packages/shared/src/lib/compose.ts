@@ -1,4 +1,4 @@
-export default function compose(middleware: Function[]) {
+export function compose(middleware: Function[]) {
   if (!Array.isArray(middleware))
     throw new TypeError("Middleware stack must be an array!");
 
@@ -25,3 +25,11 @@ export default function compose(middleware: Function[]) {
     return dispatch(0);
   };
 }
+
+export function chain(first: Function, second: Function) {
+  return function (context: any, next?: Function) {
+    return first(context, () => second(context, next));
+  };
+}
+
+export default compose;

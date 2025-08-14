@@ -5,7 +5,9 @@ export function context(service, repository) {
       const token = ctx.request.headers?.get("authorization")?.split(" ")[1];
       ctx.identity = await service.authenticate(token, repository);
     } catch (error) {
-      console.log("[AUTH ERROR] @shared/secure/context", error);
+      console.log("[AUTH ERROR] @shared/secure/context");
+      console.log(error);
+      console.log(ctx.request);
       ctx.response.status = 401;
       if (error.code === "ERR_JWS_INVALID") {
         ctx.response.body = {

@@ -1,6 +1,21 @@
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
+// viva daemon run
+// viva daemon daemonize
+
+// viva client web build
+// viva client web serve
+
+export default async function (client) {
+  await services({
+    ...client,
+    trajectory: client.trajectory.branch((p) => p.sig("services")),
+  });
+
+  return client;
+}
+
 async function services(client) {
   // todo: move serivce server control to daemon.
   const services = config.services;
@@ -30,15 +45,6 @@ async function services(client) {
       if (service.control) await service.control(serviceconfig, host);
     }
   }
-
-  return client;
-}
-
-export default async function (client) {
-  await services({
-    ...client,
-    trajectory: client.trajectory.branch((p) => p.sig("services")),
-  });
 
   return client;
 }

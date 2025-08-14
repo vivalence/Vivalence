@@ -1,5 +1,4 @@
 import std, {
-  compose,
   fn,
   is,
   random,
@@ -37,7 +36,6 @@ array.hash = hash.array;
 obj.hash = hash.object;
 
 export {
-  compose,
   secure,
   is,
   fn,

@@ -12,9 +12,9 @@ export default async function client(service) {
       const identity = identities.findOne({ id: payload.id });
       if (!identity) throw new Error("Identity not found");
 
-      const user = await repository.findOne({ id: identity.id });
+      let user = await repository.findOne({ id: identity.id });
       if (!user) {
-        repository.create({ id: identity.id });
+        user = repository.create({ id: identity.id });
         await repository.em.flush();
       }
 

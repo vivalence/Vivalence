@@ -4,7 +4,7 @@ export default function boot(runtime) {
       corpus.boot({
         ...runtime,
         aperture: runtime.aperture.branch(),
-        emitter: runtime.emitter.branch(),
+        // emitter: runtime.emitter.branch(),
       });
   }
   return runtime;

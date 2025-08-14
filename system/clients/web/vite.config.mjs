@@ -10,23 +10,18 @@ export default defineConfig({
   resolve: {
     alias: {
       "@client/lib/": join(__dirname, "./src/lib/"),
-      "@client/app": join(__dirname, "./src/app.js"),
+      "@client/auth": join(__dirname, "./src/auth.js"),
+      "@client/user": join(__dirname, "./src/user.js"),
+      "@client/generator": join(__dirname, "./src/generator.js"),
+
       "@client/components/": join(__dirname, "./src/components/"),
-      "@client/icons/": join(__dirname, "./static/icons/"),
       "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
+      "@client/icons/": join(__dirname, "./static/icons/"),
 
-      //  # DEPRACATED
-      "@client/context": join(__dirname, "./src/context.js"),
-      //  # IDEAS
-      //  # "@client/identity": join(__dirname, "./src/app.js"),
-      //  # "@client/entities": join(__dirname, "./src/lib/entities/index.js"),
-
-      "@vivalence/interface": join(__packages, "./interfaces/web/mod.js"),
       "@vivalence/shared": join(__packages, "./shared/client.js"),
-      "@vivalence/trajectory": join(
-        __packages,
-        "./shared/src/trajectory/index.ts",
-      ),
+      "@vivalence/typology": join(__packages, "./typology/client.js"),
+      "@vivalence/interface": join(__packages, "./interfaces/web/mod.js"),
+      "@vivalence/vector": join(__packages, "./vector/mod.js"),
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },
@@ -35,11 +30,11 @@ export default defineConfig({
     fs: { allow: ["../../.."] },
     watch: {
       usePolling: true,
-      ignored: ["**/node_modules/**", "**/#*/**", "**/#*"],
+      ignored: ["**/node_modules/**", "**/#*"],
       include: [
         "./src/**/*",
-        "../../../registry/modules/games/**/*.{html,svelte.js,svelte,css}",
-        "../../../registry/modules/strategies/**/*.{html,svelte.js,svelte,css}",
+        "../../../registry/@vivalence/games/**/*.{html,svelte.js,svelte,css}",
+        "../../../registry/@vivalence/strategies/**/*.{html,svelte.js,svelte,css}",
         "../../../packages/interfaces/web/**/*",
         "../../../packages/shared/**/*",
       ],

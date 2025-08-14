@@ -25,6 +25,10 @@ export async function attachServices(manager, aperture) {
   }
 }
 
+export default {
+  managed: loadServiceClients,
+  attach: attachServices,
+};
 // vs. loadServiceServers(config, {trajectory})
 // export async function bootServiceServers(services, bootmw) {
 // for (const [slug, config] of Object.entries(services)) {

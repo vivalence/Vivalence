@@ -5,27 +5,28 @@ export const split = {
   },
 
   pattern: (input) => {
-    return input.split("/").filter((s) => s.length > 0);
+    return input.trail.split("/").filter((s) => s.length > 0);
   },
 };
 
 export const signatures = [
   [
     "param",
-    (sig) => sig.startsWith(":"),
-    (sig) => {
-      const param = sig.slice(1);
+    (signature) => signature.startsWith(":"),
+    (signature) => {
+      const param = signature.slice(1);
       return (signal) => ({
         ...signal,
-        params: { [param]: signal.segment },
+        param,
+        params: { [param]: signal.signature },
       });
     },
   ],
-  ["wildcard", (sig) => sig === "*", () => (signal) => signal],
+  ["wildcard", (signature) => signature === "*", () => (signal) => signal],
   [
     "literal",
-    (sig) => true,
-    (sig) => (signal) => (signal.segment === sig ? signal : null),
+    (signature) => true,
+    (signature) => (signal) => (signal.signature === signature ? signal : null),
   ],
 ];
 

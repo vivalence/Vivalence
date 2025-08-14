@@ -41,7 +41,7 @@ import { BaseDataEntity, BaseDataRepository } from "@vivalence/entities";
 
 export class TopographyEntity extends BaseDataEntity {
   // slug, name, descr from DataEntity
-  topology: string & Opt = "";
+  // topology: string & Opt = "";
   dimensions: any & Opt = [];
   relations: any & Opt = [];
   // [any]: any;

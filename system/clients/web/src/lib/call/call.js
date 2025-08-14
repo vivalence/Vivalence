@@ -30,6 +30,7 @@ export function Call(basePath = "", createContext = context, middlewares = []) {
   };
 
   instance.call = instance;
+  instance.path = basePath;
 
   return instance;
 }

@@ -4,9 +4,9 @@ import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { cache } from "esbuild-plugin-cache";
 import vivaloader from "./loader.js";
-// console.log(cache, cache.toString());
 
 const root = join(dirname(fromFileUrl(import.meta.url)), "../../../../../");
+// const root = config.joins.repository
 const SVELTE_VERSION = "svelte";
 
 export default async function (entry) {
@@ -37,11 +37,13 @@ export default async function (entry) {
         importmap: {
           imports: {
             "@vivalence/shared": join(root, "packages/shared/client.js"),
+            "@vivalence/vendor": join(root, "packages/vendor/client.js"),
+            "@vivalence/vector": join(root, "packages/vector/mod.js"),
+            "@vivalence/typology": join(root, "packages/typology/client.js"),
             "@vivalence/interface": join(
               root,
-              "packages/interfaces/display/mod.js",
+              "packages/interfaces/web/mod.js",
             ),
-            "@vivalence/schema": join(root, "packages/schema/mod.ts"),
           },
         },
       }),

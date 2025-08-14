@@ -1,0 +1,24 @@
+meta {
+  name: Login Invalid
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{IDENTITY_AUTHORITY}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "invalid",
+    "password": "wrongpassword"
+  }
+}
+
+tests {
+  test("should reject invalid credentials", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}

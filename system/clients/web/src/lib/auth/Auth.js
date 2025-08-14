@@ -8,10 +8,13 @@ export default class Auth {
   }
 
   async login(username, password) {
-    const { token, identity, error } = await this.authority.call("/login", {
-      username,
-      password,
-    });
+    const { token, identity, error } = await this.authority.call(
+      "/auth/login",
+      {
+        username,
+        password,
+      },
+    );
     // console.log("login", { token, identity, error });
 
     if (!error) {
@@ -24,7 +27,7 @@ export default class Auth {
   }
 
   async verify() {
-    const { valid, error } = await this.authority.call("/verify", {
+    const { valid, error } = await this.authority.call("/auth/verify", {
       access: this.token.access,
     });
     // console.log("/verify", { valid, error });
@@ -37,7 +40,7 @@ export default class Auth {
   }
 
   async refresh() {
-    const { access, error } = await this.authority.call("/refresh", {
+    const { access, error } = await this.authority.call("/auth/refresh", {
       refresh: this.token.refresh,
     });
 

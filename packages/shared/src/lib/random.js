@@ -1,3 +1,5 @@
+import ID from "./id.js";
+
 /**
  * random.js - A collection of utility functions for generating random values
  *
@@ -28,7 +30,8 @@ function number(min, max, integer = false) {
 function string(length, symbolSet = "alphanumeric") {
   // Predefined symbol sets
   const symbolSets = {
-    alphanumeric: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+    alphanumeric:
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
     alpha: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
     numeric: "0123456789",
     loremipsum:
@@ -87,7 +90,8 @@ function array(length) {
     () => new Date(number(0, Date.now())),
 
     // Special numbers
-    () => (Math.random() > 0.8 ? NaN : Math.random() > 0.5 ? Infinity : -Infinity),
+    () =>
+      Math.random() > 0.8 ? NaN : Math.random() > 0.5 ? Infinity : -Infinity,
 
     // Simple objects
     () => ({}),
@@ -104,7 +108,8 @@ function array(length) {
       const obj = {};
       const props = number(1, 5, true);
       for (let i = 0; i < props; i++) {
-        obj[string(number(3, 8, true))] = generators[Math.floor(Math.random() * (generators.length - 3))]();
+        obj[string(number(3, 8, true))] =
+          generators[Math.floor(Math.random() * (generators.length - 3))]();
       }
       return obj;
     },
@@ -114,13 +119,16 @@ function array(length) {
       const arr = [];
       const items = number(1, 5, true);
       for (let i = 0; i < items; i++) {
-        arr.push(generators[Math.floor(Math.random() * (generators.length - 3))]());
+        arr.push(
+          generators[Math.floor(Math.random() * (generators.length - 3))](),
+        );
       }
       return arr;
     },
 
     // RegExp
-    () => new RegExp(string(number(1, 5, true)), Math.random() > 0.5 ? "g" : ""),
+    () =>
+      new RegExp(string(number(1, 5, true)), Math.random() > 0.5 ? "g" : ""),
 
     // Symbol
     () => Symbol(string(number(3, 10, true))),
@@ -129,15 +137,25 @@ function array(length) {
     () => new Uint8Array(number(1, 10, true)),
 
     // Promises
-    () => new Promise((resolve) => resolve(generators[Math.floor(Math.random() * (generators.length - 3))]())),
+    () =>
+      new Promise((resolve) =>
+        resolve(
+          generators[Math.floor(Math.random() * (generators.length - 3))](),
+        ),
+      ),
   ];
 
   for (let i = 0; i < length; i++) {
-    const randomGenerator = generators[Math.floor(Math.random() * generators.length)];
+    const randomGenerator =
+      generators[Math.floor(Math.random() * generators.length)];
     result.push(randomGenerator());
   }
 
   return result;
 }
 
-export default { number, string, array };
+function id() {
+  return ID(string("4"));
+}
+
+export default { number, string, array, id };

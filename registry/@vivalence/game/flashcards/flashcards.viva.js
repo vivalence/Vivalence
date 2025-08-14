@@ -2,19 +2,19 @@ import { bundler } from "@vivalence/shared";
 import evaluate from "./methods/evaluate.js";
 import provision from "./methods/provision/index.js";
 
-const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
+// const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
 
 async function boot(runtime, game) {
-  const bundle = bundler(bundlePath);
-  bundle.url = bundle.absoluteUrl(game.aperture.path);
-  bundle.path = bundlePath;
-  game.bundle = bundle;
+  // const bundle = bundler(bundlePath);
+  // bundle.url = bundle.absoluteUrl(game.aperture.path);
+  // bundle.path = bundlePath;
+  // game.bundle = bundle;
 
-  runtime.aperture.router.get(bundle.get, bundle.serve);
+  // runtime.aperture.router.get(bundle.get, bundle.serve);
 
   runtime.aperture
     .branch("/provision")
-    .use(bundle.middleware)
+    // .use(bundle.middleware)
     .open("/fromTagIds", provision.fromTagIds)
     .open("/fromUnitIds", provision.fromUnitIds)
     .open("/fromUnits", provision.fromUnits)

@@ -1,11 +1,11 @@
 export default async function boot(runtime) {
-  runtime.modules.tactics = {};
+  runtime.modules.tactic = {};
 
   for (const module of runtime.register.modules.tactics) {
     const tactic = {
       ...module,
       aperture: runtime.aperture.branch(`/tactic/${module.manifest.slug}`),
-      emitter: runtime.emitter.branch(),
+      // emitter: runtime.emitter.branch(),
     };
 
     tactic.aperture.use(async (ctx, next) => {
@@ -15,7 +15,11 @@ export default async function boot(runtime) {
 
     if (module.boot) {
       await module.boot(
-        { ...runtime, aperture: tactic.aperture, emitter: tactic.emitter },
+        {
+          ...runtime,
+          aperture: tactic.aperture,
+          // emitter: tactic.emitter,
+        },
         tactic,
       );
     } else {
@@ -27,7 +31,7 @@ export default async function boot(runtime) {
     tactic.aperture.open("/get", () => ({ manifest: tactic.manifest }));
     tactic.aperture.open("/status", () => ({ status: "tactic ok" }));
 
-    runtime.modules.tactics[tactic.manifest.slug] = tactic;
+    runtime.modules.tactic[tactic.manifest.slug] = tactic;
   }
   return runtime;
 }

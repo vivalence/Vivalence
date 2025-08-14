@@ -8,8 +8,8 @@ const config = {
   content: [
     "./src/**/*.{html,svelte,css}",
     "../../../packages/interfaces/web/**/*.{html,svelte,css}",
-    "../../../modules/games/**/*.{html,svelte,css}",
-    // "./themes/**/*",
+    "../../../registry/@vivalence/strategy/**/*.{html,svelte,css}",
+    "../../../registry/@vivalence/game/**/*.{html,svelte,css}",
   ],
   // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
 };

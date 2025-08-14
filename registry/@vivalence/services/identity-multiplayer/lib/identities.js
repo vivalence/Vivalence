@@ -3,17 +3,16 @@ import hash from "@vivalence/shared/hash";
 export const identities = [
   {
     id: "localhost",
-    roles: ["ADMIN"],
-    username: "finn",
+    username: "beef",
+    slug: "beef",
     password: hash.string("biggusdickus"),
-    shards: {
-      runtimes: [
-        {
-          slug: "eng2lat",
-          url: "http://localhost:5175/runtime/eng2lat",
-        },
-      ],
-    },
+    shards: [
+      {
+        // daemon: "localhost",
+        runtime: "eng2lat", // some composite key;
+        url: "http://localhost:5175/runtime/eng2lat", // ? computed?
+      },
+    ],
   },
 ];
 

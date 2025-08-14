@@ -16,25 +16,11 @@ function makeBundler(entry) {
     return bundles.get(path);
   };
 
-  const BUNDLE_BASE_URL = "bundle";
-  bundler.get = `/${BUNDLE_BASE_URL}/:filename`;
   bundler.path = entry;
+  bundler.entry = basename(entry);
 
-  bundler.absoluteUrl = (basePath) => {
-    const url = new URL(
-      join(
-        config.env.get("VIVA_DAEMON_URL"),
-        basePath.ancestor.toString(),
-        basePath.toString(),
-        BUNDLE_BASE_URL,
-        basename(entry),
-      ),
-    );
-
-    bundler.url = url;
-
-    return url;
-  };
+  // bundler.get = `/:filename`;
+  // bundler.absoluteUrl = (basePath) => {console.log("@bundler outdated absoluteUrl()", basename(entry)); const url = new URL(join(config.env.get("VIVA_DAEMON_URL"), basePath.ancestor.toString(), basePath.toString(), basename(entry),),); bundler.url = url; return url;};
 
   bundler.middleware = async (ctx, next) => {
     if (!bundler.url)
@@ -59,21 +45,21 @@ function makeBundler(entry) {
     }
   };
 
-  bundler.serve = async (ctx) => {
-    const path = join(dirname(entry), ctx.params.filename);
+  bundler.serve = async (filename) => {
+    const path = join(dirname(entry), filename);
     const bundle = await bundler(path);
-    if (bundle) {
-      // if (!config.isDev) {const CACHE_AGE = config.env.get("CACHE_AGE_SECONDS"); ctx.response.headers.set("Cache-Control", `max-age=${CACHE_AGE}`); ctx.response.headers.set("Expires", new Date(Date.now() + CACHE_AGE * 1000).toUTCString());}
-      ctx.response.body = bundle;
-      ctx.response.type = "application/javascript";
-    } else {
-      throw new Error("Bundler Error", path);
-    }
+
+    if (bundle) return bundle;
+    throw new Error("Bundler Error", path);
   };
 
   return bundler;
 }
 
+makeBundler.middleware = (bundle) => {
+  return bundle.middleware;
+  // return fromFileUrl(new URL(bundle, root));
+};
 makeBundler.makePath = (root, bundle) => {
   return fromFileUrl(new URL(bundle, root));
 };

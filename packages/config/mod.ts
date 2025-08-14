@@ -6,8 +6,6 @@ import { parse } from "@std/jsonc";
 
 import Env from "./lib/env.js";
 
-const ROOT_OFFSET = "../../.env";
-
 let initialized = false;
 
 const config = {
@@ -40,6 +38,7 @@ if (!initialized) {
 
   config.isDev = config.env.DENO_ENV === "DEVELOPMENT";
   config.isProd = config.env.DENO_ENV === "PRODUCTION";
+  config.isBuild = config.env.DENO_ENV === "BUILD";
 
   initialized = true;
 }
@@ -47,8 +46,11 @@ if (!initialized) {
 export default config;
 
 async function root(config) {
-  const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname;
-  config.env.add(await dotenv.load({ envPath }));
+  const VIVA_ENV_FILE =
+    Deno.env.get("VIVA_ENV_FILE") ||
+    new URL("../../.env", import.meta.url).pathname;
+
+  config.env.add(await dotenv.load({ envPath: VIVA_ENV_ROOT }));
   return config;
 }
 
@@ -245,6 +247,9 @@ async function validate(config) {
       fs.ensureDirSync(value, { recursive: true });
     }
   });
+
+  //  ensure dir per service!
+  //  v/data/services/[r_eng2lat_database, r_eng2lat_nlp, d_database]
 
   return config;
 }

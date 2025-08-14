@@ -1,4 +1,8 @@
 * todo
+** the typology has to be explicitly protected against copy with commercial intent for code outside this systems scope.
+
+** explicitly retain all rights 
+** add mechanism for revoking and updating the past licence versions retroactively
 ** advertisement
 this product is not allowed to be used for one-to-many signaling sponsored by a third party in any shape way or form.
 

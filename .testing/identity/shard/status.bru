@@ -1,0 +1,19 @@
+meta {
+  name: status
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{RUNTIME}}/identity/status
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+   {} 
+}

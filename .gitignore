@@ -1,3 +1,6 @@
+.jj
+.git
+.github
 viva/
 
 node_modules
@@ -15,3 +18,4 @@ migrations/
 
 .DS_Store
 **/build
+.aider*

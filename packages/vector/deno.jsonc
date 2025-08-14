@@ -3,7 +3,12 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    // "./parsers": "./.ts",
-    // "./controllers": "./.ts",
+    "./parser": "./parser/index.js",
+    "./controller": "./controller/index.js",
+    "./compiler": "./compiler/index.js",
+  },
+
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/*/*.test.js",
   },
 }

@@ -54,7 +54,7 @@ export class ConstraintRepository extends BaseDataRepository {
 
 export class ConstraintEntity extends BaseDataEntity {
   traits: ConstraintTraitsEnum[] & Opt = [];
-  topology: string & Opt = "";
+  // topology: string & Opt = "";
   branch: string[] & Opt; // [${entity} ${togography}] || [${topology} ${dimension}]
   predicate: (entity: any) => Promise<IssueEntity[]>;
 
@@ -63,7 +63,7 @@ export class ConstraintEntity extends BaseDataEntity {
 
     if (rule.data) throw new Error("Constraint data is legacy");
 
-    this.topology = rule.topology;
+    // this.topology = rule.topology;
     this.traits = rule.traits;
     this.branch = rule.branch;
     this.predicate = rule.predicate;

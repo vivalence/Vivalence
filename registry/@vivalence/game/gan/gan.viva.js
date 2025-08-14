@@ -2,16 +2,16 @@ import { bundler } from "@vivalence/shared";
 
 import aperture from "./aperture/index.js";
 
-const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
+// const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
 
 async function boot(runtime, game) {
-  const bundle = bundler(bundlePath);
-  bundle.url = bundle.absoluteUrl(game.aperture.path);
-  bundle.path = bundlePath;
-  game.bundle = bundle;
-  game.data = {};
+  // const bundle = bundler(bundlePath);
+  // // bundle.url = bundle.absoluteUrl(game.aperture.path);
+  // bundle.path = bundlePath;
+  // game.bundle = bundle;
+  // game.data = {};
 
-  runtime.aperture.router.get(bundle.get, bundle.serve);
+  // runtime.aperture.router.get(bundle.get, bundle.serve);
   runtime.aperture.open("/librarian", aperture.librarian);
   runtime.aperture.open("/discriminator", aperture.discriminator);
   runtime.aperture.open("/generator", aperture.generator);

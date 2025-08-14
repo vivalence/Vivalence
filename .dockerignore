@@ -1,8 +1,14 @@
-node_modules
-**/node_modules
 
+.testing
+.jj
 .git
 .github
+node_modules
+**/node_modules
+docs
+viva
+
+
 
 .env
 .env.*
@@ -11,10 +17,10 @@ node_modules
 
 .DS_Store
 temp
-.git
 .DS_Store
 *.log
 *.md
+*.el
 *.org
 build
 **/build

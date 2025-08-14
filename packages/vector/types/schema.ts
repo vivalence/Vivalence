@@ -1,18 +1,20 @@
+// import { Type, Static } from "@vivalence/typology";
 // import { Type, Static } from "@sinclair/typebox";
 
-// export const Signature = Type.Array()
+export const Signal = Type.Object({
+  type: Type.String(),
+  signature: Type.Any(),
+});
 
-// export const Signal = Type.Object({
-//   // type: Type.String(),
-//   // value: Type.Any(),
-// });
-
-// export const Pattern = Type.Object({
-//   parser: Type.String(),
-//   hash: Type.String(),
-//   meta: Type.Record(Type.String(), Type.Any()),
-//   match: Type.Function([Signal], Type.Union([Type.Any(), Type.Null()])),
-// });
+export const Pattern = Type.Object({
+  parser: Type.String(),
+  type: Type.String(),
+  index: Type.Number(),
+  signature: Type.String(),
+  valence: Type.Union([Type.String(), Type.Null()]),
+  hash: Type.String(),
+  match: Type.Function([Signal], Type.Union([Type.Any(), Type.Null()])),
+});
 
 // export const Effect = Type.Function(
 //   [Type.Any(), Context],
@@ -32,9 +34,4 @@
 //   middlewares: Type.Array(Middleware),
 // });
 
-// // export const Context = Type.Record(Type.String(), Type.Any())
-// // export const Middleware = Type.Function([
-// //   Type.Any(),
-// //   Context,
-// //   Type.Function([], Type.Promise(Type.Any()))
-// // ], Type.Promise(Type.Any()))
+// Signatures

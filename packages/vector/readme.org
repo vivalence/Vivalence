@@ -1,0 +1,74 @@
+* intent
+** walk
+*** Core Intent
+Progressive Signal Resolution: Navigate step-by-step by requesting signals only when needed, based on current context
+Context-Aware Traversal: Each step informs the next by exposing available patterns to the signal generator
+Stateless Composition: Pure functional approach where each traversal step produces the next computation state
+
+*** Typology Summary
+
+#+begin_src 
+walk :: (Vector, SignalGenerator, Middleware, Path, Step) -> Promise<Result>
+
+where:
+  Vector         = routing/pattern tree with effects and descendants  
+  SignalGenerator = (patterns: Pattern[]) -> Promise<Signal[]>
+  Middleware     = (context, next) -> Promise<any>
+  Path          = Match[]  // breadcrumb trail of matches
+  Step          = Number   // recursion depth counter
+  Result        = { effect, middlewares, path }
+#+end_src
+
+*** Behavioral Pattern
+
+Request → Ask signal generator for next signals based on current vector's available patterns
+Traverse → Use pure traverse function to attempt navigation with provided signals
+Decide → If effect found, return composed result; otherwise recurse with new vector position
+Accumulate → Collect middlewares and path steps across all traversal stages
+
+The walker bridges the gap between static routing structures (vectors) and dynamic signal generation (user input, LLM responses, etc.) while maintaining functional purity and composability.WiederholenClaude kann Fehler machen. Bitte überprüfen Sie die Antworten.
+
+* design
+** do
+#+begin_src js
+async function do (vector,signal,input ){
+  const [_, effect, composed] = traverse(vector, signal);
+  const context = { input };
+  await composed(context, async (ctx) => (ctx.effect = await effect(ctx.input, ctx)));
+  return context.effect
+}
+#+end_src
+* applied
+** traverse
+#+begin_src js
+  const vector = new Vector([sig]);
+
+  vector
+    .use(middleware1)
+    .branch("/api")
+    .use(middleware2)
+    .open("/test", mockEffect);
+
+  const signals = sig.signal("/api/test");
+  const [_, effect, composed, steps] = traverse(vector, signals);
+
+  const context = { input: "input" };
+  await composed(context, async (ctx) => {
+    ctx.result = await effect(ctx.input, ctx);
+  });
+#+end_src
+
+** walk
+
+#+begin_src js
+  const vector = new Vector([sig]);
+
+  const [destination, effect, bundle, steps] = await walk(vector, getSignal);
+
+  const context = { input: "input" };
+  await bundle(context, async (ctx) => {
+    ctx.result = await effect(ctx.input, ctx);
+  });
+  assertEquals(context.result, "result");
+#+end_src
+

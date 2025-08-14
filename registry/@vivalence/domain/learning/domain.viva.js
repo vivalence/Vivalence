@@ -17,7 +17,6 @@ async function install(runtime) {
   const promises = [];
   for (const dimension of runtime.ontology.dimension) {
     for (const category of dimension.descendants) {
-      // if (promises.length > 0) break;
       const tag = {
         data: {
           ONTOLOGICAL: {

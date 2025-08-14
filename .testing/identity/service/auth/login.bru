@@ -1,0 +1,36 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{IDENTITY_AUTHORITY}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "beef",
+    "password": "biggusdickus"
+  }
+}
+
+vars:post-response {
+  accessToken: res.body.token.access
+  refreshToken: res.body.token.refresh
+  identityId: res.body.identity.id
+}
+
+assert {
+  res.body: isJson
+}
+
+tests {
+  test("should be able to login", function () {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+   
+}
