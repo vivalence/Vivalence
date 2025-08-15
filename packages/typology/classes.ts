@@ -1,4 +1,12 @@
-// Context, Path, Blacklist, Scope, etc
+// classes implement the shapes defined in schema
+// classes import functional components from shared
+
+// examples are:
+// Path, URL, Timerange, Config, Daemon, Runtime, Context, Blacklist, Scope, etc
+
+export { Env } from "./classes/env.js";
+export { Daemon } from "./classes/daemon.js";
+export { Runtime } from "./classes/runtime.js";
 
 export class ServiceManager {
   services = {};
@@ -17,28 +25,4 @@ export class ServiceManager {
   }
 }
 
-export class Runtime {
-  config = {};
-  manifest = {};
-  statics = {};
-  register = {}; //
-  services = {}; // clients
-  domain = { data: {}, modules: {} };
-  ontology = null;
-  schema = {};
-  modules = {};
-  entities = null;
-  aperture = null;
-  emitter = null;
-  // [any]: any
-
-  constructor(config: any) {
-    this.config = config;
-    this.manifest = config.manifest;
-    this.statics = config.statics;
-  }
-}
-
-// export class Runtime
-// export class Domain
 // export class Module

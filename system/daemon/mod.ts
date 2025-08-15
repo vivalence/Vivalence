@@ -1,40 +1,43 @@
 const start = performance.now();
 const ticker = (name: string) => (daemon: Daemon) => {
-  console.log(`[PERF] init to [${name}] in [${performance.now() - start}ms]`);
+  const ms = Math.round(performance.now() - start);
+  console.log(`[PERF] init to [${name}] in [${ms}ms]`);
   return daemon;
 };
-ticker("init")();
 
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
+import { Daemon } from "@vivalence/typology/classes";
 import { Vector, parser } from "@vivalence/vector";
 
-import { loadServiceClients } from "./boot/services.js";
-import entities from "./boot/entities.js";
 import aperture from "./aperture/index.ts";
 import runtimes from "./runtimes/index.ts";
 
 import cleanup from "./lib/cleanup-ports.js";
 
-const daemon = {
-  process: null,
-  services: await loadServiceClients(config.daemon.services),
-  aperture: null,
-  twitch: new Vector(parser.sig),
-  entities: {},
-  runtimes: new Map(),
-  registry: null,
-  server: null,
-};
-
+// TODO lifecycle with a constrained state machine.
 (async (daemon) =>
   await [
+    ticker("lifecycle"),
     cleanup,
-    aperture.boot,
-    entities.boot,
-    runtimes.boot,
-    runtimes.serve,
-    aperture.serve,
-    runtimes.install,
-    ticker("up"),
-  ].reduce((acc, fn) => acc.then(fn), Promise.resolve(daemon)))(daemon);
+    // aperture.boot,
+    // runtimes.boot,
+    // runtimes.serve,
+    // aperture.serve,
+    // runtimes.install,
+    ticker("alife"),
+  ].reduce((acc, fn) => acc.then(fn), daemon))(Promise.resolve(new Daemon()));
+
+// {
+//   process: null,
+//   // services: await loadServiceClients(config.system.daemon.services),
+//   runtimes: new Map(),
+//   register = new Map(), //
+//   services: [],
+
+//   twitch: new Vector(parser.sig),
+//   aperture: null,
+//   registry: null,
+//   server: null,
+//   // entities: null,
+// }

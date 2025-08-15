@@ -5,7 +5,7 @@ export async function loadServiceClients(services) {
   const manager = new ServiceManager();
 
   for (const [slug, config] of Object.entries(services)) {
-    const service = await registry.load(config.service);
+    const service = await registry.load(config.module);
     const client = await service.client(config);
 
     manager.add(slug, { client, register: service, config: config.config });
@@ -14,10 +14,13 @@ export async function loadServiceClients(services) {
   return manager;
 }
 
-export async function attachServices(manager, aperture) {
+export async function attachServices(runtime, aperture) {
   for (const [slug, service] of Object.entries(manager.services)) {
     if (!service.register.manifest.traits?.includes("ATTACHED")) continue;
 
+    console.log({
+      service,
+    });
     await service.register.server(
       { config: service.config, manifest: service.register.manifest },
       aperture.branch(`/${slug}`),

@@ -1,6 +1,6 @@
 import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-import * as path from "@std/path";
+import { join } from "@std/path";
 
 import { Vector, parser, controller, compiler } from "@vivalence/vector";
 
@@ -8,14 +8,17 @@ export async function boot(daemon: Daemon, runtime: any) {
   runtime.domain.data = await runtime.register.domain.data(daemon, runtime);
 
   const mikroconfig = {
-    dbName: runtime.config.services.database.config.db.path,
+    dbName: join(
+      runtime.config.services.database.data,
+      runtime.config.services.database.config.db.path,
+    ),
+
     entities: runtime.domain.data.schema,
     strict: true,
     extensions: [Migrator],
     migrations: {
       tableName: "_mikro_migrations",
-      path: path //
-        .join(runtime.config.services.database.config.db.dir, "migrations"),
+      path: join(runtime.config.services.database.data, "migrations"),
     },
   };
 

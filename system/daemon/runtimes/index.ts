@@ -1,12 +1,11 @@
 import config from "@vivalence/config";
 import { Daemon } from "@vivalence/typology/types";
 import { Runtime } from "@vivalence/typology/classes";
+import registry from "@vivalence/registry";
 
-import { ensure } from "./register.js";
-import register from "./register.js";
 import aperture from "./aperture.ts";
 import data from "./data.ts";
-import identity from "./identity.js";
+import shard from "./shard.js";
 import attach from "./attach.js";
 
 import services from "../boot/services.js";
@@ -15,26 +14,19 @@ export default {
   async boot(daemon: Daemon) {
     for (const runtimeconfig of Object.values(config.runtimes)) {
       const runtime = new Runtime(runtimeconfig);
-      runtime.entity = await ensure(daemon.entities.runtime, runtime.manifest);
-      await daemon.entities.em.flush();
 
-      // maybe without for now?
-      // await register(daemon, runtime);
       runtime.services = await services.managed(runtime.config.services);
-      // await daemon.entities.em.flush();
+      runtime.register = await registry.loadMap(runtime.config.register);
 
-      await identity.boot(runtime);
-
-      // await modules.boot(daemon, runtime);
       await data.boot(daemon, runtime);
       await aperture.boot(daemon, runtime);
-      await daemon.entities.em.flush();
+      await shard.boot(runtime);
 
-      await runtime.register.domain.boot(runtime);
+      // await runtime.register.domain.boot(runtime);
       await attach(daemon, runtime);
-      await daemon.entities.em.flush();
+      // await daemon.entities.em.flush();
 
-      daemon.runtimes.set(runtime.entity.slug, runtime);
+      daemon.runtimes.set(runtime.manifest.slug, runtime);
     }
     return daemon;
   },

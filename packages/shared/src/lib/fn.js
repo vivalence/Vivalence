@@ -13,6 +13,7 @@ export const reduce = async (r, a) => {
     Promise.resolve(a),
   );
 };
+
 export const reduceEach = async (reducers, each) => {
   return await Promise.all(each.map((one) => reduce(reducers, one)));
 };

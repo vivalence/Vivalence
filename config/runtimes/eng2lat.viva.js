@@ -1,0 +1,109 @@
+export default function (config) {
+  const manifest = {
+    type: "runtime",
+    slug: "eng2lat",
+    name: "Latin Learning",
+    icon: { emoji: "" },
+    version: "0.0.1",
+    traits: ["ACTIVE"],
+  };
+
+  const statics = { language: { known: "english", learning: "latin" } };
+
+  const ontology = "@vivalence/ontology/language";
+  const topic = ["@vivalence/topic/eng-to-lat"];
+
+  const domain = "@vivalence/domain/learning";
+  const modules = {
+    // corpus: ["@vivalence/corpus/eng-to-lat"],
+    // curricula: ["@vivalence/corpus/eng-to-lat"],
+    game: [
+      "@vivalence/game/gan",
+      "@vivalence/game/flashcards",
+      // "@vivalence/game/conjugations",
+      // "@vivalence/game/translations",
+      // "@vivalence/game/prose",
+    ],
+    tactic: [
+      "@vivalence/tactic/spaced-repetition",
+      // "@vivalence/tactic/sentences",
+      // "@vivalence/tactic/article-practice",
+      // "@vivalence/tactic/verb-conjugation-practice",
+      // "@vivalence/tactic/pronominalization-practice",
+    ],
+    agent: ["@vivalence/agent/eva"],
+  };
+
+  const register = { ontology, domain, topic, modules };
+
+  const identity = {
+    module: "@vivalence/service/multiplayer",
+    data: config.joins.data.runtime(manifest.slug, "identity"),
+    secret: {
+      jwt: config.env.secrets.get("JWT_SECRET"),
+    },
+    // config: {
+    //   secret: config.env.secrets.get("JWT_SECRET"),
+    //   // data: config.joins.service("identity").data.runtime(manifest.slug),
+    // },
+  };
+  const database = {
+    module: "@vivalence/service/libsql",
+    data: config.joins.data.runtime(manifest.slug, "database"),
+    config: {
+      db: {
+        path: `/${manifest.slug}.viva.db`,
+      },
+    },
+  };
+  const brain = {
+    module: "@vivalence/service/brain",
+    secret: {
+      providers: {
+        anthropic: config.env.secrets.get("ANTHROPIC_API_KEY"),
+        // customName: {name: "customName", apiKey: config.env.get("SOME_API_KEY"), baseURL: "",},
+      },
+    },
+    config: {
+      profiles: {
+        DRONE: {
+          provider: "anthropic",
+          model: "claude-3-5-haiku-latest",
+          dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
+          params: { temperature: 0.7, maxTokens: 4000 },
+        },
+        ACADEMIC: {
+          provider: "anthropic",
+          model: "claude-3-7-sonnet-latest",
+          dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
+          params: {
+            thinking: { type: "enabled", budgetTokens: 12000 },
+            temperature: 0.7,
+            maxTokens: 20000,
+          },
+        },
+      },
+    },
+  };
+  const nlp = {
+    module: "@vivalence/service/nlp-stanza",
+    data: config.joins.data.runtime(manifest.slug, "nlp"),
+    secret: {
+      env: {
+        key: config.env.secrets.get("SERVICE_NLP_KEY"),
+      },
+    },
+    config: {
+      processors: "tokenize,mwt,pos,lemma,depparse",
+      language: "la",
+      env: {
+        url: config.env.service.get("SERVICE_NLP_URL"),
+        port: config.env.service.get("SERVICE_NLP_PORT"),
+      },
+    },
+  };
+
+  const services = { identity, database, brain, nlp };
+
+  return { manifest, register, services, statics };
+}

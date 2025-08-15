@@ -1,0 +1,4 @@
+primitives come first.
+from those we implement the schema.
+which are filled with vectors by classes(lifecycled systems).
+all of it is cast in types.

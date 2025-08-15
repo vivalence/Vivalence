@@ -6,11 +6,20 @@ import { inject } from "./lib.js";
 export default async function (daemon, runtime) {
   const attached = daemon.aperture
     .branch(`/attached`)
-    .branch(`/runtime/${runtime.entity.slug}`)
+    .branch(`/runtime/${runtime.manifest.slug}`)
     .use(inject(runtime));
 
-  await services.attach(runtime.services, attached.branch(`/services`));
-  attach(attached.branch("/views"));
+  await services.attach(runtime, attached.branch(`/services`));
+
+  attached
+    .branch("/views")
+    .branch("/:module/:slug")
+    .open("/bundle/(.*)", async (input, ctx) => {
+      const module = ctx.runtime.modules[ctx.params.module][ctx.params.slug];
+      const bundle = await module.view.bundle.serve(ctx.params["0"]);
+      ctx.response.type = "application/javascript";
+      return bundle;
+    });
 
   for (const modules of Object.values(runtime.modules)) {
     for (const module of Object.values(modules)) {
@@ -21,13 +30,4 @@ export default async function (daemon, runtime) {
       }
     }
   }
-}
-
-function attach(aperture) {
-  aperture.branch("/:module/:slug").open("/bundle/(.*)", async (input, ctx) => {
-    const module = ctx.runtime.modules[ctx.params.module][ctx.params.slug];
-    const bundle = await module.view.bundle.serve(ctx.params["0"]);
-    ctx.response.type = "application/javascript";
-    return bundle;
-  });
 }

@@ -17,9 +17,9 @@
   "tasks": {
     "deno:install": "deno install --allow-scripts=npm:sqlite3",
     "viva:install": "deno run deno:install && deno install --global -f -A -n viva ./system/clients/shell/cli.js $PWD",
-    "viva": "VIVA_ROLE=SUDO deno run -A ./system/clients/shell/mod.js",
-    "viva:watch": "VIVA_ROLE=SUDO deno run --watch -A ./system/clients/shell/mod.js",
-    "daemon:watch": "VIVA_ROLE=DAEMON deno run --watch -A  ./system/daemon/mod.ts",
-    "web:watch": "VIVA_ROLE=CLIENT deno run -A system/clients/web/mod.js",
+    "viva": "VIVA_SYSTEM_ROLE=SUDO deno run -A ./system/clients/shell/mod.js",
+    "viva:watch": "VIVA_SYSTEM_ROLE=SUDO deno run --watch -A ./system/clients/shell/mod.js",
+    "daemon:watch": "VIVA_SYSTEM_ROLE=DAEMON deno run --watch -A  ./system/daemon/mod.ts",
+    "web:watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A system/clients/web/mod.js",
   },
 }
