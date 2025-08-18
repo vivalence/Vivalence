@@ -7,9 +7,10 @@ const config = {
   plugins: [typography],
   content: [
     "./src/**/*.{html,svelte,css}",
-    "../../../packages/interfaces/web/**/*.{html,svelte,css}",
-    "../../../registry/@vivalence/strategy/**/*.{html,svelte,css}",
-    "../../../registry/@vivalence/game/**/*.{html,svelte,css}",
+    "../../../subsystems/interfaces/web/**/*.{html,svelte,css}",
+    "../../../register/@vivalence/strategy/**/*.{html,svelte,css}",
+    "../../../register/@vivalence/agent/**/*.{html,svelte,css}",
+    "../../../register/@vivalence/game/**/*.{html,svelte,css}",
   ],
   // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
 };

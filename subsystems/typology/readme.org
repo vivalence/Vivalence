@@ -1,4 +1,6 @@
 primitives come first.
-from those we implement the schema.
-which are filled with vectors by classes(lifecycled systems).
-all of it is cast in types.
+with those we describe things' gestalt, effectively as jsonschema.
+we construct things as prototypes.
+all of it is cast in types,
+and composed for use by vectors.
+

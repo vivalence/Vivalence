@@ -1,0 +1,17 @@
+export default async function boot(runtime) {
+  //
+
+  for (const module of runtime.register.modules.tactics) {
+    const tactic = {
+      ...module,
+      aperture: runtime.aperture.branch(`/tactic/${module.manifest.slug}`),
+    };
+
+    tactic.aperture.use(async (ctx, next) => {
+      ctx.tactic = tactic;
+      return await next();
+    });
+
+  }
+  return runtime;
+}

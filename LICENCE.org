@@ -1,4 +1,33 @@
+*  
+high level i split into institutial and private use.
+where private use is for self or in private social context.
+and where institutional is any b2b b2g ngo isp or other usage.
+where the core separating idea is that the koerperschaft provides vivalence to others.
+
+for self and for other.
+private and institutional.
+personhood and koerperschaft.
+
+and hosting for others is considered a different variant.
+where private for other is subject to the same licence-granted freedoms as private for self.
+/ we might offer to facilitate some metadata aggregation to allow for trusted entities.
+
+institutional use: (for self is not allowed under personhood)  
+usage rights can be obtained.
+programatically. 
+flat fee. f(Set(persons, for other))
+i determin price f, everyone pays the same.
+price is pegged to gold.
+i might carve out special uses for special licences.
+for this i need freedom to change the license.
+i can not just change the freedoms granted under private use. 
+
 * todo
+** flat license of 1 current per month per person (10c/year)
+** public benefit 
+private market revenue is quartered into { infrastructure dependencies contributors vivalence }
+infrastructure = f(storage compute ops{devops} gas{fees,current,tokens})
+
 ** the typology has to be explicitly protected against copy with commercial intent for code outside this systems scope.
 
 ** explicitly retain all rights 

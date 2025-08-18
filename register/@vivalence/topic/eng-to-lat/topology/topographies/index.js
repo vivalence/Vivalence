@@ -23,6 +23,7 @@ const noun = {
     { branch: ["gender"], required: true },
     { branch: ["number"], required: true },
     { branch: ["inflclass"], required: false },
+    // { branch: ["data"], required: true },
   ],
   // relations: [
   constraints: [

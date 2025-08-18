@@ -12,6 +12,7 @@ async function lifecycle() {
   config = new Config();
 
   await preflight.envloaders(config);
+  await preflight.repoloader(config);
   await preflight.modeselector(config);
   await preflight.checks(config);
 

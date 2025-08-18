@@ -1,12 +1,9 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
-import { UserEntity } from "@vivalence/entities";
-import { SessionEntity } from "@vivalence/entities";
+import { UserEntity, SessionEntity } from "@vivalence/entities";
 
-// import { UserEntity } from "../view/User.ts";
-
-import { TagEntity } from "../corpus/Tag.ts";
+import { SymbolEntity } from "../corpus/Symbol.ts";
 import { UnitEntity } from "../corpus/Unit.ts";
 import { PlayEntity } from "../userland/Play.ts";
 
@@ -26,13 +23,12 @@ export class ExerciseEntity extends BaseEntity {
   producer: any & Opt = {};
 
   session?: Rel<SessionEntity>;
-  tags = new Collection<TagEntity>(this);
+  symbols = new Collection<SymbolEntity>(this);
   units = new Collection<UnitEntity>(this);
 
   strategy?: string & Opt = null;
   tactic?: string & Opt = null;
   game?: string & Opt = null;
-  x?: string & Opt = null;
 
   plays = new Collection<PlayEntity>(this);
 }
@@ -42,8 +38,6 @@ export const ExerciseSchema = new EntitySchema<ExerciseEntity, BaseEntity>({
   extends: BaseSchema,
   tableName: "Exercise",
   properties: {
-    x: { type: "string", nullable: true },
-
     user: {
       kind: "m:1",
       entity: () => UserEntity,
@@ -69,11 +63,11 @@ export const ExerciseSchema = new EntitySchema<ExerciseEntity, BaseEntity>({
       nullable: true,
     },
 
-    tags: {
+    symbols: {
       kind: "m:n",
-      entity: () => TagEntity,
+      entity: () => SymbolEntity,
       inversedBy: "exercises",
-      pivotTable: "_ExerciseToTag",
+      pivotTable: "_ExerciseToSymbol",
     },
 
     units: {
@@ -94,3 +88,9 @@ export const ExerciseSchema = new EntitySchema<ExerciseEntity, BaseEntity>({
     },
   },
 });
+
+export default {
+  schema: ExerciseSchema,
+  entity: ExerciseEntity,
+  // repository: TopographyRepository,
+};

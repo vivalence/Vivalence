@@ -1,4 +1,4 @@
-import { Env } from "@vivalence/typology/classes";
+import { Env } from "@vivalence/typology/prototypes";
 
 export async function env(config) {
   config.check.env("VIVA_CONFIG_DIR")?.throw();

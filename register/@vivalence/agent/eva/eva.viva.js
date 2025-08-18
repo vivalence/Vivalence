@@ -4,7 +4,7 @@ import { agent } from "./aperture/index.js";
 // import sessioned from "./session/index.js";
 // import generator from "./session/index.js";
 
-export const manifest = {
+const manifest = {
   type: "agent",
   slug: "eva",
   name: "Eva",
@@ -34,12 +34,11 @@ async function feed(input, ctx) {
   // else return [[ctx.module.view, { agent: "welcome user" }];
 }
 
-export const aperture = (v) => v.open("/agent", agent);
-export const view = { bundle };
+const aperture = (v) => v.open("/agent", agent);
+const view = { bundle };
+const session = (v) => v.open("/init", init);
+const generate = (v) => v.open("/feed"); // maybe define input
 // export const valences = [new Valence({ resolves: "/feed" })];
-export const session = (v) => v.open("/init", init);
-export const generate = (v) => v.open("/feed", feed); // maybe define input
-
 // const sessioned = {init: (input, ctx) => {return ctx.runtime.entities.session.create();},};
-// async function aperture(module) {module.aperture.open("/agent", agent);}
-// async function generator(module) {module.generator.open("/feed", feed);}
+
+export default { manifest, view, aperture, session, generate };

@@ -16,11 +16,18 @@ export class Subscriber {
       ...parser.sig.signal(event),
     ];
 
-    this.emitter(signal, {
-      entity: args.entity,
-      change: args.changeSet,
-      em: args.em,
-    });
+    try {
+      this.emitter(signal, {
+        entity: args.entity,
+        change: args.changeSet,
+        em: args.em,
+      });
+    } catch (err) {
+      if (err.code === "NOT_FOUND") return undefined;
+      console.log("[TWITCH ERROR] @vector/compiler/subscriber");
+      console.trace(err);
+      throw err;
+    }
   }
   getSubscribedEntities() {
     return this.subscriptions;

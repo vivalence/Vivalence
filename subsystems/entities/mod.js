@@ -1,19 +1,31 @@
-//
-// EXPORTS
-//
-export * from "./0_root/BaseEntity.ts";
-export * from "./0_root/BaseDataEntity.ts";
-export * from "./0_root/BaseModuleEntity.ts";
+export * from "./base/VirtualEntity.ts";
+export * from "./base/DataEntity.ts";
+export * from "./base/BaseEntity.ts";
 
-export * from "./1_system/Runtime.ts";
+export * from "./userland/User.ts";
+export * from "./userland/Session.ts";
+export * from "./userland/Intent.ts";
 
-export * from "./2_runtime/Module.ts";
+export * from "./ontology/Issue.ts";
+export * from "./ontology/Topography.ts";
+export * from "./ontology/Constraint.ts";
+export * from "./ontology/Dimension.ts";
 
-export * from "./3_userland/User.ts";
-export * from "./3_userland/Session.ts";
-export * from "./3_userland/Intent.ts";
+import topography from "./ontology/Topography.ts";
+import constraint from "./ontology/Constraint.ts";
+import issue from "./ontology/Issue.ts";
+import dimension from "./ontology/Dimension.ts";
 
-// ENUMS
-import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
+import intent from "./userland/Intent.ts";
+import session from "./userland/Session.ts";
+import user from "./userland/User.ts";
 
-export const enums = { installation: ModuleInstallationEnum };
+export const maps = {
+  userland: { user, intent, session },
+  ontology: { topography, constraint, issue, dimension },
+};
+
+// // ENUMS
+// import { ModuleInstallationEnum } from "./0_root/BaseModuleEntity.ts";
+
+// export const enums = { installation: ModuleInstallationEnum };

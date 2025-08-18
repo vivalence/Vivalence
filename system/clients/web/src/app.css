@@ -2,16 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .grid-chain-start { */
-/*     @apply grid h-full w-full; */
-/* } */
+.debug {
+	border: 1px solid red;
+}
+.debug* {
+	border: 1px solid red;
+	> * {
+		border: 1px solid red;
+	}
+}
 
-/* .grid-chain-node { */
-/*     @apply grid; */
-/* } */
-
-/* .grid-chain-end { */
-/* } */
+/* [class*="debug"] {border: 1px solid red;} [class*="debug"] * {border: 1px solid red;} */
 
 /* Thin or Hairline: 100 */
 /* Extra Light or Ultra Light: 200 */

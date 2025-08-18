@@ -1,9 +1,11 @@
 // src/plugins/postcss-theme-builder.js
 import postcss from "postcss";
 
-import colors from "./colors/colors.js";
-import tokens from "./tokens/tokens.js";
+import colors from "./primitives/colors.js";
+import tokens from "./primitives/tokens.js";
+
 import themes from "./themes/index.js";
+
 import { generateCSS } from "./lib/index.js";
 
 const plugin = (options = {}) => {

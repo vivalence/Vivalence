@@ -3,7 +3,7 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 
-import { TagEntity } from "../corpus/Tag.ts";
+import { SymbolEntity } from "../corpus/Symbol.ts";
 import { UnitEntity } from "../corpus/Unit.ts";
 import { PlayEntity } from "../userland/Play.ts";
 
@@ -29,7 +29,7 @@ export enum MemoryStatusEnum {
 export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   unit?: Rel<UnitEntity>;
-  tag?: Rel<TagEntity>;
+  symbol?: Rel<SymbolEntity>;
   plays = new Collection<PlayEntity>(this);
 
   driver: MemoryDriverEnum & Opt = MemoryDriverEnum.BAYESIAN;
@@ -63,10 +63,10 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
       deleteRule: "cascade",
       nullable: true,
     },
-    tag: {
+    symbol: {
       kind: "m:1",
-      entity: () => TagEntity,
-      fieldName: "tag",
+      entity: () => SymbolEntity,
+      fieldName: "symbol",
       updateRule: "cascade",
       deleteRule: "cascade",
       nullable: true,
@@ -104,3 +104,9 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     lastAt: { type: Date, fieldName: "lastAt" },
   },
 });
+
+export default {
+  schema: MemorySchema,
+  entity: MemoryEntity,
+  // repository: TopographyRepository,
+};

@@ -1,43 +1,28 @@
 const start = performance.now();
-const ticker = (name: string) => (daemon: Daemon) => {
-  const ms = Math.round(performance.now() - start);
-  console.log(`[PERF] init to [${name}] in [${ms}ms]`);
-  return daemon;
-};
+const tick = () => Math.round(performance.now() - start);
+const ticker = (name) => console.log(`[TICK] [${tick() / 1000}s] [${name}]`);
 
 import config from "@vivalence/config";
-import registry from "@vivalence/registry";
-import { Daemon } from "@vivalence/typology/classes";
-import { Vector, parser } from "@vivalence/vector";
 
-import aperture from "./aperture/index.ts";
-import runtimes from "./runtimes/index.ts";
+import * as preflight from "./lifecycle/preflight.js";
+import * as populate from "./lifecycle/populate.js";
+import * as resolve from "./lifecycle/resolve.js";
+import * as integrate from "./lifecycle/integrate.js";
 
-import cleanup from "./lib/cleanup-ports.js";
+import { Daemon } from "@vivalence/typology/prototypes";
 
-// TODO lifecycle with a constrained state machine.
-(async (daemon) =>
-  await [
-    ticker("lifecycle"),
-    cleanup,
-    // aperture.boot,
-    // runtimes.boot,
-    // runtimes.serve,
-    // aperture.serve,
-    // runtimes.install,
-    ticker("alife"),
-  ].reduce((acc, fn) => acc.then(fn), daemon))(Promise.resolve(new Daemon()));
+const daemon = new Daemon(config.system.daemon);
+await daemon.registry.init(config.registry);
+await preflight.cleanup(daemon);
+// await preflight.checks(daemon);
+await populate.services(daemon);
+await populate.runtimes(daemon);
+await resolve.runtimes(daemon);
+await integrate.runtimes(daemon);
+await integrate.attach(daemon);
+await integrate.serve(daemon);
 
-// {
-//   process: null,
-//   // services: await loadServiceClients(config.system.daemon.services),
-//   runtimes: new Map(),
-//   register = new Map(), //
-//   services: [],
+// await integrate.checks(daemon);
+// await integrate.install(daemon);
 
-//   twitch: new Vector(parser.sig),
-//   aperture: null,
-//   registry: null,
-//   server: null,
-//   // entities: null,
-// }
+ticker("integrated.server");

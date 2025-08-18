@@ -1,12 +1,4 @@
-const createNumberedType = (prefix, count = 4) => {
-  return Array.from({ length: count }, (_, i) => i + 1).reduce(
-    (nums, num) => ({
-      ...nums,
-      [num]: `var(--colors-${prefix}-${num})`,
-    }),
-    {},
-  );
-};
+// const createNumberedType = (prefix, count = 4) => {return Array.from({ length: count }, (_, i) => i + 1).reduce((nums, num) => ({...nums, [num]: `var(--colors-${prefix}-${prefix})`,}), {},);};
 
 const createSemanticVariant = (prefix) => ({
   surface: `var(--colors-${prefix}-surface)`,
@@ -48,9 +40,11 @@ export default {
     },
     "skeleton-app-link": "var(--colors-skeleton-app-link)",
     "skeleton-app-surface": "var(--colors-skeleton-app-surface)",
-    "skeleton-surface": createNumberedType("skeleton-surface", 4),
-    "skeleton-contrast": createNumberedType("skeleton-contrast", 4),
-    "skeleton-boundary": createNumberedType("skeleton-boundary", 4),
+
+    "skeleton-1": createSemanticVariant("skeleton-1"),
+    "skeleton-2": createSemanticVariant("skeleton-2"),
+    "skeleton-3": createSemanticVariant("skeleton-3"),
+    "skeleton-4": createSemanticVariant("skeleton-4"),
 
     "system-info": createSemanticVariant("system-info"),
     "system-success": createSemanticVariant("system-success"),
@@ -143,46 +137,80 @@ export default {
     typography: {
       DEFAULT: {
         css: {
-          "--tw-prose-body": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-bold": "var(--colors-skeleton-contrast-2)",
-          "--tw-prose-headings": "var(--colors-skeleton-contrast-2)",
-          "--tw-prose-bullets": "var(--colors-skeleton-contrast-2)",
-          "--tw-prose-lead": "var(--colors-skeleton-contrast-1)",
+          "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-bold": "var(--colors-skeleton-2-contrast)",
+          "--tw-prose-headings": "var(--colors-skeleton-2-contrast)",
+          "--tw-prose-bullets": "var(--colors-skeleton-2-contrast)",
+          "--tw-prose-lead": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-links": "var(--colors-skeleton-app-link)",
-          "--tw-prose-captions": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-code": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-pre-code": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-quotes": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-counters": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-hr": "var(--colors-skeleton-boundary-1)",
-          "--tw-prose-quote-borders": "var(--colors-skeleton-boundary-1)",
-          "--tw-prose-pre-bg": "var(--colors-skeleton-surface-1)",
-          "--tw-prose-th-borders": "var(--colors-skeleton-boundary-1)",
-          "--tw-prose-td-borders": "var(--colors-skeleton-boundary-1)",
-
-          // Inverted/dark mode colors
-          "--tw-prose-invert-body": "var(--colors-skeleton-contrast-2)",
+          "--tw-prose-captions": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-code": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-pre-code": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-quotes": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-counters": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-hr": "var(--colors-skeleton-1-boundary)",
+          "--tw-prose-quote-borders": "var(--colors-skeleton-1-boundary)",
+          "--tw-prose-pre-bg": "var(--colors-skeleton-1-surface)",
+          "--tw-prose-th-borders": "var(--colors-skeleton-1-boundary)",
+          "--tw-prose-td-borders": "var(--colors-skeleton-1-boundary)",
+          "--tw-prose-invert-body": "var(--colors-skeleton-2-contrast)",
           "--tw-prose-invert-headings": "var(--colors-palette-white)",
-          "--tw-prose-invert-lead": "var(--colors-skeleton-contrast-1)",
+          "--tw-prose-invert-lead": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-links": "var(--colors-theme-primary-solid)",
           "--tw-prose-invert-bold": "var(--colors-palette-white)",
-          "--tw-prose-invert-counters": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-invert-bullets": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-invert-hr": "var(--colors-skeleton-boundary-3)",
-          "--tw-prose-invert-quotes": "var(--colors-skeleton-contrast-1)",
+          "--tw-prose-invert-counters": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-invert-bullets": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-invert-hr": "var(--colors-skeleton-3-boundary)",
+          "--tw-prose-invert-quotes": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-quote-borders":
-            "var(--colors-skeleton-boundary-3)",
-          "--tw-prose-invert-captions": "var(--colors-skeleton-contrast-1)",
+            "var(--colors-skeleton-3-boundary)",
+          "--tw-prose-invert-captions": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-code": "var(--colors-theme-primary-solid)",
-          "--tw-prose-invert-pre-code": "var(--colors-skeleton-contrast-1)",
-          "--tw-prose-invert-pre-bg": "var(--colors-skeleton-surface-3)",
-          "--tw-prose-invert-th-borders": "var(--colors-skeleton-boundary-3)",
-          "--tw-prose-invert-td-borders": "var(--colors-skeleton-boundary-2)",
+          "--tw-prose-invert-pre-code": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-invert-pre-bg": "var(--colors-skeleton-3-surface)",
+          "--tw-prose-invert-th-borders": "var(--colors-skeleton-3-boundary)",
+          "--tw-prose-invert-td-borders": "var(--colors-skeleton-2-boundary)",
         },
       },
     },
   },
 };
+
+// "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
+// "--tw-prose-bold": "var(--colors-skeleton-2-contrast)",
+// "--tw-prose-headings": "var(--colors-skeleton-2-contrast)",
+// "--tw-prose-bullets": "var(--colors-skeleton-2-contrast)",
+// "--tw-prose-lead": "var(--colors-skeleton-1-contrast)",
+// "--tw-prose-links": "var(--colors-skeleton-app-link)",
+// "--tw-prose-captions": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-code": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-pre-code": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-quotes": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-counters": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-hr": "var(--colors-skeleton-boundary-1)",
+// "--tw-prose-quote-borders": "var(--colors-skeleton-boundary-1)",
+// "--tw-prose-pre-bg": "var(--colors-skeleton-surface-1)",
+// "--tw-prose-th-borders": "var(--colors-skeleton-boundary-1)",
+// "--tw-prose-td-borders": "var(--colors-skeleton-boundary-1)",
+
+// // Inverted/dark mode colors
+// "--tw-prose-invert-body": "var(--colors-skeleton-contrast-2)",
+// "--tw-prose-invert-headings": "var(--colors-palette-white)",
+// "--tw-prose-invert-lead": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-links": "var(--colors-theme-primary-solid)",
+// "--tw-prose-invert-bold": "var(--colors-palette-white)",
+// "--tw-prose-invert-counters": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-bullets": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-hr": "var(--colors-skeleton-boundary-3)",
+// "--tw-prose-invert-quotes": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-quote-borders":
+//   "var(--colors-skeleton-boundary-3)",
+// "--tw-prose-invert-captions": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-code": "var(--colors-theme-primary-solid)",
+// "--tw-prose-invert-pre-code": "var(--colors-skeleton-contrast-1)",
+// "--tw-prose-invert-pre-bg": "var(--colors-skeleton-surface-3)",
+// "--tw-prose-invert-th-borders": "var(--colors-skeleton-boundary-3)",
+// "--tw-prose-invert-td-borders": "var(--colors-skeleton-boundary-2)",
 // const createNumberedType = (prefix, count = 4) => {
 //   return Array.from({ length: count }, (_, i) => i + 1).reduce(
 //     (nums, num) => ({

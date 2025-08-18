@@ -4,7 +4,7 @@ import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 // import { UserEntity } from "../view/User.ts";
 
-import { TagEntity } from "../corpus/Tag.ts";
+import { SymbolEntity } from "../corpus/Symbol.ts";
 import { UnitEntity } from "../corpus/Unit.ts";
 import { MemoryEntity } from "../userland/Memory.ts";
 import { ExerciseEntity } from "../userland/Exercise.ts";
@@ -13,7 +13,7 @@ export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
 
   unit?: Rel<UnitEntity>;
-  tag?: Rel<TagEntity>;
+  symbol?: Rel<SymbolEntity>;
   strategy?: string & Opt = null;
   tactic?: string & Opt = null;
   game?: string & Opt = null;
@@ -48,10 +48,10 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       deleteRule: "cascade",
       nullable: true,
     },
-    tag: {
+    symbol: {
       kind: "m:1",
-      entity: () => TagEntity,
-      fieldName: "tag",
+      entity: () => SymbolEntity,
+      fieldName: "symbol",
       updateRule: "cascade",
       deleteRule: "cascade",
       nullable: true,
@@ -80,3 +80,9 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
     nextAt: { type: Date, fieldName: "nextAt" },
   },
 });
+
+export default {
+  schema: PlaySchema,
+  entity: PlayEntity,
+  // repository: TopographyRepository,
+};

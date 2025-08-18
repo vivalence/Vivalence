@@ -5,19 +5,17 @@ import register from "./lib.js";
 
 let initialized = false;
 
-export async function init(registryConfig = {}) {
+export async function init(config = {}) {
   if (!initialized) {
-    if (!registryConfig.rootDir)
-      registryConfig.rootDir = config.env.get("VIVA_REGISTER_DIR");
+    if (!config.register)
+      throw new Error("registry initiated without register path");
 
-    await register.init(registryConfig);
+    await register.init(config);
     initialized = true;
   }
 
   return { load, loadMany, loadMany };
 }
-
-await init();
 
 export async function load(query) {
   if (typeof query !== "string" && query.manifest) throw new Error();

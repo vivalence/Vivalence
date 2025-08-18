@@ -1,63 +1,54 @@
-import { createClient } from "./lib/db.js";
+import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
+import { Migrator } from "@mikro-orm/migrations";
+import * as libsql from "@libsql/client/node";
+
+import { join } from "@std/path";
 
 const manifest = {
   type: "service",
   slug: "libsql",
   name: "libsql Database",
-  traits: ["DATABASE"],
+  traits: ["DATABASE", "DATAMAP"],
 };
 
-function client(service) {
-  return createClient(service);
+// function client(service) {
+//   let path = join(service.data, service.config.db.path);
+//   service.config.path = path;
+
+//   if (!path.startsWith("file:")) {
+//     path = `file:` + path;
+//   }
+
+//   const db = libsql.createClient({ url: path });
+//   return db;
+// }
+
+// todo: ensure database.db
+async function client(service, datamap) {
+  const mikroconfig = {
+    dbName: join(service.data, service.config.db.path),
+    entities: Object.values(datamap)
+      .map((dme) => dme.schema)
+      .filter(Boolean),
+    strict: true,
+    extensions: [Migrator],
+    migrations: {
+      tableName: "_mikro_migrations",
+      path: join(service.data, "migrations"),
+    },
+  };
+
+  const orm = await MikroORM.init(defineConfig(mikroconfig));
+
+  const migrator = orm.getMigrator();
+  await migrator.createMigration();
+  await migrator.up();
+
+  //
+  return orm;
 }
 
-function control(service, host) {
-  console.log("libsql control", service);
-  host.trajectory.open("/create", async () => {
-    // todo ensure dir
-    const db = createClient({ ...service.config, ...service.secret });
-
-    await db.execute("PRAGMA journal_mode = WAL;");
-    await db.execute("PRAGMA busy_timeout = 5000;");
-    await db.execute("PRAGMA synchronous = NORMAL;");
-    await db.execute("PRAGMA cache_size = 2000;");
-    await db.execute("PRAGMA temp_store = MEMORY;");
-    await db.execute("PRAGMA foreign_keys = true;");
-
-    await db.close();
-  });
-}
-
-export { manifest, client, control };
-// import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
-// import { Migrator } from "@mikro-orm/migrations";
-// import { join } from "@std/path";
-
-// import { Vector, parser, controller, compiler } from "@vivalence/vector";
-
-// export async function boot(daemon: Daemon, runtime: any) {
-//   runtime.domain.data = await runtime.register.domain.data(daemon, runtime);
-
-//   const mikroconfig = {
-//     dbName: join(
-//       runtime.config.services.database.data,
-//       runtime.config.services.database.config.db.path,
-//     ),
-
-//     entities: runtime.domain.data.schema,
-//     strict: true,
-//     extensions: [Migrator],
-//     migrations: {
-//       tableName: "_mikro_migrations",
-//       path: join(runtime.config.services.database.data, "migrations"),
-//     },
-//   };
-
-//   const orm = await MikroORM.init(defineConfig(mikroconfig));
-
-//   const migrator = orm.getMigrator();
-//   await migrator.createMigration();
-//   await migrator.up();
+export { manifest, client };
 
 //   runtime.entities = {
 //     orm,
@@ -70,11 +61,11 @@ export { manifest, client, control };
 //       runtime.entities[key] = await runtime.entities.em.getRepository(entity);
 //     }),
 //   );
+// import { Vector, parser, controller, compiler } from "@vivalence/vector";
 
-//   return runtime;
-// }
+// function control(vector) {vector.open("/create", async (ctx) => {const service = ctx.service; const db = createClient({ ...service.config, ...service.secret }); await db.execute("PRAGMA journal_mode = WAL;"); await db.execute("PRAGMA busy_timeout = 5000;"); await db.execute("PRAGMA synchronous = NORMAL;"); await db.execute("PRAGMA cache_size = 2000;"); await db.execute("PRAGMA temp_store = MEMORY;"); await db.execute("PRAGMA foreign_keys = true;"); await db.close();});}
 
-// export async function serve(daemon, runtime) {
+// export async function twitch(daemon, runtime) {
 //   const vector = runtime.entities.on;
 //   const subscriptions = runtime.entities.on.patterns
 //     .map((p) => p.signature)

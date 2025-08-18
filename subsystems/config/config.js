@@ -1,4 +1,4 @@
-import { Env } from "@vivalence/typology/classes";
+import { Env } from "@vivalence/typology/prototypes";
 
 import find from "./tools/find.js";
 import joins from "./tools/joins.js";
@@ -8,9 +8,16 @@ import state from "./tools/state.js";
 
 export default class Config {
   env = new Env();
-  system = { role: null, mode: null, variant: null, daemon: {}, clients: {} };
-  runtimes = {};
-  services = [];
+  registry = { register: null };
+  system = {
+    role: null,
+    mode: null,
+    variant: null,
+    daemon: {},
+    clients: {},
+  };
+  runtimes = new Set();
+  services = new Set();
   constructor() {
     find(this);
     joins(this);

@@ -1,6 +1,6 @@
 <script>
   import "../app.css";
-  import "../style/layout/bsp.css";
+  import "../style/primitives/bsp.css";
 
   let { children } = $props();
 </script>

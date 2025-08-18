@@ -1,4 +1,4 @@
-import { IntentEntity } from "@vivalence/entities";
+// import { IntentEntity } from "@vivalence/entities";
 export const manifest = {
   type: "dataset",
   traits: ["REACTIVE"],

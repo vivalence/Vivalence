@@ -13,7 +13,29 @@ class Token extends Signal {
   }
 }
 
-const extractors = new Map([
+function parseFeats(featsString = "") {
+  let feats = {};
+  if (!featsString) return feats;
+
+  feats = featsString
+    .toLowerCase()
+    .split("|")
+    .reduce((acc, feat) => {
+      if (!feat || feat === "_") return acc;
+      let [key, value] = feat.split("=");
+
+      if (!key || !value) return acc;
+      if (key.includes("[")) return acc;
+      if (value.includes(",")) value = value.split(",")[0];
+
+      acc[key] = value;
+      return acc;
+    }, feats);
+
+  return feats;
+}
+
+export default new Map([
   [
     Text,
     [
@@ -56,27 +78,3 @@ const extractors = new Map([
     ],
   ],
 ]);
-
-function parseFeats(featsString = "") {
-  let feats = {};
-  if (!featsString) return feats;
-
-  feats = featsString
-    .toLowerCase()
-    .split("|")
-    .reduce((acc, feat) => {
-      if (!feat || feat === "_") return acc;
-      let [key, value] = feat.split("=");
-
-      if (!key || !value) return acc;
-      if (key.includes("[")) return acc;
-      if (value.includes(",")) value = value.split(",")[0];
-
-      acc[key] = value;
-      return acc;
-    }, feats);
-
-  return feats;
-}
-
-export default extractors;

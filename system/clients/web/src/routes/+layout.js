@@ -1,8 +1,8 @@
 import { redirect } from "@sveltejs/kit";
-import { auth } from "@client/auth";
+import { authority } from "@client/authority";
 
 export const ssr = false;
 
 export const load = async (event) => {
-  if (event.url.pathname !== "/" && !auth.isIdentified) redirect(307, "/");
+  if (event.url.pathname !== "/" && !authority.isIdentified) redirect(307, "/");
 };

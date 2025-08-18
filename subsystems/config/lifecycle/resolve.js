@@ -4,23 +4,27 @@ export async function runtimes(config) {
 
   for (const file of vivaFiles) {
     const mod = await config.read.module(file);
-    const runtime = await mod(config);
-    if (!runtime) continue;
-    config.runtimes[runtime.manifest.slug] = runtime;
+    const runtimeconfig = await mod(config);
+    if (!runtimeconfig) continue;
 
-    if (runtime.services) {
-      for (const [slug, serviceconfig] of Object.entries(runtime.services)) {
+    // config.runtimes[runtime.manifest.slug] = runtime;
+    config.runtimes.add(runtimeconfig);
+
+    if (runtimeconfig.services) {
+      for (const [slug, serviceconfig] of Object.entries(
+        runtimeconfig.services,
+      )) {
         const service = {
           ...serviceconfig,
-          runtime: runtime.manifest.slug,
-          data: config.joins.data.runtime(runtime.manifest.slug, slug),
           slug,
+          runtime: runtimeconfig.manifest.slug,
+          data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
         };
 
-        config.services.push(service);
+        config.services.add(service);
 
         // const { data, secret, ...cleanConfig } = service;
-        runtime.services[slug] = service;
+        runtimeconfig.services[slug] = service;
       }
     }
   }

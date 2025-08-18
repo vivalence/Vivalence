@@ -1,10 +1,10 @@
 import { goto } from "$app/navigation";
-import { auth } from "@client/auth";
+import { authority } from "@client/authority";
 
 export const ssr = false;
 
 export const load = async (event) => {
-  if (auth.isIdentified && (await auth.verify())) {
+  if (authority.isIdentified && (await authority.verify())) {
     goto("/viva");
   }
 };

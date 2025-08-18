@@ -153,8 +153,8 @@ export const lookup = (query) => {
   return matchingVersion ? slugMap.get(matchingVersion) : null;
 };
 
-export const init = async (registryConfig) => {
-  const modules = await discover(registryConfig.rootDir);
+export const init = async (config) => {
+  const modules = await discover(config.register);
   registry.clear();
 
   const newRegistry = buildRegistry(modules);

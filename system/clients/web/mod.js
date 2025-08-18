@@ -13,6 +13,7 @@ function setupEnvironment() {
   Object.entries(process.env).forEach(([key, value]) => {
     if (typeof value === "string") {
       if (key.startsWith("PUBLIC_")) {
+        console.log("env", `VITE_${key}`, value);
         process.env[`VITE_${key}`] = value;
       }
     }

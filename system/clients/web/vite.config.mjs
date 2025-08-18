@@ -4,13 +4,13 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const __packages = join(__dirname, "../../../packages");
+const __packages = join(__dirname, "../../../subsystems");
 
 export default defineConfig({
   resolve: {
     alias: {
       "@client/lib/": join(__dirname, "./src/lib/"),
-      "@client/auth": join(__dirname, "./src/auth.js"),
+      "@client/authority": join(__dirname, "./src/authority.js"),
       "@client/user": join(__dirname, "./src/user.js"),
       "@client/generator": join(__dirname, "./src/generator.js"),
 
@@ -33,10 +33,11 @@ export default defineConfig({
       ignored: ["**/node_modules/**", "**/#*"],
       include: [
         "./src/**/*",
-        "../../../registry/@vivalence/games/**/*.{html,svelte.js,svelte,css}",
-        "../../../registry/@vivalence/strategies/**/*.{html,svelte.js,svelte,css}",
-        "../../../packages/interfaces/web/**/*",
-        "../../../packages/shared/**/*",
+        "../../../register/@vivalence/game/**/*.{html,svelte.js,svelte,css}",
+        "../../../register/@vivalence/strategy/**/*.{html,svelte.js,svelte,css}",
+        "../../../register/@vivalence/agent/**/*.{html,svelte.js,svelte,css}",
+        "../../../subsystems/interfaces/web/**/*",
+        "../../../subsystems/shared/**/*",
       ],
     },
   },

@@ -1,5 +1,10 @@
-import { Env } from "@vivalence/typology/classes";
+import { Env } from "@vivalence/typology/prototypes";
 import * as dotenv from "@std/dotenv";
+
+export async function repoloader(config) {
+  let { VIVA_REGISTER_DIR } = config.env.vars;
+  config.registry = { register: VIVA_REGISTER_DIR };
+}
 
 export async function envloaders(config) {
   const checked = config.check.env([

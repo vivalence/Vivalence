@@ -63,9 +63,9 @@
   };
 
   const colors = {
-    "1": "text-skeleton-contrast-1",
-    "2": "text-skeleton-contrast-2",
-    "3": "text-skeleton-contrast-3",
+    "1": "text-skeleton-1-contrast",
+    "2": "text-skeleton-2-contrast",
+    "3": "text-skeleton-3-contrast",
     "system-info": "text-system-info-contrast",
     "system-success": "text-system-success-contrast",
     "system-warning": "text-system-warning-contrast",
