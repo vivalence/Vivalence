@@ -1,4 +1,4 @@
-import { Classifier, Remedy, fn } from "@vivalence/shared";
+import { Classifier, Remedy } from "@vivalence/shared";
 import factories from "./factories/index.js";
 
 export default async function boot(register, runtime) {
