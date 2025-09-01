@@ -1,3 +1,4 @@
+a vector is a trie in action.
 * intent
 ** walk
 *** Core Intent

@@ -8,11 +8,12 @@ export async function aperture(rme) {
   if (rme.register.domain.aperture)
     await rme.register.domain.aperture(rme.instance);
 
+  runtime.aperture.open("/manifest", async (body, ctx) => ({
+    ...ctx.runtime.config.manifest,
+  }));
+
   runtime.aperture.open("/status", async (body, ctx) => ({
     status: "runtime:/status ok",
-    // user: await ctx.identity.getUser(),
-    runtime: ctx.runtime.config.manifest.slug,
-    timestamp: new Date().toISOString(),
   }));
 
   runtime.aperture.open("/modules/:module/:method", async (body, ctx) => {
@@ -42,12 +43,29 @@ export async function aperture(rme) {
     // return await ctx.runtime.modules[someModuleManager/EntityMap/RepositorySystem][ctx.params.method](module.type, body.where, body.options);
   });
 
-  runtime.aperture.open("/entities/:entity/:repo", async (body, ctx) => {
+  runtime.aperture.open("/entities/:entity/:method", async (body, ctx) => {
     const entity = ctx.runtime.entities[ctx.params.entity];
-    return await ctx.runtime.entities.em[ctx.params.repo](
+    return await ctx.runtime.entities.em[ctx.params.method](
       entity.entityName,
       body.where,
       body.options,
     );
   });
+}
+
+export async function expose(rme, daemon) {
+  const identity = [...daemon.services]
+    .filter(({ runtime }) => runtime === rme.slug)
+    .find(({ slug }) => slug === "identity");
+
+  daemon.aperture
+    .branch(`/runtime/${rme.slug}`)
+    .use(
+      secure.context(
+        await identity.prototype //
+          .client(identity, rme.instance.entities.user),
+      ),
+    )
+    .use(secure.authorize())
+    .descendants.push(rme.instance.aperture);
 }

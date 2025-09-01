@@ -48,4 +48,4 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
   },
 });
 
-export default { UserSchema, UserEntity };
+export default { schema: UserSchema, entity: UserEntity };

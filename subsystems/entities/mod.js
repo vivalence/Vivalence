@@ -2,6 +2,9 @@ export * from "./base/VirtualEntity.ts";
 export * from "./base/DataEntity.ts";
 export * from "./base/BaseEntity.ts";
 
+export * from "./system/Identity.ts";
+export * from "./system/Shard.ts";
+
 export * from "./userland/User.ts";
 export * from "./userland/Session.ts";
 export * from "./userland/Intent.ts";
@@ -10,6 +13,9 @@ export * from "./ontology/Issue.ts";
 export * from "./ontology/Topography.ts";
 export * from "./ontology/Constraint.ts";
 export * from "./ontology/Dimension.ts";
+
+// import identity from "./system/Identity.ts";
+// import shard from "./system/Shard.ts";
 
 import topography from "./ontology/Topography.ts";
 import constraint from "./ontology/Constraint.ts";
@@ -21,6 +27,7 @@ import session from "./userland/Session.ts";
 import user from "./userland/User.ts";
 
 export const maps = {
+  // system: { identity, shard },
   userland: { user, intent, session },
   ontology: { topography, constraint, issue, dimension },
 };

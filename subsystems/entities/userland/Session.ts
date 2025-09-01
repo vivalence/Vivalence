@@ -51,4 +51,4 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
     history: { type: "json" },
   },
 });
-export default { SessionSchema, SessionEntity };
+export default { schema: SessionSchema, entity: SessionEntity };

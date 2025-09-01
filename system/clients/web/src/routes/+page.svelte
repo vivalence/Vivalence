@@ -1,25 +1,30 @@
 <script>
   import { goto } from "$app/navigation";
   import { onMount } from "svelte";
+  import { get } from "svelte/store";
 
-  import { authority } from "@client/authority";
-
+  import { isIdentified, login, lighthouse } from "@client/app";
   import { Text, Button, Input } from "@vivalence/interface";
-  import { Alert } from "@client/shadcn/components/ui/alert/index.js";
+  import ServiceStatus from "@client/views/service/ServiceStatusCard.svelte";
 
   let username = $state("beef");
   let password = $state("biggusdickus");
 
   const submit = async (e) => {
-    await authority.login(username, password);
-    if (authority.isIdentified) goto("/");
+    await login(username, password);
+    if (isIdentified()) goto("/viva");
     else console.log("not logged in");
   };
 </script>
 
 <div class="bsp-node h2 items-center px-24 debug-*">
-  <div class="bsp-node text-center">
-    <Text weight="bold" size="2xl">login</Text>
+  <div class="bsp-node h2">
+    <div class="text-center">
+      <Text weight="bold" size="2xl">login</Text>
+    </div>
+    <div>
+      <ServiceStatus service={lighthouse} />
+    </div>
   </div>
   <div class="bsp-node">
     <Input placeholder="Name" bind:value={username} />

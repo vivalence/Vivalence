@@ -6,6 +6,7 @@ const manifest = {
   slug: "multiplayer",
   name: "Identity service. Provides user authentication, authorization and licencing. Works by - Entitlements to services, traits, strategies, and resources.",
   traits: ["IDENTITY", "ATTACHED"],
+  // traits: ["DATAMAP"],
 };
 
 export { manifest, client, server };

@@ -1,11 +1,6 @@
 import { Env } from "@vivalence/typology/prototypes";
 import * as dotenv from "@std/dotenv";
 
-export async function repoloader(config) {
-  let { VIVA_REGISTER_DIR } = config.env.vars;
-  config.registry = { register: VIVA_REGISTER_DIR };
-}
-
 export async function envloaders(config) {
   const checked = config.check.env([
     "VIVA_REPOSITORY_DIR",
@@ -24,18 +19,31 @@ export async function envloaders(config) {
     const envPath = Deno.env.get("VIVA_ENV_FILE");
     config.env.assign(await dotenv.load({ envPath }));
   }
-}
-export async function modeselector(config) {
-  let {
-    VIVA_CONFIG_DIR,
-    VIVA_SYSTEM_MODE,
-    VIVA_SYSTEM_ROLE,
-    VIVA_SYSTEM_VARIANT,
-  } = config.env.vars;
+  // "VIVA_SYSTEM_DIR", "VIVA_CONFIG_DIR", "VIVA_DATA_DIR", "VIVA_REGISTER_DIR",
 
-  config.env.assign({
-    VIVA_DATA_DIR: `${VIVA_CONFIG_DIR}/data`,
-  });
+  for (const [key, value] of Object.entries(Deno.env.toObject())) {
+    if (key.startsWith("VIVA_")) {
+      config.env.set(key, value);
+    }
+  }
+}
+
+export async function repoloader(config) {
+  const { VIVA_REGISTER_DIR, VIVA_CONFIG_DIR } = config.env.vars;
+
+  const checked = config.check.env(["VIVA_DATA_DIR"]);
+  if (checked.length > 0) {
+    config.env.assign({
+      VIVA_DATA_DIR: `${VIVA_CONFIG_DIR}/data`,
+    });
+  }
+
+  config.registry = { register: VIVA_REGISTER_DIR };
+}
+
+export async function modeselector(config) {
+  let { VIVA_SYSTEM_MODE, VIVA_SYSTEM_ROLE, VIVA_SYSTEM_VARIANT } =
+    config.env.vars;
 
   if (!VIVA_SYSTEM_VARIANT) {
     VIVA_SYSTEM_VARIANT = `${VIVA_SYSTEM_MODE}_${VIVA_SYSTEM_ROLE}`;
@@ -51,6 +59,22 @@ export async function modeselector(config) {
     dev: VIVA_SYSTEM_MODE === "DEVELOPMENT",
     prod: VIVA_SYSTEM_MODE === "PRODUCTION",
   };
+  // VIVA_SYSTEM_MODE="DEVELOPMENT" # SERVICE BUILD TESTING PRODUCTION
+  // VIVA_SYSTEM_ROLE="DAEMON" # CLIENT SERVICE SUDO
+  // VIVA_SYSTEM_VARIANT="BUILD_CLIENT" # CLIENT SERVICE SUDO
+}
+
+export async function filesystem(config) {
+  const directories = [
+    config.env.get("VIVA_REPOSITORY_DIR"),
+    config.env.get("VIVA_CONFIG_DIR"),
+    config.env.get("VIVA_REGISTER_DIR"),
+    config.env.get("VIVA_DATA_DIR"),
+  ];
+
+  for (const dir of directories) {
+    await config.state.path(dir);
+  }
 }
 
 export async function checks(config) {
@@ -64,8 +88,3 @@ export async function checks(config) {
     ])
     ?.throw();
 }
-
-// VIVA_SYSTEM_MODE="DEVELOPMENT" # SERVICE BUILD TESTING PRODUCTION
-// "VIVA_SYSTEM_DIR", "VIVA_CONFIG_DIR", "VIVA_DATA_DIR", "VIVA_REGISTER_DIR",
-// VIVA_SYSTEM_ROLE="DAEMON" # CLIENT SERVICE SUDO
-// VIVA_SYSTEM_VARIANT="BUILD_CLIENT" # CLIENT SERVICE SUDO

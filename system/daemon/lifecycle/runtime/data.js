@@ -1,4 +1,4 @@
-import { mw, Vector, parser } from "@vivalence/vector";
+import { mw, Vector, compiler, controller } from "@vivalence/vector";
 import { bundler, secure, is } from "@vivalence/shared";
 import { maps } from "@vivalence/entities";
 
@@ -19,7 +19,7 @@ export async function data(rme, daemon) {
   runtime.entities = {
     orm: runtime.domain.datamap,
     em: runtime.domain.datamap.em.fork(),
-    on: new Vector(parser.sig),
+    on: new Vector(),
   };
 
   await Promise.all(
@@ -29,16 +29,30 @@ export async function data(rme, daemon) {
           .getRepository(dme.entity);
     }),
   );
+}
 
-  runtime.aperture
-    .branch("/entities")
-    .open("/:entity/:repo", async (body, ctx) => {
-      const entity = ctx.runtime.entities[ctx.params.entity];
-      return await ctx.runtime.entities.em[ctx.params.repo](
-        //
-        entity.entityName,
-        body.where,
-        body.options,
-      );
-    });
+export async function twitch(rme) {
+  const subscriptions = rme.instance.entities.on.patterns
+    .map((p) => p.signature)
+    .map((s) => rme.register.domain.data.map[s].entity);
+
+  const subscriber = new compiler.Subscriber(
+    subscriptions,
+    async (signal, event) => {
+      try {
+        const [effect, apply] = controller //
+          .traverse(rme.instance.entities.on, signal);
+        const context = { event, runtime: rme.instance };
+        context.runtime.entities.em = context.runtime.entities.em.fork();
+        await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+        await context.runtime.entities.em.flush();
+      } catch (error) {
+        if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
+      }
+    },
+  );
+
+  rme.instance.entities.em
+    .getEventManager() //
+    .registerSubscriber(subscriber);
 }

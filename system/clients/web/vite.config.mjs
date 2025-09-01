@@ -9,12 +9,11 @@ const __packages = join(__dirname, "../../../subsystems");
 export default defineConfig({
   resolve: {
     alias: {
-      "@client/lib/": join(__dirname, "./src/lib/"),
-      "@client/authority": join(__dirname, "./src/authority.js"),
-      "@client/user": join(__dirname, "./src/user.js"),
-      "@client/generator": join(__dirname, "./src/generator.js"),
+      "@client/app": join(__dirname, "./src/client.svelte.js"),
 
+      "@client/lib/": join(__dirname, "./src/lib/"),
       "@client/components/": join(__dirname, "./src/components/"),
+      "@client/views/": join(__dirname, "./src/components/views/"),
       "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@client/icons/": join(__dirname, "./static/icons/"),
 

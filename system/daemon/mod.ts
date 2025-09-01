@@ -11,10 +11,10 @@ import * as integrate from "./lifecycle/integrate.js";
 
 import { Daemon } from "@vivalence/typology/prototypes";
 
-const daemon = new Daemon(config.system.daemon);
+export const daemon = new Daemon(config.system.daemon);
+
 await daemon.registry.init(config.registry);
 await preflight.cleanup(daemon);
-// await preflight.checks(daemon);
 await populate.services(daemon);
 await populate.runtimes(daemon);
 await resolve.runtimes(daemon);

@@ -14,15 +14,18 @@ async function lifecycle() {
   await preflight.envloaders(config);
   await preflight.repoloader(config);
   await preflight.modeselector(config);
+  await preflight.filesystem(config);
   await preflight.checks(config);
 
   await populate.env(config);
   await populate.secrets(config);
   await populate.services(config);
+  // await populate.impose(config);
 
   await resolve.daemon(config);
   await resolve.runtimes(config);
   await resolve.clients(config);
+  // await resolve.guarantee(config);
 
   await integrate.publish(config);
   await integrate.validate(config);

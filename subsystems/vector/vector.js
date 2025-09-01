@@ -1,7 +1,8 @@
 import { is } from "@vivalence/shared";
+import { sig } from "./parser/index.js";
 
 export class Vector {
-  constructor(parsers) {
+  constructor(parsers = [sig]) {
     this.parsers = [...(is.array(parsers) ? parsers : [parsers])];
     this.effects = new Map(); // <Pattern, Effect>
     this.trajectories = new Map(); // <Pattern, Vector>

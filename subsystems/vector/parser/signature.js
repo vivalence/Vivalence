@@ -28,6 +28,13 @@ export const signatures = [
     (signature) => true,
     (signature) => (signal) => (signal.signature === signature ? signal : null),
   ],
+  [
+    "remainder",
+    (signature) => signature === "(.*)",
+    (signature) => (signal) => {
+      // your code here
+    },
+  ],
 ];
 
 // const createParser = (signatures) => {

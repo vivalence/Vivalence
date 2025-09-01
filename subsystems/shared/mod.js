@@ -1,3 +1,18 @@
+export * from "./src/trajectory/index.ts";
+export * from "./src/classifier/index.ts";
+export * from "./src/blacklist/index.js";
+export * from "./src/remedy/index.ts";
+export * as vector from "./src/vector/index.js";
+
+import secure from "./src/secure/index.js";
+import hash from "./src/hash/index.ts";
+
+import Path from "./src/Path.ts";
+import monads from "./src/monads/index.js";
+import Scope from "./src/scope/index.js";
+
+import bundler from "./src/bundler/index.js";
+import validators from "./src/validators/index.js";
 import std, {
   fn,
   is,
@@ -15,22 +30,6 @@ import std, {
   deepMerge,
   deepEquals,
 } from "./src/lib/index.js";
-
-// export * from "./src//index.ts";
-export * from "./src/trajectory/index.ts";
-export * from "./src/classifier/index.ts";
-export * from "./src/blacklist/index.js";
-export * from "./src/remedy/index.ts";
-
-import secure from "./src/secure/index.js";
-import hash from "./src/hash/index.ts";
-
-import Path from "./src/Path.ts";
-import monads from "./src/monads/index.js";
-import Scope from "./src/scope/index.js";
-
-import bundler from "./src/bundler/index.js";
-import validators from "./src/validators/index.js";
 
 array.hash = hash.array;
 obj.hash = hash.object;

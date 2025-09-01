@@ -7,13 +7,13 @@ import tools from "./locals/index.js";
 import trajectory from "./trajectories/index.js";
 import run from "./lib/run.js";
 
-const client = {
+export const client = {
   process: null,
   tools: {},
   trajectory: new Trajectory([parsers.sig]),
 };
 
-await registry.init();
+await registry.init(config.registry);
 
 await [
   boot,

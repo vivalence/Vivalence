@@ -42,10 +42,9 @@ export default function (config) {
     secret: {
       jwt: config.env.secrets.get("JWT_SECRET"),
     },
-    // config: {
-    //   secret: config.env.secrets.get("JWT_SECRET"),
-    //   // data: config.joins.service("identity").data.runtime(manifest.slug),
-    // },
+    config: {
+      authority: { url: config.env.get("VIVA_LIGHTHOUSE_URL") },
+    },
   };
   const database = {
     module: "@vivalence/service/libsql",

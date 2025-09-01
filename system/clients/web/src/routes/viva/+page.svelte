@@ -1,14 +1,17 @@
 <script>
+  import { isIdentified, login, lighthouse } from "@client/app";
   import { Text } from "@vivalence/interface";
-  import { runtimes } from "@client/authority";
-  import { get } from "svelte/store";
-  console.log(get(runtimes)[0]);
+  import { runtimes, logout } from "@client/app";
 
-  // const link = (runtime, intent) =>
-  //   "/viva" +
-  //   `/runtime/${runtime.slug}` +
-  //   intent.data.RESOLVED.path +
-  //   `?intent=${intent.id}`;
+  const link = (runtime, intent) => {
+    return (
+      "/viva" +
+      `/runtime/${runtime.manifest.slug}` +
+      intent.data.RESOLVED.path +
+      `?intent=${intent.id}`
+    );
+  };
+
 </script>
 
 <div class="bsp-node container mx-auto flex flex-col items-center h-full">
@@ -21,14 +24,18 @@
       size="8xl">VIVALENCE</Text>
   </div>
   <div class="bsp-node">
-    <!-- {#each user.runtimes as runtime} -->
-    <!--   {#each runtime.intents as intent} -->
-    <!--     <a href={link(runtime, intent)}> -->
-    <!--       <Text color="text-palette-gray-100" size="xl"> -->
-    <!--         {intent.data.RESOLVED.path} -->
-    <!--       </Text> -->
-    <!--     </a> -->
-    <!--   {/each} -->
-    <!-- {/each} -->
+    {#each runtimes.values() as runtime}
+      <Text color="text-palette-gray-100" size="2xl">
+        {runtime.manifest.slug}
+      </Text>
+
+      {#each runtime.entities.intent as intent}
+        <a href={link(runtime, intent)}>
+          <Text color="text-palette-gray-100" size="xl">
+            {intent.data.RESOLVED.path}
+          </Text>
+        </a>
+      {/each}
+    {/each}
   </div>
 </div>

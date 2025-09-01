@@ -10,9 +10,9 @@ export default class Config {
   env = new Env();
   registry = { register: null };
   system = {
-    role: null,
-    mode: null,
-    variant: null,
+    role: null, // client daemon service runtime
+    mode: null, // development production
+    variant: null, // custom || f(role,mode)
     daemon: {},
     clients: {},
   };
@@ -25,6 +25,7 @@ export default class Config {
     check(this);
     state(this);
   }
+  // patchable
   map = {
     // directories = {system,data,env};
     env: {

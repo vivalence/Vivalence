@@ -2,7 +2,7 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
 import { UserEntity } from "./User.ts";
-// import { SessionEntity } from "../3_userland/Session.ts";
+import { SessionEntity } from "./Session.ts";
 
 export enum IntentTraitsEnum {
   BOOKMARKED = "BOOKMARKED",
@@ -13,7 +13,7 @@ export class IntentEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   traits: IntentTraitsEnum[] & Opt = [];
   data: any & Opt = {};
-  // sessions = new Collection<SessionEntity>(this);
+  sessions = new Collection<SessionEntity>(this);
 }
 
 export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({
@@ -37,14 +37,14 @@ export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({
       columnType: "json",
     },
 
-    // sessions: {
-    //   kind: "1:m",
-    //   entity: () => SessionEntity,
-    //   mappedBy: (session) => session.intent,
-    // },
+    sessions: {
+      kind: "1:m",
+      entity: () => SessionEntity,
+      mappedBy: (session) => session.intent,
+    },
 
     data: { type: "json" },
   },
 });
 
-export default { IntentSchema, IntentEntity };
+export default { schema: IntentSchema, entity: IntentEntity };

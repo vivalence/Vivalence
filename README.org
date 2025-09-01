@@ -1,4 +1,7 @@
 das internet dem individuum.
+
+viva was build around the idea that people shouldnt go to applications, applications should come to the people.
+
 cybernetically enhanced education system, designed to outlive all of us.
 
 vivalence is an operating system for agentic symbolic ai, tasked to teach you whatever you want to be able to do.
@@ -69,6 +72,19 @@ be the global competence transfer layer for humanity.
 like the internet is for information or facebook is for social.
 
 * values
+we practice service.
+we are curious.
+    driven
+    epistemologically humble
+we are patient.
+    deliberate.
+    the system never goes out of coherence.
+    every work on the system is work on the whole system.
+we are dangerous.
+    persistant.
+    mercyless.
+    effective efficient sustained
+
 ** curiosity
 *** optimise for learning
 doing is linear, learning is log.
@@ -109,7 +125,7 @@ how does it work? hierarchy of knowledge, measurability, critical path, games.
 
 whats a users primary focus? goals and games. you play games untill a dependency is met. then you play more difficult games.
 
-vivalence is an adjective. „with vivalence“.
+vivalence is a noun. „with vivalence“.
 
 build the young ladys illustrated primer.
 build a individualized, reactive museeum tour.
@@ -139,7 +155,8 @@ education is an aspiration. to be rolled up the hill for all of our eternity.
 the quality of the steps taken.
 
 
+rolling release presentation cycle.
+only one head, system is expected to be in coherence.
 
-* business pricing 
-self hosted - 30cent per user per day, 3€ per month. 30€ per year. metered LLM. 
-hosted 25€ - per user per month / 250 € per year. 1MT/1BT included. 
+its the last piece of software youll ever have to learn. and a lifetime to master.
+

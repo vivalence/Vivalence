@@ -22,13 +22,6 @@ class Identity {
   }
 }
 
-export const token = persisted("token", null, {
-  beforeRead: (value) => {
-    return new Token(value);
-  },
-  // beforeWrite: (value) => {/* change value after writing to store, but before writing return value to local storage*/},
-});
-
 // class Shard {constructor(value) {this.slug = value.slug; this.url = value.url; this.call = new Call(value.url);} withAuth(auth) {this.call.use(withAuth(auth)).use(authorize()); return this;}}
 
 export const identity = persisted("identity", null, {

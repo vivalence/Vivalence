@@ -5,17 +5,18 @@ ENV VIVA_REPOSITORY_DIR="/viva/repository"
 
 COPY deno.jsonc import_map.json ./
 COPY system/ ./system/
-COPY packages/ ./packages/
+COPY subsystems/ ./subsystems/
+COPY register/ ./register/
+
+RUN echo 'export * from "./system/daemon/mod.ts";' > deps.ts && \
+    echo 'export * from "./system/clients/shell/mod.js";' >> deps.ts
 
 RUN deno cache --import-map=import_map.json deps.ts
+
 RUN deno task deno:install
 RUN deno task viva:install
 
-# ENTRYPOINT ["viva"]
 CMD ["tail", "-f", "/dev/null"]
 
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#   CMD deno run -A ./healthcheck.js
-
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-#   CMD curl -f http://localhost:3000/health || exit 1
+#     CMD deno run -A -c deno.jsonc -r ./system/clients/shell/healthcheck.js || exit 1

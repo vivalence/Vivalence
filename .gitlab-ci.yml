@@ -1,0 +1,36 @@
+stages:
+  - build-base
+  - build-services
+  - test
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  REGISTRY: $CI_REGISTRY_IMAGE
+
+build-base:
+  stage: build-base
+  script:
+    - docker build -t $REGISTRY/viva:$CI_COMMIT_SHA .
+    - docker tag $REGISTRY/viva:$CI_COMMIT_SHA $REGISTRY/viva:latest
+    - docker push $REGISTRY/viva:$CI_COMMIT_SHA
+    - docker push $REGISTRY/viva:latest
+
+build-daemon:
+  stage: build-services
+  needs: ["build-base"]
+  script:
+    - docker build -f system/daemon/Dockerfile -t $REGISTRY/daemon:$CI_COMMIT_SHA .
+    - docker push $REGISTRY/daemon:$CI_COMMIT_SHA
+
+build-web:
+  stage: build-services
+  needs: ["build-base"]
+  script:
+    - docker build -f system/clients/web/Dockerfile -t $REGISTRY/web:$CI_COMMIT_SHA .
+    - docker push $REGISTRY/web:$CI_COMMIT_SHA
+
+deploy:
+  stage: deploy
+  script:
+    - docker-compose -f variants/docker-compose.yml -f variants/docker-compose.production.yml up -d

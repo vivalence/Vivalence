@@ -2,6 +2,7 @@ import { context, mw as mwa } from "@vivalence/vector/aperture";
 import { mw, compiler, controller } from "@vivalence/vector";
 import { secure, is } from "@vivalence/shared";
 import { Application } from "oak";
+import * as lifecycle from "./runtime/index.js";
 
 export async function serve(daemon) {
   const app = new Application();
@@ -9,35 +10,31 @@ export async function serve(daemon) {
   app.use(mwa.cors);
   app.use(daemon.aperture.compose(true));
 
-  const PORT = parseInt(daemon.config.server.port);
+  app.addEventListener("listen", ({ hostname, port, serverType }) => {
+    console.log(`${"listening on :"}${`${port}`}`);
+  });
 
-  daemon.server = app.listen({ port: PORT });
-  console.log("daemon listening on port:", PORT);
+  const PORT = parseInt(daemon.config.server.port);
+  daemon.server = app.listen({ hostname: "127.0.0.1", port: PORT });
 }
 
 export async function runtimes(daemon) {
   for (const rme of daemon.runtimes) {
     await call(rme);
+    await lifecycle.twitch(rme);
+    await lifecycle.expose(rme, daemon);
     // await modules(rme);
-    // await ontology(daemon);
-    await twitch(rme);
     // datasets
   }
 }
 
 export async function attach(daemon) {
-  for (const rme of daemon.runtimes) {
-    daemon.aperture
-      .branch(`/runtime/${rme.slug}`)
-      .use(
-        secure.context(
-          rme.instance.services.identity,
-          rme.instance.entities.user,
-        ),
-      )
-      .use(secure.authorize())
-      .descendants.push(rme.instance.aperture);
+  daemon.aperture.open("/status", async () => ({
+    code: "SUCCESS",
+    message: "daemon:/status ok",
+  }));
 
+  for (const rme of daemon.runtimes) {
     const attached = daemon.aperture.branch(`/attached/runtime/${rme.slug}`);
 
     attached
@@ -88,26 +85,4 @@ async function call(rme) {
     if (ctx.response.status === 404) console.log("[404]", ctx.request);
     return ctx.response.body;
   };
-}
-
-async function twitch(rme) {
-  const subscriptions = rme.instance.entities.on.patterns
-    .map((p) => p.signature)
-    .map((s) => rme.register.domain.data.map[s].entity);
-
-  const subscriber = new compiler.Subscriber(
-    subscriptions,
-    async (signal, event) => {
-      const [effect, apply] = controller //
-        .traverse(rme.instance.entities.on, signal);
-      const context = { event, runtime: rme.instance };
-      context.runtime.entities.em = context.runtime.entities.em.fork();
-      await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
-      await context.runtime.entities.em.flush();
-    },
-  );
-
-  rme.instance.entities.em
-    .getEventManager() //
-    .registerSubscriber(subscriber);
 }

@@ -1,14 +1,9 @@
 FROM vivalence/viva:latest AS root
-
 WORKDIR /repository
 COPY config config
 
-RUN viva run build client web
+# RUN viva run build client web
 # for caching, mount nodemodules and register
-
-# or:
-# RUN viva run daemon lifecycle
-# pulls deps and builds, cycles healthchecks and handshakes, ends.
 
 FROM vivalence/alpine
 WORKDIR /repository
@@ -18,4 +13,8 @@ COPY --from=root /build/client/web ./build
 # CMD ["/start.sh"]
 # run ./build
 
+# or:
+# RUN viva run daemon lifecycle
+# pulls deps and builds, cycles healthchecks and handshakes, ends.
+## FROM --root
 # RUN viva run daemon daemonize

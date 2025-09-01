@@ -4,3 +4,6 @@ we construct things as prototypes.
 all of it is cast in types,
 and composed for use by vectors.
 
+
+everything in viva is a memetic symbol first, and implementation detail later. 
+

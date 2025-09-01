@@ -1,4 +1,3 @@
-import config from "@vivalence/config";
 import { deepClone, is } from "@vivalence/shared";
 
 import register from "./lib.js";

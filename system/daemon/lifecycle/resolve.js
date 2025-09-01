@@ -6,8 +6,11 @@ import * as lifecycle from "./runtime/index.js";
 
 export async function runtimes(daemon) {
   for (const rme of daemon.runtimes) {
+    await lifecycle.services(rme, daemon);
+    await lifecycle.ontology(rme);
     await lifecycle.data(rme, daemon);
     await lifecycle.aperture(rme);
+    await lifecycle.shard(rme);
 
     if (rme.register.domain.lifecycle.boot)
       await rme.register.domain.lifecycle.boot(rme.instance);
@@ -122,51 +125,6 @@ async function moduleaperture(rme, daemon) {
         result.view = { url: module.view.url };
       }
 
-      return result;
-    });
-}
-
-async function authority(rme) {
-  const runtime = rme.instance;
-
-  // const identity = [...daemon.services] //
-  //   .find(({ slug, runtime }) => slug === "identity" && runtime === rme.slug);
-  // if (!database.implements("IDENTITY")) throw new Error();
-
-  // // runtime. = await identity.prototype.client(); // //
-
-  const aperture = runtime.aperture.branch("/shard");
-
-  aperture.open("/status", (body, ctx) => ({
-    status: "identity:/status ok",
-    timestamp: new Date().toISOString(),
-  }));
-
-  aperture
-    .use(secure.authorize())
-    .open("/handshake", async (_, ctx) => {
-      const user = await ctx.identity.getUser();
-      // console.log("user", user);
-      return { success: true };
-    })
-    .open("/entities/:entity/:method", async (input, ctx) => {
-      const params = ctx.params;
-      if (!input.where) input.where = {};
-
-      if (!["intent"].includes(params.entity))
-        throw new Error("unsupported entity");
-      if (!["find"].includes(params.method))
-        throw new Error("unsupported method");
-
-      const user = await ctx.identity.getUser();
-      const repository = ctx.runtime.entities[params.entity];
-
-      let result = {};
-      switch (params.method) {
-        case "find":
-          input.where.user = user.id;
-          result = await repository.find(input.where, input.options);
-      }
       return result;
     });
 }

@@ -1,12 +1,13 @@
-import { controller, signature, classes } from "@vivalence/vector"; // Context
+import { controller, signature, classes, errors } from "@vivalence/vector"; // Context
 import { BufferState, Buffer } from "@vivalence/interface";
-import { generator } from "@client/generator";
+import { generator } from "./generator/index.js";
 
 export const load = async (event) => {
   const buffer = new BufferState();
   const signal = signature.signal(event.url.pathname);
 
   const [state, apply, _, path] = controller.traverse(generator, signal);
+  if (!state) throw new errors.NotFound(signal);
 
   buffer.withPull(async () => {
     const context = new classes.Context({

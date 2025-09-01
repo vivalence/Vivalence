@@ -1,10 +1,11 @@
 import { goto } from "$app/navigation";
-import { authority } from "@client/authority";
+import { get } from "svelte/store";
+import { authority, isIdentified, verify } from "@client/app";
 
 export const ssr = false;
 
 export const load = async (event) => {
-  if (authority.isIdentified && (await authority.verify())) {
+  if (isIdentified() && (await verify())) {
     goto("/viva");
   }
 };

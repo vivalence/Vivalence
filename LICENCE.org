@@ -23,6 +23,12 @@ for this i need freedom to change the license.
 i can not just change the freedoms granted under private use. 
 
 * todo
+** institutional use implements a definition of an application of "computational use" which has a substructure for training use.
+when using this system to train an llm, gpt, diffusor or or or.
+cost per flop.
+no, makes no sense. must be something internal. hmm
+
+
 ** flat license of 1 current per month per person (10c/year)
 ** public benefit 
 private market revenue is quartered into { infrastructure dependencies contributors vivalence }

@@ -38,6 +38,12 @@ export const lineHeight = {
   "7xl": "1.3",
   "8xl": "1.3",
 };
+
+const textShadow = {
+  // not used yet
+  DEFAULT: "rgba(0, 0, 0, 0.2) 0px 2px 8px", // from octelium
+};
+
 const boxShadow = {
   sm: "0 1px 2px rgb(0, 0, 0, 0.05)",
   DEFAULT: "1 1px 3px rgb(0, 0, 0, 0.1)",
