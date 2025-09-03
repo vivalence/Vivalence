@@ -1,50 +1,57 @@
+import { merge } from "@stdlib/utils";
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
-// viva daemon run
-// viva daemon daemonize
-
-// viva client web build
-// viva client web serve
+import * as web from "@vivalence/web";
+import * as daemon from "@vivalence/daemon";
 
 export default async function (client) {
-  await services({
-    ...client,
-    trajectory: client.trajectory.branch((p) => p.sig("services")),
-  });
+  if (config.daemon) {
+    client.trajectory
+      .branch(`/variant/daemon`)
+      .use(async (ctx, next) => {
+        ctx.daemon = config.daemon;
+        ctx.daemon.manifest = daemon.manifest;
+        await next();
+      })
+      .set(daemon.control);
+  }
+  if (config.clients?.web) {
+    client.trajectory
+      .branch(`/variant/clients/web`)
+      .use(async (ctx, next) => {
+        ctx.client = config.clients.web;
+        ctx.client.manifest = web.manifest;
+        await next();
+      })
+      .set(web.control);
+  }
+  // if (config.clients?.web) {
+  //   // web.control;
 
-  return client;
+  //   client.trajectory.branch(`/control/client/web`).use(async (ctx, next) => {
+  //     ctx.client = {
+  //       env,
+  //       manifest,
+  //       config,
+  //       secret: {
+  //         //
+  //       },
+  //     };
+  //     await next();
+  //   });
+  // }
+
+  // if (config.system.daemon) {
+  //   await daemon.control(
+  //     { config: config.system.daemon },
+  //     client.trajectory.branch(`/control/system/daemon`),
+  //   );
+  // }
 }
 
-async function services(client) {
-  // todo: move serivce server control to daemon.
-  const services = config.services;
-  const runtimes = config.runtimes;
-
-  for (const [slug, serviceconfig] of Object.entries(services)) {
-    const service = await registry.load(serviceconfig.service);
-
-    const host = {
-      trajectory: client.trajectory.branch(`/daemon/${slug}`),
-    };
-
-    // todo delete serviceconfig.config.client
-    if (service.control) await service.control(serviceconfig, host);
-  }
-
-  for (const [runtimeslug, runtimeconfig] of Object.entries(runtimes)) {
-    const services = runtimeconfig.services;
-    for (const [serviceslug, serviceconfig] of Object.entries(services)) {
-      const service = await registry.load(serviceconfig.service);
-
-      const host = {
-        trajectory: client.trajectory.branch(`/@${runtimeslug}/${serviceslug}`),
-      };
-
-      // todo delete serviceconfig.config.client
-      if (service.control) await service.control(serviceconfig, host);
-    }
-  }
-
-  return client;
-}
+// client.trajectory .branch("system") .open("up", async (ctx) => {return { status: "up" };}) .open("test", async (ctx) => {const up = await ctx.call("/system/up"); return { up, output: "lorem" };});
+// await services({
+//   ...client,
+//   trajectory: client.trajectory.branch("/services"),
+// });

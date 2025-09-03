@@ -19,7 +19,8 @@ export default function joins(config) {
       env: nest(configroot, "/env"),
       system: nest(configroot, "/system"),
       runtimes: nest(configroot, "/runtimes"),
-      services: nest(configroot, "/services"),
+      assets: nest(configroot, "/assets"),
+      // services: nest(configroot, "/services"),
     },
 
     data: {

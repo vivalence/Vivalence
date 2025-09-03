@@ -9,11 +9,6 @@ export class Vector {
     this.middlewares = [];
   }
 
-  use(middleware) {
-    this.middlewares.push(middleware);
-    return this;
-  }
-
   branch(patterns) {
     patterns = this.parse(patterns);
 
@@ -39,6 +34,25 @@ export class Vector {
 
     this.branch(() => patterns.slice(0, -1)) //
       .effects.set(patterns[patterns.length - 1], effect);
+
+    return this;
+  }
+
+  use(middleware) {
+    this.middlewares.push(middleware);
+    return this;
+  }
+
+  set(vector) {
+    for (const [pattern, effect] of vector.effects) {
+      this.effects.set(pattern, effect);
+    }
+
+    for (const [pattern, trajectory] of vector.trajectories) {
+      this.trajectories.set(pattern, trajectory);
+    }
+
+    this.middlewares.push(...vector.middlewares);
 
     return this;
   }

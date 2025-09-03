@@ -29,8 +29,3 @@ build-web:
   script:
     - docker build -f system/clients/web/Dockerfile -t $REGISTRY/web:$CI_COMMIT_SHA .
     - docker push $REGISTRY/web:$CI_COMMIT_SHA
-
-deploy:
-  stage: deploy
-  script:
-    - docker-compose -f variants/docker-compose.yml -f variants/docker-compose.production.yml up -d

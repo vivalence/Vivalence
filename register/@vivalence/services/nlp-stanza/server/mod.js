@@ -40,7 +40,8 @@ async function down(_, ctx) {
   console.log(colors.green("✓ Stanza NLP services stopped successfully"));
 }
 
-export default function control(service, host) {
+export default function control(service, control) {
+  const host = { trajectory: control };
   host.trajectory.use(async (input, ctx, next) => {
     await ctx.tools.env.fromEnv(exampleEnvPath, service.config.env);
     return await next();

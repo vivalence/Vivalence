@@ -13,8 +13,7 @@ RUN echo 'export * from "./system/daemon/mod.ts";' > deps.ts && \
 
 RUN deno cache --import-map=import_map.json deps.ts
 
-RUN deno task deno:install
-RUN deno task viva:install
+RUN deno task install
 
 CMD ["tail", "-f", "/dev/null"]
 

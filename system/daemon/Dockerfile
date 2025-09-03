@@ -7,6 +7,7 @@ WORKDIR /viva/repository
 
 EXPOSE 5175
 
+# CMD ["viva", "variant", "daemon", "start"]
 CMD ["deno", "run", "-A", "system/daemon/mod.ts"]
 
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

@@ -1,0 +1,4 @@
+
+required env vars for localhost.
+export VIVA_SYSTEM_VARIANT="LOCALHOST" 
+export VIVA_ENV_FILE="/Users/finn/viva/.env"

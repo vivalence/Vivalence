@@ -14,8 +14,10 @@ export async function serve(daemon) {
     console.log(`${"listening on :"}${`${port}`}`);
   });
 
-  const PORT = parseInt(daemon.config.server.port);
-  daemon.server = app.listen({ hostname: "127.0.0.1", port: PORT });
+  daemon.server = app.listen({
+    hostname: daemon.config.serve.host,
+    port: parseInt(daemon.config.serve.port),
+  });
 }
 
 export async function runtimes(daemon) {

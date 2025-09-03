@@ -15,11 +15,14 @@
     "./subsystems/interfaces/shell",
   ],
   "tasks": {
+    // @context: how do we facilitate process handover?
     "deno:install": "deno install --allow-scripts=npm:sqlite3",
-    "viva:install": "deno run deno:install && deno install --global -f -A -n viva ./system/clients/shell/cli.js $PWD",
-    "viva": "VIVA_SYSTEM_ROLE=SUDO deno run -A ./system/clients/shell/mod.js",
-    "viva:watch": "VIVA_SYSTEM_ROLE=SUDO deno run --watch -A ./system/clients/shell/mod.js",
-    "daemon:watch": "VIVA_SYSTEM_ROLE=DAEMON deno run --watch -A  ./system/daemon/mod.ts",
-    "web:watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A system/clients/web/mod.js",
+    // "bak:viva:install": "deno install --config $PWD/deno.jsonc --global -f -A -n viva ./system/clients/shell/cli.js ",
+    "viva:install": "deno install --global -f -A -n viva ./system/clients/shell/entry.js $PWD",
+    "install": "deno run deno:install && deno run viva:install",
+    "viva": "deno run -A ./system/clients/shell/mod.js",
+    "viva:watch": "deno run --watch -A ./system/clients/shell/mod.js",
+    "daemon:watch": "deno run --watch -A  ./system/daemon/mod.ts",
+    "web:watch": "deno run -A system/clients/web/mod.js",
   },
 }

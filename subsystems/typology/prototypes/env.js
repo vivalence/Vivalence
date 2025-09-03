@@ -1,6 +1,6 @@
 export class Env {
-  constructor() {
-    this.vars = {};
+  constructor(vars = {}) {
+    this.vars = vars;
 
     return new Proxy(this, {
       get(target, prop) {
@@ -13,7 +13,7 @@ export class Env {
   }
 
   assign(obj) {
-    Object.assign(this.vars, obj);
+    Object.assign(this.vars, obj.vars || obj);
     return this;
   }
 

@@ -5,6 +5,32 @@ export const twitch = (runtime) => {
   return subscriber;
 };
 
+// export async function twitch(rme) {
+//   const subscriptions = rme.instance.entities.on.patterns
+//     .map((p) => p.signature)
+//     .map((s) => rme.register.domain.data.map[s].entity);
+
+//   const subscriber = new compiler.Subscriber(
+//     subscriptions,
+//     async (signal, event) => {
+//       try {
+//         const [effect, apply] = controller //
+//           .traverse(rme.instance.entities.on, signal);
+//         const context = { event, runtime: rme.instance };
+//         context.runtime.entities.em = context.runtime.entities.em.fork();
+//         await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+//         await context.runtime.entities.em.flush();
+//       } catch (error) {
+//         if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
+//       }
+//     },
+//   );
+
+//   rme.instance.entities.em
+//     .getEventManager() //
+//     .registerSubscriber(subscriber);
+// }
+
 //   const triggerVector = async (path, args) => {
 //     try {
 //       const signals = vector.parsers[0].signal(path);

@@ -1,3 +1,13 @@
+// new:
+export async function control(client, vector) {
+  vector
+    .use(envMiddleware)
+    .use(install)
+    .open("start", start)
+    .open("stop", stop);
+}
+
+// old (to be folded away into shell tools)
 import config from "@vivalence/config";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";

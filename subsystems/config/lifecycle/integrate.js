@@ -1,8 +1,14 @@
 export async function publish(config) {
-  const publish = await config.read.config.env(config.map.env.publish);
+  const publish = [
+    "VIVA_LIGHTHOUSE_URL",
+    "VIVA_DAEMON_URL",
+    "VIVA_CLIENTS_WEB_URL",
+  ];
+  // const publish = await config.read.config.env(config.map.env.publish);
   for (const key of publish) {
     const value = config.env.get(key) || config.env.secrets?.get(key);
     if (!value) continue;
+    config.env.set(`PUBLIC_${key}`, value);
     Deno.env.set(`PUBLIC_${key}`, value.toString());
   }
 
@@ -18,12 +24,12 @@ export async function validate(config) {
     //
   ];
 
-  if (config.system.role === "DAEMON") {
+  if (config.role === "DAEMON") {
     requiredEnvVars.push("VIVA_DAEMON_DOMAIN", "VIVA_DAEMON_PORT");
   }
 
   // catch22 is known
-  if (config.system.role === "CLIENTS_WEB") {
+  if (config.role === "CLIENTS_WEB") {
     requiredEnvVars.push("VIVA_CLIENTS_WEB_DOMAIN", "VIVA_CLIENTS_WEB_PORT");
   }
 

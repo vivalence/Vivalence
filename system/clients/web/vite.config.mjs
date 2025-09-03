@@ -26,15 +26,18 @@ export default defineConfig({
   },
   plugins: [sveltekit()],
   server: {
+    strictPort: true,
+    host: process.env["VIVA_CLIENTS_WEB_HOST"] || "localhost",
+    port: parseInt(process.env["VIVA_CLIENTS_WEB_PORT"]) || 5173,
+
     fs: { allow: ["../../.."] },
     watch: {
       usePolling: true,
+
       ignored: ["**/node_modules/**", "**/#*"],
       include: [
         "./src/**/*",
-        "../../../register/@vivalence/game/**/*.{html,svelte.js,svelte,css}",
-        "../../../register/@vivalence/strategy/**/*.{html,svelte.js,svelte,css}",
-        "../../../register/@vivalence/agent/**/*.{html,svelte.js,svelte,css}",
+        "../../../register/**/*.{html,svelte.js,svelte,css}",
         "../../../subsystems/interfaces/web/**/*",
         "../../../subsystems/shared/**/*",
       ],

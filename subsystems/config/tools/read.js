@@ -26,7 +26,8 @@ export default function read(config) {
       env: createReader(config.joins.config.env),
       system: createReader(config.joins.config.system),
       runtimes: createReader(config.joins.config.runtimes),
-      services: createReader(config.joins.config.services),
+      assets: createReader(config.joins.config.assets),
+      // services: createReader(config.joins.config.services),
     },
 
     data: {

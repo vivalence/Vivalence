@@ -9,15 +9,24 @@ import state from "./tools/state.js";
 export default class Config {
   env = new Env();
   registry = { register: null };
-  system = {
-    role: null, // client daemon service runtime
-    mode: null, // development production
-    variant: null, // custom || f(role,mode)
-    daemon: {},
-    clients: {},
+
+  role = null; // client daemon service runtime
+  mode = null; // development production
+  variant = null; // custom || f(role,mode)
+
+  daemon = {
+    env: new Env(),
   };
+  clients = {
+    web: {
+      env: new Env(),
+    },
+  };
+  // services: {},
+  remote = {};
   runtimes = new Set();
   services = new Set();
+  // processes = new Set();
   constructor() {
     find(this);
     joins(this);
@@ -25,14 +34,4 @@ export default class Config {
     check(this);
     state(this);
   }
-  // patchable
-  map = {
-    // directories = {system,data,env};
-    env: {
-      systems: "systems.jsonc",
-      service: "service.jsonc",
-      secrets: "secrets.jsonc",
-      publish: "publish.jsonc",
-    },
-  };
 }

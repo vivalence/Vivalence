@@ -4,17 +4,15 @@ const ticker = (name) => console.log(`[TICK] [${tick() / 1000}s] [${name}]`);
 
 import config from "@vivalence/config";
 
-import * as preflight from "./lifecycle/preflight.js";
 import * as populate from "./lifecycle/populate.js";
 import * as resolve from "./lifecycle/resolve.js";
 import * as integrate from "./lifecycle/integrate.js";
 
 import { Daemon } from "@vivalence/typology/prototypes";
 
-export const daemon = new Daemon(config.system.daemon);
+export const daemon = new Daemon(config.daemon);
 
 await daemon.registry.init(config.registry);
-await preflight.cleanup(daemon);
 await populate.services(daemon);
 await populate.runtimes(daemon);
 await resolve.runtimes(daemon);
