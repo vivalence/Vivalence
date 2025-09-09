@@ -2,9 +2,9 @@
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
   "workspace": [
-    "./system/daemon",
-    "./system/clients/web",
-    "./system/clients/shell",
+    "./systems/daemon",
+    "./systems/clients/web",
+    "./systems/clients/shell",
     "./subsystems/config",
     "./subsystems/vector",
     "./subsystems/typology",
@@ -17,12 +17,12 @@
   "tasks": {
     // @context: how do we facilitate process handover?
     "deno:install": "deno install --allow-scripts=npm:sqlite3",
-    // "bak:viva:install": "deno install --config $PWD/deno.jsonc --global -f -A -n viva ./system/clients/shell/cli.js ",
-    "viva:install": "deno install --global -f -A -n viva ./system/clients/shell/entry.js $PWD",
+    // "bak:viva:install": "deno install --config $PWD/deno.jsonc --global -f -A -n viva ./systems/clients/shell/cli.js ",
+    "viva:install": "deno install --global -f -A -n viva ./systems/clients/shell/entry.js $PWD",
     "install": "deno run deno:install && deno run viva:install",
-    "viva": "deno run -A ./system/clients/shell/mod.js",
-    "viva:watch": "deno run --watch -A ./system/clients/shell/mod.js",
-    "daemon:watch": "deno run --watch -A  ./system/daemon/mod.ts",
+    "viva": "deno run -A ./systems/clients/shell/mod.js",
+    "viva:watch": "deno run --watch -A ./systems/clients/shell/mod.js",
+    "daemon:watch": "deno run --watch -A  ./systems/daemon/mod.ts",
     "web:watch": "deno run -A system/clients/web/mod.js",
   },
 }

@@ -3,28 +3,28 @@ networks:
     driver: bridge
 
 services:
-  root:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    image: vivalence/viva:latest
-    container_name: viva-root
-    environment:
-      - VIVA_SYSTEM_MODE=${VIVA_SYSTEM_MODE:-DEVELOPMENT}
-      - VIVA_SYSTEM_ROLE=SUDO
-      - VIVA_SYSTEM_VARIANT=${VIVA_SYSTEM_MODE:-DEVELOPMENT}_SUDO
-      - VIVA_REPOSITORY_DIR=/viva/repository
-      - VIVA_CONFIG_DIR=/viva/repository/config
-      - VIVA_REGISTER_DIR=/viva/repository/register
-    volumes:
-      - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config
-      # - ..:/viva/repository:cached
-    networks:
-      - viva-network
-    stdin_open: true
-    tty: true
-    restart: "no"
-    command: ["tail", "-f", "/dev/null"]
+  # root:
+  #   build:
+  #     context: ..
+  #     dockerfile: Dockerfile
+  #   image: vivalence/viva:latest
+  #   container_name: viva-root
+  #   environment:
+  #     - VIVA_SYSTEM_MODE=${VIVA_SYSTEM_MODE:-DEVELOPMENT}
+  #     - VIVA_SYSTEM_ROLE=SUDO
+  #     - VIVA_SYSTEM_VARIANT=${VIVA_SYSTEM_MODE:-DEVELOPMENT}_SUDO
+  #     - VIVA_REPOSITORY_DIR=/viva/repository
+  #     - VIVA_CONFIG_DIR=/viva/repository/config
+  #     - VIVA_REGISTER_DIR=/viva/repository/register
+  #   volumes:
+  #     - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config
+  #     # - ..:/viva/repository:cached
+  #   networks:
+  #     - viva-network
+  #   stdin_open: true
+  #   tty: true
+  #   restart: "no"
+  #   command: ["tail", "-f", "/dev/null"]
 
   daemon:
     build:
