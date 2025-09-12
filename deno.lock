@@ -4148,7 +4148,7 @@
       "npm:zod@*"
     ],
     "members": {
-      "system/clients/web": {
+      "systems/clients/web": {
         "packageJson": {
           "dependencies": [
             "npm:@modelcontextprotocol/sdk@^1.10.0",

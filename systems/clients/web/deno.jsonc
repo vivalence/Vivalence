@@ -1,7 +1,0 @@
-{
-  "name": "@vivalence/web",
-  "version": "0.0.1",
-  "exports": {
-    ".": "./web.viva.js",
-  },
-}

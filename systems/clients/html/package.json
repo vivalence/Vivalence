@@ -1,5 +1,5 @@
 {
-  "name": "@vivalence/web",
+  "name": "@vivalence/svelte",
   "version": "1.0.0",
   "type": "module",
   "private": true,

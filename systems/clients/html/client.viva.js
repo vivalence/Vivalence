@@ -6,7 +6,7 @@ const __dirname = dirname(fromFileUrl(import.meta.url));
 
 export const manifest = {
   type: "client",
-  slug: "web",
+  slug: "html",
   description: "sveltekit client for local, web and bundled.",
 };
 

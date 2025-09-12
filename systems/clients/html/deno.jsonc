@@ -1,0 +1,7 @@
+{
+  "name": "@vivalence/html",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./client.viva.js",
+  },
+}
