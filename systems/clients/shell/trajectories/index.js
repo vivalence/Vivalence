@@ -2,13 +2,18 @@ import { merge } from "@stdlib/utils";
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
-import * as web from "@vivalence/web";
+import * as html from "@vivalence/html";
 import * as daemon from "@vivalence/daemon";
 
 export default async function (client) {
+  client.trajectory
+    .branch(`/system`)
+    .open("/config", (ctx) => console.log(JSON.stringify(config, null, 2)));
+  // .open(healthcheck)
+
   if (config.daemon) {
     client.trajectory
-      .branch(`/variant/daemon`)
+      .branch(`/system/daemon`)
       .use(async (ctx, next) => {
         ctx.daemon = config.daemon;
         ctx.daemon.manifest = daemon.manifest;
@@ -16,15 +21,16 @@ export default async function (client) {
       })
       .set(daemon.control);
   }
-  if (config.clients?.web) {
+
+  if (config.clients?.html) {
     client.trajectory
-      .branch(`/variant/clients/web`)
+      .branch(`/system/clients/html`)
       .use(async (ctx, next) => {
-        ctx.client = config.clients.web;
-        ctx.client.manifest = web.manifest;
+        ctx.client = config.clients.html;
+        ctx.client.manifest = html.manifest;
         await next();
       })
-      .set(web.control);
+      .set(html.control);
   }
   // if (config.clients?.web) {
   //   // web.control;

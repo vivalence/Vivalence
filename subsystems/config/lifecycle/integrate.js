@@ -2,7 +2,7 @@ export async function publish(config) {
   const publish = [
     "VIVA_LIGHTHOUSE_URL",
     "VIVA_DAEMON_URL",
-    "VIVA_CLIENTS_WEB_URL",
+    "VIVA_CLIENTS_HTML_URL",
   ];
   // const publish = await config.read.config.env(config.map.env.publish);
   for (const key of publish) {
@@ -29,8 +29,8 @@ export async function validate(config) {
   }
 
   // catch22 is known
-  if (config.role === "CLIENTS_WEB") {
-    requiredEnvVars.push("VIVA_CLIENTS_WEB_DOMAIN", "VIVA_CLIENTS_WEB_PORT");
+  if (config.role === "CLIENTS_HTML") {
+    requiredEnvVars.push("VIVA_CLIENTS_HTML_DOMAIN", "VIVA_CLIENTS_HTML_PORT");
   }
 
   config.check.env(requiredEnvVars)?.throw();

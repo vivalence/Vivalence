@@ -3,4 +3,4 @@ export * from "./ontology.js";
 export * from "./domain.js";
 export * from "./services.js";
 export * from "./aperture.js";
-export * from "./shard.js";
+export * from "./identity.js";

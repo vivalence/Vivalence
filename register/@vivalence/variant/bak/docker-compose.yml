@@ -67,7 +67,7 @@ services:
       - VIVA_SYSTEM_ROLE=CLIENT
       - VIVA_SYSTEM_VARIANT=${VIVA_SYSTEM_MODE:-DEVELOPMENT}_CLIENT
       - PUBLIC_VIVA_DAEMON_URL=http://daemon:5175
-      - PUBLIC_VIVA_CLIENTS_WEB_URL=http://localhost:5174
+      - PUBLIC_VIVA_CLIENTS_HTML_URL=http://localhost:5174
       - PUBLIC_VIVA_LIGHTHOUSE_URL=http://daemon:5175/attached/runtime/eng2lat/service/identity
     volumes:
       - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config:ro

@@ -6,7 +6,7 @@ WORKDIR /viva/repository
 # RUN deno cache system/daemon/mod.ts
 # RUN viva run build daemon || echo "No build step required"
 
-EXPOSE 5175
+EXPOSE 1729
 
 # ENTRY ["viva", "system", "daemon"]
 

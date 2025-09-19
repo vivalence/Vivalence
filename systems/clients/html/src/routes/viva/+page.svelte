@@ -1,16 +1,16 @@
 <script>
-  import { isIdentified, login, lighthouse } from "@client/app";
+  // import { isIdentified, login, lighthouse } from "@client/app";
   import { Text } from "@vivalence/interface";
-  import { runtimes, logout } from "@client/app";
+  // import { runtimes, logout } from "@client/app";
 
-  const link = (runtime, intent) => {
-    return (
-      "/viva" +
-      `/runtime/${runtime.manifest.slug}` +
-      intent.data.RESOLVED.path +
-      `?intent=${intent.id}`
-    );
-  };
+  // const link = (runtime, intent) => {
+  //   return (
+  //     "/viva" +
+  //     `/runtime/${runtime.manifest.slug}` +
+  //     intent.data.RESOLVED.path +
+  //     `?intent=${intent.id}`
+  //   );
+  // };
 
 </script>
 

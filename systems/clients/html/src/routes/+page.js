@@ -1,13 +1,11 @@
 import { goto } from "$app/navigation";
 import { get } from "svelte/store";
-import { authority, isIdentified, verify } from "@client/app";
+// import { authority, isIdentified, verify } from "@client/app";
 
 export const ssr = false;
 
 export const load = async (event) => {
-  if (isIdentified() && (await verify())) {
-    goto("/viva");
-  }
+  // if (isIdentified() && (await verify())) {goto("/viva");}
 };
 
 // import { auth, user } from "@client/app";

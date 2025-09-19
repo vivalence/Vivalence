@@ -22,6 +22,7 @@
     "uuid": "npm:uuid@11.0.5",
 
     "@libsql/client/node": "npm:@libsql/client/node",
+    "nanostores": "npm:nanostores@^1.0",
     "lowdb": "npm:lowdb@^7.0",
     "lowdb/node": "npm:lowdb@^7.0/node",
 

@@ -18,12 +18,12 @@ export default class Config {
     env: new Env(),
   };
   clients = {
-    web: {
+    html: {
       env: new Env(),
     },
   };
   // services: {},
-  remote = {};
+  remotes = {};
   runtimes = new Set();
   services = new Set();
   // processes = new Set();
@@ -35,3 +35,16 @@ export default class Config {
     state(this);
   }
 }
+
+// get json() {
+//   // const path = this.path.toString() || "/";
+//   // const routes = [];
+//   // // console.log([...this.router.entries()].flat().map((e) => e.path));
+//   // const children = this.descendants.map((child) => child.json);
+//   // if (routes.length === 0 && children.length === 0) return path;
+//   // return { [path]: [...routes, ...children] };
+// }
+
+// [Symbol.for("nodejs.util.inspect.custom")]() {
+//   return `config ${JSON.stringify(this.json, null, 2)}`;
+// }

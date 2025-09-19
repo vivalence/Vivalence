@@ -4,6 +4,9 @@
 
 .debug {
 	border: 1px solid red;
+	* {
+		border: 1px solid red;
+	}
 }
 .debug* {
 	border: 1px solid red;

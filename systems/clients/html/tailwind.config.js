@@ -1,5 +1,5 @@
 import typography from "@tailwindcss/typography";
-import theme from "./src/style/tailwind-classes.js";
+import theme from "./src/design/tailwind-classes.js";
 
 const config = {
   purge: false,
@@ -7,10 +7,8 @@ const config = {
   plugins: [typography],
   content: [
     "./src/**/*.{html,svelte,css}",
-    "../../../subsystems/interfaces/web/**/*.{html,svelte,css}",
-    "../../../register/@vivalence/strategy/**/*.{html,svelte,css}",
-    "../../../register/@vivalence/agent/**/*.{html,svelte,css}",
-    "../../../register/@vivalence/game/**/*.{html,svelte,css}",
+    "../../../interfaces/html/**/*.{html,svelte,css}",
+    "../../../register/**/*.{html,svelte,css}",
   ],
   // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
 };

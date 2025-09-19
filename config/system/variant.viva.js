@@ -6,30 +6,33 @@ export const manifest = {
 export default function variant(config) {
   // lighthouse!
   const daemon = {
-    module: "@vivalence/daemon",
+    // module: "@vivalence/daemon",
     config: {
       serve: {
         domain: "localhost",
-        port: "5175",
+        port: "1729",
       },
     },
   };
 
-  const web = {
-    module: "@vivalence/client/web",
+  const html = {
+    // module: "@vivalence/html",
     config: {
       serve: {
         domain: "localhost",
-        port: "5174",
+        port: "1794",
       },
     },
   };
 
   return {
-    // lighthouse: {},
     daemon,
-    clients: { web },
-    // remote: {},
+    lighthouse: {
+      // module: "@vivalence/html",
+      // config: {serve: {domain: "localhost", port: "1794",}, }, // attached
+    },
+    clients: { html },
+    // remotes: {},
     // services: {},
   };
 }

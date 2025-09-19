@@ -10,10 +10,10 @@ const Authenticator = Type.Object({
 export const Identity = Type.Object({
   slug: Slug,
   authentication: Type.Array(Authenticator),
-  shards: Type.Array(Shard),
+  runtimes: Type.Array(Remote),
 });
 
-export const Shard = Type.Object({
+export const Remote = Type.Object({
   type: Type.String(),
   url: Type.String(),
   slug: Slug,

@@ -1,4 +1,4 @@
-import * as preflight from "./lifecycle/preflight.js";
+import * as construct from "./lifecycle/construct.js";
 import * as populate from "./lifecycle/populate.js";
 import * as resolve from "./lifecycle/resolve.js";
 import * as integrate from "./lifecycle/integrate.js";
@@ -11,11 +11,11 @@ async function lifecycle() {
   if (config) return config;
   config = new Config();
 
-  await preflight.envloaders(config);
-  await preflight.repoloader(config);
-  await preflight.modeselector(config);
-  await preflight.filesystem(config);
-  await preflight.checks(config);
+  await construct.envloaders(config);
+  await construct.repoloader(config);
+  await construct.modeselector(config);
+  await construct.filesystem(config);
+  await construct.checks(config);
 
   await populate.env(config);
   await populate.variant(config);

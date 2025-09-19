@@ -10,6 +10,16 @@ export async function runtimes(config) {
     // config.runtimes[runtime.manifest.slug] = runtime;
     config.runtimes.add(runtimeconfig);
 
+    console.log(runtimeconfig);
+
+    // const lighthouse = {
+    //   ...serviceconfig,
+    //   slug,
+    //   runtime: runtimeconfig.manifest.slug,
+    //   data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
+    // };
+    // runtimeconfig.lighthouse = service;
+
     if (runtimeconfig.services) {
       for (const [slug, serviceconfig] of Object.entries(
         runtimeconfig.services,

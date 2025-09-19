@@ -54,16 +54,16 @@ export async function aperture(rme) {
 }
 
 export async function expose(rme, daemon) {
-  const identity = [...daemon.services]
+  const lighthouse = [...daemon.services]
     .filter(({ runtime }) => runtime === rme.slug)
-    .find(({ slug }) => slug === "identity");
+    .find(({ slug }) => slug === "lighthouse");
 
   daemon.aperture
     .branch(`/runtime/${rme.slug}`)
     .use(
       secure.context(
-        await identity.prototype //
-          .client(identity, rme.instance.entities.user),
+        await lighthouse.prototype //
+          .client(lighthouse, rme.instance.entities.user),
       ),
     )
     .use(secure.authorize())

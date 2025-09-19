@@ -5,6 +5,6 @@ export * as controller from "./controller/index.js";
 export * as compiler from "./compiler/index.js";
 export * as errors from "./types/errors.js";
 export * as classes from "./types/classes.ts";
-export * as mw from "./lib/mw.js";
+export * as mw from "./shards/mw.js";
 
 export { sig as signature } from "./parser/index.js";

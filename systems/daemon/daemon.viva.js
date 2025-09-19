@@ -5,6 +5,10 @@ export const manifest = {
   slug: "daemon",
 };
 
-export const control = new Vector().open("/start", async (ctx) => {
-  return await import("./mod.ts");
-});
+export const control = new Vector()
+  //   .open("/watch", async (ctx) => {
+  //   return await import("./mod.ts");
+  // })
+  .open("/start", async (ctx) => {
+    return await import("./mod.ts");
+  });

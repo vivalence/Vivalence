@@ -12,7 +12,6 @@ export default function (config) {
 
   const ontology = "@vivalence/ontology/language";
   const topic = ["@vivalence/topic/eng-to-lat"];
-
   const domain = "@vivalence/domain/learning";
   const modules = {
     // corpus: ["@vivalence/corpus/eng-to-lat"],
@@ -33,12 +32,11 @@ export default function (config) {
     ],
     agent: ["@vivalence/agent/eva"],
   };
-
   const register = { ontology, domain, topic, modules };
 
-  const identity = {
-    module: "@vivalence/service/multiplayer",
-    data: config.joins.data.runtime(manifest.slug, "identity"),
+  const lighthouse = {
+    module: "@vivalence/lighthouse/multiplayer",
+    data: config.joins.data.runtime(manifest.slug, "lighthouse"),
     secret: {
       jwt: config.env.secrets.get("JWT_SECRET"),
     },
@@ -46,8 +44,9 @@ export default function (config) {
       authority: { url: config.env.get("VIVA_LIGHTHOUSE_URL") },
     },
   };
+
   const database = {
-    module: "@vivalence/service/libsql",
+    module: "@vivalence/database/libsql",
     data: config.joins.data.runtime(manifest.slug, "database"),
     config: {
       db: {
@@ -55,54 +54,55 @@ export default function (config) {
       },
     },
   };
-  const brain = {
-    module: "@vivalence/service/brain",
-    secret: {
-      providers: {
-        anthropic: config.env.secrets.get("ANTHROPIC_API_KEY"),
-        // customName: {name: "customName", apiKey: config.env.get("SOME_API_KEY"), baseURL: "",},
-      },
-    },
-    config: {
-      profiles: {
-        DRONE: {
-          provider: "anthropic",
-          model: "claude-3-5-haiku-latest",
-          dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
-          params: { temperature: 0.7, maxTokens: 4000 },
+
+  const services = {
+    brain: {
+      module: "@vivalence/service/brain",
+      secret: {
+        providers: {
+          anthropic: config.env.secrets.get("ANTHROPIC_API_KEY"),
+          // customName: {name: "customName", apiKey: config.env.get("SOME_API_KEY"), baseURL: "",},
         },
-        ACADEMIC: {
-          provider: "anthropic",
-          model: "claude-3-7-sonnet-latest",
-          dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
-          params: {
-            thinking: { type: "enabled", budgetTokens: 12000 },
-            temperature: 0.7,
-            maxTokens: 20000,
+      },
+      config: {
+        profiles: {
+          DRONE: {
+            provider: "anthropic",
+            model: "claude-3-5-haiku-latest",
+            dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
+            params: { temperature: 0.7, maxTokens: 4000 },
+          },
+          ACADEMIC: {
+            provider: "anthropic",
+            model: "claude-3-7-sonnet-latest",
+            dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
+            params: {
+              thinking: { type: "enabled", budgetTokens: 12000 },
+              temperature: 0.7,
+              maxTokens: 20000,
+            },
           },
         },
       },
     },
-  };
-  const nlp = {
-    module: "@vivalence/service/nlp-stanza",
-    data: config.joins.data.runtime(manifest.slug, "nlp"),
-    secret: {
-      env: {
-        key: config.env.secrets.get("SERVICE_NLP_KEY"),
+    nlp: {
+      module: "@vivalence/service/nlp-stanza",
+      data: config.joins.data.runtime(manifest.slug, "nlp"),
+      secret: {
+        env: {
+          key: config.env.secrets.get("SERVICE_NLP_KEY"),
+        },
       },
-    },
-    config: {
-      processors: "tokenize,mwt,pos,lemma,depparse",
-      language: "la",
-      env: {
-        url: config.env.service.get("SERVICE_NLP_URL"),
-        port: config.env.service.get("SERVICE_NLP_PORT"),
+      config: {
+        processors: "tokenize,mwt,pos,lemma,depparse",
+        language: "la",
+        env: {
+          url: config.env.service.get("SERVICE_NLP_URL"),
+          port: config.env.service.get("SERVICE_NLP_PORT"),
+        },
       },
     },
   };
 
-  const services = { identity, database, brain, nlp };
-
-  return { manifest, register, services, statics };
+  return { manifest, lighthouse, database, register, services, statics };
 }

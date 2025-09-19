@@ -1,11 +1,11 @@
 import { BufferMode, BufferState } from "@vivalence/interface";
 import { Vector, signature } from "@vivalence/vector";
 
-import { identity, isIdentified, runtimes } from "@client/app";
+// import { identity, isIdentified, runtimes } from "@client/app";
 
-if (!isIdentified()) {
-  throw new Error("Unauthorized");
-}
+// if (!isIdentified()) {
+//   throw new Error("Unauthorized");
+// }
 
 export const generator = await (async () => {
   const generator = new Vector(signature).use(async (ctx, next) => {

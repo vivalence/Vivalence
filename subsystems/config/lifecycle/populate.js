@@ -3,7 +3,7 @@ import { Env } from "@vivalence/typology/prototypes";
 export async function env(config) {
   // system
   config.check.env("VIVA_CONFIG_DIR")?.throw();
-  config.env.assign(await config.read.config.env("system.jsonc"));
+  config.env.assign(await config.read.config.env("public.jsonc"));
 
   // services
   config.env.service = new Env(); //
@@ -81,9 +81,9 @@ export async function variant(config) {
 //     // config.env.set({})
 //   }
 
-//   //   VIVA_CLIENTS_WEB_URL: `http://${clients.web.domain}:${clients.web.port}`,
-//   //   VIVA_CLIENTS_WEB_DOMAIN: clients.web.domain,
-//   //   VIVA_CLIENTS_WEB_PORT: clients.web.port,
+//   //   VIVA_CLIENTS_HTML_URL: `http://${clients.web.domain}:${clients.web.port}`,
+//   //   VIVA_CLIENTS_HTML_DOMAIN: clients.web.domain,
+//   //   VIVA_CLIENTS_HTML_PORT: clients.web.port,
 //   // config.system = system;
 //   // config.remote = remote;
 //   // console.log(config);

@@ -7,7 +7,6 @@ export async function services(rme, daemon) {
 
   for (const service of daemon.services) {
     if (service.runtime === instance.slug) {
-      if (["database", "identity"].includes(service.slug)) continue;
       service.client = await service.prototype.client(service);
       instance.services[service.slug] = service.client;
     }

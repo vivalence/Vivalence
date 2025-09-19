@@ -1,0 +1,9 @@
+{
+  "name": "@vivalence/interface-html",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    // "./html": "./mod.js",
+    // "./svelte": "./mod.js",
+  },
+}

@@ -11,6 +11,8 @@ ai has changed how we build connected systems.
 problems are soluable.
 problems are inevitable.
 
+Less is More, Code is Data, Schema is God. Good is what works in Context.
+
 the planetscale education system.
 practice everything like you mean to.
 

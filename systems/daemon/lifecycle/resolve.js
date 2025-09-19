@@ -10,7 +10,7 @@ export async function runtimes(daemon) {
     await lifecycle.ontology(rme);
     await lifecycle.data(rme, daemon);
     await lifecycle.aperture(rme);
-    await lifecycle.shard(rme);
+    await lifecycle.identity(rme);
 
     if (rme.register.domain.lifecycle.boot)
       await rme.register.domain.lifecycle.boot(rme.instance);
