@@ -1,17 +1,18 @@
 <script>
-  // import { isIdentified, login, lighthouse } from "@client/app";
-  import { Text } from "@vivalence/interface";
-  // import { runtimes, logout } from "@client/app";
+  import { effect } from "nanostores";
+  import { path } from "@vivalence/typology";
+  import { Text } from "@vivalence/surface";
+  import { remotes } from "@client/app";
 
-  // const link = (runtime, intent) => {
-  //   return (
-  //     "/viva" +
-  //     `/runtime/${runtime.manifest.slug}` +
-  //     intent.data.RESOLVED.path +
-  //     `?intent=${intent.id}`
-  //   );
-  // };
+  let runtimes = remotes.runtime.$entities;
 
+  const link = (valence) => {
+    const full = valence.module.path
+      .branch(valence.resolve.generator)
+      .collapse().value;
+
+    return "/viva" + full;
+  };
 </script>
 
 <div class="bsp-node container mx-auto flex flex-col items-center h-full">
@@ -24,18 +25,16 @@
       size="8xl">VIVALENCE</Text>
   </div>
   <div class="bsp-node">
-    {#each runtimes.values() as runtime}
-      <Text color="text-palette-gray-100" size="2xl">
-        {runtime.manifest.slug}
-      </Text>
-
-      {#each runtime.entities.intent as intent}
-        <a href={link(runtime, intent)}>
-          <Text color="text-palette-gray-100" size="xl">
-            {intent.data.RESOLVED.path}
+    {#each $runtimes.values() as runtime}
+      {#each runtime.entities.valence.$entities.value as valence}
+        <a href={link(valence)}>
+          <Text color="text-palette-gray-100" >
+        {runtime.manifest.slug}/{valence.module.type}/{valence.module.slug}: {valence.slug}
           </Text>
         </a>
       {/each}
     {/each}
   </div>
 </div>
+
+<!-- {#each runtime.entities.intent as intent} <a href={link(runtime, intent)}> <Text color="text-palette-gray-100" size="xl"> {intent.data.RESOLVED.path} </Text> </a> {/each} -->

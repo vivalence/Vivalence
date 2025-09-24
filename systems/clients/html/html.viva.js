@@ -11,25 +11,35 @@ export const manifest = {
 };
 
 export const control = new Vector()
-  // .use(async (ctx, next) => {
-  //   try {
-  //     await Deno.stat(`${__dirname}/node_modules`);
-  //   } catch (err) {
-  //     console.log("Installing dependencies...");
-  //     const npmInstall = new Deno.Command("npm", {
-  //       args: ["install"],
-  //       cwd: __dirname,
-  //       stdout: "inherit",
-  //       stderr: "inherit",
-  //     });
-  //     const { code } = await npmInstall.output();
-  //     console.log({ code });
-  //     if (code !== 0) {
-  //       throw new Error(`npm install failed with code ${code}`);
-  //     }
-  //   }
-  //   await next();
-  // })
+  .use(async (ctx, next) => {
+    // TODO: test node version
+    //   try {
+    //     await Deno.stat(`${__dirname}/node_modules`);
+    //   } catch (err) {
+    //     console.log("Installing dependencies...");
+    //     const npmInstall = new Deno.Command("npm", {
+    //       args: ["install"],
+    //       cwd: __dirname,
+    //       stdout: "inherit",
+    //       stderr: "inherit",
+    //     });
+    //     const { code } = await npmInstall.output();
+    //     console.log({ code });
+    //     if (code !== 0) {
+    //       throw new Error(`npm install failed with code ${code}`);
+    //     }
+    //   }
+    //   await next();
+  })
+  .open("/install", async (ctx) => {
+    const params = {
+      cmd: ["npm", "install"],
+      env: { ...config.env.vars },
+      cwd: __dirname,
+    };
+    const process = await ctx.tools.process.start(manifest, params);
+    return process;
+  })
   .open("/start", async (ctx) => {
     const params = {
       cmd: ["npm", "run", "dev"],

@@ -1,3 +1,5 @@
+import { is } from "@vivalence/shared";
+import { Path } from "@vivalence/typology";
 import { join, dirname } from "$std/path/mod.ts";
 import { walk } from "$std/fs/mod.ts";
 import { compare, satisfies } from "$std/semver/mod.ts";
@@ -57,6 +59,16 @@ const importModule = async (path) => {
       throw new Error(`Invalid module manifest at ${path}`);
     }
     module.manifest.owner = module.manifest.owner || DEFAULT_OWNER;
+    if (module.manifest?.traits?.includes("VIEWABLE")) {
+      if (module.view instanceof Path)
+        module.view = new Path(dirname(path)).branch(module.view.value);
+      else if (is.string(module.view))
+        module.view = new Path(dirname(path)).branch(module.view);
+      else
+        console.warn("@registry: imported viewable module missing .view.entry");
+      // console.log(module.view.absolute);
+      // console.log(module.view.down().value);
+    }
     return module;
   } catch (error) {
     throw new Error(`Failed to import module at ${path}: ${error.message}`);
@@ -118,6 +130,7 @@ const buildRegistry = (modules) => {
 };
 
 const normalizeLookupQuery = (query) => {
+  if (!!query.module) query = query.module;
   if (typeof query === "string") {
     return parseModuleKey(query);
   }

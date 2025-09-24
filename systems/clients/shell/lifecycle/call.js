@@ -1,5 +1,5 @@
 import { classes, controller, signature, compiler } from "@vivalence/vector";
-import { Prompt } from "@vivalence/interface-shell";
+import { Prompt } from "@vivalence/surface-shell";
 
 export default async function call(client) {
   client.call = async (signal, body = {}, params = {}) => {

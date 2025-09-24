@@ -28,12 +28,14 @@ export const BaseSchema = new EntitySchema<BaseEntity>({
     createdAt: {
       type: types.datetime,
       onCreate: () => new Date(),
+      defaultRaw: `CURRENT_TIMESTAMP`,
       lazy: true,
     },
     updatedAt: {
       type: types.datetime,
       onCreate: () => new Date(),
       onUpdate: () => new Date(),
+      defaultRaw: `CURRENT_TIMESTAMP`,
       lazy: true,
     },
   },

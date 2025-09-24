@@ -21,11 +21,16 @@ export async function env(config) {
 export async function variant(config) {
   const file = config.joins.config.system("variant.viva.js");
   const mod = await config.read.module(file);
-  const { daemon, clients } = await mod(config);
+  const { lighthouse, daemon, clients } = await mod(config);
 
+  if (lighthouse) {
+    config.lighthouse = lighthouse.config;
+    if (typeof config.lighthouse.url !== URL)
+      config.lighthouse.url = new URL(config.lighthouse.url);
+  }
   if (daemon) {
+    // todo: typeof serve === url
     const { serve } = daemon.config;
-
     config.env.assign({
       VIVA_DAEMON_DOMAIN: serve.domain,
       VIVA_DAEMON_PORT: serve.port,
@@ -33,6 +38,7 @@ export async function variant(config) {
     });
 
     config.daemon = daemon.config;
+    config.daemon.url = new URL(`http://${serve.domain}:${serve.port}`);
   }
 
   if (clients) {

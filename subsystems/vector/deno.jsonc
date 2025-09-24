@@ -6,8 +6,8 @@
     "./parser": "./parser/index.js",
     "./controller": "./controller/index.js",
     "./compiler": "./compiler/index.js",
+    "./shards": "./shards/index.js",
     "./aperture": "./compiler/aperture/index.ts",
-    // "./waler": "./compiler/walker/index.js",
   },
 
   "tasks": {

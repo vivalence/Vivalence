@@ -1,26 +1,25 @@
 const start = performance.now();
 const tick = () => Math.round(performance.now() - start);
 const ticker = (name) => console.log(`[TICK] [${tick() / 1000}s] [${name}]`);
-
 import config from "@vivalence/config";
+import * as lifecycle from "./lifecycle/index.js";
 
-import * as populate from "./lifecycle/populate.js";
-import * as resolve from "./lifecycle/resolve.js";
-import * as integrate from "./lifecycle/integrate.js";
-
-import { Daemon } from "@vivalence/typology/prototypes";
-
-export const daemon = new Daemon(config.daemon);
-
+export const daemon = new lifecycle.Daemon(config.daemon);
 await daemon.registry.init(config.registry);
-await populate.services(daemon);
-await populate.runtimes(daemon);
-await resolve.runtimes(daemon);
-await integrate.runtimes(daemon);
-await integrate.attach(daemon);
-await integrate.serve(daemon);
+// checks
 
-// await integrate.checks(daemon);
-// await integrate.install(daemon);
+for (const populate of Object.values(lifecycle.populate)) {
+  await populate(daemon);
+}
+// checks
+
+for (const resolve of Object.values(lifecycle.resolve)) {
+  await resolve(daemon);
+}
+// checks
+
+for (const integrate of Object.values(lifecycle.integrate)) {
+  await integrate(daemon);
+}
 
 ticker("integrated.server");

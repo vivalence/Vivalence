@@ -1,5 +1,5 @@
 import { signature, controller, classes, errors } from "@vivalence/vector";
-import { Prompt } from "@vivalence/interface-shell";
+import { Prompt } from "@vivalence/surface-shell";
 
 export default async function run(client) {
   const signal = signature.signal(Deno.args.join("/"));

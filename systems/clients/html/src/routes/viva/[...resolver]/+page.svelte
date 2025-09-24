@@ -1,5 +1,5 @@
 <script>
-  import { Buffer } from "@vivalence/interface";
+  import { Buffer } from "@vivalence/surface";
   const { data } = $props();
 
   // import { page } from '$app/stores';

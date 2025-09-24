@@ -1,9 +1,10 @@
-export function context(identity) {
+export function context(lighthouseclient) {
   return async function (ctx, next) {
     // console.log("secure context");
     try {
       const token = ctx.request.headers?.get("authorization")?.split(" ")[1];
-      ctx.identity = await identity.authenticate(token);
+      ctx.lighthouse = await lighthouseclient.authenticate(token);
+      ctx.identity = ctx.lighthouse; //tmp
     } catch (error) {
       console.log("[AUTH ERROR] @shared/secure/context");
       console.log(error);
@@ -34,7 +35,7 @@ export function authorize(claims = []) {
       return ctx;
     }
 
-    const user = await ctx.identity.getUser();
+    const user = await ctx.lighthouse.getUser();
     if (!user) {
       ctx.response.status = 401;
       ctx.response.body = { error: { name: "Unauthorized" } };

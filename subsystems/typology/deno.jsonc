@@ -4,7 +4,7 @@
   "exports": {
     ".": "./mod.ts",
     "./types": "./types.d.ts",
-    "./gestalt": "./gestalt/index.ts",
+    "./gestalten": "./gestalten/index.ts",
     "./prototypes": "./prototypes/index.ts",
   },
 }

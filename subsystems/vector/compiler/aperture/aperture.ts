@@ -21,8 +21,9 @@ export default class Aperture {
 
   get json() {
     const path = this.path.toString() || "/";
-    const routes = [];
-    // console.log([...this.router.entries()].flat().map((e) => e.path));
+    const routes = [
+      ...new Set([...this.router.entries()].flat().map((e) => e.path)),
+    ];
     const children = this.descendants.map((child) => child.json);
     if (routes.length === 0 && children.length === 0) return path;
     return { [path]: [...routes, ...children] };

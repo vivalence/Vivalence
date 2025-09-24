@@ -10,12 +10,12 @@ export default function (config) {
 
   const statics = { language: { known: "english", learning: "latin" } };
 
-  const ontology = "@vivalence/ontology/language";
-  const topic = ["@vivalence/topic/eng-to-lat"];
   const domain = "@vivalence/domain/learning";
+  const ontology = "@vivalence/ontology/language";
+  // const topic = ["@vivalence/topic/eng-to-lat"];
+
   const modules = {
-    // corpus: ["@vivalence/corpus/eng-to-lat"],
-    // curricula: ["@vivalence/corpus/eng-to-lat"],
+    topic: ["@vivalence/topic/eng-to-lat"],
     game: [
       "@vivalence/game/gan",
       "@vivalence/game/flashcards",
@@ -32,11 +32,10 @@ export default function (config) {
     ],
     agent: ["@vivalence/agent/eva"],
   };
-  const register = { ontology, domain, topic, modules };
 
   const lighthouse = {
     module: "@vivalence/lighthouse/multiplayer",
-    data: config.joins.data.runtime(manifest.slug, "lighthouse"),
+    // data: config.joins.data.runtime(manifest.slug, "lighthouse"),
     secret: {
       jwt: config.env.secrets.get("JWT_SECRET"),
     },
@@ -47,7 +46,7 @@ export default function (config) {
 
   const database = {
     module: "@vivalence/database/libsql",
-    data: config.joins.data.runtime(manifest.slug, "database"),
+    // data: config.joins.data.runtime(manifest.slug, "database"),
     config: {
       db: {
         path: `/${manifest.slug}.viva.db`,
@@ -104,5 +103,14 @@ export default function (config) {
     },
   };
 
-  return { manifest, lighthouse, database, register, services, statics };
+  return {
+    manifest,
+    lighthouse,
+    database,
+    domain,
+    ontology,
+    modules,
+    services,
+    statics,
+  };
 }

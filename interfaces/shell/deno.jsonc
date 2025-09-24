@@ -1,8 +1,0 @@
-{
-  "name": "@vivalence/interface-shell",
-  "version": "0.0.1",
-  "exports": {
-    ".": "./mod.js",
-    // "./shell": "./mod.js",
-  },
-}

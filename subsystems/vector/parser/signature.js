@@ -10,6 +10,12 @@ export const split = {
 };
 
 export const signatures = [
+  ["wildcard", (signature) => signature === "*", () => (signal) => signal],
+  [
+    "remainder",
+    (signature) => signature === "(.*)",
+    (signature) => (signal) => signal,
+  ],
   [
     "param",
     (signature) => signature.startsWith(":"),
@@ -22,18 +28,10 @@ export const signatures = [
       });
     },
   ],
-  ["wildcard", (signature) => signature === "*", () => (signal) => signal],
   [
     "literal",
     (signature) => true,
     (signature) => (signal) => (signal.signature === signature ? signal : null),
-  ],
-  [
-    "remainder",
-    (signature) => signature === "(.*)",
-    (signature) => (signal) => {
-      // your code here
-    },
   ],
 ];
 

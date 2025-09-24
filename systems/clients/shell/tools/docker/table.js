@@ -1,4 +1,4 @@
-import { colors, Table } from "@vivalence/interface-shell";
+import { colors, Table } from "@vivalence/surface-shell";
 
 // Shared utilities
 const truncate = (str, length = 15) => {

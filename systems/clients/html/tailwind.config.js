@@ -7,8 +7,9 @@ const config = {
   plugins: [typography],
   content: [
     "./src/**/*.{html,svelte,css}",
-    "../../../interfaces/html/**/*.{html,svelte,css}",
-    "../../../register/**/*.{html,svelte,css}",
+    "../../../surfaces/html/**/*.{html,svelte,css}",
+    "../../../subsystems/typology/views/**/*.{html,svelte,css}", // aspirational
+    "../../../modules/**/*.{html,svelte,css}",
   ],
   // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
 };

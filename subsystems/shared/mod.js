@@ -2,7 +2,7 @@ export * from "./src/trajectory/index.ts";
 export * from "./src/classifier/index.ts";
 export * from "./src/blacklist/index.js";
 export * from "./src/remedy/index.ts";
-export * as vector from "./src/vector/index.js";
+// export * as vector from "./src/vector/index.js";
 
 import secure from "./src/secure/index.js";
 import hash from "./src/hash/index.ts";

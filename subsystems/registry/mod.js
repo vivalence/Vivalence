@@ -17,7 +17,8 @@ export async function init(config = {}) {
 }
 
 export async function load(query) {
-  if (typeof query !== "string" && query.manifest) throw new Error();
+  if (typeof query !== "string" && typeof query.module !== "string")
+    throw new Error();
   const module = await register.lookup(query);
   return module;
 }

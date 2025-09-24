@@ -1,6 +1,6 @@
 import { controller, signature, classes, errors } from "@vivalence/vector"; // Context
-import { BufferState, Buffer } from "@vivalence/interface";
-import { generator } from "./generator/index.js";
+import { BufferState, Buffer } from "@vivalence/surface";
+import { generator } from "@client/generator";
 
 export const load = async (event) => {
   const buffer = new BufferState();
@@ -13,13 +13,14 @@ export const load = async (event) => {
     const context = new classes.Context({
       buffer,
       path,
+      signal,
       params: signature.params(path),
       query: Object.fromEntries(event.url.searchParams),
     });
 
-    await apply(context, async (ctx) => (ctx.state = await state(ctx)));
+    await apply(context, async (ctx) => (ctx.generation = await state(ctx)));
 
-    return context.state;
+    return context.generation || [];
   });
 
   return { buffer };

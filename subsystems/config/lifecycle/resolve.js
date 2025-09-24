@@ -7,18 +7,14 @@ export async function runtimes(config) {
     const runtimeconfig = await mod(config);
     if (!runtimeconfig) continue;
 
-    // config.runtimes[runtime.manifest.slug] = runtime;
-    config.runtimes.add(runtimeconfig);
-
-    console.log(runtimeconfig);
-
-    // const lighthouse = {
-    //   ...serviceconfig,
-    //   slug,
-    //   runtime: runtimeconfig.manifest.slug,
-    //   data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
-    // };
-    // runtimeconfig.lighthouse = service;
+    if (!runtimeconfig.lighthouse.data)
+      runtimeconfig.lighthouse.data = config.joins.data.runtime(
+        `${runtimeconfig.manifest.slug}_lighthouse`,
+      );
+    if (!runtimeconfig.database.data)
+      runtimeconfig.database.data = config.joins.data.runtime(
+        `${runtimeconfig.manifest.slug}_database`,
+      );
 
     if (runtimeconfig.services) {
       for (const [slug, serviceconfig] of Object.entries(
@@ -31,12 +27,12 @@ export async function runtimes(config) {
           data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
         };
 
-        config.services.add(service);
-
-        // const { data, secret, ...cleanConfig } = service;
+        // config.services.add(service);
         runtimeconfig.services[slug] = service;
       }
     }
+
+    config.runtimes.add(runtimeconfig);
   }
 
   return config;

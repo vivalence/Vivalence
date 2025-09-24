@@ -1,12 +1,12 @@
-import { goto } from "$app/navigation";
-import { get } from "svelte/store";
-// import { authority, isIdentified, verify } from "@client/app";
+// import { goto } from "$app/navigation";
+// import { get } from "svelte/store";
+// import { lighthouse } from "@client/app";
 
 export const ssr = false;
 
-export const load = async (event) => {
-  // if (isIdentified() && (await verify())) {goto("/viva");}
-};
+// export const load = async (event) => {
+//   //
+// };
 
 // import { auth, user } from "@client/app";
 // // import user from "../lib/identity/user.js";
@@ -21,4 +21,15 @@ export const load = async (event) => {
 //   // const ctx = await context(event);
 
 //   return {};
+// };
+// import { redirect } from "@sveltejs/kit";
+// import { get } from "svelte/store";
+// // import { isIdentified } from "@client/app";
+
+// export const ssr = false;
+
+// export const load = async (event) => {
+//   // console.log(await verify());
+//   // if ((event.url.pathname !== "/" && !isIdentified()) || !(await verify()))
+//   // if (event.url.pathname !== "/" && !isIdentified()) redirect(307, "/");
 // };

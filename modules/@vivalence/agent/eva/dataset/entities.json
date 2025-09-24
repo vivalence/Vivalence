@@ -1,0 +1,9 @@
+{
+  "valence": {
+    "welcome-user": {
+      "slug": "welcome-user",
+      "docs": "Welcome new users to Eva agent",
+      "resolve": { "generator": "/feed" }
+    }
+  }
+}

@@ -1,14 +1,27 @@
 import { basename, dirname, fromFileUrl, join } from "$std/path/mod.ts";
-import config from "@vivalence/config";
 import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { cache } from "esbuild-plugin-cache";
 import vivaloader from "./loader.js";
 
+import config from "@vivalence/config";
+
 const root = join(dirname(fromFileUrl(import.meta.url)), "../../../../../");
+
+const importmap = {
+  imports: {
+    "@vivalence/shared": join(root, "subsystems/shared/client.js"),
+    "@vivalence/typology": join(root, "subsystems/typology/client.js"),
+    "@vivalence/vector": join(root, "subsystems/vector/mod.js"),
+    "@vivalence/surface": join(root, "surface/html/mod.js"),
+    // "@vivalence/vendor": join(root, "subsystems/vendor/client.js"),
+  },
+};
+//
 // const root = config.joins.repository
 const SVELTE_VERSION = "svelte";
 
+// console.log(config);
 export default async function (entry) {
   const build = await esbuild.build({
     entryPoints: [entry],
@@ -34,18 +47,7 @@ export default async function (entry) {
         },
       }),
       vivaloader({
-        importmap: {
-          imports: {
-            "@vivalence/shared": join(root, "packages/shared/client.js"),
-            "@vivalence/vendor": join(root, "packages/vendor/client.js"),
-            "@vivalence/vector": join(root, "packages/vector/mod.js"),
-            "@vivalence/typology": join(root, "packages/typology/client.js"),
-            "@vivalence/interface": join(
-              root,
-              "packages/interfaces/web/mod.js",
-            ),
-          },
-        },
+        importmap,
       }),
       sveltePlugin({
         filterWarnings: (warning, handler) => {

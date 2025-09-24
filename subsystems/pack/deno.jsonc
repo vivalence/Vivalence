@@ -1,0 +1,12 @@
+{
+  "name": "@vivalence/pack",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    // "./svelte": "./compiler/aperture/index.ts",
+  },
+
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/*/*.test.js",
+  },
+}

@@ -1,6 +1,6 @@
 import { Long, Short } from "../types/errors.js";
 import { traverse } from "./traverse.js";
-import { forward, chain, compose } from "../middleware.js";
+import { forward, chain, compose } from "./middleware.js";
 
 export async function walk(vector, getSignal) {
   let position = vector;

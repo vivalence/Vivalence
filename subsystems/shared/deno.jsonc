@@ -12,6 +12,5 @@
     "./validators": "./src/validators/index.js",
     "./hash": "./src/hash/index.ts",
     "./secure": "./src/secure/index.js",
-    "./vector": "./src/vector/index.js",
   },
 }

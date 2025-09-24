@@ -6,7 +6,6 @@ import {
   type Rel,
 } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
-import { RuntimeEntity } from "./Runtime.ts";
 
 export class AuthenticatorEmbedEntity {
   provider!: string;
@@ -26,7 +25,6 @@ export const AuthenticatorEmbedSchema = new EntitySchema({
 
 export class IdentityEntity extends BaseEntity {
   slug!: string;
-  runtimes = new Collection<RuntimeEntity>(this);
   authentication: AuthenticatorEmbedEntity & Opt = {};
 }
 
@@ -36,11 +34,6 @@ export const IdentitySchema = new EntitySchema({
   tableName: "Identity",
   properties: {
     slug: { type: types.string, unique: true },
-    runtimes: {
-      kind: "1:m",
-      entity: () => RuntimeEntity,
-      mappedBy: (runtime) => runtime.identity,
-    },
     authentication: {
       kind: "embedded",
       entity: "AuthenticatorEmbedEntity",
@@ -51,4 +44,10 @@ export const IdentitySchema = new EntitySchema({
   },
 });
 
-export default { IdentitySchema, IdentityEntity };
+// export default { IdentitySchema, IdentityEntity };
+
+export default {
+  schema: IdentitySchema,
+  entity: IdentityEntity,
+  // repository: IdentityRepository,
+};

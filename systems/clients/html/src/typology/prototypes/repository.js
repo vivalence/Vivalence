@@ -2,9 +2,14 @@ import { atom, computed, map } from "nanostores";
 
 export class Repository {
   listeners = { create: [] };
-  constructor(prototype, lifecycle) {
-    this.entity = { prototype, lifecycle };
+  constructor(entity) {
+    this.entity = entity;
     this.$entities = atom([]);
+    this.$has = computed(this.$entities, (e) => e.length > 0);
+  }
+
+  get has() {
+    return this.$has.get();
   }
 
   // spawn, add, expect, create, ...
@@ -13,6 +18,20 @@ export class Repository {
     if (this.entity.lifecycle) await this.entity.lifecycle(entity);
     this.add(entity);
     return entity;
+  }
+
+  async expect(args) {
+    let entity = this.find(args);
+    if (!entity) entity = await this.spawn(args);
+    return entity;
+  }
+
+  async findOne(match) {
+    for (const entity of this.$entities.get()) {
+      const is = await match(entity);
+      if (is) return entity;
+    }
+    return null;
   }
 
   add(entity) {

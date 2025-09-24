@@ -8,12 +8,17 @@ import state from "./tools/state.js";
 
 export default class Config {
   env = new Env();
-  registry = { register: null };
+  repository = { path: null };
+  registry = { path: null, register: null };
 
   role = null; // client daemon service runtime
   mode = null; // development production
   variant = null; // custom || f(role,mode)
 
+  lighthouse = {
+    // important: this isnt config for the lighthouse, but to inform about the lighthouse.
+    url: null,
+  };
   daemon = {
     env: new Env(),
   };
@@ -23,7 +28,6 @@ export default class Config {
     },
   };
   // services: {},
-  remotes = {};
   runtimes = new Set();
   services = new Set();
   // processes = new Set();

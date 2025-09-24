@@ -1,12 +1,12 @@
 das internet dem individuum.
 
-viva was build around the idea that people shouldnt go to applications, applications should come to the people.
+vivalence is an operating system for agentic symbolic ai, tasked to teach you whatever you want to be able to do.
 
 cybernetically enhanced education system, designed to outlive all of us.
 
-vivalence is an operating system for agentic symbolic ai, tasked to teach you whatever you want to be able to do.
+ai has changed how we build systems.
 
-ai has changed how we build connected systems.
+viva was build around the idea that people shouldnt go to applications, applications should come to the people.
 
 problems are soluable.
 problems are inevitable.
@@ -30,11 +30,11 @@ prices of licences are roughly oriennted at the price of gold as the true north 
 
 
 vivalence is
-- fair source, for profit, privately held, eu inc.
 - designed to become the worlds education systems backbone. 
 - a datadriven, ai-enabled, private application system, with a registry, a marketplace and shared abstractions.
 - infinitely personalizable, hackable, emacs inspired, cybernetically enhanced, federateable, procedurally generated, fair use, functional platform.
-- treats privacy and ownership as a saferoom against the tyranny of our advertisement incentivized internet.
+- treats privacy and ownership as a saferoom against the tyranny of our mis-incentivized internet.
+- fair source, for profit, privately held, eu inc.
 
 
 enough yapping.

@@ -1,4 +1,4 @@
-import { Env } from "@vivalence/typology/prototypes";
+import { Env, Path } from "@vivalence/typology";
 import * as dotenv from "@std/dotenv";
 
 export async function envloaders(config) {
@@ -28,7 +28,8 @@ export async function envloaders(config) {
 }
 
 export async function repoloader(config) {
-  const { VIVA_REGISTER_DIR, VIVA_CONFIG_DIR } = config.env.vars;
+  const { VIVA_REGISTER_DIR, VIVA_REPOSITORY_DIR, VIVA_CONFIG_DIR } =
+    config.env.vars;
 
   // if (config.check.env(["VIVA_VARIANT_DIR"]).length > 0) {config.env.assign({VIVA_VARIANT_DIR: `${VIVA_CONFIG_DIR}/variant`,});}
 
@@ -38,7 +39,11 @@ export async function repoloader(config) {
     });
   }
 
-  config.registry = { register: VIVA_REGISTER_DIR };
+  config.repository = { path: new Path(VIVA_REPOSITORY_DIR) };
+  config.registry = {
+    path: new Path(VIVA_REGISTER_DIR),
+    register: VIVA_REGISTER_DIR,
+  };
 }
 
 export async function modeselector(config) {

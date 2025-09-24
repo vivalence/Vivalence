@@ -1,12 +1,15 @@
 export const manifest = {
   type: "variant",
-  slug: "localhost",
+  slug: "localhost-multiplayer",
 };
 
 export default function variant(config) {
-  // lighthouse!
+  const lighthouse = {
+    config: {
+      url: config.env.get("VIVA_LIGHTHOUSE_URL"),
+    },
+  };
   const daemon = {
-    // module: "@vivalence/daemon",
     config: {
       serve: {
         domain: "localhost",
@@ -27,10 +30,7 @@ export default function variant(config) {
 
   return {
     daemon,
-    lighthouse: {
-      // module: "@vivalence/html",
-      // config: {serve: {domain: "localhost", port: "1794",}, }, // attached
-    },
+    lighthouse,
     clients: { html },
     // remotes: {},
     // services: {},

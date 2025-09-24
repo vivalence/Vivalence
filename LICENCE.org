@@ -22,6 +22,11 @@ i might carve out special uses for special licences.
 for this i need freedom to change the license.
 i can not just change the freedoms granted under private use. 
 
+i might add something to the license like
+educational use is exempt but voluntary licensing will be considered as sponsorship and published as such.
+i might also publish a list of contributions and list of sponsors with each coherence lifecycle.
+
+vendor installs are not considered commercial use. they fall under for-self. 
 * todo
 ** institutional use implements a definition of an application of "computational use" which has a substructure for training use.
 when using this system to train an llm, gpt, diffusor or or or.

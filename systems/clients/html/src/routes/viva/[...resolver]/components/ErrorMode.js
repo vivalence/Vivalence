@@ -1,4 +1,4 @@
-import { BufferMode } from "@vivalence/interface";
+import { BufferMode } from "@vivalence/surface";
 import SignalHandler from "./SignalHandler.svelte";
 
 export default (error) => [
