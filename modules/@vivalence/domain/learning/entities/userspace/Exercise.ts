@@ -5,7 +5,7 @@ import { UserEntity, SessionEntity } from "@vivalence/entities";
 
 import { SymbolEntity } from "../corpus/Symbol.ts";
 import { LiteralEntity } from "../corpus/Literal.ts";
-import { PlayEntity } from "../userland/Play.ts";
+import { PlayEntity } from "../userspace/Play.ts";
 
 export enum ExerciseStatusEnum {
   PENDING = "PENDING",

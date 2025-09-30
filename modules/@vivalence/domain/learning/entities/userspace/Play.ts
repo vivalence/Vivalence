@@ -6,8 +6,8 @@ import { UserEntity } from "@vivalence/entities";
 
 import { SymbolEntity } from "../corpus/Symbol.ts";
 import { LiteralEntity } from "../corpus/Literal.ts";
-import { MemoryEntity } from "../userland/Memory.ts";
-import { ExerciseEntity } from "../userland/Exercise.ts";
+import { MemoryEntity } from "../userspace/Memory.ts";
+import { ExerciseEntity } from "../userspace/Exercise.ts";
 
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;

@@ -13,27 +13,12 @@ export const manifest = {
 export const control = new Vector()
   .use(async (ctx, next) => {
     // TODO: test node version
-    //   try {
-    //     await Deno.stat(`${__dirname}/node_modules`);
-    //   } catch (err) {
-    //     console.log("Installing dependencies...");
-    //     const npmInstall = new Deno.Command("npm", {
-    //       args: ["install"],
-    //       cwd: __dirname,
-    //       stdout: "inherit",
-    //       stderr: "inherit",
-    //     });
-    //     const { code } = await npmInstall.output();
-    //     console.log({ code });
-    //     if (code !== 0) {
-    //       throw new Error(`npm install failed with code ${code}`);
-    //     }
-    //   }
-    //   await next();
+    // console.log({ ...config.env.vars });
+    await next();
   })
   .open("/install", async (ctx) => {
     const params = {
-      cmd: ["npm", "install"],
+      cmd: ["deno", "install", "--allow-scripts=npm:svelte-preprocess"],
       env: { ...config.env.vars },
       cwd: __dirname,
     };
@@ -42,13 +27,39 @@ export const control = new Vector()
   })
   .open("/start", async (ctx) => {
     const params = {
-      cmd: ["npm", "run", "dev"],
+      cmd: "deno run -A npm:vite dev",
+      env: { ...config.env.vars },
+      cwd: __dirname,
+    };
+    const process = await ctx.tools.process.start(manifest, params);
+    return process;
+  })
+  .open("/watch", async (ctx) => {
+    const params = {
+      cmd: ["deno", "task", "watch"],
       env: { ...config.env.vars },
       cwd: __dirname,
     };
     const process = await ctx.tools.process.start(manifest, params);
     return process;
   });
+// .use(ctx => {
+//   try {
+//     await Deno.stat(`${__dirname}/node_modules`);
+//   } catch (err) {
+//     console.log("Installing dependencies...");
+//     const npmInstall = new Deno.Command("npm", {
+//       args: ["install"],
+//       cwd: __dirname,
+//       stdout: "inherit",
+//       stderr: "inherit",
+//     });
+//     const { code } = await npmInstall.output();
+//     console.log({ code });
+//     if (code !== 0) {
+//       throw new Error(`npm install failed with code ${code}`);
+//     }
+//   }
 // }
 // export const lifecycle = {
 //   startup: { timeout: 30000 },

@@ -5,4 +5,6 @@ import * as components from "./components/index.js";
 
 export const lib = { useBox };
 
+export const manifest = { type: "surface", slug: "html" };
+
 export default components;

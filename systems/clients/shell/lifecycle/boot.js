@@ -1,3 +1,4 @@
+import { is } from "@vivalence/shared";
 import { merge } from "@stdlib/utils";
 
 const children = new Set(); // [{manifest,config,instance}]
@@ -13,8 +14,9 @@ export default async function boot(client) {
 }
 
 export const spawn = (manifest, config) => {
-  const command = new Deno.Command(config.cmd[0], {
-    args: config.cmd.slice(1),
+  const cmd = is.string(config.cmd) ? config.cmd.split(" ") : config.cmd;
+  const command = new Deno.Command(cmd[0], {
+    args: cmd.slice(1),
     cwd: config.cwd || manifest.cwd,
     env: {
       ...config.env,

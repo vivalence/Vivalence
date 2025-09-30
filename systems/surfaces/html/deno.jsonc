@@ -2,7 +2,8 @@
   "name": "@vivalence/surface-html",
   "version": "0.0.1",
   "exports": {
-    ".": "./mod.js",
+    ".": "./surface.viva.js",
+    "html": "./surface.viva.js",
     // "./html": "./mod.js",
     // "./svelte": "./mod.js",
   },

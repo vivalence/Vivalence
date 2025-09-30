@@ -7,7 +7,7 @@ export default function check(config) {
         throw new Error(messages);
       }
     };
-    return result.length > 0 ? result : null;
+    return result;
   };
 
   const envValidator = (key) => {

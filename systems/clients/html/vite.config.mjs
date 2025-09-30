@@ -1,7 +1,9 @@
-import { defineConfig } from "vite";
+// import { BaseError } from "@vivalence/typology";
+import { defineConfig } from "npm:vite";
 import { sveltekit } from "@sveltejs/kit/vite";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+// console.loog("process", process.env);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __repo = join(__dirname, "../../../");
@@ -26,11 +28,12 @@ export default defineConfig({
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@static/icons/": join(__dirname, "./static/icons/"),
 
-      "@vivalence/surface": join(__repo, "./surfaces/html/mod.js"),
-
-      "@vivalence/shared": join(__ss, "./shared/client.js"),
-      "@vivalence/typology": join(__ss, "./typology/client.js"),
-      "@vivalence/vector": join(__ss, "./vector/mod.js"),
+      // "@vivalence/surface": join(__repo,
+      //   "./systems/surfaces/html/client.js",
+      // ),
+      // "@vivalence/shared": join(__ss, "./shared/client.js"),
+      // "@vivalence/typology": join(__ss, "./typology/client.js"),
+      // "@vivalence/vector": join(__ss, "./vector/mod.js"),
 
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"),
     },
@@ -39,9 +42,8 @@ export default defineConfig({
   plugins: [sveltekit()],
   server: {
     strictPort: true,
-    host: process.env["VIVA_CLIENTS_HTML_HOST"] || "localhost",
-    port: parseInt(process.env["VIVA_CLIENTS_HTML_PORT"]) || 5173,
-
+    host: process.env["VIVA_CLIENTS_HTML_HOST"], // || throw new BaseError("", "ENV_MISSING"),
+    port: parseInt(process.env["VIVA_CLIENTS_HTML_PORT"]), // || 5173,
     fs: { allow: ["../../.."] },
     watch: {
       usePolling: true,
@@ -50,9 +52,11 @@ export default defineConfig({
       include: [
         "./src/**/*",
         // # TODO VIVA_REGISTER_DIR
-        "../../../register/**/*.{html,svelte.js,svelte,css}",
-        "../../../interfaces/html/**/*",
+        "../../../modules/**/*.{html,svelte.js,svelte,css}",
+        "../../../systems/surfaces/html/**/*",
         "../../../subsystems/shared/**/*",
+        // "../../../subsystems/typology/**/*",
+        // "../../../subsystems/vector/**/*",
       ],
     },
   },

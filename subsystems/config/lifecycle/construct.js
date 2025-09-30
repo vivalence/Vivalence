@@ -33,7 +33,8 @@ export async function repoloader(config) {
 
   // if (config.check.env(["VIVA_VARIANT_DIR"]).length > 0) {config.env.assign({VIVA_VARIANT_DIR: `${VIVA_CONFIG_DIR}/variant`,});}
 
-  if (config.check.env(["VIVA_DATA_DIR"]).length > 0) {
+  // console.log(config.check, config.check.env(["VIVA_DATA_DIR"]));
+  if (config.check.env(["VIVA_DATA_DIR"])?.length > 0) {
     config.env.assign({
       VIVA_DATA_DIR: `${VIVA_CONFIG_DIR}/data`,
     });

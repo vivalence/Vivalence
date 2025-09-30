@@ -7,9 +7,9 @@ export * from "./system/Valence.ts";
 export * from "./system/Module.ts";
 export * from "./system/Runtime.ts";
 
-export * from "./userland/User.ts";
-export * from "./userland/Session.ts";
-export * from "./userland/Intent.ts";
+export * from "./userspace/User.ts";
+export * from "./userspace/Session.ts";
+export * from "./userspace/Intent.ts";
 
 export * from "./ontology/Issue.ts";
 export * from "./ontology/Topography.ts";
@@ -26,9 +26,9 @@ import constraint from "./ontology/Constraint.ts";
 import issue from "./ontology/Issue.ts";
 import dimension from "./ontology/Dimension.ts";
 
-import intent from "./userland/Intent.ts";
-import session from "./userland/Session.ts";
-import user from "./userland/User.ts";
+import intent from "./userspace/Intent.ts";
+import session from "./userspace/Session.ts";
+import user from "./userspace/User.ts";
 
 export const maps = {
   system: { identity, runtime, valence, module },

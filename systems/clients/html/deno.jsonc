@@ -5,4 +5,22 @@
     ".": "./html.viva.js",
     "./control": "./html.viva.js",
   },
+  "tasks": {
+    "watch": "deno run -A npm:vite dev",
+    "start": "deno run -A npm:vite dev",
+  },
+  "imports": {
+    "nanostores": "npm:nanostores@^1.0",
+  },
 }
+
+// "dev": "vite dev",
+// "build": "vite build",
+// "preview": "vite preview",
+// "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+// "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
+// "lint": "prettier --plugin-search-dir . --check . && eslint .",
+// "format": "prettier --plugin-search-dir . --write .",
+// "tailwind-config-viewer": "npx tailwind-config-viewer -o",
+
+// "css:bsp": "npx postcss --config postcss.config.js src/style/bsp/bsp.css -o test-output.css"

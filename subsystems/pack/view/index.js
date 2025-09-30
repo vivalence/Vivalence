@@ -7,11 +7,12 @@ const root = config.repository.path.absolute;
 
 const importmap = {
   imports: {
+    "@vivalence/vector": join(root, "subsystems/vector/mod.js"),
     "@vivalence/shared": join(root, "subsystems/shared/client.js"),
     "@vivalence/typology": join(root, "subsystems/typology/client.js"),
-    "@vivalence/vector": join(root, "subsystems/vector/mod.js"),
-    "@vivalence/surface": join(root, "surfaces/html/mod.js"),
+    "@vivalence/surface": join(root, "systems/surfaces/html/surface.viva.js"),
     // "@vivalence/vendor": join(root, "subsystems/vendor/client.js"),
+    // "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"),
   },
 };
 
@@ -23,7 +24,7 @@ export class View {
     (async () => await this.bundle())();
   }
   async bundle() {
-    console.log("view.bundle:", this.path.absolute);
+    // console.log("view.bundle:", this.path.absolute);
     if (config.is.dev) this.bundles = [];
     if (!this.bundles[0])
       this.bundles = await bundlers.svelte(

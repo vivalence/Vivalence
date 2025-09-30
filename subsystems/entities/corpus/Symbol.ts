@@ -8,9 +8,9 @@ import {
 import { DataEntity, DataSchema } from "@vivalence/entities";
 
 import { LiteralEntity } from "../corpus/Literal.ts";
-import { ExerciseEntity } from "../userspace/Exercise.ts";
-import { PlayEntity } from "../userspace/Play.ts";
-import { MemoryEntity } from "../userspace/Memory.ts";
+import { ExerciseEntity } from "../userland/Exercise.ts";
+import { PlayEntity } from "../userland/Play.ts";
+import { MemoryEntity } from "../userland/Memory.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute

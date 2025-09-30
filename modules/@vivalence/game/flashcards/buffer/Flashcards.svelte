@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Text, Button } from "@vivalence/interface";
+  import { Text, Button } from "@vivalence/surface";
 
   const { instruction, ctx, buffer } = $props();
   const { front, back } = instruction.data;
