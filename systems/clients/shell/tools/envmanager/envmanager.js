@@ -16,7 +16,9 @@ const parseLine = (line) => {
 };
 
 const uppercaseEnv = (env) =>
-  Object.fromEntries(Object.entries(env).map(([key, value]) => [key.toUpperCase(), value]));
+  Object.fromEntries(
+    Object.entries(env).map(([key, value]) => [key.toUpperCase(), value]),
+  );
 
 const transformLine =
   (env) =>
@@ -25,7 +27,8 @@ const transformLine =
 
     if (value.startsWith("$")) {
       const configKey = value.slice(1); // Remove $ prefix
-      const configValue = env[configKey.toUpperCase()] ?? config.env.get(configKey);
+      const configValue =
+        env[configKey.toUpperCase()] ?? config.env.get(configKey);
 
       if (!configValue) {
         console.warn(`Warning: No value found for ${configKey}`);
@@ -53,7 +56,9 @@ const lineToString = ({ type, key, value, content }) => {
     }
 
     if (typeof value === "string") {
-      return value.startsWith('"') && value.endsWith('"') ? value : `"${value}"`;
+      return value.startsWith('"') && value.endsWith('"')
+        ? value
+        : `"${value}"`;
     }
 
     if (typeof value === "object") {
@@ -76,22 +81,10 @@ const processEnvContent = (content, env) => {
 };
 
 export default {
-  fromEnv: async (sourceEnvPath, env = {}) => {
-    const envPath = sourceEnvPath.replace(".env.source", ".env");
-
-    const sourceEnvContent = await Deno.readTextFile(sourceEnvPath);
-    const envContent = processEnvContent(sourceEnvContent, uppercaseEnv(env));
-    await Deno.writeTextFile(envPath, envContent);
-
-    return envPath;
-  },
-  fromExampleEnv: async (exampleEnvPath) => {
-    const envPath = exampleEnvPath.replace(".env.example", ".env");
-    const exampleEnvContent = await Deno.readTextFile(exampleEnvPath);
-
-    const envContent = processEnvContent(exampleEnvContent);
-
-    await Deno.writeTextFile(envPath, envContent);
-    return envPath;
+  // maybe move to @config
+  cast: async (source, target, env = {}) => {
+    const template = await Deno.readTextFile(source);
+    const content = processEnvContent(template, uppercaseEnv(env));
+    await Deno.writeTextFile(target, content);
   },
 };

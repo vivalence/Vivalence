@@ -6,6 +6,7 @@ export default class BufferMode {
     this.view = view;
     this.context = context;
     this.hooks = hooks;
+    this.context.buffer = this;
   }
   withContext(context) {
     this.context = context;

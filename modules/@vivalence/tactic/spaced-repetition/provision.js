@@ -1,4 +1,5 @@
-import { Blacklist, array } from "@vivalence/shared";
+import { Scope, Blacklist } from "@vivalence/typology";
+import { array } from "@vivalence/shared";
 
 export default async function provision(inputs, ctx) {
   const { tactic, scope, blacklist } = inputs;

@@ -11,6 +11,11 @@ export const generator = await (async () => {
 
   generator
     .branch("/viva")
+    // .open("/faafo", async (ctx) => {
+    //   ctx.buffer.push(
+    //     new BufferMode(
+    //       {url: "http://localhost:1729/attached/runtime/eng2lat/module/agent/eva/bundle/view/viva.svelte.js",},
+    //       { product: { agent: "ligma" } },),);})
     .use(async (ctx, next) => {
       const timeout = 10000;
       const start = Date.now();
@@ -40,8 +45,8 @@ export const generator = await (async () => {
     .open("/(.*)", async (ctx) => {
       if (ctx.module.implements("GENERATOR")) {
         const generation = await ctx.module.call(path.fromParams(ctx.params));
-        for (const context of generation) {
-          ctx.buffer.push(new BufferMode(ctx.module.view, { ...ctx, context }));
+        for (const product of generation) {
+          ctx.buffer.push(new BufferMode(ctx.module.view, { ...ctx, product }));
         }
       } else {
         ctx.buffer.push(new BufferMode(ctx.module.view, { ...ctx }));

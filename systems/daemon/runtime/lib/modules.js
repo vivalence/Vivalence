@@ -5,13 +5,21 @@ import { View } from "@vivalence/pack";
 export const traitmap = {
   VALENTIC: async (module, runtime) => {
     const valences = module.register.dataset.entities["valence"];
-    for (const valence of Object.values(valences)) {
-      valence.module = { slug: module.slug, type: module.type };
-      if (!(await runtime.entities.valence.findOne(valence)))
-        runtime.entities.valence.create(valence);
+    for (const valence of valences) {
+      let entity = await runtime.entities.valence.findOne({
+        slug: valence.slug,
+        module: module.entity.id,
+      });
+      if (!entity) {
+        runtime.entities.valence.create({
+          ...valence,
+          module: module.entity.id,
+        });
+      }
     }
     await runtime.entities.em.flush();
   },
+  //DATASET: ()?
 
   GENERATOR: async (module, runtime) => {
     if (is.fn(module.register.generate)) {
@@ -19,11 +27,12 @@ export const traitmap = {
     } else if (!!module.register.generate) {
       module.aperture.descendants.push(module.aperture);
     }
-    // aperture.use(greedySession).use(greedyView);
-    // aperture.use(shards.module.view(module))
-    // validate()
+    // todo: validate()
   },
 
+  AGENTIC: (module, runtime) => {
+    // module.aperture.use(inject(runtime.services.brain));
+  },
   SESSIONED: async (module, runtime) => {},
   VIEWABLE: async (module, runtime) => {
     const bundle = module.path.leaf("/bundle").up().value;
@@ -35,6 +44,5 @@ export const traitmap = {
       url: module.view.url,
     }));
   },
-
-  //AGENTIC: (module)=> {module.aperture.use(inject(services.brain))}, //SESSIONED: (module)=> {module.aperture.use() module.aperture.open('/')},
 };
+//SESSIONED: (module)=> {module.aperture.use() module.aperture.open('/')},

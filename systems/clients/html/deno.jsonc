@@ -1,26 +1,16 @@
 {
   "name": "@vivalence/html",
   "version": "0.0.1",
-  "exports": {
-    ".": "./html.viva.js",
-    "./control": "./html.viva.js",
-  },
+  "exports": { ".": "./html.viva.js" },
   "tasks": {
-    "watch": "deno run -A npm:vite dev",
-    "start": "deno run -A npm:vite dev",
-  },
-  "imports": {
-    "nanostores": "npm:nanostores@^1.0",
+    "dev": "deno run -A npm:vite dev",
+    "build": "deno run -A npm:vite build",
+    "preview": "deno run -A npm:vite preview",
   },
 }
 
-// "dev": "vite dev",
-// "build": "vite build",
-// "preview": "vite preview",
-// "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
-// "check:watch": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json --watch",
 // "lint": "prettier --plugin-search-dir . --check . && eslint .",
 // "format": "prettier --plugin-search-dir . --write .",
+// "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
 // "tailwind-config-viewer": "npx tailwind-config-viewer -o",
-
 // "css:bsp": "npx postcss --config postcss.config.js src/style/bsp/bsp.css -o test-output.css"

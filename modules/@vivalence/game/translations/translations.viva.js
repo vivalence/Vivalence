@@ -1,12 +1,10 @@
-import { bundler } from "@vivalence/shared";
+// import evaluate from "./methods/evaluate.js";
+// import provision from "./methods/provision.js";
 
-import evaluate from "./methods/evaluate.js";
-import provision from "./methods/provision.js";
-
-const bundle = bundler.makePath(
-  import.meta.url,
-  "./buffer/translations.svelte.js",
-);
+// const bundle = bundler.makePath(
+//   import.meta.url,
+//   "./buffer/translations.svelte.js",
+// );
 
 const data = {
   mask: {
@@ -28,4 +26,4 @@ const manifest = {
   description: "Practice translating sentences",
 };
 
-export { bundle, data, evaluate, manifest, provision };
+export { data, manifest };

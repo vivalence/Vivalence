@@ -1,5 +1,5 @@
 import Aperture from "./aperture.ts";
-import Path from "./path.ts";
+import { Path } from "./path.ts";
 import { ApertureOptions } from "./types.ts";
 import * as mw from "./mw.js";
 

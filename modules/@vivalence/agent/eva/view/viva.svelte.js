@@ -1,6 +1,3 @@
-import { mount } from "svelte";
+import { pack } from "@vivalence/surface";
 import Eva from "./Eva.svelte";
-
-export default async function (target, props) {
-  return mount(Eva, { target, props });
-}
+export default pack(Eva);

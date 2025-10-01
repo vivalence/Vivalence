@@ -1,5 +1,5 @@
 {
-  "name": "@vivalence/surface-html",
+  "name": "@vivalence/surface",
   "version": "0.0.1",
   "exports": {
     ".": "./surface.viva.js",

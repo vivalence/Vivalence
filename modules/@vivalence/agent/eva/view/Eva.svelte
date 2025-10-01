@@ -1,12 +1,9 @@
 <script>
-  // import { onMount, onDestroy } from "svelte";
-  // import { BufferMode, BufferState } from "@vivalence/surface";
   import { Loader, Desk, Text } from "@vivalence/surface";
 
-  let { context, module, runtime, buffer } = $props();
-  // console.log(context, module, runtime, buffer);
+  let { product, buffer } = $props();
 
-  let agent = $state(context.agent);
+  let agent = $state(product?.agent || "Hello, how can i help?");
   let input = $state("");
   let loading = $state(false);
 
@@ -18,7 +15,7 @@
 
   //   agent = response.agent.text;
 
-  //   history.push({ role: "user", content: [{ type: "text", text: message }] });
+  // history.push({ role: "user", content: [{ type: "text", text: message }] });
   //   response.agent.messages.map((m) => history.push(m));
 
   //   // if (response.instructions.length > 0) {
@@ -34,23 +31,23 @@
   // }
 
   async function onSubmit() {
-    //   if (loading) return;
-    //   loading = true;
-    //   const agentPromise = doAgent(input);
-    //   input = "";
-    //   await agentPromise;
-    //   loading = false;
+  //   if (loading) return;
+  //   loading = true;
+  //   const agentPromise = doAgent(input);
+  //   input = "";
+  //   await agentPromise;
+  //   loading = false;
   }
 </script>
 
-<!-- <Desk {onSubmit} bind:input> -->
-<div class="bsp-node p-24 pt-32">
-  {#if loading}
-    <Text size="lg">Thinking...</Text>
-    <!--   <Loader /> -->
-  {:else}
-    <Text size="lg">Saying...</Text>
-    <Text size="xl">{@html agent}</Text>
-  {/if}
-</div>
-<!-- </Desk> -->
+<Desk {onSubmit} bind:input>
+  <div class="bsp-node">
+    <div class="bsp-node p-24 pt-32">
+      {#if loading}
+        <Text size="lg">Thinking...</Text>
+      {:else}
+        <Text size="xl">{@html agent}</Text>
+      {/if}
+    </div>
+  </div>
+</Desk>

@@ -61,6 +61,22 @@ export async function runtimes(daemon) {
   }
 }
 
+export async function services(daemon) {
+  // for (const runtimeconfig of config.runtimes) {
+  // const sme = {
+  // slug: runtimeconfig.manifest.slug,
+  // status: new Status(),
+  // connection: new Connection(),
+  // path: new Path(`/runtime/${runtimeconfig.manifest.slug}`),
+  // url: new URL(`/runtime/${runtimeconfig.manifest.slug}`, daemon.config.url,),
+  // instance: new lifecycle.Runtime(runtimeconfig),
+  // config: runtimeconfig,
+  // register: await daemon.registry.loadMap(runtimeconfig.services),
+  // };
+  // rme.instance.attached = new URL(`/attached/runtime/${rme.slug}`, daemon.config.url,);
+  // daemon.runtimes.add(rme);
+  // }
+}
 // console.log(config);
 // export async function services(daemon) {
 //   for (const serviceconfig of config.services) {

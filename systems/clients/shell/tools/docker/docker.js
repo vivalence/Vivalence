@@ -45,12 +45,17 @@ const pipe = async (args) => {
 
 const docker = {
   ps: async (all = true) => {
-    const { ok, error, out } = await pipe(["docker", "ps", ...(all ? ["-a"] : [])]);
+    const { ok, error, out } = await pipe([
+      "docker",
+      "ps",
+      ...(all ? ["-a"] : []),
+    ]);
     if (error) return { error };
 
     const lines = out.split("\n").slice(1); // Skip header
     const containers = lines.filter(Boolean).map((line) => {
-      const [id, image, command, created, status, ports, name] = line.split(/\s{2,}/);
+      const [id, image, command, created, status, ports, name] =
+        line.split(/\s{2,}/);
       return { id, image, command, created, status, ports, name };
     });
 
@@ -113,9 +118,24 @@ const compose = {
 
     const lines = out.split("\n").slice(1);
     const containers = lines.filter(Boolean).map((line) => {
-      const [nameContainer, image, command, nameService, created, status, ports] =
-        line.split(/\s{2,}/);
-      return { nameContainer, image, command, nameService, created, status, ports };
+      const [
+        nameContainer,
+        image,
+        command,
+        nameService,
+        created,
+        status,
+        ports,
+      ] = line.split(/\s{2,}/);
+      return {
+        nameContainer,
+        image,
+        command,
+        nameService,
+        created,
+        status,
+        ports,
+      };
     });
 
     console.log(composePsToTable(containers));

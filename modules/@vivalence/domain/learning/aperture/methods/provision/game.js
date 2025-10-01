@@ -1,4 +1,4 @@
-import { Blacklist, Scope } from "@vivalence/shared";
+import { Blacklist, Scope } from "@vivalence/typology";
 import lock from "./lib/lock.js";
 
 // input {scope game blacklist}

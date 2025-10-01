@@ -1,23 +1,23 @@
 import { Aperture } from "@vivalence/vector/aperture";
 import { Path } from "@vivalence/typology";
-import { agent } from "./aperture/index.js";
+// import { agent } from "./aperture/index.js";
 import dataset from "./dataset/index.js";
 
 const manifest = {
-  type: "agent", // sydney?
+  type: "agent",
   slug: "eva",
   name: "Eva",
   version: "0.0.1",
   description: "Virtual Assistant",
-  traits: ["VIEWABLE", "SESSIONED", "VALENTIC", "GENERATOR"], //
+  traits: ["VIEWABLE", "DATASET", "VALENTIC"], // "SESSIONED", "GENERATOR",  // datamap?dataset?
 };
 
 const view = new Path("/view/viva.svelte.js");
 
-const aperture = (v) => v.open("/agent", agent);
+const aperture = (v) => v; //.open("/agent", agent);
 
 const generate = (v) =>
-  v.open("/feed", (input, ctx) => [{ agent: "sheeeeet" }]); // maybe define input
+  v.open("/feed", (input, ctx) => [{ agent: "sheeeeet, what you want?" }]); // maybe define input
 
 export default { manifest, view, aperture, generate, dataset };
 

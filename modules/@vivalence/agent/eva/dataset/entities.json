@@ -1,9 +1,9 @@
 {
-  "valence": {
-    "welcome-user": {
-      "slug": "welcome-user",
-      "docs": "Welcome new users to Eva agent",
+  "valence": [
+    {
+      "slug": "populate",
+      "docs": "populate the runtime with entities",
       "resolve": { "generator": "/feed" }
     }
-  }
+  ]
 }

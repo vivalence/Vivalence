@@ -1,4 +1,4 @@
-import { Signal, Feature } from "@vivalence/shared/classifier";
+import { Signal, Feature } from "@vivalence/typology";
 
 class Text extends Signal {
   constructor(value) {
@@ -40,7 +40,7 @@ export default new Map([
     Text,
     [
       async (text, ctx, next) => {
-        const sentences = await ctx.services.nlp({ text });
+        const sentences = await ctx.service.nlp({ text });
         const tokens = sentences.flat().map((token) => new Token(token));
 
         return await next(tokens);

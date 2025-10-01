@@ -8,7 +8,7 @@ const manifest = {
   name: "Flashcards",
   description: "Flashcards game for learning vocabulary",
   version: "0.0.1",
-  traits: ["VIEWABLE", "GENERATOR"], // "VALENTIC"
+  traits: ["GENERATOR"], // "VIEWABLE","VALENTIC"
 };
 
 const view = new Path("/buffer/flashcards.svelte.js");

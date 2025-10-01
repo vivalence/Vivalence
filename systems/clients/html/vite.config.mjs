@@ -1,9 +1,9 @@
-// import { BaseError } from "@vivalence/typology";
-import { defineConfig } from "npm:vite";
+import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
+import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-// console.loog("process", process.env);
+import config from "@vivalence/config";
+import { Path, BaseError } from "@vivalence/typology";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __repo = join(__dirname, "../../../");
@@ -28,12 +28,13 @@ export default defineConfig({
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@static/icons/": join(__dirname, "./static/icons/"),
 
-      // "@vivalence/surface": join(__repo,
-      //   "./systems/surfaces/html/client.js",
-      // ),
-      // "@vivalence/shared": join(__ss, "./shared/client.js"),
-      // "@vivalence/typology": join(__ss, "./typology/client.js"),
-      // "@vivalence/vector": join(__ss, "./vector/mod.js"),
+      "@vivalence/surface": join(
+        __repo,
+        "./systems/surfaces/html/surface.viva.js",
+      ),
+      "@vivalence/shared": join(__ss, "./shared/client.js"),
+      "@vivalence/typology": join(__ss, "./typology/client.js"),
+      "@vivalence/vector": join(__ss, "./vector/mod.js"),
 
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"),
     },

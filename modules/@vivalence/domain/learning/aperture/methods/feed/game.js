@@ -1,5 +1,5 @@
 import config from "@vivalence/config";
-import { Blacklist, Scope } from "@vivalence/shared";
+import { Blacklist, Scope } from "@vivalence/typology";
 
 // input {scope game blacklist take expect}
 export default async function ({ take = 1, expect = false, ...input }, ctx) {

@@ -1,3 +1,0 @@
-[submodule "packages/vendor/threlte"]
-	path = packages/vendor/threlte
-	url = git@github.com:threlte/threlte.git

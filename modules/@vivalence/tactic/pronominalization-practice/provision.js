@@ -1,4 +1,5 @@
-import { Blacklist, array } from "@vivalence/shared";
+import { Blacklist } from "@vivalence/typology";
+import { array } from "@vivalence/shared";
 
 export default async (inputs, ctx) => {
   const { scope, masks, relations } = inputs;
@@ -47,11 +48,15 @@ export default async (inputs, ctx) => {
     nounform.instruction.sentence.learning,
     "... create the corresponding pronoun-form.",
   );
-  const [pronounform] = await games.pronounform.call(`/provision`, { constraints });
+  const [pronounform] = await games.pronounform.call(`/provision`, {
+    constraints,
+  });
   instructions.push(pronounform);
 
   // FLASHCARDS
-  let weakUnits = instructions.map(({ scope }) => scope.units.map((unit) => unit.id)).flat();
+  let weakUnits = instructions
+    .map(({ scope }) => scope.units.map((unit) => unit.id))
+    .flat();
 
   weakUnits = await ctx.runtime.call("/pick/units/byStatus", {
     status: masks.flashcards.threshold,
@@ -60,7 +65,9 @@ export default async (inputs, ctx) => {
   });
   weakUnits = array.shuffle(weakUnits).slice(0, masks.flashcards.reps);
 
-  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
+  const flashcards = await games.flashcards.call("/provision/fromUnits", {
+    units: weakUnits,
+  });
 
   return [flashcards, instructions].flat();
 };

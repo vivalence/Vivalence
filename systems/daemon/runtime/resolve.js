@@ -1,7 +1,7 @@
 import { obj, validators } from "@vivalence/shared";
 import { Vector, compiler, controller } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
-import { bundler, secure, is } from "@vivalence/shared";
+import { secure, is } from "@vivalence/shared";
 import * as lib from "./lib/index.js";
 
 export async function ontology(rme) {

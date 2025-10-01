@@ -1,11 +1,11 @@
-import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
+// import { dirname, fromFileUrl, join } from "$std/path/mod.ts";
 
-import evaluate from "./methods/evaluate.js";
-import provision from "./methods/provision.js";
+// import evaluate from "./methods/evaluate.js";
+// import provision from "./methods/provision.js";
 
-const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
+// const bundle = join(dirname(fromFileUrl(import.meta.url)), "/game/game.svelte.js");
 
-const manifest = {
+export const manifest = {
   type: "game",
   slug: "prose",
   name: "Prose",
@@ -13,4 +13,4 @@ const manifest = {
   description: "Display a textblock",
 };
 
-export { manifest, bundle, evaluate, provision };
+// export { manifest, bundle, evaluate, provision };

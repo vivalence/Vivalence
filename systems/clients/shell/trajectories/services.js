@@ -1,4 +1,4 @@
-// import config from "@vivalence/config";
+import config from "@vivalence/config";
 // import registry from "@vivalence/registry";
 
 // async function services(client) {

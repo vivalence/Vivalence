@@ -9,7 +9,7 @@
   const link = (valence) => {
     const full = valence.module.path
       .branch(valence.resolve.generator)
-      .collapse().value;
+      .absolute;
 
     return "/viva" + full;
   };
@@ -28,8 +28,8 @@
     {#each $runtimes.values() as runtime}
       {#each runtime.entities.valence.$entities.value as valence}
         <a href={link(valence)}>
-          <Text color="text-palette-gray-100" >
-        {runtime.manifest.slug}/{valence.module.type}/{valence.module.slug}: {valence.slug}
+          <Text color="text-palette-gray-100">
+            {runtime.manifest.slug}/{valence.module.type}/{valence.module.slug}: {valence.slug}
           </Text>
         </a>
       {/each}

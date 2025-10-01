@@ -40,11 +40,14 @@ export async function modules(rme, daemon) {
       .flat();
 
   for (const module of rme.instance.module.values()) {
-    const entity = { slug: module.slug, type: module.type };
-    module.entity = await rme.instance.entities.module.findOne(entity);
+    module.entity = await rme.instance.entities.module //
+      .findOne({ type: module.type, slug: module.slug });
     if (!module.entity)
-      module.entity = rme.instance.entities.module.create(entity);
-    // module.entity.traits = module.traits;
+      module.entity = rme.instance.entities.module //
+        .create({ type: module.type, slug: module.slug });
+    module.entity.traits = [
+      ...new Set([...module.entity.traits, ...module.traits]),
+    ];
   }
 
   await rme.instance.entities.em.flush();

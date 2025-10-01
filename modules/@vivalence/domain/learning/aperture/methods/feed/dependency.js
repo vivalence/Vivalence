@@ -1,5 +1,7 @@
 import config from "@vivalence/config";
-import { Blacklist, Scope, deepMerge } from "@vivalence/shared";
+import { deepMerge } from "@vivalence/shared";
+
+import { Blacklist, Scope } from "@vivalence/typology";
 
 export default async function ({ take, ...input }, ctx) {
   let status = "success";

@@ -19,8 +19,14 @@ const fromRemainder = (params) => {
 
 export const path = {
   // join,
-  // fromImport: (url) => {
-  //   return new Path(fromFileUrl(url));},
+  fromFile: (url) => {
+    // TODO: apply ancestor of 'file:/'
+    const [file, ...dir] = url
+      .replace(/^file:\/\//, "")
+      .split("/")
+      .reverse();
+    return new Path(file).withAncestor(new Path(dir.reverse().join("/")));
+  },
   fromRemainder,
   fromParams: fromRemainder,
 };
@@ -31,13 +37,18 @@ export const path = {
 
 export class Path {
   segment = "";
-  ancestor = null;
+  ancestor = null; // null | Path | Url
   trunks = [];
   constructor(path = "", ancestor = null) {
     if (path instanceof Path) this.segment = path.down().segment;
     else if (is.array(path)) this.segment = join(...path);
     else this.segment = join(path);
-    if (ancestor) this.ancestor = ancestor;
+    if (ancestor) this.withAncestor(ancestor);
+  }
+  withAncestor(ancestor) {
+    this.ancestor = ancestor;
+    this.ancestor.trunks.push(this);
+    return this;
   }
   branch(branch) {
     const path = new Path(branch, this);
@@ -70,6 +81,7 @@ export class Path {
     return depth;
   }
   get absolute() {
+    // if (this.trunks[1]) throw new Error("@Path: ambivalent trunks on up");
     return this.ancestor ? this.down().value : this.up().value;
   }
   get value() {

@@ -16,6 +16,7 @@ for (const populate of Object.values(lifecycle.populate)) {
 for (const resolve of Object.values(lifecycle.resolve)) {
   await resolve(daemon);
 }
+
 // checks
 
 for (const integrate of Object.values(lifecycle.integrate)) {

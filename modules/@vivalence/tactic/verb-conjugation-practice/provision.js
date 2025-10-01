@@ -1,4 +1,5 @@
-import { Blacklist, array } from "@vivalence/shared";
+import { Scope, Blacklist } from "@vivalence/typology";
+import { array } from "@vivalence/shared";
 
 export default async (inputs, ctx) => {
   const { tactic, scope } = inputs;
@@ -52,12 +53,15 @@ export default async (inputs, ctx) => {
       `Possible ${tags.nouns.name}: ${unit.data.learning} - ${unit.data.known}`;
     constraints.push(vocabulary.map(format));
 
-    const [translation] = await games.translations.call(`/provision`, { constraints });
+    const [translation] = await games.translations.call(`/provision`, {
+      constraints,
+    });
 
     translations.push(translation);
     blacklist.fromScope(translation.scope);
     vocabulary = vocabulary.filter(
-      (unit) => !translation.scope.units.map((unit) => unit.id).includes(unit.id),
+      (unit) =>
+        !translation.scope.units.map((unit) => unit.id).includes(unit.id),
     );
   }
 
@@ -73,8 +77,16 @@ export default async (inputs, ctx) => {
     }),
   );
   weakUnits = await Promise.all(weakUnits);
-  weakUnits = array.shuffle(weakUnits.flat()).slice(0, tactic.masks.flashcards.reps);
-  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
+  weakUnits = array
+    .shuffle(weakUnits.flat())
+    .slice(0, tactic.masks.flashcards.reps);
+  const flashcards = await games.flashcards.call("/provision/fromUnits", {
+    units: weakUnits,
+  });
 
-  return [array.shuffle(flashcards), conjugations, array.shuffle(translations)].flat();
+  return [
+    array.shuffle(flashcards),
+    conjugations,
+    array.shuffle(translations),
+  ].flat();
 };

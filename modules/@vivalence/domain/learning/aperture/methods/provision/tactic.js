@@ -1,5 +1,6 @@
 import { join } from "$std/path/mod.ts";
-import { deepMerge, Scope, Blacklist } from "@vivalence/shared";
+import { deepMerge } from "@vivalence/shared";
+import { Blacklist, Scope } from "@vivalence/typology";
 
 export default async function (input, ctx) {
   const tactic = ctx.runtime.modules.tactics[input.tactic.slug];

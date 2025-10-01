@@ -1,4 +1,4 @@
-import { Classifier, Remedy } from "@vivalence/shared";
+import { Classifier, Remedy } from "@vivalence/typology";
 import { Vector, shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 import { maps } from "@vivalence/entities";
@@ -20,7 +20,6 @@ export class Runtime {
   ontology = {
     medic: new Remedy(),
     taxonomist: new Classifier(),
-
     dimension: new maps.ontology.dimension.repository(),
     topography: new maps.ontology.topography.repository(),
     constraint: new maps.ontology.constraint.repository(),

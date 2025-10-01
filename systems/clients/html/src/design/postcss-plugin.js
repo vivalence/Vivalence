@@ -27,7 +27,9 @@ const plugin = (options = {}) => {
         (acc, fn) => acc.then(fn),
         Promise.resolve(DesignSystem),
       );
-      root.prepend(postcss.parse(DesignSystem.output.css));
+      root.prepend(
+        postcss.parse(DesignSystem.output.css, { from: "./VIVA_THEME.css" }),
+      );
     },
   };
 };

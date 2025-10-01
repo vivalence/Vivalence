@@ -1,4 +1,5 @@
-import { merge } from "@stdlib/utils";
+import { is } from "@vivalence/shared";
+import { Vector } from "@vivalence/vector";
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
@@ -32,28 +33,23 @@ export default async function (client) {
       })
       .set(html.control);
   }
-  // if (config.clients?.web) {
-  //   // web.control;
 
-  //   client.trajectory.branch(`/control/client/web`).use(async (ctx, next) => {
-  //     ctx.client = {
-  //       env,
-  //       manifest,
-  //       config,
-  //       secret: {
-  //         //
-  //       },
-  //     };
-  //     await next();
-  //   });
-  // }
+  for (const serviceconfig of config.services) {
+    const prototype = await registry.load(serviceconfig.module);
+    let control;
+    if (is.vector(prototype.control)) control = prototype.control;
+    else control = new Vector();
+    if (is.fn(prototype.control)) prototype.control(control);
 
-  // if (config.system.daemon) {
-  //   await daemon.control(
-  //     { config: config.system.daemon },
-  //     client.trajectory.branch(`/control/system/daemon`),
-  //   );
-  // }
+    client.trajectory
+      .branch(`/system/services`)
+      .branch(`/${serviceconfig.runtime}/${serviceconfig.slug}`)
+      .use(async (ctx, next) => {
+        ctx.service = serviceconfig;
+        await next();
+      })
+      .set(control);
+  }
 }
 
 // client.trajectory .branch("system") .open("up", async (ctx) => {return { status: "up" };}) .open("test", async (ctx) => {const up = await ctx.call("/system/up"); return { up, output: "lorem" };});

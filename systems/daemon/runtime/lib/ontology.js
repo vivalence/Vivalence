@@ -1,4 +1,4 @@
-import { Feature } from "@vivalence/shared/classifier";
+import { Feature } from "@vivalence/typology";
 import { Type } from "@sinclair/typebox";
 import { obj } from "@vivalence/shared";
 
@@ -67,7 +67,6 @@ function constraintfactory(allConstraints) {
           ),
         ) // allways do schema first.
         .sort((a, b) => (isSchema(a) ? -1 : isSchema(b) ? 1 : 0));
-
       for (const constraint of relevantConstraints) {
         (await constraint.test(entity)).map((f) => issues.push(f));
       }
@@ -90,9 +89,9 @@ export function validation(rme) {
     return factory(["annotation", annotation.pos])(annotation, processors);
   };
 
-  validate.entities.unit = (unit, processors) => {
+  validate.entities.literal = (literal, processors) => {
     // runtime.validate.units[topography.slug] =
-    return factory(["unit", unit.annotation.pos])(unit, processors);
+    return factory(["literal", literal.annotation.pos])(literal, processors);
 
     // validate.units[unit.annotation.pos](unit, processors);
   };
@@ -112,10 +111,11 @@ export function classifier(rme) {
   const runtime = rme.instance;
   const ctx = {
     ontology: runtime.ontology,
+    // units: runtime.ontology.units,
     schema: runtime.schema,
     validate: runtime.validate,
     assert: runtime.assert,
-    services: runtime.services,
+    service: runtime.service,
     entities: runtime.entities,
   };
 

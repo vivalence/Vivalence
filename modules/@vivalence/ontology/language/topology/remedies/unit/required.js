@@ -1,5 +1,5 @@
 import { Type } from "@sinclair/typebox";
-import { Agent } from "@vivalence/shared/agent";
+import { Agent } from "@vivalence/typology";
 
 async function required(issue, ctx) {
   const annotation = issue.context.unit.annotation;

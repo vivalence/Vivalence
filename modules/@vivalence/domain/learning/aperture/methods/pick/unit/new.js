@@ -1,4 +1,4 @@
-import { Blacklist, Scope } from "@vivalence/shared";
+import { Blacklist, Scope } from "@vivalence/typology";
 
 export default async function getNewUnits(input, ctx) {
   const { tagIds, take } = input;

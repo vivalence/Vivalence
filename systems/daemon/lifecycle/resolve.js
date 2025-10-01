@@ -1,6 +1,6 @@
 import config from "@vivalence/config";
 import { Vector, parser, shards } from "@vivalence/vector";
-import { bundler, secure, is } from "@vivalence/shared";
+import { secure, is } from "@vivalence/shared";
 import { maps } from "@vivalence/entities";
 import { path } from "@vivalence/typology";
 

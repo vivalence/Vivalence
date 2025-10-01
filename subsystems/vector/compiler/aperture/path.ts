@@ -1,4 +1,4 @@
-export default class Path {
+export class Path {
   readonly value: string;
   ancestor: null | Path;
 

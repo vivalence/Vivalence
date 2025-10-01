@@ -12,37 +12,21 @@ export const manifest = {
 
 export const control = new Vector()
   .use(async (ctx, next) => {
-    // TODO: test node version
-    // console.log({ ...config.env.vars });
+    ctx.params = {
+      env: { ...config.env.vars },
+      cwd: __dirname,
+    };
     await next();
   })
   .open("/install", async (ctx) => {
-    const params = {
-      cmd: ["deno", "install", "--allow-scripts=npm:svelte-preprocess"],
-      env: { ...config.env.vars },
-      cwd: __dirname,
-    };
-    const process = await ctx.tools.process.start(manifest, params);
-    return process;
+    ctx.params.cmd = "deno install --allow-scripts=npm:svelte-preprocess";
+    return await ctx.tools.process.start(manifest, ctx.params);
   })
   .open("/start", async (ctx) => {
-    const params = {
-      cmd: "deno run -A npm:vite dev",
-      env: { ...config.env.vars },
-      cwd: __dirname,
-    };
-    const process = await ctx.tools.process.start(manifest, params);
-    return process;
-  })
-  .open("/watch", async (ctx) => {
-    const params = {
-      cmd: ["deno", "task", "watch"],
-      env: { ...config.env.vars },
-      cwd: __dirname,
-    };
-    const process = await ctx.tools.process.start(manifest, params);
-    return process;
+    ctx.params.cmd = "deno run -A npm:vite dev";
+    return await ctx.tools.process.start(manifest, ctx.params);
   });
+
 // .use(ctx => {
 //   try {
 //     await Deno.stat(`${__dirname}/node_modules`);

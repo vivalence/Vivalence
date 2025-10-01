@@ -27,7 +27,7 @@ export async function runtimes(config) {
           data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
         };
 
-        // config.services.add(service);
+        config.services.add(service);
         runtimeconfig.services[slug] = service;
       }
     }

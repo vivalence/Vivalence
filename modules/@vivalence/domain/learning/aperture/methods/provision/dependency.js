@@ -1,4 +1,4 @@
-import { Scope } from "@vivalence/shared";
+import { Scope } from "@vivalence/typology";
 import lock from "./lib/lock.js";
 
 export default async function provision({ dependency, ...body }, ctx) {

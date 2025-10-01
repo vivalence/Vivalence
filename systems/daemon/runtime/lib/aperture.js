@@ -1,4 +1,4 @@
-import { bundler, secure, is } from "@vivalence/shared";
+import { secure, is } from "@vivalence/shared";
 
 export async function datamap(rme) {
   rme.instance.aperture.open("/entities/:entity/:method", async (body, ctx) => {

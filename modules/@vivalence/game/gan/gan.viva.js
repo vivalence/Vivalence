@@ -1,6 +1,6 @@
-import { bundler } from "@vivalence/shared";
+// import { bundler } from "@vivalence/shared";
 
-import aperture from "./aperture/index.js";
+// import aperture from "./aperture/index.js";
 
 // const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
 
@@ -36,4 +36,4 @@ const manifest = {
 `,
 };
 
-export { manifest, boot };
+export { manifest };

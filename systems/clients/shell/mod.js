@@ -1,6 +1,6 @@
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
-import { Vector, signature } from "@vivalence/vector";
+import { Vector } from "@vivalence/vector";
 
 import tools from "./tools/index.js";
 
@@ -13,7 +13,7 @@ import run from "./lifecycle/run.js";
 export const client = {
   process: null,
   tools,
-  trajectory: new Vector([signature]),
+  trajectory: new Vector(),
 };
 await boot(client);
 await registry.init(config.registry);
@@ -24,8 +24,9 @@ await call(client);
 
 // // @RESOLVE
 try {
-  await run(client);
+  let i = 0;
+  while (true && i++ < 25) await run(client);
 } catch (error) {
   console.error(error);
-  shutdown();
+  shutdown("VIVA_SHUTDOWN");
 }

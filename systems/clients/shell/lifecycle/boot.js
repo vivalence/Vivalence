@@ -7,7 +7,7 @@ export default async function boot(client) {
   client.process = { spawn, shutdown };
 
   ["SIGINT", "SIGTERM", "SIGQUIT"].forEach((sig) =>
-    Deno.addSignalListener(sig, () => shutdown(sig)),
+    Deno.addSignalListener(sig, (sig) => shutdown(sig)),
   );
 
   return client;

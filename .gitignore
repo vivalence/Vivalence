@@ -1,8 +1,10 @@
 .jj
 .git
 .github
-./viva/
-./config/
+config
+config/*
+/config/*
+./config/*
 
 node_modules
 **/node_modules

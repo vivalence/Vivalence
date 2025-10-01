@@ -1,12 +1,18 @@
-import { Blacklist, array } from "@vivalence/shared";
+import { Scope, Blacklist } from "@vivalence/typology";
+import { array } from "@vivalence/shared";
 
 // Utility function for proportional distribution across categories
 function distributeProportionally(categories, totalSlots) {
   // Filter out undefined categories
-  const validCategories = categories.filter((cat) => cat.tags && cat.tags.length > 0);
+  const validCategories = categories.filter(
+    (cat) => cat.tags && cat.tags.length > 0,
+  );
 
   // Normalize proportions if they don't sum to 1
-  const totalProportion = validCategories.reduce((sum, cat) => sum + cat.proportion, 0);
+  const totalProportion = validCategories.reduce(
+    (sum, cat) => sum + cat.proportion,
+    0,
+  );
   const normalizedCategories = validCategories.map((cat) => ({
     ...cat,
     proportion: cat.proportion / totalProportion,

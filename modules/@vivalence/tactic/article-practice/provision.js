@@ -1,4 +1,5 @@
-import { Blacklist, array } from "@vivalence/shared";
+import { Blacklist } from "@vivalence/typology";
+import { array } from "@vivalence/shared";
 
 const TRANSLATIONS_VOCAB_PROMPTSIZE = 4;
 
@@ -26,7 +27,9 @@ export default async function provision(inputs, ctx) {
 
   const conceptFlashcard = await games.flashcards.call("/provision/fromLLM", {
     concept: flashcardConcept({ gender, number, definiteness }),
-    scope: { tags: [{ id: definiteness.id }, { id: number.id }, { id: gender.id }] },
+    scope: {
+      tags: [{ id: definiteness.id }, { id: number.id }, { id: gender.id }],
+    },
   });
   instructions.push(...conceptFlashcard);
 
@@ -72,7 +75,9 @@ export default async function provision(inputs, ctx) {
     unitIds,
     blacklist,
   });
-  const flashcards = await games.flashcards.call("/provision/fromUnits", { units: weakUnits });
+  const flashcards = await games.flashcards.call("/provision/fromUnits", {
+    units: weakUnits,
+  });
   instructions.push(...flashcards, ...translations);
 
   return instructions;
@@ -92,7 +97,13 @@ The concept should be explained clearly with examples that demonstrate all three
 
 Example output should test understanding of the correct article form for this combination.`;
 }
-function translationConstraints({ gender, number, definiteness, vocabulary, tactic }) {
+function translationConstraints({
+  gender,
+  number,
+  definiteness,
+  vocabulary,
+  tactic,
+}) {
   return [
     // i'd guess the arrays merge, which will result in contradicting constraints.
     ...(tactic.masks.translations?.constraints ?? []),

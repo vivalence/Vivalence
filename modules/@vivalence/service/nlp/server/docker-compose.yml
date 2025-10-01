@@ -4,17 +4,16 @@ services:
   stanza-nlp:
     build:
       context: .
-      dockerfile: src/Dockerfile
+      dockerfile: ./Dockerfile
       args:
         - STANZA_LANGUAGES=${STANZA_LANGUAGES}
         - STANZA_PROCESSORS=${STANZA_PROCESSORS}
     container_name: vivalence-service_nlp-stanza
     command: "./entrypoint.sh"
     volumes:
-      - ./mnt:/app/stanza/mnt
+      - ${SERVICE_DATA}/mnt:/app/stanza/mnt
     environment:
       - STANZA_RESOURCES_DIR=/app/stanza/mnt/stanza_resources
-
       - STANZA_LANGUAGES=${STANZA_LANGUAGES}
       - STANZA_PROCESSORS=${STANZA_PROCESSORS}
       - GUNICORN_WORKERS=${GUNICORN_WORKERS}
@@ -27,4 +26,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-

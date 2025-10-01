@@ -1,6 +1,6 @@
 import { Router, Middleware } from "oak";
 import { compose } from "oak/middleware";
-import { Path } from "@vivalence/shared";
+import { Path } from "./path.ts";
 import { Handler, ApertureContext } from "./types.ts";
 import parser from "./parser.js";
 
