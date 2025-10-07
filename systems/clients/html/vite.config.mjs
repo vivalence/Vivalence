@@ -25,17 +25,16 @@ export default defineConfig({
       "@client/surface/views": join(__dirname, "./src/surface/views/index.js"),
       "@client/surface": join(__dirname, "./src/surface/index.js"),
 
-      // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
-      "@static/icons/": join(__dirname, "./static/icons/"),
-
+      "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
+      "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
+      "@vivalence/vector": join(__ss, "./vector/mod.js"),
       "@vivalence/surface": join(
         __repo,
         "./systems/surfaces/html/surface.viva.js",
       ),
-      "@vivalence/shared": join(__ss, "./shared/client.js"),
-      "@vivalence/typology": join(__ss, "./typology/client.js"),
-      "@vivalence/vector": join(__ss, "./vector/mod.js"),
 
+      // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
+      "@static/icons/": join(__dirname, "./static/icons/"),
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"),
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],

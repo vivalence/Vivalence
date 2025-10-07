@@ -1,22 +1,37 @@
-import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
+import {
+  types,
+  EntityRepositoryType,
+  EntitySchema,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
+import { DataRepository, DataEntity, DataSchema } from "@vivalence/entities";
 import { ModuleEntity } from "./Module.ts";
 
-export class ValenceEntity extends BaseEntity {
-  slug!: string;
-  docs!: string;
+export class ValenceRepository extends DataRepository {
+  unique(opt) {
+    return {
+      slug: opt.slug,
+      module: opt.module,
+    };
+  }
+}
+
+export class ValenceEntity extends DataEntity {
+  docs!: string; //?
   resolve!: Record<string, any> & Opt = {}; // {generator:Path}
   module: Rel<ModuleEntity>;
   // signature
+  [EntityRepositoryType]?: ValenceRepository;
 }
 
 export const ValenceSchema = new EntitySchema({
   class: ValenceEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   tableName: "Valence",
+  repository: () => ValenceRepository,
   uniques: [{ properties: ["slug", "module"] }],
   properties: {
-    slug: { type: types.string },
     docs: { type: types.string },
     resolve: { type: types.json, defaultRaw: `"{}"` },
 

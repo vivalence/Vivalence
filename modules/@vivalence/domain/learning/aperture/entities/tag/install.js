@@ -1,4 +1,4 @@
-import { deepEquals, deepMerge, array } from "@vivalence/shared";
+import { array } from "@vivalence/shared";
 import { wrap } from "@mikro-orm/core";
 
 export default async function installTag(input, ctx) {

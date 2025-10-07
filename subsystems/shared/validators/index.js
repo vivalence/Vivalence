@@ -4,11 +4,5 @@ import jsonata from "./jsonata.js";
 
 import viva from "./viva/index.ts";
 
-export default {
-  viva,
-  ajv,
-  makeAjv,
-  Ajv,
-  jsonlogic,
-  jsonata,
-};
+export { viva, ajv, makeAjv, Ajv, jsonlogic, jsonata };
+export default { viva, ajv, makeAjv, Ajv, jsonlogic, jsonata };

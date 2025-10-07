@@ -1,5 +1,5 @@
 import registry from "@vivalence/registry";
-import { Vector, parser } from "@vivalence/vector";
+import { Vector } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
 export class Daemon {
@@ -10,7 +10,7 @@ export class Daemon {
   registry = registry;
   config = null;
   aperture = new Aperture().open("/status", async () => ({ success: true }));
-  twitch = new Vector(parser.sig);
+  twitch = new Vector();
   // preflight
   process = null;
 

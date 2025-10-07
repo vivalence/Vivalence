@@ -1,7 +1,6 @@
-import { hash, obj } from "@vivalence/shared";
+import { validators, hash, obj } from "@vivalence/shared";
 // import { Agentic } from "@vivalence/shared/trajectory";
 // import { TypeCompiler } from "@sinclair/typebox/compiler";
-import validators from "@vivalence/shared/validators";
 
 export class Agent {
   constructor(slug, name, manifest = {}) {

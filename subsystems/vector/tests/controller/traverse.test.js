@@ -1,35 +1,34 @@
+import { Signal } from "@vivalence/typology";
 import { assertEquals, assertThrows } from "$std/assert";
-import { sig } from "../../parser/index.js";
 import { Vector } from "../../vector.js";
-
 import { traverse } from "../../controller/traverse.js";
 
 Deno.test("traverse function finds effect", () => {
-  const vector = new Vector([sig]);
+  const vector = new Vector();
   const mockEffect = () => "test effect";
   vector.open("/users/:id", mockEffect);
 
-  const signals = sig.signal("/users/123");
-  const [effect, middlewares, finalVector, path] = traverse(vector, signals);
+  const signals = new Signal("/users/123");
+  const [effect, middlewares, path, finalVector] = traverse(vector, signals);
 
   assertEquals(effect, mockEffect);
   assertEquals(path.length, 2);
 });
 
 Deno.test("traverse function with nested descendants", () => {
-  const vector = new Vector([sig]);
+  const vector = new Vector();
   const mockEffect = () => "profile effect";
   vector.branch("/api").branch("/users").open("/:id/profile", mockEffect);
 
-  const signals = sig.signal("/api/users/123/profile");
-  const [effect, middlewares, finalVector, path] = traverse(vector, signals);
+  const signals = new Signal("/api/users/123/profile");
+  const [effect, middlewares, path, finalVector] = traverse(vector, signals);
 
   assertEquals(effect, mockEffect);
   assertEquals(path.length, 4);
 });
 
 Deno.test("traverse function collects and chains middlewares", async () => {
-  const vector = new Vector([sig]);
+  const vector = new Vector();
   const log = [];
 
   const middleware1 = async (context, next) => {
@@ -57,9 +56,9 @@ Deno.test("traverse function collects and chains middlewares", async () => {
     .use(middleware2)
     .open("/test", mockEffect);
 
-  const signals = sig.signal("/api/test");
+  const signals = new Signal("/api/test");
 
-  const [effect, composed, _, steps] = traverse(vector, signals);
+  const [effect, composed, steps] = traverse(vector, signals);
   const context = { input: "input handled" };
   await composed(context, async (ctx) => {
     ctx.result = await effect(ctx.input, ctx);
@@ -78,8 +77,8 @@ Deno.test("traverse function collects and chains middlewares", async () => {
 });
 
 Deno.test("traverse function throws on no match", () => {
-  const vector = new Vector([sig]);
-  const signals = sig.signal("/nonexistent");
+  const vector = new Vector();
+  const signals = new Signal("/nonexistent");
 
-  assertThrows(() => traverse(vector, signals), Error, "No match");
+  assertThrows(() => traverse(vector, signals), Error, "Not found");
 });

@@ -1,9 +1,12 @@
-export const attach = (key, val) => async (ctx, next) => {
+export * as patterns from "./patterns.js";
+export * as caching from "./caching.js";
+
+const attach = (key, val) => async (ctx, next) => {
   ctx[key] = val;
   return await next();
 };
 
-export function status(vector) {
+function status(vector) {
   vector.open("/status", async (input, ctx) => {
     return { status: "success", code: 200 };
   });
@@ -12,6 +15,5 @@ export function status(vector) {
 //   ...ctx.runtime.config.manifest,
 // }));
 
-export const aperture = { status }; // datamap
+export const aperture = { status };
 export const context = { attach };
-export const middleware = { identity: attach }; //legacy

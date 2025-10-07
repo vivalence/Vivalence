@@ -52,27 +52,23 @@ const parseModuleKey = (key) => {
 };
 
 const importModule = async (path) => {
-  try {
-    const moduleImport = await import(path);
-    let module = moduleImport.default || moduleImport;
-    if (!module?.manifest?.type || !module?.manifest?.slug) {
-      throw new Error(`Invalid module manifest at ${path}`);
-    }
-    module.manifest.owner = module.manifest.owner || DEFAULT_OWNER;
-    if (module.manifest?.traits?.includes("VIEWABLE")) {
-      if (module.view instanceof Path)
-        module.view = new Path(dirname(path)).branch(module.view.value);
-      else if (is.string(module.view))
-        module.view = new Path(dirname(path)).branch(module.view);
-      else
-        console.warn("@registry: imported viewable module missing .view.entry");
-      // console.log(module.view.absolute);
-      // console.log(module.view.down().value);
-    }
-    return module;
-  } catch (error) {
-    throw new Error(`Failed to import module at ${path}: ${error.message}`);
+  const moduleImport = await import(path);
+  let module = moduleImport.default || moduleImport;
+  if (!module?.manifest?.type || !module?.manifest?.slug) {
+    throw new Error(`Invalid module manifest at ${path}`);
   }
+  module.manifest.owner = module.manifest.owner || DEFAULT_OWNER;
+  if (module.manifest?.traits?.includes("VIEWABLE")) {
+    if (module.view instanceof Path)
+      module.view = new Path(dirname(path)).branch(module.view.value);
+    else if (is.string(module.view))
+      module.view = new Path(dirname(path)).branch(module.view);
+    else
+      console.warn("@registry: imported viewable module missing .view.entry");
+    // console.log(module.view.absolute);
+    // console.log(module.view.down().value);
+  }
+  return module;
 };
 
 const discover = async (dirPath) => {
@@ -93,8 +89,10 @@ const discover = async (dirPath) => {
       try {
         return await importModule(path);
       } catch (error) {
-        console.warn(`Module discovery error: ${error.message}`);
-        return null;
+        console.log(`[ERROR] @registry: module import`);
+        console.trace(error);
+        console.log(`[ERROR] thrown`);
+        throw error;
       }
     }),
   );

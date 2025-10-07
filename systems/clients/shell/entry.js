@@ -4,6 +4,7 @@ let repodir = Deno.args.shift();
 if (process.env["VIVA_REPOSITORY_DIR"]) {
   repodir = process.env["VIVA_REPOSITORY_DIR"];
 }
+console.log("[viva shell invocation] with args:", Deno.args);
 
 const run = Deno.run({
   cmd: [
@@ -17,7 +18,7 @@ const run = Deno.run({
   ],
 });
 
-console.log(await run.status());
+console.log("[viva shell disintegration] with status:", await run.status());
 
 // } catch (error) {
 //   console.error("@clients/shell [ERROR] in viva execution:");

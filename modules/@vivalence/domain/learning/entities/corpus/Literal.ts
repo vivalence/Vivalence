@@ -1,26 +1,25 @@
-import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { DataEntity, DataSchema } from "@vivalence/entities";
+import {
+  types,
+  Collection,
+  EntitySchema,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
+import { maps } from "@vivalence/entities";
 
-import { SymbolEntity } from "../corpus/Symbol.ts";
 import { ExerciseEntity } from "../userspace/Exercise.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
-export class LiteralEntity extends DataEntity {
-  symbols = new Collection<SymbolEntity>(this);
-
+export class LiteralEntity extends maps.corpus.literal.entity {
+  exercises = new Collection<ExerciseEntity>(this);
   memories = new Collection<MemoryEntity>(this);
   plays = new Collection<PlayEntity>(this);
-
-  annotation: any & Opt = {};
-  data: any & Opt = {};
 }
 
-export const LiteralSchema = new EntitySchema<LiteralEntity, DataEntity>({
-  extends: DataSchema,
+export const LiteralSchema = new EntitySchema({
+  extends: maps.corpus.literal.schema,
   class: LiteralEntity,
-  tableName: "Literal",
-  uniques: [{ properties: ["slug"] }],
   properties: {
     memories: {
       kind: "1:m",
@@ -37,10 +36,6 @@ export const LiteralSchema = new EntitySchema<LiteralEntity, DataEntity>({
       entity: () => PlayEntity,
       mappedBy: (play) => play.literal,
     },
-    symbols: { kind: "m:n", entity: () => SymbolEntity, mappedBy: "literals" },
-
-    annotation: { type: "json" },
-    data: { type: "json" },
   },
 });
 

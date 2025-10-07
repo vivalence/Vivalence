@@ -5,9 +5,8 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { DataEntity, DataSchema } from "@vivalence/entities";
+import { maps } from "@vivalence/entities";
 
-import { LiteralEntity } from "../corpus/Literal.ts";
 import { ExerciseEntity } from "../userspace/Exercise.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
@@ -20,52 +19,17 @@ export enum SymbolTraitsEnum {
   AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
 }
 
-export class SymbolEntity extends DataEntity {
-  traits: SymbolTraitsEnum[] & Opt = [];
-  data: any & Opt = {};
-
-  ancestor?: Rel<SymbolEntity>;
-  decendants = new Collection<SymbolEntity>(this);
-  literals = new Collection<LiteralEntity>(this);
-
+export class SymbolEntity extends maps.corpus.symbol.entity {
   plays = new Collection<PlayEntity>(this);
   memories = new Collection<MemoryEntity>(this);
+  exercises = new Collection<ExerciseEntity>(this);
 }
 
-export const SymbolSchema = new EntitySchema<SymbolEntity, DataEntity>({
+// console.log(maps.corpus.symbol.entity);
+export const SymbolSchema = new EntitySchema({
   class: SymbolEntity,
-  extends: DataSchema,
-  tableName: "Symbol",
-  uniques: [{ properties: ["slug"] }],
+  extends: maps.corpus.symbol.schema,
   properties: {
-    traits: {
-      type: types.enum,
-      defaultRaw: `"[]"`,
-      enum: true,
-      array: true,
-      items: () => SymbolTraitsEnum,
-      default: [],
-    },
-    data: { type: types.json },
-
-    literals: {
-      kind: "m:n",
-      entity: () => LiteralEntity,
-      inversedBy: "symbols",
-      pivotTable: "_SymbolToLiteral",
-    },
-    ancestor: {
-      kind: "m:1",
-      entity: () => SymbolEntity,
-      fieldName: "ancestor",
-      inversedBy: "decendants",
-      nullable: true,
-    },
-    decendants: {
-      kind: "1:m",
-      entity: () => SymbolEntity,
-      mappedBy: (symbol) => symbol.ancestor,
-    },
     exercises: {
       kind: "m:n",
       entity: () => ExerciseEntity,

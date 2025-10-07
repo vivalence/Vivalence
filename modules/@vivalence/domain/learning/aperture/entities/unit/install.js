@@ -1,5 +1,5 @@
 import { wrap } from "@mikro-orm/core";
-import { deepMerge } from "@vivalence/shared";
+import { object } from "@vivalence/shared";
 
 export default async function installUnit(input, ctx) {
   let operation = "";
@@ -32,7 +32,7 @@ export default async function installUnit(input, ctx) {
   unit.data.index = unit.data.index || null;
   unit.data.known = unit.data.known || null;
   unit.data.learning = unit.data.learning || null;
-  unit.data.example = deepMerge(
+  unit.data.example = object.deepMerge(
     { known: null, learning: null },
     unit.data.example,
   );

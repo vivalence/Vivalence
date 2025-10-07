@@ -10,47 +10,25 @@ export default function (config) {
 
   const statics = { language: { known: "english", learning: "latin" } };
 
-  const domain = "@vivalence/domain/learning";
-  const ontology = "@vivalence/ontology/language";
-  // const topic = ["@vivalence/topic/eng-to-lat"];
-
   const modules = {
+    domain: "@vivalence/domain/learning",
+    ontology: "@vivalence/ontology/language",
     topic: ["@vivalence/topic/eng-to-lat"],
-    game: [
-      "@vivalence/game/gan",
-      "@vivalence/game/flashcards",
-      // "@vivalence/game/conjugations",
-      // "@vivalence/game/translations",
-      // "@vivalence/game/prose",
-    ],
-    tactic: [
-      "@vivalence/tactic/spaced-repetition",
-      // "@vivalence/tactic/sentences",
-      // "@vivalence/tactic/article-practice",
-      // "@vivalence/tactic/verb-conjugation-practice",
-      // "@vivalence/tactic/pronominalization-practice",
-    ],
+    game: ["@vivalence/game/flashcards"],
+    tactic: ["@vivalence/tactic/spaced-repetition"],
     agent: ["@vivalence/agent/eva"],
   };
 
   const lighthouse = {
     module: "@vivalence/lighthouse/multiplayer",
-    // data: config.joins.data.runtime(manifest.slug, "lighthouse"),
-    secret: {
-      jwt: config.env.secrets.get("JWT_SECRET"),
-    },
-    config: {
-      authority: { url: config.env.get("VIVA_LIGHTHOUSE_URL") },
-    },
+    secret: { jwt: config.env.secrets.get("JWT_SECRET") },
+    config: { authority: { url: config.env.get("VIVA_LIGHTHOUSE_URL") } },
   };
 
   const database = {
     module: "@vivalence/database/libsql",
-    // data: config.joins.data.runtime(manifest.slug, "database"),
     config: {
-      db: {
-        path: `/${manifest.slug}.viva.db`,
-      },
+      db: { path: `/${manifest.slug}.viva.db` },
     },
   };
 
@@ -60,7 +38,6 @@ export default function (config) {
       secret: {
         providers: {
           anthropic: config.env.secrets.get("ANTHROPIC_API_KEY"),
-          // customName: {name: "customName", apiKey: config.env.get("SOME_API_KEY"), baseURL: "",},
         },
       },
       config: {
@@ -107,8 +84,6 @@ export default function (config) {
     manifest,
     lighthouse,
     database,
-    domain,
-    ontology,
     modules,
     services,
     statics,

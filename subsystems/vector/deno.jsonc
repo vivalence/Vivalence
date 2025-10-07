@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    "./parser": "./parser/index.js",
     "./controller": "./controller/index.js",
     "./compiler": "./compiler/index.js",
     "./shards": "./shards/index.js",
@@ -12,5 +11,9 @@
 
   "tasks": {
     "test": "deno test -A --no-check --watch tests/*/*.test.js",
+    "test:signature": "deno test -A --no-check --watch tests/signature.test.js",
+    "test:vector": "deno test -A --no-check --watch tests/vector.test.js",
+    "test:traverse": "deno test -A --no-check --watch tests/controller/traverse.test.js",
+    "test:walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
   },
 }

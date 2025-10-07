@@ -12,9 +12,3 @@ export const futureDatetime = (hoursFloat, now = new Date()) => {
 export const hoursBetweenDates = (fromAt, toAt = new Date()) => {
   return (new Date(toAt) - new Date(fromAt)) / (1000 * 60 * 60);
 };
-
-export default {
-  hoursBetween,
-  futureDatetime,
-  hoursBetweenDates,
-};

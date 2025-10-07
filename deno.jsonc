@@ -1,6 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
+  "exclude": ["./config/data/"],
   "workspace": [
     "./systems/daemon",
     "./systems/clients/shell",
@@ -13,7 +14,7 @@
     "./subsystems/config",
     "./subsystems/registry",
     "./subsystems/entities",
-    "./subsystems/pack",
+    // "./subsystems/pack",
   ],
   "tasks": {
     "deno:install": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",

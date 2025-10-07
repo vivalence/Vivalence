@@ -3,7 +3,6 @@ import {
   EntitySchema,
   EntityRepositoryType,
   BaseEntity as MikroBaseEntity,
-  EntityRepository as MikroBaseRepository,
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
@@ -13,6 +12,7 @@ export class BaseEntity extends MikroBaseEntity {
   id!: string;
   createdAt!: Date & Opt;
   updatedAt!: Date & Opt;
+  // slug type traits
 }
 
 export const BaseSchema = new EntitySchema<BaseEntity>({

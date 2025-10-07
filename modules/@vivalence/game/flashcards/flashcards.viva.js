@@ -1,5 +1,5 @@
 import { Aperture } from "@vivalence/vector/aperture";
-import { Path } from "@vivalence/typology";
+import { View, Path } from "@vivalence/typology";
 // import { agent } from "./aperture/index.js";
 
 const manifest = {
@@ -16,7 +16,7 @@ const view = new Path("/buffer/flashcards.svelte.js");
 // async function feed(input, ctx) {return [{ agent: "welcome user" }];}
 // const generate = (v) => v.open("/feed", feed); // maybe define input
 
-const aperture = (v) => v; //.open("/agent", agent);
+const aperture = new Aperture(); //.open("/agent", agent);
 
 export default { manifest, view, aperture };
 // // import { bundler } from "@vivalence/shared";

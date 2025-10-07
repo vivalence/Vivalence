@@ -1,41 +1,34 @@
-import deepClone from "./deepClone.js";
-import deepMerge from "./deepMerge.js";
-import deepEquals from "./deepEquals.js";
+export * as cast from "./cast.js";
+export * as obj from "./object.js"; // legacy
+export * as object from "./object.js";
+export * as id from "./id.js";
+export * as strings from "./strings.js";
+export * as time from "./time.js";
+export * as fn from "./fn.js";
+export * as sleep from "./sleep.js";
+export * as random from "./random.js";
+export * as promise from "./promise.js";
+export * as array from "./array.js";
+export * as is from "./is.js";
 
-import uniqueBySlug from "./uniqueBySlug.js";
-import stripOfNulls from "./stripOfNulls.js";
-
-import is from "./is.js";
-import id from "./id.js";
-import strings from "./strings.js";
-import time from "./time.js";
-import fn from "./fn.js";
-
-import sleep from "./sleep.js";
-import random from "./random.js";
-import promise from "./promise.js";
-import array from "./array.js";
-
-const obj = { deepMerge, deepEquals, deepClone, stripOfNulls };
-
-const std = { id, fn, is, time, strings, obj, array, promise };
-
-export {
-  is,
-  fn,
-  random,
-  promise,
-  sleep,
-  std,
-  array,
-  obj,
-  strings,
-  id,
-  time,
-  //api depracated
-  uniqueBySlug,
-  deepMerge,
-  deepEquals,
-  deepClone,
-};
-export default std;
+// export const obj = { deepMerge, deepEquals, deepClone, stripOfNulls };
+// export const std = { id, fn, time, strings, obj, array, promise };
+// export {
+//   // is,
+//   fn,
+//   random,
+//   promise,
+//   sleep,
+//   // std,
+//   array,
+//   // obj,
+//   strings,
+//   id,
+//   time,
+//   //api depracated
+//   // uniqueBySlug,
+//   // deepMerge,
+//   // deepEquals,
+//   // deepClone,
+// };
+// export default std;

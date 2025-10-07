@@ -11,9 +11,7 @@ export const generator = await (async () => {
 
   generator
     .branch("/viva")
-    // .open("/faafo", async (ctx) => {
-    //   ctx.buffer.push(
-    //     new BufferMode(
+    // .open("/faafo", async (ctx) => {ctx.buffer.push(new BufferMode(
     //       {url: "http://localhost:1729/attached/runtime/eng2lat/module/agent/eva/bundle/view/viva.svelte.js",},
     //       { product: { agent: "ligma" } },),);})
     .use(async (ctx, next) => {

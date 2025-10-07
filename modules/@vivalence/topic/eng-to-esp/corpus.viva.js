@@ -1,8 +1,8 @@
-import curriculum from "./curriculum/index.js";
-import topology from "./topology/index.js";
+// import curriculum from "./curriculum/index.js";
+// import topology from "./topology/index.js";
 // import session from "./curriculum/session.js";
 
-const manifest = {
+export const manifest = {
   type: "corpus",
   slug: "cefr-eng-to-esp",
   name: "CEFR - English to Spanish",
@@ -14,4 +14,4 @@ const manifest = {
 
 // function boot(runtime) {}
 
-export { manifest, curriculum, topology };
+// export { manifest, curriculum, topology };

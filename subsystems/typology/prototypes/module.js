@@ -1,11 +1,13 @@
 import { Path } from "@vivalence/typology";
+import { shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
 // todo: move to daemon
 export class Module {
-  // url: URL
+  // status, connection
   // entity: <em.Module>
   // type, slug, traits
+  // url
   // call
 
   constructor(register) {
@@ -14,6 +16,7 @@ export class Module {
     this.traits = register.manifest.traits || [];
     this.register = register;
     this.aperture = new Aperture()
+      .use(shards.context.attach("module", this))
       .open("/status", async () => ({ code: "SUCCESS" }))
       .open("/manifest", async () => ({ ...this.manifest }));
   }

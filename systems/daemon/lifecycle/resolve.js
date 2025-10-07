@@ -1,24 +1,9 @@
+// resolve
 import config from "@vivalence/config";
-import { Vector, parser, shards } from "@vivalence/vector";
+import { shards } from "@vivalence/vector";
 import { secure, is } from "@vivalence/shared";
 import { maps } from "@vivalence/entities";
 import { path } from "@vivalence/typology";
-
-import * as lifecycle from "../runtime/index.js";
-
-export async function runtimes(daemon) {
-  for (const rme of daemon.runtimes) {
-    for (const populate of Object.values(lifecycle.populate)) {
-      await populate(rme, daemon);
-    }
-    // checks
-
-    for (const resolve of Object.values(lifecycle.resolve)) {
-      await resolve(rme, daemon);
-    }
-    // checks
-  }
-}
 
 export async function attachments(daemon) {
   for (const rme of daemon.runtimes) {
@@ -44,7 +29,7 @@ export async function attachments(daemon) {
         attachable[0],
         attached
           .branch(`/${type}/${slug}`)
-          .use(shards.middleware.identity(type, attachable[0])),
+          .use(shards.context.attach(type, attachable[0])),
       );
     }
   }

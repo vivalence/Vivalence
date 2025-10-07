@@ -1,8 +1,5 @@
-import { Vector } from "@vivalence/vector";
-
-export function vector(thing) {
-  return thing instanceof Vector;
-}
+// convention: Uppercase=instanceof,lowercase=satisfiesconstraints/castable
+export { gestalten } from "@vivalence/typology";
 
 export function array(thing) {
   return Array.isArray(thing);
@@ -37,7 +34,7 @@ export function nill(thing) {
 }
 
 export function defined(thing) {
-  return thing !== undefined && thing !== null;
+  return thing === undefined || thing === null;
 }
 
 export function empty(thing) {
@@ -89,26 +86,3 @@ export function promise(thing) {
 export function error(thing) {
   return thing instanceof Error;
 }
-
-export default {
-  vector,
-  fn,
-  array,
-  object,
-  string,
-  number,
-  boolean,
-  undefined,
-  nill,
-  defined,
-  empty,
-  integer,
-  positive,
-  negative,
-  email,
-  url,
-  date,
-  regex,
-  promise,
-  error,
-};

@@ -25,9 +25,9 @@
     "@sinclair/typebox/value": "npm:@sinclair/typebox/value",
     "@sinclair/typebox/compiler": "npm:@sinclair/typebox/compiler",
 
-    "@mikro-orm/core": "npm:@mikro-orm/core@6.4.3",
-    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.4.3",
-    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.4.3",
+    "@mikro-orm/core": "npm:@mikro-orm/core@6.5",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.5",
+    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.5",
 
     "@libsql/client/node": "npm:@libsql/client/node",
     "@db/sqlite": "jsr:@db/sqlite@0.12",
@@ -63,6 +63,7 @@
     "esbuild-svelte": "npm:esbuild-svelte@0.9",
     "esbuild": "npm:esbuild@latest",
     "esbuild-plugin-cache": "npm:esbuild-plugin-cache",
+    "importmap": "https://deno.land/x/importmap@0.2.1/mod.ts",
     "eslint-plugin-svelte": "npm:eslint-plugin-svelte@^2.35.0",
     "eslint": "npm:eslint@^8.55.0",
     "postcss-cli": "npm:postcss-cli@^11.0.1",

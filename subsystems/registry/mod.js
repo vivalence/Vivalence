@@ -1,4 +1,4 @@
-import { deepClone, is } from "@vivalence/shared";
+import { object, is } from "@vivalence/shared";
 
 import register from "./lib.js";
 

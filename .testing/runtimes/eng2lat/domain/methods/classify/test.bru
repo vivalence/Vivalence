@@ -7,7 +7,11 @@ meta {
 post {
   url: {{ENG2LAT}}/classify/test
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {

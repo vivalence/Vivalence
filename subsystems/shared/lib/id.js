@@ -1,5 +1,4 @@
-// Content-based ID function
-function contentBasedId(content) {
+export function basedId(content) {
   let hash = 0;
   const str = JSON.stringify(content);
   for (let i = 0; i < str.length; i++) {
@@ -10,12 +9,12 @@ function contentBasedId(content) {
   return Math.abs(hash).toString(36);
 }
 
-// Time-based ID function
-function timeBasedId() {
+export function timedId() {
   const now = Date.now();
   const random = Math.floor(Math.random() * 1000000);
   return `${now.toString(36)}${random.toString(36)}`;
 }
-export default function id(content) {
-  return content ? contentBasedId(content) : timeBasedId();
+
+export function id(content) {
+  return content ? basedId(content) : timedId();
 }

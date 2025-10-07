@@ -335,23 +335,23 @@ const punct = {
 
 export default [
   sentence,
-  // Core inflected classes - these drive Latin's grammatical system
-  noun, // Foundation: establishes case relationships
-  verb, // Action center: complex morphology with voice/mood/tense
-  adj, // Modifier: must agree with nouns in all categories
-  pron, // Reference: complex person/case/gender interactions
-  det, // Specification: agrees with nouns like adjectives
-  aux, // Helper: inflects like main verbs but with syntactic differences
+  // // Core inflected classes - these drive Latin's grammatical system
+  // noun, // Foundation: establishes case relationships
+  // verb, // Action center: complex morphology with voice/mood/tense
+  // adj, // Modifier: must agree with nouns in all categories
+  // pron, // Reference: complex person/case/gender interactions
+  // det, // Specification: agrees with nouns like adjectives
+  // aux, // Helper: inflects like main verbs but with syntactic differences
 
-  // Functional classes - participate in grammar but less morphologically dense
-  adp, // Relationship: governs case of noun phrases
-  adv, // Modification: may show degree but generally invariant
-  num, // Quantity: selective case agreement based on function
-  propn, // Naming: inflects like nouns but with semantic specialization
+  // // Functional classes - participate in grammar but less morphologically dense
+  // adp, // Relationship: governs case of noun phrases
+  // adv, // Modification: may show degree but generally invariant
+  // num, // Quantity: selective case agreement based on function
+  // propn, // Naming: inflects like nouns but with semantic specialization
 
-  // Structural classes - provide syntactic scaffolding
-  cconj, // Coordination: connects equal elements
-  sconj, // Subordination: introduces dependent structures
-  part, // Function: discourse and logical operators
-  punct, // Orthography: structural markers only
+  // // Structural classes - provide syntactic scaffolding
+  // cconj, // Coordination: connects equal elements
+  // sconj, // Subordination: introduces dependent structures
+  // part, // Function: discourse and logical operators
+  // punct, // Orthography: structural markers only
 ];

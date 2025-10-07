@@ -1,6 +1,7 @@
-import topology from "./topology/index.js";
+export * as topology from "./topology/index.js";
+export * from "./aperture.js";
 
-const manifest = {
+export const manifest = {
   type: "ontology",
   slug: "language",
   name: "Language after Universal Dependencies",
@@ -9,5 +10,3 @@ const manifest = {
 };
 
 // const predicates = {requirements: [{domain: "@vivalence/domain/learning", version: "^0.1",},], constraints: [],};
-
-export { manifest, topology };

@@ -1,5 +1,5 @@
 import { join } from "$std/path/mod.ts";
-import { deepMerge } from "@vivalence/shared";
+import { object } from "@vivalence/shared";
 import { Blacklist, Scope } from "@vivalence/typology";
 
 export default async function (input, ctx) {
@@ -14,8 +14,8 @@ export default async function (input, ctx) {
   const blacklist = await new Blacklist(input.blacklist).fromQueue(scope, ctx);
 
   let { masks = {}, relations = {} } = input;
-  masks = deepMerge({}, tactic.data.masks, masks);
-  relations = deepMerge({}, tactic.data.relations, relations);
+  masks = object.deepMerge({}, tactic.data.masks, masks);
+  relations = object.deepMerge({}, tactic.data.relations, relations);
   relations = await buildRelations(relations, ctx);
   relations = injectGameCaller({ relations, masks, scope }, ctx);
 
@@ -125,9 +125,9 @@ function injectGameCaller({ relations, masks, scope }, ctx) {
     relations.games[relationName].call = (path, input) => {
       return ctx.runtime.call(
         join(game.path.value, path),
-        deepMerge(
-          { mask: deepMerge(game.mask, masks[relationName]) },
-          { scope: deepMerge(scope, { game: { slug: game.slug } }) },
+        object.deepMerge(
+          { mask: object.deepMerge(game.mask, masks[relationName]) },
+          { scope: object.deepMerge(scope, { game: { slug: game.slug } }) },
           input,
         ),
       );

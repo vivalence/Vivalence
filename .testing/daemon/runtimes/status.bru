@@ -6,16 +6,10 @@ meta {
 
 get {
   url: {{RUNTIME}}/status
-  body: json
+  body: none
   auth: bearer
 }
 
 auth:bearer {
   token: {{accessToken}}
-}
-
-body:json {
-  {
-    "THIS": "THAT"
-  }
 }

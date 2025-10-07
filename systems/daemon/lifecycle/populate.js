@@ -1,24 +1,19 @@
+// populate is for tools, maps and repositories
 import config from "@vivalence/config";
-import { maps } from "@vivalence/entities";
-import { Path } from "@vivalence/typology";
+import { Url, Path, Module } from "@vivalence/typology";
 import * as lifecycle from "../runtime/index.js";
-import * as lib from "../runtime/lib/index.js";
 
 export async function runtimes(daemon) {
   for (const runtimeconfig of config.runtimes) {
+    const slug = runtimeconfig.manifest.slug;
     const rme = {
-      slug: runtimeconfig.manifest.slug,
-      path: new Path(`/runtime/${runtimeconfig.manifest.slug}`),
-      url: new URL(
-        `/runtime/${runtimeconfig.manifest.slug}`,
-        daemon.config.url,
-      ),
-      instance: new lifecycle.Runtime(runtimeconfig),
+      slug,
+      path: new Path(`/runtime/${slug}`),
+      url: new Url(`/runtime/${slug}`, daemon.config.url),
+      instance: new lifecycle.construct.Runtime(runtimeconfig),
       config: runtimeconfig,
 
       register: {
-        domain: await daemon.registry.load(runtimeconfig.domain),
-        ontology: await daemon.registry.load(runtimeconfig.ontology),
         lighthouse: await daemon.registry.load(runtimeconfig.lighthouse),
         database: await daemon.registry.load(runtimeconfig.database),
         modules: await daemon.registry.loadMap(runtimeconfig.modules),
@@ -34,25 +29,9 @@ export async function runtimes(daemon) {
       },
     };
 
-    rme.maps.modules = {
-      // defaults? ...typology.maps.modules
-      ...(rme.register.domain.maps.modules || {}),
-    };
+    lifecycle.construct.maps(rme);
 
-    rme.maps.traits = {
-      ...lib.modules.traitmap,
-      ...(rme.register.domain.maps.traits || {}),
-    };
-
-    rme.maps.entities = {
-      valence: maps.system.valence,
-      module: maps.system.module,
-      ...maps.userspace,
-      ...rme.register.domain.maps.entities,
-      // ...maps.ontology,
-    };
-
-    rme.instance.attached = new URL(
+    rme.instance.attached = new Url(
       `/attached/runtime/${rme.slug}`,
       daemon.config.url,
     );

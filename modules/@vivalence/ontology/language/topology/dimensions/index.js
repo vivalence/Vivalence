@@ -1,4 +1,5 @@
 const moduleNames = [
+  "text",
   "foreign",
   "compound",
   "advtype",

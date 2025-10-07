@@ -3,7 +3,10 @@
     {
       "slug": "populate",
       "docs": "populate the runtime with entities",
-      "resolve": { "generator": "/feed" }
+      "traits": ["RESOLVED"],
+      "data": {
+        "RESOLVED": { "generator": "/feed" }
+      }
     }
   ]
 }

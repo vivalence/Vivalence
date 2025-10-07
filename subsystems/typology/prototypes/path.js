@@ -17,24 +17,29 @@ const fromRemainder = (params) => {
   return path.up();
 };
 
+const fromFile = (url) => {
+  // TODO: apply ancestor of 'file:/'
+  const [file, ...dir] = url
+    .replace(/^file:\/\//, "")
+    .split("/")
+    .reverse();
+  return new Path(file).from(new Path(dir.reverse().join("/")));
+};
+
 export const path = {
   // join,
-  fromFile: (url) => {
-    // TODO: apply ancestor of 'file:/'
-    const [file, ...dir] = url
-      .replace(/^file:\/\//, "")
-      .split("/")
-      .reverse();
-    return new Path(file).withAncestor(new Path(dir.reverse().join("/")));
-  },
+  file: fromFile,
+  fromFile,
   fromRemainder,
-  fromParams: fromRemainder,
+  remainder: fromRemainder,
+  params: fromRemainder,
 };
 
 // MAYBE IMPLEMENT SIGNATURE??!! ?optionally
 // actually maybe really makes sense to implement path as a metastructure atop signal signatures.
 // literally insane. conceptually alone, but also a really nice way to integrate with the vector too.
 
+// path should implement ~/ syntax for homing.
 export class Path {
   segment = "";
   ancestor = null; // null | Path | Url
@@ -43,22 +48,24 @@ export class Path {
     if (path instanceof Path) this.segment = path.down().segment;
     else if (is.array(path)) this.segment = join(...path);
     else this.segment = join(path);
-    if (ancestor) this.withAncestor(ancestor);
+    if (ancestor) this.from(ancestor);
   }
-  withAncestor(ancestor) {
+  from(ancestor) {
     this.ancestor = ancestor;
     this.ancestor.trunks.push(this);
     return this;
   }
   branch(branch) {
     const path = new Path(branch, this);
-    this.trunks.push(path);
     return path;
   }
   leaf(leaf) {
+    return this.yeet(leaf);
+  }
+  yeet(yeet) {
     let path = this;
-    while (path.trunks[0]) path = path.trunks[0];
-    path.branch(leaf);
+    while (path.heir) path = path.heir;
+    path.branch(yeet);
     return this;
   }
   up() {
@@ -79,6 +86,10 @@ export class Path {
       depth++;
     }
     return depth;
+  }
+
+  get heir() {
+    return this.trunks[0];
   }
   get absolute() {
     // if (this.trunks[1]) throw new Error("@Path: ambivalent trunks on up");

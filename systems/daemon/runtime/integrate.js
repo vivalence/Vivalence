@@ -1,15 +1,4 @@
 import { Vector, compiler, controller, shards } from "@vivalence/vector";
-// import { secure, is } from "@vivalence/shared";
-
-export async function modules(rme) {
-  for (const module of rme.instance.module.values()) {
-    rme.instance.aperture
-      .branch(module.path.value)
-      .use(shards.context.attach("module", module))
-      //   // .use(secure.authorize())
-      .descendants.push(module.aperture);
-  }
-}
 
 export async function call(rme) {
   const composed = await rme.instance.aperture.compose(true);
@@ -23,10 +12,19 @@ export async function call(rme) {
   };
 }
 
+export async function modules(rme) {
+  for (const module of rme.instance.module.values()) {
+    rme.instance.aperture
+      .branch(module.path.value)
+      // .use(secure.authorize())
+      .descendants.push(module.aperture);
+  }
+}
+
 export async function twitch(rme) {
   const subscriptions = rme.instance.entities.on.patterns
     .map((p) => p.signature)
-    .map((s) => rme.register.domain.entities.map[s].entity);
+    .map((s) => rme.register.modules.domain.entities.map[s].entity);
 
   const subscriber = new compiler.Subscriber(
     subscriptions,
@@ -49,7 +47,7 @@ export async function twitch(rme) {
     .registerSubscriber(subscriber);
 }
 
-export async function domain(rme) {
-  if (rme.register.domain.lifecycle.integrate)
-    await rme.register.domain.lifecycle.integrate(rme.instance);
-}
+// export async function domain(rme) {
+//   if (rme.register.modules.domain.lifecycle.integrate)
+//     await rme.register.modules.domain.lifecycle.integrate(rme.instance);
+// }

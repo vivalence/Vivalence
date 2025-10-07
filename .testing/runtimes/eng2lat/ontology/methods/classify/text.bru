@@ -1,0 +1,21 @@
+meta {
+  name: text
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{ENG2LAT}}/module/ontology/classify/text
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "text": "Marcus se in speculo videt"
+  }
+}

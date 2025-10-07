@@ -1,5 +1,5 @@
 import { traverse } from "../../controller/index.js";
-import { sig } from "../../parser/index.js";
+import { signature } from "../../parser/index.js";
 
 export const twitch = (runtime) => {
   return subscriber;

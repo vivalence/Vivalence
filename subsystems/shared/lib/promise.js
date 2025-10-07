@@ -1,6 +1,6 @@
 import { array, sleep } from "./index.js";
 
-async function chunked(promises, CHUNK_SIZE, log = false) {
+export async function chunked(promises, CHUNK_SIZE, log = false) {
   const executions = [];
   const chunkTimings = [];
   let chunkIndex = 0;
@@ -59,7 +59,7 @@ async function chunked(promises, CHUNK_SIZE, log = false) {
 
   return executions;
 }
-async function linear(promises, log = false) {
+export async function linear(promises, log = false) {
   const installations = [];
   const startTimeTotal = performance.now();
   log && console.log("installing linear [total]:", promises.length);
@@ -110,5 +110,3 @@ async function linear(promises, log = false) {
 
   return installations;
 }
-
-export default { chunked, linear };

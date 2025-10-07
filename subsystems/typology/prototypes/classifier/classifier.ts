@@ -32,25 +32,32 @@ export class Classifier {
     } else throw new InvalidOnError();
     return this;
   }
-  factory(ctx: Context) {
-    return new Proxy(this, {
-      get: (_: any, name: string) => {
-        const Form = this.forms.find((g) => g.name.toLowerCase() === name);
-        if (!Form) return undefined;
-        return async (signal: any) => {
-          let features = await this.parse(new Form(signal), ctx);
-          const hooks = this.hooks.map(
-            (hook) => (feature) => hook(feature, ctx),
-          );
-          features = await fn.reduceEach(hooks, features);
-          features = array.ensureFlat(features).filter((feature) => !!feature);
-          return features;
-        };
-
-        // if (!Form) throw new UnknownFormError(name);
-      },
-    });
+  async spawn(signal, ctx) {
+    let features = await this.parse(signal, ctx);
+    const hooks = this.hooks.map((hook) => (feature) => hook(feature, ctx));
+    features = await fn.reduceEach(hooks, features);
+    features = array.ensureFlat(features).filter((feature) => !!feature);
+    return features;
   }
+  // factory(ctx: Context) {
+  //   return new Proxy(this, {
+  //     get: (_: any, name: string) => {
+  //       const Form = this.forms.find((g) => g.name.toLowerCase() === name);
+  //       if (!Form) return undefined;
+  //       return async (signal: any) => {
+  //         let features = await this.parse(new Form(signal), ctx);
+  //         const hooks = this.hooks.map(
+  //           (hook) => (feature) => hook(feature, ctx),
+  //         );
+  //         features = await fn.reduceEach(hooks, features);
+  //         features = array.ensureFlat(features).filter((feature) => !!feature);
+  //         return features;
+  //       };
+
+  //       // if (!Form) throw new UnknownFormError(name);
+  //     },
+  //   });
+  // }
   private key(parser, signal) {
     return `${parser.hash}:${signal.hash}`;
   }

@@ -1,6 +1,7 @@
 import { controller, signature, classes, errors } from "@vivalence/vector"; // Context
 import { BufferState, Buffer } from "@vivalence/surface";
 import { generator } from "@client/generator";
+// todo import { resolver } from "@client/generator";
 
 export const load = async (event) => {
   const buffer = new BufferState();

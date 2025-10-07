@@ -1,15 +1,15 @@
 import { crypto } from "@std/crypto";
 import { encodeHex } from "@std/hex";
 
-function hashString(string: string) {
-  const messageBuffer = new TextEncoder().encode(string);
+export function string(input: string) {
+  const messageBuffer = new TextEncoder().encode(input);
   const hashBuffer = crypto.subtle.digestSync("SHA-256", messageBuffer);
   const hash = encodeHex(hashBuffer);
   return hash;
 }
 
-function object(object: object) {
-  return hashString(
+export function object(object: object) {
+  return string(
     JSON.stringify(
       Object.keys(object)
         .sort()
@@ -21,8 +21,8 @@ function object(object: object) {
   );
 }
 
-function array(arr: any[]) {
-  return hashString(JSON.stringify(arr.sort()));
+export function array(arr: any[]) {
+  return string(JSON.stringify(arr.sort()));
 }
 
-export default { array, object, string: hashString };
+export default { string, object, array };

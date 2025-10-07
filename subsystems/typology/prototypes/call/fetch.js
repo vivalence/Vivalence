@@ -21,7 +21,8 @@ const vfetch = async (ctx) => {
   try {
     responsebody = await response.json();
   } catch (e) {
-    console.log("@typology/call reponse body parsing failed", e.name, e);
+    console.log("@typology/call/fetch reponse body parsing failed:", e.name);
+    console.log(url, response);
   }
 
   ctx.response = {

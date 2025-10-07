@@ -1,48 +1,51 @@
 import { is } from "@vivalence/shared";
-import { sig } from "./parser/index.js";
+import { Pattern } from "@vivalence/typology";
 
 export class Vector {
-  constructor(parsers = [sig]) {
-    this.parsers = [...(is.array(parsers) ? parsers : [parsers])];
+  // extends Signature
+  constructor(ancestor) {
+    // super(ancestor)
     this.effects = new Map(); // <Pattern->Effect>
     this.trajectories = new Map(); // <Pattern->Vector>
-    this.middlewares = []; // carry
+    this.carry = []; // middlewares
+    if (ancestor) this.ancestor = ancestor;
   }
-
-  branch(patterns) {
-    patterns = this.parse(patterns);
-
-    if (patterns.length === 0) return this;
-
-    let descendant = Array.from(this.trajectories.entries()) //
-      .find(([pattern]) => pattern.hash === patterns[0].hash)?.[1];
-
-    if (!descendant) {
-      descendant = new Vector(this.parsers);
-      this.trajectories.set(patterns[0], descendant);
-    }
-
-    return patterns.length > 1
-      ? descendant.branch(() => patterns.slice(1))
-      : descendant;
-  }
-
-  open(patterns, effect) {
-    patterns = this.parse(patterns);
-
-    if (patterns.length === 0) throw new Error("Requires pattern");
-
-    this.branch(() => patterns.slice(0, -1)) //
-      .effects.set(patterns[patterns.length - 1], effect);
-
-    return this;
+  // legacy
+  get middlewares() {
+    console.log("vector.middlewares is now vector.carry");
+    throw new Error("vector.middlewares is now vector.carry");
   }
 
   use(middleware) {
-    this.middlewares.push(middleware);
+    this.carry.push(middleware);
     return this;
   }
 
+  branch(signature) {
+    const pattern = new Pattern(signature);
+
+    let descendant = Array.from(this.trajectories.entries()) //
+      .find(([{ hash }]) => hash === pattern.hash)?.[1];
+
+    if (!descendant) {
+      descendant = new Vector(this);
+      this.trajectories.set(pattern, descendant);
+    }
+
+    return pattern.heir ? descendant.branch(pattern.heir) : descendant;
+  }
+  open(signature, effect) {
+    const pattern = new Pattern(signature);
+
+    if (pattern.fin) {
+      const fin = pattern.fin.pop();
+      this.branch(pattern).effects.set(fin, effect);
+    } else this.effects.set(pattern, effect);
+
+    return this;
+  }
+
+  // slurp(vector) {}
   set(vector) {
     for (const [pattern, effect] of vector.effects) {
       this.effects.set(pattern, effect);
@@ -52,26 +55,19 @@ export class Vector {
       this.trajectories.set(pattern, trajectory);
     }
 
-    this.middlewares.push(...vector.middlewares);
+    this.carry.push(...vector.carry);
 
     return this;
   }
 
-  parse(patterns) {
-    if (is.fn(patterns)) {
-      patterns = patterns(
-        this.parsers.reduce((a, p) => ((a[p.parser] = p.pattern), a), {}),
-      );
-    } else if (!is.array(patterns)) {
-      patterns = this.parsers[0].pattern(patterns);
-    }
-    return patterns;
-  }
-
+  // TODO move getters to @controller
   get patterns() {
     return [...this.effects.keys(), ...this.trajectories.keys()];
   }
   get descendants() {
     return [...this.trajectories.values()];
+  }
+  get heir() {
+    return this.descendants[0];
   }
 }

@@ -4,7 +4,7 @@
   "exports": {
     ".": "./mod.js",
     "./server": "./mod.js",
-    "./client": "./client.js",
+    "./client": "./mod.client.js",
     "./validators": "./validators/index.js",
     "./hash": "./hash/index.ts",
     "./secure": "./secure/index.js",

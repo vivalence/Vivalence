@@ -1,122 +1,139 @@
-import { type Opt, type Rel } from "@mikro-orm/core";
-import { VirtualEntity, VirtualRepository } from "../base/VirtualEntity.ts";
+import {
+  types,
+  Collection,
+  EntitySchema,
+  EntityRepositoryType,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
+import { array } from "@vivalence/shared";
+import { Path } from "@vivalence/typology";
+import { TopographyEntity, DataRepository } from "@vivalence/entities";
+import { DataEntity, DataSchema } from "@vivalence/entities";
 
-// const example = {
-//   slug: "gender",
-//   name: "gender",
-//   description: "The grammatical gender of a noun or pronoun.",
-//   traits: ["CATEGORICAL", "LEARNABLE"],
-//   data: {
-//     LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
-//     CATEGORICAL: [
-//       {
-//         slug: "fem",
-//         name: "Feminine",
-//         description: "Female gender",
-//         traits: ["LEARNABLE"],
-//         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
-//       },
-//       {
-//         slug: "masc",
-//         name: "Masculine",
-//         description: "Male gender",
-//         traits: ["LEARNABLE"],
-//         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
-//       },
-//       {
-//         slug: "neut",
-//         name: "Neutral",
-//         description: "Neutral gender",
-//         traits: ["LEARNABLE"],
-//         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
-//       },
-//     ],
-//   },
-// };
+// future
+// import { type InferEntity, defineEntity } from "@mikro-orm/core"; const p = defineEntity.properties; export const baseProperties = {id: p.integer().primary(), createdAt: p.datetime().onCreate(() => new Date()), updatedAt: p .datetime() .onCreate(() => new Date()) .onUpdate(() => new Date()),}; export const Book = defineEntity({name: "Book", properties: (p) => ({...baseProperties, title: p.string(), author: () => p.manyToOne(Author).inversedBy("books"), publisher: () => p.oneToOne(Publisher).inversedBy("book"), tags: () => p.manyToMany(BookTag).inversedBy("books").fixedOrder(),}),}); console.log(Book);
 
 export enum DimensionTraitsEnum {
-  // Only categorical (&@root) can be TOPOLOGICAL
-  FREE = "free",
-  CATEGORICAL = "categorical",
-  TOPOGRAPHICAL = "topographical",
-  ANCESTOR = "ancestor",
-  DESCENDANT = "descendant",
-  LEARNABLE = "learnable",
-  COMPLETABLE = "completable",
+  FREE = "FREE",
+  CATEGORICAL = "CATEGORICAL",
+  TOPOGRAPHICAL = "TOPOGRAPHICAL",
+  ANCESTOR = "ANCESTOR",
+  DESCENDANT = "DESCENDANT",
+  LEARNABLE = "LEARNABLE",
+  COMPLETABLE = "COMPLETABLE",
 }
 
-export class DimensionEntity extends VirtualEntity {
+export class DimensionEntity extends DataEntity {
   traits: DimensionTraitsEnum[] & Opt = [];
-  data: any & Opt = {};
-  topology: string & Opt = "";
 
-  ancestor?: DimensionEntity & Opt = null;
-  descendants: DimensionEntity[] & Opt = [];
+  ancestor?: Rel<DimensionEntity>;
+  descendants = new Collection<DimensionEntity>(this);
+  topographies = new Collection<TopographyEntity>(this);
+  [EntityRepositoryType]?: DimensionRepository;
 
-  constructor(node = {}) {
+  constructor(dimension = {}) {
     super();
-    Object.assign(this, node);
+    Object.assign(this, dimension);
+    this.traits.map((t) => this.data[t] || (this.data[t] = {}));
+  }
+}
 
-    if (this.traits.includes("CATEGORICAL")) {
-      for (const descendant of this.data.CATEGORICAL) {
-        const dimension = new DimensionEntity(descendant);
-        dimension.ancestor = this;
-        this.descendants.push(dimension);
+export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
+  class: DimensionEntity,
+  tableName: "Dimension",
+  extends: DataSchema,
+  uniques: [{ properties: ["ancestor", "slug"] }],
+  repository: () => DimensionRepository,
+
+  properties: {
+    traits: {
+      type: types.json,
+      defaultRaw: `"[]"`,
+      enum: true,
+      array: true,
+      items: () => DimensionTraitsEnum,
+      default: [],
+    },
+    topographies: {
+      kind: "m:n",
+      entity: () => TopographyEntity,
+      mappedBy: "dimensions",
+    },
+    ancestor: {
+      kind: "m:1",
+      entity: () => DimensionEntity,
+      fieldName: "ancestor",
+      inversedBy: "descendants",
+      nullable: true,
+    },
+    descendants: {
+      kind: "1:m",
+      entity: () => DimensionEntity,
+      mappedBy: (dimension) => dimension.ancestor,
+    },
+  },
+});
+
+export class DimensionRepository extends DataRepository {
+  unique(opt) {
+    return { ancestor: opt.ancestor, slug: opt.slug };
+  }
+  async extend(node) {
+    const dimension = await this.ensure({
+      ...node,
+      traits: node.traits || [],
+      data: node.data || {},
+    });
+
+    if (dimension.traits.includes("FREE")) {
+      dimension.descendants.add(
+        await this.extend({
+          slug: "*",
+          ancestor: dimension,
+        }),
+      );
+    }
+
+    if (dimension.traits.includes("CATEGORICAL")) {
+      const categories = array.unique([
+        ...(node.data?.CATEGORICAL || []),
+        ...(dimension.data.CATEGORICAL || []),
+      ]);
+
+      for (const category of categories) {
+        dimension.descendants.add(
+          await this.extend({
+            ...category,
+            ancestor: dimension,
+            traits: array.unique([...(category.traits || []), "DESCENDANT"]),
+          }),
+        );
       }
     }
+
+    this.em.persist(dimension);
+    return dimension;
   }
-  get schema() {
-    const json = {
-      title: this.name,
-      description: this.description,
-      type: "string",
-    };
 
-    if (this.traits.includes("CATEGORICAL")) {
-      const categories = this.descendants;
+  byBranch(branch) {
+    return this.findOne(
+      branch.reduce((ancestor, slug) => ({ ancestor, slug }), null),
+    );
+  }
+  byPath(path) {
+    return this.byBranch(path.absolute.split("/"));
+  }
+  findByTrait(trait) {
+    return this.find({ traits: { $in: [trait] } });
+  }
 
-      json.enum = categories.map(({ slug }) => slug);
-
-      const descriptions = categories //
-        .map((c) => `${c.slug} (${c.name}, ${c.description})`);
-      json.description += ` Values: [${descriptions.join(", ")}]`;
-    }
-
-    if (this.traits.includes("TOPOGRAPHICAL")) {
-      const categories = this.descendants;
-      json.description += ` This is a topographical dimension, thus it functions as the primary key for the rest of the annotation.`;
-    }
-    return json;
+  getTopographical() {
+    return this.findByTrait(DimensionTraitsEnum.TOPOGRAPHICAL);
   }
 }
-
-export class DimensionRepository extends VirtualRepository {
-  constructor(data: any) {
-    super();
-    this["#entity"] = DimensionEntity;
-  }
-  findOne(query) {
-    return this.find((dimension) => {
-      return (
-        Object.entries(query).filter(([key, value]) => {
-          // if (key)
-          return dimension[key] === value;
-        }).length > 0
-      );
-    });
-  }
-  byTrait(trait) {
-    return this.filter((dim) => dim.traits.includes(trait));
-  }
-  get topographical() {
-    return this.byTrait("TOPOGRAPHICAL")
-      .map((dim) => dim.data.CATEGORICAL)
-      .flat();
-  }
-}
-
 export default {
-  // schema: DimensionSchema
+  schema: DimensionSchema,
   entity: DimensionEntity,
   repository: DimensionRepository,
 };

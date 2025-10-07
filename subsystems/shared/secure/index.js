@@ -44,5 +44,3 @@ export function authorize(claims = []) {
     await next();
   };
 }
-
-export default { context, authorize };

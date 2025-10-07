@@ -8,14 +8,19 @@ export class LiteralEntity extends DataEntity {
   data: any & Opt = {};
 }
 
-export const LiteralSchema = new EntitySchema<LiteralEntity, DataEntity>({
+export const LiteralSchema = new EntitySchema({
+  // class: LiteralEntity,
   extends: DataSchema,
-  class: LiteralEntity,
+  abstract: true,
   tableName: "Literal",
+  name: "Literal",
   uniques: [{ properties: ["slug"] }],
   properties: {
-    symbols: { kind: "m:n", entity: () => SymbolEntity, mappedBy: "literals" },
-
+    symbols: {
+      kind: "m:n",
+      entity: () => SymbolEntity,
+      mappedBy: (symbol) => symbol.literals,
+    },
     annotation: { type: "json" },
     data: { type: "json" },
   },

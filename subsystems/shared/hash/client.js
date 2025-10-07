@@ -1,3 +1,4 @@
+// TODO: move to surface!
 function syncHash(algorithm, data) {
   const crypto = window.crypto || globalThis.crypto;
   if (!crypto || !crypto.subtle) {

@@ -1,6 +1,9 @@
 {
   "version": "1",
-  "name": "Vivalence",
+  "name": "viva",
   "type": "collection",
-  "ignore": ["node_modules", ".git"]
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
 }

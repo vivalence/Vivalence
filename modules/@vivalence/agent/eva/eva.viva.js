@@ -1,7 +1,7 @@
-import { Aperture } from "@vivalence/vector/aperture";
 import { Path } from "@vivalence/typology";
-// import { agent } from "./aperture/index.js";
+import { Aperture } from "@vivalence/vector/aperture";
 import dataset from "./dataset/index.js";
+// import { agent } from "./aperture/index.js";
 
 const manifest = {
   type: "agent",
@@ -14,12 +14,11 @@ const manifest = {
 
 const view = new Path("/view/viva.svelte.js");
 
-const aperture = (v) => v; //.open("/agent", agent);
+const aperture = new Aperture() //
+  //.open("/session", session) .open("/agent", agent)
+  .open("/feed", (input, ctx) => [{ agent: "sheeeeet, what you want?" }]);
 
-const generate = (v) =>
-  v.open("/feed", (input, ctx) => [{ agent: "sheeeeet, what you want?" }]); // maybe define input
-
-export default { manifest, view, aperture, generate, dataset };
+export default { manifest, view, aperture, dataset };
 
 // if (session.exercises.length > 0) return exercieses.map(e=>({view:e(view),state:e(state)}))
 // const session = (v) => v.open("/init", init);

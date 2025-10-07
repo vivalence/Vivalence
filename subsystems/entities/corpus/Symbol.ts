@@ -5,12 +5,10 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { DataEntity, DataSchema } from "@vivalence/entities";
+import { DataSchema, DataEntity } from "@vivalence/entities";
+import { v7 } from "uuid";
 
 import { LiteralEntity } from "../corpus/Literal.ts";
-import { ExerciseEntity } from "../userland/Exercise.ts";
-import { PlayEntity } from "../userland/Play.ts";
-import { MemoryEntity } from "../userland/Memory.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
@@ -21,65 +19,44 @@ export enum SymbolTraitsEnum {
 }
 
 export class SymbolEntity extends DataEntity {
-  traits: SymbolTraitsEnum[] & Opt = [];
+  // traits: SymbolTraitsEnum[] & Opt = [];
   data: any & Opt = {};
-
   ancestor?: Rel<SymbolEntity>;
   decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
-
-  plays = new Collection<PlayEntity>(this);
-  memories = new Collection<MemoryEntity>(this);
 }
 
-export const SymbolSchema = new EntitySchema<SymbolEntity, DataEntity>({
-  class: SymbolEntity,
+export const SymbolSchema = new EntitySchema({
+  // class: SymbolEntity,
   extends: DataSchema,
+  abstract: true,
+  name: "Symbol",
   tableName: "Symbol",
   uniques: [{ properties: ["slug"] }],
   properties: {
-    traits: {
-      type: types.enum,
-      defaultRaw: `"[]"`,
-      enum: true,
-      array: true,
-      items: () => SymbolTraitsEnum,
-      default: [],
-    },
+    // id: { type: types.string, primary: true, onCreate: () => v7() }, slug: { type: types.string }, name: { type: types.string, nullable: true }, description: { type: types.string, nullable: true }, traits: {type: types.json, enum: true, array: true, items: () => [], default: [],}, createdAt: {type: types.datetime, onCreate: () => new Date(), defaultRaw: `CURRENT_TIMESTAMP`, lazy: true,}, updatedAt: {type: types.datetime, onCreate: () => new Date(), onUpdate: () => new Date(), defaultRaw: `CURRENT_TIMESTAMP`, lazy: true,},
+    // traits: {
+    //   type: types.json,
+    //   defaultRaw: `"[]"`,
+    //   items: () => SymbolTraitsEnum,
+    // },
     data: { type: types.json },
 
     literals: {
       kind: "m:n",
       entity: () => LiteralEntity,
-      inversedBy: "symbols",
-      pivotTable: "_SymbolToLiteral",
+      inversedBy: (literal) => literal.symbols,
     },
     ancestor: {
       kind: "m:1",
       entity: () => SymbolEntity,
-      fieldName: "ancestor",
-      inversedBy: "decendants",
+      inversedBy: (symbol) => symbol.decendants,
       nullable: true,
     },
     decendants: {
       kind: "1:m",
       entity: () => SymbolEntity,
       mappedBy: (symbol) => symbol.ancestor,
-    },
-    exercises: {
-      kind: "m:n",
-      entity: () => ExerciseEntity,
-      mappedBy: (exercise) => exercise.symbols,
-    },
-    plays: {
-      kind: "1:m",
-      entity: () => PlayEntity,
-      mappedBy: (play) => play.symbol,
-    },
-    memories: {
-      kind: "1:m",
-      entity: () => MemoryEntity,
-      mappedBy: (memory) => memory.symbol,
     },
   },
 });

@@ -26,7 +26,9 @@ await call(client);
 try {
   let i = 0;
   while (true && i++ < 25) await run(client);
+  // keep alive
 } catch (error) {
+  console.error("[viva shell ERROR]");
   console.error(error);
-  shutdown("VIVA_SHUTDOWN");
+  // shutdown("VIVA_SHUTDOWN");
 }

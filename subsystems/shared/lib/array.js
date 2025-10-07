@@ -1,3 +1,6 @@
+export const unique = (source) => {
+  return [...new Set(source)].filter((s) => s !== null);
+};
 export const merge = (...sources) => {
   return [
     ...new Set(
@@ -31,5 +34,3 @@ export function shuffle(array) {
   }
   return shuffledArray;
 }
-
-export default { chunk, shuffle, merge, ensure, ensureFlat };

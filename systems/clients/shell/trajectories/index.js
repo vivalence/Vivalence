@@ -1,5 +1,6 @@
 import { is } from "@vivalence/shared";
 import { Vector } from "@vivalence/vector";
+import { gestalten } from "@vivalence/typology";
 import config from "@vivalence/config";
 import registry from "@vivalence/registry";
 
@@ -36,19 +37,21 @@ export default async function (client) {
 
   for (const serviceconfig of config.services) {
     const prototype = await registry.load(serviceconfig.module);
+
     let control;
-    if (is.vector(prototype.control)) control = prototype.control;
+    if (gestalten.is.vector(prototype.control)) control = prototype.control;
     else control = new Vector();
     if (is.fn(prototype.control)) prototype.control(control);
 
-    client.trajectory
-      .branch(`/system/services`)
-      .branch(`/${serviceconfig.runtime}/${serviceconfig.slug}`)
-      .use(async (ctx, next) => {
-        ctx.service = serviceconfig;
-        await next();
-      })
-      .set(control);
+    if (control.heir)
+      client.trajectory
+        .branch(`/system/services`)
+        .branch(`/${serviceconfig.runtime}/${serviceconfig.slug}`)
+        .use(async (ctx, next) => {
+          ctx.service = serviceconfig;
+          await next();
+        })
+        .set(control);
   }
 }
 

@@ -1,4 +1,4 @@
-import * as parser from "../parser/index.js";
+import { Signal } from "@vivalence/typology";
 
 export class Subscriber {
   constructor(subscriptions, emitter) {
@@ -11,10 +11,7 @@ export class Subscriber {
       .toLowerCase()
       .replace("entity", "");
 
-    const signal = [
-      ...parser.sig.signal(entityName),
-      ...parser.sig.signal(event),
-    ];
+    const signal = new Signal([entityName, event]);
 
     try {
       this.emitter(signal, {
