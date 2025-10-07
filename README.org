@@ -1,4 +1,4 @@
-viva: your ~ on any device.
+viva: your ~home~ on any device.
 
 viva is a functional modular agentic symbolic operating system.
 currently sufficiently equiped to teach you any language. but can be trivially expanded to almost anything afaict.

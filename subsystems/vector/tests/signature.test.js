@@ -4,7 +4,7 @@ import { Pattern, Signal } from "@vivalence/typology";
 Deno.test("Pattern: string to literal", () => {
   const pattern = new Pattern("/users/have/:many");
 
-  assertEquals(pattern.signature, "users");
+  assertEquals(pattern.slug, "users");
   assertEquals(pattern.type, "literal");
   assertEquals(typeof pattern.filter, "function");
   assertEquals(pattern.gauges.length, 1);

@@ -9,7 +9,7 @@ export class Pattern extends Signature {
     return hash.array([
       this.index,
       this.type,
-      this.signature, //.toString() // for fn.
+      this.slug, //.toString() // for fn.
       this.ancestor?.hash,
     ]);
     // i could make the hash reactive for shits and giggles.
