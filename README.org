@@ -1,13 +1,15 @@
 viva: your ~home~ on any device.
 
-viva is a functional modular agentic symbolic operating system.
+think of it as a mix of cloud9, emacs and something wholy new.
+
+the truely new thing about viva is that its a modular agentic functional symbolic operating system.
 currently sufficiently equiped to teach you any language. but can be trivially expanded to almost anything afaict.
 probably any task that our tiny monkey brains can specify with sufficient accuracy.
+its a thin functional wrapper around language. this system is insane.
 
-this system is insane.
-its a thin functional wrapper around language.
-bring your own datamap (ontology).
-bring your own business logic (domain). bring bring your own modules, views, and services (incl. database&auth).
+bring your own symbols (ontology) and entities (domain). bring your own business logic, views and services incl. database & auth (modules).
+
+the system is based on a few powerful primitives and is (if you permit the self-flattery) brilliantly abstracted.
 
 
 das internet dem individuum.

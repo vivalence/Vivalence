@@ -1,9 +1,0 @@
-{
-  "name": "@vivalence/config",
-  "exports": { ".": "./mod.js" },
-  "version": "0.0.1",
-
-  "tasks": {
-    "test": "deno test -A --no-check --watch tests/*/*.test.js",
-  },
-}

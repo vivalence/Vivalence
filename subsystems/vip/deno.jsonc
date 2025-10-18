@@ -1,0 +1,12 @@
+{
+  "name": "@vivalence/vip",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+  },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/*/*.test.js",
+    "test:vip": "deno test -A --no-check --watch tests/vip.test.js",
+    "test:pensieve": "deno test -A --no-check --watch tests/pensieve.test.js",
+  },
+}

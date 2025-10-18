@@ -3,14 +3,18 @@ import { is, hash } from "@vivalence/shared";
 export class Signature {
   // type?: string
   // signature: string | any
-  // ancestor?: Signature
+  // trace?: Signature
   // gauges: Signature[]
 
   //trace
   get hash() {
     return hash.array([this.index, this.type, this.signature]);
   }
-  constructor(signature = null, ancestor = null) {
+  get ancestor() {
+    // console.log('outdated')
+    return this.trace;
+  }
+  constructor(signature = null, trace = null) {
     if (!this.gauges) this.gauges = [];
     if (this.Is(signature)) return signature;
     if (is.string(signature)) signature = this.parse(signature);
@@ -20,16 +24,15 @@ export class Signature {
     }
     if (this.is(signature)) Object.assign(this, signature);
     if (is.fn(signature)) return new this.prototype(signature(this), this);
-    if (ancestor || signature?.ancestor)
-      this.from(ancestor || signature.ancestor);
+    if (trace || signature?.trace) this.from(trace || signature.trace);
   }
 
-  from(ancestor) {
-    this.ancestor = ancestor;
-    this.ancestor.gauges.push(this);
-    if (is.fn(ancestor.signature) && !this.signature) {
-      this.signature = ancestor.signature;
-      this.filter = ancestor.signature;
+  from(trace) {
+    this.trace = trace;
+    this.trace.gauges.push(this);
+    if (is.fn(trace.signature) && !this.signature) {
+      this.signature = trace.signature;
+      this.filter = trace.signature;
     }
     return this;
   }
@@ -49,10 +52,10 @@ export class Signature {
     return this;
   }
   pop() {
-    if (this.ancestor) {
-      this.ancestor.gauges = this.ancestor.gauges //
+    if (this.trace) {
+      this.trace.gauges = this.trace.gauges //
         .filter((i) => i.hash !== this.hash); // this.identity(i) ===
-      this.ancestor = null;
+      this.trace = null;
     }
 
     return this;
@@ -68,7 +71,7 @@ export class Signature {
 
   get tilde() {
     let position = this;
-    while (position.ancestor) position = position.ancestor;
+    while (position.trace) position = position.trace;
     return position;
   }
 
@@ -77,6 +80,7 @@ export class Signature {
     while (position?.heir) position = position.heir;
     return position;
   }
+
   get depth() {
     // recast for flat.
     let depth = 0;
@@ -87,12 +91,13 @@ export class Signature {
     }
     return depth;
   }
+
   get index() {
     // recast for flat.
     let depth = 0;
     let position = this;
-    while (position.ancestor) {
-      position = position.ancestor;
+    while (position.trace) {
+      position = position.trace;
       depth++;
     }
     return depth;
@@ -124,7 +129,7 @@ export class Signature {
 
 //   while (position) {
 //     yield position;
-//     position = position.ancestor;
+//     position = position.trace;
 //   }
 // }
 

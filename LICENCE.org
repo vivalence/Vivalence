@@ -1,4 +1,7 @@
 *  
+differentiate estate from institution(virtual koerperschaft, legal entity) and private.
+estate being any state function, digital state service, state service provisioning, facilitation or execution. license is some fraction of current(koerperschaft).
+
 high level i split into institutial and private use.
 where private use is for self or in private social context.
 and where institutional is any b2b b2g ngo isp or other usage.
@@ -27,6 +30,8 @@ educational use is exempt but voluntary licensing will be considered as sponsors
 i might also publish a list of contributions and list of sponsors with each coherence lifecycle.
 
 vendor installs are not considered commercial use. they fall under for-self. 
+the intent of the license is among other to drown the open source ecosystem in money as a function of its adoption (delta') and usage (absolute).
+
 * todo
 ** institutional use implements a definition of an application of "computational use" which has a substructure for training use.
 when using this system to train an llm, gpt, diffusor or or or.

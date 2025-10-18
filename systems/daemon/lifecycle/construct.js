@@ -1,14 +1,13 @@
-import registry from "@vivalence/registry";
 import { Vector } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
 export class Daemon {
   constructor(config) {
     this.config = config;
+    this.registry = this.config?.registry;
   }
   // construct
-  registry = registry;
-  config = null;
+  statics = {};
   aperture = new Aperture().open("/status", async () => ({ success: true }));
   twitch = new Vector();
   // preflight

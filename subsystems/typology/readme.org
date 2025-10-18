@@ -13,6 +13,8 @@ primitives are leaf types like strings numbers asf, reusable composites, and any
 prototypes are instances. things that do. contrary to both primitives and gestalt.
 types cast ./*
 
+gestalt provides libraries for working on gestalt level. `cast` and `is` are conceptually mature.
+
 these types serve as the point of integration and thus source of coherence across the system.
 
 in interfaces and clients both primitives and gestalt are expressed as variant views.
@@ -26,10 +28,5 @@ domain defines entities in mikro aka json.
 
 schema is god. json is schema.
 
-
-
-
-
-
-
+in honor of my mother and my fathers.
 

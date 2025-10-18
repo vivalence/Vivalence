@@ -2,6 +2,7 @@ import { Path } from "@vivalence/typology";
 import { shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
+// todo: rename to mode
 // todo: move to daemon
 export class Module {
   // status, connection

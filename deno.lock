@@ -30,6 +30,7 @@
     "jsr:@std/path@1": "1.1.2",
     "jsr:@std/path@^1.0.8": "1.1.2",
     "jsr:@std/path@~1.0.6": "1.0.9",
+    "jsr:@std/semver@1.0": "1.0.6",
     "jsr:@std/text@~1.0.7": "1.0.16",
     "npm:@ai-sdk/anthropic@*": "2.0.17_zod@4.1.11",
     "npm:@libsql/client@*": "0.15.15",
@@ -185,6 +186,9 @@
       "dependencies": [
         "jsr:@std/internal"
       ]
+    },
+    "@std/semver@1.0.6": {
+      "integrity": "b7c98ae2843547cf3f7ac37f3995889e6e4cee0a97b57b57f17f62722843303c"
     },
     "@std/text@1.0.16": {
       "integrity": "ddb9853b75119a2473857d691cf1ec02ad90793a2e8b4a4ac49d7354281a0cf8"
@@ -1783,6 +1787,7 @@
       "jsr:@std/encoding@1.0.7",
       "jsr:@std/jsonc@^1.0.2",
       "jsr:@std/path@^1.0.8",
+      "jsr:@std/semver@1.0",
       "npm:@ai-sdk/anthropic@*",
       "npm:@anthropic-ai/sdk@*",
       "npm:@libsql/client@*",

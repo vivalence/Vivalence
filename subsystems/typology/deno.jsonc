@@ -9,4 +9,9 @@
     "./is": "./gestalten/is/index.js",
     "./from": "./gestalten/from/index.js",
   },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/*/*.test.js",
+    "test:signature": "deno test -A --no-check --watch tests/signature.test.js",
+    "test:lookup": "deno test -A --no-check --watch tests/lookup.test.js",
+  },
 }

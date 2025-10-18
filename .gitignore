@@ -1,10 +1,10 @@
 .jj
 .git
 .github
-config
-config/*
-/config/*
-./config/*
+tilde
+tilde/*
+/tilde/*
+./tilde/*
 
 node_modules
 **/node_modules

@@ -30,12 +30,15 @@ export class Runtime {
     // predicate: new Vector(),
   };
 
+  kernel = {}; // map
+  mode = {}; // map
   service = {}; // clientmap {database identity brain wallet}
-  module = {}; // map
+
   entities = { orm: {}, em: {} }; // {...datamap.repositories}
+  units = {};
   schema = {
     primitives: {}, // {dimension signal} = f(domain*ontology)
-    gestalten: {}, // {annotation statics modules traits entities} = f(domain*ontology)
+    gestalten: {}, // {annotation symbol, literal, statics modules traits entities} = f(domain*ontology)
     units: {}, // {noun verb pronoun posessives} = f(dimensions*topographies)
     entities: {}, // {literal symbol exercise} f(domain + system)
   };

@@ -11,8 +11,8 @@
 
   "tasks": {
     "test": "deno test -A --no-check --watch tests/*/*.test.js",
-    "test:signature": "deno test -A --no-check --watch tests/signature.test.js",
     "test:vector": "deno test -A --no-check --watch tests/vector.test.js",
+    "test:carry": "deno test -A --no-check --watch tests/carry.test.js",
     "test:traverse": "deno test -A --no-check --watch tests/controller/traverse.test.js",
     "test:walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
   },

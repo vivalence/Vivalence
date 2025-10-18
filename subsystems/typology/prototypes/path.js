@@ -18,7 +18,7 @@ const fromRemainder = (params) => {
 };
 
 const fromFile = (url) => {
-  // TODO: apply ancestor of 'file:/'
+  // TODO: apply trace of 'file:/'
   const [file, ...dir] = url
     .replace(/^file:\/\//, "")
     .split("/")
@@ -42,17 +42,17 @@ export const path = {
 // path should implement ~/ syntax for homing.
 export class Path {
   segment = "";
-  ancestor = null; // null | Path | Url
-  trunks = [];
-  constructor(path = "", ancestor = null) {
+  trace = null; // null | Path | Url
+  gauges = [];
+  constructor(path = "", trace = null) {
     if (path instanceof Path) this.segment = path.down().segment;
     else if (is.array(path)) this.segment = join(...path);
     else this.segment = join(path);
-    if (ancestor) this.from(ancestor);
+    if (trace) this.from(trace);
   }
-  from(ancestor) {
-    this.ancestor = ancestor;
-    this.ancestor.trunks.push(this);
+  from(trace) {
+    this.trace = trace;
+    this.trace.gauges.push(this);
     return this;
   }
   branch(branch) {
@@ -69,10 +69,10 @@ export class Path {
     return this;
   }
   up() {
-    return new Path([this.segment, this.trunks[0]?.up()?.segment]);
+    return new Path([this.segment, this.gauges[0]?.up()?.segment]);
   }
   down() {
-    return new Path([this.ancestor?.down()?.segment, this.segment]);
+    return new Path([this.trace?.down()?.segment, this.segment]);
   }
   toString() {
     //legacy
@@ -81,19 +81,19 @@ export class Path {
   get depth() {
     let depth = 0;
     let path = this;
-    while (path.trunks[0]) {
-      path = path.trunks[0];
+    while (path.gauges[0]) {
+      path = path.gauges[0];
       depth++;
     }
     return depth;
   }
 
   get heir() {
-    return this.trunks[0];
+    return this.gauges[0];
   }
   get absolute() {
-    // if (this.trunks[1]) throw new Error("@Path: ambivalent trunks on up");
-    return this.ancestor ? this.down().value : this.up().value;
+    // if (this.gauges[1]) throw new Error("@Path: ambivalent gauges on up");
+    return this.trace ? this.down().value : this.up().value;
   }
   get value() {
     return this.segment;
