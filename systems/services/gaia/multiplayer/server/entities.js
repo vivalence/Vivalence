@@ -1,6 +1,6 @@
 import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-import { mikro } from "@vivalence/entities/mikro";
+// import { mikro } from "@vivalence/entities/mikro";
 import { v7 } from "uuid";
 import { join } from "@std/path";
 

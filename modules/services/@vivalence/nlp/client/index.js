@@ -1,6 +1,6 @@
 export default (service) => {
-  const { url } = service.config.env;
-  const { key } = service.secret.env;
+  const url = service.statics.remote;
+  const { key } = service.secrets;
 
   if (!url || !key)
     throw new Error("SERVICE NLP URL not found in service definition");
@@ -11,7 +11,7 @@ export default (service) => {
   };
 
   const { language, processors = "tokenize,mwt,pos,lemma,depparse" } =
-    service.config;
+    service.statics;
 
   if (!language)
     throw new Error("Language must be defined in NLP service config");

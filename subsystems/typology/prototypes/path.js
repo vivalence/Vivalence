@@ -1,4 +1,5 @@
 import { Signature } from "./signature.js";
+import { hash } from "@vivalence/shared";
 import { is } from "@vivalence/typology";
 
 const join = (...segments) => {
@@ -8,6 +9,9 @@ const join = (...segments) => {
 };
 
 export class Path extends Signature {
+  constructor(signature = "", trace) {
+    super(signature, trace);
+  }
   get segment() {
     return this.signature;
   }

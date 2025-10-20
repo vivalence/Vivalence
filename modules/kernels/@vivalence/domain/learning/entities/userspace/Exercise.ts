@@ -3,8 +3,8 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity, SessionEntity } from "@vivalence/entities";
 
-import { SymbolEntity } from "../corpus/Symbol.ts";
-import { LiteralEntity } from "../corpus/Literal.ts";
+import { SymbolEntity } from "../kernel/Symbol.ts";
+import { LiteralEntity } from "../kernel/Literal.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 
 export enum ExerciseStatusEnum {
@@ -91,6 +91,7 @@ export const ExerciseSchema = new EntitySchema<ExerciseEntity, BaseEntity>({
 });
 
 export default {
+  type: "exercise",
   schema: ExerciseSchema,
   entity: ExerciseEntity,
   // repository: TopographyRepository,

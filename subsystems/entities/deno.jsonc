@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    "./maps": "./maps.js",
+    // "./sets": "./sets.js",
+    // "./traits": "./traits.js",
   },
 }

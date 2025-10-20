@@ -4,8 +4,8 @@ import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 // import { UserEntity } from "../view/User.ts";
 
-import { SymbolEntity } from "../corpus/Symbol.ts";
-import { LiteralEntity } from "../corpus/Literal.ts";
+import { SymbolEntity } from "../kernel/Symbol.ts";
+import { LiteralEntity } from "../kernel/Literal.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 import { ExerciseEntity } from "../userspace/Exercise.ts";
 
@@ -82,6 +82,7 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
 });
 
 export default {
+  type: "play",
   schema: PlaySchema,
   entity: PlayEntity,
   // repository: TopographyRepository,

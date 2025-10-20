@@ -15,10 +15,6 @@ export async function secure(paladin) {
   delete paladin.tilde;
 }
 
-// export async function mount(paladin) {
-// return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
-// }
-
 export async function validate(paladin) {
   // const requiredEnvVars = [
   //   //
@@ -28,3 +24,7 @@ export async function validate(paladin) {
   //   if (service.data) await paladin.state.path(service.data);
   // }
 }
+
+// export async function mount(paladin) {
+// return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
+// }

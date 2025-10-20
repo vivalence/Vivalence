@@ -1,16 +1,17 @@
 import { Path } from "@vivalence/typology";
 
 export default function joins(config) {
-  const createBrancher = (envKey) => (path) =>
-    new Path(config.env.get(envKey)).branch(path);
+  const createBrancher = (envKey) => (path) => {
+    return new Path(config.env.get(envKey)).branch(path);
+  };
 
   const tilde = createBrancher("VIVA_TILDE_MOUNT");
-  const registry = createBrancher("VIVA_REGISTRY_MOUNT");
+  const vip = createBrancher("VIVA_VIP_MOUNT");
   const system = createBrancher("VIVA_SYSTEM_MOUNT");
 
   config.join = {
     tilde: (f) => tilde(f),
-    registry: (f) => registry(f),
+    vip: (f) => vip(f),
     system: (f) => system(f),
     variant: {
       env: () => tilde("variant/environment"),

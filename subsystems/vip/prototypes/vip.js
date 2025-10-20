@@ -17,7 +17,10 @@ export class Vip {
     return this;
   }
   async accio(query) {
-    return await this.pensieve.revelio(cast.lookup(query));
+    const lookup = cast.lookup(query);
+    const module = await this.pensieve.revelio(lookup);
+    if (module) return module;
+    throw new Error(`[VIP] Module 404: ${JSON.stringify({ lookup })}`);
   }
 
   async accioMany(many) {
@@ -27,6 +30,7 @@ export class Vip {
   async accioMap(many) {
     const accioedModules = await Promise.all(
       Object.entries(many).map(async ([slug, query]) => {
+        if (!query) return null;
         if (typeof query === "string") {
           return [slug, await this.accio(query)];
         } else if (typeof query.module === "string") {
@@ -38,6 +42,9 @@ export class Vip {
         }
       }),
     );
-    return Object.fromEntries(accioedModules.filter((entry) => entry !== null));
+    const filteredModule = Object.fromEntries(
+      accioedModules.filter((entry) => entry !== null),
+    );
+    return filteredModule;
   }
 }

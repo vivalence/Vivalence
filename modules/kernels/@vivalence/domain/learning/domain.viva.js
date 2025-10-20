@@ -1,10 +1,10 @@
 import { Aperture } from "@vivalence/vector/aperture";
 
-import * as da from "./aperture/index.js";
-import entities from "./entities/index.js";
-import modules from "./modules/index.js";
+// import * as da from "./aperture/index.js";
 
-export const maps = { entities, modules };
+export * from "./entities/index.js";
+export * from "./modes/index.js";
+
 // export lifecycle from "./lifecycle/index.js";
 
 export const manifest = {

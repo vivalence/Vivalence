@@ -3,8 +3,8 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "@vivalence/entities";
 import { UserEntity } from "@vivalence/entities";
 
-import { SymbolEntity } from "../corpus/Symbol.ts";
-import { LiteralEntity } from "../corpus/Literal.ts";
+import { SymbolEntity } from "../kernel/Symbol.ts";
+import { LiteralEntity } from "../kernel/Literal.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 
 export enum MemoryDriverEnum {
@@ -106,6 +106,7 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
 });
 
 export default {
+  type: "memory",
   schema: MemorySchema,
   entity: MemoryEntity,
   // repository: TopographyRepository,

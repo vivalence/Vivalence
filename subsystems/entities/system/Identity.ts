@@ -5,7 +5,7 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
 
 export class AuthenticatorEmbedEntity {
   provider!: string;

@@ -6,7 +6,6 @@ export * from "./blacklist/index.js";
 export * from "./remedy/index.ts";
 export * from "./scope/index.js";
 export * from "./status.js";
-export * from "./module.js";
 export * from "./connection.js";
 export * from "./url.js";
 export * from "./path.js";
@@ -14,6 +13,10 @@ export * from "./pattern.js";
 export * from "./signal.js";
 export * from "./view.js";
 export * from "./feature.js";
+export * from "./mode.js";
+export * from "./cake.js";
+export * from "./die.js";
+export * from "./runtime.js";
 
 // classes implement the shapes defined in schema
 // classes import functional components from shared

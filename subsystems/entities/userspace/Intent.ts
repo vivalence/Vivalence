@@ -1,8 +1,8 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
-import { UserEntity } from "./User.ts";
-import { SessionEntity } from "./Session.ts";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
+import { UserEntity } from "@vivalence/entities";
+import { SessionEntity } from "@vivalence/entities";
 
 export enum IntentTraitsEnum {
   BOOKMARKED = "BOOKMARKED",
@@ -47,4 +47,8 @@ export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({
   },
 });
 
-export default { schema: IntentSchema, entity: IntentEntity };
+export default {
+  type: "intent",
+  schema: IntentSchema,
+  entity: IntentEntity,
+};

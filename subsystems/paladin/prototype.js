@@ -5,6 +5,7 @@ import join from "./tools/join.js";
 import read from "./tools/read.js";
 import check from "./tools/check.js";
 import state from "./tools/state.js";
+import bake from "./tools/bake.js";
 
 export class Paladin {
   variant = null; // type | slug
@@ -17,16 +18,17 @@ export class Paladin {
   tilde = { mount: null };
   system = { mount: null };
   vip = { mount: null };
+
   gaia = { serve: null };
   daemon = { serve: null };
-
-  clients = []; // { slug: "html", config: null }
-  runtimes = [];
-  services = [];
+  runtimes = []; // config
+  services = []; // config
+  clients = []; // config
   // processes
-  service = {}; // {slug:service}
-  // runtime = {};
-  // client = {};
+
+  service = {}; // cake {slug:service}
+  runtime = {}; // cake
+  client = {}; // cake
 
   constructor() {
     read(this);
@@ -34,18 +36,6 @@ export class Paladin {
     check(this);
     state(this);
     join(this);
+    bake(this);
   }
 }
-
-// get json() {
-//   // const path = this.path.toString() || "/";
-//   // const routes = [];
-//   // // console.log([...this.router.entries()].flat().map((e) => e.path));
-//   // const children = this.descendants.map((child) => child.json);
-//   // if (routes.length === 0 && children.length === 0) return path;
-//   // return { [path]: [...routes, ...children] };
-// }
-
-// [Symbol.for("nodejs.util.inspect.custom")]() {
-//   return `paladin ${JSON.stringify(this.json, null, 2)}`;
-// }

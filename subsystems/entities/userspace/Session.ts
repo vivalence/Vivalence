@@ -1,8 +1,8 @@
 import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
-import { UserEntity } from "./User.ts";
-import { IntentEntity } from "./Intent.ts";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
+import { UserEntity } from "@vivalence/entities";
+import { IntentEntity } from "@vivalence/entities";
 
 export enum SessionTraitsEnum {
   _ = "_",
@@ -51,4 +51,8 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
     history: { type: "json" },
   },
 });
-export default { schema: SessionSchema, entity: SessionEntity };
+export default {
+  type: "session",
+  schema: SessionSchema,
+  entity: SessionEntity,
+};

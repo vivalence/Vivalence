@@ -32,7 +32,7 @@ export function nill(thing) {
 }
 
 export function defined(thing) {
-  return thing !== undefined && thing !== null;
+  return !!thing && thing !== undefined && thing !== null;
 }
 
 export function empty(thing) {

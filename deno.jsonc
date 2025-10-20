@@ -17,6 +17,7 @@
     "./subsystems/vip",
   ],
   "tasks": {
+    "tree": "tree -I 'node_modules|static' --prune",
     "deno:install": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
     "viva:install": "deno install --global -f -A -n viva ./systems/clients/shell/entry.js $PWD",
     "install": "deno run deno:install && deno run viva:install && deno run html:install",

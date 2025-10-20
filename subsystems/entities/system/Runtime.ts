@@ -1,5 +1,5 @@
 import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
 
 export class RuntimeEntity extends BaseEntity {
   url!: string;

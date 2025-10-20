@@ -1,7 +1,7 @@
 import { Collection, EntitySchema, type Opt } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../base/BaseEntity.ts";
-import { IntentEntity } from "./Intent.ts";
+import { BaseEntity, BaseSchema } from "@vivalence/entities";
+import { IntentEntity } from "@vivalence/entities";
 // import { SessionEntity } from "../3_userland/Session.ts";
 
 export enum UserRolesEnum {
@@ -48,4 +48,8 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
   },
 });
 
-export default { schema: UserSchema, entity: UserEntity };
+export default {
+  type: "user",
+  schema: UserSchema,
+  entity: UserEntity,
+};

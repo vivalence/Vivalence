@@ -3,7 +3,7 @@ import { Env, Path } from "@vivalence/typology";
 //+ await import("@vivalence/vip");
 
 export async function env(paladin) {
-  console.log("ENV CALL");
+  // console.log("ENV CALL");
   // read process env
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
     if (key.startsWith("VIVA_")) paladin.env.set(key, value);

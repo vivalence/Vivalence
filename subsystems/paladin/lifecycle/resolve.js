@@ -1,4 +1,4 @@
-import { Path, cast, as, is } from "@vivalence/typology";
+import { Cake, Path, cast, as, is } from "@vivalence/typology";
 
 export async function variant(paladin) {
   // console.log(0);
@@ -26,52 +26,93 @@ export async function variant(paladin) {
     });
   }
 
-  if (services) {
-    services.map((service) => {
-      service.mount = paladin.join.mountpoint.service(service.slug);
-      paladin.services.push(service);
-    });
-  }
-}
-
-export async function service(paladin) {
-  paladin.service = {};
-  paladin.services.map((service) => (paladin.service[service.slug] = service));
+  services?.forEach((serviceconfig) => {
+    paladin.services.push(paladin.bake.service(new Cake(serviceconfig)));
+  });
 }
 
 export async function runtimes(paladin) {
-  const modules = (
-    await Promise.all(
-      (await paladin.find.viva(paladin.join.variant.runtimes())) //
-        .map(async (file) => [file, await paladin.read.viva(file)]),
-    )
-  ).filter(([, module]) => is.module(module));
-
-  for (const [file, module] of modules) {
-    const runtime = cast.runtime(module);
-    runtime.mount = paladin.join.mountpoint.runtime(runtime.slug);
-
-    if (runtime.services) {
-      runtime.services = runtime.services
-        .map((service) => (is.string(service) ? { module: service } : service))
-        .map((service) => ({
-          ...service,
-          mount: paladin.join.mountpoint.service(service.slug, runtime.slug),
-          runtime: runtime.slug,
-        }))
-        .map((service) => {
-          // TODO
-          // if service.module then fa()
-          // if service.remote then fb()
-          // if (is.string(service.service)) return paladin.service[service];
-          return service;
-        })
-        .map((service) => {
-          paladin.services.push(service);
-          return service;
-        });
-    }
-
-    paladin.runtimes.push(runtime);
-  }
+  const runtimes = await loadRuntimes(paladin);
+  runtimes.forEach((runtimeconfig) => {
+    paladin.runtimes.push(paladin.bake.runtime(new Cake(runtimeconfig)));
+  });
 }
+
+async function loadRuntimes(paladin) {
+  const files = await paladin.find.viva(paladin.join.variant.runtimes());
+  return (
+    await Promise.all(
+      files.map(async (file) => [file, await paladin.read.viva(file)]),
+    )
+  )
+    .filter(([, module]) => is.module(module)) // is runtime // cast?
+    .map(([source, runtime]) => ({ ...runtime, source }));
+}
+
+// function createRuntimeCake(file, module, paladin) {const runtimecake = new Cake(cast.runtime(module)); runtimecake.source = file; runtimecake.mount = paladin.join.mountpoint.runtime(runtimecake.slug); return runtimecake;}
+
+// export async function runtimes(paladin) {
+//   const modules = (
+//     await Promise.all(
+//       (await paladin.find.viva(paladin.join.variant.runtimes())) //
+//         .map(async (file) => [file, await paladin.read.viva(file)]),
+//     )
+//   ).filter(([, module]) => is.module(module));
+
+//   console.log({ paladin, modules });
+//   for (const [file, module] of modules) {
+//     const runtimecake = new Cake(cast.runtime(module));
+//     console.log("pre", { runtimecake });
+//     runtimecake.source = file;
+//     runtimecake.mount = paladin.join.mountpoint.runtime(runtimecake.slug);
+
+//     if (runtimecake.services) {
+//       runtimecake.services = runtimecake.services //
+//         .map((servicecake) => {
+//           const service = new Cake({
+//             remote: paladin.services.find(
+//               (service) =>
+//                 service.slug === servicecake.service ||
+//                 service.slug === servicecake.slug,
+//             ),
+//             ...servicecake,
+//             runtime: runtimecake.slug,
+//             mount: paladin.join.mountpoint.service(
+//               servicecake.slug,
+//               runtimecake.slug,
+//             ),
+//             // url: new Url(`/runtime/${slug}`, new URL("http://localhost")),
+//             // path: new Path(`/runtime/${slug}`),
+//           });
+//           paladin.services.push(service);
+//           return service;
+//         });
+//     }
+
+//     if (!runtimecake.gaia) {
+//       const gaia =
+//         runtimecake.services.find((s) => s.slug === "gaia") ||
+//         paladin.services.find((s) => s.slug === "gaia");
+//       if (!gaia) throw new Error("no gaia");
+//       runtimecake.gaia = {
+//         ...gaia,
+//         runtime: runtimecake.slug,
+//       };
+//     }
+
+//     if (!runtimecake.datamap) {
+//       const datamap =
+//         runtimecake.services.find((s) => s.slug === "datamap") ||
+//         paladin.services.find((s) => s.slug === "datamap");
+//       if (!datamap) throw new Error("no datamap");
+//       runtimecake.datamap = {
+//         ...datamap,
+//         runtime: runtimecake.slug,
+//         mount: paladin.join.mountpoint.service("datamap", runtimecake.slug),
+//       };
+//     }
+
+//     console.log("post", { runtimecake });
+//     paladin.runtimes.push(runtimecake);
+//   }
+// }

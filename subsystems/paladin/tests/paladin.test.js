@@ -1,7 +1,9 @@
 import { assert, assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
+import * as specimen from "@std/testing/bdd";
+import { expect } from "@std/expect";
 
-import { is, Path, Env } from "@vivalence/typology";
+import { Url, Cake, is, Path, Env } from "@vivalence/typology";
 import { Paladin } from "@vivalence/paladin/prototype";
 import { populate, resolve, integrate } from "@vivalence/paladin/lifecycle";
 
@@ -69,7 +71,6 @@ describe("Paladin", () => {
   describe("resolution", () => {
     it("cycles", async () => {
       await resolve.variant(paladin);
-      await resolve.service(paladin);
       await resolve.runtimes(paladin);
     });
 
@@ -79,28 +80,62 @@ describe("Paladin", () => {
         assert(is.array(paladin.traits));
       });
 
-      it("populates runtime collections", () => {
-        assert(is.array(paladin.runtimes));
-        assert(is.array(paladin.services));
-        assert(is.array(paladin.clients));
-        assert(is.object(paladin.service));
-      });
-
-      it("filters undefined services", () => {
-        assertEquals(
-          paladin.services.some((service) => service === undefined),
-          false,
-        );
+      it("populates runtime cakes", () => {
+        // @beef: test that runtime, gaia, datamap, services, are all cakes.
       });
     });
+
+    specimen.describe("valences", () => {
+      specimen.describe("bakes", () => {
+        specimen.it("is", async () => {
+          const runtime = paladin.runtimes[0];
+          expect(runtime).toBeDefined();
+          // console.log({ runtime });
+          // test that
+        });
+
+        // specimen.it("runtime cake with mount and services", async () => {
+        //   const config = {
+        //     slug: "test-runtime",
+        //     services: [{ slug: "gaia" }, { slug: "datamap" }],
+        //   };
+
+        //   runtimeCake = paladin.bake.runtime(new Cake(config));
+
+        //   expect(runtimeCake.mount).toBeDefined();
+        //   expect(runtimeCake.mount.absolute).toContain("runtime_test-runtime");
+        //   expect(runtimeCake.services).toHaveLength(2);
+        // });
+
+        // specimen.it("autocompletes gaia service", async () => {
+        //   const config = { slug: "test-runtime-2" };
+        //   const cake = paladin.bake.runtime(new Cake(config));
+
+        //   expect(cake.gaia).toBeDefined();
+        //   expect(cake.gaia.runtime).toBe("test-runtime-2");
+        // });
+
+        // specimen.it("autocompletes datamap service", async () => {
+        //   const config = { slug: "test-runtime-3" };
+        //   const cake = paladin.bake.runtime(new Cake(config));
+        //   // @beef: note here
+        //   console.log({ paladin: { paladin }, cake });
+
+        //   expect(cake.datamap).toBeDefined();
+        //   expect(cake.datamap.runtime).toBe("test-runtime-3");
+        // });
+      });
+    });
+    //
   });
 
   describe("integration", () => {
     it("cycles", async () => {
+      // await integrate.bake(paladin);
       await integrate.publish(paladin);
       await integrate.secure(paladin);
-      // await integrate.mount(paladin);
       await integrate.validate(paladin);
+      // console.log({ paladin: { paladin } });
     });
   });
 });

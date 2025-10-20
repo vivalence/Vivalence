@@ -3,6 +3,13 @@
   "description": "a deamon is something intelligent and agentic that doesnt have a soul.",
   "version": "0.0.1",
   "exports": {
-    ".": "./control.viva.js",
+    ".": "./mod.js",
+    "./runtime": "./runtime/index.js",
+    "./control": "./control.viva.js",
+  },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test:daemon": "deno test -A --no-check --watch tests/daemon.test.js",
+    "test:die": "deno test -A --no-check --watch tests/die.test.js",
   },
 }

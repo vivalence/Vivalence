@@ -27,7 +27,6 @@ describe("Signature", () => {
   });
 
   describe("valences", () => {
-    return;
     it("branches signatures", () => {
       const child = signature.branch("profile");
       assert(is.signature(child));

@@ -3,16 +3,20 @@ import { is } from "@vivalence/typology";
 class CastError extends Error {} // aaah dementor attack
 
 export const not = {
+  defined: (thing, expected) => {
+    console.trace({ not: "defined", thing, expected });
+    throw new CastError();
+  },
   object: (thing, expected) => {
-    console.log({ not: "object", thing, expected });
+    console.trace({ not: "object", thing, expected });
     throw new CastError();
   },
   module: (thing, expected) => {
-    console.log({ not: "module", thing, expected });
+    console.trace({ not: "module", thing, expected });
     throw new CastError();
   },
   viva: (thing, expected) => {
-    console.log({ not: "viva", thing, expected });
+    console.trace({ not: "viva", thing, expected });
     throw new CastError();
   },
 };
@@ -38,11 +42,15 @@ export function runtime(thing) {
 // const s = (key) => !viva[key] && viva.manifest[key] && (viva[key] = viva.manifest[key]); s("slug"); s("type");
 
 export function lookup(thing) {
+  if (!is.defined(thing)) not.defined();
+  if (thing.remote) return lookup(thing.remote);
+
   // const queryA = "@vivalence/module/moduleA";
   // const queryB = { type: "module", slug: "moduleB", owner: "@vivalence" };
   // const queryC = { module: "@vivalence/module/moduleC" };
   // const queryD = {module: { type: "module", slug: "moduleD", owner: "@vivalence" },};
   // const queryE = {module: {manifest: { type: "module", slug: "moduleE", owner: "@vivalence" },},};
+  // const queryF = Cake {} slug(runtime), service(query), runtime(owner), remote(module)
 
   if (is.string(thing)) {
     const [owner, type, ...rest] = thing.split("/");

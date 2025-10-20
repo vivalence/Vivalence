@@ -1,5 +1,5 @@
-import client from "./client/runtime.js";
-import server from "./server/index.js";
+import provider from "./client/runtime.js";
+import process from "./server/index.js";
 
 const manifest = {
   type: "gaia",
@@ -8,4 +8,4 @@ const manifest = {
   traits: ["ATTACHED", "SERVICE", "DATAMAP", "SYSTEMMAP"],
 };
 
-export { manifest, client, server };
+export { manifest, provider, process };

@@ -1,8 +1,8 @@
 import * as shards from "@vivalence/vector/shards";
 
-import * as entities from "./server/entities.js";
-import * as auth from "./server/auth.js";
-import * as identity from "./server/identity.js";
+import * as entities from "./entities.js";
+import * as authority from "./authority.js";
+import * as identity from "./identity.js";
 
 export default async function server(service, aperture) {
   const { orm, entities } = await entities.systemmap(service, aperture);
@@ -22,7 +22,7 @@ export default async function server(service, aperture) {
         }
       }
     })
-    .use(await auth.inject(service))
+    .use(await authority.inject(service))
     .use(entities.inject(orm))
     .use(identity.inject());
 
@@ -32,6 +32,6 @@ export default async function server(service, aperture) {
 
   aperture.open("/status", shards.aperture.status);
 
-  auth.expose(service, aperture);
+  authority.expose(service, aperture);
   entities.expose(service, aperture);
 }

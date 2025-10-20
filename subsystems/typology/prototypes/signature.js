@@ -1,5 +1,5 @@
 import { is } from "@vivalence/typology";
-import { hash } from "@vivalence/shared";
+import { array, hash } from "@vivalence/shared";
 
 // signature = null; type = null; trace = null; gauges = null;
 // signature: string | any type?: string trace?: Signature gauges: Signature[]
@@ -78,7 +78,8 @@ export class Signature {
   }
 
   get array() {
-    return [...this.heritage(), this, ...this.fin()];
+    return [...array.reverse(this.heritage()), this, ...this.fin()];
+    // get absolute() return new this.constructor([...array.reverse(this.heritage()), this, ...this.fin()]);
   }
   flatMap(cb) {
     return this.array.flatMap(cb);
@@ -162,6 +163,10 @@ export class Signature {
     return depth;
   }
   // /SUS
+
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    return `${this.constructor.name}:${this.absolute}`;
+  }
 }
 
 // ideas

@@ -34,3 +34,7 @@ export function shuffle(array) {
   }
   return shuffledArray;
 }
+
+export const reverse = (array) => {
+  return [...array].reverse();
+};

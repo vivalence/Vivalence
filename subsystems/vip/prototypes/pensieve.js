@@ -6,7 +6,7 @@ export class Pensieve extends Map {
     if (!module || !module.manifest) console.log("no manifest", module);
 
     //todo: cast module
-    const { owner, type, slug, version } = module.manifest;
+    const { owner = "@vivalence", type, slug, version } = module.manifest;
 
     if (!this.has(owner)) {
       this.set(owner, new Map());

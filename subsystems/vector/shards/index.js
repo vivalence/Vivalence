@@ -1,4 +1,5 @@
 export * as patterns from "./patterns.js";
+export * as secure from "./secure.js";
 export * as caching from "./caching.js";
 
 const attach = (key, val) => async (ctx, next) => {

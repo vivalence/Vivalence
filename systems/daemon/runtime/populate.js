@@ -1,95 +1,115 @@
-import { Vector } from "@vivalence/vector";
+import paladin from "@vivalence/paladin";
+import daemon from "@vivalence/daemon";
+
+import { Mode, Url } from "@vivalence/typology";
 import { is, array } from "@vivalence/shared";
-import { Module, Url } from "@vivalence/typology";
 import { maps } from "@vivalence/entities";
+import { Vector } from "@vivalence/vector";
 
-import * as ontology from "./ontology/index.js";
+import { traitmap } from "./modes/traitmap.js";
 
-export async function entities(rme, daemon) {
-  rme.maps.orm = await rme.register.database.client(
-    rme.config.database,
-    rme.maps.entities,
-  );
+export async function core(die) {
+  die.register = await paladin.vip.accioMap({
+    gaia: die.cake.gaia,
+    datamap: die.cake.datamap,
+    kernel: die.cake.kernel,
+    modes: die.cake.modes,
+    services: die.cake.services,
+  });
 
-  rme.instance.entities = {
-    orm: rme.maps.orm,
-    em: rme.maps.orm.em.fork(),
+  die.variant.kernel = {
+    ontology: die.register.kernel.find((m) => m.manifest.type === "ontology"),
+    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
+    domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
+  };
+
+  die.variant.traits = {
+    ...(die.variant.kernel.domain.traits || {}),
+    ...traitmap,
+  };
+
+  die.variant.modes = [...die.variant.kernel.domain.modes];
+
+  die.variant.entities = [
+    maps.system.mode,
+    maps.system.valence,
+    ...maps.sets.userspace,
+    ...die.variant.kernel.domain.entities,
+    ...maps.sets.kernel,
+  ];
+}
+
+export async function entities(die) {
+  const { orm, entities } = await die.register.datamap //
+    .provider({ datamap: die.cake.datamap, variant: die.variant.entities });
+
+  die.good.kernel.orm = orm;
+
+  die.good.entities = {
+    ...entities,
+    em: die.good.kernel.orm.em.fork(),
     on: new Vector(),
   };
 
-  for (const [slug, { entity }] of Object.entries(rme.maps.entities)) {
-    if (!entity) continue;
-    rme.instance.entities[slug] =
-      await rme.instance.entities.em.getRepository(entity);
+  for (const variant of die.variant.entities) {
+    if (!variant.entity) continue;
+    const repository = await die.good.entities.em.getRepository(variant.entity);
+    die.good.entities[variant.type] = repository;
   }
 
-  rme.instance.ontology.topography =
-    await rme.instance.entities.em.getRepository(
-      maps.ontology.topography.entity,
-    );
-  rme.instance.ontology.dimension =
-    await rme.instance.entities.em.getRepository(
-      maps.ontology.dimension.entity,
-    );
+  // die.good.ontology.topography = await die.good.entities.em.getRepository(
+  //   maps.ontology.topography.entity,
+  // );
+  // die.good.ontology.dimension = await die.good.entities.em.getRepository(
+  //   maps.ontology.dimension.entity,
+  // );
 }
 
-export async function modules(rme, daemon) {
-  for (const [type, { prototype }] of Object.entries(rme.maps.modules)) {
-    if (!rme.register.modules[type]) continue;
-    rme.instance.module[type] = {};
+export async function modes(die) {
+  for (const variant of die.variant.modes) {
+    if (!die.good.mode[variant.type]) die.good.mode[variant.type] = {};
 
-    const modules = is.array(rme.register.modules[type])
-      ? rme.register.modules[type]
-      : [rme.register.modules[type]];
+    const cake = die.register.modes //
+      .find((mode) => mode.manifest.type === variant.type);
 
-    for (const register of modules) {
-      rme.instance.module[type][register.manifest.slug] = //
-        new prototype(register);
-    }
+    const mode = new variant.prototype(cake);
+    mode.mount = die.good.tilde.branch(`/mode/${mode.type}/${mode.slug}`);
+    // mode.url = new Url(mode.mount, paladin.daemon.statics.serve);
+
+    // console.log(die.good.entities);
+    // mode.entity = await die.good.entities.mode //
+    //   .ensure({ type: mode.type, slug: mode.slug });
+
+    // mode.entity.traits = array //
+    //   .unique([...mode.entity.traits, ...mode.traits]);
+
+    die.good.mode[mode.type][mode.slug] = mode;
   }
 
-  rme.instance.module.values = () =>
-    Object.values(rme.instance.module)
+  die.good.modes = () =>
+    Object.values(die.good.mode)
       .map((type) => Object.values(type))
       .flat();
 
-  for (const module of rme.instance.module.values()) {
-    if (["ontology", "domain"].includes(module.type)) {
-      module.path = rme.path.branch(`/module/${module.type}`);
-    } else {
-      module.path = rme.path.branch(`/module/${module.type}/${module.slug}`);
-    }
-    module.url = new Url(module.path, daemon.config.url);
-  }
-
-  for (const module of rme.instance.module.values()) {
-    module.entity = await rme.instance.entities.module //
-      .ensure({ type: module.type, slug: module.slug });
-
-    module.entity.traits = array //
-      .unique([...module.entity.traits, ...module.traits]);
-  }
-
-  await rme.instance.entities.em.flush();
+  await die.good.entities.em.flush();
 }
 
-export async function lighthouse(rme, daemon) {
-  rme.instance.lighthouse = await rme.register.lighthouse //
-    .client(rme.config.lighthouse, rme.instance.entities.user);
+export async function gaia(die) {
+  die.good.gaia = await die.register.gaia //
+    .provider(die.cake.gaia, die.good.entities.user);
 }
 
-export async function services(rme, daemon) {
-  const runtimeservices = Object.entries(rme.config.services);
-  for (const [serviceslug, serviceconfig] of runtimeservices) {
-    const prototype = rme.register.services[serviceslug];
-    const instance = await prototype.client(serviceconfig);
-    rme.instance.service[serviceslug] = instance;
+export async function services(die) {
+  for (const servicecake of die.cake.services) {
+    const register = await paladin.vip.accio(servicecake.module);
+    die.good.service[servicecake.slug] = await register.provider(servicecake);
   }
 }
-export async function twitches(rme, daemon) {
-  for (const handler of Object.values(ontology.populate)) await handler(rme);
-  for (const handler of Object.values(ontology.resolve)) await handler(rme);
-}
 
-//   if (rme.register.modules.domain.lifecycle.construct)
-//     await rme.register.modules.domain.lifecycle.construct(rme.instance);
+// export async function twitches(die) {
+//   for (const handler of Object.values(ontology.populate)) await handler(die);
+//   for (const handler of Object.values(ontology.resolve)) await handler(die);
+// }
+
+//   if (die.register.modules.domain.lifecycle.construct)
+//     await die.register.modules.domain.lifecycle.construct(die.good);

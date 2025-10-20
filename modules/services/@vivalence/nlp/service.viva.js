@@ -2,7 +2,7 @@ import config from "@vivalence/paladin";
 import { as, Path } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 
-import client from "./client/index.js";
+import provider from "./client/index.js";
 
 const manifest = {
   type: "service",
@@ -79,4 +79,4 @@ const control = new Vector()
     console.log("✓ Stanza NLP services stopped successfully");
   });
 
-export { manifest, control, client };
+export { manifest, control, provider };

@@ -11,33 +11,34 @@ const manifest = {
   // traits: ["DATAMAP","LOCAL"],
 };
 
-// todo: ensure database.db
-async function client(service, datamap) {
-  const mikroconfig = {
-    dbName: join(service.data, service.config.db.path),
-    entities: Object.values(datamap)
-      .map((dme) => dme.schema)
-      .filter(Boolean),
+async function provider({ datamap, variant }) {
+  const mikroconfig = defineConfig({
+    dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+    entities: variant.map((dme) => dme.schema).filter(Boolean),
     strict: true,
     extensions: [Migrator],
     migrations: {
       tableName: "_mikro_migrations",
-      path: join(service.data, "migrations"),
+      path: datamap.mount.branch("migrations").absolute,
     },
-  };
+  });
 
-  const orm = await MikroORM.init(defineConfig(mikroconfig));
+  const orm = await MikroORM.init(mikroconfig);
 
   const migrator = orm.getMigrator();
   await migrator.createMigration();
   await migrator.up();
 
-  // todo compute repositories
+  // // todo compute repositories
+  const entities = {};
+  for (const { type, schema, entity } of variant) {
+    // die.instance.entities[type] = await orm.em.getRepository(entity);
+  }
 
-  return orm; // {orm, entities}
+  return { orm, entities };
 }
 
-export { manifest, client };
+export { manifest, provider };
 
 // function client(service) {
 //   let path = join(service.data, service.config.db.path);
