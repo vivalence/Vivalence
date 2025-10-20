@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
-import * as assert from "$std/assert";
+import config from "@vivalence/paladin";
+import * as assert from "$std@std@std/assert";
 import { cast } from "@vivalence/typology";
 
 Deno.test("Lookup: parses string formats", async () => {
@@ -43,8 +43,8 @@ Deno.test("Lookup: parses string formats", async () => {
 //     assert.assertEquals(result.version, null);
 //   });
 // });
-// import config from "@vivalence/config";
-// import * as assert from "$std/assert";
+// import config from "@vivalence/paladin";
+// import * as assert from "$std@std@std/assert";
 // import { Lookup } from "../prototypes/index.js";
 
 // // test lookup cases

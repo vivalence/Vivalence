@@ -2,7 +2,9 @@ import * as semver from "@std/semver";
 // // vectorizable af.
 
 export class Pensieve extends Map {
-  register(module) {
+  register(module = null) {
+    if (!module || !module.manifest) console.log("no manifest", module);
+
     //todo: cast module
     const { owner, type, slug, version } = module.manifest;
 

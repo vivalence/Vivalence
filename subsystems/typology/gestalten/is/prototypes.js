@@ -1,9 +1,12 @@
+// high level question is the level of assertion/guarantee is ought to provide.
 // convention: Uppercase=instanceof,lowercase=satisfiesconstraints/castable
-// import { is } from "@vivalence/shared";
+// lowercase is just says that if something smells like a duck, farts like a duck, and quacks like a duck, it might taste like one too.
+// uppercase is a fasho.
+// limit cases like signature evolve.
+
 import { Vector as VP } from "@vivalence/vector";
 import { prototypes } from "@vivalence/typology";
-
-// export function signature(thing) {return (is.string(thing.hash) && is.fn(thing.filter) && is.defined(thing.signature));}
+import * as is from "./primitives.js";
 
 export function lookup(thing) {
   return is.object(thing) && thing.type && thing.slug && thing.owner;
@@ -20,13 +23,20 @@ export function Pattern(thing) {
 }
 
 export function pattern(thing) {
-  return !is.array(thing) && is.fn(thing.filter) && is.defined(thing.signature);
+  return (
+    is.defined(thing) &&
+    !is.array(thing) &&
+    is.fn(thing.filter) &&
+    is.defined(thing.signature)
+  );
 }
+
 export function Signal(thing) {
   return thing instanceof prototypes.Signal;
 }
+
 export function signal(thing) {
-  return is.defined(signal?.signature);
+  return is.defined(thing?.signature);
 }
 
 export function Path(thing) {

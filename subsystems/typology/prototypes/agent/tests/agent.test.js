@@ -1,5 +1,5 @@
-import { assertEquals, assertExists, assertStringIncludes } from "$std/assert";
-import { assertRejects, assertInstanceOf } from "$std/assert";
+import { assertEquals, assertExists, assertStringIncludes } from "$std@std@std/assert";
+import { assertRejects, assertInstanceOf } from "$std@std@std/assert";
 import { Type } from "@sinclair/typebox";
 
 import { Agent } from "../agent.js";
@@ -297,8 +297,8 @@ Deno.test("Agent - check with incomplete configuration", () => {
 //   assertExists(agent.template);
 // });
 
-// import config from "@vivalence/config";
-// import { assertEquals } from "$std/assert";
+// import config from "@vivalence/paladin";
+// import { assertEquals } from "$std@std@std/assert";
 
 // import { Type } from "@sinclair/typebox";
 // import { createAnthropic } from "@ai/sdk/anthropic";

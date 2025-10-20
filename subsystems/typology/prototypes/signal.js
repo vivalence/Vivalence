@@ -4,11 +4,12 @@ import { is } from "@vivalence/typology";
 
 export class Signal extends Signature {
   // is = is.signal; // js...
-  get hash() {
-    return hash.array([this.index, this.slug]);
+  hasher() {
+    return hash.array([this.index, this.signature]);
   }
-  is(s) {
-    return is.signal(s);
+  // is(s) {return is.signal(s);}
+  ought(thing) {
+    return is.signal(thing);
   }
   parse(string) {
     return string

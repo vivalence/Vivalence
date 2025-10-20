@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import { Path, BaseError } from "@vivalence/typology";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

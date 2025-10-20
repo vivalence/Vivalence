@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 
 export default async function ({ text }, ctx) {
   console.log("classify", text);

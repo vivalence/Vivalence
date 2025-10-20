@@ -1,5 +1,5 @@
 import { sleep, random } from "@vivalence/shared";
-import { assertEquals } from "$std/assert";
+import { assertEquals } from "$std@std@std/assert";
 import { Classifier } from "../index.ts";
 import { Feature, type Context, Signal, Parser } from "../types.ts";
 

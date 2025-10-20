@@ -6,7 +6,7 @@ import read from "./tools/read.js";
 import check from "./tools/check.js";
 import state from "./tools/state.js";
 
-export class Config {
+export class Paladin {
   variant = null; // type | slug
   traits = [];
   role = null; // client daemon service runtime
@@ -15,15 +15,18 @@ export class Config {
   secret = new Env();
 
   tilde = { mount: null };
-  repository = { mount: null };
-  registry = { mount: null };
-
+  system = { mount: null };
+  vip = { mount: null };
   gaia = { serve: null };
   daemon = { serve: null };
-  clients = { html: { serve: null } };
-  runtimes = {};
-  services = {};
+
+  clients = []; // { slug: "html", config: null }
+  runtimes = [];
+  services = [];
   // processes
+  service = {}; // {slug:service}
+  // runtime = {};
+  // client = {};
 
   constructor() {
     read(this);
@@ -44,5 +47,5 @@ export class Config {
 // }
 
 // [Symbol.for("nodejs.util.inspect.custom")]() {
-//   return `config ${JSON.stringify(this.json, null, 2)}`;
+//   return `paladin ${JSON.stringify(this.json, null, 2)}`;
 // }

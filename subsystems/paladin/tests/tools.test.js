@@ -1,6 +1,6 @@
 import { assertEquals } from "$std/assert";
 import { Path, Env } from "@vivalence/typology";
-import { Config } from "../prototype.js";
+import { Paladin as Config } from "@vivalence/paladin/prototype";
 
 Deno.test("Config: join creates Path instances", async () => {
   const env = new Env({ VIVA_TILDE_MOUNT: "/tmp/test" });

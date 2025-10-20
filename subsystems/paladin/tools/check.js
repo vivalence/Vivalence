@@ -1,12 +1,12 @@
 export default function check(config) {
   const createResult = (issues, input) => {
     const result = Array.isArray(issues) ? issues : [issues];
-    result.throw = () => {
-      if (result.length > 0) {
-        const messages = result.map((issue) => issue.message).join("; ");
-        console.log(`[CONFIG.CHECK ERROR]`, { input, messages, result });
-        throw new Error(messages);
-      }
+    result.fails = result.length > 0;
+    result.throw = (EP = null) => {
+      if (!result.fails) return;
+      const messages = result.map((issue) => issue.message).join("; ");
+      console.log(`[CONFIG.CHECK ERROR]`, { input, result, messages });
+      throw new (EP || Error)(messages);
     };
     return result;
   };

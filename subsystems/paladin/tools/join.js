@@ -6,12 +6,12 @@ export default function joins(config) {
 
   const tilde = createBrancher("VIVA_TILDE_MOUNT");
   const registry = createBrancher("VIVA_REGISTRY_MOUNT");
-  const repository = createBrancher("VIVA_REPOSITORY_MOUNT");
+  const system = createBrancher("VIVA_SYSTEM_MOUNT");
 
   config.join = {
     tilde: (f) => tilde(f),
     registry: (f) => registry(f),
-    repository: (f) => repository(f),
+    system: (f) => system(f),
     variant: {
       env: () => tilde("variant/environment"),
       runtimes: () => tilde("variant/runtimes"),
@@ -39,11 +39,11 @@ export default function joins(config) {
 //     parentJoiner(join(subPath, path));
 
 //   const tilderoot = createJoiner("VIVA_TILDE_MOUNT");
-//   const repository = createJoiner("VIVA_REPOSITORY_MOUNT");
+//   const system = createJoiner("VIVA_SYSTEM_MOUNT");
 //   const register = createJoiner("VIVA_REGISTER_MOUNT");
 
 //   config.join = {
-//     repository,
+//     system,
 //     register,
 
 //     // tilde:

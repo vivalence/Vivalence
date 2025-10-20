@@ -20,32 +20,65 @@ export class Vector {
     this.carry.push(middleware);
     return this;
   }
+  // branch(signature) {
+  //   let pattern = new Pattern(signature);
+  //   // console.log("p", { signature, pattern });
+  //   let position = this;
+
+  //   while (pattern) {
+  //     // console.log("while", pattern);
+  //     // console.log("@pattern", !!pattern);
+  //     for (const entry of position.trajectories.entries()) {
+  //       if (entry[0].hash === pattern.hash) {
+  //         position = entry[1];
+  //         pattern = pattern.heir;
+  //         continue;
+  //       }
+  //     }
+  //     if (pattern) {
+  //       // console.log("@pattern", !!pattern);
+  //       const location = new Vector(this);
+  //       // console.log("@pattern", !!pattern);
+  //       position.trajectories.set(pattern, location);
+  //       // console.log("@pattern", !!pattern);
+  //       position = location;
+  //       // console.log("@pattern", !!pattern);
+  //       pattern = pattern.heir;
+  //     }
+  //   }
+
+  //   return position;
+  // }
 
   branch(signature) {
     const pattern = new Pattern(signature);
 
     let descendant = Array.from(this.trajectories.entries()) //
-      .find(([{ hash }]) => hash === pattern.hash)?.[1];
+      .find(([i]) => i.hash === pattern.hash)?.[1];
 
     if (!descendant) {
       descendant = new Vector(this);
       this.trajectories.set(pattern, descendant);
     }
 
-    return pattern.heir ? descendant.branch(pattern.heir) : descendant;
+    if (pattern.heir) {
+      return descendant.branch(pattern.heir);
+    }
+    return descendant;
   }
   open(signature, effect) {
     const pattern = new Pattern(signature);
 
-    if (pattern.fin) {
-      const fin = pattern.fin.pop();
-      this.branch(pattern).effects.set(fin, effect);
-    } else this.effects.set(pattern, effect);
+    if (pattern.heir) {
+      const finn = pattern.finn.pop();
+      this.branch(pattern).effects.set(finn, effect);
+    } else {
+      this.effects.set(pattern, effect);
+    }
 
     return this;
   }
 
-  // slurp(vector) {}
   set(vector) {
     for (const [pattern, effect] of vector.effects) {
       this.effects.set(pattern, effect);

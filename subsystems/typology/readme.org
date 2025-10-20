@@ -1,17 +1,19 @@
 Less is More, Code is Data, Schema is God.
 
+
 primitives come first.
 with those we describe things' gestalt, effectively as jsonschema.
 we construct things as prototypes.
 all of it is cast in types,
 and composed for use by vectors and for interfaces by views.
+(@beef WRONG:)gestalt are system level entities. not composites, but destinations.
 
 most things in viva are a memetic symbol first, and implementation detail later. 
 
-gestalt are system level entities. not composites, but destinations.
 primitives are leaf types like strings numbers asf, reusable composites, and any intermediate aggregate.
 prototypes are instances. things that do. contrary to both primitives and gestalt.
 types cast ./*
+
 
 gestalt provides libraries for working on gestalt level. `cast` and `is` are conceptually mature.
 
@@ -26,7 +28,5 @@ typology articulates the systems archetypes through primitives, gestalten, and p
 ontology annotates symbol and literal, composing primitives into json.
 domain defines entities in mikro aka json.
 
-schema is god. json is schema.
 
 in honor of my mother and my fathers.
-

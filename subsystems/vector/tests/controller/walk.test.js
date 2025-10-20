@@ -1,4 +1,4 @@
-import { assertEquals, assertRejects } from "$std/assert";
+import { assertEquals, assertRejects } from "@std/assert";
 import { Signal } from "@vivalence/typology";
 import { Vector } from "../../vector.js";
 import { walk } from "../../controller/walk.js";

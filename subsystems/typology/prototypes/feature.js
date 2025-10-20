@@ -2,6 +2,7 @@ import { hash } from "@vivalence/shared";
 import { Signature } from "./signature.js";
 
 export class Feature extends Signature {
+  // ought(thing) {return is.feature(thing);}
   constructor(data = {}) {
     super();
     this.token = data.token || {};
@@ -9,7 +10,7 @@ export class Feature extends Signature {
     this.signal = data.signal || null;
   }
 
-  get hash() {
+  hasher() {
     return hash.array([
       this.index,
       this.token,

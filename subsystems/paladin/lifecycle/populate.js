@@ -1,113 +1,120 @@
+import * as dotenv from "@std/dotenv";
 import { Env, Path } from "@vivalence/typology";
 //+ await import("@vivalence/vip");
 
-export async function env(config) {
-  // read env
-  const dotenv = await import("@std/dotenv");
+export async function env(paladin) {
+  console.log("ENV CALL");
+  // read process env
+  for (const [key, value] of Object.entries(Deno.env.toObject())) {
+    if (key.startsWith("VIVA_")) paladin.env.set(key, value);
+  }
+
+  // read env file
   if (Deno.env.has("VIVA_ENV_FILE")) {
     const envPath = Deno.env.get("VIVA_ENV_FILE");
-    config.env.assign(await dotenv.load({ envPath }));
+    paladin.env.assign(await dotenv.load({ envPath }));
   }
 
   // fallback to repo .env
-  const checked = config.check.env([
-    "VIVA_REPOSITORY_MOUNT",
-    "VIVA_TILDE_MOUNT",
-    "VIVA_VIP_MOUNT",
-  ]);
-  if (checked?.length > 0) {
+  if (
+    paladin.check.env([
+      "VIVA_SYSTEM_MOUNT",
+      "VIVA_TILDE_MOUNT",
+      "VIVA_VIP_MOUNT",
+    ]).fails
+  ) {
     const ROOT_OFFSET = "../../../.env";
     const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname;
     const env = await dotenv.load({ envPath });
-    config.env.assign(env);
-  }
-
-  // read os/global env
-  for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("VIVA_")) {
-      config.env.set(key, value);
-    }
+    paladin.env.assign(env);
   }
 }
 
-export async function environment(config) {
-  config.check.env("VIVA_TILDE_MOUNT")?.throw();
+export async function environment(paladin) {
+  const apply = (env) => async (path) => {
+    return env.assign(await paladin.read.json(path));
+  };
 
-  const apply = (env) => async (path) =>
-    env.assign(await config.read.json(path));
-
-  const allJsonFiles = await config.find.json(config.join.variant.env());
+  const allJsonFiles = await paladin.find.json(paladin.join.variant.env());
 
   await Promise.all([
-    apply(config.secret)(
-      allJsonFiles.find((file) => file.absolute.includes("secrets.json")),
+    apply(paladin.secret)(
+      allJsonFiles.find((file) => file.absolute.includes("secret")),
     ),
     ...allJsonFiles
-      .filter((file) => !file.absolute.includes("secrets.json"))
-      .map(apply(config.env)),
+      .filter((file) => !file.absolute.includes("secret"))
+      .map(apply(paladin.env)),
   ]);
 
-  return config;
+  return paladin;
 }
 
-// export async function repository(config) {
-//   config.repository = {
-//     mount: new Path(config.env.get("VIVA_REPOSITORY_MOUNT")),
-//   };
-
-//   //   const rootDir = config.env.get("VIVA_REPOSITORY_MOUNT");
-//   //   const importmap = JSON.parse(await Deno.readTextFile(rootDir + "/import_map.json"),);
-//   //   config.repository. importmap= importmap
-// }
-
-export async function repository(config) {
-  config.repository = {
-    mount: new Path(config.env.get("VIVA_REPOSITORY_MOUNT")),
-    importmap: await config.read.json(
-      config.join.repository("import_map.json"),
-    ),
+export async function system(paladin) {
+  paladin.system = {
+    mount: new Path(paladin.env.get("VIVA_SYSTEM_MOUNT")),
+    // importmap: await paladin.read.json(paladin.join.system("import_map.json")),
+  };
+  paladin.tilde = {
+    mount: new Path(paladin.env.get("VIVA_TILDE_MOUNT")),
+    //
   };
 }
 
-export async function registry(config) {
+export async function vip(paladin) {
   const { Vip } = await import("@vivalence/vip");
-  config.vip = new Vip(config);
-  (async () =>
-    await config.vip.mount(new Path(config.env.get("VIVA_VIP_MOUNT"))))();
+  paladin.vip = new Vip(paladin);
 }
 
-export async function modeselector(config) {
-  let { VIVA_SYSTEM_MODE, VIVA_SYSTEM_ROLE } = config.env.vars;
+export async function modeselector(paladin) {
+  const { VIVA_SYSTEM_MODE, VIVA_SYSTEM_ROLE } = paladin.env.vars;
 
-  config.mode = VIVA_SYSTEM_MODE;
-  config.role = VIVA_SYSTEM_ROLE;
+  paladin.mode = VIVA_SYSTEM_MODE;
+  paladin.role = VIVA_SYSTEM_ROLE;
 
-  config.is = {
+  paladin.is = {
     build: VIVA_SYSTEM_MODE === "BUILD",
     dev: VIVA_SYSTEM_MODE === "DEVELOPMENT",
     prod: VIVA_SYSTEM_MODE === "PRODUCTION",
   };
 }
 
-export async function statements(config) {
+export async function statements(paladin) {
   const directories = [
-    config.env.get("VIVA_REPOSITORY_MOUNT"),
-    config.env.get("VIVA_TILDE_MOUNT"),
-    config.env.get("VIVA_VIP_MOUNT"),
+    paladin.env.get("VIVA_SYSTEM_MOUNT"),
+    paladin.env.get("VIVA_TILDE_MOUNT"),
+    paladin.env.get("VIVA_VIP_MOUNT"),
   ];
 
   for (const dir of directories) {
-    console.log("!state", dir);
-    // await config.state.path(dir);
+    await paladin.state.dir(dir);
   }
 }
 
-export async function questions(config) {
-  config.check
-    .path([
-      config.env.get("VIVA_REPOSITORY_MOUNT"),
-      config.env.get("VIVA_TILDE_MOUNT"),
-      config.env.get("VIVA_VIP_MOUNT"),
+export async function questions(paladin) {
+  paladin.check
+    .env([
+      "VIVA_SYSTEM_MODE",
+      "VIVA_SYSTEM_ROLE",
+
+      "VIVA_SYSTEM_MOUNT",
+      "VIVA_TILDE_MOUNT",
+      "VIVA_VIP_MOUNT",
+
+      "VIVA_DAEMON_SERVE",
+      "VIVA_GAIA_SERVE",
+      "VIVA_CLIENT_HTML_SERVE",
+
+      "PUBLIC_VIVA_DAEMON_REMOTE",
+      "PUBLIC_VIVA_GAIA_REMOTE",
+      "PUBLIC_VIVA_CLIENT_HTML_REMOTE",
     ])
-    ?.throw();
+    .throw();
+
+  paladin.check
+    .path([
+      paladin.env.get("VIVA_SYSTEM_MOUNT"),
+      paladin.env.get("VIVA_TILDE_MOUNT"),
+      paladin.env.get("VIVA_VIP_MOUNT"),
+    ])
+    .throw();
 }

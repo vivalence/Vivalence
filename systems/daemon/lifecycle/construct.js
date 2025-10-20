@@ -2,10 +2,6 @@ import { Vector } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
 export class Daemon {
-  constructor(config) {
-    this.config = config;
-    this.registry = this.config?.registry;
-  }
   // construct
   statics = {};
   aperture = new Aperture().open("/status", async () => ({ success: true }));

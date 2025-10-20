@@ -2,7 +2,7 @@ import { Remedy, Module } from "@vivalence/typology";
 import { Vector, shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 import { userspace, system, ontology } from "@vivalence/entities/maps";
-import { traitmap } from "./module/traitmap.js";
+import { traitmap } from "./modes/traitmap.js";
 
 export class Runtime {
   constructor(config) {

@@ -1,5 +1,5 @@
-import config from "@vivalence/config";
-import { path, Path } from "@vivalence/typology";
+import config from "@vivalence/paladin";
+import { as, Path } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 
 import client from "./client/index.js";
@@ -11,7 +11,9 @@ const manifest = {
   traits: ["SERVER", "DOCKER", "COMPOSE"],
 };
 
-const dir = path.fromFile(import.meta.url).ancestor.branch("/server");
+const path = as.path.url(import.meta.url);
+const dir = path.trace.branch("/server");
+
 const compose = dir.branch("/docker-compose.yml");
 const env = dir.branch("/.env");
 const source = dir.branch("/.env.source");

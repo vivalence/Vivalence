@@ -14,6 +14,6 @@ export default function state(config) {
   };
 
   config.state = {
-    path: assertPath,
+    dir: assertPath,
   };
 }

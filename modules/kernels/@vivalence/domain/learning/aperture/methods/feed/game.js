@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import { Blacklist, Scope } from "@vivalence/typology";
 
 // input {scope game blacklist take expect}

@@ -1,5 +1,5 @@
 import { Signal } from "@vivalence/typology";
-import { assertEquals, assertThrows } from "$std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { Vector } from "../../vector.js";
 import { traverse } from "../../controller/traverse.js";
 

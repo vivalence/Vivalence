@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 // client.trajectory .branch("system") .open("up", async (ctx) => {return { status: "up" };}) .open("test", async (ctx) => {const up = await ctx.call("/system/up"); return { up, output: "lorem" };});
 // await services({
 //   ...client,

@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import Together from "together-ai";
 
 export default () => {

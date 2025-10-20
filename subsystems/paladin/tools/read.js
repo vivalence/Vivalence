@@ -17,31 +17,29 @@ export default function read(config) {
     },
 
     module: async (path) => {
-      const resolved = resolve(path);
-      const module = await import(resolved);
-      return module;
+      return await import(resolve(path));
     },
     viva: async (path) => {
       const module = await import(resolve(path));
-      // check.module(module)?.throw()
+      // console.log(path, module);
+      const viva = cast.viva(module);
+      // console.log(path, viva);
+      return viva;
+      // let module = await import(resolve(path)); return module;
+      //   // check.module(module)?.throw()
+      //   // if (!module.manifest && module.default?.manifest) module = module.default;
 
-      // if (module.manifest?.traits?.includes("VIEWABLE")) {
-      //   if (module.view instanceof Path)
-      //     module.view = new Path(dirname(path.absolute)).branch(
-      //       module.view.value,
-      //     );
-      //   else if (is.string(module.view))
-      //     module.view = new Path(dirname(path.absolute)).branch(module.view);
-      //   else
-      //     console.warn(
-      //       "@registry: imported viewable module missing .view.entry",
-      //     );
-      //   console.log("MODULE VIEQ");
-      //   console.log(module.view.absolute);
-      //   console.log(module.view.down().value);
-      // }
-
-      return module;
+      //   // if (module.manifest?.traits?.includes("VIEWABLE")) {
+      //   //   if (module.view instanceof Path)
+      //   //     module.view = new Path(dirname(path.absolute)).branch(module.view.value,);
+      //   //   else if (is.string(module.view))
+      //   //     module.view = new Path(dirname(path.absolute)).branch(module.view);
+      //   //   else
+      //   //     console.warn("@registry: imported viewable module missing .view.entry",);
+      //   //   console.log("MODULE VIEQ");
+      //   //   console.log(module.view.absolute);
+      //   //   console.log(module.view.down().value);
+      //   // }
     },
   };
 

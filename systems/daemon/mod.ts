@@ -1,22 +1,19 @@
-console.clear();
-
 const start = performance.now();
 const tick = () => Math.round(performance.now() - start);
 const ticker = (name) => console.log(`[TICK] [${tick() / 1000}s] [${name}]`);
 
-import config from "@vivalence/config";
-await config;
+import paladin, { ikiro } from "@vivalence/paladin";
 
-// import * as lifecycle from "./lifecycle/index.js";
-// import * as runtime from "./runtime/index.js";
+import * as lifecycle from "./lifecycle/index.js";
+import * as runtime from "./runtime/index.js";
 
-// export const daemon = new lifecycle.Daemon(config.daemon);
+await ikiro;
 
-// await daemon.registry.init(config.registry);
+export const daemon = new lifecycle.Daemon();
 
-// for (const populate of Object.values(lifecycle.populate)) {
-//   await populate(daemon);
-// }
+for (const populate of Object.values(lifecycle.populate)) {
+  await populate(daemon);
+}
 
 // for (const rme of daemon.runtimes) {
 //   for (const populate of Object.values(runtime.populate)) {

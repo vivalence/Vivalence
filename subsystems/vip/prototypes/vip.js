@@ -2,15 +2,15 @@ import { is, cast } from "@vivalence/typology";
 import { Pensieve } from "./pensieve.js";
 
 export class Vip {
-  constructor(config) {
-    this.config = config;
+  constructor(paladin) {
+    this.paladin = paladin;
     this.pensieve = new Pensieve();
   }
 
   async mount(mount) {
-    const paths = await this.config.find.viva(mount);
-    for (const path of paths) {
-      const module = await this.config.read.viva(path);
+    const paths = await this.paladin.find.viva(mount);
+    for await (const path of paths) {
+      const module = await this.paladin.read.viva(path);
       this.pensieve.register(module);
     }
 

@@ -1,98 +1,77 @@
-// config.variant = VIVA_SYSTEM_VARIANT;
+import { Path, cast, as, is } from "@vivalence/typology";
 
-export async function variant(config) {
-  const file = config.join.tilde("variant/variant.viva.js");
-  console.log("file", file);
+export async function variant(paladin) {
+  // console.log(0);
+  const file = paladin.join.tilde("variant/variant.viva.js");
+  // console.log(0, file);
 
-  config.tilde = { mount: new Path(VIVA_TILDE_MOUNT) };
-  const mod = await config.read.viva(file);
+  const module = await paladin.read.module(file);
+  const { statics, manifest, gaia, daemon, clients, services } = module;
 
-  console.log("mod", mod);
-  // const { gaia, daemon, clients, services } = await mod(config);
+  // TODO derive serve & remote!
+  // TODO cast/is
 
-  // if (gaia) {
-  //   config.gaia = gaia.config;
-  //   if (typeof config.gaia.url !== SERVE)
-  //     config.gaia.url = new SERVE(config.gaia.url);
-  // }
-
-  //   if (daemon) {
-  // todo: typeof serve === url
-  // const { serve } = daemon.config;
-  // config.env.assign({
-  //   VIVA_DAEMON_DOMAIN: serve.domain,
-  //   VIVA_DAEMON_PORT: serve.port,
-  //   VIVA_DAEMON_SERVE: `http://${serve.domain}:${serve.port}`,
-  // });
-
-  // config.daemon = daemon.config;
-  // config.daemon.url = new SERVE(`http://${serve.domain}:${serve.port}`); //
-  //   }
-
-  //   if (clients) {
-  // for (const [slug, client] of Object.entries(clients)) {
-  //   const { serve } = client.config;
-
-  //   const envKey = `VIVA_CLIENTS_${slug.toUpperCase()}`;
-  //   const domainKey = `${envKey}_DOMAIN`;
-  //   const portKey = `${envKey}_PORT`;
-  //   const urlKey = `${envKey}_SERVE`;
-  //   const url = `http://${serve.domain}:${serve.port}`;
-
-  //   config.env.assign({
-  //     [domainKey]: serve.domain,
-  //     [portKey]: serve.port,
-  //     [urlKey]: url,
-  //   });
-
-  //   config.clients[slug] = client.config;
-  // } //
-  //   }
-
-  //   if (services) {
-  //     //   for (const [slug, serviceconfig] of services) {
-  //     //     const service = {
-  //     //       ...serviceconfig,
-  //     //       slug,
-  //     //       data: config.joins.data.service(slug),
-  //     //     };
-  //     //     config.services.add(service);
-  //     //   }
-  //   }
-
-  return config;
-}
-
-export async function runtimes(config) {
-  const path = config.joins.config.runtimes("/");
-  const vivaFiles = await config.find.files.viva(path);
-
-  for (const file of vivaFiles) {
-    const mod = await config.read.module(file);
-    const runtimeconfig = await mod(config);
-    if (!runtimeconfig) continue;
-
-    // if (!runtimeconfig.datamap.data) runtimeconfig.datamap.data = config.joins.data.runtime(`${runtimeconfig.manifest.slug}_datamap`,);
-    // if (!runtimeconfig.gaia.data) runtimeconfig.gaia.data = config.joins.data.runtime(`${runtimeconfig.manifest.slug}_gaia`,);
-
-    if (runtimeconfig.services) {
-      for (const [slug, serviceconfig] of Object.entries(
-        runtimeconfig.services,
-      )) {
-        const service = {
-          ...serviceconfig,
-          slug,
-          runtime: runtimeconfig.manifest.slug,
-          data: config.joins.data.runtime(runtimeconfig.manifest.slug, slug),
-        };
-
-        config.services.add(service);
-        runtimeconfig.services[slug] = service;
-      }
-    }
-
-    config.runtimes.add(runtimeconfig);
+  if (manifest) {
+    paladin.variant = manifest.slug;
+    paladin.traits = manifest.traits || [];
   }
 
-  return config;
+  if (statics) paladin.statics = statics;
+  if (gaia) paladin.gaia = gaia;
+  if (daemon) paladin.daemon = daemon;
+
+  if (clients) {
+    clients.map((client) => {
+      paladin.clients.push(client);
+    });
+  }
+
+  if (services) {
+    services.map((service) => {
+      service.mount = paladin.join.mountpoint.service(service.slug);
+      paladin.services.push(service);
+    });
+  }
+}
+
+export async function service(paladin) {
+  paladin.service = {};
+  paladin.services.map((service) => (paladin.service[service.slug] = service));
+}
+
+export async function runtimes(paladin) {
+  const modules = (
+    await Promise.all(
+      (await paladin.find.viva(paladin.join.variant.runtimes())) //
+        .map(async (file) => [file, await paladin.read.viva(file)]),
+    )
+  ).filter(([, module]) => is.module(module));
+
+  for (const [file, module] of modules) {
+    const runtime = cast.runtime(module);
+    runtime.mount = paladin.join.mountpoint.runtime(runtime.slug);
+
+    if (runtime.services) {
+      runtime.services = runtime.services
+        .map((service) => (is.string(service) ? { module: service } : service))
+        .map((service) => ({
+          ...service,
+          mount: paladin.join.mountpoint.service(service.slug, runtime.slug),
+          runtime: runtime.slug,
+        }))
+        .map((service) => {
+          // TODO
+          // if service.module then fa()
+          // if service.remote then fb()
+          // if (is.string(service.service)) return paladin.service[service];
+          return service;
+        })
+        .map((service) => {
+          paladin.services.push(service);
+          return service;
+        });
+    }
+
+    paladin.runtimes.push(runtime);
+  }
 }

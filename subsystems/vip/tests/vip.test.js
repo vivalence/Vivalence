@@ -1,11 +1,10 @@
-import config from "@vivalence/config";
-import * as assert from "$std/assert";
+import paladin from "@vivalence/paladin";
+import * as assert from "@std/assert";
 import { Path } from "@vivalence/typology";
-
-import { Vip, Pensieve } from "../prototypes/index.js";
+import { Vip, Pensieve } from "@vivalence/vip";
 
 Deno.test("Vip: mounts", async () => {
-  const vip = new Vip(config);
+  const vip = new Vip(paladin);
   const path = new Path(await Deno.makeTempDir());
 
   await Deno.writeTextFile(
@@ -27,7 +26,7 @@ Deno.test("Vip: mounts", async () => {
 });
 
 Deno.test("Vip: complete lifecycle with multiple modules", async () => {
-  const vip = new Vip(config);
+  const vip = new Vip(paladin);
   const tempDir = await Deno.makeTempDir();
 
   await Deno.writeTextFile(

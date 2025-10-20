@@ -1,3 +1,4 @@
+// wrong.
 import { prototypes } from "@vivalence/typology";
 
 import * as is from "../is/index.js";

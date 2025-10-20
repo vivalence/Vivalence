@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from "$std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 import { Vector } from "@vivalence/vector";
 
 function createTestVector() {
@@ -44,7 +44,7 @@ Deno.test("Vector hash-based branch merging", () => {
   assertEquals(branch2.effects.size, 1);
 });
 
-Deno.test("Vector effect registration with open method", () => {
+Deno.test("@beef Vector effect registration with open method", () => {
   const vector = new Vector();
   const testEffect = async (ctx) => ({ result: "test" });
 

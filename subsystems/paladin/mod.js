@@ -1,36 +1,63 @@
-import * as populate from "./lifecycle/populate.js";
-import * as integrate from "./lifecycle/integrate.js";
-// import * as resolve from "./lifecycle/resolve.js";
+export * from "./prototype.js";
+export * from "./lifecycle/index.js";
 
-import { Config } from "./prototype.js";
+import { Paladin } from "./prototype.js";
+import { populate, resolve, integrate } from "./lifecycle/index.js";
 
-let config;
+export const paladin = await (async () => {
+  const paladin = new Paladin();
 
-async function lifecycle() {
-  if (config) return config;
-  config = new Config();
+  await populate.env(paladin);
+  await populate.environment(paladin);
+  await populate.system(paladin);
+  await populate.vip(paladin);
+  await populate.modeselector(paladin);
+  await populate.statements(paladin);
+  await populate.questions(paladin);
 
-  await populate.env(config);
-  await populate.environment(config);
-  await populate.repository(config);
-  await populate.registry(config);
-  await populate.modeselector(config);
-  await populate.statements(config);
-  await populate.questions(config);
+  return paladin;
+})();
 
-  // await populate.variant(config);
+export default paladin;
 
-  // await populate.env(config);
-  // // // await populate.impose(config);
+export const ikiro = (async () => {
+  await resolve.variant(paladin);
+  await resolve.service(paladin);
+  await resolve.runtimes(paladin);
 
-  // await resolve.runtimes(config);
-  // // await resolve.guarantee(config);
+  await integrate.publish(paladin);
+  await integrate.secure(paladin);
+  // await integrate.mount(paladin);
+  await integrate.validate(paladin);
+})();
 
-  // await integrate.publish(config);
-  // await integrate.validate(config);
-  // await integrate.secure(config);
-}
+// export * from "./prototype.js";
+// export * from "./lifecycle/index.js";
 
-await lifecycle();
+// import { Paladin } from "./prototype.js";
+// import { populate, resolve, integrate } from "./lifecycle/index.js";
 
-export default config;
+// export const paladin = await (async () => {
+//   const paladin = new Paladin();
+
+//   await populate.env(paladin);
+//   await populate.environment(paladin);
+//   await populate.system(paladin);
+//   await populate.vip(paladin);
+//   await populate.modeselector(paladin);
+//   await populate.statements(paladin);
+//   await populate.questions(paladin);
+
+//   await resolve.variant(paladin);
+//   await resolve.service(paladin);
+//   await resolve.runtimes(paladin);
+
+//   await integrate.publish(paladin);
+//   await integrate.secure(paladin);
+//   await integrate.mount(paladin);
+//   await integrate.validate(paladin);
+
+//   return paladin;
+// })();
+
+// export default paladin;

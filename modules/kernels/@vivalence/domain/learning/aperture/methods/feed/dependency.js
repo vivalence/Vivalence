@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 // import {  } from "@vivalence/shared";
 
 import { Blacklist, Scope } from "@vivalence/typology";

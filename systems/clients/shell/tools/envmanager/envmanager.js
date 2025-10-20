@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 
 const parseLine = (line) => {
   if (!line || line.startsWith("#")) {

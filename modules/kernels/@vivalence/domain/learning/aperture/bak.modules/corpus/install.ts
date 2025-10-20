@@ -1,7 +1,7 @@
 import { RouteContext } from "@vivalence/types";
 // import { strings, array } from "@vivalence/shared";
 // import { wrap } from "@mikro-orm/core";
-// import config from "@vivalence/config";
+// import config from "@vivalence/paladin";
 // import { enums, TagEntity } from "@vivalence/schema";
 
 const resourceTypeMap = { units: "unit", tags: "tag", dependencies: "dependency" };

@@ -1,5 +1,4 @@
 import { Aperture } from "@vivalence/vector/aperture";
-import config from "@vivalence/config";
 
 import * as da from "./aperture/index.js";
 import entities from "./entities/index.js";

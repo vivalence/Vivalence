@@ -5,15 +5,14 @@ import sveltePlugin from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
 import { resolveImportMap, resolveModuleSpecifier } from "importmap";
 
-import config from "@vivalence/config";
+import paladin from "@vivalence/paladin";
 
 const SVELTE_VERSION = "svelte"; // @5.39
 
-const repopath = config.repository.mount;
+const repopath = paladin.system.mount;
 const reporoot = repopath.absolute;
 
-const surfacepath = repopath.branch("/systems/surfaces/html");
-console.log("@view-bundler", { repopath, reporoot, surfacepath });
+const surfacepath = paladin.system.mount.branch("/systems/surfaces/html");
 
 const fileurl = new URL(import.meta.url);
 

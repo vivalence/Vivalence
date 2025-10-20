@@ -1,4 +1,4 @@
-import { assertEquals } from "$std/assert";
+import { assertEquals } from "$std@std@std/assert";
 import {
   Text,
   generateTestParagraph,

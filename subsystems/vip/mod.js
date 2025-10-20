@@ -1,1 +1,2 @@
-export * from "./prototypes/index.js";
+export * from "./prototypes/vip.js";
+export * from "./prototypes/pensieve.js";

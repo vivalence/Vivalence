@@ -1,5 +1,5 @@
-import { assertEquals } from "$std/assert";
-import { compose, chain, forward } from "../../carry.js";
+import { assertEquals } from "@std/assert";
+import { compose, chain, forward } from "@vivalence/vector/controller";
 
 Deno.test("compose carry executes in order", async () => {
   const log = [];

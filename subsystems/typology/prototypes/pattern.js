@@ -4,19 +4,18 @@ import { Signature } from "./signature.js";
 
 export class Pattern extends Signature {
   // filter = null;
-  get hash() {
-    //   console.log("@t/Pattern: .string()", this.signature.toString());
+  hasher() {
     return hash.array([
       this.index,
       this.type,
-      this.slug, //.toString() // for fn.
+      this.signature,
       this.trace?.hash,
     ]);
     // i could make the hash reactive for shits and giggles.
   }
 
-  is(sig) {
-    return is.pattern(sig);
+  ought(thing) {
+    return is.pattern(thing);
   }
 
   parse(string) {

@@ -1,6 +1,6 @@
 // new:
 // old (to be folded away into shell tools)
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "@std/path";
@@ -82,7 +82,7 @@ function handleSignal(signal) {
 setupEnvironment();
 startServer().catch(() => process.exit(1));
 
-// import config from "@vivalence/config";
+// import config from "@vivalence/paladin";
 // import { spawn } from "node:child_process";
 // import { fileURLToPath } from "node:url";
 // import { dirname, join } from "@std/path";
@@ -193,7 +193,7 @@ startServer().catch(() => process.exit(1));
 // // // future headache.
 // // import fs from "fs-extra";
 // // import { dirname, join, fromFileUrl } from "$std/path/mod.ts";
-// // import config from "@vivalence/config";
+// // import config from "@vivalence/paladin";
 
 // // const currentModulePath = fromFileUrl(import.meta.url);
 // // const dir = dirname(currentModulePath);

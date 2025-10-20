@@ -1,17 +1,6 @@
-// import { Type, Static } from "@sinclair/typebox"; // i might want to proxy in my own controller.
 export * as is from "./is/index.js";
-export * as from from "./from/index.js";
 export * as cast from "./cast/index.js";
-
-// export const Context = Type.Object(
-//   {},
-//   {
-//     description: "",
-//   },
-// );
-
-// export const Slug = Type.String({
-//   description: "Unique Identifier. URL conform.",
-// });
-
-// // export { Type, Static };
+export * as as from "./as/index.js";
+// export { fromm } from "./as/index.js";
+// old
+export * as from from "./bak.from/index.js";

@@ -11,7 +11,7 @@
     "./subsystems/typology",
     "./subsystems/entities",
     "./subsystems/paladin",
-    "./subsystems/tools",
+    "./subsystems/shared",
     "./subsystems/drapes",
     "./subsystems/vector",
     "./subsystems/vip",

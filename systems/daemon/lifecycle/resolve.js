@@ -1,9 +1,8 @@
 // resolve
-import config from "@vivalence/config";
+import paladin from "@vivalence/paladin";
 import { shards } from "@vivalence/vector";
-import { secure, is } from "@vivalence/shared";
 import { maps } from "@vivalence/entities";
-import { path } from "@vivalence/typology";
+import { is, as } from "@vivalence/typology";
 
 export async function attachments(daemon) {
   for (const rme of daemon.runtimes) {
@@ -16,8 +15,10 @@ export async function attachments(daemon) {
         const { type, slug } = ctx.params;
         const module = ctx.runtime.module[type]?.[slug];
         ctx.response.type = "application/javascript";
-        if (config.is.dev) await module?.view?.bundle();
-        return module?.view?.serve(path.fromParams(ctx.params))?.text;
+        if (paladin.is.dev) await module?.view?.bundle();
+        const path = as.path.params(ctx.params);
+        console.log("@daemon/resolve ATTACHED", { path, params: ctx.params });
+        return module?.view?.serve(path)?.text;
       });
 
     const attachables = [[rme.config.lighthouse, rme.register.lighthouse]];

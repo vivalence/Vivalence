@@ -1,7 +1,7 @@
 import { is } from "@vivalence/shared";
 import { Vector } from "@vivalence/vector";
 import { gestalten } from "@vivalence/typology";
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import registry from "@vivalence/registry";
 
 import * as html from "@vivalence/html";

@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import { secure, is } from "@vivalence/shared";
 import { context, mw as mwa } from "@vivalence/vector/aperture";
 import { compiler, controller } from "@vivalence/vector";

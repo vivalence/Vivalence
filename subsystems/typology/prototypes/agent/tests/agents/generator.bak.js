@@ -1,5 +1,5 @@
-import { assertEquals, assertExists } from "$std/assert";
-import { assertRejects, assertInstanceOf } from "$std/assert";
+import { assertEquals, assertExists } from "$std@std@std/assert";
+import { assertRejects, assertInstanceOf } from "$std@std@std/assert";
 
 import { brain } from "./lib/createBrain.js";
 import { createGenerator } from "./agents/generator.js";

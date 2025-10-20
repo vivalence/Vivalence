@@ -1,4 +1,4 @@
-import config from "@vivalence/config";
+import config from "@vivalence/paladin";
 import { Vector } from "@vivalence/vector";
 
 import { dirname, fromFileUrl } from "@std/path";

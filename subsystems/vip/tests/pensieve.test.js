@@ -1,6 +1,5 @@
-import config from "@vivalence/config";
-import * as assert from "$std/assert";
-import { Pensieve } from "../prototypes/index.js";
+import * as assert from "@std/assert";
+import { Pensieve } from "@vivalence/vip";
 
 Deno.test("Pensieve: registers and looks up modules", async () => {
   const pensieve = new Pensieve();
