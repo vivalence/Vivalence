@@ -42,7 +42,7 @@ export function signal(thing) {
 export function Path(thing) {
   return thing instanceof prototypes.Path;
 }
-export const path = Path;
+export const path = Path; // ! true; but complicated
 
 export function vector(thing) {
   return (

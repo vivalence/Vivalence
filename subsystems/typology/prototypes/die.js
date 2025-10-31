@@ -1,27 +1,29 @@
+import { Status } from "@vivalence/typology";
+
+// runtime die
 export class Die {
   slug = null;
   cake = null;
 
   register = {
-    gaia: null,
-    database: null,
+    lighthouse: null,
+    datamap: null,
     kernel: [],
     modes: [],
     services: [],
   };
 
   variant = {
-    datamap: {},
     kernel: {},
-    traits: {},
-    services: {},
     modes: [],
+    traits: {},
     entities: [],
+    services: {},
   };
 
   good = null;
   connection = null;
-  status = null;
+  status = new Status("<uninitialized>");
 
   constructor(die = {}) {
     Object.assign(this, die);
@@ -36,8 +38,6 @@ export class Die {
 //   // const die = {
 //   //   slug,
 //   //   cake,
-//   //   path: new Path(`/runtime/${slug}`),
-//   //   url: new Url(`/runtime/${slug}`, cake.statics.serve),
 //   //   register: {
 //   //     kernel: {},
 //   //     modes: {},

@@ -1,0 +1,10 @@
+{
+  // "name": "@vivalence/ghost",
+  // "version": "0.0.1",
+  // "exports": { ".": "./mod.js" },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test:gaia": "deno test -A --no-check --watch tests/gaia.test.js",
+    "test:die": "deno test -A --no-check --watch tests/die.test.js",
+  },
+}

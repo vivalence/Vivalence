@@ -1,36 +1,43 @@
-import { is } from "@vivalence/typology";
+import { is, not } from "@vivalence/typology";
 
-class CastError extends Error {} // aaah dementor attack
+export * from "./prototypes.js";
+export * from "./primitives.js";
+export * as prototypes from "./prototypes.js";
+export * as primitives from "./primitives.js";
 
-export const not = {
-  defined: (thing, expected) => {
-    console.trace({ not: "defined", thing, expected });
-    throw new CastError();
-  },
-  object: (thing, expected) => {
-    console.trace({ not: "object", thing, expected });
-    throw new CastError();
-  },
-  module: (thing, expected) => {
-    console.trace({ not: "module", thing, expected });
-    throw new CastError();
-  },
-  viva: (thing, expected) => {
-    console.trace({ not: "viva", thing, expected });
-    throw new CastError();
-  },
-};
+// class CastError extends Error {} // aaah dementor attack
+
+// export const not = {
+//   defined: (thing, expected) => {
+//     // console.trace({ not: "defined", thing, expected });
+//     throw new CastError();
+//   },
+//   object: (thing, expected) => {
+//     // console.trace({ not: "object", thing, expected });
+//     throw new CastError();
+//   },
+//   module: (thing, expected) => {
+//     // console.trace({ not: "module", thing, expected });
+//     throw new CastError();
+//   },
+//   viva: (thing, expected) => {
+//     // console.trace({ not: "viva", thing, expected });
+//     throw new CastError();
+//   },
+// };
+// console.log({ not });
 
 export function viva(thing) {
   let viva;
-  if (!is.object(thing)) not.object(thing, "viva");
+  if (is.fn(thing.default)) thing = thing.default();
+  if (!is.defined(thing)) return not.defined(thing, "viva");
+  if (!is.object(thing)) return not.object(thing, "viva");
+
   if (thing.manifest) viva = thing;
-  else {
-    if (is.fn(thing.default)) viva = thing.default();
-    if (!viva && thing.default) viva = thing.default;
-  }
+
+  if (!viva && thing.default) viva = thing.default;
   if (!viva) not.viva(thing);
-  // is.viva()
+
   return viva;
 }
 
@@ -62,9 +69,7 @@ export function lookup(thing) {
   if (thing.module) return lookup(thing.module);
   if (thing.manifest) return lookup(thing.manifest);
 
-  throw new CastError(`Invalid lookup query format: ${JSON.stringify(thing)}`);
-}
-
-export function array(thing) {
-  return is.array(thing) ? thing : [thing];
+  throw new Error(
+    `[CAST ERROR] Invalid lookup query format: ${JSON.stringify(thing)}`,
+  );
 }

@@ -5,7 +5,7 @@ import { is } from "@vivalence/typology";
 export class Signal extends Signature {
   // is = is.signal; // js...
   hasher() {
-    return hash.array([this.index, this.signature]);
+    return hash.array([this.index, this.nature]);
   }
   // is(s) {return is.signal(s);}
   ought(thing) {

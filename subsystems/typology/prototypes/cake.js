@@ -9,13 +9,13 @@ export class Cake {
   // serve = null;
   constructor(cake = {}) {
     if (cake.manifest?.type === "runtime") {
-      this.gaia = null;
-      this.database = null;
+      this.lighthouse = null;
+      this.datamap = null;
       this.kernel = [];
       this.modes = [];
       this.services = [];
     } else if (cake.manifest?.type === "service") {
-      this.runtime = null; // string:slug - runtime pointer.
+      this.client = null; // string:slug - runtime pointer.
       this.service = null; // string:slug - remote pointer. convenience.
       this.remote = null; // cake - identifies client -> bake provider.
     }
@@ -28,5 +28,5 @@ export class Cake {
 }
 
 // Common properties manifest = {}; mount = null; source = null; path = null; url = null;
-// Runtime-specific properties gaia = null; datamap = null; kernel = []; modes = []; services = []; statics = {}; docs = {};
+// Runtime-specific properties lighthouse = null; datamap = null; kernel = []; modes = []; services = []; statics = {}; docs = {};
 // Service-specific properties runtime = null; remote = null; secret = {}; module = null;

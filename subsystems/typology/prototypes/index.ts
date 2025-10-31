@@ -16,7 +16,7 @@ export * from "./feature.js";
 export * from "./mode.js";
 export * from "./cake.js";
 export * from "./die.js";
-export * from "./runtime.js";
+// export * from "./daemon.js";
 
 // classes implement the shapes defined in schema
 // classes import functional components from shared

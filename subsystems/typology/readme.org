@@ -14,6 +14,7 @@ primitives are leaf types like strings numbers asf, reusable composites, and any
 prototypes are instances. things that do. contrary to both primitives and gestalt.
 types cast ./*
 
+js is a higher order functional language, and deserves higher order functional primitives. integrated into jss object notation standard.
 
 gestalt provides libraries for working on gestalt level. `cast` and `is` are conceptually mature.
 
@@ -28,5 +29,5 @@ typology articulates the systems archetypes through primitives, gestalten, and p
 ontology annotates symbol and literal, composing primitives into json.
 domain defines entities in mikro aka json.
 
-
 in honor of my mother and my fathers.
+

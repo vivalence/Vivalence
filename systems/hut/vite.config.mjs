@@ -1,0 +1,61 @@
+import { defineConfig } from "vite";
+import { sveltekit } from "@sveltejs/kit/vite";
+import { dirname, join } from "@std/path";
+import { fileURLToPath } from "node:url";
+import config from "@vivalence/paladin";
+import { Path, BaseError } from "@vivalence/typology";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const __repo = join(__dirname, "../../../");
+const __ss = join(__repo, "./subsystems");
+
+// TODO:
+// i need access to $viva_config_dir/assets
+// present as @client/assets
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      "$client/viva": join(__dirname, "./src/app.js"),
+
+      "$client/typology": join(__dirname, "./src/typology/index.js"),
+      "$client/surface/views": join(__dirname, "./src/surface/views/index.js"),
+      "$client/surface": join(__dirname, "./src/surface/index.js"),
+      // "$client/generator": join(__dirname, "./src/generator/index.js"),
+      // "$client/typology/": join(__dirname, "./src/typology/"),
+
+      "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
+      "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
+      "@vivalence/vector": join(__ss, "./vector/mod.js"),
+      "@vivalence/surface": join(
+        __repo,
+        "./systems/surfaces/html/mod.js",
+      ),
+
+      // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
+      "@static/icons/": join(__dirname, "./static/icons/"),
+      // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"),
+    },
+    extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
+  },
+  plugins: [sveltekit()],
+  server: {
+    strictPort: true,
+    host: process.env["VIVA_CLIENTS_HTML_HOST"], // || throw new BaseError("", "ENV_MISSING"),
+    port: parseInt(process.env["VIVA_CLIENTS_HTML_PORT"]), // || 5173,
+    fs: { allow: ["../../.."] },
+    watch: {
+      usePolling: true,
+
+      ignored: ["**/node_modules/**", "**/#*"],
+      include: [
+        "./src/**/*",
+        // # TODO VIVA_REGISTER_DIR
+        "../../../register/**/*.{html,svelte.js,svelte,css}",
+        "../../../subsystems/shared/**/*",
+        // "../../../subsystems/typology/**/*",
+        // "../../../subsystems/vector/**/*",
+      ],
+    },
+  },
+});

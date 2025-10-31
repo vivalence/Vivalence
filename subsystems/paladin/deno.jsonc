@@ -2,16 +2,14 @@
   "name": "@vivalence/paladin",
   "exports": {
     ".": "./mod.js",
-    "./prototype": "./prototype.js",
-    "./lifecycle": "./lifecycle/index.js",
+    "./typology": "./typology.js",
   },
   "version": "0.0.1",
-
   "tasks": {
     "test": "deno test -A --watch tests/**/*.test.js",
     "test:tools": "deno test -A --no-check --watch tests/tools.test.js",
-    "test:find": "deno test -A --no-check --watch tests/find.test.js",
-    // "test:bake": "deno test -A --no-check --watch tests/bake.test.js",
     "test:paladin": "deno test -A --no-check --watch tests/paladin.test.js",
+    "test:vip": "deno test -A --no-check --watch tests/vip.test.js",
+    "test:pensieve": "deno test -A --no-check --watch tests/pensieve.test.js",
   },
 }

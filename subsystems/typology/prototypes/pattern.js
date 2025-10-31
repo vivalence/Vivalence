@@ -5,12 +5,7 @@ import { Signature } from "./signature.js";
 export class Pattern extends Signature {
   // filter = null;
   hasher() {
-    return hash.array([
-      this.index,
-      this.type,
-      this.signature,
-      this.trace?.hash,
-    ]);
+    return hash.array([this.index, this.type, this.nature, this.trace?.hash]);
     // i could make the hash reactive for shits and giggles.
   }
 
@@ -46,18 +41,17 @@ const patternmap = [
     "parameter",
     (signature) => signature.startsWith(":"),
     (signal, pattern) => {
-      const parameter = pattern.signature.slice(1);
+      const parameter = pattern.nature.slice(1);
       return {
         ...signal,
         parameter,
-        parameters: { [parameter]: signal.signature },
+        parameters: { [parameter]: signal.nature },
       };
     },
   ],
   [
     "literal",
     (signature) => true,
-    (signal, pattern) =>
-      signal.signature === pattern.signature ? signal : null,
+    (signal, pattern) => (signal.nature === pattern.nature ? signal : null),
   ],
 ];

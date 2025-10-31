@@ -1,9 +1,10 @@
+import { is } from "@vivalence/typology";
 import { atom } from "nanostores";
 
 export const Status = (initial = { code: "IDLE" }) => {
+  if (is.string(initial)) initial = { code: initial };
   const $status = atom({
     code: initial.code,
-    label: initial.label,
     timestamp: initial.timestamp || new Date().toISOString(),
     error: initial.error,
   });

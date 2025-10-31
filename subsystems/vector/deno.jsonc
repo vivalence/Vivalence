@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
+    "./typology": "./typology.js",
     "./controller": "./controller/index.js",
     "./compiler": "./compiler/index.js",
     "./shards": "./shards/index.js",

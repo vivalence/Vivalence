@@ -7,6 +7,7 @@ export class Feature extends Signature {
     super();
     this.token = data.token || {};
     this.annotation = data.annotation || {};
+    // this.nature = {token,annotation}; //token, annotation as getters?
     this.signal = data.signal || null;
   }
 

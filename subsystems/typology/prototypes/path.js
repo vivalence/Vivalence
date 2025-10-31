@@ -13,7 +13,7 @@ export class Path extends Signature {
     super(signature, trace);
   }
   get segment() {
-    return this.signature;
+    return this.nature;
   }
 
   ought(thing) {
@@ -22,12 +22,13 @@ export class Path extends Signature {
 
   hasher() {
     return hash.array([
-      this.signature,
+      this.nature,
       // this.trace?.hash,
     ]);
   }
+  // on the signature, `is` is an assertion.
   parse(thing) {
-    this.signature = `/${thing
+    this.nature = `/${thing
       .split("/")
       .filter((s) => !!s)
       .join("/")}`;
@@ -35,6 +36,10 @@ export class Path extends Signature {
   get absolute() {
     return this.array.join("");
   }
+  // [Symbol.toPrimitive](hint) {
+  //   if (hint === "string") return this.array.join("");
+  //   throw new Error("@typology/path: unhandled toPrimitive hint:", hint);
+  // }
 }
 
 // // // move to shared

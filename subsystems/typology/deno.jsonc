@@ -4,10 +4,8 @@
   "exports": {
     ".": "./mod.ts",
     "./types": "./types.d.ts",
-    "./gestalten": "./gestalten/index.ts",
-    "./prototypes": "./prototypes/index.ts",
-    "./is": "./gestalten/is/index.js",
-    "./from": "./gestalten/from/index.js",
+    "./entities": "./entities/index.ts",
+    "./specimen": "./specimen/index.js",
   },
   "tasks": {
     "test": "deno test -A --no-check --watch tests/**/*.test.js",

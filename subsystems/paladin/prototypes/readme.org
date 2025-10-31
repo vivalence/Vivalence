@@ -1,0 +1,2 @@
+* very important package - registry
+only a heretic would have dared module

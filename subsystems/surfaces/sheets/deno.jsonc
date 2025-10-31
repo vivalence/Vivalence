@@ -1,0 +1,8 @@
+{
+  "name": "@vivalence/sheets",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    // "./shell": "./mod.js",
+  },
+}

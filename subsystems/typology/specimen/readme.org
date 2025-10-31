@@ -1,0 +1,74 @@
+:PROPERTIES:
+:GPTEL_MODEL: claude-sonnet-4-20250514
+:GPTEL_BACKEND: anthropic-thinking
+:GPTEL_SYSTEM: You are a large language model living in Emacs and a helpful assistant. Respond concisely.
+:END:
+
+* specimen
+instructions, patterns and tools for testing the gestalten and valences of types, tools, and systems throughout viva.
+* example application 
+#+BEGIN_SRC javascript
+  import specimen from "@vivalence/specimen";
+  //  specimen contains { expect,it,describe,} 
+  import { is } from "@vivalence/typology";
+  // depend
+
+  import { Daemon, Path, Cake, Die } from "@vivalence/typology";
+  import paladin from "@vivalence/paladin";
+
+  let die;
+
+  specimen.describe("Die", () => {
+    specimen.describe("construction", () => {
+      specimen.it("cycles", async () => {
+        await paladin.ikiro;
+        await daemon.ikiro;
+
+        const cake = paladin.daemons[0];
+        die = new Die({ cake, good: new Daemon(cake) });
+      });
+    });
+    specimen.describe("population", () => {
+      specimen.it("cycles", async () => {
+        await lifecycle.populate.core(die);
+  	// ... 
+      });
+
+    describe("gestalt", () => {
+      it("[has properties of propper shape, form, type, xxx]", () => {
+        // expect(is.string(paladin.variant));
+      });
+    });
+
+  	specimen.describe("valences", () => {
+  	    specimen.describe("[valence]", () => {
+  		// nesting patterns depend on case. no one size fits all. specimen is some patterns and a full toolbox, not a dictum.
+  		specimen.it("[does a thing]", async () => {
+  		// test that thing
+  		});
+  	    });
+  	});
+
+    });
+
+    specimen.describe("resolution", () => {
+      specimen.it("cycles", async () => {
+        await lifecycle.resolve.modes(die);
+  	// ... 
+      });
+    });
+
+    specimen.describe("integration", () => {
+      specimen.it("cycles", async () => {
+        // await lifecycle.integrate.aperture.datamap(die);
+      });
+    });
+
+    specimen.it("disintegrates", async () => {
+      await die.good.kernel.orm.close();
+    });
+  });
+
+#+end_src
+
+

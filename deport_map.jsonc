@@ -1,0 +1,11 @@
+{
+  "preports": {
+    "@cross/kv": "jsr:@cross/kv@0.17.1",
+    "@cross/test": "jsr:@cross/test",
+    "@hexagon/croner": "jsr:@hexagon/croner@~9.0.0",
+  },
+  "deports": {
+    "$std/": "https://deno.land/std@0.224.0/",
+    "@stdlib/utils": "https://cdn.jsdelivr.net/gh/stdlib-js/utils@deno/mod.js",
+  },
+}

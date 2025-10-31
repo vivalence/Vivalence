@@ -9,7 +9,8 @@ export default function state(config) {
       await fs.ensureDir(resolved);
       return null;
     } catch (error) {
-      throw new Error(`Cannot create path: ${resolved}`);
+      console.error(error);
+      throw error;
     }
   };
 

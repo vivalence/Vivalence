@@ -33,6 +33,10 @@ vendor installs are not considered commercial use. they fall under for-self.
 the intent of the license is among other to drown the open source ecosystem in money as a function of its adoption (delta') and usage (absolute).
 
 * todo
+
+** deploy a rogue to catch a rogue.
+catch someone using viva in license violation, receive half of the earnings from that license for the first 6 years. (hack this as a booster!)
+
 ** institutional use implements a definition of an application of "computational use" which has a substructure for training use.
 when using this system to train an llm, gpt, diffusor or or or.
 cost per flop.

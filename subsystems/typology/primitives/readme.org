@@ -1,0 +1,37 @@
+# json schema standard root.
+# everything is defined here. the entire system.
+# string path signature signal hash url
+# cakes params shards  ...
+# everything.
+# 
+# using typebox, aiming for a self-coherent schema.
+
+# dataset/
+# ├── entities.json
+# ├── index.js
+# └── schema.json
+# import schema from "./schema.json" with { type: "json" };
+# import entities from "./entities.json" with { type: "json" };
+# export default {schema, entities,};
+# {
+#   "valence": [
+#     {
+#       "slug": "populate",
+#       "docs": "populate the runtime with entities",
+#       "traits": ["DESTINATION"],
+#       "data": {
+#         "DESTINATION": { "generator": "/feed" }
+#       }
+#     }
+#   ]
+# }
+# {
+#   "$schema": "https://typology.vivalence.org/viva/dataset",
+#   "type": "object",
+#   "properties": {
+#     "valence": {
+#       "type": "object",
+#       "$ref": "#/definitions/valence"
+#     }
+#   }
+# }

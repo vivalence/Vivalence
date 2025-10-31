@@ -1,5 +1,5 @@
 import { is, cast, Path } from "@vivalence/typology";
-import { parse } from "@std/jsonc";
+import * as jsonc from "@std/jsonc";
 
 export default function read(config) {
   const resolve = (path) => path?.absolute || path;
@@ -13,17 +13,16 @@ export default function read(config) {
     json: async (path) => {
       const resolved = resolve(path);
       const content = await Deno.readTextFile(resolved);
-      return parse(content);
+      return jsonc.parse(content);
     },
 
     module: async (path) => {
-      return await import(resolve(path));
+      const module = await import(resolve(path));
+      return module;
     },
     viva: async (path) => {
       const module = await import(resolve(path));
-      // console.log(path, module);
       const viva = cast.viva(module);
-      // console.log(path, viva);
       return viva;
       // let module = await import(resolve(path)); return module;
       //   // check.module(module)?.throw()

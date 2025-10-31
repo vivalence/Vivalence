@@ -6,26 +6,27 @@ export default function joins(config) {
   };
 
   const tilde = createBrancher("VIVA_TILDE_MOUNT");
-  const vip = createBrancher("VIVA_VIP_MOUNT");
+  const registry = createBrancher("VIVA_REGISTRY_MOUNT");
   const system = createBrancher("VIVA_SYSTEM_MOUNT");
+  // const mount = createBrancher("VIVA_TILDE_MOUNT");
 
   config.join = {
     tilde: (f) => tilde(f),
-    vip: (f) => vip(f),
+    registry: (f) => registry(f),
     system: (f) => system(f),
-    variant: {
-      env: () => tilde("variant/environment"),
-      runtimes: () => tilde("variant/runtimes"),
-    },
+
+    variant: () => tilde("variant"),
+    environment: () => tilde("environment"),
+    // files: () => tilde("files"), assets: () => tilde("assets"),
     mountpoint: {
-      runtime: (runtime, service) =>
+      daemon: (daemon, service) =>
         service
-          ? tilde(`mountpoint/runtime_${runtime}_service_${service}`)
-          : tilde(`mountpoint/runtime_${runtime}`), // @beef ought not exist really.
-      service: (service, runtime) =>
-        runtime
-          ? tilde(`mountpoint/runtime_${runtime}_service_${service}`)
-          : tilde(`mountpoint/service_${service}`),
+          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
+          : tilde(`mountpoint/runtime_${daemon}`), // @beef ought not exist really.
+      service: (service, daemon) =>
+        daemon
+          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
+          : tilde(`mountpoint/process_${service}`),
     },
   };
 }
@@ -56,20 +57,20 @@ export default function joins(config) {
 
 //     variant: {
 //       env: nest(tilderoot, "/variant/environment"),
-//       runtimes: nest(tilderoot, "/variant/runtimes"),
+//       daemons: nest(tilderoot, "/variant/daemons"),
 //       // services: nest(tilderoot, "/variant/services"),
 //     },
 
 //     data: {
-//       runtime: (runtime, service = null) => {
+//       daemon: (daemon, service = null) => {
 //         const path = service
-//           ? `data/runtime_${runtime}_service_${service}`
-//           : `data/runtime_${runtime}`;
+//           ? `data/daemon_${daemon}_service_${service}`
+//           : `data/daemon_${daemon}`;
 //         return tilderoot(path);
 //       },
-//       service: (service, runtime = null) => {
-//         const path = runtime
-//           ? `data/runtime_${runtime}_service_${service}`
+//       service: (service, daemon = null) => {
+//         const path = daemon
+//           ? `data/daemon_${daemon}_service_${service}`
 //           : `data/service_${service}`;
 //         return tilderoot(path);
 //       },
