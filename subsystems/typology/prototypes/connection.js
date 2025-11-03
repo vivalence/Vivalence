@@ -15,7 +15,7 @@ const track = (connection) => async (ctx, next) => {
 export class Connection {
   constructor(url) {
     this.url = url;
-    this.$status = Status();
+    this.status = new Status(null, this);
     this.$state = atom("UNRESOLVED");
     this.$error = atom(null);
     this.carry = [track(this)];

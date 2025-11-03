@@ -34,12 +34,15 @@ export class Path extends Signature {
       .join("/")}`;
   }
   get absolute() {
-    return this.array.join("");
+    return this.array.map((s) => s.nature).join("");
   }
-  // [Symbol.toPrimitive](hint) {
-  //   if (hint === "string") return this.array.join("");
-  //   throw new Error("@typology/path: unhandled toPrimitive hint:", hint);
-  // }
+  toJSON() {
+    return { nature: this.nature, absolute: this.absolute };
+  }
+  [Symbol.toPrimitive](hint) {
+    if (hint === "string") return this.absolute;
+    throw new Error("@typology/path: unhandled toPrimitive hint:", hint);
+  }
 }
 
 // // // move to shared

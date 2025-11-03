@@ -1,4 +1,4 @@
-import { oakCors } from "https://deno.land/x/cors/mod.ts";
+import { oakCors } from "cors";
 
 const allowedOrigins = [
   "localhost(:[0-9]+)?",

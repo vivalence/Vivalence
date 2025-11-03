@@ -1,5 +1,5 @@
-import { Router, Middleware } from "oak";
-import { compose } from "oak/middleware";
+import { Router, Middleware } from "@oak/oak";
+import { compose } from "@oak/oak/middleware";
 import { Path } from "./path.ts";
 import { Handler, ApertureContext } from "./types.ts";
 import parser from "./parser.js";
@@ -44,6 +44,7 @@ export default class Aperture {
     const routePath = new Path(path, this.path);
 
     this.router.all(routePath.toString(), async (ctx: ApertureContext) => {
+      console.log("open", handler.length);
       ctx.response.body = await handler(await parser(ctx), ctx);
     });
 

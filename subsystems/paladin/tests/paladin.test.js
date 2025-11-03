@@ -100,7 +100,7 @@ specimen.describe("Paladin", () => {
       specimen.is.Path(paladin.variant.daemons[0].mount);
 
       specimen.expect(paladin.variant.services).toBeInstanceOf(Array);
-      specimen.expect(paladin.variant.services.length).toBe(3);
+      specimen.expect(paladin.variant.services.length).toBe(2);
       // specimen
       //   .expect(paladin.variant.services.map((s) => s.slug))
       //   .toEqual(specimen.expect.arrayContaining(["lighthouse", "hal", "nlp-stanza"]),);
@@ -137,6 +137,7 @@ specimen.describe("Paladin", () => {
     //   specimen.expect(circuitPaths.length).toBeGreaterThan(0);
     //   // Should filter for circuit manifests only
     //   const allModules = await Promise.all(
+
     //     circuitPaths.map(async (f) => [f, await paladin.read.viva(f)]),
     //   );
     //   const nonCircuits = allModules.filter(

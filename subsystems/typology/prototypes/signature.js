@@ -13,7 +13,7 @@ export class Signature {
   get signature() {
     return this.nature;
   }
-  // get symbol() {return new Symbol(this.nature)}
+
   constructor(nature = null, trace = null) {
     // this.nature = signature // future
     if (!this.gauges) this.gauges = []; // ?
@@ -97,17 +97,9 @@ export class Signature {
 
   *heritage() {
     let position = this;
-    while (position.trace) {
-      yield position.trace;
-      position = position.trace;
-    }
-  }
-  *[Symbol.iterator]() {
-    console.log("maybe not use directly as iterator");
-    let position = this;
     while (position) {
       yield position;
-      position = position.heir;
+      position = position.trace;
     }
   }
 
@@ -152,9 +144,12 @@ export class Signature {
   }
 
   get array() {
-    // absolute
+    const array = [];
+    for (const trace of this.heritage()) array.unshift(trace);
+    for (const trace of this.finn()) array.push(trace);
+    return array;
     // get absolute() return new this.constructor([...array.reverse(this.heritage()), this, ...this.fin()]);
-    return [...array.reverse(this.heritage()), this, ...this.finn()];
+    // return [...array.reverse(this.heritage()), this, ...this.finn()];
   }
 
   get absolute() {
@@ -165,28 +160,20 @@ export class Signature {
     // return this.trace.array.indexOf(this)+1
   }
 
-  // *absolute() { ?
-  //   return  new constructor() ? [...array.reverse(this.heritage()), this, ...this.fin()]
-  // }
-
   //  rebuild.
   is(thing) {
     if (!this.ought) throw new Error("you can not derive an ought from an is.");
     return this.ought(thing);
   }
 
-  // /SUNSET
-  // leaf(leaf) {console.trace("[SIGNATURE] legacy leaf call"); return this.stick(leaf);} get ancestor() {console.trace("[SIGNATURE] legacy ancestor call"); return this.trace;}
-
-  // *absolute() {
-  //   for (const step of [...this.heritage(), this, ...this.fin()]) {
-  //     yield step;
-  //   }
-  // }
-
   [Symbol.toPrimitive](hint) {
+    // this was a bad idea.
     if (hint === "string") return `${this.nature}`;
     throw new Error("@typology/signature: unhandled toPrimitive hint:", hint);
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    return `${this.constructor.name}:${this.nature}`;
   }
 
   // /REWORK
@@ -201,6 +188,7 @@ export class Signature {
     return depth;
   }
 
+  // /REWORK
   get index() {
     // recast for flat.
     let depth = 0;
@@ -211,11 +199,23 @@ export class Signature {
     }
     return depth;
   }
-  // /SUS
+  // /SUNSET
+  // leaf(leaf) {console.trace("[SIGNATURE] legacy leaf call"); return this.stick(leaf);} get ancestor() {console.trace("[SIGNATURE] legacy ancestor call"); return this.trace;}
 
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    return `${this.constructor.name}:${this.absolute}`;
-  }
+  // *absolute() {
+  //   for (const step of [...this.heritage(), this, ...this.fin()]) {
+  //     yield step;
+  //   }
+  // }
+  // *[Symbol.iterator]() {
+  //   // SUS
+  //   console.log("maybe not use directly as iterator");
+  //   let position = this;
+  //   while (position) {
+  //     yield position;
+  //     position = position.heir;
+  //   }
+  // }
 }
 
 // ideas

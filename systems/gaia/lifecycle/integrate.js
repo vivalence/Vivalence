@@ -1,3 +1,35 @@
+import paladin from "@vivalence/paladin";
+import { context, mw } from "@vivalence/vector/aperture";
+
+export async function serve(gaia) {
+  gaia.server.use(mw.cors);
+  gaia.server.use(mw.notFound);
+  const composed = gaia.aperture.compose(true);
+  gaia.server.use(composed);
+  // gaia.logger.info("integrate", "Server integrated with aperture and middleware");
+}
+
+export async function launch(gaia) {
+  await paladin.ikiro;
+  const url = paladin.variant.gaia.statics.serve;
+
+  gaia.server.addEventListener("listen", ({ hostname, port, serverType }) => {
+    console.log(`${"listening on :"}${`${port}`}`);
+    console.log({ hostname, port, serverType });
+  });
+
+  gaia.listen = gaia.server.listen({
+    port: url.port,
+    hostname: url.hostname,
+    signal: gaia.abort.signal,
+  }); // port hostname
+
+  gaia.status.set({ code: "RUNNING", label: url.toString() });
+
+  // gaia.logger.info("integrate", =Gaia server launched on port ${port}=);
+
+  return gaia;
+}
 // import config from "@vivalence/paladin";
 // import { secure, is } from "@vivalence/shared";
 // import { context, mw as mwa } from "@vivalence/vector/aperture";
@@ -31,10 +63,6 @@
 //   app.use(mwa.notFound);
 //   app.use(mwa.cors);
 //   app.use(daemon.aperture.compose(true));
-
-//   app.addEventListener("listen", ({ hostname, port, serverType }) => {
-//     console.log(`${"listening on :"}${`${port}`}`);
-//   });
 
 //   daemon.server = app.listen({
 //     hostname: paladin.gaia.static.serve, // daemon.config.serve.host,

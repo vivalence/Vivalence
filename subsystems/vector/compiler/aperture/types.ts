@@ -1,4 +1,4 @@
-import { Context as OakContext, Middleware } from "oak";
+import { Context as OakContext, Middleware } from "@oak/oak";
 import Path from "./path.ts";
 
 export interface ApertureContext extends OakContext {
