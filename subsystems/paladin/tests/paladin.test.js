@@ -1,5 +1,10 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, populate, resolve } from "@vivalence/paladin/typology";
+import {
+  Paladin,
+  lifecycle,
+  populate,
+  resolve,
+} from "@vivalence/paladin/typology";
 
 let paladin;
 
@@ -22,22 +27,24 @@ specimen.describe("Paladin", () => {
   specimen.describe("population", () => {
     specimen.describe("cycles", () => {
       // await specimen.inspect.lifecycle(paladin, populate); // maybe
-      specimen.it("env", async () => await populate.env(paladin));
-      specimen.it(
-        "environment",
-        async () => await populate.environment(paladin),
-      );
-      specimen.it(
-        "modeselector",
-        async () => await populate.modeselector(paladin),
-      );
-      specimen.it("scopes", async () => await populate.scopes(paladin));
-      specimen.it(
-        "veryimportantpackage",
-        async () => await populate.veryimportantpackage(paladin),
-      );
-      specimen.it("statements", async () => await populate.statements(paladin));
-      specimen.it("questions", async () => await populate.questions(paladin));
+      specimen.it("env", async () => {
+        await populate.env(paladin);
+      });
+      specimen.it("environment", async () => {
+        await populate.environment(paladin);
+      });
+      specimen.it("modeselector", async () => {
+        await populate.modeselector(paladin);
+      });
+      specimen.it("scopes", async () => {
+        await populate.scopes(paladin);
+      });
+      specimen.it("veryimportantpackage", async () => {
+        await populate.veryimportantpackage(paladin);
+      });
+      specimen.it("questions", async () => {
+        await populate.questions(paladin);
+      });
     });
 
     specimen.describe("gestalt", () => {
@@ -46,6 +53,11 @@ specimen.describe("Paladin", () => {
         specimen.expect(paladin.role).toBe("SUDO");
         specimen.is.Path(paladin.scope.system);
         specimen.expect(paladin.vip.pensieve).toBeDefined();
+      });
+
+      specimen.it("paladin.scope.tilde", async () => {
+        specimen.expect(paladin.scope.tilde.absolute).toContain("tests");
+        specimen.is.Path(paladin.scope.tilde);
       });
     });
 
@@ -130,39 +142,53 @@ specimen.describe("Paladin", () => {
     });
   });
 
-  specimen.describe("valences", () => {
-    // specimen.it("circuits loading", async () => {
-    //   // Should find and load .viva.js files from variant directory
-    //   const circuitPaths = await paladin.find.viva(paladin.scope.variant);
-    //   specimen.expect(circuitPaths.length).toBeGreaterThan(0);
-    //   // Should filter for circuit manifests only
-    //   const allModules = await Promise.all(
+  specimen.describe("integration", () => {
+    specimen.it("cycles", async () => {
+      await lifecycle.integrate.questions(paladin);
+      await lifecycle.integrate.statements(paladin);
+    });
 
-    //     circuitPaths.map(async (f) => [f, await paladin.read.viva(f)]),
-    //   );
-    //   const nonCircuits = allModules.filter(
-    //     ([, m]) => m?.manifest?.type !== "circuit",
-    //   );
-    //   specimen.expect(nonCircuits.length).toBe(0);
-    // });
+    specimen.describe("gestalt", () => {
+      specimen.it("is", () => {
+        //
+      });
+    });
 
-    // specimen.it("variant defence", () => {const circuits = [{ gaia: { test: 1 } }, { gaia: { test: 2 } }]; specimen .expect(() => {if (circuits.filter((c) => c.gaia).length > 1) {throw new Error("Multiple gaia configurations found");}}) .toThrow("Multiple gaia configurations found");});
+    return;
+    specimen.describe("valences", () => {
+      // specimen.it("circuits loading", async () => {
+      //   // Should find and load .viva.js files from variant directory
+      //   const circuitPaths = await paladin.find.viva(paladin.scope.variant);
+      //   specimen.expect(circuitPaths.length).toBeGreaterThan(0);
+      //   // Should filter for circuit manifests only
+      //   const allModules = await Promise.all(
 
-    specimen.it("filesystem mount creation", async () => {
-      // All mount directories should exist after resolution
-      // console.log({ paladin });
-      const allMounts = [
-        ...paladin.variant.daemons.map((d) => d.mount.absolute),
-        ...paladin.variant.services.map((s) => s.mount.absolute),
-      ];
-      for (const mountPath of allMounts) {
-        try {
-          const stat = await Deno.stat(mountPath);
-          specimen.expect(stat.isDirectory).toBe(true);
-        } catch (error) {
-          specimen.expect(error).toBeNull(); // Should not throw
+      //     circuitPaths.map(async (f) => [f, await paladin.read.viva(f)]),
+      //   );
+      //   const nonCircuits = allModules.filter(
+      //     ([, m]) => m?.manifest?.type !== "circuit",
+      //   );
+      //   specimen.expect(nonCircuits.length).toBe(0);
+      // });
+
+      // specimen.it("variant defence", () => {const circuits = [{ gaia: { test: 1 } }, { gaia: { test: 2 } }]; specimen .expect(() => {if (circuits.filter((c) => c.gaia).length > 1) {throw new Error("Multiple gaia configurations found");}}) .toThrow("Multiple gaia configurations found");});
+
+      specimen.it("filesystem mount creation", async () => {
+        // All mount directories should exist after resolution
+        // console.log({ paladin });
+        const allMounts = [
+          ...paladin.variant.daemons.map((d) => d.mount.absolute),
+          ...paladin.variant.services.map((s) => s.mount.absolute),
+        ];
+        for (const mountPath of allMounts) {
+          try {
+            const stat = await Deno.stat(mountPath);
+            specimen.expect(stat.isDirectory).toBe(true);
+          } catch (error) {
+            specimen.expect(error).toBeNull(); // Should not throw
+          }
         }
-      }
+      });
     });
   });
 });

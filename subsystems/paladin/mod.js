@@ -9,7 +9,6 @@ const paladin = await (async function incarne() {
   await populate.modeselector(paladin);
   await populate.scopes(paladin);
   await populate.veryimportantpackage(paladin);
-  await populate.statements(paladin);
   await populate.questions(paladin);
 
   return paladin;
@@ -23,6 +22,8 @@ paladin.ikiro = (async function ikiro() {
   // await integrate.publish(paladin);
   // await integrate.secure(paladin);
   // await integrate.validate(paladin);
+  await integrate.statements(paladin);
+  await integrate.questions(paladin);
 })();
 
 export default paladin;

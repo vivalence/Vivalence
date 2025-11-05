@@ -13,7 +13,6 @@ export class Paladin {
   variant = {
     circuits: [], // finished cakes; compiled from circuits
     gaia: {},
-    lighthouse: {},
     clients: {},
     daemons: [],
     services: [],

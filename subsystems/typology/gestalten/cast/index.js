@@ -1,31 +1,10 @@
-import { is, not } from "@vivalence/typology";
-
 export * from "./prototypes.js";
 export * from "./primitives.js";
 export * as prototypes from "./prototypes.js";
 export * as primitives from "./primitives.js";
 
-// class CastError extends Error {} // aaah dementor attack
-
-// export const not = {
-//   defined: (thing, expected) => {
-//     // console.trace({ not: "defined", thing, expected });
-//     throw new CastError();
-//   },
-//   object: (thing, expected) => {
-//     // console.trace({ not: "object", thing, expected });
-//     throw new CastError();
-//   },
-//   module: (thing, expected) => {
-//     // console.trace({ not: "module", thing, expected });
-//     throw new CastError();
-//   },
-//   viva: (thing, expected) => {
-//     // console.trace({ not: "viva", thing, expected });
-//     throw new CastError();
-//   },
-// };
-// console.log({ not });
+// Assertive conversion - throws on failure
+import { is, not, prototypes } from "@vivalence/typology";
 
 export function viva(thing) {
   let viva;
@@ -39,6 +18,10 @@ export function viva(thing) {
   if (!viva) not.viva(thing);
 
   return viva;
+}
+export function url(thing) {
+  console.log("should be url:", thing);
+  return new prototypes.Url(thing);
 }
 
 export function runtime(thing) {
@@ -73,3 +56,25 @@ export function lookup(thing) {
     `[CAST ERROR] Invalid lookup query format: ${JSON.stringify(thing)}`,
   );
 }
+
+// class CastError extends Error {} // aaah dementor attack
+
+// export const not = {
+//   defined: (thing, expected) => {
+//     // console.trace({ not: "defined", thing, expected });
+//     throw new CastError();
+//   },
+//   object: (thing, expected) => {
+//     // console.trace({ not: "object", thing, expected });
+//     throw new CastError();
+//   },
+//   module: (thing, expected) => {
+//     // console.trace({ not: "module", thing, expected });
+//     throw new CastError();
+//   },
+//   viva: (thing, expected) => {
+//     // console.trace({ not: "viva", thing, expected });
+//     throw new CastError();
+//   },
+// };
+// console.log({ not });

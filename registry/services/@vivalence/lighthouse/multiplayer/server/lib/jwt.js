@@ -48,9 +48,9 @@ const rft = {
 };
 
 export default async function (service) {
-  secret = new TextEncoder().encode(service.secret.jwt);
+  secret = new TextEncoder().encode(service.secrets.jwt);
 
-  const tokenfile = service.data + "/tokens.json";
+  const tokenfile = service.mount.absolute + "/tokens.json";
   db = await JSONFilePreset(tokenfile, { refresh: {} });
   await db.read();
 

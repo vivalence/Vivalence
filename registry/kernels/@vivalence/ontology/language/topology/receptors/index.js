@@ -2,16 +2,18 @@ import { Vector } from "@vivalence/vector";
 import { Signal, Feature } from "@vivalence/typology";
 
 class Text extends Signal {
-  constructor(value) {
-    super("text", value);
-  }
+  type = "text";
+  // constructor(value) {
+  //   super("text", value);
+  // }
 }
 
 class Token extends Signal {
+  type = "token";
   forms = [Text];
-  constructor(value) {
-    super("token", value);
-  }
+  // constructor(value) {
+  //   super("token", value);
+  // }
 }
 
 function parseFeats(featsString = "") {

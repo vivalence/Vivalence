@@ -1,21 +1,27 @@
+import paladin from "@vivalence/paladin";
 import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-// import { mikro } from "@vivalence/entities/mikro";
+// import { mikro } from "@vivalence/typology/entities/mikro";
 import { v7 } from "uuid";
 import { join } from "@std/path";
 
 import {
   IdentitySchema,
   IdentityEntity,
-  RuntimeSchema,
-  RuntimeEntity,
+  DaemonSchema,
+  DaemonEntity,
   AuthenticatorEmbedSchema,
-} from "@vivalence/entities";
+} from "@vivalence/typology/entities";
 
-export async function systemmap(service) {
+export async function systemmap(servicecake) {
+  // console.log({ paladin });
+  // console.log("sysmap", servicecake);
+  // console.log("path", servicecake.mount.branch("gaia.db").absolute);
+  // const datamap = paladin.vip.accio(servicecake.datamap)
+
   // const mikroconfig = defineConfig({
   //   dbName: join(service.data, "gaia.db"),
-  //   entities: [IdentitySchema, RuntimeSchema, AuthenticatorEmbedSchema],
+  //   entities: [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema],
   //   // strict: true,
   //   extensions: [Migrator],
   //   migrations: {
@@ -24,14 +30,12 @@ export async function systemmap(service) {
   //   },
   // });
 
-  const { orm, entities } = await mikro({
-    // file: join(service.data, "gaia.db"), //
-    // schema: [IdentitySchema, RuntimeSchema, AuthenticatorEmbedSchema],
-  });
+  // const { orm, entities } = await servicecake.datamap(mikroconfig);
 
-  // const migrator = orm.getMigrator(); await migrator.createMigration(); await migrator.up();
+  // // const migrator = orm.getMigrator(); await migrator.createMigration(); await migrator.up();
 
-  return { orm, entities };
+  return {};
+  // return { orm, entities };
 }
 
 export function inject(orm) {
@@ -40,7 +44,7 @@ export function inject(orm) {
     ctx.entities = {
       em,
       identity: await em.getRepository(IdentityEntity),
-      runtime: await em.getRepository(RuntimeEntity),
+      daemon: await em.getRepository(DaemonEntity),
     };
     await next();
     await em.flush();

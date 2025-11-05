@@ -48,4 +48,8 @@ export class Vip {
     );
     return filteredModule;
   }
+
+  toJSON() {
+    return { pensive: this.pensieve };
+  }
 }

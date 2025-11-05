@@ -15,18 +15,18 @@ export default function joins(config) {
     registry: (f) => registry(f),
     system: (f) => system(f),
 
-    variant: () => tilde("variant"),
-    environment: () => tilde("environment"),
+    // variant: () => tilde("variant"),
+    // environment: () => tilde("environment"),
     // files: () => tilde("files"), assets: () => tilde("assets"),
     mountpoint: {
       daemon: (daemon, service) =>
         service
-          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
-          : tilde(`mountpoint/runtime_${daemon}`), // @beef ought not exist really.
+          ? tilde(`mountpoint/daemon_${daemon}_service_${service}`)
+          : tilde(`mountpoint/daemon_${daemon}`), // @beef ought not exist really.
       service: (service, daemon) =>
         daemon
-          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
-          : tilde(`mountpoint/process_${service}`),
+          ? tilde(`mountpoint/daemon_${daemon}_service_${service}`)
+          : tilde(`mountpoint/service_${service}`),
     },
   };
 }

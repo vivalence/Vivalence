@@ -31,3 +31,7 @@ domain defines entities in mikro aka json.
 
 in honor of my mother and my fathers.
 
+* cast as fromm
+- *=cast=* = /Validation first/ - "This must be X or die"
+- *=as=* = /Convenience first/ - "Help me get X however possible" 
+- *=fromm=* = /Extraction first/ - "Get Y from inside X"

@@ -40,9 +40,9 @@ export function inject() {
 //     password: hash.string("biggusdickus"),
 //     shards: [
 //       {
-//         type: "runtime",
+//         type: "daemon",
 //         slug: "eng2lat",
-//         url: "http://localhost:5175/runtime/eng2lat",
+//         url: "http://localhost:5175/daemon/eng2lat",
 //       },
 //     ],
 //   },

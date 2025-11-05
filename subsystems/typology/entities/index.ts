@@ -8,7 +8,7 @@ export * from "./kernel/Subject.ts";
 export * from "./kernel/Dimension.ts";
 
 export * from "./system/Identity.ts";
-export * from "./system/Runtime.ts";
+export * from "./system/Daemon.ts";
 export * from "./system/Mode.ts";
 export * from "./system/Valence.ts";
 export * from "./system/Issue.ts";
@@ -25,7 +25,7 @@ import symbol from "./kernel/Symbol.ts";
 
 import identity from "./system/Identity.ts";
 import valence from "./system/Valence.ts";
-import runtime from "./system/Runtime.ts";
+import daemon from "./system/Daemon.ts";
 import mode from "./system/Mode.ts";
 // import constraint from "./system/Constraint.ts";
 import issue from "./system/Issue.ts";
@@ -43,7 +43,7 @@ export const system = [
   // constraint, // not data?
   issue,
   identity,
-  runtime,
+  daemon,
   valence,
   mode,
 ];
@@ -61,7 +61,7 @@ export const maps = {
     identity,
     valence,
     mode,
-    runtime,
+    daemon,
     issue,
     // constraint,
   },

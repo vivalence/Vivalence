@@ -6,7 +6,7 @@ export const url = (thing) => {
   const url = cast.url(thing);
   return {
     get path() {
-      const [file, ...dir] = url
+      const [file, ...dir] = url.absolute
         .replace(/^file:\/\//, "")
         .split("/")
         .reverse();

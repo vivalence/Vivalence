@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 const StatusCode = Type.Union(
   [
     Type.Literal("IDLE"),
+    Type.Literal("HEALTHY"),
     Type.Literal("PENDING"),
     Type.Literal("ACTIVE"),
     Type.Literal("SUCCESS"),

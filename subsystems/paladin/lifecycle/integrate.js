@@ -28,3 +28,21 @@ export async function validate(paladin) {
 // export async function mount(paladin) {
 // return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
 // }
+
+export async function statements(paladin) {
+  const directories = [...Object.values(paladin.scope).map((p) => p.absolute)];
+
+  for (const dir of directories) {
+    await paladin.state.dir(dir);
+  }
+}
+
+export async function questions(paladin) {
+  paladin.check
+    .path([
+      paladin.env.get("VIVA_SYSTEM_MOUNT"),
+      paladin.env.get("VIVA_TILDE_MOUNT"),
+      paladin.env.get("VIVA_REGISTRY_MOUNT"),
+    ])
+    .throw();
+}

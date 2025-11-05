@@ -30,6 +30,10 @@ export class Status {
     return this.set(update);
   }
 
+  toJSON() {
+    return this.reflection;
+  }
+
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `Status:${this.$transient.get().code}`;
   }

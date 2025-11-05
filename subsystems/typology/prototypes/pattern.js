@@ -19,7 +19,7 @@ export class Pattern extends Signature {
       .filter((s) => s.length > 0)
       .map((signature) => {
         const [type, , filter] = probe(signature);
-        if (type && filter) return { type, signature, filter };
+        if (type && filter) return { type, nature: signature, filter };
       })
       .filter((segment) => segment);
     return segments;

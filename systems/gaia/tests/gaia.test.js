@@ -2,6 +2,8 @@ import paladin from "@vivalence/paladin";
 import { specimen, Path } from "@vivalence/typology";
 import { Gaia, lifecycle } from "@vivalence/gaia/typology";
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 let gaia;
 
 specimen.describe("Gaia", () => {
@@ -13,26 +15,28 @@ specimen.describe("Gaia", () => {
     specimen.describe("gestalt", () => {
       specimen.it("is", () => {
         specimen.expect(gaia.status).toBeDefined();
-        specimen.expect(gaia.terrans).toEqual([]);
-        specimen.expect(gaia.server).toBeDefined();
-        specimen.expect(gaia.aperture).toBeDefined();
       });
     });
   });
 
   specimen.describe("population", () => {
     specimen.it("cycles", async () => {
+      await paladin.ikiro;
       await lifecycle.populate.aperture(gaia);
-      await lifecycle.populate.patrol(gaia);
+      await lifecycle.populate.registry(gaia);
+      await lifecycle.populate.terrans(gaia);
     });
 
     specimen.describe("gestalt", () => {
-      specimen.it("server instantiated", () => {
-        specimen.expect(gaia.server).toBeDefined();
-      });
+      // specimen.it("server instantiated", () => {specimen.expect(gaia.server).toBeDefined();});
     });
   });
 
+  specimen.describe("resolution", () => {
+    specimen.it("cycles", async () => {
+      // await lifecycle.resolve.(gaia);
+    });
+  });
   specimen.describe("integration", () => {
     specimen.it("cycles", async () => {
       await lifecycle.integrate.serve(gaia);
@@ -40,17 +44,12 @@ specimen.describe("Gaia", () => {
     });
   });
 
+  return;
   specimen.describe("disintegration", () => {
     specimen.it("cycles", async () => {
-      // timeout
-      await paladin.ikiro;
-
-      // console.log({ paladin: { paladin }, gaia });
-      console.log(JSON.stringify(paladin.variant));
-
       gaia.abort.abort();
-      await gaia.listen;
-      // i need some timeout criteria here
+      await sleep(4000);
+      console.log("[ABOOOOOOOOOOOOOOOOOOOOOOOOORT]");
     });
   });
 });

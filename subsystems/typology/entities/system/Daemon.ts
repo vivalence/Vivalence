@@ -1,15 +1,15 @@
 import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { BaseEntity, BaseSchema } from "../index.ts";
 
-export class RuntimeEntity extends BaseEntity {
+export class DaemonEntity extends BaseEntity {
   url!: string;
   slug!: string;
 }
 
-export const RuntimeSchema = new EntitySchema({
-  class: RuntimeEntity,
+export const DaemonSchema = new EntitySchema({
+  class: DaemonEntity,
   extends: BaseSchema,
-  tableName: "Runtime",
+  tableName: "Daemon",
   properties: {
     slug: { type: types.string, unique: true },
     url: { type: types.string },
@@ -17,9 +17,9 @@ export const RuntimeSchema = new EntitySchema({
 });
 
 export default {
-  schema: RuntimeSchema,
-  entity: RuntimeEntity,
-  // repository: RuntimeRepository,
+  schema: DaemonSchema,
+  entity: DaemonEntity,
+  // repository: DaemonRepository,
 };
 
 // export class VirtualRepository extends Array {

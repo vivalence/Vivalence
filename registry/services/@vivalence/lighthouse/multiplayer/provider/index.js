@@ -1,4 +1,4 @@
-export default async function client(lighthouse, users) {
+export default async function authority(lighthouse, users) {
   const verify = await createVerifier(lighthouse);
 
   return {

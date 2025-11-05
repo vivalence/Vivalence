@@ -5,11 +5,15 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        - STANZA_LANGUAGES=${STANZA_LANGUAGES}
-        - STANZA_PROCESSORS=${STANZA_PROCESSORS}
     container_name: vivalence-service_nlp-stanza
     command: "./entrypoint.sh"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 6
+    ports:
+      - "${SERVICE_PORT}:${SERVICE_PORT}"
     volumes:
       - ${SERVICE_DATA}/mnt:/app/stanza/mnt
     environment:
@@ -18,11 +22,3 @@ services:
       - STANZA_PROCESSORS=${STANZA_PROCESSORS}
       - GUNICORN_WORKERS=${GUNICORN_WORKERS}
       - SERVICE_PORT=${SERVICE_PORT}
-    ports:
-      - "${SERVICE_PORT}:${SERVICE_PORT}"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${SERVICE_PORT}/ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s

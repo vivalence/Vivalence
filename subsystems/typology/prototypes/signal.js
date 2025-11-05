@@ -15,6 +15,6 @@ export class Signal extends Signature {
     return string
       .split("/")
       .filter((s) => s.length > 0)
-      .map((signature) => ({ signature }));
+      .map((nature) => ({ nature }));
   }
 }

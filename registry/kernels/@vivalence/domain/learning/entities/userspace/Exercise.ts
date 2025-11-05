@@ -1,7 +1,7 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "@vivalence/entities";
-import { UserEntity, SessionEntity } from "@vivalence/entities";
+import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
+import { UserEntity, SessionEntity } from "@vivalence/typology/entities";
 
 import { SymbolEntity } from "../kernel/Symbol.ts";
 import { LiteralEntity } from "../kernel/Literal.ts";

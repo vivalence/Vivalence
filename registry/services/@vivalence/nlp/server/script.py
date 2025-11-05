@@ -29,7 +29,9 @@ pipelinesCache = dict()
 def ensure_stanza(language):
     if not os.path.exists(os.path.join(DEFAULT_MODEL_DIR, language)):
         print(f"Downloading Stanza model for '{language}'...")
-        stanza.download(language, model_dir=DEFAULT_MODEL_DIR, download_method=None)
+        stanza.download(
+            language, model_dir=DEFAULT_MODEL_DIR
+        )  # , download_method=None)
 
 
 def get_pipeline(language, processors):
@@ -105,6 +107,11 @@ app = Flask(
 @app.route("/ping", methods=["GET"])
 def ping():
     return jsonify({"message": "Service is alive"})
+
+
+@app.route("/status", methods=["GET"])
+def status():
+    return jsonify({"code": "SUCCESS"})
 
 
 @app.route("/nlp", methods=["POST"])

@@ -5,7 +5,9 @@ import { Cake, Path, cast, as, is } from "@vivalence/typology";
 // filter for manifest.type circuit
 
 export async function circuits(paladin) {
-  const circuits = await paladin.find.viva(paladin.scope.variant);
+  const mount = paladin.scope.tilde.branch("circuits").absolute;
+  console.log("paladin mount circuits", { mount });
+  const circuits = await paladin.find.viva(mount);
   const mapper = async (f) => [f, await paladin.read.viva(f)];
   const modules = await Promise.all(circuits.map((f) => mapper(f)));
   paladin.variant.circuits = modules
@@ -17,7 +19,7 @@ export async function variant(paladin) {
   const circuits = paladin.variant.circuits;
 
   const gaiaConfigs = circuits.map((c) => c.gaia).filter(Boolean);
-  const lighthouseConfigs = circuits.map((c) => c.lighthouse).filter(Boolean);
+  // const lighthouseConfigs = circuits.map((c) => c.lighthouse).filter(Boolean);
   const clientsConfigs = circuits.map((c) => c.clients).filter(Boolean);
   const daemonsConfigs = circuits.flatMap((c) => c.daemons || []);
   const servicesConfigs = circuits.flatMap((c) => c.services || []);
@@ -28,7 +30,7 @@ export async function variant(paladin) {
   }
 
   paladin.variant.gaia = gaiaConfigs[0] || {};
-  paladin.variant.lighthouse = lighthouseConfigs[0] || {};
+  // paladin.variant.lighthouse = lighthouseConfigs[0] || {};
   // paladin.variant.gaia.mount =  ??
 
   paladin.variant.clients = Object.assign({}, ...clientsConfigs);

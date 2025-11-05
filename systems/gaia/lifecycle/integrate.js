@@ -13,18 +13,18 @@ export async function launch(gaia) {
   await paladin.ikiro;
   const url = paladin.variant.gaia.statics.serve;
 
-  gaia.server.addEventListener("listen", ({ hostname, port, serverType }) => {
-    console.log(`${"listening on :"}${`${port}`}`);
-    console.log({ hostname, port, serverType });
-  });
+  // gaia.server.addEventListener("listen", ({ hostname, port, serverType }) => {
+  //   console.log(`${"listening on :"}${`${port}`}`);
+  //   console.log({ hostname, port, serverType });
+  // });
 
-  gaia.listen = gaia.server.listen({
-    port: url.port,
-    hostname: url.hostname,
-    signal: gaia.abort.signal,
-  }); // port hostname
+  // gaia.listen = gaia.server.listen({
+  //   port: url.port,
+  //   hostname: url.hostname,
+  //   signal: gaia.abort.signal,
+  // }); // port hostname
 
-  gaia.status.set({ code: "RUNNING", label: url.toString() });
+  // gaia.status.set({ code: "RUNNING", label: url.toString() });
 
   // gaia.logger.info("integrate", =Gaia server launched on port ${port}=);
 

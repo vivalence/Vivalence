@@ -5,7 +5,7 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { maps } from "@vivalence/entities";
+import { maps } from "@vivalence/typology/entities";
 
 import { ExerciseEntity } from "../userspace/Exercise.ts";
 import { PlayEntity } from "../userspace/Play.ts";

@@ -1,4 +1,5 @@
 import { is, cast } from "@vivalence/typology";
+
 import { array, hash } from "@vivalence/shared";
 
 // signature = null; type = null; trace = null; gauges = null;
@@ -168,6 +169,7 @@ export class Signature {
 
   [Symbol.toPrimitive](hint) {
     // this was a bad idea.
+    console.log("toPrimitive");
     if (hint === "string") return `${this.nature}`;
     throw new Error("@typology/signature: unhandled toPrimitive hint:", hint);
   }

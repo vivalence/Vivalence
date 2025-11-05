@@ -2,6 +2,7 @@ import { Status } from "@vivalence/typology";
 
 // runtime die
 export class Die {
+  // type = null;
   slug = null;
   cake = null;
 

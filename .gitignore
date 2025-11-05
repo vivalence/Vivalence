@@ -5,6 +5,7 @@ tilde
 tilde/*
 /tilde/*
 ./tilde/*
+**/mountpoint
 
 node_modules
 **/node_modules
