@@ -13,3 +13,7 @@ export const path = {
     return fromm.params(params).path;
   },
 };
+
+export const entries = (thing) => {
+  return Object.entries(thing);
+};

@@ -1,0 +1,908 @@
+:PROPERTIES:
+:GPTEL_MODEL: claude-sonnet-4-20250929
+:GPTEL_BACKEND: anthropic
+:GPTEL_SYSTEM: You are a large language model living in Emacs and a helpful assistant. Respond concisely.
+:GPTEL_BOUNDS: ((response (996 2176) (2205 5404) (5497 5525) (38039 40262)))
+:END:
+* IKIRO
+* context
+** goal
+i now need to run gaia as a process in prod.
+there are a few constraints:
+- gaia is installed into the os via some systemd. this needs an entry point and propper embedding, checks, lifecycles.
+- gaia is triggered by ghost and is either: 
+  - is not supposed to be and isnt.
+  - supposed to be embedded but isnt.
+  - ghost needs to make the call here. do i run gaia 'in-house one-off' or do i start it daemonized and await its loaded.
+- gaia runs in docker.
+** {paladin,gaia}
+
+#+BEGIN_SRC javascript
+const {paladin, gaia} = {"paladin":{"traits":[],"role":"SUDO","mode":"DEVELOPMENT","env":{"vars":{"VIVA_ENV_FILE":"/Users/finn/viva/env/.env","VIVA_SYSTEM_MODE":"DEVELOPMENT","VIVA_SYSTEM_ROLE":"SUDO","VIVA_SYSTEM_VARIANT":"LOCALHOST","VIVA_REPOSITORY_DIR":"/Users/finn/vivalence/code/vivalence","VIVA_REGISTER_DIR":"/Users/finn/vivalence/code/vivalence/register","VIVA_CONFIG_DIR":"/Users/finn/viva","VIVA_SYSTEM_MOUNT":"/Users/finn/vivalence/code/vivalence","VIVA_TILDE_MOUNT":"/Users/finn/vivalence/code/vivalence/tests/variant","VIVA_REGISTRY_MOUNT":"/Users/finn/vivalence/code/vivalence/registry","SERVICE_NLP_PORT":"5555","SERVICE_NLP_URL":"http://localhost:5555","SERVICE_NLP_SERVE":"http://localhost:5555","SERVICE_NLP_REMOTE":"http://localhost:5555","VIVA_GAIA_SERVE":"http://localhost:1729/","VIVA_LIGHTHOUSE_SERVE":"http://localhost:1729/attached/process/lighthouse/kajuit","VIVA_CLIENT_HUT_SERVE":"http://localhost:1794/","PUBLIC_VIVA_GAIA_REMOTE":"http://localhost:1729/","PUBLIC_VIVA_LIGHTHOUSE_REMOTE":"http://localhost:1729/attached/process/lighthouse/kajuit","PUBLIC_VIVA_CLIENT_HUT_REMOTE":"http://localhost:1794/"}},"secret":{"vars":{"ANTHROPIC_API_KEY":"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","SERVICE_NLP_KEY":"IAMTHEMOSTSECUREKEYINTHEWORLDnot","JWT_SECRET":"jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey","VIVA_LICENCE_KEY":""}},"variant":{"circuits":[{"clients":{"ghost":{"module":"@vivalence/ghost","statics":{"lighthouse":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}}},"hut":{"module":"@vivalence/hut","statics":{"serve":"http://localhost:1794/","lighthouse":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}}}},"gaia":{"statics":{"serve":"http://localhost:1729/"},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"gaia.viva.db"}}}},"manifest":{"type":"circuit","slug":"dev","traits":["EMBEDDED"]},"services":[{"slug":"kajuit","module":"@vivalence/lighthouse/multiplayer","secrets":{"jwt":"jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey"},"statics":{"serve":"http://localhost:1729/attached/process/lighthouse/kajuit"},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"lighthouse.viva.db"}}}},{"slug":"hal","module":"@vivalence/hallucinator/hal257","secrets":{"anthropic":"KEY"},"statics":{},"profiles":{"DRONE":{"provider":"anthropic","model":"claude-3-5-haiku-latest","dimensions":{"speed":0.6,"cost":0.2,"intelligence":0.4},"params":{"temperature":0.7,"maxTokens":4000}},"ACADEMIC":{"provider":"anthropic","model":"claude-3-7-sonnet-latest","dimensions":{"speed":0.3,"cost":0.9,"intelligence":0.8},"params":{"thinking":{"type":"enabled","budgetTokens":12000},"temperature":0.7,"maxTokens":20000}}}}],"source":{"nature":"/Users/finn/vivalence/code/vivalence/tests/variant/circuits/root.viva.js","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/circuits/root.viva.js"}},{"daemons":[{"manifest":{"type":"daemon","slug":"ger2esp","version":"0.0.1","traits":["ACTIVE"]},"docs":{"name":"para estudiar espanol","valence":"para estudiar espanol. deutsch nach spanish","icon":{"emoji":""}},"statics":{"language":{"known":"german","learning":"spanish"}},"kernel":["@vivalence/ontology/language","@vivalence/domain/learning","@vivalence/topology/brazilian"],"modes":["@vivalence/game/flashcards","@vivalence/game/translations"],"authority":{"module":"@vivalence/lighthouse/multiplayer","statics":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"ger2esp.viva.db"}}},"consume":{"nlp":{"slug":"nlp","provider":"nlp-stanza","statics":{"remote":"http://localhost:5555/","language":"es"}}}}],"manifest":{"type":"circuit","slug":"multiplayer-language-learning"},"services":[{"slug":"nlp-stanza","module":"@vivalence/service/nlp-stanza","secrets":{"key":"IAMTHEMOSTSECUREKEYINTHEWORLDnot"},"statics":{"serve":"http://localhost:5555/","processors":"tokenize,mwt,pos,lemma,depparse"}}],"source":{"nature":"/Users/finn/vivalence/code/vivalence/tests/variant/circuits/language-learning.viva.js","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/circuits/language-learning.viva.js"}}],"gaia":{"statics":{"serve":"http://localhost:1729/"},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"gaia.viva.db"}}}},"clients":{"ghost":{"module":"@vivalence/ghost","statics":{"lighthouse":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}}},"hut":{"module":"@vivalence/hut","statics":{"serve":"http://localhost:1794/","lighthouse":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}}}},"daemons":[{"manifest":{"type":"daemon","slug":"ger2esp","version":"0.0.1","traits":["ACTIVE"]},"mount":{"nature":"/mountpoint/runtime_ger2esp","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp"},"source":null,"docs":{"name":"para estudiar espanol","valence":"para estudiar espanol. deutsch nach spanish","icon":{"emoji":""}},"statics":{"language":{"known":"german","learning":"spanish"}},"kernel":["@vivalence/ontology/language","@vivalence/domain/learning","@vivalence/topology/brazilian"],"modes":["@vivalence/game/flashcards","@vivalence/game/translations"],"authority":{"module":"@vivalence/lighthouse/multiplayer","statics":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"ger2esp.viva.db"}}},"consume":{"nlp":{"slug":"nlp","provider":"nlp-stanza","statics":{"remote":"http://localhost:5555/","language":"es"}}},"slug":"ger2esp"}],"services":[{"manifest":{},"mount":{"nature":"/mountpoint/process_kajuit","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_kajuit"},"source":null,"slug":"kajuit","module":"@vivalence/lighthouse/multiplayer","secrets":{"jwt":"jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey"},"statics":{"serve":"http://localhost:1729/attached/process/lighthouse/kajuit"},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"lighthouse.viva.db"}}}},{"manifest":{},"mount":{"nature":"/mountpoint/process_hal","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_hal"},"source":null,"slug":"hal","module":"@vivalence/hallucinator/hal257","secrets":{"anthropic":"KEY"},"statics":{},"profiles":{"DRONE":{"provider":"anthropic","model":"claude-3-5-haiku-latest","dimensions":{"speed":0.6,"cost":0.2,"intelligence":0.4},"params":{"temperature":0.7,"maxTokens":4000}},"ACADEMIC":{"provider":"anthropic","model":"claude-3-7-sonnet-latest","dimensions":{"speed":0.3,"cost":0.9,"intelligence":0.8},"params":{"thinking":{"type":"enabled","budgetTokens":12000},"temperature":0.7,"maxTokens":20000}}}},{"manifest":{},"mount":{"nature":"/mountpoint/process_nlp-stanza","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_nlp-stanza"},"source":null,"slug":"nlp-stanza","module":"@vivalence/service/nlp-stanza","secrets":{"key":"IAMTHEMOSTSECUREKEYINTHEWORLDnot"},"statics":{"serve":"http://localhost:5555/","processors":"tokenize,mwt,pos,lemma,depparse"}}]},"read":{},"find":{},"check":{},"state":{},"join":{"mountpoint":{}},"is":{"sudo":true,"dev":true,"prod":false,"veryimportant":true},"scope":{"system":{"nature":"/Users/finn/vivalence/code/vivalence","absolute":"/Users/finn/vivalence/code/vivalence"},"tilde":{"nature":"/Users/finn/vivalence/code/vivalence/tests/variant","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant"},"registry":{"nature":"/Users/finn/vivalence/code/vivalence/registry","absolute":"/Users/finn/vivalence/code/vivalence/registry"}},"vip":{"pensive":{}},"ikiro":{}},"gaia":{"process":null,"ters":null,"server":{"proxy":false,"state":{}},"abort":{},"aperture":{"path":{"value":"","ancestor":null},"router":{},"descendants":[{"path":{"value":"/attached/process/lighthouse/kajuit","ancestor":{"value":"","ancestor":null}},"router":{},"descendants":[{"path":{"value":"","ancestor":null},"router":{},"descendants":[{"path":{"value":"/auth","ancestor":{"value":"","ancestor":null}},"router":{},"descendants":[],"middlewares":[]}],"middlewares":[null,null,null,null]}],"middlewares":[null]}],"middlewares":[]},"twitch":{"effects":{},"trajectories":{},"carry":[]},"status":{"code":"RUNNING","timestamp":"2025-11-08T19:42:43.924Z","label":"http://localhost:1729/"},"terrans":[{"slug":"ger2esp","mask":{"manifest":{"type":"daemon","slug":"ger2esp","version":"0.0.1","traits":["ACTIVE"]},"mount":{"nature":"/mountpoint/runtime_ger2esp","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp"},"source":null,"docs":{"name":"para estudiar espanol","valence":"para estudiar espanol. deutsch nach spanish","icon":{"emoji":""}},"statics":{"language":{"known":"german","learning":"spanish"}},"kernel":["@vivalence/ontology/language","@vivalence/domain/learning","@vivalence/topology/brazilian"],"modes":["@vivalence/game/flashcards","@vivalence/game/translations"],"authority":{"module":"@vivalence/lighthouse/multiplayer","statics":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"ger2esp.viva.db"}}},"consume":{"nlp":{"slug":"nlp","provider":"nlp-stanza","statics":{"remote":"http://localhost:5555/","language":"es"}}},"slug":"ger2esp"},"good":{"slug":"ger2esp","mask":{"manifest":{"type":"daemon","slug":"ger2esp","version":"0.0.1","traits":["ACTIVE"]},"mount":{"nature":"/mountpoint/runtime_ger2esp","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp"},"source":null,"docs":{"name":"para estudiar espanol","valence":"para estudiar espanol. deutsch nach spanish","icon":{"emoji":""}},"statics":{"language":{"known":"german","learning":"spanish"}},"kernel":["@vivalence/ontology/language","@vivalence/domain/learning","@vivalence/topology/brazilian"],"modes":["@vivalence/game/flashcards","@vivalence/game/translations"],"authority":{"module":"@vivalence/lighthouse/multiplayer","statics":{"remote":"http://localhost:1729/attached/process/lighthouse/kajuit"}},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"ger2esp.viva.db"}}},"consume":{"nlp":{"slug":"nlp","provider":"nlp-stanza","statics":{"remote":"http://localhost:5555/","language":"es"}}},"slug":"ger2esp"},"authority":null,"mount":{"nature":"/","absolute":"/"},"aperture":{"path":{"value":"","ancestor":null},"router":{},"descendants":[],"middlewares":[]},"call":null,"kernel":{"orm":{},"medic":{"registry":[]},"taxonomist":{"effects":{},"trajectories":{},"carry":[]}},"schema":{"primitives":{},"gestalten":{},"entities":{},"subjects":{}},"entities":{"em":{}},"modes":{},"services":{},"subjects":{},"twitch":{"effects":{},"trajectories":{},"carry":[]},"classify":{},"validate":{},"assert":{},"traits":["ACTIVE"],"statics":{"language":{"known":"german","learning":"spanish"}}},"connection":null,"status":{"code":"<uninitialized>","timestamp":"2025-11-08T19:42:43.922Z"},"register":{"authority":null,"datamap":null,"kernel":[],"modes":[],"services":[]},"variant":{"kernel":{},"modes":[],"traits":{},"entities":[],"services":{}}},{"slug":"kajuit","mask":{"manifest":{},"mount":{"nature":"/mountpoint/process_kajuit","absolute":"/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_kajuit"},"source":null,"slug":"kajuit","module":"@vivalence/lighthouse/multiplayer","secrets":{"jwt":"jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey"},"statics":{"serve":"http://localhost:1729/attached/process/lighthouse/kajuit"},"datamap":{"module":"@vivalence/datamap/libsql","statics":{"db":{"file":"lighthouse.viva.db"}}}},"good":{"path":{"value":"","ancestor":null},"router":{},"descendants":[{"path":{"value":"/auth","ancestor":{"value":"","ancestor":null}},"router":{},"descendants":[],"middlewares":[]}],"middlewares":[null,null,null,null]},"connection":null,"status":{"code":"<uninitialized>","timestamp":"2025-11-08T19:42:43.923Z"},"register":{"manifest":{"type":"lighthouse","slug":"multiplayer","name":"Identity service. Provides users with identity, acceses, authentication and authorization.","traits":["ATTACHED","SERVICE","DATAMAP","SYSTEMMAP"]}},"type":"lighthouse"}],"ikiro":{},"listen":{}}}
+const { paladin, gaia } = {
+  paladin: {
+    traits: [],
+    role: "SUDO",
+    mode: "DEVELOPMENT",
+    env: {
+      vars: {
+        VIVA_ENV_FILE: "/Users/finn/viva/env/.env",
+        VIVA_SYSTEM_MODE: "DEVELOPMENT",
+        VIVA_SYSTEM_ROLE: "SUDO",
+        VIVA_SYSTEM_VARIANT: "LOCALHOST",
+        VIVA_REPOSITORY_DIR: "/Users/finn/vivalence/code/vivalence",
+        VIVA_REGISTER_DIR: "/Users/finn/vivalence/code/vivalence/register",
+        VIVA_CONFIG_DIR: "/Users/finn/viva",
+        VIVA_SYSTEM_MOUNT: "/Users/finn/vivalence/code/vivalence",
+        VIVA_TILDE_MOUNT: "/Users/finn/vivalence/code/vivalence/tests/variant",
+        VIVA_REGISTRY_MOUNT: "/Users/finn/vivalence/code/vivalence/registry",
+        SERVICE_NLP_PORT: "5555",
+        SERVICE_NLP_URL: "http://localhost:5555",
+        SERVICE_NLP_SERVE: "http://localhost:5555",
+        SERVICE_NLP_REMOTE: "http://localhost:5555",
+        VIVA_GAIA_SERVE: "http://localhost:1729/",
+        VIVA_LIGHTHOUSE_SERVE:
+          "http://localhost:1729/attached/process/lighthouse/kajuit",
+        VIVA_CLIENT_HUT_SERVE: "http://localhost:1794/",
+        PUBLIC_VIVA_GAIA_REMOTE: "http://localhost:1729/",
+        PUBLIC_VIVA_LIGHTHOUSE_REMOTE:
+          "http://localhost:1729/attached/process/lighthouse/kajuit",
+        PUBLIC_VIVA_CLIENT_HUT_REMOTE: "http://localhost:1794/",
+      },
+    },
+    secret: {
+      vars: {
+        ANTHROPIC_API_KEY:
+          "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",
+        SERVICE_NLP_KEY: "IAMTHEMOSTSECUREKEYINTHEWORLDnot",
+        JWT_SECRET: "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey",
+        VIVA_LICENCE_KEY: "",
+      },
+    },
+    variant: {
+      circuits: [
+        {
+          clients: {
+            ghost: {
+              module: "@vivalence/ghost",
+              statics: {
+                lighthouse: {
+                  remote:
+                    "http://localhost:1729/attached/process/lighthouse/kajuit",
+                },
+              },
+            },
+            hut: {
+              module: "@vivalence/hut",
+              statics: {
+                serve: "http://localhost:1794/",
+                lighthouse: {
+                  remote:
+                    "http://localhost:1729/attached/process/lighthouse/kajuit",
+                },
+              },
+            },
+          },
+          gaia: {
+            statics: { serve: "http://localhost:1729/" },
+            datamap: {
+              module: "@vivalence/datamap/libsql",
+              statics: { db: { file: "gaia.viva.db" } },
+            },
+          },
+          manifest: { type: "circuit", slug: "dev", traits: ["EMBEDDED"] },
+          services: [
+            {
+              slug: "kajuit",
+              module: "@vivalence/lighthouse/multiplayer",
+              secrets: { jwt: "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey" },
+              statics: {
+                serve:
+                  "http://localhost:1729/attached/process/lighthouse/kajuit",
+              },
+              datamap: {
+                module: "@vivalence/datamap/libsql",
+                statics: { db: { file: "lighthouse.viva.db" } },
+              },
+            },
+            {
+              slug: "hal",
+              module: "@vivalence/hallucinator/hal257",
+              secrets: { anthropic: "KEY" },
+              statics: {},
+              profiles: {
+                DRONE: {
+                  provider: "anthropic",
+                  model: "claude-3-5-haiku-latest",
+                  dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
+                  params: { temperature: 0.7, maxTokens: 4000 },
+                },
+                ACADEMIC: {
+                  provider: "anthropic",
+                  model: "claude-3-7-sonnet-latest",
+                  dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
+                  params: {
+                    thinking: { type: "enabled", budgetTokens: 12000 },
+                    temperature: 0.7,
+                    maxTokens: 20000,
+                  },
+                },
+              },
+            },
+          ],
+          source: {
+            nature:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/circuits/root.viva.js",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/circuits/root.viva.js",
+          },
+        },
+        {
+          daemons: [
+            {
+              manifest: {
+                type: "daemon",
+                slug: "ger2esp",
+                version: "0.0.1",
+                traits: ["ACTIVE"],
+              },
+              docs: {
+                name: "para estudiar espanol",
+                valence: "para estudiar espanol. deutsch nach spanish",
+                icon: { emoji: "" },
+              },
+              statics: { language: { known: "german", learning: "spanish" } },
+              kernel: [
+                "@vivalence/ontology/language",
+                "@vivalence/domain/learning",
+                "@vivalence/topology/brazilian",
+              ],
+              modes: [
+                "@vivalence/game/flashcards",
+                "@vivalence/game/translations",
+              ],
+              authority: {
+                module: "@vivalence/lighthouse/multiplayer",
+                statics: {
+                  remote:
+                    "http://localhost:1729/attached/process/lighthouse/kajuit",
+                },
+              },
+              datamap: {
+                module: "@vivalence/datamap/libsql",
+                statics: { db: { file: "ger2esp.viva.db" } },
+              },
+              consume: {
+                nlp: {
+                  slug: "nlp",
+                  provider: "nlp-stanza",
+                  statics: { remote: "http://localhost:5555/", language: "es" },
+                },
+              },
+            },
+          ],
+          manifest: { type: "circuit", slug: "multiplayer-language-learning" },
+          services: [
+            {
+              slug: "nlp-stanza",
+              module: "@vivalence/service/nlp-stanza",
+              secrets: { key: "IAMTHEMOSTSECUREKEYINTHEWORLDnot" },
+              statics: {
+                serve: "http://localhost:5555/",
+                processors: "tokenize,mwt,pos,lemma,depparse",
+              },
+            },
+          ],
+          source: {
+            nature:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/circuits/language-learning.viva.js",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/circuits/language-learning.viva.js",
+          },
+        },
+      ],
+      gaia: {
+        statics: { serve: "http://localhost:1729/" },
+        datamap: {
+          module: "@vivalence/datamap/libsql",
+          statics: { db: { file: "gaia.viva.db" } },
+        },
+      },
+      clients: {
+        ghost: {
+          module: "@vivalence/ghost",
+          statics: {
+            lighthouse: {
+              remote:
+                "http://localhost:1729/attached/process/lighthouse/kajuit",
+            },
+          },
+        },
+        hut: {
+          module: "@vivalence/hut",
+          statics: {
+            serve: "http://localhost:1794/",
+            lighthouse: {
+              remote:
+                "http://localhost:1729/attached/process/lighthouse/kajuit",
+            },
+          },
+        },
+      },
+      daemons: [
+        {
+          manifest: {
+            type: "daemon",
+            slug: "ger2esp",
+            version: "0.0.1",
+            traits: ["ACTIVE"],
+          },
+          mount: {
+            nature: "/mountpoint/runtime_ger2esp",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp",
+          },
+          source: null,
+          docs: {
+            name: "para estudiar espanol",
+            valence: "para estudiar espanol. deutsch nach spanish",
+            icon: { emoji: "" },
+          },
+          statics: { language: { known: "german", learning: "spanish" } },
+          kernel: [
+            "@vivalence/ontology/language",
+            "@vivalence/domain/learning",
+            "@vivalence/topology/brazilian",
+          ],
+          modes: ["@vivalence/game/flashcards", "@vivalence/game/translations"],
+          authority: {
+            module: "@vivalence/lighthouse/multiplayer",
+            statics: {
+              remote:
+                "http://localhost:1729/attached/process/lighthouse/kajuit",
+            },
+          },
+          datamap: {
+            module: "@vivalence/datamap/libsql",
+            statics: { db: { file: "ger2esp.viva.db" } },
+          },
+          consume: {
+            nlp: {
+              slug: "nlp",
+              provider: "nlp-stanza",
+              statics: { remote: "http://localhost:5555/", language: "es" },
+            },
+          },
+          slug: "ger2esp",
+        },
+      ],
+      services: [
+        {
+          manifest: {},
+          mount: {
+            nature: "/mountpoint/process_kajuit",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_kajuit",
+          },
+          source: null,
+          slug: "kajuit",
+          module: "@vivalence/lighthouse/multiplayer",
+          secrets: { jwt: "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey" },
+          statics: {
+            serve: "http://localhost:1729/attached/process/lighthouse/kajuit",
+          },
+          datamap: {
+            module: "@vivalence/datamap/libsql",
+            statics: { db: { file: "lighthouse.viva.db" } },
+          },
+        },
+        {
+          manifest: {},
+          mount: {
+            nature: "/mountpoint/process_hal",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_hal",
+          },
+          source: null,
+          slug: "hal",
+          module: "@vivalence/hallucinator/hal257",
+          secrets: { anthropic: "KEY" },
+          statics: {},
+          profiles: {
+            DRONE: {
+              provider: "anthropic",
+              model: "claude-3-5-haiku-latest",
+              dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 },
+              params: { temperature: 0.7, maxTokens: 4000 },
+            },
+            ACADEMIC: {
+              provider: "anthropic",
+              model: "claude-3-7-sonnet-latest",
+              dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 },
+              params: {
+                thinking: { type: "enabled", budgetTokens: 12000 },
+                temperature: 0.7,
+                maxTokens: 20000,
+              },
+            },
+          },
+        },
+        {
+          manifest: {},
+          mount: {
+            nature: "/mountpoint/process_nlp-stanza",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_nlp-stanza",
+          },
+          source: null,
+          slug: "nlp-stanza",
+          module: "@vivalence/service/nlp-stanza",
+          secrets: { key: "IAMTHEMOSTSECUREKEYINTHEWORLDnot" },
+          statics: {
+            serve: "http://localhost:5555/",
+            processors: "tokenize,mwt,pos,lemma,depparse",
+          },
+        },
+      ],
+    },
+    read: {},
+    find: {},
+    check: {},
+    state: {},
+    join: { mountpoint: {} },
+    is: { sudo: true, dev: true, prod: false, veryimportant: true },
+    scope: {
+      system: {
+        nature: "/Users/finn/vivalence/code/vivalence",
+        absolute: "/Users/finn/vivalence/code/vivalence",
+      },
+      tilde: {
+        nature: "/Users/finn/vivalence/code/vivalence/tests/variant",
+        absolute: "/Users/finn/vivalence/code/vivalence/tests/variant",
+      },
+      registry: {
+        nature: "/Users/finn/vivalence/code/vivalence/registry",
+        absolute: "/Users/finn/vivalence/code/vivalence/registry",
+      },
+    },
+    vip: { pensive: {} },
+    ikiro: {},
+  },
+  gaia: {
+    process: null,
+    ters: null,
+    server: { proxy: false, state: {} },
+    abort: {},
+    aperture: {
+      path: { value: "", ancestor: null },
+      router: {},
+      descendants: [
+        {
+          path: {
+            value: "/attached/process/lighthouse/kajuit",
+            ancestor: { value: "", ancestor: null },
+          },
+          router: {},
+          descendants: [
+            {
+              path: { value: "", ancestor: null },
+              router: {},
+              descendants: [
+                {
+                  path: {
+                    value: "/auth",
+                    ancestor: { value: "", ancestor: null },
+                  },
+                  router: {},
+                  descendants: [],
+                  middlewares: [],
+                },
+              ],
+              middlewares: [null, null, null, null],
+            },
+          ],
+          middlewares: [null],
+        },
+      ],
+      middlewares: [],
+    },
+    twitch: { effects: {}, trajectories: {}, carry: [] },
+    status: {
+      code: "RUNNING",
+      timestamp: "2025-11-08T19:42:43.924Z",
+      label: "http://localhost:1729/",
+    },
+    terrans: [
+      {
+        slug: "ger2esp",
+        mask: {
+          manifest: {
+            type: "daemon",
+            slug: "ger2esp",
+            version: "0.0.1",
+            traits: ["ACTIVE"],
+          },
+          mount: {
+            nature: "/mountpoint/runtime_ger2esp",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp",
+          },
+          source: null,
+          docs: {
+            name: "para estudiar espanol",
+            valence: "para estudiar espanol. deutsch nach spanish",
+            icon: { emoji: "" },
+          },
+          statics: { language: { known: "german", learning: "spanish" } },
+          kernel: [
+            "@vivalence/ontology/language",
+            "@vivalence/domain/learning",
+            "@vivalence/topology/brazilian",
+          ],
+          modes: ["@vivalence/game/flashcards", "@vivalence/game/translations"],
+          authority: {
+            module: "@vivalence/lighthouse/multiplayer",
+            statics: {
+              remote:
+                "http://localhost:1729/attached/process/lighthouse/kajuit",
+            },
+          },
+          datamap: {
+            module: "@vivalence/datamap/libsql",
+            statics: { db: { file: "ger2esp.viva.db" } },
+          },
+          consume: {
+            nlp: {
+              slug: "nlp",
+              provider: "nlp-stanza",
+              statics: { remote: "http://localhost:5555/", language: "es" },
+            },
+          },
+          slug: "ger2esp",
+        },
+        good: {
+          slug: "ger2esp",
+          mask: {
+            manifest: {
+              type: "daemon",
+              slug: "ger2esp",
+              version: "0.0.1",
+              traits: ["ACTIVE"],
+            },
+            mount: {
+              nature: "/mountpoint/runtime_ger2esp",
+              absolute:
+                "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/runtime_ger2esp",
+            },
+            source: null,
+            docs: {
+              name: "para estudiar espanol",
+              valence: "para estudiar espanol. deutsch nach spanish",
+              icon: { emoji: "" },
+            },
+            statics: { language: { known: "german", learning: "spanish" } },
+            kernel: [
+              "@vivalence/ontology/language",
+              "@vivalence/domain/learning",
+              "@vivalence/topology/brazilian",
+            ],
+            modes: [
+              "@vivalence/game/flashcards",
+              "@vivalence/game/translations",
+            ],
+            authority: {
+              module: "@vivalence/lighthouse/multiplayer",
+              statics: {
+                remote:
+                  "http://localhost:1729/attached/process/lighthouse/kajuit",
+              },
+            },
+            datamap: {
+              module: "@vivalence/datamap/libsql",
+              statics: { db: { file: "ger2esp.viva.db" } },
+            },
+            consume: {
+              nlp: {
+                slug: "nlp",
+                provider: "nlp-stanza",
+                statics: { remote: "http://localhost:5555/", language: "es" },
+              },
+            },
+            slug: "ger2esp",
+          },
+          authority: null,
+          mount: { nature: "/", absolute: "/" },
+          aperture: {
+            path: { value: "", ancestor: null },
+            router: {},
+            descendants: [],
+            middlewares: [],
+          },
+          call: null,
+          kernel: {
+            orm: {},
+            medic: { registry: [] },
+            taxonomist: { effects: {}, trajectories: {}, carry: [] },
+          },
+          schema: { primitives: {}, gestalten: {}, entities: {}, subjects: {} },
+          entities: { em: {} },
+          modes: {},
+          services: {},
+          subjects: {},
+          twitch: { effects: {}, trajectories: {}, carry: [] },
+          classify: {},
+          validate: {},
+          assert: {},
+          traits: ["ACTIVE"],
+          statics: { language: { known: "german", learning: "spanish" } },
+        },
+        connection: null,
+        status: {
+          code: "<uninitialized>",
+          timestamp: "2025-11-08T19:42:43.922Z",
+        },
+        register: {
+          authority: null,
+          datamap: null,
+          kernel: [],
+          modes: [],
+          services: [],
+        },
+        variant: {
+          kernel: {},
+          modes: [],
+          traits: {},
+          entities: [],
+          services: {},
+        },
+      },
+      {
+        slug: "kajuit",
+        mask: {
+          manifest: {},
+          mount: {
+            nature: "/mountpoint/process_kajuit",
+            absolute:
+              "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_kajuit",
+          },
+          source: null,
+          slug: "kajuit",
+          module: "@vivalence/lighthouse/multiplayer",
+          secrets: { jwt: "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey" },
+          statics: {
+            serve: "http://localhost:1729/attached/process/lighthouse/kajuit",
+          },
+          datamap: {
+            module: "@vivalence/datamap/libsql",
+            statics: { db: { file: "lighthouse.viva.db" } },
+          },
+        },
+        good: {
+          path: { value: "", ancestor: null },
+          router: {},
+          descendants: [
+            {
+              path: { value: "/auth", ancestor: { value: "", ancestor: null } },
+              router: {},
+              descendants: [],
+              middlewares: [],
+            },
+          ],
+          middlewares: [null, null, null, null],
+        },
+        connection: null,
+        status: {
+          code: "<uninitialized>",
+          timestamp: "2025-11-08T19:42:43.923Z",
+        },
+        register: {
+          manifest: {
+            type: "lighthouse",
+            slug: "multiplayer",
+            name: "Identity service. Provides users with identity, acceses, authentication and authorization.",
+            traits: ["ATTACHED", "SERVICE", "DATAMAP", "SYSTEMMAP"],
+          },
+        },
+        type: "lighthouse",
+      },
+    ],
+    ikiro: {},
+    listen: {},
+  },
+};
+
+#+end_src
+** {servicecake}
+#+BEGIN_SRC javascript
+  {
+    manifest: {},
+    mount: Path:/mountpoint/process_kajuit,
+    source: null,
+    slug: "kajuit",
+    module: "@vivalence/lighthouse/multiplayer",
+    secrets: { jwt: "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey" },
+    statics: {
+      serve: Url:http://localhost:1729/attached/process/lighthouse/kajuit
+    },
+    datamap: {
+      module: "@vivalence/datamap/libsql",
+      statics: { db: { file: "lighthouse.viva.db" } }
+    }
+  }
+}, {
+  "servicemask": {
+    "manifest": {},
+    "mount": {
+      "nature": "/mountpoint/process_kajuit",
+      "absolute": "/Users/finn/vivalence/code/vivalence/tests/variant/mountpoint/process_kajuit"
+    },
+    "source": null,
+    "slug": "kajuit",
+    "module": "@vivalence/lighthouse/multiplayer",
+    "secrets": {
+      "jwt": "jmJn5XBFk0gBlCmRoHL6pgZJz3edjNey"
+    },
+    "statics": {
+      "serve": "http://localhost:1729/attached/process/lighthouse/kajuit"
+    },
+    "datamap": {
+      "module": "@vivalence/datamap/libsql",
+      "statics": {
+        "db": {
+          "file": "lighthouse.viva.db"
+        }
+      }
+    }
+  }
+}
+l
+#+end_src
+* instruction
+we now design a paradigm for lifecycling gaia into diffreent contexts. 
+ideate a a handfull of approaches. explore them.
+respond with:```
+*** [name]
+[text]
+#+BEGIN_SRC javascript
+[js]
+#+end_src
+[text]
+```
+
+* paradigm
+
+#+begin_reasoning
+Looking at this request, the user wants to design a paradigm for running Gaia in different contexts, particularly:
+1. As a systemd service in production
+2. Being triggered/managed by Ghost 
+3. Running in Docker
+4. Different lifecycle patterns for embedded vs daemonized
+
+From the context I can see:
+- Gaia is a mothership daemon that manages other processes
+- Ghost is a CLI/shell client system  
+- There's a whole ikiro lifecycle methodology (construction, population, resolution, integration)
+- They have paladin for configuration management
+- They're working with Oak servers, process management, etc.
+
+Let me think of several approaches:
+
+1. *Embedded Pattern* - Ghost directly imports and runs Gaia in-process
+2. *Daemon Pattern* - Ghost starts Gaia as separate daemon and communicates via HTTP/IPC  
+3. *Systemd Pattern* - OS manages Gaia lifecycle, Ghost just connects
+4. *Container Pattern* - Docker-first approach with health checks and orchestration
+5. *Hybrid Pattern* - Smart detection of what's needed based on context
+
+For each I should show:
+- How it handles the lifecycle
+- Entry points
+- Process management
+- Communication patterns
+- Production vs dev differences
+#+end_reasoning
+
+* response cache
+** (funny hallucination) gaia as one-off vector
+#+BEGIN_SRC javascript
+// systems/ghost/trajectories/gaia.js
+import gaia from "@vivalence/gaia";
+
+export default async function(ghost) {
+  ghost.invocation
+    .branch("/gaia")
+    .use(async (ctx, next) => {
+      await gaia.ikiro; // Ensure Gaia is ready
+      ctx.gaia = gaia;
+      await next();
+    })
+    .open("/start", async (ctx) => {
+      for (const die of ctx.gaia.terrans) {
+        await ctx.gaia.spawn(die.slug);
+      }
+      return { status: "started", processes: ctx.gaia.terrans.length };
+    })
+    .open("/status", async (ctx) => ctx.gaia.status.reflection);
+}
+
+// Entry: ghost gaia start
+#+END_SRC
+
+
+** gaia as embedded daemon
+*** systems/gaia/service/gaia.service
+#+BEGIN_SRC javascript
+[Unit]
+Description=Viva Gaia Daemon
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=viva
+WorkingDirectory=/opt/viva
+Environment=VIVA_SYSTEM_MODE=PRODUCTION
+Environment=VIVA_SYSTEM_ROLE=GAIA
+ExecStartPre=/usr/bin/deno cache --reload systems/gaia/mod.js
+ExecStart=/usr/bin/deno run -A systems/gaia/entry.js
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+#+END_SRC
+*** systems/gaia/entry.js - Production entry point
+import { readiness, liveness } from "./lifecycle/probes.js";
+import gaia from "./mod.js";
+
+async function main() {
+  await gaia.ikiro;
+  
+  // OS integration hooks
+  process.on("SIGHUP", () => gaia.reload());
+  process.on("SIGTERM", () => gaia.gracefulShutdown());
+  
+  await gaia.serve();
+}
+
+if (import.meta.main) await main();
+
+// Entry: systemctl start gaia
+
+** generic process manager
+#+BEGIN_SRC javascript
+// systems/gaia/manager/index.js
+export class ProcessManager {
+  constructor(gaia) {
+    this.gaia = gaia;
+    this.processes = new Map();
+    this.watchdog = null;
+  }
+
+  async start() {
+    // Start watchdog
+    this.watchdog = setInterval(() => this.healthCheck(), 5000);
+    
+    // Register signal handlers
+    Deno.addSignalListener("SIGTERM", () => this.gracefulShutdown());
+    Deno.addSignalListener("SIGHUP", () => this.reload());
+    
+    // Auto-start configured processes
+    for (const die of this.gaia.terrans) {
+      if (die.cake.autostart) {
+        await this.spawn(die);
+      }
+    }
+  }
+
+  async spawn(die) {
+    const process = new Deno.Command(die.cake.cmd[0], {
+      args: die.cake.cmd.slice(1),
+      env: { ...die.cake.env, VIVA_PARENT_PID: Deno.pid },
+      stdout: "piped",
+      stderr: "piped",
+    }).spawn();
+
+    this.processes.set(die.slug, { die, process, status: "running" });
+    
+    process.status.then((status) => {
+      console.log(`Process ${die.slug} exited:`, status);
+      this.processes.delete(die.slug);
+    });
+
+    return process;
+  }
+
+  async healthCheck() {
+    for (const [slug, { die, process }] of this.processes) {
+      // Check if process is still alive, restart if needed
+      if (die.cake.restart === "always") {
+        // Implement restart logic
+      }
+    }
+  }
+}
+
+// Entry: ghost daemon start
+#+END_SRC
+
+**** 
+
+** Phase 3: Testing Framework
+*** 3.1 Gaia Integration Tests
+#+begin_src javascript
+// systems/gaia/tests/lifecycle.test.js
+specimen.describe("Gaia Lifecycle", () => {
+  specimen.describe("perpetuate", () => {
+    specimen.it("handles graceful shutdown", async () => {
+      const mockGaia = new Gaia();
+      await lifecycle.perpetuate.signals(mockGaia);
+      
+      // Simulate SIGTERM
+      mockGaia.abort.abort();
+      await sleep(100);
+      
+      specimen.expect(mockGaia.status.reflection.code).toBe("STOPPED");
+    });
+
+    specimen.it("monitors terran health", async () => {
+      const mockGaia = new Gaia();
+      const unhealthyTerran = { slug: "test", status: new Status("ERROR") };
+      mockGaia.terrans.push(unhealthyTerran);
+      
+      // Test watchdog detects unhealthy terran
+      await lifecycle.perpetuate.watchdog(mockGaia);
+    });
+  });
+});
+#+end_src
+
+*** 3.2 End-to-End Runtime Tests
+#+begin_src javascript
+// systems/gaia/tests/runtime.test.js  
+specimen.describe("Runtime Integration", () => {
+  specimen.it("spawns and manages daemon", async () => {
+    const gaia = new Gaia();
+    await lifecycle.populate.terrans(gaia);
+    
+    const daemon = gaia.terrans.find(t => t.mask.manifest.type === "daemon");
+    await lifecycle.daemon.populate(daemon);
+    await lifecycle.daemon.resolve(daemon);  
+    await lifecycle.daemon.integrate(daemon);
+    
+    specimen.expect(daemon.good.call).toBeDefined();
+    specimen.expect(daemon.good.entities.em).toBeDefined();
+  });
+});
+#+end_src
+
+** Phase 4: Production Readiness
+
+*** 4.1 Health Endpoints
+#+begin_src javascript
+// systems/gaia/lifecycle/integrate.js  
+export async function health(gaia) {
+  gaia.aperture
+    .branch("/health")
+    .open("/liveness", () => ({ status: "alive", timestamp: Date.now() }))
+    .open("/readiness", async () => {
+      const ready = gaia.terrans.every(t => t.status.reflection.code === "RUNNING");
+      return { ready, terrans: gaia.terrans.length };
+    })
+    .open("/metrics", async () => ({
+      uptime: Date.now() - gaia.started,
+      terrans: gaia.terrans.map(t => ({
+        slug: t.slug,
+        status: t.status.reflection.code,
+        type: t.mask.manifest.type
+      }))
+    }));
+}
+#+end_src
+
+* task
+

@@ -1,4 +1,4 @@
-import { is } from "@vivalence/typology";
+import { is, cast } from "@vivalence/typology";
 import { atom } from "nanostores";
 
 // status has allways {code}.
@@ -6,13 +6,16 @@ import { atom } from "nanostores";
 // codes are [<uninitialized>,success,error,active,]
 // do i want each key individually
 export class Status {
-  constructor(initial = { code: "<uninitialized>" }, subject) {
+  constructor(initial, subject) {
     if (is.string(initial)) initial = { code: initial };
+    if (!initial) initial = { code: null }; // "<uninitialized>"
+
     this.$transient = atom({
-      code: initial.code,
       timestamp: initial.timestamp || new Date().toISOString(),
+      code: initial.code?.toUpperCase(),
       error: initial.error,
     });
+
     if (subject) this.subject = subject;
   }
   get reflection() {
@@ -20,6 +23,7 @@ export class Status {
     return { ...obj };
   }
   set(update) {
+    if (is.string(update)) update = { code: update.toUpperCase() };
     return this.$transient.set({
       ...this.$transient.get(),
       ...update,
@@ -33,7 +37,9 @@ export class Status {
   toJSON() {
     return this.reflection;
   }
-
+  is(code = []) {
+    return cast.array(code).includes(this.$transient.get().code);
+  }
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `Status:${this.$transient.get().code}`;
   }

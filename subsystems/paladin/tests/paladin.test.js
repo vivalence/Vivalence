@@ -82,7 +82,7 @@ specimen.describe("Paladin", () => {
     specimen.describe("cycles", () => {
       specimen.it("circuits", async () => await resolve.circuits(paladin));
       specimen.it("variant", async () => await resolve.variant(paladin));
-      specimen.it("deps", async () => await resolve.dependencies(paladin));
+      specimen.it("deps", async () => await resolve.consumables(paladin));
       specimen.it("mounts", async () => await resolve.mounts(paladin));
     });
 
@@ -98,13 +98,13 @@ specimen.describe("Paladin", () => {
 
     specimen.it("variant compilation", () => {
       specimen.expect(paladin.variant.lighthouse).toBeDefined();
-      specimen.expect(paladin.variant.gaia).toBeDefined();
+      specimen.expect(paladin.variant.runtime).toBeDefined();
       specimen
-        .expect(paladin.variant.gaia.statics.serve.href)
+        .expect(paladin.variant.runtime.statics.serve.href)
         .toBe("http://localhost:1729/");
 
       specimen.expect(paladin.variant.clients.ghost).toBeDefined();
-      specimen.expect(paladin.variant.clients.hut).toBeDefined();
+      specimen.expect(paladin.variant.clients.html).toBeDefined();
 
       specimen.expect(paladin.variant.daemons).toBeInstanceOf(Array);
       specimen.expect(paladin.variant.daemons.length).toBe(1);
@@ -171,7 +171,7 @@ specimen.describe("Paladin", () => {
       //   specimen.expect(nonCircuits.length).toBe(0);
       // });
 
-      // specimen.it("variant defence", () => {const circuits = [{ gaia: { test: 1 } }, { gaia: { test: 2 } }]; specimen .expect(() => {if (circuits.filter((c) => c.gaia).length > 1) {throw new Error("Multiple gaia configurations found");}}) .toThrow("Multiple gaia configurations found");});
+      // specimen.it("variant defence", () => {const circuits = [{ runtime: { test: 1 } }, { runtime: { test: 2 } }]; specimen .expect(() => {if (circuits.filter((c) => c.runtime).length > 1) {throw new Error("Multiple runtime configurations found");}}) .toThrow("Multiple runtime configurations found");});
 
       specimen.it("filesystem mount creation", async () => {
         // All mount directories should exist after resolution
@@ -235,8 +235,8 @@ specimen.describe("Paladin", () => {
 //       assert(is.array(paladin.traits));
 //     });
 
-//     it("populates runtime cakes", () => {
-//       // @beef: test that runtime, lighthouse, datamap, services, are all cakes.
+//     it("populates runtime masks", () => {
+//       // @beef: test that runtime, lighthouse, datamap, services, are all masks.
 //     });
 //   });
 
@@ -249,35 +249,35 @@ specimen.describe("Paladin", () => {
 //         // test that
 //       });
 
-//       // specimen.it("runtime cake with mount and services", async () => {
+//       // specimen.it("runtime mask with mount and services", async () => {
 //       //   const config = {
 //       //     slug: "test-runtime",
 //       //     services: [{ slug: "lighthouse" }, { slug: "datamap" }],
 //       //   };
 
-//       //   runtimeCake = paladin.bake.runtime(new Cake(config));
+//       //   runtimeMask = paladin.bake.runtime(new Mask(config));
 
-//       //   expect(runtimeCake.mount).toBeDefined();
-//       //   expect(runtimeCake.mount.absolute).toContain("runtime_test-runtime");
-//       //   expect(runtimeCake.services).toHaveLength(2);
+//       //   expect(runtimeMask.mount).toBeDefined();
+//       //   expect(runtimeMask.mount.absolute).toContain("runtime_test-runtime");
+//       //   expect(runtimeMask.services).toHaveLength(2);
 //       // });
 
 //       // specimen.it("autocompletes lighthouse service", async () => {
 //       //   const config = { slug: "test-runtime-2" };
-//       //   const cake = paladin.bake.runtime(new Cake(config));
+//       //   const mask = paladin.bake.runtime(new Mask(config));
 
-//       //   expect(cake.lighthouse).toBeDefined();
-//       //   expect(cake.lighthouse.runtime).toBe("test-runtime-2");
+//       //   expect(mask.lighthouse).toBeDefined();
+//       //   expect(mask.lighthouse.runtime).toBe("test-runtime-2");
 //       // });
 
 //       // specimen.it("autocompletes datamap service", async () => {
 //       //   const config = { slug: "test-runtime-3" };
-//       //   const cake = paladin.bake.runtime(new Cake(config));
+//       //   const mask = paladin.bake.runtime(new Mask(config));
 //       //   // @beef: note here
-//       //   console.log({ paladin: { paladin }, cake });
+//       //   console.log({ paladin: { paladin }, mask });
 
-//       //   expect(cake.datamap).toBeDefined();
-//       //   expect(cake.datamap.runtime).toBe("test-runtime-3");
+//       //   expect(mask.datamap).toBeDefined();
+//       //   expect(mask.datamap.runtime).toBe("test-runtime-3");
 //       // });
 //     });
 //   });

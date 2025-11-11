@@ -1,0 +1,970 @@
+:PROPERTIES:
+:GPTEL_MODEL: claude-sonnet-4-5-20250929
+:GPTEL_BACKEND: anthropic-thinking
+:GPTEL_SYSTEM: You are a large language model living in Emacs and a helpful assistant. Respond concisely.
+:GPTEL_BOUNDS: ((response (471 1664) (1682 8510) (9212 13344) (13525 23576) (24099 24150) (24154 27427) (28093 29122)))
+:END:
+* ikiro
+* exe
+i want to start the integration process of gaia as the mothership daemon.
+please structure my workpackage for me.
+
+
+
+#+begin_reasoning
+The user is asking me to structure a workpackage for integrating Gaia as the "mothership daemon" using the ikiro methodology. Looking at the context:
+
+1. They've completed the paladin system with proper lifecycle testing
+2. They have a clear understanding of Pup's architecture and want to apply those patterns
+3. They're moving from paladin (configuration) to gaia (process management)
+4. They want to use ikiro's lifecycle approach: construction, population, resolution, integration
+
+From the context, I can see:
+- Gaia needs to be the main daemon that manages other processes
+- They want to start hut and lighthouse through gaia
+- They need to figure out the die/good terminology and how processes start/stop
+- They need testing ASAP
+- They're inspired by Pup's process management patterns
+
+Key components from their notes:
+- Oak server infrastructure 
+- Watchdog (they want to call it "pup")
+- Status and connection mechanisms
+- Process control (start/stop/restart)
+- Die casting on start
+- Storage and schema considerations
+
+I should structure this as a workpackage using ikiro methodology with the four phases, breaking down the work into manageable chunks while keeping testing central.
+#+end_reasoning
+
+# Gaia Integration Workpackage
+
+** Overview
+Transform Gaia from placeholder to mothership daemon - the process manager that orchestrates hut, lighthouse, and all other viva services using paladin as configuration backbone.
+
+** Phase 1: Construction
+/Build the fundamental Gaia prototype and establish testing foundation/
+
+*** 1.1 Gaia Prototype Creation
+#+begin_src javascript
+// systems/gaia/prototype.js
+export class Gaia {
+  process = null;     // oak server process
+  server = null;      // oak application
+  aperture = null;    // routing system
+  twitch = null;      // event system
+  things = [];        // [Die instances]
+  pup = null;         // watchdog timer
+}
+#+end_src
+
+*** 1.2 Testing Foundation
+#+begin_src javascript
+// systems/gaia/tests/gaia.test.js
+specimen.describe("Gaia", () => {
+  specimen.describe("construction", () => {
+    specimen.it("cycles", () => {
+      gaia = new Gaia();
+    });
+    
+    specimen.describe("gestalt", () => {
+      specimen.it("is gaia", () => {
+        specimen.expect(is.gaia(gaia)).toBe(true);
+      });
+    });
+  });
+});
+#+end_src
+
+*** 1.3 Die Prototype Definition  
+#+begin_src javascript
+// systems/gaia/prototypes/die.js
+export class Die {
+  constructor({ cake, good }) {
+    this.cake = cake;    // configuration
+    this.good = good;    // running instance (Daemon/Service)
+    this.status = "created";
+    this.pid = null;
+    this.started = null;
+  }
+}
+#+end_src
+
+** Phase 2: Population
+/Load configuration, create dies, establish server infrastructure/
+
+*** 2.1 Paladin Integration
+#+begin_src javascript
+// systems/gaia/lifecycle/populate.js
+export async function paladin(gaia) {
+  gaia.paladin = await import("@vivalence/paladin");
+  await gaia.paladin.ikiro; // ensure paladin is fully populated
+}
+
+export async function variant(gaia) {
+  gaia.variant = gaia.paladin.variant;
+  // Access to circuits, gaia config, clients, daemons, services
+}
+#+end_src
+
+*** 2.2 Die Casting
+#+begin_src javascript
+export async function dies(gaia) {
+  // Cast dies for each daemon
+  for (const daemon of gaia.variant.daemons) {
+    const good = new Daemon(daemon); // from @vivalence/daemon
+    const die = new Die({ cake: daemon, good });
+    gaia.things.push(die);
+  }
+  
+  // Cast dies for each service  
+  for (const service of gaia.variant.services) {
+    const good = await gaia.paladin.vip.accio(service.module);
+    const die = new Die({ cake: service, good });
+    gaia.things.push(die);
+  }
+}
+#+end_src
+
+*** 2.3 Server Infrastructure
+#+begin_src javascript
+export async function server(gaia) {
+  const { Application } = await import("@oak/oak");
+  gaia.server = new Application();
+  
+  // Basic status endpoint
+  gaia.server.use(async (ctx, next) => {
+    if (ctx.request.url.pathname === "/status") {
+      ctx.response.body = { status: "alive", things: gaia.things.length };
+    } else {
+      await next();
+    }
+  });
+}
+#+end_src
+
+** Phase 3: Resolution
+/Establish process control, watchdog, and die lifecycle management/
+
+*** 3.1 Die Lifecycle Control
+#+begin_src javascript
+// systems/gaia/lifecycle/resolve.js
+export async function control(gaia) {
+  gaia.start = async (dieId) => {
+    const die = gaia.things.find(d => d.cake.slug === dieId);
+    if (die && die.status === "created") {
+      die.status = "starting";
+      die.started = new Date();
+      // Actual process spawning logic here
+      die.status = "running";
+    }
+  };
+  
+  gaia.stop = async (dieId) => {
+    const die = gaia.things.find(d => d.cake.slug === dieId);
+    if (die && die.status === "running") {
+      die.status = "stopping";
+      // Process termination logic here  
+      die.status = "stopped";
+    }
+  };
+}
+#+end_src
+
+*** 3.2 Pup Watchdog
+#+begin_src javascript
+export async function pup(gaia) {
+  gaia.pup = setInterval(() => {
+    for (const die of gaia.things) {
+      // Health checks
+      // Auto-restart logic
+      // Status monitoring
+      if (die.cake.autostart && die.status === "created") {
+        gaia.start(die.cake.slug);
+      }
+    }
+  }, 5000); // Check every 5 seconds
+}
+#+end_src
+
+*** 3.3 Status & Connection System
+#+begin_src javascript
+export async function status(gaia) {
+  gaia.getStatus = () => ({
+    server: gaia.server ? "running" : "stopped", 
+    things: gaia.things.map(die => ({
+      slug: die.cake.slug,
+      status: die.status,
+      started: die.started,
+      pid: die.pid
+    }))
+  });
+}
+#+end_src
+
+** Phase 4: Integration
+/Launch server, establish API routes, integrate with existing systems/
+
+*** 4.1 API Routes
+#+begin_src javascript
+// systems/gaia/lifecycle/integrate.js
+export async function api(gaia) {
+  const router = new Router();
+  
+  router.get("/status", (ctx) => {
+    ctx.response.body = gaia.getStatus();
+  });
+  
+  router.post("/start/:id", async (ctx) => {
+    await gaia.start(ctx.params.id);
+    ctx.response.body = { action: "start", id: ctx.params.id };
+  });
+  
+  router.post("/stop/:id", async (ctx) => {
+    await gaia.stop(ctx.params.id);
+    ctx.response.body = { action: "stop", id: ctx.params.id };
+  });
+  
+  gaia.server.use(router.routes());
+}
+#+end_src
+
+*** 4.2 Server Launch
+#+begin_src javascript
+export async function launch(gaia) {
+  const port = gaia.variant.gaia.statics.serve.port;
+  console.log(`Gaia rising on port ${port}`);
+  
+  await gaia.server.listen({ port });
+}
+#+end_src
+
+*** 4.3 Process Integration  
+#+begin_src javascript
+export async function processes(gaia) {
+  // Auto-start configured services
+  for (const die of gaia.things) {
+    if (die.cake.autostart) {
+      await gaia.start(die.cake.slug);
+    }
+  }
+}
+#+end_src
+
+** Testing Strategy
+/Parallel to each phase/
+
+*** Integration Tests
+#+begin_src javascript
+// systems/gaia/tests/integration.test.js
+specimen.describe("Gaia Integration", () => {
+  specimen.it("starts hut and lighthouse", async () => {
+    const gaia = new Gaia();
+    await populate.everything(gaia);
+    await resolve.everything(gaia);
+    
+    // Verify hut die exists and can start
+    const hutDie = gaia.things.find(d => d.cake.slug === "hut");
+    specimen.expect(hutDie).toBeDefined();
+    
+    await gaia.start("hut");
+    specimen.expect(hutDie.status).toBe("running");
+  });
+});
+#+end_src
+
+** Success Criteria
+- [ ] Gaia server responds on configured port
+- [ ] Dies cast successfully from paladin variant
+- [ ] Start/stop API endpoints functional  
+- [ ] Watchdog monitors and restarts services
+- [ ] Integration tests pass for hut + lighthouse
+- [ ] Status endpoint shows accurate die states
+
+** Dependencies
+- Paladin fully populated and resolved
+- Oak server infrastructure  
+- Die/Cake/Good terminology solidified
+- Service module loading via vip.accio
+- Basic process spawning mechanism
+
+This workpackage takes you from "nothing" to "gaia managing hut and lighthouse" in systematic ikiro fashion, with testing baked in from construction phase.
+
+*** 
+* context
+
+one interesting mechanism to explore in pup is how the decision is made to start/stop/xxx a service.
+and how they embedd it into the os.
+whether i start with hut or lighthouse, i need to have that figured out.
+
+then i need to figure out where that fits in my die/good terminology and expression.
+like, is a die cast on start? i assume so. what about the dependencies. hmm.
+what do i need in terms of persistant storages and whats the schema? whats used in pup?
+there is probably some expected state / actual state missmatch.
+maybe i can express that as constraints and remedies.
+* exe
+excellent!
+which parts of pup are interesting to me?
+point to files and approximate line-ranges.
+
+
+Looking at your questions about Pup's process control mechanisms, here are the most relevant parts:
+
+** Process Lifecycle Control
+
+*=lib/core/process.ts= lines 140-210* - The core =start()= method:
+#+begin_src javascript
+public async start(reason?: string, restart?: boolean) {
+  // Guard conditions - blocked, already running, restart limits
+  if (this.blocked) return
+  if (this.status === RUNNING && !this.config.overrun) return
+  if (this.restarts >= this.config.restartLimit && restart) {
+    this.setStatus(ApiProcessState.EXHAUSTED)
+    return
+  }
+  
+  // Create runner and execute
+  this.runner = this.config.worker 
+    ? new WorkerRunner(this.pup, this.config)
+    : new Runner(this.pup, this.config)
+}
+#+end_src
+
+*=lib/core/process.ts= lines 240-290* - The =stop()= method with graceful termination:
+#+begin_src javascript
+public stop = async (reason: string): Promise<boolean> => {
+  this.setStatus(ApiProcessState.STOPPING)
+  
+  // Graceful termination sequence
+  delay(this.config.terminateGracePeriod * 1000).then(() => {
+    this.killRunner(reason, "SIGTERM")  // Try graceful first
+  })
+  
+  delay(this.config.terminateTimeout * 1000).then(() => {
+    this.killRunner(reason, "SIGKILL")  // Force kill if needed
+  })
+}
+#+end_src
+
+** Watchdog Decision Logic
+
+*=lib/core/pup.ts= lines 340-420* - The watchdog that makes start/stop decisions:
+#+begin_src javascript
+private watchdog = async () => {
+  for (const process of this.allProcesses()) {
+    // 1. Autostart decisions
+    if (config.autostart && status.status === CREATED) {
+      process.start("autostart")
+    }
+
+    // 2. Restart policy decisions  
+    if (status.status === FINISHED || status.status === ERRORED) {
+      const restartPolicy = config.restart ?? "always"
+      if (restartPolicy === "always" ||
+         (restartPolicy === "error" && status.status === ERRORED)) {
+        process.start("restart", true)
+      }
+    }
+
+    // 3. Timeout enforcement
+    if (status.status === RUNNING && config.timeout) {
+      if (secondsRunning > config.timeout) {
+        process.stop("timeout")
+      }
+    }
+  }
+}
+#+end_src
+
+** State Management & Persistence
+
+*=lib/core/status.ts= lines 50-100* - Application state persistence:
+#+begin_src javascript
+public async writeToStore(applicationState: ApiApplicationState) {
+  // Write application_state at most once per 20 seconds
+  const kv = new KV({ autoSync: false, disableIndex: true })
+  await kv.open(this.storeName)
+  
+  await kv.set(["application_state", Date.now()], applicationState)
+  await kv.set(["last_application_state"], applicationState)
+}
+#+end_src
+
+*=lib/core/process.ts= lines 40-80* - Process state tracking:
+#+begin_src javascript
+interface ProcessInformation {
+  id: string
+  status: ApiProcessState  // CREATED, STARTING, RUNNING, STOPPING, etc.
+  pid?: number
+  started?: Date
+  exited?: Date
+  blocked?: boolean
+  restarts?: number
+  telemetry?: ApiTelemetryData
+}
+#+end_src
+
+** Configuration-Driven Behavior
+
+*=lib/core/configuration.ts= lines 80-150* - Process configuration schema:
+#+begin_src javascript
+interface ProcessConfiguration {
+  autostart?: boolean     // Auto-start decision
+  restart?: string       // "always" | "error" - restart policy
+  restartDelayMs?: number
+  restartLimit?: number
+  timeout?: number       // Process timeout
+  overrun?: boolean      // Allow multiple instances
+  terminateTimeout?: number
+  terminateGracePeriod?: number
+}
+#+end_src
+
+** Key Insights for Your Die/Good System:
+
+1. *Die casting timing*: Pup creates Process instances at startup but doesn't spawn until watchdog decides to start them
+2. *State management*: Uses KV store for persistence with expected vs actual state tracking
+3. *Decision logic*: Watchdog runs every 1000ms making start/stop decisions based on configuration + current state
+4. *Graceful termination*: SIGTERM → wait → SIGKILL pattern
+5. *Constraint system*: Guards prevent invalid state transitions (blocked processes can't start, etc.)
+
+The *expected vs actual state mismatch* you mentioned is handled through the watchdog constantly reconciling desired state (configuration) with actual state (process status).
+
+* exe
+express the process lifecycle and watchdog in viva style prototypes and lifecycle functions.
+pattern it to be self-consistent but broadly ready to be embedded into gaia.
+
+
+
+Looking at Pup's process management patterns, here's the viva-style implementation:
+
+** Process Prototype
+
+#+begin_src javascript
+// systems/gaia/prototypes/process.js
+import { Status, Connection } from "@vivalence/typology";
+import { Vector } from "@vivalence/vector";
+
+export class Process {
+  constructor(cake, gaia) {
+    this.cake = cake;           // ProcessConfiguration
+    this.gaia = gaia;           // Gaia instance
+    this.runner = null;         // Execution context
+    this.blocked = false;       // Manual override
+    this.restarts = 0;          // Restart counter
+    
+    // Reactive state management
+    this.status = Status("created");
+    this.connection = new Connection();
+    this.events = new Vector();
+    
+    // Process metadata
+    this.pid = null;
+    this.started = null;
+    this.exited = null;
+    this.reason = null;         // Last action reason
+  }
+
+  // State transition guards
+  canStart() {
+    if (this.blocked) return { can: false, reason: "blocked" };
+    if (this.status.get().code === "running" && !this.cake.overrun) {
+      return { can: false, reason: "already_running" };
+    }
+    if (this.restarts >= (this.cake.restartLimit ?? Infinity)) {
+      return { can: false, reason: "exhausted" };
+    }
+    return { can: true };
+  }
+
+  canStop() {
+    const status = this.status.get().code;
+    return status === "running" || status === "starting";
+  }
+
+  // Core lifecycle methods
+  async start(reason = "manual", restart = false) {
+    const guard = this.canStart();
+    if (!guard.can) {
+      this.gaia.logger.warn("process", `Cannot start ${this.cake.id}: ${guard.reason}`);
+      return false;
+    }
+
+    this.status.update({ code: "starting" });
+    this.reason = reason;
+    
+    if (restart) this.restarts++;
+
+    try {
+      // Create runner based on cake type
+      this.runner = await this.createRunner();
+      
+      // Execute process
+      const result = await this.runner.run(() => {
+        this.status.update({ code: "running" });
+        this.started = new Date();
+        this.connection.setActive();
+        this.events.emit("started", { reason, restart });
+      });
+
+      // Handle completion
+      if (result.success) {
+        this.status.update({ code: "finished" });
+        this.connection.setHealthy();
+      } else {
+        this.status.update({ code: "errored", error: result.error });
+        this.connection.setFaulty(result.error);
+      }
+      
+      this.exited = new Date();
+      this.events.emit("exited", { code: result.code, success: result.success });
+      
+    } catch (error) {
+      this.status.update({ code: "errored", error });
+      this.connection.setFaulty(error);
+      this.events.emit("crashed", { error });
+    }
+ 
+    return true;
+  }
+
+  async stop(reason = "manual") {
+    if (!this.canStop()) return false;
+
+    this.status.update({ code: "stopping" });
+    this.reason = reason;
+    this.restarts = 0; // Reset restart counter on manual stop
+
+    if (!this.runner) return true;
+
+    const gracePeriod = this.cake.terminateGracePeriod ?? 5;
+    const timeout = this.cake.terminateTimeout ?? 30;
+
+    // Graceful termination sequence
+    setTimeout(() => {
+      this.runner?.kill("SIGTERM");
+    }, gracePeriod * 1000);
+
+    setTimeout(() => {
+      this.runner?.kill("SIGKILL");
+    }, timeout * 1000);
+
+    this.events.emit("stopping", { reason });
+    return true;
+  }
+
+  restart(reason = "manual") {
+    this.stop(`${reason}_restart`);
+    // Actual restart happens in watchdog when status becomes "stopped"
+    this.pendingRestart = reason;
+  }
+
+  block(reason = "manual") {
+    this.blocked = true;
+    this.events.emit("blocked", { reason });
+  }
+
+  unblock(reason = "manual") {
+    this.blocked = false;
+    this.events.emit("unblocked", { reason });
+  }
+
+  // Process factory
+  async createRunner() {
+    if (this.cake.worker) {
+      const { WorkerRunner } = await import("./runners/worker.js");
+      return new WorkerRunner(this.cake, this.gaia);
+    } else if (this.cake.cmd) {
+      const { ProcessRunner } = await import("./runners/process.js");
+      return new ProcessRunner(this.cake, this.gaia);
+    } else {
+      throw new Error(`Process ${this.cake.id}: No cmd or worker specified`);
+    }
+  }
+
+  // Introspection
+  getStatus() {
+    return {
+      id: this.cake.id,
+      status: this.status.get().code,
+      blocked: this.blocked,
+      restarts: this.restarts,
+      pid: this.pid,
+      started: this.started,
+      exited: this.exited,
+      connection: this.connection.isHealthy.get(),
+      reason: this.reason
+    };
+  }
+
+  isPendingRestart() {
+    return !!this.pendingRestart;
+  }
+}
+#+end_src
+
+** Watchdog Lifecycle
+
+#+begin_src javascript
+// systems/gaia/lifecycle/watchdog.js
+import { delay } from "@std/async";
+
+const WATCHDOG_INTERVAL = 5000; // 5 seconds
+
+export async function pup(gaia) {
+  gaia.watchdog = {
+    running: false,
+    interval: null,
+    tick: 0
+  };
+
+  gaia.watchdog.start = () => {
+    if (gaia.watchdog.running) return;
+    
+    gaia.watchdog.running = true;
+    gaia.watchdog.interval = setInterval(async () => {
+      await watchdogTick(gaia);
+    }, WATCHDOG_INTERVAL);
+    
+    gaia.logger.info("watchdog", "Pup watchdog started");
+  };
+
+  gaia.watchdog.stop = () => {
+    if (!gaia.watchdog.running) return;
+    
+    clearInterval(gaia.watchdog.interval);
+    gaia.watchdog.running = false;
+    gaia.logger.info("watchdog", "Pup watchdog stopped");
+  };
+
+  // Auto-start watchdog
+  gaia.watchdog.start();
+}
+
+async function watchdogTick(gaia) {
+  gaia.watchdog.tick++;
+  
+  try {
+    for (const process of gaia.processes()) {
+      await processDecisions(process, gaia);
+    }
+    
+    await systemMaintenance(gaia);
+    
+  } catch (error) {
+    gaia.logger.error("watchdog", `Watchdog error: ${error.message}`);
+  }
+}
+
+async function processDecisions(process, gaia) {
+  const status = process.status.get();
+  const cake = process.cake;
+  
+  // 1. Autostart decisions
+  if (cake.autostart && status.code === "created") {
+    await process.start("autostart");
+    return;
+  }
+  
+  // 2. Pending restart handling
+  if (process.isPendingRestart() && status.code === "stopped") {
+    await process.start(process.pendingRestart, true);
+    process.pendingRestart = null;
+    return;
+  }
+  
+  // 3. Restart policy enforcement
+  if (status.code === "finished" || status.code === "errored") {
+    const msSinceExit = process.exited ? 
+      Date.now() - process.exited.getTime() : Infinity;
+    
+    const restartDelay = cake.restartDelayMs ?? 
+      (cake.watch ? 500 : 10000); // Faster for file watchers
+    
+    if (msSinceExit > restartDelay) {
+      const restartPolicy = cake.restart ?? 
+        (cake.autostart ? "always" : "never");
+      
+      if (restartPolicy === "always") {
+        await process.start("policy_restart", true);
+      } else if (restartPolicy === "error" && status.code === "errored") {
+        await process.start("error_restart", true);
+      }
+    }
+  }
+  
+  // 4. Timeout enforcement
+  if (status.code === "running" && cake.timeout && process.started) {
+    const secondsRunning = (Date.now() - process.started.getTime()) / 1000;
+    if (secondsRunning > cake.timeout) {
+      await process.stop("timeout");
+    }
+  }
+  
+  // 5. Health monitoring
+  if (status.code === "running" && !process.connection.isHealthy.get()) {
+    gaia.logger.warn("watchdog", `Process ${process.cake.id} unhealthy`);
+    // Could trigger restart or alert
+  }
+}
+
+async function systemMaintenance(gaia) {
+  // Every 60 ticks (5 minutes at 5s intervals)
+  if (gaia.watchdog.tick % 60 === 0) {
+    gaia.logger.info("watchdog", `Heartbeat: ${gaia.processes().length} processes`);
+    
+    // Cleanup dead processes, log rotation, etc.
+    await gaia.cleanup?.();
+  }
+}
+#+end_src
+
+** Process Management Integration
+
+#+begin_src javascript
+// systems/gaia/lifecycle/processes.js
+export async function manage(gaia) {
+  gaia.processes = () => Object.values(gaia.things)
+    .filter(thing => thing instanceof Process);
+
+  // Process control methods
+  gaia.start = async (id, reason = "api") => {
+    const process = gaia.processes().find(p => p.cake.id === id);
+    if (!process) throw new Error(`Process not found: ${id}`);
+    return await process.start(reason);
+  };
+
+  gaia.stop = async (id, reason = "api") => {
+    const process = gaia.processes().find(p => p.cake.id === id);
+    if (!process) throw new Error(`Process not found: ${id}`);
+    return await process.stop(reason);
+  };
+
+  gaia.restart = async (id, reason = "api") => {
+    const process = gaia.processes().find(p => p.cake.id === id);
+    if (!process) throw new Error(`Process not found: ${id}`);
+    return process.restart(reason);
+  };
+
+  gaia.block = async (id, reason = "api") => {
+    const process = gaia.processes().find(p => p.cake.id === id);
+    if (!process) throw new Error(`Process not found: ${id}`);
+    process.block(reason);
+  };
+
+  // Batch operations
+  gaia.startAll = async (reason = "api") => {
+    const results = await Promise.allSettled(
+      gaia.processes().map(p => p.start(reason))
+    );
+    return results.map((r, i) => ({ 
+      id: gaia.processes()[i].cake.id, 
+      success: r.status === "fulfilled" 
+    }));
+  };
+
+  gaia.getStatus = () => ({
+    processes: gaia.processes().map(p => p.getStatus()),
+    watchdog: {
+      running: gaia.watchdog?.running,
+      tick: gaia.watchdog?.tick
+    },
+    uptime: Date.now() - gaia.started
+  });
+}
+#+end_src
+
+** Key Design Decisions:
+
+1. *Reactive State*: Using =Status= and =Connection= stores for real-time state updates
+2. *Guard Pattern*: =canStart()=, =canStop()= prevent invalid transitions  
+3. *Event-Driven*: Process lifecycle emits events for monitoring
+4. *Graceful Termination*: SIGTERM → wait → SIGKILL pattern from Pup
+5. *Configurable Policies*: Restart behavior driven by cake configuration
+6. *Watchdog Separation*: Clean separation between process logic and scheduling logic
+
+This gives you Pup's robustness with viva's reactive patterns and clean lifecycle separation, ready to embed into Gaia's mothership architecture.
+
+*** 
+
+* IKIRO
+* task
+cast the gaia workpackage in two dimensions.
+once the type covering all tools, repos, prototypes and primitives.
+once the types of operations to get there: renaming, retoolings, rewiring, reintegration.
+
+** topic aggregation
+all tools applied. yet to be carved.
+all internal repositories instantiated.
+all prototypes instantiated and healthy.
+all primitives where how how they should be.
+all prototypes and lifecycle functions at least named.
+specimin inspection scaffolded.
+
+** execution prediction
+Renamings: 
+Retoolings: 
+Rewiring: 
+Reintegration: 
+
+
+
+ 
+
+* Gaia Workpackage - Ikiro Style
+** Typological Dimension - System Architecture
+*** *Tools* (Applied, yet to be carved)
+**** gaia
+- *Process Management*: Control vector shards for spawn/kill/monitor
+- *Docker/Compose*: Process orchestration primitives  
+- *Oak Server*: HTTP aperture with routing
+- *Watchdog (Pup)*: Periodic health checks and restart policies
+
+**** paladin
+- *Environment*: Env casting and secret management
+
+**** typology
+- *Status/Connection*: Reactive state management stores
+
+*** *Prototypes* (To be instantiated and healthy)
+#+begin_src javascript
+class Gaia {
+  server = null;        // Oak application
+  aperture = null;      // Routing system  
+  things = [];          // [Die instances]
+  pup = null;           // Watchdog timer
+  status = Status();    // Gaia's own status
+}
+
+class Die {
+  cake = null;          // Configuration
+  good = null;          // Running process
+  status = Status();    // Process state
+  connection = null;    // Health monitor
+}
+
+class ControlVector {
+  start = () => {};     // Process spawn
+  stop = () => {};      // Graceful shutdown
+  status = () => {};    // Health check
+  logs = () => {};      // Output stream
+}
+#+end_src
+
+** Operational Dimension - Execution Strategy
+*** *Renamings* (Identity establishment)
+- =lighthouse= → service attachment (in progress)
+- Process terminology: die/cake/good → Process/Configuration/Instance
+- watchdog 
+*** *Retoolings* (Capability transformation)
+- Shell tools → Gaia tools (env, docker, process)
+- Control vectors → standardized interfaces
+- Status management → reactive stores
+
+*** *Rewiring* (Structural reorganization)  
+- palain.variant, paladin.vip + gaia.terrans (dies for active processes), gaia.pup runner ->  coherent across prototypes, lifecycles,  presentation layer (aperture / ghost cli), 
+- ?? 
+
+*** *Reintegration* (System coherence)
+- Paladin populates Gaia with process definitions
+- Gaia manages process lifecycle through control vectors
+- Watchdog monitors and maintains desired state
+- Aperture exposes process management API
+
+** Specimen Inspection Scaffolding
+
+#+begin_src javascript
+describe("Gaia", () => {
+  describe("construction", () => {
+    it("cycles", () => gaia = new Gaia());
+    
+    describe("gestalt", () => {
+      it("has process management tools", () => {
+        expect(gaia.spawn).toBeDefined();
+        expect(gaia.kill).toBeDefined();
+        expect(gaia.watchdog).toBeDefined();
+      });
+    });
+  });
+
+  describe("population", () => {
+    it("loads processes from paladin", async () => {
+      await populate.processes(gaia, paladin);
+      expect(gaia.things.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe("resolution", () => {
+    it("starts lighthouse and hut", async () => {
+      await gaia.start("lighthouse");
+      await gaia.start("hut");
+      expect(gaia.status("lighthouse")).toBe("running");
+    });
+  });
+});
+#+end_src
+
+** Success Criteria
+- [ ] Gaia can spawn/kill lighthouse and hut
+- [ ] Process status exposed via aperture  
+- [ ] Watchdog monitors and restarts failed processes
+- [ ] Clean separation: Gaia owns processes, clients own remotes
+- [ ] Control vector interface standardized across all services
+
+The path: *Paladin circuits* → *Gaia dies* → *Running services* → *System coherence*
+
+*** 
+
+
+* meta
+were much further ahead now.
+the next step is to lifecycle into gaia, one feature after another.
+
+* task
+starting with server.
+first step is to have the server up.
+
+we test the gaia.server in the lifecycle "integration" under valences with
+describe(valences).describe(status).it(is exposed)
+describe(valences).describe(aperture).it(exposes status) // ie vice versa.
+
+test that port actually serves approapriate not found on not found..
+
+    .open("/status", (body, ctx) => ({
+      code: "code",
+      timestamp: ...,
+      ...gaia.status
+    }))
+
+write the test file for gaia, and the two lifecycle files populate and integrate.
+
+
+#+begin_reasoning
+The user wants me to implement the next step in the gaia workpackage - specifically starting with the server functionality. They want:
+
+1. A test file for gaia with the ikiro lifecycle testing structure
+2. Two lifecycle files: populate and integrate 
+3. Focus on getting the server up and running
+4. Test that the server exposes status via aperture
+5. Test that appropriate 404s are returned
+
+They want the testing structure to be:
+- describe(valences).describe(status).it(is exposed)
+- describe(valences).describe(aperture).it(exposes status)
+
+And they want a status endpoint that returns:
+#+begin_src javascript
+.open("/status", (body, ctx) => ({
+  code: "code", 
+  timestamp: ...,
+  ...gaia.status
+}))
+#+end_src
+
+I need to write:
+1. =systems/gaia/tests/gaia.test.js= - main test file
+2. =systems/gaia/lifecycle/populate.js= - population phase
+3. =systems/gaia/lifecycle/integrate.js= - integration phase with server setup
+
+The test should follow ikiro methodology with construction, population, resolution, integration phases.
+#+end_reasoning

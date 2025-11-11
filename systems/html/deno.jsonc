@@ -1,0 +1,19 @@
+{
+  "name": "@vivalence/html",
+  "version": "0.0.1",
+  "exports": {
+    "./typology": "./src/typology/index.js",
+    "./control": "./client.viva.js",
+  },
+  "tasks": {
+    "watch": "deno run -A npm:vite dev",
+    "build": "docker build -f ./Dockerfile -t viva/html:latest ../..",
+    "preview": "deno run -A npm:vite preview",
+  },
+}
+
+// "lint": "prettier --plugin-search-dir . --check . && eslint .",
+// "format": "prettier --plugin-search-dir . --write .",
+// "check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json",
+// "tailwind-config-viewer": "npx tailwind-config-viewer -o",
+// "css:bsp": "npx postcss --config postcss.config.js src/style/bsp/bsp.css -o test-output.css"

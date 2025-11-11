@@ -1,0 +1,31 @@
+Divio's Documentation Ontology
+Four types. Four purposes. That's it.
+The Matrix
+                LEARNING          WORKING
+PRACTICAL       Tutorials         How-to Guides
+THEORETICAL     Explanation       Reference
+The Four
+Tutorials - Learning by doing
+
+Step-by-step lessons for beginners
+Get them to a working result
+No explanations, just actions
+
+How-to Guides - Solving specific problems
+
+Recipes for the experienced
+Goal-oriented, not comprehensive
+Assume knowledge
+
+Reference - Technical specs
+
+Dry, accurate, complete
+Structure mirrors the code
+Machine-readable truth
+
+Explanation - Understanding concepts
+
+Context, design decisions, alternatives
+Why things are the way they are
+Connects the dots
+

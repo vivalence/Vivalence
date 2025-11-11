@@ -4,6 +4,7 @@ import read from "./read.js";
 import check from "./check.js";
 import state from "./state.js";
 import is from "./is.js";
+import scope from "./scope.js";
 
 export default {
   //
@@ -13,4 +14,5 @@ export default {
   check,
   state,
   is,
+  scope,
 };

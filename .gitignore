@@ -1,12 +1,12 @@
-.jj
-.git
-.github
 tilde
 tilde/*
 /tilde/*
 ./tilde/*
 **/mountpoint
 
+.jj
+.git
+.github
 node_modules
 **/node_modules
 

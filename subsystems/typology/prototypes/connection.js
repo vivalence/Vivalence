@@ -30,19 +30,19 @@ export class Connection {
   }
 
   setActive() {
-    this.$status.set({ code: "ACTIVE" });
+    this.status.set({ code: "ACTIVE" });
   }
 
   setHealthy() {
     this.$state.set("HEALTHY");
-    this.$status.set({ code: "SUCCESS", label: "connected" });
+    this.status.set({ code: "SUCCESS", label: "connected" });
     this.$error.set(null);
   }
 
   setFaulty(error) {
-    this.state.set("FAULTY");
+    this.$state.set("FAULTY");
     this.status.set({ code: "ERROR", error });
-    this.error.set(error);
+    this.$error.set(error);
   }
 
   use(middleware) {

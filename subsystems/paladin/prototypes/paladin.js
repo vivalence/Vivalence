@@ -3,16 +3,14 @@ import tools from "../tools/index.js";
 
 export class Paladin {
   traits = [];
-  role = null; // client daemon service runtime
+  role = null; // client runtime 'daemon service process
   mode = null; // development production
   env = new Env();
   secret = new Env();
 
-  scope = { variant: {}, registry: {}, system: {}, tilde: {} }; // @each .mount = Path(some)
-
   variant = {
-    circuits: [], // finished cakes; compiled from circuits
-    gaia: {},
+    circuits: [], // finished masks; compiled from circuits
+    runtime: {},
     clients: {},
     daemons: [],
     services: [],
@@ -25,5 +23,6 @@ export class Paladin {
     tools.state(this);
     tools.join(this);
     tools.is(this);
+    tools.scope(this);
   }
 }

@@ -1,0 +1,19 @@
+services:
+  daemon:
+    build:
+      target: development
+    # environment:
+    #   - VIVA_SYSTEM_MODE=DEVELOPMENT
+    # volumes:
+    #   - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config
+    command: ["deno", "task", "daemon:watch"]
+    restart: "no"
+
+  web:
+    build:
+      target: development
+    environment:
+      - VIVA_SYSTEM_MODE=DEVELOPMENT
+      - NODE_ENV=development
+    command: ["deno", "task", "web:watch"]
+    restart: "no"

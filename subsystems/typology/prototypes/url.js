@@ -11,9 +11,9 @@ export class Url extends URL {
     return `${this.constructor.name}:${this.href}`;
   }
 
-  [Symbol.toPrimitive](hint) {
-    return `${this.constructor.name}:${this.href}`;
-  }
+  // [Symbol.toPrimitive](hint) {
+  //   return `${this.constructor.name}:${this.href}`;
+  // }
 }
 // export class Url extends URL {
 //   constructor(url, more) {

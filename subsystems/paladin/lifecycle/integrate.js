@@ -1,4 +1,4 @@
-import { is, cast, Path } from "@vivalence/typology";
+import { is, cast, fromm, Path } from "@vivalence/typology";
 
 export async function publish(paladin) {
   const publish = Object.entries(paladin.env.vars).filter(([key]) =>
@@ -7,6 +7,35 @@ export async function publish(paladin) {
 
   for (const [key, value] of publish) {
     Deno.env.set(key, value);
+  }
+}
+
+export async function statements(paladin) {
+  // console.log(paladin, JSON.stringify({ ...paladin.is }, null, 2));
+
+  const mounts = [];
+
+  if (paladin.is.citizen) {
+    mounts.push([
+      paladin.scope.tilde,
+      paladin.scope.registry,
+      paladin.scope.circuits,
+      paladin.scope.mountpoint,
+      paladin.scope.environment,
+      ...paladin.variant.services.map((s) => s.mount),
+      ...paladin.variant.daemons.map((d) => d.mount),
+      ...paladin.variant.daemons
+        .filter((d) => is.object(d.consume))
+        .map((d) => fromm.slugmap(d.consume).array)
+        .flat()
+        .filter(Boolean)
+        .map((c) => c.mount),
+    ]);
+  }
+
+  for (const mount of mounts.flat().filter(Boolean)) {
+    // console.log("@testable mount:", mount.absolute);
+    await paladin.state.dir(mount.absolute);
   }
 }
 
@@ -29,13 +58,13 @@ export async function validate(paladin) {
 // return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
 // }
 
-export async function statements(paladin) {
-  const directories = [...Object.values(paladin.scope).map((p) => p.absolute)];
+// export async function statements(paladin) {
+//   const directories = [...Object.values(paladin.scope).map((p) => p.absolute)];
 
-  for (const dir of directories) {
-    await paladin.state.dir(dir);
-  }
-}
+//   for (const dir of directories) {
+//     await paladin.state.dir(dir);
+//   }
+// }
 
 export async function questions(paladin) {
   paladin.check

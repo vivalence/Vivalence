@@ -1,4 +1,3 @@
-// TODO: move to surface!
 function syncHash(algorithm, data) {
   const crypto = window.crypto || globalThis.crypto;
   if (!crypto || !crypto.subtle) {
@@ -38,13 +37,16 @@ function encodeHex(buffer) {
     .join("");
 }
 
-function hashString(string) {
+export function string(string) {
   const messageBuffer = new TextEncoder().encode(string);
   const hashBuffer = crypto.subtle.digestSync("SHA-256", messageBuffer);
   const hash = encodeHex(hashBuffer);
   return hash;
 }
-function object(object) {
+
+export const hashString = string;
+
+export function object(object) {
   return hashString(
     JSON.stringify(
       Object.keys(object)
@@ -57,8 +59,8 @@ function object(object) {
   );
 }
 
-function array(arr) {
+export function array(arr) {
   return hashString(JSON.stringify(arr.sort()));
 }
 
-export default { array, object, string: hashString };
+// export { array, object, string: hashString };

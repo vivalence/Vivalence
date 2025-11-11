@@ -1,5 +1,5 @@
 import { Signal } from "@vivalence/typology";
-import { NotFound } from "../types/errors.js";
+import { Long, Short, NotFound } from "@vivalence/vector/typology";
 import { traverse } from "./traverse.js";
 
 export async function invoke(vector, signal, context = { signal }) {

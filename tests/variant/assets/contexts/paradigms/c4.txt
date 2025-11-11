@@ -1,0 +1,57 @@
+# C4 Model
+
+**What**: Hierarchical software architecture diagrams at 4 levels of detail  
+**Why**: "Google Maps for your code" - zoom from big picture to implementation  
+**How**: Start with Context, add Containers, stop when stakeholders have what they need
+
+## The 4 Levels
+
+1. **Context** - System + users + external dependencies (everyone needs this)
+2. **Container** - Deployable units, databases, apps (technical audience, most teams stop here)  
+3. **Component** - Internal structure of containers (architects/devs, optional)
+4. **Code** - Classes/methods (don't document, use IDE instead)
+
+## The 5 Elements
+
+- **👤 Person**: Users, actors, roles (stick figure or box)
+- **📦 System**: What you're building (big labeled box)  
+- **🗂️ Container**: Deployable units - web app, database, API (nested boxes)
+- **⚙️ Component**: Modules, services within a container (smaller boxes)
+- **➡️ Relationship**: How things connect (labeled arrows)
+
+## Usage Patterns
+
+**🚀 Most Teams**: Context + Container diagrams only  
+**📋 Complex Systems**: Add Component diagrams for key containers  
+**⚡ Minimum Viable**: Just Context diagram for stakeholder alignment
+
+## Rules of Thumb
+
+✅ **Start simple**: Context first, then zoom in only where needed  
+✅ **Audience-driven**: Draw what stakeholders need to understand  
+✅ **Visual over text**: Boxes and arrows beat paragraphs  
+✅ **Label everything**: Relationships need descriptions  
+✅ **Add legends**: Make diagrams self-explanatory
+
+❌ Don't draw all 4 levels "because they exist"  
+❌ Don't skip the Context diagram  
+❌ Don't over-detail stable/obvious parts  
+❌ Don't confuse Container (deployable) with Component (code structure)
+
+## When to Use Each Level
+
+| Level | When | Audience | 
+|-------|------|----------|
+| Context | Always | Everyone |
+| Container | System has multiple deployable parts | Technical |  
+| Component | Container internals matter for decisions | Developers |
+| Code | Never for docs | Use IDE |
+
+**Pro tip**: If you're wondering whether to add more detail, ask "What decision does this help someone make?" If there's no clear answer, stop diagramming.
+
+<!-- Local Variables: -->
+<!-- gptel-model: claude-sonnet-4-20250514 -->
+<!-- gptel--backend-name: "anthropic-thinking" -->
+<!-- gptel--bounds: ((response (1 2120))) -->
+<!-- End: -->
+### task.

@@ -1,5 +1,5 @@
 import { is } from "@vivalence/typology";
-import { Long, Short } from "../types/errors.js";
+import { Long, Short, NotFound } from "@vivalence/vector/typology";
 import { traverse } from "./traverse.js";
 import { forward, chain, compose } from "./carry.js";
 

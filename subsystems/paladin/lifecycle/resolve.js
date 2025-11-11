@@ -1,86 +1,73 @@
-import { Cake, Path, cast, as, is } from "@vivalence/typology";
+import { Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
 
 // load circuits from tilde into variant.circuits
 // paladin.find.viva(paladin.scope.variant)
 // filter for manifest.type circuit
 
 export async function circuits(paladin) {
-  const mount = paladin.scope.tilde.branch("circuits").absolute;
-  console.log("paladin mount circuits", { mount });
-  const circuits = await paladin.find.viva(mount);
-  const mapper = async (f) => [f, await paladin.read.viva(f)];
-  const modules = await Promise.all(circuits.map((f) => mapper(f)));
-  paladin.variant.circuits = modules
+  // unnessesarily complex
+  const modules = await paladin.find.viva(paladin.scope.circuits);
+  const fn = async (f) => [f, await paladin.read.viva(f)];
+  const circuits = (await Promise.all(modules.map((f) => fn(f))))
     .filter(([, module]) => module?.manifest?.type === "circuit")
     .map(([source, circuit]) => ({ ...circuit, source }));
+  // paladin.variant.circuits(circuit =>(circuit))
+  paladin.variant.circuits = circuits;
 }
 
 export async function variant(paladin) {
   const circuits = paladin.variant.circuits;
-
-  const gaiaConfigs = circuits.map((c) => c.gaia).filter(Boolean);
+  // not good for figuring out what part of the config belongs together! @change: process sequentually.
+  const runtimeConfigs = circuits.map((c) => c.runtime).filter(Boolean);
   // const lighthouseConfigs = circuits.map((c) => c.lighthouse).filter(Boolean);
   const clientsConfigs = circuits.map((c) => c.clients).filter(Boolean);
   const daemonsConfigs = circuits.flatMap((c) => c.daemons || []);
   const servicesConfigs = circuits.flatMap((c) => c.services || []);
 
-  if (gaiaConfigs.length > 1) {
+  if (runtimeConfigs.length > 1) {
     // same for lighthouse
-    throw new Error("Multiple gaia configurations found in circuits");
+    throw new Error("Multiple runtime configurations found in circuits");
   }
 
-  paladin.variant.gaia = gaiaConfigs[0] || {};
+  paladin.variant.runtime = runtimeConfigs[0] || {};
   // paladin.variant.lighthouse = lighthouseConfigs[0] || {};
-  // paladin.variant.gaia.mount =  ??
+  // paladin.variant.runtime.mount =  ??
 
   paladin.variant.clients = Object.assign({}, ...clientsConfigs);
 
   paladin.variant.daemons = daemonsConfigs.map((daemon) => {
-    const cake = new Cake(daemon);
-    cake.mount = paladin.join.mountpoint.daemon(cake.slug);
-    return cake;
+    const mask = new Mask(daemon);
+    mask.mount = paladin.join.mountpoint.daemon(mask.slug);
+    return mask;
   });
 
   paladin.variant.services = servicesConfigs.map((service) => {
-    const cake = new Cake(service);
-    cake.mount = paladin.join.mountpoint.service(cake.slug);
-    return cake;
+    const mask = new Mask(service);
+    mask.mount = paladin.join.mountpoint.service(mask.slug);
+    if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
+    return mask;
   });
 }
 
-export async function dependencies(paladin) {
+export async function consumables(paladin) {
   for (const daemon of paladin.variant.daemons) {
-    if (daemon.consume) {
-      for (const [serviceSlug, serviceConfig] of Object.entries(
-        daemon.consume,
-      )) {
-        const serviceProvider = paladin.variant.services.find(
-          (s) => s.slug === serviceSlug,
-        );
-        if (serviceProvider) {
-          daemon.consume[serviceSlug] = {
-            ...serviceConfig,
-            provider: serviceProvider,
-          };
-        }
+    if (!daemon.consume) continue;
+    for (const service of fromm.slugmap(daemon.consume).array) {
+      let f;
+      if (is.string(service.provider)) f = (s) => s.slug === service.provider;
+
+      const provider = paladin.variant.services.find(f);
+      if (provider) {
+        service.provide = provider;
+        service.mount = service.provider.mount;
+        daemon.consume[service.slug] = service;
+        continue;
       }
+
+      console.warn("[@paladin] resolution issue: service provider not found");
+      console.log({ service });
     }
   }
-}
-
-export async function mounts(paladin) {
-  const allMounts = [
-    paladin.variant.gaia.mount,
-    ...paladin.variant.daemons.map((d) => d.mount),
-    ...paladin.variant.services.map((s) => s.mount),
-  ].filter(Boolean);
-
-  for (const mount of allMounts) {
-    // console.log("@testable mount:", { ...mount }, mount.absolute);
-    await paladin.state.dir(mount.absolute);
-  }
-
-  // console.log({ paladin });
 }
 
 // export async function cross(paladin) {
@@ -104,12 +91,12 @@ export async function mounts(paladin) {
 //     throw new Error(`Missing required services: ${missingServices.join(", ")}`);
 //   }
 
-//   if (paladin.variant.gaia && !paladin.variant.gaia.statics?.serve) {
-//     console.warn("Gaia configuration missing serve URL");
+//   if (paladin.variant.runtime && !paladin.variant.runtime.statics?.serve) {
+//     console.warn("Runtime configuration missing serve URL");
 //   }
 // }
 
-// gaia, clients, daemons, services,
+// runtime, clients, daemons, services,
 // there is a lot to be done here now.
 //
 
@@ -130,13 +117,13 @@ export async function mounts(paladin) {
 //   // if (lighthouse) paladin.lighthouse = lighthouse;
 //   // if (daemon) paladin.daemon = daemon;
 //   // if (clients) {clients.map((client) => {paladin.clients.push(client);});}
-//   // services?.forEach((serviceconfig) => {paladin.services.push(paladin.bake.service(new Cake(serviceconfig)));});
+//   // services?.forEach((serviceconfig) => {paladin.services.push(paladin.bake.service(new Mask(serviceconfig)));});
 // }
 
 // export async function runtimes(paladin) {
 //   const runtimes = await loadRuntimes(paladin);
 //   runtimes.forEach((runtimeconfig) => {
-//     paladin.runtimes.push(paladin.bake.runtime(new Cake(runtimeconfig)));
+//     paladin.runtimes.push(paladin.bake.runtime(new Mask(runtimeconfig)));
 //   });
 // }
 
@@ -148,7 +135,7 @@ export async function mounts(paladin) {
 //     .map(([source, runtime]) => ({ ...runtime, source }));
 // }
 
-// // function createRuntimeCake(file, module, paladin) {const runtimecake = new Cake(cast.runtime(module)); runtimecake.source = file; runtimecake.mount = paladin.join.mountpoint.runtime(runtimecake.slug); return runtimecake;}
+// // function createRuntimeMask(file, module, paladin) {const runtimemask = new Mask(cast.runtime(module)); runtimemask.source = file; runtimemask.mount = paladin.join.mountpoint.runtime(runtimemask.slug); return runtimemask;}
 
 // // export async function runtimes(paladin) {
 // //   const modules = (
@@ -160,25 +147,25 @@ export async function mounts(paladin) {
 
 // //   console.log({ paladin, modules });
 // //   for (const [file, module] of modules) {
-// //     const runtimecake = new Cake(cast.runtime(module));
-// //     console.log("pre", { runtimecake });
-// //     runtimecake.source = file;
-// //     runtimecake.mount = paladin.join.mountpoint.runtime(runtimecake.slug);
+// //     const runtimemask = new Mask(cast.runtime(module));
+// //     console.log("pre", { runtimemask });
+// //     runtimemask.source = file;
+// //     runtimemask.mount = paladin.join.mountpoint.runtime(runtimemask.slug);
 
-// //     if (runtimecake.services) {
-// //       runtimecake.services = runtimecake.services //
-// //         .map((servicecake) => {
-// //           const service = new Cake({
+// //     if (runtimemask.services) {
+// //       runtimemask.services = runtimemask.services //
+// //         .map((servicemask) => {
+// //           const service = new Mask({
 // //             remote: paladin.services.find(
 // //               (service) =>
-// //                 service.slug === servicecake.service ||
-// //                 service.slug === servicecake.slug,
+// //                 service.slug === servicemask.service ||
+// //                 service.slug === servicemask.slug,
 // //             ),
-// //             ...servicecake,
-// //             runtime: runtimecake.slug,
+// //             ...servicemask,
+// //             runtime: runtimemask.slug,
 // //             mount: paladin.join.mountpoint.service(
-// //               servicecake.slug,
-// //               runtimecake.slug,
+// //               servicemask.slug,
+// //               runtimemask.slug,
 // //             ),
 // //             // url: new Url(`/runtime/${slug}`, new URL("http://localhost")),
 // //             // path: new Path(`/runtime/${slug}`),
@@ -188,30 +175,30 @@ export async function mounts(paladin) {
 // //         });
 // //     }
 
-// //     if (!runtimecake.lighthouse) {
+// //     if (!runtimemask.lighthouse) {
 // //       const lighthouse =
-// //         runtimecake.services.find((s) => s.slug === "lighthouse") ||
+// //         runtimemask.services.find((s) => s.slug === "lighthouse") ||
 // //         paladin.services.find((s) => s.slug === "lighthouse");
 // //       if (!lighthouse) throw new Error("no lighthouse");
-// //       runtimecake.lighthouse = {
+// //       runtimemask.lighthouse = {
 // //         ...lighthouse,
-// //         runtime: runtimecake.slug,
+// //         runtime: runtimemask.slug,
 // //       };
 // //     }
 
-// //     if (!runtimecake.datamap) {
+// //     if (!runtimemask.datamap) {
 // //       const datamap =
-// //         runtimecake.services.find((s) => s.slug === "datamap") ||
+// //         runtimemask.services.find((s) => s.slug === "datamap") ||
 // //         paladin.services.find((s) => s.slug === "datamap");
 // //       if (!datamap) throw new Error("no datamap");
-// //       runtimecake.datamap = {
+// //       runtimemask.datamap = {
 // //         ...datamap,
-// //         runtime: runtimecake.slug,
-// //         mount: paladin.join.mountpoint.service("datamap", runtimecake.slug),
+// //         runtime: runtimemask.slug,
+// //         mount: paladin.join.mountpoint.service("datamap", runtimemask.slug),
 // //       };
 // //     }
 
-// //     console.log("post", { runtimecake });
-// //     paladin.runtimes.push(runtimecake);
+// //     console.log("post", { runtimemask });
+// //     paladin.runtimes.push(runtimemask);
 // //   }
 // // }

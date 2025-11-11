@@ -1,4 +1,5 @@
-import { NotFound } from "../types/errors.js";
+import { errors, NotFound } from "@vivalence/vector/typology";
+// import { errors } from "@vivalence/vector";
 import { compose, chain, forward } from "./carry.js";
 import { greedy } from "./match.js";
 
@@ -15,7 +16,7 @@ export function traverse(vector, signals) {
     // console.log();
     const [[match, trajectory, effect] = []] = greedy(position, signal);
 
-    if (!match) throw new NotFound(signal);
+    if (!match) throw new errors.NotFound(signal);
     steps.push(match);
 
     if (match.type === "remainder") {

@@ -1,0 +1,53 @@
+networks:
+  viva-network:
+    driver: bridge
+
+services:
+  gaia:
+    build:
+      context: ..
+      dockerfile: system/daemon/Dockerfile
+    image: vivalence/daemon:latest
+    container_name: viva-daemon
+    ports:
+      - "${DAEMON_PORT:-5175}:5175"
+    environment:
+      - VIVA_SYSTEM_MODE=${VIVA_SYSTEM_MODE:-DEVELOPMENT}
+      - VIVA_SYSTEM_ROLE=DAEMON
+      - VIVA_SYSTEM_VARIANT=${VIVA_SYSTEM_MODE:-DEVELOPMENT}_DAEMON
+      - VIVA_REPOSITORY_DIR=/viva/repository
+      - VIVA_CONFIG_DIR=/viva/repository/config
+      - VIVA_REGISTER_DIR=/viva/repository/register
+    volumes:
+      # root config dir should be configurable
+      - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config:ro
+    networks:
+      - viva-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5175/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  web:
+    build:
+      context: ..
+      dockerfile: system/clients/web/Dockerfile
+    image: vivalence/web:latest
+    container_name: viva-web
+    ports:
+      - "${WEB_CLIENT_PORT:-5174}:3000"
+    environment:
+      - VIVA_SYSTEM_MODE=${VIVA_SYSTEM_MODE:-DEVELOPMENT}
+      - VIVA_SYSTEM_ROLE=CLIENT
+      - VIVA_SYSTEM_VARIANT=${VIVA_SYSTEM_MODE:-DEVELOPMENT}_CLIENT
+      - PUBLIC_VIVA_DAEMON_URL=http://daemon:5175
+      - PUBLIC_VIVA_CLIENTS_HTML_URL=http://localhost:5174
+      - PUBLIC_VIVA_LIGHTHOUSE_URL=http://daemon:5175/attached/runtime/eng2lat/service/identity
+    volumes:
+      - ${VIVA_CONFIG_DIR:-../config}:/viva/repository/config:ro
+    networks:
+      - viva-network
+    restart: unless-stopped

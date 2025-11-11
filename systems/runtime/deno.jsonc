@@ -1,0 +1,16 @@
+{
+  "name": "@vivalence/runtime",
+  "description": "a deamon is something intelligent and agentic that doesnt have a soul.",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.js",
+    "./typology": "./typology.js",
+  },
+  "tasks": {
+    "run": "deno run -A mod.js",
+    "watch": "deno run -A --watch mod.js",
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test:runtime": "deno test -A --no-check --watch tests/runtime.test.js",
+    "test:die": "deno test -A --no-check --watch tests/die.test.js",
+  },
+}

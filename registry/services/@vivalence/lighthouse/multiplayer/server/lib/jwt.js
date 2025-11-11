@@ -50,7 +50,7 @@ const rft = {
 export default async function (service) {
   secret = new TextEncoder().encode(service.secrets.jwt);
 
-  const tokenfile = service.mount.absolute + "/tokens.json";
+  const tokenfile = service.mount.branch("/tokens.json").absolute;
   db = await JSONFilePreset(tokenfile, { refresh: {} });
   await db.read();
 

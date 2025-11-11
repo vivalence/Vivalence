@@ -17,8 +17,8 @@ export const url = (thing) => {
   };
 };
 
-export const params = (thing) => {
-  const params = cast.params?.(thing) || thing;
+export const params = (params) => {
+  // const params = cast?.params?.(thing) || thing;
   return {
     get path() {
       const path = new Path();
@@ -26,6 +26,15 @@ export const params = (thing) => {
         path.stick(params[path.depth]);
       }
       return path;
+    },
+  };
+};
+
+export const slugmap = (slugmap) => {
+  return {
+    get array() {
+      return Object.entries(slugmap) //
+        .map(([slug, map]) => ({ slug, ...map }));
     },
   };
 };

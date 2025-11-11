@@ -13,30 +13,56 @@ import {
   AuthenticatorEmbedSchema,
 } from "@vivalence/typology/entities";
 
-export async function systemmap(servicecake) {
-  // console.log({ paladin });
-  // console.log("sysmap", servicecake);
-  // console.log("path", servicecake.mount.branch("gaia.db").absolute);
-  // const datamap = paladin.vip.accio(servicecake.datamap)
+export async function systemmap(servicemask) {
+  const datamap = await paladin.vip.accio(servicemask.datamap.module);
+  const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema] //
+    .map((schema) => ({ schema }));
 
-  // const mikroconfig = defineConfig({
-  //   dbName: join(service.data, "gaia.db"),
-  //   entities: [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema],
-  //   // strict: true,
-  //   extensions: [Migrator],
-  //   migrations: {
-  //     tableName: "_mikro_migrations",
-  //     path: join(service.data, "migrations"),
-  //   },
-  // });
+  const { orm, entities } = await datamap.provider(
+    servicemask.datamap,
+    variant,
+  );
 
-  // const { orm, entities } = await servicecake.datamap(mikroconfig);
+  const migrator = orm.getMigrator();
+  await migrator.createMigration();
+  await migrator.up();
 
-  // // const migrator = orm.getMigrator(); await migrator.createMigration(); await migrator.up();
-
-  return {};
-  // return { orm, entities };
+  return { orm, entities };
 }
+// // mask."datamap": {
+// //   "module": "@vivalence/datamap/libsql", // import via paladin.accio(mask.datamap)
+// //   "statics": {
+// //     "db": {
+// //       "file": "lighthouse.viva.db"
+// //     }
+// //   }
+// // }
+// export async function systemmap(servicemask) {
+//   console.log({ servicemask }, JSON.stringify({ servicemask }, null, 2));
+
+//   // console.log({ paladin });
+//   // console.log("sysmap", servicecake);
+//   // console.log("path", servicecake.mount.branch("gaia.db").absolute);
+//   // const datamap = paladin.vip.accio(servicecake.datamap)
+
+//   // const mikroconfig = defineConfig({
+//   //   dbName: join(service.data, "gaia.db"),
+//   //   entities: [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema],
+//   //   // strict: true,
+//   //   extensions: [Migrator],
+//   //   migrations: {
+//   //     tableName: "_mikro_migrations",
+//   //     path: join(service.data, "migrations"),
+//   //   },
+//   // });
+
+//   // const { orm, entities } = await servicecake.datamap(mikroconfig);
+
+//   // // const migrator = orm.getMigrator(); await migrator.createMigration(); await migrator.up();
+
+//   return {};
+//   // return { orm, entities };
+// }
 
 export function inject(orm) {
   return async (ctx, next) => {

@@ -11,10 +11,10 @@ const manifest = {
   // traits: ["DATAMAP","LOCAL"],
 };
 
-async function provider({ datamap, variant }) {
+async function provider(datamap, variant) {
   const mikroconfig = defineConfig({
     dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
-    entities: variant.map((dme) => dme.schema).filter(Boolean),
+    entities: variant.map((v) => v.schema).filter(Boolean),
     strict: true,
     extensions: [Migrator],
     migrations: {
@@ -29,9 +29,10 @@ async function provider({ datamap, variant }) {
   await migrator.createMigration();
   await migrator.up();
 
-  // // todo compute repositories
   const entities = {};
+
   for (const { type, schema, entity } of variant) {
+    // todo compute repositories
     // die.instance.entities[type] = await orm.em.getRepository(entity);
   }
 

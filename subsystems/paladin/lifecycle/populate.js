@@ -1,10 +1,6 @@
 import * as dotenv from "@std/dotenv";
 import { Env, Path } from "@vivalence/typology";
 
-export async function scopes() {
-  console.log("depracated populate.scopes");
-}
-
 export async function env(paladin) {
   // console.log("ENV CALL");
   // read process env
@@ -38,8 +34,7 @@ export async function environment(paladin) {
     return env.assign(await paladin.read.json(path));
   };
 
-  const envpath = paladin.scope.tilde.branch("environment").absolute;
-  console.log("paladin environemnt scope", { envpath });
+  const envpath = paladin.scope.environment.absolute;
   const allJsonFiles = await paladin.find.json(envpath);
 
   await Promise.all([
@@ -73,17 +68,17 @@ export async function questions(paladin) {
       "VIVA_SYSTEM_MODE",
       "VIVA_SYSTEM_ROLE",
 
-      "VIVA_SYSTEM_MOUNT", // conditional
-      "VIVA_TILDE_MOUNT", // conditional
-      "VIVA_REGISTRY_MOUNT", // conditional
+      // "VIVA_SYSTEM_MOUNT", // conditional
+      // "VIVA_TILDE_MOUNT", // conditional
+      // "VIVA_REGISTRY_MOUNT", // conditional
 
-      "VIVA_GAIA_SERVE", // conditional
-      "VIVA_LIGHTHOUSE_SERVE", // conditional
-      "VIVA_CLIENT_HUT_SERVE", // conditional
+      // "VIVA_RUNTIME_SERVE", // conditional
+      // "VIVA_LIGHTHOUSE_SERVE", // conditional
+      // "VIVA_CLIENT_HTML_SERVE", // conditional
 
-      "PUBLIC_VIVA_GAIA_REMOTE", // conditional
-      "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
-      "PUBLIC_VIVA_CLIENT_HUT_REMOTE", // conditional
+      // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
+      // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
+      // "PUBLIC_VIVA_CLIENT_HTML_REMOTE", // conditional
     ])
     .throw();
 }

@@ -7,7 +7,6 @@ const paladin = await (async function incarne() {
   await populate.env(paladin);
   await populate.environment(paladin);
   await populate.modeselector(paladin);
-  await populate.scopes(paladin);
   await populate.veryimportantpackage(paladin);
   await populate.questions(paladin);
 
@@ -17,12 +16,13 @@ const paladin = await (async function incarne() {
 paladin.ikiro = (async function ikiro() {
   await resolve.circuits(paladin);
   await resolve.variant(paladin);
-  await resolve.dependencies(paladin);
-  await resolve.mounts(paladin);
+  await resolve.consumables(paladin);
   // await integrate.publish(paladin);
   // await integrate.secure(paladin);
   // await integrate.validate(paladin);
+  // await integrate.mountpoint(paladin);
   await integrate.statements(paladin);
+  await integrate.publish(paladin);
   await integrate.questions(paladin);
 })();
 

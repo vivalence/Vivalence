@@ -1,3 +1,9 @@
+docs
+tilde
+/tilde/*
+./tilde/*
+**/tilde/*
+**/mountpoint
 
 .testing
 .jj
@@ -5,11 +11,6 @@
 .github
 node_modules
 **/node_modules
-docs
-viva
-
-
-
 .env
 .env.*
 **/.env

@@ -7,10 +7,8 @@ const attach = (key, val) => async (ctx, next) => {
   return await next();
 };
 
-function status(vector) {
-  vector.open("/status", async (input, ctx) => {
-    return { status: "success", code: 200 };
-  });
+function status(status) {
+  return async (input, ctx) => status;
 }
 // aperture.open("/manifest", async (body, ctx) => ({
 //   ...ctx.runtime.config.manifest,

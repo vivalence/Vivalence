@@ -6,11 +6,11 @@ export * from "./connection.js";
 export * from "./url.js";
 export * from "./path.js";
 export * from "./pattern.js";
+export * from "./signature.js";
 export * from "./signal.js";
 export * from "./view.js";
 export * from "./feature.js";
-export * from "./cake.js";
-// export * from "./die.js";
+export * from "./mask.js";
 
 export * from "./mode.js";
 

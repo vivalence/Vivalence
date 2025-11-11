@@ -1,0 +1,15 @@
+this contains all the typology/prototypes in their typebox, json schema, form.
+this is exported on subsystem level as import from @vivalence/typology/gestalten; its imported into the into is and cast, testing, xxx.
+its also used and the basis of the type exports at top level.
+every prototype throughout the system is featured here. both typology internal, subsystems and systems level.
+
+
+#+BEGIN_SRC javascript
+// import { Type } from "@sinclair/typebox";
+// export const ProcessStateEnum = Type.Union([Type.Literal("created"), Type.Literal("starting"), Type.Literal("running"), Type.Literal("stopping"), Type.Literal("stopped"), Type.Literal("errored"), Type.Literal("exhausted")]);
+// export const Manifest = Type.Object({type: Type.String(), slug: Type.String(), version: Type.Optional(Type.String()), traits: Type.Optional(Type.Array(Type.String())),});
+// export const Command = Type.Object({cmd: Type.Array(Type.String()), cwd: Type.Optional(Type.String()), env: Type.Optional(Type.Record(Type.String(), Type.String())), detached: Type.Optional(Type.Boolean())});
+
+
+// ControlVector .open("/start/:slug", async (ctx) => {const process = this.processes.get(ctx.params.slug); if (!process) throw new Error(`Process not found: ${ctx.params.slug}`); const started = await process.start("api"); return { slug: ctx.params.slug, started, status: process.status.get() };}) .open("/stop/:slug", async (ctx) => {const process = this.processes.get(ctx.params.slug); if (!process) throw new Error(`Process not found: ${ctx.params.slug}`); const stopped = await process.stop("api"); return { slug: ctx.params.slug, stopped, status: process.status.get() };}) .open("/restart/:slug", async (ctx) => {const process = this.processes.get(ctx.params.slug); if (!process) throw new Error(`Process not found: ${ctx.params.slug}`); const restarted = await process.restart("api"); return { slug: ctx.params.slug, restarted, status: process.status.get() };}) .open("/status", async () => ({processes: Array.from(this.processes.values()).map(p => p.getMetrics()), watchdog: { running: !!this.watchdog }})) .open("/health/:slug", async (ctx) => {const process = this.processes.get(ctx.params.slug); if (!process) throw new Error(`Process not found: ${ctx.params.slug}`); return {slug: ctx.params.slug, health: process.connection.isHealthy.get(), metrics: process.getMetrics()};});}
+#+end_src

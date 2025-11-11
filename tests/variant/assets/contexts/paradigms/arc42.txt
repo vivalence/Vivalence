@@ -1,0 +1,52 @@
+# arc42 
+
+**What**: Standardized 12-section template for software architecture documentation
+**Why**: Stop reinventing documentation structure, focus on content that matters
+**How**: Fill only what stakeholders need, everything is optional
+
+## The 12 Sections
+
+1. **Introduction & Goals** - Requirements, quality goals, stakeholders
+2. **Constraints** - What limits your design choices  
+3. **Context & Scope** - System boundaries, external interfaces
+4. **Solution Strategy** - Key decisions, tech choices, approach
+5. **Building Blocks** - Static structure (components, modules)
+6. **Runtime View** - Dynamic behavior, scenarios, flows
+7. **Deployment** - Infrastructure, hardware, environments
+8. **Cross-cutting Concepts** - Patterns used throughout
+9. **Architecture Decisions** - Important choices + rationale (use ADRs)
+10. **Quality Requirements** - Detailed quality scenarios
+11. **Risks & Tech Debt** - Known problems, concerns
+12. **Glossary** - Domain terms, ubiquitous language
+
+## Usage Modes
+
+**🚀 Lean** (2-4 hours): Fill sections 1, 3, 5 + whatever else stakeholders need
+**📋 Thorough** (formal): Complete documentation for compliance/audits
+**⚡ Essential**: Always document quality goals (section 1.2) regardless
+
+## Pro Tips
+
+- **Start with stakeholder needs**, not template completeness
+- **Big picture first**: Context → Building Blocks → Details
+- **Visual over text** where possible
+- **Document decisions you're making anyway**
+- **Keep it living**: evolve with your system
+
+## Common Mistakes
+
+❌ Filling all 12 sections "because they're there"
+❌ Writing for yourself instead of stakeholders  
+❌ Over-documenting obvious or stable parts
+❌ Treating as one-time deliverable vs. living doc
+
+✅ Ask "Who needs this info and why?" before writing
+✅ Use hierarchical decomposition (stop at useful level)
+✅ Focus on decisions and trade-offs
+✅ Update when architecture changes
+
+;; Local Variables:
+;; gptel-model: claude-sonnet-4-20250514
+;; gptel--backend-name: "anthropic-thinking"
+;; gptel--bounds: ((response (1 1891)))
+;; End:

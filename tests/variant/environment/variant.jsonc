@@ -1,0 +1,8 @@
+{
+  "VIVA_RUNTIME_SERVE": "http://localhost:1729/",
+  "VIVA_LIGHTHOUSE_SERVE": "http://localhost:1729/attached/process/lighthouse/stadium",
+  "VIVA_CLIENT_HTML_SERVE": "http://localhost:1794/",
+  "PUBLIC_VIVA_RUNTIME_REMOTE": "http://localhost:1729/",
+  "PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:1729/attached/process/lighthouse/stadium",
+  "PUBLIC_VIVA_CLIENT_HTML_REMOTE": "http://localhost:1794/",
+}

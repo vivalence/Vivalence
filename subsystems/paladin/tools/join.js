@@ -21,12 +21,12 @@ export default function joins(config) {
     mountpoint: {
       daemon: (daemon, service) =>
         service
-          ? tilde(`mountpoint/daemon_${daemon}_service_${service}`)
-          : tilde(`mountpoint/daemon_${daemon}`), // @beef ought not exist really.
+          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
+          : tilde(`mountpoint/runtime_${daemon}`), // @beef ought not exist really.
       service: (service, daemon) =>
         daemon
-          ? tilde(`mountpoint/daemon_${daemon}_service_${service}`)
-          : tilde(`mountpoint/service_${service}`),
+          ? tilde(`mountpoint/runtime_${daemon}_process_${service}`)
+          : tilde(`mountpoint/process_${service}`),
     },
   };
 }
