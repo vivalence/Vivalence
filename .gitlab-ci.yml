@@ -7,7 +7,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  REGISTRY: registry.vivalence.org/vivalence
+  REGISTRY: registry.vivalence.org/beef
 
 build-and-push:
   stage: build
