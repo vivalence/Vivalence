@@ -7,7 +7,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  REGISTRY: registry.vivalence.org/beef
+  REGISTRY: registry.vivalence.org/beef/viva
 
 build-and-push:
   stage: build
@@ -23,13 +23,13 @@ build-and-push:
 
     - echo "$REGISTRY/viva:alpine"
 
-    - docker tag vivalence/viva:alpine $REGISTRY/viva:alpine
-    - docker tag vivalence/runtime:alpine $REGISTRY/runtime:alpine
-    - docker tag vivalence/html:alpine $REGISTRY/html:alpine
+    - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
+    - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
+    - docker tag vivalence/html:alpine $REGISTRY/vivalence/html:alpine
 
-    - docker push $REGISTRY/viva:alpine
-    - docker push $REGISTRY/runtime:alpine
-    - docker push $REGISTRY/html:alpine
+    - docker push $REGISTRY/vivalence/viva:alpine
+    - docker push $REGISTRY/vivalence/runtime:alpine
+    - docker push $REGISTRY/vivalence/html:alpine
 
   # TODO
   # only:
