@@ -7,6 +7,8 @@ variables:
 
 build-and-push:
   stage: build
+  rules:
+    - when: always
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
