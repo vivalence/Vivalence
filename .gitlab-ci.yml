@@ -34,25 +34,6 @@ build-and-push:
   #   - main
   # before_script:
   #   - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY
-
-debug:
-  stage: .pre
-  script:
-    - |
-      echo "=== CI CONTEXT ==="
-      echo "Pipeline: $CI_PIPELINE_ID | Job: $CI_JOB_ID | Commit: $CI_COMMIT_SHORT_SHA"
-      echo "Branch: $CI_COMMIT_REF_NAME | Tag: $CI_COMMIT_TAG"
-      echo "Registry: $CI_REGISTRY_IMAGE"
-      echo "User: $CI_REGISTRY_USER | Token: ${CI_JOB_TOKEN:0:8}..."
-      echo ""
-      echo "=== ENVIRONMENT ==="
-      echo "Runner: $CI_RUNNER_ID | Executor: $CI_RUNNER_EXECUTABLE_ARCH"
-      echo "Project: $CI_PROJECT_PATH | Namespace: $CI_PROJECT_NAMESPACE"
-      echo "Trigger: $CI_PIPELINE_SOURCE"
-      echo ""
-      echo "=== DOCKER ==="
-      docker version --format 'Client: {{.Client.Version}} | Server: {{.Server.Version}}'
-
 # stages: - build-base - build-services - test - deploy
 # build-base: stage: build-base
 #   script:
@@ -67,3 +48,21 @@ debug:
 #   script:
 #     - docker build -f system/daemon/Dockerfile -t $REGISTRY/daemon:$CI_COMMIT_SHA .
 #     - docker push $REGISTRY/daemon:$CI_COMMIT_SHA
+
+# debug:
+#   stage: .pre
+#   script:
+#     - |
+#       echo "=== CI CONTEXT ==="
+#       echo "Pipeline: $CI_PIPELINE_ID | Job: $CI_JOB_ID | Commit: $CI_COMMIT_SHORT_SHA"
+#       echo "Branch: $CI_COMMIT_REF_NAME | Tag: $CI_COMMIT_TAG"
+#       echo "Registry: $CI_REGISTRY_IMAGE"
+#       echo "User: $CI_REGISTRY_USER | Token: ${CI_JOB_TOKEN:0:8}..."
+#       echo ""
+#       echo "=== ENVIRONMENT ==="
+#       echo "Runner: $CI_RUNNER_ID | Executor: $CI_RUNNER_EXECUTABLE_ARCH"
+#       echo "Project: $CI_PROJECT_PATH | Namespace: $CI_PROJECT_NAMESPACE"
+#       echo "Trigger: $CI_PIPELINE_SOURCE"
+#       echo ""
+#       # echo "=== DOCKER ==="
+#       # docker version --format 'Client: {{.Client.Version}} | Server: {{.Server.Version}}'
