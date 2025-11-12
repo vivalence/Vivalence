@@ -36,6 +36,18 @@
     "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
     "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",
-    "build": "deno run viva/build && deno run runtime/build && deno run html/build",
+    "build": "DOCKER_BUILDKIT=1 deno run viva/build && deno run runtime/build && deno run html/build",
+
+    "viva/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
+    "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
+    "html/tag": "docker tag vivalence/html:alpine registry.vivalence.org/vivalence/html:alpine",
+    "tag": "deno run viva/tag && deno run runtime/tag && deno run html/tag",
+
+    "viva/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
+    "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
+    "html/push": "docker push registry.vivalence.org/vivalence/html:alpine",
+    "push": "deno run viva/push && deno run runtime/push && deno run html/push",
+
+    "publish": "deno run build && deno run tag && deno run push",
   },
 }

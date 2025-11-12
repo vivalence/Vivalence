@@ -36,6 +36,7 @@ export default defineConfig({
 
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       "@static/icons/": join(__dirname, "./static/icons/"),
+      "$static/images/": join(__dirname, "./static/images/"),
 
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // i want to access to $viva_config_dir/assets present as @client/assets
 

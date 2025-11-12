@@ -67,11 +67,13 @@ export async function validate(paladin) {
 // }
 
 export async function questions(paladin) {
-  paladin.check
-    .path([
-      paladin.env.get("VIVA_SYSTEM_MOUNT"),
-      paladin.env.get("VIVA_TILDE_MOUNT"),
-      paladin.env.get("VIVA_REGISTRY_MOUNT"),
-    ])
-    .throw();
+  return;
+  if (paladin.is.citizen)
+    paladin.check
+      .path([
+        paladin.env.get("VIVA_SYSTEM_MOUNT"),
+        paladin.env.get("VIVA_TILDE_MOUNT"),
+        paladin.env.get("VIVA_REGISTRY_MOUNT"),
+      ])
+      .throw();
 }

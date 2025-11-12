@@ -1,8 +1,15 @@
 FROM vivalence/viva:alpine 
 
+ENV VIVA_SYSTEM_MODE="CLIENT"
+
+WORKDIR /viva/repository
+
+COPY systems/ ./systems/
+COPY subsystems/ ./subsystems/
+
 WORKDIR /viva/repository/systems/html
 
-CMD ["deno", "task", "watch"]
+CMD ["deno", "task", "start"]
 
 # deno task --cwd ./systems/html watch
 

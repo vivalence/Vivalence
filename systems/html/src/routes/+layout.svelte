@@ -19,10 +19,11 @@
 
 </script>
 
+<div class="hidden">
 {#if !$isIdentified}
   {goto("/")}
 {/if}
-
+</div>
 <div class="bsp-chain-root bg-skeleton-app-surface t-modeline">
   <div class="bsp-node t-modeline-content">
     {@render children()}
