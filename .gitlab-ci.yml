@@ -3,37 +3,58 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  REGISTRY: $CI_REGISTRY_IMAGE
+  REGISTRY: registry.vivalence.org
 
 build-and-push:
   stage: build
-  image: docker:latest
-  services:
-    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
     - docker build -f ./Dockerfile -t vivalence/viva:alpine .
     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
-    # - docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .
+    - docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .
 
-    - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
-    - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
-    # - docker tag vivalence/html:alpine $REGISTRY/vivalence/html:alpine
+    - docker tag vivalence/viva:alpine $REGISTRY/viva:alpine
+    - docker tag vivalence/runtime:alpine $REGISTRY/runtime:alpine
+    - docker tag vivalence/html:alpine $REGISTRY/html:alpine
 
-    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
-    - docker push $REGISTRY/vivalence/viva:alpine
-    - docker push $REGISTRY/vivalence/runtime:alpine
-    # - docker push $REGISTRY/vivalence/html:alpine
-
-    # - docker build -t $REGISTRY/viva:$CI_COMMIT_SHA .
-    # - docker tag $REGISTRY/viva:$CI_COMMIT_SHA $REGISTRY/viva:latest
-    # - docker push $REGISTRY/viva:$CI_COMMIT_SHA
-    # - docker push $REGISTRY/viva:latest
+    - docker push $REGISTRY/viva:alpine
+    - docker push $REGISTRY/runtime:alpine
+    - docker push $REGISTRY/html:alpine
 
   # TODO
   # only:
   #   - main
   # before_script:
   #   - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY
+# stages:
+#   - build
+
+# variables:
+#   DOCKER_DRIVER: overlay2
+#   REGISTRY: registry.vivalence.org
+
+# build-and-push:
+#   stage: build
+#   script:
+#     - docker build -f ./Dockerfile -t vivalence/viva:alpine .
+#     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
+#     # - docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .
+
+#     - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
+#     - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
+#     # - docker tag vivalence/html:alpine $REGISTRY/vivalence/html:alpine
+
+#     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
+#     - docker push $REGISTRY/vivalence/viva:alpine
+#     - docker push $REGISTRY/vivalence/runtime:alpine
+#     # - docker push $REGISTRY/vivalence/html:alpine
+
+#     # - docker build -t $REGISTRY/viva:$CI_COMMIT_SHA .
+#     # - docker tag $REGISTRY/viva:$CI_COMMIT_SHA $REGISTRY/viva:latest
+#     # - docker push $REGISTRY/viva:$CI_COMMIT_SHA
+#     # - docker push $REGISTRY/viva:latest
+
 # stages: - build-base - build-services - test - deploy
 # build-base: stage: build-base
 #   script:
@@ -49,20 +70,21 @@ build-and-push:
 #     - docker build -f system/daemon/Dockerfile -t $REGISTRY/daemon:$CI_COMMIT_SHA .
 #     - docker push $REGISTRY/daemon:$CI_COMMIT_SHA
 
-# debug:
-#   stage: .pre
-#   script:
-#     - |
-#       echo "=== CI CONTEXT ==="
-#       echo "Pipeline: $CI_PIPELINE_ID | Job: $CI_JOB_ID | Commit: $CI_COMMIT_SHORT_SHA"
-#       echo "Branch: $CI_COMMIT_REF_NAME | Tag: $CI_COMMIT_TAG"
-#       echo "Registry: $CI_REGISTRY_IMAGE"
-#       echo "User: $CI_REGISTRY_USER | Token: ${CI_JOB_TOKEN:0:8}..."
-#       echo ""
-#       echo "=== ENVIRONMENT ==="
-#       echo "Runner: $CI_RUNNER_ID | Executor: $CI_RUNNER_EXECUTABLE_ARCH"
-#       echo "Project: $CI_PROJECT_PATH | Namespace: $CI_PROJECT_NAMESPACE"
-#       echo "Trigger: $CI_PIPELINE_SOURCE"
-#       echo ""
-#       # echo "=== DOCKER ==="
-#       # docker version --format 'Client: {{.Client.Version}} | Server: {{.Server.Version}}'
+debug:
+  stage: .pre
+  script:
+    - |
+      echo "=== CI CONTEXT ==="
+      echo "Pipeline: $CI_PIPELINE_ID | Job: $CI_JOB_ID | Commit: $CI_COMMIT_SHORT_SHA"
+      echo "Branch: $CI_COMMIT_REF_NAME | Tag: $CI_COMMIT_TAG"
+      echo "Custom Registry: $REGISTRY"
+      echo "Registry Host: $CI_REGISTRY | Image $CI_REGISTRY_IMAGE | Project: $CI_PROJECT_PATH_SLUG"
+      echo "User: $CI_REGISTRY_USER | Token: ${CI_JOB_TOKEN:0:8}..."
+      echo ""
+      echo "=== ENVIRONMENT ==="
+      echo "Runner: $CI_RUNNER_ID | Executor: $CI_RUNNER_EXECUTABLE_ARCH"
+      echo "Project: $CI_PROJECT_PATH | Namespace: $CI_PROJECT_NAMESPACE"
+      echo "Trigger: $CI_PIPELINE_SOURCE"
+      echo ""
+      # echo "=== DOCKER ==="
+      # docker version --format 'Client: {{.Client.Version}} | Server: {{.Server.Version}}'
