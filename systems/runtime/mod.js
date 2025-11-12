@@ -14,7 +14,7 @@ const runtime = await (async () => {
   await paladin.ikiro;
   const runtime = new Runtime();
 
-  await paladin.vip.mount(paladin.join.registry());
+  await paladin.vip.mount(paladin.scope.registry);
 
   await lifecycle.populate.aperture(runtime);
   await lifecycle.populate.terrans(runtime);

@@ -10,9 +10,9 @@
     "./subsystems/vector",
     "./subsystems/paladin",
     "./subsystems/shared",
-    "./subsystems/surfaces/dapper",
-    "./subsystems/surfaces/drapes",
-    "./subsystems/surfaces/sheets",
+    "./subsystems/dapper",
+    "./subsystems/drapes",
+    "./subsystems/sheets",
   ],
   "tasks": {
     // --cwd ./packages/client
@@ -32,7 +32,9 @@
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",
     "html/watch": "deno task --cwd ./systems/html watch",
-    // "html/up": "deno run -A ./systems/html/mod.js",
+
+    "html/bundle": "deno task --cwd ./systems/html bundle", // maybe ought be universal??
+
     "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
     "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",

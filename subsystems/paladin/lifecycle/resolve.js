@@ -1,32 +1,33 @@
-import { Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
+import { Url, Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
 
-// load circuits from tilde into variant.circuits
+// load circuitry from tilde into variant.circuitry
 // paladin.find.viva(paladin.scope.variant)
 // filter for manifest.type circuit
 
-export async function circuits(paladin) {
+export async function circuitry(paladin) {
+  if (!paladin.scope.circuitry) return;
   // unnessesarily complex
-  const modules = await paladin.find.viva(paladin.scope.circuits);
+  const modules = await paladin.find.viva(paladin.scope.circuitry);
   const fn = async (f) => [f, await paladin.read.viva(f)];
-  const circuits = (await Promise.all(modules.map((f) => fn(f))))
+  const circuitry = (await Promise.all(modules.map((f) => fn(f))))
     .filter(([, module]) => module?.manifest?.type === "circuit")
     .map(([source, circuit]) => ({ ...circuit, source }));
-  // paladin.variant.circuits(circuit =>(circuit))
-  paladin.variant.circuits = circuits;
+  // paladin.variant.circuitry(circuit =>(circuit))
+  paladin.variant.circuitry = circuitry;
 }
 
 export async function variant(paladin) {
-  const circuits = paladin.variant.circuits;
+  const circuitry = paladin.variant.circuitry;
   // not good for figuring out what part of the config belongs together! @change: process sequentually.
-  const runtimeConfigs = circuits.map((c) => c.runtime).filter(Boolean);
-  // const lighthouseConfigs = circuits.map((c) => c.lighthouse).filter(Boolean);
-  const clientsConfigs = circuits.map((c) => c.clients).filter(Boolean);
-  const daemonsConfigs = circuits.flatMap((c) => c.daemons || []);
-  const servicesConfigs = circuits.flatMap((c) => c.services || []);
+  const runtimeConfigs = circuitry.map((c) => c.runtime).filter(Boolean);
+  // const lighthouseConfigs = circuitry.map((c) => c.lighthouse).filter(Boolean);
+  const clientsConfigs = circuitry.map((c) => c.clients).filter(Boolean);
+  const daemonsConfigs = circuitry.flatMap((c) => c.daemons || []);
+  const servicesConfigs = circuitry.flatMap((c) => c.services || []);
 
   if (runtimeConfigs.length > 1) {
     // same for lighthouse
-    throw new Error("Multiple runtime configurations found in circuits");
+    throw new Error("Multiple runtime configurations found in circuitry");
   }
 
   paladin.variant.runtime = runtimeConfigs[0] || {};
@@ -34,6 +35,22 @@ export async function variant(paladin) {
   // paladin.variant.runtime.mount =  ??
 
   paladin.variant.clients = Object.assign({}, ...clientsConfigs);
+
+  // if role = client & !clients[*]; then check if env client; then resolve
+  if (paladin.is.client && is.empty(paladin.variant.clients)) {
+    if (paladin.env.has("VIVA_CLIENT_HTML_SERVE")) {
+      paladin.variant.clients.html = {
+        statics: {
+          serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
+        },
+      };
+    }
+    if (paladin.env.has("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) {
+      paladin.variant.clients.html.statics.lighthouse = {
+        remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+      };
+    }
+  }
 
   paladin.variant.daemons = daemonsConfigs.map((daemon) => {
     const mask = new Mask(daemon);
@@ -103,8 +120,8 @@ export async function consumables(paladin) {
 // OLD
 // export async function variant(paladin) {
 //   // find all .viva.js files in tilde/variant/
-//   // filter for circuits
-//   // compile variant from circuits
+//   // filter for circuitry
+//   // compile variant from circuitry
 //   // old:
 //   // const file = paladin.join.tilde("variant/variant.viva.js");
 //   // const module = await paladin.read.module(file);

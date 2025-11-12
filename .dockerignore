@@ -1,9 +1,11 @@
 docs
+**/mountpoint
+
 tilde
 /tilde/*
 ./tilde/*
 **/tilde/*
-**/mountpoint
+
 
 .testing
 .jj

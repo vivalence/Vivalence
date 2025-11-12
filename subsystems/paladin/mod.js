@@ -5,8 +5,9 @@ const paladin = await (async function incarne() {
   const paladin = new Paladin();
 
   await populate.env(paladin);
+  await populate.scopes(paladin);
+
   await populate.environment(paladin);
-  await populate.modeselector(paladin);
   await populate.veryimportantpackage(paladin);
   await populate.questions(paladin);
 
@@ -14,7 +15,7 @@ const paladin = await (async function incarne() {
 })();
 
 paladin.ikiro = (async function ikiro() {
-  await resolve.circuits(paladin);
+  await resolve.circuitry(paladin);
   await resolve.variant(paladin);
   await resolve.consumables(paladin);
   // await integrate.publish(paladin);

@@ -1,6 +1,5 @@
 {
   "SERVICE_NLP_PORT": "5555",
-  "SERVICE_NLP_URL": "http://localhost:5555",
-  "SERVICE_NLP_SERVE": "http://localhost:5555",
-  "SERVICE_NLP_REMOTE": "http://localhost:5555",
+  "SERVICE_NLP_SERVE": "http://0.0.0.0:5555",
+  "SERVICE_NLP_REMOTE": "https://nlp.syzygy.vivalence.com",
 }

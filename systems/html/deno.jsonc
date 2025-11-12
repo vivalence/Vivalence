@@ -8,8 +8,8 @@
   "tasks": {
     "watch": "deno run -A npm:vite dev",
     "start": "deno run -A npm:vite dev",
+    "bundle": "deno run -A npm:vite build",
     "preview": "deno run -A npm:vite preview",
-    "build": "docker build -f ./Dockerfile -t viva/html:latest ../..",
   },
 }
 

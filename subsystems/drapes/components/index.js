@@ -8,6 +8,7 @@ import Loader from "./loader/Loader.svelte";
 import Tag from "./tag/Tag.svelte";
 import Text from "./text/Text.svelte";
 // import Widget from "./widget/Widget.svelte";
+import Pictogram from "./pictogram/Pictogram.svelte";
 import Textarea from "./textarea/Textarea.svelte";
 import Modeline from "./modeline/Modeline.svelte";
 import Desk from "./desk/Desk.svelte";
@@ -15,6 +16,7 @@ import Desk from "./desk/Desk.svelte";
 export {
   Desk,
   Textarea,
+  Pictogram,
   // BufferMode,
   // BufferState,
   // Buffer,

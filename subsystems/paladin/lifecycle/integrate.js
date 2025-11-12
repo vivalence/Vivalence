@@ -17,10 +17,11 @@ export async function statements(paladin) {
 
   if (paladin.is.citizen) {
     mounts.push([
-      paladin.scope.tilde,
-      paladin.scope.registry,
-      paladin.scope.circuits,
       paladin.scope.mountpoint,
+      paladin.scope.system,
+      paladin.scope.registry,
+      paladin.scope.variant,
+      paladin.scope.circuitry,
       paladin.scope.environment,
       ...paladin.variant.services.map((s) => s.mount),
       ...paladin.variant.daemons.map((d) => d.mount),
@@ -72,7 +73,7 @@ export async function questions(paladin) {
     paladin.check
       .path([
         paladin.env.get("VIVA_SYSTEM_MOUNT"),
-        paladin.env.get("VIVA_TILDE_MOUNT"),
+        paladin.env.get("VIVA_VARIANT_MOUNT"),
         paladin.env.get("VIVA_REGISTRY_MOUNT"),
       ])
       .throw();

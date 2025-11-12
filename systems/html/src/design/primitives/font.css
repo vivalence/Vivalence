@@ -36,13 +36,136 @@
 	font-style: normal;
 }
 
-/* /\* Space Grotesk font *\/ */
+/* @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Thin.ttf") format("truetype"); font-weight: 100; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-ExtraLight.ttf") format("truetype"); font-weight: 200; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Light.ttf") format("truetype"); font-weight: 300; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-ExtraBold.ttf") format("truetype"); font-weight: 800; font-style: normal;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-Italic.ttf") format("truetype"); font-weight: 400; font-style: italic;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-LightItalic.ttf") format("truetype"); font-weight: 300; font-style: italic;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-MediumItalic.ttf") format("truetype"); font-weight: 500; font-style: italic;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-SemiBoldItalic.ttf") format("truetype"); font-weight: 600; font-style: italic;} @font-face {font-family: "K2D"; src: url("../static/fonts/K2D/K2D-BoldItalic.ttf") format("truetype"); font-weight: 700; font-style: italic;} */
+
 @font-face {
-	font-family: "Space Grotesk";
-	src: url("../static/fonts/Space Grotesk/ttf/SpaceGrotesk[wght].ttf")
+	font-family: "Inter";
+	src: url("../static/fonts/Inter/Inter-VariableFont_opsz,wght.ttf")
 		format("truetype");
-	font-style: normal;
 	font-weight: 100 900;
+	font-style: normal;
+	font-optical-sizing: auto;
+}
+@font-face {
+	font-family: "Inter";
+	src: url("../static/fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf")
+		format("truetype");
+	font-weight: 100 900;
+	font-style: italic;
+	font-optical-sizing: auto;
+}
+
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
+	font-weight: 100;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-ExtraLight.ttf") format("truetype");
+	font-weight: 200;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Light.ttf") format("truetype");
+	font-weight: 300;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Regular.ttf") format("truetype");
+	font-weight: 400;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Medium.ttf") format("truetype");
+	font-weight: 500;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-SemiBold.ttf") format("truetype");
+	font-weight: 600;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Bold.ttf") format("truetype");
+	font-weight: 700;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-ExtraBold.ttf") format("truetype");
+	font-weight: 800;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Black.ttf") format("truetype");
+	font-weight: 900;
+	font-style: normal;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-ThinItalic.ttf") format("truetype");
+	font-weight: 100;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-ExtraLightItalic.ttf")
+		format("truetype");
+	font-weight: 200;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-LightItalic.ttf") format("truetype");
+	font-weight: 300;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-Italic.ttf") format("truetype");
+	font-weight: 400;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-MediumItalic.ttf")
+		format("truetype");
+	font-weight: 500;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-SemiBoldItalic.ttf")
+		format("truetype");
+	font-weight: 600;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-BoldItalic.ttf") format("truetype");
+	font-weight: 700;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-ExtraBoldItalic.ttf")
+		format("truetype");
+	font-weight: 800;
+	font-style: italic;
+}
+@font-face {
+	font-family: "Poppins";
+	src: url("../static/fonts/Poppins/Poppins-BlackItalic.ttf") format("truetype");
+	font-weight: 900;
+	font-style: italic;
 }
 
 /* Source Code Pro font */
@@ -61,31 +184,39 @@
 	font-style: italic;
 }
 
-/* Sabon font */
-@font-face {
-	font-family: "Sabon";
-	src: url("../static/fonts/Sabon/Sabon.ttf") format("truetype");
-	font-weight: 400;
-	font-style: normal;
-}
-@font-face {
-	font-family: "Sabon";
-	src: url("../static/fonts/Sabon/SabonItalic.ttf") format("truetype");
-	font-weight: 400;
-	font-style: italic;
-}
-@font-face {
-	font-family: "Sabon";
-	src: url("../static/fonts/Sabon/SabonBold.ttf") format("truetype");
-	font-weight: 700;
-	font-style: normal;
-}
-@font-face {
-	font-family: "Sabon";
-	src: url("../static/fonts/Sabon/SabonBoldItalic.ttf") format("truetype");
-	font-weight: 700;
-	font-style: italic;
-}
+/* /\* Space Grotesk font *\/ */
+/* @font-face { */
+/* 	font-family: "Space Grotesk"; */
+/* 	src: url("../static/fonts/Space Grotesk/ttf/SpaceGrotesk[wght].ttf") */
+/* 		format("truetype"); */
+/* 	font-style: normal; */
+/* 	font-weight: 100 900; */
+/* } */
+/* /\* Sabon font *\/ */
+/* @font-face { */
+/* 	font-family: "Sabon"; */
+/* 	src: url("../static/fonts/Sabon/Sabon.ttf") format("truetype"); */
+/* 	font-weight: 400; */
+/* 	font-style: normal; */
+/* } */
+/* @font-face { */
+/* 	font-family: "Sabon"; */
+/* 	src: url("../static/fonts/Sabon/SabonItalic.ttf") format("truetype"); */
+/* 	font-weight: 400; */
+/* 	font-style: italic; */
+/* } */
+/* @font-face { */
+/* 	font-family: "Sabon"; */
+/* 	src: url("../static/fonts/Sabon/SabonBold.ttf") format("truetype"); */
+/* 	font-weight: 700; */
+/* 	font-style: normal; */
+/* } */
+/* @font-face { */
+/* 	font-family: "Sabon"; */
+/* 	src: url("../static/fonts/Sabon/SabonBoldItalic.ttf") format("truetype"); */
+/* 	font-weight: 700; */
+/* 	font-style: italic; */
+/* } */
 
 /* /\* Kabel font *\/ */
 /* @font-face { */

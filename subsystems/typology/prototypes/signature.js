@@ -87,6 +87,7 @@ export class Signature {
     return grab;
   }
 
+  // snatch
   // severe(brats) {return cast .array(this.ancestory()) .map((s) => this.grab(s)) .filter((f) => !!f);}
 
   *ancestory() {
@@ -108,6 +109,10 @@ export class Signature {
     return this.gauges[0];
   }
 
+  get ghost() {
+    return !this.nature && this.heir;
+  }
+
   get fin() {
     let position = this.heir;
     while (position?.heir) position = position.heir;
@@ -126,10 +131,6 @@ export class Signature {
     let position = this;
     while (position.trace) position = position.trace;
     return position;
-  }
-
-  get ghost() {
-    return !this.nature && this.heir;
   }
 
   // last universal ancestor
@@ -159,6 +160,10 @@ export class Signature {
 
   get julie() {
     // return this.trace.array.indexOf(this)+1
+  }
+
+  get frotscher() {
+    return new this.constructor(this.absolute);
   }
 
   //  rebuild.
@@ -201,6 +206,7 @@ export class Signature {
     }
     return depth;
   }
+
   // /SUNSET
   // leaf(leaf) {console.trace("[SIGNATURE] legacy leaf call"); return this.stick(leaf);} get ancestor() {console.trace("[SIGNATURE] legacy ancestor call"); return this.trace;}
 

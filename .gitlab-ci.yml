@@ -21,8 +21,6 @@ build-and-push:
     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
     - docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .
 
-    - echo "$REGISTRY/viva:alpine"
-
     - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
     - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
     - docker tag vivalence/html:alpine $REGISTRY/vivalence/html:alpine

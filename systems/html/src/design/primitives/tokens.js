@@ -1,12 +1,25 @@
 // import { boxShadow, dropShadow, border, container, spacing, animation } from "./tokens.js";
 
 export const font = {
+  // family: {
+  //   brand: ["K2D", "sans-serif"], // Brand elements
+  //   "sans-heading": ["Poppins", "sans-serif"], // Systemspace, structural interface
+  //   "sans-text": ["Inter", "sans-serif"], // Interface text, userspace
+  //   "serif-heading": ["Sabon", "serif"], // Keep for legacy
+  //   "serif-text": ["Sabon", "serif"], // Keep for legacy
+  //   monospace: , // Code and mono
+  //   userspace: , //
+  //   systemspace: , //
+  //   inhalt: , //
+  //   struktur: , //
+  // brand/identity/theme = systemspace inhalt
+  // },
   family: {
-    brand: ["K2D", "sans"],
-    "serif-head": ["Sabon", "serif"],
-    "serif-text": ["Sabon", "serif"],
-    "sans-head": ["Space Grotesk", "sans"],
-    "sans-text": ["Space Grotesk", "sans"],
+    brand: ["K2D", "serif"],
+    "sans-heading": ["Poppins", "sans"],
+    "sans-text": ["Inter", "sans"],
+    "serif-heading": ["Poppins", "serif"],
+    "serif-text": ["Inter", "serif"],
     code: ["Source Code Pro", "monospace"],
   },
   size: {

@@ -1,5 +1,6 @@
 import { CurrentRuntime, Runtime } from "@cross/runtime";
 
+// whatever can be computed from role, mode, and runtime.
 export default function (paladin) {
   paladin.is = {
     // envoy // citizen
@@ -12,14 +13,22 @@ export default function (paladin) {
     get prod() {
       return paladin.mode === "PRODUCTION";
     },
-    get envoy() {
+    get runtime() {
+      return paladin.role === "RUNTIME";
+    },
+    get client() {
+      return paladin.role === "CLIENT";
+    },
+    get deployed() {
       // no write access
-      // return ["CLIENT", "PROCESS", "SERVICE"].includes(paladin.role);
-      return [Runtime.Browser, Runtime.Workerd].includes(CurrentRuntime);
+      return (
+        ["CLIENT"].includes(paladin.role) ||
+        [Runtime.Browser].includes(CurrentRuntime)
+      );
     },
     get citizen() {
+      if (paladin.deployed) return false;
       // write access
-      // return ["RUNTIME", "GHOST"].includes(paladin.role);
       return [Runtime.Deno, Runtime.Bun, Runtime.Node].includes(CurrentRuntime);
     },
     get veryimportant() {

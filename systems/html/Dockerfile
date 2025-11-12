@@ -4,12 +4,13 @@ ENV VIVA_SYSTEM_MODE="CLIENT"
 
 WORKDIR /viva/repository
 
-COPY systems/ ./systems/
+COPY systems/html ./systems/html
 COPY subsystems/ ./subsystems/
 
-WORKDIR /viva/repository/systems/html
+CMD ["deno", "task", "html/watch"]
 
-CMD ["deno", "task", "start"]
+# WORKDIR /viva/repository/systems/html
+# CMD ["deno", "task", "start"]
 
 # deno task --cwd ./systems/html watch
 

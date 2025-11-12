@@ -625,3 +625,20 @@
 .t-modeline-modeline {
 	grid-area: modeline;
 }
+
+.t-buffer {
+	grid-template:
+		"ticker" auto
+		"content" 1fr
+		"modeline" auto / 1fr;
+}
+
+.t-buffer-ticker {
+	grid-area: ticker;
+}
+.t-buffer-content {
+	grid-area: content;
+}
+.t-buffer-modeline {
+	grid-area: modeline;
+}

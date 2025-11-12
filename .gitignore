@@ -1,7 +1,4 @@
-tilde
-tilde/*
-/tilde/*
-./tilde/*
+./tests/variant
 **/mountpoint
 
 .jj

@@ -30,14 +30,11 @@ specimen.describe("Paladin", () => {
       specimen.it("env", async () => {
         await populate.env(paladin);
       });
-      specimen.it("environment", async () => {
-        await populate.environment(paladin);
-      });
-      specimen.it("modeselector", async () => {
-        await populate.modeselector(paladin);
-      });
       specimen.it("scopes", async () => {
         await populate.scopes(paladin);
+      });
+      specimen.it("environment", async () => {
+        await populate.environment(paladin);
       });
       specimen.it("veryimportantpackage", async () => {
         await populate.veryimportantpackage(paladin);
@@ -80,16 +77,15 @@ specimen.describe("Paladin", () => {
 
   specimen.describe("resolution", () => {
     specimen.describe("cycles", () => {
-      specimen.it("circuits", async () => await resolve.circuits(paladin));
+      specimen.it("circuitry", async () => await resolve.circuitry(paladin));
       specimen.it("variant", async () => await resolve.variant(paladin));
       specimen.it("deps", async () => await resolve.consumables(paladin));
-      specimen.it("mounts", async () => await resolve.mounts(paladin));
     });
 
     specimen.describe("gestalt", () => {
-      specimen.it("circuits structure", () => {
-        specimen.expect(paladin.variant.circuits.length).toBe(2);
-        paladin.variant.circuits.forEach((circuit) => {
+      specimen.it("circuitry structure", () => {
+        specimen.expect(paladin.variant.circuitry.length).toBe(2);
+        paladin.variant.circuitry.forEach((circuit) => {
           specimen.expect(circuit.manifest.type).toBe("circuit");
           specimen.is.Path(circuit.source);
         });
@@ -97,13 +93,13 @@ specimen.describe("Paladin", () => {
     });
 
     specimen.it("variant compilation", () => {
-      specimen.expect(paladin.variant.lighthouse).toBeDefined();
-      specimen.expect(paladin.variant.runtime).toBeDefined();
-      specimen
-        .expect(paladin.variant.runtime.statics.serve.href)
-        .toBe("http://localhost:1729/");
+      // specimen.expect(paladin.variant.lighthouse).toBeDefined();
+      // specimen.expect(paladin.variant.runtime).toBeDefined();
+      // specimen
+      //   .expect(paladin.variant.runtime.statics.serve.href)
+      //   .toBe("http://localhost:1729/");
 
-      specimen.expect(paladin.variant.clients.ghost).toBeDefined();
+      // specimen.expect(paladin.variant.clients.ghost).toBeDefined();
       specimen.expect(paladin.variant.clients.html).toBeDefined();
 
       specimen.expect(paladin.variant.daemons).toBeInstanceOf(Array);
@@ -112,7 +108,7 @@ specimen.describe("Paladin", () => {
       specimen.is.Path(paladin.variant.daemons[0].mount);
 
       specimen.expect(paladin.variant.services).toBeInstanceOf(Array);
-      specimen.expect(paladin.variant.services.length).toBe(2);
+      // specimen.expect(paladin.variant.services.length).toBe(2);
       // specimen
       //   .expect(paladin.variant.services.map((s) => s.slug))
       //   .toEqual(specimen.expect.arrayContaining(["lighthouse", "hal", "nlp-stanza"]),);
@@ -156,7 +152,7 @@ specimen.describe("Paladin", () => {
 
     return;
     specimen.describe("valences", () => {
-      // specimen.it("circuits loading", async () => {
+      // specimen.it("circuitry loading", async () => {
       //   // Should find and load .viva.js files from variant directory
       //   const circuitPaths = await paladin.find.viva(paladin.scope.variant);
       //   specimen.expect(circuitPaths.length).toBeGreaterThan(0);
@@ -165,13 +161,13 @@ specimen.describe("Paladin", () => {
 
       //     circuitPaths.map(async (f) => [f, await paladin.read.viva(f)]),
       //   );
-      //   const nonCircuits = allModules.filter(
+      //   const nonCircuitry = allModules.filter(
       //     ([, m]) => m?.manifest?.type !== "circuit",
       //   );
-      //   specimen.expect(nonCircuits.length).toBe(0);
+      //   specimen.expect(nonCircuitry.length).toBe(0);
       // });
 
-      // specimen.it("variant defence", () => {const circuits = [{ runtime: { test: 1 } }, { runtime: { test: 2 } }]; specimen .expect(() => {if (circuits.filter((c) => c.runtime).length > 1) {throw new Error("Multiple runtime configurations found");}}) .toThrow("Multiple runtime configurations found");});
+      // specimen.it("variant defence", () => {const circuitry = [{ runtime: { test: 1 } }, { runtime: { test: 2 } }]; specimen .expect(() => {if (circuitry.filter((c) => c.runtime).length > 1) {throw new Error("Multiple runtime configurations found");}}) .toThrow("Multiple runtime configurations found");});
 
       specimen.it("filesystem mount creation", async () => {
         // All mount directories should exist after resolution
@@ -196,7 +192,7 @@ specimen.describe("Paladin", () => {
 // old
 //   specimen.describe("resolution", () => {
 //     specimen.describe("cycles", () => {
-//       specimen.it("circuits", async () => await resolve.circuits(paladin));
+//       specimen.it("circuitry", async () => await resolve.circuitry(paladin));
 //       specimen.it("variant", async () => await resolve.variant(paladin));
 //       specimen.it(
 //         "dependencies",

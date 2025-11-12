@@ -117,6 +117,7 @@ you dont know shit.
 
 
 
+* 
 enough yapping.
 kill $(ps -eo pid,pgid | jq -sr '.[] | select(.group == "yapper") | .pid' <(awk '{print "{\"pid\": "$1", \"group\": "$2"}"}'))
 
@@ -137,8 +138,6 @@ whats a skill?
 how does it work? hierarchy of knowledge, measurability, critical path, games.
 
 whats a users primary focus? goals and games. you play games untill a dependency is met. then you play more difficult games.
-
-vivalence is a noun. „with vivalence“.
 
 build the young ladys illustrated primer.
 build a individualized, reactive museeum tour.

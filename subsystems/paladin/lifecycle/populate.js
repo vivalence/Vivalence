@@ -5,7 +5,8 @@ export async function env(paladin) {
   // console.log("ENV CALL");
   // read process env
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("VIVA_")) paladin.env.set(key, value);
+    if (key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_"))
+      paladin.env.set(key, value);
   }
 
   // read env file
@@ -18,7 +19,7 @@ export async function env(paladin) {
   if (
     paladin.check.env([
       "VIVA_SYSTEM_MOUNT",
-      "VIVA_TILDE_MOUNT",
+      "VIVA_VARIANT_MOUNT",
       "VIVA_REGISTRY_MOUNT",
     ]).fails
   ) {
@@ -29,7 +30,103 @@ export async function env(paladin) {
   }
 }
 
+export async function scopes(paladin) {
+  paladin.scopes([
+    [
+      "system",
+      () => true,
+      () => new Path(paladin.env.get("VIVA_SYSTEM_MOUNT")),
+    ],
+    [
+      "registry",
+      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.veryimportant,
+      () => {
+        let envpath;
+        if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
+          envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
+        } else {
+          envpath = paladin.scope.system.branch("registry").absolute;
+        }
+        return envpath ? new Path(envpath) : undefined;
+      },
+    ],
+  ]);
+
+  paladin.scopes([
+    [
+      "variant",
+      () => paladin.env.has("VIVA_VARIANT_MOUNT"),
+      () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
+    ],
+
+    [
+      "circuitry",
+      () => paladin.is.citizen && (paladin.is.dev || paladin.is.sudo),
+      () => {
+        let envpath;
+        if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
+          envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");
+        } else {
+          envpath = paladin.scope.variant?.branch("circuitry").absolute;
+        }
+        return envpath ? new Path(envpath) : undefined;
+      },
+    ],
+    [
+      "environment",
+      () => !paladin.is.deployed && paladin.is.citizen,
+      () => {
+        let envpath;
+        if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
+          envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
+        } else {
+          envpath = paladin.scope.variant?.branch("environment").absolute;
+        }
+        return envpath ? new Path(envpath) : undefined;
+      },
+    ],
+    [
+      "mountpoint",
+      () => paladin.is.citizen,
+      () => {
+        let envpath;
+        if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
+          envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
+        } else {
+          envpath = paladin.scope.variant?.branch("mountpoint").absolute;
+        }
+        return envpath ? new Path(envpath) : undefined;
+      },
+    ],
+  ]);
+
+  // console.log(`system`, paladin.scope.system);
+  // console.log(`regist`, paladin.scope.registry);
+  // console.log(`varian`, paladin.scope.variant);
+  // console.log(`circui`, paladin.scope.circuitry);
+  // console.log(`enviro`, paladin.scope.environment);
+  // console.log(`mountp`, paladin.scope.mountpoint);
+  // console.log({ paladin });
+
+  paladin.scopes([
+    // Legacy aliases
+    [
+      "circuits",
+      () => paladin.scope.circuitry !== undefined,
+      () => paladin.scope.circuitry,
+    ],
+
+    [
+      "tilde",
+      () => paladin.scope.variant !== undefined,
+      () => paladin.scope.variant,
+    ],
+  ]);
+}
+
 export async function environment(paladin) {
+  if (!paladin.scope.environment) return;
+
   const apply = (env) => async (path) => {
     return env.assign(await paladin.read.json(path));
   };
@@ -49,12 +146,6 @@ export async function environment(paladin) {
   return paladin;
 }
 
-export async function modeselector(paladin) {
-  // getter
-  paladin.role = paladin.env.get("VIVA_SYSTEM_ROLE");
-  paladin.mode = paladin.env.get("VIVA_SYSTEM_MODE");
-}
-
 export async function veryimportantpackage(paladin) {
   if (paladin.is.veryimportant) {
     const { Vip } = await import("@vivalence/paladin/typology");
@@ -69,7 +160,7 @@ export async function questions(paladin) {
       "VIVA_SYSTEM_ROLE",
 
       // "VIVA_SYSTEM_MOUNT", // conditional
-      // "VIVA_TILDE_MOUNT", // conditional
+      // "VIVA_VARIANT_MOUNT", // conditional
       // "VIVA_REGISTRY_MOUNT", // conditional
 
       // "VIVA_RUNTIME_SERVE", // conditional

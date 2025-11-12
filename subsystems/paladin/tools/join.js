@@ -5,10 +5,10 @@ export default function joins(config) {
     return new Path(config.env.get(envKey)).branch(path);
   };
 
-  const tilde = createBrancher("VIVA_TILDE_MOUNT");
+  const tilde = createBrancher("VIVA_VARIANT_MOUNT");
   const registry = createBrancher("VIVA_REGISTRY_MOUNT");
   const system = createBrancher("VIVA_SYSTEM_MOUNT");
-  // const mount = createBrancher("VIVA_TILDE_MOUNT");
+  // const mount = createBrancher("VIVA_VARIANT_MOUNT");
 
   config.join = {
     tilde: (f) => tilde(f),
@@ -40,7 +40,7 @@ export default function joins(config) {
 //   const nest = (parentJoiner, subPath) => (path) =>
 //     parentJoiner(join(subPath, path));
 
-//   const tilderoot = createJoiner("VIVA_TILDE_MOUNT");
+//   const tilderoot = createJoiner("VIVA_VARIANT_MOUNT");
 //   const system = createJoiner("VIVA_SYSTEM_MOUNT");
 //   const register = createJoiner("VIVA_REGISTER_MOUNT");
 

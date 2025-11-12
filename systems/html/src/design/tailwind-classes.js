@@ -61,9 +61,9 @@ export default {
   // For now only family and size, needs to be expanded
   fontFamily: {
     brand: "var(--font-family-brand)",
-    "serif-head": "var(--font-family-serif-head)",
+    "serif-heading": "var(--font-family-serif-heading)",
     "serif-text": "var(--font-family-serif-text)",
-    "sans-head": "var(--font-family-sans-head)",
+    "sans-heading": "var(--font-family-sans-heading)",
     "sans-text": "var(--font-family-sans-text)",
     code: "var(--font-family-code)",
   },

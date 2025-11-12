@@ -3,13 +3,11 @@ import tools from "../tools/index.js";
 
 export class Paladin {
   traits = [];
-  role = null; // client runtime 'daemon service process
-  mode = null; // development production
   env = new Env();
   secret = new Env();
 
   variant = {
-    circuits: [], // finished masks; compiled from circuits
+    circuitry: [], // finished masks; compiled from circuitry
     runtime: {},
     clients: {},
     daemons: [],
@@ -17,12 +15,24 @@ export class Paladin {
   };
 
   constructor() {
+    // deprecated
+    tools.join(this);
+    // belt
     tools.read(this);
     tools.find(this);
     tools.check(this);
     tools.state(this);
-    tools.join(this);
+    // resolution
     tools.is(this);
     tools.scope(this);
+  }
+
+  get role() {
+    // role = string; // client runtime 'daemon service process
+    return this.env.get("VIVA_SYSTEM_ROLE");
+  }
+  get mode() {
+    // mode = string; // development production
+    return this.env.get("VIVA_SYSTEM_MODE");
   }
 }
