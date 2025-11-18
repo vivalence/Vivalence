@@ -3,7 +3,7 @@ import { Env, Url } from "@vivalence/typology";
 
 export const manifest = {
   type: "circuit",
-  slug: "multiplayer-starter",
+  slug: "multiplayer-starter-runtime",
   traits: ["EMBEDDED"], // everything on this circuit will be auto-started (daemonized)
 };
 
@@ -21,19 +21,20 @@ export const runtime = {
   },
 };
 
-export const clients = {
-  html: {
-    slug: "html",
-    module: "@vivalence/html",
-    statics: {
-      serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
-      remote: new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE")),
-      lighthouse: {
-        remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
-      },
-    },
-  },
-};
+// export const clients = {
+//   html: {
+//     slug: "html",
+//     module: "@vivalence/html",
+//     statics: {
+//       serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
+//       remote: new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE")),
+//       lighthouse: {
+//         remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+//       },
+//     },
+//   },
+// };
+
 export const services = [
   {
     slug: "hanse",
