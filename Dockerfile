@@ -89,10 +89,6 @@ RUN echo 'export * from "./systems/runtime/mod.js";' > deps.js && \
 RUN deno cache --import-map=import_map.json deps.js
 RUN deno task install
 
-# RUN mkdir /viva/variant
-# RUN mkdir /viva/mountpoint
-# RUN mkdir /viva/registry
-
 ENV VIVA_SYSTEM_MOUNT=/viva/repository
 ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry
 

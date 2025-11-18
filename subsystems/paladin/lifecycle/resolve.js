@@ -5,15 +5,19 @@ import { Url, Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
 // filter for manifest.type circuit
 
 export async function circuitry(paladin) {
+  console.log("scope.circuitry", paladin.scope.circuitry);
   if (!paladin.scope.circuitry) return;
   await paladin.state.dir(paladin.scope.circuitry.absolute);
+  console.log("stated:", paladin.scope.circuitry.absolute);
   // unnessesarily complex
   const modules = await paladin.find.viva(paladin.scope.circuitry);
+  console.log("found:", { modules });
   const fn = async (f) => [f, await paladin.read.viva(f)];
   const circuitry = (await Promise.all(modules.map((f) => fn(f))))
     .filter(([, module]) => module?.manifest?.type === "circuit")
     .map(([source, circuit]) => ({ ...circuit, source }));
   // paladin.variant.circuitry(circuit =>(circuit))
+  console.log("found:", { circuitry });
   paladin.variant.circuitry = circuitry;
 }
 
@@ -26,6 +30,8 @@ export async function variant(paladin) {
   const daemonsConfigs = circuitry.flatMap((c) => c.daemons || []);
   const servicesConfigs = circuitry.flatMap((c) => c.services || []);
 
+  console.log("clients:", { clientsConfigs });
+
   if (runtimeConfigs.length > 1) {
     // same for lighthouse
     throw new Error("Multiple runtime configurations found in circuitry");
@@ -37,6 +43,7 @@ export async function variant(paladin) {
 
   paladin.variant.clients = Object.assign({}, ...clientsConfigs);
 
+  console.log("clients:", { ...paladin.variant.clients });
   // if role = client & !clients[*]; then check if env client; then resolve
   // if (paladin.is.client) {if (is.empty(paladin.variant.clients) && paladin.env.has("VIVA_CLIENT_HTML_SERVE")) {paladin.variant.clients.html = {statics: {serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),},};} if (paladin.env.has("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) {paladin.variant.clients.html.statics.lighthouse = {remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),};} if (paladin.env.has("PUBLIC_VIVA_CLIENT_HTML_REMOTE")) {paladin.variant.clients.html.statics.remote = new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE"),);}}
 

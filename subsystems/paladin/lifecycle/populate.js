@@ -21,7 +21,9 @@ export async function env(paladin) {
       "VIVA_SYSTEM_MOUNT",
       "VIVA_VARIANT_MOUNT",
       "VIVA_REGISTRY_MOUNT",
-    ]).fails
+    ]).fails &&
+    paladin.is.dev &&
+    paladin.is.citizen
   ) {
     const ROOT_OFFSET = "../../../.env";
     const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname;

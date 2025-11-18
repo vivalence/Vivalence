@@ -16,10 +16,7 @@ await paladin.ikiro; // temporary magic
 const client = paladin.variant.clients.html;
 
 // # scopes [paladin.scope.system,paladin.scope.registry];
-console.log({
-  paladin,
-  client,
-});
+console.log({ ...paladin.variant, client });
 
 console.log({
   host: client.statics.serve.hostname,
