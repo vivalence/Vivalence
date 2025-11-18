@@ -23,6 +23,7 @@ export default defineConfig({
     strictPort: true,
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
+    allowedHosts: true, // PUBLIC_VIVA_CLIENT_HTML_REMOTE
     fs: { allow: ["./", "../../node_modules"] },
     watch: {
       usePolling: true,
