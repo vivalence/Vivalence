@@ -22,10 +22,12 @@ console.log(paladin.env, paladin.variant);
 // console.log(new URL("https://vivalence.com:1794/"));
 
 let allowedHosts = true;
-if (client.statics.remote) allowedHosts = client.statics.remote.hostname;
+if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
+if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
+  allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
 
 console.log("allowedHosts,client.statics.remote,");
-console.log(allowedHosts, client.statics.remote);
+console.log(allowedHosts);
 
 export default defineConfig({
   plugins: [sveltekit()], // , deno()
