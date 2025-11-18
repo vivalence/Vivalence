@@ -16,13 +16,8 @@ await paladin.ikiro; // temporary magic
 const client = paladin.variant.clients.html;
 
 // # scopes [paladin.scope.system,paladin.scope.registry];
-console.log({ ...paladin.variant, client });
-
-console.log({
-  host: client.statics.serve.hostname,
-  port: parseInt(client.statics.serve.port),
-  allowedHosts: client.statics.remote?.absolute || paladin.is.dev,
-});
+// console.log(new Url("https://vivalence.com:1794/"));
+// console.log(new URL("https://vivalence.com:1794/"));
 
 export default defineConfig({
   plugins: [sveltekit()], // , deno()
@@ -30,7 +25,7 @@ export default defineConfig({
     strictPort: true,
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
-    allowedHosts: client.statics.remote?.absolute || paladin.is.dev,
+    allowedHosts: client.statics.remote?.hostname || paladin.is.dev,
     fs: { allow: ["./", "../../node_modules"] },
     watch: {
       usePolling: true,

@@ -2,10 +2,11 @@ export class Url extends URL {
   constructor(url, more) {
     super(url, more);
   }
+
   get absolute() {
-    console.log("Url.absolute", this);
-    return this.toString();
+    return this.href;
   }
+
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `${this.constructor.name}:${this.href}`;
   }
@@ -39,4 +40,17 @@ export class Url extends URL {
 //   toString() {
 //     return `${this.constructor.name}:${this.href}`;
 //   }
+// }
+// URL {
+//   href: "https://vivalence.com:1794/",
+//   origin: "https://vivalence.com:1794",
+//   protocol: "https:",
+//   username: "",
+//   password: "",
+//   host: "vivalence.com:1794",
+//   hostname: "vivalence.com",
+//   port: "1794",
+//   pathname: "/",
+//   hash: "",
+//   search: ""
 // }
