@@ -3,7 +3,7 @@ import { Env, Url } from "@vivalence/typology";
 
 export const manifest = {
   type: "circuit",
-  slug: "multiplayer-starter-runtime",
+  slug: "kajuit",
   traits: ["EMBEDDED"], // everything on this circuit will be auto-started (daemonized)
 };
 

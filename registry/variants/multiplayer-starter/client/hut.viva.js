@@ -3,7 +3,7 @@ import { Env, Url } from "@vivalence/typology";
 
 export const manifest = {
   type: "circuit",
-  slug: "multiplayer-starter-client",
+  slug: "hut",
   traits: ["EMBEDDED"], // everything on this circuit will be auto-started (daemonized)
 };
 

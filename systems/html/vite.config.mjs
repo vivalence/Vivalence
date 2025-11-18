@@ -19,10 +19,14 @@ const client = paladin.variant.clients.html;
 console.log({
   paladin,
   client,
+});
+
+console.log({
   host: client.statics.serve.hostname,
   port: parseInt(client.statics.serve.port),
   allowedHosts: client.statics.remote || paladin.is.dev,
 });
+
 export default defineConfig({
   plugins: [sveltekit()], // , deno()
   server: {
