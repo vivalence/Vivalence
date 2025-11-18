@@ -7,6 +7,8 @@ WORKDIR /viva/repository
 
 ENV VIVA_SYSTEM_MODE="CLIENT"
 
+RUN deno install
+
 CMD ["deno", "task", "html/watch"]
 
 # CMD ["deno", "task", "start"]

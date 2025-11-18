@@ -15,27 +15,38 @@ const __ss = join(__repo, "./subsystems");
 await paladin.ikiro; // temporary magic
 const client = paladin.variant.clients.html;
 
-console.log("paladin.env, paladin.variant");
-console.log(paladin.env, paladin.variant);
 // # scopes [paladin.scope.system,paladin.scope.registry];
-// console.log(new Url("https://vivalence.com:1794/"));
-// console.log(new URL("https://vivalence.com:1794/"));
 
-let allowedHosts = true;
+let allowedHosts = paladin.is.dev;
 if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
 if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
   allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
 
+console.log("paladin.env, paladin.variant");
+console.log(paladin.env, paladin.variant);
+console.log({
+  cors: { origin: client.statics.remote?.absolute },
+  origin: client.statics.remote?.absolute,
+  allowedHosts,
+
+  host: client.statics.serve.hostname,
+  port: parseInt(client.statics.serve.port),
+});
 console.log("allowedHosts,client.statics.remote,");
 console.log(allowedHosts);
 
 export default defineConfig({
-  plugins: [sveltekit()], // , deno()
+  plugins: [sveltekit(), deno()], //
+  logLevel: "info",
   server: {
-    strictPort: true,
+    cors: { origin: client.statics.remote?.absolute },
+    origin: client.statics.remote?.absolute,
+    allowedHosts,
+
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
-    allowedHosts,
+
+    strictPort: true,
     fs: { allow: ["./", "../../node_modules"] },
     watch: {
       usePolling: true,
