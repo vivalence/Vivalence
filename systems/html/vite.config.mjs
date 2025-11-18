@@ -15,9 +15,17 @@ const __ss = join(__repo, "./subsystems");
 await paladin.ikiro; // temporary magic
 const client = paladin.variant.clients.html;
 
+console.log("paladin.env, paladin.variant");
+console.log(paladin.env, paladin.variant);
 // # scopes [paladin.scope.system,paladin.scope.registry];
 // console.log(new Url("https://vivalence.com:1794/"));
 // console.log(new URL("https://vivalence.com:1794/"));
+
+let allowedHosts = true;
+if (client.statics.remote) allowedHosts = client.statics.remote.hostname;
+
+console.log("allowedHosts,client.statics.remote,");
+console.log(allowedHosts, client.statics.remote);
 
 export default defineConfig({
   plugins: [sveltekit()], // , deno()
@@ -25,7 +33,7 @@ export default defineConfig({
     strictPort: true,
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
-    allowedHosts: client.statics.remote?.hostname || paladin.is.dev,
+    allowedHosts,
     fs: { allow: ["./", "../../node_modules"] },
     watch: {
       usePolling: true,
