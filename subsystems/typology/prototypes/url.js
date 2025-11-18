@@ -2,7 +2,10 @@ export class Url extends URL {
   constructor(url, more) {
     super(url, more);
   }
-
+  get absolute() {
+    console.log("Url.absolute", this);
+    return this.toString();
+  }
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `${this.constructor.name}:${this.href}`;
   }

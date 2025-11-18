@@ -21,7 +21,7 @@ console.log({ ...paladin.variant, client });
 console.log({
   host: client.statics.serve.hostname,
   port: parseInt(client.statics.serve.port),
-  allowedHosts: client.statics.remote || paladin.is.dev,
+  allowedHosts: client.statics.remote?.absolute || paladin.is.dev,
 });
 
 export default defineConfig({
@@ -30,7 +30,7 @@ export default defineConfig({
     strictPort: true,
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
-    allowedHosts: client.statics.remote || paladin.is.dev,
+    allowedHosts: client.statics.remote?.absolute || paladin.is.dev,
     fs: { allow: ["./", "../../node_modules"] },
     watch: {
       usePolling: true,

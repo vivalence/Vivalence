@@ -5,19 +5,20 @@ import { Url, Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
 // filter for manifest.type circuit
 
 export async function circuitry(paladin) {
-  console.log("scope.circuitry", paladin.scope.circuitry);
+  console.log(paladin.env);
+  console.log(paladin.scope.circuitry);
   if (!paladin.scope.circuitry) return;
   await paladin.state.dir(paladin.scope.circuitry.absolute);
   console.log("stated:", paladin.scope.circuitry.absolute);
   // unnessesarily complex
   const modules = await paladin.find.viva(paladin.scope.circuitry);
-  console.log("found:", { modules });
+  // console.log("found modules:", { modules });
   const fn = async (f) => [f, await paladin.read.viva(f)];
   const circuitry = (await Promise.all(modules.map((f) => fn(f))))
     .filter(([, module]) => module?.manifest?.type === "circuit")
     .map(([source, circuit]) => ({ ...circuit, source }));
   // paladin.variant.circuitry(circuit =>(circuit))
-  console.log("found:", { circuitry });
+  // console.log("found circuitry:", { circuitry });
   paladin.variant.circuitry = circuitry;
 }
 

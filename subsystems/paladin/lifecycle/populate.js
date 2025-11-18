@@ -17,13 +17,8 @@ export async function env(paladin) {
 
   // fallback to repo .env
   if (
-    paladin.check.env([
-      "VIVA_SYSTEM_MOUNT",
-      "VIVA_VARIANT_MOUNT",
-      "VIVA_REGISTRY_MOUNT",
-    ]).fails &&
-    paladin.is.dev &&
-    paladin.is.citizen
+    paladin.check.env(["VIVA_SYSTEM_MOUNT", "VIVA_VARIANT_MOUNT"]).fails &&
+    (paladin.is.citizen || paladin.is.dev)
   ) {
     const ROOT_OFFSET = "../../../.env";
     const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname;
@@ -41,7 +36,7 @@ export async function scopes(paladin) {
     ],
     [
       "registry",
-      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.veryimportant,
+      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
       () => {
         let envpath;
         if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
@@ -62,7 +57,9 @@ export async function scopes(paladin) {
 
     [
       "circuitry",
-      () => paladin.env.has("VIVA_CIRCUITRY_MOUNT") || paladin.scope.variant,
+      () =>
+        paladin.env.has("VIVA_CIRCUITRY_MOUNT") ||
+        (paladin.scope.variant && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
