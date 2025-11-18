@@ -14,7 +14,6 @@ services:
       - VIVA_SYSTEM_MODE=PRODUCTION
       - VIVA_SYSTEM_ROLE=RUNTIME
       - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/variants/multiplayer-starter
-      - VIVA_VARIANT_MOUNT=/viva/variant
       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
       - VIVA_RUNTIME_SERVE=http://0.0.0.0:1729
       - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:1729/attached/process/lighthouse/hanse
@@ -22,7 +21,6 @@ services:
       - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://kajuit.s4y.vivalence.com/attached/process/lighthouse/hanse
       - JWT_SECRET=abcaslfkslfalfjasf
     volumes:
-      - variant:/viva/variant
       - mountpoint:/viva/mountpoint
 
   html:

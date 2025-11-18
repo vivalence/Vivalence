@@ -11,21 +11,26 @@ import paladin from "@vivalence/paladin";
 import { Runtime, lifecycle } from "./typology.js";
 
 const runtime = await (async () => {
+  console.log("runtime construction");
   await paladin.ikiro;
   const runtime = new Runtime();
 
-  await paladin.vip.mount(paladin.scope.registry);
+  await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
+  await paladin.vip.mount(paladin.scope.registry.branch("modes"));
+  await paladin.vip.mount(paladin.scope.registry.branch("services"));
 
   await lifecycle.populate.aperture(runtime);
   await lifecycle.populate.terrans(runtime);
-
+  console.log("runtime populated");
   return runtime;
 })();
 
 runtime.ikiro = (async () => {
+  console.log("runtime integration");
   await lifecycle.integrate.serve(runtime);
   await lifecycle.integrate.watchdog(runtime);
   await lifecycle.integrate.launch(runtime);
+  console.log("runtime integrated");
 })();
 
 runtime.disintegrate = async function disintegrate(signal) {
