@@ -24,3 +24,17 @@ services:
     volumes:
       - variant:/viva/variant
       - mountpoint:/viva/mountpoint
+
+  html:
+    image: vivalence/html:alpine
+    container_name: html
+    restart: unless-stopped
+    ports:
+      - "1794:1794"
+    environment:
+      - VIVA_SYSTEM_MODE=PRODUCTION
+      - VIVA_SYSTEM_ROLE=CLIENT
+      - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/variants/multiplayer-starter
+      - VIVA_CLIENT_HTML_SERVE=http://0.0.0.0:1794
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://kajuit.s4y.vivalence.com/attached/process/lighthouse/hanse
+      - PUBLIC_VIVA_CLIENT_HTML_REMOTE=https://vivalence.com

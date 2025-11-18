@@ -38,7 +38,8 @@ export function defined(thing) {
 export function empty(thing) {
   if (string(thing) || array(thing)) return thing.length === 0;
   if (object(thing)) return Object.keys(thing).length === 0;
-  return false;
+  console.log("is.empty(thing) wrong thing", thing, !!thing);
+  return !!thing;
 }
 
 export function integer(thing) {

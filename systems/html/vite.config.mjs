@@ -16,7 +16,13 @@ await paladin.ikiro; // temporary magic
 const client = paladin.variant.clients.html;
 
 // # scopes [paladin.scope.system,paladin.scope.registry];
-
+console.log({
+  paladin,
+  client,
+  host: client.statics.serve.hostname,
+  port: parseInt(client.statics.serve.port),
+  allowedHosts: client.statics.remote || paladin.is.dev,
+});
 export default defineConfig({
   plugins: [sveltekit()], // , deno()
   server: {

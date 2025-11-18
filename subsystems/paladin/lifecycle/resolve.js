@@ -38,26 +38,7 @@ export async function variant(paladin) {
   paladin.variant.clients = Object.assign({}, ...clientsConfigs);
 
   // if role = client & !clients[*]; then check if env client; then resolve
-  if (paladin.is.client && is.empty(paladin.variant.clients)) {
-    if (paladin.env.has("VIVA_CLIENT_HTML_SERVE")) {
-      paladin.variant.clients.html = {
-        statics: {
-          serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
-        },
-      };
-    }
-    if (paladin.env.has("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) {
-      paladin.variant.clients.html.statics.lighthouse = {
-        remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
-      };
-    }
-
-    if (paladin.env.has("PUBLIC_VIVA_CLIENT_HTML_REMOTE")) {
-      paladin.variant.clients.html.statics.remote = new Url(
-        paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE"),
-      );
-    }
-  }
+  // if (paladin.is.client) {if (is.empty(paladin.variant.clients) && paladin.env.has("VIVA_CLIENT_HTML_SERVE")) {paladin.variant.clients.html = {statics: {serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),},};} if (paladin.env.has("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) {paladin.variant.clients.html.statics.lighthouse = {remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),};} if (paladin.env.has("PUBLIC_VIVA_CLIENT_HTML_REMOTE")) {paladin.variant.clients.html.statics.remote = new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE"),);}}
 
   paladin.variant.daemons = daemonsConfigs.map((daemon) => {
     const mask = new Mask(daemon);

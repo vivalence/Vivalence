@@ -74,26 +74,26 @@ export async function scopes(paladin) {
     [
       "environment",
       // () => !paladin.is.deployed && paladin.is.citizen,
-      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || paladin.is.citizen,
+      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT"),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
           envpath = Deno.env.get("VIVA_ENVIRONMENT_MOUNT");
         } else {
-          envpath = paladin.scope.variant?.branch("environment").absolute;
+          envpath = paladin.scope.variant.branch("environment").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
     ],
     [
       "mountpoint",
-      () => paladin.is.citizen,
+      () => paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || paladin.scope.variant,
       () => {
         let envpath;
         if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
           envpath = Deno.env.get("VIVA_MOUNTPOINT_MOUNT");
         } else {
-          envpath = paladin.scope.variant?.branch("mountpoint").absolute;
+          envpath = paladin.scope.variant.branch("mountpoint").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
