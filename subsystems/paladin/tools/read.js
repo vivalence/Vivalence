@@ -2,7 +2,10 @@ import { is, cast, Path } from "@vivalence/typology";
 import * as jsonc from "@std/jsonc";
 
 export default function read(config) {
-  const resolve = (path) => path?.absolute || path;
+  const resolve = (path) => {
+    // console.log("resolved:", path);
+    return path?.absolute || path;
+  };
 
   const readers = {
     text: async (path) => {

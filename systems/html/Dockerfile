@@ -1,19 +1,16 @@
 FROM vivalence/viva:alpine 
 
-ENV VIVA_SYSTEM_MODE="CLIENT"
-
 WORKDIR /viva/repository
 
-COPY systems/html ./systems/html
-COPY subsystems/ ./subsystems/
+# COPY systems/html ./systems/html
+# COPY subsystems/ ./subsystems/
+
+ENV VIVA_SYSTEM_MODE="CLIENT"
 
 CMD ["deno", "task", "html/watch"]
 
-# WORKDIR /viva/repository/systems/html
 # CMD ["deno", "task", "start"]
-
 # deno task --cwd ./systems/html watch
-
 
 # //
 # FROM viva/shell:latest

@@ -6,6 +6,7 @@ import { Url, Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
 
 export async function circuitry(paladin) {
   if (!paladin.scope.circuitry) return;
+  await paladin.state.dir(paladin.scope.circuitry.absolute);
   // unnessesarily complex
   const modules = await paladin.find.viva(paladin.scope.circuitry);
   const fn = async (f) => [f, await paladin.read.viva(f)];
@@ -49,6 +50,12 @@ export async function variant(paladin) {
       paladin.variant.clients.html.statics.lighthouse = {
         remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
       };
+    }
+
+    if (paladin.env.has("PUBLIC_VIVA_CLIENT_HTML_REMOTE")) {
+      paladin.variant.clients.html.statics.remote = new Url(
+        paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE"),
+      );
     }
   }
 

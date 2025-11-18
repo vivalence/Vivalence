@@ -51,7 +51,6 @@ export async function scopes(paladin) {
       },
     ],
   ]);
-
   paladin.scopes([
     [
       "variant",
@@ -61,20 +60,21 @@ export async function scopes(paladin) {
 
     [
       "circuitry",
-      () => paladin.is.citizen && (paladin.is.dev || paladin.is.sudo),
+      () => paladin.env.has("VIVA_CIRCUITRY_MOUNT") || paladin.scope.variant,
       () => {
         let envpath;
         if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
           envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");
         } else {
-          envpath = paladin.scope.variant?.branch("circuitry").absolute;
+          envpath = paladin.scope.variant.branch("circuitry").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
     ],
     [
       "environment",
-      () => !paladin.is.deployed && paladin.is.citizen,
+      // () => !paladin.is.deployed && paladin.is.citizen,
+      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || paladin.is.citizen,
       () => {
         let envpath;
         if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
@@ -100,12 +100,12 @@ export async function scopes(paladin) {
     ],
   ]);
 
-  // console.log(`system`, paladin.scope.system);
-  // console.log(`regist`, paladin.scope.registry);
-  // console.log(`varian`, paladin.scope.variant);
-  // console.log(`circui`, paladin.scope.circuitry);
-  // console.log(`enviro`, paladin.scope.environment);
-  // console.log(`mountp`, paladin.scope.mountpoint);
+  console.log(`system`, paladin.scope.system);
+  console.log(`regist`, paladin.scope.registry);
+  console.log(`varian`, paladin.scope.variant);
+  console.log(`circui`, paladin.scope.circuitry);
+  console.log(`enviro`, paladin.scope.environment);
+  console.log(`mountp`, paladin.scope.mountpoint);
   // console.log({ paladin });
 
   paladin.scopes([
@@ -125,9 +125,12 @@ export async function scopes(paladin) {
 }
 
 export async function environment(paladin) {
+  // console.log("scope", { scope: paladin.scope });
   if (!paladin.scope.environment) return;
+  await paladin.state.dir(paladin.scope.environment.absolute);
 
   const apply = (env) => async (path) => {
+    if (!path) return;
     return env.assign(await paladin.read.json(path));
   };
 
