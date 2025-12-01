@@ -1,20 +1,11 @@
 export * from "./call/index.js";
+export * from "./mode.js";
+export * from "./entity.js";
 export * from "./repository.js";
+export * from "./lighthouse/prototype.js";
+export * from "./daemon/prototype.js";
 
-export class Mode {
-  // call
-  // manifest
-  // view
-  constructor(mode) {
-    Object.assign(this, mode);
-  }
-  implements(trait) {
-    return this.manifest?.traits?.includes(trait);
-  }
-}
+import * as lighthouse from "./lighthouse/index.js";
+import * as daemon from "./daemon/index.js";
 
-export class Entity {
-  constructor(entity) {
-    Object.assign(this, entity);
-  }
-}
+export const entities = { lighthouse, daemon };

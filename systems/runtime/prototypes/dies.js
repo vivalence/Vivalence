@@ -18,7 +18,7 @@ export class Die {
   }
 }
 
-export class RuntimeDie extends Die {
+export class DaemonDie extends Die {
   register = {
     authority: null,
     datamap: null,

@@ -1,51 +1,51 @@
 import { Buffer } from "@vivalence/drapes";
 import { is, fromm } from "@vivalence/typology";
+import { Vector } from "@vivalence/vector";
+import { remotes } from "$client";
 
-import hut from "$hut";
+export const generator = new Vector();
 
-export const populate = (generator) => {
-  generator
-    .branch("/viva")
-    // .open("/faafo", async (ctx) => {ctx.buffer.push(new BufferMode(
-    //       {url: "http://localhost:1729/attached/daemon/eng2lat/mode/agent/eva/bundle/view/viva.svelte.js",},
-    //       { product: { agent: "ligma" } },),);})
-    .use(async (ctx, next) => {
-      const timeout = 10000;
-      const start = Date.now();
+generator
+  .branch("/viva")
+  // .open("/faafo", async (ctx) => {ctx.buffer.push(new BufferMode(
+  //       {url: "http://localhost:1729/attached/daemon/eng2lat/mode/agent/eva/bundle/view/viva.svelte.js",},
+  //       { product: { agent: "ligma" } },),);})
+  .use(async (ctx, next) => {
+    const timeout = 10000;
+    const start = Date.now();
 
-      while (!hut.remotes.daemon.has) {
-        if (Date.now() - start > timeout) {
-          throw new Error("System boot timeout - no daemon available");
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100));
+    while (!remotes.daemon.has) {
+      if (Date.now() - start > timeout) {
+        throw new Error("System boot timeout - no daemon available");
       }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
 
-      await next();
-    })
-    .branch("/daemon/:daemon")
-    .use(async (ctx, next) => {
-      ctx.daemon = await hut.remotes.daemon ///////
-        .findOne((r) => r.manifest.slug === ctx.params.daemon);
-      await next();
-    })
-    .branch("/mode/:type/:slug")
-    .use(async (ctx, next) => {
-      const { type, slug } = ctx.params;
-      ctx.mode = await ctx.daemon.entities.mode //
-        .findOne((m) => m.manifest.type === type && m.manifest.slug === slug);
-      await next();
-    })
-    .open("/(.*)", async (ctx) => {
-      if (ctx.mode.implements("GENERATOR")) {
-        const generation = await ctx.mode.call(fromm.params(ctx.params).path);
-        for (const product of generation) {
-          ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx, product }));
-        }
-      } else {
-        ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx }));
+    await next();
+  })
+  .branch("/daemon/:daemon")
+  .use(async (ctx, next) => {
+    ctx.daemon = await remotes.daemon ///////
+      .findOne((r) => r.manifest.slug === ctx.params.daemon);
+    await next();
+  })
+  .branch("/mode/:type/:slug")
+  .use(async (ctx, next) => {
+    const { type, slug } = ctx.params;
+    ctx.mode = await ctx.daemon.entities.mode //
+      .findOne((m) => m.manifest.type === type && m.manifest.slug === slug);
+    await next();
+  })
+  .open("/(.*)", async (ctx) => {
+    if (ctx.mode.implements("GENERATOR")) {
+      const generation = await ctx.mode.call(fromm.params(ctx.params).path);
+      for (const product of generation) {
+        ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx, product }));
       }
-    });
-};
+    } else {
+      ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx }));
+    }
+  });
 
 //
 // .use(async (ctx, next) => {

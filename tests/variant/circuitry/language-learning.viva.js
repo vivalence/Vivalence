@@ -1,10 +1,10 @@
+import paladin from "@vivalence/paladin";
 import { Url, Env } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
-import paladin from "@vivalence/paladin";
 
 export const manifest = {
   type: "circuit",
-  slug: "multiplayer-language-learning",
+  slug: "language-learning",
 };
 
 export const daemons = [
@@ -28,8 +28,8 @@ export const daemons = [
 
     kernel: [
       "@vivalence/ontology/language",
+      "@vivalence/topology/spanish",
       "@vivalence/domain/learning",
-      "@vivalence/topology/brazilian",
     ],
 
     modes: [

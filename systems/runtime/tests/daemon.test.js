@@ -1,25 +1,26 @@
-import * as specimen from "@std/testing/bdd";
+import { Url, Path, is, specimen } from "@vivalence/typology";
+import { daemon as lifecycle } from "@vivalence/runtime/typology";
+import { DaemonDie, Daemon } from "@vivalence/runtime/typology";
+
 import { expect } from "@std/expect";
 
-import { Daemon, Url, is, Path, Mask, Die } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/daemon/daemon";
-
 import paladin from "@vivalence/paladin";
-import daemon from "@vivalence/daemon";
+import runtime from "@vivalence/runtime";
 
 let die;
 
-specimen.describe("Die", () => {
+specimen.describe("Daemon", () => {
   specimen.describe("construction", () => {
     specimen.it("cycles", async () => {
       await paladin.ikiro;
-      await daemon.ikiro;
+      await runtime.ikiro;
 
       const cake = paladin.daemons[0];
-      // console.log(cake);
+      console.log({ cake });
       die = new Die({ cake, good: new Daemon(cake) });
     });
   });
+
   specimen.describe("population", () => {
     specimen.it("cycles", async () => {
       await lifecycle.populate.core(die);

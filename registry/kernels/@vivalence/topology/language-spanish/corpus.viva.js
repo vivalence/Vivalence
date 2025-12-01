@@ -3,9 +3,9 @@
 // import session from "./curriculum/session.js";
 
 export const manifest = {
-  type: "corpus",
-  slug: "cefr-eng-to-esp",
-  name: "CEFR - English to Spanish",
+  type: "topology",
+  slug: "spanish",
+  name: "Spanish",
   version: "0.0.5",
   traits: ["TOPOLOGICAL", "CURRICULAR", "DATASET"],
 };

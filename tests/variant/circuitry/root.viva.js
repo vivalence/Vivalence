@@ -49,7 +49,7 @@ export const clients = {
 export const services = [
   // role = "process"
   {
-    slug: "stadium", // "hanse!"
+    slug: "multiplayer",
     module: "@vivalence/lighthouse/multiplayer",
     secrets: { jwt: paladin.secret.get("JWT_SECRET") },
     statics: { serve: new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },

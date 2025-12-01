@@ -1,5 +1,5 @@
 import fs from "fs-extra";
-import { basename, dirname, join } from "$std/path/mod.ts";
+import { basename, dirname, join } from "@std/path";
 import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
@@ -9,10 +9,10 @@ import paladin from "@vivalence/paladin";
 
 const SVELTE_VERSION = "svelte"; // @5.39
 
-const repopath = paladin.system.mount;
+const repopath = paladin.scope.system;
 const reporoot = repopath.absolute;
 
-const surfacepath = paladin.system.mount.branch("/systems/surfaces/html");
+// const surfacepath = paladin.scope.system.branch("/subsystems/surfaces/html");
 
 const fileurl = new URL(import.meta.url);
 
@@ -21,11 +21,8 @@ const importmap = {
     "@vivalence/vector": join(reporoot, "subsystems/vector/mod.js"),
     "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
     "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
+    "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
 
-    "@vivalence/surface": join(
-      reporoot,
-      "systems/surfaces/html/surface.viva.js",
-    ),
     // "@vivalence/paladin": join(reporoot, "subsystems/config/mod.client.js"), // aspirational
     // "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // aspiration
     // "@vivalence/vendor": join(root, "subsystems/vendor/client.js"), // graved, not dead.

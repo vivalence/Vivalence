@@ -2,14 +2,15 @@
   import { effect } from "nanostores";
   // import { path } from "@vivalence/typology";
   import { Text } from "@vivalence/drapes";
-  import { remotes } from "$hut";
+  import { remotes } from "$client";
 
   let daemons = remotes.daemon.$entities;
+  // console.log({daemons})
 
   const link = (valence) => {
     const full = valence.mode.mount.branch(valence.resolve.generator).absolute;
-    // return new Path(paladin.mirror.mask.slug).stick(valence.entry).absolute; // where paladin.mirror is the mask of whatever system were in. lovely.
     return "/viva" + full;
+    // return new Path(paladin.mirror.mask.slug).stick(valence.entry).absolute; // where paladin.mirror is the mask of whatever system were in. lovely.
   };
 </script>
 

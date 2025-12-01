@@ -1,7 +1,9 @@
-import { Call } from "$hut/typology";
+import { Call } from "@vivalence/html/typology";
 
 export class Daemon {
-  entities = {}; //
+  entities = {};
+  // manifest, path
+  // schema
   constructor(connection) {
     this.connection = connection;
 

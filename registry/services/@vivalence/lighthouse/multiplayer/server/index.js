@@ -1,5 +1,4 @@
 import { Status } from "@vivalence/typology";
-import * as shards from "@vivalence/vector/shards";
 
 import { inject, expose, systemmap } from "./entities.js";
 import * as authority from "./authority.js";

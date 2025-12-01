@@ -3,9 +3,11 @@ import { Connection } from "@vivalence/typology";
 import { Lighthouse } from "./prototype.js";
 
 const hydrateFromStorage = (lighthouse) => {
-  const stored = localStorage.getItem(
-    `lighthouse:${lighthouse.connection.url}`,
-  );
+  const key = `lighthouse:${lighthouse.connection.url}`;
+  const stored = localStorage.getItem(key);
+
+  // console.log("hydrate", lighthouse, { key, stored });
+
   if (stored) {
     const { authority, identity } = JSON.parse(stored);
     lighthouse.$authority.set(authority);
@@ -14,11 +16,12 @@ const hydrateFromStorage = (lighthouse) => {
 };
 
 const persistToStorage = (lighthouse) => {
+  const key = `lighthouse:${lighthouse.connection.url}`;
+
   effect([lighthouse.$authority, lighthouse.$identity], (auth, identity) => {
-    localStorage.setItem(
-      `lighthouse:${lighthouse.connection.url}`,
-      JSON.stringify({ authority: auth, identity }),
-    );
+    const value = JSON.stringify({ authority: auth, identity });
+    // console.log("persiting lighhouse", lighthouse, { key, value });
+    localStorage.setItem(key, value);
   });
 };
 
@@ -30,10 +33,12 @@ async function validate(lighthouse) {
 }
 
 export async function lifecycle(lighthouse) {
+  // console.log("cycling lighthouse", lighthouse);
   hydrateFromStorage(lighthouse);
   await validate(lighthouse);
   lighthouse.manifest = await lighthouse.call("/manifest");
   persistToStorage(lighthouse);
+  // console.log("cycled lighthouse", lighthouse);
   return lighthouse;
 }
 // console.log(lighthouse.connection.state.get());

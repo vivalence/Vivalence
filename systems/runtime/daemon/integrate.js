@@ -1,13 +1,19 @@
+import { Call } from "@vivalence/typology";
 import { Vector, compiler, controller, shards } from "@vivalence/vector";
 
 export * as aperture from "./aperture/index.js";
+// console.log("why", { Call });
 
-// export async function domain(die) {
-//   if (is.fn(die.variant.modes.domain.aperture))
-//     await die.variant.modes.domain.aperture(die.good.aperture);
-// }
+export async function announce(die) {
+  console.log({ die });
+  // const call = new Call(config.lighthouse.url);
+  // call("/entities/daemon/expect", {where: { slug: rme.slug, url: rme.url.toString() },});
+}
+
+// export async function domain(die) {if (is.fn(die.variant.modes.domain.aperture)) await die.variant.modes.domain.aperture(die.good.aperture);}
 
 export async function call(die) {
+  console.log({ die });
   const composed = await die.good.aperture.compose(true);
   // .use(notFoundMiddleware)
 

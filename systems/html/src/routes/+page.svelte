@@ -2,8 +2,8 @@
   import { goto } from "$app/navigation";
   import { Text, Button, Input, Pictogram } from "@vivalence/drapes";
 
-  import { lighthouse } from "$hut";
-  import * as view from "$hut/view";
+  import { lighthouse } from "$client";
+  import { view } from "@vivalence/html/surface";
 
   let isIdentified = lighthouse.isIdentified;
 </script>
@@ -48,8 +48,8 @@
 <!-- 	// html/static/videos/720x480p-flight10-seldoncrisis-entry-vhs-16fps.mp4 -->
 <!-- 	// import this and render it as the background. playpack speed should be .25% speed. -->
 
-<!-- 	import { lighthouse } from "$hut"; -->
-<!-- 	import * as view from "$hut/view"; -->
+<!-- 	import { lighthouse } from "$client"; -->
+<!-- 	import * as view from "$client/view"; -->
 
 <!-- 	let isIdentified = lighthouse.isIdentified; -->
 <!-- </script> -->

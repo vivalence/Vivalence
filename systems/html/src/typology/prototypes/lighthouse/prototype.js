@@ -1,5 +1,5 @@
 import { map, atom, computed } from "nanostores";
-import { Call } from "$hut/typology";
+import { Call } from "$client/typology";
 
 const authorize = ($authority) => async (ctx, next) => {
   const auth = $authority.get();

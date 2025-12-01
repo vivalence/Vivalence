@@ -1,13 +1,12 @@
 import { Path } from "@vivalence/typology";
-import { Mode, Entity, Repository } from "../prototypes/index.js";
+import { Mode, Entity } from "@vivalence/html/typology";
+import { Call, Repository } from "@vivalence/html/typology";
 
 class Valence extends Entity {}
 class Intent extends Entity {}
 class Session extends Entity {}
 
 const entities = {
-  intent: { prototype: Intent },
-  session: { prototype: Session },
   mode: {
     prototype: Mode,
     lifecycle: (daemon) => async (mode) => {
@@ -24,16 +23,19 @@ const entities = {
       valence.mode = await daemon.entities.mode.spawn(valence.mode);
     },
   },
+  intent: { prototype: Intent },
+  session: { prototype: Session },
+  // symbols, literals
 };
 
 export async function lifecycle(daemon, client) {
+  daemon.manifest = await daemon.call("/manifest");
+  daemon.path = new Path(`/daemon/${daemon.manifest.slug}`);
+
   for (const [type, entity] of Object.entries(entities)) {
     if (entity.lifecycle) entity.lifecycle = entity.lifecycle(daemon);
     daemon.entities[type] = new Repository(entity);
   }
-
-  daemon.manifest = await daemon.call("/manifest");
-  daemon.path = new Path(`/daemon/${daemon.manifest.slug}`);
 
   const valences = await daemon.call("/entities/valence/find");
   for (const valence of valences) {

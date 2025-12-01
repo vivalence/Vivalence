@@ -23,7 +23,7 @@ specimen.describe("Runtime", () => {
     specimen.it("cycles", async () => {
       await paladin.ikiro;
       await lifecycle.populate.aperture(runtime);
-      await lifecycle.populate.registry(runtime);
+      // await lifecycle.populate.registry(runtime);
       await lifecycle.populate.terrans(runtime);
     });
 

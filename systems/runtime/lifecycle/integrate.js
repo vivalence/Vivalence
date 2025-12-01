@@ -47,7 +47,6 @@ export async function launch(runtime) {
 // import { secure, is } from "@vivalence/shared";
 // import { context, mw as mwa } from "@vivalence/vector/aperture";
 // import { compiler, controller } from "@vivalence/vector";
-// import { Call } from "@vivalence/typology";
 // import { Application } from "oak";
 
 // import * as lifecycle from "../runtime/index.js";
@@ -81,13 +80,4 @@ export async function launch(runtime) {
 //     hostname: paladin.runtime.static.serve, // daemon.config.serve.host,
 //     port: parseInt(daemon.config.serve.port),
 //   });
-// }
-
-// export async function announce(daemon) {
-//   const call = new Call(config.lighthouse.url);
-//   for (const rme of daemon.runtimes) {
-//     call("/entities/runtime/expect", {
-//       where: { slug: rme.slug, url: rme.url.toString() },
-//     });
-//   }
 // }

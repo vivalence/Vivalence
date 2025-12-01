@@ -1,5 +1,5 @@
 import { effect } from "nanostores";
-// import { lighthouse } from "$hut";
+// import { lighthouse } from "$client";
 
 export const load = async (event) => {
   //

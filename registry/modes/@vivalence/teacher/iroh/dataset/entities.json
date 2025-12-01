@@ -1,0 +1,12 @@
+{
+  "valence": [
+    {
+      "slug": "populate",
+      "docs": "populate the runtime with entities",
+      "traits": ["DESTINATION"],
+      "data": {
+        "DESTINATION": { "generator": "/feed" }
+      }
+    }
+  ]
+}

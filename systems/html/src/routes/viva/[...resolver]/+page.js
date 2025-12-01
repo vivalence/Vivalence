@@ -1,7 +1,7 @@
 import { Signal } from "@vivalence/typology"; // Context
 import { controller, Context, NotFound } from "@vivalence/vector";
 import { Stall } from "@vivalence/drapes";
-import { generator, stall } from "$hut";
+import { generator, stall } from "$client";
 // todo import { resolver } from "@client/generator";
 
 export const load = async (event) => {

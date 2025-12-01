@@ -3,8 +3,8 @@ const topology = {};
 
 const manifest = {
   type: "topology",
-  slug: "brazilianisch",
-  name: "Brazilianisches Portugisch",
+  slug: "brazilian",
+  name: "Brazilian Protuguese",
   version: "0.0.0",
   traits: ["TOPOLOGICAL", "DATASET"],
 };

@@ -1,5 +1,5 @@
-<script >
-  import { Text, Icon } from "@vivalence/interface";
+<script>
+  import { Text, Icon } from "@vivalence/drapes";
 
   import { getTreeState } from "./context.js";
 

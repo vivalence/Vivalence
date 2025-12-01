@@ -1,14 +1,14 @@
 import paladin from "@vivalence/paladin";
 import runtime from "@vivalence/runtime";
 
-import { Mode, Url } from "@vivalence/typology";
-import { is, array } from "@vivalence/shared";
-import { maps } from "@vivalence/entities";
+import { is, Mode, Url } from "@vivalence/typology";
+import { maps } from "@vivalence/typology/entities";
 import { Vector } from "@vivalence/vector";
 
 import { traitmap } from "./modes/traitmap.js";
 
 export async function core(die) {
+  // console.log({ die });
   die.register = await paladin.vip.accioMap({
     authority: die.mask.authority,
     datamap: die.mask.datamap,

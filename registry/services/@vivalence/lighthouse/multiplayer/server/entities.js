@@ -29,6 +29,49 @@ export async function systemmap(servicemask) {
 
   return { orm, entities };
 }
+
+export function inject(orm) {
+  return async (ctx, next) => {
+    const em = orm.em.fork();
+    ctx.entities = {
+      em,
+      identity: await em.getRepository(IdentityEntity),
+      daemon: await em.getRepository(DaemonEntity),
+    };
+    await next();
+    await em.flush();
+  };
+}
+
+export function expose(service, aperture) {
+  aperture.open("/entities/:entity/:method", async (body, ctx) => {
+    // console.log("exposed", body, ctx.params);
+    const entity = ctx.entities[ctx.params.entity];
+    if (ctx.params.method === "expect") {
+      let entity = await ctx.entities[ctx.params.entity].findOne(body.where);
+
+      if (!entity) {
+        entity = await ctx.entities[ctx.params.entity].create(body.where);
+      }
+
+      return entity;
+    }
+
+    const effect = await ctx.entities.em[ctx.params.method](
+      entity.entityName,
+      body.where,
+      body.options,
+    );
+    return effect;
+  });
+}
+
+// const entity = ctx.entities[ctx.params.entity];
+// const method = ctx.entities.em[ctx.params.method];
+// const where = body.where || {};
+// const options = body.options || {};
+// return await method(entity.entityName, where, options);
+
 // // mask."datamap": {
 // //   "module": "@vivalence/datamap/libsql", // import via paladin.accio(mask.datamap)
 // //   "statics": {
@@ -63,44 +106,3 @@ export async function systemmap(servicemask) {
 //   return {};
 //   // return { orm, entities };
 // }
-
-export function inject(orm) {
-  return async (ctx, next) => {
-    const em = orm.em.fork();
-    ctx.entities = {
-      em,
-      identity: await em.getRepository(IdentityEntity),
-      daemon: await em.getRepository(DaemonEntity),
-    };
-    await next();
-    await em.flush();
-  };
-}
-
-export function expose(service, aperture) {
-  aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    const entity = ctx.entities[ctx.params.entity];
-    if (ctx.params.method === "expect") {
-      let entity = await ctx.entities[ctx.params.entity].findOne(body.where);
-
-      if (!entity) {
-        entity = await ctx.entities[ctx.params.entity].create(body.where);
-      }
-
-      return entity;
-    }
-
-    const effect = await ctx.entities.em[ctx.params.method](
-      entity.entityName,
-      body.where,
-      body.options,
-    );
-    return effect;
-  });
-}
-
-// const entity = ctx.entities[ctx.params.entity];
-// const method = ctx.entities.em[ctx.params.method];
-// const where = body.where || {};
-// const options = body.options || {};
-// return await method(entity.entityName, where, options);

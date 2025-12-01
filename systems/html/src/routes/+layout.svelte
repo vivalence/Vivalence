@@ -6,10 +6,11 @@
   import { effect } from "nanostores";
   import { Text, Modeline, Pictogram } from "@vivalence/drapes";
 
-  import client from "$hut";
-  import { lighthouse } from "$hut";
-  import { status } from "$hut/view";
   import { goto } from "$app/navigation";
+  import client from "$client";
+  import { lighthouse } from "$client";
+
+  import { status } from "@vivalence/html/surface";
 
   let { children } = $props();
   let isIdentified = lighthouse.isIdentified;
@@ -32,10 +33,9 @@
       {/snippet}
       {#snippet center()}
         <Pictogram
-          src="/static/images/pictogram_viket/pic-vinca-viket_white.png"
+          src="/images/pictogram_viket/pic-vinca-viket_white.png"
           alt="<<"
-          size="xl"
-          class="" />
+	  size="xl" />
       {/snippet}
       {#snippet right()}
         <Text variant="heading" size="xs" color="2" class="opacity-60">~</Text>
@@ -62,9 +62,9 @@
 <!--   import { effect } from "nanostores"; -->
 <!--   import { Text, Modeline } from "@vivalence/drapes"; -->
 
-<!--   import client from "$hut"; -->
-<!--   import { lighthouse } from "$hut"; -->
-<!--   import { status } from "$hut/view"; -->
+<!--   import client from "$client"; -->
+<!--   import { lighthouse } from "$client"; -->
+<!--   import { status } from "$client/view"; -->
 <!--   import { goto } from "$app/navigation"; -->
 
 <!--   let { children } = $props(); -->

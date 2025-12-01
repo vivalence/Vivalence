@@ -65,16 +65,25 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // legacy
+      "$client/typology": join(__dirname, "./src/typology/index.js"),
+      "$client/surface": join(__dirname, "./src/surface/index.js"),
+      "$client/view": join(__dirname, "./src/surface/view/index.js"),
       "$hut/typology": join(__dirname, "./src/typology/index.js"),
       "$hut/surface": join(__dirname, "./src/surface/index.js"),
       "$hut/view": join(__dirname, "./src/surface/view/index.js"),
       $hut: join(__dirname, "./src/app.js"),
-      // "$client/generator": join(__dirname, "./src/generator/index.js"),
-      // "$client/typology/": join(__dirname, "./src/typology/"),
+      "@vivalence/surface": join(__repo, "./subsystems/drapes/mod.js"),
+
+      //
+      $client: join(__dirname, "./src/app.js"),
+
+      "@vivalence/html/typology": join(__dirname, "./src/typology/index.js"),
+      "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
+      // "$surface": join(__dirname, "./src/surface/index.js"),?maybe?
 
       "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
-      // "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
 
       "@vivalence/vector/typology": join(__ss, "./vector/typology.js"), // ? needed ?
       "@vivalence/vector": join(__ss, "./vector/mod.js"), // ? needed ?
@@ -83,12 +92,9 @@ export default defineConfig({
       "@vivalence/drapes": join(__repo, "./subsystems/drapes/mod.js"), // ? needed ?
 
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
+      // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // i want to access to $viva_config_dir/assets present as @client/assets
       "@static/icons/": join(__dirname, "./static/icons/"),
       "$static/images/": join(__dirname, "./static/images/"),
-
-      // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // i want to access to $viva_config_dir/assets present as @client/assets
-
-      "@vivalence/surface": join(__repo, "./subsystems/drapes/mod.js"),
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },

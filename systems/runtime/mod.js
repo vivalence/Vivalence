@@ -1,12 +1,5 @@
-// Deno.exit(0);
-
 import { Path } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
-
-// console.log(Deno.args);
-// console.log(Deno.env);
-// console.log({ paladin });
-// console.log(JSON.stringify(Deno.env, null, 2));
 
 import { Runtime, lifecycle } from "./typology.js";
 
@@ -21,6 +14,7 @@ const runtime = await (async () => {
 
   await lifecycle.populate.aperture(runtime);
   await lifecycle.populate.terrans(runtime);
+
   console.log("runtime populated");
   return runtime;
 })();
@@ -61,37 +55,10 @@ runtime.perpetuate = async () => {
 };
 
 if (import.meta.main) {
-  await runtime.ikiro;
   // console.log({ paladin, runtime });
+  await runtime.ikiro;
   await runtime.perpetuate();
 }
-
 // if (import.meta.main) {console.log("import.meta.main await runtime.ikiro"); await runtime.ikiro;}
+
 export default runtime;
-
-// export const paladin = await (async () => {
-//   const paladin = new Paladin();
-
-//   await populate.env(paladin);
-//   await populate.environment(paladin);
-//   await populate.system(paladin);
-//   await populate.vip(paladin);
-//   await populate.modeselector(paladin);
-//   await populate.statements(paladin);
-//   await populate.questions(paladin);
-
-//   return paladin;
-// })();
-
-// export default paladin;
-
-// export const ikiro = (async () => {
-//   await resolve.variant(paladin);
-//   await resolve.service(paladin);
-//   await resolve.runtimes(paladin);
-
-//   await integrate.publish(paladin);
-//   await integrate.secure(paladin);
-//   // await integrate.mount(paladin);
-//   await integrate.validate(paladin);
-// })();
