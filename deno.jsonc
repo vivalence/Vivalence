@@ -1,7 +1,11 @@
 {
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
-  "exclude": ["./tests", "./docs", "./registry"],
+  "exclude": [
+    "./tests",
+    "./docs", //
+    // "./registry",
+  ],
   "workspace": [
     "./systems/runtime",
     "./systems/html",
@@ -26,9 +30,9 @@
     "typology/test": "deno run --watch -A ./subsystems/typology/tests/**/*.test.js",
     // "test:subsystems": "deno run --watch -A ./systems/shell/mod.js",
     // "test:shell": "deno run --watch -A ./systems/shell/mod.js",
-    "runtime/watch": "deno run --watch -A  ./systems/runtime/mod.js",
+    "runtime/watch": "deno run --watch -A  ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
-    "runtime/up": "deno run -A  ./systems/runtime/mod.js",
+    "runtime/up": "deno run -A  ./systems/runtime/run.js",
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",
     "html/watch": "deno task --cwd ./systems/html watch",

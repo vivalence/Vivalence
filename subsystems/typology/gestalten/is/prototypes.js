@@ -16,7 +16,7 @@ export function Signature(thing) {
   return thing instanceof prototypes.Signature;
 }
 export function signature(thing) {
-  return is.object(thing) && is.defined(thing.signature);
+  return is.object(thing) && is.defined(thing.nature);
 }
 export function Pattern(thing) {
   return thing instanceof prototypes.Pattern;
@@ -27,7 +27,7 @@ export function pattern(thing) {
     is.defined(thing) &&
     !is.array(thing) &&
     is.fn(thing.filter) &&
-    is.defined(thing.signature)
+    is.defined(thing.nature)
   );
 }
 
@@ -36,7 +36,7 @@ export function Signal(thing) {
 }
 
 export function signal(thing) {
-  return is.defined(thing?.signature);
+  return is.defined(thing?.nature);
 }
 
 export function Path(thing) {
@@ -69,3 +69,11 @@ export function View(thing) {
   return thing.constructor.name === "View";
   // return thing instanceof View;
 }
+
+export function url(thing) {
+  // must have required keys of url.pathname xxx
+  if (thing.origin && thing.pathname) return true;
+  return false;
+}
+
+// framling(thing){} utlanning(thing){}

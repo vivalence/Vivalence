@@ -69,8 +69,8 @@ export class Vector {
     const pattern = new Pattern(signature);
 
     if (pattern.heir) {
-      const finn = pattern.finn.pop();
-      this.branch(pattern).effects.set(finn, effect);
+      const fin = pattern.fin.pop();
+      this.branch(pattern).effects.set(fin, effect);
     } else {
       this.effects.set(pattern, effect);
     }

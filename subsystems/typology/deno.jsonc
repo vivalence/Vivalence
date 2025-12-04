@@ -3,13 +3,19 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.ts",
-    "./types": "./types.d.ts",
+    "./scalars": "./scalars/index.js",
+    "./primitives": "./primitives/index.js",
+    "./types": "./types/index.js",
     "./entities": "./entities/index.ts",
+    "./bodies": "./bodies/index.js",
     "./specimen": "./specimen/index.js",
   },
   "tasks": {
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
-    "test:signature": "deno test -A --no-check --watch tests/signature.test.js",
-    "test:lookup": "deno test -A --no-check --watch tests/lookup.test.js",
+    "test/signature": "deno test -A --no-check --watch tests/signature.test.js",
+    "test/path": "deno test -A --no-check --watch tests/path.test.js",
+    "test/url": "deno test -A --no-check --watch tests/url.test.js",
+    "test/connection": "deno test -A --no-check --watch tests/connection.test.js",
+    "test/lookup": "deno test -A --no-check --watch tests/lookup.test.js",
   },
 }

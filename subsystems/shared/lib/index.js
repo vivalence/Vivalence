@@ -1,3 +1,4 @@
+export * from "./sleep.js";
 export * as cast from "./cast.js";
 export * as obj from "./object.js"; // legacy
 export * as object from "./object.js";
@@ -5,7 +6,6 @@ export * as id from "./id.js";
 export * as strings from "./strings.js";
 export * as time from "./time.js";
 export * as fn from "./fn.js";
-export * as sleep from "./sleep.js";
 export * as random from "./random.js";
 export * as promise from "./promise.js";
 export * as array from "./array.js";

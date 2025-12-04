@@ -1,49 +1,79 @@
 import { Signature } from "./signature.js";
 import { hash } from "@vivalence/shared";
 import { is } from "@vivalence/typology";
-
-const join = (...segments) => {
-  const path = segments.filter(Boolean).join("/").replace(/\/+/g, "/");
-  const withLeading = path.startsWith("/") ? path : "/" + path;
-  return withLeading.replace(/\/$/, "") || "/";
-};
+import { join, normalize } from "@std/path";
 
 export class Path extends Signature {
-  constructor(signature = "", trace) {
-    super(signature, trace);
+  static coercions = [
+    [
+      is.string,
+      (s) => {
+        const normalized =
+          ("/" + s).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
+        return { nature: normalized };
+      },
+    ],
+  ];
+
+  // static coercions = [[is.string, (s) => ({ nature: normalize(s) })]];
+
+  get absolute() {
+    return this.array.map((s) => s.nature).join("") || "/";
   }
+
+  [Symbol.toPrimitive](hint) {
+    if (hint === "string" || hint === "default") return this.absolute;
+    throw new Error("@typology/path: unhandled toPrimitive hint: " + hint);
+  }
+
+  // legacy
   get segment() {
     return this.nature;
   }
-
-  ought(thing) {
-    return is.path(thing);
-  }
-
-  hasher() {
-    return hash.array([
-      this.nature,
-      // this.trace?.hash,
-    ]);
-  }
-  // on the signature, `is` is an assertion.
-  parse(thing) {
-    this.nature = `/${thing
-      .split("/")
-      .filter((s) => !!s)
-      .join("/")}`;
-  }
-  get absolute() {
-    return this.array.map((s) => s.nature).join("");
-  }
-  toJSON() {
-    return { nature: this.nature, absolute: this.absolute };
-  }
-  [Symbol.toPrimitive](hint) {
-    if (hint === "string") return this.absolute;
-    throw new Error("@typology/path: unhandled toPrimitive hint:", hint);
-  }
 }
+// import { Signature } from "./signature.js";
+// import { hash } from "@vivalence/shared";
+// import { is } from "@vivalence/typology";
+
+// const join = (...segments) => {
+//   const path = segments.filter(Boolean).join("/").replace(/\/+/g, "/");
+//   const withLeading = path.startsWith("/") ? path : "/" + path;
+//   return withLeading.replace(/\/$/, "") || "/";
+// };
+
+// export class Path extends Signature {
+//   constructor(signature = "", trace) {
+//     super(signature, trace);
+//   }
+//   get segment() {
+//     return this.nature;
+//   }
+
+//   ought(thing) {
+//     return is.path(thing);
+//   }
+
+//   hasher() {
+//     return hash.array([
+//       this.nature,
+//       // this.trace?.hash,
+//     ]);
+//   }
+//   // on the signature, `is` is an assertion.
+//   parse(thing) {
+//     this.nature = `/${thing
+//       .split("/")
+//       .filter((s) => !!s)
+//       .join("/")}`;
+//   }
+//   get absolute() {
+//     return this.array.map((s) => s.nature).join("");
+//   }
+//   [Symbol.toPrimitive](hint) {
+//     if (hint === "string") return this.absolute;
+//     throw new Error("@typology/path: unhandled toPrimitive hint:", hint);
+//   }
+// }
 
 // // // move to shared
 // // // expand to resolve

@@ -1,0 +1,216 @@
+import { specimen, Url, Connection } from "@vivalence/typology";
+
+const stubFetch = (response) => async (ctx) => {
+  ctx.response.body = response;
+};
+
+specimen.describe("Connection", () => {
+  specimen.describe("construction", () => {
+    specimen.it("from url and fetch", () => {
+      const conn = new Connection(
+        new Url("http://localhost:1794"),
+        stubFetch({}),
+      );
+      specimen.expect(conn.url.absolute).toBe("http://localhost:1794/");
+    });
+  });
+
+  specimen.describe("middleware", () => {
+    specimen.it("wraps fetch", async () => {
+      const log = [];
+      const conn = new Connection(
+        new Url("http://localhost:1794"),
+        async (ctx) => {
+          log.push("fetch");
+          ctx.response.body = { ok: true };
+        },
+      );
+
+      conn.use(async (ctx, next) => {
+        log.push("before");
+        await next();
+        log.push("after");
+      });
+
+      await conn.call("/test", {});
+      specimen.expect(log).toEqual(["before", "fetch", "after"]);
+    });
+
+    specimen.it("chains multiple", async () => {
+      const log = [];
+      const conn = new Connection(new Url("http://x"), stubFetch({ ok: true }))
+        .use(async (ctx, next) => {
+          log.push("a");
+          await next();
+          log.push("a2");
+        })
+        .use(async (ctx, next) => {
+          log.push("b");
+          await next();
+          log.push("b2");
+        });
+
+      await conn.call("/", {});
+      specimen.expect(log).toEqual(["b", "a", "a2", "b2"]);
+    });
+  });
+
+  specimen.describe("branching", () => {
+    specimen.it("extends url", () => {
+      const root = new Connection(new Url("http://api.io"), stubFetch({}));
+      const child = root.branch("/users").branch("/123");
+      specimen.expect(child.url.absolute).toBe("http://api.io/users/123");
+    });
+
+    specimen.it("inherits fetch with middleware", async () => {
+      const log = [];
+      const root = new Connection(
+        new Url("http://x"),
+        stubFetch({ data: 1 }),
+      ).use(async (ctx, next) => {
+        log.push("root");
+        await next();
+      });
+
+      const child = root.branch("/api");
+      await child.call("/test", {});
+
+      specimen.expect(log).toEqual(["root"]);
+    });
+  });
+
+  specimen.describe("call", () => {
+    specimen.it("returns response body", async () => {
+      const conn = new Connection(
+        new Url("http://x"),
+        stubFetch({ result: 42 }),
+      );
+      const result = await conn.call("/endpoint", { input: 1 });
+      specimen.expect(result).toEqual({ result: 42 });
+    });
+
+    specimen.it("passes body to context", async () => {
+      let captured;
+      const conn = new Connection(new Url("http://x"), async (ctx) => {
+        captured = ctx.request.body;
+        ctx.response.body = {};
+      });
+
+      await conn.call("/", { foo: "bar" });
+      specimen.expect(captured).toEqual({ foo: "bar" });
+    });
+  });
+});
+
+specimen.describe("response flow", () => {
+  specimen.it("transforms through middleware chain", async () => {
+    const conn = new Connection(new Url("http://x"), async (ctx) => {
+      ctx.response.body = { value: 1 };
+    })
+      .use(async (ctx, next) => {
+        await next();
+        ctx.response.body.value += 10;
+      })
+      .use(async (ctx, next) => {
+        await next();
+        ctx.response.body.value *= 2;
+      });
+
+    const result = await conn.call("/", {});
+    specimen.expect(result.value).toBe(22); // (1 + 10) * 2
+  });
+});
+
+specimen.describe("integration", () => {
+  specimen.it("fetches whoami", async () => {
+    const conn = new Connection(
+      new Url("https://who.syzygy.vivalence.com"),
+      async (ctx) => {
+        const res = await fetch(ctx.request.url.absolute);
+        ctx.response = { ...res, body: await res.text() };
+      },
+    );
+
+    const result = await conn.call("/", {});
+    specimen.expect(result).toContain("ip");
+  });
+});
+
+// specimen.describe("Connection with fetchTransport", () => {
+//   const conn = new Connection(
+//     new Url("https://who.syzygy.vivalence.com"),
+//     fetchTransport,
+//   );
+
+//   specimen.describe("request method", () => {
+//     specimen.it("returns Response instance", async () => {
+//       const response = await conn.request({ url: "/", method: "GET" });
+//       specimen.expect(response).toBeInstanceOf(Response);
+//       specimen.expect(response.ok).toBe(true);
+//       specimen.expect(response.body).toContain("ip");
+//     });
+//   });
+
+//   specimen.describe("fetch method", () => {
+//     specimen.it("returns fetch-like interface", async () => {
+//       const response = await conn.fetch("/");
+//       specimen.expect(response.ok).toBe(true);
+
+//       const json = await response.json();
+//       specimen.expect(json).toContain("ip");
+//     });
+//   });
+
+//   specimen.describe("call method", () => {
+//     specimen.it("returns body directly", async () => {
+//       const body = await conn.call("/", {}, { method: "GET" });
+//       specimen.expect(body).toContain("ip");
+//     });
+//   });
+// });
+
+// import { Connection, Url } from "@vivalence/typology";
+
+// // const lighthouse = (new Connection(new Url("http://localhost:1794")))
+// //   .use(logging);
+
+// // const auth = lighthouse.branch("/auth"); // branch creates child connection.
+// // auth.use(speciallogging)
+
+// // const { authority, identity } = await auth.call("/login", { username, password }); // vector carry is compiled. root connection status is respected.
+
+// // // or direct call with endpoint
+// // await lighthouse.call("/auth/login", { username, password });
+
+// // // deep branching
+// // const daemon = lighthouse
+// //   .branch("/daemon")
+// //   .branch("/ger2esp");
+
+// // const modes = await daemon.call("/modes");
+
+// specimen.describe("Connection", () => {
+//   specimen.describe("construction", () => {
+//     specimen.it("from url", () => {
+//       url = new Url("localhost:1794/api/users");
+//       connection = new Connection(url, (compose) => {
+//         // ? not sure yet
+//         // destination, signal, options
+//         // ctx
+//       });
+//       // connection.use(middleware)
+//     });
+
+//     // specimen.describe("gestalt", () => {
+//     //   specimen.it("", () => {
+//     //     specimen.expect
+//     //   });
+//     // });
+//     // specimen.describe("valence", () => {
+//     //   specimen.it("", () => {
+//     //     connection.call('/1234/manifest', {}) // expect call to localhost/api/users/1234/manifest including middleware invocation
+//     //   });
+//     // });
+//     // ...
+//   });
+// });

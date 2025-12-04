@@ -4,13 +4,22 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    "./typology": "./typology.js",
+    "./run": "./run.js",
+    "./daemon": "./daemon/index.js",
+    "./process": "./process/index.js",
   },
   "tasks": {
-    "run": "deno run -A mod.js",
-    "watch": "deno run -A --watch mod.js",
+    "start": "deno run -A run.js",
+    "watch": "deno run -A --watch run.js",
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
-    "test:runtime": "deno test -A --no-check --watch tests/runtime.test.js",
-    "test:die": "deno test -A --no-check --watch tests/die.test.js",
+
+    "test/runtime": "deno test -A --no-check --watch tests/runtime/*.test.js",
+    "test/runtime/lifecycle": "deno test -A --no-check --watch tests/runtime/lifecycle.test.js",
+    "test/runtime/aperture": "deno test -A --no-check --watch tests/runtime/aperture.test.js",
+
+    "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
+    "test/daemon/lifecycle": "deno test -A --no-check --watch tests/daemon/lifecycle.test.js",
+
+    "test/process": "deno test -A --no-check --watch tests/process/*.test.js",
   },
 }

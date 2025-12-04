@@ -56,7 +56,7 @@ Deno.test("@beef Vector effect registration with open method", () => {
 
   const effectPattern = Array.from(usersBranch.effects.keys())[0];
 
-  assertEquals(effectPattern.signature, ":id");
+  assertEquals(effectPattern.nature, ":id");
   assertEquals(usersBranch.effects.get(effectPattern), testEffect);
 });
 

@@ -60,16 +60,6 @@ export function email(thing) {
   return emailRegex.test(thing);
 }
 
-export function url(thing) {
-  if (!string(thing)) return false;
-  try {
-    new URL(thing);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function date(thing) {
   return thing instanceof Date && !isNaN(thing.getTime());
 }

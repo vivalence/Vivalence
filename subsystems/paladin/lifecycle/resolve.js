@@ -51,6 +51,7 @@ export async function variant(paladin) {
   paladin.variant.daemons = daemonsConfigs.map((daemon) => {
     const mask = new Mask(daemon);
     mask.mount = paladin.join.mountpoint.daemon(mask.slug);
+    if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
     return mask;
   });
 

@@ -38,7 +38,10 @@ export class Status {
     return this.reflection;
   }
   is(code = []) {
-    return cast.array(code).includes(this.$transient.get().code);
+    return cast
+      .array(code)
+      .map((c) => c.toUpperCase())
+      .includes(this.$transient.get().code.toUpperCase());
   }
   [Symbol.for("nodejs.util.inspect.custom")]() {
     return `Status:${this.$transient.get().code}`;

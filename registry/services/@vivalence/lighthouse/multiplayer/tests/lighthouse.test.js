@@ -1,0 +1,166 @@
+// lighthouse.test.js - updated
+import { specimen, Url, Connection } from "@vivalence/typology";
+import { shards } from "@vivalence/typology";
+import { Value } from "@sinclair/typebox/value";
+import { scalars, primitives, bodies, types } from "@vivalence/typology";
+
+const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
+const lighthouse = new Connection(new Url(BASE), shards.transport.fetcher);
+
+let auth = {};
+
+specimen.describe("Lighthouse", () => {
+  specimen.describe("server", () => {
+    specimen.it("/manifest", async () => {
+      const result = await lighthouse.call("/manifest");
+      specimen.expect(Value.Check(primitives.Manifest, result)).toBe(true);
+      specimen.expect(result.type).toBe("lighthouse");
+      specimen.expect(result.slug).toBe("multiplayer");
+    });
+
+    specimen.it("/status", async () => {
+      const result = await lighthouse.call("/status", {});
+      specimen.expect(Value.Check(types.Status, result)).toBe(true);
+    });
+  });
+
+  specimen.describe("auth", () => {
+    specimen.it("login", async () => {
+      const result = await lighthouse.call("/auth/login", {
+        username: "beef",
+        password: "biggusdickus",
+      });
+      specimen.expect(Value.Check(bodies.AuthResponse, result)).toBe(true);
+      specimen
+        .expect(Value.Check(scalars.JWTToken, result.authority?.access))
+        .toBe(true);
+      auth = result.authority;
+    });
+
+    specimen.it("verify", async () => {
+      const result = await lighthouse.call("/auth/verify", {
+        access: auth.access,
+      });
+      specimen.expect(Value.Check(bodies.VerifyResponse, result)).toBe(true);
+      specimen.expect(result.success).toBe(true);
+    });
+
+    specimen.it("refresh", async () => {
+      const result = await lighthouse.call("/auth/refresh", {
+        refresh: auth.refresh,
+      });
+      specimen.expect(Value.Check(bodies.RefreshResponse, result)).toBe(true);
+    });
+
+    specimen.it("logout", async () => {
+      const result = await lighthouse.call("/auth/logout", {
+        refresh: auth.refresh,
+      });
+      specimen.expect(Value.Check(bodies.LogoutResponse, result)).toBe(true);
+      specimen.expect(result.success).toBe(true);
+    });
+  });
+
+  specimen.describe("datamap", () => {
+    specimen.it("identity/find", async () => {
+      const result = await lighthouse.call("/entities/identity/find", {
+        where: {},
+      });
+      specimen.expect(Array.isArray(result)).toBe(true);
+    });
+
+    specimen.it("daemon/find", async () => {
+      const result = await lighthouse.call("/entities/daemon/find", {
+        where: {},
+      });
+      specimen.expect(Array.isArray(result)).toBe(true);
+    });
+  });
+});
+// import { specimen, Url, Connection } from "@vivalence/typology";
+// import { shards } from "@vivalence/typology";
+// import {
+//   primitives,
+//   types,
+//   scalars,
+//   bodies,
+// } from "@vivalence/typology/gestalten";
+
+// const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
+// const lighthouse = new Connection(new Url(BASE), shards.transport.fetcher);
+
+// let auth = {};
+
+// specimen.describe("Lighthouse", () => {
+//   specimen.describe("server", () => {
+//     specimen.it("/manifest", async () => {
+//       const result = await lighthouse.call("/manifest", {});
+//       specimen.expect(result.type).toBe("lighthouse");
+//       specimen.expect(result.slug).toBe("multiplayer");
+//     });
+
+//     specimen.it("/status", async () => {
+//       const result = await lighthouse.call("/status", {});
+//       specimen.expect(result.timestamp).toBeDefined();
+//     });
+//   });
+
+//   specimen.describe("auth", () => {
+//     // specimen.it("signup", async () => {
+//     //   const result = await lighthouse.call("/auth/signup", {
+//     //     username: "testuser_" + Date.now(),
+//     //     password: "testpass123",
+//     //   });
+//     //   specimen.expect(result.authority?.access).toBeDefined();
+//     //   specimen.expect(result.identity?.id).toBeDefined();
+//     // });
+
+//     specimen.it("login", async () => {
+//       const result = await lighthouse.call("/auth/login", {
+//         username: "beef",
+//         password: "biggusdickus",
+//       });
+//       specimen.expect(result.authority?.access).toBeDefined();
+//       auth = result.authority;
+//     });
+
+//     specimen.it("verify", async () => {
+//       const result = await lighthouse.call("/auth/verify", {
+//         access: auth.access,
+//       });
+//       specimen.expect(result.success).toBe(true);
+//     });
+
+//     specimen.it("refresh", async () => {
+//       const result = await lighthouse.call("/auth/refresh", {
+//         refresh: auth.refresh,
+//       });
+//       specimen.expect(result.access).toBeDefined();
+//     });
+
+//     specimen.it("logout", async () => {
+//       const result = await lighthouse.call("/auth/logout", {
+//         refresh: auth.refresh,
+//       });
+//       specimen.expect(result.success).toBe(true);
+//     });
+//   });
+
+//   specimen.describe("datamap", () => {
+//     specimen.it("identity/find", async () => {
+//       const result = await lighthouse.call("/entities/identity/find", {
+//         where: {},
+//       });
+//       // console.log("identity/find", result);
+//       specimen.expect(Array.isArray(result)).toBe(true);
+//     });
+
+//     specimen.it("daemon/find", async () => {
+//       const result = await lighthouse.call("/entities/daemon/find", {
+//         where: {},
+//       });
+//       // console.log("daemon/find", result);
+//       specimen.expect(Array.isArray(result)).toBe(true);
+//     });
+//   });
+// });

@@ -99,12 +99,12 @@ export async function scopes(paladin) {
     ],
   ]);
 
-  console.log(`system`, paladin.scope.system);
-  console.log(`regist`, paladin.scope.registry);
-  console.log(`varian`, paladin.scope.variant);
-  console.log(`circui`, paladin.scope.circuitry);
-  console.log(`enviro`, paladin.scope.environment);
-  console.log(`mountp`, paladin.scope.mountpoint);
+  // console.log(`system`, paladin.scope.system);
+  // console.log(`regist`, paladin.scope.registry);
+  // console.log(`varian`, paladin.scope.variant);
+  // console.log(`circui`, paladin.scope.circuitry);
+  // console.log(`enviro`, paladin.scope.environment);
+  // console.log(`mountp`, paladin.scope.mountpoint);
   // console.log({ paladin });
 
   paladin.scopes([
