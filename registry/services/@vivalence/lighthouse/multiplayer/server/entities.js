@@ -45,7 +45,7 @@ export function inject(orm) {
 
 export function expose(service, aperture) {
   aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    // console.log("exposed", body, ctx.params);
+    // console.log("@exposed entities/entity/method", body, ctx.params);
     const entity = ctx.entities[ctx.params.entity];
     if (ctx.params.method === "expect") {
       let entity = await ctx.entities[ctx.params.entity].findOne(body.where);

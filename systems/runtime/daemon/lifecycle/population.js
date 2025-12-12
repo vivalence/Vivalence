@@ -1,10 +1,12 @@
 import paladin from "@vivalence/paladin";
 
-import { is, Mode, Url } from "@vivalence/typology";
+import { is, Mode, Url, shards } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
-import { Vector } from "@vivalence/vector";
+import { Vector, compiler, controller } from "@vivalence/vector";
+import { array } from "@vivalence/shared";
+// import { Vector, compiler, controller, shards } from "@vivalence/vector";
 
-import { traitmap } from "../modes/traitmap.js";
+import { traitmap } from "../mode/traitmap.js";
 
 export async function core(die) {
   die.register = await paladin.vip.accioMap({
@@ -64,20 +66,22 @@ export async function datamap(die) {
 }
 
 export async function modes(die) {
+  // console.log({ die });
   for (const variant of die.variant.modes) {
-    const mask = die.register.modes //
+    const register = die.register.modes //
       .find((mode) => mode.manifest.type === variant.type);
 
-    const mode = new variant.prototype(mask);
-    mode.mount = die.good.mount.branch(`/mode/${mode.type}/${mode.slug}`);
-    // mode.url = new Url(mode.mount, paladin.runtime.statics.serve);
+    if (!register) continue;
 
-    // console.log(die.good.entities);
-    // mode.entity = await die.good.entities.mode //
-    //   .ensure({ type: mode.type, slug: mode.slug });
+    const mode = new variant.prototype(register);
+    mode.mount = die.mount.branch(`/mode/${mode.type}/${mode.slug}`);
+    mode.url = die.url.branch(mode.mount.nature);
 
-    // mode.entity.traits = array //
-    //   .unique([...mode.entity.traits, ...mode.traits]);
+    mode.entity = await die.good.entities.mode //
+      .ensure({ type: mode.type, slug: mode.slug });
+
+    mode.entity.traits = array //
+      .unique([...mode.entity.traits, ...mode.traits]);
 
     if (!die.good.modes[variant.type]) die.good.modes[variant.type] = {};
     die.good.modes[mode.type][mode.slug] = mode;
@@ -94,15 +98,7 @@ export async function modes(die) {
 export async function authority(die) {
   die.good.authority = await die.register.authority //
     .provider(die.mask.authority, die.good.entities.user);
-}
-
-// legacy/duplicate?
-export async function services(die) {
-  console.log({ ...die.mask });
-  for (const [slug, servicemask] of Object.entries(die.mask.consume)) {
-    const register = await paladin.vip.accio(servicemask.module);
-    die.good.service[servicemask.slug] = await register.provider(servicemask);
-  }
+  die.good.aperture.use(shards.secure.authority(die.good.authority));
 }
 
 // export async function twitches(die) {
@@ -112,3 +108,38 @@ export async function services(die) {
 
 //   if (die.register.modules.domain.lifecycle.construct)
 //     await die.register.modules.domain.lifecycle.construct(die.good);
+
+export async function twitch(die) {
+  try {
+    const subscriptions = die.good.entities.on.patterns
+      .map((p) => p.signature)
+      .map((s) => die.variant.kernel.domain.entities.map[s].entity);
+
+    const subscriber = new compiler.Subscriber(
+      subscriptions,
+      async (signal, event) => {
+        try {
+          const [effect, apply] = controller //
+            .traverse(die.good.entities.on, signal);
+          const context = { event, daemon: die.good };
+          context.daemon.entities.em = context.daemon.entities.em.fork();
+          await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+          await context.daemon.entities.em.flush();
+        } catch (error) {
+          if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
+        }
+      },
+    );
+
+    die.good.entities.em
+      .getEventManager() //
+      .registerSubscriber(subscriber);
+
+    //
+  } catch (e) {
+    console.log("@runtime/runtime/integrate/twitch");
+    console.log("[expected to fail on pattern signature entity lookup]");
+    console.log("[haha future me.]");
+    throw e;
+  }
+}

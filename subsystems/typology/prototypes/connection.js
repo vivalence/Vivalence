@@ -51,6 +51,7 @@ export class Connection {
       const error = new Error(`Request failed: ${response.status}`);
       error.request = request;
       error.response = response;
+      console.error(error);
       throw error;
     }
 

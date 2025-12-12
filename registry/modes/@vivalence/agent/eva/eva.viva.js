@@ -16,7 +16,9 @@ const view = new Path("/view/viva.svelte.js");
 
 const aperture = new Aperture() //
   //.open("/session", session) .open("/agent", agent)
-  .open("/feed", (input, ctx) => [{ agent: "sheeeeet, what you want?" }]);
+  .open("/feed", (input, ctx) => [
+    { agent: "cant talk rn, lizzy brought apples." },
+  ]);
 
 export default { manifest, view, aperture, dataset };
 

@@ -10,8 +10,6 @@ let tokens = {};
 let identity = {};
 
 specimen.describe("Lighthouse Auth", () => {
-  // specimen.describe("signup", () => {specimen.it("creates new user", async () => {const result = await lighthouse.call("/auth/signup", {username: "beef", password: "biggusdickus",}); console.log({ result }); specimen.expect(result.authority).toBeDefined(); specimen.expect(result.identity).toBeDefined(); tokens = result.authority; identity = result.identity;});});
-
   specimen.describe("login", () => {
     specimen.it("authenticates valid credentials", async () => {
       const result = await lighthouse.call("/auth/login", {

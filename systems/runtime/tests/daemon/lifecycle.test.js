@@ -1,5 +1,6 @@
 import paladin from "@vivalence/paladin";
-import runtime from "@vivalence/runtime";
+// import runtime from "@vivalence/runtime";
+
 import { Url, Path, is, specimen } from "@vivalence/typology";
 
 import { Daemon, Die } from "@vivalence/runtime/daemon";

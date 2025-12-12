@@ -17,6 +17,7 @@ export default run;
 
 if (import.meta.main) {
   await run.ikiro;
+  // console.log("run:", { run });
   await run.perpetuate();
 }
 

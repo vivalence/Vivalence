@@ -75,6 +75,8 @@ export function promise(thing) {
 export function error(thing) {
   return thing instanceof Error;
 }
+
 export function module(thing) {
+  // js in a nutshell
   return object(thing);
 }

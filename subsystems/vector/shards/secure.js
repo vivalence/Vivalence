@@ -8,13 +8,15 @@ export function context(provider) {
     } catch (error) {
       console.log("[AUTH ERROR] @shared/secure/context");
       console.log(error);
-      ctx.response.status = 401;
+
       if (error.code === "ERR_JWS_INVALID") {
+        ctx.response.status = 401;
         ctx.response.body = {
           error: { code: "UNAUTHORIZED" },
           // error: { message: error.message, name: error.name, code: error.code },
         };
       } else {
+        ctx.response.status = 400;
         ctx.response.body = { error };
       }
       return ctx;

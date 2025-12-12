@@ -1,7 +1,7 @@
-export * from "./call/index.js";
 export * from "./mode.js";
 export * from "./entity.js";
 export * from "./repository.js";
+
 export * from "./lighthouse/prototype.js";
 export * from "./daemon/prototype.js";
 

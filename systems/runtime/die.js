@@ -18,25 +18,25 @@ export class Die extends Wafer {
     for (const die of this.good.terrans) {
       await die.populate();
       await die.resolve();
+      await die.integrate();
     }
+
+    await lifecycle.resolution.attach(this);
+    await lifecycle.resolution.compose(this);
+    await lifecycle.resolution.launch(this);
+    await lifecycle.resolution.watchdog(this);
   }
 
   async integrate() {
-    //   for (const die of this.good.terrans) {
-    //     await die.integrate(this);
-    //   }
-    await lifecycle.integration.attach(this);
-    await lifecycle.integration.compose(this);
-    await lifecycle.integration.watchdog(this);
-    await lifecycle.integration.launch(this);
-    //   this.status.set("alive");
+    await lifecycle.integration.announce(this);
+    this.status.set("alive");
   }
 
   async disintegrate() {
     this.status.set("stopping");
 
     for (const die of this.good.terrans) {
-      await die.disintegrate();
+      await die.disintegrate?.();
     }
 
     this.abort.abort();
@@ -54,9 +54,17 @@ export class Die extends Wafer {
       Deno.addSignalListener(sig, () => this.disintegrate(sig));
     });
 
-    while (this.status.is(["alive"])) {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+    while (this.status.is("alive")) {
+      if (this.status.is("stopped")) {
+        // shutdown in grace. i might need some hook here once i chose a paradigm for shutting down dies.
+        return;
+      }
+      if (!this.good) {
+        // handle missing runtime.
+        return;
+      }
       await this.good.ters?.patrol();
+      await new Promise((resolve) => setTimeout(resolve, 10000));
     }
   }
 }

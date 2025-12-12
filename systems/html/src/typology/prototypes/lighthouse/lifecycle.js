@@ -1,6 +1,8 @@
 import { effect } from "nanostores";
+import { shards } from "@vivalence/html/typology";
 import { Connection } from "@vivalence/typology";
 import { Lighthouse } from "./prototype.js";
+import { remotes } from "$client";
 
 const hydrateFromStorage = (lighthouse) => {
   const key = `lighthouse:${lighthouse.connection.url}`;
@@ -36,11 +38,40 @@ export async function lifecycle(lighthouse) {
   // console.log("cycling lighthouse", lighthouse);
   hydrateFromStorage(lighthouse);
   await validate(lighthouse);
-  lighthouse.manifest = await lighthouse.call("/manifest");
+  lighthouse.manifest = await lighthouse.connection.call("/manifest");
   persistToStorage(lighthouse);
   // console.log("cycled lighthouse", lighthouse);
+  loadDaemons(lighthouse);
+
   return lighthouse;
 }
 // console.log(lighthouse.connection.state.get());
 // console.log(lighthouse.connection.status.code.get());
 // console.log(lighthouse.authority.get(), lighthouse.identity.get());
+
+async function loadDaemons(lighthouse) {
+  const daemons = await lighthouse.connection.call("/entities/daemon/find");
+  for (const remote of daemons) {
+    const exists = await remotes.daemon //
+      .findOne((d) => d.connection.url === remote.url);
+
+    if (exists) continue;
+
+    const connection = new Connection(remote.url) //
+      .use(shards.connection.authorize(lighthouse.$authority));
+
+    await remotes.daemon.spawn(connection);
+
+    //         const connection = new Connection(remote.url) //
+    //           .use(authorize(lighthouse.$authority));
+    //         await remotes.daemon.spawn(connection);
+  }
+}
+
+// const authorize = ($authority) => async (ctx, next) => {
+//   const auth = $authority.get();
+//   if (auth?.access) {
+//     ctx.request.headers.Authorization = `Bearer ${auth.access}`;
+//   }
+//   await next();
+// };

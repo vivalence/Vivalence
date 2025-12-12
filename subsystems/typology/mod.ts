@@ -1,15 +1,12 @@
 export * from "./prototypes/index.ts";
 export * from "./gestalten/index.ts";
-export * from "./types.d.ts";
+export * from "./belt/index.js";
 
-export * as scalars from "./scalars/index.js";
-export * as primitives from "./primitives/index.js";
-export * as types from "./types/index.js";
-export * as bodies from "./bodies/index.js";
-export * as gestalten from "./gestalten/index.ts";
+export * as schematics from "./schematics/index.js";
+export { scalars, primitives } from "./schematics/index.js";
 export * as prototypes from "./prototypes/index.ts";
 export * as entities from "./entities/index.ts";
+export * as gestalten from "./gestalten/index.ts";
+export * as belt from "./entities/index.ts";
 
-export * as specimen from "./specimen/index.js";
-
-// export * as types from "./types.d.ts";
+export * from "./types.d.ts";

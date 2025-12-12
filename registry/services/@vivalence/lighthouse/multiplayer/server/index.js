@@ -1,19 +1,24 @@
 import { Status } from "@vivalence/typology";
 
-import { inject, expose, systemmap } from "./entities.js";
+import * as entity from "./entities.js";
 import * as authority from "./authority.js";
 import * as identity from "./identity.js";
+// import { inject, expose, systemmap } from "./entities.js";
 
 // TODO: universal mask first.
 export default async function server(aperture, service) {
-  const { orm, entities } = await systemmap(service, aperture);
+  const { orm, entities } = await entity.systemmap(service, aperture);
 
   aperture
     .use(async (ctx, next) => {
       try {
         await next();
       } catch (error) {
-        console.log("[identity service server error]", error.name, error.code);
+        console.log(
+          "[@lighthouse/multiplayer] service error",
+          error.name,
+          error.code,
+        );
         if (error.code === "ERR_JWT_EXPIRED") {
           ctx.response.status = 401;
           ctx.response.body = { error };
@@ -24,9 +29,9 @@ export default async function server(aperture, service) {
       }
     })
     .use(await authority.inject(service))
-    .use(inject(orm))
+    .use(entity.inject(orm))
     .use(identity.inject());
 
   authority.expose(service, aperture);
-  expose(service, aperture);
+  entity.expose(service, aperture);
 }

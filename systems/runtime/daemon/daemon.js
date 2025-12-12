@@ -7,11 +7,13 @@ export class Daemon {
   mask = { manifest: {} }; //
   authority = null; // lighthouse client
   mount = new Path(); // internal root
+  url = null;
   aperture = new Aperture();
   call = null;
 
   kernel = {
     orm: {},
+    em: {},
     medic: new Remedy(),
     taxonomist: new Vector(),
     // dimension: new maps.ontology.dimension.repository(),
@@ -27,10 +29,11 @@ export class Daemon {
     entities: {}, // {literal symbol exercise} f(domain + system)
     subjects: {}, // {noun verb pronoun posessives} = f(dimensions*topographies)
   };
-  entities = { em: {} }; // f(domain.entities,system.entites)
+
+  entities = {}; // f(domain.entities,system.entites)
   modes = {}; // map {game:{translations: Mode},teachers:{iroh:Mode}}
   services = {}; // service providers { nlp:{analyze:(text)=>({annotations[]})} }
-  subjects = {}; // f(kernel.subjects*datamap.entities)
+  units = {}; // f(kernel.subjects*datamap.entities)
 
   twitch = new Vector();
   classify = {};

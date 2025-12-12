@@ -1,4 +1,5 @@
 import paladin from "@vivalence/paladin";
+import { Url, Connection, Path } from "@vivalence/typology";
 import { Aperture } from "@vivalence/vector/aperture";
 import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
@@ -17,6 +18,12 @@ export async function aperture(die) {
 export async function terrans(die) {
   for (const mask of paladin.variant.daemons) {
     const daemonDie = new DaemonDie({ mask, good: new Daemon(mask) });
+
+    // not sure
+    daemonDie.mount = new Path(`/daemon/${daemonDie.slug}`);
+    daemonDie.url = new Url(paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE")) //
+      .branch(daemonDie.mount.nature);
+
     die.good.daemons.push(daemonDie);
   }
 
@@ -30,19 +37,6 @@ export async function terrans(die) {
     }
   }
 }
-
-// // // populate is for tools, maps and repositories
-// import paladin from "@vivalence/paladin";
-// import { shards } from "@vivalence/vector";
-// import { Aperture } from "@vivalence/vector/aperture";
-// import { Status } from "@vivalence/typology";
-// import { ProcessDie, DaemonDie, Daemon } from "@vivalence/runtime/typology";
-
-// export async function aperture(runtime) {
-//   runtime.aperture.open("/status", (body, ctx) => runtime.status.reflection);
-// }
-
-// // export async function registry(runtime) {console.trace("LEGACY"); await paladin.vip.mount(paladin.join.registry()); await paladin.vip.mount(paladin.join.system("systems"));}
 
 // export async function terrans(runtime) {
 //   for (const mask of paladin.variant.daemons) {

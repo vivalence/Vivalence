@@ -30,4 +30,5 @@ export const not = {
   viva: (thing) => fab("viva")(`${typeof thing}`),
   object: fab("object"),
   defined: fab("defined"),
+  // authorized: fab("authorized"),
 };

@@ -25,7 +25,7 @@ generator
   })
   .branch("/daemon/:daemon")
   .use(async (ctx, next) => {
-    ctx.daemon = await remotes.daemon ///////
+    ctx.daemon = await remotes.daemon //
       .findOne((r) => r.manifest.slug === ctx.params.daemon);
     await next();
   })

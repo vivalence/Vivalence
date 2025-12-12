@@ -27,13 +27,14 @@ export const traits = {
 export const modes = [
   {
     type: "game",
-    prototype: Game,
-    //   gestalt: PlaySchema,
-    //   entity: PlayEntity,
-    //   // repository: TopographyRepository,
-  }, //
+    prototype: Game, // instance = new prototype(modecake)
+    // type: GameType  // Typebox.Check(X, daemon.modes.[type].[instance] ) === true
+    // entity: GameEntity, // runtime entity instance.entity
+    // schema: GameSchema, // persistant database schema
+    // repository: GameRepository, // set interface
+  },
   // tactic: { prototype: Tactic },
-  // agent: { prototype: Agent },
+  { type: "agent", prototype: Agent },
   // strategy: { prototype: Strategy },
 ];
 

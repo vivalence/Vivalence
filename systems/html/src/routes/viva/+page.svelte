@@ -5,10 +5,11 @@
   import { remotes } from "$client";
 
   let daemons = remotes.daemon.$entities;
-  // console.log({daemons})
 
   const link = (valence) => {
+    console.log("link", valence)
     const full = valence.mode.mount.branch(valence.resolve.generator).absolute;
+    console.log("link", full);
     return "/viva" + full;
     // return new Path(paladin.mirror.mask.slug).stick(valence.entry).absolute; // where paladin.mirror is the mask of whatever system were in. lovely.
   };
@@ -28,7 +29,7 @@
       {#each daemon.entities.valence.$entities.value as valence}
         <a href={link(valence)}>
           <Text color="text-palette-gray-100">
-            {daemon.manifest.slug}/{valence.module.type}/{valence.module.slug}: {valence.slug}
+            {daemon.manifest.slug}/{valence.mode.type}/{valence.mode.slug}: {valence.slug}
           </Text>
         </a>
       {/each}

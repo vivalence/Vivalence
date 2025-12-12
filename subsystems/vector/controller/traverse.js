@@ -12,7 +12,7 @@ export function traverse(vector, signals) {
   let steps = [];
   let remainder = 0;
 
-  for (const signal of signals) {
+  for (const signal of signals.array) {
     // console.log();
     const [[match, trajectory, effect] = []] = greedy(position, signal);
 

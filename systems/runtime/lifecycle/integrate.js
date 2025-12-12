@@ -1,66 +1,14 @@
 import paladin from "@vivalence/paladin";
-import { context, mw } from "@vivalence/vector/aperture";
-import { shards } from "@vivalence/vector";
+import { shards, Url, Connection } from "@vivalence/typology";
 
-export async function attach(die) {
+export async function announce(die) {
   for (const daemonDie of die.good.daemons) {
-    die.good.aperture
-      .branch(`/daemon/${daemonDie.slug}`)
-      .use(shards.context.attach("daemon", daemonDie.good))
-      .descendants.push(daemonDie.good.aperture);
-  }
-
-  for (const processDie of die.good.processes) {
-    processDie.good
-      .open("/status", () => processDie.status.reflection)
-      .open("/manifest", () => processDie.manifest);
-
-    die.good.aperture
-      .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
-      .use(shards.context.attach(processDie.type, processDie.mask))
-      .descendants.push(processDie.good);
+    const connection = new Connection(daemonDie.mask.authority.statics.remote);
+    await connection.call("/entities/daemon/expect", {
+      where: { slug: daemonDie.slug, url: daemonDie.url.absolute },
+    });
   }
 }
-
-export async function compose(die) {
-  die.server.use(mw.cors).use(mw.notFound);
-  die.server.use(die.good.aperture.compose(true));
-}
-
-export async function watchdog(die) {
-  die.good.ters = {
-    async patrol() {
-      for (const terran of die.good.terrans) {
-        if (terran.status.is("ERROR")) {
-          console.warn(`Terran unhealthy`, terran.slug);
-        }
-      }
-      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
-    },
-  };
-}
-
-export async function launch(die) {
-  const url = paladin.variant.runtime?.statics?.serve;
-  console.log(`launching on ${url.absolute}`);
-  if (!url) {
-    console.warn("No runtime serve URL configured");
-    return;
-  }
-
-  die.server.addEventListener("listen", ({ hostname, port, ...rest }) => {
-    console.log(`listening on ${hostname}:${port}`);
-  });
-
-  die.listening = die.server.listen({
-    port: url.port,
-    hostname: url.hostname,
-    signal: die.abort.signal,
-  });
-
-  die.status.set({ code: "RUNNING", label: url.absolute });
-}
-
 // import paladin from "@vivalence/paladin";
 // import { context, mw } from "@vivalence/vector/aperture";
 

@@ -2,7 +2,7 @@ export class Response {
   constructor(init = {}) {
     this.status = init.status ?? 0;
     this.headers = new Map(Object.entries(init.headers || {}));
-    this.body = init.body;
+    this.body = init.body || {};
   }
 
   get ok() {

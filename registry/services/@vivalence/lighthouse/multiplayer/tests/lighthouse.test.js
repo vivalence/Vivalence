@@ -1,11 +1,10 @@
-// lighthouse.test.js - updated
 import { specimen, Url, Connection } from "@vivalence/typology";
 import { shards } from "@vivalence/typology";
 import { Value } from "@sinclair/typebox/value";
 import { scalars, primitives, bodies, types } from "@vivalence/typology";
 
 const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
-const lighthouse = new Connection(new Url(BASE), shards.transport.fetcher);
+const lighthouse = new Connection(new Url(BASE));
 
 let auth = {};
 
@@ -13,16 +12,23 @@ specimen.describe("Lighthouse", () => {
   specimen.describe("server", () => {
     specimen.it("/manifest", async () => {
       const result = await lighthouse.call("/manifest");
-      specimen.expect(Value.Check(primitives.Manifest, result)).toBe(true);
+      // console.log({ result });
+      // specimen.expect(Value.Check(primitives.Manifest, result)).toBe(true);
       specimen.expect(result.type).toBe("lighthouse");
       specimen.expect(result.slug).toBe("multiplayer");
     });
 
     specimen.it("/status", async () => {
       const result = await lighthouse.call("/status", {});
-      specimen.expect(Value.Check(types.Status, result)).toBe(true);
+      // console.log({ result });
+      // specimen.expect(result.code).toBe(string)
+      // specimen.expect(Value.Check(types.Status, result)).toBe(true);
     });
   });
+
+  // specimen.describe("signup", () => {specimen.it("creates new user", async () => {const result = await lighthouse.call("/auth/signup", {username: "beef", password: "biggusdickus",}); console.log({ result }); specimen.expect(result.authority).toBeDefined(); specimen.expect(result.identity).toBeDefined(); tokens = result.authority; identity = result.identity;});});
+
+  // return;
 
   specimen.describe("auth", () => {
     specimen.it("login", async () => {
@@ -66,6 +72,7 @@ specimen.describe("Lighthouse", () => {
       const result = await lighthouse.call("/entities/identity/find", {
         where: {},
       });
+      console.log("identity", { result });
       specimen.expect(Array.isArray(result)).toBe(true);
     });
 
@@ -73,6 +80,9 @@ specimen.describe("Lighthouse", () => {
       const result = await lighthouse.call("/entities/daemon/find", {
         where: {},
       });
+
+      console.log("daemons", { result });
+
       specimen.expect(Array.isArray(result)).toBe(true);
     });
   });

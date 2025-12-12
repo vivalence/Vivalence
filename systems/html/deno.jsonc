@@ -2,8 +2,9 @@
   "name": "@vivalence/html",
   "version": "0.0.1",
   "exports": {
+    // ".": "./mod.js",
     "./typology": "./src/typology/index.js",
-    "./control": "./client.viva.js",
+    // "./control": "./client.viva.js",
   },
   "tasks": {
     "watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite dev",

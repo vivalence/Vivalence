@@ -1,22 +1,22 @@
+import { Status } from "@vivalence/typology";
 import { shards } from "@vivalence/vector";
 
 export async function datamap(die) {
   die.good.aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    const entity = ctx.runtime.entities[ctx.params.entity];
-    return await ctx.runtime.entities.em[ctx.params.method](
+    // console.log("datamap,", { ...ctx, body });
+    const entity = ctx.daemon.entities[ctx.params.entity];
+    return await ctx.daemon.entities.em[ctx.params.method](
       entity.entityName,
       body.where,
       body.options,
     );
   });
 }
+
 export async function userspace(die) {
   die.good.aperture
     .branch("/userspace") //
-    .open("/status", (body, ctx) => ({
-      status: "identity:/status ok",
-      timestamp: new Date().toISOString(),
-    }))
+    .open("/status", (body, ctx) => new Status().reflection)
     .use(shards.secure.authorize())
     .open("/handshake", async (_, ctx) => {
       const user = await ctx.identity.getUser();
@@ -32,7 +32,7 @@ export async function userspace(die) {
         throw new Error("unsupported method");
 
       const user = await ctx.identity.getUser();
-      const repository = ctx.runtime.entities[params.entity];
+      const repository = ctx.daemon.entities[params.entity];
 
       let result = {};
       switch (params.method) {
@@ -47,7 +47,7 @@ export async function userspace(die) {
 export async function modes(die) {
   die.good.aperture.open("/modes/:type/:method", async (body, ctx) => {
     const params = ctx.params;
-    const modes = ctx.runtime.modes[params.type];
+    const modes = ctx.daemon.modes[params.type];
     if (!modes) throw new Error("unsupported mode");
     let mode = {};
     switch (params.method) {
@@ -64,6 +64,6 @@ export async function modes(die) {
       result.view = { url: mode.view.url };
     }
     return result;
-    // return await ctx.runtime.modes[someModeManager/EntityMap/RepositorySystem][ctx.params.method](mode.type, body.where, body.options);
+    // return await ctx.daemon.modes[someModeManager/EntityMap/RepositorySystem][ctx.params.method](mode.type, body.where, body.options);
   });
 }

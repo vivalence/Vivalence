@@ -1,6 +1,6 @@
-import { Path } from "@vivalence/typology";
+import { Connection, Path } from "@vivalence/typology";
 import { Mode, Entity } from "@vivalence/html/typology";
-import { Call, Repository } from "@vivalence/html/typology";
+import { Repository } from "@vivalence/html/typology";
 
 class Valence extends Entity {}
 class Intent extends Entity {}
@@ -10,11 +10,13 @@ const entities = {
   mode: {
     prototype: Mode,
     lifecycle: (daemon) => async (mode) => {
-      mode.path = daemon.path //
+      mode.mount = daemon.mount //
         .branch(`/mode/${mode.type}/${mode.slug}`);
-      mode.call = daemon.call.branch(mode.path.value);
-      mode.manifest = await mode.call("/manifest");
-      if (mode.implements("VIEWABLE")) mode.view = await mode.call("/view");
+      mode.connection = daemon.connection.branch(mode.mount.nature);
+      // console.log("MODE lifecycle", mode);
+
+      mode.manifest = await mode.connection.call("/manifest");
+      // if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
     },
   },
   valence: {
@@ -29,16 +31,17 @@ const entities = {
 };
 
 export async function lifecycle(daemon, client) {
-  daemon.manifest = await daemon.call("/manifest");
-  daemon.path = new Path(`/daemon/${daemon.manifest.slug}`);
+  daemon.manifest = await daemon.connection.call("/manifest");
+  daemon.mount = new Path(`/daemon/${daemon.manifest.slug}`);
 
   for (const [type, entity] of Object.entries(entities)) {
     if (entity.lifecycle) entity.lifecycle = entity.lifecycle(daemon);
     daemon.entities[type] = new Repository(entity);
   }
 
-  const valences = await daemon.call("/entities/valence/find");
+  const valences = await daemon.connection.call("/entities/valence/find");
   for (const valence of valences) {
+    console.log("/call valences find", valence);
     await daemon.entities.valence.spawn(valence);
   }
 }

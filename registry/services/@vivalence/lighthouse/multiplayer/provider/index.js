@@ -1,3 +1,5 @@
+import { Connection } from "@vivalence/typology";
+
 export default async function authority(lighthouse, users) {
   const verify = await createVerifier(lighthouse);
 
@@ -28,25 +30,28 @@ export default async function authority(lighthouse, users) {
 async function createVerifier(service) {
   return async (token) => {
     try {
-      const response = await fetch(
-        service.config.authority.url + "/auth/verify",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ access: token }),
-        },
+      const connection = new Connection(service.statics.remote);
+      const response = await connection.fetch(
+        "/auth/verify",
+        { access: token },
+        { method: "POST" },
       );
 
-      if (!response.ok) {
-        return { valid: false };
-      }
-
-      const result = await response.json();
-      return { valid: true, ...result };
+      if (!response.ok) return { valid: false };
+      return { valid: true, ...response.body };
     } catch (error) {
       return { valid: false, error };
     }
   };
 }
+
+// const response = await fetch(
+//   // service.statics.remote.branch("/auth/verify"),
+//   {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({ access: token }),
+//   },
+// );

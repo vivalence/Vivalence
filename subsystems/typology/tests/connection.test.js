@@ -1,7 +1,7 @@
-import { specimen, Url, Connection } from "@vivalence/typology";
+import { specimen, Url, Connection, Response } from "@vivalence/typology";
 
-const stubFetch = (response) => async (ctx) => {
-  ctx.response.body = response;
+const stubFetch = (body) => async (ctx) => {
+  ctx.response = new Response({ body, status: 200 });
 };
 
 specimen.describe("Connection", () => {
@@ -18,11 +18,12 @@ specimen.describe("Connection", () => {
   specimen.describe("middleware", () => {
     specimen.it("wraps fetch", async () => {
       const log = [];
+
       const conn = new Connection(
         new Url("http://localhost:1794"),
         async (ctx) => {
           log.push("fetch");
-          ctx.response.body = { ok: true };
+          ctx.response = new Response({ status: 200 });
         },
       );
 
@@ -32,7 +33,8 @@ specimen.describe("Connection", () => {
         log.push("after");
       });
 
-      await conn.call("/test", {});
+      const response = await conn.call("/test");
+      // console.log("@test", { response });
       specimen.expect(log).toEqual(["before", "fetch", "after"]);
     });
 
@@ -64,10 +66,9 @@ specimen.describe("Connection", () => {
 
     specimen.it("inherits fetch with middleware", async () => {
       const log = [];
-      const root = new Connection(
-        new Url("http://x"),
-        stubFetch({ data: 1 }),
-      ).use(async (ctx, next) => {
+      const root = new Connection(new Url("http://x"), stubFetch({ data: 1 }));
+
+      root.use(async (ctx, next) => {
         log.push("root");
         await next();
       });
@@ -93,7 +94,7 @@ specimen.describe("Connection", () => {
       let captured;
       const conn = new Connection(new Url("http://x"), async (ctx) => {
         captured = ctx.request.body;
-        ctx.response.body = {};
+        ctx.response = new Response({ status: 200 });
       });
 
       await conn.call("/", { foo: "bar" });
@@ -105,7 +106,7 @@ specimen.describe("Connection", () => {
 specimen.describe("response flow", () => {
   specimen.it("transforms through middleware chain", async () => {
     const conn = new Connection(new Url("http://x"), async (ctx) => {
-      ctx.response.body = { value: 1 };
+      ctx.response = new Response({ body: { value: 1 }, status: 200 });
     })
       .use(async (ctx, next) => {
         await next();
@@ -127,7 +128,8 @@ specimen.describe("integration", () => {
       new Url("https://who.syzygy.vivalence.com"),
       async (ctx) => {
         const res = await fetch(ctx.request.url.absolute);
-        ctx.response = { ...res, body: await res.text() };
+        ctx.response.body = await res.text();
+        ctx.response.status = res.status;
       },
     );
 

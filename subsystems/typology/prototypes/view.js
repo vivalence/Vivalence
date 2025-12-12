@@ -1,11 +1,12 @@
-import { is } from "@vivalence/shared";
-import { Path } from "./path.js";
+import { is, Url, Path } from "@vivalence/typology";
+// import { is } from "@vivalence/shared";
+// import { Path } from "./index.js";
 
 export class View {
   bundles = [];
   constructor(path, opts = { greedy: true }) {
-    if (path instanceof View) return path;
-    this.path = is.string(path) ? new Path(path) : path;
+    if (path instanceof View) return path; //patch ops
+    this.path = new Path(path);
     if (opts.url) this.withUrl(opts.url);
     if (opts.bundler) this.withBundler(opts.bundler);
     if (this.bundler && opts.greedy) (async () => await this.bundle())();
@@ -16,6 +17,7 @@ export class View {
   }
   withBundler(bundler) {
     this.bundler = bundler;
+    if (is.empty(this.bundles)) (async () => await this.bundle())();
     return this;
   }
   flush() {

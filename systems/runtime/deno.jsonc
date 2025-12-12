@@ -19,6 +19,8 @@
 
     "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
     "test/daemon/lifecycle": "deno test -A --no-check --watch tests/daemon/lifecycle.test.js",
+    "test/daemon/aperture": "deno test -A --no-check --watch tests/daemon/aperture.test.js",
+    "test/daemon/modes": "deno test -A --no-check --watch tests/daemon/modes.test.js",
 
     "test/process": "deno test -A --no-check --watch tests/process/*.test.js",
   },

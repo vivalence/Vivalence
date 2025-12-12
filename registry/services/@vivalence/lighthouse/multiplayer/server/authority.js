@@ -19,6 +19,7 @@ export function expose(service, aperture) {
     .open("/login", login)
     .open("/logout", logout)
     .open("/verify", verify)
+    // delete
     .open("/refresh", refresh);
 }
 

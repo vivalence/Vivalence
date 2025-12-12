@@ -29,7 +29,13 @@ export default async function (paladin) {
           return condition?.();
         });
       },
-      // to json? to log?
+      getOwnPropertyDescriptor: (_, key) => {
+        const [condition] = scopes.get(key) ?? [];
+        if (condition?.()) {
+          return { enumerable: true, configurable: true };
+        }
+      },
+      // get json() {return JSON.parse(JSON.stringify({ scopes }));},
     },
   );
 }
