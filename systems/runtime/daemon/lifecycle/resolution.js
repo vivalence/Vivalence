@@ -1,26 +1,32 @@
 import { is, shards } from "@vivalence/typology";
 import { traitmap } from "../mode/traitmap.js";
 
-export async function modes(die) {
-  for (const mode of die.good.flatmodes()) {
+// attach modes
+export async function modes(daemonDie) {
+  for (const mode of daemonDie.good.flatmodes()) {
     mode.aperture
       .use(shards.context.attach("mode", mode))
-      .open("/status", async () => ({ code: "SUCCESS" }))
-      .open("/manifest", async () => ({ ...mode.cake.manifest }));
+      .open("/status", () => ({ code: "SUCCESS" }))
+      .open("/manifest", () => ({ ...mode.cake.manifest }));
 
     if (mode.cake.aperture) mode.aperture.descendants.push(mode.cake.aperture);
 
     for (const trait of mode.traits) {
-      await die.variant.traits[trait]?.(mode, die.good);
+      await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
     }
 
-    die.good.aperture
+    daemonDie.good.aperture
       .branch(mode.mount.nature)
       .use(shards.secure.authorize())
       .descendants.push(mode.aperture);
   }
 }
 
+//       runtime.aperture
+//         .branch(`/attached/process/${die.type}/${die.slug}`)
+//         // .use(secure.context(rme.instance.lighthouse)).use(secure.authorize()) ?? only on trait PUBLIC
+//         .use(shards.context.attach(die.type, die.mask))
+//         .descendants.push(die.good);
 // // legacy/duplicate?
 // export async function services(die) {
 //   // console.log({ ...die.mask });

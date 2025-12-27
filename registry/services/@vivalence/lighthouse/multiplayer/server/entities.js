@@ -45,24 +45,31 @@ export function inject(orm) {
 
 export function expose(service, aperture) {
   aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    // console.log("@exposed entities/entity/method", body, ctx.params);
-    const entity = ctx.entities[ctx.params.entity];
-    if (ctx.params.method === "expect") {
-      let entity = await ctx.entities[ctx.params.entity].findOne(body.where);
-
-      if (!entity) {
-        entity = await ctx.entities[ctx.params.entity].create(body.where);
-      }
-
-      return entity;
+    if (!["upsert", "expect"].includes(ctx.params.method)) {
+      const entity = ctx.entities[ctx.params.entity];
+      return await ctx.entities.em[ctx.params.method](
+        entity.entityName,
+        body.where,
+        body.options,
+      );
     }
 
-    const effect = await ctx.entities.em[ctx.params.method](
-      entity.entityName,
-      body.where,
-      body.options,
-    );
-    return effect;
+    const where = {};
+    if (body.where.id) where.id = body.where.id;
+    else if (body.where.slug) where.slug = body.where.slug;
+    else throw new Error("invalid request body");
+
+    // console.log({ where, entity: null });
+    let entity = await ctx.entities[ctx.params.entity].findOne(where); // gestalt primitive signal [belt?]
+    // console.log({ where, entity });
+
+    if (!entity) {
+      entity = await ctx.entities[ctx.params.entity].create(body.where);
+    } else {
+      ctx.entities[ctx.params.entity].assign(entity, body.where);
+    }
+
+    return entity;
   });
 }
 

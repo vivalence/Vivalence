@@ -22,18 +22,18 @@ if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
 if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
   allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
 
-console.log("paladin.env, paladin.variant");
-console.log(paladin.env, paladin.variant);
-console.log({
-  cors: { origin: client.statics.remote?.absolute },
-  origin: client.statics.remote?.absolute,
-  allowedHosts,
+// console.log("paladin.env, paladin.variant");
+// console.log(paladin.env, paladin.variant);
+// console.log({
+//   cors: { origin: client.statics.remote?.absolute },
+//   origin: client.statics.remote?.absolute,
+//   allowedHosts,
 
-  host: client.statics.serve.hostname,
-  port: parseInt(client.statics.serve.port),
-});
-console.log("allowedHosts,client.statics.remote,");
-console.log(allowedHosts);
+//   host: client.statics.serve.hostname,
+//   port: parseInt(client.statics.serve.port),
+// });
+// console.log("allowedHosts,client.statics.remote,");
+// console.log(allowedHosts);
 
 export default defineConfig({
   plugins: [sveltekit(), deno()], //
@@ -47,7 +47,7 @@ export default defineConfig({
     port: parseInt(client.statics.serve.port),
 
     strictPort: true,
-    fs: { allow: ["./", "../../node_modules"] },
+    fs: { allow: ["./", "../..", "../../node_modules"] },
     watch: {
       usePolling: true,
       ignored: ["**/node_modules/**", "**/#*"],
@@ -72,15 +72,15 @@ export default defineConfig({
       "$hut/typology": join(__dirname, "./src/typology/index.js"),
       "$hut/surface": join(__dirname, "./src/surface/index.js"),
       "$hut/view": join(__dirname, "./src/surface/view/index.js"),
-      $hut: join(__dirname, "./src/app.js"),
       "@vivalence/surface": join(__repo, "./subsystems/drapes/mod.js"),
 
-      //
-      $client: join(__dirname, "./src/app.js"),
+      $hut: join(__dirname, "./src/app.js"),
+
+      // STABLE
+      $client: join(__dirname, "./src/client.js"),
 
       "@vivalence/html/typology": join(__dirname, "./src/typology/index.js"),
       "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
-      // "$surface": join(__dirname, "./src/surface/index.js"),?maybe?
 
       "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
@@ -91,6 +91,7 @@ export default defineConfig({
       "@vivalence/dapper": join(__repo, "./subsystems/dapper/mod.js"), // ? needed ?
       "@vivalence/drapes": join(__repo, "./subsystems/drapes/mod.js"), // ? needed ?
 
+      // TBD
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // i want to access to $viva_config_dir/assets present as @client/assets
       "@static/icons/": join(__dirname, "./static/icons/"),

@@ -46,6 +46,7 @@ export class Die extends Wafer {
   }
 
   async disintegrate() {
+    // todo: refactor to abort controller
     await this.good.kernel.orm?.close?.();
     // await sleep(1);
     this.status.set("stopped");

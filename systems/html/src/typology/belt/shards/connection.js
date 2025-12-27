@@ -4,18 +4,18 @@ export const authorize = ($authority) => async (ctx, next) => {
     ctx.request.headers.Authorization = `Bearer ${auth.access}`;
   }
   await next();
-
-  console.log("ctx.response");
-  console.log(ctx.response);
-  // if(ctx.response.error === auth){
-  //   await lighthouse.refresh();
-  //   await ctx.retry()
-  // }
 };
 
-export const backstop = (lighthouse) => async (ctx, next) => {
-  await next();
-  // if(ctx.response.error === auth){
-  //   await lighthouse.logout();
-  // }
-};
+// export const backstop = (lighthouse) => async (ctx, next) => {
+//   let isRetry = false;
+//   ctx.retry = async () => {
+//     if (isRetry) throw new Error();
+//     isRetry = true;
+//     //
+
+//     // ctx.response.body = await instance(endpoint, body, params);
+//   };
+
+//   await next();
+
+// };

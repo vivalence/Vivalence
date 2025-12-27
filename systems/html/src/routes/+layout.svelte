@@ -1,5 +1,5 @@
 <script>
-  import "../app.css";
+  import "../client.css";
   import "../design/primitives/bsp.css";
   import "../design/primitives/font.css";
 
@@ -13,8 +13,9 @@
   import { status } from "@vivalence/html/surface";
 
   let { children } = $props();
-  let isIdentified = lighthouse.isIdentified;
+  let isIdentified = lighthouse.$isIdentified;
   let identity = lighthouse.$identity;
+  // console.log("identity", identity.get());
 </script>
 
 <div class="hidden">
@@ -24,7 +25,7 @@
 </div>
 
 <div class="bsp-chain-root bg-skeleton-app-surface t-buffer">
-  <div class="bsp-node t-buffer-ticker">
+  <div class="bsp-node t-buffer-ticker border-b border-skeleton-1-boundary">
     <Modeline size="sm">
       {#snippet left()}
         <Text variant="brand" color="white" size="sm" weight="medium">
@@ -35,7 +36,7 @@
         <Pictogram
           src="/images/pictogram_viket/pic-vinca-viket_white.png"
           alt="<<"
-	  size="xl" />
+          size="xl" />
       {/snippet}
       {#snippet right()}
         <Text variant="heading" size="xs" color="2" class="opacity-60">~</Text>
@@ -47,12 +48,27 @@
     {@render children()}
   </div>
 
-  <div class="bsp-node t-buffer-modeline">
-    <Modeline>
-      <!-- {#snippet left()} {/snippet} -->
-    </Modeline>
-  </div>
+  <!-- <div class="bsp-node t-buffer-modeline"> <Modeline> {#snippet left()} {#if $isIdentified} <Text>{$identity.slug}</Text> {:else} <Text>not identified</Text> {/if} {/snippet} </Modeline> </div> -->
 </div>
+
+<!--     <Modeline> -->
+<!--       {#snippet left()} -->
+<!--         {#if $isIdentified} -->
+<!--           <Text>{$identity?.slug}</Text> -->
+<!--         {/if} -->
+<!--       {/snippet} -->
+<!--       {#snippet center()} -->
+<!--         <Text>vivi pro finis</Text> -->
+<!--       {/snippet} -->
+<!--       {#snippet right()} -->
+<!--         {#each client.remotes.$lighthouse as lighthouse} -->
+<!--           <status.Dot -->
+<!--             status={lighthouse.connection.status} -->
+<!--             variant="simple" -->
+<!--             size="xs" /> -->
+<!--         {/each} -->
+<!--       {/snippet} -->
+<!--     </Modeline> -->
 
 <!-- <script> -->
 <!--   import "../app.css"; -->

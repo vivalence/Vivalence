@@ -1,14 +1,10 @@
-import { Application } from "@oak/oak";
-
 import { Wafer } from "@vivalence/typology";
 import { sleep } from "@vivalence/shared";
 import * as lifecycle from "./lifecycle/index.js";
 
 export class Die extends Wafer {
-  server = new Application(); // runs an oak server
-  abort = new AbortController(); // yeet that babye
-
   async populate() {
+    await lifecycle.population.wiring(this);
     await lifecycle.population.registry(this);
     await lifecycle.population.terrans(this);
     await lifecycle.population.aperture(this);
@@ -22,9 +18,10 @@ export class Die extends Wafer {
     }
 
     await lifecycle.resolution.attach(this);
+    await lifecycle.resolution.expose(this);
     await lifecycle.resolution.compose(this);
     await lifecycle.resolution.launch(this);
-    await lifecycle.resolution.watchdog(this);
+    await lifecycle.resolution.wake(this);
   }
 
   async integrate() {

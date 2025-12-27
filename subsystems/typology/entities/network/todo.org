@@ -1,0 +1,7 @@
+* future gaia entities
+service
+process
+current
+agreement/trade/contract/deal
+entitlement
+

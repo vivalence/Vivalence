@@ -5,7 +5,7 @@ import { is } from "@vivalence/typology";
 export class Signal extends Signature {
   static coercions = [
     [
-      is.string,
+      (s) => is.string(s),
       (s) => {
         return s
           .split("/")
@@ -17,6 +17,10 @@ export class Signal extends Signature {
 
   hasher() {
     return hash.array([this.index, this.nature]);
+  }
+
+  get pathname() {
+    return "/" + this.absolute.join("/");
   }
 }
 // export class Signal extends Signature {

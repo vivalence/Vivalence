@@ -1,2 +1,2 @@
-export { random, is, object, array, strings, time, id } from "./lib/index.js";
+export { random, object, array, strings, time, id } from "./lib/index.js";
 export * as hash from "./hash/client.js";

@@ -12,8 +12,9 @@ export enum IntentTraitsEnum {
 export class IntentEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   traits: IntentTraitsEnum[] & Opt = [];
-  data: any & Opt = {};
+  data: any & Opt = {}; // pojojson
   sessions = new Collection<SessionEntity>(this);
+  // products: Rel<ProductEntity>;
 }
 
 export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({

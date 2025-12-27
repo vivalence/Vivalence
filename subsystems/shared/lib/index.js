@@ -11,8 +11,8 @@ export * as promise from "./promise.js";
 export * as array from "./array.js";
 
 // export * as is from "./is.js";
-import { is as typology } from "@vivalence/typology";
-export const is = typology.primitives;
+// import { is as typology } from "@vivalence/typology";
+// export const is = typology.primitives;
 
 // export const obj = { deepMerge, deepEquals, deepClone, stripOfNulls };
 // export const std = { id, fn, time, strings, obj, array, promise };

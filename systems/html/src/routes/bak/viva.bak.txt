@@ -1,0 +1,261 @@
+//////////
+CONCATENATED FILES SUMMARY
+Total tokens: 1061
+Total files: 5
+Generated: 2025-12-25T08:21:59.505Z
+Source directory: [...viva]
+//////////
+// FILE TREE
+[...viva]/
+├── +layout.js
+├── +page.js
+├── +page.svelte
+├── perspective.js
+└── take.js
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////
+File: +layout.js
+Path: [...viva]/+layout.js
+Size: 1046 bytes
+Last Modified: 2025-12-21T02:34:29.862Z
+//////////
+
+import { redirect } from "@sveltejs/kit";
+import { Connection } from "@vivalence/typology";
+import { lighthouse } from "$client";
+
+// must handle default / empty
+
+export const load = async () => {
+  if (!lighthouse.$isIdentified.get()) {
+    console.log("auth throw");
+    return;
+    console.log("THROW");
+    throw redirect(307, "/");
+  }
+};
+
+//await loadDaemons(lighthouse);
+// async function loadDaemons(lighthouse) {
+//   const daemons = await lighthouse.connection.call("/entities/daemon/find");
+//   for (const remote of daemons) {
+//     const exists = await remotes.daemon //
+//       .findOne((d) => d.connection.url === remote.url);
+
+//     if (exists) continue;
+
+//     const connection = new Connection(remote.url) //
+//       .use(shards.connection.authorize(lighthouse.$authority));
+
+//     await dataspace.daemon.spawn(connection);
+
+//     //         const connection = new Connection(remote.url) //
+//     //           .use(authorize(lighthouse.$authority));
+//     //         await remotes.daemon.spawn(connection);
+//   }
+// }
+
+
+//////////
+File: +page.js
+Path: [...viva]/+page.js
+Size: 1016 bytes
+Last Modified: 2025-12-25T08:20:40.581Z
+//////////
+
+import { Signal, fromm } from "@vivalence/typology"; // Context
+import { Vector, controller, Context, NotFound } from "@vivalence/vector";
+import { Stall, Buffer } from "@vivalence/drapes";
+import { dataspace } from "$client";
+
+export const load = async (event) => {
+  const stall = new Stall();
+  const signal = new Signal(event.url.pathname);
+  // console.log("1");
+  // console.log("1", signal);
+  // console.log(event.url.pathname, event.url);
+  // console.log("2");
+
+  const [take, apply, match] = controller.traverse(perspective, signal);
+
+  // console.log("3", match);
+
+  if (!take) throw new NotFound(signal);
+
+  stall.withPull(async () => {
+    // console.log("8");
+    const context = new Context({
+      stall,
+      signal,
+      match,
+      params: fromm.match(match).parameters,
+    });
+    // console.log("parmas", context.params);
+
+    await apply(context, async (ctx) => (ctx.take = await take(ctx)));
+    // console.log("4", context);
+
+    return context.take || [];
+  });
+
+  return { stall };
+};
+
+
+//////////
+File: +page.svelte
+Path: [...viva]/+page.svelte
+Size: 2234 bytes
+Last Modified: 2025-12-25T08:21:01.659Z
+//////////
+
+<script>
+  import { BufferSurface } from "@vivalence/drapes";
+  import { effect } from "nanostores";
+  // import { path } from "@vivalence/typology";
+  import { Text } from "@vivalence/drapes";
+  import { dataspace } from "$client";
+
+  const { data } = $props();
+
+  console.log("/viva/+page @dataspace", dataspace);
+  let valences = dataspace.valence.$entities;
+  console.log("/viva/+page @valences", valences);
+
+  // const link = (valence) => {
+  //   console.log("link", valence)
+  //   const full = valence.mode.mount.branch(valence.resolve.generator).absolute;
+  //   console.log("link", full);
+  //   return "/viva" + full;
+  //   // return new Path(paladin.mirror.mask.slug).stick(valence.entry).absolute; // where paladin.mirror is the mask of whatever system were in. lovely.
+  // };
+</script>
+
+<div class="bsp-chain-root">
+  <!-- <BufferSurface stall={data.stall} /> -->
+</div>
+<!-- <div class="bsp-node container mx-auto flex flex-col items-center h-full"> -->
+<!--   <div class="bsp-node text-center mb-8 mt-8"> -->
+<!--     <Text -->
+<!--       variant="brand" -->
+<!--       color="text-palette-gray-200" -->
+<!--       class="opacity-80 drop-shadow-xl" -->
+<!--       weight="bold" -->
+<!--       size="8xl">VIVALENCE</Text> -->
+<!--   </div> -->
+<!--   <div class="bsp-node"> -->
+<!--     <\!-- {#each $daemons.values() as daemon} {#each daemon.entities.valence.$entities.value as valence} <a href={link(valence)}> <Text color="text-palette-gray-100"> {daemon.manifest.slug}/{valence.mode.type}/{valence.mode.slug}: {valence.slug} </Text> </a> {/each} {/each} -\-> -->
+<!--     {#each $valences.values() as valence} -->
+<!--       <a href={valence.destination.absolute}> -->
+<!--         <Text color="text-palette-gray-100"> -->
+<!--           {valence.mode.slug}/{valence.slug} - {valence.name} -->
+<!--         </Text> -->
+<!--         <Text color="text-palette-gray-100"> -->
+<!--           {valence.destination.absolute} -->
+<!--         </Text> -->
+<!--       </a> -->
+<!--     {/each} -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <\!-- {#each daemon.entities.intent as intent} <a href={link(daemon, intent)}> <Text color="text-palette-gray-100" size="xl"> {intent.data.RESOLVED.path} </Text> </a> {/each} -\-> -->
+
+
+//////////
+File: perspective.js
+Path: [...viva]/perspective.js
+Size: 1750 bytes
+Last Modified: 2025-12-25T08:20:40.518Z
+//////////
+
+import { Signal, fromm } from "@vivalence/typology"; // Context
+import { Vector, controller, Context, NotFound } from "@vivalence/vector";
+import { Stall, Buffer } from "@vivalence/drapes";
+import { dataspace } from "$client";
+
+const perspective = new Vector();
+
+perspective
+  // .open("/viva", () => ([new Buffer(,)]))
+  .branch("/viva")
+  // .open("/faafo", async (ctx) => {ctx.buffer.push(new BufferMode(
+  //       {url: "http://localhost:1729/attached/daemon/eng2lat/mode/agent/eva/bundle/view/viva.svelte.js",},
+  //       { product: { agent: "ligma" } },),);})
+  // .use(async (ctx, next) => {const timeout = 10000; const start = Date.now(); while (!remotes.daemon.has) {if (Date.now() - start > timeout) {throw new Error("System boot timeout - no daemon available");} await new Promise((resolve) => setTimeout(resolve, 100));} await next();})
+  .branch("/daemon/:daemon")
+  .branch("/mode/:type/:slug")
+  .use(async (ctx, next) => {
+    ctx.mode = await dataspace.mode.findOne((m) => {
+      return (
+        m.daemon.manifest.slug === ctx.params.daemon &&
+        m.type === ctx.params.type &&
+        m.slug === ctx.params.slug
+      );
+    });
+    ctx.daemon = ctx.mode.daemon;
+
+    await next();
+  })
+  .open("/(.*)", async (ctx) => {
+    // console.log("ctx", ctx);
+    return [new Buffer(ctx.mode.view, { ...ctx })];
+    // console.log("fromm.params(ctx.params).path", fromm.params(ctx.params).path);
+    // ctx.stall.push(new Buffer(ctx.mode.view, { ...ctx }));
+
+    // if (ctx.mode.implements("casting")) {
+    //   const generation = await ctx.mode.call(fromm.params(ctx.params).path);
+    //   for (const product of generation) {
+    //     ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx, product }));
+    //   }
+    // }
+  });
+
+
+//////////
+File: take.js
+Path: [...viva]/take.js
+Size: 1016 bytes
+Last Modified: 2025-12-25T08:21:01.827Z
+//////////
+
+import { Signal, fromm } from "@vivalence/typology"; // Context
+import { Vector, controller, Context, NotFound } from "@vivalence/vector";
+import { Stall, Buffer } from "@vivalence/drapes";
+import { dataspace } from "$client";
+
+export const load = async (event) => {
+  const stall = new Stall();
+  const signal = new Signal(event.url.pathname);
+  // console.log("1");
+  // console.log("1", signal);
+  // console.log(event.url.pathname, event.url);
+  // console.log("2");
+
+  const [take, apply, match] = controller.traverse(perspective, signal);
+
+  // console.log("3", match);
+
+  if (!take) throw new NotFound(signal);
+
+  stall.withPull(async () => {
+    // console.log("8");
+    const context = new Context({
+      stall,
+      signal,
+      match,
+      params: fromm.match(match).parameters,
+    });
+    // console.log("parmas", context.params);
+
+    await apply(context, async (ctx) => (ctx.take = await take(ctx)));
+    // console.log("4", context);
+
+    return context.take || [];
+  });
+
+  return { stall };
+};

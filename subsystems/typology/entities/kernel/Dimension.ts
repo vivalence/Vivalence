@@ -20,8 +20,8 @@ export enum DimensionTraitsEnum {
   TOPOGRAPHICAL = "TOPOGRAPHICAL",
   ANCESTOR = "ANCESTOR",
   DESCENDANT = "DESCENDANT",
-  LEARNABLE = "LEARNABLE",
-  COMPLETABLE = "COMPLETABLE",
+  LEARNABLE = "LEARNABLE", // domain level trait
+  COMPLETABLE = "COMPLETABLE", // domain level trait
 }
 
 export class DimensionEntity extends DataEntity {

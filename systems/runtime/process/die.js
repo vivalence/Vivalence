@@ -3,7 +3,9 @@ import { Wafer } from "@vivalence/typology";
 export class Die extends Wafer {
   constructor(die) {
     super(die);
-    this.manifest = Object.assign({}, this.register?.manifest, this.manifest);
+  }
+  get manifest() {
+    return this.cake.manifest;
   }
 
   async integrate() {

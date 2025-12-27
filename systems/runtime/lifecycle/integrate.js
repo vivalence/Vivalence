@@ -5,7 +5,7 @@ export async function announce(die) {
   for (const daemonDie of die.good.daemons) {
     const connection = new Connection(daemonDie.mask.authority.statics.remote);
     await connection.call("/entities/daemon/expect", {
-      where: { slug: daemonDie.slug, url: daemonDie.url.absolute },
+      where: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
     });
   }
 }

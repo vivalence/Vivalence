@@ -1,6 +1,7 @@
 import { atom, computed, map } from "nanostores";
 
 export class Repository {
+  // log, json,
   listeners = { create: [] };
   constructor(entity) {
     this.entity = entity;
@@ -14,9 +15,12 @@ export class Repository {
 
   // spawn, add, expect, create, ...
   async spawn(args) {
-    const entity = new this.entity.prototype(args);
+    let entity;
+    if (args instanceof this.entity.prototype) entity = args;
+    else entity = new this.entity.prototype(args);
     if (this.entity.lifecycle) await this.entity.lifecycle(entity);
     this.add(entity);
+
     return entity;
   }
 
@@ -28,7 +32,7 @@ export class Repository {
 
   async findOne(match) {
     for (const entity of this.$entities.get()) {
-      const is = await match(entity);
+      const is = await match(entity); // why async?
       if (is) return entity;
     }
     return null;

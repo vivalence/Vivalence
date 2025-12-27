@@ -1,11 +1,12 @@
 {
   "valence": [
     {
-      "slug": "populate",
-      "docs": "populate the runtime with entities",
+      "slug": "hello-world",
+      "name": "talk to eva",
+      "docs": "first contact.",
       "traits": ["DESTINATION"],
       "data": {
-        "DESTINATION": { "generator": "/feed" }
+        "DESTINATION": "/"
       }
     }
   ]

@@ -11,8 +11,12 @@ export class View {
     if (opts.bundler) this.withBundler(opts.bundler);
     if (this.bundler && opts.greedy) (async () => await this.bundle())();
   }
+  withPath(path) {
+    this.path = path;
+    return this;
+  }
   withUrl(url) {
-    this.url = new URL(url.href + this.path.value);
+    this.url = url;
     return this;
   }
   withBundler(bundler) {
@@ -31,7 +35,7 @@ export class View {
   }
 
   serve(branch) {
-    const path = this.path.ancestor.branch(branch);
+    const path = this.path.trace.branch(branch);
     const bundle = this.bundles.find((bundle) => bundle.path === path.absolute);
     return {
       text: bundle.text,

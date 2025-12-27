@@ -2,7 +2,7 @@
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
   "exclude": [
-    "./tests",
+    "./testament",
     "./docs", //
     // "./registry",
   ],

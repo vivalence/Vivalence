@@ -6,15 +6,17 @@ export * from "./kernel/Literal.ts";
 export * from "./kernel/Symbol.ts";
 export * from "./kernel/Subject.ts";
 export * from "./kernel/Dimension.ts";
+export * from "./kernel/Issue.ts";
+// export * from "./kernel/Constraint.ts";
 
-export * from "./system/Identity.ts";
-export * from "./system/Daemon.ts";
-export * from "./system/Mode.ts";
-export * from "./system/Valence.ts";
-export * from "./system/Issue.ts";
-// export * from "./system/Constraint.ts";
+export * from "./network/Identity.ts";
+export * from "./network/Daemon.ts";
 
-export * from "./userspace/User.ts";
+export * from "./runtime/Mode.ts";
+export * from "./runtime/Valence.ts";
+export * from "./runtime/User.ts";
+
+// export * from "./userspace/Product.ts";
 export * from "./userspace/Session.ts";
 export * from "./userspace/Intent.ts";
 
@@ -22,59 +24,73 @@ import subject from "./kernel/Subject.ts";
 import dimension from "./kernel/Dimension.ts";
 import literal from "./kernel/Literal.ts";
 import symbol from "./kernel/Symbol.ts";
+import issue from "./kernel/Issue.ts";
+// import constraint from "./kernel/Constraint.ts";
 
-import identity from "./system/Identity.ts";
-import valence from "./system/Valence.ts";
-import daemon from "./system/Daemon.ts";
-import mode from "./system/Mode.ts";
-// import constraint from "./system/Constraint.ts";
-import issue from "./system/Issue.ts";
+import identity from "./network/Identity.ts";
+import daemon from "./network/Daemon.ts";
+
+import valence from "./runtime/Valence.ts";
+import mode from "./runtime/Mode.ts";
+import user from "./runtime/User.ts";
 
 import intent from "./userspace/Intent.ts";
 import session from "./userspace/Session.ts";
-import user from "./userspace/User.ts";
+// import product from "./userspace/Product.ts";
 
 // import virtual from "./base/VirtualEntity.ts";
 // import data from "./base/DataEntity.ts";
 // import base from "./base/BaseEntity.ts";
 // export const entity = [base, data, virtual];
 
-export const system = [
-  // constraint, // not data?
-  issue,
-  identity,
-  daemon,
-  valence,
-  mode,
+export const runtime = [valence, user, mode];
+
+export const userspace = [
+  // product,
+  intent,
+  session,
 ];
-export const userspace = [user, intent, session];
-export const kernel = [literal, symbol, subject, dimension];
+
+export const kernel = [
+  // constraint,
+  // issue,
+  literal,
+  symbol,
+  subject,
+  dimension,
+];
+
+export const network = [identity, daemon];
 
 export const sets = {
-  system,
+  network,
+  runtime,
   userspace,
   kernel,
 };
 
 export const maps = {
-  system: {
+  network: {
     identity,
+    daemon,
+  },
+  runtime: {
     valence,
     mode,
-    daemon,
-    issue,
-    // constraint,
+    user,
   },
   userspace: {
-    user,
     intent,
     session,
+    // product,
   },
   kernel: {
     literal,
     symbol,
     subject,
     dimension,
+    // constraint,
+    // issue,
   },
   sets,
 };

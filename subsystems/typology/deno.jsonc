@@ -5,10 +5,10 @@
     ".": "./mod.ts",
     "./prototypes": "./prototypes/index.ts",
     "./schematics": "./schematics/index.js",
-    "./gestalten": "./gestalten/index.ts",
+    "./gestalten": "./gestalten/index.js",
     "./entities": "./entities/index.ts",
     "./belt": "./belt/index.js",
-    "./specimen": "./belt/specimen/index.js",
+    "./specimen": "./specimen/index.js",
   },
   "tasks": {
     "test": "deno test -A --no-check --watch tests/**/*.test.js",

@@ -3,6 +3,7 @@
 // {manifest, kernel,  modes, services, mount, slug, docs}
 
 export class Mask {
+  // circuitry
   manifest = {};
   mount = null; // mountpath
   source = null; // filepath

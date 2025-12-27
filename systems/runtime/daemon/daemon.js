@@ -3,13 +3,15 @@ import { Vector, shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
 export class Daemon {
-  slug = null; //
-  mask = { manifest: {} }; //
-  authority = null; // lighthouse client
+  // slug = null;
+  manifest = {}; //
   mount = new Path(); // internal root
-  url = null;
+  attach = null; // Url(runtime.latch)
+  url = null; // Url() system level integration.
   aperture = new Aperture();
   call = null;
+  authority = null; // lighthouse client
+  entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
 
   kernel = {
     orm: {},
@@ -40,16 +42,21 @@ export class Daemon {
   validate = {};
   assert = {};
 
-  constructor(mask) {
-    this.mask = mask;
-    this.slug = mask.manifest.slug;
-    this.traits = mask.manifest.traits || [];
-    this.statics = mask?.statics || {};
+  constructor(circuit) {
+    Object.assign(this, circuit);
+
+    // // this.mask = mask;
+    // this.slug = mask.manifest.slug;
+    // this.statics = mask?.statics || {};
 
     // this.aperture
     //   .use(shards.context.attach("daemon", this))
     //   .use(shards.context.attach("runtime", this))
     //   .open("/status", async () => ({ code: "SUCCESS" }))
     //   .open("/manifest", async () => ({ ...this.mask.manifest }));
+  }
+  get traits() {
+    // tbd reactive at runtime
+    return this.manifest.traits || [];
   }
 }

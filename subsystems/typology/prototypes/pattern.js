@@ -6,7 +6,7 @@ import { Signature } from "./signature.js";
 export class Pattern extends Signature {
   static coercions = [
     [
-      is.string,
+      (s) => is.string(s),
       (s) => {
         return s
           .split("/")

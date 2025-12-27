@@ -3,59 +3,66 @@ import { Vector } from "@vivalence/vector";
 import { svelte } from "./view-bundler.js";
 
 export const traitmap = {
-  VALENTIC: async (mode, runtime) => {
+  VALENTIC: async (mode, daemon) => {
     // console.log("VALENTIC", mode);
     const valences = mode.cake.dataset.entities["valence"];
     for (const valence of valences) {
       valence.mode = mode.entity.id;
-      await runtime.entities.valence.ensure(valence);
+      await daemon.entities.valence.ensure(valence);
     }
-    await runtime.entities.em.flush();
+    await daemon.entities.em.flush();
   },
   //DATASET: ()?
 
-  TOPOLOGICAL: async (mode, runtime) => {
+  TOPOLOGICAL: async (mode, daemon) => {
     console.log("skipping topological trait.");
     return;
     // await runtime.entities.subject.nativeDelete({});
     for (const dimension of mode.cake.topology?.dimensions || []) {
-      await runtime.ontology.dimension.extend(dimension);
+      await daemon.ontology.dimension.extend(dimension);
     }
     for (const subject of mode.cake.topology?.topographies || []) {
       // console.log(subject);
-      await runtime.ontology.subject.ensure(subject);
+      await daemon.ontology.subject.ensure(subject);
     }
     // console.log(await runtime.ontology.subject.find());
     // console.log(await runtime.ontology.dimension.byBranch(["text", "*"]));
 
-    await runtime.entities.em.flush();
+    await daemon.entities.em.flush();
   },
 
-  GENERATOR: async (mode, runtime) => {
-    if (!!mode.cake.generate) {
-      mode.aperture.descendants.push(mode.cake.generate);
+  CASTING: async (mode, daemon) => {
+    if (!!mode.cake.caster) {
+      mode.aperture.descendants.push(mode.cake.caster);
     }
     // todo: validate()
   },
 
-  AGENTIC: (mode, runtime) => {
+  SESSIONED: async (mode, daemon) => {},
+
+  CHAOSMONKEY: (mode, daemon) => {
     // mode.aperture.use(inject(runtime.services.brain));
   },
-  SESSIONED: async (mode, runtime) => {},
-  VIEWABLE: async (mode, runtime) => {
-    console.log("skipping viewable trait.");
-    return;
-    const bundle = mode.cake.mount.leaf("/bundle");
-    const url = new Url(runtime.attached.href + bundle);
-
-    mode.view = new View(mode.cake.view).withUrl(url).withBundler(svelte);
-
-    mode.view.bundle();
-
-    mode.aperture.open("/view", () => ({
-      bundle: mode.view.path.value,
-      url: mode.view.url,
-    }));
+  VIEWABLE: async (mode, daemon) => {
+    mode.cake.view.withBundler(svelte);
+    await mode.cake.view.bundle();
+    mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
   },
 };
 //SESSIONED: (mode)=> {mode.aperture.use() mode.aperture.open('/')},
+
+// let module = await import(resolve(path)); return module;
+//   // check.module(module)?.throw()
+//   // if (!module.manifest && module.default?.manifest) module = module.default;
+
+//   // if (module.manifest?.traits?.includes("VIEWABLE")) {
+//   //   if (module.view instanceof Path)
+//   //     module.view = new Path(dirname(path.absolute)).branch(module.view.value,);
+//   //   else if (is.string(module.view))
+//   //     module.view = new Path(dirname(path.absolute)).branch(module.view);
+//   //   else
+//   //     console.warn("@registry: imported viewable module missing .view.entry",);
+//   //   console.log("MODULE VIEQ");
+//   //   console.log(module.view.absolute);
+//   //   console.log(module.view.down().value);
+//   // }

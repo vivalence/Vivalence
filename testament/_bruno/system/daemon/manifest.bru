@@ -1,0 +1,14 @@
+meta {
+  name: manifest
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON}}/manifest
+  body: json
+}
+
+body:json {
+  {}
+}

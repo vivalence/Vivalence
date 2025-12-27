@@ -5,7 +5,7 @@
   import { lighthouse } from "$client";
   import { view } from "@vivalence/html/surface";
 
-  let isIdentified = lighthouse.isIdentified;
+  let isIdentified = lighthouse.$isIdentified;
 </script>
 
 <div class="hidden">

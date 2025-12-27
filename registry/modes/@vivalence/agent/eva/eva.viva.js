@@ -1,4 +1,4 @@
-import { Path } from "@vivalence/typology";
+import { View } from "@vivalence/typology";
 import { Aperture } from "@vivalence/vector/aperture";
 import dataset from "./dataset/index.js";
 // import { agent } from "./aperture/index.js";
@@ -12,7 +12,7 @@ const manifest = {
   traits: ["VIEWABLE", "DATASET", "VALENTIC"], // "SESSIONED", "GENERATOR",  // datamap?dataset?
 };
 
-const view = new Path("/view/viva.svelte.js");
+const view = new View("/view/viva.svelte.js");
 
 const aperture = new Aperture() //
   //.open("/session", session) .open("/agent", agent)

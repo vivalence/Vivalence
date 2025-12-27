@@ -1,29 +1,25 @@
+// import {once, fn:{once}} from "@vivalence/belt";
+// import {once, fn:{once}} from "@vivalence/typology/belt";
 import * as semver from "@std/semver";
 // // vectorizable af.
 
 export class Pensieve extends Map {
-  register(module = null) {
-    if (!module || !module.manifest) console.log("no manifest", module);
-
+  register(cake) {
     //todo: cast module
-    const { owner = "@vivalence", type, slug, version } = module.manifest;
+    if (!cake || !cake.manifest) console.log("no manifest", cake);
 
-    if (!this.has(owner)) {
-      this.set(owner, new Map());
-    }
+    const { owner = "@vivalence", type, slug, version } = cake.manifest;
+
+    if (!this.has(owner)) this.set(owner, new Map());
     const ownerMap = this.get(owner);
 
-    if (!ownerMap.has(type)) {
-      ownerMap.set(type, new Map());
-    }
+    if (!ownerMap.has(type)) ownerMap.set(type, new Map());
     const typeMap = ownerMap.get(type);
 
-    if (!typeMap.has(slug)) {
-      typeMap.set(slug, new Map());
-    }
+    if (!typeMap.has(slug)) typeMap.set(slug, new Map());
     const slugMap = typeMap.get(slug);
 
-    slugMap.set(version, module);
+    slugMap.set(version, cake);
     return this;
   }
 

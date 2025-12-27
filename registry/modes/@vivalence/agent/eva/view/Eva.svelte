@@ -1,9 +1,9 @@
 <script>
-  import { Loader, Desk, Text } from "@vivalence/surface";
+  import { Loader, Desk, Text } from "@vivalence/drapes";
 
   let { product, buffer } = $props();
 
-  let agent = $state(product?.agent || "Hello, how can i help?");
+  let agent = $state(product?.agent || "gimmeasec");
   let input = $state("");
   let loading = $state(false);
 

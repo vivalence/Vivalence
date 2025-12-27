@@ -3,15 +3,16 @@ import { Status } from "@vivalence/typology";
 export class Wafer {
   mask = null;
   good = null;
-  manifest = {};
-  good = null;
   status = new Status("<uninitialized>", this);
+  abort = new AbortController(); // yeet that babye
 
   constructor(die = {}) {
     Object.assign(this, die);
-    if (!this.slug) this.manifest.slug = this.mask?.slug;
   }
 
+  get manifest() {
+    return this.mask.manifest;
+  }
   get slug() {
     return this.manifest.slug;
   }

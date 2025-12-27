@@ -1,8 +1,33 @@
 import { Signature } from "./signature.js";
 import { is } from "@vivalence/typology";
 import { hash } from "@vivalence/shared";
-import { join, normalize } from "@std/path"; // URLs always use posix-style paths
 
+// import { join } from "@std/path"; // URLs always use posix-style paths
+
+function normalize(path) {
+  // Remove redundant slashes and resolve . and ..
+  const parts = path.split("/").filter(Boolean);
+  const result = [];
+
+  for (const part of parts) {
+    if (part === "..") {
+      result.pop();
+    } else if (part !== ".") {
+      result.push(part);
+    }
+  }
+
+  const normalized = "/" + result.join("/");
+  return path.endsWith("/") && normalized !== "/"
+    ? normalized + "/"
+    : normalized;
+}
+function join(...paths) {
+  // Join paths and normalize
+  const joined = paths.filter(Boolean).join("/").replace(/\/+/g, "/"); // collapse multiple slashes
+
+  return normalize(joined);
+}
 export class Url extends Signature {
   // nature = "/";
   // origin = null;

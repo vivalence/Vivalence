@@ -1,22 +1,28 @@
+export * from "./decor/index.js";
+export * from "./display/index.js";
+export * from "./controls/index.js";
+export * from "./panels/index.js";
+
+import * as decor from "./decor/index.js";
+import * as display from "./display/index.js";
+import * as controls from "./controls/index.js";
+import * as panels from "./panels/index.js";
+
+export const components = { ...decor, ...display, ...controls, ...panels };
+export default components;
+
 import { mount, unmount } from "svelte";
-
-export * from "./components/index.js";
-
-import useBox from "./lib/useBox.svelte.js";
-import * as components from "./components/index.js";
-
-export const lib = { useBox };
-
-export const manifest = { type: "surface", slug: "html" };
-
 export function pack(Component) {
   return (target, props) => {
     const instance = mount(Component, { target, props });
     return {
       instance,
+      // name:"",
       destroy: () => unmount(instance),
     };
   };
 }
 
-export default components;
+// export * from "./components/index.js";
+// import useBox from "./lib/useBox.svelte.js";
+// export const lib = { useBox };

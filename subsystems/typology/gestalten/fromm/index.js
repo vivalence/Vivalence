@@ -17,15 +17,33 @@ export const url = (thing) => {
   };
 };
 
+export const match = (match) => {
+  // const params = cast?.params?.(thing) || thing;
+  // console.log({ match });
+  // console.log(JSON.stringify({ match }, null, 2));
+  return {
+    get parameters() {
+      return match
+        .filter((step) => !!step.parameter)
+        .reduce((acc, step) => ({ ...acc, ...step.parameters }), {});
+      // return null;
+
+      //
+      // const path = new prototypes.Path(); while (params[path.depth]) {path.stick(params[path.depth]);} return path.heir.pop();
+    },
+  };
+};
+
 export const params = (params) => {
   // const params = cast?.params?.(thing) || thing;
+  // ?
   return {
     get path() {
-      const path = new Path();
+      const path = new prototypes.Path();
       while (params[path.depth]) {
         path.stick(params[path.depth]);
       }
-      return path;
+      return path.heir.pop();
     },
   };
 };

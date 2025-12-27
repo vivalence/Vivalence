@@ -1,5 +1,4 @@
-import { is, cast } from "@vivalence/typology";
-
+import { is, cast, Path } from "@vivalence/typology";
 import { Pensieve } from "./pensieve.js";
 
 export class Vip {
@@ -11,8 +10,8 @@ export class Vip {
   async mount(mount) {
     const paths = await this.paladin.find.viva(mount);
     for await (const path of paths) {
-      const module = await this.paladin.read.viva(path);
-      this.pensieve.register(module);
+      const cake = await this.paladin.read.viva(path);
+      this.pensieve.register({ ...cake, mount: new Path(path) });
     }
 
     return this;

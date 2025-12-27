@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Url, Path, Module } from "@vivalence/typology";
+import { Url, Path, Cake } from "@vivalence/typology";
 
 export async function runtimes(daemon) {
   for (const runtimeconfig of paladin.runtimes) {

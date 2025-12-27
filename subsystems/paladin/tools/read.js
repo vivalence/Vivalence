@@ -23,25 +23,12 @@ export default function read(config) {
       const module = await import(resolve(path));
       return module;
     },
-    viva: async (path) => {
-      const module = await import(resolve(path));
-      const viva = cast.viva(module);
-      return viva;
-      // let module = await import(resolve(path)); return module;
-      //   // check.module(module)?.throw()
-      //   // if (!module.manifest && module.default?.manifest) module = module.default;
 
-      //   // if (module.manifest?.traits?.includes("VIEWABLE")) {
-      //   //   if (module.view instanceof Path)
-      //   //     module.view = new Path(dirname(path.absolute)).branch(module.view.value,);
-      //   //   else if (is.string(module.view))
-      //   //     module.view = new Path(dirname(path.absolute)).branch(module.view);
-      //   //   else
-      //   //     console.warn("@registry: imported viewable module missing .view.entry",);
-      //   //   console.log("MODULE VIEQ");
-      //   //   console.log(module.view.absolute);
-      //   //   console.log(module.view.down().value);
-      //   // }
+    viva: async (path) => {
+      // todo assert .viva.js path
+      const cake = await import(resolve(path));
+      const viva = cast.viva(cake); // cast.cake()
+      return viva;
     },
   };
 

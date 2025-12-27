@@ -11,10 +11,15 @@ const config = {
   preprocess: [vitePreprocess()],
   kit: {
     adapter: adapter(),
+
     // vite: { logLevel: "info" },
     // prerender: {
     //   entries: [],
     // },
+    files: {
+      // assets:"static", hooks, routes, serviceWorker, errorTemplate, routes.
+      appTemplate: "src/client.html",
+    },
   },
 };
 

@@ -1,5 +1,6 @@
-import { lighthouse, remotes, generator } from "$client";
-import { entities } from "@vivalence/html/typology";
+import { Connection } from "@vivalence/typology";
+import { entities, shards, Daemon } from "@vivalence/html/typology";
+import { lighthouse, dataspace } from "$client";
 
 export const ssr = false;
 
@@ -10,5 +11,26 @@ export const load = async () => {
   booted = true;
 
   await entities.lighthouse.lifecycle(lighthouse);
-  remotes.lighthouse.add(lighthouse);
+  dataspace.lighthouse.add(lighthouse);
+
+  const daemons = await lighthouse.connection.call("/entities/daemon/find");
+
+  for (const discoveredDaemon of daemons) {
+    const exists = await dataspace.daemon //
+      .findOne((d) => d.connection.url === discoveredDaemon.url);
+    // console.log("@discovered", exists, discoveredDaemon);
+
+    if (exists) continue;
+
+    const connection = new Connection(discoveredDaemon.url) //
+      .use(shards.connection.authorize(lighthouse.$authority));
+
+    const daemon = new Daemon(connection);
+    daemon.lighthouse = lighthouse;
+    await dataspace.daemon.spawn(daemon);
+
+    lighthouse.daemons.add(daemon);
+
+    // console.log("@spawned", daemon);
+  }
 };

@@ -2,27 +2,32 @@ import { Path } from "@vivalence/typology";
 import { shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
-// base for modes, processes, servics, lets see
-// maybe doesnt belong here.
-export class Module {
+// all runtime instances of types from the registry
+// base for instantiations such as modes and service or process providers.
+// anything received from the registry.
+
+export class Cake {
   // type, slug, traits
 
   constructor(cake) {
-    this.cake = cake;
-    this.type = cake.manifest.type;
-    this.slug = cake.manifest.slug;
-    this.traits = cake.manifest.traits || [];
+    Object.assign(this, cake);
+    this.type = this.manifest.type;
+    this.slug = this.manifest.slug;
+    this.traits = this.manifest.traits || [];
+    //
+    this.cake = cake; // legacy
   }
 
   implements(trait) {
-    return this.traits.includes(trait);
+    return this.traits.includes(trait.toUpperCase());
   }
 }
 
-export class Mode extends Module {
+export class Mode extends Cake {
   // status, connection
   // entity: <em.Module>
   // url
+  // view?
   // call
 
   aperture = new Aperture();

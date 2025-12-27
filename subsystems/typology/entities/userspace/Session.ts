@@ -13,6 +13,7 @@ export class SessionEntity extends BaseEntity {
   traits: SessionTraitsEnum[] & Opt = [];
 
   intent: Rel<IntentEntity>;
+  // products: Rel<ProductEntity>;
 
   state: any & Opt = {};
   history: any & Opt = {};

@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
 
-import { is, Mode, Url, shards } from "@vivalence/typology";
+import { is, Mode, Url, Path, shards } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
 import { Vector, compiler, controller } from "@vivalence/vector";
 import { array } from "@vivalence/shared";
@@ -28,33 +28,36 @@ export async function core(die) {
     ...traitmap,
   };
 
-  die.variant.modes = [...die.variant.kernel.domain.modes];
+  die.variant.modes = [
+    // todo: some standard set.
+    ...die.variant.kernel.domain.modes,
+  ];
 
   die.variant.entities = [
-    maps.system.mode,
-    maps.system.valence,
+    ...maps.sets.runtime,
+    ...maps.sets.kernel,
     ...maps.sets.userspace,
     ...die.variant.kernel.domain.entities,
-    ...maps.sets.kernel,
   ];
 }
 
-export async function datamap(die) {
-  const { orm, entities } = await die.register.datamap //
-    .provider(die.mask.datamap, die.variant.entities);
+export async function datamap(daemonDie) {
+  const { orm, entities } = await daemonDie.register.datamap //
+    .provider(daemonDie.mask.datamap, daemonDie.variant.entities);
 
-  die.good.kernel.orm = orm;
+  daemonDie.good.kernel.orm = orm;
 
-  die.good.entities = {
+  daemonDie.good.entities = {
     ...entities,
-    em: die.good.kernel.orm.em.fork(),
+    em: daemonDie.good.kernel.orm.em.fork(),
     on: new Vector(),
   };
 
-  for (const variant of die.variant.entities) {
+  for (const variant of daemonDie.variant.entities) {
     if (!variant.entity) continue;
-    const repository = await die.good.entities.em.getRepository(variant.entity);
-    die.good.entities[variant.type] = repository;
+    const repository = await daemonDie.good.entities.em //
+      .getRepository(variant.entity);
+    daemonDie.good.entities[variant.type] = repository;
   }
 
   // die.good.ontology.topography = await die.good.entities.em.getRepository(
@@ -65,40 +68,62 @@ export async function datamap(die) {
   // );
 }
 
-export async function modes(die) {
+export async function modes(daemonDie) {
   // console.log({ die });
-  for (const variant of die.variant.modes) {
-    const register = die.register.modes //
+  for (const variant of daemonDie.variant.modes) {
+    // todo: cast cake.
+    // ensure cake is valid mode cake.
+    const cake = daemonDie.register.modes //
       .find((mode) => mode.manifest.type === variant.type);
 
-    if (!register) continue;
+    if (!cake) {
+      console.log(`@runtime/daemon/population/modes(${variant.type})`);
+      console.log("cake not found during mode construction");
+      continue;
+    }
+    // console.log({ cake });
+    const mode = new variant.prototype(cake);
+    mode.mount = daemonDie.good.mount.branch(`/mode/${mode.type}/${mode.slug}`);
+    mode.url = daemonDie.good.url.branch(mode.mount.nature);
 
-    const mode = new variant.prototype(register);
-    mode.mount = die.mount.branch(`/mode/${mode.type}/${mode.slug}`);
-    mode.url = die.url.branch(mode.mount.nature);
+    if (mode.implements("viewable")) {
+      mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
 
-    mode.entity = await die.good.entities.mode //
+      const url = daemonDie.good.attach
+        .branch("/view")
+        .branch(mode.mount.absolute)
+        .branch(mode.cake.view.path.nature);
+
+      mode.cake.view.withUrl(url);
+    }
+
+    mode.entity = await daemonDie.good.entities.mode //
       .ensure({ type: mode.type, slug: mode.slug });
 
     mode.entity.traits = array //
       .unique([...mode.entity.traits, ...mode.traits]);
 
-    if (!die.good.modes[variant.type]) die.good.modes[variant.type] = {};
-    die.good.modes[mode.type][mode.slug] = mode;
+    //
+
+    if (!daemonDie.good.modes[variant.type])
+      daemonDie.good.modes[variant.type] = {};
+    daemonDie.good.modes[mode.type][mode.slug] = mode;
   }
 
-  die.good.flatmodes = () =>
-    Object.values(die.good.modes)
+  daemonDie.good.flatmodes = () =>
+    Object.values(daemonDie.good.modes)
       .map((type) => Object.values(type))
       .flat();
 
-  await die.good.entities.em.flush();
+  await daemonDie.good.entities.em.flush();
 }
 
-export async function authority(die) {
-  die.good.authority = await die.register.authority //
-    .provider(die.mask.authority, die.good.entities.user);
-  die.good.aperture.use(shards.secure.authority(die.good.authority));
+export async function authority(daemonDie) {
+  daemonDie.good.authority = await daemonDie.register.authority //
+    .provider(daemonDie.mask.authority, daemonDie.good.entities.user);
+  daemonDie.good.aperture.use(
+    shards.secure.authority(daemonDie.good.authority),
+  );
 }
 
 // export async function twitches(die) {

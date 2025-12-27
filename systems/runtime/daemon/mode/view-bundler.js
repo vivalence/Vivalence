@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import { basename, dirname, join } from "@std/path";
+import { cache } from "esbuild-plugin-cache";
 import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
@@ -7,18 +8,21 @@ import { resolveImportMap, resolveModuleSpecifier } from "importmap";
 
 import paladin from "@vivalence/paladin";
 
-const SVELTE_VERSION = "svelte"; // @5.39
-
 const repopath = paladin.scope.system;
 const reporoot = repopath.absolute;
 
 // const surfacepath = paladin.scope.system.branch("/subsystems/surfaces/html");
+// console.log({ cache });
 
 const fileurl = new URL(import.meta.url);
 
 const importmap = {
   imports: {
     "@vivalence/vector": join(reporoot, "subsystems/vector/mod.js"),
+    "@vivalence/vector/typology": join(
+      reporoot,
+      "./subsystems/vector/typology.js",
+    ),
     "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
     "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
     "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),
@@ -28,24 +32,78 @@ const importmap = {
     // "@vivalence/vendor": join(root, "subsystems/vendor/client.js"), // graved, not dead.
   },
 };
+// console.log({ importmap });
+
+function mapimports() {
+  const resolvedImportmap = resolveImportMap(importmap, fileurl);
+  // console.log({ resolvedImportmap });
+  const namespace = "repoloader";
+  return {
+    name: namespace,
+    setup(build) {
+      build.onResolve({ filter: /^@vivalence\// }, async (args) => {
+        const mod = resolveModuleSpecifier(
+          args.path,
+          resolvedImportmap,
+          fileurl,
+        );
+        // console.log("onResolve", { path: mod, namespace });
+        return { path: mod, namespace };
+      });
+      build.onLoad({ filter: /.*/, namespace }, async (args) => {
+        const fileUrlObj = new URL(args.path);
+        const contents = await fs.readFile(fileUrlObj.pathname);
+        const resolveDir = dirname(fileUrlObj.pathname);
+        // console.log(resolveDir, contents);
+        // console.log("onLoad", {loader: "js", resolvePathname: fileUrlObj.pathname,});
+        return { resolveDir, contents, loader: "js" };
+      });
+    },
+  };
+}
+
+// const SVELTE_VERSION = "https://esm.sh/svelte@5.39.6";
+const SVELTE_VERSION = "svelte"; // @5.39.6
+const svelteImportMap = {
+  importmap: {
+    imports: {
+      svelte: SVELTE_VERSION,
+      "svelte/": `${SVELTE_VERSION}/`,
+      // "svelte/internal/disclose-version": `${SVELTE_VERSION}/internal/disclose-version`,
+      // "svelte/internal/client": `${SVELTE_VERSION}/internal/client`,
+    },
+  },
+};
 
 export async function svelte(entry, isDev) {
+  // console.log("BUNDLING", entry);
   const bundle = await esbuild.build({
     // logLevel: "info" || "warning" || "debug",
-    minify: !isDev,
-    sourcemap: false ? "inline" : false,
-    format: "esm",
-    target: "esnext", // "es6"
-    treeShaking: true,
-    splitting: false,
-    //
-    bundle: true,
+    // minify: !isDev,
     entryPoints: [entry],
+    mainFields: ["svelte", "browser", "module", "main"],
+    conditions: ["svelte", "browser"],
+
+    minify: false,
+    bundle: true,
+
+    sourcemap: false ? "inline" : false,
     write: false, // !important
+    format: "esm",
+    // target: "esnext", // "es6"
+    target: "es6", // "es6"
+    treeShaking: true,
+    // splitting: true,
+    //
     outdir: dirname(entry), // todo: remove
-    packages: "external",
-    banner: { js: "// readme: https://tiny.cc/419t001" },
+    // keepNames: true,
+    // packages: "external",
+    // external: ["@std/*"],
+    // external: ["svelte", "svelte/*", "@std/*"],
+    // banner: { js: "// readme: https://tiny.cc/419t001" },
     plugins: [
+      // cache
+      // cache(svelteImportMap),
       mapimports(),
       sveltePlugin({
         preprocess: sveltePreprocess(),
@@ -66,37 +124,13 @@ export async function svelte(entry, isDev) {
         },
         logOverride: {
           // "invalid-source-mappings": "silent",
-          "unsupported-dynamic-import": "silent",
+          // "unsupported-dynamic-import": "silent",
         },
       }),
     ],
   });
+  // console.log({ bundle });
   return bundle.outputFiles;
-}
-
-function mapimports() {
-  const resolvedImportmap = resolveImportMap(importmap, fileurl);
-  const namespace = "repoloader";
-  return {
-    name: namespace,
-    setup(build) {
-      build.onResolve({ filter: /^@vivalence\// }, async (args) => {
-        const mod = resolveModuleSpecifier(
-          args.path,
-          resolvedImportmap,
-          fileurl,
-        );
-        return { path: mod, namespace };
-      });
-      build.onLoad({ filter: /.*/, namespace }, async (args) => {
-        const fileUrlObj = new URL(args.path);
-        const contents = await fs.readFile(fileUrlObj.pathname);
-        const resolveDir = dirname(fileUrlObj.pathname);
-        // console.log(resolveDir, contents);
-        return { resolveDir, contents, loader: "js" };
-      });
-    },
-  };
 }
 
 // import { cache } from "esbuild-plugin-cache";

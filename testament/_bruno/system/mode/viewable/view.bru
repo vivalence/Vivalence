@@ -1,0 +1,21 @@
+meta {
+  name: view
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{DAEMON}}/mode/agent/eva/view
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "space": []
+  }
+}

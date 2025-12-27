@@ -25,8 +25,13 @@ export class Connection {
 
   async request(req) {
     if (!(req instanceof Request)) {
+      console.warn(
+        "@prototype/connection:/request] conceptually unsupported to pass non request.",
+      );
       req = new Request({ ...req, url: this.url.branch(req.url || "/") });
     }
+
+    // retry on the request object itself.!
 
     const ctx = {
       request: req,
@@ -47,19 +52,21 @@ export class Connection {
 
     const response = await this.request(request);
 
-    if (!response.ok) {
-      const error = new Error(`Request failed: ${response.status}`);
-      error.request = request;
-      error.response = response;
-      console.error(error);
-      throw error;
-    }
-
     return response;
   }
 
   async call(endpoint, body = {}) {
     const response = await this.fetch(endpoint, body);
+
+    if (!response.ok) {
+      // NEED: prototype.CallError ~ not.xzy
+      const error = new Error(`Request failed: ${response.status}`);
+      error.response = response;
+      // error.request = request;
+      console.error(error);
+      throw error;
+    }
+
     return response.body;
   }
 

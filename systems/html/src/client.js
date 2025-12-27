@@ -1,24 +1,40 @@
 import { atom, effect, computed, map } from "nanostores";
 import { env } from "$env/dynamic/public";
 
-import { Stall } from "@vivalence/drapes";
 import { Url, Connection } from "@vivalence/typology";
-import { Lighthouse, Repository, entities } from "@vivalence/html/typology";
+import {
+  // Stall,
+  Lighthouse,
+  Repository,
+  entities,
+} from "@vivalence/html/typology";
 
-export { generator } from "./generator/index.js";
-export const stall = new Stall();
+export const pages = new Map(); // path:Stall
 
-export const remotes = {
+export const dataspace = {
+  // network
   lighthouse: new Repository(entities.lighthouse),
   daemon: new Repository(entities.daemon),
+
+  // userspace
+  // intent: new Repository(),
+  // session: new Repository(),
+  // product: new Repository(), // ? or higher level wrapper like instruction ?
+
+  // daemonized
+  // unit: new Repository(), // system level presentation & integration layer of the dataspace.
+  valence: new Repository(entities.valence),
+  mode: new Repository(entities.mode),
 };
 
+//
 const url = new Url(env["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"]);
-export const lighthouse = new Lighthouse(new Connection(url));
-// lighthouse.logout();
+const connection = new Connection(url);
+export const lighthouse = new Lighthouse(connection);
 
-export default { remotes, lighthouse };
+export default { dataspace, lighthouse };
 
+// export const remotes = {};
 // const authorize = ($authority) => async (ctx, next) => {
 //   const auth = $authority.get();
 //   if (auth?.access) {

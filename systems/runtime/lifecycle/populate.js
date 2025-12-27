@@ -4,36 +4,51 @@ import { Aperture } from "@vivalence/vector/aperture";
 import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
 
-export async function registry(die) {
+export async function registry(runtimeDie) {
   await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
   await paladin.vip.mount(paladin.scope.registry.branch("modes"));
   await paladin.vip.mount(paladin.scope.registry.branch("services"));
 }
 
-export async function aperture(die) {
-  die.good.aperture.open("/status", () => die.status.reflection);
-  die.good.aperture.open("/manifest", () => die.manifest);
+export async function wiring(runtimeDie) {
+  runtimeDie.good.latch = new Url(
+    paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE"),
+  );
 }
 
-export async function terrans(die) {
+export async function aperture(runtimeDie) {
+  runtimeDie.good.aperture.open("/status", () => runtimeDie.status.reflection);
+  runtimeDie.good.aperture.open("/manifest", () => runtimeDie.manifest);
+}
+
+export async function terrans(runtimeDie) {
   for (const mask of paladin.variant.daemons) {
-    const daemonDie = new DaemonDie({ mask, good: new Daemon(mask) });
+    const daemonDie = new DaemonDie({
+      mask,
+      good: new Daemon({
+        manifest: mask.manifest, //
+      }),
+    });
 
-    // not sure
-    daemonDie.mount = new Path(`/daemon/${daemonDie.slug}`);
-    daemonDie.url = new Url(paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE")) //
-      .branch(daemonDie.mount.nature);
+    daemonDie.good.mount = new Path(`/daemon/${daemonDie.slug}`);
+    // console.log("die.latch", runtimeDie.good.latch);
+    daemonDie.good.url = runtimeDie.good.latch //
+      .branch(daemonDie.good.mount.nature);
 
-    die.good.daemons.push(daemonDie);
+    daemonDie.good.attach = runtimeDie.good.latch.branch("/attached");
+    // console.log("daemonDie.attach");
+    // console.log(daemonDie.good.attach);
+    runtimeDie.good.daemons.push(daemonDie);
   }
 
   for (const mask of paladin.variant.services) {
-    const register = await paladin.vip.accio(mask.module);
-    if (register.manifest?.traits?.includes("ATTACHED") && register.aperture) {
+    const cake = await paladin.vip.accio(mask.module);
+    // if cake.implements(trait) TODO
+    if (cake.manifest?.traits?.includes("ATTACHED") && cake.aperture) {
       const aperture = new Aperture();
-      const good = (await register.aperture(aperture, mask)) || aperture;
-      const processDie = new ProcessDie({ mask, register, good });
-      die.good.processes.push(processDie);
+      const good = (await cake.aperture(aperture, mask)) || aperture;
+      const processDie = new ProcessDie({ mask, cake, good, register: cake });
+      runtimeDie.good.processes.push(processDie);
     }
   }
 }

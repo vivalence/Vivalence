@@ -1,4 +1,4 @@
-import { is } from "@vivalence/shared";
+import { is } from "@vivalence/typology";
 
 export function entries(obj) {
   console.trace("legacy call to shared.obj.entries");

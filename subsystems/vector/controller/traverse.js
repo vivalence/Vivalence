@@ -20,7 +20,8 @@ export function traverse(vector, signals) {
     steps.push(match);
 
     if (match.type === "remainder") {
-      match.params = { [remainder++]: match.signature };
+      match.params = { [remainder++]: match.signature }; // why incoherent with patternamp?
+      match.parameters = { [remainder++]: match.signature }; //
 
       if (signals.length === steps.length) {
         carry = chain(carry, compose(position.carry));

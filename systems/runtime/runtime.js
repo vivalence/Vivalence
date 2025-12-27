@@ -1,7 +1,11 @@
+// import paladin from "@vivalence/paladin"; //
+import { Application } from "@oak/oak";
+import { Url } from "@vivalence/typology"; //
 import { Vector } from "@vivalence/vector"; //
 import { Aperture } from "@vivalence/vector/aperture";
 
 export class Runtime {
+  server = new Application(); // absolutely runtime
   aperture = new Aperture();
   twitch = new Vector();
 

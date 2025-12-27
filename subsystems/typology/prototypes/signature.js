@@ -44,11 +44,15 @@ export class Signature {
     return signature;
   }
 
-  from(trace) {
+  from(trace, anon = false) {
     this.trace = trace;
-    this.trace?.gauges.push(this);
+    if (!anon) this.trace?.gauges.push(this);
     // if (is.fn(trace?.nature) && !this.nature) {this.nature = trace.nature; this.filter = trace.nature;}
     return this;
+  }
+
+  clone() {
+    return new this.constructor(this); // recursive? maybe implement as new this.constructor().withJson(this.json)
   }
 
   branch(signature) {
@@ -124,9 +128,15 @@ export class Signature {
   get depth() {
     let maxDepth = 0;
     for (const gauge of this.gauges) {
+      // ...??? lol.
       maxDepth = Math.max(maxDepth, 1 + gauge.depth);
     }
     return maxDepth;
+  }
+
+  get length() {
+    return this.array.length;
+    // return this.tilde.depth;
   }
 
   get index() {
@@ -153,6 +163,7 @@ export class Signature {
     if (this.trace) {
       this.trace.drop(this);
       this.trace = null;
+      delete this.trace;
     }
     return this;
   }
