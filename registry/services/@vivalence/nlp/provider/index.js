@@ -1,6 +1,9 @@
+import { Url, Connection } from "@vivalence/typology";
+
 export default function provider(service) {
   const url = service.statics.remote;
-  const { key } = service.secrets;
+  const key = service.secrets.key;
+
   if (!url || !key)
     throw new Error("SERVICE NLP URL not found in service definition");
 
@@ -15,19 +18,31 @@ export default function provider(service) {
   if (!language)
     throw new Error("Language must be defined in NLP service config");
 
+  const connection = new Connection(new Url(url));
+
   return async ({ text }) => {
     if (!text || typeof text !== "string" || text.length === 0)
       throw new Error("Text required");
     if (text.length > 1000) throw new Error("Text too long");
 
-    const response = await fetch(url + "/nlp", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ text, language, processors }),
-    });
+    const result = await connection
+      .use(async (ctx, next) => {
+        await next();
+        ctx.response.body = JSON.parse(ctx.response.body);
+      })
+      .fetch(
+        "/nlp",
+        {
+          text,
+          language,
+          processors,
+        },
+        {
+          method: "POST",
+          headers,
+        },
+      );
 
-    const analysis = await response.json();
-
-    return analysis.sentences.map((s) => s.tokens);
+    return result.body.sentences.map((s) => s.tokens);
   };
 }

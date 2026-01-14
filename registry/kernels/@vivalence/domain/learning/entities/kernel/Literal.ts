@@ -20,6 +20,8 @@ export class LiteralEntity extends maps.kernel.literal.entity {
 export const LiteralSchema = new EntitySchema({
   class: LiteralEntity,
   extends: maps.kernel.literal.schema,
+  tableName: "Literal",
+  name: "Literal",
   properties: {
     memories: {
       kind: "1:m",

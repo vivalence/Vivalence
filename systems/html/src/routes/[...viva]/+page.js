@@ -1,3 +1,4 @@
+import { pages } from "$client";
 // import { Signal, fromm } from "@vivalence/typology"; // Context
 // import { Buffer, Stall } from "@vivalence/html/typology";
 // import { controller, Context, NotFound } from "@vivalence/vector";
@@ -9,7 +10,36 @@
 // export const ssr = false;
 // export const csr = true;
 
-// export const load = async (event) => {
+export const load = async (event) => {
+  // const stall = new Stall();
+
+  const signal = new Signal(event.url.pathname);
+  const [take, apply, match] = controller.traverse(perspective, signal);
+
+  let stall;
+  if (pages.has(signal.pathname)) stall = pages.get(signal.pathname);
+  else {
+    stall = new Stall();
+    pages.set(signal.pathname, stall);
+  }
+
+  stall.withPull(async () => {
+    const params = fromm.match(match).parameters;
+    const context = new Context({ event, stall, signal, match, params });
+    await apply(context, async (ctx) => (ctx.take = await take(ctx)));
+    return context.take || [];
+  });
+
+  stall.pull();
+
+  return { stall };
+};
+
+// $effect(
+//   () =>
+//     $page.url.pathname &&
+//     (async () => {
+
 //   const signal = new Signal(event.url.pathname);
 //   const stall = new Stall();
 //   const [take, apply, match] = controller.traverse(perspective, signal); // TODO match exact or depth first.
@@ -30,5 +60,3 @@
 
 //   // if !stall.active ...? some default?
 //   // if stall.active ...? ?? overwrite???
-//   return { stall, hash: signal.hash };
-// };

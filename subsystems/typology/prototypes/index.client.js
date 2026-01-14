@@ -13,10 +13,10 @@ export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
 export * from "./view.js";
-export * from "./feature.js";
 export * from "./mask.js";
 export * from "./wafer.js";
 
+// export * from "./feature.js";
 // export * from "./mode.js";
 // export * from "./call/index.js";
 // export * from "./agent/index.js";

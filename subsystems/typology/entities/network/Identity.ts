@@ -48,6 +48,7 @@ export const IdentitySchema = new EntitySchema({
 // export default { IdentitySchema, IdentityEntity };
 
 export default {
+  type: "identity",
   schema: IdentitySchema,
   entity: IdentityEntity,
   // repository: IdentityRepository,

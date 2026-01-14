@@ -28,16 +28,16 @@ export const daemons = [
 
     kernel: [
       "@vivalence/ontology/language",
-      "@vivalence/topology/spanish",
+      "@vivalence/topic/spanish",
       "@vivalence/domain/learning",
     ],
 
     modes: [
-      "@vivalence/agent/eva",
+      "@vivalence/teacher/dewey",
       // "@vivalence/game/flashcards", "@vivalence/game/translations", "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 
-    authority: {
+    lighthouse: {
       module: "@vivalence/lighthouse/multiplayer",
       statics: {
         remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
@@ -51,14 +51,27 @@ export const daemons = [
       },
     },
 
+    hallucinator: {
+      module: "@vivalence/hallucinator/hal257",
+      statics: {},
+      secrets: {
+        anthropic: paladin.secret.get("ANTHROPIC_API_KEY"),
+      },
+      profiles: {
+        // DRONE: {provider: "anthropic", model: "claude-3-5-haiku-latest", dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 }, params: { temperature: 0.7, maxTokens: 4000 },}, ACADEMIC: {provider: "anthropic", model: "claude-3-7-sonnet-latest", dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 }, params: {thinking: { type: "enabled", budgetTokens: 12000 }, temperature: 0.7, maxTokens: 20000,},},
+      },
+      // optional
+      // datamap: {module: "@vivalence/datamap/libsql", statics: {db: { file: `lighthouse.viva.db` },},},
+    },
+
     consume: {
       nlp: {
-        slug: "nlp",
         module: "@vivalence/service/nlp-stanza",
-        provider: "nlp-stanza", // implies: slug: "nlp", module: "@vivalence/service/nlp-stanza",
+        secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") },
         statics: {
           remote: new Url(paladin.env.get("SERVICE_NLP_REMOTE")),
           language: "es",
+          processors: "tokenize,mwt,pos,lemma,depparse",
         },
       },
     },

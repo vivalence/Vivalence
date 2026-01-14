@@ -29,6 +29,8 @@ export class SymbolEntity extends maps.kernel.symbol.entity {
 export const SymbolSchema = new EntitySchema({
   class: SymbolEntity,
   extends: maps.kernel.symbol.schema,
+  tableName: "Symbol",
+  name: "Symbol",
   properties: {
     exercises: {
       kind: "m:n",

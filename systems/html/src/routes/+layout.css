@@ -1,0 +1,20 @@
+.t-page {
+	grid-template:
+		"ticker" auto
+		"content" 1fr
+		"modeline" auto / 1fr;
+}
+
+.t-ticker {
+	grid-area: ticker;
+}
+.t-content {
+	grid-area: content;
+}
+
+.t-modeline {
+	grid-area: modeline;
+}
+.t-modeline-content {
+	grid-area: content;
+}

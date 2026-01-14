@@ -1,6 +1,7 @@
-import { Remedy, Mode, Path } from "@vivalence/typology";
+import { Classifier, Remedy, Mode, Path } from "@vivalence/typology";
 import { Vector, shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
+import { maps } from "@vivalence/typology/entities";
 
 export class Daemon {
   // slug = null;
@@ -11,18 +12,17 @@ export class Daemon {
   aperture = new Aperture();
   call = null;
   authority = null; // lighthouse client
+  brain = null;
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
 
   kernel = {
     orm: {},
     em: {},
+    taxonomist: new Classifier(),
+    predicate: new Vector(),
     medic: new Remedy(),
-    taxonomist: new Vector(),
-    // dimension: new maps.ontology.dimension.repository(),
-    // subject: new maps.ontology.subject.repository(),
-    // constraint: new entities.ontology.constraint.repository(),
-    // issue: new entities.ontology.issue.repository(),
-    // predicate: new Vector(),
+    constraint: new maps.virtual.constraint.repository(),
+    issue: new maps.virtual.issue.repository(),
   };
 
   schema = {
@@ -33,11 +33,13 @@ export class Daemon {
   };
 
   entities = {}; // f(domain.entities,system.entites)
+  twitch = new Vector();
+
   modes = {}; // map {game:{translations: Mode},teachers:{iroh:Mode}}
   services = {}; // service providers { nlp:{analyze:(text)=>({annotations[]})} }
+
   units = {}; // f(kernel.subjects*datamap.entities)
 
-  twitch = new Vector();
   classify = {};
   validate = {};
   assert = {};

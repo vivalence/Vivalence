@@ -3,6 +3,32 @@ import { Vector } from "@vivalence/vector";
 import { svelte } from "./view-bundler.js";
 
 export const traitmap = {
+  DATASET: async (mode, daemon) => {
+    // console.log({ mode });
+    // for (const [type, dataset] of Object.entries(mode.dataset?.entities)) {console.log({ type, dataset });}
+    // await daemon.entities.em.flush();
+  },
+
+  CHAOSMONKEY: (mode, daemon) => {
+    // mode.
+    mode.aperture.use(async (ctx, next) => {
+      // ctx.daemon.hallucinate = ()
+      ctx.hallucinate = {
+        persona: async () => {},
+        response: async () => {},
+        object: async () => {},
+      };
+    });
+    // mode.aperture.use(inject(runtime.services.brain));
+  },
+
+  CASTING: async (mode, daemon) => {
+    if (!!mode.cake.caster) {
+      mode.aperture.descendants.push(mode.cake.caster);
+    }
+    // todo: validate()
+  },
+
   VALENTIC: async (mode, daemon) => {
     // console.log("VALENTIC", mode);
     const valences = mode.cake.dataset.entities["valence"];
@@ -12,7 +38,6 @@ export const traitmap = {
     }
     await daemon.entities.em.flush();
   },
-  //DATASET: ()?
 
   TOPOLOGICAL: async (mode, daemon) => {
     console.log("skipping topological trait.");
@@ -31,18 +56,8 @@ export const traitmap = {
     await daemon.entities.em.flush();
   },
 
-  CASTING: async (mode, daemon) => {
-    if (!!mode.cake.caster) {
-      mode.aperture.descendants.push(mode.cake.caster);
-    }
-    // todo: validate()
-  },
-
   SESSIONED: async (mode, daemon) => {},
 
-  CHAOSMONKEY: (mode, daemon) => {
-    // mode.aperture.use(inject(runtime.services.brain));
-  },
   VIEWABLE: async (mode, daemon) => {
     mode.cake.view.withBundler(svelte);
     await mode.cake.view.bundle();

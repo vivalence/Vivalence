@@ -1,0 +1,13 @@
+{
+  "valence": [
+    {
+      "slug": "hello-world",
+      "name": "talk to dewey",
+      "docs": "first point of contact.",
+      "traits": ["DESTINATION"],
+      "data": {
+        "DESTINATION": "/"
+      }
+    }
+  ]
+}

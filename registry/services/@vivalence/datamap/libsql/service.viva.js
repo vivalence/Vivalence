@@ -12,6 +12,8 @@ const manifest = {
 };
 
 async function provider(datamap, variant) {
+  // console.log({ variant });
+
   const mikroconfig = defineConfig({
     dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
     entities: variant.map((v) => v.schema).filter(Boolean),
@@ -32,8 +34,9 @@ async function provider(datamap, variant) {
   const entities = {};
 
   for (const { type, schema, entity } of variant) {
-    // todo compute repositories
-    // die.instance.entities[type] = await orm.em.getRepository(entity);
+    if (!entity || !type) continue;
+
+    entities[type] = orm.em.getRepository(entity);
   }
 
   return { orm, entities };

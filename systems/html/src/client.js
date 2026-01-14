@@ -3,12 +3,13 @@ import { env } from "$env/dynamic/public";
 
 import { Url, Connection } from "@vivalence/typology";
 import {
-  // Stall,
+  Stall,
   Lighthouse,
   Repository,
   entities,
 } from "@vivalence/html/typology";
 
+export const stall = new Stall();
 export const pages = new Map(); // path:Stall
 
 export const dataspace = {

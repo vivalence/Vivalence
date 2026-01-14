@@ -7,7 +7,7 @@ export * from "./kernel/Symbol.ts";
 export * from "./kernel/Subject.ts";
 export * from "./kernel/Dimension.ts";
 export * from "./kernel/Issue.ts";
-// export * from "./kernel/Constraint.ts";
+export * from "./kernel/Constraint.ts";
 
 export * from "./network/Identity.ts";
 export * from "./network/Daemon.ts";
@@ -25,7 +25,7 @@ import dimension from "./kernel/Dimension.ts";
 import literal from "./kernel/Literal.ts";
 import symbol from "./kernel/Symbol.ts";
 import issue from "./kernel/Issue.ts";
-// import constraint from "./kernel/Constraint.ts";
+import constraint from "./kernel/Constraint.ts";
 
 import identity from "./network/Identity.ts";
 import daemon from "./network/Daemon.ts";
@@ -70,6 +70,10 @@ export const sets = {
 };
 
 export const maps = {
+  virtual: {
+    constraint,
+    issue,
+  },
   network: {
     identity,
     daemon,

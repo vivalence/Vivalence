@@ -1,4 +1,3 @@
-// pattern.js
 import { is } from "@vivalence/typology";
 import { hash } from "@vivalence/shared";
 import { Signature } from "./signature.js";

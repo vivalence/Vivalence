@@ -33,7 +33,7 @@ export class DimensionEntity extends DataEntity {
   [EntityRepositoryType]?: DimensionRepository;
 
   constructor(dimension = {}) {
-    super();
+    super(dimension);
     Object.assign(this, dimension);
     this.traits.map((t) => this.data[t] || (this.data[t] = {}));
   }
@@ -41,6 +41,7 @@ export class DimensionEntity extends DataEntity {
 
 export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
   class: DimensionEntity,
+  name: "Dimension",
   tableName: "Dimension",
   extends: DataSchema,
   uniques: [{ properties: ["ancestor", "slug"] }],
@@ -55,11 +56,6 @@ export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
       items: () => DimensionTraitsEnum,
       default: [],
     },
-    subjects: {
-      kind: "m:n",
-      entity: () => SubjectEntity,
-      mappedBy: "dimensions",
-    },
     ancestor: {
       kind: "m:1",
       entity: () => DimensionEntity,
@@ -72,6 +68,11 @@ export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
       entity: () => DimensionEntity,
       mappedBy: (dimension) => dimension.ancestor,
     },
+    subjects: {
+      kind: "m:n",
+      entity: () => SubjectEntity,
+      mappedBy: "dimensions",
+    },
   },
 });
 
@@ -79,8 +80,8 @@ export class DimensionRepository extends DataRepository {
   unique(opt) {
     return { ancestor: opt.ancestor, slug: opt.slug };
   }
-  async extend(node) {
-    const dimension = await this.ensure({
+  async ensure(node) {
+    const dimension = await super.ensure({
       ...node,
       traits: node.traits || [],
       data: node.data || {},
@@ -88,7 +89,7 @@ export class DimensionRepository extends DataRepository {
 
     if (dimension.traits.includes("FREE")) {
       dimension.descendants.add(
-        await this.extend({
+        await this.ensure({
           slug: "*",
           ancestor: dimension,
         }),
@@ -103,7 +104,7 @@ export class DimensionRepository extends DataRepository {
 
       for (const category of categories) {
         dimension.descendants.add(
-          await this.extend({
+          await this.ensure({
             ...category,
             ancestor: dimension,
             traits: array.unique([...(category.traits || []), "DESCENDANT"]),

@@ -18,6 +18,7 @@ export const DaemonSchema = new EntitySchema({
 });
 
 export default {
+  type: "daemon",
   schema: DaemonSchema,
   entity: DaemonEntity,
   // repository: DaemonRepository,

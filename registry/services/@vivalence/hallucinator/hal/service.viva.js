@@ -1,8 +1,10 @@
-import client from "./client/index.js";
+import provider from "./provider/index.js";
+export { provider };
 
 export const manifest = {
   type: "hallucinator",
   slug: "hal257",
+  traits: ["MONK"],
 };
 
 export const docs = {

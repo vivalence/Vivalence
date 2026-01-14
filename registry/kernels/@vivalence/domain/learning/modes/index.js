@@ -16,6 +16,10 @@ class Game extends Mode {
   type = "game";
 }
 
+class Teacher extends Mode {
+  type = "teacher";
+}
+
 class Strategy extends Mode {
   type = "strategy";
 }
@@ -35,6 +39,7 @@ export const modes = [
   },
   // tactic: { prototype: Tactic },
   { type: "agent", prototype: Agent },
+  { type: "teacher", prototype: Teacher },
   // strategy: { prototype: Strategy },
 ];
 

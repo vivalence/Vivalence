@@ -23,48 +23,35 @@ export class SubjectRepository extends DataRepository {
 }
 
 export class SubjectEntity extends DataEntity {
-  traits: SubjectTraitsEnum[] & Opt = [];
-  data: any & Opt = {};
+  // traits: SubjectTraitsEnum[] & Opt = [];
+  // data: any & Opt = {};
   dimensions = new Collection<DimensionEntity>(this);
-  annotations: any[] & Opt = [];
-  constraints: any[] & Opt = [];
+  annotation: any[] & Opt = [];
+  // constraints: any[] & Opt = [];
 
   [EntityRepositoryType]?: SubjectRepository;
 
-  constructor(node = {}) {
-    super();
-    Object.assign(this, node);
-    // console.log(node);
-  }
+  // constructor(node = {}) {super(node); Object.assign(this, node);}
 }
 
 export const SubjectSchema = new EntitySchema<SubjectEntity, DataEntity>({
   class: SubjectEntity,
   tableName: "Subject",
+  name: "Subject",
   extends: DataSchema,
   uniques: [{ properties: ["slug"] }],
   repository: () => SubjectRepository,
 
   properties: {
-    traits: {
-      type: types.json,
-      defaultRaw: `"[]"`,
-      enum: true,
-      array: true,
-      items: () => SubjectTraitsEnum,
-      default: [],
-    },
-    data: { type: types.json, default: {} },
+    // traits: {type: types.json, defaultRaw: `"[]"`, enum: true, array: true, items: () => SubjectTraitsEnum, default: [],},
+    // data: { type: types.json, default: {} },
     dimensions: {
       kind: "m:n",
       entity: () => DimensionEntity,
       inversedBy: "subjects",
     },
-    annotations: { type: types.json, default: [] },
-    constraints: {
-      type: types.json,
-      default: [],
-    },
+    annotation: { type: types.json, default: [] },
+    // constraints: {type: types.json, default: [],},
   },
 });
 

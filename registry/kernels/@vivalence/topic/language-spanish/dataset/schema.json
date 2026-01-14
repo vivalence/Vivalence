@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typology.vivalence.org/viva/dataset",
+  "type": "object",
+  "properties": {
+    "subject": {
+      "type": "object",
+      "$ref": "#/definitions/subject"
+    }
+  }
+}

@@ -1,53 +1,17 @@
 import { Pattern, Signature } from "@vivalence/typology";
 
-// TODO: extends Signature
 export class Vector {
   constructor(ancestor) {
-    // super(ancestor)
     this.effects = new Map(); // <Pattern->Effect>
     this.trajectories = new Map(); // <Pattern->Vector>
     this.carry = []; // middlewares
     if (ancestor) this.ancestor = ancestor;
-  }
-  // legacy
-  get middlewares() {
-    console.log("vector.middlewares is now vector.carry");
-    throw new Error("vector.middlewares is now vector.carry");
   }
 
   use(middleware) {
     this.carry.push(middleware);
     return this;
   }
-  // branch(signature) {
-  //   let pattern = new Pattern(signature);
-  //   // console.log("p", { signature, pattern });
-  //   let position = this;
-
-  //   while (pattern) {
-  //     // console.log("while", pattern);
-  //     // console.log("@pattern", !!pattern);
-  //     for (const entry of position.trajectories.entries()) {
-  //       if (entry[0].hash === pattern.hash) {
-  //         position = entry[1];
-  //         pattern = pattern.heir;
-  //         continue;
-  //       }
-  //     }
-  //     if (pattern) {
-  //       // console.log("@pattern", !!pattern);
-  //       const location = new Vector(this);
-  //       // console.log("@pattern", !!pattern);
-  //       position.trajectories.set(pattern, location);
-  //       // console.log("@pattern", !!pattern);
-  //       position = location;
-  //       // console.log("@pattern", !!pattern);
-  //       pattern = pattern.heir;
-  //     }
-  //   }
-
-  //   return position;
-  // }
 
   branch(signature) {
     const pattern = new Pattern(signature);
@@ -65,6 +29,7 @@ export class Vector {
     }
     return descendant;
   }
+
   open(signature, effect) {
     const pattern = new Pattern(signature);
 
@@ -103,3 +68,33 @@ export class Vector {
     return this.descendants[0];
   }
 }
+
+// branch(signature) {
+//   let pattern = new Pattern(signature);
+//   // console.log("p", { signature, pattern });
+//   let position = this;
+
+//   while (pattern) {
+//     // console.log("while", pattern);
+//     // console.log("@pattern", !!pattern);
+//     for (const entry of position.trajectories.entries()) {
+//       if (entry[0].hash === pattern.hash) {
+//         position = entry[1];
+//         pattern = pattern.heir;
+//         continue;
+//       }
+//     }
+//     if (pattern) {
+//       // console.log("@pattern", !!pattern);
+//       const location = new Vector(this);
+//       // console.log("@pattern", !!pattern);
+//       position.trajectories.set(pattern, location);
+//       // console.log("@pattern", !!pattern);
+//       position = location;
+//       // console.log("@pattern", !!pattern);
+//       pattern = pattern.heir;
+//     }
+//   }
+
+//   return position;
+// }

@@ -1,0 +1,643 @@
+//////////
+CONCATENATED FILES SUMMARY
+Total tokens: 2888
+Total files: 9
+Generated: 2025-12-27T01:23:09.509Z
+Source directory: routes/
+//////////
+// FILE TREE
+/
+├── [...viva]/
+├── ├── +layout.svelte
+├── ├── +page.js
+├── ├── +page.svelte
+├── ├── bak.layout.js
+├── └── perspective.js
+├── +layout.js
+├── +layout.svelte
+├── +page.js
+└── +page.svelte
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////
+File: +layout.js
+Path: routes//+layout.js
+Size: 1039 bytes
+Last Modified: 2025-12-23T23:58:35.805Z
+//////////
+
+import { Connection } from "@vivalence/typology";
+import { entities, shards, Daemon } from "@vivalence/html/typology";
+import { lighthouse, dataspace } from "$client";
+
+export const ssr = false;
+
+let booted = false;
+
+export const load = async () => {
+  if (booted) return;
+  booted = true;
+
+  await entities.lighthouse.lifecycle(lighthouse);
+  dataspace.lighthouse.add(lighthouse);
+
+  const daemons = await lighthouse.connection.call("/entities/daemon/find");
+
+  for (const discoveredDaemon of daemons) {
+    const exists = await dataspace.daemon //
+      .findOne((d) => d.connection.url === discoveredDaemon.url);
+    // console.log("@discovered", exists, discoveredDaemon);
+
+    if (exists) continue;
+
+    const connection = new Connection(discoveredDaemon.url) //
+      .use(shards.connection.authorize(lighthouse.$authority));
+
+    const daemon = new Daemon(connection);
+    daemon.lighthouse = lighthouse;
+    await dataspace.daemon.spawn(daemon);
+
+    lighthouse.daemons.add(daemon);
+
+    // console.log("@spawned", daemon);
+  }
+};
+
+
+//////////
+File: +layout.svelte
+Path: routes//+layout.svelte
+Size: 4975 bytes
+Last Modified: 2025-12-25T11:30:13.566Z
+//////////
+
+<script>
+  import "../client.css";
+  import "../design/primitives/bsp.css";
+  import "../design/primitives/font.css";
+
+  import { effect } from "nanostores";
+  import { Text, Modeline, Pictogram } from "@vivalence/drapes";
+
+  import { goto } from "$app/navigation";
+  import client from "$client";
+  import { lighthouse } from "$client";
+
+  import { status } from "@vivalence/html/surface";
+
+  let { children } = $props();
+  let isIdentified = lighthouse.$isIdentified;
+  let identity = lighthouse.$identity;
+  // console.log("identity", identity.get());
+</script>
+
+<div class="hidden">
+  {#if !$isIdentified}
+    {goto("/")}
+  {/if}
+</div>
+
+<div class="bsp-chain-root bg-skeleton-app-surface t-buffer">
+  <div class="bsp-node t-buffer-ticker border-b border-skeleton-1-boundary">
+    <Modeline size="sm">
+      {#snippet left()}
+        <Text variant="brand" color="white" size="sm" weight="medium">
+          @vivalence/viva
+        </Text>
+      {/snippet}
+      {#snippet center()}
+        <Pictogram
+          src="/images/pictogram_viket/pic-vinca-viket_white.png"
+          alt="<<"
+          size="xl" />
+      {/snippet}
+      {#snippet right()}
+        <Text variant="heading" size="xs" color="2" class="opacity-60">~</Text>
+      {/snippet}
+    </Modeline>
+  </div>
+
+  <div class="bsp-node t-buffer-content">
+    {@render children()}
+  </div>
+
+  <!-- <div class="bsp-node t-buffer-modeline"> <Modeline> {#snippet left()} {#if $isIdentified} <Text>{$identity.slug}</Text> {:else} <Text>not identified</Text> {/if} {/snippet} </Modeline> </div> -->
+</div>
+
+<!--     <Modeline> -->
+<!--       {#snippet left()} -->
+<!--         {#if $isIdentified} -->
+<!--           <Text>{$identity?.slug}</Text> -->
+<!--         {/if} -->
+<!--       {/snippet} -->
+<!--       {#snippet center()} -->
+<!--         <Text>vivi pro finis</Text> -->
+<!--       {/snippet} -->
+<!--       {#snippet right()} -->
+<!--         {#each client.remotes.$lighthouse as lighthouse} -->
+<!--           <status.Dot -->
+<!--             status={lighthouse.connection.status} -->
+<!--             variant="simple" -->
+<!--             size="xs" /> -->
+<!--         {/each} -->
+<!--       {/snippet} -->
+<!--     </Modeline> -->
+
+<!-- <script> -->
+<!--   import "../app.css"; -->
+<!--   import "../design/primitives/bsp.css"; // IMPORTANT @ikiro -->
+<!--   import "../design/primitives/font.css"; -->
+
+<!--   import { effect } from "nanostores"; -->
+<!--   import { Text, Modeline } from "@vivalence/drapes"; -->
+
+<!--   import client from "$client"; -->
+<!--   import { lighthouse } from "$client"; -->
+<!--   import { status } from "$client/view"; -->
+<!--   import { goto } from "$app/navigation"; -->
+
+<!--   let { children } = $props(); -->
+<!--   let isIdentified = lighthouse.isIdentified; -->
+<!--   let identity = lighthouse.$identity; -->
+
+<!-- </script> -->
+
+<!-- <div class="hidden"> -->
+<!-- {#if !$isIdentified} -->
+<!--   {goto("/")} -->
+<!-- {/if} -->
+<!-- </div> -->
+<!-- <div class="bsp-chain-root bg-skeleton-app-surface t-modeline"> -->
+<!--   <\!-- @ikiro change this template from modeline (2split horizontal with upper split main and lower split modeline (thin/flat), we need a new template 'buffer' with a 6 split. first we split horizontally 3 times. one flat line called ticker, the main body called bauhaus, and our flat bottom line aka modeline). this gives us the buffer level. inside the structure that bauhaus gives us (this requires clever templating with bsp), we have the buffer level. buffer level is a full wrapping 100% container.  -\-> -->
+<!--   <buffer> -->
+<!--     <ticker> -->
+<!--       <\!-- left: brand text `@vivalence/viva` white; center: logo icon square png: `vinca-viket-white.png`; left text '~' in systemspace text (poppins) in  discrete visibility. the whole thing vertically centered-\-> -->
+<!--     </ticker> -->
+<!--     <bauhaus> -->
+<!--       <\!-- // children -\-> -->
+<!--     </bauhaus> -->
+<!--     <modeline> -->
+<!--       <\!-- // same as currently. just better implementation.  -\-> -->
+<!--     </modeline> -->
+<!--   </buffer> -->
+<!--   <div class="bsp-node t-modeline-content"> -->
+<!--     {@render children()} -->
+<!--   </div> -->
+
+<!--   <div class="bsp-node t-modeline-modeline"> -->
+<!--     <Modeline> -->
+<!--       {#snippet left()} -->
+<!--         {#if $isIdentified} -->
+<!--           <Text>{$identity?.slug}</Text> -->
+<!--         {/if} -->
+<!--       {/snippet} -->
+<!--       {#snippet center()} -->
+<!--         <Text>vivi pro finis</Text> -->
+<!--       {/snippet} -->
+<!--       {#snippet right()} -->
+<!--         {#each client.remotes.$lighthouse as lighthouse} -->
+<!--           <status.Dot -->
+<!--             status={lighthouse.connection.status} -->
+<!--             variant="simple" -->
+<!--             size="xs" /> -->
+<!--         {/each} -->
+<!--       {/snippet} -->
+<!--     </Modeline> -->
+<!--   </div> -->
+<!-- </div> -->
+
+<!-- <\!-- <Text> {$identity?.id} {$isIdentified} </Text> -\-> -->
+
+
+//////////
+File: +page.js
+Path: routes//+page.js
+Size: 26 bytes
+Last Modified: 2025-10-27T10:34:38.097Z
+//////////
+
+export const ssr = false;
+
+
+//////////
+File: +page.svelte
+Path: routes//+page.svelte
+Size: 2358 bytes
+Last Modified: 2025-12-21T02:12:26.784Z
+//////////
+
+<script>
+  import { goto } from "$app/navigation";
+  import { Text, Button, Input, Pictogram } from "@vivalence/drapes";
+
+  import { lighthouse } from "$client";
+  import { view } from "@vivalence/html/surface";
+
+  let isIdentified = lighthouse.$isIdentified;
+</script>
+
+<div class="hidden">
+  {#if $isIdentified}
+    {goto("/viva")}
+  {/if}
+</div>
+
+<div class="bsp-node relative w-full h-full overflow-hidden">
+  <div class="absolute inset-0 z-0">
+    <Pictogram
+      src="/static/videos/720x480p-flight10-seldoncrisis-entry-vhs-16fps.mp4"
+      type="video"
+      size="cover"
+      autoplay={true}
+      loop={true}
+      muted={true}
+      playbackRate={3}
+      class="w-full h-full opacity-10" />
+  </div>
+  <div class="absolute inset-0 bg-black bg-opacity-40 z-10"></div>
+
+  <div class="bsp-node h2 gap-0 relative z-20">
+    <div class="bsp-node flex items-center justify-center"></div>
+
+    <div class="bsp-node flex items-center justify-center">
+      <div
+        class="bg-black bg-opacity-60 backdrop-blur-sm rounded-lg p-8 w-full max-w-md">
+        <view.lighthouse.Login {lighthouse} />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <script> -->
+<!-- 	import { goto } from "$app/navigation"; -->
+<!-- 	import { Text, Button, Input } from "@vivalence/drapes"; -->
+
+<!-- 	// @ikiro -->
+<!-- 	// html/static/videos/720x480p-flight10-seldoncrisis-entry-vhs-16fps.mp4 -->
+<!-- 	// import this and render it as the background. playpack speed should be .25% speed. -->
+
+<!-- 	import { lighthouse } from "$client"; -->
+<!-- 	import * as view from "$client/view"; -->
+
+<!-- 	let isIdentified = lighthouse.isIdentified; -->
+<!-- </script> -->
+
+<!-- <div class="hidden"> -->
+<!-- {#if $isIdentified} -->
+<!-- 	{goto("/viva")} -->
+<!-- {/if} -->
+<!-- </div> -->
+
+<!-- <node full size bsp node. rounded boundry. standard node corner rounding 42pixel. brand wide standard. deviations are achieved by fractions of 42.> -->
+<!--  <\!-- // and then i want the video running at .25% looped covering teh full background insde the node, nothing outside -\-> -->
+<!--   <\!--  -\-> -->
+<!-- </node> -->
+
+<!-- <div class="bsp-node h2"> -->
+<!-- 	<\!-- <div class="bsp-node only "> <img src="/static/images/vinca-viket-white.png" /> </div> -\-> -->
+
+<!-- 	<div class="bsp-node"> -->
+<!-- 		<view.lighthouse.Login {lighthouse} /> -->
+<!-- 	</div> -->
+<!-- </div> -->
+
+
+//////////
+File: +layout.svelte
+Path: routes//[...viva]/+layout.svelte
+Size: 2116 bytes
+Last Modified: 2025-12-25T12:17:29.896Z
+//////////
+
+<script>
+  import { Text } from "@vivalence/drapes";
+  import { dataspace } from "$client";
+  // grip: bar | log
+  // !handle auth.
+
+  const valences = dataspace.valence.$entities;
+  $inspect(valences);
+
+  let { children } = $props();
+</script>
+
+<div
+  class="bsp-node bg-skeleton-app-surface t-sidebar border-skeleton-1-boundary">
+  <div class="bsp-node t-sidebar-sidebar">
+    <div class="bsp-node t-grip">
+      <div class="bsp-node t-grip-mesos xborder-b xborder-skeleton-1-boundary">
+        <!-- <Text>mesos</Text> -->
+        <!-- empty but layouted -->
+      </div>
+      <div class="bsp-node t-grip-active">
+        {#each $valences.values() as valence}
+          <a
+            href={valence.destination.absolute}
+            class="block p-2 hover:bg-skeleton-1-boundary">
+            <Text size="sm" weight="medium">{valence.name}</Text>
+            <Text size="xs" color="2" class="opacity-60">
+              {valence.mode.slug}/{valence.slug}
+            </Text>
+          </a>
+        {/each}
+      </div>
+
+      <div class="bsp-node t-grip-activities">
+        <!-- <Text>active</Text> -->
+        <!-- for dataspace valence render intent -->
+      </div>
+      <div class="bsp-node t-grip-client">
+        <!-- <Text>client</Text> -->
+        <!-- status, identity, xyz. -->
+      </div>
+    </div>
+  </div>
+  <div class="bsp-node t-sidebar-main">
+    {@render children()}
+  </div>
+</div>
+
+<style>
+  .t-sidebar {
+    display: grid;
+    grid-template-columns: minmax(180px, 220px) 1fr;
+    grid-template-rows: 100%;
+    gap: 0;
+  }
+
+  .t-sidebar-sidebar {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .t-sidebar-main {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Grip layout: 4 vertical sections */
+  .t-grip {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 200px 1fr 1fr 200px;
+    gap: 0;
+    height: 100%;
+  }
+
+  .t-grip-mesos {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .t-grip-active {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .t-grip-activities {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .t-grip-client {
+    grid-column: 1;
+    grid-row: 4;
+  }
+</style>
+
+
+//////////
+File: +page.js
+Path: routes//[...viva]/+page.js
+Size: 1308 bytes
+Last Modified: 2025-12-25T13:14:00.922Z
+//////////
+
+// import { Signal, fromm } from "@vivalence/typology"; // Context
+// import { Buffer, Stall } from "@vivalence/html/typology";
+// import { controller, Context, NotFound } from "@vivalence/vector";
+// // import { Buffer } from "@vivalence/html/typology";
+// import { dataspace } from "$client";
+// import { perspective } from "./perspective.js";
+
+// export const prerender = false;
+// export const ssr = false;
+// export const csr = true;
+
+// export const load = async (event) => {
+//   const signal = new Signal(event.url.pathname);
+//   const stall = new Stall();
+//   const [take, apply, match] = controller.traverse(perspective, signal); // TODO match exact or depth first.
+//   // console.log([take, apply, match]);
+//   console.log("LOAD", signal.pathname, take);
+//   const params = fromm.match(match).parameters;
+//   // console.log({ params, signal, event });
+
+//   stall.withPull(async () => {
+//     if (!take) return [];
+//     // console.log("PULL", signal.absolute);
+//     const context = new Context({ stall, signal, match, params });
+
+//     await apply(context, async (ctx) => (ctx.take = await take(ctx)));
+
+//     return context.take || [];
+//   });
+
+//   // if !stall.active ...? some default?
+//   // if stall.active ...? ?? overwrite???
+//   return { stall, hash: signal.hash };
+// };
+
+
+//////////
+File: +page.svelte
+Path: routes//[...viva]/+page.svelte
+Size: 4269 bytes
+Last Modified: 2025-12-27T00:08:28.581Z
+//////////
+
+<script>
+  import { computed } from "nanostores";
+  import { onMount, onDestroy, mount, unmount } from "svelte";
+
+  import { Signal, fromm } from "@vivalence/typology"; // Context
+  import { controller, Context, NotFound } from "@vivalence/vector";
+  import { id } from "@vivalence/shared";
+  import { Text, Loader } from "@vivalence/drapes";
+  import { Buffer, Stall } from "@vivalence/html/typology";
+  import { page } from "$app/stores";
+  // import { } from '$client';
+  import { perspective } from "./perspective.js";
+
+  let component = $state(null);
+  let dom = $state(null);
+  let activeId = computed(stall.$active, (active) => id.id(active?.id));
+  let active = stall.$active;
+
+  // $inspect("[$ACTIVEID]", $activeId);
+  // $inspect("[ACTIVE]", $active);
+  // $inspect("[$PAGE.PATHNAME]", $page.url.pathname);
+
+  $effect(
+    () =>
+      $page.url.pathname &&
+      (async () => {
+        // if(realm[pathname]) return realm[pathname]
+        // console.log("EFFECT", $page.url.pathname);
+        const stall = new Stall();
+
+        const signal = new Signal($page.url.pathname);
+        const [take, apply, match] = controller.traverse(perspective, signal);
+
+        // console.log("LOAD", signal.pathname, take);
+          // console.log("HAS TAKE?", !!take);
+
+        stall.withPull(async () => {
+          const params = fromm.match(match).parameters;
+          const context = new Context({ stall, signal, match, params });
+          await apply(context, async (ctx) => (ctx.take = await take(ctx)));
+          return context.take || [];
+        });
+
+        stall.pull();
+
+        // realm[pathname] = stall
+      })(),
+  );
+
+  $effect(
+    () =>
+      dom &&
+      $active?.view?.url &&
+      (async ({ view, context }) => {
+        // console.log("active.view.url", active.view.url);
+        const module = await import(/* @vite-ignore */ view.url);
+        // console.log("module", module);
+        component?.destroy(), (component = null);
+        component = module.default(dom, context);
+      })($active),
+  );
+
+  onMount(() => {
+    stall.pull();
+  });
+
+  onDestroy(() => {
+    component?.destroy();
+  });
+</script>
+
+<div class="bsp-node">
+  {#key $activeId}
+    <Text>{$activeId}</Text>
+    {#if $active?.view?.Component}
+      <active.view.Component {...$active.context} />
+    {:else if $active?.view?.url}
+      <div id="buffer-container" class="bsp-node" bind:this={dom} />
+    {:else}
+      <!-- {:else if !component} -->
+      <!-- abyss -->
+      <Loader time={{ minimum: 5000 }} load={() => stall.pull()} />
+    {/if}
+  {/key}
+</div>
+
+<!-- <script> import { onMount, onDestroy } from "svelte"; import { id } from "@vivalence/shared"; import { Loader } from "@vivalence/drapes"; import { stall } from "$client"; let component = $state(null); let dom = $state(null); const activeStore = stall.$active; $effect(() => {const active = activeStore.get(); if (dom && active?.view?.url) {(async () => {const module = await import(/* @vite-ignore */ active.view.url); component?.destroy(); component = null; component = module.default(dom, active.context);})();}}); $effect(() => {return activeStore.subscribe(() => {});}); onMount(() => {stall.pull();}); onDestroy(() => {component?.destroy();}); </script> <div class="bsp-node"> {#key id.id($activeStore?.id)} {#if $activeStore?.view?.Component} <svelte:component this={$activeStore.view.Component} {...$activeStore.context} /> {:else if $activeStore?.view?.url} <div id="buffer-container" class="bsp-node" bind:this={dom} /> {:else} <Loader time={{ minimum: 5000 }} load={() => stall.pull()} /> {/if} {/key} </div> -->
+<!-- <script> import { onMount, onDestroy } from "svelte"; import { id } from "@vivalence/shared"; import { Loader } from "@vivalence/drapes"; import { stall } from "$client"; let component = $state(null); let dom = $state(null); let active = $state(null); const activeStore = stall.$active; $effect(() => {return activeStore.subscribe((value) => {active = value;});}); $effect(() => {if (dom && active?.view?.url) {(async () => {const module = await import(/* @vite-ignore */ active.view.url); component?.destroy(); component = null; component = module.default(dom, active.context);})();}}); onMount(() => stall.pull()); onDestroy(() => component?.destroy()); </script> -->
+
+
+//////////
+File: bak.layout.js
+Path: routes//[...viva]/bak.layout.js
+Size: 1127 bytes
+Last Modified: 2025-12-25T08:22:42.088Z
+//////////
+
+// import { redirect } from "@sveltejs/kit";
+// import { Connection } from "@vivalence/typology";
+// import { lighthouse } from "$client";
+
+// // must handle default / empty
+
+// export const load = async () => {
+//   if (!lighthouse.$isIdentified.get()) {
+//     console.log("auth throw");
+//     return;
+//     console.log("THROW");
+//     throw redirect(307, "/");
+//   }
+// };
+
+// //await loadDaemons(lighthouse);
+// // async function loadDaemons(lighthouse) {
+// //   const daemons = await lighthouse.connection.call("/entities/daemon/find");
+// //   for (const remote of daemons) {
+// //     const exists = await remotes.daemon //
+// //       .findOne((d) => d.connection.url === remote.url);
+
+// //     if (exists) continue;
+
+// //     const connection = new Connection(remote.url) //
+// //       .use(shards.connection.authorize(lighthouse.$authority));
+
+// //     await dataspace.daemon.spawn(connection);
+
+// //     //         const connection = new Connection(remote.url) //
+// //     //           .use(authorize(lighthouse.$authority));
+// //     //         await remotes.daemon.spawn(connection);
+// //   }
+// // }
+
+
+//////////
+File: perspective.js
+Path: routes//[...viva]/perspective.js
+Size: 1761 bytes
+Last Modified: 2025-12-25T12:17:29.935Z
+//////////
+
+import { Signal, fromm } from "@vivalence/typology"; // Context
+import { Vector, controller, Context, NotFound } from "@vivalence/vector";
+
+import { Buffer } from "@vivalence/html/typology";
+import { dataspace } from "$client";
+
+export const perspective = new Vector();
+
+perspective
+  // .open("/viva", () => [new Buffer({}, {})])
+  .branch("/viva")
+  // .open("/faafo", async (ctx) => {ctx.buffer.push(new BufferMode(
+  //       {url: "http://localhost:1729/attached/daemon/eng2lat/mode/agent/eva/bundle/view/viva.svelte.js",},
+  //       { product: { agent: "ligma" } },),);})
+  // .use(async (ctx, next) => {const timeout = 10000; const start = Date.now(); while (!remotes.daemon.has) {if (Date.now() - start > timeout) {throw new Error("System boot timeout - no daemon available");} await new Promise((resolve) => setTimeout(resolve, 100));} await next();})
+  .branch("/daemon/:daemon")
+  .branch("/mode/:type/:slug")
+  .use(async (ctx, next) => {
+    ctx.mode = await dataspace.mode.findOne((m) => {
+      return (
+        m.daemon.manifest.slug === ctx.params.daemon &&
+        m.type === ctx.params.type &&
+        m.slug === ctx.params.slug
+      );
+    });
+    ctx.daemon = ctx.mode.daemon;
+
+    await next();
+  })
+  .open("/(.*)", async (ctx) => {
+    // console.log("ctx", ctx);
+    return [new Buffer(ctx.mode.view, { ...ctx })];
+    // console.log("fromm.params(ctx.params).path", fromm.params(ctx.params).path);
+    // ctx.stall.push(new Buffer(ctx.mode.view, { ...ctx }));
+
+    // if (ctx.mode.implements("casting")) {
+    //   const generation = await ctx.mode.call(fromm.params(ctx.params).path);
+    //   for (const product of generation) {
+    //     ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx, product }));
+    //   }
+    // }
+  });

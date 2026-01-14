@@ -15,11 +15,14 @@ export const font = {
   // brand/identity/theme = systemspace inhalt
   // },
   family: {
-    brand: ["K2D", "serif"],
-    "sans-heading": ["Poppins", "sans"],
-    "sans-text": ["Inter", "sans"],
     "serif-heading": ["Poppins", "serif"],
-    "serif-text": ["Inter", "serif"],
+    "sans-heading": ["Poppins", "sans"],
+    "serif-text": ["Inter", "Sabon", "serif"],
+    "sans-text": ["Inter", "sans"],
+    brand: ["K2D", "sans"],
+    // /  ()
+    // / system (names of daemons, modes, valences)
+    // / client (setting panel labels)
     code: ["Source Code Pro", "monospace"],
   },
   size: {

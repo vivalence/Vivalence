@@ -15,6 +15,7 @@ import {
 
 export async function systemmap(servicemask) {
   const datamap = await paladin.vip.accio(servicemask.datamap.module);
+
   const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema] //
     .map((schema) => ({ schema }));
 
@@ -22,10 +23,6 @@ export async function systemmap(servicemask) {
     servicemask.datamap,
     variant,
   );
-
-  const migrator = orm.getMigrator();
-  await migrator.createMigration();
-  await migrator.up();
 
   return { orm, entities };
 }

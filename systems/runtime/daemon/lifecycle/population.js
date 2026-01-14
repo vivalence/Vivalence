@@ -10,34 +10,35 @@ import { traitmap } from "../mode/traitmap.js";
 
 export async function core(die) {
   die.register = await paladin.vip.accioMap({
-    authority: die.mask.authority,
+    lighthouse: die.mask.lighthouse,
+    hallucinator: die.mask.hallucinator,
     datamap: die.mask.datamap,
     kernel: die.mask.kernel,
     modes: die.mask.modes,
-    services: die.mask.services,
+    consume: die.mask.consume,
   });
 
-  die.variant.kernel = {
+  die.kernel = {
     ontology: die.register.kernel.find((m) => m.manifest.type === "ontology"),
-    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
+    topic: die.register.kernel.filter((m) => m.manifest.type === "topic"),
     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
   };
 
   die.variant.traits = {
-    ...(die.variant.kernel.domain.traits || {}),
+    ...(die.kernel.domain.traits || {}),
     ...traitmap,
   };
 
   die.variant.modes = [
     // todo: some standard set.
-    ...die.variant.kernel.domain.modes,
+    ...die.kernel.domain.modes,
   ];
 
   die.variant.entities = [
     ...maps.sets.runtime,
     ...maps.sets.kernel,
     ...maps.sets.userspace,
-    ...die.variant.kernel.domain.entities,
+    ...die.kernel.domain.entities,
   ];
 }
 
@@ -55,34 +56,56 @@ export async function datamap(daemonDie) {
 
   for (const variant of daemonDie.variant.entities) {
     if (!variant.entity) continue;
+
     const repository = await daemonDie.good.entities.em //
       .getRepository(variant.entity);
+
     daemonDie.good.entities[variant.type] = repository;
   }
 
-  // die.good.ontology.topography = await die.good.entities.em.getRepository(
-  //   maps.ontology.topography.entity,
-  // );
-  // die.good.ontology.dimension = await die.good.entities.em.getRepository(
-  //   maps.ontology.dimension.entity,
-  // );
+  // die.good.ontology.topography = await die.good.entities.em .getRepository(maps.ontology.topography.entity);
+  // die.good.ontology.dimension = await die.good.entities.em .getRepository(maps.ontology.dimension.entity);
+}
+
+export async function acid(daemonDie) {
+  daemonDie.good.hallucinator = await daemonDie.register.hallucinator //
+    .provider(daemonDie.mask.hallucinator);
+  // console.log("@daemon/population daemonDie.good.hallucinator", daemonDie.good.hallucinator,);
+}
+
+export async function authority(daemonDie) {
+  daemonDie.good.lighthouse = await daemonDie.register.lighthouse //
+    .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
+
+  daemonDie.good.aperture.use(
+    shards.secure.authority(daemonDie.good.lighthouse),
+  );
+}
+
+export async function services(daemonDie) {
+  for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
+    const servicecake = daemonDie.register.consume[slug];
+    daemonDie.good.services[slug] = await servicecake.provider(servicemask);
+  }
 }
 
 export async function modes(daemonDie) {
-  // console.log({ die });
-  for (const variant of daemonDie.variant.modes) {
-    // todo: cast cake.
-    // ensure cake is valid mode cake.
-    const cake = daemonDie.register.modes //
-      .find((mode) => mode.manifest.type === variant.type);
+  // console.log({register: daemonDie.register.modes, variant: daemonDie.variant.modes,});
 
-    if (!cake) {
-      console.log(`@runtime/daemon/population/modes(${variant.type})`);
-      console.log("cake not found during mode construction");
+  for (const register of daemonDie.register.modes) {
+    // todo: cast cake. ensure cake is valid mode cake.
+
+    const variant = daemonDie.variant.modes //
+      .find((v) => register.manifest.type === v.type);
+
+    if (!variant) {
+      console.log(`@runtime/daemon/population/modes(${register.type})`);
+      console.log("variant not found during mode construction");
+      console.log({ register, variant });
       continue;
     }
-    // console.log({ cake });
-    const mode = new variant.prototype(cake);
+
+    const mode = new variant.prototype(register);
     mode.mount = daemonDie.good.mount.branch(`/mode/${mode.type}/${mode.slug}`);
     mode.url = daemonDie.good.url.branch(mode.mount.nature);
 
@@ -103,42 +126,29 @@ export async function modes(daemonDie) {
     mode.entity.traits = array //
       .unique([...mode.entity.traits, ...mode.traits]);
 
-    //
-
-    if (!daemonDie.good.modes[variant.type])
-      daemonDie.good.modes[variant.type] = {};
+    if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
     daemonDie.good.modes[mode.type][mode.slug] = mode;
   }
 
+  await daemonDie.good.entities.em.flush();
+}
+export function handlers(daemonDie) {
+  daemonDie.flatmodules = () =>
+    [Object.values(daemonDie.good.kernel), Object.values(daemonDie.good.modes)]
+      .flat()
+      .map((type) => Object.values(type))
+      .flat();
   daemonDie.good.flatmodes = () =>
     Object.values(daemonDie.good.modes)
       .map((type) => Object.values(type))
       .flat();
-
-  await daemonDie.good.entities.em.flush();
 }
-
-export async function authority(daemonDie) {
-  daemonDie.good.authority = await daemonDie.register.authority //
-    .provider(daemonDie.mask.authority, daemonDie.good.entities.user);
-  daemonDie.good.aperture.use(
-    shards.secure.authority(daemonDie.good.authority),
-  );
-}
-
-// export async function twitches(die) {
-//   for (const handler of Object.values(ontology.populate)) await handler(die);
-//   for (const handler of Object.values(ontology.resolve)) await handler(die);
-// }
-
-//   if (die.register.modules.domain.lifecycle.construct)
-//     await die.register.modules.domain.lifecycle.construct(die.good);
 
 export async function twitch(die) {
   try {
     const subscriptions = die.good.entities.on.patterns
       .map((p) => p.signature)
-      .map((s) => die.variant.kernel.domain.entities.map[s].entity);
+      .map((s) => die.kernel.domain.entities.map[s].entity);
 
     const subscriber = new compiler.Subscriber(
       subscriptions,
@@ -168,3 +178,11 @@ export async function twitch(die) {
     throw e;
   }
 }
+
+// export async function twitches(die) {
+//   for (const handler of Object.values(ontology.populate)) await handler(die);
+//   for (const handler of Object.values(ontology.resolve)) await handler(die);
+// }
+
+//   if (die.register.modules.domain.lifecycle.construct)
+//     await die.register.modules.domain.lifecycle.construct(die.good);

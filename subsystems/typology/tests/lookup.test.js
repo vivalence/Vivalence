@@ -1,5 +1,5 @@
 import config from "@vivalence/paladin";
-import * as assert from "$std@std@std/assert";
+import * as assert from "@std/assert";
 import { cast } from "@vivalence/typology";
 
 Deno.test("Lookup: parses string formats", async () => {
@@ -8,7 +8,7 @@ Deno.test("Lookup: parses string formats", async () => {
     owner: "@vivalence",
     type: "module",
     slug: "moduleA",
-    version: null,
+    version: undefined,
   });
 
   const versioned = cast.lookup("@vivalence/module/moduleA@1.0.0");

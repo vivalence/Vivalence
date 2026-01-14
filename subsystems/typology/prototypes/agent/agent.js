@@ -4,7 +4,7 @@ import { validators, hash, obj } from "@vivalence/shared";
 
 export class Agent {
   constructor(slug, name, manifest = {}) {
-    console.log("AGENT REQUIRES AGENTIC VECTOR COMPILER");
+    // console.log("AGENT REQUIRES AGENTIC VECTOR COMPILER");
     this.slug = slug;
     this.name = name;
     this.context = new Map();
@@ -87,7 +87,7 @@ export class Agent {
     if (!this.outputValidator) return [output, errors];
     // if (!this.outputValidator.Check(output)) {// const errors = [...this.outputValidator.Errors(output)];
 
-    if (!this.outputValidator(obj.stripOfNulls(output))) {
+    if (!this.outputValidator(obj.stripNulls(output))) {
       // console.log("@shared/agent.js [OUTPUT VALIDATION ERRORS]");
       // console.log({output, rest, errors: this.outputValidator.errors, agent: this.slug,});
       // console.log("/[OUTPUT VALIDATION ERRORS]");
@@ -100,7 +100,7 @@ export class Agent {
     this.check(["input", "output"]);
     this.validate(input);
 
-    const response = await this.brain.generate.object({
+    const response = await this.brain.object({
       schema: this.output,
       system: this.system,
       prompt: this.prompt(input),
@@ -110,7 +110,7 @@ export class Agent {
 
     if (errors.length === 0) return object;
 
-    const retry = await this.brain.generate.object({
+    const retry = await this.brain.object({
       schema: this.output,
       system:
         this.system +
@@ -141,7 +141,7 @@ export class Agent {
     this.check(["tools", "input"]);
     this.validate(input);
 
-    const { text, messages } = await this.brain.call.tools({
+    const { text, messages } = await this.brain.action({
       system: this.system,
       tools: this.tools,
       prompt: this.prompt(input),

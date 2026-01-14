@@ -20,6 +20,24 @@ export default async function (ds) {
       black: palette.black,
       gray: palette.gray,
     },
+
+    theme: {
+      primary: createColorType(palette.aqua),
+      secondary: createColorType(palette.indigo),
+      accent: createColorType(palette.pink),
+    },
+
+    system: {
+      // different color?
+      info: createColorType(palette.indigo),
+      success: createColorType(palette.lime),
+      warning: createColorType(palette.amber),
+      danger: createColorType(palette.red),
+      error: createColorType(palette.red),
+      // new color?
+      disabled: createColorType(palette.gray),
+    },
+
     skeleton: {
       app: {
         surface: palette.gray[900],
@@ -46,23 +64,6 @@ export default async function (ds) {
         boundary: palette.gray[400],
       },
       // surface: {1: palette.gray[800], 2: palette.gray[900], 3: palette.gray[400], 4: palette.gray[100],}, contrast: {1: palette.gray[200], 2: palette.gray[300], 3: palette.gray[800], 4: palette.gray[500],}, boundary: {1: palette.gray[300], 2: palette.gray[300], 3: palette.gray[500], 4: palette.gray[400],},
-    },
-
-    system: {
-      // different color?
-      info: createColorType(palette.indigo),
-      success: createColorType(palette.lime),
-      warning: createColorType(palette.amber),
-      danger: createColorType(palette.red),
-      error: createColorType(palette.red),
-      // new color?
-      disabled: createColorType(palette.gray),
-    },
-
-    theme: {
-      primary: createColorType(palette.aqua),
-      secondary: createColorType(palette.indigo),
-      accent: createColorType(palette.pink),
     },
   };
 

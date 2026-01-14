@@ -1,6 +1,6 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { validators } from "@vivalence/shared";
-import { VirtualEntity, VirtualRepository } from "../index.ts";
+import { VirtualEntity, VirtualRepository, IssueEntity } from "../index.ts";
 
 // function example(topography, runtime) {
 //   runtime.ontology.constraints.create({
@@ -45,6 +45,23 @@ export class ConstraintRepository extends VirtualRepository {
   }
   byBranch(branch) {
     return this.filter((c) => c.branch.join() === branch.join());
+    //     const key = branch.join(":");
+    //     return this.filter((c) => c.branch.join(":") === key);
+  }
+  matching(branch, traits = []) {
+    const branches = [branch];
+    if (branch.length > 1) branches.push([branch[0]]);
+    // console.log("constrinats", branch, branches, this);
+    return this.filter((c) => {
+      const branchMatch = branches.some(
+        (b) => c.branch.join(":") === b.join(":"),
+      );
+      if (!branchMatch) return false;
+      const traitMatch =
+        traits.length === 0 ||
+        traits.some((t) => c.traits.includes(t.toUpperCase()));
+      return branchMatch && traitMatch;
+    });
   }
 }
 
@@ -53,19 +70,15 @@ export class ConstraintEntity extends VirtualEntity {
   branch: string[] & Opt; // [${entity} ${togography}] || [${topology} ${dimension}]
   predicate: (entity: any) => Promise<IssueEntity[]>;
 
-  constructor(rule) {
+  constructor({ branch, traits, predicate, description }) {
     super();
-
-    if (rule.data) throw new Error("Constraint data is legacy");
-
-    this.traits = rule.traits;
-    this.branch = rule.branch;
-    this.predicate = rule.predicate;
-
-    if (this.traits.length < 1)
-      throw new Error("ConstraintEntity requires property trait");
-    if (!this.predicate || typeof this.predicate !== "function")
+    this.branch = branch;
+    this.traits = traits.map((t) => t.toUpperCase());
+    this.predicate = predicate;
+    this.description = description || "";
+    if (!this.predicate || typeof this.predicate !== "function") {
       throw new Error("ConstraintEntity requires predicate function");
+    }
   }
 
   async test(entity: any) {
@@ -82,3 +95,22 @@ export default {
   entity: ConstraintEntity,
   repository: ConstraintRepository,
 };
+
+// class ConstraintEntity {
+//   async test(entity) {
+//     try {
+//       const issues = (await this.predicate(entity)) || [];
+//       return issues.map((issue) => ({ ...issue, constraint: this, entity }));
+//     } catch (error) {
+//       return [
+//         {
+//           message: `Constraint error: ${error.message}`,
+//           violation: "error",
+//           path: this.branch,
+//           context: { error, entity },
+//           constraint: this,
+//         },
+//       ];
+//     }
+//   }
+// }

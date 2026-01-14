@@ -1,6 +1,6 @@
 import { sleep, random } from "@vivalence/shared";
-import { assertEquals } from "$std@std@std/assert";
-import { Classifier } from "../index.ts";
+import { assertEquals } from "@std/assert";
+import { Classifier } from "@vivalence/typology";
 import { Feature, type Context, Signal, Parser } from "../types.ts";
 
 export class Text extends Signal<string> {

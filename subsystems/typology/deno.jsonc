@@ -17,5 +17,6 @@
     "test/url": "deno test -A --no-check --watch tests/url.test.js",
     "test/connection": "deno test -A --no-check --watch tests/connection.test.js",
     "test/lookup": "deno test -A --no-check --watch tests/lookup.test.js",
+    "test/classifier": "deno test -A --no-check --watch tests/classifier.test.js",
   },
 }

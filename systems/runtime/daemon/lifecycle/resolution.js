@@ -1,7 +1,9 @@
 import { is, shards } from "@vivalence/typology";
-import { traitmap } from "../mode/traitmap.js";
+// import { traitmap } from "../mode/traitmap.js";
 
-// attach modes
+// import { Classifier, Remedy } from "@vivalence/shared";
+// import factories from "./factories/index.js";
+
 export async function modes(daemonDie) {
   for (const mode of daemonDie.good.flatmodes()) {
     mode.aperture
@@ -28,18 +30,3 @@ export async function modes(daemonDie) {
 //         .use(shards.context.attach(die.type, die.mask))
 //         .descendants.push(die.good);
 // // legacy/duplicate?
-// export async function services(die) {
-//   // console.log({ ...die.mask });
-//   for (const [slug, servicemask] of Object.entries(die.mask.consume)) {
-//     const register = await paladin.vip.accio(servicemask.module);
-//     die.good.service[servicemask.slug] = await register.provider(servicemask);
-//   }
-// }
-// async function services(die) {
-//   if (die.mask.consume) {
-//     for (const [service, config] of Object.entries(die.mask.consume)) {
-//       const provider = runtime.terrans.find((t) => t.slug === config.provider);
-//       die.variant.service[service] = provider;
-//     }
-//   }
-// }

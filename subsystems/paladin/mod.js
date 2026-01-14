@@ -17,7 +17,7 @@ const paladin = await (async function incarne() {
 paladin.ikiro = (async function ikiro() {
   await resolve.circuitry(paladin);
   await resolve.variant(paladin);
-  await resolve.consumables(paladin);
+  // await resolve.consumables(paladin);
   // await integrate.publish(paladin);
   // await integrate.secure(paladin);
   // await integrate.validate(paladin);

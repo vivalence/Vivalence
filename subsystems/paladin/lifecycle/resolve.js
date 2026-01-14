@@ -26,7 +26,6 @@ export async function variant(paladin) {
   const circuitry = paladin.variant.circuitry;
   // not good for figuring out what part of the config belongs together! @change: process sequentually.
   const runtimeConfigs = circuitry.map((c) => c.runtime).filter(Boolean);
-  // const lighthouseConfigs = circuitry.map((c) => c.lighthouse).filter(Boolean);
   const clientsConfigs = circuitry.map((c) => c.clients).filter(Boolean);
   const daemonsConfigs = circuitry.flatMap((c) => c.daemons || []);
   const servicesConfigs = circuitry.flatMap((c) => c.services || []);
@@ -65,26 +64,7 @@ export async function variant(paladin) {
   });
 }
 
-export async function consumables(paladin) {
-  for (const daemon of paladin.variant.daemons) {
-    if (!daemon.consume) continue;
-    for (const service of fromm.slugmap(daemon.consume).array) {
-      let f;
-      if (is.string(service.provider)) f = (s) => s.slug === service.provider;
-
-      const provider = paladin.variant.services.find(f);
-      if (provider) {
-        service.provide = provider;
-        service.mount = service.provider.mount;
-        daemon.consume[service.slug] = service;
-        continue;
-      }
-
-      console.warn("[@paladin] resolution issue: service provider not found");
-      console.log({ service });
-    }
-  }
-}
+// export async function consumables(paladin) {for (const daemon of paladin.variant.daemons) {if (!daemon.consume) continue; for (const service of fromm.slugmap(daemon.consume).array) {let f; if (is.string(service.provider)) f = (s) => s.slug === service.provider; const provider = paladin.variant.services.find(f); if (provider) {service.provide = provider; service.mount = service.provider.mount; daemon.consume[service.slug] = service; continue;} console.warn("[@paladin] resolution issue: service provider not found"); console.log({ service });}}}
 
 // export async function cross(paladin) {
 //   console.log({ paladin: { ...paladin.variant } });
