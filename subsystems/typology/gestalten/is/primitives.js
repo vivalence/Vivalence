@@ -10,7 +10,6 @@ export function object(thing) {
 export function fn(thing) {
   return typeof thing === "function";
 }
-
 export function string(thing) {
   return typeof thing === "string";
 }

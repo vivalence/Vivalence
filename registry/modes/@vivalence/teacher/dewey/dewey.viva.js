@@ -1,7 +1,7 @@
 import { View } from "@vivalence/typology";
 import { Aperture } from "@vivalence/vector/aperture";
 import dataset from "./dataset/index.js";
-// import { agent } from "./aperture/index.js";
+import aperture from "./aperture/index.js";
 
 const manifest = {
   type: "teacher",
@@ -9,16 +9,10 @@ const manifest = {
   name: "Dewey Finn",
   version: "0.0.1",
   description: `Dewey Finn is the main protagonist of "School of Rock", a 2003 film directed by Richard Linklater starring Jack Black, Joan Cusack and Sarah Silverman. Dewey is a down-on-his-luck, energetic, 30-year-old wannabe rock superstar who is kicked out of his own band 'No Vacancy' due to his antics such as constant 20-minute solos and stage diving.`,
-  traits: ["VIEWABLE", "DATASET", "VALENTIC"], // "SESSIONED", "GENERATOR",  // datamap?dataset?
+  traits: ["VIEWABLE", "DATASET", "VALENTIC", "CHAOSMONKEY"], // "SESSIONED", "GENERATOR",  // datamap?dataset?
 };
 
 const view = new View("/view/viva.svelte.js");
-
-const aperture = new Aperture() //
-  //.open("/session", session) .open("/agent", agent)
-  .open("/feed", (input, ctx) => [
-    { agent: "cant talk rn, lizzy brought apples." },
-  ]);
 
 export { manifest, view, aperture, dataset };
 

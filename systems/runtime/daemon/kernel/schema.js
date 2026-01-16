@@ -78,9 +78,10 @@ async function buildSubjectAnnotationSchema(subject, daemon) {
     properties: {},
     required: [],
     allOf: [],
+    additionalProperties: false,
   };
 
-  for (const rule of subject.annotation || []) {
+  for (const rule of subject.dimensions || []) {
     if (rule.branch) {
       await applyBranchRule(schema, rule, daemon);
     } else if (rule.condition) {
@@ -166,7 +167,7 @@ function baseLiteralSchema() {
       data: { type: "object" },
     },
     required: ["slug", "annotation"],
-    additionalProperties: true,
+    additionalProperties: false,
   };
 }
 
@@ -179,9 +180,8 @@ function buildSubjectLiteralSchema(subject, annotationSchema) {
       slug: { type: "string" },
       annotation: annotationSchema,
       data: { type: "object" },
-      traits: { type: "array", items: { type: "string" } },
     },
     required: ["slug", "annotation"],
-    additionalProperties: true,
+    additionalProperties: false,
   };
 }

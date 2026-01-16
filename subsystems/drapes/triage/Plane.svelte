@@ -17,7 +17,7 @@
   ];
   // if (snug) classes.push("auto");
 
-  console.log("plane", classes);
+  // console.log("plane", classes);
 
   // const sizing = snug ? "auto" : greedy ? "1fr" : share ? `${share}fr` : w ? `${w}px` : h ? `${h}px` : ""
 </script>

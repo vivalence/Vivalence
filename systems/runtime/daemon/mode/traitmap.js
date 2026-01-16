@@ -13,11 +13,8 @@ export const traitmap = {
     // mode.
     mode.aperture.use(async (ctx, next) => {
       // ctx.daemon.hallucinate = ()
-      ctx.hallucinate = {
-        persona: async () => {},
-        response: async () => {},
-        object: async () => {},
-      };
+      ctx.hallucinate = daemon.brain;
+      await next();
     });
     // mode.aperture.use(inject(runtime.services.brain));
   },
@@ -39,22 +36,22 @@ export const traitmap = {
     await daemon.entities.em.flush();
   },
 
-  TOPOLOGICAL: async (mode, daemon) => {
-    console.log("skipping topological trait.");
-    return;
-    // await runtime.entities.subject.nativeDelete({});
-    for (const dimension of mode.cake.topology?.dimensions || []) {
-      await daemon.ontology.dimension.extend(dimension);
-    }
-    for (const subject of mode.cake.topology?.topographies || []) {
-      // console.log(subject);
-      await daemon.ontology.subject.ensure(subject);
-    }
-    // console.log(await runtime.ontology.subject.find());
-    // console.log(await runtime.ontology.dimension.byBranch(["text", "*"]));
+  // TOPOLOGICAL: async (mode, daemon) => {
+  //   console.log("skipping topological trait.");
+  //   return;
+  //   // await runtime.entities.subject.nativeDelete({});
+  //   for (const dimension of mode.cake.topology?.dimensions || []) {
+  //     await daemon.ontology.dimension.extend(dimension);
+  //   }
+  //   for (const subject of mode.cake.topology?.topographies || []) {
+  //     // console.log(subject);
+  //     await daemon.ontology.subject.ensure(subject);
+  //   }
+  //   // console.log(await runtime.ontology.subject.find());
+  //   // console.log(await runtime.ontology.dimension.byBranch(["text", "*"]));
 
-    await daemon.entities.em.flush();
-  },
+  //   await daemon.entities.em.flush();
+  // },
 
   SESSIONED: async (mode, daemon) => {},
 

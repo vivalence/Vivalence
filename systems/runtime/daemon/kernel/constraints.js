@@ -2,7 +2,6 @@ import { validators } from "@vivalence/shared";
 
 export async function constraints(daemonDie) {
   // Create base constraints
-
   createAnnotationConstraints(daemonDie.good);
   createLiteralConstraints(daemonDie.good);
   createSymbolConstraints(daemonDie.good);
@@ -13,7 +12,10 @@ export async function constraints(daemonDie) {
 
   for (const subject of subjects) {
     createSubjectSchematicConstraints(subject, daemonDie.good);
-    createSubjectRelationalConstraints(subject, daemonDie.good);
+
+    if (subject.relations) {
+      createSubjectRelationalConstraints(subject, daemonDie.good);
+    }
   }
 }
 

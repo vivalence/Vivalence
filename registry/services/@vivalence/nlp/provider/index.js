@@ -1,4 +1,4 @@
-import { Url, Connection } from "@vivalence/typology";
+import { Url, Connection, is } from "@vivalence/typology";
 
 export default function provider(service) {
   const url = service.statics.remote;
@@ -28,7 +28,9 @@ export default function provider(service) {
     const result = await connection
       .use(async (ctx, next) => {
         await next();
-        ctx.response.body = JSON.parse(ctx.response.body);
+
+        if (is.string(ctx.response.body))
+          ctx.response.body = JSON.parse(ctx.response.body);
       })
       .fetch(
         "/nlp",

@@ -9,21 +9,40 @@ export class Signature {
 
   constructor(signature = null, trace = null) {
     if (!is.array(this.gauges)) this.gauges = [];
+
     signature = this.coerce(signature);
 
+    if (is.fn(signature)) signature = signature(this.constructor);
     if (signature instanceof this.constructor) return signature.from(trace);
     if (signature instanceof Signature) this.nature = signature.nature;
+
     if (is.string(signature)) this.nature = signature;
     if (is.signature(signature)) Object.assign(this, signature);
     if (is.array(signature)) {
-      const root = new this.constructor(signature.shift()).from(trace);
+      // recursion if coerce returns array
+      let root = signature.shift();
+      root = new this.constructor(root).from(trace);
       if (!is.empty(signature)) root.branch(signature);
       return root;
     }
 
-    // is fn?
-
     if (trace) this.from(trace);
+  }
+
+  coerce(signature) {
+    for (const [test, transform] of this.constructor.coercions) {
+      // if (test(signature)) return transform(signature);
+      if (test.call(this, signature)) return transform.call(this, signature);
+      // recursion error if coerce returns array.
+    }
+    return signature;
+  }
+
+  from(trace, anon = false) {
+    this.trace = trace;
+    if (!anon) this.trace?.gauges.push(this);
+    // if (is.fn(trace?.nature) && !this.nature) {this.nature = trace.nature; this.filter = trace.nature;}
+    return this;
   }
 
   get absolute() {
@@ -34,21 +53,6 @@ export class Signature {
     const json = { nature: this.nature, absolute: this.absolute };
     if (this.trace?.json) json.trace = this.trace.json;
     return json;
-  }
-
-  coerce(signature) {
-    for (const [test, transform] of this.constructor.coercions) {
-      // if (test(signature)) return transform(signature);
-      if (test.call(this, signature)) return transform.call(this, signature);
-    }
-    return signature;
-  }
-
-  from(trace, anon = false) {
-    this.trace = trace;
-    if (!anon) this.trace?.gauges.push(this);
-    // if (is.fn(trace?.nature) && !this.nature) {this.nature = trace.nature; this.filter = trace.nature;}
-    return this;
   }
 
   clone() {

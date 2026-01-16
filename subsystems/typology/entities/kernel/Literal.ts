@@ -1,8 +1,17 @@
-import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import {
+  types,
+  Collection,
+  EntitySchema,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
 import { DataEntity, DataSchema } from "../index.ts";
 import { SymbolEntity } from "../index.ts";
 
 export class LiteralEntity extends DataEntity {
+  slug: string & Opt = "";
+  name?: string;
+  description?: string;
   symbols = new Collection<SymbolEntity>(this);
   annotation: any & Opt = {};
   data: any & Opt = {};
@@ -16,6 +25,10 @@ export const LiteralSchema = new EntitySchema({
   name: "Literal",
   uniques: [{ properties: ["slug"] }],
   properties: {
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
+
     symbols: {
       kind: "m:n",
       entity: () => SymbolEntity,

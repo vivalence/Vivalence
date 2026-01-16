@@ -42,6 +42,11 @@ export async function core(die) {
   ];
 }
 
+export function wiring(daemonDie) {
+  daemonDie.good.statics = daemonDie.mask.statics;
+  daemonDie.good.docs = daemonDie.mask.docs;
+}
+
 export async function datamap(daemonDie) {
   const { orm, entities } = await daemonDie.register.datamap //
     .provider(daemonDie.mask.datamap, daemonDie.variant.entities);

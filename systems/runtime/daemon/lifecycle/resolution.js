@@ -7,6 +7,7 @@ import { is, shards } from "@vivalence/typology";
 export async function modes(daemonDie) {
   for (const mode of daemonDie.good.flatmodes()) {
     mode.aperture
+      .use(shards.context.attach("daemon", daemonDie.good))
       .use(shards.context.attach("mode", mode))
       .open("/status", () => ({ code: "SUCCESS" }))
       .open("/manifest", () => ({ ...mode.cake.manifest }));

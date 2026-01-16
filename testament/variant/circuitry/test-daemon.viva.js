@@ -18,12 +18,12 @@ export const daemons = [
 
     docs: {
       name: "para estudiar espanol",
-      valence: "para estudiar espanol. deutsch nach spanish",
+      valence: "para estudiar espanol. english to spanish.",
       icon: { emoji: "" },
     },
 
     statics: {
-      language: { known: "german", learning: "spanish" },
+      language: { known: "english", learning: "spanish" },
     },
 
     kernel: [

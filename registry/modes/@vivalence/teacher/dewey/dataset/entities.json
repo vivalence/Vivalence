@@ -6,7 +6,7 @@
       "docs": "first point of contact.",
       "traits": ["DESTINATION"],
       "data": {
-        "DESTINATION": "/"
+        "DESTINATION": "/feed"
       }
     }
   ]

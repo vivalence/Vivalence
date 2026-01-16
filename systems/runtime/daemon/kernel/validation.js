@@ -69,7 +69,7 @@ async function runConstraints(daemon, branch, entity, processors) {
 
   const issues = [];
 
-  console.log({ constraints, sorted });
+  // console.log({ constraints, sorted });
   for (const constraint of sorted) {
     const constraintIssues = await constraint.test(entity);
     issues.push(...constraintIssues);

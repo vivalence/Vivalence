@@ -19,21 +19,20 @@ export async function datasets(daemonDie) {
           daemonDie.good.entities.subject.ensure(t),
         ),
       );
-
-    // if (topology.constraints) topology.constraints .map((c) => rme.instance.ontology.constraint.create(c));
-    // if (topology.remedies) topology.remedies.map((r) => rme.instance.ontology.medic.register(r));
-    // if (topology.receptors) {
-    //   topology.receptors.entries().forEach(([form, parsers]) => {
-    //     parsers.map((parser) =>
-    //       rme.instance.ontology.taxonomist.on(form, parser),
-    //     );
-    //   });
-    // }
   }
 
   await daemonDie.good.entities.em.flush();
 }
 
+// if (topology.constraints) topology.constraints .map((c) => rme.instance.ontology.constraint.create(c));
+// if (topology.remedies) topology.remedies.map((r) => rme.instance.ontology.medic.register(r));
+// if (topology.receptors) {
+//   topology.receptors.entries().forEach(([form, parsers]) => {
+//     parsers.map((parser) =>
+//       rme.instance.ontology.taxonomist.on(form, parser),
+//     );
+//   });
+// }
 // export async function topography(daemonDie) {
 //   // console.log(daemonDie);
 //   // const datasets = daemonDie .flatmodules() .filter(module.manifest.traits.includes("DATASET"));

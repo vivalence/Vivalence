@@ -28,13 +28,13 @@ perspective
     await next();
   })
   .open("/(.*)", async (ctx) => {
-    // console.log("ctx", ctx);
     return [new Buffer(ctx.mode.view, { ...ctx })];
     // console.log("fromm.params(ctx.params).path", fromm.params(ctx.params).path);
     // ctx.stall.push(new Buffer(ctx.mode.view, { ...ctx }));
 
     // if (ctx.mode.implements("casting")) {
     //   const generation = await ctx.mode.call(fromm.params(ctx.params).path);
+
     //   for (const product of generation) {
     //     ctx.buffer.push(new Buffer(ctx.mode.view, { ...ctx, product }));
     //   }

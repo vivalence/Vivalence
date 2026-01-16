@@ -14,6 +14,8 @@ export class Daemon {
   authority = null; // lighthouse client
   brain = null;
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
+  statics = null;
+  docs = {};
 
   kernel = {
     orm: {},

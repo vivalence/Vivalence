@@ -13,12 +13,14 @@ export class DataEntity extends BaseEntity {
   id!: string;
   createdAt!: Date & Opt;
   updatedAt!: Date & Opt;
-  slug: string & Opt = "";
-  traits: string[] & Opt = [];
-  type?: string;
-  name?: string;
-  description?: string;
-  data: any & Opt = {};
+
+  // slug: string & Opt = "";
+  // name?: string;
+  // description?: string;
+
+  // traits: string[] & Opt = [];
+  // type?: string;
+  // data: any & Opt = {};
 }
 
 export class DataRepository extends EntityRepository {
@@ -40,21 +42,8 @@ export const DataSchema = new EntitySchema({
   class: DataEntity,
   abstract: true,
   repository: () => DataRepository,
-  name: "DataEntity",
   properties: {
     id: { type: types.string, primary: true, onCreate: () => v7() },
-    slug: { type: types.string },
-    type: { type: types.string, nullable: true },
-    name: { type: types.string, nullable: true },
-    description: { type: types.string, nullable: true },
-    data: { type: types.json, default: {} },
-    traits: {
-      type: types.json,
-      enum: true,
-      array: true,
-      items: () => [],
-      default: [],
-    },
     createdAt: {
       type: types.datetime,
       onCreate: () => new Date(),
@@ -68,5 +57,13 @@ export const DataSchema = new EntitySchema({
       defaultRaw: `CURRENT_TIMESTAMP`,
       lazy: true,
     },
+
+    // slug: { type: types.string },
+    // name: { type: types.string, nullable: true },
+    // description: { type: types.string, nullable: true },
+
+    // type: { type: types.string, nullable: true },
+    // traits: {type: types.json, enum: true, array: true, items: () => [], default: [],},
+    // data: { type: types.json, default: {} },
   },
 });

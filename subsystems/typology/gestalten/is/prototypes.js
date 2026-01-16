@@ -22,6 +22,11 @@ export function Pattern(thing) {
   return thing instanceof prototypes.Pattern;
 }
 
+export const Action = (thing) =>
+  thing?.constructor?.name === "Action" || thing instanceof Action;
+
+export const action = Action;
+
 export function pattern(thing) {
   return (
     is.defined(thing) &&

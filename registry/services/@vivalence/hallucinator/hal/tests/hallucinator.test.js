@@ -1,46 +1,108 @@
-//  generate
-//
-//
-//
+import { Type } from "@sinclair/typebox";
+import paladin from "@vivalence/paladin";
+import { Vector } from "@vivalence/vector";
+import { Agent, specimen, Action } from "@vivalence/typology";
 
-// import { specimen, Url, Connection } from "@vivalence/typology";
-// import { shards } from "@vivalence/typology";
-// import { Value } from "@sinclair/typebox/value";
-// import { scalars, primitives, bodies, types } from "@vivalence/typology";
+await paladin.ikiro;
+await paladin.vip.mount(paladin.scope.registry.branch("services"));
 
-// const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
-// const lighthouse = new Connection(new Url(BASE));
+async function createBrain() {
+  const hal = await paladin.vip.accio("@vivalence/hallucinator/hal257");
+  const provider = await hal.provider({
+    secrets: { anthropic: paladin.secret.get("ANTHROPIC_API_KEY") },
+  });
+  return provider;
+}
 
-// let auth = {};
+specimen.describe("Hal Object Generation", () => {
+  let brain;
+  specimen.describe("setup", () => {
+    specimen.it("creates provider instance", async () => {
+      brain = await createBrain();
+      specimen.expect(brain).toBeDefined();
+      specimen.expect(typeof brain.object).toBe("function");
+    });
+  });
+  specimen.describe("object generation", () => {
+    specimen.it("generates simple object", async () => {
+      const schema = Type.Object({
+        message: Type.String({ description: "A greeting message" }),
+        timestamp: Type.Number({ description: "Unix timestamp" }),
+      });
 
-// specimen.describe("Hallucinator", () => {
-//   specimen.describe("server", () => {
-//     specimen.it("/manifest", async () => {
-//       const result = await lighthouse.call("/manifest");
-//       // console.log({ result });
-//       // specimen.expect(Value.Check(primitives.Manifest, result)).toBe(true);
-//       specimen.expect(result.type).toBe("lighthouse");
-//       specimen.expect(result.slug).toBe("multiplayer");
-//     });
+      const result = await brain.object({
+        schema,
+        system: "You are a helpful assistant that generates greetings.",
+        prompt: "Generate a greeting with current timestamp",
+      });
 
-//     specimen.it("/status", async () => {
-//       const result = await lighthouse.call("/status", {});
-//       // console.log({ result });
-//       // specimen.expect(result.code).toBe(string)
-//       // specimen.expect(Value.Check(types.Status, result)).toBe(true);
-//     });
-//   });
-//   specimen.describe("auth", () => {
-//     specimen.it("login", async () => {
-//       const result = await lighthouse.call("/auth/login", {
-//         username: "beef",
-//         password: "biggusdickus",
-//       });
-//       specimen.expect(Value.Check(bodies.AuthResponse, result)).toBe(true);
-//       specimen
-//         .expect(Value.Check(scalars.JWTToken, result.authority?.access))
-//         .toBe(true);
-//       auth = result.authority;
-//     });
-//   });
-// });
+      specimen.expect(result).toBeDefined();
+      specimen.expect(result.object).toBeDefined();
+      specimen.expect(typeof result.object.message).toBe("string");
+      specimen.expect(typeof result.object.timestamp).toBe("number");
+    });
+  });
+});
+
+specimen.describe("Hal Action with Agent", () => {
+  specimen.it("agent executes math workflow with tools", async () => {
+    const brain = await createBrain();
+    const results = [];
+
+    const mathTools = new Vector().withSignature(Action);
+
+    mathTools
+      .open(
+        {
+          nature: "add",
+
+          valence: "Add two numbers together",
+          input: Type.Object({
+            a: Type.Number({ description: "First number" }),
+            b: Type.Number({ description: "Second number" }),
+          }),
+        },
+        (ctx) => {
+          const sum = ctx.input.a + ctx.input.b;
+          results.push({ tool: "add", inputs: ctx.input, result: sum });
+          return { result: sum };
+        },
+      )
+      .open(
+        {
+          nature: "multiply",
+          valence: "Multiply two numbers together",
+          input: Type.Object({
+            a: Type.Number({ description: "First number" }),
+            b: Type.Number({ description: "Second number" }),
+          }),
+        },
+        (ctx) => {
+          const product = ctx.input.a * ctx.input.b;
+          results.push({
+            tool: "multiply",
+            inputs: ctx.input,
+            result: product,
+          });
+          return { result: product };
+        },
+      );
+
+    const agent = new Agent("calculator")
+      .withBrain(brain)
+      .withTools(mathTools)
+      .withInput(Type.Object({ problem: Type.String() }))
+      .withContext("role", "Math assistant. Use tools to solve step by step.")
+      .withTemplate((input) => `Solve: ${input.problem}`);
+
+    const output = await agent.do({
+      problem: "First add 15 and 27, then multiply the result by 3",
+    });
+
+    specimen.expect(output.text).toBeDefined();
+
+    specimen.expect(results.length).toBe(2);
+    specimen.expect(results[0].tool).toBe("add");
+    specimen.expect(results[1].tool).toBe("multiply");
+  });
+});

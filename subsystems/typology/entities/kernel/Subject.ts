@@ -9,10 +9,7 @@ import {
 import { DataRepository, DimensionEntity } from "../index.ts";
 import { DataEntity, DataSchema } from "../index.ts";
 
-export enum SubjectTraitsEnum {
-  CONSTRAINED = "CONSTRAINED",
-  ANNOTATED = "ANNOTATED",
-}
+// export enum SubjectTraitsEnum {CONSTRAINED = "CONSTRAINED", ANNOTATED = "ANNOTATED",}
 
 export class SubjectRepository extends DataRepository {
   unique(opt) {
@@ -25,8 +22,12 @@ export class SubjectRepository extends DataRepository {
 export class SubjectEntity extends DataEntity {
   // traits: SubjectTraitsEnum[] & Opt = [];
   // data: any & Opt = {};
-  dimensions = new Collection<DimensionEntity>(this);
-  annotation: any[] & Opt = [];
+  // dimensions = new Collection<DimensionEntity>(this);
+  slug: string & Opt = "";
+  name?: string;
+  description?: string;
+  dimensions: any[] & Opt = [];
+  relations: any[] & Opt = [];
   // constraints: any[] & Opt = [];
 
   [EntityRepositoryType]?: SubjectRepository;
@@ -43,14 +44,15 @@ export const SubjectSchema = new EntitySchema<SubjectEntity, DataEntity>({
   repository: () => SubjectRepository,
 
   properties: {
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
     // traits: {type: types.json, defaultRaw: `"[]"`, enum: true, array: true, items: () => SubjectTraitsEnum, default: [],},
     // data: { type: types.json, default: {} },
-    dimensions: {
-      kind: "m:n",
-      entity: () => DimensionEntity,
-      inversedBy: "subjects",
-    },
-    annotation: { type: types.json, default: [] },
+    // dimensions: {kind: "m:n", entity: () => DimensionEntity, inversedBy: "subjects",},
+    dimensions: { type: types.json, default: [] },
+    relations: { type: types.json, default: [] },
+    // annotation: { type: types.json, default: [] },
     // constraints: {type: types.json, default: [],},
   },
 });

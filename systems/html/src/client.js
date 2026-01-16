@@ -9,23 +9,23 @@ import {
   entities,
 } from "@vivalence/html/typology";
 
-export const stall = new Stall();
-export const pages = new Map(); // path:Stall
+// export const stall = new Stall();
+// export const pages = new Map(); // path:Stall
 
 export const dataspace = {
   // network
   lighthouse: new Repository(entities.lighthouse),
   daemon: new Repository(entities.daemon),
 
-  // userspace
-  // intent: new Repository(),
-  // session: new Repository(),
-  // product: new Repository(), // ? or higher level wrapper like instruction ?
-
   // daemonized
   // unit: new Repository(), // system level presentation & integration layer of the dataspace.
   valence: new Repository(entities.valence),
   mode: new Repository(entities.mode),
+
+  // userspace
+  // intent: new Repository(),
+  // session: new Repository(),
+  // product: new Repository(), // ? or higher level wrapper like instruction ?
 };
 
 //

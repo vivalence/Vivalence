@@ -34,7 +34,14 @@ export async function lifecycle(daemon) {
     mode.daemon = daemon;
     mode.mount = daemon.mount //
       .branch(`/mode/${mode.type}/${mode.slug}`);
-    mode.connection = daemon.connection.branch(mode.mount.nature);
+
+    mode.connection = daemon.connection
+      .branch(mode.mount.nature)
+      .use(async (context, next) => {
+        console.log("mode connection call", context);
+        await next();
+      });
+
     mode.manifest = await mode.connection.call("/manifest");
 
     if (mode.implements("VIEWABLE"))
@@ -58,7 +65,6 @@ export async function lifecycle(daemon) {
       valence.destination = new Path("/viva")
         .branch(valence.mode.mount.absolute)
         .branch(valence.data["DESTINATION"]);
-      // console.log("{destination}", { valence });
     }
 
     valence.mode.valences.add(valence);

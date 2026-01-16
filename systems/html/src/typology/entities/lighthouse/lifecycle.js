@@ -68,7 +68,7 @@ export async function lifecycle(lighthouse) {
     lighthouse.manifest = await lighthouse.connection.call("/manifest");
   }
   persistToStorage(lighthouse);
-  console.log("cycled lighthouse", lighthouse);
+  // console.log("cycled lighthouse", lighthouse);
 
   return lighthouse;
 }

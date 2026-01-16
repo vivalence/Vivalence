@@ -108,6 +108,7 @@ class Classifier {
     features = [features]
       .flat()
       .filter(Boolean)
+      .map((f) => (f instanceof Feature ? f : new Feature(f)))
       .map((f) => f.from(classifiable));
 
     // Cache and resolve pending

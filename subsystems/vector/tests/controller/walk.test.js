@@ -1,7 +1,7 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import { Signal } from "@vivalence/typology";
-import { Vector } from "../../vector.js";
-import { walk } from "../../controller/walk.js";
+import { Vector } from "@vivalence/vector";
+import { walk } from "@vivalence/vector/controller";
 
 // Test prototypes
 const createMockEffect = (name) => () => `${name} effect`;

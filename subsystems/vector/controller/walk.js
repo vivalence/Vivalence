@@ -3,17 +3,16 @@ import { Long, Short, NotFound } from "@vivalence/vector/typology";
 import { traverse } from "./traverse.js";
 import { forward, chain, compose } from "./carry.js";
 
-export async function walk(vector, signal, more) {
+export async function walk(vector, more) {
   let position = vector;
   let carry = forward;
   let steps = [];
+  let signal;
 
   while (position.heir) {
     if (steps.length >= 20) throw new Long();
-    console.log("pre", signal.signature);
-    if (!signal?.signature) signal = await more(position.patterns);
-    console.log("post", signal.signature);
-    if (!signal.signature) throw new Short(position);
+    if (!signal?.nature) signal = await more(position.patterns);
+    if (!signal.nature) throw new Short(position);
 
     const [effect, luggage, path, trajectory] = traverse(position, signal);
 

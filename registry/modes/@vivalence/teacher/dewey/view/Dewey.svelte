@@ -1,16 +1,19 @@
 <script>
   import { Loader, Desk, Text } from "@vivalence/drapes";
 
-  let { product, buffer } = $props();
+  let { product, buffer, mode, ctx } = $props();
 
-  let agent = $state(product?.agent || "gimmeasec");
+  console.log("XTX dewy", { ctx, mode });
+
+  let agent = $state(product?.agent || "what");
+
   let input = $state("");
   let loading = $state(false);
 
   // let history = $state([]);
 
   // async function doAgent(message) {
-  //   const response = await ctx.module.strategy //
+  //   const response = await ctx.mode //
   //     .call("/agent", { session, message });
 
   //   agent = response.agent.text;
@@ -31,12 +34,14 @@
   // }
 
   async function onSubmit() {
-  //   if (loading) return;
-  //   loading = true;
-  //   const agentPromise = doAgent(input);
-  //   input = "";
-  //   await agentPromise;
-  //   loading = false;
+    if (loading || !input.trim()) return;
+    loading = true;
+    const message = input;
+    input = "";
+
+    const response = await mode.connection.call("/conversation", { message });
+    agent = response.agent;
+    loading = false;
   }
 </script>
 
@@ -44,9 +49,9 @@
   <div class="bsp-node">
     <div class="bsp-node p-24 pt-32">
       {#if loading}
-        <Text size="lg">Thinking...</Text>
+        <Text>Thinking...</Text>
       {:else}
-        <Text size="xl">{@html agent}</Text>
+        <Text>{@html agent}</Text>
       {/if}
     </div>
   </div>

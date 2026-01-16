@@ -9,6 +9,15 @@ import {
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ValenceEntity } from "../index.ts";
 
+export enum ModeTraitsEnum {
+  VIEWABLE = "VIEWABLE", //
+  DATASET = "DATASET", //
+  CASTING = "CASTING", //
+  CHAOSMONKEY = "CHAOSMONKEY", //
+  VALENTIC = "VALENTIC", //
+  SESSIONED = "SESSIONED", //
+}
+
 export class ModeRepository extends DataRepository {
   unique(opt) {
     // ?? uniqueKeys = ["slug", "type"];
@@ -16,9 +25,15 @@ export class ModeRepository extends DataRepository {
   }
 }
 export class ModeEntity extends DataEntity {
+  slug: string & Opt = "";
+  name?: string;
+  description?: string;
+  traits: ModeTraitsEnum[] & Opt = [];
+  type?: string;
+  installed: Boolean = false;
+
   valences = new Collection<ValenceEntity>(this);
   // products: Rel<ProductEntity>;
-  installed: Boolean = false;
 }
 
 export const ModeSchema = new EntitySchema({
@@ -29,7 +44,20 @@ export const ModeSchema = new EntitySchema({
   tableName: "Mode",
   uniques: [{ properties: ["slug", "type"] }],
   properties: {
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
+    type: { type: types.string, nullable: true },
+    // traits: {type: types.json, enum: true, array: true, items: () => [], default: [],},
+    traits: {
+      items: () => ModeTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+    },
+
     installed: { type: types.boolean },
+
     valences: {
       kind: "1:m",
       entity: () => ValenceEntity,

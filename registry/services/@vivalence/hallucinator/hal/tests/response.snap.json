@@ -1,0 +1,172 @@
+{
+  "output": {
+    "object": {
+      "items": [
+        {
+          "id": 1,
+          "title": "Complete project report"
+        },
+        {
+          "id": 2,
+          "title": "Review team feedback"
+        },
+        {
+          "id": 3,
+          "title": "Schedule follow-up meeting"
+        }
+      ]
+    },
+    "finishReason": "stop",
+    "usage": {
+      "inputTokens": 706,
+      "outputTokens": 71,
+      "totalTokens": 777,
+      "cachedInputTokens": 0
+    },
+    "warnings": [],
+    "providerMetadata": {
+      "anthropic": {
+        "usage": {
+          "input_tokens": 706,
+          "output_tokens": 71,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "service_tier": "standard"
+        },
+        "cacheCreationInputTokens": 0,
+        "stopSequence": null,
+        "container": null
+      }
+    },
+    "response": {
+      "id": "msg_01TPe93sZXTX1S9fG4zRSHqM",
+      "timestamp": "2026-01-16T18:15:39.347Z",
+      "modelId": "claude-sonnet-4-5-20250929",
+      "headers": {
+        "anthropic-organization-id": "2258ec43-f37e-43a7-b703-a0f0ec7527c8",
+        "anthropic-ratelimit-input-tokens-limit": "2000000",
+        "anthropic-ratelimit-input-tokens-remaining": "2000000",
+        "anthropic-ratelimit-input-tokens-reset": "2026-01-16T18:15:38Z",
+        "anthropic-ratelimit-output-tokens-limit": "400000",
+        "anthropic-ratelimit-output-tokens-remaining": "400000",
+        "anthropic-ratelimit-output-tokens-reset": "2026-01-16T18:15:39Z",
+        "anthropic-ratelimit-requests-limit": "4000",
+        "anthropic-ratelimit-requests-remaining": "3999",
+        "anthropic-ratelimit-requests-reset": "2026-01-16T18:15:35Z",
+        "anthropic-ratelimit-tokens-limit": "2400000",
+        "anthropic-ratelimit-tokens-remaining": "2400000",
+        "anthropic-ratelimit-tokens-reset": "2026-01-16T18:15:38Z",
+        "cf-cache-status": "DYNAMIC",
+        "cf-ray": "9bef995ee8142307-KBP",
+        "content-type": "application/json",
+        "date": "Fri, 16 Jan 2026 18:15:39 GMT",
+        "request-id": "req_011CXBWjXt4qPc5TZTtDQNxo",
+        "server": "cloudflare",
+        "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+        "x-envoy-upstream-service-time": "3740",
+        "x-robots-tag": "none"
+      },
+      "body": {
+        "model": "claude-sonnet-4-5-20250929",
+        "id": "msg_01TPe93sZXTX1S9fG4zRSHqM",
+        "type": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "tool_use",
+            "id": "toolu_01MrJhwTXYfThoQxHMpiDCFJ",
+            "name": "json",
+            "input": {
+              "items": [
+                {
+                  "id": 1,
+                  "title": "Complete project report"
+                },
+                {
+                  "id": 2,
+                  "title": "Review team feedback"
+                },
+                {
+                  "id": 3,
+                  "title": "Schedule follow-up meeting"
+                }
+              ]
+            }
+          }
+        ],
+        "stop_reason": "tool_use",
+        "stop_sequence": null,
+        "usage": {
+          "input_tokens": 706,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 71,
+          "service_tier": "standard"
+        }
+      }
+    },
+    "request": {
+      "body": {
+        "model": "claude-sonnet-4-5",
+        "max_tokens": 64000,
+        "system": [
+          {
+            "type": "text",
+            "text": "Generate a list of items."
+          }
+        ],
+        "messages": [
+          {
+            "role": "user",
+            "content": [
+              {
+                "type": "text",
+                "text": "Create 3 todo items"
+              }
+            ]
+          }
+        ],
+        "tools": [
+          {
+            "name": "json",
+            "description": "Respond with a JSON object.",
+            "input_schema": {
+              "type": "object",
+              "required": ["items"],
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["id", "title"],
+                    "properties": {
+                      "id": {
+                        "type": "number"
+                      },
+                      "title": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "tool_choice": {
+          "type": "tool",
+          "name": "json",
+          "disable_parallel_tool_use": true
+        }
+      }
+    }
+  }
+}

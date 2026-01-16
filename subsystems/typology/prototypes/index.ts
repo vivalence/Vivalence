@@ -10,6 +10,9 @@ export * from "./signature.js";
 export * from "./signal.js";
 export * from "./view.js";
 // export * from "./feature.js";
+export * from "./action.js";
+export * from "./agent.js";
+
 export * from "./mask.js";
 export * from "./wafer.js";
 
@@ -18,7 +21,5 @@ export * from "./response.js";
 export * from "./mode.js";
 
 export * from "./classifier.js";
-export * from "./agent/index.js";
 export * from "./blacklist/index.js";
 export * from "./remedy/index.ts";
-// export * from "./daemon.js";

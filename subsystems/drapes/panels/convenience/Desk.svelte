@@ -13,14 +13,15 @@
   }
 </script>
 
-<div class="bsp-node v2">
+<div class="bsp-node h2">
+
   <div class="bsp-node children">
     {@render children?.()}
   </div>
 
   <div class="bsp-node p-24 pb-14 grid-rows-[1fr_auto] gap-2">
     <div class="bsp-node">
-      <Textarea mode="default" size="xl" autofocus bind:value={input}
+      <Textarea mode="default" size="m" autofocus bind:value={input}
       ></Textarea>
     </div>
     <div class="bsp-node self-end justify-self-end">

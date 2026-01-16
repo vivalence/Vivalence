@@ -19,7 +19,11 @@ export enum SymbolTraitsEnum {
 }
 
 export class SymbolEntity extends DataEntity {
-  // traits: SymbolTraitsEnum[] & Opt = [];
+  traits: SymbolTraitsEnum[] & Opt = [];
+  slug: string & Opt = "";
+  name?: string;
+  description?: string;
+
   data: any & Opt = {};
   ancestor?: Rel<SymbolEntity>;
   decendants = new Collection<SymbolEntity>(this);
@@ -34,12 +38,17 @@ export const SymbolSchema = new EntitySchema({
   tableName: "Symbol",
   uniques: [{ properties: ["slug"] }],
   properties: {
-    // id: { type: types.string, primary: true, onCreate: () => v7() }, slug: { type: types.string }, name: { type: types.string, nullable: true }, description: { type: types.string, nullable: true }, traits: {type: types.json, enum: true, array: true, items: () => [], default: [],}, createdAt: {type: types.datetime, onCreate: () => new Date(), defaultRaw: `CURRENT_TIMESTAMP`, lazy: true,}, updatedAt: {type: types.datetime, onCreate: () => new Date(), onUpdate: () => new Date(), defaultRaw: `CURRENT_TIMESTAMP`, lazy: true,},
-    // traits: {
-    //   type: types.json,
-    //   defaultRaw: `"[]"`,
-    //   items: () => SymbolTraitsEnum,
-    // },
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
+
+    traits: {
+      items: () => SymbolTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+      type: types.json,
+    },
     data: { type: types.json },
 
     literals: {

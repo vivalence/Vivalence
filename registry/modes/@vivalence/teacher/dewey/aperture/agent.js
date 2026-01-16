@@ -1,6 +1,11 @@
+// OLD! @claude this is where our agentic tooling is used.
 import { Type } from "@sinclair/typebox";
 import { Agent } from "@vivalence/shared/agent";
-import { Agentic, Trajectory, parsers } from "@vivalence/shared/trajectory";
+import {
+  Agentic,
+  Vector,
+  parsers as controller,
+} from "@vivalence/shared/vector";
 import { History, Planning, Prompt } from "../types/index.ts";
 import { play } from "./tools/index.js";
 
@@ -15,10 +20,10 @@ export default async function (input, ctx) {
   // dont await instructions
   // provision them
 
-  const tools = new Trajectory([parsers.sig]) //
+  const tools = new Vector() //
     .use(async (input, context, next) => {
-      context.instructions = instructions;
-      context.games = ctx.runtime.modules.games;
+      // context.instructions = instructions;
+      // context.games = ctx.runtime.modules.games;
       return await next();
     });
 
@@ -29,7 +34,7 @@ export default async function (input, ctx) {
   const head = await ctx.runtime.call("/head/activity/recent");
 
   const agent = new Agent("eva") //
-    .withBrain(ctx.runtime.services.brain)
+    .withBrain(ctx.daemon.hallucinator)
     .withTools(controller.tools)
     .enhance(controller.llmstxt)
     .enhance(

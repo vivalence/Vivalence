@@ -1,0 +1,863 @@
+{
+  "result": {
+    "steps": [
+      {
+        "content": [
+          {
+            "type": "text",
+            "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+          },
+          {
+            "type": "tool-call",
+            "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+            "toolName": "add",
+            "input": {
+              "a": 15,
+              "b": 27
+            }
+          },
+          {
+            "type": "tool-result",
+            "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+            "toolName": "add",
+            "input": {
+              "a": 15,
+              "b": 27
+            },
+            "output": {
+              "result": 42
+            },
+            "dynamic": false
+          }
+        ],
+        "finishReason": "tool-calls",
+        "rawFinishReason": "tool_use",
+        "usage": {
+          "inputTokens": 689,
+          "inputTokenDetails": {
+            "noCacheTokens": 689,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0
+          },
+          "outputTokens": 90,
+          "outputTokenDetails": {},
+          "totalTokens": 779,
+          "raw": {
+            "input_tokens": 689,
+            "output_tokens": 90,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "service_tier": "standard"
+          },
+          "cachedInputTokens": 0
+        },
+        "warnings": [],
+        "request": {
+          "body": {
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 64000,
+            "system": [
+              {
+                "type": "text",
+                "text": "Math assistant. Use tools to solve step by step."
+              }
+            ],
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Solve: First add 15 and 27, then multiply the result by 3"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "add",
+                "description": "Add two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "multiply",
+                "description": "Multiply two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              }
+            ],
+            "tool_choice": {
+              "type": "auto"
+            }
+          }
+        },
+        "response": {
+          "id": "msg_01BZy4FjJK1jyHZH22WivGn2",
+          "timestamp": "2026-01-16T20:41:19.571Z",
+          "modelId": "claude-sonnet-4-5-20250929",
+          "headers": {
+            "anthropic-organization-id": "2258ec43-f37e-43a7-b703-a0f0ec7527c8",
+            "anthropic-ratelimit-input-tokens-limit": "2000000",
+            "anthropic-ratelimit-input-tokens-remaining": "2000000",
+            "anthropic-ratelimit-input-tokens-reset": "2026-01-16T20:41:18Z",
+            "anthropic-ratelimit-output-tokens-limit": "400000",
+            "anthropic-ratelimit-output-tokens-remaining": "400000",
+            "anthropic-ratelimit-output-tokens-reset": "2026-01-16T20:41:19Z",
+            "anthropic-ratelimit-requests-limit": "4000",
+            "anthropic-ratelimit-requests-remaining": "3999",
+            "anthropic-ratelimit-requests-reset": "2026-01-16T20:41:16Z",
+            "anthropic-ratelimit-tokens-limit": "2400000",
+            "anthropic-ratelimit-tokens-remaining": "2400000",
+            "anthropic-ratelimit-tokens-reset": "2026-01-16T20:41:18Z",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9bf06ec30ea63d66-IST",
+            "content-type": "application/json",
+            "date": "Fri, 16 Jan 2026 20:41:19 GMT",
+            "request-id": "req_011CXBhqqHmbYcSDkDgVQLfZ",
+            "server": "cloudflare",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "x-envoy-upstream-service-time": "3397",
+            "x-robots-tag": "none"
+          },
+          "body": {
+            "model": "claude-sonnet-4-5-20250929",
+            "id": "msg_01BZy4FjJK1jyHZH22WivGn2",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                "name": "add",
+                "input": {
+                  "a": 15,
+                  "b": 27
+                }
+              }
+            ],
+            "stop_reason": "tool_use",
+            "stop_sequence": null,
+            "usage": {
+              "input_tokens": 689,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_tokens": 90,
+              "service_tier": "standard"
+            }
+          },
+          "messages": [
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+                },
+                {
+                  "type": "tool-call",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "input": {
+                    "a": 15,
+                    "b": 27
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "content": [
+                {
+                  "type": "tool-result",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "output": {
+                    "type": "json",
+                    "value": {
+                      "result": 42
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "providerMetadata": {
+          "anthropic": {
+            "usage": {
+              "input_tokens": 689,
+              "output_tokens": 90,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "service_tier": "standard"
+            },
+            "cacheCreationInputTokens": 0,
+            "stopSequence": null,
+            "container": null,
+            "contextManagement": null
+          }
+        }
+      },
+      {
+        "content": [
+          {
+            "type": "text",
+            "text": "Now, let me multiply that result (42) by 3:"
+          },
+          {
+            "type": "tool-call",
+            "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+            "toolName": "multiply",
+            "input": {
+              "a": 42,
+              "b": 3
+            }
+          },
+          {
+            "type": "tool-result",
+            "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+            "toolName": "multiply",
+            "input": {
+              "a": 42,
+              "b": 3
+            },
+            "output": {
+              "result": 126
+            },
+            "dynamic": false
+          }
+        ],
+        "finishReason": "tool-calls",
+        "rawFinishReason": "tool_use",
+        "usage": {
+          "inputTokens": 795,
+          "inputTokenDetails": {
+            "noCacheTokens": 795,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0
+          },
+          "outputTokens": 83,
+          "outputTokenDetails": {},
+          "totalTokens": 878,
+          "raw": {
+            "input_tokens": 795,
+            "output_tokens": 83,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "service_tier": "standard"
+          },
+          "cachedInputTokens": 0
+        },
+        "warnings": [],
+        "request": {
+          "body": {
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 64000,
+            "system": [
+              {
+                "type": "text",
+                "text": "Math assistant. Use tools to solve step by step."
+              }
+            ],
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Solve: First add 15 and 27, then multiply the result by 3"
+                  }
+                ]
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+                  },
+                  {
+                    "type": "tool_use",
+                    "id": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                    "name": "add",
+                    "input": {
+                      "a": 15,
+                      "b": 27
+                    }
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "tool_result",
+                    "tool_use_id": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                    "content": "{\"result\":42}"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "add",
+                "description": "Add two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "multiply",
+                "description": "Multiply two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              }
+            ],
+            "tool_choice": {
+              "type": "auto"
+            }
+          }
+        },
+        "response": {
+          "id": "msg_01L7dTzVDyVso7PowaijmBju",
+          "timestamp": "2026-01-16T20:41:24.020Z",
+          "modelId": "claude-sonnet-4-5-20250929",
+          "headers": {
+            "anthropic-organization-id": "2258ec43-f37e-43a7-b703-a0f0ec7527c8",
+            "anthropic-ratelimit-input-tokens-limit": "2000000",
+            "anthropic-ratelimit-input-tokens-remaining": "2000000",
+            "anthropic-ratelimit-input-tokens-reset": "2026-01-16T20:41:23Z",
+            "anthropic-ratelimit-output-tokens-limit": "400000",
+            "anthropic-ratelimit-output-tokens-remaining": "400000",
+            "anthropic-ratelimit-output-tokens-reset": "2026-01-16T20:41:23Z",
+            "anthropic-ratelimit-requests-limit": "4000",
+            "anthropic-ratelimit-requests-remaining": "3999",
+            "anthropic-ratelimit-requests-reset": "2026-01-16T20:41:19Z",
+            "anthropic-ratelimit-tokens-limit": "2400000",
+            "anthropic-ratelimit-tokens-remaining": "2400000",
+            "anthropic-ratelimit-tokens-reset": "2026-01-16T20:41:23Z",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9bf06ed9d8063d66-IST",
+            "content-type": "application/json",
+            "date": "Fri, 16 Jan 2026 20:41:24 GMT",
+            "request-id": "req_011CXBhr6vryJdQntwFbzVjW",
+            "server": "cloudflare",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "x-envoy-upstream-service-time": "4264",
+            "x-robots-tag": "none"
+          },
+          "body": {
+            "model": "claude-sonnet-4-5-20250929",
+            "id": "msg_01L7dTzVDyVso7PowaijmBju",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "Now, let me multiply that result (42) by 3:"
+              },
+              {
+                "type": "tool_use",
+                "id": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                "name": "multiply",
+                "input": {
+                  "a": 42,
+                  "b": 3
+                }
+              }
+            ],
+            "stop_reason": "tool_use",
+            "stop_sequence": null,
+            "usage": {
+              "input_tokens": 795,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_tokens": 83,
+              "service_tier": "standard"
+            }
+          },
+          "messages": [
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+                },
+                {
+                  "type": "tool-call",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "input": {
+                    "a": 15,
+                    "b": 27
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "content": [
+                {
+                  "type": "tool-result",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "output": {
+                    "type": "json",
+                    "value": {
+                      "result": 42
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Now, let me multiply that result (42) by 3:"
+                },
+                {
+                  "type": "tool-call",
+                  "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                  "toolName": "multiply",
+                  "input": {
+                    "a": 42,
+                    "b": 3
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "content": [
+                {
+                  "type": "tool-result",
+                  "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                  "toolName": "multiply",
+                  "output": {
+                    "type": "json",
+                    "value": {
+                      "result": 126
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "providerMetadata": {
+          "anthropic": {
+            "usage": {
+              "input_tokens": 795,
+              "output_tokens": 83,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "service_tier": "standard"
+            },
+            "cacheCreationInputTokens": 0,
+            "stopSequence": null,
+            "container": null,
+            "contextManagement": null
+          }
+        }
+      },
+      {
+        "content": [
+          {
+            "type": "text",
+            "text": "**Solution:**\n- First: 15 + 27 = 42\n- Then: 42 × 3 = **126**\n\nThe final answer is **126**."
+          }
+        ],
+        "finishReason": "stop",
+        "rawFinishReason": "end_turn",
+        "usage": {
+          "inputTokens": 894,
+          "inputTokenDetails": {
+            "noCacheTokens": 894,
+            "cacheReadTokens": 0,
+            "cacheWriteTokens": 0
+          },
+          "outputTokens": 43,
+          "outputTokenDetails": {},
+          "totalTokens": 937,
+          "raw": {
+            "input_tokens": 894,
+            "output_tokens": 43,
+            "cache_creation_input_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "service_tier": "standard"
+          },
+          "cachedInputTokens": 0
+        },
+        "warnings": [],
+        "request": {
+          "body": {
+            "model": "claude-sonnet-4-5",
+            "max_tokens": 64000,
+            "system": [
+              {
+                "type": "text",
+                "text": "Math assistant. Use tools to solve step by step."
+              }
+            ],
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Solve: First add 15 and 27, then multiply the result by 3"
+                  }
+                ]
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+                  },
+                  {
+                    "type": "tool_use",
+                    "id": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                    "name": "add",
+                    "input": {
+                      "a": 15,
+                      "b": 27
+                    }
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "tool_result",
+                    "tool_use_id": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                    "content": "{\"result\":42}"
+                  }
+                ]
+              },
+              {
+                "role": "assistant",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "Now, let me multiply that result (42) by 3:"
+                  },
+                  {
+                    "type": "tool_use",
+                    "id": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                    "name": "multiply",
+                    "input": {
+                      "a": 42,
+                      "b": 3
+                    }
+                  }
+                ]
+              },
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "tool_result",
+                    "tool_use_id": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                    "content": "{\"result\":126}"
+                  }
+                ]
+              }
+            ],
+            "tools": [
+              {
+                "name": "add",
+                "description": "Add two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              },
+              {
+                "name": "multiply",
+                "description": "Multiply two numbers together",
+                "input_schema": {
+                  "type": "object",
+                  "required": ["a", "b"],
+                  "properties": {
+                    "a": {
+                      "type": "number",
+                      "description": "First number"
+                    },
+                    "b": {
+                      "type": "number",
+                      "description": "Second number"
+                    }
+                  }
+                }
+              }
+            ],
+            "tool_choice": {
+              "type": "auto"
+            }
+          }
+        },
+        "response": {
+          "id": "msg_017XaXwimPV3DpaiQ6Ugjz6f",
+          "timestamp": "2026-01-16T20:41:25.518Z",
+          "modelId": "claude-sonnet-4-5-20250929",
+          "headers": {
+            "anthropic-organization-id": "2258ec43-f37e-43a7-b703-a0f0ec7527c8",
+            "anthropic-ratelimit-input-tokens-limit": "2000000",
+            "anthropic-ratelimit-input-tokens-remaining": "2000000",
+            "anthropic-ratelimit-input-tokens-reset": "2026-01-16T20:41:24Z",
+            "anthropic-ratelimit-output-tokens-limit": "400000",
+            "anthropic-ratelimit-output-tokens-remaining": "400000",
+            "anthropic-ratelimit-output-tokens-reset": "2026-01-16T20:41:25Z",
+            "anthropic-ratelimit-requests-limit": "4000",
+            "anthropic-ratelimit-requests-remaining": "3999",
+            "anthropic-ratelimit-requests-reset": "2026-01-16T20:41:24Z",
+            "anthropic-ratelimit-tokens-limit": "2400000",
+            "anthropic-ratelimit-tokens-remaining": "2400000",
+            "anthropic-ratelimit-tokens-reset": "2026-01-16T20:41:24Z",
+            "cf-cache-status": "DYNAMIC",
+            "cf-ray": "9bf06ef59e9b3d66-IST",
+            "content-type": "application/json",
+            "date": "Fri, 16 Jan 2026 20:41:25 GMT",
+            "request-id": "req_011CXBhrRuNryoUsBG4SMcK9",
+            "server": "cloudflare",
+            "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+            "x-envoy-upstream-service-time": "1241",
+            "x-robots-tag": "none"
+          },
+          "body": {
+            "model": "claude-sonnet-4-5-20250929",
+            "id": "msg_017XaXwimPV3DpaiQ6Ugjz6f",
+            "type": "message",
+            "role": "assistant",
+            "content": [
+              {
+                "type": "text",
+                "text": "**Solution:**\n- First: 15 + 27 = 42\n- Then: 42 × 3 = **126**\n\nThe final answer is **126**."
+              }
+            ],
+            "stop_reason": "end_turn",
+            "stop_sequence": null,
+            "usage": {
+              "input_tokens": 894,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_tokens": 43,
+              "service_tier": "standard"
+            }
+          },
+          "messages": [
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "I'll solve this step by step.\n\nFirst, let me add 15 and 27:"
+                },
+                {
+                  "type": "tool-call",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "input": {
+                    "a": 15,
+                    "b": 27
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "content": [
+                {
+                  "type": "tool-result",
+                  "toolCallId": "toolu_018YZi649nXQV2rp2cHs9LTi",
+                  "toolName": "add",
+                  "output": {
+                    "type": "json",
+                    "value": {
+                      "result": 42
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Now, let me multiply that result (42) by 3:"
+                },
+                {
+                  "type": "tool-call",
+                  "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                  "toolName": "multiply",
+                  "input": {
+                    "a": 42,
+                    "b": 3
+                  }
+                }
+              ]
+            },
+            {
+              "role": "tool",
+              "content": [
+                {
+                  "type": "tool-result",
+                  "toolCallId": "toolu_01H9cXpYELtWsSw7Ft9fs94C",
+                  "toolName": "multiply",
+                  "output": {
+                    "type": "json",
+                    "value": {
+                      "result": 126
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "role": "assistant",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "**Solution:**\n- First: 15 + 27 = 42\n- Then: 42 × 3 = **126**\n\nThe final answer is **126**."
+                }
+              ]
+            }
+          ]
+        },
+        "providerMetadata": {
+          "anthropic": {
+            "usage": {
+              "input_tokens": 894,
+              "output_tokens": 43,
+              "cache_creation_input_tokens": 0,
+              "cache_read_input_tokens": 0,
+              "cache_creation": {
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "service_tier": "standard"
+            },
+            "cacheCreationInputTokens": 0,
+            "stopSequence": null,
+            "container": null,
+            "contextManagement": null
+          }
+        }
+      }
+    ],
+    "_output": "**Solution:**\n- First: 15 + 27 = 42\n- Then: 42 × 3 = **126**\n\nThe final answer is **126**.",
+    "totalUsage": {
+      "inputTokens": 2378,
+      "inputTokenDetails": {
+        "noCacheTokens": 2378,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "outputTokens": 216,
+      "outputTokenDetails": {},
+      "totalTokens": 2594,
+      "cachedInputTokens": 0
+    }
+  }
+}

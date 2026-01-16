@@ -1,10 +1,12 @@
+// @claude: you work here
+// !OLD:
 import parser from "../parsers/sig.ts";
 import { Walker } from "./walker.ts";
 import { Deferred } from "./lib/index.ts";
 
 export class Agentic {
-  constructor(trajectory) {
-    this.trajectory = trajectory;
+  constructor(vector) {
+    this.vector = vector;
     this.tools = {};
     this.stack = [`### Tools`];
     this.seperator = "/";
@@ -26,8 +28,8 @@ export class Agentic {
     return "\n" + this.stack.join("\n") + "\n";
   }
 
-  traverse(ancestorPath = this.seperator, trajectory = this.trajectory) {
-    for (const [pattern, effect] of trajectory.effects.entries()) {
+  traverse(ancestorPath = this.seperator, vector = this.vector) {
+    for (const [pattern, effect] of vector.effects.entries()) {
       // TODO filter by pattern.type path
       const nodePath = `${ancestorPath}${pattern.docs.segment}`;
 
@@ -35,7 +37,7 @@ export class Agentic {
       this.onTool(nodePath, effect, pattern.docs);
     }
 
-    for (const [pattern, descendant] of trajectory.descendants.entries()) {
+    for (const [pattern, descendant] of vector.descendants.entries()) {
       const nodePath = `${ancestorPath}${pattern.docs.segment}${this.seperator}`;
 
       this.onPattern(nodePath, pattern.docs);
@@ -50,7 +52,7 @@ export class Agentic {
       input: docs.input,
       execute: async (input) => {
         const deferred = new Deferred();
-        const walker = new Walker(this.trajectory, deferred);
+        const walker = new Walker(this.vector, deferred);
         const signal = parser.signal(path);
 
         await walker.walk(signal, async () => {

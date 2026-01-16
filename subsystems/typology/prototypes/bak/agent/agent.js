@@ -3,10 +3,9 @@ import { validators, hash, obj } from "@vivalence/shared";
 // import { TypeCompiler } from "@sinclair/typebox/compiler";
 
 export class Agent {
-  constructor(slug, name, manifest = {}) {
+  constructor(slug) {
     // console.log("AGENT REQUIRES AGENTIC VECTOR COMPILER");
     this.slug = slug;
-    this.name = name;
     this.context = new Map();
     this.inputValidator = null;
     this.outputValidator = null;
@@ -51,7 +50,7 @@ export class Agent {
     return this;
   }
 
-  // @lj: kind of a silly way to set this up. TODO: make good.
+  // @beef: kind of a silly way to set this up. TODO: make good.
   // consume(slug) {const value = this.context.get(slug); this.context.delete(slug); if (typeof value === "function") {return value(this);} else {return value;}}
 
   getContext() {

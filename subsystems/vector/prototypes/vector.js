@@ -1,11 +1,17 @@
 import { Pattern, Signature } from "@vivalence/typology";
 
 export class Vector {
-  constructor(ancestor) {
+  constructor(ancestor, signature = Pattern) {
     this.effects = new Map(); // <Pattern->Effect>
     this.trajectories = new Map(); // <Pattern->Vector>
     this.carry = []; // middlewares
     if (ancestor) this.ancestor = ancestor;
+    this.signature = signature;
+  }
+
+  withSignature(signature) {
+    this.signature = signature;
+    return this;
   }
 
   use(middleware) {
@@ -14,13 +20,13 @@ export class Vector {
   }
 
   branch(signature) {
-    const pattern = new Pattern(signature);
+    const pattern = new this.signature(signature);
 
     let descendant = Array.from(this.trajectories.entries()) //
       .find(([i]) => i.hash === pattern.hash)?.[1];
 
     if (!descendant) {
-      descendant = new Vector(this);
+      descendant = new this.constructor(this, this.signature);
       this.trajectories.set(pattern, descendant);
     }
 
@@ -31,7 +37,7 @@ export class Vector {
   }
 
   open(signature, effect) {
-    const pattern = new Pattern(signature);
+    const pattern = new this.signature(signature);
 
     if (pattern.heir) {
       const fin = pattern.fin.pop();

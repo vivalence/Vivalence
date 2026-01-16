@@ -25,11 +25,16 @@ export enum DimensionTraitsEnum {
 }
 
 export class DimensionEntity extends DataEntity {
+  slug: string & Opt = "";
+  name?: string;
+  description?: string;
+
   traits: DimensionTraitsEnum[] & Opt = [];
+  data: any & Opt = {};
 
   ancestor?: Rel<DimensionEntity>;
   descendants = new Collection<DimensionEntity>(this);
-  subjects = new Collection<SubjectEntity>(this);
+  // subjects = new Collection<SubjectEntity>(this);
   [EntityRepositoryType]?: DimensionRepository;
 
   constructor(dimension = {}) {
@@ -48,14 +53,16 @@ export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
   repository: () => DimensionRepository,
 
   properties: {
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
     traits: {
-      type: types.json,
-      defaultRaw: `"[]"`,
       enum: true,
       array: true,
       items: () => DimensionTraitsEnum,
       default: [],
     },
+    data: { type: types.json, default: {} },
     ancestor: {
       kind: "m:1",
       entity: () => DimensionEntity,
@@ -68,11 +75,7 @@ export const DimensionSchema = new EntitySchema<DimensionEntity, DataEntity>({
       entity: () => DimensionEntity,
       mappedBy: (dimension) => dimension.ancestor,
     },
-    subjects: {
-      kind: "m:n",
-      entity: () => SubjectEntity,
-      mappedBy: "dimensions",
-    },
+    // subjects: {kind: "m:n", entity: () => SubjectEntity, mappedBy: "dimensions",},
   },
 });
 

@@ -34,20 +34,29 @@ Given a linguistic annotation, generate a complete literal entry with:
     .enhance(`### Context ${JSON.stringify(issue.context, null, 2)}`)
     .withInput(Type.Object({ annotation: Type.Object({}) }))
     .withOutput(
-      Type.Object({
-        slug: Type.String(),
-        annotation: Type.Object({}),
-        data: Type.Object({
-          translation: Type.Optional(Type.String()),
-          example: Type.Optional(
-            Type.Object({
-              source: Type.Optional(Type.String()),
-              target: Type.Optional(Type.String()),
-            }),
+      Type.Object(
+        {
+          slug: Type.String(),
+          annotation: Type.Object({}, { additionalProperties: false }),
+          data: Type.Object(
+            {
+              translation: Type.Optional(Type.String()),
+              example: Type.Optional(
+                Type.Object(
+                  {
+                    source: Type.Optional(Type.String()),
+                    target: Type.Optional(Type.String()),
+                  },
+                  { additionalProperties: false },
+                ),
+              ),
+            },
+            { additionalProperties: false },
           ),
-        }),
-        traits: Type.Array(Type.String()),
-      }),
+          traits: Type.Array(Type.String()),
+        },
+        { additionalProperties: false },
+      ),
     );
 
   let literal;

@@ -2,7 +2,7 @@ import { Feature } from "@vivalence/typology";
 
 export function classifier(daemonDie) {
   daemonDie.good.kernel.taxonomist.on(Feature, async (feature, ctx) => {
-    let issues = await ctx.validate.annotation(
+    let issues = await daemonDie.good.validate.annotation(
       feature.annotation, //
       ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"],
     );
@@ -12,7 +12,7 @@ export function classifier(daemonDie) {
       return issue;
     });
 
-    issues = await ctx.ontology.remedy.many(issues, {
+    issues = await daemonDie.good.kernel.remedy.many(issues, {
       runtime: daemonDie.good,
     });
 
@@ -41,13 +41,12 @@ export function classifier(daemonDie) {
   }
   const ctx = {
     // ontology: daemonDie.good.ontology,
-    // schema: daemonDie.good.schema,
-    // validate: daemonDie.good.validate,
-    // assert: daemonDie.good.assert,
+    schema: daemonDie.good.schema,
+    validate: daemonDie.good.validate,
+    assert: daemonDie.good.assert,
     services: daemonDie.good.services,
   };
-
-  // daemonDie.good.classify = daemonDie.good.kernel.taxonomist.factory(ctx);
+  // console.log({ ctx });
 
   for (const Form of daemonDie.good.kernel.taxonomist.forms) {
     daemonDie.good.classify[Form.name.toLowerCase()] = async (classifiable) => {
