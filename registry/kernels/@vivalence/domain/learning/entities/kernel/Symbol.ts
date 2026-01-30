@@ -7,7 +7,6 @@ import {
 } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
-import { ExerciseEntity } from "../userspace/Exercise.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
@@ -22,7 +21,6 @@ export enum SymbolTraitsEnum {
 export class SymbolEntity extends maps.kernel.symbol.entity {
   plays = new Collection<PlayEntity>(this);
   memories = new Collection<MemoryEntity>(this);
-  exercises = new Collection<ExerciseEntity>(this);
 }
 
 // console.log(maps.kernel.symbol.entity);
@@ -32,11 +30,6 @@ export const SymbolSchema = new EntitySchema({
   tableName: "Symbol",
   name: "Symbol",
   properties: {
-    exercises: {
-      kind: "m:n",
-      entity: () => ExerciseEntity,
-      mappedBy: (exercise) => exercise.symbols,
-    },
     plays: {
       kind: "1:m",
       entity: () => PlayEntity,

@@ -11,7 +11,7 @@ export function direct(schema: JsonSchema, entity: any): Issue[] {
 }
 
 function compile(schema) {
-  const ajv = makeAjv({ removeAdditional: true });
+  const ajv = makeAjv({ removeAdditional: false }); // was true. not sure it matters. changed because it strips entities.
   const validate = ajv.compile(schema);
 
   return (entity: any) => {

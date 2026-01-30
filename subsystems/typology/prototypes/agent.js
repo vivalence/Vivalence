@@ -1,6 +1,12 @@
 import { validators, hash, obj } from "@vivalence/shared";
 import { Agentic } from "@vivalence/vector/compiler";
-// import { TypeCompiler } from "@sinclair/typebox/compiler";
+
+// TODO migrate to typebox for validator
+// import { Compile } from 'typebox'
+// const jsonSchema = {type: 'object', required: ['x', 'y', 'z'], properties: {x: { type: 'number' }, y: { type: 'number' }, z: { type: 'number' }}}
+// const C = Compile(jsonSchema)
+// const result = C.Check({ x: 1, y: 2, z: 3 })
+// const parsed = C.Parse({ x: 1, y: 2, z: 3 })
 
 export class Agent {
   constructor(slug) {

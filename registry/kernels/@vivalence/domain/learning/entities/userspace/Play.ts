@@ -1,26 +1,24 @@
 import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
-import { UserEntity } from "@vivalence/typology/entities";
+import { UserEntity, ModeEntity } from "@vivalence/typology/entities";
 // import { UserEntity } from "../view/User.ts";
 
 import { SymbolEntity } from "../kernel/Symbol.ts";
 import { LiteralEntity } from "../kernel/Literal.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
-import { ExerciseEntity } from "../userspace/Exercise.ts";
+import { ProductEntity } from "../userspace/Product.ts";
 
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
 
   literal?: Rel<LiteralEntity>;
   symbol?: Rel<SymbolEntity>;
-  strategy?: string & Opt = null;
-  tactic?: string & Opt = null;
-  game?: string & Opt = null;
+
+  product!: Rel<ProductEntity>;
+  mode!: Rel<ModeEntity>;
 
   memory!: Rel<MemoryEntity>;
-
-  exercise!: Rel<ExerciseEntity>;
 
   signal: any & Opt = {};
   debrief?: any & Opt = {};
@@ -57,20 +55,28 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       nullable: true,
     },
 
-    game: { type: "string", nullable: true },
-    tactic: { type: "string", nullable: true },
-    strategy: { type: "string", nullable: true },
+    product: {
+      kind: "m:1",
+      entity: () => ProductEntity,
+      fieldName: "product",
+    },
+
+    producer: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "producer",
+    },
+
+    generator: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "generator",
+    },
 
     memory: {
       kind: "m:1",
       entity: () => MemoryEntity,
       fieldName: "memory",
-    },
-
-    exercise: {
-      kind: "m:1",
-      entity: () => ExerciseEntity,
-      fieldName: "exercise",
     },
 
     signal: { type: "json" },
@@ -85,5 +91,4 @@ export default {
   type: "play",
   schema: PlaySchema,
   entity: PlayEntity,
-  // repository: TopographyRepository,
 };

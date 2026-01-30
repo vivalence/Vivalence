@@ -8,7 +8,7 @@ import {
 import { DataSchema, DataEntity } from "../index.ts";
 import { v7 } from "uuid";
 
-import { LiteralEntity } from "../index.ts";
+import { ProductEntity, LiteralEntity } from "../index.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
@@ -28,6 +28,7 @@ export class SymbolEntity extends DataEntity {
   ancestor?: Rel<SymbolEntity>;
   decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
+  products = new Collection<ProductEntity>(this);
 }
 
 export const SymbolSchema = new EntitySchema({
@@ -56,6 +57,7 @@ export const SymbolSchema = new EntitySchema({
       entity: () => LiteralEntity,
       inversedBy: (literal) => literal.symbols,
     },
+
     ancestor: {
       kind: "m:1",
       entity: () => SymbolEntity,
@@ -66,6 +68,11 @@ export const SymbolSchema = new EntitySchema({
       kind: "1:m",
       entity: () => SymbolEntity,
       mappedBy: (symbol) => symbol.ancestor,
+    },
+    products: {
+      kind: "m:n",
+      entity: () => ProductEntity,
+      inversedBy: (product) => product.symbols,
     },
   },
 });

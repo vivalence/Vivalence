@@ -10,23 +10,25 @@ async function getDriver(scope, ctx) {
   let driver = "BAYESIAN";
   let type = "INDIVIDUAL";
 
-  if (scope.unit && !scope.tag) {
+  if (scope.literal && !scope.symbol) {
     return [drivers[driver], { driver, type }];
   }
 
-  if (scope.tag) {
-    const tag = await ctx.runtime.entities.tag.findOne({ id: scope.tag.id });
+  if (scope.symbol) {
+    const symbol = await ctx.daemon.entities.symbol.findOne({
+      id: scope.symbol.id,
+    });
     if (
-      tag.traits.includes("LEARNABLE") &&
-      tag.traits.includes("COMPLETABLE")
+      symbol.traits.includes("LEARNABLE") &&
+      symbol.traits.includes("COMPLETABLE")
     ) {
-      throw new Error("Tag cannot be both LEARNABLE and COMPLETABLE");
+      throw new Error("Symbol cannot be both LEARNABLE and COMPLETABLE");
     }
-    if (!tag.traits.includes("LEARNABLE"))
-      throw new Error("Tag is not learnable");
+    if (!symbol.traits.includes("LEARNABLE"))
+      throw new Error("Symbol is not learnable");
 
-    driver = tag.data.LEARNABLE.driver || driver;
-    type = tag.data.LEARNABLE.type || type;
+    driver = symbol.data.LEARNABLE.driver || driver;
+    type = symbol.data.LEARNABLE.type || type;
 
     return [drivers[driver], { driver, type }];
   }
@@ -43,18 +45,20 @@ function validateDriver(scope, { driver, type }) {
   }
 
   if (type === "INDIVIDUAL") {
-    if (scope.tag?.id && scope.unit?.id) {
+    if (scope.symbol?.id && scope.literal?.id) {
       throw new Error(
-        "Individual Memory flavor must have either tag or unit, but not both",
+        "Individual Memory flavor must have either symbol or literal, but not both",
       );
     }
-    if (!scope.tag?.id && !scope.unit?.id) {
-      throw new Error("Individual Memory flavor must have either tag or unit");
+    if (!scope.symbol?.id && !scope.literal?.id) {
+      throw new Error(
+        "Individual Memory flavor must have either symbol or literal",
+      );
     }
   } else if (type === "RELATIONAL") {
-    if (!scope.tag?.id)
-      throw new Error("Relational Memory flavor must have tag");
-    // Used to be true: // if (!scope.tag || !scope.unit) throw new Error("Relational Memory flavor must have both tag and unit");
+    if (!scope.symbol?.id)
+      throw new Error("Relational Memory flavor must have symbol");
+    // Used to be true: // if (!scope.symbol || !scope.literal) throw new Error("Relational Memory flavor must have both symbol and literal");
   } else {
     throw new Error(
       "Invalid flavor provided. Must be either INDIVIDUAL or RELATIONAL.",

@@ -34,6 +34,7 @@ const safeParseJson = (str) => {
   try {
     return JSON.parse(str);
   } catch {
+    console.error("[ERROR] aperture.parse safeParseString", { str });
     return { rawBody: str };
   }
 };

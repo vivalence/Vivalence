@@ -27,14 +27,15 @@ export const daemons = [
     },
 
     kernel: [
-      "@vivalence/ontology/language",
-      "@vivalence/topic/spanish",
-      "@vivalence/domain/learning",
+      "@vivalence/domain/language-learning",
+      "@vivalence/ontology/universal-dependencies",
+      "@vivalence/topology/spanish",
     ],
 
     modes: [
       "@vivalence/teacher/dewey",
-      // "@vivalence/game/flashcards", "@vivalence/game/translations", "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
+      "@vivalence/game/flashcards",
+      //  "@vivalence/game/translations", "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 
     lighthouse: {

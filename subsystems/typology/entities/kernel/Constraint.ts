@@ -2,33 +2,6 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { validators } from "@vivalence/shared";
 import { VirtualEntity, VirtualRepository, IssueEntity } from "../index.ts";
 
-// function example(topography, runtime) {
-//   runtime.ontology.constraints.create({
-//     topology: topography.topology,
-//     branch: ["unit", topography.slug],
-//     traits: ["RELATIONAL"],
-//     predicate: async (unit) => {
-//       if (!(unit instanceof runtime.domain.data.entities.unit))
-//         throw new Error("predicate applies to other than entity type unit");
-
-//       if (!unit.tags.isInitialized()) await unit.tags.init();
-//       const relations = unit.tags.map((tag) => tag.data.ONTOLOGICAL);
-
-//       const issues = [];
-//       for (const relation of topography.relations) {
-//         validators.viva
-//           .relations(relation, relations) //
-//           .map((issue) => {
-//             issue.path = ["unit", "tags"];
-//             issue.context.unit = unit;
-//             issues.push(issue);
-//           });
-//       }
-//       return issues;
-//     },
-//   });
-// }
-
 export enum ConstraintTraitsEnum {
   SCHEMATIC = "schematic",
   RELATIONAL = "relational",
@@ -51,7 +24,7 @@ export class ConstraintRepository extends VirtualRepository {
   matching(branch, traits = []) {
     const branches = [branch];
     if (branch.length > 1) branches.push([branch[0]]);
-    // console.log("constrinats", branch, branches, this);
+
     return this.filter((c) => {
       const branchMatch = branches.some(
         (b) => c.branch.join(":") === b.join(":"),
@@ -96,6 +69,32 @@ export default {
   repository: ConstraintRepository,
 };
 
+// function example(topography, runtime) {
+//   runtime.ontology.constraints.create({
+//     topology: topography.topology,
+//     branch: ["unit", topography.slug],
+//     traits: ["RELATIONAL"],
+//     predicate: async (unit) => {
+//       if (!(unit instanceof runtime.domain.data.entities.unit))
+//         throw new Error("predicate applies to other than entity type unit");
+
+//       if (!unit.tags.isInitialized()) await unit.tags.init();
+//       const relations = unit.tags.map((tag) => tag.data.ONTOLOGICAL);
+
+//       const issues = [];
+//       for (const relation of topography.relations) {
+//         validators.viva
+//           .relations(relation, relations) //
+//           .map((issue) => {
+//             issue.path = ["unit", "tags"];
+//             issue.context.unit = unit;
+//             issues.push(issue);
+//           });
+//       }
+//       return issues;
+//     },
+//   });
+// }
 // class ConstraintEntity {
 //   async test(entity) {
 //     try {

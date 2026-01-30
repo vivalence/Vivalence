@@ -163,6 +163,16 @@ export class Signature {
     return this;
   }
 
+  barf() {
+    return new this.constructor(this.nature);
+  }
+
+  rebase(signature) {
+    return new this.constructor(this.absolute, new this.constructor(signature));
+  }
+
+  // graft(signature) {return new this.constructor(this.heritage, signature);}
+
   pop() {
     if (this.trace) {
       this.trace.drop(this);
@@ -197,7 +207,8 @@ export class Signature {
   }
 
   get julie() {
-    // return this.trace.array.indexOf(this)+1
+    // const siblings = this.trace.gauges
+    // return siblings[siblings.indexOf(this)+1 % siblings.length ]
   }
 
   get frotscher() {

@@ -6,7 +6,7 @@ import { Vector, compiler, controller } from "@vivalence/vector";
 import { array } from "@vivalence/shared";
 // import { Vector, compiler, controller, shards } from "@vivalence/vector";
 
-import { traitmap } from "../mode/traitmap.js";
+import * as traitmap from "../mode/traitmap.js";
 
 export async function core(die) {
   die.register = await paladin.vip.accioMap({
@@ -20,7 +20,7 @@ export async function core(die) {
 
   die.kernel = {
     ontology: die.register.kernel.find((m) => m.manifest.type === "ontology"),
-    topic: die.register.kernel.filter((m) => m.manifest.type === "topic"),
+    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
   };
 
@@ -35,7 +35,7 @@ export async function core(die) {
   ];
 
   die.variant.entities = [
-    ...maps.sets.runtime,
+    ...maps.sets.daemon,
     ...maps.sets.kernel,
     ...maps.sets.userspace,
     ...die.kernel.domain.entities,
@@ -82,9 +82,21 @@ export async function authority(daemonDie) {
   daemonDie.good.lighthouse = await daemonDie.register.lighthouse //
     .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
 
-  daemonDie.good.aperture.use(
-    shards.secure.authority(daemonDie.good.lighthouse),
-  );
+  daemonDie.good.aperture //
+    .use(shards.secure.authority(daemonDie.good.lighthouse))
+    .use(async (ctx, next) => {
+      ctx.daemon.connection = daemonDie.connection.clone(); //
+      ctx.daemon.connection //
+        .use(async (context, next) => {
+          context.request.headers.set(
+            "authorization",
+            ctx.request.headers.get("authorization"),
+          );
+          await next();
+        });
+      ctx.daemon.call = ctx.daemon.connection.call.bind(ctx.daemon.connection);
+      await next();
+    });
 }
 
 export async function services(daemonDie) {
@@ -137,6 +149,7 @@ export async function modes(daemonDie) {
 
   await daemonDie.good.entities.em.flush();
 }
+
 export function handlers(daemonDie) {
   daemonDie.flatmodules = () =>
     [Object.values(daemonDie.good.kernel), Object.values(daemonDie.good.modes)]

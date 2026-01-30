@@ -2,6 +2,7 @@ import Aperture from "./aperture.ts";
 import { Path } from "./path.ts";
 import { ApertureOptions } from "./types.ts";
 import * as mw from "./mw.js";
+import parser from "./parser.js";
 
 export function create(options: ApertureOptions = {}) {
   const path = options.path ? new Path(options.path) : new Path();
@@ -10,6 +11,7 @@ export function create(options: ApertureOptions = {}) {
 
 export function context(path, body, params) {
   return {
+    input: body,
     state: {},
     request: {
       body,
@@ -21,5 +23,6 @@ export function context(path, body, params) {
   };
 }
 
-export { Aperture, Path, mw };
-export default { create, context, mw };
+export { Aperture, Path, mw, parser };
+
+export default { create, context, mw, parser };

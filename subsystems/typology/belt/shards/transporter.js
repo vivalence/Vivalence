@@ -13,8 +13,8 @@ export const fetcher = async (ctx) => {
     credentials: "include",
   };
 
-  if (request.signal) {
-    options.signal = request.signal;
+  if (request._signal) {
+    options.signal = request._signal;
   }
 
   if (request.method !== "GET" && request.body !== undefined) {

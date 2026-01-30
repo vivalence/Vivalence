@@ -1,18 +1,24 @@
+import { Aperture } from "@vivalence/vector/aperture";
 import { is, shards } from "@vivalence/typology";
-// import { traitmap } from "../mode/traitmap.js";
 
-// import { Classifier, Remedy } from "@vivalence/shared";
-// import factories from "./factories/index.js";
+export async function kernel(daemonDie) {
+  daemonDie.kernel.domain.aperture //
+    .use(shards.context.attach("daemon", daemonDie.good));
+
+  daemonDie.good.aperture
+    .use(shards.secure.authorize())
+    .slurp(daemonDie.kernel.domain.aperture);
+}
 
 export async function modes(daemonDie) {
   for (const mode of daemonDie.good.flatmodes()) {
     mode.aperture
       .use(shards.context.attach("daemon", daemonDie.good))
       .use(shards.context.attach("mode", mode))
-      .open("/status", () => ({ code: "SUCCESS" }))
-      .open("/manifest", () => ({ ...mode.cake.manifest }));
+      .open("/status", (_, ctx) => ctx.mode.status.reflection)
+      .open("/manifest", (_, ctx) => ctx.mode.manifest);
 
-    if (mode.cake.aperture) mode.aperture.descendants.push(mode.cake.aperture);
+    if (mode.cake.aperture) mode.aperture.slurp(mode.cake.aperture);
 
     for (const trait of mode.traits) {
       await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
@@ -21,13 +27,6 @@ export async function modes(daemonDie) {
     daemonDie.good.aperture
       .branch(mode.mount.nature)
       .use(shards.secure.authorize())
-      .descendants.push(mode.aperture);
+      .slurp(mode.aperture);
   }
 }
-
-//       runtime.aperture
-//         .branch(`/attached/process/${die.type}/${die.slug}`)
-//         // .use(secure.context(rme.instance.lighthouse)).use(secure.authorize()) ?? only on trait PUBLIC
-//         .use(shards.context.attach(die.type, die.mask))
-//         .descendants.push(die.good);
-// // legacy/duplicate?

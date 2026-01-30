@@ -1,8 +1,8 @@
 export class Response {
-  constructor(init = {}) {
-    this.status = init.status ?? 0;
-    this.headers = new Map(Object.entries(init.headers || {}));
-    this.body = init.body || {};
+  constructor(response = {}) {
+    this.status = response.status ?? 0;
+    this.headers = new Map(Object.entries(response.headers || {}));
+    this.body = response.body || {};
   }
 
   get ok() {

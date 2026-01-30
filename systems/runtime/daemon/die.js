@@ -35,39 +35,29 @@ export class Die extends Wafer {
   }
 
   async resolve() {
-    await kernel.datasets(this);
+    await kernel.topography(this);
     await kernel.schema(this);
     await kernel.constraints(this);
-    kernel.remedies(this);
     kernel.validation(this);
     kernel.asserter(this);
     await kernel.classifier(this);
 
+    await lifecycle.resolution.kernel(this);
     await lifecycle.resolution.modes(this);
 
     await aperture.datamap(this);
     await aperture.userspace(this);
+    // await aperture.kernel(this);
     await aperture.modes(this);
   }
 
   async integrate() {
     await lifecycle.integration.call(this);
 
-    // let issues = await this.good.validate.annotation(
-    //   {
-    //     lemma: "el",
-    //     pos: "det",
-    //     definite: "def",
-    //     gender: "fem",
-    //     number: "sing",
-    //     prontype: "art",
-    //   },
-    //   ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"],
-    // );
-
-    // console.log("pre", JSON.stringify({ issues }));
+    // const literal = {slug: "el-det-fem-sing", data: {known: "the", learning: "la", index: 1, example: {known: "the house", learning: "la casa",},}, annotation: {lemma: "el", pos: "det", definite: "def", gender: "fem", number: "sing", prontype: "art",},};
+    // const annotation = literal.annotation; let issues = await this.good.validate.annotation(annotation, ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"],);
+    // let issues = await this.good.validate.literal(literal, ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL",]);
     // issues = await this.good.kernel.medic.many(issues, { daemon: this.good });
-    // console.log("post", JSON.stringify({ issues }));
 
     // console.log(
     //   "TEST @runtime/daemon/die",

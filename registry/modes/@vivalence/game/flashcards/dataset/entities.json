@@ -1,0 +1,37 @@
+{
+  "valence": [
+    {
+      "slug": "feed",
+      "name": "feed of flashcards",
+      "description": "",
+      "traits": ["DESTINATION", "GENERATIVE"],
+      "data": {
+        "DESTINATION": {
+          "mask": {
+            "batch": 5,
+            "stock": 15
+          }
+        },
+        "GENERATIVE": "/generate/pending"
+      }
+    },
+    {
+      "slug": "flashcards-by-literal",
+      "name": "flashcard by literal",
+      "description": "",
+      "traits": ["GENERATIVE"],
+      "data": {
+        "GENERATIVE": "/generate/fromLiterals"
+      }
+    },
+    {
+      "slug": "flashcards-by-symbol",
+      "name": "flashcard by symbol",
+      "description": "",
+      "traits": ["GENERATIVE"],
+      "data": {
+        "GENERATIVE": "/generate/fromSymbols"
+      }
+    }
+  ]
+}

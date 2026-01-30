@@ -7,12 +7,10 @@ import {
 } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
-import { ExerciseEntity } from "../userspace/Exercise.ts";
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
 export class LiteralEntity extends maps.kernel.literal.entity {
-  exercises = new Collection<ExerciseEntity>(this);
   memories = new Collection<MemoryEntity>(this);
   plays = new Collection<PlayEntity>(this);
 }
@@ -27,11 +25,6 @@ export const LiteralSchema = new EntitySchema({
       kind: "1:m",
       entity: () => MemoryEntity,
       mappedBy: (memory) => memory.literal,
-    },
-    exercises: {
-      kind: "m:n",
-      entity: () => ExerciseEntity,
-      mappedBy: (exercise) => exercise.literals,
     },
     plays: {
       kind: "1:m",

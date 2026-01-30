@@ -17,15 +17,14 @@ export const dataspace = {
   lighthouse: new Repository(entities.lighthouse),
   daemon: new Repository(entities.daemon),
 
-  // daemonized
-  // unit: new Repository(), // system level presentation & integration layer of the dataspace.
+  // daemon
   valence: new Repository(entities.valence),
   mode: new Repository(entities.mode),
 
   // userspace
-  // intent: new Repository(),
-  // session: new Repository(),
-  // product: new Repository(), // ? or higher level wrapper like instruction ?
+  intent: new Repository(entities.intent),
+  session: new Repository(entities.session),
+  product: new Repository(entities.product),
 };
 
 //

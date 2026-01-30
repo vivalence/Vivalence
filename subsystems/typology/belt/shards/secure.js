@@ -7,6 +7,7 @@ export function authority(provider) {
 
 export function authorize(claims = []) {
   return async (ctx, next) => {
+    // if (ctx.internal) return await next(); // temp
     try {
       const token = ctx.request.headers?.get("authorization")?.split(" ")[1];
       ctx.identity = await ctx.authority.authenticate(token);

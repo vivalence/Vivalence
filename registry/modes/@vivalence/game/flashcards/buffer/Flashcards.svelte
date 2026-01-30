@@ -1,17 +1,18 @@
 <script>
-  import { onMount, onDestroy } from "svelte";
-  import { Text, Button } from "@vivalence/surface";
+  import { Text, Button } from "@vivalence/drapes";
+  // import { Scope } from "@vivalence/typology";
 
-  const { instruction, ctx, buffer } = $props();
-  const { front, back } = instruction.data;
+  const { daemon, mode, stall, buffer, product } = $props();
+
+  const { front, back } = product.card;
 
   let revealed = $state(false);
 
   const onReview = (signal) => {
-    buffer.release(
-      ctx.game.call("/evaluate", {
-        scope: instruction.scope,
+    stall.next(
+      daemon.call("/evaluate/scope", {
         signal,
+        scope: { product: { id: product.id } },
       }),
     );
   };

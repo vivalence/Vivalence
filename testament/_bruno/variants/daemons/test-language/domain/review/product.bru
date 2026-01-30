@@ -1,0 +1,34 @@
+meta {
+  name: product
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/review/product
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "signal": "SUCCESS",
+    "scope": {
+    
+      "product": {
+        "id": "019c0ad9-476b-75e9-a52a-53906d2d26f9"
+      }
+    }
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

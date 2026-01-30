@@ -19,7 +19,6 @@
     "./subsystems/sheets",
   ],
   "tasks": {
-    // --cwd ./packages/client
     // "build:add": "deno task -f @scope/add build"
     "tree": "tree -I 'node_modules|static' --prune",
     "deno/install": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
@@ -31,7 +30,7 @@
     // "test:subsystems": "deno run --watch -A ./systems/shell/mod.js",
     // "test:shell": "deno run --watch -A ./systems/shell/mod.js",
     "runtime/start": "deno run -A  ./systems/runtime/run.js",
-    "runtime/watch": "deno run --watch -A  ./systems/runtime/run.js",
+    "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",

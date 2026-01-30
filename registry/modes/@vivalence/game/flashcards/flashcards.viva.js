@@ -1,6 +1,9 @@
 import { Aperture } from "@vivalence/vector/aperture";
-import { View, Path } from "@vivalence/typology";
-// import { agent } from "./aperture/index.js";
+import { View } from "@vivalence/typology";
+
+import dataset from "./dataset/index.js";
+import evaluate from "./methods/evaluate.js";
+import * as generate from "./methods/generate.js";
 
 const manifest = {
   type: "game",
@@ -8,40 +11,21 @@ const manifest = {
   name: "Flashcards",
   description: "Flashcards game for learning vocabulary",
   version: "0.0.1",
-  traits: ["GENERATOR"], // "VIEWABLE","VALENTIC"
+  traits: ["VIEWABLE", "VALENTIC", "PRODUCTIVE"],
 };
 
-const view = new Path("/buffer/flashcards.svelte.js");
+const view = new View("buffer/flashcards.svelte.js");
 
-// async function feed(input, ctx) {return [{ agent: "welcome user" }];}
-// const generate = (v) => v.open("/feed", feed); // maybe define input
+const aperture = new Aperture().open("/evaluate", evaluate);
 
-const aperture = new Aperture(); //.open("/agent", agent);
+const producer = new Aperture()
+  .branch("/generate")
+  .use(async (ctx, next) => {
+    ctx.input.scope.producer = { id: ctx.mode.entity.id };
+    await next();
+  })
+  .open("/pending", generate.pending)
+  .open("/fromSymbols", generate.fromSymbols)
+  .open("/fromLiterals", generate.fromLiterals);
 
-export default { manifest, view, aperture };
-// // import { bundler } from "@vivalence/shared";
-// import evaluate from "./methods/evaluate.js";
-// import provision from "./methods/provision/index.js";
-
-// // const bundlePath = bundler.makePath(import.meta.url, "./buffer/gan.svelte.js");
-
-// async function boot(runtime, game) {
-//   // const bundle = bundler(bundlePath);
-//   // bundle.url = bundle.absoluteUrl(game.aperture.path);
-//   // bundle.path = bundlePath;
-//   // game.bundle = bundle;
-
-//   // runtime.aperture.router.get(bundle.get, bundle.serve);
-
-//   runtime.aperture
-//     .branch("/provision")
-//     // .use(bundle.middleware)
-//     .open("/fromTagIds", provision.fromTagIds)
-//     .open("/fromUnitIds", provision.fromUnitIds)
-//     .open("/fromUnits", provision.fromUnits)
-//     .open("/fromLLM", provision.fromLLM);
-
-//   runtime.aperture.open("/evaluate", evaluate);
-// }
-
-// export { manifest, boot };
+export { manifest, view, aperture, producer, dataset };

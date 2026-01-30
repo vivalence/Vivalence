@@ -1,13 +1,11 @@
 import { validators } from "@vivalence/shared";
 
 export async function constraints(daemonDie) {
-  // Create base constraints
   createAnnotationConstraints(daemonDie.good);
   createLiteralConstraints(daemonDie.good);
   createSymbolConstraints(daemonDie.good);
   createExistentialConstraints(daemonDie.good);
 
-  // Create per-subject constraints
   const subjects = await daemonDie.good.entities.subject.find({});
 
   for (const subject of subjects) {
@@ -20,7 +18,6 @@ export async function constraints(daemonDie) {
 }
 
 function createAnnotationConstraints(daemon) {
-  // Base annotation schematic constraint
   let baseValidator = null;
 
   daemon.kernel.constraint.create({
@@ -47,7 +44,6 @@ function createSubjectSchematicConstraints(subject, daemon) {
 
   let validator = null;
 
-  // Annotation constraint for this subject
   daemon.kernel.constraint.create({
     branch: ["annotation", subject.slug],
     traits: ["SCHEMATIC"],
@@ -65,7 +61,6 @@ function createSubjectSchematicConstraints(subject, daemon) {
     },
   });
 
-  // Literal constraint for this subject
   const literalSchema = daemon.schema.literals[subject.slug];
   if (!literalSchema) return;
 
@@ -173,45 +168,42 @@ function createSymbolConstraints(daemon) {
 }
 
 function createExistentialConstraints(daemon) {
-  // Symbol existence check
   daemon.kernel.constraint.create({
     branch: ["symbol"],
     traits: ["EXISTENTIAL"],
     description: "Check symbol exists in database",
-    predicate: async (query) => {
-      const count = await daemon.entities.symbol.count(query);
+    predicate: async (symbol) => {
+      const count = await daemon.entities.symbol.count(symbol);
       if (count > 0) return [];
       return [
         {
           message: "Symbol not found",
           violation: "required",
           path: ["symbol"],
-          context: { query },
+          context: { symbol },
         },
       ];
     },
   });
 
-  // Literal existence check
   daemon.kernel.constraint.create({
     branch: ["literal"],
     traits: ["EXISTENTIAL"],
     description: "Check literal exists in database",
-    predicate: async (query) => {
-      const count = await daemon.entities.literal.count(query);
+    predicate: async (literal) => {
+      const count = await daemon.entities.literal.count(literal);
       if (count > 0) return [];
       return [
         {
           message: "Literal not found",
           violation: "required",
           path: ["literal"],
-          context: { query },
+          context: { literal },
         },
       ];
     },
   });
 
-  // Annotation existence (checks both literal and symbols exist)
   daemon.kernel.constraint.create({
     branch: ["annotation"],
     traits: ["EXISTENTIAL"],

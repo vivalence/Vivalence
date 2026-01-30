@@ -3,7 +3,7 @@ import literal from "./kernel/Literal.ts";
 
 import memory from "./userspace/Memory.ts";
 import play from "./userspace/Play.ts";
-import exercise from "./userspace/Exercise.ts";
+import product from "./userspace/Product.ts";
 
-export const entities = [literal, symbol, exercise, play, memory];
-// export default { symbol, literal, memory, play, exercise };
+export const entities = [literal, symbol, product, play, memory];
+// export default { symbol, literal, memory, play, product };

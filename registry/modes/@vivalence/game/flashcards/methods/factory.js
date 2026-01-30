@@ -1,0 +1,71 @@
+import { object } from "@vivalence/shared";
+import Mustache from "mustache";
+
+export function from(literals, scope) {
+  return literals.map((literal) => {
+    return {
+      data: make(literal),
+      scope: object.merge(scope, { literals: [{ id: literal.id }] }),
+    };
+  });
+}
+
+export function make(literal) {
+  let maker;
+  if (["verb", "aux"].includes(literal.annotation.pos)) maker = verbFlashcards;
+  else if (["noun"].includes(literal.annotation.pos)) maker = nounFlashcards;
+  else maker = basicFlashcard;
+
+  return maker(literal);
+}
+
+function basicFlashcard(literal, maskData = {}) {
+  maskData = {
+    front: {
+      header: literal.data.known,
+      content:
+        literal.data.example.known && `<i>${literal.data.example.known}</i>`,
+      footer: null,
+      ...(maskData.front || {}),
+    },
+    back: {
+      header: literal.data.learning,
+      content:
+        literal.data.example?.learning &&
+        `<i>${literal.data.example?.learning}</i>`,
+      footer: null,
+      ...(maskData.back || {}),
+    },
+  };
+
+  return maskData;
+  // return {front: Mustache.render(mask["front"], maskData), back: Mustache.render(mask["back"], maskData),};
+}
+
+const verbFlashcards = (literal) => {
+  // const { person, number, tense } = literal.annotation;
+  // TODO: maybe include the related PRONOUN?
+
+  const maskData = {
+    front: {
+      // footer: `${tense} - ${person} Person ${number}`,
+    },
+  };
+  return basicFlashcard(literal, maskData);
+};
+
+const nounFlashcards = (literal) => {
+  // const { gender, number } = literal.annotation;
+  // const article = ["fem"].includes(gender) ? "La" : "El";
+
+  const maskData = {
+    front: {
+      // footer: [{ masc: "Masculine", fem: "Feminine" }[gender]].filter((f) => f).join(" - "),
+    },
+    back: {
+      // header: `${article} ${literal.data.learning}`,
+    },
+  };
+
+  return basicFlashcard(literal, maskData);
+};

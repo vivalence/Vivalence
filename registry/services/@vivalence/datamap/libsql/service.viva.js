@@ -12,12 +12,11 @@ const manifest = {
 };
 
 async function provider(datamap, variant) {
-  // console.log({ variant });
-
   const mikroconfig = defineConfig({
     dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
     entities: variant.map((v) => v.schema).filter(Boolean),
     strict: true,
+    // discovery: {disableDynamicFileAccess: true,},
     extensions: [Migrator],
     migrations: {
       tableName: "_mikro_migrations",

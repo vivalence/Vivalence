@@ -21,8 +21,8 @@
     if (!take) return [];
     const params = fromm.match(match).parameters;
     const context = new Context({ stall, signal, match, params });
-    await apply(context, async (ctx) => (ctx.take = await take(ctx)));
-    return context.take || [];
+    await apply(context, async (ctx) => (ctx.take = (await take(ctx)) || []));
+    return context.take;
   });
 
   let component = $state(null);
@@ -32,11 +32,11 @@
 
   $effect(() => {
     if (dom && $active?.view?.url) {
-      (async ({ view, context }) => {
-        const module = await import(/* @vite-ignore */ view.url);
+      (async (buffer) => {
+        const module = await import(/* @vite-ignore */ buffer.view.url);
         component?.destroy();
         component = null;
-        component = module.default(dom, context);
+        component = module.default(dom, buffer.context);
       })($active);
     }
   });
@@ -59,7 +59,7 @@
       {:else if $active?.view?.url}
         <div id="buffer-container" class="bsp-node" bind:this={dom}></div>
       {:else}
-        <Loader time={{ minimum: 5000 }} load={() => stall.pull()} />
+        <!-- <Loader time={{ minimum: 5000 }} load={() => stall.pull()} /> -->
       {/if}
     {/key}
   </Box>

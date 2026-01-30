@@ -1,34 +1,21 @@
-import { validators } from "@vivalence/shared";
-
-/**
- * Builds JSON schemas for annotations and literals based on dimensions and subjects.
- * Schema hierarchy:
- *   - daemon.schema.annotation (base annotation schema)
- *   - daemon.schema.annotations[subject.slug] (per-subject annotation schemas)
- *   - daemon.schema.literal (base literal schema)
- *   - daemon.schema.literals[subject.slug] (per-subject literal schemas)
- */
-
-// annotation: { lemma: "autobús", pos: "noun", gender: "masc", number: "sing" }
+import { validators, object } from "@vivalence/shared";
 
 export async function schema(daemonDie) {
-  // Initialize schema containers
   daemonDie.good.schema.annotation = baseAnnotationSchema();
   daemonDie.good.schema.annotations = {};
-  daemonDie.good.schema.literal = baseLiteralSchema();
+  daemonDie.good.schema.literal = baseLiteralSchema(
+    daemonDie.kernel.domain.topography.schematics.literal,
+  );
   daemonDie.good.schema.literals = {};
 
-  // Load all dimensions for building the base annotation schema
-  const dimensions = await daemonDie.good.entities.dimension.find({
-    ancestor: null,
-  });
+  const dimensions = await daemonDie.good.entities.dimension //
+    .find({ ancestor: null });
 
   for (const dimension of dimensions) {
     await dimension.descendants.init();
     applyDimensionToBase(daemonDie.good.schema.annotation, dimension);
   }
 
-  // Load all subjects and build per-subject schemas
   const subjects = await daemonDie.good.entities.subject.find({});
 
   for (const subject of subjects) {
@@ -38,7 +25,11 @@ export async function schema(daemonDie) {
     );
     daemonDie.good.schema.annotations[subject.slug] = annotationSchema;
 
-    const literalSchema = buildSubjectLiteralSchema(subject, annotationSchema);
+    const literalSchema = buildSubjectLiteralSchema(
+      subject,
+      annotationSchema,
+      daemonDie.good.schema.literal,
+    );
     daemonDie.good.schema.literals[subject.slug] = literalSchema;
   }
 }
@@ -156,32 +147,28 @@ function baseAnnotationSchema() {
   };
 }
 
-function baseLiteralSchema() {
+function baseLiteralSchema(literaldataschema) {
   return {
     type: "object",
     title: "Literal",
     description: "Base literal schema",
     properties: {
       slug: { type: "string" },
+      data: literaldataschema,
       annotation: { type: "object" },
-      data: { type: "object" },
     },
-    required: ["slug", "annotation"],
+    required: ["slug", "annotation", "data"],
     additionalProperties: false,
   };
 }
 
-function buildSubjectLiteralSchema(subject, annotationSchema) {
-  return {
-    type: "object",
+function buildSubjectLiteralSchema(subject, annotationSchema, literalSchema) {
+  return object.merge(literalSchema, {
     title: `${subject.name || subject.slug} Literal`,
-    description: subject.description || "",
+    description: subject.description,
     properties: {
-      slug: { type: "string" },
       annotation: annotationSchema,
-      data: { type: "object" },
     },
-    required: ["slug", "annotation"],
     additionalProperties: false,
-  };
+  });
 }

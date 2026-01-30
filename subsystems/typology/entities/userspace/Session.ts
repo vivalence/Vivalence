@@ -2,7 +2,7 @@ import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
-import { IntentEntity } from "../index.ts";
+import { IntentEntity, ProductEntity } from "../index.ts";
 
 export enum SessionTraitsEnum {
   _ = "_",
@@ -13,7 +13,7 @@ export class SessionEntity extends BaseEntity {
   traits: SessionTraitsEnum[] & Opt = [];
 
   intent: Rel<IntentEntity>;
-  // products: Rel<ProductEntity>;
+  products = new Collection<ProductEntity>(this);
 
   state: any & Opt = {};
   history: any & Opt = {};
@@ -31,6 +31,7 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
+
     traits: {
       columnType: "json",
       defaultRaw: `"[]"`,
@@ -46,6 +47,13 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       fieldName: "intent",
       updateRule: "cascade",
       deleteRule: "cascade",
+    },
+
+    products: {
+      kind: "1:m",
+      entity: () => ProductEntity,
+      mappedBy: (product) => product.session,
+      fieldName: "products",
     },
 
     state: { type: "json" },

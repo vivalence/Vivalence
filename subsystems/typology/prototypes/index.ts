@@ -1,6 +1,6 @@
 export * from "./env.js";
 export * from "./error/index.js";
-export * from "./scope/index.js";
+export * from "./scope.js";
 export * from "./status.js";
 export * from "./connection.js";
 export * from "./url.js";
@@ -21,5 +21,5 @@ export * from "./response.js";
 export * from "./mode.js";
 
 export * from "./classifier.js";
-export * from "./blacklist/index.js";
+export * from "./blacklist.js";
 export * from "./remedy/index.ts";

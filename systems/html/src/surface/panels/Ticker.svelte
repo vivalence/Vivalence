@@ -1,8 +1,8 @@
 <script>
   import { Shelve, Box, Text, Pictogram } from "@vivalence/drapes";
   let {
-      // left, center, right,
-      size = "md",
+    // left, center, right,
+    size = "md",
   } = $props();
 
   const sizes = {
@@ -22,11 +22,13 @@
   </div>
 
   <div class="flex items-center justify-center">
-    <!-- {@render center?.()} -->
-    <Pictogram
-      src="/images/pictogram_viket/pic-vinca-viket_white.png"
-      alt="<<"
-      size="xl" />
+    <a href="/">
+      <!-- {@render center?.()} -->
+      <Pictogram
+        src="/images/pictogram_viket/pic-vinca-viket_white.png"
+        alt="<<"
+        size="xl" />
+    </a>
   </div>
 
   <div class="flex items-center justify-end gap-2">

@@ -60,7 +60,6 @@ function createExistenceValidators(daemon) {
 async function runConstraints(daemon, branch, entity, processors) {
   const constraints = daemon.kernel.constraint.matching(branch, processors);
 
-  // Sort: SCHEMATIC first, then others
   const sorted = constraints.sort((a, b) => {
     const aSchema = a.traits.includes("SCHEMATIC") ? -1 : 0;
     const bSchema = b.traits.includes("SCHEMATIC") ? -1 : 0;
@@ -69,7 +68,6 @@ async function runConstraints(daemon, branch, entity, processors) {
 
   const issues = [];
 
-  // console.log({ constraints, sorted });
   for (const constraint of sorted) {
     const constraintIssues = await constraint.test(entity);
     issues.push(...constraintIssues);

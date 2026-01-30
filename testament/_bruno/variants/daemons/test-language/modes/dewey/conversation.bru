@@ -7,11 +7,15 @@ meta {
 post {
   url: {{MODE}}/conversation
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {
   {
-    "message": "Lets practice some conversations."
+    "message": "Lets practice some conversations about fruits and other foods."
   }
 }

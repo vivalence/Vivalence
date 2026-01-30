@@ -32,7 +32,10 @@ export class Url extends Signature {
   // nature = "/";
   // origin = null;
   static coercions = [
-    [(u) => is.url(u), (u) => ({ nature: u.pathname, origin: u.origin })],
+    [
+      (u) => is.url(u),
+      (u) => ({ nature: u.pathname || u.nature, origin: u.origin }),
+    ],
     [
       (u) => is.string(u),
       (s) => {

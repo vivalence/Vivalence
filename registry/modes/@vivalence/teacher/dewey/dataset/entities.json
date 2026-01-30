@@ -3,7 +3,7 @@
     {
       "slug": "hello-world",
       "name": "talk to dewey",
-      "docs": "first point of contact.",
+      "description": "first point of contact.",
       "traits": ["DESTINATION"],
       "data": {
         "DESTINATION": "/feed"

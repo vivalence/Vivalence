@@ -17,7 +17,6 @@
     "@cross/env": "jsr:@cross/env@1.0",
     "@std/fs": "npm:fs-extra",
     "@cross/fs": "jsr:@cross/fs@0.1",
-    "@cross/deepmerge": "jsr:@cross/deepmerge@1.0",
     "@cross/jwt": "jsr:@cross/jwt@0.6",
     "@cross/runtime": "jsr:@cross/runtime@1.0",
     "@cross/service": "jsr:@cross/service@1.0",

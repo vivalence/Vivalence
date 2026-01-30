@@ -1,0 +1,33 @@
+meta {
+  name: memory
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{ENG2LAT}}/review/memory
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "signal": "SUCCESS",
+    "scope": {
+      "user": {
+        "id": "localhost"
+      },
+      "unit": {
+        "id": "0197402d-b7dd-752b-b6d1-67c677ff2b17"
+      }
+  
+    }
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

@@ -4,7 +4,13 @@ export function array(thing) {
 }
 
 export function object(thing) {
-  return thing !== null && typeof thing === "object" && !Array.isArray(thing);
+  return (
+    typeof thing === "object" &&
+    thing !== null &&
+    !Array.isArray(thing) &&
+    !(thing instanceof Map) &&
+    !(thing instanceof Set)
+  );
 }
 
 export function fn(thing) {
@@ -16,6 +22,10 @@ export function string(thing) {
 
 export function number(thing) {
   return typeof thing === "number" && !isNaN(thing);
+}
+
+export function numberPositive(thing) {
+  return typeof number(thing) && thing > 0;
 }
 
 export function boolean(thing) {

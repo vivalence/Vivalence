@@ -3,7 +3,7 @@
     {
       "slug": "hello-world",
       "name": "talk to eva",
-      "docs": "first contact.",
+      "description": "first contact.",
       "traits": ["DESTINATION"],
       "data": {
         "DESTINATION": "/"

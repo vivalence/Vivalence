@@ -2,6 +2,7 @@ import { Feature } from "@vivalence/typology";
 
 export function classifier(daemonDie) {
   daemonDie.good.kernel.taxonomist.on(Feature, async (feature, ctx) => {
+    console.log("[@daemon/kernel/classifier called on Feature");
     let issues = await daemonDie.good.validate.annotation(
       feature.annotation, //
       ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"],
@@ -12,12 +13,10 @@ export function classifier(daemonDie) {
       return issue;
     });
 
-    issues = await daemonDie.good.kernel.remedy.many(issues, {
-      runtime: daemonDie.good,
-    });
+    // issues = await daemonDie.good.kernel.remedy.many(issues, {daemon: daemonDie.good,});
 
     if (issues.length > 0) {
-      console.log("[@boot/ontology/classifier.js feature extraction error]");
+      console.log("[@daemon/kernel/classifier.js feature extraction error]");
       // console.log(issues);
       // console.log("/[classifier feature extraction error]");
       return null;
@@ -29,10 +28,7 @@ export function classifier(daemonDie) {
     return feature;
   });
 
-  for (const kernelmode of [
-    daemonDie.kernel.ontology,
-    ...daemonDie.kernel.topic,
-  ]) {
+  for (const kernelmode of daemonDie.register.kernel) {
     if (kernelmode.topography?.taxonomy) {
       kernelmode.topography.taxonomy.map(([form, handler]) => {
         daemonDie.good.kernel.taxonomist.on(form, handler);
@@ -46,7 +42,6 @@ export function classifier(daemonDie) {
     assert: daemonDie.good.assert,
     services: daemonDie.good.services,
   };
-  // console.log({ ctx });
 
   for (const Form of daemonDie.good.kernel.taxonomist.forms) {
     daemonDie.good.classify[Form.name.toLowerCase()] = async (classifiable) => {

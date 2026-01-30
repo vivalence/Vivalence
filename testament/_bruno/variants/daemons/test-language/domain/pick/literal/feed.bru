@@ -1,0 +1,45 @@
+meta {
+  name: feed
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/pick/literal/feed
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "batch": 5,
+    "stock": 15,
+    "seek": {
+      "literals": []
+    },
+    "scope": {
+      "intent": {
+        "id": "019bfc8e-9dfc-73c8-bb37-f7a681a391f9"
+      },
+      "valence": {
+        "id": "019bfaf6-10c5-77ff-968d-170bc58a4799"
+      },
+      "generator": {
+        "id": "019bfaf4-785b-77bf-bee5-11db3b5b61b9"
+      }
+    },
+    "blacklist": {
+      "literals": [],
+      "symbols": [],
+      "products": []
+    }
+  }
+}
+
+docs {
+  due by play
+}

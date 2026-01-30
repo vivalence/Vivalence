@@ -5,7 +5,6 @@
   // !handle auth.
 
   const valences = dataspace.valence.$entities;
-  $inspect(valences);
 
   let { children } = $props();
 </script>
@@ -19,11 +18,14 @@
         <!-- empty but layouted -->
       </div>
       <div class="bsp-node t-grip-active">
-        {#each $valences.values() as valence}
+        {#each $valences
+          .values()
+          .filter((valence) => valence.implements("destination")) as valence}
           <a
-            href={valence.destination.absolute}
+            href={valence.link.absolute}
             class="block p-2 hover:bg-skeleton-1-boundary">
-            <Text size="sm" weight="medium">{valence.name}</Text>
+            <Text size="sm" weight="medium"
+              >{valence.name || valence.slug}</Text>
             <Text size="xs" color="2" class="opacity-60">
               {valence.mode.slug}/{valence.slug}
             </Text>

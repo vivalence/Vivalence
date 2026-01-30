@@ -2,7 +2,7 @@ import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
-import { SessionEntity } from "../index.ts";
+import { ProductEntity, SessionEntity } from "../index.ts";
 
 export enum IntentTraitsEnum {
   BOOKMARKED = "BOOKMARKED",
@@ -14,7 +14,7 @@ export class IntentEntity extends BaseEntity {
   traits: IntentTraitsEnum[] & Opt = [];
   data: any & Opt = {}; // pojojson
   sessions = new Collection<SessionEntity>(this);
-  // products: Rel<ProductEntity>;
+  products: Rel<ProductEntity>;
 }
 
 export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({
@@ -42,6 +42,12 @@ export const IntentSchema = new EntitySchema<IntentEntity, BaseEntity>({
       kind: "1:m",
       entity: () => SessionEntity,
       mappedBy: (session) => session.intent,
+    },
+
+    products: {
+      kind: "1:m",
+      entity: () => ProductEntity,
+      mappedBy: (products) => products.intent,
     },
 
     data: { type: "json" },

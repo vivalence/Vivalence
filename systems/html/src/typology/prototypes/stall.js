@@ -26,12 +26,12 @@ export class Stall {
   next(promise) {
     const status = this.$status.get();
     if (["STOP", "NEXT"].includes(status)) return;
-
     this.$status.set("NEXT");
-    const prev = { ...this.$active.get() };
 
+    const prev = { ...this.$active.get() };
     this.$active.set(null);
     const queue = this.$queue.get();
+
     if (queue.length > 0) {
       const [first, ...rest] = queue;
       this.$queue.set(rest);
@@ -42,15 +42,6 @@ export class Stall {
 
     this.$status.set("IDLE");
     this.pull();
-  }
-
-  push(mode) {
-    this.$queue.set([...this.$queue.get(), mode]);
-    if (!this.$active.get()) {
-      const [first, ...rest] = this.$queue.get();
-      this.$queue.set(rest);
-      this.$active.set(first);
-    }
   }
 
   async pull() {
@@ -82,6 +73,14 @@ export class Stall {
     }
   }
 
+  push(mode) {
+    this.$queue.set([...this.$queue.get(), mode]);
+    if (!this.$active.get()) {
+      const [first, ...rest] = this.$queue.get();
+      this.$queue.set(rest);
+      this.$active.set(first);
+    }
+  }
   reset() {
     this.$active.set(null);
     this.$queue.set([]);
@@ -94,9 +93,8 @@ export class Stall {
 
   runHooks(prev, active, promise) {
     const prevHooks = prev?.hooks || [];
-    [...prevHooks, ...this.handlers.hooks].forEach((f) =>
-      f(prev, active, promise),
-    );
+    [...prevHooks, ...this.handlers.hooks] //
+      .forEach((f) => f(prev, active, promise));
   }
 }
 

@@ -1,39 +1,39 @@
 import paladin from "@vivalence/paladin";
-import { mw } from "@vivalence/vector/aperture";
+import { mw, parser } from "@vivalence/vector/aperture";
 import { as, shards, Url, Connection } from "@vivalence/typology";
 
-async function attachProcesses(runtimeDie) {
-  for (const processDie of runtimeDie.good.processes) {
-    processDie.good
-      .open("/status", () => processDie.status.reflection)
-      .open("/manifest", () => processDie.manifest);
+export async function attach(runtimeDie) {
+  async function attachProcesses(runtimeDie) {
+    for (const processDie of runtimeDie.good.processes) {
+      processDie.good
+        .open("/status", () => processDie.status.reflection)
+        .open("/manifest", () => processDie.manifest);
 
-    runtimeDie.good.aperture
-      // processdie.mount.nature
-      .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
-      .use(shards.context.attach(processDie.type, processDie.mask))
-      .descendants.push(processDie.good);
-  }
-}
-async function attachDaemons(runtimeDie) {
-  for (const daemonDie of runtimeDie.good.daemons) {
-    for (const mode of daemonDie.good.flatmodes()) {
-      if (!mode.implements("viewable")) continue;
-      runtimeDie.good.aperture //
-        .branch("/attached/view")
-        .branch(mode.mount.absolute)
-        .use(shards.context.attach("mode", mode))
-        .open("/status", () => ({ status: "success" }))
-        .open("/(.*)", async (input, ctx) => {
-          if (paladin.is.dev) await ctx.mode.view.bundle();
-          ctx.response.type = "application/javascript";
-          return ctx.mode.view.serve(as.path.params(ctx.params)).text;
-        });
+      runtimeDie.good.aperture
+        // processdie.mount.nature
+        .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
+        .use(shards.context.attach(processDie.type, processDie.mask))
+        .descendants.push(processDie.good);
     }
   }
-}
+  async function attachDaemons(runtimeDie) {
+    for (const daemonDie of runtimeDie.good.daemons) {
+      for (const mode of daemonDie.good.flatmodes()) {
+        if (!mode.implements("viewable")) continue;
+        runtimeDie.good.aperture //
+          .branch("/attached/view")
+          .branch(mode.mount.absolute)
+          .use(shards.context.attach("mode", mode))
+          .open("/status", () => ({ status: "success" }))
+          .open("/(.*)", async (input, ctx) => {
+            if (paladin.is.dev) await ctx.mode.view.bundle();
+            ctx.response.type = "application/javascript";
+            return ctx.mode.view.serve(as.path.params(ctx.params)).text;
+          });
+      }
+    }
+  }
 
-export async function attach(runtimeDie) {
   await attachProcesses(runtimeDie);
   await attachDaemons(runtimeDie);
 }
@@ -42,11 +42,60 @@ export async function expose(runtimeDie) {
   for (const daemonDie of runtimeDie.good.daemons) {
     runtimeDie.good.aperture
       .branch(daemonDie.good.mount.nature) // .branch(`/daemon/${daemonDie.slug}`)
-      .use(shards.context.attach("daemon", daemonDie.good))
       .open("/status", () => daemonDie.status.reflection)
       .open("/manifest", () => daemonDie.manifest)
-      .descendants.push(daemonDie.good.aperture);
+      .slurp(daemonDie.good.aperture);
   }
+}
+
+export async function compose(runtimeDie) {
+  runtimeDie.good.server
+    .use(mw.cors)
+    .use(mw.notFound)
+    .use(async (ctx, next) => {
+      // UGLY!
+      ctx.input = await parser(ctx);
+      await next();
+      ctx.response.body = ctx.output;
+    });
+  runtimeDie.good.server.use(runtimeDie.good.aperture.compose(true));
+}
+
+export async function wake(die) {
+  die.good.ters = {
+    async patrol() {
+      for (const terran of die.good.terrans) {
+        if (terran.status.is("ERROR")) {
+          console.warn(`Terran unhealthy`, terran.slug);
+        }
+      }
+      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
+    },
+  };
+}
+
+export async function launch(runtimeDie) {
+  const url = paladin.variant.runtime?.statics?.serve;
+  console.log(`launching on ${url.absolute}`);
+  if (!url) {
+    console.warn("No runtime serve URL configured");
+    return;
+  }
+
+  runtimeDie.good.server.addEventListener(
+    "listen",
+    ({ hostname, port, ...rest }) => {
+      console.log(`listening on ${hostname}:${port}`);
+    },
+  );
+
+  runtimeDie.listening = runtimeDie.good.server.listen({
+    port: url.port,
+    hostname: url.hostname,
+    signal: runtimeDie.abort.signal,
+  });
+
+  runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
 }
 
 // export async function attach(runtimeDie) {
@@ -115,48 +164,6 @@ export async function expose(runtimeDie) {
 //       .descendants.push(processDie.good);
 //   }
 // }
-
-export async function compose(runtimeDie) {
-  runtimeDie.good.server.use(mw.cors).use(mw.notFound);
-  runtimeDie.good.server.use(runtimeDie.good.aperture.compose(true));
-}
-
-export async function wake(die) {
-  die.good.ters = {
-    async patrol() {
-      for (const terran of die.good.terrans) {
-        if (terran.status.is("ERROR")) {
-          console.warn(`Terran unhealthy`, terran.slug);
-        }
-      }
-      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
-    },
-  };
-}
-
-export async function launch(runtimeDie) {
-  const url = paladin.variant.runtime?.statics?.serve;
-  console.log(`launching on ${url.absolute}`);
-  if (!url) {
-    console.warn("No runtime serve URL configured");
-    return;
-  }
-
-  runtimeDie.good.server.addEventListener(
-    "listen",
-    ({ hostname, port, ...rest }) => {
-      console.log(`listening on ${hostname}:${port}`);
-    },
-  );
-
-  runtimeDie.listening = runtimeDie.good.server.listen({
-    port: url.port,
-    hostname: url.hostname,
-    signal: runtimeDie.abort.signal,
-  });
-
-  runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
-}
 
 // import paladin from "@vivalence/paladin";
 // import { shards } from "@vivalence/vector";

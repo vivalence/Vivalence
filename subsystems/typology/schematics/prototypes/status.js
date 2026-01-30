@@ -2,13 +2,12 @@ import { Type } from "@sinclair/typebox";
 
 const StatusCode = Type.Union(
   [
-    Type.Literal("IDLE"),
-    Type.Literal("HEALTHY"),
     Type.Literal("PENDING"),
     Type.Literal("ACTIVE"),
     Type.Literal("SUCCESS"),
     Type.Literal("ERROR"),
-    Type.Literal("INTERRUPTED"),
+    // Type.Literal("IDLE"), Type.Literal("HEALTHY"),
+    // Type.Literal("INTERRUPTED"), Type.Literal("TERMINATED"), Type.Literal("COMPLETED"), Type.Literal("BOUNCED"),
   ],
   {
     description: "Machine-readable status code",

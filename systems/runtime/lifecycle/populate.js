@@ -17,8 +17,9 @@ export async function wiring(runtimeDie) {
 }
 
 export async function aperture(runtimeDie) {
-  runtimeDie.good.aperture.open("/status", () => runtimeDie.status.reflection);
-  runtimeDie.good.aperture.open("/manifest", () => runtimeDie.manifest);
+  runtimeDie.good.aperture
+    .open("/status", () => runtimeDie.status.reflection)
+    .open("/manifest", () => runtimeDie.manifest);
 }
 
 export async function terrans(runtimeDie) {

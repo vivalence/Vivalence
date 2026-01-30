@@ -1,5 +1,6 @@
 import { atom, computed } from "nanostores";
 import { shards } from "@vivalence/typology";
+import { object } from "@vivalence/shared";
 import { Url, Status, Request, Response } from "@vivalence/typology";
 
 export class Connection {
@@ -20,7 +21,10 @@ export class Connection {
   }
 
   branch(path) {
-    return new Connection(this.url.branch(path), this.transport);
+    return new this.constructor(this.url.branch(path), this.transport);
+  }
+  clone() {
+    return new this.constructor(this.url, this.transport);
   }
 
   async request(req) {
@@ -55,19 +59,29 @@ export class Connection {
     return response;
   }
 
-  async call(endpoint, body = {}) {
-    const response = await this.fetch(endpoint, body);
+  async call(endpoint, body = {}, options = {}) {
+    const response = await this.fetch(endpoint, body, options);
 
     if (!response.ok) {
       // NEED: prototype.CallError ~ not.xzy
       const error = new Error(`Request failed: ${response.status}`);
       error.response = response;
-      // error.request = request;
-      console.error(error);
+      console.error({ endpoint, response });
       throw error;
     }
 
     return response.body;
+  }
+
+  aim(endpoint, bodyI = {}, optionsI = {}) {
+    return (bodyII = {}, optionsII = {}) => {
+      return this.call(
+        endpoint,
+        object.merge(bodyII, bodyI),
+        object.merge(optionsII, optionsI),
+      );
+    };
+    //
   }
 
   get isHealthy() {

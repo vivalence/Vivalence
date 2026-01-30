@@ -1,4 +1,4 @@
-import { Path } from "@vivalence/typology";
+import { Status, Path } from "@vivalence/typology";
 import { shards } from "@vivalence/vector";
 import { Aperture } from "@vivalence/vector/aperture";
 
@@ -24,13 +24,11 @@ export class Cake {
 }
 
 export class Mode extends Cake {
-  // status, connection
-  // entity: <em.Module>
-  // url
-  // view?
-  // call
+  // connection // entity: <em.Module> // url // view? // call
 
+  status = new Status("<uninitialized>", this);
   aperture = new Aperture();
+
   constructor(cake) {
     super(cake);
   }

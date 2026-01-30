@@ -77,7 +77,7 @@ export function View(thing) {
 
 export function url(thing) {
   // must have required keys of url.pathname xxx
-  if (thing.origin && thing.pathname) return true;
+  if (thing.origin && (thing.pathname || thing.nature)) return true;
   return false;
 }
 

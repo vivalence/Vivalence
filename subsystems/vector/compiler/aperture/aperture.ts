@@ -35,7 +35,6 @@ export default class Aperture {
 
   use(middleware: Middleware): Aperture {
     this.router.use(middleware);
-    // middleware.router = this;
     this.middlewares.push(middleware);
     return this;
   }
@@ -44,8 +43,7 @@ export default class Aperture {
     const routePath = new Path(path, this.path);
 
     this.router.all(routePath.toString(), async (ctx: ApertureContext) => {
-      console.log("open", handler.length);
-      ctx.response.body = await handler(await parser(ctx), ctx);
+      ctx.output = await handler(ctx.input, ctx);
     });
 
     return this;
@@ -57,15 +55,20 @@ export default class Aperture {
     return aperture;
   }
 
+  slurp(aperture: Aperture): Aperture {
+    this.descendants.push(aperture);
+    return this;
+  }
+
   compose(force = false) {
     if (force) this.composed = null;
 
+    // ISSUE bypasses middlewares on root level aka new Aperture().use(doesnt)
     if (!this.composed) {
       for (const descendant of this.descendants) {
         descendant.serve(this.router, force);
       }
 
-      // console.log("f", force);
       this.composed = compose([
         ...this.middlewares,
         this.router.routes(),
@@ -87,6 +90,7 @@ export default class Aperture {
       this.router.routes(),
       this.router.allowedMethods(),
     );
+
     return this;
   }
 }

@@ -1,0 +1,15 @@
+meta {
+  name: status
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/status
+  body: json
+  auth: none
+}
+
+body:json {
+   {} 
+}
