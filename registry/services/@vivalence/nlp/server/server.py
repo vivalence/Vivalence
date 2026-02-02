@@ -8,7 +8,6 @@ LANGUAGES = os.environ.get("STANZA_LANGUAGES", "en").split(",")
 PROCESSORS = os.environ.get("STANZA_PROCESSORS", "tokenize,mwt,pos,lemma,depparse")
 PACKAGE = os.environ.get("STANZA_PACKAGE", "gsd")
 SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "5555"))
-SERVICE_HOST = os.environ.get("SERVICE_HOST", "0.0.0.0")
 
 os.makedirs(DEFAULT_MODEL_DIR, exist_ok=True)
 
@@ -144,4 +143,4 @@ def init_models():
 
 if __name__ == "__main__":
     init_models()
-    app.run(host=SERVICE_HOST, port=SERVICE_PORT)
+    app.run(host="0.0.0.0", port=SERVICE_PORT)
