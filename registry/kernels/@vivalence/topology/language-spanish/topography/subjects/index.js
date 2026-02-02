@@ -29,4 +29,3 @@ export default [
   punct,
   verb,
 ];
-// export default [noun];

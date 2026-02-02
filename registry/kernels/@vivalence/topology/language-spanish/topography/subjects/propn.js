@@ -1,12 +1,13 @@
-import noun from "./noun.js";
-
-const propn = { ...noun, slug: "propn", name: "Proppernoun", description: "names n shit" };
-
-propn.relations = propn.relations.map((relation) => {
-  if (relation.required?.branch === "pos" && relation.required?.leaf === "noun") {
-    relation.required.leaf = "propn";
-  }
-  return relation;
-});
-
-export default propn;
+export default {
+  slug: "propn",
+  name: "Propper noun",
+  description: "True names of people and places",
+  dimensions: [
+    { branch: ["pos"], required: true },
+    { branch: ["lemma"], required: true },
+  ],
+  relations: [
+    { unique: { branch: "pos" } },
+    { required: { branch: "pos", leaf: "propn" } },
+  ],
+};

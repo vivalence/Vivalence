@@ -18,8 +18,8 @@ RUN git clone https://github.com/stanfordnlp/stanza.git && \
 
 WORKDIR /app/stanza
 
-COPY ./download_models.py /app/stanza/
-COPY ./script.py /app/stanza/
+# COPY ./download_models.py /app/stanza/
+COPY ./server.py /app/stanza/
 COPY ./entrypoint.sh /app/stanza/
 
 RUN chmod +x entrypoint.sh

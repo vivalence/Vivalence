@@ -89,6 +89,7 @@
     "npm:typebox@1.0": "1.0.77",
     "npm:typescript@^5.3.0": "5.9.3",
     "npm:uuid@11.0.5": "11.0.5",
+    "npm:vite@*": "6.3.3_@types+node@24.2.0_picomatch@4.0.3",
     "npm:vite@6.3.3": "6.3.3_@types+node@24.2.0_picomatch@4.0.3",
     "npm:zod@*": "4.3.5"
   },

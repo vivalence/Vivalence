@@ -3,6 +3,7 @@ import { Type } from "@sinclair/typebox";
 
 async function required(issue, ctx) {
   const { daemon } = ctx;
+  console.json({ issue });
   const annotation = issue.context.literal.annotation;
 
   if (!annotation?.pos) {

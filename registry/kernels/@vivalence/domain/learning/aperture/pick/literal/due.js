@@ -1,7 +1,7 @@
 import { Blacklist, Scope } from "@vivalence/typology";
 
 export default async function getDueLiterals(input, ctx) {
-  const { seek, batch, stock, dueLt = new Date().toISOString() } = input;
+  const { seek = {}, batch, stock, dueLt = new Date().toISOString() } = input;
 
   const take = input.take || (batch || 0) + (stock || 0);
   const blacklist = new Blacklist(input.blacklist);

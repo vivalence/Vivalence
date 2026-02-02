@@ -31,7 +31,7 @@ export default [
         lemma: token.lemma.toLowerCase(),
         pos: token.upos.toLowerCase(),
       };
-      if (["punct"].includes(annotation.pos)) return null;
+      // if (["punct"].includes(annotation.pos)) return null;
 
       const feats = parseFeats(token.feats);
       for (const key in feats) {
@@ -45,8 +45,10 @@ export default [
       // console.log("@taxonomy", { annotation });
 
       const issues = await ctx.validate.annotation(annotation);
+
       if (issues.length > 0) {
-        console.log("@ontology/extractors.js [TOKEN EXTRACTOR ISSUE]");
+        console.log("@ontology/taxonomy.js [TOKEN EXTRACTOR ISSUE]");
+        console.log({ issues });
         // console.log({ token, annotation, issues });
         return null;
       }

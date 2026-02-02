@@ -34,7 +34,10 @@ export class DataRepository extends EntityRepository {
   }
   async ensure(query) {
     const existing = await this.findOne(this.unique(query));
-    if (existing) return existing;
+    if (existing) {
+      existing.assign(query);
+      return existing;
+    }
     return await this.create(query);
   }
 }

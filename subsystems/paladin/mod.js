@@ -1,6 +1,8 @@
 import { Paladin } from "@vivalence/paladin/typology";
 import { populate, resolve, integrate } from "@vivalence/paladin/typology";
 
+console.json = (obj) => console.log(JSON.stringify(obj, null, 2));
+
 const paladin = await (async function incarne() {
   const paladin = new Paladin();
 

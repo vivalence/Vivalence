@@ -57,6 +57,7 @@ export async function compose(runtimeDie) {
       ctx.input = await parser(ctx);
       await next();
       ctx.response.body = ctx.output;
+      ctx.response.headers.set("Content-Type", "application/json");
     });
   runtimeDie.good.server.use(runtimeDie.good.aperture.compose(true));
 }

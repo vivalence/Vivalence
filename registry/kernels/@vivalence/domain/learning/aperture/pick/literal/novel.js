@@ -1,7 +1,7 @@
 import { is, Blacklist, Scope } from "@vivalence/typology";
 
 export default async function getNovelLiterals(input, ctx) {
-  const { seek, batch, stock } = input;
+  const { seek = {}, batch, stock } = input;
 
   const take = input.take || (batch || 0) + (stock || 0);
 

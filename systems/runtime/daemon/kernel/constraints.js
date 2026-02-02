@@ -218,7 +218,7 @@ function createExistentialConstraints(daemon) {
           message: "Literal missing for annotation",
           violation: "required",
           path: ["literal"],
-          context: { annotation },
+          context: { literal: { annotation } },
         });
       }
 

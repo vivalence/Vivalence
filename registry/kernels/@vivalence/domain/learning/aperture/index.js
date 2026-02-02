@@ -2,6 +2,7 @@ import { Aperture } from "@vivalence/vector/aperture";
 
 import * as pick from "./pick/index.js";
 import * as review from "./review/index.js";
+import * as classify from "./classify.js";
 
 export const aperture = new Aperture()
   .open("/pick/literal/feed", pick.literal.feed)
@@ -19,7 +20,8 @@ export const aperture = new Aperture()
   .open("/review/literal", review.literal)
   .open("/review/symbol", review.symbol)
   .open("/review/memory", review.memory)
-  .open("/review/play", review.play);
+  .open("/review/play", review.play)
+  .open("/classify/text", classify.text);
 
 // import tag from "./entities/tag/index.js";
 // import unit from "./entities/unit/index.js";

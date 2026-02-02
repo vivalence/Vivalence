@@ -27,7 +27,7 @@ function createAsserter(entityType, daemon) {
       return issues;
     }
 
-    // console.log("asserter", { issues });
+    // console.log("asserter"); console.json({ issues });
     issues = await daemon.kernel.medic.many(issues, { daemon });
 
     if (issues.length > 0) {

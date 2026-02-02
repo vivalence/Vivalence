@@ -1,0 +1,28 @@
+meta {
+  name: classify
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/classify/text
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "text": "hola senor"
+  }
+}
+
+docs {
+  # get the weakest units
+  MUST BE TESTED
+  
+  weakest by memory
+}

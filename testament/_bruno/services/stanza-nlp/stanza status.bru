@@ -1,11 +1,11 @@
 meta {
-  name: stanza nlp
+  name: stanza status
   type: http
-  seq: 22
+  seq: 3
 }
 
 post {
-  url: http://localhost:5555/nlp
+  url: http://localhost:5555/status
   body: json
   auth: none
 }
@@ -17,7 +17,7 @@ headers {
 body:json {
   {
     "language": "es",
-    "text": "María se mira en el espejo",
+    "text": "yo vivo",
     "processors": "tokenize,mwt,pos,lemma,depparse"
   }
 }

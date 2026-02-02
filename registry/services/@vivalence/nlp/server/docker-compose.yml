@@ -15,10 +15,10 @@ services:
     ports:
       - "${SERVICE_PORT}:${SERVICE_PORT}"
     volumes:
-      - ${SERVICE_DATA}/mnt:/app/stanza/mnt
+      - "${SERVICE_MOUNT}/mnt:/app/stanza/mnt"
     environment:
       - STANZA_RESOURCES_DIR=/app/stanza/mnt/stanza_resources
       - STANZA_LANGUAGES=${STANZA_LANGUAGES}
       - STANZA_PROCESSORS=${STANZA_PROCESSORS}
-      - GUNICORN_WORKERS=${GUNICORN_WORKERS}
+      - SERVICE_WORKERS=${SERVICE_WORKERS}
       - SERVICE_PORT=${SERVICE_PORT}
