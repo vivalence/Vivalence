@@ -21,7 +21,7 @@ const aperture = new Aperture().open("/evaluate", evaluate);
 const producer = new Aperture()
   .branch("/generate")
   .use(async (ctx, next) => {
-    ctx.input.scope.producer = { id: ctx.mode.entity.id };
+    ctx.input.scope.producer = ctx.mode.entity.id;
     await next();
   })
   .open("/pending", generate.pending)

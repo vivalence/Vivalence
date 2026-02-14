@@ -19,7 +19,7 @@ export const prototype = Daemon;
 
 export async function lifecycle(daemon) {
   daemon.manifest = await daemon.connection.call("/manifest");
-  daemon.call = await daemon.connection.call.bind(daemon.connection);
+  daemon.call = daemon.connection.call.bind(daemon.connection);
   daemon.mount = new Path(`/daemon/${daemon.manifest.slug}`);
 
   const modes = await daemon.connection.call("/entities/mode/find");
@@ -30,6 +30,7 @@ export async function lifecycle(daemon) {
       .branch(`/mode/${mode.type}/${mode.slug}`);
 
     mode.connection = daemon.connection.branch(mode.mount.nature);
+    mode.call = mode.connection.call.bind(mode.connection);
 
     mode.manifest = await mode.connection.call("/manifest");
 
@@ -46,28 +47,48 @@ export async function lifecycle(daemon) {
     valence.mode = await dataspace.mode //
       .findOne((mode) => valencePojo.mode.id === mode.id);
 
-    if (valence.implements("destination")) {
+    if (valence.type === "destination") {
       valence.link = valence.mode.mount
         .branch(`/valence/${valence.slug}`)
         .rebase("/viva");
     }
 
-    if (valence.implements("generative")) {
-      valence.generate = valence.mode.connection
+    if (valence.data["producer"]) {
+      valence.produce = valence.mode.connection
         .clone() //
+        .use(async (ctx, next) => {
+          await next();
+        })
         .use(async (ctx, next) => {
           ctx.request.body.scope = object //
             .merge(ctx.request.body.scope, {
-              valence: { id: valence.id },
-              generator: { id: valence.mode.id },
+              valence: valence.id,
+              commissioner: valence.mode.id,
             });
+
+          // console.log("ctx.request", ctx.request);
+
           await next();
 
-          console.log("ctx.response", ctx.response);
-          ctx.response.body = ctx.response.body.products;
+          // console.log("ctx.response", ctx.response);
+
+          ctx.response.body = await Promise.all(
+            ctx.response.body.products.map(async (product) => {
+              product.mode = await dataspace.mode.findOne(
+                (mode) =>
+                  mode.id ===
+                  // stupid
+                  (product.producer.id
+                    ? product.producer.id
+                    : product.producer),
+              );
+              return product;
+            }),
+          );
+
           // parse ProductionResponse
         })
-        .aim(valence.data["GENERATIVE"], valence.data["DESTINATION"]?.mask);
+        .aim(valence.data["producer"], valence.data["mask"]);
     }
 
     valence.mode.valences.add(valence);
@@ -107,7 +128,7 @@ export async function lifecycle(daemon) {
 //   "description": null,
 //   "data": {
 //     "DESTINATION": {
-//       "generator": "/feed"
+//       "commissioner": "/feed"
 //     }
 //   },
 //   "traits": [

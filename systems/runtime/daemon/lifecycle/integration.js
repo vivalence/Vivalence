@@ -1,31 +1,39 @@
 import paladin from "@vivalence/paladin";
-import { sleep, Url, Connection } from "@vivalence/typology";
+import { sleep, Url, Connection, ConnectionError } from "@vivalence/typology";
 import { context } from "@vivalence/vector/aperture";
 
 // export async function domain(die) {if (is.fn(die.variant.modes.domain.aperture)) await die.variant.modes.domain.aperture(die.good.aperture);}
 
-// .use(notFoundMiddleware)
 export async function call(die) {
-  // die.good.aperture.open("/some/test", () => {console.log("/some/test/"); return { some: "test" };});
-
   const composed = await die.good.aperture.compose(true);
 
   die.connection = new Connection(new Url("http://internal"), async (ctx) => {
-    // UGLY!
-    // ctx.internal = true;
-    ctx.input = ctx.input || ctx.request.body;
-    await composed(ctx);
-    ctx.response.body = ctx.output;
-    if (ctx.response.body) ctx.response.status = 200;
+    // UGLY! and technically wrong
+    try {
+      ctx.input = ctx.input || ctx.request.body;
+      await composed(ctx);
+      ctx.response.body = ctx.output;
+      if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
+      else if (ctx.response.status === 404) ctx.response.setError();
+    } catch (error) {
+      console.error("@runtime/daemon/integration");
+      console.error({ ctx: { input: ctx.input, output: ctx.output } });
+      console.error(error);
+      ctx.response.status = 500;
+      ctx.response.error = error;
+    }
   });
+}
 
-  // die.good.call = async (path, body = {}, params = {}) => {
-  //   const ctx = context(path, body, params);
-  //   await composed(ctx);
-  //   if (ctx.response.status === 404) console.log("[404]", ctx.request);
-  //   return ctx.response.body;
-  // };
+export async function uninstall(daemonDie) {
+  const installed = await daemonDie.good.entities.mode.find({});
+  const loadedIds = new Set(daemonDie.good.flatmodes().map(({ entity }) => entity.id));
 
-  // die.good.call = die.good.connection.call.bind(die.good.connection);
-  // (async () => {await sleep.seconds(2); const output = await die.good.call("/some/test"); console.log("callback output /some/test", { output });})();
+  for (const mode of installed) {
+    if (!loadedIds.has(mode.id)) {
+      await daemonDie.good.entities.mode.nativeDelete({ id: mode.id });
+    }
+  }
+
+  await daemonDie.good.entities.em.flush();
 }

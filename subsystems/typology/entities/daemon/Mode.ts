@@ -16,6 +16,7 @@ export enum ModeTraitsEnum {
   CHAOSMONKEY = "CHAOSMONKEY", //
   VALENTIC = "VALENTIC", //
   SESSIONED = "SESSIONED", //
+  TOPOGRAPHICAL = "TOPOGRAPHICAL", //
 }
 
 export class ModeRepository extends DataRepository {
@@ -34,7 +35,7 @@ export class ModeEntity extends DataEntity {
 
   valences = new Collection<ValenceEntity>(this);
   productions = new Collection<ProductEntity>(this);
-  generations = new Collection<ProductEntity>(this);
+  commissions = new Collection<ProductEntity>(this);
 }
 
 export const ModeSchema = new EntitySchema({
@@ -63,10 +64,10 @@ export const ModeSchema = new EntitySchema({
       entity: () => ProductEntity,
       mappedBy: (product) => product.producer,
     },
-    generations: {
+    commissions: {
       kind: "1:m",
       entity: () => ProductEntity,
-      mappedBy: (product) => product.generator,
+      mappedBy: (product) => product.commissioner,
     },
 
     valences: {

@@ -1,4 +1,5 @@
 import { from } from "./factory.js";
+import { ProductionResult } from "@vivalence/typology";
 
 export async function fromSymbols(inputs, ctx) {
   // const { scope, symbolIds, mask, blacklist, take } = inputs;
@@ -16,7 +17,9 @@ export async function fromLiterals(inputs, ctx) {
 
 export async function pending(input, ctx) {
   const literals = await ctx.daemon.call("/pick/literal/feed", input);
+
   if (literals.length === 0)
-    return [{ type: "SIGNAL", data: { signal: "COMPLETED" } }];
-  return from(literals, input.scope);
+    return ProductionResult.cast.exhausted({ reason: "no candidate literals" });
+
+  return ProductionResult.cast.nominal(from(literals, input.scope));
 }

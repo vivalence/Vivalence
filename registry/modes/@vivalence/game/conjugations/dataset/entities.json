@@ -1,0 +1,36 @@
+{
+  "valence": [
+    {
+      "slug": "feed",
+      "name": "feed of conjugations",
+      "description": "",
+      "type": "destination",
+      "data": {
+        "producer": "/generate/pending",
+        "mask": {
+          "batch": 1,
+          "stock": 1,
+          "seek": {
+            "symbols": {
+              "infinitive": { "slug": "verbform:inf" },
+              "verbs": [
+                { "slug": "lemma:estar" },
+                { "slug": "lemma:ser" },
+                { "slug": "lemma:comer" },
+                { "slug": "lemma:beber" },
+                { "slug": "lemma:poder" },
+                { "slug": "lemma:ir" },
+                { "slug": "lemma:decir" },
+                { "slug": "lemma:haber" },
+                { "slug": "lemma:tener" },
+                { "slug": "lemma:obtener" }
+              ],
+              "tense": { "slug": "tense:pres" },
+              "mood": { "slug": "mood:ind" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

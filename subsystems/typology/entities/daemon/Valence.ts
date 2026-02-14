@@ -1,17 +1,10 @@
-import {
-  types,
-  EntityRepositoryType,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { types, EntityRepositoryType, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 
-export enum ValenceTraitsEnum {
-  DESTINATION = "DESTINATION",
-  GENERATIVE = "GENERATIVE", // creates product
-  APPLICATIVE = "APPLICATIVE", // update product
+export enum ValenceTypeEnum {
+  DESTINATION = "destination",
+  PROVIDER = "provider", // CREATES PRODUCT
 }
 
 export class ValenceRepository extends DataRepository {
@@ -22,10 +15,10 @@ export class ValenceRepository extends DataRepository {
 
 export class ValenceEntity extends DataEntity {
   slug: string & Opt = "";
+  type: ValenceTypeEnum & Opt = ValenceTypeEnum.DESTINATION;
   name?: string;
   description?: string;
 
-  traits: ValenceTraitsEnum[] & Opt = [];
   docs?: string; //?
   mode: Rel<ModeEntity>;
   // signature
@@ -40,15 +33,13 @@ export const ValenceSchema = new EntitySchema({
   uniques: [{ properties: ["slug", "mode"] }],
   properties: {
     slug: { type: types.string },
+    type: {
+      enum: true,
+      items: () => ValenceTypeEnum,
+      default: ValenceTypeEnum.DESTINATION,
+    },
     name: { type: types.string, nullable: true },
     description: { type: types.string, nullable: true },
-
-    traits: {
-      enum: true,
-      array: true,
-      items: () => ValenceTraitsEnum,
-      default: [],
-    },
 
     data: { type: types.json, default: {} },
 

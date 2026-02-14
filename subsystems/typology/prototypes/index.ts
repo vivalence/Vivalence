@@ -1,6 +1,9 @@
 export * from "./env.js";
-export * from "./error/index.js";
+export * from "./errors/index.js";
+export * as errors from "./errors/index.js";
+export * from "./production/index.js";
 export * from "./scope.js";
+export * from "./seek.js";
 export * from "./status.js";
 export * from "./connection.js";
 export * from "./url.js";

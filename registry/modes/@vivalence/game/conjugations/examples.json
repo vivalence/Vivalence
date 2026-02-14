@@ -1,0 +1,83 @@
+{
+  "product": {
+    "id": "019c4efb-9276-735f-92f2-7efe298a5567",
+    "type": "MODAL",
+    "status": "ACTIVE",
+    "index": 0,
+    "data": {
+      "tense": "tense > Present",
+      "mood": "mood > Indicative",
+      "infinitive": {
+        "known": "to be",
+        "learning": "estar",
+        "index": 2,
+        "example": {
+          "known": "I am at home",
+          "learning": "Estoy en casa"
+        }
+      },
+      "conjugations": [
+        {
+          "known": "I am",
+          "learning": "estoy",
+          "meta": {
+            "index": 0
+          },
+          "scope": {
+            "literal": "019c39b4-8ecf-724a-8e45-363e0158c12a"
+          }
+        },
+        {
+          "known": "you are",
+          "learning": "estás",
+          "meta": {
+            "index": 1
+          },
+          "scope": {
+            "literal": "019c39b4-8eed-73d8-b5a5-aaef0fa4282e"
+          }
+        },
+        {
+          "known": "he/she/it is",
+          "learning": "está",
+          "meta": {
+            "index": 2
+          },
+          "scope": {
+            "literal": "019c39b4-8f03-73aa-abbf-e42bbf964278"
+          }
+        },
+        {
+          "known": "we are",
+          "learning": "estamos",
+          "meta": {
+            "index": 3
+          },
+          "scope": {
+            "literal": "019c39b4-8f17-73ea-ae89-b2e2b4c47826"
+          }
+        },
+        {
+          "known": "you (pl) are",
+          "learning": "estáis",
+          "meta": {
+            "index": 4
+          },
+          "scope": {
+            "literal": "019c39b4-8f33-7642-9746-02bd61044b7f"
+          }
+        },
+        {
+          "known": "they are",
+          "learning": "están",
+          "meta": {
+            "index": 5
+          },
+          "scope": {
+            "literal": "019c39b4-8f47-7277-8414-1769b0d96dbd"
+          }
+        }
+      ]
+    }
+  }
+}

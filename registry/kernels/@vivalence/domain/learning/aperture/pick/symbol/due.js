@@ -5,7 +5,7 @@ export default async function getNovelSymbols(input, ctx) {
 
   const take = input.take || (batch || 0) + (stock || 0);
   const blacklist = new Blacklist(input.blacklist);
-  const scope = new Scope({ ...input.scope, user: { id: ctx.user.id } });
+  const scope = new Scope({ ...input.scope, user: ctx.user.id });
 
   const qb = ctx.daemon.entities.symbol.createQueryBuilder("symbol");
   qb.where({});
@@ -25,14 +25,14 @@ export default async function getNovelSymbols(input, ctx) {
         WHERE play.symbol = symbol.id
         AND play.user = ?`;
 
-  if (scope.producer?.id) {
+  if (is.id(scope.producer)) {
     subquery += ` AND play.producer = ?`;
-    subqueryParams.push(scope.producer.id);
+    subqueryParams.push(scope.producer);
   }
 
-  if (scope.generator?.id) {
-    subquery += ` AND play.generator = ?`;
-    subqueryParams.push(scope.generator.id);
+  if (is.id(scope.commissioner)) {
+    subquery += ` AND play.commissioner = ?`;
+    subqueryParams.push(scope.commissioner);
   }
 
   subquery += `)`;

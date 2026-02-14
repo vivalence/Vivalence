@@ -1,5 +1,17 @@
 Less is More, Code is Data, Schema is God.
 
+schematics - shapes of things declared as json
+prototypes - instantiable classes that do things
+entities - database persisted types
+gestalten - helper functions with inherent functionality
+belt - helper functions for extending functionality
+specimen - tooling for testing 
+
+scalars are single properties, values, and root types.
+primitives are system level types, usually thematically grouped - like authentication and production.
+prototypes are instantiatable classes - things that do things.
+
+known issue - there are overlaps in exports due to recursive nature of the naming convention. tbd.
 
 primitives come first.
 with those we describe things' gestalt, effectively as jsonschema.

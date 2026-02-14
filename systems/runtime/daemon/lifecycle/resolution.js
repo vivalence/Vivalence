@@ -24,6 +24,10 @@ export async function modes(daemonDie) {
       await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
     }
 
+    mode.entity.installed = true;
+
+    await daemonDie.good.entities.em.flush();
+
     daemonDie.good.aperture
       .branch(mode.mount.nature)
       .use(shards.secure.authorize())

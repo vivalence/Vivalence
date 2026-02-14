@@ -20,7 +20,10 @@ export default {
           required: ["prontype"],
         },
         then: {
-          required: ["person", "number"],
+          required: [
+            "person",
+            // "number"
+          ],
         },
       },
     },
@@ -41,7 +44,7 @@ export default {
         if: { required: { branch: "prontype", leaf: "prs" } },
         then: [
           { required: { branch: "person" } },
-          { required: { branch: "number" } },
+          // { required: { branch: "number" } },
           { unique: { branch: "reflex" } },
           { unique: { branch: "prepcase" } },
         ],

@@ -12,6 +12,7 @@ export default function provider(service) {
     Authorization: "Bearer " + key,
   };
 
+  // if (package) request.package = package; package,
   const { language, processors = "tokenize,mwt,pos,lemma,depparse" } =
     service.statics;
 
@@ -25,6 +26,10 @@ export default function provider(service) {
       throw new Error("Text required");
     if (text.length > 1000) throw new Error("Text too long");
 
+    const request = { text, language, processors };
+
+    const options = { method: "POST", headers };
+
     const result = await connection
       .use(async (ctx, next) => {
         await next();
@@ -32,18 +37,7 @@ export default function provider(service) {
         if (is.string(ctx.response.body))
           ctx.response.body = JSON.parse(ctx.response.body);
       })
-      .fetch(
-        "/nlp",
-        {
-          text,
-          language,
-          processors,
-        },
-        {
-          method: "POST",
-          headers,
-        },
-      );
+      .fetch("/tokenize", request, options);
 
     return result.body.sentences.map((s) => s.tokens);
   };

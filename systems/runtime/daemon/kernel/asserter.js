@@ -1,3 +1,4 @@
+import { object } from "@vivalence/shared";
 const MAX_ASSERTION_DEPTH = 5;
 
 export function asserter(daemonDie) {
@@ -9,7 +10,7 @@ export function asserter(daemonDie) {
 }
 
 function createAsserter(entityType, daemon) {
-  return async function assert(entity, processors, depth = 0) {
+  return async function assert(entity, { processors, depth = 0, context }) {
     if (depth > MAX_ASSERTION_DEPTH) {
       throw new AssertionError(
         `Max assertion depth (${MAX_ASSERTION_DEPTH}) reached for ${entityType}`,
@@ -27,14 +28,22 @@ function createAsserter(entityType, daemon) {
       return issues;
     }
 
-    // console.log("asserter"); console.json({ issues });
+    issues = issues.map((issue) => {
+      issue.context = object.merge(issue.context, context);
+      return issue;
+    });
+
+    // console.log({ issues });
+
     issues = await daemon.kernel.medic.many(issues, { daemon });
 
-    if (issues.length > 0) {
-      return issues;
-    }
+    if (issues.length > 0) return issues;
 
-    return await assert(entity, processors, depth + 1);
+    return await assert(entity, {
+      depth: depth + 1,
+      processors,
+      context,
+    });
   };
 }
 

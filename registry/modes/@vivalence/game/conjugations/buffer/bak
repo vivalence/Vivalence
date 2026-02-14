@@ -1,0 +1,130 @@
+<script>
+  import { onMount, onDestroy } from "svelte";
+  import { Text, Button, Input, Tag } from "@vivalence/drapes";
+
+  const { instruction, game, scope, keybindings, next } = $props();
+
+  let revealed = $state(false);
+  let inputs = $state(
+    instruction.conjugations.reduce((acc, c) => ((acc[c.scope.unit.id] = ""), acc), {}),
+  );
+  let evaluations = $state({});
+
+  /* let completed = $derived(Object.keys(inputs).length === instruction.conjugations.length); */
+
+  const evaluate = async () => {
+    revealed = true;
+    const params = {
+      conjugations: instruction.conjugations.map((c) => ({
+        ...c,
+        input: inputs[c.scope.unit.id],
+      })),
+      scope,
+    };
+    const { data } = await game.call("/evaluate", params);
+    evaluations = data; // {[id]: {status, feedback}}
+  };
+
+  const onNext = () => {
+    next();
+  };
+
+  keybindings({
+    Enter: () => {
+      if (!revealed) evaluate();
+      else onNext();
+    },
+  });
+</script>
+
+<section class="bsp-node root">
+  {#if instruction}
+    <div class="bsp-chain-end container mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8 pt-[10vh]">
+      <header class="bg-base-100 rounded-t-xl p-4 shadow-md">
+        <div class="flex gap-2">
+          <h1 class="text-xl font-bold">{instruction.infinitive.known}</h1>
+          {#if revealed}
+            <span class="text-xl font-bold">-</span>
+            <h1 class="text-xl font-bold">{instruction.infinitive.learning}</h1>
+          {/if}
+        </div>
+        <div class="mt-3">
+          <Tag size="md">{instruction.tense}</Tag>
+          <Tag size="md">{instruction.mood}</Tag>
+        </div>
+      </header>
+
+      <div class="overflow-x-auto bg-base-100 py-6 px-4 rounded-b-xl border-t-2">
+        <table class="">
+          <thead>
+            <tr>
+              <th class="">Person</th>
+              <th class="px-2 float-left">Conjugation</th>
+              <th class={`${revealed ? "visible" : "invisible"}`}>Correct Answer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {#each instruction.conjugations as conjugation, index}
+              <tr>
+                <td class="">
+                  <span>
+                    {index + 1}
+                  </span>
+                </td>
+                <td class="px-2">
+                  <Input
+                    placeholder={conjugation.known}
+                    autofocus={index === 0}
+                    bind:value={inputs[conjugation.scope.unit.id]}
+                    disabled={revealed} />
+                </td>
+                <td class="">
+                  <span>
+                    {revealed ? conjugation.learning : ""}
+                  </span>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- <div class="fixed bottom-0 w-full bg-base-100 py-6 flex justify-center"> -->
+    <div class="bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1">
+      <div class="max-w-screen-md px-4 sm:px-6 lg:px-8 mx-auto flex items-center justify-center">
+        {#if !revealed}
+          <Button variant="primary" size="xl" onclick={evaluate}>Check</Button>
+        {:else}
+          <Button size="xl" onclick={onNext}>Next</Button>
+        {/if}
+      </div>
+    </div>
+  {/if}
+</section>
+
+<style>
+  .invisible {
+    visibility: hidden;
+  }
+  .visible {
+    visibility: visible;
+  }
+
+  .bg-base-100 {
+    background-color: #f8fafc;
+  }
+
+  /* .shadow {box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);} */
+  .badge {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.2rem;
+    background-color: #e2e8f0;
+    font-size: 0.75rem;
+  }
+
+  .badge-secondary {
+    background-color: #cbd5e1;
+  }
+</style>

@@ -3,9 +3,11 @@ import paladin from "@vivalence/paladin";
 import { is, Mode, Url, Path, shards } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
 import { Vector, compiler, controller } from "@vivalence/vector";
+import { Aperture } from "@vivalence/vector/aperture";
 import { array } from "@vivalence/shared";
 // import { Vector, compiler, controller, shards } from "@vivalence/vector";
 
+import * as kernelmodes from "../mode/kernel.js";
 import * as traitmap from "../mode/traitmap.js";
 
 export async function core(die) {
@@ -25,13 +27,14 @@ export async function core(die) {
   };
 
   die.variant.traits = {
-    ...(die.kernel.domain.traits || {}),
+    ...kernelmodes.traits,
     ...traitmap,
+    ...(die.kernel.domain.traits || {}),
   };
 
   die.variant.modes = [
-    // todo: some standard set.
-    ...die.kernel.domain.modes,
+    ...kernelmodes.modes,
+    ...(die.kernel.domain.modes || []),
   ];
 
   die.variant.entities = [
@@ -107,24 +110,28 @@ export async function services(daemonDie) {
 }
 
 export async function modes(daemonDie) {
-  // console.log({register: daemonDie.register.modes, variant: daemonDie.variant.modes,});
+  const registeredModes = [
+    ...daemonDie.register.kernel,
+    ...daemonDie.register.modes,
+  ]
+    .map((register) => {
+      const variant = daemonDie.variant.modes //
+        .find((v) => register.manifest.type === v.type);
 
-  for (const register of daemonDie.register.modes) {
-    // todo: cast cake. ensure cake is valid mode cake.
+      if (variant) return { variant, register };
 
-    const variant = daemonDie.variant.modes //
-      .find((v) => register.manifest.type === v.type);
-
-    if (!variant) {
       console.log(`@runtime/daemon/population/modes(${register.type})`);
       console.log("variant not found during mode construction");
-      console.log({ register, variant });
-      continue;
-    }
+      console.log({ register });
+    })
+    .filter(Boolean);
 
+  for (const { register, variant } of registeredModes) {
     const mode = new variant.prototype(register);
     mode.mount = daemonDie.good.mount.branch(`/mode/${mode.type}/${mode.slug}`);
     mode.url = daemonDie.good.url.branch(mode.mount.nature);
+
+    if (!mode.aperture) mode.aperture = new Aperture();
 
     if (mode.implements("viewable")) {
       mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
@@ -151,11 +158,7 @@ export async function modes(daemonDie) {
 }
 
 export function handlers(daemonDie) {
-  daemonDie.flatmodules = () =>
-    [Object.values(daemonDie.good.kernel), Object.values(daemonDie.good.modes)]
-      .flat()
-      .map((type) => Object.values(type))
-      .flat();
+  // daemonDie.good.flatmodules = () => [Object.values(daemonDie.good.kernel), Object.values(daemonDie.good.modes)] .flat() .map((type) => Object.values(type)) .flat();
   daemonDie.good.flatmodes = () =>
     Object.values(daemonDie.good.modes)
       .map((type) => Object.values(type))

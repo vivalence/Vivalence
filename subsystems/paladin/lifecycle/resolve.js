@@ -1,4 +1,4 @@
-import { Url, Mask, Path, cast, fromm, as, is } from "@vivalence/typology";
+import { Url, Mask, Path, cast, fromm, is } from "@vivalence/typology";
 
 // load circuitry from tilde into variant.circuitry
 // paladin.find.viva(paladin.scope.variant)

@@ -1,5 +1,4 @@
 export * from "./sleep.js";
-export * as cast from "./cast.js";
 export * as obj from "./object.js"; // legacy
 export * as object from "./object.js";
 export * as id from "./id.js";

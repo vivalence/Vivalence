@@ -1,1 +1,191 @@
-dapper drapes decorating deadpan daemons dutifully deploying decoded dazzle driven deliniations. for democrazy.
+#+title: dapper
+#+subtitle: design system for @vivalence/viva
+
+* Philosophy
+
+Dapper generates a design system through a functional pipeline:
+
+#+begin_src
+colors (palette) → tokens (semantics) → themes (application) → output (CSS/Tailwind)
+#+end_src
+
+** Separation of Concerns
+
+- primitives :: Raw values. Palette colors, type scales, spacing units.
+- themes :: Semantic mapping. Applies primitives to roles (surface, contrast, boundary).
+- belt :: Transform layer. Generates CSS variables and Tailwind classes.
+
+** Why This Structure
+
+Palette changes propagate automatically. Swap =palette.aqua= for =palette.lime= in theme, entire system updates.
+
+Semantic tokens create a contract. Components use =skeleton-1-surface=, not =gray[800]=. Themes can redefine what that means.
+
+Multiple outputs from one source. Same design system feeds PostCSS, Tailwind, and future targets.
+
+* Architecture
+
+** primitives/colors.js
+
+Defines =palette= (named colors with scales) and =tint= (alpha variants).
+
+#+begin_src js
+palette.aqua[300]  // #1ebcb5
+tint.arcticAqua[100]  // rgba(0, 255, 250, 0.25)
+#+end_src
+
+No semantic meaning yet. Just color definitions.
+
+** primitives/tokens.js
+
+Non-color design tokens. Typography, spacing, shadows, borders.
+
+#+begin_src js
+font.family["sans-heading"]  // ["Poppins", "sans"]
+font.size.xl  // "1.6rem"
+spacing[4]  // "1rem"
+#+end_src
+
+Exported as CSS variables: =--font-size-xl=, =--spacing-4=
+
+** themes/dark.js
+
+Maps palette to semantic roles using =createColorType=:
+
+#+begin_src js
+{
+  surface: color[500],    // background
+  contrast: color[200],   // text on surface
+  boundary: color[300],   // borders
+  hover: { surface, contrast, boundary }
+}
+#+end_src
+
+Three semantic systems:
+
+- skeleton :: Structural UI (backgrounds, text, borders). Numbered 1-4 by elevation.
+- theme :: Brand identity (primary/secondary/accent). User-facing.
+- system :: State communication (info/success/warning/error). Functional feedback.
+
+** belt/postcss-plugin.js
+
+Orchestrates the pipeline:
+
+#+begin_src js
+[colors, tokens, themes, generateCSS]
+  .reduce((ds, fn) => ds.then(fn), Promise.resolve({}))
+#+end_src
+
+Each function transforms the design system object:
+1. colors() adds palette
+2. tokens() adds semantic tokens  
+3. themes() applies colors to create dark theme
+4. generateCSS() flattens to CSS variables
+
+Outputs: =:root[data-theme="dark"] { --colors-skeleton-1-surface: #08131E; }=
+
+** belt/tailwind-theme.js
+
+Maps CSS variables to Tailwind utilities:
+
+#+begin_src js
+colors: {
+  "skeleton-1": {
+    surface: "var(--colors-skeleton-1-surface)",
+    contrast: "var(--colors-skeleton-1-contrast)",
+    boundary: "var(--colors-skeleton-1-boundary)"
+  }
+}
+#+end_src
+
+Used in tailwind.config: =theme.extend = tailwindClasses=
+
+** primitives/bsp.css
+
+Grid layout primitives. Independent of color system.
+
+#+begin_src css
+.bsp-node { display: grid; }
+.h2 { grid-template-columns: 1fr 1fr; }
+.v3 { grid-template-rows: 1fr 1fr 1fr; }
+#+end_src
+
+Used by drapes triage components (Plane, Shelve, Box).
+
+* Integration with Drapes
+
+Drapes components consume dapper's output:
+
+#+begin_src svelte
+<Button variant="primary">
+  <!-- uses bg-theme-primary-surface from tailwind-theme.js -->
+</Button>
+
+<Shelve across>
+  <!-- uses .bsp-node from bsp.css -->
+</Shelve>
+#+end_src
+
+Drapes doesn't import dapper code. It uses the generated CSS variables and Tailwind classes.
+
+** Build Chain
+
+#+begin_src
+dapper (design system definition)
+  ↓
+postcss plugin → CSS variables in <style>
+tailwind config → utility classes
+  ↓  
+drapes (component library)
+  ↓
+app.css (compiled output)
+#+end_src
+
+* Exports
+
+#+begin_src js
+import { tailwindClasses } from "@vivalence/dapper/tailwind";
+import { plugin as postcssPlugin } from "@vivalence/dapper/postcss";
+import "@vivalence/dapper/bsp.css";
+import "@vivalence/dapper/fonts.css";
+#+end_src
+
+* Design Token Structure
+
+** Color Semantics
+
+All color types follow surface/contrast/boundary pattern:
+
+- surface :: Background color
+- contrast :: Text/icon color for readability on surface
+- boundary :: Border color, typically between surface and contrast
+
+Hover variants shift values darker/lighter for interaction feedback.
+
+** Skeleton Layers
+
+Numbered by visual elevation:
+
+- skeleton-1 :: Primary surfaces (cards, panels)
+- skeleton-2 :: Secondary surfaces (nested content) 
+- skeleton-3 :: Tertiary surfaces (backgrounds)
+- skeleton-4 :: Quaternary surfaces (overlays)
+
+Higher numbers = lighter in dark theme, darker in light theme.
+
+** System vs Theme
+
+- theme-* :: User choice. Branding, accent colors, personality.
+- system-* :: Fixed meaning. Error is always error, success always success.
+
+System colors transcend themes. Error red works in any theme.
+
+* Philosophy Notes
+
+Functional pipeline enables easy theme creation. Copy dark.js, remap colors, done.
+
+Semantic tokens create indirection. Change =skeleton-1-surface= globally, all components update.
+
+BSP grid separation keeps layout independent of color. Grid doesn't care about themes.
+
+Multiple outputs (PostCSS, Tailwind) from single source prevents drift. One definition, many consumers.

@@ -4,7 +4,7 @@ import sort from "./sort.js";
 export default (resourceType) => async (body, ctx) => {
   const { blacklist = {}, seek = {}, batch, stock } = body;
   const take = body.take || (batch || 0) + (stock || 0);
-  let resources = body[resourceType + "s"] || [];
+  let resources = seek[resourceType + "s"] || [];
 
   if (resources.length === 0) {
     try {
@@ -29,6 +29,7 @@ export default (resourceType) => async (body, ctx) => {
   resources = await Promise.all(
     resources.map((r) => get[resourceType](r, ctx)),
   );
+
   resources = await sort(resources);
 
   return resources;

@@ -1,0 +1,281 @@
+#+title: drapes
+#+subtitle: component library for vivalence
+
+* Philosophy
+
+Semantic components over utility sprawl. Composable layouts over framework magic.
+
+** Design Intent
+
+Components encode purpose, not implementation:
+
+#+begin_src svelte
+<Button variant="primary">Save</Button>
+<!-- vs -->
+<div class="bg-theme-primary-surface border-theme-primary-boundary...">
+#+end_src
+
+Variants express intent (primary action, success state, danger warning). Themes interpret intent (primary = aqua or primary = pink).
+
+** Scale Alignment
+
+Typography and media share size scales. =lg= text next to =lg= pictogram creates visual harmony automatically:
+
+#+begin_src svelte
+<Pictogram src="/icon.svg" size="lg" />
+<Text size="lg">Aligned</Text>
+#+end_src
+
+Consistent rhythm through consistent scales.
+
+** BSP Layouts
+
+Triage components implement binary space partitioning:
+
+#+begin_src
+Screen → split across → [Sidebar | Main]
+Main → split down → [Header | Content | Footer]
+#+end_src
+
+Each split creates subspaces. Mental model: recursive screen division.
+
+** Tailwind Integration
+
+Utilities for spacing/layout, components for semantics:
+
+#+begin_src svelte
+<Card padding="md" class="mt-4 w-full">
+  <!-- Card handles semantic surface/contrast/boundary -->
+  <!-- Tailwind handles margin and width -->
+</Card>
+#+end_src
+
+* Architecture
+
+** controls
+
+User input. State modification through interaction.
+
+- Button :: Variants (primary, secondary, accent, system states), sizes (xs→xl, icon), states (loading, disabled)
+- Input :: Text input with validation states, sizes, label/error/helper support
+- Textarea :: Multi-line input, size-aware (sm/md/lg → min-height)
+- Link :: Hyperlinks with variants (default inline, nav block with hover background), active state
+
+#+begin_src svelte
+<Button variant="primary" loading={saving} onclick={save}>Save</Button>
+<Input bind:value label="Email" error={validationError} required />
+<Link href="/settings" variant="nav" active={isActive}>Settings</Link>
+#+end_src
+
+** decor
+
+Presentational primitives. No interaction.
+
+*** Text
+
+Polymorphic typography. Single interface for all text:
+
+#+begin_src svelte
+<Text 
+  as="h1" 
+  variant="heading" 
+  size="3xl" 
+  weight="bold"
+  color="theme-primary"
+>
+  Title
+</Text>
+#+end_src
+
+Variants: heading, text, serif-heading, serif-text, brand, code
+Sizes: xs→9xl (aligns with Pictogram)
+Weights: thin, light, regular, medium, bold
+Colors: semantic tokens (1/2/3, system-*, theme-*)
+Modes: default, centered
+
+*** Pictogram
+
+Media component matching Text scale:
+
+#+begin_src svelte
+<Pictogram
+  src="/logo.svg"
+  size="xl"
+  type="image"
+  fit="contain"
+  aspectRatio="16/9"
+/>
+
+<Pictogram
+  type="video"
+  src="/video.mp4"
+  autoplay
+  loop
+  muted
+  playbackRate={0.5}
+/>
+#+end_src
+
+Types: image, video
+Fit: contain, cover, auto
+Aspect: auto, 1/1, 16/9, 4/3, 3/2
+
+** display
+
+Content structure. Organization without interaction.
+
+- Header :: Heading with optional actions snippet. Sizes sm→4xl, semantic HTML (as prop)
+- Paragraph :: Semantic =<p>= wrapper with sizes
+- Label :: Form labels with required indicator (red asterisk)
+- Tag :: Pills for categorization. Variants match system (primary, success, error, etc), removable with onRemove callback
+
+#+begin_src svelte
+<Header size="2xl">
+  Settings
+  {#snippet actions()}
+    <Button size="sm">Save</Button>
+  {/snippet}
+</Header>
+
+<Tag variant="success" removable onRemove={() => remove(id)}>
+  Published
+</Tag>
+#+end_src
+
+** panels
+
+Composite components. Internal structure.
+
+- Card :: Container with variants (default, secondary, ghost), padding (none/sm/md/lg), hover lift, interactive onclick
+- Modeline :: Three-zone status bar (left/center/right snippets)
+- Icon :: Carbon icons or emoji, sizes xs→xl, variants (nav, ui, success)
+- Loader :: Progress indicator with rotating motivational messages, configurable timing
+- Desk :: Chat interface with scrollable content area and fixed input/submit at bottom
+
+#+begin_src svelte
+<Card variant="default" padding="md" hover onclick={navigate}>
+  Content
+</Card>
+
+<Modeline size="sm">
+  {#snippet left()}<Text>File</Text>{/snippet}
+  {#snippet center()}<Text>Status</Text>{/snippet}
+  {#snippet right()}<Text>Ln 42</Text>{/snippet}
+</Modeline>
+
+<Icon carbon="Add" size="md" variant="ui" />
+<Icon emoji="🚀" size="lg" />
+#+end_src
+
+** triage
+
+Layout primitives. BSP-inspired.
+
+- Plane :: Base grid container (bsp-node class)
+- Shelve :: Directional layout (across=horizontal, down=vertical)
+- Box :: Semantic container for children
+
+#+begin_src svelte
+<Shelve across class="h-screen">
+  <Box class="w-52">Sidebar</Box>
+  <Box class="flex-1">Main</Box>
+</Shelve>
+
+<Shelve down>
+  <Box class="h-16">Header</Box>
+  <Box class="flex-1">Content</Box>
+  <Box class="h-12">Footer</Box>
+</Shelve>
+
+<Plane class="h3 gap-4">
+  <Box>Col 1</Box>
+  <Box>Col 2</Box>
+  <Box>Col 3</Box>
+</Plane>
+#+end_src
+
+BSP grid classes from dapper: h2/h3/h4 (columns), v2/v3/v4 (rows)
+
+* Patterns
+
+** Semantic Tokens
+
+Use semantic color tokens, not palette:
+
+#+begin_src svelte
+<Text color="skeleton-1-contrast">Good</Text>
+<Text class="text-gray-200">Bad - hard-coded palette</Text>
+#+end_src
+
+Tokens adapt to themes. Palette values don't.
+
+** Snippet Composition
+
+Leverage Svelte 5 snippets:
+
+#+begin_src svelte
+<Header size="xl">
+  Title
+  {#snippet actions()}
+    <Button>Edit</Button>
+    <Button>Delete</Button>
+  {/snippet}
+</Header>
+#+end_src
+
+Named snippets make intent explicit.
+
+** Nested Layouts
+
+Complex layouts via Shelve nesting:
+
+#+begin_src svelte
+<Shelve across class="h-screen">
+  <Box class="w-64">Sidebar</Box>
+  
+  <Shelve down class="flex-1">
+    <Box class="h-16">Header</Box>
+    <Shelve across class="flex-1">
+      <Box class="flex-[2]">Main</Box>
+      <Box class="flex-1">Aside</Box>
+    </Shelve>
+  </Shelve>
+</Shelve>
+#+end_src
+
+Binary space partitioning in practice.
+
+* Integration with Dapper
+
+Drapes consumes dapper's design system:
+
+- CSS variables :: Generated by dapper postcss plugin
+- Tailwind classes :: Mapped from dapper/tailwind theme
+- BSP grid :: From dapper/bsp.css
+
+#+begin_src svelte
+<Button variant="primary">
+  <!-- bg-theme-primary-surface from dapper -->
+</Button>
+
+<Shelve across>
+  <!-- .bsp-node from dapper/bsp.css -->
+</Shelve>
+#+end_src
+
+No direct dapper import. Design system compiled at build time.
+
+* Exports
+
+#+begin_src js
+import { Button, Text, Card, Shelve } from "@vivalence/drapes";
+
+import * as controls from "@vivalence/drapes";
+import * as display from "@vivalence/drapes";
+import * as triage from "@vivalence/drapes";
+
+import { pack } from "@vivalence/drapes";
+import { components } from "@vivalence/drapes";
+#+end_src
+
+Single entry point, flat imports.

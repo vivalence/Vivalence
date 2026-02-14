@@ -1,5 +1,5 @@
-import { Connection } from "@vivalence/typology";
-import { entities, shards, Daemon } from "@vivalence/html/typology";
+import { Connection, shards } from "@vivalence/typology";
+import { entities, Daemon } from "@vivalence/html/typology";
 import { lighthouse, dataspace } from "$client";
 
 export const ssr = false;
@@ -11,6 +11,7 @@ export const load = async () => {
   booted = true;
 
   await entities.lighthouse.lifecycle(lighthouse);
+
   dataspace.lighthouse.add(lighthouse);
 
   const daemons = await lighthouse.connection.call("/entities/daemon/find");

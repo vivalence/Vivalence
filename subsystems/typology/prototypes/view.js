@@ -30,7 +30,8 @@ export class View {
   }
   async bundle() {
     if (!this.bundler) throw new Error("view missing bundler");
-    if (!this.bundles[0]) this.bundles = await this.bundler(this.path.absolute);
+    this.bundles = await this.bundler(this.path.absolute);
+    // if (!this.bundles[0])
     return this;
   }
 

@@ -1,0 +1,21 @@
+{
+  "valence": [
+    {
+      "slug": "feed",
+      "name": "feed of translations",
+      "description": "Translation exercises grounded in the learner's vocabulary pool",
+      "type": "destination",
+      "data": {
+        "producer": "/generate/pending",
+        "mask": {
+          "batch": 1,
+          "stock": 3,
+          "seek": {
+            "take": 5,
+            "threshold": ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN"]
+          }
+        }
+      }
+    }
+  ]
+}

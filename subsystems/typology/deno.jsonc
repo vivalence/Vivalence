@@ -7,7 +7,6 @@
     "./schematics": "./schematics/index.js",
     "./gestalten": "./gestalten/index.js",
     "./entities": "./entities/index.ts",
-    "./belt": "./belt/index.js",
     "./specimen": "./specimen/index.js",
   },
   "tasks": {

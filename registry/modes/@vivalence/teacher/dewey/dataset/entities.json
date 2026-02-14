@@ -4,9 +4,9 @@
       "slug": "hello-world",
       "name": "talk to dewey",
       "description": "first point of contact.",
-      "traits": ["DESTINATION"],
+      "type": "destination",
       "data": {
-        "DESTINATION": "/feed"
+        "producer": "/feed"
       }
     }
   ]

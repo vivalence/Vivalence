@@ -7,10 +7,7 @@ export default async function getNovelLiterals(input, ctx) {
 
   const blacklist = new Blacklist(input.blacklist);
 
-  const scope = new Scope({
-    ...input.scope,
-    user: { id: ctx.user.id },
-  });
+  const scope = new Scope({ ...input.scope, user: ctx.user.id });
 
   const qb = ctx.daemon.entities.literal.createQueryBuilder("literal");
 
@@ -20,6 +17,9 @@ export default async function getNovelLiterals(input, ctx) {
     qb.andWhere({ id: { $nin: blacklist.literals } });
   }
 
+  if (seek.literals?.length > 0) {
+    qb.andWhere({ id: { $in: seek.literals } });
+  }
   if (seek.symbols?.length > 0) {
     qb.andWhere(
       `(
@@ -38,13 +38,13 @@ export default async function getNovelLiterals(input, ctx) {
         FROM Play play
         WHERE play.literal = literal.id
         AND play.user = ? 
-        ${scope.producer?.id ? "AND play.producer = ?" : ""}
-        ${scope.generator?.id ? "AND play.generator = ?" : ""}
+        ${scope.producer ? "AND play.producer = ?" : ""}
+        ${scope.commissioner ? "AND play.commissioner = ?" : ""}
       )`,
     [
       ctx.user.id,
-      ...(scope.producer?.id ? [scope.producer.id] : []),
-      ...(scope.generator?.id ? [scope.generator.id] : []),
+      ...(is.id(scope.producer) ? [scope.producer] : []),
+      ...(is.id(scope.commissioner) ? [scope.commissioner] : []),
     ],
   );
 

@@ -1,5 +1,5 @@
 import config from "@vivalence/paladin";
-import { as, Path } from "@vivalence/typology";
+import { Path } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 
 import provider from "./provider/index.js";

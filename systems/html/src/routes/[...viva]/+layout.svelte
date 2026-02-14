@@ -20,7 +20,7 @@
       <div class="bsp-node t-grip-active">
         {#each $valences
           .values()
-          .filter((valence) => valence.implements("destination")) as valence}
+          .filter((valence) => valence.type === ("destination")) as valence}
           <a
             href={valence.link.absolute}
             class="block p-2 hover:bg-skeleton-1-boundary">

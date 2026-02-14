@@ -1,8 +1,11 @@
 <script>
+  import "@vivalence/dapper/bsp.css";
+  import "@vivalence/dapper/font.css";
   import "../client.css";
-  import "../design/primitives/bsp.css";
-  import "../design/primitives/font.css";
   import "./+layout.css";
+  // import "../design/primitives/bsp.css";
+  // import "../design/primitives/font.css";
+
 
   import { effect } from "nanostores";
   import { Text, Pictogram } from "@vivalence/drapes";
@@ -17,6 +20,7 @@
   let { children } = $props();
   let isIdentified = lighthouse.$isIdentified;
   let identity = lighthouse.$identity;
+  $inspect($isIdentified)
 </script>
 
 <div class="hidden">

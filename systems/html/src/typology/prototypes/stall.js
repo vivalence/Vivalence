@@ -12,6 +12,9 @@ export class Stall {
     hooks: [],
   };
 
+  get buffers() {
+    return [...this.$queue.get(), this.$active.get()].filter(Boolean);
+  }
   withThreshold(threshold) {
     this.threshold = threshold;
     return this;

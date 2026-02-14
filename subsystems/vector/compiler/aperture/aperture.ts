@@ -21,9 +21,7 @@ export default class Aperture {
 
   get json() {
     const path = this.path.toString() || "/";
-    const routes = [
-      ...new Set([...this.router.entries()].flat().map((e) => e.path)),
-    ];
+    const routes = [...new Set([...this.router.entries()].flat().map((e) => e.path))];
     const children = this.descendants.map((child) => child.json);
     if (routes.length === 0 && children.length === 0) return path;
     return { [path]: [...routes, ...children] };
@@ -43,7 +41,11 @@ export default class Aperture {
     const routePath = new Path(path, this.path);
 
     this.router.all(routePath.toString(), async (ctx: ApertureContext) => {
-      ctx.output = await handler(ctx.input, ctx);
+      // ctx.response.status = 200;
+      if (handler.length === 0) ctx.output = await handler();
+      else if (handler.length === 1) ctx.output = await handler(ctx);
+      else if (handler.length === 2) ctx.output = await handler(ctx.input, ctx);
+      else throw new Error("invalid aperture");
     });
 
     return this;
@@ -85,11 +87,7 @@ export default class Aperture {
     this.compose(force);
 
     // router.use(this.middleware);
-    router.use(
-      this.path.toString(),
-      this.router.routes(),
-      this.router.allowedMethods(),
-    );
+    router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
 
     return this;
   }

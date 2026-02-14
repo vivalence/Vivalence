@@ -21,7 +21,7 @@ export class PlayEntity extends BaseEntity {
   memory!: Rel<MemoryEntity>;
 
   signal: any & Opt = {};
-  debrief?: any & Opt = {};
+  // debrief?: any & Opt = {};
   nextIn!: number & Opt;
   nextAt!: Date & Opt;
 }
@@ -67,10 +67,10 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       fieldName: "producer",
     },
 
-    generator: {
+    commissioner: {
       kind: "m:1",
       entity: () => ModeEntity,
-      fieldName: "generator",
+      fieldName: "commissioner",
     },
 
     memory: {
@@ -80,7 +80,7 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
     },
 
     signal: { type: "json" },
-    debrief: { type: "json", nullable: true },
+    // debrief: { type: "json", nullable: true },
 
     nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
     nextAt: { type: Date, fieldName: "nextAt" },

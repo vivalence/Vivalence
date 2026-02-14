@@ -15,9 +15,7 @@ async function getDriver(scope, ctx) {
   }
 
   if (scope.symbol) {
-    const symbol = await ctx.daemon.entities.symbol.findOne({
-      id: scope.symbol.id,
-    });
+    const symbol = await ctx.daemon.entities.symbol.findOne(scope.symbol);
     if (
       symbol.traits.includes("LEARNABLE") &&
       symbol.traits.includes("COMPLETABLE")
@@ -45,18 +43,18 @@ function validateDriver(scope, { driver, type }) {
   }
 
   if (type === "INDIVIDUAL") {
-    if (scope.symbol?.id && scope.literal?.id) {
+    if (scope.symbol && scope.literal) {
       throw new Error(
         "Individual Memory flavor must have either symbol or literal, but not both",
       );
     }
-    if (!scope.symbol?.id && !scope.literal?.id) {
+    if (!scope.symbol && !scope.literal) {
       throw new Error(
         "Individual Memory flavor must have either symbol or literal",
       );
     }
   } else if (type === "RELATIONAL") {
-    if (!scope.symbol?.id)
+    if (!scope.symbol)
       throw new Error("Relational Memory flavor must have symbol");
     // Used to be true: // if (!scope.symbol || !scope.literal) throw new Error("Relational Memory flavor must have both symbol and literal");
   } else {

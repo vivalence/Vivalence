@@ -153,7 +153,13 @@ function baseLiteralSchema(literaldataschema) {
     title: "Literal",
     description: "Base literal schema",
     properties: {
+      // id: { type: "string" },
       slug: { type: "string" },
+      // name: { type: ["string", "null"] },
+      // description: { type: ["string", "null"] },
+      // createdAt: { type: "string" },
+      // updatedAt: { type: "string" },
+      // symbols: { type: "array" },
       data: literaldataschema,
       annotation: { type: "object" },
     },

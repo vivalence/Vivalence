@@ -1,7 +1,6 @@
 import { helper } from "@mikro-orm/core";
 
 async function required(issue, ctx) {
-  const { daemon } = ctx;
   let { literal, relation } = issue.context;
 
   if (!literal) {
@@ -23,15 +22,14 @@ async function required(issue, ctx) {
     },
   };
 
-  const symbolIssues = await daemon.validate.symbol(symbolQuery, [
-    "EXISTENTIAL",
-  ]);
+  const symbolIssues = await ctx.daemon.validate //
+    .symbol(symbolQuery, ["EXISTENTIAL"]);
 
   if (symbolIssues.length > 0) {
     return issue.spawn(symbolIssues);
   }
 
-  const symbol = await daemon.entities.symbol.findOne(symbolQuery);
+  const symbol = await ctx.daemon.entities.symbol.findOne(symbolQuery);
 
   if (!symbol) {
     return issue.onError({
@@ -40,13 +38,19 @@ async function required(issue, ctx) {
     });
   }
 
-  if (!helper(literal))
-    literal = await ctx.daemon.entities.literal.findOne(literal);
+  if (!helper(literal)) {
+    const literalQuery = {};
+    if (literal.id) literalQuery.id = literal.id;
+    if (literal.slug) literalQuery.slug = literal.slug;
+    if (literal.annotation) literalQuery.annotation = literal.annotation;
+    // console.json({ literalQuery });
+    literal = await ctx.daemon.entities.literal.findOne(literalQuery);
+  }
 
   symbol.literals.add(literal);
 
   try {
-    await daemon.entities.em.flush();
+    await ctx.daemon.entities.em.flush();
     return issue.resolve();
   } catch (err) {
     return issue.onError({

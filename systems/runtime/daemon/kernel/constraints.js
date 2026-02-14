@@ -1,4 +1,4 @@
-import { validators } from "@vivalence/shared";
+import { validators, object } from "@vivalence/shared";
 
 export async function constraints(daemonDie) {
   createAnnotationConstraints(daemonDie.good);
@@ -13,6 +13,7 @@ export async function constraints(daemonDie) {
 
     if (subject.relations) {
       createSubjectRelationalConstraints(subject, daemonDie.good);
+      createAnnotationRelationalConstraints(subject, daemonDie.good);
     }
   }
 }
@@ -104,7 +105,8 @@ function createSubjectRelationalConstraints(subject, daemon) {
         const relationIssues = validators.viva.relations(relation, relations);
         relationIssues.forEach((issue) => {
           issue.path = ["literal", "symbols"];
-          issue.context = { literal, relation };
+          if (!issue.context.relation) issue.context.relation = relation;
+          issue.context.literal = literal;
           issues.push(issue);
         });
       }
@@ -173,7 +175,14 @@ function createExistentialConstraints(daemon) {
     traits: ["EXISTENTIAL"],
     description: "Check symbol exists in database",
     predicate: async (symbol) => {
-      const count = await daemon.entities.symbol.count(symbol);
+      const query = {};
+      if (symbol.slug) query.slug = symbol.slug;
+      else if (symbol.data?.ONTOLOGICAL)
+        query.data = { ONTOLOGICAL: symbol.data.ONTOLOGICAL };
+      else throw new Error("symbol requires slug for existential constraint");
+
+      // console.json({ symbol, query });
+      const count = await daemon.entities.symbol.count(query);
       if (count > 0) return [];
       return [
         {
@@ -191,7 +200,10 @@ function createExistentialConstraints(daemon) {
     traits: ["EXISTENTIAL"],
     description: "Check literal exists in database",
     predicate: async (literal) => {
-      const count = await daemon.entities.literal.count(literal);
+      const query = {};
+      if (literal.slug) query.slug = literal.slug;
+      if (literal.annotation) query.annotation = literal.annotation;
+      const count = await daemon.entities.literal.count(query);
       if (count > 0) return [];
       return [
         {
@@ -237,6 +249,57 @@ function createExistentialConstraints(daemon) {
             context: { annotation, branch, leaf },
           });
         }
+      }
+
+      return issues;
+    },
+  });
+}
+
+function createAnnotationRelationalConstraints(subject, daemon) {
+  daemon.kernel.constraint.create({
+    branch: ["annotation", subject.slug],
+    traits: ["RELATIONAL"],
+    description: `Relational constraints for ${subject.slug} annotation`,
+    predicate: async (annotation) => {
+      const literal = await daemon.entities.literal.findOne(
+        { annotation },
+        {
+          populate: ["symbols"],
+        },
+      );
+
+      if (!literal) {
+        return [
+          {
+            message: "Cannot validate relations - literal not found",
+            violation: "required",
+            path: ["literal"],
+            context: { annotation, subject: subject.slug },
+          },
+        ];
+      }
+
+      const relations = (literal.symbols?.getItems?.() || [])
+        .map((symbol) => symbol.data?.ONTOLOGICAL)
+        .filter(Boolean);
+
+      const issues = [];
+
+      for (const relation of subject.relations || []) {
+        const relationIssues = validators.viva.relations(relation, relations);
+        relationIssues.forEach((issue) => {
+          issue.message = "[EXPERIMENTAL] Cannot validate relations";
+          issue.violation = "required";
+          issue.path = ["literal", "symbols"];
+          issue.context = {
+            annotation,
+            literal,
+            relation,
+            subject: subject.slug,
+          };
+          issues.push(issue);
+        });
       }
 
       return issues;

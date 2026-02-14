@@ -1,5 +1,6 @@
-import Button from "./button/Button.svelte";
-import Input from "./input/Input.svelte";
-import Textarea from "./textarea/Textarea.svelte";
+import Button from "./Button.svelte";
+import Input from "./Input.svelte";
+import Textarea from "./Textarea.svelte";
+import Link from "./Link.svelte";
 
-export { Textarea, Button, Input };
+export { Link, Textarea, Button, Input };

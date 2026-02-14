@@ -1,0 +1,9 @@
+export * as object from "./object.js";
+export * as strings from "./strings.js";
+export * as array from "./array.js";
+export * as fn from "./fn.js";
+export * as promise from "./promise.js";
+export * as sleep from "./sleep.js";
+export * as id from "./id.js";
+export * as time from "./time.js";
+export * as random from "./random.js";

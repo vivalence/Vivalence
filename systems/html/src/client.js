@@ -4,7 +4,7 @@ import { env } from "$env/dynamic/public";
 import { Url, Connection } from "@vivalence/typology";
 import {
   Stall,
-  Lighthouse,
+  lighthouse as Lighthouse,
   Repository,
   entities,
 } from "@vivalence/html/typology";
@@ -30,7 +30,9 @@ export const dataspace = {
 //
 const url = new Url(env["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"]);
 const connection = new Connection(url);
-export const lighthouse = new Lighthouse(connection);
+export const lighthouse = new Lighthouse.Lighthouse(connection);
+
+// await Lighthouse.lifecycle(lighthouse);
 
 export default { dataspace, lighthouse };
 

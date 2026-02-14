@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { Signal, fromm } from "@vivalence/typology"; // Context
+import { is, Signal, Blacklist, fromm } from "@vivalence/typology"; // Context
 import { Vector, controller, Context, NotFound } from "@vivalence/vector";
 import { Buffer } from "@vivalence/html/typology";
 
@@ -17,7 +17,9 @@ perspective
       .findOne((d) => d.manifest.slug === ctx.params.daemon);
     await next();
   })
+
   .branch("/mode/:type/:mode")
+
   .use(async (ctx, next) => {
     ctx.mode = await dataspace.mode.findOne((m) => {
       return (
@@ -27,14 +29,9 @@ perspective
       );
     });
 
-    // await next();}) .use(async (ctx, next) => {
-
-    ctx.mode.connection.use(async (cctx, next) => {
-      // const url = get(page).url; console.log("MODE CONNECTION - inject intent", {page: get(page), cctx, url,});
-      await next();
-    });
     await next();
   })
+
   .use(async (ctx, next) => {
     const intentId = get(page).url.searchParams.get("intent");
     if (intentId) {
@@ -53,27 +50,32 @@ perspective
 
     await next();
   })
+
   .use(async (ctx, next) => {
-    ctx.valence = await dataspace.valence //
-      .findOne(({ slug }) => ctx.params.valence === slug);
-
-    if (!ctx.valence) console.error("dataspace missing valence");
-    // if (!ctx.valence) ctx.valence = await ctx.daemon.connection.call("/entities/valence/findOne", { where: { slug: valence } },);
-    if (!ctx.valence) throw new Error("unknown valence");
-
+    ctx.valence = await dataspace.valence.findOne(
+      (valence) =>
+        ctx.params.valence === valence.slug && ctx.mode.id === valence.mode.id,
+    );
+    if (!ctx.valence) throw new Error("[dataspace] unknown valence");
     await next();
   })
+
+  .use(async (ctx, next) => {
+    const products = ctx.stall.buffers
+      .map((buffer) => buffer.context.product?.id)
+      .filter(Boolean);
+    ctx.blacklist = new Blacklist({ products });
+    await next();
+  })
+
   .open("/valence/:valence", async (ctx) => {
-    if (ctx.valence.implements("GENERATIVE")) {
-      return (
-        await ctx.valence.generate({
-          scope: {
-            intent: { id: ctx.intent.id },
-          },
-        })
-      ).map(
-        (product) => new Buffer(product.producer.view, { ...ctx, product }),
-      );
+    if (is.fn(ctx.valence.produce)) {
+      const products = await ctx.valence.produce({
+        scope: { intent: ctx.intent.id },
+        blacklist: ctx.blacklist,
+      });
+      return products //
+        .map((product) => new Buffer(product.mode.view, { ...ctx, product }));
     } else {
       return [new Buffer(ctx.mode.view, { ...ctx })];
     }
@@ -86,9 +88,7 @@ perspective
 
 //   // console.log("ctx.state.session ", ctx.state.session);
 //   if (ctx.query.session) {
-//     const intent = await ctx.daemon.call("/entities/session/findOne", {
-//       where: { id: ctx.query.session },
-//     });
+//     const intent = await ctx.daemon.call("/entities/session/findOne", {where: { id: ctx.query.session },});
 //     ctx.session = session;
 //   } else if (!ctx.session) {
 //     // ctx.state.session = await ctx.strategy.call("/session/init");

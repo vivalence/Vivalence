@@ -16,6 +16,11 @@ export enum ProductTypeEnum {
   SIGNAL = "SIGNAL",
 }
 
+export enum ProductSignalEnum {
+  BATCH = "BATCH",
+  SET = "SET",
+}
+
 export class ProductEntity extends BaseEntity {
   type?: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
   status: ProductStatusEnum & Opt = ProductStatusEnum.PENDING;
@@ -23,13 +28,18 @@ export class ProductEntity extends BaseEntity {
   index: number & Opt = 0;
 
   producer!: Rel<ModeEntity>;
-  generator!: Rel<ModeEntity>;
+  commissioner!: Rel<ModeEntity>;
 
   intent!: Rel<IntentEntity>;
   session?: Rel<SessionEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
+
+  get signal(): ProductSignalEnum | null {
+    if (this.type !== ProductTypeEnum.SIGNAL) return null;
+    return this.data?.signal ?? null;
+  }
 }
 
 export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
@@ -58,10 +68,10 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
       fieldName: "producer",
     },
 
-    generator: {
+    commissioner: {
       kind: "m:1",
       entity: () => ModeEntity,
-      fieldName: "generator",
+      fieldName: "commissioner",
     },
 
     intent: {

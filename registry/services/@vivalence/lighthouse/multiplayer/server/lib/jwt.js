@@ -3,11 +3,11 @@ import { JSONFilePreset } from "lowdb/node";
 
 let db;
 let secret;
-let jwtExpiresIn = "1d";
-let refreshExpiresIn = "180d";
+const jwtExpiresIn = "1d";
+const refreshExpiresIn = "180d";
 
 async function createJWT(payload, expiration = jwtExpiresIn) {
-  return await new jose.SignJWT(payload)
+  return new jose.SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(expiration)
@@ -25,7 +25,11 @@ async function createRefreshToken(payload) {
     refreshExpiresIn,
   );
 
-  db.data.refresh[refreshToken] = { ...payload, createdAt: Date.now() };
+  db.data.refresh[refreshToken] = {
+    ...payload,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 180 * 24 * 60 * 60 * 1000,
+  };
   await db.write();
 
   return refreshToken;
@@ -36,83 +40,112 @@ async function revokeRefreshToken(refreshToken) {
   await db.write();
 }
 
-const isRefreshTokenValid = (refreshToken) => {
-  return refreshToken in db.data.refresh;
-};
+function isRefreshTokenValid(refreshToken) {
+  const entry = db.data.refresh[refreshToken];
+  if (!entry) return false;
+  if (entry.expiresAt && Date.now() > entry.expiresAt) {
+    delete db.data.refresh[refreshToken];
+    return false;
+  }
+  return true;
+}
+
+async function cleanupExpiredTokens() {
+  const now = Date.now();
+  let changed = false;
+
+  for (const [token, entry] of Object.entries(db.data.refresh)) {
+    if (entry.expiresAt && now > entry.expiresAt) {
+      delete db.data.refresh[token];
+      changed = true;
+    }
+  }
+
+  if (changed) await db.write();
+}
 
 const jwt = { create: createJWT, verify: verifyJWT };
 const rft = {
   create: createRefreshToken,
   verify: isRefreshTokenValid,
   revoke: revokeRefreshToken,
+  cleanup: cleanupExpiredTokens,
 };
 
 export default async function (service) {
+  if (!service.secrets?.jwt) {
+    throw new Error("JWT secret not configured in service.secrets.jwt");
+  }
+
   secret = new TextEncoder().encode(service.secrets.jwt);
 
   const tokenfile = service.mount.branch("/tokens.json").absolute;
   db = await JSONFilePreset(tokenfile, { refresh: {} });
   await db.read();
 
+  // Cleanup on startup
+  await cleanupExpiredTokens();
+
+  // Periodic cleanup every hour
+  setInterval(cleanupExpiredTokens, 60 * 60 * 1000);
+
   return { jwt, rft };
 }
-
 // import * as jose from "jose";
 // import { JSONFilePreset } from "lowdb/node";
 
-// const db = await JSONFilePreset("./tokens.json", { refresh: {} });
-// await db.read();
+// let db;
+// let secret;
+// let jwtExpiresIn = "1d";
+// let refreshExpiresIn = "180d";
 
-// // db.data.refreshTokens[token] = data;
-// // await db.write();
-
-// // // refreshTokens.delete(token) becomes:
-// // delete db.data.refreshTokens[token];
-// // await db.write();
-
-// // // refreshTokens.has(token) becomes:
-// // token in db.data.refreshTokens
-
-// async function createJWT(payload, secret, expiresIn = "15m") {
-//   const jwt = await new jose.SignJWT(payload)
+// async function createJWT(payload, expiration = jwtExpiresIn) {
+//   return await new jose.SignJWT(payload)
 //     .setProtectedHeader({ alg: "HS256" })
 //     .setIssuedAt()
-//     .setExpirationTime(expiresIn)
+//     .setExpirationTime(expiration)
 //     .sign(secret);
-//   return jwt;
 // }
 
-// async function verifyJWT(token, secret) {
+// async function verifyJWT(token) {
 //   const { payload } = await jose.jwtVerify(token, secret);
 //   return payload;
 // }
 
-// async function createRefreshToken(payload, secret, expiresIn = "28d") {
-//   const refreshToken = await new jose.SignJWT(payload)
-//     .setProtectedHeader({ alg: "HS256" })
-//     .setIssuedAt()
-//     .setExpirationTime(expiresIn)
-//     .sign(secret);
+// async function createRefreshToken(payload) {
+//   const refreshToken = await createJWT(
+//     { ...payload, type: "refresh" },
+//     refreshExpiresIn,
+//   );
 
-//   refreshTokens.set(refreshToken, { ...payload, createdAt: Date.now() });
+//   db.data.refresh[refreshToken] = { ...payload, createdAt: Date.now() };
+//   await db.write();
+
 //   return refreshToken;
 // }
 
-// function revokeRefreshToken(refreshToken) {
-//   refreshTokens.delete(refreshToken);
+// async function revokeRefreshToken(refreshToken) {
+//   delete db.data.refresh[refreshToken];
+//   await db.write();
 // }
 
-// function isRefreshTokenValid(refreshToken) {
-//   return refreshTokens.has(refreshToken);
-// }
-
-// export const jwt = {
-//   create: createJWT,
-//   verify: verifyJWT,
+// const isRefreshTokenValid = (refreshToken) => {
+//   return refreshToken in db.data.refresh;
 // };
 
-// export const refreshtoken = {
+// const jwt = { create: createJWT, verify: verifyJWT };
+// const rft = {
 //   create: createRefreshToken,
-//   revoke: revokeRefreshToken,
 //   verify: isRefreshTokenValid,
+//   revoke: revokeRefreshToken,
 // };
+
+// export default async function (service) {
+//   secret = new TextEncoder().encode(service.secrets.jwt);
+
+//   const tokenfile = service.mount.branch("/tokens.json").absolute;
+//   db = await JSONFilePreset(tokenfile, { refresh: {} });
+//   await db.read();
+
+//   return { jwt, rft };
+// }

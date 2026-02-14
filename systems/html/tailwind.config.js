@@ -1,14 +1,14 @@
 import typography from "@tailwindcss/typography";
-import theme from "./src/design/tailwind-classes.js";
+import { tailwindClasses } from "@vivalence/dapper";
 
 const config = {
   purge: false,
-  theme: theme,
+  theme: tailwindClasses,
   plugins: [typography],
   content: [
     "./src/**/*.{html,svelte,css}",
-    "../../subsystems/dapper/**/*.{html,svelte,css}",
-    "../../subsystems/drapes/**/*.{html,svelte,css}",
+    "../../subsystems/dapper/**/*.{js,html,svelte,css}",
+    "../../subsystems/drapes/**/*.{js,html,svelte,css}",
     "../../subsystems/typology/views/**/*.{html,svelte,css}", // aspirational
     "../../registry/**/*.{html,svelte,css}",
   ],

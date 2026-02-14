@@ -2,7 +2,6 @@ import getDueLiterals from "./due.js";
 import getNovelLiterals from "./novel.js";
 
 export default async function (input, ctx) {
-  // console.log(JSON.stringify({ input }, null, 2));
   const { scope, seek, blacklist, status, batch, stock } = input;
   const take = input.take || (batch || 0) + (stock || 0);
 

@@ -1,0 +1,1798 @@
+{
+  "literal": [
+    {
+      "slug": "gato-pos:noun-gender:masc-number:sing",
+      "name": "gato",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "gato",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "cat",
+        "learning": "gato",
+        "index": 50,
+        "example": {
+          "known": "The cat is small",
+          "learning": "El gato es pequeño"
+        }
+      }
+    },
+    {
+      "slug": "casa-pos:noun-gender:fem-number:sing",
+      "name": "casa",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "casa",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "house",
+        "learning": "casa",
+        "index": 25,
+        "example": {
+          "known": "The house is big",
+          "learning": "La casa es grande"
+        }
+      }
+    },
+    {
+      "slug": "perro-pos:noun-gender:masc-number:sing",
+      "name": "perro",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "perro",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "dog",
+        "learning": "perro",
+        "index": 45,
+        "example": {
+          "known": "The dog is friendly",
+          "learning": "El perro es amigable"
+        }
+      }
+    },
+    {
+      "slug": "agua-pos:noun-gender:fem-number:sing",
+      "name": "agua",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "agua",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "water",
+        "learning": "agua",
+        "index": 30,
+        "example": {
+          "known": "I drink water",
+          "learning": "Yo bebo agua"
+        }
+      }
+    },
+    {
+      "slug": "hombre-pos:noun-gender:masc-number:sing",
+      "name": "hombre",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "hombre",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "man",
+        "learning": "hombre",
+        "index": 35,
+        "example": {
+          "known": "The man is tall",
+          "learning": "El hombre es alto"
+        }
+      }
+    },
+    {
+      "slug": "mujer-pos:noun-gender:fem-number:sing",
+      "name": "mujer",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "mujer",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "woman",
+        "learning": "mujer",
+        "index": 36,
+        "example": {
+          "known": "The woman is intelligent",
+          "learning": "La mujer es inteligente"
+        }
+      }
+    },
+    {
+      "slug": "niño-pos:noun-gender:masc-number:sing",
+      "name": "niño",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "niño",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "boy",
+        "learning": "niño",
+        "index": 40,
+        "example": {
+          "known": "The boy plays",
+          "learning": "El niño juega"
+        }
+      }
+    },
+    {
+      "slug": "niña-pos:noun-gender:fem-number:sing",
+      "name": "niña",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "niña",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "girl",
+        "learning": "niña",
+        "index": 41,
+        "example": {
+          "known": "The girl reads",
+          "learning": "La niña lee"
+        }
+      }
+    },
+    {
+      "slug": "libro-pos:noun-gender:masc-number:sing",
+      "name": "libro",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "libro",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "book",
+        "learning": "libro",
+        "index": 48,
+        "example": {
+          "known": "The book is interesting",
+          "learning": "El libro es interesante"
+        }
+      }
+    },
+    {
+      "slug": "mesa-pos:noun-gender:fem-number:sing",
+      "name": "mesa",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "mesa",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "table",
+        "learning": "mesa",
+        "index": 55,
+        "example": {
+          "known": "The table is wooden",
+          "learning": "La mesa es de madera"
+        }
+      }
+    },
+    {
+      "slug": "silla-pos:noun-gender:fem-number:sing",
+      "name": "silla",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "silla",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "chair",
+        "learning": "silla",
+        "index": 60,
+        "example": {
+          "known": "The chair is comfortable",
+          "learning": "La silla es cómoda"
+        }
+      }
+    },
+    {
+      "slug": "puerta-pos:noun-gender:fem-number:sing",
+      "name": "puerta",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "puerta",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "door",
+        "learning": "puerta",
+        "index": 65,
+        "example": {
+          "known": "The door is open",
+          "learning": "La puerta está abierta"
+        }
+      }
+    },
+    {
+      "slug": "tiempo-pos:noun-gender:masc-number:sing",
+      "name": "tiempo",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "tiempo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "time",
+        "learning": "tiempo",
+        "index": 55,
+        "example": {
+          "known": "I don't have time",
+          "learning": "No tengo tiempo"
+        }
+      }
+    },
+    {
+      "slug": "gente-pos:noun-gender:fem-number:sing",
+      "name": "gente",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "gente",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "people",
+        "learning": "gente",
+        "index": 61,
+        "example": {
+          "known": "The people are happy",
+          "learning": "La gente está feliz"
+        }
+      }
+    },
+    {
+      "slug": "año-pos:noun-gender:masc-number:sing",
+      "name": "año",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "año",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "year",
+        "learning": "año",
+        "index": 63,
+        "example": {
+          "known": "This year is important",
+          "learning": "Este año es importante"
+        }
+      }
+    },
+    {
+      "slug": "día-pos:noun-gender:masc-number:sing",
+      "name": "día",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "día",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "day",
+        "learning": "día",
+        "index": 98,
+        "example": {
+          "known": "Have a good day",
+          "learning": "Que tengas un buen día"
+        }
+      }
+    },
+    {
+      "slug": "manera-pos:noun-gender:fem-number:sing",
+      "name": "manera",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "manera",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "way",
+        "learning": "manera",
+        "index": 90,
+        "example": {
+          "known": "This is the way",
+          "learning": "Esta es la manera"
+        }
+      }
+    },
+    {
+      "slug": "trabajo-pos:noun-gender:masc-number:sing",
+      "name": "trabajo",
+      "annotation": {
+        "pos": "noun",
+        "lemma": "trabajo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "work",
+        "learning": "trabajo",
+        "index": 87,
+        "example": {
+          "known": "I have work",
+          "learning": "Tengo trabajo"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:inf-suffix:er",
+      "name": "ser",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to be",
+        "learning": "ser",
+        "index": 2,
+        "example": {
+          "known": "I want to be happy",
+          "learning": "Quiero ser feliz"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:inf-suffix:ar",
+      "name": "estar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to be",
+        "learning": "estar",
+        "index": 2,
+        "example": {
+          "known": "I am at home",
+          "learning": "Estoy en casa"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:inf-suffix:er",
+      "name": "tener",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to have",
+        "learning": "tener",
+        "index": 9,
+        "example": {
+          "known": "I have a car",
+          "learning": "Tengo un coche"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:inf-suffix:er",
+      "name": "hacer",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to do/make",
+        "learning": "hacer",
+        "index": 19,
+        "example": {
+          "known": "I make food",
+          "learning": "Hago comida"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:inf-suffix:ir",
+      "name": "ir",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "inf",
+        "suffix": "ir"
+      },
+      "data": {
+        "known": "to go",
+        "learning": "ir",
+        "index": 49,
+        "example": {
+          "known": "I go to school",
+          "learning": "Voy a la escuela"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:inf-suffix:er",
+      "name": "comer",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to eat",
+        "learning": "comer",
+        "index": 6,
+        "example": {
+          "known": "I eat vegetables",
+          "learning": "Como verduras"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:inf-suffix:er",
+      "name": "beber",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to drink",
+        "learning": "beber",
+        "index": 7,
+        "example": {
+          "known": "I drink coffee",
+          "learning": "Bebo café"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:inf-suffix:ir",
+      "name": "decir",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "inf",
+        "suffix": "ir"
+      },
+      "data": {
+        "known": "to say",
+        "learning": "decir",
+        "index": 28,
+        "example": {
+          "known": "I say hello",
+          "learning": "Digo hola"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:inf-suffix:er",
+      "name": "obtener",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to get",
+        "learning": "obtener",
+        "index": 47,
+        "example": {
+          "known": "I get results",
+          "learning": "Obtengo resultados"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:inf-suffix:er",
+      "name": "poder",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to can/be able",
+        "learning": "poder",
+        "index": 53,
+        "example": {
+          "known": "I can do it",
+          "learning": "Puedo hacerlo"
+        }
+      }
+    },
+    {
+      "slug": "saber-pos:verb-verbform:inf-suffix:er",
+      "name": "saber",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "saber",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to know",
+        "learning": "saber",
+        "index": 59,
+        "example": {
+          "known": "I know the answer",
+          "learning": "Sé la respuesta"
+        }
+      }
+    },
+    {
+      "slug": "tomar-pos:verb-verbform:inf-suffix:ar",
+      "name": "tomar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tomar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to take",
+        "learning": "tomar",
+        "index": 60,
+        "example": {
+          "known": "I take the bus",
+          "learning": "Tomo el autobús"
+        }
+      }
+    },
+    {
+      "slug": "ver-pos:verb-verbform:inf-suffix:er",
+      "name": "ver",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ver",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to see",
+        "learning": "ver",
+        "index": 69,
+        "example": {
+          "known": "I see the mountain",
+          "learning": "Veo la montaña"
+        }
+      }
+    },
+    {
+      "slug": "mirar-pos:verb-verbform:inf-suffix:ar",
+      "name": "mirar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "mirar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to look",
+        "learning": "mirar",
+        "index": 74,
+        "example": {
+          "known": "Look at this",
+          "learning": "Mira esto"
+        }
+      }
+    },
+    {
+      "slug": "venir-pos:verb-verbform:inf-suffix:ir",
+      "name": "venir",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "venir",
+        "verbform": "inf",
+        "suffix": "ir"
+      },
+      "data": {
+        "known": "to come",
+        "learning": "venir",
+        "index": 76,
+        "example": {
+          "known": "Come here",
+          "learning": "Ven aquí"
+        }
+      }
+    },
+    {
+      "slug": "pensar-pos:verb-verbform:inf-suffix:ar",
+      "name": "pensar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "pensar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to think",
+        "learning": "pensar",
+        "index": 79,
+        "example": {
+          "known": "I think it's good",
+          "learning": "Pienso que es bueno"
+        }
+      }
+    },
+    {
+      "slug": "usar-pos:verb-verbform:inf-suffix:ar",
+      "name": "usar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "usar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to use",
+        "learning": "usar",
+        "index": 83,
+        "example": {
+          "known": "I use the computer",
+          "learning": "Uso la computadora"
+        }
+      }
+    },
+    {
+      "slug": "trabajar-pos:verb-verbform:inf-suffix:ar",
+      "name": "trabajar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "trabajar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to work",
+        "learning": "trabajar",
+        "index": 87,
+        "example": {
+          "known": "I work here",
+          "learning": "Trabajo aquí"
+        }
+      }
+    },
+    {
+      "slug": "querer-pos:verb-verbform:inf-suffix:er",
+      "name": "querer",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "querer",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to want",
+        "learning": "querer",
+        "index": 93,
+        "example": {
+          "known": "I want coffee",
+          "learning": "Quiero café"
+        }
+      }
+    },
+    {
+      "slug": "dar-pos:verb-verbform:inf-suffix:ar",
+      "name": "dar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "dar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to give",
+        "learning": "dar",
+        "index": 97,
+        "example": {
+          "known": "Give me water",
+          "learning": "Dame agua"
+        }
+      }
+    },
+    {
+      "slug": "grande-pos:adj-gender:masc-number:sing",
+      "name": "grande",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "grande",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "big",
+        "learning": "grande",
+        "index": 20,
+        "example": {
+          "known": "The big dog",
+          "learning": "El perro grande"
+        }
+      }
+    },
+    {
+      "slug": "pequeño-pos:adj-gender:masc-number:sing",
+      "name": "pequeño",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "pequeño",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "small",
+        "learning": "pequeño",
+        "index": 21,
+        "example": {
+          "known": "The small cat",
+          "learning": "El gato pequeño"
+        }
+      }
+    },
+    {
+      "slug": "bueno-pos:adj-gender:masc-number:sing",
+      "name": "bueno",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "bueno",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "good",
+        "learning": "bueno",
+        "index": 65,
+        "example": {
+          "known": "A good friend",
+          "learning": "Un buen amigo"
+        }
+      }
+    },
+    {
+      "slug": "malo-pos:adj-gender:masc-number:sing",
+      "name": "malo",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "malo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "bad",
+        "learning": "malo",
+        "index": 16,
+        "example": {
+          "known": "A bad day",
+          "learning": "Un mal día"
+        }
+      }
+    },
+    {
+      "slug": "otro-pos:adj-gender:masc-number:sing",
+      "name": "otro",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "otro",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "other",
+        "learning": "otro",
+        "index": 70,
+        "example": {
+          "known": "The other book",
+          "learning": "El otro libro"
+        }
+      }
+    },
+    {
+      "slug": "nuevo-pos:adj-gender:masc-number:sing",
+      "name": "nuevo",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "nuevo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "new",
+        "learning": "nuevo",
+        "index": 92,
+        "example": {
+          "known": "A new car",
+          "learning": "Un coche nuevo"
+        }
+      }
+    },
+    {
+      "slug": "primero-pos:adj-gender:masc-number:sing",
+      "name": "primero",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "primero",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "first",
+        "learning": "primero",
+        "index": 88,
+        "example": {
+          "known": "The first day",
+          "learning": "El primer día"
+        }
+      }
+    },
+    {
+      "slug": "todo-pos:adj-gender:masc-number:sing",
+      "name": "todo",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "todo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "all",
+        "learning": "todo",
+        "index": 36,
+        "example": {
+          "known": "All day",
+          "learning": "Todo el día"
+        }
+      }
+    },
+    {
+      "slug": "solo-pos:adj-gender:masc-number:sing",
+      "name": "solo",
+      "annotation": {
+        "pos": "adj",
+        "lemma": "solo",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "only/alone",
+        "learning": "solo",
+        "index": 75,
+        "example": {
+          "known": "I am alone",
+          "learning": "Estoy solo"
+        }
+      }
+    },
+    {
+      "slug": "el-pos:det-prontype:art-definite:def-gender:masc-number:sing",
+      "name": "el",
+      "annotation": {
+        "pos": "det",
+        "lemma": "el",
+        "prontype": "art",
+        "definite": "def",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "the",
+        "learning": "el",
+        "index": 1,
+        "example": {
+          "known": "The boy",
+          "learning": "El niño"
+        }
+      }
+    },
+    {
+      "slug": "la-pos:det-prontype:art-definite:def-gender:fem-number:sing",
+      "name": "la",
+      "annotation": {
+        "pos": "det",
+        "lemma": "el",
+        "prontype": "art",
+        "definite": "def",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "the",
+        "learning": "la",
+        "index": 1,
+        "example": {
+          "known": "The girl",
+          "learning": "La niña"
+        }
+      }
+    },
+    {
+      "slug": "un-pos:det-prontype:art-definite:ind-gender:masc-number:sing",
+      "name": "un",
+      "annotation": {
+        "pos": "det",
+        "lemma": "uno",
+        "prontype": "art",
+        "definite": "ind",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "a/an",
+        "learning": "un",
+        "index": 6,
+        "example": {
+          "known": "A book",
+          "learning": "Un libro"
+        }
+      }
+    },
+    {
+      "slug": "una-pos:det-prontype:art-definite:ind-gender:fem-number:sing",
+      "name": "una",
+      "annotation": {
+        "pos": "det",
+        "lemma": "uno",
+        "prontype": "art",
+        "definite": "ind",
+        "gender": "fem",
+        "number": "sing"
+      },
+      "data": {
+        "known": "a/an",
+        "learning": "una",
+        "index": 6,
+        "example": {
+          "known": "A house",
+          "learning": "Una casa"
+        }
+      }
+    },
+    {
+      "slug": "este-pos:det-prontype:dem-gender:masc-number:sing",
+      "name": "este",
+      "annotation": {
+        "pos": "det",
+        "lemma": "este",
+        "prontype": "dem",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "this",
+        "learning": "este",
+        "index": 21,
+        "example": {
+          "known": "This book",
+          "learning": "Este libro"
+        }
+      }
+    },
+    {
+      "slug": "mi-pos:det-prontype:prs-poss:yes-person:1-number:sing",
+      "name": "mi",
+      "annotation": {
+        "pos": "det",
+        "lemma": "mi",
+        "prontype": "prs",
+        "poss": "yes",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "my",
+        "learning": "mi",
+        "index": 34,
+        "example": {
+          "known": "My house",
+          "learning": "Mi casa"
+        }
+      }
+    },
+    {
+      "slug": "tu-pos:det-prontype:prs-poss:yes-person:2-number:sing",
+      "name": "tu",
+      "annotation": {
+        "pos": "det",
+        "lemma": "tu",
+        "prontype": "prs",
+        "poss": "yes",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "your",
+        "learning": "tu",
+        "index": 64,
+        "example": {
+          "known": "Your book",
+          "learning": "Tu libro"
+        }
+      }
+    },
+    {
+      "slug": "su-pos:det-prontype:prs-poss:yes-person:3-number:sing",
+      "name": "su",
+      "annotation": {
+        "pos": "det",
+        "lemma": "su",
+        "prontype": "prs",
+        "poss": "yes",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "his/her/its/their",
+        "learning": "su",
+        "index": 23,
+        "example": {
+          "known": "His book",
+          "learning": "Su libro"
+        }
+      }
+    },
+    {
+      "slug": "nuestro-pos:det-prontype:prs-poss:yes-person:1-number:plur-gender:masc",
+      "name": "nuestro",
+      "annotation": {
+        "pos": "det",
+        "lemma": "nuestro",
+        "prontype": "prs",
+        "poss": "yes",
+        "person": "1",
+        "number": "plur",
+        "gender": "masc"
+      },
+      "data": {
+        "known": "our",
+        "learning": "nuestro",
+        "index": 86,
+        "example": {
+          "known": "Our house",
+          "learning": "Nuestra casa"
+        }
+      }
+    },
+    {
+      "slug": "algún-pos:det-prontype:ind-gender:masc-number:sing",
+      "name": "algún",
+      "annotation": {
+        "pos": "det",
+        "lemma": "alguno",
+        "prontype": "ind",
+        "gender": "masc",
+        "number": "sing"
+      },
+      "data": {
+        "known": "some/any",
+        "learning": "algún",
+        "index": 66,
+        "example": {
+          "known": "Some day",
+          "learning": "Algún día"
+        }
+      }
+    },
+    {
+      "slug": "yo-pos:pron-prontype:prs-person:1-number:sing-case:nom",
+      "name": "yo",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "yo",
+        "prontype": "prs",
+        "person": "1",
+        "number": "sing",
+        "case": "nom"
+      },
+      "data": {
+        "known": "I",
+        "learning": "yo",
+        "index": 10,
+        "example": {
+          "known": "I am happy",
+          "learning": "Yo soy feliz"
+        }
+      }
+    },
+    {
+      "slug": "tú-pos:pron-prontype:prs-person:2-number:sing-case:nom",
+      "name": "tú",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "tú",
+        "prontype": "prs",
+        "person": "2",
+        "number": "sing",
+        "case": "nom"
+      },
+      "data": {
+        "known": "you",
+        "learning": "tú",
+        "index": 18,
+        "example": {
+          "known": "You are smart",
+          "learning": "Tú eres inteligente"
+        }
+      }
+    },
+    {
+      "slug": "él-pos:pron-prontype:prs-person:3-number:sing-gender:masc-case:nom",
+      "name": "él",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "él",
+        "prontype": "prs",
+        "person": "3",
+        "number": "sing",
+        "gender": "masc",
+        "case": "nom"
+      },
+      "data": {
+        "known": "he",
+        "learning": "él",
+        "index": 16,
+        "example": {
+          "known": "He is tall",
+          "learning": "Él es alto"
+        }
+      }
+    },
+    {
+      "slug": "ella-pos:pron-prontype:prs-person:3-number:sing-gender:fem-case:nom",
+      "name": "ella",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "él",
+        "prontype": "prs",
+        "person": "3",
+        "number": "sing",
+        "gender": "fem",
+        "case": "nom"
+      },
+      "data": {
+        "known": "she",
+        "learning": "ella",
+        "index": 30,
+        "example": {
+          "known": "She is beautiful",
+          "learning": "Ella es hermosa"
+        }
+      }
+    },
+    {
+      "slug": "nosotros-pos:pron-prontype:prs-person:1-number:plur-gender:masc-case:nom",
+      "name": "nosotros",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "nosotros",
+        "prontype": "prs",
+        "person": "1",
+        "number": "plur",
+        "gender": "masc",
+        "case": "nom"
+      },
+      "data": {
+        "known": "we",
+        "learning": "nosotros",
+        "index": 27,
+        "example": {
+          "known": "We are friends",
+          "learning": "Nosotros somos amigos"
+        }
+      }
+    },
+    {
+      "slug": "ellos-pos:pron-prontype:prs-person:3-number:plur-gender:masc-case:nom",
+      "name": "ellos",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "él",
+        "prontype": "prs",
+        "person": "3",
+        "number": "plur",
+        "gender": "masc",
+        "case": "nom"
+      },
+      "data": {
+        "known": "they",
+        "learning": "ellos",
+        "index": 26,
+        "example": {
+          "known": "They are here",
+          "learning": "Ellos están aquí"
+        }
+      }
+    },
+    {
+      "slug": "me-pos:pron-prontype:prs-person:1-number:sing-case:acc",
+      "name": "me",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "yo",
+        "prontype": "prs",
+        "person": "1",
+        "number": "sing",
+        "case": "acc",
+        "reflex": "yes"
+      },
+      "data": {
+        "known": "me",
+        "learning": "me",
+        "index": 50,
+        "example": {
+          "known": "Give me that",
+          "learning": "Dame eso"
+        }
+      }
+    },
+    {
+      "slug": "lo-pos:pron-prontype:prs-person:3-number:sing-gender:masc-case:acc",
+      "name": "lo",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "él",
+        "prontype": "prs",
+        "person": "3",
+        "number": "sing",
+        "gender": "masc",
+        "case": "acc"
+      },
+      "data": {
+        "known": "it/him",
+        "learning": "lo",
+        "index": 11,
+        "example": {
+          "known": "I see it",
+          "learning": "Lo veo"
+        }
+      }
+    },
+    {
+      "slug": "qué-pos:pron-prontype:int",
+      "name": "qué",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "qué",
+        "prontype": "int"
+      },
+      "data": {
+        "known": "what",
+        "learning": "qué",
+        "index": 40,
+        "example": {
+          "known": "What is this?",
+          "learning": "¿Qué es esto?"
+        }
+      }
+    },
+    {
+      "slug": "quién-pos:pron-prontype:int",
+      "name": "quién",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "quién",
+        "prontype": "int"
+      },
+      "data": {
+        "known": "who",
+        "learning": "quién",
+        "index": 46,
+        "example": {
+          "known": "Who is he?",
+          "learning": "¿Quién es él?"
+        }
+      }
+    },
+    {
+      "slug": "cuál-pos:pron-prontype:int",
+      "name": "cuál",
+      "annotation": {
+        "pos": "pron",
+        "lemma": "cuál",
+        "prontype": "int"
+      },
+      "data": {
+        "known": "which",
+        "learning": "cuál",
+        "index": 48,
+        "example": {
+          "known": "Which one?",
+          "learning": "¿Cuál?"
+        }
+      }
+    },
+    {
+      "slug": "a-pos:adp",
+      "name": "a",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "a"
+      },
+      "data": {
+        "known": "to/at",
+        "learning": "a",
+        "index": 3,
+        "example": {
+          "known": "I go to school",
+          "learning": "Voy a la escuela"
+        }
+      }
+    },
+    {
+      "slug": "de-pos:adp",
+      "name": "de",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "de"
+      },
+      "data": {
+        "known": "of/from",
+        "learning": "de",
+        "index": 4,
+        "example": {
+          "known": "The book of Juan",
+          "learning": "El libro de Juan"
+        }
+      }
+    },
+    {
+      "slug": "en-pos:adp",
+      "name": "en",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "en"
+      },
+      "data": {
+        "known": "in/on",
+        "learning": "en",
+        "index": 7,
+        "example": {
+          "known": "In the house",
+          "learning": "En la casa"
+        }
+      }
+    },
+    {
+      "slug": "con-pos:adp",
+      "name": "con",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "con"
+      },
+      "data": {
+        "known": "with",
+        "learning": "con",
+        "index": 15,
+        "example": {
+          "known": "With you",
+          "learning": "Contigo"
+        }
+      }
+    },
+    {
+      "slug": "por-pos:adp",
+      "name": "por",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "por"
+      },
+      "data": {
+        "known": "by/for",
+        "learning": "por",
+        "index": 24,
+        "example": {
+          "known": "Made by hand",
+          "learning": "Hecho a mano"
+        }
+      }
+    },
+    {
+      "slug": "para-pos:adp",
+      "name": "para",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "para"
+      },
+      "data": {
+        "known": "for",
+        "learning": "para",
+        "index": 12,
+        "example": {
+          "known": "This is for you",
+          "learning": "Esto es para ti"
+        }
+      }
+    },
+    {
+      "slug": "sobre-pos:adp",
+      "name": "sobre",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "sobre"
+      },
+      "data": {
+        "known": "about/over",
+        "learning": "sobre",
+        "index": 45,
+        "example": {
+          "known": "Talk about this",
+          "learning": "Habla sobre esto"
+        }
+      }
+    },
+    {
+      "slug": "desde-pos:adp",
+      "name": "desde",
+      "annotation": {
+        "pos": "adp",
+        "lemma": "desde"
+      },
+      "data": {
+        "known": "from/since",
+        "learning": "desde",
+        "index": 25,
+        "example": {
+          "known": "From here",
+          "learning": "Desde aquí"
+        }
+      }
+    },
+    {
+      "slug": "y-pos:cconj",
+      "name": "y",
+      "annotation": {
+        "pos": "cconj",
+        "lemma": "y"
+      },
+      "data": {
+        "known": "and",
+        "learning": "y",
+        "index": 5,
+        "example": {
+          "known": "You and I",
+          "learning": "Tú y yo"
+        }
+      }
+    },
+    {
+      "slug": "o-pos:cconj",
+      "name": "o",
+      "annotation": {
+        "pos": "cconj",
+        "lemma": "o"
+      },
+      "data": {
+        "known": "or",
+        "learning": "o",
+        "index": 31,
+        "example": {
+          "known": "Coffee or tea",
+          "learning": "Café o té"
+        }
+      }
+    },
+    {
+      "slug": "pero-pos:cconj",
+      "name": "pero",
+      "annotation": {
+        "pos": "cconj",
+        "lemma": "pero"
+      },
+      "data": {
+        "known": "but",
+        "learning": "pero",
+        "index": 22,
+        "example": {
+          "known": "I want to, but I can't",
+          "learning": "Quiero, pero no puedo"
+        }
+      }
+    },
+    {
+      "slug": "que-pos:sconj",
+      "name": "que",
+      "annotation": {
+        "pos": "sconj",
+        "lemma": "que"
+      },
+      "data": {
+        "known": "that",
+        "learning": "que",
+        "index": 8,
+        "example": {
+          "known": "I think that it's good",
+          "learning": "Pienso que es bueno"
+        }
+      }
+    },
+    {
+      "slug": "si-pos:sconj",
+      "name": "si",
+      "annotation": {
+        "pos": "sconj",
+        "lemma": "si"
+      },
+      "data": {
+        "known": "if",
+        "learning": "si",
+        "index": 44,
+        "example": {
+          "known": "If you want",
+          "learning": "Si quieres"
+        }
+      }
+    },
+    {
+      "slug": "porque-pos:sconj",
+      "name": "porque",
+      "annotation": {
+        "pos": "sconj",
+        "lemma": "porque"
+      },
+      "data": {
+        "known": "because",
+        "learning": "porque",
+        "index": 94,
+        "example": {
+          "known": "Because I want to",
+          "learning": "Porque quiero"
+        }
+      }
+    },
+    {
+      "slug": "cuando-pos:sconj",
+      "name": "cuando",
+      "annotation": {
+        "pos": "sconj",
+        "lemma": "cuando"
+      },
+      "data": {
+        "known": "when",
+        "learning": "cuando",
+        "index": 51,
+        "example": {
+          "known": "When you arrive",
+          "learning": "Cuando llegues"
+        }
+      }
+    },
+    {
+      "slug": "como-pos:sconj",
+      "name": "como",
+      "annotation": {
+        "pos": "sconj",
+        "lemma": "como"
+      },
+      "data": {
+        "known": "as/like",
+        "learning": "como",
+        "index": 17,
+        "example": {
+          "known": "As I said",
+          "learning": "Como dije"
+        }
+      }
+    },
+    {
+      "slug": "no-pos:adv",
+      "name": "no",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "no"
+      },
+      "data": {
+        "known": "no/not",
+        "learning": "no",
+        "index": 13,
+        "example": {
+          "known": "I don't know",
+          "learning": "No sé"
+        }
+      }
+    },
+    {
+      "slug": "tan-pos:adv",
+      "name": "tan",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "tan"
+      },
+      "data": {
+        "known": "so",
+        "learning": "tan",
+        "index": 41,
+        "example": {
+          "known": "So beautiful",
+          "learning": "Tan hermoso"
+        }
+      }
+    },
+    {
+      "slug": "ahora-pos:adv",
+      "name": "ahora",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "ahora"
+      },
+      "data": {
+        "known": "now",
+        "learning": "ahora",
+        "index": 73,
+        "example": {
+          "known": "Right now",
+          "learning": "Ahora mismo"
+        }
+      }
+    },
+    {
+      "slug": "entonces-pos:adv",
+      "name": "entonces",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "entonces"
+      },
+      "data": {
+        "known": "then",
+        "learning": "entonces",
+        "index": 72,
+        "example": {
+          "known": "So then",
+          "learning": "Entonces"
+        }
+      }
+    },
+    {
+      "slug": "también-pos:adv",
+      "name": "también",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "también"
+      },
+      "data": {
+        "known": "also",
+        "learning": "también",
+        "index": 80,
+        "example": {
+          "known": "I also think so",
+          "learning": "También lo pienso"
+        }
+      }
+    },
+    {
+      "slug": "después-pos:adv",
+      "name": "después",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "después"
+      },
+      "data": {
+        "known": "after",
+        "learning": "después",
+        "index": 82,
+        "example": {
+          "known": "After that",
+          "learning": "Después de eso"
+        }
+      }
+    },
+    {
+      "slug": "bien-pos:adv",
+      "name": "bien",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "bien"
+      },
+      "data": {
+        "known": "well",
+        "learning": "bien",
+        "index": 89,
+        "example": {
+          "known": "Very well",
+          "learning": "Muy bien"
+        }
+      }
+    },
+    {
+      "slug": "cómo-pos:adv-prontype:int",
+      "name": "cómo",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "cómo",
+        "prontype": "int"
+      },
+      "data": {
+        "known": "how",
+        "learning": "cómo",
+        "index": 85,
+        "example": {
+          "known": "How are you?",
+          "learning": "¿Cómo estás?"
+        }
+      }
+    },
+    {
+      "slug": "más-pos:adv-degree:cmp",
+      "name": "más",
+      "annotation": {
+        "pos": "adv",
+        "lemma": "mucho",
+        "degree": "cmp"
+      },
+      "data": {
+        "known": "more/most",
+        "learning": "más",
+        "index": 99,
+        "example": {
+          "known": "More water",
+          "learning": "Más agua"
+        }
+      }
+    },
+    {
+      "slug": "dos-pos:num-numtype:card",
+      "name": "dos",
+      "annotation": {
+        "pos": "num",
+        "lemma": "dos",
+        "numtype": "card"
+      },
+      "data": {
+        "known": "two",
+        "learning": "dos",
+        "index": 84,
+        "example": {
+          "known": "Two books",
+          "learning": "Dos libros"
+        }
+      }
+    },
+    {
+      "slug": "uno-pos:num-numtype:card-gender:masc",
+      "name": "uno",
+      "annotation": {
+        "pos": "num",
+        "lemma": "uno",
+        "numtype": "card",
+        "gender": "masc"
+      },
+      "data": {
+        "known": "one",
+        "learning": "uno",
+        "index": 35,
+        "example": {
+          "known": "One book",
+          "learning": "Un libro"
+        }
+      }
+    }
+  ]
+}

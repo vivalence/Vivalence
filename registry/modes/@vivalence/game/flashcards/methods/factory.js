@@ -1,13 +1,10 @@
 import { object } from "@vivalence/shared";
-import Mustache from "mustache";
 
 export function from(literals, scope) {
-  return literals.map((literal) => {
-    return {
-      data: make(literal),
-      scope: object.merge(scope, { literals: [{ id: literal.id }] }),
-    };
-  });
+  return literals.map((literal) => ({
+    data: make(literal),
+    scope: object.merge(scope, { literals: [literal.id] }),
+  }));
 }
 
 export function make(literal) {
@@ -23,16 +20,13 @@ function basicFlashcard(literal, maskData = {}) {
   maskData = {
     front: {
       header: literal.data.known,
-      content:
-        literal.data.example.known && `<i>${literal.data.example.known}</i>`,
+      content: literal.data.example.known && `<i>${literal.data.example.known}</i>`,
       footer: null,
       ...(maskData.front || {}),
     },
     back: {
       header: literal.data.learning,
-      content:
-        literal.data.example?.learning &&
-        `<i>${literal.data.example?.learning}</i>`,
+      content: literal.data.example?.learning && `<i>${literal.data.example?.learning}</i>`,
       footer: null,
       ...(maskData.back || {}),
     },

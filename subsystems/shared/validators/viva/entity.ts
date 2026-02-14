@@ -24,6 +24,9 @@ function buildIssues(entity, validate) {
   const issues = [];
   validate.errors
     .filter((error: AjvValidationError) => error.keyword !== "if")
+    .filter(
+      (error: AjvValidationError) => error.keyword !== "additionalProperties",
+    )
     .forEach((error: AjvValidationError) => {
       issues.push(buildIssue(entity, error));
     });

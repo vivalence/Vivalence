@@ -1,6 +1,3 @@
-import { mount } from "svelte";
+import { pack } from "@vivalence/drapes";
 import Game from "./Translations.svelte";
-
-export default function (target, props) {
-  return mount(Game, { target, props });
-}
+export default pack(Game);

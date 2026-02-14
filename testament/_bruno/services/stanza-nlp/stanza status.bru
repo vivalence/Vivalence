@@ -4,20 +4,12 @@ meta {
   seq: 3
 }
 
-post {
-  url: http://localhost:5555/status
-  body: json
+get {
+  url: https://nlp.syzygy.vivalence.com/status
+  body: none
   auth: none
 }
 
 headers {
   Content-Type: application/json
-}
-
-body:json {
-  {
-    "language": "es",
-    "text": "yo vivo",
-    "processors": "tokenize,mwt,pos,lemma,depparse"
-  }
 }

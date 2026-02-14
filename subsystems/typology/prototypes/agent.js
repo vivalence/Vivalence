@@ -9,13 +9,22 @@ import { Agentic } from "@vivalence/vector/compiler";
 // const parsed = C.Parse({ x: 1, y: 2, z: 3 })
 
 export class Agent {
-  constructor(slug) {
-    // console.log("AGENT REQUIRES AGENTIC VECTOR COMPILER");
+  constructor(slug = "") {
     this.slug = slug;
     this.context = new Map();
     this.inputValidator = null;
     this.outputValidator = null;
   }
+
+  static hallucinate = {
+    async object(input) {
+      return await this.generate(input);
+    },
+    async action(input) {
+      return await this.do(input);
+    },
+    // async conversation(input) {},
+  };
 
   withBrain(brain) {
     this.brain = brain;
@@ -119,9 +128,7 @@ export class Agent {
     const retry = await this.brain.object({
       schema: this.output,
       system:
-        this.system +
-        "\n# Failure and retry:" +
-        JSON.stringify({ previousOutput: object, errors }),
+        this.system + "\n# Failure and retry:" + JSON.stringify({ previousOutput: object, errors }),
       prompt: this.prompt(input),
     });
 
@@ -145,9 +152,7 @@ export class Agent {
 
   onIssues(issues) {
     // AgentOperationError
-    throw new Error(
-      `Validation failed: ${issues.map((e) => e.message).join(", ")}`,
-    );
+    throw new Error(`Validation failed: ${issues.map((e) => e.message).join(", ")}`);
   }
 
   prompt(input) {
@@ -159,12 +164,9 @@ export class Agent {
   check(what = []) {
     const issues = [];
     if (!this.brain) issues.push("Agent missing brain");
-    if (what.includes("input") && !this.input)
-      issues.push("input schema not defined");
-    if (what.includes("output") && !this.output)
-      issues.push("Output schema not defined");
-    if (what.includes("tools") && !this.tools)
-      issues.push("Agent has no tools");
+    if (what.includes("input") && !this.input) issues.push("input schema not defined");
+    if (what.includes("output") && !this.output) issues.push("Output schema not defined");
+    if (what.includes("tools") && !this.tools) issues.push("Agent has no tools");
 
     if (issues.length > 0) {
       // AgentCheckError

@@ -19,13 +19,7 @@ export default {
   relations: [
     { unique: { branch: "pos" } },
     { required: { branch: "pos", leaf: "noun" } },
-    { unique: { branch: "gender" } },
-    {
-      some: [
-        { required: { branch: "gender", leaf: "masc" } },
-        { required: { branch: "gender", leaf: "fem" } },
-      ],
-    },
+    { required: { branch: "gender" } },
     { required: { branch: "number" } },
   ],
 };

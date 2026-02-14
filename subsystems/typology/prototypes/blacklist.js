@@ -1,3 +1,5 @@
+import { is } from "@vivalence/typology";
+
 export class Blacklist {
   constructor(input = {}) {
     this.literals = input.literals || [];
@@ -23,24 +25,25 @@ export class Blacklist {
       visited.add(obj);
 
       getArray(obj, "literals").forEach((lit) => {
-        if (lit?.id) this.literals.push(lit.id);
+        if (is.string(lit)) this.literals.push(lit);
+        else if (lit?.id) this.literals.push(lit.id);
         extractIds(lit);
       });
 
       getArray(obj, "symbols").forEach((sym) => {
-        if (sym?.id) this.symbols.push(sym.id);
+        if (is.string(sym)) this.symbols.push(sym);
+        else if (sym?.id) this.symbols.push(sym.id);
         extractIds(sym);
       });
 
       getArray(obj, "products").forEach((prod) => {
-        if (prod?.id) this.products.push(prod.id);
+        if (is.string(prod)) this.products.push(prod);
+        else if (prod?.id) this.products.push(prod.id);
         extractIds(prod);
       });
 
       Object.entries(obj).forEach(([key, val]) => {
-        if (!["literals", "symbols", "products"].includes(key)) {
-          extractIds(val);
-        }
+        if (!["literals", "symbols", "products"].includes(key)) extractIds(val);
       });
     };
 
@@ -50,10 +53,10 @@ export class Blacklist {
 
   async fromQueue(scope, ctx) {
     const criteria = { type: { $ne: "SIGNAL" } };
-    if (scope.product) criteria.id = scope.product.id;
-    if (scope.user) criteria.user = scope.user.id;
-    if (scope.producer) criteria.producer = scope.producer.id;
-    if (scope.generator) criteria.generator = scope.generator.id;
+    if (scope.product) criteria.id = scope.product;
+    if (scope.user) criteria.user = scope.user;
+    if (scope.producer) criteria.producer = scope.producer;
+    if (scope.generator) criteria.generator = scope.generator;
     // if (scope.intent) criteria.intent = scope.intent.id;
 
     const products = await ctx.daemon.entities.product.find(criteria, {

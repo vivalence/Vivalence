@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
 import { mw, parser } from "@vivalence/vector/aperture";
-import { as, shards, Url, Connection } from "@vivalence/typology";
+import { fromm, shards, Url, Connection } from "@vivalence/typology";
 
 export async function attach(runtimeDie) {
   async function attachProcesses(runtimeDie) {
@@ -26,9 +26,10 @@ export async function attach(runtimeDie) {
           .use(shards.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
+            // console.log("paladin.is.dev", paladin.is.dev, ctx.mode.view);
             if (paladin.is.dev) await ctx.mode.view.bundle();
             ctx.response.type = "application/javascript";
-            return ctx.mode.view.serve(as.path.params(ctx.params)).text;
+            return ctx.mode.view.serve(fromm.params(ctx.params).path).text;
           });
       }
     }
@@ -53,11 +54,22 @@ export async function compose(runtimeDie) {
     .use(mw.cors)
     .use(mw.notFound)
     .use(async (ctx, next) => {
-      // UGLY!
-      ctx.input = await parser(ctx);
-      await next();
-      ctx.response.body = ctx.output;
-      ctx.response.headers.set("Content-Type", "application/json");
+      // UGLY and technically false!
+      try {
+        ctx.input = await parser(ctx);
+        await next();
+        ctx.response.body = ctx.output;
+        if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
+        if (!ctx.response.type) ctx.response.type = "application/json";
+      } catch (error) {
+        console.error("@runtime/resolve");
+        console.error({ ctx: { input: ctx.input, output: ctx.output } });
+        console.error(error);
+        ctx.response.status = 500;
+        ctx.response.error = error;
+      }
+      // console.log("STATUS 2:", ctx.request.url.pathname, ctx.response.status);
+      // if (ctx.response.status === 404) console.log(ctx.request, ctx.response);
     });
   runtimeDie.good.server.use(runtimeDie.good.aperture.compose(true));
 }
@@ -83,12 +95,9 @@ export async function launch(runtimeDie) {
     return;
   }
 
-  runtimeDie.good.server.addEventListener(
-    "listen",
-    ({ hostname, port, ...rest }) => {
-      console.log(`listening on ${hostname}:${port}`);
-    },
-  );
+  runtimeDie.good.server.addEventListener("listen", ({ hostname, port, ...rest }) => {
+    console.log(`listening on ${hostname}:${port}`);
+  });
 
   runtimeDie.listening = runtimeDie.good.server.listen({
     port: url.port,

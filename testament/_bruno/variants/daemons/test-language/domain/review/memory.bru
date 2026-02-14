@@ -5,23 +5,23 @@ meta {
 }
 
 post {
-  url: {{ENG2LAT}}/review/memory
+  url: {{DAEMON}}/review/memory
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {
   {
-    "signal": "SUCCESS",
-    "scope": {
-      "user": {
-        "id": "localhost"
-      },
-      "unit": {
-        "id": "0197402d-b7dd-752b-b6d1-67c677ff2b17"
-      }
   
-    }
+      "scope": {
+        "literal": "019c39b4-8ecf-724a-8e45-363e0158c12a"
+      },
+      "signal": "MISTAKE"
+    
   }
 }
 

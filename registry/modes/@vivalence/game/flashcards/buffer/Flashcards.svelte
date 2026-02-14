@@ -1,20 +1,18 @@
 <script>
   import { Text, Button } from "@vivalence/drapes";
-  // import { Scope } from "@vivalence/typology";
+  import { Scope } from "@vivalence/typology";
 
   const { daemon, mode, stall, buffer, product } = $props();
+  // console.log({ daemon, mode, stall, buffer, product })
 
-  const { front, back } = product.card;
+  const { front, back } = product.data;
 
   let revealed = $state(false);
 
-  const onReview = (signal) => {
-    stall.next(
-      daemon.call("/evaluate/scope", {
-        signal,
-        scope: { product: { id: product.id } },
-      }),
-    );
+  const onReview = async (signal) => {
+    const input = { signal, scope: { product: { id: product.id } } };
+    const promise = daemon.call("/review/product", input);
+    stall.next(promise.then((result) => console.log({ result })));
   };
 
   const reveal = () => (revealed = true);

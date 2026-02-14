@@ -9,7 +9,16 @@ import {
   Issue,
 } from "./types.d.ts";
 
-export default function validateRelations(
+export default function proxy(
+  constraint: Constraint,
+  relations: Relation[],
+): Issue[] {
+  // console.json({ constraint, relations });
+  const output = validateRelations(constraint, relations);
+  // console.json({ output });
+  return output;
+}
+function validateRelations(
   constraint: Constraint,
   relations: Relation[],
 ): Issue[] {
@@ -125,6 +134,8 @@ function conditional(
     for (const c of constraintToValidate) {
       const nestedIssues = validateRelations(c, relations);
       nestedIssues.forEach((error) => {
+        error.context.relation = c;
+        error.context.condition = constraint;
         error.context.ancestor = error.context.ancestor
           ? [...error.context.ancestor, constraint]
           : [constraint];

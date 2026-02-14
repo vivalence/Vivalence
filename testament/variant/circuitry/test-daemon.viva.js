@@ -35,7 +35,9 @@ export const daemons = [
     modes: [
       "@vivalence/teacher/dewey",
       "@vivalence/game/flashcards",
-      //  "@vivalence/game/translations", "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
+      "@vivalence/game/conjugations",
+      "@vivalence/game/translations",
+      // "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 
     lighthouse: {

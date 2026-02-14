@@ -5,14 +5,14 @@ meta {
 }
 
 post {
-  url: {{IDENTITY_AUTHORITY}}/auth/logout
+  url: {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/auth/logout
   body: json
   auth: none
 }
 
 body:json {
   {
-    "refreshToken": "{{refreshToken}}"
+    "refresh": "{{refreshToken}}"
   }
 }
 

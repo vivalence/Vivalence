@@ -1,8 +1,11 @@
-const ProductionSignal = Type.Union(
+export const ProductionSignal = Type.Union(
   [
-    //
-    Type.Literal("BATCH"),
+    Type.Literal("FULFILLED"),
+    Type.Literal("EXHAUSTED"),
+    Type.Literal("INSUFFICIENT"),
+    Type.Literal("DEGRADED"),
     Type.Literal("COMPLETED"),
+    Type.Literal("ERROR"),
   ],
   {
     description:
@@ -10,7 +13,7 @@ const ProductionSignal = Type.Union(
   },
 );
 
-export const ProductionSeekRequest = Type.Object(
+export const ProductionRequestSeek = Type.Object(
   {
     // literal,literals,
     // symbol, symbols,

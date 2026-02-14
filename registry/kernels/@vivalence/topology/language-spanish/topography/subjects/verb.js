@@ -21,7 +21,7 @@ export default {
           required: ["verbform"],
         },
         then: {
-          required: ["tense", "mood", "person", "number", "aspect"],
+          required: ["tense", "mood", "person", "number"],
           properties: { gender: { not: {} } },
         },
       },

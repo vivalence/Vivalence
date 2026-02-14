@@ -1,0 +1,4334 @@
+{
+  "literal": [
+    {
+      "slug": "estar-pos:verb-verbform:inf-suffix:ar",
+      "name": "estar",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "inf",
+        "suffix": "ar"
+      },
+      "data": {
+        "known": "to be",
+        "learning": "estar",
+        "index": 2,
+        "example": {
+          "known": "I am at home",
+          "learning": "Estoy en casa"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:1-number:sing",
+      "name": "estoy",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I am",
+        "learning": "estoy",
+        "index": 2,
+        "example": {
+          "known": "I am here",
+          "learning": "Estoy aquí"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:2-number:sing",
+      "name": "estás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you are",
+        "learning": "estás",
+        "index": 2,
+        "example": {
+          "known": "You are well",
+          "learning": "Estás bien"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:3-number:sing",
+      "name": "está",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it is",
+        "learning": "está",
+        "index": 2,
+        "example": {
+          "known": "She is tired",
+          "learning": "Está cansada"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:1-number:plur",
+      "name": "estamos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we are",
+        "learning": "estamos",
+        "index": 2,
+        "example": {
+          "known": "We are ready",
+          "learning": "Estamos listos"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:2-number:plur",
+      "name": "estáis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) are",
+        "learning": "estáis",
+        "index": 2,
+        "example": {
+          "known": "You are busy",
+          "learning": "Estáis ocupados"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:pres-mood:ind-person:3-number:plur",
+      "name": "están",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they are",
+        "learning": "están",
+        "index": 2,
+        "example": {
+          "known": "They are home",
+          "learning": "Están en casa"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:1-number:sing",
+      "name": "estuve",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I was",
+        "learning": "estuve",
+        "index": 2,
+        "example": {
+          "known": "I was there",
+          "learning": "Estuve allí"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:2-number:sing",
+      "name": "estuviste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you were",
+        "learning": "estuviste",
+        "index": 2,
+        "example": {
+          "known": "You were sick",
+          "learning": "Estuviste enfermo"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:3-number:sing",
+      "name": "estuvo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it was",
+        "learning": "estuvo",
+        "index": 2,
+        "example": {
+          "known": "He was happy",
+          "learning": "Estuvo feliz"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:1-number:plur",
+      "name": "estuvimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we were",
+        "learning": "estuvimos",
+        "index": 2,
+        "example": {
+          "known": "We were together",
+          "learning": "Estuvimos juntos"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:2-number:plur",
+      "name": "estuvisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) were",
+        "learning": "estuvisteis",
+        "index": 2,
+        "example": {
+          "known": "You were late",
+          "learning": "Estuvisteis tarde"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:past-mood:ind-person:3-number:plur",
+      "name": "estuvieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they were",
+        "learning": "estuvieron",
+        "index": 2,
+        "example": {
+          "known": "They were outside",
+          "learning": "Estuvieron afuera"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:1-number:sing",
+      "name": "estaré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will be",
+        "learning": "estaré",
+        "index": 2,
+        "example": {
+          "known": "I will be there",
+          "learning": "Estaré allí"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:2-number:sing",
+      "name": "estarás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will be",
+        "learning": "estarás",
+        "index": 2,
+        "example": {
+          "known": "You will be fine",
+          "learning": "Estarás bien"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:3-number:sing",
+      "name": "estará",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will be",
+        "learning": "estará",
+        "index": 2,
+        "example": {
+          "known": "She will be ready",
+          "learning": "Estará lista"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:1-number:plur",
+      "name": "estaremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will be",
+        "learning": "estaremos",
+        "index": 2,
+        "example": {
+          "known": "We will be waiting",
+          "learning": "Estaremos esperando"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:2-number:plur",
+      "name": "estaréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will be",
+        "learning": "estaréis",
+        "index": 2,
+        "example": {
+          "known": "You will be busy",
+          "learning": "Estaréis ocupados"
+        }
+      }
+    },
+    {
+      "slug": "estar-pos:verb-verbform:fin-suffix:ar-tense:fut-mood:ind-person:3-number:plur",
+      "name": "estarán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "estar",
+        "verbform": "fin",
+        "suffix": "ar",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will be",
+        "learning": "estarán",
+        "index": 2,
+        "example": {
+          "known": "They will be home",
+          "learning": "Estarán en casa"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:inf-suffix:er",
+      "name": "comer",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to eat",
+        "learning": "comer",
+        "index": 6,
+        "example": {
+          "known": "I eat vegetables",
+          "learning": "Como verduras"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "como",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I eat",
+        "learning": "como",
+        "index": 6,
+        "example": {
+          "known": "I eat bread",
+          "learning": "Como pan"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "comes",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you eat",
+        "learning": "comes",
+        "index": 6,
+        "example": {
+          "known": "You eat fruit",
+          "learning": "Comes fruta"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "come",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it eats",
+        "learning": "come",
+        "index": 6,
+        "example": {
+          "known": "He eats meat",
+          "learning": "Come carne"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "comemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we eat",
+        "learning": "comemos",
+        "index": 6,
+        "example": {
+          "known": "We eat together",
+          "learning": "Comemos juntos"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "coméis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) eat",
+        "learning": "coméis",
+        "index": 6,
+        "example": {
+          "known": "You eat well",
+          "learning": "Coméis bien"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "comen",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they eat",
+        "learning": "comen",
+        "index": 6,
+        "example": {
+          "known": "They eat pizza",
+          "learning": "Comen pizza"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "comí",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I ate",
+        "learning": "comí",
+        "index": 6,
+        "example": {
+          "known": "I ate lunch",
+          "learning": "Comí almuerzo"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "comiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you ate",
+        "learning": "comiste",
+        "index": 6,
+        "example": {
+          "known": "You ate dinner",
+          "learning": "Comiste cena"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "comió",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it ate",
+        "learning": "comió",
+        "index": 6,
+        "example": {
+          "known": "She ate salad",
+          "learning": "Comió ensalada"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "comimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we ate",
+        "learning": "comimos",
+        "index": 6,
+        "example": {
+          "known": "We ate tacos",
+          "learning": "Comimos tacos"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "comisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) ate",
+        "learning": "comisteis",
+        "index": 6,
+        "example": {
+          "known": "You ate everything",
+          "learning": "Comisteis todo"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "comieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they ate",
+        "learning": "comieron",
+        "index": 6,
+        "example": {
+          "known": "They ate fish",
+          "learning": "Comieron pescado"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "comeré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will eat",
+        "learning": "comeré",
+        "index": 6,
+        "example": {
+          "known": "I will eat later",
+          "learning": "Comeré más tarde"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "comerás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will eat",
+        "learning": "comerás",
+        "index": 6,
+        "example": {
+          "known": "You will eat with us",
+          "learning": "Comerás con nosotros"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "comerá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will eat",
+        "learning": "comerá",
+        "index": 6,
+        "example": {
+          "known": "He will eat chicken",
+          "learning": "Comerá pollo"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "comeremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will eat",
+        "learning": "comeremos",
+        "index": 6,
+        "example": {
+          "known": "We will eat soon",
+          "learning": "Comeremos pronto"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "comeréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will eat",
+        "learning": "comeréis",
+        "index": 6,
+        "example": {
+          "known": "You will eat dessert",
+          "learning": "Comeréis postre"
+        }
+      }
+    },
+    {
+      "slug": "comer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "comerán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "comer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will eat",
+        "learning": "comerán",
+        "index": 6,
+        "example": {
+          "known": "They will eat paella",
+          "learning": "Comerán paella"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:inf-suffix:er",
+      "name": "beber",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to drink",
+        "learning": "beber",
+        "index": 7,
+        "example": {
+          "known": "I drink coffee",
+          "learning": "Bebo café"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "bebo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I drink",
+        "learning": "bebo",
+        "index": 7,
+        "example": {
+          "known": "I drink water",
+          "learning": "Bebo agua"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "bebes",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you drink",
+        "learning": "bebes",
+        "index": 7,
+        "example": {
+          "known": "You drink juice",
+          "learning": "Bebes jugo"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "bebe",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it drinks",
+        "learning": "bebe",
+        "index": 7,
+        "example": {
+          "known": "She drinks tea",
+          "learning": "Bebe té"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "bebemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we drink",
+        "learning": "bebemos",
+        "index": 7,
+        "example": {
+          "known": "We drink wine",
+          "learning": "Bebemos vino"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "bebéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) drink",
+        "learning": "bebéis",
+        "index": 7,
+        "example": {
+          "known": "You drink soda",
+          "learning": "Bebéis refresco"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "beben",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they drink",
+        "learning": "beben",
+        "index": 7,
+        "example": {
+          "known": "They drink beer",
+          "learning": "Beben cerveza"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "bebí",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I drank",
+        "learning": "bebí",
+        "index": 7,
+        "example": {
+          "known": "I drank milk",
+          "learning": "Bebí leche"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "bebiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you drank",
+        "learning": "bebiste",
+        "index": 7,
+        "example": {
+          "known": "You drank too much",
+          "learning": "Bebiste demasiado"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "bebió",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it drank",
+        "learning": "bebió",
+        "index": 7,
+        "example": {
+          "known": "He drank coffee",
+          "learning": "Bebió café"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "bebimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we drank",
+        "learning": "bebimos",
+        "index": 7,
+        "example": {
+          "known": "We drank champagne",
+          "learning": "Bebimos champán"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "bebisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) drank",
+        "learning": "bebisteis",
+        "index": 7,
+        "example": {
+          "known": "You drank sangria",
+          "learning": "Bebisteis sangría"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "bebieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they drank",
+        "learning": "bebieron",
+        "index": 7,
+        "example": {
+          "known": "They drank soda",
+          "learning": "Bebieron refresco"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "beberé",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will drink",
+        "learning": "beberé",
+        "index": 7,
+        "example": {
+          "known": "I will drink water",
+          "learning": "Beberé agua"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "beberás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will drink",
+        "learning": "beberás",
+        "index": 7,
+        "example": {
+          "known": "You will drink wine",
+          "learning": "Beberás vino"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "beberá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will drink",
+        "learning": "beberá",
+        "index": 7,
+        "example": {
+          "known": "She will drink tea",
+          "learning": "Beberá té"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "beberemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will drink",
+        "learning": "beberemos",
+        "index": 7,
+        "example": {
+          "known": "We will drink together",
+          "learning": "Beberemos juntos"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "beberéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will drink",
+        "learning": "beberéis",
+        "index": 7,
+        "example": {
+          "known": "You will drink juice",
+          "learning": "Beberéis jugo"
+        }
+      }
+    },
+    {
+      "slug": "beber-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "beberán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "beber",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will drink",
+        "learning": "beberán",
+        "index": 7,
+        "example": {
+          "known": "They will drink beer",
+          "learning": "Beberán cerveza"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:inf-suffix:er",
+      "name": "tener",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to have",
+        "learning": "tener",
+        "index": 9,
+        "example": {
+          "known": "I have a car",
+          "learning": "Tengo un coche"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "tengo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I have",
+        "learning": "tengo",
+        "index": 9,
+        "example": {
+          "known": "I have time",
+          "learning": "Tengo tiempo"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "tienes",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you have",
+        "learning": "tienes",
+        "index": 9,
+        "example": {
+          "known": "You have a book",
+          "learning": "Tienes un libro"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "tiene",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it has",
+        "learning": "tiene",
+        "index": 9,
+        "example": {
+          "known": "She has a dog",
+          "learning": "Tiene un perro"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "tenemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we have",
+        "learning": "tenemos",
+        "index": 9,
+        "example": {
+          "known": "We have a house",
+          "learning": "Tenemos una casa"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "tenéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) have",
+        "learning": "tenéis",
+        "index": 9,
+        "example": {
+          "known": "You have questions",
+          "learning": "Tenéis preguntas"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "tienen",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they have",
+        "learning": "tienen",
+        "index": 9,
+        "example": {
+          "known": "They have money",
+          "learning": "Tienen dinero"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "tuve",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I had",
+        "learning": "tuve",
+        "index": 9,
+        "example": {
+          "known": "I had an idea",
+          "learning": "Tuve una idea"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "tuviste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you had",
+        "learning": "tuviste",
+        "index": 9,
+        "example": {
+          "known": "You had luck",
+          "learning": "Tuviste suerte"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "tuvo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it had",
+        "learning": "tuvo",
+        "index": 9,
+        "example": {
+          "known": "He had a problem",
+          "learning": "Tuvo un problema"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "tuvimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we had",
+        "learning": "tuvimos",
+        "index": 9,
+        "example": {
+          "known": "We had a party",
+          "learning": "Tuvimos una fiesta"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "tuvisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) had",
+        "learning": "tuvisteis",
+        "index": 9,
+        "example": {
+          "known": "You had an opportunity",
+          "learning": "Tuvisteis una oportunidad"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "tuvieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they had",
+        "learning": "tuvieron",
+        "index": 9,
+        "example": {
+          "known": "They had success",
+          "learning": "Tuvieron éxito"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "tendré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will have",
+        "learning": "tendré",
+        "index": 9,
+        "example": {
+          "known": "I will have time",
+          "learning": "Tendré tiempo"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "tendrás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will have",
+        "learning": "tendrás",
+        "index": 9,
+        "example": {
+          "known": "You will have opportunities",
+          "learning": "Tendrás oportunidades"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "tendrá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will have",
+        "learning": "tendrá",
+        "index": 9,
+        "example": {
+          "known": "She will have a baby",
+          "learning": "Tendrá un bebé"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "tendremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will have",
+        "learning": "tendremos",
+        "index": 9,
+        "example": {
+          "known": "We will have a meeting",
+          "learning": "Tendremos una reunión"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "tendréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will have",
+        "learning": "tendréis",
+        "index": 9,
+        "example": {
+          "known": "You will have results",
+          "learning": "Tendréis resultados"
+        }
+      }
+    },
+    {
+      "slug": "tener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "tendrán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "tener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will have",
+        "learning": "tendrán",
+        "index": 9,
+        "example": {
+          "known": "They will have problems",
+          "learning": "Tendrán problemas"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:inf-suffix:er",
+      "name": "hacer",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to do/make",
+        "learning": "hacer",
+        "index": 19,
+        "example": {
+          "known": "I make food",
+          "learning": "Hago comida"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "hago",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I do/make",
+        "learning": "hago",
+        "index": 19,
+        "example": {
+          "known": "I do my homework",
+          "learning": "Hago mi tarea"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "haces",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you do/make",
+        "learning": "haces",
+        "index": 19,
+        "example": {
+          "known": "What do you do?",
+          "learning": "¿Qué haces?"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "hace",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it does/makes",
+        "learning": "hace",
+        "index": 19,
+        "example": {
+          "known": "She makes dinner",
+          "learning": "Hace la cena"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "hacemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we do/make",
+        "learning": "hacemos",
+        "index": 19,
+        "example": {
+          "known": "We make plans",
+          "learning": "Hacemos planes"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "hacéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) do/make",
+        "learning": "hacéis",
+        "index": 19,
+        "example": {
+          "known": "You make mistakes",
+          "learning": "Hacéis errores"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "hacen",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they do/make",
+        "learning": "hacen",
+        "index": 19,
+        "example": {
+          "known": "They do exercise",
+          "learning": "Hacen ejercicio"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "hice",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I did/made",
+        "learning": "hice",
+        "index": 19,
+        "example": {
+          "known": "I made a cake",
+          "learning": "Hice un pastel"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "hiciste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you did/made",
+        "learning": "hiciste",
+        "index": 19,
+        "example": {
+          "known": "You did well",
+          "learning": "Hiciste bien"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "hizo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it did/made",
+        "learning": "hizo",
+        "index": 19,
+        "example": {
+          "known": "He made a mistake",
+          "learning": "Hizo un error"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "hicimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we did/made",
+        "learning": "hicimos",
+        "index": 19,
+        "example": {
+          "known": "We made friends",
+          "learning": "Hicimos amigos"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "hicisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) did/made",
+        "learning": "hicisteis",
+        "index": 19,
+        "example": {
+          "known": "You did your best",
+          "learning": "Hicisteis lo mejor"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "hicieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they did/made",
+        "learning": "hicieron",
+        "index": 19,
+        "example": {
+          "known": "They made noise",
+          "learning": "Hicieron ruido"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "haré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will do/make",
+        "learning": "haré",
+        "index": 19,
+        "example": {
+          "known": "I will do it",
+          "learning": "Lo haré"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "harás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will do/make",
+        "learning": "harás",
+        "index": 19,
+        "example": {
+          "known": "You will make friends",
+          "learning": "Harás amigos"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "hará",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will do/make",
+        "learning": "hará",
+        "index": 19,
+        "example": {
+          "known": "She will make dinner",
+          "learning": "Hará la cena"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "haremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will do/make",
+        "learning": "haremos",
+        "index": 19,
+        "example": {
+          "known": "We will do our part",
+          "learning": "Haremos nuestra parte"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "haréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will do/make",
+        "learning": "haréis",
+        "index": 19,
+        "example": {
+          "known": "You will make history",
+          "learning": "Haréis historia"
+        }
+      }
+    },
+    {
+      "slug": "hacer-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "harán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "hacer",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will do/make",
+        "learning": "harán",
+        "index": 19,
+        "example": {
+          "known": "They will do the work",
+          "learning": "Harán el trabajo"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:inf-suffix:ir",
+      "name": "decir",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "inf",
+        "suffix": "ir"
+      },
+      "data": {
+        "known": "to say",
+        "learning": "decir",
+        "index": 28,
+        "example": {
+          "known": "I say hello",
+          "learning": "Digo hola"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:1-number:sing",
+      "name": "digo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I say",
+        "learning": "digo",
+        "index": 28,
+        "example": {
+          "known": "I say the truth",
+          "learning": "Digo la verdad"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:2-number:sing",
+      "name": "dices",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you say",
+        "learning": "dices",
+        "index": 28,
+        "example": {
+          "known": "What do you say?",
+          "learning": "¿Qué dices?"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:3-number:sing",
+      "name": "dice",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it says",
+        "learning": "dice",
+        "index": 28,
+        "example": {
+          "known": "She says yes",
+          "learning": "Dice que sí"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:1-number:plur",
+      "name": "decimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we say",
+        "learning": "decimos",
+        "index": 28,
+        "example": {
+          "known": "We say goodbye",
+          "learning": "Decimos adiós"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:2-number:plur",
+      "name": "decís",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) say",
+        "learning": "decís",
+        "index": 28,
+        "example": {
+          "known": "You say things",
+          "learning": "Decís cosas"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:3-number:plur",
+      "name": "dicen",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they say",
+        "learning": "dicen",
+        "index": 28,
+        "example": {
+          "known": "They say nothing",
+          "learning": "Dicen nada"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:1-number:sing",
+      "name": "dije",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I said",
+        "learning": "dije",
+        "index": 28,
+        "example": {
+          "known": "I said no",
+          "learning": "Dije que no"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:2-number:sing",
+      "name": "dijiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you said",
+        "learning": "dijiste",
+        "index": 28,
+        "example": {
+          "known": "You said the truth",
+          "learning": "Dijiste la verdad"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:3-number:sing",
+      "name": "dijo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it said",
+        "learning": "dijo",
+        "index": 28,
+        "example": {
+          "known": "He said yes",
+          "learning": "Dijo que sí"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:1-number:plur",
+      "name": "dijimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we said",
+        "learning": "dijimos",
+        "index": 28,
+        "example": {
+          "known": "We said goodbye",
+          "learning": "Dijimos adiós"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:2-number:plur",
+      "name": "dijisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) said",
+        "learning": "dijisteis",
+        "index": 28,
+        "example": {
+          "known": "You said everything",
+          "learning": "Dijisteis todo"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:3-number:plur",
+      "name": "dijeron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they said",
+        "learning": "dijeron",
+        "index": 28,
+        "example": {
+          "known": "They said nothing",
+          "learning": "Dijeron nada"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:1-number:sing",
+      "name": "diré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will say",
+        "learning": "diré",
+        "index": 28,
+        "example": {
+          "known": "I will say it",
+          "learning": "Lo diré"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:2-number:sing",
+      "name": "dirás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will say",
+        "learning": "dirás",
+        "index": 28,
+        "example": {
+          "known": "You will say yes",
+          "learning": "Dirás que sí"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:3-number:sing",
+      "name": "dirá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will say",
+        "learning": "dirá",
+        "index": 28,
+        "example": {
+          "known": "She will say no",
+          "learning": "Dirá que no"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:1-number:plur",
+      "name": "diremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will say",
+        "learning": "diremos",
+        "index": 28,
+        "example": {
+          "known": "We will say hello",
+          "learning": "Diremos hola"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:2-number:plur",
+      "name": "diréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will say",
+        "learning": "diréis",
+        "index": 28,
+        "example": {
+          "known": "You will say something",
+          "learning": "Diréis algo"
+        }
+      }
+    },
+    {
+      "slug": "decir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:3-number:plur",
+      "name": "dirán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "decir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will say",
+        "learning": "dirán",
+        "index": 28,
+        "example": {
+          "known": "They will say the truth",
+          "learning": "Dirán la verdad"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:inf-suffix:er",
+      "name": "obtener",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to get",
+        "learning": "obtener",
+        "index": 47,
+        "example": {
+          "known": "I get results",
+          "learning": "Obtengo resultados"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "obtengo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I get",
+        "learning": "obtengo",
+        "index": 47,
+        "example": {
+          "known": "I get good grades",
+          "learning": "Obtengo buenas notas"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "obtienes",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you get",
+        "learning": "obtienes",
+        "index": 47,
+        "example": {
+          "known": "You get what you want",
+          "learning": "Obtienes lo que quieres"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "obtiene",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it gets",
+        "learning": "obtiene",
+        "index": 47,
+        "example": {
+          "known": "She gets a prize",
+          "learning": "Obtiene un premio"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "obtenemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we get",
+        "learning": "obtenemos",
+        "index": 47,
+        "example": {
+          "known": "We get benefits",
+          "learning": "Obtenemos beneficios"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "obtenéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) get",
+        "learning": "obtenéis",
+        "index": 47,
+        "example": {
+          "known": "You get permissions",
+          "learning": "Obtenéis permisos"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "obtienen",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they get",
+        "learning": "obtienen",
+        "index": 47,
+        "example": {
+          "known": "They get diplomas",
+          "learning": "Obtienen diplomas"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "obtuve",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I got",
+        "learning": "obtuve",
+        "index": 47,
+        "example": {
+          "known": "I got a job",
+          "learning": "Obtuve un trabajo"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "obtuviste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you got",
+        "learning": "obtuviste",
+        "index": 47,
+        "example": {
+          "known": "You got first place",
+          "learning": "Obtuviste el primer lugar"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "obtuvo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it got",
+        "learning": "obtuvo",
+        "index": 47,
+        "example": {
+          "known": "He got permission",
+          "learning": "Obtuvo permiso"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "obtuvimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we got",
+        "learning": "obtuvimos",
+        "index": 47,
+        "example": {
+          "known": "We got the tickets",
+          "learning": "Obtuvimos los boletos"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "obtuvisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) got",
+        "learning": "obtuvisteis",
+        "index": 47,
+        "example": {
+          "known": "You got the prize",
+          "learning": "Obtuvisteis el premio"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "obtuvieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they got",
+        "learning": "obtuvieron",
+        "index": 47,
+        "example": {
+          "known": "They got approval",
+          "learning": "Obtuvieron aprobación"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "obtendré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will get",
+        "learning": "obtendré",
+        "index": 47,
+        "example": {
+          "known": "I will get it",
+          "learning": "Lo obtendré"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "obtendrás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will get",
+        "learning": "obtendrás",
+        "index": 47,
+        "example": {
+          "known": "You will get success",
+          "learning": "Obtendrás éxito"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "obtendrá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will get",
+        "learning": "obtendrá",
+        "index": 47,
+        "example": {
+          "known": "She will get a degree",
+          "learning": "Obtendrá un título"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "obtendremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will get",
+        "learning": "obtendremos",
+        "index": 47,
+        "example": {
+          "known": "We will get results",
+          "learning": "Obtendremos resultados"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "obtendréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will get",
+        "learning": "obtendréis",
+        "index": 47,
+        "example": {
+          "known": "You will get answers",
+          "learning": "Obtendréis respuestas"
+        }
+      }
+    },
+    {
+      "slug": "obtener-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "obtendrán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "obtener",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will get",
+        "learning": "obtendrán",
+        "index": 47,
+        "example": {
+          "known": "They will get rewards",
+          "learning": "Obtendrán recompensas"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:inf-suffix:ir",
+      "name": "ir",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "inf",
+        "suffix": "ir"
+      },
+      "data": {
+        "known": "to go",
+        "learning": "ir",
+        "index": 49,
+        "example": {
+          "known": "I go to school",
+          "learning": "Voy a la escuela"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:1-number:sing",
+      "name": "voy",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I go",
+        "learning": "voy",
+        "index": 49,
+        "example": {
+          "known": "I go home",
+          "learning": "Voy a casa"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:2-number:sing",
+      "name": "vas",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you go",
+        "learning": "vas",
+        "index": 49,
+        "example": {
+          "known": "Where do you go?",
+          "learning": "¿Adónde vas?"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:3-number:sing",
+      "name": "va",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it goes",
+        "learning": "va",
+        "index": 49,
+        "example": {
+          "known": "She goes to work",
+          "learning": "Va al trabajo"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:1-number:plur",
+      "name": "vamos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we go",
+        "learning": "vamos",
+        "index": 49,
+        "example": {
+          "known": "We go together",
+          "learning": "Vamos juntos"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:2-number:plur",
+      "name": "vais",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) go",
+        "learning": "vais",
+        "index": 49,
+        "example": {
+          "known": "You go to the park",
+          "learning": "Vais al parque"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:pres-mood:ind-person:3-number:plur",
+      "name": "van",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they go",
+        "learning": "van",
+        "index": 49,
+        "example": {
+          "known": "They go shopping",
+          "learning": "Van de compras"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:1-number:sing",
+      "name": "fui",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I went",
+        "learning": "fui",
+        "index": 49,
+        "example": {
+          "known": "I went to Madrid",
+          "learning": "Fui a Madrid"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:2-number:sing",
+      "name": "fuiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you went",
+        "learning": "fuiste",
+        "index": 49,
+        "example": {
+          "known": "You went alone",
+          "learning": "Fuiste solo"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:3-number:sing",
+      "name": "fue",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it went",
+        "learning": "fue",
+        "index": 49,
+        "example": {
+          "known": "He went to the beach",
+          "learning": "Fue a la playa"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:1-number:plur",
+      "name": "fuimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we went",
+        "learning": "fuimos",
+        "index": 49,
+        "example": {
+          "known": "We went yesterday",
+          "learning": "Fuimos ayer"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:2-number:plur",
+      "name": "fuisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) went",
+        "learning": "fuisteis",
+        "index": 49,
+        "example": {
+          "known": "You went early",
+          "learning": "Fuisteis temprano"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:past-mood:ind-person:3-number:plur",
+      "name": "fueron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they went",
+        "learning": "fueron",
+        "index": 49,
+        "example": {
+          "known": "They went to the party",
+          "learning": "Fueron a la fiesta"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:1-number:sing",
+      "name": "iré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will go",
+        "learning": "iré",
+        "index": 49,
+        "example": {
+          "known": "I will go tomorrow",
+          "learning": "Iré mañana"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:2-number:sing",
+      "name": "irás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will go",
+        "learning": "irás",
+        "index": 49,
+        "example": {
+          "known": "You will go first",
+          "learning": "Irás primero"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:3-number:sing",
+      "name": "irá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will go",
+        "learning": "irá",
+        "index": 49,
+        "example": {
+          "known": "She will go later",
+          "learning": "Irá más tarde"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:1-number:plur",
+      "name": "iremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will go",
+        "learning": "iremos",
+        "index": 49,
+        "example": {
+          "known": "We will go together",
+          "learning": "Iremos juntos"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:2-number:plur",
+      "name": "iréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will go",
+        "learning": "iréis",
+        "index": 49,
+        "example": {
+          "known": "You will go by car",
+          "learning": "Iréis en coche"
+        }
+      }
+    },
+    {
+      "slug": "ir-pos:verb-verbform:fin-suffix:ir-tense:fut-mood:ind-person:3-number:plur",
+      "name": "irán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ir",
+        "verbform": "fin",
+        "suffix": "ir",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will go",
+        "learning": "irán",
+        "index": 49,
+        "example": {
+          "known": "They will go on vacation",
+          "learning": "Irán de vacaciones"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:inf-suffix:er",
+      "name": "poder",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to can/be able",
+        "learning": "poder",
+        "index": 53,
+        "example": {
+          "known": "I can do it",
+          "learning": "Puedo hacerlo"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "puedo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I can",
+        "learning": "puedo",
+        "index": 53,
+        "example": {
+          "known": "I can help",
+          "learning": "Puedo ayudar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "puedes",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you can",
+        "learning": "puedes",
+        "index": 53,
+        "example": {
+          "known": "You can do it",
+          "learning": "Puedes hacerlo"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "puede",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it can",
+        "learning": "puede",
+        "index": 53,
+        "example": {
+          "known": "She can swim",
+          "learning": "Puede nadar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "podemos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we can",
+        "learning": "podemos",
+        "index": 53,
+        "example": {
+          "known": "We can win",
+          "learning": "Podemos ganar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "podéis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) can",
+        "learning": "podéis",
+        "index": 53,
+        "example": {
+          "known": "You can come",
+          "learning": "Podéis venir"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "pueden",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they can",
+        "learning": "pueden",
+        "index": 53,
+        "example": {
+          "known": "They can play",
+          "learning": "Pueden jugar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "pude",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I could",
+        "learning": "pude",
+        "index": 53,
+        "example": {
+          "known": "I could finish",
+          "learning": "Pude terminar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "pudiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you could",
+        "learning": "pudiste",
+        "index": 53,
+        "example": {
+          "known": "You could solve it",
+          "learning": "Pudiste resolverlo"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "pudo",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it could",
+        "learning": "pudo",
+        "index": 53,
+        "example": {
+          "known": "He could escape",
+          "learning": "Pudo escapar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "pudimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we could",
+        "learning": "pudimos",
+        "index": 53,
+        "example": {
+          "known": "We could arrive",
+          "learning": "Pudimos llegar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "pudisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) could",
+        "learning": "pudisteis",
+        "index": 53,
+        "example": {
+          "known": "You could see",
+          "learning": "Pudisteis ver"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "pudieron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they could",
+        "learning": "pudieron",
+        "index": 53,
+        "example": {
+          "known": "They could understand",
+          "learning": "Pudieron entender"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "podré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will be able",
+        "learning": "podré",
+        "index": 53,
+        "example": {
+          "known": "I will be able to go",
+          "learning": "Podré ir"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "podrás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will be able",
+        "learning": "podrás",
+        "index": 53,
+        "example": {
+          "known": "You will be able to study",
+          "learning": "Podrás estudiar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "podrá",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will be able",
+        "learning": "podrá",
+        "index": 53,
+        "example": {
+          "known": "She will be able to come",
+          "learning": "Podrá venir"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "podremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will be able",
+        "learning": "podremos",
+        "index": 53,
+        "example": {
+          "known": "We will be able to help",
+          "learning": "Podremos ayudar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "podréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will be able",
+        "learning": "podréis",
+        "index": 53,
+        "example": {
+          "known": "You will be able to travel",
+          "learning": "Podréis viajar"
+        }
+      }
+    },
+    {
+      "slug": "poder-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "podrán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "poder",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will be able",
+        "learning": "podrán",
+        "index": 53,
+        "example": {
+          "known": "They will be able to participate",
+          "learning": "Podrán participar"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:inf-suffix:er",
+      "name": "ser",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "inf",
+        "suffix": "er"
+      },
+      "data": {
+        "known": "to be",
+        "learning": "ser",
+        "index": 2,
+        "example": {
+          "known": "I want to be happy",
+          "learning": "Quiero ser feliz"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:sing",
+      "name": "soy",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I am",
+        "learning": "soy",
+        "index": 2,
+        "example": {
+          "known": "I am happy",
+          "learning": "Soy feliz"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:sing",
+      "name": "eres",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you are",
+        "learning": "eres",
+        "index": 2,
+        "example": {
+          "known": "You are smart",
+          "learning": "Eres inteligente"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:sing",
+      "name": "es",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it is",
+        "learning": "es",
+        "index": 2,
+        "example": {
+          "known": "It is good",
+          "learning": "Es bueno"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:1-number:plur",
+      "name": "somos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we are",
+        "learning": "somos",
+        "index": 2,
+        "example": {
+          "known": "We are friends",
+          "learning": "Somos amigos"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:2-number:plur",
+      "name": "sois",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) are",
+        "learning": "sois",
+        "index": 2,
+        "example": {
+          "known": "You are Spanish",
+          "learning": "Sois españoles"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:pres-mood:ind-person:3-number:plur",
+      "name": "son",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "pres",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they are",
+        "learning": "son",
+        "index": 2,
+        "example": {
+          "known": "They are here",
+          "learning": "Son aquí"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:sing",
+      "name": "fui",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I was",
+        "learning": "fui",
+        "index": 2,
+        "example": {
+          "known": "I was happy",
+          "learning": "Fui feliz"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:sing",
+      "name": "fuiste",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you were",
+        "learning": "fuiste",
+        "index": 2,
+        "example": {
+          "known": "You were there",
+          "learning": "Fuiste allí"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:sing",
+      "name": "fue",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it was",
+        "learning": "fue",
+        "index": 2,
+        "example": {
+          "known": "It was good",
+          "learning": "Fue bueno"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:1-number:plur",
+      "name": "fuimos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we were",
+        "learning": "fuimos",
+        "index": 2,
+        "example": {
+          "known": "We were students",
+          "learning": "Fuimos estudiantes"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:2-number:plur",
+      "name": "fuisteis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) were",
+        "learning": "fuisteis",
+        "index": 2,
+        "example": {
+          "known": "You were right",
+          "learning": "Fuisteis correctos"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:past-mood:ind-person:3-number:plur",
+      "name": "fueron",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "past",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they were",
+        "learning": "fueron",
+        "index": 2,
+        "example": {
+          "known": "They were friends",
+          "learning": "Fueron amigos"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:sing",
+      "name": "seré",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "sing"
+      },
+      "data": {
+        "known": "I will be",
+        "learning": "seré",
+        "index": 2,
+        "example": {
+          "known": "I will be happy",
+          "learning": "Seré feliz"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:sing",
+      "name": "serás",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "sing"
+      },
+      "data": {
+        "known": "you will be",
+        "learning": "serás",
+        "index": 2,
+        "example": {
+          "known": "You will be great",
+          "learning": "Serás genial"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:sing",
+      "name": "será",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "sing"
+      },
+      "data": {
+        "known": "he/she/it will be",
+        "learning": "será",
+        "index": 2,
+        "example": {
+          "known": "It will be good",
+          "learning": "Será bueno"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:1-number:plur",
+      "name": "seremos",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "1",
+        "number": "plur"
+      },
+      "data": {
+        "known": "we will be",
+        "learning": "seremos",
+        "index": 2,
+        "example": {
+          "known": "We will be doctors",
+          "learning": "Seremos médicos"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:2-number:plur",
+      "name": "seréis",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "2",
+        "number": "plur"
+      },
+      "data": {
+        "known": "you (pl) will be",
+        "learning": "seréis",
+        "index": 2,
+        "example": {
+          "known": "You will be successful",
+          "learning": "Seréis exitosos"
+        }
+      }
+    },
+    {
+      "slug": "ser-pos:verb-verbform:fin-suffix:er-tense:fut-mood:ind-person:3-number:plur",
+      "name": "serán",
+      "annotation": {
+        "pos": "verb",
+        "lemma": "ser",
+        "verbform": "fin",
+        "suffix": "er",
+        "tense": "fut",
+        "mood": "ind",
+        "person": "3",
+        "number": "plur"
+      },
+      "data": {
+        "known": "they will be",
+        "learning": "serán",
+        "index": 2,
+        "example": {
+          "known": "They will be here",
+          "learning": "Serán aquí"
+        }
+      }
+    }
+  ]
+}

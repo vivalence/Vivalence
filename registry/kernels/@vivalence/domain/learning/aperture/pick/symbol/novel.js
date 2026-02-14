@@ -5,7 +5,7 @@ export default async function getDueSymbols(input, ctx) {
 
   const take = input.take || (batch || 0) + (stock || 0);
   const blacklist = new Blacklist(input.blacklist);
-  const scope = new Scope({ ...input.scope, user: { id: ctx.user.id } });
+  const scope = new Scope({ ...input.scope, user: ctx.user.id });
 
   const qb = ctx.daemon.entities.symbol.createQueryBuilder("symbol");
   qb.where({});
@@ -26,14 +26,14 @@ export default async function getDueSymbols(input, ctx) {
     AND play.user = ?
     AND play.nextAt < ?`;
 
-  if (scope.producer?.id) {
+  if (is.id(scope.producer)) {
     playQuery += ` AND play.producer = ?`;
-    playParams.push(scope.producer.id);
+    playParams.push(scope.producer);
   }
 
-  if (scope.generator?.id) {
-    playQuery += ` AND play.generator = ?`;
-    playParams.push(scope.generator.id);
+  if (is.id(scope.commissioner)) {
+    playQuery += ` AND play.commissioner = ?`;
+    playParams.push(scope.commissioner);
   }
 
   playQuery += `)`;

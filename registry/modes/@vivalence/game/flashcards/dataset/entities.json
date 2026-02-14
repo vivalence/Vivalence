@@ -4,33 +4,32 @@
       "slug": "feed",
       "name": "feed of flashcards",
       "description": "",
-      "traits": ["DESTINATION", "GENERATIVE"],
+      "type": "destination",
       "data": {
-        "DESTINATION": {
-          "mask": {
-            "batch": 5,
-            "stock": 15
-          }
-        },
-        "GENERATIVE": "/generate/pending"
+        "producer": "/generate/pending",
+        "mask": {
+          "batch": 2,
+          "stock": 5,
+          "seek": {}
+        }
       }
     },
     {
       "slug": "flashcards-by-literal",
       "name": "flashcard by literal",
       "description": "",
-      "traits": ["GENERATIVE"],
+      "type": "provider",
       "data": {
-        "GENERATIVE": "/generate/fromLiterals"
+        "producer": "/generate/fromLiterals"
       }
     },
     {
       "slug": "flashcards-by-symbol",
       "name": "flashcard by symbol",
       "description": "",
-      "traits": ["GENERATIVE"],
+      "type": "provider",
       "data": {
-        "GENERATIVE": "/generate/fromSymbols"
+        "producer": "/generate/fromSymbols"
       }
     }
   ]

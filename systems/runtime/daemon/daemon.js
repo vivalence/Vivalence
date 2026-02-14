@@ -10,6 +10,7 @@ export class Daemon {
   attach = null; // Url(runtime.latch)
   url = null; // Url() system level integration.
   aperture = new Aperture() //
+    .use(mw.notFound)
     .use(shards.context.attach("daemon", this));
   connection = null;
   call = null;

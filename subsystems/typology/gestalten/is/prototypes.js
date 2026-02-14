@@ -6,11 +6,7 @@
 
 import { Vector as VP } from "@vivalence/vector";
 import { prototypes } from "@vivalence/typology";
-import * as is from "./primitives.js";
-
-export function lookup(thing) {
-  return is.object(thing) && thing.type && thing.slug && thing.owner;
-}
+import * as is from "./scalars.js";
 
 export function Signature(thing) {
   return thing instanceof prototypes.Signature;

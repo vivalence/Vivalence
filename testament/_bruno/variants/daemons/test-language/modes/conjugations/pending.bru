@@ -1,0 +1,46 @@
+meta {
+  name: pending
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{CONJUGATIONS}}/generate/pending
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "batch": 1,
+    "stock": 0,
+    "seek": {
+      "symbols": {
+        "tense": "019c1d6c-3e37-74ba-bd86-c70d8d5956f6",
+        "mood": "019c1d6c-3e32-7009-a61d-fe974b4cee28",
+        "verbs": [
+          "019c38d0-37d1-746f-b577-d9394edbf141",
+          "019c38d0-38d5-765e-b02d-3cda44e63ad5",
+          "019c38d0-399f-7438-a9a6-b13e561aa82d",
+          "019c38d0-38c1-7018-b664-372bb5af05ff",
+          "019c38d0-37ea-773c-9650-046ad7b85735",
+          "019c38d0-3800-74ec-b549-d1f2657b2e0b"
+        ]
+      }
+    },
+    "scope": {
+      "intent": "019bfaf6-c3fc-722c-9ea5-7daac04e5a5b",
+      "valence": "019c42a1-4ee7-7439-a24a-51131a199d08",
+      "generator": "019c42a0-e6c4-73c2-a849-7208260dca29"
+    },
+    "blacklist": {
+      "literals": [],
+      "symbols": [],
+      "products": []
+    }
+  }
+}

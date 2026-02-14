@@ -1,12 +1,15 @@
 export * from "./env.js";
-// export * from "./error/index.js";
+export * from "./errors/index.js";
+export * as errors from "./errors/index.js";
 // export * from "./scope/index.js";
 
 export * from "./request.js";
 export * from "./response.js";
 
 export * from "./status.js";
+export * from "./scope.js";
 export * from "./connection.js";
+export * from "./blacklist.js";
 export * from "./url.js";
 export * from "./path.js";
 export * from "./pattern.js";

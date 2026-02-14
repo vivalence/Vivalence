@@ -5,7 +5,7 @@ export default async function getDueLiterals(input, ctx) {
 
   const take = input.take || (batch || 0) + (stock || 0);
   const blacklist = new Blacklist(input.blacklist);
-  const scope = new Scope({ ...input.scope, user: { id: ctx.user.id } });
+  const scope = new Scope({ ...input.scope, user: ctx.user.id });
 
   const qb = ctx.daemon.entities.literal.createQueryBuilder("literal");
   qb.where({});
@@ -36,14 +36,14 @@ export default async function getDueLiterals(input, ctx) {
 
   const playParams = [ctx.user.id, new Date(dueLt)];
 
-  if (scope.producer?.id) {
+  if (scope.producer) {
     playQuery += ` AND play.producer = ?`;
-    playParams.push(scope.producer.id);
+    playParams.push(scope.producer);
   }
 
-  if (scope.generator?.id) {
-    playQuery += ` AND play.generator = ?`;
-    playParams.push(scope.generator.id);
+  if (scope.commissioner) {
+    playQuery += ` AND play.commissioner = ?`;
+    playParams.push(scope.commissioner);
   }
 
   qb.andWhere(`EXISTS (${playQuery})`, playParams);

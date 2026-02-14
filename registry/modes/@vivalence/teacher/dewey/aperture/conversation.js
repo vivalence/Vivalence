@@ -11,44 +11,22 @@ export async function conversation(input, ctx) {
       valence:
         "Add vocabulary and sentences to the learner's knowledge base. Classifies text and stores the linguistic features. 3-6 items.",
       input: Type.Object({
-        items: Type.Array(
-          Type.String({ description: "A word, phrase, or sentence to add" }),
-          {
-            description:
-              "List of vocabulary items or sentences to classify and store",
-          },
-        ),
+        items: Type.Array(Type.String({ description: "A word, phrase, or sentence to add" }), {
+          description: "List of vocabulary items or sentences to classify and store",
+        }),
       }),
     },
     async (toolCtx) => {
       const added = [];
-
-      for (const item of toolCtx.input.items) {
-        const features = await ctx.daemon.classify.text(item);
-
-        for (const feature of features) {
-          if (!feature?.annotation) continue;
-
-          await ctx.daemon.assert.annotation(feature.annotation, [
-            "SCHEMATIC",
-            "RELATIONAL",
-            "EXISTENTIAL",
-          ]);
-
-          added.push({
-            token: feature.token?.token,
-            lemma: feature.annotation.lemma,
-            pos: feature.annotation.pos,
-          });
-        }
+      for (const text of toolCtx.input.items) {
+        added.push(ctx.daemon.call("/classify/text", { text }));
       }
-
-      return { added, count: added.length };
+      return { count: added.length, added: await Promise.all(added) };
     },
   );
 
   const agent = new Agent("dewey")
-    .withBrain(ctx.daemon.hallucinator)
+    .withBrain(ctx.mode.brain)
     .withTools(vector)
     .withInput(Type.Object({ message: Type.String() }))
     .withContext(

@@ -3,6 +3,7 @@ import { View, Path, Url, is } from "@vivalence/typology";
 import { svelte } from "./view-bundler.js";
 
 export * from "./traits/productive.js";
+export * from "./traits/dataset.js";
 
 export const VIEWABLE = async (mode, daemon) => {
   mode.cake.view.withBundler(svelte);
@@ -20,20 +21,15 @@ export const VALENTIC = async (mode, daemon) => {
 };
 
 export const CHAOSMONKEY = (mode, daemon) => {
+  mode.brain = daemon.hallucinator;
   mode.aperture.use(async (ctx, next) => {
-    ctx.hallucinate = daemon.brain;
+    // ctx.hallucinate = daemon.brain;
     await next();
   });
   // mode.aperture.use(inject(runtime.services.brain));
 };
 
-// const DATASET = async (mode, daemon) => {
-//   // console.log({ mode });
-//   // for (const [type, dataset] of Object.entries(mode.dataset?.entities)) {console.log({ type, dataset });}
-//   // await daemon.entities.em.flush();
-// };
-
-// TOPOLOGICAL: async (mode, daemon) => {
+// export const TOPOGRAPHICAL = async (mode, daemon) => {
 //   console.log("skipping topological trait.");
 //   return;
 //   // await runtime.entities.subject.nativeDelete({});
@@ -48,7 +44,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
 //   // console.log(await runtime.ontology.dimension.byBranch(["text", "*"]));
 
 //   await daemon.entities.em.flush();
-// },
+// }
 
 // SESSIONED: async (mode, daemon) => {},
 //SESSIONED: (mode)=> {mode.aperture.use() mode.aperture.open('/')},
