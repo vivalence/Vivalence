@@ -7,6 +7,8 @@ export * as shards from "./shard/index.js";
 export * as belt from "./belt/index.js";
 export * from "./belt/index.js";
 
+// export * as check from "./belt/check/index.js"; // helpers for constraint testing schematic&relational; aka @shared/validators
+
 // @beef
 // missing some coherent and formulated patterns around
 // import order, dependencies

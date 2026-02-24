@@ -1,4 +1,4 @@
-import Mustache from "mustache";
+// import Mustache from "mustache";
 import { EvalPrompt } from "./lib/prompts.js";
 
 export default async function generate(inputs, ctx) {

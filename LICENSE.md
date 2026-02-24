@@ -38,12 +38,13 @@ You must not move, change, disable, or circumvent the license key functionality 
 
 <!-- i need to add to the licence that you cant build a sync service, or a store, or a payment system, for vivalence. -->
 ### Limitations on Commercial Use
-You must not use the Software for any Commercial Use without a separate license agreement. You must not use the Software to create a competing product or service, including but not limited to a syncronization service, a store, or a payment system, for Vivalence.
-
+You must not use the Software for any Institutional or Commercial Use without a separate license agreement. You must not use the Software to create any competing product or service, including but not limited to compute, storage, hosting, runtime, api, backup, syncronization, payment integration or facilitation - be they fiat, barter or crypto, paas, saas, or any service, store, or marketplace for vivalence/viva.
 
 ## Redistribution
-The Terms and Conditions apply to all copies, modifications and derivatives of the Software.
-If you redistribute any copies, modifications or derivatives of the Software, you must include a copy of or a link to these Terms and Conditions and not remove any copyright or other proprietary notices provided in or with the Software.
+The Terms and Conditions apply to all copies, modifications, reimplementations, and derivatives of the Software.
+If you redistribute any copies, modifications or derivatives of the Software, you must include a copy of or a link to these Terms and Conditions and not remove any copyright or other proprietary notices provided in or with the Software. 
+<!-- should ownership status be adressed directly or is that presumed? -->
+
 
 ## Patents
 To the extent your use for a Permitted Purpose would necessarily infringe our patents, the license grant above includes a license under our patents. If you make a claim against any party that the Software or Licensor infringes or contributes to the infringement of any patent, then your license and patent license to the Software ends immediately.

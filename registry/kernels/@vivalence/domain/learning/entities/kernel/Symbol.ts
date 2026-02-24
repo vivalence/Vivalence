@@ -1,24 +1,19 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
 export enum SymbolTraitsEnum {
-  ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
-  STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
+  // ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
+  // STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
+  // AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
   LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
   COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
-  AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
 }
 
 export class SymbolEntity extends maps.kernel.symbol.entity {
+  traits: SymbolTraitsEnum[] & Opt = [];
   plays = new Collection<PlayEntity>(this);
   memories = new Collection<MemoryEntity>(this);
 }
@@ -30,6 +25,13 @@ export const SymbolSchema = new EntitySchema({
   tableName: "Symbol",
   name: "Symbol",
   properties: {
+    traits: {
+      items: () => SymbolTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+      type: types.json,
+    },
     plays: {
       kind: "1:m",
       entity: () => PlayEntity,
@@ -45,6 +47,7 @@ export const SymbolSchema = new EntitySchema({
 
 export default {
   type: "symbol",
+  traits: SymbolTraitsEnum,
   schema: SymbolSchema,
   entity: SymbolEntity,
   // repository: TopographyRepository,

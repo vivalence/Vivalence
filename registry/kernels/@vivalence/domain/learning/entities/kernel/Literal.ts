@@ -1,18 +1,39 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
+export enum LiteralTraitsEnum {
+  TRANSLATED = "TRANSLATED",
+  EXEMPLIFIED = "EXEMPLIFIED",
+  SORTED = "SORTED",
+}
+
 export class LiteralEntity extends maps.kernel.literal.entity {
+  traits: LiteralTraitsEnum[] & Opt = [];
   memories = new Collection<MemoryEntity>(this);
   plays = new Collection<PlayEntity>(this);
+
+  get translation() {
+    return this.data.TRANSLATED;
+  }
+  set translation(value) {
+    this.data = { ...this.data, TRANSLATED: value };
+    if (!this.traits.includes(LiteralTraitsEnum.TRANSLATED)) {
+      this.traits.push(LiteralTraitsEnum.TRANSLATED);
+    }
+  }
+
+  get examples() {
+    return this.data.EXEMPLIFIED;
+  }
+  set examples(value) {
+    this.data = { ...this.data, EXEMPLIFIED: value };
+    if (!this.traits.includes(LiteralTraitsEnum.EXEMPLIFIED)) {
+      this.traits.push(LiteralTraitsEnum.EXEMPLIFIED);
+    }
+  }
 }
 
 export const LiteralSchema = new EntitySchema({
@@ -21,6 +42,14 @@ export const LiteralSchema = new EntitySchema({
   tableName: "Literal",
   name: "Literal",
   properties: {
+    traits: {
+      items: () => LiteralTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+      type: types.json,
+    },
+
     memories: {
       kind: "1:m",
       entity: () => MemoryEntity,
@@ -36,6 +65,7 @@ export const LiteralSchema = new EntitySchema({
 
 export default {
   type: "literal",
+  traits: LiteralTraitsEnum,
   schema: LiteralSchema,
   entity: LiteralEntity,
   // gestalt: gestalt,

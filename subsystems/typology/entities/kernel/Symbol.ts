@@ -1,10 +1,4 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { Cascade, types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { DataSchema, DataEntity } from "../index.ts";
 import { v7 } from "uuid";
 
@@ -13,9 +7,9 @@ import { ProductEntity, LiteralEntity } from "../index.ts";
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
   STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
-  LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
-  COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
   AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
+  // LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
+  // COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
 }
 
 export class SymbolEntity extends DataEntity {
@@ -56,6 +50,7 @@ export const SymbolSchema = new EntitySchema({
       kind: "m:n",
       entity: () => LiteralEntity,
       inversedBy: (literal) => literal.symbols,
+      cascade: [Cascade.REMOVE],
     },
 
     ancestor: {
@@ -79,6 +74,7 @@ export const SymbolSchema = new EntitySchema({
 
 export default {
   type: "symbol",
+  traits: SymbolTraitsEnum,
   schema: SymbolSchema,
   entity: SymbolEntity,
   // repository: TopographyRepository,

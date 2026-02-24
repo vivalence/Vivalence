@@ -15,9 +15,8 @@ async function required(issue, ctx) {
   const symbolQuery = {
     data: {
       ONTOLOGICAL: {
-        branch: constraint.branch || null,
-        leaf:
-          constraint.leaf || literal.annotation?.[constraint.branch] || null,
+        branch: constraint.branch || null, // leads to * branch wrongfully assigned.
+        leaf: constraint.leaf || literal.annotation?.[constraint.branch] || null,
       },
     },
   };
@@ -43,7 +42,6 @@ async function required(issue, ctx) {
     if (literal.id) literalQuery.id = literal.id;
     if (literal.slug) literalQuery.slug = literal.slug;
     if (literal.annotation) literalQuery.annotation = literal.annotation;
-    // console.json({ literalQuery });
     literal = await ctx.daemon.entities.literal.findOne(literalQuery);
   }
 
@@ -62,6 +60,13 @@ async function required(issue, ctx) {
 
 export default {
   handler: required,
+  target: "literal",
+  scope: ["symbols"],
   violation: "required",
-  path: ["literal", "symbols"],
 };
+
+// export default {
+//   handler: required,
+//   violation: "required",
+//   path: ["literal", "symbols"],
+// };

@@ -21,9 +21,9 @@ export async function core(die) {
   });
 
   die.kernel = {
-    ontology: die.register.kernel.find((m) => m.manifest.type === "ontology"),
-    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
+    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
+    ontology: die.register.kernel.filter((m) => m.manifest.type === "ontology"),
   };
 
   die.variant.traits = {
@@ -32,10 +32,7 @@ export async function core(die) {
     ...(die.kernel.domain.traits || {}),
   };
 
-  die.variant.modes = [
-    ...kernelmodes.modes,
-    ...(die.kernel.domain.modes || []),
-  ];
+  die.variant.modes = [...kernelmodes.modes, ...(die.kernel.domain.modes || [])];
 
   die.variant.entities = [
     ...maps.sets.daemon,
@@ -91,10 +88,7 @@ export async function authority(daemonDie) {
       ctx.daemon.connection = daemonDie.connection.clone(); //
       ctx.daemon.connection //
         .use(async (context, next) => {
-          context.request.headers.set(
-            "authorization",
-            ctx.request.headers.get("authorization"),
-          );
+          context.request.headers.set("authorization", ctx.request.headers.get("authorization"));
           await next();
         });
       ctx.daemon.call = ctx.daemon.connection.call.bind(ctx.daemon.connection);
@@ -110,10 +104,7 @@ export async function services(daemonDie) {
 }
 
 export async function modes(daemonDie) {
-  const registeredModes = [
-    ...daemonDie.register.kernel,
-    ...daemonDie.register.modes,
-  ]
+  const registeredModes = [...daemonDie.register.kernel, ...daemonDie.register.modes]
     .map((register) => {
       const variant = daemonDie.variant.modes //
         .find((v) => register.manifest.type === v.type);
@@ -171,21 +162,18 @@ export async function twitch(die) {
       .map((p) => p.signature)
       .map((s) => die.kernel.domain.entities.map[s].entity);
 
-    const subscriber = new compiler.Subscriber(
-      subscriptions,
-      async (signal, event) => {
-        try {
-          const [effect, apply] = controller //
-            .traverse(die.good.entities.on, signal);
-          const context = { event, daemon: die.good };
-          context.daemon.entities.em = context.daemon.entities.em.fork();
-          await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
-          await context.daemon.entities.em.flush();
-        } catch (error) {
-          if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
-        }
-      },
-    );
+    const subscriber = new compiler.Subscriber(subscriptions, async (signal, event) => {
+      try {
+        const [effect, apply] = controller //
+          .traverse(die.good.entities.on, signal);
+        const context = { event, daemon: die.good };
+        context.daemon.entities.em = context.daemon.entities.em.fork();
+        await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+        await context.daemon.entities.em.flush();
+      } catch (error) {
+        if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
+      }
+    });
 
     die.good.entities.em
       .getEventManager() //

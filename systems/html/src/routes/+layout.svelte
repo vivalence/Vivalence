@@ -38,5 +38,4 @@
     {@render children()}
   </Box>
 
-  <!-- <Box class="t-modeline"> <Modeline> {#snippet left()} {#if $isIdentified} <Text>{$identity.slug}</Text> {:else} <Text>not identified</Text> {/if} {/snippet} </Modeline> </Box> -->
 </Shelve>

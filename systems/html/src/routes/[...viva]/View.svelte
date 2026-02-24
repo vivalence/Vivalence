@@ -51,16 +51,20 @@
 </script>
 
 <Shelve>
+  <!-- here we render one of many phases. -->
   <Box>
     {#key $activeId}
-      <Text>{$activeId}</Text>
       {#if $active?.view?.Component}
         <svelte:component this={$active.view.Component} {...$active.context} />
       {:else if $active?.view?.url}
         <div id="buffer-container" class="bsp-node" bind:this={dom}></div>
       {:else}
         <!-- <Loader time={{ minimum: 5000 }} load={() => stall.pull()} /> -->
+      <Text>{$activeId}</Text>
+      <Text>no state</Text>
       {/if}
     {/key}
   </Box>
+  <!-- <Box class="t-modeline"> <Modeline> {#snippet left()} {#if $isIdentified} <Text>{$identity.slug}</Text> {:else} <Text>not identified</Text> {/if} {/snippet} </Modeline> </Box> -->
+
 </Shelve>

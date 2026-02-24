@@ -14,6 +14,7 @@ export class SessionEntity extends BaseEntity {
 
   intent: Rel<IntentEntity>;
   products = new Collection<ProductEntity>(this);
+  //
 
   state: any & Opt = {};
   history: any & Opt = {};

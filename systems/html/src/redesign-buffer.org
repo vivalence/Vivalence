@@ -1,0 +1,2114 @@
+:PROPERTIES:
+:GPTEL_MODEL: claude-opus-4-6
+:GPTEL_BACKEND: anthropic-thinking
+:GPTEL_SYSTEM: You are a large language model living in Emacs and a helpful assistant. Respond concisely.
+:GPTEL_BOUNDS: ((response (4467 6491) (6509 14490) (14505 14891) (15935 15972) (15976 16179) (16390 18883) (18901 23509) (23783 27131) (27149 30857) (31014 32048) (32066 32997) (33672 44376) (44394 75362)))
+:END:
+i want to refactor my buffer setup.
+
+the buffer will from now on be a type of container. like a tab.
+the buffer can have phases:
+stream: one view at a time - views resolve, stall is populated. flashcards as example.
+chat: ongoing conversation - embedds views into chatflow
+feed: twitter/instagram style feed of views.
+book: jupyter / gitbooks type interfaces. text and views intermingled.
+etc. a lot more with time. i'd include something tinder like, tiktok, fullscreen (one view without menu or bar). or canvas for visual work or guis.
+
+modes have traits. one trait is languaged. another is intentional.
+there are many more but those matter for us because they interact on buffer level.
+languaged means that the mode implements some standard llm conversation paradigma-complient abstraction that the mode and buffer use to facilitate different styles of interactions.
+one style of interaction is the conversationn as we have it in the chat phase. but other styles exist. thats why we have our own abstraction around the llm standard. so we can abstract beyond conversation on buffer level. integrate mode views, assets, documents, text, xyz. on the other side the llm provider side still concerns itself with hallucinations as the primary abstraction. 
+another style would be needed in the feed phase. the mode's languaged trait might still be applicative. just the interaction is probably ephemeral. in feed phase, when the mode keeps spawning state, we might still want to exchange messages, or maybe i want to just send commands, or whatever. feed also can have language based interactions.
+and probably most other phases will find some way or other to facilitate language interaction.
+
+
+so.
+buffer is a container.
+buffer has state:
+    phase (enum)
+    perspective (path)
+    intent (entity)
+    session (entity)
+    stall (state | null, state[])
+
+now.
+- different phases render differently. how do i facilitate that? there is allways the modebar at the bottom. 
+
+- if the session holds data like conversation, and the stall holds state that i want to have interjected between messages, or scrollable like a feed, or one at a time, or or or ... then i need some pretty smart way to construct my buffer. hmmm.
+
+- the view should be a re-usable component thats basically just handed state. all the rest is managed on buffer level. this should allow multiple views from the same stall to be rendered.
+  
+- buildpipeline for buffer / mode integration. we might have multiple traits on the levels of mode, session, maybe even intent, and i want it to be as straightforward to compose and extend as daemon or mode are.
+
+
+* task
+my buffer system needs refactoring.
+i want to use phased interactions with different layouts and means.
+i want more control over the perspective invocation. buffer owns that.
+i want some idea of how my buffers' conversation/feed/tiktok data paradigma looks like. and how the session is co-populated with the modes languaged trait.
+
+any chat data should live in the session. so should probably most of the book, or at least the text parts. if we figure out how the feed or swipe phase language instructions will work - great.
+so.
+buffer boots. usually with phase and perspective set.
+perspective points at mode. either mode or valence.
+mode might have traits. languaged expects mode.converse.[modality] or some interface. this is implemented by having the mode call an aperture its exposed. some standard http interface for llm conversations.
+conversation is stored in session. if state is generated, its interjected into the session. or what? somehow from the combination of the languaged trait and the invocation of perspective i expect to gain some magical data gestalt that somehow lives in session and renders product as state.
+hmmm. so. i think the session makes sense as the place to hold conversation and feed data. but what type and distribution of de-normalization we need and what looks how is beyond me. i need your ideas.
+
+propose a refactoring. what does good look like? where do i need to make a decision?
+
+
+
+
+#+begin_reasoning
+Let me analyze the current system and the desired refactoring carefully.
+
+Current state:
+- Buffer is a simple container with view + context + hooks
+- Stall manages a queue of buffers with pull/next mechanics
+- Perspective routes paths to mode/valence and creates buffers
+- Views are rendered one at a time (stream-only)
+- No phase concept, no session-level conversation storage
+- Mode traits like CHAOSMONKEY give brain access but no standard conversation interface
+
+Desired state:
+- Buffer becomes a phased container (stream, chat, feed, book, etc.)
+- Buffer owns perspective invocation
+- Session stores conversation + interjected state
+- Languaged trait = standard conversation interface on mode
+
+
+- Multiple views renderable from same stall with composable trait pipelines for buffer/mode integration
+
+Now I'm thinking through the core architectural tensions. The session needs to act as both a data store for conversation history and a place to track product interjections. The phase determines how we render things, but the underlying data shape shifts depending on which phase we're in. The Languaged trait needs to expose a consistent interface across all these phases, and the stall's access patterns need to adapt—chat and feed don't work like a linear queue the way stream does.
+
+I think the key is treating the session as a canonical timeline of entries, where each entry is either a message, a state reference, or a signal. Then the phase just determines how we render that timeline. The mode's Languaged trait would expose a standard converse interface that returns a consistent response shape regardless of what the mode does internally.
+
+Each phase becomes a Svelte component that takes the session timeline, stall, and controls, then decides what to display. Before I finalize this, I need to nail down the session entry schema, the trait interface contract, how products get interjected into the timeline, what the phase component contract looks like, and the buffer's lifecycle from boot through rendering.
+#+end_reasoning
+
+Here's my proposal. I'll separate what I think is clear from where you need to decide.
+
+** Core model
+
+*Session becomes a timeline.* The session entity's =state= field holds an ordered list of entries. Every phase reads from and writes to this same timeline — phases just render it differently.
+
+#+begin_src js
+// session.state.timeline = [...]
+// each entry:
+{ id, type, timestamp, ...payload }
+
+// types:
+{ type: "message", role: "user"|"agent"|"system", content: "..." }
+{ type: "product", productId: "...", producer: "...", status: "..." }
+{ type: "signal", signal: "PHASE_CHANGE"|"EXHAUSTED"|"..." }
+#+end_src
+
+Stream phase scans for products and shows one at a time. Chat phase renders the full timeline as conversation with embedded views. Feed phase renders products in a scrollable column. Book phase renders everything including text blocks. The timeline is the universal data shape.
+
+*Buffer becomes the container that owns lifecycle:*
+
+#+begin_src js
+export class Buffer {
+  id = random.id();
+  phase = "stream";        // enum
+  perspective = null;       // Signal (path)
+  intent = null;            // entity ref
+  session = null;           // entity ref (holds timeline)
+  stall = new Stall();      // still manages product queue for stream/feed
+  mode = null;              // resolved mode
+  daemon = null;            // resolved daemon
+  converse = null;          // languaged interface (if trait present)
+  
+  // phase-specific config
+  config = {};
+}
+#+end_src
+
+Buffer boots from perspective. Perspective resolution populates daemon, mode, intent, session. Then trait resolution wires up capabilities like =converse=.
+
+** Languaged trait
+
+The mode exposes a standard aperture:
+
+#+begin_src 
+POST /converse   { message, session, modality? }
+#+end_src
+
+Response is always:
+
+#+begin_src js
+{
+  replies: [
+    { type: "message", role: "agent", content: "..." },
+    { type: "product", product: { data, scope } },
+    { type: "message", role: "agent", content: "here's what I made" },
+  ]
+}
+#+end_src
+
+The buffer appends these to =session.state.timeline= and flushes. The mode never writes to the timeline directly — it returns entries, the buffer persists them. This keeps the mode stateless regarding conversation.
+
+On the mode side, LANGUAGED wires this up during daemon resolution:
+
+#+begin_src js
+// traitmap
+export const LANGUAGED = async (mode, daemon) => {
+  // mode.cake must expose a converse handler or aperture
+  // wired same as CHAOSMONKEY gives brain
+  mode.brain = daemon.hallucinator;
+  // standard aperture endpoint
+  mode.aperture.open("/converse", mode.cake.converse || defaultConverse(mode));
+};
+#+end_src
+
+On the client side, buffer resolution checks for the trait:
+
+#+begin_src js
+if (mode.implements("LANGUAGED")) {
+  buffer.converse = async (message) => {
+    const response = await mode.connection.call("/converse", {
+      message,
+      session: buffer.session.id,
+    });
+    // append to timeline
+    buffer.session.state.timeline.push(
+      { id: id(), type: "message", role: "user", content: message, timestamp: Date.now() },
+      ...response.replies.map(r => ({ ...r, id: id(), timestamp: Date.now() }))
+    );
+    // if products came back, also push to stall
+    for (const reply of response.replies) {
+      if (reply.type === "product") {
+        buffer.stall.push(makeState(reply.product, buffer));
+      }
+    }
+    // persist session
+    await buffer.daemon.connection.call("/userspace/entities/session/update", {
+      id: buffer.session.id,
+      state: buffer.session.state,
+    });
+    return response;
+  };
+}
+#+end_src
+
+** Phases as components
+
+Each phase is a Svelte component with a fixed contract:
+
+#+begin_src svelte
+<!-- Phase contract -->
+<script>
+  let { buffer, timeline, stall, converse } = $props();
+</script>
+#+end_src
+
+The View component selects phase:
+
+#+begin_src svelte
+{#if buffer.phase === "stream"}
+  <StreamPhase {buffer} {timeline} {stall} {converse} />
+{:else if buffer.phase === "chat"}
+  <ChatPhase {buffer} {timeline} {stall} {converse} />
+{:else if buffer.phase === "feed"}
+  <FeedPhase {buffer} {timeline} {stall} {converse} />
+{/if}
+#+end_src
+
+*StreamPhase* — what you have now. Shows =stall.$active=, next button. If =converse= exists, maybe a collapsed input bar.
+
+*ChatPhase* — renders timeline as messages. Product entries render as embedded view components. Input bar at bottom calls =buffer.converse()=. Stall products get auto-appended to timeline.
+
+*FeedPhase* — renders product entries from timeline in a scrollable column. Each product is a view component. Optional ephemeral input (converse) that floats. Pull-to-refresh triggers stall.pull.
+
+The view component (mode's svelte bundle) is always just handed ={ product, mode, daemon }= — it doesn't know what phase it's in. The phase wrapper handles layout, scrolling, conversation chrome.
+
+** Buffer lifecycle
+
+#+begin_src 
+1. perspective resolution
+   path → daemon, mode, valence (same as now)
+
+2. intent resolution  
+   find or create intent (same as now)
+
+3. session resolution
+   find active session for intent, or create one
+   session.state.timeline ??= []
+
+4. trait resolution
+   if LANGUAGED → wire buffer.converse
+   if PRODUCTIVE → wire stall.pull to valence.produce
+   (compose these — a mode can be both)
+
+5. phase selection
+   default from mode config, or from URL, or from session state
+   
+6. render
+   mount phase component with buffer
+#+end_src
+
+Steps 1-5 happen in perspective.js (or a new =boot.js=). This replaces the current inline logic.
+
+** Decisions you need to make
+
+*1. Where does the timeline live physically?*
+
+Option A: =session.state.timeline= — simple, one entity, one field. Gets large.
+Option B: Separate =TimelineEntry= entity with =session= FK. Queryable, paginated. More work.
+
+I'd start with A and migrate to B when size matters.
+
+*2. Who controls phase transitions?*
+
+Option A: User only (click a tab/selector in modebar).
+Option B: Mode can request phase change via signal in converse response.
+Option C: Both — mode suggests, buffer applies.
+
+I'd do C. Mode returns ={ type: "signal", signal: "SUGGEST_PHASE", phase: "chat" }= and buffer decides whether to honor it.
+
+*3. How do products reference back into the timeline?*
+
+When stream phase calls =stall.next()=, should it write a timeline entry? If yes, then switching to chat phase later shows the history. If no, stream is ephemeral.
+
+I'd write it. Makes phase switching meaningful.
+
+*4. Stall vs timeline as source of truth for products.*
+
+In stream phase, stall drives rendering. In chat/feed, timeline drives rendering. Should stall always sync to timeline, or only in certain phases?
+
+I'd make stall always append to timeline on push. Stall becomes a "ready queue" view over timeline's product entries. Timeline is source of truth. Stall is the cursor.
+
+#+begin_src js
+// stall.push now also writes timeline
+push(state) {
+  this.buffer.session.state.timeline.push({
+    id: state.id,
+    type: "product", 
+    productId: state.context.product.id,
+    timestamp: Date.now(),
+  });
+  // ... existing queue logic
+}
+#+end_src
+
+*5. Modebar content per phase.*
+
+Does each phase declare what goes in the modebar, or is modebar phase-agnostic? I'd say phase components export a =modebar= snippet or slot content. Keep it co-located.
+
+** What to build first
+
+1. Add =phase= to buffer, default ="stream"=. Current behavior is StreamPhase.
+2. Move perspective resolution into a =boot(pathname)= function that returns a populated Buffer.
+3. Add session creation/loading to boot (timeline init).
+4. Build ChatPhase — this forces the timeline model and converse interface.
+5. Add LANGUAGED trait to dewey (it's already close with CHAOSMONKEY + conversation aperture).
+6. Wire stall writes to timeline.
+7. Feed phase later.
+
+The refactoring is mostly additive. The breaking change is Buffer gaining =phase= and =session=, and the View component dispatching to phase components instead of directly mounting the view bundle. Everything else layers on.
+
+*** 
+* notes
+{ type: "message", role: "user"|"agent"|"system", content: "..." } // give me details on tool usage implementation, thinking, streaming. i want to understand this in depth. client and server side. do oak based router and aisdk.
+{ type: "product", productId: "...", producer: "...", status: "..." } // should be type: 'modal' 
+{ type: "signal", signal: "PHASE_CHANGE"|"EXHAUSTED"|"..." }
+other types: video, audio, document, ???
+
+! what you call timeline i call Stall({})
+i think youre trying to both alive, when really they are evolutions of each other.
+the problem i am running into mentally is that the type=message are created by mode llm based trait, while the type=modal are pulled via perspective.
+but. but but but. a: the conversation is a property of the session and should be stored in it. b: the perspective should also be able to add messages/ to the conversation.
+soooo. yeah.
+somewhere shits not clean.
+i dont want duplicate data. should i actually pull the modal states into the session?
+``` this is an example of how i like to construct my types. in this case a word.
+        type: "word",
+        slug: "gender.masc~lemma.gato~number.sing~pos.noun",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        data: {
+          TRANSLATED: { known: "cat", learning: "gato" },
+          EXEMPLIFIED: { known: "The cat is small", learning: "O gato é pequeno" },
+        },
+```
+
+use the same pattern for the session type.
+
+*2. Who controls phase transitions?* C.
+
+*4. Stall vs timeline as source of truth for products.*
+In stream phase, stall drives rendering. In chat/feed, timeline drives rendering. Should stall always sync to timeline, or only in certain phases?
+--- so yeah thats the question. id like something clean. something coherent.
+your current formulatino makes no sense.
+
+what am i trying to do? what makes sense? what has worked in the past?
+
+
+#+begin_reasoning
+The user is asking me to think through the fundamental data model question: what is the source of truth for the buffer's content, and how do different types of entries (messages from LLM, products from perspective/production) coexist cleanly.
+
+Let me think about what they actually need:
+
+1. A buffer renders things in sequence. Sometimes those things are products (modal views like flashcards), sometimes they're messages (from conversation), sometimes they're signals.
+
+2. In stream phase, you pull products and show them one at a time. That's the current stall.
+
+3. In chat phase, you have a conversation where products might be interjected between messages.
+
+4. In feed phase, you scroll through a mix of content.
+   
+The real issue is that products flow from the production pipeline while messages come from conversation, but they need to merge into one ordered sequence. The Stall pattern with its queue and active state works well for streaming, and the user's insight is key: the timeline and the Stall should be the same thing, not separate structures. So the Stall becomes the source of truth, and the Session holds its entries.
+
+I'm reconsidering the architecture: the Session stores the persisted ordered list of entries, while the Stall is the runtime cursor over that data—managing which entry is active, what's queued, and how to pull new ones. Both products and messages get added to the Session's state and the Stall's queue, and on boot the Stall rehydrates from the Session. The phase then determines how those entries render: in stream mode, the Stall shows one entry at a time with next() advancing; in chat, all entries scroll as a conversation; in feed, products scroll while messages might collapse. The Session is the persistent source of truth, and the Stall is just the runtime view.
+
+Defining the entry structure... I see the user wants me to avoid introducing a new "timeline" concept—the Stall already serves that purpose, it just needs to persist to session state. The refactoring is really about making Stall entries typed and syncing them to session, so session becomes the persistence layer while Stall handles the runtime behavior.
+
+Now looking at the next thinking: the phase determines how stall entries render, both perspective and converse write to the same stall, and the pull mechanism for products still works while converse also contributes. The stall persists everything to session—it's an evolution of the existing pattern, not a complete redesign.
+#+end_reasoning
+
+Right. Let me think from scratch.
+
+What works today: Stall holds an ordered queue of things. You pull, push, advance. It's the runtime truth of "what's in front of the user."
+
+What's missing: messages have no home. Products vanish after DONE. Phase changes have nowhere to live. Session exists but is empty.
+
+The clean answer: *session is persisted stall.* One source of truth, two aspects. Session is the disk. Stall is the runtime cursor.
+
+#+begin_src 
+session.state.entries = [...]   // persisted, ordered, typed
+stall = runtime view over it    // cursor, queue mechanics, pull
+#+end_src
+
+Both perspective (pulls products) and converse (generates messages) write to the same place. No duplication. No parallel structures.
+
+The session entry shape, using your pattern:
+
+#+begin_src js
+// base: every entry
+{ id, type, timestamp, traits: [], data: {} }
+
+// type: "message"
+{
+  type: "message",
+  traits: ["USER"],
+  data: { USER: { content: "let's practice verbs" } }
+}
+
+{
+  type: "message",
+  traits: ["AGENT", "THINKING"],
+  data: {
+    AGENT: { content: "here are some conjugations" },
+    THINKING: { reasoning: "user wants verb practice, selecting present tense" }
+  }
+}
+
+// type: "modal" — reference to product entity
+{
+  type: "modal",
+  traits: ["PRODUCT"],
+  data: { PRODUCT: { id: "019c4efb-...", producer: "019af50e-..." } }
+}
+
+// type: "signal"
+{
+  type: "signal",
+  traits: ["PHASE_CHANGE"],
+  data: { PHASE_CHANGE: { from: "chat", to: "stream" } }
+}
+
+// type: "audio", "video", "document" — same pattern
+{
+  type: "audio",
+  traits: ["PRONUNCIATION", "ASSET"],
+  data: {
+    ASSET: { url: "/assets/gato.mp3", mime: "audio/mpeg" },
+    PRONUNCIATION: { literal: "019c39b4-..." }
+  }
+}
+#+end_src
+
+Now the stall evolution. Currently stall holds =Buffer= objects. Refactored, stall holds entries and resolves them for rendering:
+
+#+begin_src js
+export class Stall {
+  $entries = atom([]);     // typed entries (the truth)
+  $cursor = atom(0);       // where we are (stream uses this)
+  $active = computed(...)   // derived from entries + cursor + phase
+  
+  session = null;           // backref for persistence
+  
+  // both of these write entries
+  append(entry) { ... }    // converse, signals, manual
+  pull()        { ... }    // perspective/production → modal entries
+  
+  // phase-specific navigation
+  next()        { ... }    // stream: advance cursor
+  
+  // sync
+  async flush() {
+    // persist entries to session.state.entries
+    await daemon.connection.call("/userspace/entities/session/update", {
+      id: this.session.id,
+      state: { entries: this.$entries.get() }
+    });
+  }
+}
+#+end_src
+
+Converse writes to stall:
+
+#+begin_src js
+buffer.converse = async (message) => {
+  // user message
+  stall.append({ type: "message", traits: ["USER"], data: { USER: { content: message } } });
+  
+  // call mode
+  const response = await mode.connection.call("/converse", {
+    message,
+    session: session.id,
+    entries: stall.$entries.get()  // mode sees full context
+  });
+  
+  // mode returns entries, stall appends them
+  for (const entry of response.entries) {
+    stall.append(entry);
+  }
+  
+  stall.flush();
+};
+#+end_src
+
+Perspective/production writes to stall:
+
+#+begin_src js
+// same as today, but products become entries
+const products = await valence.produce({ scope, blacklist });
+for (const product of products) {
+  stall.append({
+    type: "modal",
+    traits: ["PRODUCT"],
+    data: { PRODUCT: { id: product.id, producer: product.mode.id } }
+  });
+}
+stall.flush();
+#+end_src
+
+Then phases just render =$entries= differently:
+
+- *stream*: show entry at =$cursor=, next() increments cursor
+- *chat*: render all entries top to bottom, messages as bubbles, modals as embedded views
+- *feed*: render modal entries as cards, messages collapsed or as headers between groups
+- *book*: render everything with text entries as paragraphs, modals as figures
+
+The view component (flashcard, conjugation, etc.) still just gets ={ product, mode, daemon }=. It doesn't know about entries or phases. The phase component resolves a modal entry → product entity → view url → mounted component.
+
+*Where you need to decide:*
+
+Should the mode receive the full entry list in =/converse=, or just the messages? Full list means the mode can reason about what products the user has seen. Just messages keeps it simple and smaller. I'd send full list but the mode can ignore what it doesn't need.
+
+And: on rehydration (page reload), do you rebuild stall from =session.state.entries=? If yes, modal entries need their product entities re-fetched. That's the cost of reference-not-copy. But it's clean.
+
+*** 
+is there any reason to keep this dichotomy?
+are there radically different appraoches that might make sense for me?
+like dedicated State entities that hold message, asset, modality, etc as entities in my sql database?
+related to session, ordered.
+
+
+
+#+begin_reasoning
+The user is asking whether instead of storing entries as JSON in session.state, they should normalize everything into proper database entities. Let me think about this seriously.
+
+Current approach: session.state.entries = [...] — a JSON blob of ordered entries stored in the session entity's state field.
+
+Alternative: Each entry becomes its own entity in the database, with a session FK and an order/position field.
+
+Let me think about what they already have:
+- They have an entity system with SQL tables
+- Products are already entities
+- Sessions are already entities
+- They have a pattern of entities with state JSON fields
+
+The question is: should entries be entities too?
+
+Arguments for entities:
+- Queryable: "show me all messages from this session", "find all products user has seen"
+
+
+- Pagination: don't load 500 entries at once
+- References: products are already entities, messages could be too, no duplication
+- Rehydration: each entry is independently fetchable
+- Cross-session: "find all sessions where user saw product X"
+- Fits their existing entity pattern
+- The session.state JSON blob will grow unbounded
+
+Arguments against:
+- More complexity
+- More queries
+- Ordering is harder in SQL (need position/order field or timestamps)
+- Bulk operations (loading a full session) require joins or multiple queries
+
+The real tension here is that entries reference products which are already entities, so storing them as JSON duplicates data and breaks the referential integrity they've already established elsewhere.
+
+What if I restructure this more fundamentally: make each entry its own entity with a session foreign key and position field, where the entry type determines what kind of data it holds. Products stay as products and entries just reference them, while messages become entries with their content stored in a data column. This eliminates the blob entirely—loading a session just means fetching ordered entries, adding a message is a single insert, and pagination becomes trivial.
+
+Their entity system already supports this pattern with id, type, scope, and state fields, so I could use scope to store the session ID and position, then query and order by those. Everything in the stall becomes an entity reference, and the session only needs to track entry order.
+
+This approach eliminates the JSON blob growth, data duplication, rehydration complexity, and sync issues—each append is just a simple insert rather than rewriting the whole session. The tradeoff is more database operations, but they're straightforward queries and inserts. The real insight is that if products are already entities, messages should be too, making the session a container that groups entries and the stall a runtime query result.
+
+Now I'm considering whether to reuse their existing State concept or create a new entity type. I think the cleanest solution is a single Entry entity with session reference, position, type, traits, and data fields—products stay as products but entries of type "modal" reference them, messages become entries with content in the data field, and the session becomes just a grouping entity without the state.entries blob. On boot, the stall loads entries from the database and appends by inserting new rows. This is the fundamentally different approach they're looking for, and it actually solves their problems better.
+#+end_reasoning
+
+Yes. Kill the dichotomy. Make entries entities.
+
+You already have products as entities. Messages living as JSON inside a session blob while products live as proper entities is the source of the smell. Everything in the stall should be the same kind of thing.
+
+#+begin_src js
+// entity type: "entry"
+{
+  state: {
+    type: "message",
+    traits: ["USER"],
+    data: { USER: { content: "let's practice verbs" } }
+  }
+}
+
+{
+  state: {
+    type: "mcp",
+    traits: [],
+    data: {}
+  }
+}
+
+{
+  state: {
+    type: "asset", || medium || document || audio || video || recorder ||  
+    traits: [],
+    data: {
+    }
+  }
+}
+#+end_src
+
+Session becomes just a grouping entity. No blob. No state.entries array growing forever.
+
+#+begin_src js
+// session entity
+{
+  id: "019c3a01-...",
+  type: "session",
+  scope: { intent: "019c2f00-...", daemon: "019c1a00-..." },
+  state: { phase: "chat", cursor: 5 }  // only runtime metadata
+}
+#+end_src
+
+Stall becomes a runtime query result with a cursor:
+
+#+begin_src js
+export class Stall {
+  $entries = atom([]);
+  $cursor = atom(0);
+  session = null;
+
+  async boot(session) {
+    this.session = session;
+    const entries = await daemon.connection.call(
+      "/userspace/entities/entry/list",
+      { scope: { session: session.id }, order: "position" }
+    );
+    this.$entries.set(entries);
+    this.$cursor.set(session.state.cursor ?? entries.length - 1);
+  }
+
+  async append(entryState) {
+    const position = this.$entries.get().length;
+    const entry = await daemon.connection.call(
+      "/userspace/entities/entry/create",
+      {
+        type: "entry",
+        scope: { session: this.session.id, position },
+        state: entryState
+      }
+    );
+    this.$entries.get().push(entry);  // local update
+    return entry;
+  }
+
+  next() { /* advance cursor */ }
+  pull() { /* production → append modal entries */ }
+}
+#+end_src
+
+What this gives you:
+
+*No flush.* Each append is an insert. No read-modify-write of a growing blob. No sync problem.
+
+*Queryable.* "All messages in session X." "All products user has seen across sessions." "Last 20 entries." SQL does this for free.
+
+*Pagination.* Feed phase doesn't load 500 entries. It queries a page. Scroll down, load more.
+
+*No duplication.* Modal entry references product entity by id. Message entry IS the entity. Everything is one thing.
+
+*Rehydration.* Page reload = re-query entries for session. Done. No deserialization of a massive state blob.
+
+*Cross-session intelligence.* "What has this user seen?" becomes a query, not crawling through JSON blobs.
+
+Converse becomes:
+
+#+begin_src js
+buffer.converse = async (message) => {
+  await stall.append({
+    type: "message",
+    traits: ["USER"],
+    data: { USER: { content: message } }
+  });
+
+  const response = await mode.connection.call("/converse", {
+    message,
+    session: session.id
+    // mode can query entries itself if it needs context
+  });
+
+  for (const entry of response.entries) {
+    await stall.append(entry);
+  }
+};
+#+end_src
+
+The mode's =/converse= endpoint can query the session's entries server-side if it needs conversation history for the LLM call. Or the buffer sends the last N messages as context. Either way the mode returns entry states, the buffer persists them.
+
+*Decision you need to make:* Does the mode receive entry history in the request, or does it query it from the database server-side?
+
+- Client sends history: simpler mode implementation, request gets large
+- Mode queries server-side: cleaner contract, mode has full access, can paginate/filter
+
+I'd do server-side. The mode already has database access through its daemon. The converse request stays small: just the new message and the session id. The mode loads what it needs.
+
+*** 
+how does mcp, tool calling, and agent skills like claws fit into this?
+short answer. serverside too.
+does it change the paradigm?
+
+
+#+begin_reasoning
+The user is asking whether MCP (Model Context Protocol), tool calling, and agent skills like "claws" change the entry-as-entity paradigm they're building. They've already answered that it's server-side too. They want to know if it changes the data model.
+
+Short answer: No, it doesn't change the paradigm. It extends it.
+
+Tool calls and their results are just more entry types. The mode calls tools server-side during =/converse=, and the resulting entries get appended. MCP servers are just tool providers. Claws (agent skills) are just categorized tools.
+
+The key insight: from the buffer/stall perspective, nothing changes. The mode takes a message, does whatever it needs server-side (including tool calls, MCP, agent loops), and returns entries. 
+
+The real design question is whether tool calls should be visible to the user as separate entries or hidden as internal processing steps—probably both, controlled by entry traits that determine whether they're rendered or filtered out based on the current phase or user preferences.
+#+end_reasoning
+
+No. It reinforces it.
+
+From the buffer's perspective nothing changes. Buffer sends message, mode returns entries. What the mode does server-side — tool calls, MCP, multi-step agent loops — is opaque. The mode might call twelve tools, hit three MCP servers, and run claws in a loop. Buffer doesn't care. It gets back entries.
+
+The only thing it adds is more entry types the mode /can/ return:
+
+#+begin_src js
+{ type: "tool_call", traits: ["MCP"], data: { MCP: { server: "github", tool: "search", result: "..." } } }
+{ type: "tool_call", traits: ["CLAW"],  data: { CLAW: { skill: "web_search", result: "..." } } }
+#+end_src
+
+Whether those entries are visible to the user or collapsed/hidden is a rendering decision per phase. Chat phase might show them as dim blocks. Stream phase ignores them. Debug mode shows everything.
+
+The paradigm holds: mode is a black box, entries are the interface contract, buffer appends what comes back.
+
+*** 
+ok. we will call these entries state.
+state has a type and traits, data, and ordering. ordering is interesting. how do we do this smartly?
+
+- write give me the state entity and change the session entity accordingly.
+- write the client side prototypes and svelte routes/phases (start with chat and stream)
+- write the mode traits on daemon level - LANGUAGED and propose how i could re-scaffold the productive trait to integrate here. state is related to product i assume. also give me an INTENTIONAL trait that provides the mode with tooling to change phase and perspective on the client (aka in the buffer)
+- write a demo mode with those traits.
+
+
+
+
+#+begin_reasoning
+The user wants me to design and write out a comprehensive refactoring. Let me break down what they need:
+
+1. State entity (what was "entry") + modified Session entity
+2. Client-side prototypes (Buffer, Stall, etc.) + Svelte routes/phases (chat, stream)
+3. Mode traits: LANGUAGED, refactored PRODUCTIVE, new INTENTIONAL
+4. A demo mode using all these traits
+
+Let me think carefully about ordering first since they called it out as interesting.
+
+Ordering approaches:
+- Integer position: simple, but inserts in the middle require reordering
+- Fractional/string ordering (like Figma's fractional indexing): allows inserts between without reordering
+
+
+- Timestamp-based: natural for append-only, but ties can happen
+- Linked list (each entry points to next): flexible but queries are hard
+- Lexicographic ordering (like CRDT approaches): good for collaborative
+
+For this use case, sessions are append-mostly with occasional contextual interjections. A simple monotonic position integer makes sense—appends always go to the end, and if I need to insert between entries, I can use fractional positions or reindex. In a conversation context, everything flows chronologically in the chat phase, and the stream phase handles products similarly.
+
+The real question is handling concurrent appends when the production pipeline generates products while the user sends a message simultaneously. I could use a timestamp as a tiebreaker, a composite key of position and timestamp, or just lean on timestamps entirely. The cleanest approach feels like using a float for order with a helper that combines =Date.now()= with a small incrementing counter for same-millisecond entries, or even simpler—just use UUIDv7 for the entity ID since it's already timestamp-based.
+
+Looking at their actual IDs like "019c4efb-9276-735f-92f2-7efe298a5567", those are definitely UUIDv7 and time-sortable, so ordering by ID gives chronological order automatically. But explicit ordering is still better for reordering cases, so I'll go with a simple integer =position= that's monotonic per session—the server serializes writes per session anyway, so concurrency isn't an issue.
+
+Now I need to design the State entity, and I'm noticing they use MikroORM with EntitySchema for their patterns.
+
+For the State entity itself, I need id, createdAt/updatedAt from BaseEntity, then the core fields: =type= as an enum for different state kinds, =traits= as a string array for categorization, =data= as a JSON field, and =position= as an integer for ordering within the session. There's also a relation to Session. The question is whether to add an explicit foreign key to Product or just reference it through the data object—looking at their patterns, they use explicit FK relations for things that matter for querying, so I should probably add that.
+
+Now I'm thinking through the broader schema changes: Session needs a =phase= field instead of storing that in JSON, and the states become a proper 1:m relation rather than a history array. On the client side, I'm refactoring the Buffer prototype to work with this new structure, updating Stall to handle State entries, and building Phase components that dispatch based on the current phase. For traits like LANGUAGED and PRODUCTIVE, I'm wiring them to their respective interfaces and endpoints.
+
+For the demo mode, I want a teacher-like interface that combines all three traits—conversational ability, content production, and phase navigation. The key insight for PRODUCTIVE is that the production pipeline still creates Products as before, but now when those products are served to a session, State entries get created that reference them. This happens at the "push to stall" moment, so the PRODUCTIVE trait's middleware needs to handle both creating the Product and creating the corresponding State entry.
+
+Actually, I think the cleaner approach is having the server be the source of truth: when production serves products for a session, it simultaneously creates State entries linking them. The client then just queries State entries rather than managing products directly. For user messages though, the client needs to create State entries too, so both sides participate—the server handles system-generated content and the client handles user input.
+
+Wait, or maybe everything goes through the server. Even user messages could be created via an endpoint, which keeps the server as the single source of truth. There's a bit more latency for user messages, but it's architecturally cleaner. So the pattern would be: client calls endpoints to append State entries, the server creates all entries, and the client just reads what's there. For the INTENTIONAL trait, I need to think about how the mode can suggest or command actions.
+
+The mode can emit directive signals through entries that the client processes to mutate its buffer state. Alternatively, INTENTIONAL could expose tools to the LLM so when it decides the user should do something, it calls a tool that generates a directive entry. For ordering, I'll use a position integer that the server increments per session.
+
+For the ordering approach itself, I'm weighing a few options: simple integer positions work well for append-mostly workloads despite potential gaps from deletions, fractional indexing would allow insert-between but feels like overkill, timestamps have concurrency issues, and UUIDv7 IDs are already time-ordered so I could just use those directly. I think the cleanest solution is leveraging the UUIDv7 as implicit ordering while also adding an explicit position field.
+
+Actually, I'm overthinking this—just a session-scoped position integer that the server increments atomically is the right call. No gaps to worry about, queries are straightforward with =WHERE session = ? ORDER BY position=.
+
+Now I need to structure the full response: State and Session entities in TypeScript, client-side Buffer and Stall prototypes with Svelte phases, server-side trait implementations, and a demo mode. I'll keep it thorough but clean, skipping any commented-out patterns and writing fresh code.
+
+Defining the State entity more carefully... Refactoring the Session entity to replace those JSON blobs with a proper states collection, and I need to decide whether to keep the direct products relationship or let it flow through states—the direct link might still be useful for certain queries, but it could also become redundant depending on how we access the data.
+
+For the client side, I'm restructuring the Stall to track all state entries with a cursor position instead of managing individual buffers, where the phase determines how the active entry is computed—stream mode uses the cursor to navigate through entries, while chat mode might handle it differently.
+
+Actually, I think the phase component should own the cursor logic rather than the Stall itself. The Stall just provides the ordered entries and an append method, then each phase component decides how to render and navigate them.
+
+Now I'm mapping out how the server-side traits work together: LANGUAGED handles the conversation flow by loading context, creating user messages, calling the LLM, and returning new entries. PRODUCTIVE manages the production pipeline while also creating modal State entries that reference those products. INTENTIONAL provides the tools that feed into LANGUAGED for the LLM to use.
+
+For the demo, I'm thinking of a study guide mode that combines all three—it can have conversations about language learning, generate and serve flashcards through the production system, and switch between different chat phases and perspectives using directive signals.
+
+On the ordering question, I'm realizing that using a monotonic counter per session for position makes sense, but instead of storing it directly on entities, I could use a compound approach that's smarter about how entries are sequenced.
+
+Actually, keeping it simple is better: just store position as an integer on each StateEntity scoped to the session, with the server incrementing it. When the server appends entries—whether it's a batch of flashcards from production or multiple entries from a conversation—they all get sequential positions atomically, which avoids race conditions from trying to query the max position each time.
+
+Now I need to think through what the mode and converse contract looks like for the AI SDK and tool calling.
+
+The =/converse= endpoint receives a message and session ID, loads prior entries as context for the LLM, calls the AI with available tools, executes any tool calls server-side, and persists all results as State entities before returning them to the client. The mode's Agent already supports tools, and tool results get wrapped as State entries. For streaming, I could use server-sent events or WebSocket to push entries to the client as they're created, though that's a future consideration—the entry-as-entity model naturally supports it since each entry is independently creatable.
+
+Now I'm ready to start building. I need to set up the State and Session entities in TypeScript, then work on the client side with the Stall and Buffer components, the phase components like Stream and Chat, and the View component. On the server, I'll implement the LANGUAGED, PRODUCTIVE, and INTENTIONAL traits with a clean, minimal approach. For the demo mode, I'll base it on the dewey teacher mode and show how LANGUAGED and PRODUCTIVE work together—the key is that when a LANGUAGED mode also has PRODUCTIVE, the /converse endpoint can use tools to generate flashcards and switch between phases. each trait registers its own tools onto a shared registry, and LANGUAGED pulls all of them together when constructing the agent for the /converse endpoint. This way PRODUCTIVE handles production logic, INTENTIONAL handles directives, and LANGUAGED orchestrates everything through a unified tool interface.
+
+Now I'm thinking about how the existing CHAOSMONKEY trait assigns =mode.brain = daemon.hallucinator=, so LANGUAGED probably needs to respect that pattern when wiring up the agent.
+
+Actually, I should keep them separate—CHAOSMONKEY provides raw LLM access while LANGUAGED builds the structured conversation interface on top of it. That means trait ordering matters: whatever sets =mode.brain= needs to run before LANGUAGED tries to use it.
+
+The real question is whether LANGUAGED should replace CHAOSMONKEY or coexist with it. I think they should stay orthogonal—a mode might want brain access without being conversational, so LANGUAGED just assumes brain is already available and builds the conversation layer on top.
+
+Now I'm working through the implementation details, particularly how to handle positioning and ordering for the traits themselves.
+#+end_reasoning
+
+* 1. State entity + Session changes
+
+#+begin_src typescript
+// entities/userspace/State.ts
+import { EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { BaseEntity, BaseSchema } from "../index.ts";
+import { SessionEntity } from "../index.ts";
+import { ProductEntity } from "../index.ts";
+
+export enum StateTypeEnum {
+  MESSAGE = "message",
+  MODAL = "modal",
+  SIGNAL = "signal",
+  AUDIO = "audio",
+  VIDEO = "video",
+  DOCUMENT = "document",
+}
+
+export class StateEntity extends BaseEntity {
+  session!: Rel<SessionEntity>;
+  position!: number;
+
+  type!: StateTypeEnum;
+  traits: string[] & Opt = [];
+  data: any & Opt = {};
+
+  product?: Rel<ProductEntity>;
+}
+
+export const StateSchema = new EntitySchema<StateEntity, BaseEntity>({
+  class: StateEntity,
+  extends: BaseSchema,
+  tableName: "State",
+  properties: {
+    session: {
+      kind: "m:1",
+      entity: () => SessionEntity,
+      fieldName: "session",
+      deleteRule: "cascade",
+    },
+
+    position: { type: Number },
+
+    type: {
+      enum: true,
+      items: () => StateTypeEnum,
+    },
+
+    traits: {
+      columnType: "json",
+      default: [],
+      defaultRaw: ="[]"=,
+    },
+
+    data: { type: "json", default: {} },
+
+    product: {
+      kind: "m:1",
+      entity: () => ProductEntity,
+      fieldName: "product",
+      nullable: true,
+    },
+  },
+
+  indexes: [
+    { properties: ["session", "position"] },
+  ],
+});
+
+export default {
+  type: "state",
+  schema: StateSchema,
+  entity: StateEntity,
+};
+#+end_src
+
+#+begin_src typescript
+// entities/userspace/Session.ts — refactored
+import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
+import { BaseEntity, BaseSchema } from "../index.ts";
+import { UserEntity, IntentEntity, StateEntity } from "../index.ts";
+
+export enum PhaseEnum {
+  STREAM = "stream",
+  CHAT = "chat",
+  FEED = "feed",
+  BOOK = "book",
+}
+
+export class SessionEntity extends BaseEntity {
+  user!: Rel<UserEntity>;
+  intent!: Rel<IntentEntity>;
+
+  phase: PhaseEnum & Opt = PhaseEnum.STREAM;
+  cursor: number & Opt = 0;
+  counter: number & Opt = 0; // next position value
+
+  traits: string[] & Opt = [];
+  data: any & Opt = {};
+
+  states = new Collection<StateEntity>(this);
+}
+
+export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
+  class: SessionEntity,
+  extends: BaseSchema,
+  tableName: "Session",
+  properties: {
+    user: {
+      kind: "m:1",
+      entity: () => UserEntity,
+      fieldName: "user",
+      deleteRule: "cascade",
+    },
+    intent: {
+      kind: "m:1",
+      entity: () => IntentEntity,
+      fieldName: "intent",
+      deleteRule: "cascade",
+    },
+
+    phase: {
+      enum: true,
+      items: () => PhaseEnum,
+      default: PhaseEnum.STREAM,
+    },
+    cursor: { type: Number, default: 0 },
+    counter: { type: Number, default: 0 },
+
+    traits: {
+      columnType: "json",
+      default: [],
+      defaultRaw: ="[]"=,
+    },
+    data: { type: "json", default: {} },
+
+    states: {
+      kind: "1:m",
+      entity: () => StateEntity,
+      mappedBy: (state) => state.session,
+    },
+  },
+});
+
+export default {
+  type: "session",
+  schema: SessionSchema,
+  entity: SessionEntity,
+};
+#+end_src
+
+Ordering: integer =position=, monotonic per session. =session.counter= is the atomic source. Every append does =position = session.counter++; flush()=. No max-query races. Integers because sessions won't have millions of entries, and if you ever need insert-between, reindex the range. Free, dumb, queryable.
+
+* 2. Client prototypes
+
+#+begin_src js
+// typology/prototypes/stall.js — rewritten
+import { atom, computed } from "nanostores";
+
+export class Stall {
+  $entries = atom([]);
+  $cursor = atom(0);
+  $status = atom("IDLE");
+  $error = atom(null);
+
+  session = null;
+  daemon = null;
+  handlers = { pull: null };
+
+  // derived views — phases read these
+  $modals = computed(this.$entries, (entries) =>
+    entries.filter((e) => e.type === "modal"),
+  );
+
+  $messages = computed(this.$entries, (entries) =>
+    entries.filter((e) => e.type === "message"),
+  );
+
+  $active = computed([this.$modals, this.$cursor], (modals, cursor) =>
+    modals[cursor] ?? null,
+  );
+
+  async boot(session, daemon) {
+    this.session = session;
+    this.daemon = daemon;
+
+    const states = await daemon.connection.call(
+      "/userspace/entities/state/find",
+      { where: { session: session.id }, orderBy: { position: "asc" } },
+    );
+
+    this.$entries.set(states);
+    this.$cursor.set(session.cursor ?? 0);
+  }
+
+  withPull(pull) {
+    this.handlers.pull = pull;
+    return this;
+  }
+
+  async append(entryState) {
+    const entry = await this.daemon.connection.call(
+      "/userspace/entities/state/append",
+      { session: this.session.id, ...entryState },
+    );
+    this.$entries.set([...this.$entries.get(), entry]);
+    return entry;
+  }
+
+  next(promise) {
+    const status = this.$status.get();
+    if (["STOP", "NEXT"].includes(status)) return;
+    this.$status.set("NEXT");
+
+    const modals = this.$modals.get();
+    const cursor = this.$cursor.get();
+
+    if (cursor < modals.length - 1) {
+      this.$cursor.set(cursor + 1);
+      // persist cursor
+      this.daemon.connection.call("/userspace/entities/session/update", {
+        id: this.session.id,
+        cursor: cursor + 1,
+      });
+    }
+
+    this.$status.set("IDLE");
+    this.pull();
+  }
+
+  async pull() {
+    const status = this.$status.get();
+    if (["STOP", "PULLING"].includes(status)) return;
+    if (!this.handlers.pull) return;
+
+    const modals = this.$modals.get();
+    const cursor = this.$cursor.get();
+    const remaining = modals.length - cursor - 1;
+    if (remaining > 2) return; // threshold
+
+    this.$status.set("PULLING");
+
+    try {
+      const newEntries = await this.handlers.pull(this);
+      // entries already appended server-side and via this.append
+      this.$status.set("IDLE");
+    } catch (error) {
+      this.$error.set(error);
+      this.$status.set("STOP");
+      console.error("[stall pull error]", error);
+    }
+  }
+
+  get entries() {
+    return this.$entries.get();
+  }
+}
+#+end_src
+
+#+begin_src js
+// typology/prototypes/buffer.js — rewritten
+import { random } from "@vivalence/shared";
+
+export class Buffer {
+  id = random.id();
+
+  // resolved during boot
+  phase = "stream";
+  perspective = null; // Signal
+  daemon = null;
+  mode = null;
+  intent = null;
+  session = null;
+  stall = null;
+
+  // trait interfaces — wired during boot
+  converse = null;  // LANGUAGED: (message) => Promise<entries[]>
+  direct = null;    // INTENTIONAL: processes directive entries
+  produce = null;   // PRODUCTIVE: () => Promise<entries[]>
+
+  constructor(perspective) {
+    this.perspective = perspective;
+    this.stall = new (require("./stall.js").Stall)();
+  }
+
+  async boot(ctx) {
+    this.daemon = ctx.daemon;
+    this.mode = ctx.mode;
+    this.intent = ctx.intent;
+    this.session = ctx.session;
+    this.phase = ctx.session.phase;
+
+    await this.stall.boot(this.session, this.daemon);
+
+    // trait wiring happens externally after boot
+  }
+
+  processEntry(entry) {
+    // handle directives
+    if (entry.type === "signal" && entry.traits?.includes("DIRECTIVE")) {
+      const directive = entry.data.DIRECTIVE;
+      if (directive.action === "phase") this.phase = directive.phase;
+      if (directive.action === "perspective") {
+        this.perspective = directive.path;
+        // trigger re-resolution
+      }
+    }
+  }
+}
+#+end_src
+
+* 3. Svelte routes and phases
+*** view
+#+begin_src svelte
+<!-- routes/[...viva]/View.svelte — rewritten -->
+<script>
+  import { computed } from "nanostores";
+  import { onMount, onDestroy } from "svelte";
+  import { Text } from "@vivalence/drapes";
+  import { Buffer } from "@vivalence/html/typology";
+  import { boot } from "./boot.js";
+
+  import StreamPhase from "./phases/Stream.svelte";
+  import ChatPhase from "./phases/Chat.svelte";
+
+  let { pathname } = $props();
+
+  let buffer = $state(null);
+  let phase = $state("stream");
+
+  onMount(async () => {
+    buffer = await boot(pathname);
+    phase = buffer.phase;
+
+    // react to phase changes
+    // (from INTENTIONAL directives)
+    $effect(() => {
+      if (buffer) phase = buffer.phase;
+    });
+  });
+</script>
+
+{#if buffer}
+  <div class="bsp-node root">
+    <div class="bsp-node content">
+      {#if phase === "stream"}
+        <StreamPhase {buffer} />
+      {:else if phase === "chat"}
+        <ChatPhase {buffer} />
+      {:else}
+        <Text>unknown phase: {phase}</Text>
+      {/if}
+    </div>
+
+    <div class="bsp-chain-end modebar p-2 border-t border-skeleton-boundary-1">
+      {#if buffer.converse}
+        <ModeInput {buffer} />
+      {/if}
+    </div>
+  </div>
+{/if}
+
+<style>
+  .root { grid-template-rows: 1fr auto; }
+</style>
+#+end_src
+
+*** boot
+#+begin_src js
+// routes/[...viva]/boot.js
+import { Signal, fromm, Blacklist } from "@vivalence/typology";
+import { controller, Context } from "@vivalence/vector";
+import { Buffer, Stall } from "@vivalence/html/typology";
+import { perspective } from "./perspective.js";
+import { dataspace } from "$client";
+import { replaceState } from "$app/navigation";
+import { get } from "svelte/store";
+import { page } from "$app/stores";
+
+export async function boot(pathname) {
+  const signal = new Signal(pathname);
+  const [take, apply, match] = controller.traverse(perspective, signal);
+  if (!take) return null;
+
+  const params = fromm.match(match).parameters;
+  const buffer = new Buffer(signal);
+
+  // 1. resolve daemon + mode
+  buffer.daemon = await dataspace.daemon
+    .findOne((d) => d.manifest.slug === params.daemon);
+
+  buffer.mode = await dataspace.mode.findOne((m) =>
+    m.daemon.manifest.slug === params.daemon &&
+    m.type === params.type &&
+    m.slug === params.mode,
+  );
+
+  // 2. resolve intent
+  const url = new URL(get(page).url);
+  const intentId = url.searchParams.get("intent");
+
+  if (intentId) {
+    buffer.intent = await buffer.daemon.connection.call(
+      "/userspace/entities/intent/findOne",
+      { where: { id: intentId } },
+    );
+  } else {
+    buffer.intent = await buffer.daemon.connection.call(
+      "/userspace/entities/intent/create",
+    );
+    url.searchParams.set("intent", buffer.intent.id);
+    replaceState(url, {});
+  }
+
+  // 3. resolve session (find active or create)
+  let session = await buffer.daemon.connection.call(
+    "/userspace/entities/session/findOrCreate",
+    { intent: buffer.intent.id, user: buffer.intent.user },
+  );
+  buffer.session = session;
+  buffer.phase = session.phase;
+
+  // 4. boot stall from session
+  await buffer.stall.boot(session, buffer.daemon);
+
+  // 5. resolve valence (if in path)
+  if (params.valence) {
+    buffer.valence = await dataspace.valence.findOne(
+      (v) => v.slug === params.valence && buffer.mode.id === v.mode.id,
+    );
+  }
+
+  // 6. wire traits
+  if (buffer.mode.implements("LANGUAGED")) {
+    buffer.converse = async (message) => {
+      const response = await buffer.mode.connection.call("/converse", {
+        message,
+        session: session.id,
+      });
+
+      for (const entry of response.entries) {
+        buffer.stall.$entries.set([...buffer.stall.$entries.get(), entry]);
+        buffer.processEntry(entry);
+      }
+
+      return response;
+    };
+  }
+
+  if (buffer.mode.implements("PRODUCTIVE") && buffer.valence) {
+    buffer.stall.withPull(async (stall) => {
+      const products = stall.$modals.get().map((e) => e.data?.PRODUCT?.id).filter(Boolean);
+      const blacklist = { products };
+
+      await buffer.mode.connection.call("/produce", {
+        session: session.id,
+        valence: buffer.valence.id,
+        scope: { intent: buffer.intent.id },
+        blacklist,
+      });
+
+      // server created State entries — reload
+      const states = await buffer.daemon.connection.call(
+        "/userspace/entities/state/find",
+        {
+          where: { session: session.id },
+          orderBy: { position: "asc" },
+        },
+      );
+      stall.$entries.set(states);
+    });
+  }
+
+  // initial pull
+  await buffer.stall.pull();
+
+  return buffer;
+}
+#+end_src
+
+*** phases
+#+begin_src svelte
+<!-- routes/[...viva]/phases/Stream.svelte -->
+<script>
+  import { computed } from "nanostores";
+  import { onMount, onDestroy } from "svelte";
+  import { Text, Button } from "@vivalence/drapes";
+  import { dataspace } from "$client";
+
+  let { buffer } = $props();
+
+  const stall = buffer.stall;
+  let active = stall.$active;
+  let component = $state(null);
+  let dom = $state(null);
+
+  // resolve modal state → product → view
+  async function mount(entry) {
+    if (!entry || !dom) return;
+    component?.destroy();
+    component = null;
+
+    if (!entry.data?.PRODUCT?.id) return;
+
+    // fetch full product
+    const product = await buffer.daemon.connection.call(
+      "/userspace/entities/product/findOne",
+      { where: { id: entry.data.PRODUCT.id } },
+    );
+
+    // resolve producer mode's view
+    const producerMode = await dataspace.mode
+      .findOne((m) => m.id === (product.producer?.id ?? product.producer));
+
+    if (!producerMode?.view?.url) return;
+
+    const module = await import(/* @vite-ignore */ producerMode.view.url);
+    component = module.default(dom, {
+      product,
+      mode: producerMode,
+      daemon: buffer.daemon,
+      stall,
+      buffer,
+    });
+  }
+
+  $effect(() => {
+    const entry = $active;
+    if (entry && dom) mount(entry);
+  });
+
+  onDestroy(() => component?.destroy());
+</script>
+
+<div class="bsp-node">
+  {#if $active}
+    <div class="bsp-node" bind:this={dom}></div>
+  {:else}
+    <div class="bsp-node flex items-center justify-center">
+      <Text color="skeleton-2-contrast">nothing here</Text>
+    </div>
+  {/if}
+</div>
+#+end_src
+
+#+begin_src svelte
+<!-- routes/[...viva]/phases/Chat.svelte -->
+<script>
+  import { onMount } from "svelte";
+  import { Text, Button, Input } from "@vivalence/drapes";
+  import { Shelve, Box } from "@vivalence/drapes";
+  import ModalEmbed from "./ModalEmbed.svelte";
+
+  let { buffer } = $props();
+
+  const stall = buffer.stall;
+  let entries = stall.$entries;
+
+  let input = $state("");
+  let loading = $state(false);
+  let chatEnd = $state(null);
+
+  async function send() {
+    if (loading || !input.trim()) return;
+    loading = true;
+    const message = input;
+    input = "";
+
+    await buffer.converse(message);
+    loading = false;
+
+    chatEnd?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function handleKeydown(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      send();
+    }
+  }
+</script>
+
+<div class="bsp-node root">
+  <div class="bsp-node chat-scroll">
+    {#each $entries as entry (entry.id)}
+      <div class="entry entry-{entry.type}">
+        {#if entry.type === "message"}
+          <div
+            class="message"
+            class:message-user={entry.traits.includes("USER")}
+            class:message-agent={entry.traits.includes("AGENT")}>
+            {#if entry.traits.includes("USER")}
+              <Text size="sm" color="skeleton-2-contrast">you</Text>
+            {:else}
+              <Text size="sm" color="theme-primary">agent</Text>
+            {/if}
+            <Text>{@html entry.data[entry.traits.includes("USER") ? "USER" : "AGENT"]?.content}</Text>
+          </div>
+        {:else if entry.type === "modal"}
+          <div class="modal-embed">
+            <ModalEmbed {entry} {buffer} />
+          </div>
+        {:else if entry.type === "signal"}
+          <!-- signals are invisible unless debug -->
+        {/if}
+      </div>
+    {/each}
+
+    {#if loading}
+      <div class="message message-agent">
+        <Text size="sm" color="theme-primary">agent</Text>
+        <Text color="skeleton-2-contrast">thinking...</Text>
+      </div>
+    {/if}
+
+    <div bind:this={chatEnd}></div>
+  </div>
+
+  <div class="bsp-chain-end input-bar p-3 border-t border-skeleton-boundary-1">
+    <div class="flex gap-2 max-w-screen-md mx-auto">
+      <Input
+        class="flex-1"
+        placeholder="message..."
+        bind:value={input}
+        onkeydown={handleKeydown}
+        disabled={loading} />
+      <Button variant="primary" onclick={send} disabled={loading}>Send</Button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .root { grid-template-rows: 1fr auto; }
+  .chat-scroll { overflow-y: auto; padding: 1rem; }
+  .entry + .entry { margin-top: 0.75rem; }
+  .message { padding: 0.75rem 1rem; border-radius: 0.5rem; max-width: 36rem; }
+  .message-user { background: var(--skeleton-surface-1); margin-left: auto; }
+  .message-agent { background: var(--skeleton-surface-2); }
+  .modal-embed { max-width: 36rem; margin: 0.5rem 0; }
+</style>
+#+end_src
+
+#+begin_src svelte
+<!-- routes/[...viva]/phases/ModalEmbed.svelte -->
+<script>
+  import { onMount, onDestroy } from "svelte";
+  import { dataspace } from "$client";
+
+  let { entry, buffer } = $props();
+  let component = $state(null);
+  let dom = $state(null);
+
+  onMount(async () => {
+    if (!entry.data?.PRODUCT?.id) return;
+
+    const product = await buffer.daemon.connection.call(
+      "/userspace/entities/product/findOne",
+      { where: { id: entry.data.PRODUCT.id } },
+    );
+
+    const producerMode = await dataspace.mode
+      .findOne((m) => m.id === (product.producer?.id ?? product.producer));
+
+    if (!producerMode?.view?.url || !dom) return;
+
+    const module = await import(/* @vite-ignore */ producerMode.view.url);
+    component = module.default(dom, {
+      product,
+      mode: producerMode,
+      daemon: buffer.daemon,
+      stall: buffer.stall,
+      buffer,
+    });
+  });
+
+  onDestroy(() => component?.destroy());
+</script>
+
+<div class="bsp-node modal-frame" bind:this={dom}></div>
+
+<style>
+  .modal-frame { min-height: 12rem; border-radius: 0.5rem; overflow: hidden; }
+</style>
+#+end_src
+
+* 4. Server traits
+
+#+begin_src js
+// daemon/mode/traits/languaged.js
+import { Agent } from "@vivalence/typology";
+import { Type } from "@sinclair/typebox";
+
+export const LANGUAGED = async (mode, daemon) => {
+  mode.brain = mode.brain || daemon.hallucinator;
+
+  // collect tools from other traits
+  if (!mode.tools) mode.tools = new (await import("@vivalence/vector")).Vector();
+
+  mode.aperture.open("/converse", async (input, ctx) => {
+    const session = await ctx.daemon.entities.session.findOne(input.session);
+    if (!session) throw new Error("session not found");
+
+    // 1. persist user message as State
+    const userState = ctx.daemon.entities.state.create({
+      session: session.id,
+      position: session.counter++,
+      type: "message",
+      traits: ["USER"],
+      data: { USER: { content: input.message } },
+    });
+    await ctx.daemon.entities.em.flush();
+
+    // 2. load recent entries for LLM context
+    const history = await ctx.daemon.entities.state.find(
+      { session: session.id, type: "message" },
+      { orderBy: { position: "asc" }, limit: 50 },
+    );
+
+    const messages = history.map((state) => {
+      const isUser = state.traits.includes("USER");
+      return {
+        role: isUser ? "user" : "assistant",
+        content: state.data[isUser ? "USER" : "AGENT"]?.content || "",
+      };
+    });
+
+    // 3. build agent with mode-registered tools
+    const agent = new Agent(mode.manifest.slug)
+      .withBrain(mode.brain)
+      .withTools(mode.tools)
+      .withInput(Type.Object({ message: Type.String() }))
+      .withContext("identity", mode.systemPrompt || =You are ${mode.manifest.name}.=)
+      .withContext("environment", =${JSON.stringify(ctx.daemon.docs || {})}=)
+      .withHistory(messages)
+      .withTemplate((input) => input.message);
+
+    // 4. execute
+    const result = await agent.do({ message: input.message });
+
+    // 5. persist agent response as State
+    const newEntries = [userState];
+
+    const agentState = ctx.daemon.entities.state.create({
+      session: session.id,
+      position: session.counter++,
+      type: "message",
+      traits: ["AGENT"],
+      data: { AGENT: { content: result.text } },
+    });
+    newEntries.push(agentState);
+
+    // 6. process tool results — other traits may have pushed states
+    if (result.toolStates) {
+      for (const ts of result.toolStates) {
+        ts.session = session.id;
+        ts.position = session.counter++;
+        const stateEntity = ctx.daemon.entities.state.create(ts);
+        newEntries.push(stateEntity);
+      }
+    }
+
+    await ctx.daemon.entities.em.flush();
+
+    return { entries: newEntries };
+  });
+};
+#+end_src
+
+#+begin_src js
+// daemon/mode/traits/productive.js — refactored
+import { Aperture } from "@vivalence/vector/aperture";
+import { Seek, Blacklist, is, object } from "@vivalence/typology";
+import { ProductionRequest, ProductionResult } from "@vivalence/typology";
+import { Type } from "@sinclair/typebox";
+import { helper } from "@mikro-orm/core";
+
+export const PRODUCTIVE = async (mode, daemon) => {
+  if (!mode.cake.producer) {
+    console.error("PRODUCTIVE MODE MISSING PRODUCER", { mode });
+    return;
+  }
+
+  // register production tool for LANGUAGED to use
+  if (!mode.tools) mode.tools = new (await import("@vivalence/vector")).Vector();
+
+  mode.tools.open(
+    {
+      nature: "produce",
+      valence: =Produce content for the learner. Triggers the production pipeline to generate exercises, flashcards, or other learning material. Returns products as viewable states in the session.=,
+      input: Type.Object({
+        hint: Type.Optional(Type.String({
+          description: "Optional hint about what to produce (e.g. 'verbs', 'present tense')",
+        })),
+      }),
+    },
+    async (toolCtx) => {
+      // toolCtx has session from LANGUAGED's converse handler
+      const session = toolCtx.session;
+      if (!session) return { produced: 0 };
+
+      const valences = await daemon.entities.valence.find({ mode: mode.entity.id });
+      const valence = valences.find((v) => v.data?.producer);
+      if (!valence) return { produced: 0 };
+
+      const products = await produceForSession(mode, daemon, {
+        session,
+        valence,
+        hint: toolCtx.input?.hint,
+      });
+
+      // return states for LANGUAGED to persist
+      toolCtx.toolStates = products.map((product) => ({
+        type: "modal",
+        traits: ["PRODUCT"],
+        data: { PRODUCT: { id: product.id, producer: product.producer?.id || product.producer } },
+        product: product.id,
+      }));
+
+      return { produced: products.length };
+    },
+  );
+
+  // direct /produce aperture for client-side pull
+  const aperture = buildProductionAperture(mode, daemon);
+  aperture.slurp(mode.cake.producer);
+  mode.aperture.slurp(aperture);
+
+  mode.aperture.open("/produce", async (input, ctx) => {
+    const session = await ctx.daemon.entities.session.findOne(input.session);
+    if (!session) throw new Error("session not found");
+
+    const valence = await ctx.daemon.entities.valence.findOne(input.valence);
+
+    const products = await produceForSession(mode, ctx.daemon, {
+      session,
+      valence,
+      scope: input.scope,
+      blacklist: input.blacklist,
+    });
+
+    // create State entries for each product
+    const entries = [];
+    for (const product of products) {
+      const state = ctx.daemon.entities.state.create({
+        session: session.id,
+        position: session.counter++,
+        type: "modal",
+        traits: ["PRODUCT"],
+        data: { PRODUCT: { id: product.id, producer: product.producer?.id || product.producer } },
+        product: product.id,
+      });
+      entries.push(state);
+    }
+
+    await ctx.daemon.entities.em.flush();
+    return { entries, products };
+  });
+};
+
+async function produceForSession(mode, daemon, { session, valence, scope, blacklist, hint }) {
+  const producerPath = mode.mount.barf().branch(valence.data.producer).absolute;
+
+  // build blacklist from session's existing modal states
+  const existingModals = await daemon.entities.state.find(
+    { session: session.id, type: "modal" },
+    { fields: ["product"] },
+  );
+  const existingProducts = existingModals
+    .map((s) => s.product?.id || s.data?.PRODUCT?.id)
+    .filter(Boolean);
+
+  const mergedBlacklist = {
+    ...blacklist,
+    products: [...(blacklist?.products || []), ...existingProducts],
+  };
+
+  const request = {
+    ...valence.data.mask,
+    scope: {
+      ...scope,
+      intent: session.intent?.id || session.intent,
+      commissioner: mode.entity.id,
+    },
+    seek: valence.data.mask?.seek || {},
+    blacklist: mergedBlacklist,
+  };
+
+  const result = await daemon.call(producerPath, request);
+  return result?.products || [];
+}
+
+// existing production middleware chain — unchanged in structure
+function buildProductionAperture(mode, daemon) {
+  // ... keep existing production aperture middleware
+  // (request normalization, greed, lock, blacklist, persist)
+  // same as current productive.js
+  return new Aperture();
+}
+#+end_src
+
+#+begin_src js
+// daemon/mode/traits/intentional.js
+import { Type } from "@sinclair/typebox";
+
+export const INTENTIONAL = async (mode, daemon) => {
+  if (!mode.tools) mode.tools = new (await import("@vivalence/vector")).Vector();
+
+  mode.tools.open(
+    {
+      nature: "set_phase",
+      valence: =Change the interaction phase for the user. Use "stream" for focused one-at-a-time exercises, "chat" for conversation, "feed" for browsing content.=,
+      input: Type.Object({
+        phase: Type.Enum({ stream: "stream", chat: "chat", feed: "feed" }, {
+          description: "Target phase",
+        }),
+        reason: Type.Optional(Type.String({
+          description: "Why this phase is appropriate",
+        })),
+      }),
+    },
+    async (toolCtx) => {
+      const session = toolCtx.session;
+      if (!session) return { changed: false };
+
+      // update session phase
+      session.phase = toolCtx.input.phase;
+      await daemon.entities.em.flush();
+
+      // emit directive state for client to process
+      toolCtx.toolStates = toolCtx.toolStates || [];
+      toolCtx.toolStates.push({
+        type: "signal",
+        traits: ["DIRECTIVE"],
+        data: {
+          DIRECTIVE: {
+            action: "phase",
+            phase: toolCtx.input.phase,
+            reason: toolCtx.input.reason,
+          },
+        },
+      });
+
+      return { changed: true, phase: toolCtx.input.phase };
+    },
+  );
+
+  mode.tools.open(
+    {
+      nature: "set_perspective",
+      valence: =Navigate the user to a different mode or valence. Use this to direct them to specific exercises or activities.=,
+      input: Type.Object({
+        path: Type.String({
+          description: "Perspective path, e.g. /viva/daemon/eng2esp/mode/game/flashcards/valence/feed",
+        }),
+        reason: Type.Optional(Type.String()),
+      }),
+    },
+    async (toolCtx) => {
+      toolCtx.toolStates = toolCtx.toolStates || [];
+      toolCtx.toolStates.push({
+        type: "signal",
+        traits: ["DIRECTIVE"],
+        data: {
+          DIRECTIVE: {
+            action: "perspective",
+            path: toolCtx.input.path,
+            reason: toolCtx.input.reason,
+          },
+        },
+      });
+      return { navigating: true };
+    },
+  );
+};
+#+end_src
+
+#+begin_src js
+// daemon/mode/traitmap.js — updated exports
+export * from "./traits/productive.js";
+export * from "./traits/dataset.js";
+export * from "./traits/languaged.js";
+export * from "./traits/intentional.js";
+
+// VIEWABLE, VALENTIC, CHAOSMONKEY stay unchanged
+#+end_src
+
+* 5. Demo mode
+
+#+begin_src js
+// registry/modes/@vivalence/teacher/rosetta/rosetta.viva.js
+import { View } from "@vivalence/typology";
+import { Aperture } from "@vivalence/vector/aperture";
+import dataset from "./dataset/index.js";
+import * as generate from "./methods/generate.js";
+
+const manifest = {
+  type: "teacher",
+  slug: "rosetta",
+  name: "Rosetta",
+  version: "0.0.1",
+  description: "A language tutor that converses, produces exercises, and directs your study flow.",
+  traits: ["VIEWABLE", "DATASET", "VALENTIC", "CHAOSMONKEY", "LANGUAGED", "INTENTIONAL", "PRODUCTIVE"],
+};
+
+const view = new View("/view/viva.svelte.js");
+
+const producer = new Aperture()
+  .branch("/generate")
+  .use(async (ctx, next) => {
+    ctx.input.scope.producer = ctx.mode.entity.id;
+    await next();
+  })
+  .open("/pending", generate.pending);
+
+const systemPrompt = =You are Rosetta, a focused language tutor inside viva.
+
+You teach through conversation and exercises. You are concise. Less is more.
+
+When the user wants to practice:
+1. Use add_vocabulary to store new words/phrases
+2. Use produce to generate exercises (flashcards, conjugations)
+3. Use set_phase to switch to "stream" so they can work through exercises one by one
+
+When the user wants to talk or ask questions:
+- Stay in chat phase
+- Be direct, helpful, minimal
+
+When the user seems done with exercises:
+- Use set_phase to switch back to "chat"
+
+The language is: {language}.
+=;
+
+export { manifest, view, producer, dataset, systemPrompt };
+#+end_src
+
+#+begin_src js
+// registry/modes/@vivalence/teacher/rosetta/methods/generate.js
+import { ProductionResult } from "@vivalence/typology";
+
+export async function pending(input, ctx) {
+  const literals = await ctx.daemon.call("/pick/literal/feed", input);
+
+  if (literals.length === 0)
+    return ProductionResult.cast.exhausted({ reason: "no candidate literals" });
+
+  // delegate to flashcard factory or whatever game mode is available
+  const products = literals.map((literal) => ({
+    data: {
+      front: {
+        header: literal.data.known,
+        content: literal.data.example?.known && =<i>${literal.data.example.known}</i>=,
+        footer: null,
+      },
+      back: {
+        header: literal.data.learning,
+        content: literal.data.example?.learning && =<i>${literal.data.example.learning}</i>=,
+        footer: null,
+      },
+    },
+    scope: { literals: [literal.id] },
+  }));
+
+  return ProductionResult.cast.nominal(products);
+}
+#+end_src
+
+#+begin_src json
+// registry/modes/@vivalence/teacher/rosetta/dataset/entities.json
+{
+  "valence": [
+    {
+      "slug": "study",
+      "name": "study with rosetta",
+      "description": "conversational study session",
+      "type": "destination",
+      "data": {
+        "producer": "/generate/pending",
+        "mask": {
+          "batch": 3,
+          "stock": 5,
+          "seek": {}
+        }
+      }
+    }
+  ]
+}
+#+end_src
+
+#+begin_src svelte
+<!-- registry/modes/@vivalence/teacher/rosetta/view/Rosetta.svelte -->
+<script>
+  import { Text } from "@vivalence/drapes";
+  let { product, mode, daemon, stall, buffer } = $props();
+</script>
+
+<div class="bsp-node flex items-center justify-center p-8">
+  <Text size="xl">rosetta</Text>
+</div>
+#+end_src
+
+The trait composition pipeline at boot:
+
+#+begin_src
+CHAOSMONKEY   → mode.brain = hallucinator
+DATASET       → install literals/symbols
+VALENTIC      → register valences
+PRODUCTIVE    → register produce tool + /produce aperture
+INTENTIONAL   → register set_phase + set_perspective tools
+LANGUAGED     → wire /converse using mode.brain + mode.tools
+VIEWABLE      → bundle view
+#+end_src
+
+Each trait only touches =mode.tools= and =mode.aperture=. LANGUAGED runs last because it consumes what the others registered. The traitmap execution order matters — sort traits so LANGUAGED is always last.
+
+***   
+* example literals
+    literal: [
+      {
+        annotation: { gender: "masc", lemma: "gato", number: "sing", pos: "noun" },
+        slug: "gender.masc~lemma.gato~number.sing~pos.noun",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        data: {
+          TRANSLATED: { known: "cat", learning: "gato" },
+          EXEMPLIFIED: { known: "The cat is small", learning: "O gato é pequeno" },
+        },
+      },
+      {
+        slug: "lemma.ser~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "ser",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to be (permanent)", learning: "ser" },
+          EXEMPLIFIED: { known: "I am a student", learning: "Eu sou estudante" },
+        },
+      },
+      {
+        slug: "lemma.estar~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "estar",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to be (temporary)", learning: "estar" },
+          EXEMPLIFIED: { known: "I am tired today", learning: "Eu estou cansado hoje" },
+        },
+      },
+      {
+        slug: "lemma.ter~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "ter",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to have", learning: "ter" },
+          EXEMPLIFIED: { known: "I have a dog", learning: "Eu tenho um cachorro" },
+        },
+      },
+      {
+        slug: "lemma.fazer~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "fazer",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to do / make", learning: "fazer" },
+          EXEMPLIFIED: { known: "I make dinner every day", learning: "Eu faço o jantar todo dia" },
+        },
+      },
+      {
+        slug: "lemma.ir~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "ir",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to go", learning: "ir" },
+          EXEMPLIFIED: { known: "I go to work by bus", learning: "Eu vou ao trabalho de ônibus" },
+        },
+      },
+      {
+        slug: "lemma.poder~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "poder",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "can / to be able to", learning: "poder" },
+          EXEMPLIFIED: { known: "I can help you", learning: "Eu posso te ajudar" },
+        },
+      },
+      {
+        slug: "lemma.dizer~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "dizer",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to say", learning: "dizer" },
+          EXEMPLIFIED: { known: "I say the truth", learning: "Eu digo a verdade" },
+        },
+      },
+      {
+        slug: "lemma.dar~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "dar",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to give", learning: "dar" },
+          EXEMPLIFIED: { known: "I give him a gift", learning: "Eu dou um presente pra ele" },
+        },
+      },
+      {
+        slug: "lemma.ver~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "ver",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to see", learning: "ver" },
+          EXEMPLIFIED: { known: "I see the mountains", learning: "Eu vejo as montanhas" },
+        },
+      },
+      {
+        slug: "lemma.saber~mood.ind~number.sing~person.1~pos.verb~tense.pres~verbform.fin~voice.act",
+        traits: ["EXEMPLIFIED", "TRANSLATED"],
+        annotation: {
+          lemma: "saber",
+          mood: "ind",
+          number: "sing",
+          person: "1",
+          pos: "verb",
+          tense: "pres",
+          verbform: "fin",
+          voice: "act",
+        },
+        data: {
+          TRANSLATED: { known: "to know (a fact)", learning: "saber" },
+          EXEMPLIFIED: { known: "I know the answer", learning: "Eu sei a resposta" },
+        },
+      },

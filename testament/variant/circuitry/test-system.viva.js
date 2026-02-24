@@ -44,6 +44,7 @@ export const clients = {
     module: "@vivalence/html", // implicit
     statics: {
       serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
+      //
       lighthouse: {
         remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
       },

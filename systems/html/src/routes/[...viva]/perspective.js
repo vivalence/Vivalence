@@ -11,14 +11,11 @@ export const perspective = new Vector();
 
 perspective
   .branch("/viva")
-  .branch("/daemon/:daemon")
   .use(async (ctx, next) => {
     ctx.daemon = await dataspace.daemon //
       .findOne((d) => d.manifest.slug === ctx.params.daemon);
     await next();
   })
-
-  .branch("/mode/:type/:mode")
 
   .use(async (ctx, next) => {
     ctx.mode = await dataspace.mode.findOne((m) => {
@@ -32,6 +29,16 @@ perspective
     await next();
   })
 
+  .branch("/daemon/:daemon")
+  .open("/mode/:type/:mode", async () => {
+    // buffer state:
+    //   phase: stream
+    //   perspective: /mode/routine/:slug
+    //   intent: null
+    //   session: null
+    //   stall [null,[]]
+  })
+  .branch("/mode/:type/:mode")
   .use(async (ctx, next) => {
     const intentId = get(page).url.searchParams.get("intent");
     if (intentId) {
@@ -53,17 +60,14 @@ perspective
 
   .use(async (ctx, next) => {
     ctx.valence = await dataspace.valence.findOne(
-      (valence) =>
-        ctx.params.valence === valence.slug && ctx.mode.id === valence.mode.id,
+      (valence) => ctx.params.valence === valence.slug && ctx.mode.id === valence.mode.id,
     );
     if (!ctx.valence) throw new Error("[dataspace] unknown valence");
     await next();
   })
 
   .use(async (ctx, next) => {
-    const products = ctx.stall.buffers
-      .map((buffer) => buffer.context.product?.id)
-      .filter(Boolean);
+    const products = ctx.stall.buffers.map((buffer) => buffer.context.product?.id).filter(Boolean);
     ctx.blacklist = new Blacklist({ products });
     await next();
   })
@@ -76,8 +80,10 @@ perspective
       });
       return products //
         .map((product) => new Buffer(product.mode.view, { ...ctx, product }));
+      // should be State()
     } else {
       return [new Buffer(ctx.mode.view, { ...ctx })];
+      // should be State()
     }
   });
 

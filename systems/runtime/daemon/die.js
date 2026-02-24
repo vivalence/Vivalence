@@ -5,6 +5,8 @@ import * as lifecycle from "./lifecycle/index.js";
 import * as kernel from "./kernel/index.js";
 import * as aperture from "./aperture/index.js";
 
+import { object } from "@vivalence/typology";
+
 export class Die extends Wafer {
   register = {
     lighthouse: null,
@@ -56,7 +58,7 @@ export class Die extends Wafer {
     await lifecycle.integration.call(this);
     await lifecycle.integration.uninstall(this);
 
-    // await BLACKLIST(this);
+    // await test(this);
 
     this.status.set("alive");
   }
@@ -68,14 +70,51 @@ export class Die extends Wafer {
     this.status.set("stopped");
   }
 }
-const literal = { id: "019c39b4-8eed-73d8-b5a5-aaef0fa4282e" };
-async function BLACKLIST(daemonDie) {
-  const result = await daemonDie.good.entities.literal.findOne(literal, {
-    populate: ["symbols"],
-  });
-  console.json({ result });
-}
 
+const literal = {
+  slug: "lemma.gato:pos.noun:gender.masc:number.sing",
+  traits: ["EXEMPLIFIED", "TRANSLATED"],
+  annotation: {
+    pos: "noun",
+    lemma: "gato",
+    gender: "masc",
+    number: "sing",
+  },
+  data: {
+    TRANSLATED: {
+      known: "cat",
+      learning: "gato",
+    },
+    EXEMPLIFIED: {
+      known: "The cat is small",
+      learning: "O gato é pequeno",
+    },
+  },
+};
+async function test(daemonDie) {
+  // console.json(daemonDie.good.schema.literals.noun);
+  // console.log({ schema: { annotation: daemonDie.good.schema.annotations.noun } });
+  // console.log(daemonDie.good.assert);
+  // console.log(daemonDie.good.validate);
+  //
+
+  let issues = await daemonDie.good.validate.literal(literal, [
+    // "SCHEMATIC",
+    // "EXISTENTIAL",
+    "RELATIONAL",
+  ]);
+
+  // console.json({ intemediary: issues });
+
+  if (!is.empty(issues)) {
+    issues = await daemonDie.good.kernel.medic.many(issues, {
+      daemon: daemonDie.good,
+    });
+  }
+
+  console.json({ result: issues });
+}
+// const literal = { id: "019c39b4-8eed-73d8-b5a5-aaef0fa4282e" }; async function BLACKLIST(daemonDie) {const result = await daemonDie.good.entities.literal.findOne(literal, {populate: ["symbols"],}); console.json({ result });}
 // // const literal = {id: "019c1cd5-a5da-7125-9e4d-1fc10af7d23a", slug: "lemma:hola-pos:noun-gender:fem-number:sing", name: null, description: null, annotation: { lemma: "hola", pos: "noun", gender: "fem", number: "sing" }, data: {known: "hello", learning: "hola", index: 1, example: { known: "Hello, how are you?", learning: "Hola, ¿cómo estás?" },}, symbols: [],};
 // const literal = {
 //   id: "019c39b4-8ecf-724a-8e45-363e0158c12a",

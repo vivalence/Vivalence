@@ -16,6 +16,24 @@
           }
         }
       }
+    },
+
+    {
+      "slug": "",
+      "name": "",
+      "description": "",
+      "type": "provider",
+      "data": {
+        "producer": "/generate/pending",
+        "mask": {
+          "batch": 1,
+          "stock": 3,
+          "seek": {
+            "take": 5,
+            "threshold": ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN"]
+          }
+        }
+      }
     }
   ]
 }

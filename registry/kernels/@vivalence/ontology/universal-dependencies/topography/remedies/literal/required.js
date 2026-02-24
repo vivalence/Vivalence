@@ -28,7 +28,8 @@ async function required(issue, ctx) {
     }
   }
 
-  return await generate(literal, annotation, issue, daemon);
+  return issue.onError({ message: "unresolved due to brainlessness" });
+  // return await generate(literal, annotation, issue, daemon);
 }
 
 async function install(literal, issue, daemon) {
@@ -36,8 +37,12 @@ async function install(literal, issue, daemon) {
     const created = await daemon.entities.literal.create(literal);
     await daemon.entities.em.flush();
 
-    if (created) return issue.resolve();
-    return issue.onError({ message: "Failed to create literal", literal });
+    if (!created) return issue.onError({ message: "Failed to create literal", literal });
+
+    let issues = await daemon.validate.literal(literal, ["RELATIONAL"]);
+    if (issues.length > 0) issues = await daemon.kernel.medic.many(issues, { daemon });
+    if (issues.length > 0) return issue.spawn(issues);
+    else return issue.resolve();
   } catch (error) {
     return issue.onError({ message: error.message, error, literal });
   }
@@ -49,11 +54,6 @@ function repair(literal, issues) {
 
   for (const issue of issues) {
     const path = issue.path?.join(".");
-
-    if (path === "name" && !patched.name && patched.annotation?.lemma) {
-      patched.name = patched.annotation.lemma;
-      touched = true;
-    }
 
     if (path === "slug" && !patched.slug) {
       patched.slug = generateSlug(patched.annotation);
@@ -124,9 +124,10 @@ function generateSlug(annotation) {
 
 export default {
   handler: required,
+  target: "literal",
   violation: "required",
-  path: ["literal"],
 };
+
 // import { Agent } from "@vivalence/typology";
 // import { Type } from "@sinclair/typebox";
 

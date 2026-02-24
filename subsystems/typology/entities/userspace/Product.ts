@@ -4,25 +4,23 @@ import { BaseEntity, BaseSchema } from "../index.ts";
 import { ModeEntity, IntentEntity, SessionEntity } from "../index.ts";
 import { SymbolEntity, LiteralEntity } from "../index.ts";
 
-export enum ProductStatusEnum {
-  PENDING = "PENDING",
-  ACTIVE = "ACTIVE",
-  DONE = "DONE",
-  ERROR = "ERROR",
-}
+export enum ProductStatusEnum {} // abandonded
+// PENDING = "PENDING",
+// ACTIVE = "ACTIVE",
+// DONE = "DONE",
+// ERROR = "ERROR",
 
-export enum ProductTypeEnum {
+export enum ProductTypeEnum { // extended
   MODAL = "MODAL",
   SIGNAL = "SIGNAL",
 }
 
-export enum ProductSignalEnum {
-  BATCH = "BATCH",
-  SET = "SET",
-}
+export enum ProductSignalEnum {} // changed
+// BATCH = "BATCH",
+// SET = "SET",
 
 export class ProductEntity extends BaseEntity {
-  type?: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
+  type: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
   status: ProductStatusEnum & Opt = ProductStatusEnum.PENDING;
   data: any & Opt = {};
   index: number & Opt = 0;
@@ -30,8 +28,8 @@ export class ProductEntity extends BaseEntity {
   producer!: Rel<ModeEntity>;
   commissioner!: Rel<ModeEntity>;
 
-  intent!: Rel<IntentEntity>;
-  session?: Rel<SessionEntity>;
+  session!: Rel<SessionEntity>;
+  intent?: Rel<IntentEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
@@ -74,16 +72,16 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
       fieldName: "commissioner",
     },
 
-    intent: {
-      kind: "m:1",
-      entity: () => IntentEntity,
-      fieldName: "intent",
-    },
-
     session: {
       kind: "m:1",
       entity: () => SessionEntity,
       fieldName: "session",
+    },
+
+    intent: {
+      kind: "m:1",
+      entity: () => IntentEntity,
+      fieldName: "intent",
       nullable: true,
     },
 

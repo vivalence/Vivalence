@@ -1,19 +1,17 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { Cascade, types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { DataEntity, DataSchema } from "../index.ts";
 import { ProductEntity, SymbolEntity } from "../index.ts";
 
+export enum LiteralTraitsEnum {}
+// _ = "_",
+
 export class LiteralEntity extends DataEntity {
+  traits: LiteralTraitsEnum[] & Opt = [];
   slug: string & Opt = "";
-  name?: string;
-  description?: string;
+
   data: any & Opt = {};
   annotation: any & Opt = {};
+
   symbols = new Collection<SymbolEntity>(this);
   products = new Collection<ProductEntity>(this);
 }
@@ -26,9 +24,15 @@ export const LiteralSchema = new EntitySchema({
   name: "Literal",
   uniques: [{ properties: ["slug"] }],
   properties: {
+    traits: {
+      items: () => LiteralTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+      type: types.json,
+    },
     slug: { type: types.string },
-    name: { type: types.string, nullable: true },
-    description: { type: types.string, nullable: true },
+
     annotation: { type: "json" },
     data: { type: "json" },
 
@@ -36,6 +40,7 @@ export const LiteralSchema = new EntitySchema({
       kind: "m:n",
       entity: () => SymbolEntity,
       mappedBy: (symbol) => symbol.literals,
+      cascade: [Cascade.REMOVE],
     },
     products: {
       kind: "m:n",
@@ -47,6 +52,7 @@ export const LiteralSchema = new EntitySchema({
 
 export default {
   type: "literal",
+  traits: LiteralTraitsEnum,
   schema: LiteralSchema,
   entity: LiteralEntity,
   // gestalt: gestalt,

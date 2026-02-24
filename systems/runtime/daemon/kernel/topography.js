@@ -3,26 +3,22 @@ import { shards, Vector } from "@vivalence/vector";
 
 export async function topography(daemonDie) {
   for (const kernelmodule of daemonDie.register.kernel) {
+    if (!kernelmodule.topography) continue;
+
     if (kernelmodule.topography?.dimensions) {
       await Promise.all(
-        kernelmodule.topography.dimensions.map((t) =>
-          daemonDie.good.entities.dimension.ensure(t),
-        ),
+        kernelmodule.topography.dimensions.map((t) => daemonDie.good.entities.dimension.ensure(t)),
       );
       // console.log(await daemonDie.good.entities.dimension.find(), daemonDie.good.entities.dimension,);
     }
 
     if (kernelmodule.topography?.subjects)
       await Promise.all(
-        kernelmodule.topography.subjects.map((t) =>
-          daemonDie.good.entities.subject.ensure(t),
-        ),
+        kernelmodule.topography.subjects.map((t) => daemonDie.good.entities.subject.ensure(t)),
       );
 
     if (kernelmodule.topography?.remedies)
-      kernelmodule.topography?.remedies.map((r) =>
-        daemonDie.good.kernel.medic.register(r),
-      );
+      kernelmodule.topography?.remedies.map((r) => daemonDie.good.kernel.medic.register(r));
   }
 
   await daemonDie.good.entities.em.flush();

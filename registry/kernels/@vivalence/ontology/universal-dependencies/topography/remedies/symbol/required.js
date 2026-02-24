@@ -33,7 +33,7 @@ async function required(issue, ctx) {
 
   // Build the symbol
   let symbol = {
-    slug: leaf ? `${branch}:${leaf}` : `${branch}:*`,
+    slug: leaf ? `${branch}.${leaf}` : `${branch}.*`,
     traits: ["ONTOLOGICAL"],
     data: { ONTOLOGICAL: ontological },
   };
@@ -48,13 +48,7 @@ async function required(issue, ctx) {
     symbol.name = `${dimension.name || branch} > ${leafDimension.name || leaf}`;
     symbol.description = leafDimension.description || dimension.description;
 
-    // Copy traits from leaf dimension
-    if (leafDimension.traits?.includes("LEARNABLE")) {
-      symbol.traits.push("LEARNABLE");
-      if (leafDimension.data?.LEARNABLE) {
-        symbol.data.LEARNABLE = leafDimension.data.LEARNABLE;
-      }
-    }
+    // if (leafDimension.traits?.includes("LEARNABLE")) {symbol.traits.push("LEARNABLE"); if (leafDimension.data?.LEARNABLE) {symbol.data.LEARNABLE = leafDimension.data.LEARNABLE;}}
   } else if (leaf) {
     // Leaf specified but not found as dimension (e.g., lemma values)
     symbol.name = `${dimension.name || branch}: ${leaf}`;
@@ -68,12 +62,7 @@ async function required(issue, ctx) {
     symbol.name = `${dimension.name || branch} (any)`;
     symbol.description = dimension.description;
 
-    if (dimension.traits?.includes("LEARNABLE")) {
-      symbol.traits.push("LEARNABLE");
-      if (dimension.data?.LEARNABLE) {
-        symbol.data.LEARNABLE = dimension.data.LEARNABLE;
-      }
-    }
+    // if (dimension.traits?.includes("LEARNABLE")) {symbol.traits.push("LEARNABLE"); if (dimension.data?.LEARNABLE) {symbol.data.LEARNABLE = dimension.data.LEARNABLE;}}
   }
 
   try {
@@ -118,8 +107,14 @@ function extractFromPath(issue) {
   return null;
 }
 
+// export default {
+//   handler: required,
+//   violation: "required",
+//   path: ["symbol", "*"],
+// };
+
 export default {
   handler: required,
+  target: "symbol",
   violation: "required",
-  path: ["symbol", "*"],
 };

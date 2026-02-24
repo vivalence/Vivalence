@@ -1,5 +1,6 @@
 import dimensions from "./dimensions/index.js";
 import remedies from "./remedies/index.js";
-import taxonomy from "./taxonomy.js";
+import classifier from "./classifier.js";
 
-export { taxonomy, remedies, dimensions };
+export const taxonomy = classifier;
+export { classifier, remedies, dimensions };

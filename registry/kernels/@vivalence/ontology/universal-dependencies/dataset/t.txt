@@ -1,0 +1,1362 @@
+---
+CONCATENATED FILES SUMMARY
+Total tokens: 6776
+Total files: 28
+Generated: 2026-02-22T04:18:25.227Z
+Source directory: todo.dimensions/
+--
+// FILE TREE
+/
+├── advtype.js
+├── aspect.js
+├── case.js
+├── compound.js
+├── definite.js
+├── degree.js
+├── foreign.js
+├── gender.js
+├── index.js
+├── inflclass.js
+├── lemma.js
+├── mood.js
+├── nametype.js
+├── number.js
+├── numform.js
+├── numtype.js
+├── person.js
+├── polarity.js
+├── pos.js
+├── poss.js
+├── prepcase.js
+├── prontype.js
+├── reflex.js
+├── suffix.js
+├── tense.js
+├── text.js
+├── verbform.js
+└── voice.js
+
+-
+
+
+
+----
+File: advtype.js
+Path: todo.dimensions//advtype.js
+Size: 463 bytes
+Last Modified: 2025-09-12T09:46:47.039Z
+--
+
+export const node = {
+  slug: "advtype",
+  name: "adverb type",
+  description: "Semantic classification of adverbs by function.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "loc",
+        name: "Locative",
+        description: "Adverbs of place (where, whence, whither)",
+      },
+      {
+        slug: "tim",
+        name: "Temporal",
+        description: "Adverbs of time (when, how long, how often)",
+      },
+    ],
+  },
+};
+
+
+----
+File: aspect.js
+Path: todo.dimensions//aspect.js
+Size: 1686 bytes
+Last Modified: 2025-09-12T09:46:47.039Z
+--
+
+export const node = {
+  slug: "aspect",
+  name: "aspect",
+  description:
+    "The aspect of a verb, indicating the flow of time in the action.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "imp",
+        name: "Imperfective",
+        description: "An action or state that is ongoing or repeated",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "perf",
+        name: "Perfective",
+        description: "An action or state that is completed",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "prog",
+        name: "Progressive",
+        description: "An action or state that is in progress",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "hab",
+        name: "Habitual",
+        description: "An action that takes place habitually",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "iter",
+        name: "Iterative",
+        description: "An action that is repeated",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "prosp",
+        name: "Prospective",
+        description: "An action that is expected to take place",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: case.js
+Path: todo.dimensions//case.js
+Size: 1885 bytes
+Last Modified: 2025-10-15T23:35:22.525Z
+--
+
+export const node = {
+  slug: "case",
+  docs: {
+    name: "case",
+    description:
+      "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
+  },
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "nom",
+        name: "Nominative",
+        description:
+          "Subject case, used for sentence subjects and predicate nominatives",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "acc",
+        name: "Accusative",
+        description: "Direct object case, also used with certain prepositions",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "gen",
+        name: "Genitive",
+        description:
+          "Possessive case, shows possession and partitive relationships",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "dat",
+        name: "Dative",
+        description:
+          "Indirect object case, recipient or beneficiary of an action",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "abl",
+        name: "Ablative",
+        description:
+          "Instrumental/locative case, shows means, manner, place, time",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "voc",
+        name: "Vocative",
+        description:
+          "Direct address case, used when calling or addressing someone",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: compound.js
+Path: todo.dimensions//compound.js
+Size: 346 bytes
+Last Modified: 2025-09-12T09:46:47.040Z
+--
+
+export const node = {
+  slug: "compound",
+  name: "compound",
+  description: "Indicates whether a word is morphologically compound.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "yes",
+        name: "Compound",
+        description: "Word formed by combining multiple morphemes or roots",
+      },
+    ],
+  },
+};
+
+
+----
+File: definite.js
+Path: todo.dimensions//definite.js
+Size: 1313 bytes
+Last Modified: 2025-09-12T09:46:47.040Z
+--
+
+// export const rule = {slug: "definite", type: "string", title: "Definiteness", description: "Indicates whether a noun is definite or indefinite. Possible values: 'def' (Definite: Refers to something specific or known), 'ind' (Indefinite: Refers to something nonspecific or unknown).", enum: ["def", "ind"],};
+
+// nodes topology
+// EDITS: guarantee meta export and add topological trait to pos.
+// export const meta = {slug: "definite", enums: {def: { enum: "def", title: "Definite", description: "" }, ind: { enum: "ind", title: "Indefinite", description: "" },},};
+export const node = {
+  slug: "definite",
+  name: "definiteness",
+  description: "Indicates whether a noun is definite or indefinite.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "def",
+        name: "Definite",
+        description: "Refers to something specific or known",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "ind",
+        name: "Indefinite",
+        description: "Refers to something nonspecific or unknown",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: degree.js
+Path: todo.dimensions//degree.js
+Size: 2130 bytes
+Last Modified: 2025-09-12T09:46:47.040Z
+--
+
+// export const rule = {slug: "degree", type: "string", title: "Degree", description: "The degree of comparison for adjectives and adverbs. Possible values: 'Abs' (Absolute: An extreme degree of the base form), 'Cmp' (Comparative: A higher or lower degree of the base form), 'Dim' (Diminutive: A lesser degree or smaller version of something), 'Sup' (Superlative: The highest or lowest degree of the base form).", enum: ["abs", "cmp", "dim", "sup"],};
+// export const meta = {slug: "degree", enums: {abs: {enum: "abs", title: "Absolute", description: "An extreme degree of the base form.",}, cmp: {enum: "cmp", title: "Comparative", description: "A higher or lower degree of the base form.",}, dim: {enum: "dim", title: "Diminutive", description: "A lesser degree or smaller version of something.",}, sup: {enum: "sup", title: "Superlative", description: "The highest or lowest degree of the base form.",},},};
+
+export const node = {
+  slug: "degree",
+  name: "degree",
+  description: "The degree of comparison for adjectives and adverbs.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "abs",
+        name: "Absolute",
+        description: "An extreme degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "cmp",
+        name: "Comparative",
+        description: "A higher or lower degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "dim",
+        name: "Diminutive",
+        description: "A lesser degree or smaller version of something",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "sup",
+        name: "Superlative",
+        description: "The highest or lowest degree of the base form",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: foreign.js
+Path: todo.dimensions//foreign.js
+Size: 337 bytes
+Last Modified: 2025-09-12T09:46:47.040Z
+--
+
+export const node = {
+  slug: "foreign",
+  name: "foreign",
+  description: "Indicates words borrowed from other languages.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "yes",
+        name: "Foreign",
+        description: "Word borrowed from another language (typically Greek)",
+      },
+    ],
+  },
+};
+
+
+----
+File: gender.js
+Path: todo.dimensions//gender.js
+Size: 1332 bytes
+Last Modified: 2025-09-12T09:46:47.041Z
+--
+
+// export const rule = {slug: "gender", type: "string", title: "Gender", description: "The grammatical gender of a noun or pronoun. Possible values: 'fem' (Feminine: Female gender), 'masc' (Masculine: Male gender).", enum: ["fem", "masc"],};
+export const node = {
+  slug: "gender",
+  name: "gender",
+  description: "The grammatical gender of a noun or pronoun.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "fem",
+        name: "Feminine",
+        description: "Female gender",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "masc",
+        name: "Masculine",
+        description: "Male gender",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "neut",
+        name: "Neutral",
+        description: "Neutral gender",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+// export const meta = {
+//   slug: "gender",
+//   enums: {
+//     fem: { enum: "fem", title: "Feminine", description: "" },
+//     masc: { enum: "masc", title: "Masculine", description: "" },
+//   },
+// };
+
+
+----
+File: index.js
+Path: todo.dimensions//index.js
+Size: 2114 bytes
+Last Modified: 2026-01-28T20:25:28.111Z
+--
+
+const moduleNames = [
+  // "text",
+  "foreign",
+  "compound",
+  "advtype",
+  "inflclass",
+  "voice",
+  "case",
+  "pos",
+  "lemma",
+  "verbform",
+  "suffix",
+  "tense",
+  "mood",
+  "person",
+  "nametype",
+  "number",
+  "aspect",
+  "gender",
+  "degree",
+  "poss",
+  "reflex",
+  "prontype",
+  "prepcase",
+  "numtype",
+  "numform",
+  "polarity",
+  "definite",
+];
+
+const modules = await Promise.all(
+  moduleNames.map((name) =>
+    import(`./${name}.js`).then((module) => module.node),
+  ),
+);
+export default modules;
+
+// import { node as pos } from "./pos.js";
+// import { node as lemma } from "./lemma.js";
+// import { node as verbform } from "./verbform.js";
+// import { node as tense } from "./tense.js";
+// import { node as mood } from "./mood.js";
+// import { node as person } from "./person.js";
+// import { node as number } from "./number.js";
+// import { node as aspect } from "./aspect.js";
+// import { node as gender } from "./gender.js";
+// import { node as degree } from "./degree.js";
+// import { node as poss } from "./poss.js";
+// import { node as reflex } from "./reflex.js";
+// import { node as definite } from "./definite.js";
+// import { node as prontype } from "./prontype.js";
+// import { node as prepcase } from "./prepcase.js";
+// import { node as numtype } from "./numtype.js";
+// import { node as numform } from "./numform.js";
+// import { node as polarity } from "./polarity.js";
+// import { node as suffix } from "./suffix.js";
+// import { node as caseA } from "./case.js";
+// import { node as voice } from "./voice.js";
+// import { node as inflclass } from "./inflclass.js";
+// import { node as advtype } from "./advtype.js";
+// import { node as compound } from "./compound.js";
+// import { node as foreign } from "./foreign.js";
+
+// export default [
+//   foreign,
+//   compound,
+//   advtype,
+//   inflclass,
+//   voice,
+//   caseA,
+//   pos,
+//   lemma,
+//   verbform,
+//   suffix,
+//   tense,
+//   mood,
+//   person,
+//   number,
+//   aspect,
+//   gender,
+//   degree,
+//   poss,
+//   reflex,
+//   definite,
+//   prontype,
+//   prepcase,
+//   numtype,
+//   numform,
+//   polarity,
+// ];
+
+
+----
+File: inflclass.js
+Path: todo.dimensions//inflclass.js
+Size: 3210 bytes
+Last Modified: 2025-09-12T09:46:47.041Z
+--
+
+export const node = {
+  slug: "inflclass",
+  name: "inflection class",
+  description:
+    "Morphological inflection class for nouns, adjectives, and verbs.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "indeura",
+        name: "Indo-European A-stem",
+        description: "First declension (mostly feminine nouns)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "indeuro",
+        name: "Indo-European O-stem",
+        description: "Second declension (masculine and neuter nouns)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "indeuri",
+        name: "Indo-European I-stem",
+        description: "Third declension i-stem variation",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "indeurx",
+        name: "Indo-European consonant stem",
+        description: "Third declension consonant stems",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "indeure",
+        name: "Indo-European E-stem",
+        description: "Fifth declension (e-stem nouns)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "indeuru",
+        name: "Indo-European U-stem",
+        description: "Fourth declension (u-stem nouns)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "latanom",
+        name: "Latin anomalous",
+        description: "Irregular Latin inflection patterns",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "lata",
+        name: "Latin A-conjugation",
+        description: "First conjugation verbs (-are)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "late",
+        name: "Latin E-conjugation",
+        description: "Second conjugation verbs (-ere)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "latx",
+        name: "Latin consonant conjugation",
+        description: "Third conjugation verbs (consonant stem)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "lati",
+        name: "Latin I-conjugation",
+        description: "Fourth conjugation verbs (-ire)",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "latpron",
+        name: "Latin pronominal",
+        description: "Pronominal inflection patterns",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: lemma.js
+Path: todo.dimensions//lemma.js
+Size: 285 bytes
+Last Modified: 2025-09-12T09:46:47.041Z
+--
+
+// export const rule = {slug: "lemma", type: "string", title: "Lemma", description: "The canonical form or base form of a word.",};
+
+export const node = {
+  slug: "lemma",
+  name: "lemma",
+  description: "The canonical form or base form of a word.",
+  traits: ["FREE"],
+  data: {},
+};
+
+
+----
+File: mood.js
+Path: todo.dimensions//mood.js
+Size: 2169 bytes
+Last Modified: 2025-09-12T09:46:47.042Z
+--
+
+// export const rule = {slug: "mood", type: "string", title: "Mood", description: "The grammatical mood of a verb, indicating modality. Possible values: 'ind' (Indicative: A mood used for statements of fact), 'sub' (Subjunctive: A mood used for hypothetical or non-real actions), 'imp' (Imperative: A mood used for commands or requests), 'cnd' (Conditional: A mood used to express conditions or hypothetical situations).", enum: ["ind", "sub", "imp", "cnd"],};
+// export const meta = {slug: "mood", enums: {ind: {enum: "ind", title: "Indicative", description: "A mood used for statements of fact.",}, sub: {enum: "sub", title: "Subjunctive", description: "A mood used for hypothetical or non-real actions.",}, imp: {enum: "imp", title: "Imperative", description: "A mood used for commands or requests.",}, cnd: {enum: "cnd", title: "Conditional", description: "A mood used to express conditions or hypothetical situations.",},},};
+
+export const node = {
+  slug: "mood",
+  name: "mood",
+  description: "The grammatical mood of a verb, indicating modality.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "ind",
+        name: "Indicative",
+        description: "A mood used for statements of fact",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "sub",
+        name: "Subjunctive",
+        description: "A mood used for hypothetical or non-real actions",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "imp",
+        name: "Imperative",
+        description: "A mood used for commands or requests",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "cnd",
+        name: "Conditional",
+        description:
+          "A mood used to express conditions or hypothetical situations",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: nametype.js
+Path: todo.dimensions//nametype.js
+Size: 924 bytes
+Last Modified: 2025-09-12T09:46:47.042Z
+--
+
+export const node = {
+  slug: "nametype",
+  name: "name type",
+  description: "Semantic classification of proper nouns and names.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "giv",
+        name: "Given name",
+        description: "Personal first names",
+      },
+      {
+        slug: "sur",
+        name: "Surname",
+        description: "Family names or surnames",
+      },
+      {
+        slug: "geo",
+        name: "Geographic",
+        description: "Place names, geographical locations",
+      },
+      {
+        slug: "lit",
+        name: "Literary",
+        description: "Titles of books, works, texts",
+      },
+      {
+        slug: "rel",
+        name: "Religious",
+        description: "Religious or mythological names",
+      },
+      {
+        slug: "nat",
+        name: "Ethnic/National",
+        description: "Names referring to peoples or nations",
+      },
+    ],
+  },
+};
+
+
+----
+File: number.js
+Path: todo.dimensions//number.js
+Size: 1335 bytes
+Last Modified: 2025-09-12T09:46:47.042Z
+--
+
+// export const rule = {slug: "number", type: "string", title: "Number", description: "The grammatical number of a noun or verb, indicating singular, plural. Possible values: 'sing' (Singular: One person, place, thing, or idea), 'plur' (Plural: More than one person, place, thing, or idea).", enum: ["sing", "plur"],};
+// export const meta = {slug: "number", enums: {sing: {slug: "sing", enum: "sing", title: "Singular", description: "One person, place, thing, or idea",}, plur: {enum: "plur", title: "Plural", description: "More than one person, place, thing, or idea",},},};
+
+export const node = {
+  slug: "number",
+  name: "number",
+  description:
+    "The grammatical number of a noun or verb, indicating singular or plural.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "sing",
+        name: "Singular",
+        description: "One person, place, thing, or idea",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "plur",
+        name: "Plural",
+        description: "More than one person, place, thing, or idea",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: numform.js
+Path: todo.dimensions//numform.js
+Size: 1193 bytes
+Last Modified: 2025-09-12T09:46:47.042Z
+--
+
+// export const rule = {slug: "numform", type: "string", title: "Numeral Form", description: "The form of numerals, indicating whether the number is expressed by digits, Roman numerals, or words.", enum: ["digit", "roman", "word"],};
+// export const meta = {slug: "numform", enums: {digit: {enum: "digit", title: "Digit", description: "Number expressed using digits (0-9).",}, roman: {enum: "roman", title: "Roman", description: "Number expressed using Roman numerals.",}, word: {enum: "word", title: "Word", description: "Number expressed in words.",},},};
+
+export const node = {
+  slug: "numform",
+  name: "numeral form",
+  description:
+    "The form of numerals, indicating whether the number is expressed by digits, Roman numerals, or words.",
+  traits: ["CATEGORICAL", "CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "digit",
+        name: "Digit",
+        description: "Number expressed using digits (0-9)",
+      },
+      {
+        slug: "roman",
+        name: "Roman",
+        description: "Number expressed using Roman numerals",
+      },
+      {
+        slug: "word",
+        name: "Word",
+        description: "Number expressed in words",
+      },
+    ],
+  },
+};
+
+
+----
+File: numtype.js
+Path: todo.dimensions//numtype.js
+Size: 1383 bytes
+Last Modified: 2025-09-12T09:46:47.043Z
+--
+
+// export const rule = {slug: "numtype", type: "string", title: "Numeral Type", description: "The type of numeral. Possible values: 'card' (Cardinal: A numeral expressing a quantity), 'ord' (Ordinal: A numeral expressing position or order), 'mult' (Multiplicative: A numeral expressing how many times), 'frac' (Fraction: A numeral expressing a part of a whole).", enum: ["card", "ord", "mult", "frac"],};
+// export const meta = {slug: "numtype", enums: {card: { enum: "card", title: "Cardinal", description: "" }, ord: { enum: "ord", title: "Ordinal", description: "" }, mult: { enum: "mult", title: "Multiplicative", description: "" }, frac: { enum: "frac", title: "Fraction", description: "" },},};
+
+export const node = {
+  slug: "numtype",
+  name: "numeral type",
+  description: "The type of numeral.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "card",
+        name: "Cardinal",
+        description: "A numeral expressing a quantity",
+      },
+      {
+        slug: "ord",
+        name: "Ordinal",
+        description: "A numeral expressing position or order",
+      },
+      {
+        slug: "mult",
+        name: "Multiplicative",
+        description: "A numeral expressing how many times",
+      },
+      {
+        slug: "frac",
+        name: "Fraction",
+        description: "A numeral expressing a part of a whole",
+      },
+    ],
+  },
+};
+
+
+----
+File: person.js
+Path: todo.dimensions//person.js
+Size: 1602 bytes
+Last Modified: 2025-09-12T09:46:47.043Z
+--
+
+// export const rule = {slug: "person", type: "string", title: "Person", description: "The grammatical person of a verb, indicating the subject. Possible values: '1' (First Person: The speaker or writer), '2' (Second Person: The person being addressed), '3' (Third Person: The person or thing being talked about).", enum: ["1", "2", "3"],};
+// export const meta = {slug: "person", enums: {1: { enum: "1", title: "First Person", description: "The speaker or writer." }, 2: { enum: "2", title: "Second Person", description: "The person being addressed." }, 3: {enum: "3", title: "Third Person", description: "The person or thing being talked about.",},},};
+export const node = {
+  slug: "person",
+  name: "person",
+  description: "The grammatical person of a verb, indicating the subject.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "1",
+        name: "First Person",
+        description: "The speaker or writer",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "2",
+        name: "Second Person",
+        description: "The person being addressed",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "3",
+        name: "Third Person",
+        description: "The person or thing being talked about",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: polarity.js
+Path: todo.dimensions//polarity.js
+Size: 609 bytes
+Last Modified: 2025-09-12T09:46:47.043Z
+--
+
+// export const rule = {slug: "polarity", type: "string", title: "Polarity", description: "The polarity of an adverb. Possible values: 'neg' (Negative: Indicates negation).", enum: ["neg"],};
+// export const meta = {slug: "polarity", enums: {neg: { enum: "neg", title: "Negative", description: "Indicates negation." },},};
+
+export const node = {
+  slug: "polarity",
+  name: "polarity",
+  description: "The polarity of an adverb.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "neg",
+        name: "Negative",
+        description: "Indicates negation",
+      },
+    ],
+  },
+};
+
+
+----
+File: pos.js
+Path: todo.dimensions//pos.js
+Size: 2882 bytes
+Last Modified: 2025-09-12T09:46:47.043Z
+--
+
+export const node = {
+  slug: "pos",
+  name: "part of speech",
+  description: "High level grammatical grouping. Used for annotation.",
+  traits: ["TOPOGRAPHICAL", "CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "sentence",
+        name: "Sentence",
+        description: "A complete, correct and meaningful sentence.",
+      },
+      {
+        slug: "adj",
+        name: "Adjective",
+        description: "A word that modifies a noun or pronoun.",
+      },
+      {
+        slug: "adp",
+        name: "Adposition",
+        description:
+          "A word that shows the relationship between its object and another word.",
+      },
+      {
+        slug: "adv",
+        name: "Adverb",
+        description:
+          "A word that modifies a verb, an adjective, or another adverb.",
+      },
+      {
+        slug: "aux",
+        name: "Auxiliary Verb",
+        description: "A verb used in forming tenses, moods, and voices.",
+      },
+      {
+        slug: "cconj",
+        name: "Coordinating Conjunction",
+        description:
+          "A word that connects words, phrases, or clauses of equal rank.",
+      },
+      {
+        slug: "det",
+        name: "Determiner",
+        description: "A word that introduces a noun.",
+      },
+      {
+        slug: "intj",
+        name: "Interjection",
+        description:
+          "A word or phrase that expresses strong emotion or surprise.",
+      },
+      {
+        slug: "noun",
+        name: "Noun",
+        description: "A word that refers to a person, place, thing, or idea.",
+      },
+      {
+        slug: "num",
+        name: "Numeral",
+        description: "A word that expresses a number.",
+      },
+      {
+        slug: "part",
+        name: "Particle",
+        description:
+          "A word that has grammatical function but does not fit into the main parts of speech.",
+      },
+      {
+        slug: "pron",
+        name: "Pronoun",
+        description: "A word that takes the place of a noun.",
+      },
+      {
+        slug: "propn",
+        name: "Proper Noun",
+        description:
+          "A noun that denotes a particular person, place, or thing.",
+      },
+      {
+        slug: "punct",
+        name: "Punctuation",
+        description:
+          "A symbol that indicates the structure and organization of writing.",
+      },
+      {
+        slug: "sconj",
+        name: "Subordinating Conjunction",
+        description: "A conjunction that introduces a subordinate clause.",
+      },
+      {
+        slug: "verb",
+        name: "Verb",
+        description: "A word that expresses an action or a state of being.",
+      },
+    ],
+  },
+};
+
+// export const rule = {slug: "pos", type: "string", title: "Part of Speech", description: "The part of speech category. ", // enum: ["adj", "adp", "adv", "aux", "cconj", "det", "intj", "noun", "num", "part", "pron", "propn", "punct", "sconj", "verb",],};
+
+
+----
+File: poss.js
+Path: todo.dimensions//poss.js
+Size: 900 bytes
+Last Modified: 2025-09-12T09:46:47.044Z
+--
+
+// export const rule = {slug: "possessive", type: "string", title: "Possessive", description: "Indicates whether a noun or pronoun shows possession. Possible values: 'yes' (Possessive: Indicates possession), 'no' (Non-Possessive: Does not indicate possession).", enum: ["yes", "no"],};
+// export const meta = {slug: "possessive", enums: {yes: { enum: "yes", title: "Possessive", description: "" }, no: { enum: "no", title: "Non-Possessive", description: "" },},};
+export const node = {
+  slug: "poss",
+  name: "Possessive",
+  description: "Indicates whether a noun or pronoun shows possession.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "yes",
+        name: "Possessive",
+        description: "Indicates possession",
+      },
+      {
+        slug: "no",
+        name: "Non-Possessive",
+        description: "Does not indicate possession",
+      },
+    ],
+  },
+};
+
+
+----
+File: prepcase.js
+Path: todo.dimensions//prepcase.js
+Size: 992 bytes
+Last Modified: 2025-09-12T09:46:47.044Z
+--
+
+// export const rule = {slug: "prepcase", type: "string", title: "Prepositional Case", description: "Indicates the prepositional usage of a pronoun.", enum: ["pre", "npr"],};
+
+// export const meta = {slug: "prepcase", enums: {pre: {enum: "pre", title: "Prepositional Case", description: "This word form must be used after a preposition.",}, npr: {enum: "npr", title: "Non-prepositional Case", description: "This word form must not be used after a preposition.",},},};
+export const node = {
+  slug: "prepcase",
+  name: "prepositional case",
+  description: "Indicates the prepositional usage of a pronoun.",
+  traits: ["CATEGORICAL", "CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "pre",
+        name: "Prepositional Case",
+        description: "This word form must be used after a preposition",
+      },
+      {
+        slug: "npr",
+        name: "Non-prepositional Case",
+        description: "This word form must not be used after a preposition",
+      },
+    ],
+  },
+};
+
+
+----
+File: prontype.js
+Path: todo.dimensions//prontype.js
+Size: 2642 bytes
+Last Modified: 2025-09-12T09:46:47.044Z
+--
+
+// export const rule = {slug: "prontype", type: "string", title: "Pronoun Type", description: "The type of pronoun. Possible values: 'prs' (Personal: Refers to specific people or things), 'art' (Article: Introduces nouns), 'int' (Interrogative: Used to ask questions), 'exc' (Exclamative: Expresses strong emotions), 'rel' (Relative: Links clauses), 'dem' (Demonstrative: Points to specific things), 'tot' (Total: Refers to all members of a group), 'neg' (Negative: Indicates negation), 'ind' (Indefinite: Refers to non-specific things or people).", enum: ["prs", "art", "int", "exc", "rel", "dem", "tot", "neg", "ind"],};
+// export const meta = {slug: "prontype", enums: {prs: {enum: "prs", title: "Personal", description: "Refers to specific people or things.",}, art: {enum: "art", title: "Article", description: "Introduces nouns.",}, int: {enum: "int", title: "Interrogative", description: "Used to ask questions.",}, exc: {enum: "exc", title: "Exclamative", description: "Expresses strong emotions.",}, rel: {enum: "rel", title: "Relative", description: "Links clauses.",}, dem: {enum: "dem", title: "Demonstrative", description: "Points to specific things.",}, tot: {enum: "tot", title: "Total", description: "Refers to all members of a group.",}, neg: {enum: "neg", title: "Negative", description: "Indicates negation.",}, ind: {enum: "ind", title: "Indefinite", description: "Refers to non-specific things or people.",},},};
+
+export const node = {
+  slug: "prontype",
+  name: "Pronoun",
+  description: "The type of pronoun.",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "prs",
+        name: "Personal",
+        description: "Refers to specific people or things",
+      },
+      {
+        slug: "art",
+        name: "Article",
+        description: "Introduces nouns",
+      },
+      {
+        slug: "int",
+        name: "Interrogative",
+        description: "Used to ask questions",
+      },
+      {
+        slug: "exc",
+        name: "Exclamative",
+        description: "Expresses strong emotions",
+      },
+      {
+        slug: "rel",
+        name: "Relative",
+        description: "Links clauses",
+      },
+      {
+        slug: "dem",
+        name: "Demonstrative",
+        description: "Points to specific things",
+      },
+      {
+        slug: "tot",
+        name: "Total",
+        description: "Refers to all members of a group",
+      },
+      {
+        slug: "neg",
+        name: "Negative",
+        description: "Indicates negation",
+      },
+      {
+        slug: "ind",
+        name: "Indefinite",
+        description: "Refers to non-specific things or people",
+      },
+    ],
+  },
+};
+
+
+----
+File: reflex.js
+Path: todo.dimensions//reflex.js
+Size: 979 bytes
+Last Modified: 2025-09-12T09:46:47.044Z
+--
+
+// export const rule = {slug: "reflex", type: "string", title: "Reflexive", description: "Indicates whether a verb is reflexive. Possible values: 'yes' (Reflexive: Indicates the subject performs the action on itself), 'no' (Non-Reflexive: The action is not performed on the subject itself).", enum: ["yes", "no"],};
+// export const meta = {slug: "reflexive", enums: {yes: { enum: "yes", title: "Reflexive", description: "" }, no: { enum: "no", title: "Non-Reflexive", description: "" },},};
+
+export const node = {
+  slug: "reflex",
+  name: "reflexive",
+  description: "Indicates whether a verb is reflexive.",
+  traits: ["CATEGORICAL", "CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "yes",
+        name: "Reflexive",
+        description: "Indicates the subject performs the action on itself",
+      },
+      {
+        slug: "no",
+        name: "Non-Reflexive",
+        description: "The action is not performed on the subject itself",
+      },
+    ],
+  },
+};
+
+
+----
+File: suffix.js
+Path: todo.dimensions//suffix.js
+Size: 872 bytes
+Last Modified: 2025-09-12T09:46:47.045Z
+--
+
+// export const rule = {slug: "suffix", type: "string", title: "Suffix", description: "The suffix of the verb", enum: ["ar", "ir", "er"],};
+// export const meta = {slug: "suffix", enums: {er: { enum: "er", title: "-er", description: "Verbs ending in er" }, ir: { enum: "ir", title: "-ir", description: "Verbs ending in ir" }, ar: { enum: "ar", title: "-ar", description: "Verbs ending in ar" },},};
+export const node = {
+  slug: "suffix",
+  name: "suffix",
+  description: "The suffix of the verb",
+  traits: ["CATEGORICAL"],
+  data: {
+    CATEGORICAL: [
+      {
+        slug: "er",
+        name: "-er",
+        description: "Verbs ending in er",
+      },
+      {
+        slug: "ir",
+        name: "-ir",
+        description: "Verbs ending in ir",
+      },
+      {
+        slug: "ar",
+        name: "-ar",
+        description: "Verbs ending in ar",
+      },
+    ],
+  },
+};
+
+
+----
+File: tense.js
+Path: todo.dimensions//tense.js
+Size: 2389 bytes
+Last Modified: 2025-09-12T09:46:47.045Z
+--
+
+// export const rule = {slug: "tense", type: "string", title: "Tense", description: "The time of action or state expressed by the verb. Possible values: 'past' (Past: An action or state that occurred in the past), 'pres' (Present: An action or state that is currently occurring), 'fut' (Future: An action or state that will occur in the future), 'imp' (Imperfect: A past action or state that was ongoing or repeated), 'pqp' (Pluperfect: An action or state that was completed before another past action).", enum: ["past", "pres", "fut", "imp"], //, "pqp"],};
+// export const meta = {slug: "tense", enums: {past: {enum: "past", title: "Past", description: "An action or state that occurred in the past.",}, pres: {enum: "pres", title: "Present", description: "An action or state that is currently occurring.",}, fut: {enum: "fut", title: "Future", description: "An action or state that will occur in the future.",}, imp: {enum: "imp", title: "Imperfect", description: "A past action or state that was ongoing or repeated.",},},};
+// pqp: {enum: "pqp", title: "Pluperfect", description: "An action or state that was completed before another past action."}
+// tense.js
+export const node = {
+  slug: "tense",
+  name: "tense",
+  description: "The time of action or state expressed by the verb.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "past",
+        name: "Past",
+        description: "An action or state that occurred in the past",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "pres",
+        name: "Present",
+        description: "An action or state that is currently occurring",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "fut",
+        name: "Future",
+        description: "An action or state that will occur in the future",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "imp",
+        name: "Imperfect",
+        description: "A past action or state that was ongoing or repeated",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: text.js
+Path: todo.dimensions//text.js
+Size: 141 bytes
+Last Modified: 2025-10-02T00:27:18.891Z
+--
+
+export const node = {
+  slug: "text",
+  name: "text",
+  description: "The canonical form of a sentence.",
+  traits: ["FREE"],
+  data: {},
+};
+
+
+----
+File: verbform.js
+Path: todo.dimensions//verbform.js
+Size: 2323 bytes
+Last Modified: 2025-09-12T09:46:47.045Z
+--
+
+// export const rule = {slug: "verbform", type: "string", title: "Verb Form", description: "The form of a verb, indicating its function in a sentence. Possible values: 'fin' (Finite: A verb form that is limited by subject and tense), 'inf' (Infinitive: The base form of a verb, usually preceded by 'to'), 'part' (Participle: A form of a verb used as an adjective or to form compound tenses), 'ger' (Gerund: A verb form that functions as a noun), 'sup' (Supine: A form of a verb used in some languages to denote purpose or intention).", enum: ["fin", "inf", "part", "ger"],};
+// export const meta = {slug: "verbform", enums: {fin: {enum: "fin", title: "Finite", description: "A verb form that is limited by subject and tense.",}, inf: {enum: "inf", title: "Infinitive", description: "The base form of a verb, usually preceded by 'to'.",}, part: {enum: "part", title: "Participle", description: "A form of a verb used as an adjective or to form compound tenses.",}, ger: {enum: "ger", title: "Gerund", description: "A verb form that functions as a noun.",},},};
+
+export const node = {
+  slug: "verbform",
+  name: "verb form",
+  description: "The form of a verb, indicating its function in a sentence.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "fin",
+        name: "Finite",
+        description: "A verb form that is limited by subject and tense",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "inf",
+        name: "Infinitive",
+        description: "The base form of a verb, usually preceded by 'to'",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "part",
+        name: "Participle",
+        description:
+          "A form of a verb used as an adjective or to form compound tenses",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "ger",
+        name: "Gerund",
+        description: "A verb form that functions as a noun",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};
+
+
+----
+File: voice.js
+Path: todo.dimensions//voice.js
+Size: 732 bytes
+Last Modified: 2025-09-12T09:46:47.045Z
+--
+
+export const node = {
+  slug: "voice",
+  name: "voice",
+  description:
+    "Grammatical voice indicating the relationship between action and subject.",
+  traits: ["CATEGORICAL", "LEARNABLE"],
+  data: {
+    LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
+    CATEGORICAL: [
+      {
+        slug: "act",
+        name: "Active",
+        description: "Subject performs the action",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "pass",
+        name: "Passive",
+        description: "Subject receives the action",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+    ],
+  },
+};

@@ -11,32 +11,32 @@ export const daemons = [
   {
     manifest: {
       type: "daemon",
-      slug: "test-language",
+      slug: "brazilian",
       version: "0.0.1",
       traits: ["ACTIVE"],
     },
 
     docs: {
-      name: "para estudiar espanol",
-      valence: "para estudiar espanol. english to spanish.",
+      name: "",
+      valence: "",
       icon: { emoji: "" },
     },
 
     statics: {
-      language: { known: "english", learning: "spanish" },
+      language: { known: "english", learning: "brazilian" },
     },
 
     kernel: [
       "@vivalence/domain/language-learning",
       "@vivalence/ontology/universal-dependencies",
-      "@vivalence/topology/spanish",
+      "@vivalence/topology/brazilian",
     ],
 
     modes: [
-      "@vivalence/teacher/dewey",
+      // "@vivalence/teacher/dewey",
       "@vivalence/game/flashcards",
-      "@vivalence/game/conjugations",
-      "@vivalence/game/translations",
+      // "@vivalence/game/conjugations",
+      // "@vivalence/game/translations",
       // "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 

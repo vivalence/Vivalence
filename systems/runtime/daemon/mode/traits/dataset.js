@@ -8,10 +8,11 @@ export const DATASET = async (mode, daemon) => {
         "EXISTENTIAL",
         "RELATIONAL",
       ]);
-      if (issues.length > 0)
-        issues = await daemon.kernel.medic.many(issues, { daemon });
-      if (issues.length > 0)
-        console.json({ UNRESOLVED_LITERAL_INSTALL: issues });
+      // console.log("---".repeat(10));
+      // console.log({ literal, issues });
+      if (issues.length > 0) issues = await daemon.kernel.medic.many(issues, { daemon });
+      if (issues.length > 0) console.json({ UNRESOLVED_LITERAL_INSTALL: issues });
+      // console.log({ literal, issues });
     }
 
     await daemon.entities.em.flush();
