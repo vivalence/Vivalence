@@ -46,9 +46,20 @@ export function string(string) {
 
 export const hashString = string;
 
+const safeStringify = (val) => {
+  const seen = new WeakSet();
+  return JSON.stringify(val, (_, v) => {
+    if (typeof v === "object" && v !== null) {
+      if (seen.has(v)) return undefined;
+      seen.add(v);
+    }
+    return v;
+  });
+};
+
 export function object(object) {
   return hashString(
-    JSON.stringify(
+    safeStringify(
       Object.keys(object)
         .sort()
         .reduce((sorted, key) => {
@@ -60,7 +71,9 @@ export function object(object) {
 }
 
 export function array(arr) {
-  return hashString(JSON.stringify(arr.sort()));
+  return hashString(safeStringify(arr.sort()));
 }
+
+// export function object(object) {return hashString(JSON.stringify(Object.keys(object) .sort() .reduce((sorted, key) => {sorted[key] = object[key]; return sorted;}, {}),),);} export function array(arr) {return hashString(JSON.stringify(arr.sort()));}
 
 // export { array, object, string: hashString };

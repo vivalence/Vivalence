@@ -1,9 +1,9 @@
-import { Aperture } from "@vivalence/vector/aperture";
-import { View, Path, Url, is } from "@vivalence/typology";
+import { View } from "@vivalence/typology";
 import { svelte } from "./view-bundler.js";
 
 export * from "./traits/productive.js";
 export * from "./traits/dataset.js";
+export * from "./traits/valentic.js";
 
 export const VIEWABLE = async (mode, daemon) => {
   mode.cake.view.withBundler(svelte);
@@ -11,17 +11,8 @@ export const VIEWABLE = async (mode, daemon) => {
   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
 };
 
-export const VALENTIC = async (mode, daemon) => {
-  const valences = mode.cake.dataset.entities["valence"];
-  for (const valence of valences) {
-    valence.mode = mode.entity.id;
-    await daemon.entities.valence.ensure(valence);
-  }
-  await daemon.entities.em.flush();
-};
-
 export const CHAOSMONKEY = (mode, daemon) => {
-  mode.brain = daemon.hallucinator;
+  mode.brain = daemon.hallucinator; // ??naming unsettled...
   mode.aperture.use(async (ctx, next) => {
     // ctx.hallucinate = daemon.brain;
     await next();

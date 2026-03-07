@@ -13,6 +13,7 @@ export async function call(die) {
       ctx.input = ctx.input || ctx.request.body;
       await composed(ctx);
       ctx.response.body = ctx.output;
+      // console.log({ output: ctx });
       if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
       else if (ctx.response.status === 404) ctx.response.setError();
     } catch (error) {

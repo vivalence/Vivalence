@@ -71,7 +71,7 @@ export class Lighthouse {
       return { status: "ERROR", error: response.error };
     }
 
-    if (response.body.success) {
+    if (response.body.status === "SUCCESS") {
       this.$status.set({ code: "VERIFIED" });
       return { status: "OK" };
     }
@@ -129,9 +129,7 @@ export class Lighthouse {
     this.$status.set({ code: "LOGGED_OUT" });
 
     if (auth?.refresh) {
-      this.connection
-        .fetch("/auth/logout", { refresh: auth.refresh })
-        .catch(() => {});
+      this.connection.fetch("/auth/logout", { refresh: auth.refresh }).catch(() => {});
     }
   }
   get json() {

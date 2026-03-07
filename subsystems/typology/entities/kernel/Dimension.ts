@@ -6,8 +6,7 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { array } from "@vivalence/shared";
-import { Path } from "@vivalence/typology";
+import { array, Path } from "@vivalence/typology";
 import { SubjectEntity, DataRepository } from "../index.ts";
 import { DataEntity, DataSchema } from "../index.ts";
 
@@ -122,9 +121,7 @@ export class DimensionRepository extends DataRepository {
   }
 
   byBranch(branch) {
-    return this.findOne(
-      branch.reduce((ancestor, slug) => ({ ancestor, slug }), null),
-    );
+    return this.findOne(branch.reduce((ancestor, slug) => ({ ancestor, slug }), null));
   }
   byPath(path) {
     return this.byBranch(path.absolute.split("/"));

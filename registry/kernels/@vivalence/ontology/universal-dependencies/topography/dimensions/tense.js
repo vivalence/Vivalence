@@ -38,6 +38,13 @@ export const node = {
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
+      {
+        slug: "pqp",
+        name: "Pluperfect",
+        description: "An action or state completed before another past action",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
     ],
   },
 };

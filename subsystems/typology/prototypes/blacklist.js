@@ -52,12 +52,12 @@ export class Blacklist {
   }
 
   async fromQueue(scope, ctx) {
-    const criteria = { type: { $ne: "SIGNAL" } };
+    const criteria = { type: { $eq: "MODAL" }, status: { $in: ["PENDING", "ACTIVE"] } };
     if (scope.product) criteria.id = scope.product;
-    if (scope.user) criteria.user = scope.user;
+    // if (scope.user) criteria.user = scope.user;
+    if (scope.session) criteria.session = scope.session;
     if (scope.producer) criteria.producer = scope.producer;
-    if (scope.generator) criteria.generator = scope.generator;
-    // if (scope.intent) criteria.intent = scope.intent.id;
+    if (scope.commissioner) criteria.commissioner = scope.commissioner;
 
     const products = await ctx.daemon.entities.product.find(criteria, {
       populate: ["literals", "symbols"],

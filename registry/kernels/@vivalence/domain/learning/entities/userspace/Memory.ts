@@ -15,7 +15,7 @@ export enum MemoryDriverEnum {
 
 export enum MemoryTypeEnum {
   INDIVIDUAL = "INDIVIDUAL",
-  RELATIONAL = "RELATIONAL",
+  //   RELATIONAL = "RELATIONAL",
 }
 
 export enum MemoryStatusEnum {
@@ -28,13 +28,13 @@ export enum MemoryStatusEnum {
 
 export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
-  literal?: Rel<LiteralEntity>;
-  symbol?: Rel<SymbolEntity>;
+  literal!: Rel<LiteralEntity>;
+  // symbol?: Rel<SymbolEntity>;
   plays = new Collection<PlayEntity>(this);
 
   driver: MemoryDriverEnum & Opt = MemoryDriverEnum.BAYESIAN;
-  type: MemoryTypeEnum & Opt = MemoryTypeEnum.INDIVIDUAL;
   status: MemoryStatusEnum & Opt = MemoryStatusEnum.UNKNOWN;
+  type: MemoryTypeEnum & Opt = MemoryTypeEnum.INDIVIDUAL;
 
   state: any & Opt = {};
   history: any & Opt = [];
@@ -61,16 +61,10 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
       fieldName: "literal",
       updateRule: "cascade",
       deleteRule: "cascade",
-      nullable: true,
+      // nullable: true,
     },
-    symbol: {
-      kind: "m:1",
-      entity: () => SymbolEntity,
-      fieldName: "symbol",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-      nullable: true,
-    },
+    // symbol: {kind: "m:1", entity: () => SymbolEntity, fieldName: "symbol", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
+
     plays: {
       kind: "1:m",
       entity: () => PlayEntity,

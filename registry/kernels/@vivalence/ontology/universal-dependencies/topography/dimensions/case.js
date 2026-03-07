@@ -1,10 +1,7 @@
 export const node = {
   slug: "case",
-  docs: {
-    name: "case",
-    description:
-      "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
-  },
+  name: "case",
+  description: "Grammatical case marking for nouns, pronouns, adjectives, and determiners.",
   traits: ["CATEGORICAL", "LEARNABLE"],
   data: {
     LEARNABLE: { driver: "BOOLEAN", type: "INDIVIDUAL" },
@@ -12,8 +9,7 @@ export const node = {
       {
         slug: "nom",
         name: "Nominative",
-        description:
-          "Subject case, used for sentence subjects and predicate nominatives",
+        description: "Subject case, used for sentence subjects and predicate nominatives",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
@@ -27,32 +23,28 @@ export const node = {
       {
         slug: "gen",
         name: "Genitive",
-        description:
-          "Possessive case, shows possession and partitive relationships",
+        description: "Possessive case, shows possession and partitive relationships",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "dat",
         name: "Dative",
-        description:
-          "Indirect object case, recipient or beneficiary of an action",
+        description: "Indirect object case, recipient or beneficiary of an action",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "abl",
         name: "Ablative",
-        description:
-          "Instrumental/locative case, shows means, manner, place, time",
+        description: "Instrumental/locative case, shows means, manner, place, time",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
       {
         slug: "voc",
         name: "Vocative",
-        description:
-          "Direct address case, used when calling or addressing someone",
+        description: "Direct address case, used when calling or addressing someone",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },

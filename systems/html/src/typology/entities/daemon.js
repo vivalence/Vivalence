@@ -1,14 +1,22 @@
 import { object } from "@vivalence/shared";
 import { Connection, Path } from "@vivalence/typology";
+import { ProductionResult, ProductionRequest } from "@vivalence/typology";
 import { Mode, Valence, Intent } from "@vivalence/html/typology";
+import { Repository, entities } from "@vivalence/html/typology";
+
 import { dataspace } from "$client";
 
 export class Daemon {
   manifest = null;
   mount = null;
-  valences = new Set();
-  modes = new Set();
-  intents = new Set();
+  connection = null;
+
+  entities = {
+    mode: new Repository(entities.mode), //
+    valence: new Repository(entities.valence), //
+    session: new Repository(entities.session), //
+    product: new Repository(entities.product), //
+  };
 
   constructor(connection) {
     this.connection = connection;
@@ -18,13 +26,28 @@ export class Daemon {
 export const prototype = Daemon;
 
 export async function lifecycle(daemon) {
-  daemon.manifest = await daemon.connection.call("/manifest");
-  daemon.call = daemon.connection.call.bind(daemon.connection);
-  daemon.mount = new Path(`/daemon/${daemon.manifest.slug}`);
+  try {
+    daemon.manifest = await daemon.connection.call("/manifest");
+  } catch (error) {
+    console.log("Error setting up daemon", { daemon });
+    throw new Error("daemon doesnt manifest");
+  }
 
-  const modes = await daemon.connection.call("/entities/mode/find");
+  daemon.slug = daemon.manifest.slug;
+  daemon.call = daemon.connection.call.bind(daemon.connection);
+  daemon.mount = new Path(`/daemon/${daemon.slug}`);
+
+  daemon.entities.mode.connect(daemon.connection.branch("/entities/mode"));
+  daemon.entities.valence.connect(daemon.connection.branch("/entities/valence"));
+  daemon.entities.session.connect(daemon.connection.branch("/userspace/entities/session"));
+  daemon.entities.product.connect(daemon.connection.branch("/userspace/entities/product"));
+
+  // const modes = await daemon.connection.call("/entities/mode/find");
+  const modes = await daemon.entities.mode.find();
   for (const modePojo of modes) {
     const mode = new Mode(modePojo);
+    mode.valences = new Set();
+
     mode.daemon = daemon;
     mode.mount = daemon.mount //
       .branch(`/mode/${mode.type}/${mode.slug}`);
@@ -33,76 +56,56 @@ export async function lifecycle(daemon) {
     mode.call = mode.connection.call.bind(mode.connection);
 
     mode.manifest = await mode.connection.call("/manifest");
+    if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
 
-    if (mode.implements("VIEWABLE"))
-      mode.view = await mode.connection.call("/view");
+    // if (mode.implements("LANGUAGED")) mode.converse = f()
 
-    daemon.modes.add(mode);
-    dataspace.mode.add(mode);
+    daemon.entities.mode.add(mode);
   }
 
-  const valences = await daemon.connection.call("/entities/valence/find");
+  // const valences = await daemon.connection.call("/entities/valence/find");
+  const valences = await daemon.entities.valence.find();
   for (const valencePojo of valences) {
     const valence = new Valence(valencePojo);
-    valence.mode = await dataspace.mode //
-      .findOne((mode) => valencePojo.mode.id === mode.id);
+    valence.mode = await daemon.entities.mode //
+      .findOne({ id: valencePojo.mode.id });
 
-    if (valence.type === "destination") {
-      valence.link = valence.mode.mount
-        .branch(`/valence/${valence.slug}`)
-        .rebase("/viva");
+    if (valence.type === "SELFEVIDENT") {
+      valence.link = valence.mode.mount.branch(`/valence/${valence.slug}`).rebase("/viva");
     }
 
-    if (valence.data["producer"]) {
+    if (valence.implements("GENERATIVE")) {
+      valence.queue = valence.data["GENERATIVE"].queue ?? 0;
       valence.produce = valence.mode.connection
-        .clone() //
+        .clone()
         .use(async (ctx, next) => {
+          // ctx.request.body = new ProductionRequest(ctx.request.body);
           await next();
+          ctx.response.body = new ProductionResult(ctx.response.body);
         })
         .use(async (ctx, next) => {
-          ctx.request.body.scope = object //
-            .merge(ctx.request.body.scope, {
-              valence: valence.id,
-              commissioner: valence.mode.id,
-            });
-
-          // console.log("ctx.request", ctx.request);
-
           await next();
 
-          // console.log("ctx.response", ctx.response);
-
-          ctx.response.body = await Promise.all(
+          ctx.response.body.products = await Promise.all(
             ctx.response.body.products.map(async (product) => {
-              product.mode = await dataspace.mode.findOne(
-                (mode) =>
-                  mode.id ===
-                  // stupid
-                  (product.producer.id
-                    ? product.producer.id
-                    : product.producer),
-              );
+              product.mode = await daemon.entities.mode.findOne({
+                id: product.producer.id ?? product.producer,
+              });
               return product;
             }),
           );
 
-          // parse ProductionResponse
+          // console.log("VALENCE RESPONSE", ctx.response.body);
         })
-        .aim(valence.data["producer"], valence.data["mask"]);
+        .aim(`/valence/${valence.slug}`);
+      // .aim(valence.data.GENERATIVE["mount"], valence.data.GENERATIVE["mask"]);
     }
 
     valence.mode.valences.add(valence);
-    daemon.valences.add(valence);
-    dataspace.valence.add(valence);
+    daemon.entities.valence.add(valence);
   }
 
-  const intents = await daemon.connection.call("/entities/intent/find");
-  for (const intentPojo of intents) {
-    const intent = new Intent(intentPojo);
-    intent.daemon = daemon;
-    daemon.intents.add(intent);
-    dataspace.intent.add(intent);
-  }
+  // const intents = await daemon.connection.call("/entities/intent/find"); for (const intentPojo of intents) {const intent = new Intent(intentPojo); intent.daemon = daemon; daemon.intents.add(intent); dataspace.intent.add(intent);}
 }
 
 // Mode pojo  {

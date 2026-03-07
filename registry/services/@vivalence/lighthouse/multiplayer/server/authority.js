@@ -1,5 +1,6 @@
 import { wrap } from "@mikro-orm/core";
-import hash from "@vivalence/shared/hash";
+// import hash from "@vivalence/shared/hash";
+import * as argon2 from "argon2";
 import createJWT from "./lib/jwt.js";
 
 const respond = {
@@ -33,23 +34,24 @@ async function signup(input, ctx) {
   const { username, password } = input;
 
   if (!username || !password) {
-    return respond.error(
-      ctx,
-      "INVALID_INPUT",
-      "Username and password required",
-    );
+    return respond.error(ctx, "INVALID_INPUT", "Username and password required");
   }
 
   // if (password.length < 8) {return respond.error(ctx, "WEAK_PASSWORD", "Password must be at least 8 characters");}
+  // const existing = await ctx.entities.identity  .findOne({ "authentication.credentials.username": username });
 
-  const existing = await ctx.entities.identity //
-    .findOne({ "authentication.credentials.username": username });
+  const existing = await ctx.entities.identity
+    .createQueryBuilder("i")
+    .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [username])
+    .getSingleResult();
 
   if (existing) {
     return respond.error(ctx, "USERNAME_EXISTS", "Username already taken");
   }
 
-  const passwordHash = await hash(password);
+  // const passwordHash = await hash(password);
+  const passwordHash = await argon2.hash(password);
+
   const identity = ctx.entities.identity.create({ slug: username });
 
   await ctx.entities.em.flush();
@@ -77,22 +79,13 @@ async function login(input, ctx) {
   const { username, password } = input;
 
   if (!username || !password) {
-    return respond.error(
-      ctx,
-      "INVALID_INPUT",
-      "Username and password required",
-    );
+    return respond.error(ctx, "INVALID_INPUT", "Username and password required");
   }
 
   const identity = await ctx.identity.identify({ username, password });
 
   if (!identity) {
-    return respond.error(
-      ctx,
-      "INVALID_CREDENTIALS",
-      "Invalid username or password",
-      401,
-    );
+    return respond.error(ctx, "INVALID_CREDENTIALS", "Invalid username or password", 401);
   }
 
   const authority = {
@@ -173,12 +166,7 @@ async function refresh(input, ctx) {
   }
 
   if (!ctx.rft.verify(refresh)) {
-    return respond.error(
-      ctx,
-      "INVALID_TOKEN",
-      "Invalid or revoked refresh token",
-      401,
-    );
+    return respond.error(ctx, "INVALID_TOKEN", "Invalid or revoked refresh token", 401);
   }
 
   const payload = await ctx.jwt.verify(refresh).catch(() => null);

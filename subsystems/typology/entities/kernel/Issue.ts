@@ -1,4 +1,4 @@
-import { hash } from "@vivalence/shared";
+import { hash } from "@vivalence/typology";
 import { type Opt } from "@mikro-orm/core";
 import { VirtualEntity, VirtualRepository } from "../index.ts";
 import { ConstraintEntity } from "./Constraint.ts";
@@ -49,7 +49,8 @@ export class IssueEntity {
   onError(error: any) {
     this.error = error;
     this.status = IssueStatusEnum.ERROR;
-    console.log("[ISSUE ERROR]", this);
+    // console.log("[ISSUE ERROR]", this);
+
     return this;
   }
   spawn(issues: IssueEntity | IssueEntity[]) {

@@ -141,6 +141,8 @@ export async function modes(daemonDie) {
     mode.entity.traits = array //
       .unique([...mode.entity.traits, ...mode.traits]);
 
+    mode.id = mode.entity.id; // ugly
+
     if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
     daemonDie.good.modes[mode.type][mode.slug] = mode;
   }

@@ -7,23 +7,24 @@ async function forbidden(issue, ctx) {
   }
 
   const forbiddenKey = error.params.additionalProperty;
-  
+
   // Remove the forbidden property from annotation
   delete literal.annotation[forbiddenKey];
-  
+
   try {
     await daemon.entities.em.flush();
     return issue.resolve();
   } catch (err) {
-    return issue.onError({ 
-      message: "Failed to update literal", 
-      error: err 
+    return issue.onError({
+      message: "Failed to update literal",
+      error: err,
     });
   }
 }
 
 export default {
-  handler: forbidden,
+  target: "literal",
+  scope: ["annotation", "*"],
   violation: "forbidden",
-  path: ["literal", "annotation", "*"],
+  handler: forbidden,
 };

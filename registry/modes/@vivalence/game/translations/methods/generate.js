@@ -1,14 +1,21 @@
 import { ProductionResult, Agent } from "@vivalence/typology";
 
-export async function pending(input, ctx) {
+export async function feed(input, ctx) {
   const { scope } = input;
   const language = ctx.daemon.statics.language;
 
-  const [verb, noun, adj] = await Promise.all([
-    ctx.daemon.call("/pick/literal/feed", input),
-    ctx.daemon.call("/pick/literal/feed", input),
-    ctx.daemon.call("/pick/literal/due", input),
-  ]);
+  // const literals = await ctx.daemon.call("/pick/literal/feed", { take: 10 });
+  // console.log({ mode: ctx.mode });
+  // console.log({ user: ctx.user.id, producer: ctx.mode.id });
+
+  const plays = await ctx.daemon.entities.play.find(
+    { user: ctx.user.id, producer: ctx.mode.id },
+    { populate: ["product"], limit: 20, orderBy: { createdAt: "desc" } },
+  );
+
+  console.log(plays);
+
+  // const [verb, noun, adj] = await Promise.all([ctx.daemon.call("/pick/literal/feed", input), ctx.daemon.call("/pick/literal/feed", input),]);
 
   // if (literals.length === 0) return await ungrounded(scope, ctx);
 

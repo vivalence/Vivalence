@@ -1,11 +1,5 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  EntityRepositoryType,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { types, Collection, EntitySchema, EntityRepositoryType } from "@mikro-orm/core";
+import { type Opt, type Rel } from "@mikro-orm/core";
 import { DataRepository, DimensionEntity } from "../index.ts";
 import { DataEntity, DataSchema } from "../index.ts";
 

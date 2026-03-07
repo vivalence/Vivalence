@@ -4,40 +4,40 @@ import { BaseEntity, BaseSchema } from "../index.ts";
 import { ModeEntity, IntentEntity, SessionEntity } from "../index.ts";
 import { SymbolEntity, LiteralEntity } from "../index.ts";
 
-export enum ProductStatusEnum {} // abandonded
-// PENDING = "PENDING",
-// ACTIVE = "ACTIVE",
-// DONE = "DONE",
-// ERROR = "ERROR",
+export enum ProductStatusEnum {
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  DONE = "DONE",
+  ERROR = "ERROR",
+  STALE = "STALE",
+}
 
-export enum ProductTypeEnum { // extended
+export enum ProductTypeEnum {
   MODAL = "MODAL",
+  MESSAGE = "MESSAGE",
   SIGNAL = "SIGNAL",
 }
 
-export enum ProductSignalEnum {} // changed
-// BATCH = "BATCH",
-// SET = "SET",
+// {type: "MODAL", traits: ["STATE"], data: {STATE: { front: { header: "gato" }, back: { header: "cat" } },}}
+// {type: "MESSAGE", traits: ["AGENT", "THINKING"], data: {AGENT: { content: "here are some conjugations" }, THINKING: { reasoning: "user wants verb practice" }}}
+
+// export enum ProductSignalEnum {}
 
 export class ProductEntity extends BaseEntity {
   type: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
   status: ProductStatusEnum & Opt = ProductStatusEnum.PENDING;
+
   data: any & Opt = {};
-  index: number & Opt = 0;
+  position: number & Opt = 0;
 
   producer!: Rel<ModeEntity>;
   commissioner!: Rel<ModeEntity>;
 
   session!: Rel<SessionEntity>;
-  intent?: Rel<IntentEntity>;
+  // intent?: Rel<IntentEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
-
-  get signal(): ProductSignalEnum | null {
-    if (this.type !== ProductTypeEnum.SIGNAL) return null;
-    return this.data?.signal ?? null;
-  }
 }
 
 export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
@@ -55,10 +55,15 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
       enum: true,
       items: () => ProductStatusEnum,
       default: ProductStatusEnum.PENDING,
-      // onCreate: () => ProductStatusEnum.PENDING,
     },
-    index: { type: Number },
+    position: { type: Number },
     data: { type: "json" },
+
+    session: {
+      kind: "m:1",
+      entity: () => SessionEntity,
+      fieldName: "session",
+    },
 
     producer: {
       kind: "m:1",
@@ -72,18 +77,7 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
       fieldName: "commissioner",
     },
 
-    session: {
-      kind: "m:1",
-      entity: () => SessionEntity,
-      fieldName: "session",
-    },
-
-    intent: {
-      kind: "m:1",
-      entity: () => IntentEntity,
-      fieldName: "intent",
-      nullable: true,
-    },
+    // intent: {kind: "m:1", entity: () => IntentEntity, fieldName: "intent", nullable: true,},
 
     symbols: {
       kind: "m:n",

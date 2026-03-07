@@ -8,21 +8,21 @@ export function validation(daemonDie) {
 }
 
 function createAnnotationValidator(daemon) {
-  return async (annotation, types = ["SCHEMATIC"]) => {
+  return async (annotation, types = ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"]) => {
     const subject = annotation.pos;
     return runConstraints(daemon, "annotation", subject, annotation, types);
   };
 }
 
 function createLiteralValidator(daemon) {
-  return async (literal, types = ["SCHEMATIC", "RELATIONAL"]) => {
+  return async (literal, types = ["SCHEMATIC", "EXISTENTIAL", "RELATIONAL"]) => {
     const subject = literal.annotation?.pos;
     return runConstraints(daemon, "literal", subject, literal, types);
   };
 }
 
 function createSymbolValidator(daemon) {
-  return async (symbol, types = ["SCHEMATIC"]) => {
+  return async (symbol, types = ["SCHEMATIC", "RELATIONAL"]) => {
     return runConstraints(daemon, "symbol", undefined, symbol, types);
   };
 }

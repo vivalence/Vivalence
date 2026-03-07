@@ -1,4 +1,5 @@
 import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { EventSubscriber, type EventArgs } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
 import { PlayEntity } from "../userspace/Play.ts";
@@ -7,32 +8,21 @@ import { MemoryEntity } from "../userspace/Memory.ts";
 export enum LiteralTraitsEnum {
   TRANSLATED = "TRANSLATED",
   EXEMPLIFIED = "EXEMPLIFIED",
-  SORTED = "SORTED",
+  INDEXED = "INDEXED",
 }
 
 export class LiteralEntity extends maps.kernel.literal.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
+  rank: number | (null & Opt) = null;
   memories = new Collection<MemoryEntity>(this);
   plays = new Collection<PlayEntity>(this);
 
-  get translation() {
+  get translated() {
     return this.data.TRANSLATED;
   }
-  set translation(value) {
-    this.data = { ...this.data, TRANSLATED: value };
-    if (!this.traits.includes(LiteralTraitsEnum.TRANSLATED)) {
-      this.traits.push(LiteralTraitsEnum.TRANSLATED);
-    }
-  }
 
-  get examples() {
+  get example() {
     return this.data.EXEMPLIFIED;
-  }
-  set examples(value) {
-    this.data = { ...this.data, EXEMPLIFIED: value };
-    if (!this.traits.includes(LiteralTraitsEnum.EXEMPLIFIED)) {
-      this.traits.push(LiteralTraitsEnum.EXEMPLIFIED);
-    }
   }
 }
 
@@ -50,11 +40,18 @@ export const LiteralSchema = new EntitySchema({
       type: types.json,
     },
 
+    rank: {
+      type: types.integer,
+      nullable: true,
+      default: null,
+    },
+
     memories: {
       kind: "1:m",
       entity: () => MemoryEntity,
       mappedBy: (memory) => memory.literal,
     },
+
     plays: {
       kind: "1:m",
       entity: () => PlayEntity,
@@ -63,11 +60,24 @@ export const LiteralSchema = new EntitySchema({
   },
 });
 
+export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
+  getSubscribedEntities() {
+    return [LiteralEntity];
+  }
+  beforeCreate({ entity }: EventArgs<LiteralEntity>) {
+    entity.rank = entity.data?.INDEXED?.rank ?? null;
+  }
+  beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
+    entity.rank = entity.data?.INDEXED?.rank ?? null;
+  }
+}
+
 export default {
   type: "literal",
   traits: LiteralTraitsEnum,
   schema: LiteralSchema,
   entity: LiteralEntity,
+  subscriber: LiteralSubscriber,
   // gestalt: gestalt,
   // repository: TopographyRepository,
 };

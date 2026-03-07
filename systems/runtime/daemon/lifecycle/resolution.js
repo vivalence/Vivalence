@@ -5,9 +5,7 @@ export async function kernel(daemonDie) {
   daemonDie.kernel.domain.aperture //
     .use(shards.context.attach("daemon", daemonDie.good));
 
-  daemonDie.good.aperture
-    .use(shards.secure.authorize())
-    .slurp(daemonDie.kernel.domain.aperture);
+  daemonDie.good.aperture.use(shards.secure.authorize()).slurp(daemonDie.kernel.domain.aperture);
 }
 
 export async function modes(daemonDie) {

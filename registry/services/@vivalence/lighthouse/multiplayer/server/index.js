@@ -14,11 +14,7 @@ export default async function server(aperture, service) {
       try {
         await next();
       } catch (error) {
-        console.log(
-          "[@lighthouse/multiplayer] service error",
-          error.name,
-          error.code,
-        );
+        console.log("[@lighthouse/multiplayer] service error", error.name, error.code);
         if (error.code === "ERR_JWT_EXPIRED") {
           ctx.response.status = 401;
           ctx.response.body = { error };

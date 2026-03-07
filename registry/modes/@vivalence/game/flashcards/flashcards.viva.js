@@ -18,14 +18,10 @@ const view = new View("buffer/flashcards.svelte.js");
 
 const aperture = new Aperture().open("/evaluate", evaluate);
 
-const producer = new Aperture()
+const production = new Aperture()
   .branch("/generate")
-  .use(async (ctx, next) => {
-    ctx.input.scope.producer = ctx.mode.entity.id;
-    await next();
-  })
   .open("/pending", generate.pending)
   .open("/fromSymbols", generate.fromSymbols)
   .open("/fromLiterals", generate.fromLiterals);
 
-export { manifest, view, aperture, producer, dataset };
+export { manifest, view, aperture, production, dataset };

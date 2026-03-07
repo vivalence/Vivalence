@@ -1,9 +1,9 @@
 import { Repository, Entity } from "@vivalence/html/typology";
 
 export class Valence extends Entity {
-  // implements(trait) {
-  //   return this.traits.includes(trait.toUpperCase());
-  // }
+  implements(trait) {
+    return this.traits.includes(trait.toUpperCase());
+  }
 }
 
 export const prototype = Valence;

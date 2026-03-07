@@ -4,6 +4,8 @@ import { Path } from "./path.ts";
 import { Handler, ApertureContext } from "./types.ts";
 import parser from "./parser.js";
 
+// ISSUE path parsing and middleware application are in tension in call(compose) vs http invocations.
+
 export default class Aperture {
   path: Path;
   composed: any;
@@ -17,6 +19,7 @@ export default class Aperture {
 
   constructor(path: Path | null) {
     this.path = path ? path : new Path();
+    // this.router.use(this.path)
   }
 
   get json() {
@@ -72,6 +75,7 @@ export default class Aperture {
       }
 
       this.composed = compose([
+        // this.path.toString(),
         ...this.middlewares,
         this.router.routes(),
         this.router.allowedMethods(),
@@ -86,8 +90,14 @@ export default class Aperture {
 
     this.compose(force);
 
-    // router.use(this.middleware);
-    router.use(this.path.toString(), this.router.routes(), this.router.allowedMethods());
+    // router.use(this.middlewares);
+    router.use(
+      //
+      this.path.toString(),
+      // ...this.middlewares,
+      this.router.routes(),
+      this.router.allowedMethods(),
+    );
 
     return this;
   }

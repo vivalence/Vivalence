@@ -30,13 +30,14 @@ export const daemons = [
       "@vivalence/domain/language-learning",
       "@vivalence/ontology/universal-dependencies",
       "@vivalence/topology/brazilian",
+      // "@vivalence/topology/test",
     ],
 
     modes: [
       // "@vivalence/teacher/dewey",
       "@vivalence/game/flashcards",
       // "@vivalence/game/conjugations",
-      // "@vivalence/game/translations",
+      "@vivalence/game/translations",
       // "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 

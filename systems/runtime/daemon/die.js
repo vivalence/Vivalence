@@ -58,7 +58,7 @@ export class Die extends Wafer {
     await lifecycle.integration.call(this);
     await lifecycle.integration.uninstall(this);
 
-    // await test(this);
+    await test(this);
 
     this.status.set("alive");
   }
@@ -71,49 +71,62 @@ export class Die extends Wafer {
   }
 }
 
-const literal = {
-  slug: "lemma.gato:pos.noun:gender.masc:number.sing",
-  traits: ["EXEMPLIFIED", "TRANSLATED"],
-  annotation: {
-    pos: "noun",
-    lemma: "gato",
-    gender: "masc",
-    number: "sing",
+async function test(daemonDie) {
+  // const play = await daemonDie.good.entities.play.find();
+}
+
+const QUERY = {
+  batch: 1,
+  stock: 1,
+  seek: {
+    symbols: [
+      {
+        id: "019cc6aa-9232-779e-8cdb-a7a3519dbffe",
+      },
+    ],
   },
-  data: {
-    TRANSLATED: {
-      known: "cat",
-      learning: "gato",
-    },
-    EXEMPLIFIED: {
-      known: "The cat is small",
-      learning: "O gato é pequeno",
-    },
+  scope: {
+    commissioner: "019cc6aa-917b-7496-8c69-0a4c0f3db157",
+    session: "019cc5fa-305b-74d8-b228-efa9269422b7",
+    valence: "019cc6aa-ac24-766e-bc75-6a2835322a6e",
+    user: "019af285-bcd6-70cc-97ca-8a1aa4193320",
+  },
+  blacklist: {
+    literals: [
+      "019cc6aa-932e-77f7-a276-90a64af874db",
+      "019cc6aa-934a-746e-9b2a-ff141bff343b",
+      "019cc6aa-9296-746a-ac04-ff8e4dd5918d",
+      "019cc6aa-92de-740b-8f6e-e5cb5e2bd2a7",
+    ],
+    symbols: [],
+    products: [],
   },
 };
-async function test(daemonDie) {
-  // console.json(daemonDie.good.schema.literals.noun);
-  // console.log({ schema: { annotation: daemonDie.good.schema.annotations.noun } });
-  // console.log(daemonDie.good.assert);
-  // console.log(daemonDie.good.validate);
-  //
 
-  let issues = await daemonDie.good.validate.literal(literal, [
-    // "SCHEMATIC",
-    // "EXISTENTIAL",
-    "RELATIONAL",
-  ]);
+// const literal = {slug: "lemma.gato:pos.noun:gender.masc:number.sing", traits: ["EXEMPLIFIED", "TRANSLATED"], annotation: {pos: "noun", lemma: "gato", gender: "masc", number: "sing",}, data: {TRANSLATED: {known: "cat", learning: "gato",}, EXEMPLIFIED: {known: "The cat is small", learning: "O gato é pequeno",},},};
+// const subjects = await daemonDie.good.entities.subject.find();
+// const dimensions = await daemonDie.good.entities.dimension.find();
+// console.json(daemonDie.good.schema.literals.noun);
+// console.log({ schema: { annotation: daemonDie.good.schema.annotations.noun } });
+// console.log(daemonDie.good.assert);
+// console.log(daemonDie.good.validate);
+//
 
-  // console.json({ intemediary: issues });
+// let issues = await daemonDie.good.validate.literal(literal, [
+//   // "SCHEMATIC",
+//   // "EXISTENTIAL",
+//   "RELATIONAL",
+// ]);
 
-  if (!is.empty(issues)) {
-    issues = await daemonDie.good.kernel.medic.many(issues, {
-      daemon: daemonDie.good,
-    });
-  }
+// // console.json({ intemediary: issues });
 
-  console.json({ result: issues });
-}
+// if (!is.empty(issues)) {
+//   issues = await daemonDie.good.kernel.medic.many(issues, {
+//     daemon: daemonDie.good,
+//   });
+// }
+
+// console.json({ result: issues });
 // const literal = { id: "019c39b4-8eed-73d8-b5a5-aaef0fa4282e" }; async function BLACKLIST(daemonDie) {const result = await daemonDie.good.entities.literal.findOne(literal, {populate: ["symbols"],}); console.json({ result });}
 // // const literal = {id: "019c1cd5-a5da-7125-9e4d-1fc10af7d23a", slug: "lemma:hola-pos:noun-gender:fem-number:sing", name: null, description: null, annotation: { lemma: "hola", pos: "noun", gender: "fem", number: "sing" }, data: {known: "hello", learning: "hola", index: 1, example: { known: "Hello, how are you?", learning: "Hola, ¿cómo estás?" },}, symbols: [],};
 // const literal = {

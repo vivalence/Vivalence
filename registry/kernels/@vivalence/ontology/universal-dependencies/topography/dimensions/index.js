@@ -1,5 +1,5 @@
 const moduleNames = [
-  // "text",
+  "text",
   "foreign",
   "compound",
   "advtype",
@@ -29,9 +29,7 @@ const moduleNames = [
 ];
 
 const modules = await Promise.all(
-  moduleNames.map((name) =>
-    import(`./${name}.js`).then((module) => module.node),
-  ),
+  moduleNames.map((name) => import(`./${name}.js`).then((module) => module.node)),
 );
 export default modules;
 

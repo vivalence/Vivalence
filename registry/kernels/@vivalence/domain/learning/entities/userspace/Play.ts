@@ -12,13 +12,14 @@ import { ProductEntity } from "../userspace/Product.ts";
 export class PlayEntity extends BaseEntity {
   user!: Rel<UserEntity>;
 
-  literal?: Rel<LiteralEntity>;
-  symbol?: Rel<SymbolEntity>;
+  producer!: Rel<ModeEntity>;
+  commissioner!: Rel<ModeEntity>;
 
   product!: Rel<ProductEntity>;
-  mode!: Rel<ModeEntity>;
-
   memory!: Rel<MemoryEntity>;
+
+  literal?: Rel<LiteralEntity>;
+  symbol?: Rel<SymbolEntity>;
 
   signal: any & Opt = {};
   // debrief?: any & Opt = {};
@@ -38,23 +39,6 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-    literal: {
-      kind: "m:1",
-      entity: () => LiteralEntity,
-      fieldName: "literal",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-      nullable: true,
-    },
-    symbol: {
-      kind: "m:1",
-      entity: () => SymbolEntity,
-      fieldName: "symbol",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-      nullable: true,
-    },
-
     product: {
       kind: "m:1",
       entity: () => ProductEntity,
@@ -81,6 +65,23 @@ export const PlaySchema = new EntitySchema<PlayEntity, BaseEntity>({
 
     signal: { type: "json" },
     // debrief: { type: "json", nullable: true },
+
+    literal: {
+      kind: "m:1",
+      entity: () => LiteralEntity,
+      fieldName: "literal",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+      nullable: true,
+    },
+    symbol: {
+      kind: "m:1",
+      entity: () => SymbolEntity,
+      fieldName: "symbol",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+      nullable: true,
+    },
 
     nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
     nextAt: { type: Date, fieldName: "nextAt" },

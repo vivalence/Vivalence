@@ -26,8 +26,7 @@ export const node = {
       {
         slug: "part",
         name: "Participle",
-        description:
-          "A form of a verb used as an adjective or to form compound tenses",
+        description: "A form of a verb used as an adjective or to form compound tenses",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },
@@ -35,6 +34,13 @@ export const node = {
         slug: "ger",
         name: "Gerund",
         description: "A verb form that functions as a noun",
+        traits: ["LEARNABLE"],
+        data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
+      },
+      {
+        slug: "sup",
+        name: "Supine",
+        description: "A verbal noun form expressing purpose or goal of motion",
         traits: ["LEARNABLE"],
         data: { LEARNABLE: { driver: "BAYESIAN", type: "RELATIONAL" } },
       },

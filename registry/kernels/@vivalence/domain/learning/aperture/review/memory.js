@@ -27,11 +27,7 @@ export async function read({ scope }, ctx) {
       criteria.literal = null;
     }
 
-    if (scope.symbol) {
-      criteria.symbol = scope.symbol;
-    } else {
-      criteria.symbol = null;
-    }
+    // if (scope.symbol) {criteria.symbol = scope.symbol;} else {criteria.symbol = null;}
 
     const memory = await ctx.daemon.entities.memory.findOne(criteria);
     return memory;
@@ -43,10 +39,7 @@ export async function read({ scope }, ctx) {
 
 export async function create({ signal, scope }, ctx) {
   try {
-    const [MemoryDriver, { driver, type }] = await getMemoryDriver(
-      { scope },
-      ctx,
-    );
+    const [MemoryDriver, { driver, type }] = await getMemoryDriver({ scope }, ctx);
     const lastAt = new Date();
 
     const state = MemoryDriver.initiate({ signal });
@@ -72,9 +65,7 @@ export async function create({ signal, scope }, ctx) {
       memoryData.literal = scope.literal;
     }
 
-    if (scope.symbol) {
-      memoryData.symbol = scope.symbol;
-    }
+    // if (scope.symbol) {memoryData.symbol = scope.symbol;}
 
     const memory = ctx.daemon.entities.memory.create(memoryData);
     await ctx.daemon.entities.em.persist(memory).flush();
@@ -99,18 +90,12 @@ export async function create({ signal, scope }, ctx) {
 
 export async function update({ signal, scope, memory }, ctx) {
   try {
-    const [MemoryDriver, { driver, type }] = await getMemoryDriver(
-      { scope, memory },
-      ctx,
-    );
+    const [MemoryDriver, { driver, type }] = await getMemoryDriver({ scope, memory }, ctx);
     const lastAt = new Date();
 
     const state = MemoryDriver.update({ memory, signal });
     const { nextIn, nextAt } = MemoryDriver.schedule({ memory: { state } });
-    const history = [
-      ...memory.history,
-      { signal, state, nextIn, nextAt, lastAt },
-    ];
+    const history = [...memory.history, { signal, state, nextIn, nextAt, lastAt }];
     const status = MemoryDriver.status({ memory: { state, nextIn, history } });
     history[history.length - 1].status = status;
 

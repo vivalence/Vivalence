@@ -9,24 +9,27 @@ export class ProductionRequest {
   }
 
   demand(inventory = 0) {
-    return Math.max(this.batch, this.stock - inventory, 0);
+    return this.batch + this.stock - inventory;
   }
 
   satisfiedBy(produced, inventory = 0) {
-    const batchMet = this.batch <= 0 || produced >= this.batch;
-    const stockMet = this.stock <= 0 || inventory + produced >= this.stock;
-    return batchMet && stockMet;
+    const totalRequired = this.batch + this.stock;
+    const totalAvailable = produced + inventory;
+    return totalAvailable >= totalRequired;
   }
 
   recall(result, inventory = 0) {
     const produced = result.material.length;
     if (this.satisfiedBy(produced, inventory)) return null;
+
+    const debt = Math.max(0, this.batch + this.stock - produced);
+
     return new ProductionRequest({
       seek: this.seek,
       scope: this.scope,
       blacklist: this.blacklist,
-      batch: Math.max(0, this.batch - produced),
-      stock: Math.max(0, this.stock - (inventory + produced)),
+      stock: debt,
+      batch: 0,
     });
   }
 
@@ -34,45 +37,3 @@ export class ProductionRequest {
     return new ProductionRequest({ ...base, ...overrides });
   }
 }
-// export class ProductionRequest {
-//   constructor({
-//     batch = 0,
-//     stock = 0,
-//     seek = {},
-//     scope = {},
-//     blacklist = {},
-//   } = {}) {
-//     this.batch = batch;
-//     this.stock = stock;
-//     this.seek = seek;
-//     this.scope = scope;
-//     this.blacklist = blacklist;
-//   }
-
-//   demand(inventory = 0) {
-//     return this.batch + this.stock - inventory;
-//   }
-
-//   recall(result, inventory = 0) {
-//     if (result.is.terminal()) return null;
-//     const produced = result.products.length;
-//     const batchDebt = this.batch - produced;
-//     const stockDebt = this.stock - (inventory + produced);
-//     if (batchDebt <= 0 && stockDebt <= 0) return null;
-//     return ProductionRequest.from(this, {
-//       batch: Math.max(0, batchDebt),
-//       stock: Math.max(0, stockDebt),
-//     });
-//   }
-
-//   static from(base, overrides = {}) {
-//     return new ProductionRequest({
-//       seek: base.seek,
-//       scope: base.scope,
-//       blacklist: base.blacklist,
-//       batch: base.batch,
-//       stock: base.stock,
-//       ...overrides,
-//     });
-//   }
-// }

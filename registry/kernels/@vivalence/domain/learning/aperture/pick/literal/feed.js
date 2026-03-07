@@ -19,6 +19,7 @@ export default async function (input, ctx) {
       ctx,
     );
 
+    // console.log({ dueLiterals });
     if (dueLiterals.length > 0) {
       literals.push(...dueLiterals);
       debt += dueLiterals.length;

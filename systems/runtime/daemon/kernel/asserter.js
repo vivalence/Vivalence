@@ -10,7 +10,7 @@ export function asserter(daemonDie) {
 }
 
 function createAsserter(entityType, daemon) {
-  return async function assert(entity, { processors, depth = 0, context }) {
+  return async function assert(entity, { processors, depth = 0, context } = {}) {
     if (depth > MAX_ASSERTION_DEPTH) {
       throw new AssertionError(
         `Max assertion depth (${MAX_ASSERTION_DEPTH}) reached for ${entityType}`,
@@ -18,9 +18,7 @@ function createAsserter(entityType, daemon) {
       );
     }
 
-    if (depth > 0) {
-      console.log(`[assert.${entityType}] depth: ${depth}`);
-    }
+    // if (depth > 0) {console.log(`[assert.${entityType}] depth: ${depth}`);}
 
     let issues = await daemon.validate[entityType](entity, processors);
 
@@ -29,7 +27,8 @@ function createAsserter(entityType, daemon) {
     }
 
     issues = issues.map((issue) => {
-      issue.context = object.merge(issue.context, context);
+      // issue.context = object.merge(issue.context, context);
+      issue.context = { ...context, ...issue.context };
       return issue;
     });
 

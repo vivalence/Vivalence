@@ -4,43 +4,72 @@ import { ProductionRequest, ProductionResult } from "@vivalence/typology";
 import { helper } from "@mikro-orm/core";
 
 export const PRODUCTIVE = async (mode, daemon) => {
-  if (!mode.cake.producer) {
-    console.error("PRODUCTIVE MODE MISSING PRODUCER", { mode });
+  if (!mode.cake.production) {
+    console.error("PRODUCTIVE MODE MISSING production", { mode });
     return;
   }
 
-  const aperture = new Aperture()
+  const productionAperture = new Aperture()
 
-    .use(async (ctx, next) => {
-      await next();
-    })
+    // .use(async (ctx, next) => {
+    //   console.log(ctx.input.blacklist);
+    //   await next();
+    // })
 
     // request normalization + status boundary
     .use(async (ctx, next) => {
-      ctx.intent = await ctx.daemon.entities.intent //
-        .findOne(ctx.input.scope.intent);
+      if (!ctx.input.scope?.user) ctx.input.scope.user = ctx.user.id;
+      await next();
+    })
 
+    .use(async (ctx, next) => {
       ctx.valence = await ctx.daemon.entities.valence //
         .findOne(ctx.input.scope.valence);
 
-      if (ctx.input.scope.session)
-        ctx.session = await ctx.daemon.entities.session //
-          .findOne(ctx.input.scope.session);
+      ctx.session = await ctx.daemon.entities.session //
+        .findOne(ctx.input.scope.session);
+
+      if (ctx.input.scope.intent)
+        ctx.intent = await ctx.daemon.entities.intent //
+          .findOne(ctx.input.scope.intent);
+
+      await next();
+    })
+
+    .use(async (ctx, next) => {
+      ctx.input = new ProductionRequest(ctx.input);
+      ctx.input.seek = await new Seek().fromMask(ctx.input.seek, ctx);
+
+      await next();
+    })
+
+    // flush ACTIVE products to STALE
+    .use(async (ctx, next) => {
+      const queue = ctx.valence.data?.GENERATIVE?.queue ?? 0;
+      const stock = ctx.input.stock ?? 0;
+      const threshold = Math.max(ctx.session.cursor, ctx.session.counter - (queue + stock));
+
+      const query = {
+        session: ctx.input.scope.session,
+        status: "ACTIVE",
+        position: { $lt: threshold },
+      };
+
+      if (ctx.input.blacklist?.products) query.id = { $nin: ctx.input.blacklist.products };
+
+      const stale = await ctx.daemon.entities.product.find(query);
+      stale.forEach((p) => (p.status = "STALE"));
 
       await next();
     })
 
     // request normalization + status boundary
     .use(async (ctx, next) => {
-      const request = new ProductionRequest(ctx.input);
-
-      request.seek = await new Seek().fromMask(ctx.input.seek, ctx);
-
-      ctx.input = request;
+      const request = ctx.input;
 
       const inventory = await ctx.daemon.entities.product.count({
-        intent: request.scope.intent,
-        status: { $nin: ["ERROR", "DONE"] },
+        session: request.scope.session,
+        status: { $nin: ["ERROR", "ACTIVE", "STALE", "DONE"] },
       });
 
       await next();
@@ -49,10 +78,11 @@ export const PRODUCTIVE = async (mode, daemon) => {
       const recall = ctx.output.recallGiven(request, inventory);
 
       if (recall) {
-        const recallPath = mode.mount.barf().branch(ctx.valence.data["producer"]).absolute;
+        const recallPath = mode.mount.barf().branch(ctx.valence.data.GENERATIVE["mount"]).absolute;
         ctx.daemon.call(recallPath, recall);
       }
 
+      ctx.output.products = ctx.output.products.slice(0, request.batch);
       ctx.output.products.forEach((product) => (product.status = "ACTIVE"));
 
       await ctx.daemon.entities.em.flush();
@@ -61,10 +91,11 @@ export const PRODUCTIVE = async (mode, daemon) => {
     // greed — serve from queue
     .use(async (ctx, next) => {
       const query = {
-        intent: ctx.input.scope.intent,
+        session: ctx.input.scope.session,
         commissioner: ctx.input.scope.commissioner,
-        status: { $nin: ["ERROR", "DONE"] },
+        status: { $eq: "PENDING" },
       };
+
       if (ctx.input.blacklist?.products) query.id = { $nin: ctx.input.blacklist.products };
 
       const pending = await ctx.daemon.entities.product //
@@ -94,7 +125,9 @@ export const PRODUCTIVE = async (mode, daemon) => {
     // blacklist
     .use(async (ctx, next) => {
       ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+      // console.log({ blacklist: ctx.input.blacklist });
       await ctx.input.blacklist.fromQueue(ctx.input.scope, ctx);
+      // console.log({ queuedblacklist: ctx.input.blacklist });
       await next();
     })
 
@@ -102,48 +135,41 @@ export const PRODUCTIVE = async (mode, daemon) => {
     .use(async (ctx, next) => {
       await next();
 
-      const result = new ProductionResult(ctx.output);
+      ctx.output = new ProductionResult(ctx.output);
 
-      if (is.empty(result.products)) return;
+      if (is.empty(ctx.output.products)) return;
 
-      result.products = result.products.map((product, index) => {
-        if (helper(product)) {
-          product.index = index;
+      ctx.output.products = ctx.output.products
+        .map((product) => {
+          if (!product.scope.producer) product.scope.producer = mode.entity.id;
+          product.position = ctx.session.counter++;
+          product.status = "PENDING";
           return product;
-        }
-
-        if (!product.scope.producer) product.scope.producer = ctx.mode.id;
-
-        return ctx.daemon.entities.product.create({
-          index,
-          ...object.omit(product, ["scope"]),
-          ...object.pick(product.scope, ProductScopeSet),
+        })
+        .map((product) => {
+          if (helper(product)) return product;
+          return ctx.daemon.entities.product.create({
+            ...object.omit(product, ["scope"]),
+            ...object.pick(product.scope, [
+              "literals",
+              "symbols",
+              "producer",
+              "commissioner",
+              "intent",
+              "session",
+            ]),
+          });
         });
-      });
 
       await ctx.daemon.entities.em.flush();
-
-      ctx.output = result;
     });
 
-  aperture.slurp(mode.cake.producer);
-  mode.aperture.slurp(aperture);
+  productionAperture.slurp(mode.cake.production);
+  mode.aperture.slurp(productionAperture);
 };
 
-const ProductScopeSet = [
-  // TODO: needs to be f(domain.entities) for domain level relations
-  "literals",
-  "symbols",
-  "producer",
-  "commissioner",
-  "intent",
-  "session",
-];
 const ProductionLock = new Map();
-
-const lockKey = (ctx) =>
-  `${ctx.input.scope.intent}-${ctx.input.scope.commissioner}-${ctx.mode.entity}`;
-
+const lockKey = (ctx) => `${ctx.session.id}-${ctx.valence.id}-${ctx.input.scope.commissioner}`;
 const lock = {
   has: (ctx) => ProductionLock.has(lockKey(ctx)),
   set: (ctx) => ProductionLock.set(lockKey(ctx), new Date()),

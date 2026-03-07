@@ -10,8 +10,7 @@ export async function userspace(daemonDie) {
       const params = ctx.params;
       if (!input.where) input.where = {};
 
-      if (!["intent"].includes(params.entity))
-        throw new Error("unsupported entity");
+      if (!["intent", "session"].includes(params.entity)) throw new Error("unsupported entity");
       if (!["find", "findOne", "create"].includes(params.method))
         throw new Error("unsupported method");
 

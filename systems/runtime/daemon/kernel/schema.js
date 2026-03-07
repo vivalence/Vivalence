@@ -7,7 +7,7 @@ export async function schema(daemonDie) {
 
   daemon.schema.literal = buildBaseLiteral();
   daemon.schema.annotations = {};
-  daemon.schema.literals = {};
+  daemon.schema.literals = {}; //
 
   const subjects = await daemon.entities.subject.find({});
 

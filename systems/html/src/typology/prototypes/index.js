@@ -2,6 +2,7 @@
 export * from "./entity.js";
 export * from "./repository.js";
 export * from "./buffer.js";
+export * from "./terminal.js";
 export * from "./stall.js";
 
 // export * from "./lighthouse/prototype.js";

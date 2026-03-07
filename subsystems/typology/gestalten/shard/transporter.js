@@ -36,9 +36,9 @@ export const fetcher = async (ctx) => {
     response.status = 0;
     response.error = ConnectionError.fromFetch(error, request);
     response.body = { request, error };
-    console.error(error);
-    console.trace(error);
-    console.log(request);
+    // console.error(error);
+    // console.trace(error);
+    // console.log(request);
   }
 };
 // import { Response } from "@vivalence/typology";

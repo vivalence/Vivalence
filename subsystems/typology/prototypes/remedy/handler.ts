@@ -26,14 +26,27 @@ export default class RemedyHandler {
     if (this.target !== target) return false;
     if (this.violation !== issue.violation) return false;
 
-    // Empty scope = catch-all for this target+violation
-    if (this.scope.length === 0) return true;
-
-    // Scope is a prefix match against issue.path[1:]
     const issueScope = issue.path.slice(1);
+
+    if (this.scope.length === 1 && this.scope[0] === "*") return true;
+    if (this.scope.length === 0) return issueScope.length === 0;
     if (issueScope.length < this.scope.length) return false;
-    return this.scope.every((seg, i) => seg === issueScope[i]);
+    return this.scope.every((seg, i) => seg === "*" || seg === issueScope[i]);
   }
+
+  // matches(issue: any): boolean {
+  //   const target = issue.constraint?.target || issue.path[0];
+  //   if (this.target !== target) return false;
+  //   if (this.violation !== issue.violation) return false;
+
+  //   // Empty scope = catch-all for this target+violation
+  //   if (this.scope.length === 0) return true;
+
+  //   // Scope is a prefix match against issue.path[1:]
+  //   const issueScope = issue.path.slice(1);
+  //   if (issueScope.length < this.scope.length) return false;
+  //   return this.scope.every((seg, i) => seg === issueScope[i]);
+  // }
 
   get specificity(): number {
     return this.scope.length;

@@ -1,5 +1,5 @@
 import * as ebisu from "ebisu-js";
-import { time } from "@vivalence/shared";
+import { time } from "@vivalence/typology";
 
 // MASTERY +10
 // SUCCESS  +1
@@ -7,14 +7,11 @@ import { time } from "@vivalence/shared";
 // MISTAKE  -1
 // FAILURE -10
 
-const DECAY_THRESHOLD = 0.75;
-const GRADUATION_SCALE = 10;
-const FAILURE_SCALE = 0.1;
+const DECAY_THRESHOLD = 0.9;
 
 const initiate = ({ signal = {} }) => {
   if (typeof signal === "string") signal = { enum: signal };
-  if (!signal.enum && !signal.ratio)
-    throw new Error("No signal provided to initiate memory");
+  if (!signal.enum && !signal.ratio) throw new Error("No signal provided to initiate memory");
 
   let alpha = 4,
     beta = 4,
@@ -32,10 +29,10 @@ const initiate = ({ signal = {} }) => {
         tau = 1.0;
         break;
       case "MISTAKE":
-        tau = 0.26;
+        tau = 0.15;
         break;
       case "FAILURE":
-        tau = 0.1;
+        tau = 0.08;
         break;
       default:
         throw new Error(`Invalid signal enum: ${signal}`);
@@ -62,11 +59,7 @@ const schedule = ({ memory }) => {
 };
 
 const strength = ({ memory }) => {
-  return ebisu.predictRecall(
-    memory.state,
-    time.hoursBetweenDates(memory.lastAt),
-    true,
-  );
+  return ebisu.predictRecall(memory.state, time.hoursBetweenDates(memory.lastAt), true);
 };
 
 const status = ({ memory }) => {
@@ -111,8 +104,7 @@ const status = ({ memory }) => {
 
 const update = ({ memory, signal }) => {
   if (typeof signal === "string") signal = { enum: signal };
-  if (!signal.enum && !signal.ratio)
-    throw new Error("No valid signal provided to update memory");
+  if (!signal.enum && !signal.ratio) throw new Error("No valid signal provided to update memory");
 
   const elapsedTime = time.hoursBetween(memory.lastAt);
 
@@ -123,7 +115,7 @@ const update = ({ memory, signal }) => {
       switch (signal.enum) {
         case "MASTERY":
           state = ebisu.updateRecall(memory.state, 1, 1, elapsedTime);
-          state = ebisu.rescaleHalflife(memory.state, GRADUATION_SCALE);
+          state = ebisu.rescaleHalflife(memory.state, 10);
           break;
         case "SUCCESS":
           state = ebisu.updateRecall(memory.state, 1, 1, elapsedTime);
@@ -136,7 +128,7 @@ const update = ({ memory, signal }) => {
           break;
         case "FAILURE":
           state = ebisu.updateRecall(memory.state, 0, 1, elapsedTime);
-          state = ebisu.rescaleHalflife(memory.state, FAILURE_SCALE);
+          state = ebisu.rescaleHalflife(memory.state, 0.1);
           break;
         default:
           console.log(

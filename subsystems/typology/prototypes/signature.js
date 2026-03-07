@@ -1,5 +1,4 @@
-import { is, cast } from "@vivalence/typology";
-import { array, hash } from "@vivalence/shared";
+import { array, hash, is, cast } from "@vivalence/typology";
 
 export class Signature {
   // nature = null; trace = null; gauges = [];

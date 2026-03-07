@@ -1,3 +1,5 @@
+import sentence from "./sentence.js";
+
 const noun = {
   slug: "noun",
   name: "Noun",
@@ -30,6 +32,7 @@ const verb = {
     { branch: ["mood"] },
     { branch: ["person"] },
     { branch: ["number"] },
+    { branch: ["voice"] },
   ],
   relations: [
     { unique: { branch: "pos" } },
@@ -82,6 +85,7 @@ const pron = {
     { branch: ["gender"] },
     { branch: ["number"] },
     { branch: ["reflex"] },
+    { branch: ["case"] },
   ],
   relations: [
     { unique: { branch: "pos" } },
@@ -101,7 +105,9 @@ const det = {
     { branch: ["prontype"], required: true },
     { branch: ["gender"], required: true },
     { branch: ["number"], required: true },
+    { branch: ["definite"] },
     { branch: ["numtype"] },
+    { branch: ["poss"] },
   ],
   relations: [
     { unique: { branch: "pos" } },
@@ -125,6 +131,7 @@ const aux = {
     { branch: ["mood"] },
     { branch: ["person"] },
     { branch: ["number"] },
+    { branch: ["voice"] },
   ],
   relations: [
     { unique: { branch: "pos" } },
@@ -256,4 +263,20 @@ const punct = {
   relations: [{ unique: { branch: "pos" } }, { required: { branch: "pos", leaf: "punct" } }],
 };
 
-export default [noun, verb, adj, pron, det, aux, adp, adv, num, propn, cconj, sconj, part, punct];
+export default [
+  sentence,
+  noun,
+  verb,
+  adj,
+  pron,
+  det,
+  aux,
+  adp,
+  adv,
+  num,
+  propn,
+  cconj,
+  sconj,
+  part,
+  punct,
+];

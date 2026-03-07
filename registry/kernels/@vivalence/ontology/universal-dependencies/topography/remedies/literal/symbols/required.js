@@ -59,10 +59,10 @@ async function required(issue, ctx) {
 }
 
 export default {
-  handler: required,
   target: "literal",
   scope: ["symbols"],
   violation: "required",
+  handler: required,
 };
 
 // export default {

@@ -16,7 +16,10 @@ export async function fromLiterals(inputs, ctx) {
 }
 
 export async function pending(input, ctx) {
+  // console.log("flashcards/generate/pending");
+  // console.json(input);
   const literals = await ctx.daemon.call("/pick/literal/feed", input);
+  // console.log({ literals });
 
   if (literals.length === 0)
     return ProductionResult.cast.exhausted({ reason: "no candidate literals" });

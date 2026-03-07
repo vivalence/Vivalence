@@ -1,4 +1,4 @@
-import { Agent } from "@vivalence/typology";
+import { Agent, sort } from "@vivalence/typology";
 
 async function required(issue, ctx) {
   const { daemon } = ctx;
@@ -115,7 +115,7 @@ async function generate(literal, annotation, issue, daemon) {
 }
 
 function generateSlug(annotation) {
-  return Object.entries(annotation)
+  return Object.entries(sort.deep(annotation))
     .map(([k, v]) => `${k}:${v}`)
     .filter(Boolean)
     .join("-")
@@ -123,9 +123,9 @@ function generateSlug(annotation) {
 }
 
 export default {
-  handler: required,
   target: "literal",
   violation: "required",
+  handler: required,
 };
 
 // import { Agent } from "@vivalence/typology";

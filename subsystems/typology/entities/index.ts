@@ -18,7 +18,7 @@ export * from "./daemon/User.ts";
 
 export * from "./userspace/Product.ts";
 export * from "./userspace/Session.ts";
-export * from "./userspace/Intent.ts";
+// export * from "./userspace/Intent.ts";
 
 import subject from "./kernel/Subject.ts";
 import dimension from "./kernel/Dimension.ts";
@@ -34,7 +34,7 @@ import valence from "./daemon/Valence.ts";
 import mode from "./daemon/Mode.ts";
 import user from "./daemon/User.ts";
 
-import intent from "./userspace/Intent.ts";
+// import intent from "./userspace/Intent.ts";
 import session from "./userspace/Session.ts";
 import product from "./userspace/Product.ts";
 
@@ -46,8 +46,8 @@ import product from "./userspace/Product.ts";
 export const daemon = [valence, user, mode];
 
 export const userspace = [
-  //product,
-  intent,
+  // product,
+  // intent,
   session,
 ];
 
@@ -84,7 +84,7 @@ export const maps = {
     user,
   },
   userspace: {
-    intent,
+    // intent,
     session,
     product,
   },

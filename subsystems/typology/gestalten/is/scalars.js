@@ -93,6 +93,12 @@ export function module(thing) {
 
 export function id(thing) {
   if (!string(thing)) return false;
-  if (thing.length < 6 || thing.length > 36) return false;
-  return /^[0-9A-Za-z_-]+$/.test(thing);
+  if (thing.length !== 36 && thing.length !== 32) return false;
+  return /^[0-9A-Fa-f-]+$/.test(thing);
+}
+
+export function slug(thing) {
+  if (!string(thing)) return false;
+  if (thing.length < 1 || thing.length > 200) return false;
+  return /^[a-z0-9]+(?:[-_.][a-z0-9]+)*$/.test(thing);
 }

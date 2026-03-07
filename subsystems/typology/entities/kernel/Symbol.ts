@@ -1,15 +1,19 @@
-import { Cascade, types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { DataSchema, DataEntity } from "../index.ts";
-import { v7 } from "uuid";
+import { EntityRepositoryType, Cascade, types, Collection, EntitySchema } from "@mikro-orm/core";
+import { type Opt, type Rel } from "@mikro-orm/core";
+import { DataRepository, DataSchema, DataEntity } from "../index.ts";
 
 import { ProductEntity, LiteralEntity } from "../index.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
   STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
-  AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
-  // LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
-  // COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
+  LABELED = "LABELED", // for name and description
+}
+
+export class SymbolRepository extends DataRepository {
+  unique(opt) {
+    return { slug: opt.slug };
+  }
 }
 
 export class SymbolEntity extends DataEntity {
@@ -19,10 +23,13 @@ export class SymbolEntity extends DataEntity {
   description?: string;
 
   data: any & Opt = {};
+
   ancestor?: Rel<SymbolEntity>;
   decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
   products = new Collection<ProductEntity>(this);
+
+  [EntityRepositoryType]?: SymbolRepository;
 }
 
 export const SymbolSchema = new EntitySchema({
@@ -32,6 +39,7 @@ export const SymbolSchema = new EntitySchema({
   name: "Symbol",
   tableName: "Symbol",
   uniques: [{ properties: ["slug"] }],
+  repository: () => SymbolRepository,
   properties: {
     slug: { type: types.string },
     name: { type: types.string, nullable: true },

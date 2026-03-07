@@ -5,19 +5,18 @@ import { UserEntity } from "../index.ts";
 import { IntentEntity, ProductEntity } from "../index.ts";
 
 export enum SessionTraitsEnum {
-  _ = "_",
+  _ = "_", // ?stateful
 }
 
 export class SessionEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   traits: SessionTraitsEnum[] & Opt = [];
+  data: any & Opt = {};
+  cursor: number & Opt = 0;
+  counter: number & Opt = 0;
 
-  intent: Rel<IntentEntity>;
   products = new Collection<ProductEntity>(this);
-  //
-
-  state: any & Opt = {};
-  history: any & Opt = {};
+  // intent: Rel<IntentEntity>;
 }
 
 export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
@@ -41,14 +40,11 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       items: () => SessionTraitsEnum,
       default: [],
     },
+    data: { type: "json" },
+    counter: { type: Number },
+    cursor: { type: Number },
 
-    intent: {
-      kind: "m:1",
-      entity: () => IntentEntity,
-      fieldName: "intent",
-      updateRule: "cascade",
-      deleteRule: "cascade",
-    },
+    // intent: {kind: "m:1", entity: () => IntentEntity, fieldName: "intent", updateRule: "cascade", deleteRule: "cascade",},
 
     products: {
       kind: "1:m",
@@ -56,9 +52,6 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       mappedBy: (product) => product.session,
       fieldName: "products",
     },
-
-    state: { type: "json" },
-    history: { type: "json" },
   },
 });
 export default {

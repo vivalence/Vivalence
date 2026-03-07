@@ -6,7 +6,7 @@ import { Aperture } from "@vivalence/vector/aperture";
 // base for instantiations such as modes and service or process providers.
 // anything received from the registry.
 
-export class Cake {
+class Cake {
   // type, slug, traits
 
   constructor(cake) {
@@ -14,8 +14,7 @@ export class Cake {
     this.type = this.manifest.type;
     this.slug = this.manifest.slug;
     this.traits = this.manifest.traits || [];
-    //
-    this.cake = cake; // legacy
+    this.cake = cake; // ??? maybe legacy
   }
 
   implements(trait) {

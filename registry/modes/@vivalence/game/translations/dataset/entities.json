@@ -1,36 +1,20 @@
 {
   "valence": [
     {
-      "slug": "feed",
-      "name": "feed of translations",
-      "description": "Translation exercises grounded in the learner's vocabulary pool",
-      "type": "destination",
+      "slug": "survival",
+      "name": "first sentences",
+      "description": "Translation exercises grounded in the learner's vocabulary pool for day 1.",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
       "data": {
-        "producer": "/generate/pending",
-        "mask": {
-          "batch": 1,
-          "stock": 3,
-          "seek": {
-            "take": 5,
-            "threshold": ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN"]
-          }
-        }
-      }
-    },
-
-    {
-      "slug": "",
-      "name": "",
-      "description": "",
-      "type": "provider",
-      "data": {
-        "producer": "/generate/pending",
-        "mask": {
-          "batch": 1,
-          "stock": 3,
-          "seek": {
-            "take": 5,
-            "threshold": ["UNTOUCHED", "UNKNOWN", "LEARNING", "KNOWN"]
+        "GENERATIVE": {
+          "producer": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "candidates": {},
+            "seek": {
+              "symbols": ["proficiency.survival"]
+            }
           }
         }
       }

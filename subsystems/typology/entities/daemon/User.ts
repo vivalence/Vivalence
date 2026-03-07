@@ -1,8 +1,7 @@
 import { Collection, EntitySchema, type Opt } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
-import { IntentEntity } from "../index.ts";
-// import { SessionEntity } from "../3_userland/Session.ts";
+import { SessionEntity } from "../index.ts";
 
 export enum UserRolesEnum {
   USER = "USER",
@@ -14,8 +13,8 @@ export class UserEntity extends BaseEntity {
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
   config: any & Opt = {};
 
-  // sessions = new Collection<SessionEntity>(this);
-  intents = new Collection<IntentEntity>(this);
+  sessions = new Collection<SessionEntity>(this);
+  // intents = new Collection<IntentEntity>(this);
 }
 
 export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
@@ -35,16 +34,13 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
     },
     config: { type: "json" },
 
-    intents: {
+    // intents: {kind: "1:m", entity: () => IntentEntity, mappedBy: (intent) => intent.user,},
+
+    sessions: {
       kind: "1:m",
-      entity: () => IntentEntity,
-      mappedBy: (intent) => intent.user,
+      entity: () => SessionEntity,
+      mappedBy: (session) => session.user,
     },
-    // sessions: {
-    //   kind: "1:m",
-    //   entity: () => SessionEntity,
-    //   mappedBy: (session) => session.user,
-    // },
   },
 });
 

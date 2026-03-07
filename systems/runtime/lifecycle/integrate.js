@@ -3,7 +3,13 @@ import { shards, Url, Connection } from "@vivalence/typology";
 
 export async function announce(die) {
   for (const daemonDie of die.good.daemons) {
-    const connection = new Connection(daemonDie.mask.lighthouse.statics.remote);
+    const connection = new Connection(daemonDie.mask.lighthouse.statics.remote).use(
+      async (ctx, next) => {
+        // console.log("request", ctx);
+        await next();
+        // console.log("response", ctx);
+      },
+    );
     await connection.call("/entities/daemon/expect", {
       where: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
     });

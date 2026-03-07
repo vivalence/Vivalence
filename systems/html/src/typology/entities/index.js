@@ -5,6 +5,7 @@ export * from "./daemon.js";
 export * as lighthouse from "./lighthouse/index.js";
 export * as daemon from "./daemon.js";
 export * as valence from "./valence.js";
+export * as session from "./session.js";
 export * as mode from "./mode.js";
 // ...
 

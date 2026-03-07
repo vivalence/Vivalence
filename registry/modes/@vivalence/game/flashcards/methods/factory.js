@@ -19,14 +19,14 @@ export function make(literal) {
 function basicFlashcard(literal, maskData = {}) {
   maskData = {
     front: {
-      header: literal.data.known,
-      content: literal.data.example.known && `<i>${literal.data.example.known}</i>`,
+      header: literal.translated.known,
+      content: literal.example.known && `<i>${literal.example.known}</i>`,
       footer: null,
       ...(maskData.front || {}),
     },
     back: {
-      header: literal.data.learning,
-      content: literal.data.example?.learning && `<i>${literal.data.example?.learning}</i>`,
+      header: literal.translated.learning,
+      content: literal.example?.learning && `<i>${literal.example?.learning}</i>`,
       footer: null,
       ...(maskData.back || {}),
     },

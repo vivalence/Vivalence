@@ -3,8 +3,12 @@ import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 
 export enum ValenceTypeEnum {
-  DESTINATION = "destination",
-  PROVIDER = "provider", // CREATES PRODUCT
+  SELFEVIDENT = "SELFEVIDENT",
+  APPLICATIVE = "APPLICATIVE",
+}
+
+export enum ValenceTraitsEnum {
+  GENERATIVE = "GENERATIVE", //
 }
 
 export class ValenceRepository extends DataRepository {
@@ -16,11 +20,12 @@ export class ValenceRepository extends DataRepository {
 export class ValenceEntity extends DataEntity {
   slug: string & Opt = "";
   type: ValenceTypeEnum & Opt = ValenceTypeEnum.DESTINATION;
+  traits: ValenceTraitsEnum[] & Opt = [];
   name?: string;
   description?: string;
 
   docs?: string; //?
-  mode: Rel<ModeEntity>;
+  mode!: Rel<ModeEntity>;
   // signature
   [EntityRepositoryType]?: ValenceRepository;
 }
@@ -36,7 +41,13 @@ export const ValenceSchema = new EntitySchema({
     type: {
       enum: true,
       items: () => ValenceTypeEnum,
-      default: ValenceTypeEnum.DESTINATION,
+      default: ValenceTypeEnum.SELFEVIDENT,
+    },
+    traits: {
+      items: () => ValenceTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
     },
     name: { type: types.string, nullable: true },
     description: { type: types.string, nullable: true },
@@ -48,7 +59,6 @@ export const ValenceSchema = new EntitySchema({
     mode: {
       kind: "m:1",
       eager: true,
-      nullable: true,
       entity: () => ModeEntity,
       fieldName: "mode",
       updateRule: "cascade",

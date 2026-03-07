@@ -7,7 +7,6 @@
   // import "../design/primitives/font.css";
 
 
-  import { effect } from "nanostores";
   import { Text, Pictogram } from "@vivalence/drapes";
   import { Shelve, Box } from "@vivalence/drapes";
 
@@ -20,7 +19,7 @@
   let { children } = $props();
   let isIdentified = lighthouse.$isIdentified;
   let identity = lighthouse.$identity;
-  $inspect($isIdentified)
+  // $inspect($isIdentified)
 </script>
 
 <div class="hidden">

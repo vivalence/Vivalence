@@ -2,26 +2,26 @@ import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
 import * as libsql from "@libsql/client/node";
 
-import { join } from "@std/path";
-
 const manifest = {
   type: "datamap",
   slug: "libsql",
   name: "libsql",
-  // traits: ["DATAMAP","LOCAL"],
 };
 
 async function provider(datamap, variant) {
   const mikroconfig = defineConfig({
     dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
     entities: variant.map((v) => v.schema).filter(Boolean),
-    strict: true,
-    // discovery: {disableDynamicFileAccess: true,},
+    subscribers: variant
+      .map((v) => v.subscriber)
+      .filter(Boolean)
+      .map((S) => new S()),
     extensions: [Migrator],
     migrations: {
       tableName: "_mikro_migrations",
       path: datamap.mount.branch("migrations").absolute,
     },
+    strict: true,
   });
 
   const orm = await MikroORM.init(mikroconfig);
@@ -34,7 +34,6 @@ async function provider(datamap, variant) {
 
   for (const { type, schema, entity } of variant) {
     if (!entity || !type) continue;
-
     entities[type] = orm.em.getRepository(entity);
   }
 

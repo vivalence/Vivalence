@@ -1,35 +1,39 @@
 {
   "valence": [
     {
-      "slug": "feed",
-      "name": "feed of flashcards",
-      "description": "",
-      "type": "destination",
+      "slug": "survival",
+      "name": "survival flashcards",
+      "description": "feed of flashcards needed from day one.",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
       "data": {
-        "producer": "/generate/pending",
-        "mask": {
-          "batch": 2,
-          "stock": 5,
-          "seek": {}
+        "GENERATIVE": {
+          "mount": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "stock": 1,
+            "batch": 1,
+            "seek": {
+              "symbols": ["proficiency.survival"]
+            }
+          }
         }
       }
     },
     {
-      "slug": "flashcards-by-literal",
-      "name": "flashcard by literal",
-      "description": "",
-      "type": "provider",
+      "slug": "feed",
+      "name": "perpetual feed of flashcards",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
       "data": {
-        "producer": "/generate/fromLiterals"
-      }
-    },
-    {
-      "slug": "flashcards-by-symbol",
-      "name": "flashcard by symbol",
-      "description": "",
-      "type": "provider",
-      "data": {
-        "producer": "/generate/fromSymbols"
+        "GENERATIVE": {
+          "mount": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "stock": 1,
+            "batch": 1
+          }
+        }
       }
     }
   ]

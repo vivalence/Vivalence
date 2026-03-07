@@ -9,8 +9,7 @@ const manifest = {
   type: "game",
   slug: "conjugations",
   name: "Conjugations",
-  description:
-    "Practice conjugating 6 verbs at a time in different tenses and moods.",
+  description: "Practice conjugating 6 verbs at a time in different tenses and moods.",
   version: "0.0.2",
   traits: ["VIEWABLE", "VALENTIC", "PRODUCTIVE"],
 };
@@ -21,10 +20,7 @@ const aperture = new Aperture().open("/evaluate", evaluate);
 
 const producer = new Aperture()
   .branch("/generate")
-  .use(async (ctx, next) => {
-    ctx.input.scope.producer = ctx.mode.entity.id;
-    await next();
-  })
+  // .use(async (ctx, next) => {ctx.input.scope.producer = ctx.mode.entity.id; await next();})
   .open("/pending", provision);
 
 export { manifest, view, aperture, producer, dataset };

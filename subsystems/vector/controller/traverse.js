@@ -1,10 +1,6 @@
 import { errors, NotFound } from "@vivalence/vector/typology";
-// import { errors } from "@vivalence/vector";
 import { compose, chain, forward } from "./carry.js";
-import { greedy } from "./match.js";
-
-// const scope = match.scope(position, signal);
-// for (const [matched, trajectory, effect] of match.scope()) {
+import { scope } from "./match.js";
 
 export function traverse(vector, signals) {
   let position = vector;
@@ -13,10 +9,16 @@ export function traverse(vector, signals) {
   let remainder = 0;
 
   for (const signal of signals.array) {
-    // console.log();
-    const [[match, trajectory, effect] = []] = greedy(position, signal);
+    const matches = scope(position, signal);
 
-    if (!match) throw new errors.NotFound(signal);
+    let match, trajectory, effect;
+    if (matches.length === 0) throw new NotFound(signal);
+    else if (matches.length === 1) [match, trajectory, effect] = matches[0];
+    else if (matches.length === 2) {
+      if (signal.heir) [match, trajectory] = matches.find((match) => !!match[1]);
+      else [match, , effect] = matches.find((match) => !!match[2]);
+    }
+
     steps.push(match);
 
     if (match.type === "remainder") {

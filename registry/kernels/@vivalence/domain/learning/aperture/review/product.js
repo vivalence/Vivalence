@@ -1,4 +1,5 @@
 import { object } from "@vivalence/shared";
+
 export default async function (input, ctx) {
   let { scope, signal } = input;
 
@@ -11,8 +12,8 @@ export default async function (input, ctx) {
     .findOne(scope.product, options);
 
   scope = object.merge(scope, {
-    producer: product.producer,
-    commissioner: product.commissioner,
+    producer: product.producer.id,
+    commissioner: product.commissioner.id,
   });
 
   const reviews = await Promise.all([

@@ -1,31 +1,43 @@
+import { is } from "@vivalence/typology";
+
 export class Seek {
   constructor(data = {}) {
     Object.assign(this, data);
   }
-
-  async fromMask(mask, ctx) {
+  async fromMask(mask = {}, ctx) {
     const resolve = async (node, entity) => {
-      if (node == null || typeof node !== "object") return node;
-      if (node.id) return node.id;
-      if (node.slug)
-        return (await ctx.daemon.entities[entity].findOne({ slug: node.slug }))
-          ?.id;
-      if (Array.isArray(node))
+      if (node == null) return node;
+
+      if (is.array(node)) {
         return Promise.all(node.map((n) => resolve(n, entity)));
-      return Object.fromEntries(
-        await Promise.all(
-          Object.entries(node).map(async ([k, v]) => [
-            k,
-            await resolve(v, entity),
-          ]),
-        ),
-      );
+      }
+
+      if (is.string(node)) {
+        if (is.id(node)) return { id: node };
+        const found = await ctx.daemon.entities[entity].findOne({
+          $or: [{ id: node }, { slug: node }],
+        });
+        return found?.id ? { id: found.id } : node;
+      }
+
+      if (is.object(node)) {
+        if (node.id) return { id: node.id };
+        if (node.slug) {
+          const found = await ctx.daemon.entities[entity].findOne({ slug: node.slug });
+          return found?.id ? { id: found.id } : node;
+        }
+        return Object.fromEntries(
+          await Promise.all(
+            Object.entries(node).map(async ([k, v]) => [k, await resolve(v, entity)]),
+          ),
+        );
+      }
+
+      return node;
     };
 
-    for (const [key, val] of Object.entries(mask.seek || mask)) {
-      const entity =
-        (/^symbols?$/.test(key) && "symbol") ||
-        (/^literals?$/.test(key) && "literal");
+    for (const [key, val] of Object.entries(mask?.seek || mask)) {
+      const entity = (/^symbols?$/.test(key) && "symbol") || (/^literals?$/.test(key) && "literal");
       this[key] = entity ? await resolve(val, entity) : val;
     }
 
@@ -78,3 +90,19 @@ export class Seek {
 //     return this;
 //   }
 // }
+
+// const resolve = async (node, entity) => {
+//   console.log({ node, entity, isId: is.id(node), isObj: is.object(node) });
+//   if (node == null) return node;
+//   if (is.id(node)) node = { id: node };
+//   // if (is.slug(node)) node = {slug:node}
+//   if (!is.object(node)) return node;
+//   if (node.id) return node.id;
+//   if (node.slug) return (await ctx.daemon.entities[entity].findOne({ slug: node.slug }))?.id;
+//   if (Array.isArray(node)) return Promise.all(node.map((n) => resolve(n, entity)));
+//   return Object.fromEntries(
+//     await Promise.all(
+//       Object.entries(node).map(async ([k, v]) => [k, await resolve(v, entity)]),
+//     ),
+//   );
+// };

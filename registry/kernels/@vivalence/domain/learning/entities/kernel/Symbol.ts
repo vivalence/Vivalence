@@ -4,21 +4,16 @@ import { maps } from "@vivalence/typology/entities";
 import { PlayEntity } from "../userspace/Play.ts";
 import { MemoryEntity } from "../userspace/Memory.ts";
 
-export enum SymbolTraitsEnum {
-  // ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
-  // STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
-  // AGENTIC = "AGENTIC", // used in context of agents and may evolve over time.
-  LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
-  COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
-}
+export enum SymbolTraitsEnum {}
+// LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
+// COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
 
 export class SymbolEntity extends maps.kernel.symbol.entity {
   traits: SymbolTraitsEnum[] & Opt = [];
   plays = new Collection<PlayEntity>(this);
-  memories = new Collection<MemoryEntity>(this);
+  // memories = new Collection<MemoryEntity>(this);
 }
 
-// console.log(maps.kernel.symbol.entity);
 export const SymbolSchema = new EntitySchema({
   class: SymbolEntity,
   extends: maps.kernel.symbol.schema,
@@ -32,16 +27,13 @@ export const SymbolSchema = new EntitySchema({
       default: [],
       type: types.json,
     },
+
     plays: {
       kind: "1:m",
       entity: () => PlayEntity,
       mappedBy: (play) => play.symbol,
     },
-    memories: {
-      kind: "1:m",
-      entity: () => MemoryEntity,
-      mappedBy: (memory) => memory.symbol,
-    },
+    // memories: {kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.symbol,},
   },
 });
 

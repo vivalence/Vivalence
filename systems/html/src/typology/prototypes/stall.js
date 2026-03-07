@@ -1,23 +1,18 @@
-import { atom } from "nanostores";
+import { cast } from "@vivalence/typology";
+import { computed, atom } from "nanostores";
+
+// export const StallStatusEnum = {IDLE, NAVIGATING, PULLING, CLOSED, ERROR};
 
 export class Stall {
   $queue = atom([]);
   $active = atom(null);
-  $status = atom("IDLE");
   $error = atom(null);
+  $status = atom("<uninitialized>");
 
-  threshold = 0;
-  handlers = {
-    pull: null,
-    hooks: [],
-  };
+  handlers = { pull: null, hooks: [] };
 
-  get buffers() {
+  get queue() {
     return [...this.$queue.get(), this.$active.get()].filter(Boolean);
-  }
-  withThreshold(threshold) {
-    this.threshold = threshold;
-    return this;
   }
 
   withPull(pull) {
@@ -28,8 +23,8 @@ export class Stall {
 
   next(promise) {
     const status = this.$status.get();
-    if (["STOP", "NEXT"].includes(status)) return;
-    this.$status.set("NEXT");
+    if (["CLOSED", "NAVIGATING"].includes(status)) return;
+    this.$status.set("NAVIGATING");
 
     const prev = { ...this.$active.get() };
     this.$active.set(null);
@@ -49,8 +44,8 @@ export class Stall {
 
   async pull() {
     const status = this.$status.get();
-    if (["STOP", "PULLING"].includes(status)) return;
-    if (this.$queue.get().length > this.threshold) return;
+    if (["CLOSED", "PULLING"].includes(status)) return;
+    // if (this.$queue.get().length > this.threshold) return;
 
     if (!this.handlers.pull) {
       console.error("@stall/pull() handler.pull missing");
@@ -61,29 +56,31 @@ export class Stall {
     this.$status.set("PULLING");
 
     try {
-      const buffers = await this.handlers.pull(this);
-      this.$queue.set([...this.$queue.get(), ...buffers]);
+      const products = await this.handlers.pull(this);
+      this.$queue.set([...this.$queue.get(), ...products]);
       if (!this.$active.get()) {
         const [first, ...rest] = this.$queue.get();
         this.$queue.set(rest);
         this.$active.set(first);
       }
-      this.$status.set("IDLE");
+      if (this.$status.get() === "PULLING") this.$status.set("IDLE");
     } catch (error) {
+      console.log("[STALL PULL ERROR]", this, error);
+      this.$status.set("ERROR");
       this.$error.set(error);
-      this.$status.set("STOP");
-      console.log("[BUFFER PULL ERROR]", this, error);
     }
   }
 
-  push(mode) {
-    this.$queue.set([...this.$queue.get(), mode]);
+  push(products) {
+    this.$queue.set([...this.$queue.get(), ...cast.array(products)]);
+
     if (!this.$active.get()) {
       const [first, ...rest] = this.$queue.get();
       this.$queue.set(rest);
       this.$active.set(first);
     }
   }
+
   reset() {
     this.$active.set(null);
     this.$queue.set([]);
@@ -101,92 +98,92 @@ export class Stall {
   }
 }
 
-// import { atom } from 'nanostores'
+// import { atom } from "nanostores";
 
-// export const $queue = atom([])
-// export const $active = atom(null)
-// export const $status = atom("IDLE")
-// export const $error = atom(null)
+// export const $queue = atom([]);
+// export const $active = atom(null);
+// export const $status = atom("IDLE");
+// export const $error = atom(null);
 
-// let threshold = 0
-// let pullHandler = null
-// const hooks = []
+// let threshold = 0;
+// let pullHandler = null;
+// const hooks = [];
 
 // export function withThreshold(t) {
-//   threshold = t
+//   threshold = t;
 // }
 
 // export function withPull(pull) {
-//   pullHandler = pull
+//   pullHandler = pull;
 // }
 
 // export function next(promise) {
-//   const status = $status.get()
-//   if (["STOP", "NEXT"].includes(status)) return
+//   const status = $status.get();
+//   if (["STOP", "NEXT"].includes(status)) return;
 
-//   $status.set("NEXT")
-//   const prev = { ...$active.get() }
+//   $status.set("NEXT");
+//   const prev = { ...$active.get() };
 
-//   $active.set(null)
-//   const queue = $queue.get()
+//   $active.set(null);
+//   const queue = $queue.get();
 //   if (queue.length > 0) {
-//     const [first, ...rest] = queue
-//     $queue.set(rest)
-//     $active.set(first)
+//     const [first, ...rest] = queue;
+//     $queue.set(rest);
+//     $active.set(first);
 //   }
 
-//   runHooks(prev, $active.get(), promise)
+//   runHooks(prev, $active.get(), promise);
 
-//   $status.set("IDLE")
-//   pull()
+//   $status.set("IDLE");
+//   pull();
 // }
 
 // export function push(mode) {
-//   $queue.set([...$queue.get(), mode])
+//   $queue.set([...$queue.get(), mode]);
 //   if (!$active.get()) {
-//     const [first, ...rest] = $queue.get()
-//     $queue.set(rest)
-//     $active.set(first)
+//     const [first, ...rest] = $queue.get();
+//     $queue.set(rest);
+//     $active.set(first);
 //   }
 // }
 
 // export async function pull() {
-//   const status = $status.get()
-//   if (["STOP", "PULLING"].includes(status)) return
-//   if ($queue.get().length > threshold) return
+//   const status = $status.get();
+//   if (["STOP", "PULLING"].includes(status)) return;
+//   if ($queue.get().length > threshold) return;
 
-//   $status.set("PULLING")
+//   $status.set("PULLING");
 
 //   try {
-//     if (!pullHandler) throw new Error("Puller fehlt")
-//     const buffers = await pullHandler({ $queue, $active, $status })
-//     $queue.set([...$queue.get(), ...buffers])
+//     if (!pullHandler) throw new Error("Puller fehlt");
+//     const products = await pullHandler({ $queue, $active, $status });
+//     $queue.set([...$queue.get(), ...products]);
 //     if (!$active.get()) {
-//       const [first, ...rest] = $queue.get()
-//       $queue.set(rest)
-//       $active.set(first)
+//       const [first, ...rest] = $queue.get();
+//       $queue.set(rest);
+//       $active.set(first);
 //     }
-//     $status.set("IDLE")
+//     $status.set("IDLE");
 //   } catch (error) {
-//     $error.set(error)
-//     $status.set("STOP")
-//     console.log("[BUFFER PULL ERROR]", error)
+//     $error.set(error);
+//     $status.set("STOP");
+//     console.log("[STALL PULL ERROR]", error);
 //   }
 // }
 
 // export function reset() {
-//   $active.set(null)
-//   $queue.set([])
-//   $status.set("IDLE")
+//   $active.set(null);
+//   $queue.set([]);
+//   $status.set("IDLE");
 // }
 
 // export function onNext(fn) {
-//   hooks.push(fn)
+//   hooks.push(fn);
 // }
 
 // function runHooks(prev, active, promise) {
-//   const prevHooks = prev?.hooks || []
-//   ;[...prevHooks, ...hooks].forEach(f => f(prev, active, promise))
+//   const prevHooks = prev?.hooks || [];
+//   [...prevHooks, ...hooks].forEach((f) => f(prev, active, promise));
 // }
 
 // // // recast from svelte to nanostores.

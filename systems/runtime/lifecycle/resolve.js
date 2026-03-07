@@ -54,7 +54,7 @@ export async function compose(runtimeDie) {
     .use(mw.cors)
     .use(mw.notFound)
     .use(async (ctx, next) => {
-      // UGLY and technically false!
+      // UGLY! and technically false!
       try {
         ctx.input = await parser(ctx);
         await next();

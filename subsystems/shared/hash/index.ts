@@ -8,9 +8,20 @@ export function string(input: string) {
   return hash;
 }
 
-export function object(object: object) {
-  return string(
-    JSON.stringify(
+const safeStringify = (val) => {
+  const seen = new WeakSet();
+  return JSON.stringify(val, (_, v) => {
+    if (typeof v === "object" && v !== null) {
+      if (seen.has(v)) return undefined;
+      seen.add(v);
+    }
+    return v;
+  });
+};
+
+export function object(object) {
+  return hashString(
+    safeStringify(
       Object.keys(object)
         .sort()
         .reduce((sorted, key) => {
@@ -21,8 +32,24 @@ export function object(object: object) {
   );
 }
 
-export function array(arr: any[]) {
-  return string(JSON.stringify(arr.sort()));
+export function array(arr) {
+  return hashString(safeStringify(arr.sort()));
 }
+// export function object(object: object) {
+//   return string(
+//     JSON.stringify(
+//       Object.keys(object)
+//         .sort()
+//         .reduce((sorted, key) => {
+//           sorted[key] = object[key];
+//           return sorted;
+//         }, {}),
+//     ),
+//   );
+// }
+
+// export function array(arr: any[]) {
+//   return string(JSON.stringify(arr.sort()));
+// }
 
 export default { string, object, array };

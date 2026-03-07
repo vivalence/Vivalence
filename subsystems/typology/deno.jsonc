@@ -11,6 +11,7 @@
   },
   "tasks": {
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test/production": "deno test -A --no-check --watch tests/production.test.js",
     "test/signature": "deno test -A --no-check --watch tests/signature.test.js",
     "test/path": "deno test -A --no-check --watch tests/path.test.js",
     "test/url": "deno test -A --no-check --watch tests/url.test.js",

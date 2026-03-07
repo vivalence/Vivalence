@@ -2,7 +2,7 @@
   import { Text, Button } from "@vivalence/drapes";
   import { Scope } from "@vivalence/typology";
 
-  const { daemon, mode, stall, buffer, product } = $props();
+  const { terminal, product } = $props();
   // console.log({ daemon, mode, stall, buffer, product })
 
   const { front, back } = product.data;
@@ -10,9 +10,16 @@
   let revealed = $state(false);
 
   const onReview = async (signal) => {
-    const input = { signal, scope: { product: { id: product.id } } };
-    const promise = daemon.call("/review/product", input);
-    stall.next(promise.then((result) => console.log({ result })));
+    const input = { signal, scope: { product: product.id } };
+    const promise = terminal.daemon.call("/review/product", input);
+    terminal.stall.next(
+      promise.then((result) => {
+        const { play, memory, change } = result[0].literal;
+        // console.log("change", change);
+        // console.log("lastAt", play.lastAt);
+        // console.log("nextAt:", play.nextAt);
+      }),
+    );
   };
 
   const reveal = () => (revealed = true);
@@ -50,12 +57,9 @@
   <div
     class={`bsp-chain-end menu p-4 shadow-md border-t border-skeleton-boundary-1 flex justify-center gap-2`}>
     {#if revealed}
-      <Button size="xl" variant="warning" onclick={() => onReview("MISTAKE")}
-        >Unknown</Button>
-      <Button size="xl" variant="success" onclick={() => onReview("SUCCESS")}
-        >Known</Button>
-      <Button size="xl" variant="accent" onclick={() => onReview("MASTERY")}
-        >Graduate</Button>
+      <Button size="xl" variant="warning" onclick={() => onReview("MISTAKE")}>Unknown</Button>
+      <Button size="xl" variant="success" onclick={() => onReview("SUCCESS")}>Known</Button>
+      <Button size="xl" variant="accent" onclick={() => onReview("MASTERY")}>Graduate</Button>
     {:else}
       <Button size="xl" onclick={reveal}>Reveal</Button>
     {/if}
