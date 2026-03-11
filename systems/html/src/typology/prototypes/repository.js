@@ -82,6 +82,15 @@ export class Repository {
     return entity;
   }
 
+  toJSON() {
+    const entities = this.$entities.get();
+    return {
+      type: this.entity?.prototype?.name ?? null,
+      connected: !!this._connection,
+      count: entities.length,
+      entities: entities.map((e) => e?.toJSON?.() ?? { id: e?.id, slug: e?.slug }),
+    };
+  }
   // onCreate(listener) {this.listeners.create.push(listener);}
   // this.listeners.create.forEach((listener) => listener(entity));
 

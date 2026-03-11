@@ -1,0 +1,2073 @@
+#+TITLE: Trait Systems for MikroORM Entities
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-11
+#+PROPERTY: header-args :mkdirp yes
+
+* Overview
+
+Three approaches to composable entity traits on top of MikroORM EntitySchema.
+
+All share the same goals:
+- Traits contribute methods, schema properties, and subscriber hooks to entities
+- Traits are defined independently and composed at entity definition time
+- No runtime wrapper objects, no Proxy, no WeakMap — just prototype extension
+- Entity classes are the sole interface; everything lives natively on MikroORM
+
+The difference is how trait *data* is stored.
+
+| Aspect             | A: JSON blob                  | B: Embedded objects (JSON)             | C: Inline embeddables                  |
+|--------------------+-------------------------------+----------------------------------------+----------------------------------------|
+| Storage            | Single =data= JSON column    | One JSON column per trait              | Prefixed columns per trait property    |
+| MikroORM awareness | Opaque blob                   | Typed embeddable, change-tracked       | First-class columns, fully tracked     |
+| Querying           | =json_extract= everywhere    | Native JSON queries (PG/MySQL only)    | Native column queries, all drivers     |
+| Hydration          | Raw POJO                      | Embeddable class instance              | Embeddable class instance              |
+| Relations          | Not possible                  | Not possible (=object: true=)          | =ManyToOne= supported (since v5)       |
+| Flexibility        | Ad-hoc traits, no migration   | Schema per trait, migration required   | Schema per trait, migration required   |
+| Trait presence     | =traits= array + key in data | =traits= array OR null-check on embed  | Null-check OR =traits= array           |
+| Column footprint   | 1 column (=data=)             | 1 JSON column per trait                | N columns per trait (prefixed)         |
+
+All use the same composition API at the entity definition site:
+=applyTraits=, =mergeProperties=, =composeSubscriber=.
+
+* Approach A: Prototype Mixin + JSON Blob
+
+Trait data lives inside =entity.data[TRAIT_NAME]=.
+The =data= column is =type: 'json'=, shared across all traits.
+MikroORM detects changes via serialized comparison at flush time.
+Reassigning =this.data = { ...this.data, ... }= triggers detection.
+
+** Framework
+
+#+begin_src js :tangle approach-a/belt/trait.js
+export function defineTrait(name, spec = {}) {
+  const {
+    methods = {},
+    hooks = {},
+    defaults = {},
+    properties = {},
+  } = spec
+
+  return {
+    name,
+    defaults,
+    methods,
+    hooks,
+    properties,
+  }
+}
+
+export function applyTraits(EntityClass, traits) {
+  for (const trait of traits) {
+    const descriptors = Object.getOwnPropertyDescriptors(trait.methods)
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+      Object.defineProperty(EntityClass.prototype, key, descriptor)
+    }
+  }
+}
+
+export function mergeProperties(traits) {
+  const merged = {}
+  for (const trait of traits) {
+    Object.assign(merged, trait.properties)
+  }
+  return merged
+}
+
+export function composeSubscriber(EntityClass, traits) {
+  const hookMap = {}
+
+  for (const trait of traits) {
+    for (const [hookName, handler] of Object.entries(trait.hooks)) {
+      if (!hookMap[hookName]) hookMap[hookName] = []
+      hookMap[hookName].push(handler)
+    }
+  }
+
+  return class ComposedSubscriber {
+    getSubscribedEntities() { return [EntityClass] }
+
+    constructor() {
+      for (const [hookName, handlers] of Object.entries(hookMap)) {
+        this[hookName] = ({ entity }) => {
+          for (const handler of handlers) handler(entity)
+        }
+      }
+    }
+  }
+}
+#+end_src
+
+** MEMORIZED trait
+
+Methods operate on =this.data.MEMORIZED=.
+Reassigns =this.data= via spread to trigger MikroORM change detection.
+
+#+begin_src js :tangle approach-a/traits/memorized.js
+import * as ebisu from "ebisu-js"
+import { time } from "@vivalence/typology"
+import { defineTrait } from "../belt/trait.js"
+
+const DECAY_THRESHOLD = 0.9
+const SIGNAL_TAU = { MASTERY: 24, SUCCESS: 3.4, NEUTRAL: 1.0, MISTAKE: 0.15, FAILURE: 0.08 }
+
+function normalizeSignal(signal) {
+  return typeof signal === "string" ? { enum: signal } : signal
+}
+
+function computeState(state, lastAt, signal) {
+  signal = normalizeSignal(signal)
+  const elapsed = time.hoursBetween(lastAt)
+  switch (signal.enum) {
+    case "MASTERY":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 1, 1, elapsed), 10)
+    case "SUCCESS":  return ebisu.updateRecall(state, 1, 1, elapsed)
+    case "NEUTRAL":  return ebisu.updateRecall(state, 0.5, 1, elapsed)
+    case "MISTAKE":  return ebisu.updateRecall(state, 0, 1, elapsed)
+    case "FAILURE":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 0, 1, elapsed), 0.1)
+    default: throw new Error(`unknown signal: ${signal.enum}`)
+  }
+}
+
+function computeSchedule(state) {
+  const nextIn = ebisu.modelToPercentileDecay(state, DECAY_THRESHOLD)
+  const nextAt = time.futureDatetime(nextIn)
+  return { nextIn, nextAt }
+}
+
+function computeStatus(nextIn) {
+  if (nextIn < 6) return "UNKNOWN"
+  if (nextIn > 24 * 45) return "GRADUATED"
+  if (nextIn > 24 * 7) return "KNOWN"
+  return "LEARNING"
+}
+
+export const memorized = defineTrait("MEMORIZED", {
+  defaults: {
+    driver: "BAYESIAN",
+    status: "UNTOUCHED",
+    state: null,
+    history: [],
+    nextIn: 0,
+    nextAt: null,
+    lastAt: null,
+  },
+
+  methods: {
+    get memory() {
+      return this.data?.MEMORIZED ?? null
+    },
+
+    get memoryStrength() {
+      const memory = this.data?.MEMORIZED
+      if (!memory?.state || !memory?.lastAt) return 0
+      return ebisu.predictRecall(
+        memory.state,
+        time.hoursBetweenDates(memory.lastAt),
+        true,
+      )
+    },
+
+    get memoryStatus() {
+      return this.data?.MEMORIZED?.status ?? "UNTOUCHED"
+    },
+
+    get isMemoryDue() {
+      const memory = this.data?.MEMORIZED
+      if (!memory?.nextAt) return false
+      return new Date(memory.nextAt) < new Date()
+    },
+
+    get isMemoryNovel() {
+      return !this.traits.includes("MEMORIZED")
+    },
+
+    reviewMemory(signal) {
+      if (!this.data?.MEMORIZED?.state) return this.initiateMemory(signal)
+
+      const now = new Date()
+      const previous = this.data.MEMORIZED
+      const previousStatus = previous.status
+      const newState = computeState(previous.state, previous.lastAt, signal)
+      const { nextIn, nextAt } = computeSchedule(newState)
+      const newStatus = computeStatus(nextIn)
+
+      const entry = {
+        signal: normalizeSignal(signal),
+        state: newState,
+        nextIn, nextAt,
+        lastAt: now,
+        status: newStatus,
+      }
+
+      const history = [...previous.history, entry]
+      if (history.length > 10) history.shift()
+
+      this.data = {
+        ...this.data,
+        MEMORIZED: {
+          driver: previous.driver,
+          status: newStatus,
+          state: newState,
+          history,
+          nextIn, nextAt,
+          lastAt: now,
+        },
+      }
+
+      if (!this.traits.includes("MEMORIZED")) {
+        this.traits = [...this.traits, "MEMORIZED"]
+      }
+
+      const change = previousStatus !== newStatus
+        ? { from: previousStatus, to: newStatus }
+        : null
+
+      return { state: newState, status: newStatus, nextIn, nextAt, lastAt: now, change }
+    },
+
+    initiateMemory(signal) {
+      signal = normalizeSignal(signal)
+      const now = new Date()
+      const tau = SIGNAL_TAU[signal.enum] ?? 0.15
+      const state = ebisu.defaultModel(tau, 4, 4)
+      const { nextIn, nextAt } = computeSchedule(state)
+      const memoryStatus = computeStatus(nextIn)
+
+      const entry = { signal, state, nextIn, nextAt, lastAt: now, status: memoryStatus }
+
+      this.data = {
+        ...this.data,
+        MEMORIZED: {
+          driver: "BAYESIAN",
+          status: memoryStatus,
+          state,
+          history: [entry],
+          nextIn, nextAt,
+          lastAt: now,
+        },
+      }
+
+      if (!this.traits.includes("MEMORIZED")) {
+        this.traits = [...this.traits, "MEMORIZED"]
+      }
+
+      return { state, status: memoryStatus, nextIn, nextAt, lastAt: now, change: { from: null, to: memoryStatus } }
+    },
+  },
+
+  hooks: {},
+  properties: {},
+})
+#+end_src
+
+** RANKED trait
+
+#+begin_src js :tangle approach-a/traits/ranked.js
+import { defineTrait } from "../belt/trait.js"
+
+export const ranked = defineTrait("RANKED", {
+  defaults: { rank: 999999, zipf: 0, fpm: 0 },
+
+  methods: {
+    get ranking() {
+      return this.data?.RANKED ?? null
+    },
+  },
+
+  hooks: {
+    beforeCreate(entity) {
+      entity.rank = entity.data?.RANKED?.rank ?? 999999
+    },
+    beforeUpdate(entity) {
+      entity.rank = entity.data?.RANKED?.rank ?? 999999
+    },
+  },
+
+  properties: {
+    rank: {
+      type: "integer",
+      nullable: true,
+      default: null,
+    },
+  },
+})
+#+end_src
+
+** TRANSLATED trait
+
+#+begin_src js :tangle approach-a/traits/translated.js
+import { defineTrait } from "../belt/trait.js"
+
+export const translated = defineTrait("TRANSLATED", {
+  defaults: { known: "", learning: "" },
+
+  methods: {
+    get translated() {
+      return this.data?.TRANSLATED ?? null
+    },
+
+    get exemplified() {
+      return this.data?.EXEMPLIFIED ?? null
+    },
+  },
+
+  hooks: {},
+  properties: {},
+})
+#+end_src
+
+** Trait index
+
+#+begin_src js :tangle approach-a/traits/index.js
+export { memorized } from "./memorized.js"
+export { ranked } from "./ranked.js"
+export { translated } from "./translated.js"
+#+end_src
+
+** Entity definition
+
+#+begin_src js :tangle approach-a/entities/kernel/Literal.ts
+import { types, Collection, EntitySchema, type Opt } from "@mikro-orm/core"
+import { maps } from "@vivalence/typology/entities"
+import { PlayEntity } from "../userspace/Play.ts"
+
+import { applyTraits, mergeProperties, composeSubscriber } from "../../belt/trait.js"
+import { memorized, ranked, translated } from "../../traits/index.js"
+
+const literalTraits = [memorized, ranked, translated]
+
+export enum LiteralTraitsEnum {
+  TRANSLATED = "TRANSLATED",
+  EXEMPLIFIED = "EXEMPLIFIED",
+  RANKED = "RANKED",
+  ANNOTATED = "ANNOTATED",
+  MEMORIZED = "MEMORIZED",
+}
+
+export class LiteralEntity extends maps.kernel.literal.entity {
+  traits: LiteralTraitsEnum[] & Opt = []
+  plays = new Collection<PlayEntity>(this)
+}
+
+applyTraits(LiteralEntity, literalTraits)
+
+export const LiteralSchema = new EntitySchema({
+  class: LiteralEntity,
+  extends: maps.kernel.literal.schema,
+  tableName: "Literal",
+  name: "Literal",
+  properties: {
+    traits: {
+      items: () => LiteralTraitsEnum,
+      enum: true,
+      array: true,
+      default: [],
+      type: types.json,
+    },
+
+    ...mergeProperties(literalTraits),
+
+    plays: {
+      kind: "1:m",
+      entity: () => PlayEntity,
+      mappedBy: (play) => play.literal,
+    },
+  },
+})
+
+export const LiteralSubscriber = composeSubscriber(LiteralEntity, literalTraits)
+
+export default {
+  type: "literal",
+  traits: LiteralTraitsEnum,
+  schema: LiteralSchema,
+  entity: LiteralEntity,
+  subscriber: new LiteralSubscriber(),
+}
+#+end_src
+
+** Aperture — review/literal
+
+#+begin_src js :tangle approach-a/aperture/review/literal.js
+export default async function reviewLiteral(input, ctx) {
+  const { scope = {}, signal } = input
+
+  if (!scope.literal) return { status: "bounce", message: "literal required" }
+
+  const literal = await ctx.daemon.entities.literal.findOne(scope.literal)
+  if (!literal) return { status: "bounce", message: "literal not found" }
+
+  const result = literal.reviewMemory(signal)
+
+  await ctx.daemon.entities.em.flush()
+
+  const play = await ctx.daemon.call("/review/play", {
+    nextIn: result.nextIn,
+    nextAt: result.nextAt,
+    lastAt: result.lastAt,
+    scope,
+    signal,
+  })
+
+  return { literal: { play, memory: result, change: result.change } }
+}
+#+end_src
+
+** Aperture — review/product
+
+#+begin_src js :tangle approach-a/aperture/review/product.js
+import { object } from "@vivalence/shared"
+
+export default async function reviewProduct(input, ctx) {
+  const { scope: inputScope, signal } = input
+
+  const product = await ctx.daemon.entities.product.findOne(inputScope.product, {
+    populate: ["literals", "symbols"],
+  })
+
+  const scope = object.merge(inputScope, {
+    producer: product.producer.id,
+    commissioner: product.commissioner.id,
+  })
+
+  const reviews = product.literals.map(literal => {
+    const result = literal.reviewMemory(signal)
+    return { literal: literal.id, memory: result, change: result.change }
+  })
+
+  product.status = "DONE"
+  await ctx.daemon.entities.em.flush()
+
+  const plays = await Promise.all(
+    reviews.map(review =>
+      ctx.daemon.call("/review/play", {
+        nextIn: review.memory.nextIn,
+        nextAt: review.memory.nextAt,
+        lastAt: review.memory.lastAt,
+        scope: { ...scope, literal: review.literal },
+        signal,
+      }).then(play => ({ ...review, play }))
+    ),
+  )
+
+  return plays
+}
+#+end_src
+
+** Aperture — pick/literal/due
+
+#+begin_src js :tangle approach-a/aperture/pick/literal/due.js
+import { Blacklist, Seek } from "@vivalence/typology"
+
+export default async function getDueLiterals(input, ctx) {
+  const { batch, stock, dueLt = new Date() } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+  queryBuilder.where({ traits: { $like: "%MEMORIZED%" } })
+
+  if (blacklist?.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.andWhere(
+    `json_extract(literal.data, '$.MEMORIZED.nextAt') < ?`,
+    [dueLt.toISOString()],
+  )
+
+  queryBuilder.orderBy({
+    [ctx.daemon.entities.em.raw("json_extract(literal.data, '$.MEMORIZED.nextAt')")]: "ASC",
+  })
+
+  if (take) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/novel
+
+#+begin_src js :tangle approach-a/aperture/pick/literal/novel.js
+import { Blacklist, Seek, is } from "@vivalence/typology"
+
+export default async function getNovelLiterals(input, ctx) {
+  const { batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+  queryBuilder.where({})
+
+  if (blacklist.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $in: seek.literals.map(literal => literal.id) } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.andWhere({ traits: { $not: { $like: "%MEMORIZED%" } } })
+  queryBuilder.orderBy({ rank: "ASC" })
+
+  if (is.numberPositive(take)) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/feed
+
+#+begin_src js :tangle approach-a/aperture/pick/literal/feed.js
+import getDueLiterals from "./due.js"
+import getNovelLiterals from "./novel.js"
+
+export default async function feedLiterals(input, ctx) {
+  const { scope, seek, blacklist, batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+
+  let debt = -take
+  const literals = []
+
+  if (debt < 0) {
+    const dueLiterals = await getDueLiterals(
+      { blacklist, scope, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...dueLiterals)
+    debt += dueLiterals.length
+  }
+
+  if (debt < 0) {
+    const novelLiterals = await getNovelLiterals(
+      { scope, blacklist, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...novelLiterals)
+    debt += novelLiterals.length
+  }
+
+  return literals
+}
+#+end_src
+
+** Aperture — pick/lib/sort
+
+#+begin_src js :tangle approach-a/aperture/pick/lib/sort.js
+export default function sortByMemoryStrength(resources) {
+  return [...resources].sort(
+    (left, right) => left.memoryStrength - right.memoryStrength,
+  )
+}
+#+end_src
+
+** Datamap provider — unchanged
+
+No special registration needed. The =data= column already exists on literal.
+
+#+begin_src js :tangle approach-a/datamap/provider.js
+import { MikroORM, defineConfig } from "@mikro-orm/sqlite"
+import { Migrator } from "@mikro-orm/migrations"
+
+async function provider(datamap, variant) {
+  const mikroconfig = defineConfig({
+    dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+    entities: variant.map(entry => entry.schema).filter(Boolean),
+    subscribers: variant
+      .map(entry => entry.subscriber)
+      .filter(Boolean),
+    extensions: [Migrator],
+    migrations: {
+      tableName: "_mikro_migrations",
+      path: datamap.mount.branch("migrations").absolute,
+    },
+    strict: true,
+  })
+
+  const orm = await MikroORM.init(mikroconfig)
+  const migrator = orm.getMigrator()
+  await migrator.createMigration()
+  await migrator.up()
+
+  const entities = {}
+  for (const { type, schema, entity } of variant) {
+    if (!entity || !type) continue
+    entities[type] = orm.em.getRepository(entity)
+  }
+
+  return { orm, entities }
+}
+
+export { provider }
+#+end_src
+
+* Approach B: MikroORM Embeddable Objects
+
+Each trait defines an embeddable class and an EntitySchema with =embeddable: true=.
+The trait contributes an embedded property (=kind: 'embedded', object: true=) to the host entity.
+Each trait becomes its own JSON column in the database.
+MikroORM hydrates them as typed class instances and tracks changes natively.
+
+** Framework
+
+#+begin_src js :tangle approach-b/belt/trait.js
+import { EntitySchema } from "@mikro-orm/core"
+
+export function defineTrait(name, spec) {
+  const {
+    embeddableClass,
+    embeddableProperties = {},
+    methods = {},
+    hooks = {},
+    entityProperties = {},
+  } = spec
+
+  const fieldName = name.toLowerCase()
+
+  const embeddableSchema = new EntitySchema({
+    class: embeddableClass,
+    embeddable: true,
+    properties: embeddableProperties,
+  })
+
+  const embeddedProperty = {
+    [fieldName]: {
+      kind: "embedded",
+      entity: embeddableClass.name,
+      object: true,
+      nullable: true,
+      onCreate: () => null,
+    },
+  }
+
+  return {
+    name,
+    fieldName,
+    embeddableClass,
+    embeddableSchema,
+    methods,
+    hooks,
+    entityProperties: { ...embeddedProperty, ...entityProperties },
+  }
+}
+
+export function applyTraits(EntityClass, traits) {
+  for (const trait of traits) {
+    const descriptors = Object.getOwnPropertyDescriptors(trait.methods)
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+      Object.defineProperty(EntityClass.prototype, key, descriptor)
+    }
+  }
+}
+
+export function mergeProperties(traits) {
+  const merged = {}
+  for (const trait of traits) {
+    Object.assign(merged, trait.entityProperties)
+  }
+  return merged
+}
+
+export function collectSchemas(traits) {
+  return traits.map(trait => trait.embeddableSchema)
+}
+
+export function composeSubscriber(EntityClass, traits) {
+  const hookMap = {}
+
+  for (const trait of traits) {
+    for (const [hookName, handler] of Object.entries(trait.hooks)) {
+      if (!hookMap[hookName]) hookMap[hookName] = []
+      hookMap[hookName].push(handler)
+    }
+  }
+
+  return class ComposedSubscriber {
+    getSubscribedEntities() { return [EntityClass] }
+
+    constructor() {
+      for (const [hookName, handlers] of Object.entries(hookMap)) {
+        this[hookName] = ({ entity }) => {
+          for (const handler of handlers) handler(entity)
+        }
+      }
+    }
+  }
+}
+#+end_src
+
+** MEMORIZED trait
+
+Methods operate on =this.memorized= which is a =MemorizedEmbed= instance.
+MikroORM tracks changes to the embedded object natively.
+
+#+begin_src js :tangle approach-b/traits/memorized.js
+import * as ebisu from "ebisu-js"
+import { time } from "@vivalence/typology"
+import { defineTrait } from "../belt/trait.js"
+
+const DECAY_THRESHOLD = 0.9
+const SIGNAL_TAU = { MASTERY: 24, SUCCESS: 3.4, NEUTRAL: 1.0, MISTAKE: 0.15, FAILURE: 0.08 }
+
+function normalizeSignal(signal) {
+  return typeof signal === "string" ? { enum: signal } : signal
+}
+
+function computeState(state, lastAt, signal) {
+  signal = normalizeSignal(signal)
+  const elapsed = time.hoursBetween(lastAt)
+  switch (signal.enum) {
+    case "MASTERY":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 1, 1, elapsed), 10)
+    case "SUCCESS":  return ebisu.updateRecall(state, 1, 1, elapsed)
+    case "NEUTRAL":  return ebisu.updateRecall(state, 0.5, 1, elapsed)
+    case "MISTAKE":  return ebisu.updateRecall(state, 0, 1, elapsed)
+    case "FAILURE":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 0, 1, elapsed), 0.1)
+    default: throw new Error(`unknown signal: ${signal.enum}`)
+  }
+}
+
+function computeSchedule(state) {
+  const nextIn = ebisu.modelToPercentileDecay(state, DECAY_THRESHOLD)
+  const nextAt = time.futureDatetime(nextIn)
+  return { nextIn, nextAt }
+}
+
+function computeStatus(nextIn) {
+  if (nextIn < 6) return "UNKNOWN"
+  if (nextIn > 24 * 45) return "GRADUATED"
+  if (nextIn > 24 * 7) return "KNOWN"
+  return "LEARNING"
+}
+
+export class MemorizedEmbed {
+  driver = "BAYESIAN"
+  status = "UNTOUCHED"
+  state = null
+  history = []
+  nextIn = 0
+  nextAt = null
+  lastAt = null
+}
+
+function freshEmbed(fields) {
+  const embed = new MemorizedEmbed()
+  Object.assign(embed, fields)
+  return embed
+}
+
+export const memorized = defineTrait("MEMORIZED", {
+  embeddableClass: MemorizedEmbed,
+
+  embeddableProperties: {
+    driver:  { type: "string", default: "BAYESIAN" },
+    status:  { type: "string", default: "UNTOUCHED" },
+    state:   { type: "json", nullable: true },
+    history: { type: "json", default: [] },
+    nextIn:  { type: "number", default: 0 },
+    nextAt:  { type: "Date", nullable: true },
+    lastAt:  { type: "Date", nullable: true },
+  },
+
+  methods: {
+    get memory() {
+      return this.memorized ?? null
+    },
+
+    get memoryStrength() {
+      if (!this.memorized?.state || !this.memorized?.lastAt) return 0
+      return ebisu.predictRecall(
+        this.memorized.state,
+        time.hoursBetweenDates(this.memorized.lastAt),
+        true,
+      )
+    },
+
+    get memoryStatus() {
+      return this.memorized?.status ?? "UNTOUCHED"
+    },
+
+    get isMemoryDue() {
+      if (!this.memorized?.nextAt) return false
+      return new Date(this.memorized.nextAt) < new Date()
+    },
+
+    get isMemoryNovel() {
+      return this.memorized === null
+    },
+
+    reviewMemory(signal) {
+      if (!this.memorized?.state) return this.initiateMemory(signal)
+
+      const now = new Date()
+      const previous = this.memorized
+      const previousStatus = previous.status
+      const newState = computeState(previous.state, previous.lastAt, signal)
+      const { nextIn, nextAt } = computeSchedule(newState)
+      const newStatus = computeStatus(nextIn)
+
+      const entry = {
+        signal: normalizeSignal(signal),
+        state: newState,
+        nextIn, nextAt,
+        lastAt: now,
+        status: newStatus,
+      }
+
+      const history = [...previous.history, entry]
+      if (history.length > 10) history.shift()
+
+      this.memorized = freshEmbed({
+        driver: previous.driver,
+        status: newStatus,
+        state: newState,
+        history,
+        nextIn, nextAt,
+        lastAt: now,
+      })
+
+      const change = previousStatus !== newStatus
+        ? { from: previousStatus, to: newStatus }
+        : null
+
+      return { state: newState, status: newStatus, nextIn, nextAt, lastAt: now, change }
+    },
+
+    initiateMemory(signal) {
+      signal = normalizeSignal(signal)
+      const now = new Date()
+      const tau = SIGNAL_TAU[signal.enum] ?? 0.15
+      const state = ebisu.defaultModel(tau, 4, 4)
+      const { nextIn, nextAt } = computeSchedule(state)
+      const memoryStatus = computeStatus(nextIn)
+
+      const entry = { signal, state, nextIn, nextAt, lastAt: now, status: memoryStatus }
+
+      this.memorized = freshEmbed({
+        driver: "BAYESIAN",
+        status: memoryStatus,
+        state,
+        history: [entry],
+        nextIn, nextAt,
+        lastAt: now,
+      })
+
+      return { state, status: memoryStatus, nextIn, nextAt, lastAt: now, change: { from: null, to: memoryStatus } }
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+#+end_src
+
+** RANKED trait
+
+#+begin_src js :tangle approach-b/traits/ranked.js
+import { defineTrait } from "../belt/trait.js"
+
+export class RankedEmbed {
+  rank = 999999
+  zipf = 0
+  fpm = 0
+}
+
+export const ranked = defineTrait("RANKED", {
+  embeddableClass: RankedEmbed,
+
+  embeddableProperties: {
+    rank: { type: "integer", default: 999999 },
+    zipf: { type: "number", default: 0 },
+    fpm:  { type: "number", default: 0 },
+  },
+
+  methods: {
+    get ranking() {
+      return this.ranked ?? null
+    },
+  },
+
+  hooks: {
+    beforeCreate(entity) {
+      entity.rank = entity.ranked?.rank ?? 999999
+    },
+    beforeUpdate(entity) {
+      entity.rank = entity.ranked?.rank ?? 999999
+    },
+  },
+
+  entityProperties: {
+    rank: { type: "integer", nullable: true, default: null },
+  },
+})
+#+end_src
+
+** TRANSLATED trait
+
+#+begin_src js :tangle approach-b/traits/translated.js
+import { defineTrait } from "../belt/trait.js"
+
+export class TranslatedEmbed {
+  known = ""
+  learning = ""
+}
+
+export class ExemplifiedEmbed {
+  known = ""
+  learning = ""
+}
+
+export const translated = defineTrait("TRANSLATED", {
+  embeddableClass: TranslatedEmbed,
+
+  embeddableProperties: {
+    known:    { type: "string", default: "" },
+    learning: { type: "string", default: "" },
+  },
+
+  methods: {
+    get translatedValue() {
+      return this.translated ?? null
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+
+export const exemplified = defineTrait("EXEMPLIFIED", {
+  embeddableClass: ExemplifiedEmbed,
+
+  embeddableProperties: {
+    known:    { type: "string", default: "" },
+    learning: { type: "string", default: "" },
+  },
+
+  methods: {
+    get exemplifiedValue() {
+      return this.exemplified ?? null
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+#+end_src
+
+** Trait index
+
+#+begin_src js :tangle approach-b/traits/index.js
+export { memorized, MemorizedEmbed } from "./memorized.js"
+export { ranked, RankedEmbed } from "./ranked.js"
+export { translated, exemplified, TranslatedEmbed, ExemplifiedEmbed } from "./translated.js"
+#+end_src
+
+** Entity definition
+
+Note =literalEmbeddables= — these must be registered with MikroORM alongside entity schemas.
+
+#+begin_src js :tangle approach-b/entities/kernel/Literal.ts
+import { types, Collection, EntitySchema, type Opt } from "@mikro-orm/core"
+import { maps } from "@vivalence/typology/entities"
+import { PlayEntity } from "../userspace/Play.ts"
+
+import {
+  applyTraits, mergeProperties,
+  collectSchemas, composeSubscriber,
+} from "../../belt/trait.js"
+
+import { memorized, ranked, translated, exemplified } from "../../traits/index.js"
+
+const literalTraits = [memorized, ranked, translated, exemplified]
+
+export class LiteralEntity extends maps.kernel.literal.entity {
+  plays = new Collection<PlayEntity>(this)
+}
+
+applyTraits(LiteralEntity, literalTraits)
+
+export const LiteralSchema = new EntitySchema({
+  class: LiteralEntity,
+  extends: maps.kernel.literal.schema,
+  tableName: "Literal",
+  name: "Literal",
+  properties: {
+    ...mergeProperties(literalTraits),
+
+    plays: {
+      kind: "1:m",
+      entity: () => PlayEntity,
+      mappedBy: (play) => play.literal,
+    },
+  },
+})
+
+export const LiteralSubscriber = composeSubscriber(LiteralEntity, literalTraits)
+
+export const literalEmbeddables = collectSchemas(literalTraits)
+
+export default {
+  type: "literal",
+  schema: LiteralSchema,
+  entity: LiteralEntity,
+  subscriber: new LiteralSubscriber(),
+  embeddables: literalEmbeddables,
+}
+#+end_src
+
+** Aperture — review/literal
+
+Identical to Approach A. The entity interface is the same.
+
+#+begin_src js :tangle approach-b/aperture/review/literal.js
+export default async function reviewLiteral(input, ctx) {
+  const { scope = {}, signal } = input
+
+  if (!scope.literal) return { status: "bounce", message: "literal required" }
+
+  const literal = await ctx.daemon.entities.literal.findOne(scope.literal)
+  if (!literal) return { status: "bounce", message: "literal not found" }
+
+  const result = literal.reviewMemory(signal)
+
+  await ctx.daemon.entities.em.flush()
+
+  const play = await ctx.daemon.call("/review/play", {
+    nextIn: result.nextIn,
+    nextAt: result.nextAt,
+    lastAt: result.lastAt,
+    scope,
+    signal,
+  })
+
+  return { literal: { play, memory: result, change: result.change } }
+}
+#+end_src
+
+** Aperture — review/product
+
+#+begin_src js :tangle approach-b/aperture/review/product.js
+import { object } from "@vivalence/shared"
+
+export default async function reviewProduct(input, ctx) {
+  const { scope: inputScope, signal } = input
+
+  const product = await ctx.daemon.entities.product.findOne(inputScope.product, {
+    populate: ["literals", "symbols"],
+  })
+
+  const scope = object.merge(inputScope, {
+    producer: product.producer.id,
+    commissioner: product.commissioner.id,
+  })
+
+  const reviews = product.literals.map(literal => {
+    const result = literal.reviewMemory(signal)
+    return { literal: literal.id, memory: result, change: result.change }
+  })
+
+  product.status = "DONE"
+  await ctx.daemon.entities.em.flush()
+
+  const plays = await Promise.all(
+    reviews.map(review =>
+      ctx.daemon.call("/review/play", {
+        nextIn: review.memory.nextIn,
+        nextAt: review.memory.nextAt,
+        lastAt: review.memory.lastAt,
+        scope: { ...scope, literal: review.literal },
+        signal,
+      }).then(play => ({ ...review, play }))
+    ),
+  )
+
+  return plays
+}
+#+end_src
+
+** Aperture — pick/literal/due
+
+Querying changes: column is =memorized= not =json_extract(data, ...)=.
+On PG/MySQL you'd use ={ memorized: { nextAt: { $lt: dueLt } } }=.
+On SQLite/libsql, still =json_extract= but on the dedicated column.
+
+#+begin_src js :tangle approach-b/aperture/pick/literal/due.js
+import { Blacklist, Seek } from "@vivalence/typology"
+
+export default async function getDueLiterals(input, ctx) {
+  const { batch, stock, dueLt = new Date() } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+
+  queryBuilder.where(
+    `literal.memorized IS NOT NULL`,
+  )
+
+  if (blacklist?.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.andWhere(
+    `json_extract(literal.memorized, '$.nextAt') < ?`,
+    [dueLt.toISOString()],
+  )
+
+  queryBuilder.orderBy({
+    [ctx.daemon.entities.em.raw("json_extract(literal.memorized, '$.nextAt')")]: "ASC",
+  })
+
+  if (take) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/novel
+
+#+begin_src js :tangle approach-b/aperture/pick/literal/novel.js
+import { Blacklist, Seek, is } from "@vivalence/typology"
+
+export default async function getNovelLiterals(input, ctx) {
+  const { batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+
+  queryBuilder.where(`literal.memorized IS NULL`)
+
+  if (blacklist.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $in: seek.literals.map(literal => literal.id) } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.orderBy({ rank: "ASC" })
+
+  if (is.numberPositive(take)) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/feed
+
+#+begin_src js :tangle approach-b/aperture/pick/literal/feed.js
+import getDueLiterals from "./due.js"
+import getNovelLiterals from "./novel.js"
+
+export default async function feedLiterals(input, ctx) {
+  const { scope, seek, blacklist, batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+
+  let debt = -take
+  const literals = []
+
+  if (debt < 0) {
+    const dueLiterals = await getDueLiterals(
+      { blacklist, scope, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...dueLiterals)
+    debt += dueLiterals.length
+  }
+
+  if (debt < 0) {
+    const novelLiterals = await getNovelLiterals(
+      { scope, blacklist, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...novelLiterals)
+    debt += novelLiterals.length
+  }
+
+  return literals
+}
+#+end_src
+
+** Aperture — pick/lib/sort
+
+#+begin_src js :tangle approach-b/aperture/pick/lib/sort.js
+export default function sortByMemoryStrength(resources) {
+  return [...resources].sort(
+    (left, right) => left.memoryStrength - right.memoryStrength,
+  )
+}
+#+end_src
+
+** Datamap provider — registers embeddable schemas
+
+The key difference: =collectSchemas= gathers embeddable EntitySchemas
+from each variant's =.embeddables= array and passes them to MikroORM alongside entity schemas.
+
+#+begin_src js :tangle approach-b/datamap/provider.js
+import { MikroORM, defineConfig } from "@mikro-orm/sqlite"
+import { Migrator } from "@mikro-orm/migrations"
+
+async function provider(datamap, variant) {
+  const allSchemas = variant.flatMap(entry =>
+    [entry.schema, ...(entry.embeddables ?? [])].filter(Boolean),
+  )
+
+  const mikroconfig = defineConfig({
+    dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+    entities: allSchemas,
+    subscribers: variant
+      .map(entry => entry.subscriber)
+      .filter(Boolean),
+    extensions: [Migrator],
+    migrations: {
+      tableName: "_mikro_migrations",
+      path: datamap.mount.branch("migrations").absolute,
+    },
+    strict: true,
+  })
+
+  const orm = await MikroORM.init(mikroconfig)
+  const migrator = orm.getMigrator()
+  await migrator.createMigration()
+  await migrator.up()
+
+  const entities = {}
+  for (const { type, schema, entity } of variant) {
+    if (!entity || !type) continue
+    entities[type] = orm.em.getRepository(entity)
+  }
+
+  return { orm, entities }
+}
+
+export { provider }
+#+end_src
+
+* Approach C: Inline Embeddables (Column-per-property)
+
+Each trait defines an embeddable class, but uses MikroORM's *inline* mode
+(the default, without =object: true=). This means each property of the
+embeddable becomes its own prefixed column on the host entity's table.
+
+The key advantage: inline embeddables support =ManyToOne= relations (since v5).
+A trait that references another entity (e.g. a user, a mode, a symbol) can
+declare it as a real foreign key, populatable like any other relation.
+
+The tradeoff: more columns. A trait with 7 properties adds 7 prefixed columns
+to the Literal table. This is how traditional ORMs work — no JSON, no extraction,
+just real columns with real types and real indexes.
+
+** When to use this over B
+
+- When you need relations inside a trait (user-scoped memory, for example)
+- When you're on SQLite/libsql and want queryable trait data without =json_extract=
+- When you want to index specific trait properties (e.g. =memorized_next_at=)
+- When you're on any SQL driver and want the same query syntax everywhere
+
+** When B is better
+
+- When a trait stores complex nested data (arrays, deep objects) — JSON columns handle this naturally
+- When you want fewer columns and simpler migrations
+- When the trait data is opaque to queries (you never WHERE on it)
+
+** Constraints (as of v6 / v7)
+
+- Only =ManyToOne= relations are supported inside embeddables. No OneToMany, ManyToMany, or OneToOne.
+- The inverse side (e.g. a =OneToMany= on UserEntity pointing back through an embeddable's ManyToOne)
+  requires referencing the flattened column name: =(user) => user.memorized_user= — fragile.
+- v7 changes =prefixMode= default to =relative= but adds no new relation types.
+- Polymorphic embeddables (discriminator-based) work but are for single-slot-multiple-shapes,
+  not the additive trait pattern we use.
+
+** Framework
+
+The framework is the same as Approach B, but =defineTrait= omits =object: true=
+on the embedded property, producing inline columns instead of a JSON blob.
+
+#+begin_src js :tangle approach-c/belt/trait.js
+import { EntitySchema } from "@mikro-orm/core"
+
+export function defineTrait(name, spec) {
+  const {
+    embeddableClass,
+    embeddableProperties = {},
+    methods = {},
+    hooks = {},
+    entityProperties = {},
+    prefix,
+  } = spec
+
+  const fieldName = name.toLowerCase()
+
+  const embeddableSchema = new EntitySchema({
+    class: embeddableClass,
+    embeddable: true,
+    properties: embeddableProperties,
+  })
+
+  const embeddedProperty = {
+    [fieldName]: {
+      kind: "embedded",
+      entity: embeddableClass.name,
+      prefix: prefix ?? fieldName + "_",
+      nullable: true,
+      onCreate: () => null,
+    },
+  }
+
+  return {
+    name,
+    fieldName,
+    embeddableClass,
+    embeddableSchema,
+    methods,
+    hooks,
+    entityProperties: { ...embeddedProperty, ...entityProperties },
+  }
+}
+
+export function applyTraits(EntityClass, traits) {
+  for (const trait of traits) {
+    const descriptors = Object.getOwnPropertyDescriptors(trait.methods)
+    for (const [key, descriptor] of Object.entries(descriptors)) {
+      Object.defineProperty(EntityClass.prototype, key, descriptor)
+    }
+  }
+}
+
+export function mergeProperties(traits) {
+  const merged = {}
+  for (const trait of traits) {
+    Object.assign(merged, trait.entityProperties)
+  }
+  return merged
+}
+
+export function collectSchemas(traits) {
+  return traits.map(trait => trait.embeddableSchema)
+}
+
+export function composeSubscriber(EntityClass, traits) {
+  const hookMap = {}
+
+  for (const trait of traits) {
+    for (const [hookName, handler] of Object.entries(trait.hooks)) {
+      if (!hookMap[hookName]) hookMap[hookName] = []
+      hookMap[hookName].push(handler)
+    }
+  }
+
+  return class ComposedSubscriber {
+    getSubscribedEntities() { return [EntityClass] }
+
+    constructor() {
+      for (const [hookName, handlers] of Object.entries(hookMap)) {
+        this[hookName] = ({ entity }) => {
+          for (const handler of handlers) handler(entity)
+        }
+      }
+    }
+  }
+}
+#+end_src
+
+** MEMORIZED trait — inline with relation
+
+The =user= field is a real =ManyToOne= relation. MikroORM generates a
+=memorized_user= foreign key column on the Literal table. All other
+properties become real columns: =memorized_status=, =memorized_next_at=, etc.
+
+The =history= and =state= fields remain JSON — individual properties can
+still use JSON type even in inline mode.
+
+#+begin_src js :tangle approach-c/traits/memorized.js
+import * as ebisu from "ebisu-js"
+import { time } from "@vivalence/typology"
+import { defineTrait } from "../belt/trait.js"
+
+const DECAY_THRESHOLD = 0.9
+const SIGNAL_TAU = { MASTERY: 24, SUCCESS: 3.4, NEUTRAL: 1.0, MISTAKE: 0.15, FAILURE: 0.08 }
+
+function normalizeSignal(signal) {
+  return typeof signal === "string" ? { enum: signal } : signal
+}
+
+function computeState(state, lastAt, signal) {
+  signal = normalizeSignal(signal)
+  const elapsed = time.hoursBetween(lastAt)
+  switch (signal.enum) {
+    case "MASTERY":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 1, 1, elapsed), 10)
+    case "SUCCESS":  return ebisu.updateRecall(state, 1, 1, elapsed)
+    case "NEUTRAL":  return ebisu.updateRecall(state, 0.5, 1, elapsed)
+    case "MISTAKE":  return ebisu.updateRecall(state, 0, 1, elapsed)
+    case "FAILURE":  return ebisu.rescaleHalflife(ebisu.updateRecall(state, 0, 1, elapsed), 0.1)
+    default: throw new Error(`unknown signal: ${signal.enum}`)
+  }
+}
+
+function computeSchedule(state) {
+  const nextIn = ebisu.modelToPercentileDecay(state, DECAY_THRESHOLD)
+  const nextAt = time.futureDatetime(nextIn)
+  return { nextIn, nextAt }
+}
+
+function computeStatus(nextIn) {
+  if (nextIn < 6) return "UNKNOWN"
+  if (nextIn > 24 * 45) return "GRADUATED"
+  if (nextIn > 24 * 7) return "KNOWN"
+  return "LEARNING"
+}
+
+export class MemorizedEmbed {
+  driver = "BAYESIAN"
+  status = "UNTOUCHED"
+  state = null
+  history = []
+  nextIn = 0
+  nextAt = null
+  lastAt = null
+  user = null
+}
+
+function freshEmbed(fields) {
+  const embed = new MemorizedEmbed()
+  Object.assign(embed, fields)
+  return embed
+}
+
+export const memorized = defineTrait("MEMORIZED", {
+  embeddableClass: MemorizedEmbed,
+
+  embeddableProperties: {
+    driver:  { type: "string", default: "BAYESIAN" },
+    status:  { type: "string", default: "UNTOUCHED" },
+    state:   { type: "json", nullable: true },
+    history: { type: "json", default: [] },
+    nextIn:  { type: "number", default: 0 },
+    nextAt:  { type: "Date", nullable: true },
+    lastAt:  { type: "Date", nullable: true },
+    user:    { kind: "m:1", entity: "UserEntity", nullable: true },
+  },
+
+  methods: {
+    get memory() {
+      return this.memorized ?? null
+    },
+
+    get memoryStrength() {
+      if (!this.memorized?.state || !this.memorized?.lastAt) return 0
+      return ebisu.predictRecall(
+        this.memorized.state,
+        time.hoursBetweenDates(this.memorized.lastAt),
+        true,
+      )
+    },
+
+    get memoryStatus() {
+      return this.memorized?.status ?? "UNTOUCHED"
+    },
+
+    get isMemoryDue() {
+      if (!this.memorized?.nextAt) return false
+      return new Date(this.memorized.nextAt) < new Date()
+    },
+
+    get isMemoryNovel() {
+      return this.memorized === null
+    },
+
+    reviewMemory(signal, user) {
+      if (!this.memorized?.state) return this.initiateMemory(signal, user)
+
+      const now = new Date()
+      const previous = this.memorized
+      const previousStatus = previous.status
+      const newState = computeState(previous.state, previous.lastAt, signal)
+      const { nextIn, nextAt } = computeSchedule(newState)
+      const newStatus = computeStatus(nextIn)
+
+      const entry = {
+        signal: normalizeSignal(signal),
+        state: newState,
+        nextIn, nextAt,
+        lastAt: now,
+        status: newStatus,
+      }
+
+      const history = [...previous.history, entry]
+      if (history.length > 10) history.shift()
+
+      this.memorized = freshEmbed({
+        driver: previous.driver,
+        status: newStatus,
+        state: newState,
+        history,
+        nextIn, nextAt,
+        lastAt: now,
+        user: previous.user,
+      })
+
+      const change = previousStatus !== newStatus
+        ? { from: previousStatus, to: newStatus }
+        : null
+
+      return { state: newState, status: newStatus, nextIn, nextAt, lastAt: now, change }
+    },
+
+    initiateMemory(signal, user) {
+      signal = normalizeSignal(signal)
+      const now = new Date()
+      const tau = SIGNAL_TAU[signal.enum] ?? 0.15
+      const state = ebisu.defaultModel(tau, 4, 4)
+      const { nextIn, nextAt } = computeSchedule(state)
+      const memoryStatus = computeStatus(nextIn)
+
+      const entry = { signal, state, nextIn, nextAt, lastAt: now, status: memoryStatus }
+
+      this.memorized = freshEmbed({
+        driver: "BAYESIAN",
+        status: memoryStatus,
+        state,
+        history: [entry],
+        nextIn, nextAt,
+        lastAt: now,
+        user: user ?? null,
+      })
+
+      return { state, status: memoryStatus, nextIn, nextAt, lastAt: now, change: { from: null, to: memoryStatus } }
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+#+end_src
+
+** RANKED trait — inline
+
+Simple value-object trait. No JSON columns at all — every property
+becomes a real typed column: =ranked_rank=, =ranked_zipf=, =ranked_fpm=.
+
+#+begin_src js :tangle approach-c/traits/ranked.js
+import { defineTrait } from "../belt/trait.js"
+
+export class RankedEmbed {
+  rank = 999999
+  zipf = 0
+  fpm = 0
+}
+
+export const ranked = defineTrait("RANKED", {
+  embeddableClass: RankedEmbed,
+
+  embeddableProperties: {
+    rank: { type: "integer", default: 999999 },
+    zipf: { type: "number", default: 0 },
+    fpm:  { type: "number", default: 0 },
+  },
+
+  methods: {
+    get ranking() {
+      return this.ranked ?? null
+    },
+  },
+
+  hooks: {
+    beforeCreate(entity) {
+      entity.rank = entity.ranked?.rank ?? 999999
+    },
+    beforeUpdate(entity) {
+      entity.rank = entity.ranked?.rank ?? 999999
+    },
+  },
+
+  entityProperties: {
+    rank: { type: "integer", nullable: true, default: null },
+  },
+})
+#+end_src
+
+** TRANSLATED trait — inline
+
+#+begin_src js :tangle approach-c/traits/translated.js
+import { defineTrait } from "../belt/trait.js"
+
+export class TranslatedEmbed {
+  known = ""
+  learning = ""
+}
+
+export class ExemplifiedEmbed {
+  known = ""
+  learning = ""
+}
+
+export const translated = defineTrait("TRANSLATED", {
+  embeddableClass: TranslatedEmbed,
+
+  embeddableProperties: {
+    known:    { type: "string", default: "" },
+    learning: { type: "string", default: "" },
+  },
+
+  methods: {
+    get translatedValue() {
+      return this.translated ?? null
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+
+export const exemplified = defineTrait("EXEMPLIFIED", {
+  embeddableClass: ExemplifiedEmbed,
+
+  embeddableProperties: {
+    known:    { type: "string", default: "" },
+    learning: { type: "string", default: "" },
+  },
+
+  methods: {
+    get exemplifiedValue() {
+      return this.exemplified ?? null
+    },
+  },
+
+  hooks: {},
+  entityProperties: {},
+})
+#+end_src
+
+** Trait index
+
+#+begin_src js :tangle approach-c/traits/index.js
+export { memorized, MemorizedEmbed } from "./memorized.js"
+export { ranked, RankedEmbed } from "./ranked.js"
+export { translated, exemplified, TranslatedEmbed, ExemplifiedEmbed } from "./translated.js"
+#+end_src
+
+** Entity definition
+
+With inline embeddables, the generated table schema looks like:
+
+#+begin_example
+Literal
+├── id                        (string, pk)
+├── slug                      (string, unique)
+├── rank                      (integer, nullable)     ← entityProperty from RANKED trait
+├── translated_known          (string)                ← inline from TRANSLATED embed
+├── translated_learning       (string)
+├── exemplified_known         (string)                ← inline from EXEMPLIFIED embed
+├── exemplified_learning      (string)
+├── ranked_rank               (integer)               ← inline from RANKED embed
+├── ranked_zipf               (number)
+├── ranked_fpm                (number)
+├── memorized_driver          (string)                ← inline from MEMORIZED embed
+├── memorized_status          (string)
+├── memorized_state           (json)                  ← JSON still works per-property
+├── memorized_history         (json)
+├── memorized_next_in         (number)
+├── memorized_next_at         (datetime, nullable)    ← real column, indexable
+├── memorized_last_at         (datetime, nullable)
+└── memorized_user            (fk → User, nullable)   ← real foreign key!
+#+end_example
+
+#+begin_src js :tangle approach-c/entities/kernel/Literal.ts
+import { types, Collection, EntitySchema, type Opt } from "@mikro-orm/core"
+import { maps } from "@vivalence/typology/entities"
+import { PlayEntity } from "../userspace/Play.ts"
+
+import {
+  applyTraits, mergeProperties,
+  collectSchemas, composeSubscriber,
+} from "../../belt/trait.js"
+
+import { memorized, ranked, translated, exemplified } from "../../traits/index.js"
+
+const literalTraits = [memorized, ranked, translated, exemplified]
+
+export class LiteralEntity extends maps.kernel.literal.entity {
+  plays = new Collection<PlayEntity>(this)
+}
+
+applyTraits(LiteralEntity, literalTraits)
+
+export const LiteralSchema = new EntitySchema({
+  class: LiteralEntity,
+  extends: maps.kernel.literal.schema,
+  tableName: "Literal",
+  name: "Literal",
+  properties: {
+    ...mergeProperties(literalTraits),
+
+    plays: {
+      kind: "1:m",
+      entity: () => PlayEntity,
+      mappedBy: (play) => play.literal,
+    },
+  },
+})
+
+export const LiteralSubscriber = composeSubscriber(LiteralEntity, literalTraits)
+
+export const literalEmbeddables = collectSchemas(literalTraits)
+
+export default {
+  type: "literal",
+  schema: LiteralSchema,
+  entity: LiteralEntity,
+  subscriber: new LiteralSubscriber(),
+  embeddables: literalEmbeddables,
+}
+#+end_src
+
+** Aperture — review/literal
+
+The user relation is set directly on the embed.
+The aperture code is nearly identical to A and B — only =user= is passed through.
+
+#+begin_src js :tangle approach-c/aperture/review/literal.js
+export default async function reviewLiteral(input, ctx) {
+  const { scope = {}, signal } = input
+
+  if (!scope.literal) return { status: "bounce", message: "literal required" }
+
+  const literal = await ctx.daemon.entities.literal.findOne(scope.literal)
+  if (!literal) return { status: "bounce", message: "literal not found" }
+
+  const result = literal.reviewMemory(signal, ctx.user.id)
+
+  await ctx.daemon.entities.em.flush()
+
+  const play = await ctx.daemon.call("/review/play", {
+    nextIn: result.nextIn,
+    nextAt: result.nextAt,
+    lastAt: result.lastAt,
+    scope,
+    signal,
+  })
+
+  return { literal: { play, memory: result, change: result.change } }
+}
+#+end_src
+
+** Aperture — pick/literal/due
+
+The big win: no =json_extract=. =memorized_next_at= is a real column.
+Works on SQLite, libsql, Postgres, MySQL — all the same.
+
+#+begin_src js :tangle approach-c/aperture/pick/literal/due.js
+import { Blacklist, Seek } from "@vivalence/typology"
+
+export default async function getDueLiterals(input, ctx) {
+  const { batch, stock, dueLt = new Date() } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+
+  queryBuilder.where({
+    memorized_status: { $ne: null },
+    memorized_next_at: { $lt: dueLt },
+  })
+
+  if (blacklist?.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.orderBy({ memorized_next_at: "ASC" })
+
+  if (take) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/novel
+
+No MEMORIZED embed means all =memorized_*= columns are NULL.
+
+#+begin_src js :tangle approach-c/aperture/pick/literal/novel.js
+import { Blacklist, Seek, is } from "@vivalence/typology"
+
+export default async function getNovelLiterals(input, ctx) {
+  const { batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+  const blacklist = new Blacklist(input.blacklist)
+  const seek = await new Seek().fromMask(ctx.input.seek, ctx)
+
+  const queryBuilder = ctx.daemon.entities.literal.createQueryBuilder("literal")
+
+  queryBuilder.where({ memorized_status: null })
+
+  if (blacklist.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $nin: blacklist.literals } })
+  }
+
+  if (seek.literals?.length > 0) {
+    queryBuilder.andWhere({ id: { $in: seek.literals.map(literal => literal.id) } })
+  }
+
+  if (seek.symbols?.length > 0) {
+    queryBuilder.andWhere(
+      `(SELECT COUNT(DISTINCT sl.symbol_entity_id)
+        FROM symbol_literals sl
+        WHERE sl.literal_entity_id = literal.id
+        AND sl.symbol_entity_id IN (?)) = ?`,
+      [seek.symbols.map(symbol => symbol.id), seek.symbols.length],
+    )
+  }
+
+  queryBuilder.orderBy({ rank: "ASC" })
+
+  if (is.numberPositive(take)) queryBuilder.limit(take)
+
+  return await queryBuilder.getResultList()
+}
+#+end_src
+
+** Aperture — pick/literal/feed
+
+#+begin_src js :tangle approach-c/aperture/pick/literal/feed.js
+import getDueLiterals from "./due.js"
+import getNovelLiterals from "./novel.js"
+
+export default async function feedLiterals(input, ctx) {
+  const { scope, seek, blacklist, batch, stock } = input
+  const take = input.take || (batch || 0) + (stock || 0)
+
+  let debt = -take
+  const literals = []
+
+  if (debt < 0) {
+    const dueLiterals = await getDueLiterals(
+      { blacklist, scope, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...dueLiterals)
+    debt += dueLiterals.length
+  }
+
+  if (debt < 0) {
+    const novelLiterals = await getNovelLiterals(
+      { scope, blacklist, seek, take: Math.abs(debt) },
+      ctx,
+    )
+    literals.push(...novelLiterals)
+    debt += novelLiterals.length
+  }
+
+  return literals
+}
+#+end_src
+
+** Aperture — pick/lib/sort
+
+#+begin_src js :tangle approach-c/aperture/pick/lib/sort.js
+export default function sortByMemoryStrength(resources) {
+  return [...resources].sort(
+    (left, right) => left.memoryStrength - right.memoryStrength,
+  )
+}
+#+end_src
+
+** Datamap provider — same as Approach B
+
+Embeddable schemas must be registered regardless of inline vs object mode.
+
+#+begin_src js :tangle approach-c/datamap/provider.js
+import { MikroORM, defineConfig } from "@mikro-orm/sqlite"
+import { Migrator } from "@mikro-orm/migrations"
+
+async function provider(datamap, variant) {
+  const allSchemas = variant.flatMap(entry =>
+    [entry.schema, ...(entry.embeddables ?? [])].filter(Boolean),
+  )
+
+  const mikroconfig = defineConfig({
+    dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
+    entities: allSchemas,
+    subscribers: variant
+      .map(entry => entry.subscriber)
+      .filter(Boolean),
+    extensions: [Migrator],
+    embeddables: { prefixMode: "relative" },
+    migrations: {
+      tableName: "_mikro_migrations",
+      path: datamap.mount.branch("migrations").absolute,
+    },
+    strict: true,
+  })
+
+  const orm = await MikroORM.init(mikroconfig)
+  const migrator = orm.getMigrator()
+  await migrator.createMigration()
+  await migrator.up()
+
+  const entities = {}
+  for (const { type, schema, entity } of variant) {
+    if (!entity || !type) continue
+    entities[type] = orm.em.getRepository(entity)
+  }
+
+  return { orm, entities }
+}
+
+export { provider }
+#+end_src
+
+** Hybrid: mixing inline and object per-trait
+
+Nothing prevents mixing approaches within a single entity.
+Traits with simple scalar data or relations use inline.
+Traits with complex nested data use =object: true=.
+
+The =defineTrait= function accepts an optional =object= flag:
+
+#+begin_src js :tangle approach-c/belt/hybrid-example.js
+import { defineTrait } from "./trait.js"
+import { MemorizedEmbed } from "../traits/memorized.js"
+import { RankedEmbed } from "../traits/ranked.js"
+
+const memorizedInline = defineTrait("MEMORIZED", {
+  embeddableClass: MemorizedEmbed,
+  embeddableProperties: { /* ... */ },
+  methods: { /* ... */ },
+})
+
+const rankedInline = defineTrait("RANKED", {
+  embeddableClass: RankedEmbed,
+  embeddableProperties: { /* ... */ },
+  methods: { /* ... */ },
+})
+#+end_src
+
+* Comparison Summary
+
+** Approach A: JSON blob
+
+Pros:
+- Zero schema migration when adding traits — just start writing to =data.NEW_TRAIT=
+- Single column, simple backups
+- =traits= array is the source of truth for presence
+- Works identically across all SQL drivers
+
+Cons:
+- MikroORM sees an opaque blob; change detection requires =this.data = { ...this.data }= reassignment
+- All queries against trait data require =json_extract()=
+- No typed hydration — trait data comes back as raw POJOs
+- Risk of key collision if two traits use the same key inside =data=
+- No relations possible inside trait data
+
+** Approach B: Embeddable objects (=object: true=)
+
+Pros:
+- MikroORM natively tracks changes per embedded property
+- Typed class instances on hydration (=literal.memorized instanceof MemorizedEmbed=)
+- Trait presence derivable from null-check (=literal.memorized !== null=)
+- On PG/MySQL, native JSON property queries work without =json_extract=
+- No key collision — each trait has its own column
+- Embeddable classes can have their own constructor validation
+
+Cons:
+- Each new trait requires a schema migration (new JSON column)
+- Embeddable schemas must be registered with MikroORM (=collectSchemas=)
+- On SQLite/libsql, JSON querying still requires =json_extract= even with dedicated columns
+- No relations possible — =ManyToOne= not supported with =object: true=
+- Slightly more boilerplate per trait (embeddable class + schema)
+
+** Approach C: Inline embeddables
+
+Pros:
+- Real typed columns per trait property — fully indexed, fully queryable
+- =ManyToOne= relations inside traits (e.g. user-scoped memory with a real FK)
+- Works identically across all SQL drivers — no =json_extract= needed anywhere
+- MikroORM full change tracking at property level
+- Typed class instances on hydration
+- =memorized_next_at= can be indexed for fast due-literal queries
+
+Cons:
+- Column proliferation: N properties × M traits = many columns on the host table
+- Each new trait requires a schema migration (adds multiple columns)
+- Complex nested data (arrays, deep objects) still requires JSON-typed properties
+- Only =ManyToOne= supported in embeddables — no OneToMany/ManyToMany/OneToOne
+- Inverse side relations through embeddables are fragile (flattened column name references)
+- =prefixMode= behavior changed between v6 and v7 (=relative= becomes default)
+
+** Shared across all three
+
+- Same =applyTraits= / =mergeProperties= / =composeSubscriber= composition API
+- Same entity method interface (=literal.reviewMemory()=, =literal.memoryStrength=, etc.)
+- Same aperture review code — the consumer doesn't know or care which backing store is used
+- Same =defineTrait= call signature at the definition site
+
+The aperture layer is identical between approaches.
+Only the trait definitions and the pick queries differ.
+
+** Decision matrix
+
+| Situation                                  | Best approach |
+|--------------------------------------------+---------------|
+| Prototyping, schema unstable               | A             |
+| Stable traits, PG/MySQL, no relations      | B             |
+| Stable traits, SQLite/libsql               | C             |
+| Trait needs FK to another entity           | C             |
+| Trait stores deeply nested / array data    | A or B        |
+| Want indexable trait properties            | C             |
+| Minimal column footprint                   | A             |
+| Mixed needs                                | Hybrid B + C  |

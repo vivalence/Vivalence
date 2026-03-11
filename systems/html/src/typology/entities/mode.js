@@ -1,15 +1,26 @@
-import { Repository, Entity } from "@vivalence/html/typology";
+import { Entity } from "@vivalence/html/typology";
 
-export class Mode {
+export class Mode extends Entity {
   // call
   // manifest
   // view
   valences = new Set();
-  constructor(mode) {
-    Object.assign(this, mode);
-  }
   implements(trait) {
     return this.manifest?.traits?.includes(trait);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      slug: this.slug,
+      type: this.type,
+      traits: this.traits,
+      daemon: this.daemon?.slug ?? null,
+      mount: this.mount?.nature ?? null,
+      valences: [...(this.valences || [])].map((v) => v?.slug ?? v),
+      view: this.view ? { Component: !!this.view?.Component, url: this.view?.url ?? null } : null,
+      manifest: this.manifest,
+    };
   }
 }
 

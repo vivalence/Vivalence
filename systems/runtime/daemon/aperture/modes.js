@@ -16,7 +16,7 @@ export async function modes(die) {
     const result = {
       manifest: mode.manifest,
     };
-    if (mode.implements("VIEWABLE")) {
+    if (mode.implements("TERMINAL")) {
       result.view = { url: mode.view.url };
     }
     return result;

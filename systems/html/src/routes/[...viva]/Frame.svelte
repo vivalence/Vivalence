@@ -5,16 +5,15 @@
 
   let { buffer } = $props();
 
-  // $inspect("buffer", $buffer);
-
   let component = $state(null);
   let dom = $state(null);
   let bufferId = computed(buffer, (a) => a?.id);
 
-  // $inspect("bufferId",  $bufferId);
+  // $inspect("bufferId", $bufferId);
 
   $effect(() => {
     if (dom && $buffer?.view?.url) {
+      // console.log("RENDERING NEW BUFFER", $bufferId, $buffer?.view?.url);
       (async (buffer) => {
         const module = await import(/* @vite-ignore */ buffer.view.url);
         component?.destroy();

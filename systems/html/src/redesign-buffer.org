@@ -2118,82 +2118,83 @@ Each trait only touches =mode.tools= and =mode.aperture=. LANGUAGED runs last be
 * second chat:
 ** context
 #+begin_src markdown
-# Session / Product Model
+  # Session / Product Model
 
-## Core idea
+  ## Core idea
 
-Session owns an ordered collection of Products. The stall is `session.stall: Collection<ProductEntity>`, sorted by `position` ascending. Session tracks a `cursor` (current active product) and a `counter` (next position value).
+  Session owns an ordered collection of Products. The stall is `session.stall: Collection<ProductEntity>`, sorted by `position` ascending. Session tracks a `cursor` (current active product) and a `counter` (next position value).
 
-## Product
+  ## Product
 
-One entity. Type and traits describe what it is. Data is keyed by type/trait so each concern lives in its own namespace.
+  One entity. Type and traits describe what it is. Data is keyed by type/trait so each concern lives in its own namespace.
 
-```
-product.type    → what kind of thing this is (enum)
-product.traits  → adjectives (status, modality, origin)
-product.data    → keyed object, each key maps to a type or trait
-```
+  ```
+  product.type    → what kind of thing this is (enum)
+  product.traits  → adjectives (status, modality, origin)
+  product.data    → keyed object, each key maps to a type or trait
+  ```
 
-### Types
+  ### Types
 
-| type | description |
-|------|-------------|
-| `MODAL` | a view — flashcard, exercise, widget |
-| `MESSAGE` | llm or user message |
-| `SIGNAL` | directive or system event |
-<!-- | `ASSET` | audio, video, image, document | -->
-<!-- | `TOOL` | tool call / tool result | -->
+  | type | description |
+  |------|-------------|
+  | `MODAL` | a view — flashcard, exercise, widget |
+  | `MESSAGE` | llm or user message |
+  | `SIGNAL` | directive or system event |
+  <!-- | `ASSET` | audio, video, image, document | -->
+  <!-- | `TOOL` | tool call / tool result | -->
 
-### Traits (selected)
+  ### Traits (selected)
 
-| trait | applies to | meaning |
-|-------|-----------|---------|
-| `USER` | MESSAGE | authored by user |
-| `AGENT` | MESSAGE | authored by llm |
-| `THINKING` | MESSAGE | reasoning trace |
-<!-- | `AUDIO` | ASSET | audio file | -->
-<!-- | `VIDEO` | ASSET | video file | -->
-<!-- | `INVOCATION` | TOOL | outbound invocation | -->
-<!-- | `OUTCOME` | TOOL | returned result | -->
-| `ERROR` | any | failure on any type |
+  | trait | applies to | meaning |
+  |-------|-----------|---------|
+  | `USER` | MESSAGE | authored by user |
+  | `AGENT` | MESSAGE | authored by llm |
+  | `THINKING` | MESSAGE | reasoning trace |
+  <!-- | `AUDIO` | ASSET | audio file | -->
+  <!-- | `VIDEO` | ASSET | video file | -->
+  <!-- | `INVOCATION` | TOOL | outbound invocation | -->
+  <!-- | `OUTCOME` | TOOL | returned result | -->
+  | `ERROR` | any | failure on any type |
 
-### Data shape
+  ### Data shape
 
-```js
-{
-  type: "MODAL",
-  traits: ["STATE"],
-  data: {
-    STATE: { front: { header: "gato" }, back: { header: "cat" } },
+  ```js
+  {
+
+    type: "MODAL",
+    traits: ["STATE"],
+    data: {
+      STATE: { front: { header: "gato" }, back: { header: "cat" } },
+    }
   }
-}
 
-{
-  type: "MESSAGE",
-  traits: ["AGENT", "THINKING"],
-  data: {
-    AGENT: { content: "here are some conjugations" },
-    THINKING: { reasoning: "user wants verb practice" }
+  {
+    type: "MESSAGE",
+    traits: ["AGENT", "THINKING"],
+    data: {
+      AGENT: { content: "here are some conjugations" },
+      THINKING: { reasoning: "user wants verb practice" }
+    }
   }
-}
 
-```
+  ```
 
-## Session
+  ## Session
 
-```
-session.phase    → current render phase (stream | chat | feed | book)
-session.cursor   → index into stall (active product)
-session.counter  → monotonic position counter for appends
-session.products    → Collection<ProductEntity> ordered by position asc
-```
+  ```
+  session.phase    → current render phase (stream | chat | feed | book)
+  session.cursor   → index into stall (active product)
+  session.counter  → monotonic position counter for appends
+  session.products    → Collection<ProductEntity> ordered by position asc
+  ```
 
-## Ordering
+  ## Ordering
 
-- `index: integer` on each product, scoped to session
-- `session.counter` is the atomic source — every append does `position = counter++`
-- `orderBy: { position: "asc" }` baked into the relation definition
-- `collection.matching({ limit, offset, orderBy })` for paginated feed phase
+  - `index: integer` on each product, scoped to session
+  - `session.counter` is the atomic source — every append does `position = counter++`
+  - `orderBy: { position: "asc" }` baked into the relation definition
+  - `collection.matching({ limit, offset, orderBy })` for paginated feed phase
 
 #+end_src
 ** task

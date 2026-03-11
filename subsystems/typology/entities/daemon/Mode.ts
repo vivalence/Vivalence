@@ -1,10 +1,4 @@
-import {
-  types,
-  EntitySchema,
-  Collection,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { Cascade, types, EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ProductEntity, ValenceEntity } from "../index.ts";
@@ -12,11 +6,13 @@ import { ProductEntity, ValenceEntity } from "../index.ts";
 export enum ModeTraitsEnum {
   VIEWABLE = "VIEWABLE", //
   DATASET = "DATASET", //
-  PRODUCTIVE = "PRODUCTIVE", //
-  CHAOSMONKEY = "CHAOSMONKEY", //
   VALENTIC = "VALENTIC", //
-  SESSIONED = "SESSIONED", //
+  PRODUCER = "PRODUCER", //
+  CHAOSMONKEY = "CHAOSMONKEY", //
   TOPOGRAPHICAL = "TOPOGRAPHICAL", //
+
+  TERMINAL = "TERMINAL",
+  BUFFERED = "BUFFERED",
 }
 
 export class ModeRepository extends DataRepository {
@@ -63,17 +59,23 @@ export const ModeSchema = new EntitySchema({
       kind: "1:m",
       entity: () => ProductEntity,
       mappedBy: (product) => product.producer,
+      cascade: [Cascade.REMOVE],
+      orphanRemoval: true,
     },
     commissions: {
       kind: "1:m",
       entity: () => ProductEntity,
       mappedBy: (product) => product.commissioner,
+      cascade: [Cascade.REMOVE],
+      orphanRemoval: true,
     },
 
     valences: {
       kind: "1:m",
       entity: () => ValenceEntity,
       mappedBy: (valence) => valence.mode,
+      cascade: [Cascade.REMOVE],
+      orphanRemoval: true,
     },
   },
 });

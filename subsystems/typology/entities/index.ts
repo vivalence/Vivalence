@@ -1,11 +1,12 @@
 export * from "./base/BaseEntity.ts";
 export * from "./base/VirtualEntity.ts";
 export * from "./base/DataEntity.ts";
+export { trait } from "./base/trait.js";
 
 export * from "./kernel/Literal.ts";
 export * from "./kernel/Symbol.ts";
-export * from "./kernel/Subject.ts";
-export * from "./kernel/Dimension.ts";
+// export * from "./kernel/Subject.ts";
+// export * from "./kernel/Dimension.ts";
 export * from "./kernel/Issue.ts";
 export * from "./kernel/Constraint.ts";
 
@@ -20,8 +21,8 @@ export * from "./userspace/Product.ts";
 export * from "./userspace/Session.ts";
 // export * from "./userspace/Intent.ts";
 
-import subject from "./kernel/Subject.ts";
-import dimension from "./kernel/Dimension.ts";
+// import subject from "./kernel/Subject.ts";
+// import dimension from "./kernel/Dimension.ts";
 import literal from "./kernel/Literal.ts";
 import symbol from "./kernel/Symbol.ts";
 import issue from "./kernel/Issue.ts";
@@ -56,8 +57,8 @@ export const kernel = [
   // issue,
   literal,
   symbol,
-  subject,
-  dimension,
+  // subject,
+  // dimension,
 ];
 
 export const network = [identity, daemon];
@@ -91,8 +92,8 @@ export const maps = {
   kernel: {
     literal,
     symbol,
-    subject,
-    dimension,
+    // subject,
+    // dimension,
     // constraint,
     // issue,
   },

@@ -40,9 +40,6 @@ export class ProductionResult {
     this.condition = ProductionCondition.ERROR;
     this.meta = { error: output };
   }
-  get material() {
-    return this.products.filter((p) => p.type !== "SIGNAL");
-  }
 
   get isClosed() {
     return [ProductionStatus.EXHAUSTED, ProductionStatus.LOCKED, ProductionStatus.ERROR].includes(
@@ -54,7 +51,7 @@ export class ProductionResult {
     if (this.condition === ProductionCondition.ERROR) return ProductionStatus.ERROR;
     if (this.condition === ProductionCondition.LOCKED) return ProductionStatus.LOCKED;
 
-    const produced = this.material.length;
+    const produced = this.products.length;
     if (produced === 0 && this.condition === ProductionCondition.EXHAUSTED)
       return ProductionStatus.EXHAUSTED;
 

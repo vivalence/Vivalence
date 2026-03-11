@@ -50,6 +50,7 @@ export default async function getNovelLiterals(input, ctx) {
   );
 
   qb.orderBy({ rank: "ASC" });
+
   if (is.numberPositive(take)) qb.limit(take);
 
   const literals = await qb.getResultList();

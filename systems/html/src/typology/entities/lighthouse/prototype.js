@@ -141,6 +141,13 @@ export class Lighthouse {
       authority: this.$authority.get(),
     };
   }
+
+  toJSON() {
+    return {
+      ...this.json,
+      daemons: [...this.daemons].map((d) => d.slug ?? d.manifest?.slug),
+    };
+  }
 }
 // import { map, atom, computed } from "nanostores";
 // import { shards } from "@vivalence/html/typology";

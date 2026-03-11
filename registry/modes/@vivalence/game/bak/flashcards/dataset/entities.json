@@ -1,0 +1,41 @@
+{
+  "valence": [
+    {
+      "slug": "survival",
+      "name": "survival flashcards",
+      "description": "feed of flashcards needed from day one.",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
+      "data": {
+        "GENERATIVE": {
+          "mount": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "stock": 1,
+            "batch": 1,
+            "seek": {
+              "symbols": ["word", "proficiency.survival"]
+            }
+          }
+        }
+      }
+    },
+    {
+      "slug": "feed",
+      "name": "perpetual feed of flashcards",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
+      "data": {
+        "GENERATIVE": {
+          "mount": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "symbols": ["word"],
+            "stock": 1,
+            "batch": 1
+          }
+        }
+      }
+    }
+  ]
+}

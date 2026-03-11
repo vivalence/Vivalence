@@ -6,9 +6,7 @@ import { shards } from "@vivalence/vector";
 // fe. requires provision handler
 //     is viewable
 
-class Agent extends Mode {
-  type = "agent";
-}
+// class Agent extends Mode {type = "agent";}
 class Tactic extends Mode {
   type = "tactic";
 }
@@ -16,13 +14,7 @@ class Game extends Mode {
   type = "game";
 }
 
-class Teacher extends Mode {
-  type = "teacher";
-}
-
-class Strategy extends Mode {
-  type = "strategy";
-}
+// class Teacher extends Mode {type = "teacher";} class Strategy extends Mode {type = "strategy";}
 
 export const traits = {
   smurf: () => {},
@@ -37,9 +29,9 @@ export const modes = [
     // schema: GameSchema, // persistant database schema
     // repository: GameRepository, // set interface
   },
-  // tactic: { prototype: Tactic },
-  { type: "agent", prototype: Agent },
-  { type: "teacher", prototype: Teacher },
+  // { type: "agent", prototype: Agent },
+  { type: "tactic", prototype: Tactic },
+  // { type: "teacher", prototype: Teacher },
   // strategy: { prototype: Strategy },
 ];
 

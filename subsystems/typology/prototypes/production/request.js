@@ -19,7 +19,7 @@ export class ProductionRequest {
   }
 
   recall(result, inventory = 0) {
-    const produced = result.material.length;
+    const produced = result.products.length;
     if (this.satisfiedBy(produced, inventory)) return null;
 
     const debt = Math.max(0, this.batch + this.stock - produced);

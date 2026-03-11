@@ -7,6 +7,9 @@ export const once = (fn) => {
   };
 };
 
+export const every = (n, fn) => (done, total) =>
+  (done % n === 0 || done === total) && fn(done, total);
+
 //
 export const reduce = async (r, a) => {
   return await r.reduce(

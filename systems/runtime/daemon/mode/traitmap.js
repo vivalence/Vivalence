@@ -1,11 +1,12 @@
 import { View } from "@vivalence/typology";
 import { svelte } from "./view-bundler.js";
 
-export * from "./traits/productive.js";
+export * from "./traits/producer.js";
 export * from "./traits/dataset.js";
 export * from "./traits/valentic.js";
 
-export const VIEWABLE = async (mode, daemon) => {
+export const TERMINAL = async (mode, daemon) => {
+  // console.log("TERMINAL", mode);
   mode.cake.view.withBundler(svelte);
   await mode.cake.view.bundle();
   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));

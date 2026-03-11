@@ -1,6 +1,4 @@
-export class Session {
-  constructor(session) {
-    Object.assign(this, session);
-  }
-}
+import { Entity } from "@vivalence/html/typology";
+
+export class Session extends Entity {}
 export const prototype = Session;

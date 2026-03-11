@@ -1,0 +1,17 @@
+{
+  "valence": [
+    {
+      "slug": "test",
+      "name": "Test",
+      "description": "",
+      "type": "SELFEVIDENT",
+      "traits": ["PRODUCTIVE"],
+      "data": {
+        "PRODUCTIVE": {
+          "mount": "/generate/test",
+          "queue": 1
+        }
+      }
+    }
+  ]
+}

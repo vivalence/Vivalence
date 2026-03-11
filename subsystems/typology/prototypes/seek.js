@@ -14,17 +14,21 @@ export class Seek {
 
       if (is.string(node)) {
         if (is.id(node)) return { id: node };
-        const found = await ctx.daemon.entities[entity].findOne({
-          $or: [{ id: node }, { slug: node }],
-        });
-        return found?.id ? { id: found.id } : node;
+        const found = await ctx.daemon.entities[entity].findOne(
+          { $or: [{ id: node }, { slug: node }] },
+          { fields: ["id", "slug"] },
+        );
+        return found?.id ? { id: found.id, slug: found.slug } : node;
       }
 
       if (is.object(node)) {
-        if (node.id) return { id: node.id };
+        if (node.id) return node;
         if (node.slug) {
-          const found = await ctx.daemon.entities[entity].findOne({ slug: node.slug });
-          return found?.id ? { id: found.id } : node;
+          const found = await ctx.daemon.entities[entity].findOne(
+            { slug: node.slug },
+            { fields: ["id", "slug"] },
+          );
+          return found?.id ? { id: found.id, slug: found.slug } : node;
         }
         return Object.fromEntries(
           await Promise.all(

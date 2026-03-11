@@ -5,7 +5,6 @@ export default async function getDueLiterals(input, ctx) {
 
   const take = input.take || (batch || 0) + (stock || 0);
   const blacklist = new Blacklist(input.blacklist);
-  const scope = new Scope({ ...input.scope, user: ctx.user.id });
   const seek = await new Seek().fromMask(ctx.input.seek, ctx);
 
   const qb = ctx.daemon.entities.literal.createQueryBuilder("literal");
@@ -27,26 +26,65 @@ export default async function getDueLiterals(input, ctx) {
     );
   }
 
-  let memoryQuery = `
-    SELECT 1
-    FROM Memory memory
-    WHERE memory.literal = literal.id
-    AND memory.user = ?
-    AND memory.nextAt < ?
-  `;
+  qb.joinAndSelect("literal.memories", "memory", {
+    "memory.user": ctx.user.id,
+    "memory.nextAt": { $lt: dueLt },
+  });
 
-  const memoryParams = [ctx.user.id, dueLt];
-
-  // if (scope.producer) {memoryQuery += ` AND memory.producer = ?`; memoryParams.push(scope.producer);}
-  // if (scope.commissioner) {memoryQuery += ` AND memory.commissioner = ?`; memoryParams.push(scope.commissioner);}
-
-  qb.andWhere(`EXISTS (${memoryQuery})`, memoryParams);
   if (take) qb.limit(take);
 
   const literals = await qb.getResultList();
-
   return literals;
 }
+
+// export default async function getDueLiterals(input, ctx) {
+//   const { batch, stock, dueLt = new Date() } = input;
+
+//   const take = input.take || (batch || 0) + (stock || 0);
+//   const blacklist = new Blacklist(input.blacklist);
+//   const scope = new Scope({ ...input.scope, user: ctx.user.id });
+//   const seek = await new Seek().fromMask(ctx.input.seek, ctx);
+
+//   const qb = ctx.daemon.entities.literal.createQueryBuilder("literal");
+//   qb.where({});
+
+//   if (blacklist?.literals?.length > 0) {
+//     qb.andWhere({ id: { $nin: blacklist.literals } });
+//   }
+
+//   if (seek.symbols?.length > 0) {
+//     qb.andWhere(
+//       `(
+//       SELECT COUNT(DISTINCT sl.symbol_entity_id)
+//       FROM symbol_literals sl
+//       WHERE sl.literal_entity_id = literal.id
+//       AND sl.symbol_entity_id IN (?)
+//     ) = ?`,
+//       [seek.symbols.map((s) => s.id), seek.symbols.length],
+//     );
+//   }
+
+//   let memoryQuery = `
+//     SELECT 1
+//     FROM Memory memory
+//     WHERE memory.literal = literal.id
+//     AND memory.user = ?
+//     AND memory.nextAt < ?
+//   `;
+
+//   const memoryParams = [ctx.user.id, dueLt];
+
+//   // if (scope.producer) {memoryQuery += ` AND memory.producer = ?`; memoryParams.push(scope.producer);}
+//   // if (scope.commissioner) {memoryQuery += ` AND memory.commissioner = ?`; memoryParams.push(scope.commissioner);}
+
+//   qb.andWhere(`EXISTS (${memoryQuery})`, memoryParams);
+//   if (take) qb.limit(take);
+
+//   const literals = await qb.getResultList();
+
+//   return literals;
+// }
+
 // import { Blacklist, Scope } from "@vivalence/typology";
 
 // export default async function getDueLiterals(input, ctx) {

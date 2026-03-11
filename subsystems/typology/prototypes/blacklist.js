@@ -52,7 +52,7 @@ export class Blacklist {
   }
 
   async fromQueue(scope, ctx) {
-    const criteria = { type: { $eq: "MODAL" }, status: { $in: ["PENDING", "ACTIVE"] } };
+    const criteria = { status: { $in: ["PENDING", "ACTIVE"] } };
     if (scope.product) criteria.id = scope.product;
     // if (scope.user) criteria.user = scope.user;
     if (scope.session) criteria.session = scope.session;

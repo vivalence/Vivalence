@@ -15,14 +15,15 @@
   setContext("terminal", terminal);
 
   let unsubs = [];
-  let booted = false;
+  // let booted = false;
 
   afterNavigate(({ to }) => {
-    if (booted || !to?.url) return;
-    booted = true;
+    if (!to?.url) return;
+    // booted = true;
 
     parse(terminal, to.url);
     unsubs.push(serialize(terminal));
+    // console.log("afterNvigate", to?.url?.pathname, terminal.perspective, to?.url?.search);
   });
 
   unsubs.push(
@@ -31,7 +32,9 @@
     }),
   );
 
-  onDestroy(() => unsubs.forEach((fn) => fn?.()));
+  onDestroy(() => {
+    unsubs.forEach((fn) => fn?.());
+  });
 
   const phase = terminal.$phase;
 </script>

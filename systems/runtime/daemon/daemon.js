@@ -23,19 +23,19 @@ export class Daemon {
   kernel = {
     orm: {},
     em: {},
-    taxonomist: new Classifier(),
-    predicate: new Vector(),
-    medic: new Remedy(),
-    constraint: new maps.virtual.constraint.repository(),
-    issue: new maps.virtual.issue.repository(),
+    // taxonomist: new Classifier(),
+    // predicate: new Vector(),
+    // medic: new Remedy(),
+    // constraint: new maps.virtual.constraint.repository(),
+    // issue: new maps.virtual.issue.repository(),
   };
 
-  schema = {
-    primitives: {}, // {dimension signal} = f(domain*ontology)
-    gestalten: {}, // {annotation symbol, literal, statics modes traits entities} = f(domain*ontology)
-    entities: {}, // {literal symbol exercise} f(domain + system)
-    subjects: {}, // {noun verb pronoun posessives} = f(dimensions*topographies)
-  };
+  // schema = {
+  //   primitives: {}, // {dimension signal} = f(domain*ontology)
+  //   gestalten: {}, // {annotation symbol, literal, statics modes traits entities} = f(domain*ontology)
+  //   entities: {}, // {literal symbol exercise} f(domain + system)
+  //   subjects: {}, // {noun verb pronoun posessives} = f(dimensions*topographies)
+  // };
 
   entities = {}; // f(domain.entities,system.entites)
   twitch = new Vector();
@@ -43,11 +43,11 @@ export class Daemon {
   modes = {}; // map {game:{translations: Mode},teachers:{iroh:Mode}}
   services = {}; // service providers { nlp:{analyze:(text)=>({annotations[]})} }
 
-  units = {}; // f(kernel.subjects*datamap.entities)
+  // units = {}; // f(kernel.subjects*datamap.entities)
 
-  classify = {};
-  validate = {};
-  assert = {};
+  // classify = {};
+  // validate = {};
+  // assert = {};
 
   constructor(circuit) {
     Object.assign(this, circuit);

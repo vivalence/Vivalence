@@ -5,7 +5,7 @@ import { UserEntity } from "@vivalence/typology/entities";
 
 import { SymbolEntity } from "../kernel/Symbol.ts";
 import { LiteralEntity } from "../kernel/Literal.ts";
-import { PlayEntity } from "../userspace/Play.ts";
+// import { PlayEntity } from "../userspace/Play.ts";
 
 export enum MemoryDriverEnum {
   BAYESIAN = "BAYESIAN",
@@ -30,7 +30,7 @@ export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   literal!: Rel<LiteralEntity>;
   // symbol?: Rel<SymbolEntity>;
-  plays = new Collection<PlayEntity>(this);
+  // plays = new Collection<PlayEntity>(this);
 
   driver: MemoryDriverEnum & Opt = MemoryDriverEnum.BAYESIAN;
   status: MemoryStatusEnum & Opt = MemoryStatusEnum.UNKNOWN;
@@ -46,6 +46,7 @@ export class MemoryEntity extends BaseEntity {
 export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
   class: MemoryEntity,
   extends: BaseSchema,
+  uniques: [{ properties: ["user", "literal"] }],
   tableName: "Memory",
   properties: {
     user: {
@@ -65,11 +66,7 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     },
     // symbol: {kind: "m:1", entity: () => SymbolEntity, fieldName: "symbol", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
 
-    plays: {
-      kind: "1:m",
-      entity: () => PlayEntity,
-      mappedBy: (play) => play.memory,
-    },
+    // plays: {kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.memory,},
 
     driver: {
       enum: true,

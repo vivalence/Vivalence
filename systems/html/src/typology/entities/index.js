@@ -14,6 +14,6 @@ export * from "./valence.js";
 export * from "./mode.js";
 
 // userspace
-export * from "./intent.js";
+// export * from "./intent.js";
 export * from "./product.js";
 export * from "./session.js";

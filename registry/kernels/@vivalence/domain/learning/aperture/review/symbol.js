@@ -27,20 +27,13 @@ export default async function (input, ctx) {
     return { status: "bounce", message: "Invalid learnable symbol flavor" };
   }
 
-  const { change, ...memory } = await ctx.daemon.call("/review/memory", {
+  const memory = await ctx.daemon.call("/review/memory", {
     scope,
     signal,
   });
 
-  scope.memory = memory.id;
+  // scope.memory = memory.id;
+  // const play = await ctx.daemon.call("/review/play", {nextIn: memory.nextIn, nextAt: memory.nextAt, lastAt: memory.lastAt, scope, signal,});
 
-  const play = await ctx.daemon.call("/review/play", {
-    nextIn: memory.nextIn,
-    nextAt: memory.nextAt,
-    lastAt: memory.lastAt,
-    scope,
-    signal,
-  });
-
-  return { memory, play, change };
+  return memory; //play,
 }

@@ -1,0 +1,25 @@
+meta {
+  name: pending
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{TACTIC_TEST}}/generate/test
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "seek": {},
+    "scope": {
+      "session": "019cdda2-e5aa-71a5-8f2f-0e4549c1bc79",
+      "valence": "019cde90-2b2e-775c-a313-145e80925346"
+    }
+  }
+}

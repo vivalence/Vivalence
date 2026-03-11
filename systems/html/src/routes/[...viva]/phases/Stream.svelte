@@ -2,7 +2,9 @@
   import { getContext } from "svelte";
   import { effect } from "nanostores";
   import { Text } from "@vivalence/drapes";
-  import { Buffer } from "@vivalence/html/typology";
+
+  import { dataspace } from "$client";
+
   import Frame from "../Frame.svelte";
 
   const terminal = getContext("terminal");
@@ -11,37 +13,21 @@
   const active = terminal.stall.$active;
   // $inspect("active",  $active);
 
-  effect([terminal.$mode, terminal.$valence], (mode, valence) => {
-    if (!mode || !valence) return;
-
-    terminal.stall.withPull(async () => {
-      const production = await terminal.valence.produce({
-        scope: { session: terminal.session.id },
-      });
-
-      if (production.isClosed) terminal.stall.$status.set("CLOSED");
-
-      return production.products.map(
-        (product) => new Buffer({ terminal, product }, product.mode.view),
-      );
-    });
-
-    terminal.stall.$status.set("IDLE");
-  });
-
   effect(
     [terminal.stall.$active, terminal.stall.$queue, terminal.stall.$status],
     (active, queue, status) => {
+      // console.log(JSON.stringify({ terminal, dataspace }, null, 2));
       if (!["IDLE"].includes(status)) return;
       if (!active) terminal.stall.pull();
-      if (queue.length < terminal.valence.queue) terminal.stall.pull();
+      if (queue.length < terminal.valence?.queue) terminal.stall.pull();
     },
   );
+  // $inspect("active",$active)
 </script>
 
 {#if $active}
   <!-- <Text size="xs">{JSON.stringify($active.context.product, null, 2)}</Text> -->
-  {#if $active.context?.product?.type === "MODAL"}
+  {#if $active.view?.url}
     <Frame buffer={active}>
       <!-- <Text size="xs">{JSON.stringify($active.context.product, null, 2)}</Text> -->
     </Frame>

@@ -1,5 +1,22 @@
 import { is } from "@vivalence/typology";
 
+export const place = (obj, path, val) => {
+  const keys = path.split(".");
+  const leaf = val === undefined ? keys.pop() : val;
+  const target = keys
+    .slice(0, -1)
+    .reduce((cur, k) => ((cur[k] = is.object(cur[k]) ? cur[k] : {}), cur[k]), obj);
+  if (keys.length) target[keys.at(-1)] = leaf;
+  return obj;
+};
+
+export const set = (obj, key, value) =>
+  !is.object(obj)
+    ? obj
+    : is.array(key)
+      ? key.reduce((o, k) => set(o, ...[].concat(k)), obj)
+      : place(obj, key, value);
+
 export function omit(obj, keys) {
   if (!is.object(obj)) return obj;
   const [shallow, nested] = keys.reduce(
@@ -184,6 +201,10 @@ export const merge = (...sources) =>
   deepMergeCore({}, { arrayMergeStrategy: "unique" }, new WeakMap(), ...sources);
 
 merge.withOptions = (options, ...sources) => deepMergeCore({}, options, new WeakMap(), ...sources);
+
+export function patch(target, source) {
+  return merge(pick(target, Object.keys(source)), source);
+}
 
 export function values(obj) {
   return Object.values(obj);

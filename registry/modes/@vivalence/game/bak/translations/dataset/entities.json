@@ -1,0 +1,23 @@
+{
+  "valence": [
+    {
+      "slug": "survival",
+      "name": "first sentences",
+      "description": "Translation exercises grounded in the learner's vocabulary pool for day 1.",
+      "type": "SELFEVIDENT",
+      "traits": ["GENERATIVE"],
+      "data": {
+        "GENERATIVE": {
+          "mount": "/generate/pending",
+          "queue": 1,
+          "mask": {
+            "candidates": {},
+            "seek": {
+              "symbols": ["proficiency.survival"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,32 +1,22 @@
 import { object } from "@vivalence/shared";
 import { is } from "@vivalence/typology";
+
 export default async function (input, ctx) {
   let { scope = {}, signal } = input;
 
-  if (!is.id(scope.literal))
-    return { status: "bounce", message: "literal required" };
+  if (!is.id(scope.literal)) return { status: "bounce", message: "literal required" };
 
   // const options = { populate: ["symbols"], fields: ["id", "symbols.id"] };
   // const literal = await ctx.daemon.entities.literal //
   //   .findOne(scope.literal, options);
   // const reviews = [...literal.symbols.map((symbol) => ctx.daemon.call("/review/symbol", {signal, scope: { ...scope, symbol: symbol.id },}),),]; delete scope.symbol, delete scope.symbols;
 
-  const { change, ...memory } = await ctx.daemon.call("/review/memory", input);
+  const memory = await ctx.daemon.call("/review/memory", input);
 
-  scope.memory = memory;
+  // scope.memory = memory; const play = await ctx.daemon.call("/review/play", {nextIn: memory.nextIn, nextAt: memory.nextAt, lastAt: memory.lastAt, scope, signal,});
 
-  const play = await ctx.daemon.call("/review/play", {
-    nextIn: memory.nextIn,
-    nextAt: memory.nextAt,
-    lastAt: memory.lastAt,
-    scope,
-    signal,
-  });
-
-  return {
-    literal: { play, memory, change },
-    // symbols: await Promise.all(reviews),
-  };
+  return memory;
+  // symbols: await Promise.all(reviews),
 }
 // import { object } from "@vivalence/shared";
 // export default async function (input, ctx) {

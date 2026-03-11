@@ -19,13 +19,13 @@ export class SymbolRepository extends DataRepository {
 export class SymbolEntity extends DataEntity {
   traits: SymbolTraitsEnum[] & Opt = [];
   slug: string & Opt = "";
-  name?: string;
-  description?: string;
+  // name?: string;
+  // description?: string;
 
   data: any & Opt = {};
 
-  ancestor?: Rel<SymbolEntity>;
-  decendants = new Collection<SymbolEntity>(this);
+  // ancestor?: Rel<SymbolEntity>;
+  // decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
   products = new Collection<ProductEntity>(this);
 
@@ -42,8 +42,8 @@ export const SymbolSchema = new EntitySchema({
   repository: () => SymbolRepository,
   properties: {
     slug: { type: types.string },
-    name: { type: types.string, nullable: true },
-    description: { type: types.string, nullable: true },
+    // name: { type: types.string, nullable: true },
+    // description: { type: types.string, nullable: true },
 
     traits: {
       items: () => SymbolTraitsEnum,
@@ -52,6 +52,7 @@ export const SymbolSchema = new EntitySchema({
       default: [],
       type: types.json,
     },
+
     data: { type: types.json },
 
     literals: {
@@ -61,17 +62,8 @@ export const SymbolSchema = new EntitySchema({
       cascade: [Cascade.REMOVE],
     },
 
-    ancestor: {
-      kind: "m:1",
-      entity: () => SymbolEntity,
-      inversedBy: (symbol) => symbol.decendants,
-      nullable: true,
-    },
-    decendants: {
-      kind: "1:m",
-      entity: () => SymbolEntity,
-      mappedBy: (symbol) => symbol.ancestor,
-    },
+    // ancestor: {kind: "m:1", entity: () => SymbolEntity, inversedBy: (symbol) => symbol.decendants, nullable: true,}, decendants: {kind: "1:m", entity: () => SymbolEntity, mappedBy: (symbol) => symbol.ancestor,},
+
     products: {
       kind: "m:n",
       entity: () => ProductEntity,

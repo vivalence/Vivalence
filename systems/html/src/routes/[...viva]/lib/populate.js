@@ -1,3 +1,4 @@
+import { Buffer } from "@vivalence/html/typology";
 import { Vector, controller, Context, NotFound } from "@vivalence/vector";
 import { is, Signal, Blacklist, fromm } from "@vivalence/typology";
 
@@ -8,6 +9,7 @@ import { page } from "$app/stores";
 import { get } from "svelte/store";
 
 export async function populate(terminal) {
+  // console.log("POPULATE", terminal.perspective);
   const signal = new Signal(terminal.perspective);
   const [effect, apply, match] = controller.traverse(population, signal);
 
@@ -20,7 +22,10 @@ export async function populate(terminal) {
 const population = new Vector();
 
 population
-  // .use(async (ctx, next) => {await next();})
+  .use(async (ctx, next) => {
+    // console.log("POPULATION VECTOR", ctx.signal.absolute);
+    await next();
+  })
   .open("/viva", async (ctx) => {
     const defaultPath = env["PUBLIC_VIVA_CLIENT_HTML_DEFAULT_PERSPECTIVE"];
     const defaultPhase = env["PUBLIC_VIVA_CLIENT_HTML_DEFAULT_PHASE"];
@@ -32,7 +37,7 @@ population
   .branch("/viva")
   .use(async (ctx, next) => {
     ctx.terminal.daemon = await dataspace.daemon.findOne({ slug: ctx.params.daemon });
-    if (!ctx.terminal.daemon) return;
+    if (!ctx.terminal.daemon) throw new Error("daemon not found");
     await next();
   })
   .use(async (ctx, next) => {
@@ -42,7 +47,16 @@ population
       daemon: { slug: ctx.params.daemon },
     });
 
-    if (!ctx.terminal.mode) return;
+    if (!ctx.terminal.mode) throw new Error("Mode not found");
+
+    await next();
+  })
+  .use(async (ctx, next) => {
+    if (ctx.params.valence)
+      ctx.terminal.valence = await ctx.terminal.daemon.entities.valence.findOne({
+        slug: ctx.params.valence,
+        mode: { id: ctx.terminal.mode.id },
+      });
 
     await next();
   })
@@ -58,22 +72,50 @@ population
       ctx.terminal.session = await ctx.terminal.daemon.entities.session.create({});
     }
 
-    // ctx.terminal.stall.$cursor.set(ctx.terminal.session.cursor)
-
     await next();
   })
 
   .branch("/daemon/:daemon")
   .open("/mode/:type/:mode", async (ctx) => {
-    //
+    if (!ctx.terminal.mode?.implements("BUFFERED")) throw new Error("non terminal mode");
+
+    const buffer = new Buffer({ terminal: ctx.terminal }, ctx.terminal.mode.view);
+    ctx.terminal.stall.push(buffer);
+    ctx.terminal.stall.$status.set("IDLE");
   })
   .open("/mode/:type/:mode/valence/:valence", async (ctx) => {
-    ctx.terminal.valence = await ctx.terminal.daemon.entities.valence.findOne({
-      slug: ctx.params.valence,
-      mode: { id: ctx.terminal.mode.id },
-    });
-
     if (!ctx.terminal.valence) throw new Error("[dataspace] unknown valence");
+
+    if (ctx.terminal.valence.implements("BUFFERED")) {
+      const buffer = new Buffer(
+        { terminal: ctx.terminal, ...(ctx.terminal.valence.data.BUFFERED || {}) },
+        ctx.terminal.mode.view,
+      );
+      ctx.terminal.stall.push(buffer);
+      ctx.terminal.stall.$status.set("IDLE");
+    } else if (ctx.terminal.valence.implements("PRODUCTIVE")) {
+      ctx.terminal.stall.withPull(async () => {
+        const production = await ctx.terminal.valence.produce({
+          scope: { session: ctx.terminal.session.id },
+        });
+
+        if (production.isClosed) ctx.terminal.stall.$status.set("CLOSED");
+
+        return production.products
+          .map((product) => {
+            product.release = (callback) => {
+              ctx.terminal.daemon //
+                .call("/entities/product/nativeUpdate", { id: product.id }, { status: "DONE" });
+
+              ctx.terminal.stall.next(callback);
+            };
+            return product;
+          })
+          .map((product) => new Buffer({ terminal: ctx.terminal, product }, product.mode.view));
+      });
+      ctx.terminal.stall.$status.set("IDLE");
+      ctx.terminal.stall.pull();
+    }
   });
 
 // .use(async (ctx, next) => {

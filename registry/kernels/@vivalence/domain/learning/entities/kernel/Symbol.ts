@@ -1,16 +1,16 @@
 import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 
-import { PlayEntity } from "../userspace/Play.ts";
-import { MemoryEntity } from "../userspace/Memory.ts";
+// import { PlayEntity } from "../userspace/Play.ts";
+// import { MemoryEntity } from "../userspace/Memory.ts";
 
-export enum SymbolTraitsEnum {}
+// export enum SymbolTraitsEnum {}
 // LEARNABLE = "LEARNABLE", // higher order feature that can be mastered
 // COMPLETABLE = "COMPLETABLE", // contains a set of literals where each can be mastered
 
 export class SymbolEntity extends maps.kernel.symbol.entity {
-  traits: SymbolTraitsEnum[] & Opt = [];
-  plays = new Collection<PlayEntity>(this);
+  // traits: SymbolTraitsEnum[] & Opt = [];
+  // plays = new Collection<PlayEntity>(this);
   // memories = new Collection<MemoryEntity>(this);
 }
 
@@ -20,29 +20,18 @@ export const SymbolSchema = new EntitySchema({
   tableName: "Symbol",
   name: "Symbol",
   properties: {
-    traits: {
-      items: () => SymbolTraitsEnum,
-      enum: true,
-      array: true,
-      default: [],
-      type: types.json,
-    },
-
-    plays: {
-      kind: "1:m",
-      entity: () => PlayEntity,
-      mappedBy: (play) => play.symbol,
-    },
+    // traits: {items: () => SymbolTraitsEnum, enum: true, array: true, default: [], type: types.json,},
+    // plays: {kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.symbol,},
     // memories: {kind: "1:m", entity: () => MemoryEntity, mappedBy: (memory) => memory.symbol,},
   },
 });
 
 export default {
   type: "symbol",
-  traits: SymbolTraitsEnum,
+  // traits: SymbolTraitsEnum,
   schema: SymbolSchema,
   entity: SymbolEntity,
-  // repository: TopographyRepository,
+  repository: maps.kernel.symbol.repository,
 };
 
 // // really more of a domain thing.

@@ -46,12 +46,7 @@ export class Stall {
     const status = this.$status.get();
     if (["CLOSED", "PULLING"].includes(status)) return;
     // if (this.$queue.get().length > this.threshold) return;
-
-    if (!this.handlers.pull) {
-      console.error("@stall/pull() handler.pull missing");
-      // throw new Error("Puller fehlt");
-      return;
-    }
+    if (!this.handlers.pull) return; //console.log("@stall/pull() handler.pull missing");
 
     this.$status.set("PULLING");
 
@@ -76,12 +71,14 @@ export class Stall {
 
     if (!this.$active.get()) {
       const [first, ...rest] = this.$queue.get();
-      this.$queue.set(rest);
       this.$active.set(first);
+      this.$queue.set(rest);
     }
   }
 
   reset() {
+    this.handlers.pull = null;
+    this.handlers.hooks = [];
     this.$active.set(null);
     this.$queue.set([]);
     this.$status.set("IDLE");
@@ -95,6 +92,18 @@ export class Stall {
     const prevHooks = prev?.hooks || [];
     [...prevHooks, ...this.handlers.hooks] //
       .forEach((f) => f(prev, active, promise));
+  }
+
+  toJSON() {
+    const active = this.$active.get();
+    return {
+      status: this.$status.get(),
+      active: active?.toJSON?.() ?? active?.id ?? null,
+      queue: this.$queue.get().map((b) => b?.toJSON?.() ?? b?.id ?? b),
+      error: this.$error.get()?.message ?? null,
+      hasPull: !!this.handlers.pull,
+      hooks: this.handlers.hooks.length,
+    };
   }
 }
 

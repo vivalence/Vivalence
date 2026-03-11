@@ -1,0 +1,10 @@
+export default [
+  {
+    slug: "sentence",
+    traits: ["STRUCTURAL", "LABELED"],
+    data: {
+      STRUCTURAL: {},
+      LABELED: { name: "Sentence", description: "A sentence" },
+    },
+  },
+];

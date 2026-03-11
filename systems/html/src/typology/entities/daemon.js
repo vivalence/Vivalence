@@ -1,7 +1,7 @@
 import { object } from "@vivalence/shared";
 import { Connection, Path } from "@vivalence/typology";
 import { ProductionResult, ProductionRequest } from "@vivalence/typology";
-import { Mode, Valence, Intent } from "@vivalence/html/typology";
+import { Mode, Valence } from "@vivalence/html/typology";
 import { Repository, entities } from "@vivalence/html/typology";
 
 import { dataspace } from "$client";
@@ -20,6 +20,20 @@ export class Daemon {
 
   constructor(connection) {
     this.connection = connection;
+  }
+
+  toJSON() {
+    return {
+      slug: this.slug ?? this.manifest?.slug ?? null,
+      mount: this.mount?.nature ?? null,
+      manifest: this.manifest,
+      entities: {
+        mode: this.entities.mode.toJSON(),
+        valence: this.entities.valence.toJSON(),
+        session: this.entities.session.toJSON(),
+        product: this.entities.product.toJSON(),
+      },
+    };
   }
 }
 
@@ -42,7 +56,6 @@ export async function lifecycle(daemon) {
   daemon.entities.session.connect(daemon.connection.branch("/userspace/entities/session"));
   daemon.entities.product.connect(daemon.connection.branch("/userspace/entities/product"));
 
-  // const modes = await daemon.connection.call("/entities/mode/find");
   const modes = await daemon.entities.mode.find();
   for (const modePojo of modes) {
     const mode = new Mode(modePojo);
@@ -56,26 +69,24 @@ export async function lifecycle(daemon) {
     mode.call = mode.connection.call.bind(mode.connection);
 
     mode.manifest = await mode.connection.call("/manifest");
-    if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
 
-    // if (mode.implements("LANGUAGED")) mode.converse = f()
+    if (mode.implements("TERMINAL")) mode.view = await mode.connection.call("/view");
+    if (mode.implements("BUFFERED")) mode.link = mode.mount.rebase("/viva");
 
     daemon.entities.mode.add(mode);
   }
 
-  // const valences = await daemon.connection.call("/entities/valence/find");
-  const valences = await daemon.entities.valence.find();
+  const valences = await daemon.entities.valence.find({ type: "SELFEVIDENT" });
+  // console.log(JSON.stringify({ modes, valences }));
   for (const valencePojo of valences) {
     const valence = new Valence(valencePojo);
     valence.mode = await daemon.entities.mode //
       .findOne({ id: valencePojo.mode.id });
 
-    if (valence.type === "SELFEVIDENT") {
-      valence.link = valence.mode.mount.branch(`/valence/${valence.slug}`).rebase("/viva");
-    }
+    valence.link = valence.mode.mount.branch(`/valence/${valence.slug}`).rebase("/viva");
 
-    if (valence.implements("GENERATIVE")) {
-      valence.queue = valence.data["GENERATIVE"].queue ?? 0;
+    if (valence.implements("PRODUCTIVE")) {
+      valence.queue = valence.data["PRODUCTIVE"].queue ?? 0;
       valence.produce = valence.mode.connection
         .clone()
         .use(async (ctx, next) => {
@@ -116,7 +127,7 @@ export async function lifecycle(daemon) {
 //   "description": null,
 //   "data": {},
 //   "traits": [
-//     "VIEWABLE",
+//     "TERMINAL",
 //     "DATASET",
 //     "VALENTIC"
 //   ],
@@ -147,7 +158,7 @@ export async function lifecycle(daemon) {
 //     "description": null,
 //     "data": {},
 //     "traits": [
-//       "VIEWABLE",
+//       "TERMINAL",
 //       "DATASET",
 //       "VALENTIC"
 //     ],

@@ -1,11 +1,9 @@
-import { is, Wafer, Blacklist } from "@vivalence/typology";
+import { is, object, Wafer, Blacklist } from "@vivalence/typology";
 import { raw } from "@mikro-orm/sqlite";
 
 import * as lifecycle from "./lifecycle/index.js";
-import * as kernel from "./kernel/index.js";
+// import * as kernel from "./kernel/index.js";
 import * as aperture from "./aperture/index.js";
-
-import { object } from "@vivalence/typology";
 
 export class Die extends Wafer {
   register = {
@@ -38,12 +36,12 @@ export class Die extends Wafer {
   }
 
   async resolve() {
-    await kernel.topography(this);
-    await kernel.schema(this);
-    await kernel.constraints(this);
-    kernel.validation(this);
-    kernel.asserter(this);
-    await kernel.classifier(this);
+    // await kernel.topography(this);
+    // await kernel.schema(this);
+    // await kernel.constraints(this);
+    // kernel.validation(this);
+    // kernel.asserter(this);
+    // await kernel.classifier(this);
 
     await lifecycle.resolution.kernel(this);
     await lifecycle.resolution.modes(this);
@@ -58,7 +56,7 @@ export class Die extends Wafer {
     await lifecycle.integration.call(this);
     await lifecycle.integration.uninstall(this);
 
-    await test(this);
+    // await test(this);
 
     this.status.set("alive");
   }
@@ -72,36 +70,15 @@ export class Die extends Wafer {
 }
 
 async function test(daemonDie) {
-  // const play = await daemonDie.good.entities.play.find();
+  const skip = new Set(["em", "on"]);
+  for (const [name, repo] of Object.entries(daemonDie.good.entities)) {
+    if (skip.has(name)) continue;
+    const results = await repo.find({}, { limit: 3 });
+    console.log("-".repeat(30));
+    console.log(`[${name}]`, results.length, "found");
+    console.json(results);
+  }
 }
-
-const QUERY = {
-  batch: 1,
-  stock: 1,
-  seek: {
-    symbols: [
-      {
-        id: "019cc6aa-9232-779e-8cdb-a7a3519dbffe",
-      },
-    ],
-  },
-  scope: {
-    commissioner: "019cc6aa-917b-7496-8c69-0a4c0f3db157",
-    session: "019cc5fa-305b-74d8-b228-efa9269422b7",
-    valence: "019cc6aa-ac24-766e-bc75-6a2835322a6e",
-    user: "019af285-bcd6-70cc-97ca-8a1aa4193320",
-  },
-  blacklist: {
-    literals: [
-      "019cc6aa-932e-77f7-a276-90a64af874db",
-      "019cc6aa-934a-746e-9b2a-ff141bff343b",
-      "019cc6aa-9296-746a-ac04-ff8e4dd5918d",
-      "019cc6aa-92de-740b-8f6e-e5cb5e2bd2a7",
-    ],
-    symbols: [],
-    products: [],
-  },
-};
 
 // const literal = {slug: "lemma.gato:pos.noun:gender.masc:number.sing", traits: ["EXEMPLIFIED", "TRANSLATED"], annotation: {pos: "noun", lemma: "gato", gender: "masc", number: "sing",}, data: {TRANSLATED: {known: "cat", learning: "gato",}, EXEMPLIFIED: {known: "The cat is small", learning: "O gato é pequeno",},},};
 // const subjects = await daemonDie.good.entities.subject.find();

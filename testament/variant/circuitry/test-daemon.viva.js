@@ -28,16 +28,25 @@ export const daemons = [
 
     kernel: [
       "@vivalence/domain/language-learning",
-      "@vivalence/ontology/universal-dependencies",
+      "@vivalence/ontology/word",
+      "@vivalence/ontology/sentence",
       "@vivalence/topology/brazilian",
       // "@vivalence/topology/test",
     ],
 
     modes: [
+      // "@vivalence/game/shadow",
+      // "@vivalence/game/speed-judge",
+      // "@vivalence/game/match",
+      // "@vivalence/game/pick",
+      "@vivalence/tactic/test",
+      "@vivalence/game/write",
+      // "@vivalence/game/cloze",
+      // "@vivalence/game/dummy",
       // "@vivalence/teacher/dewey",
-      "@vivalence/game/flashcards",
+      // "@vivalence/game/flashcards",
       // "@vivalence/game/conjugations",
-      "@vivalence/game/translations",
+      // "@vivalence/game/translations",
       // "@vivalence/tactic/koans", "@vivalence/tactic/drill", "@vivalence/teacher/iroh", "@vivalence/teacher/miyagi",
     ],
 

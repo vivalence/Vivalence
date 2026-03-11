@@ -1,8 +1,15 @@
-import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
-import { ModeEntity, IntentEntity, SessionEntity } from "../index.ts";
+import { ModeEntity, SessionEntity } from "../index.ts";
 import { SymbolEntity, LiteralEntity } from "../index.ts";
+
+// export enum ProductTypeEnum {MODAL = "MODAL", MESSAGE = "MESSAGE", SIGNAL = "SIGNAL",}
+
+export enum ProductTraitsEnum {
+  BUFFERED = "BUFFERED",
+  SIGNAL = "SIGNAL",
+}
 
 export enum ProductStatusEnum {
   PENDING = "PENDING",
@@ -12,22 +19,13 @@ export enum ProductStatusEnum {
   STALE = "STALE",
 }
 
-export enum ProductTypeEnum {
-  MODAL = "MODAL",
-  MESSAGE = "MESSAGE",
-  SIGNAL = "SIGNAL",
-}
-
-// {type: "MODAL", traits: ["STATE"], data: {STATE: { front: { header: "gato" }, back: { header: "cat" } },}}
-// {type: "MESSAGE", traits: ["AGENT", "THINKING"], data: {AGENT: { content: "here are some conjugations" }, THINKING: { reasoning: "user wants verb practice" }}}
-
-// export enum ProductSignalEnum {}
-
 export class ProductEntity extends BaseEntity {
-  type: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
-  status: ProductStatusEnum & Opt = ProductStatusEnum.PENDING;
+  // type: ProductTypeEnum & Opt = ProductTypeEnum.MODAL;
 
+  traits: ProductTraitsEnum[] & Opt = [];
   data: any & Opt = {};
+
+  status: ProductStatusEnum & Opt = ProductStatusEnum.PENDING;
   position: number & Opt = 0;
 
   producer!: Rel<ModeEntity>;
@@ -46,19 +44,24 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
   tableName: "Product",
   abstract: true,
   properties: {
-    type: {
+    // type: {enum: true, items: () => ProductTypeEnum, default: ProductTypeEnum.MODAL,},
+
+    traits: {
+      items: () => ProductTraitsEnum,
       enum: true,
-      items: () => ProductTypeEnum,
-      default: ProductTypeEnum.MODAL,
+      array: true,
+      default: [],
+      type: types.json,
     },
+
+    data: { type: "json" },
+
     status: {
       enum: true,
       items: () => ProductStatusEnum,
       default: ProductStatusEnum.PENDING,
     },
     position: { type: Number },
-    data: { type: "json" },
-
     session: {
       kind: "m:1",
       entity: () => SessionEntity,
@@ -95,6 +98,7 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
 
 export default {
   type: "product",
+  traits: ProductTraitsEnum,
   schema: ProductSchema,
   entity: ProductEntity,
   // repository: TopographyRepository,

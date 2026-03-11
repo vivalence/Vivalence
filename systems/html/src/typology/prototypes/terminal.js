@@ -49,4 +49,24 @@ export class Terminal {
   set perspective(v) {
     this.$perspective.set(v);
   }
+  reset() {
+    this.stall.reset();
+    this.$valence.set(null);
+    this.$mode.set(null);
+    this.$daemon.set(null);
+    this.$session.set(null);
+    this.$perspective.set(null);
+  }
+
+  toJSON() {
+    return {
+      phase: this.$phase.get(),
+      perspective: this.$perspective.get(),
+      daemon: this.$daemon.get()?.slug ?? null,
+      mode: this.$mode.get()?.slug ?? null,
+      session: this.$session.get()?.id ?? null,
+      valence: this.$valence.get()?.slug ?? null,
+      stall: this.stall.toJSON(),
+    };
+  }
 }

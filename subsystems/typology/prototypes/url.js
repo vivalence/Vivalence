@@ -18,9 +18,7 @@ function normalize(path) {
   }
 
   const normalized = "/" + result.join("/");
-  return path.endsWith("/") && normalized !== "/"
-    ? normalized + "/"
-    : normalized;
+  return path.endsWith("/") && normalized !== "/" ? normalized + "/" : normalized;
 }
 function join(...paths) {
   // Join paths and normalize
@@ -32,10 +30,7 @@ export class Url extends Signature {
   // nature = "/";
   // origin = null;
   static coercions = [
-    [
-      (u) => is.url(u),
-      (u) => ({ nature: u.pathname || u.nature, origin: u.origin }),
-    ],
+    [(u) => is.url(u), (u) => ({ nature: u.pathname || u.nature, origin: u.origin })],
     [
       (u) => is.string(u),
       (s) => {

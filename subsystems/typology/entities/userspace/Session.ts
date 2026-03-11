@@ -2,7 +2,7 @@ import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
-import { IntentEntity, ProductEntity } from "../index.ts";
+import { ProductEntity } from "../index.ts";
 
 export enum SessionTraitsEnum {
   _ = "_", // ?stateful

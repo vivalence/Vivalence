@@ -22,13 +22,16 @@ export async function userspace(daemonDie) {
         case "find":
           input.where.user = user.id;
           result = await repository.find(input.where, input.options);
+          break;
         case "findOne":
           input.where.user = user.id;
           result = await repository.findOne(input.where, input.options);
+          break;
         case "create":
           input.where.user = user.id;
           result = await repository.create(input.where);
           await ctx.daemon.entities.em.flush();
+          break;
       }
       return result;
     });

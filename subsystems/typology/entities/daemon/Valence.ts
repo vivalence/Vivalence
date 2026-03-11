@@ -3,12 +3,13 @@ import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 
 export enum ValenceTypeEnum {
-  SELFEVIDENT = "SELFEVIDENT",
+  SELFEVIDENT = "SELFEVIDENT", //
   APPLICATIVE = "APPLICATIVE",
 }
 
 export enum ValenceTraitsEnum {
-  GENERATIVE = "GENERATIVE", //
+  BUFFERED = "BUFFERED",
+  PRODUCTIVE = "PRODUCTIVE", // in
 }
 
 export class ValenceRepository extends DataRepository {

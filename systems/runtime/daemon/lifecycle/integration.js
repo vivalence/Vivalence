@@ -32,7 +32,8 @@ export async function uninstall(daemonDie) {
 
   for (const mode of installed) {
     if (!loadedIds.has(mode.id)) {
-      await daemonDie.good.entities.mode.nativeDelete({ id: mode.id });
+      const entity = await daemonDie.good.entities.mode.findOneOrFail({ id: mode.id });
+      await daemonDie.good.entities.mode.getEntityManager().removeAndFlush(entity);
     }
   }
 
