@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "runtime",
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["task", "runtime/start"],
+      "port": 2501
+    },
+    {
+      "name": "html",
+      "runtimeExecutable": "deno",
+      "runtimeArgs": ["task", "html/watch"],
+      "port": 1794
+    },
+    {
+      "name": "nlp",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up"],
+      "port": 5555
+    }
+  ]
+}
