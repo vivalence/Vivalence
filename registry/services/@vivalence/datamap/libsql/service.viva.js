@@ -26,12 +26,13 @@ async function provider(datamap, variant) {
 
   const orm = await MikroORM.init(mikroconfig);
 
+  // const migrator = orm.getMigrator(); await migrator.createMigration(); await migrator.up();
   const migrator = orm.getMigrator();
-  await migrator.createMigration();
-  await migrator.up();
+  if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
+  const pending = await migrator.getPendingMigrations();
+  if (pending.length > 0) await migrator.up();
 
   const entities = {};
-
   for (const { type, schema, entity } of variant) {
     if (!entity || !type) continue;
     entities[type] = orm.em.getRepository(entity);

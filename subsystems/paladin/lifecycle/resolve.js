@@ -50,7 +50,7 @@ export async function variant(paladin) {
   paladin.variant.daemons = daemonsConfigs.map((daemon) => {
     const mask = new Mask(daemon);
 
-    mask.mount = paladin.join.mountpoint.daemon(mask.slug);
+    mask.mount = paladin.scope.mountpoint.branch(`/daemon_${mask.slug}`);
 
     if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
     return mask;
@@ -58,7 +58,9 @@ export async function variant(paladin) {
 
   paladin.variant.services = servicesConfigs.map((service) => {
     const mask = new Mask(service);
-    mask.mount = paladin.join.mountpoint.service(mask.slug);
+
+    mask.mount = paladin.scope.mountpoint.branch(`/service_${mask.slug}`);
+
     if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
     return mask;
   });
@@ -95,106 +97,3 @@ export async function variant(paladin) {
 // runtime, clients, daemons, services,
 // there is a lot to be done here now.
 //
-
-// OLD
-// export async function variant(paladin) {
-//   // find all .viva.js files in tilde/variant/
-//   // filter for circuitry
-//   // compile variant from circuitry
-//   // old:
-//   // const file = paladin.join.tilde("variant/variant.viva.js");
-//   // const module = await paladin.read.module(file);
-//   // const { statics, manifest, lighthouse, daemon, clients, services } = module;
-//   // if (manifest) {
-//   //   paladin.variant = manifest.slug;
-//   //   paladin.traits = manifest.traits || [];
-//   // }
-//   // if (statics) paladin.statics = statics;
-//   // if (lighthouse) paladin.lighthouse = lighthouse;
-//   // if (daemon) paladin.daemon = daemon;
-//   // if (clients) {clients.map((client) => {paladin.clients.push(client);});}
-//   // services?.forEach((serviceconfig) => {paladin.services.push(paladin.bake.service(new Mask(serviceconfig)));});
-// }
-
-// export async function runtimes(paladin) {
-//   const runtimes = await loadRuntimes(paladin);
-//   runtimes.forEach((runtimeconfig) => {
-//     paladin.runtimes.push(paladin.bake.runtime(new Mask(runtimeconfig)));
-//   });
-// }
-
-// async function loadRuntimes(paladin) {
-//   const files = (await paladin.find.viva(paladin.join.variant.runtimes())) //
-//     .map(async (file) => [file, await paladin.read.viva(file)]);
-//   return (await Promise.all(files))
-//     .filter(([, module]) => is.module(module)) // is runtime // cast?
-//     .map(([source, runtime]) => ({ ...runtime, source }));
-// }
-
-// // function createRuntimeMask(file, module, paladin) {const runtimemask = new Mask(cast.runtime(module)); runtimemask.source = file; runtimemask.mount = paladin.join.mountpoint.runtime(runtimemask.slug); return runtimemask;}
-
-// // export async function runtimes(paladin) {
-// //   const modules = (
-// //     await Promise.all(
-// //       (await paladin.find.viva(paladin.join.variant.runtimes())) //
-// //         .map(async (file) => [file, await paladin.read.viva(file)]),
-// //     )
-// //   ).filter(([, module]) => is.module(module));
-
-// //   console.log({ paladin, modules });
-// //   for (const [file, module] of modules) {
-// //     const runtimemask = new Mask(cast.runtime(module));
-// //     console.log("pre", { runtimemask });
-// //     runtimemask.source = file;
-// //     runtimemask.mount = paladin.join.mountpoint.runtime(runtimemask.slug);
-
-// //     if (runtimemask.services) {
-// //       runtimemask.services = runtimemask.services //
-// //         .map((servicemask) => {
-// //           const service = new Mask({
-// //             remote: paladin.services.find(
-// //               (service) =>
-// //                 service.slug === servicemask.service ||
-// //                 service.slug === servicemask.slug,
-// //             ),
-// //             ...servicemask,
-// //             runtime: runtimemask.slug,
-// //             mount: paladin.join.mountpoint.service(
-// //               servicemask.slug,
-// //               runtimemask.slug,
-// //             ),
-// //             // url: new Url(`/runtime/${slug}`, new URL("http://localhost")),
-// //             // path: new Path(`/runtime/${slug}`),
-// //           });
-// //           paladin.services.push(service);
-// //           return service;
-// //         });
-// //     }
-
-// //     if (!runtimemask.lighthouse) {
-// //       const lighthouse =
-// //         runtimemask.services.find((s) => s.slug === "lighthouse") ||
-// //         paladin.services.find((s) => s.slug === "lighthouse");
-// //       if (!lighthouse) throw new Error("no lighthouse");
-// //       runtimemask.lighthouse = {
-// //         ...lighthouse,
-// //         runtime: runtimemask.slug,
-// //       };
-// //     }
-
-// //     if (!runtimemask.datamap) {
-// //       const datamap =
-// //         runtimemask.services.find((s) => s.slug === "datamap") ||
-// //         paladin.services.find((s) => s.slug === "datamap");
-// //       if (!datamap) throw new Error("no datamap");
-// //       runtimemask.datamap = {
-// //         ...datamap,
-// //         runtime: runtimemask.slug,
-// //         mount: paladin.join.mountpoint.service("datamap", runtimemask.slug),
-// //       };
-// //     }
-
-// //     console.log("post", { runtimemask });
-// //     paladin.runtimes.push(runtimemask);
-// //   }
-// // }

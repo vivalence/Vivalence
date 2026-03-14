@@ -1,6 +1,6 @@
 import { atom, computed } from "nanostores";
 import { shards, Url, Request, Response } from "@vivalence/typology";
-import { object } from "@vivalence/shared";
+import { object } from "@vivalence/typology";
 
 export class Connection {
   $state = atom("IDLE");

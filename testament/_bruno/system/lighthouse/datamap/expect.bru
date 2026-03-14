@@ -1,18 +1,21 @@
 meta {
-  name: find
+  name: expect
   type: http
-  seq: 7
+  seq: 2
 }
 
 post {
-  url: {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/entities/daemon/find
+  url: {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/entities/daemon/expect
   body: json
   auth: none
 }
 
 body:json {
   {
-      "slug": "eng2lat"
+       "where": {
+          "slug": "brazilian",
+          "url": "https://runtime.s4y.vivalence.com/daemon/brazilian"
+        }
     }
 }
 

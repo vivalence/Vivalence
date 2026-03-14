@@ -3,6 +3,7 @@ import { shards, Url, Connection } from "@vivalence/typology";
 
 export async function announce(die) {
   for (const daemonDie of die.good.daemons) {
+    // console.log(daemonDie.mask);
     const connection = new Connection(daemonDie.mask.lighthouse.statics.remote).use(
       async (ctx, next) => {
         // console.log("request", ctx);

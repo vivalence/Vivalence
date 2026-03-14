@@ -67,8 +67,7 @@ export async function scopes(paladin) {
     ],
     [
       "environment",
-      // () => !paladin.is.deployed && paladin.is.citizen,
-      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT"),
+      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || paladin.is.citizen,
       () => {
         let envpath;
         if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {
@@ -81,7 +80,8 @@ export async function scopes(paladin) {
     ],
     [
       "mountpoint",
-      () => paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || paladin.scope.variant,
+      () =>
+        paladin.env.has("VIVA_MOUNTPOINT_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_MOUNTPOINT_MOUNT")) {
@@ -94,12 +94,7 @@ export async function scopes(paladin) {
     ],
   ]);
 
-  // console.log(`system`, paladin.scope.system);
-  // console.log(`regist`, paladin.scope.registry);
-  // console.log(`varian`, paladin.scope.variant);
-  // console.log(`circui`, paladin.scope.circuitry);
-  // console.log(`enviro`, paladin.scope.environment);
-  // console.log(`mountp`, paladin.scope.mountpoint);
+  // console.log(`system`, paladin.scope.system); console.log(`regist`, paladin.scope.registry); console.log(`varian`, paladin.scope.variant); console.log(`circui`, paladin.scope.circuitry); console.log(`enviro`, paladin.scope.environment); console.log(`mountp`, paladin.scope.mountpoint);
   // console.log({ paladin });
 
   paladin.scopes([
