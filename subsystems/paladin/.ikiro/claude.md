@@ -134,8 +134,31 @@ Total: ~512 lines. Lifecycle test pattern: construction → gestalt checks → c
 ## Where Used
 
 - **Runtime**: Imports paladin singleton. Reads `paladin.variant.daemons/services/runtime/clients`. Uses `paladin.vip.accioMap` to resolve all module references. Checks `paladin.is.*` for role decisions.
-- **Circuitry**: `.viva.js` files in testament/variant/circuitry/ are the input that paladin processes.
+- **HTML Client**: vite.config.mjs imports paladin, awaits `paladin.ikiro`, reads `paladin.variant.clients.html` for server config (host, port, cors). svelte.config.js also imports paladin (currently unused beyond import).
+- **Circuitry**: `.viva.js` files are the input paladin processes. Located at:
+  - **Local dev**: testament/variant/circuitry/ (via VIVA_VARIANT_MOUNT or VIVA_CIRCUITRY_MOUNT)
+  - **Deployment**: registry/wafers/@vivalence/circuitry/ (set via VIVA_CIRCUITRY_MOUNT in docker-compose)
 - **Registry**: All .viva.js manifests are indexed by VIP via pensieve.
+
+## Environment Resolution in Different Contexts
+
+Paladin resolves configuration differently depending on context:
+
+**Local development** (testament):
+- VIVA_VARIANT_MOUNT or VIVA_ENVIRONMENT_MOUNT points to testament/variant/environment/
+- JSON files (variant.jsonc, secrets.jsonc, services.jsonc) are loaded into paladin.env/paladin.secret
+- Circuitry found via scope.circuitry → testament/variant/circuitry/
+
+**Docker build** (Dockerfile):
+- No testament directory — it's in .dockerignore (has secrets)
+- Env vars set directly: VIVA_SYSTEM_MODE, VIVA_SYSTEM_ROLE, VIVA_CIRCUITRY_MOUNT, etc.
+- VIVA_CIRCUITRY_MOUNT points to registry/wafers/@vivalence/circuitry/ inside the image
+- Circuitry .viva.js files use `paladin.env.get()` to read the env vars
+
+**Production** (docker-compose):
+- docker-compose.yml sets all env vars (including secrets and PUBLIC_VIVA_* for client URLs)
+- Same VIVA_CIRCUITRY_MOUNT pointing to circuitry inside the image
+- PUBLIC_VIVA_* vars get published to Deno.env by integrate.publish() and are available to SvelteKit
 
 ## Dependencies
 

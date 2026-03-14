@@ -28,11 +28,11 @@
     "jose": "npm:jose@6.0.11",
     "nanostores": "npm:nanostores@1.0",
 
-    "@mikro-orm/core": "npm:@mikro-orm/core@6.6",
-    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6",
-    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.6",
+    "@mikro-orm/core": "npm:@mikro-orm/core@6.6.7",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6.7",
+    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.6.7",
 
-    "@libsql/client/node": "npm:@libsql/client/node",
+    "@libsql/client/node": "npm:@libsql/client@0.17.0/node",
 
     "@sinclair/typebox": "npm:typebox@1.0",
     "@sinclair/typebox/value": "npm:typebox/value",
@@ -47,6 +47,7 @@
     "svelte/motion": "npm:svelte@5.39.6/motion",
     "@sveltejs/kit": "npm:@sveltejs/kit@2.43",
     "@sveltejs/adapter-auto": "npm:@sveltejs/adapter-auto@3.3",
+    "@sveltejs/adapter-static": "npm:@sveltejs/adapter-static@3",
     "@sveltejs/vite-plugin-svelte": "npm:@sveltejs/vite-plugin-svelte@5.1",
     "svelte-preprocess": "npm:svelte-preprocess@6.0",
     "svelte-check": "npm:svelte-check@^3.6.0",

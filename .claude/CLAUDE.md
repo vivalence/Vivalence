@@ -113,7 +113,7 @@ As of 2026-03-14 — verify these are still current by checking git log:
 - mode.produce.[xyz]() pattern (Vector object/proxy compiler)
 - Asset entity type (VERBALIZED trait, mp3 vocalization, file serving)
 - Mobile readiness on client
-- Serving built client (production)
+- ~~Serving built client (production)~~ DONE — adapter-static + serve.js + Dockerfile
 - Hallucinator harness improvements
 - Session-first patterning (client + runtime sync)
 - More game modes (conjugation practice, "shittons of games")

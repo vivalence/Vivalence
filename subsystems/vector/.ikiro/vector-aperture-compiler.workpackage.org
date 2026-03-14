@@ -1,0 +1,1259 @@
+#+TITLE: Vector-Aperture Compiler — Work Package
+#+AUTHOR: Vivalence
+#+PROPERTY: header-args :mkdirp yes
+
+* Intent
+
+The Aperture was a thin wrapper around Oak's Router. ~open()~, ~use()~, ~branch()~
+mutated the Oak router directly. Two compilation paths existed: ~compose()~ for
+internal ~Connection.call()~ invocation and ~serve()~ for HTTP. These paths diverged
+in middleware application, param extraction, and 404 handling. The result was chaotic:
+params sometimes appeared, sometimes didn't; middleware ran in different orders depending
+on invocation mode; 404 behavior was ad-hoc.
+
+The migration: Aperture extends Vector. IS the routing trie. Compilation into Oak HTTP
+and internal callable is handled by dedicated external compilers that both call the same
+~traverse()~. One code path for matching, one for middleware, one for param extraction.
+
+** Design Constraints
+
+- Aperture extends Vector, does not contain one.
+- ~branch()~ returns Apertures (via ~this.constructor~ in Vector).
+- All Vector consumers work on Aperture unchanged: ~traverse~, ~walk~, ~invoke~, ~Agentic~, ~Subscriber~.
+- ~ctx.input~ / ~ctx.output~ for internal semantics. ~ctx.request~ / ~ctx.response~ for external/HTTP.
+  This delineation is intentional: one request can be responsible for multiple invocations
+  with different inputs/outputs while maintaining the original request context.
+- Handler arity convention preserved: 0-arg (pure value), 1-arg (ctx), 2-arg (body, ctx).
+- Compilers are external to the Aperture class. The Aperture is pure data structure + builder.
+
+** Future Constraints: Streaming
+
+~ctx.output~ is untyped. If an effect returns an ~AsyncGenerator~ or ~ReadableStream~,
+the carry chain doesn't care — it already ran. The compiler layer discriminates:
+
+- ~compileOak~: async iterable → SSE (~text/event-stream~), value → JSON body.
+- ~compileInvoke~: pass through on ~ctx.output~, Connection handles it.
+- Future ~compileSSE~ or ~connection.subscribe()~ requires no aperture/vector changes.
+
+The vector pipeline is: signal → traverse → carry → effect → output. Nothing assumes
+output is a single value. Streaming is a compiler concern, not a routing concern.
+
+** Future Constraints: Shared Realtime Entities
+
+Shared bidirectional entities (sessions, chats, collaborative state) do NOT live in the
+aperture. The aperture handles "what happens when a signal arrives" — reactive to
+invocation, not persistent across time.
+
+A ~SharedEntity<T>~ primitive is needed separately:
+
+#+begin_src
+SharedEntity<T>
+  .id         — identity
+  .state      — current value
+  .patch(op)  — apply mutation (either side)
+  .subscribe()— AsyncIterator<Patch>
+  .snapshot() — current full state
+#+end_src
+
+The aperture's role is transport:
+- ~open("/session/:id", ctx => session.snapshot())~ — initial state, normal dispatch
+- ~open("/session/:id/stream", async function* (ctx) { yield* session.subscribe() })~ — SSE
+- ~open("/session/:id/patch", (body, ctx) => session.patch(body))~ — client mutations
+
+Client-side: ~connection.subscribe("/session/abc/stream")~ returns ~AsyncIterator~,
+~connection.call("/session/abc/patch", op)~ is a normal call. The bidirectional illusion
+comes from a local ~SharedEntity~ on each side syncing via these two channels.
+
+The architecture needs one extension point eventually: effect return type discrimination
+in ~dispatch~:
+
+#+begin_src js
+ctx.output = await effect(ctx);
+ctx.streaming = isAsyncIterable(ctx.output);
+#+end_src
+
+Each compiler then branches on ~ctx.streaming~. This is additive, not structural.
+
+* Inheritance Diagram
+
+#+begin_src
+Aperture extends Vector
+  ├── effects      (inherited) — Pattern → Effect map
+  ├── trajectories (inherited) — Pattern → Vector map
+  ├── carry        (inherited) — middleware stack
+  ├── branch()     (inherited) — returns Aperture via this.constructor
+  ├── use()        (inherited) — pushes to carry
+  ├── set()        (inherited) — merges another vector
+  ├── patterns     (inherited) — all pattern keys
+  ├── heir         (inherited) — first descendant
+  │
+  ├── open()       (override)  — wraps handler arity, then super.open()
+  ├── slurp()      (new)       — path-aware set()
+  ├── _path        (new)       — mount path metadata
+  └── json         (new)       — structural inspection
+#+end_src
+
+* Source: aperture.js
+:PROPERTIES:
+:ID: aperture-core
+:END:
+
+The entire Aperture. ~30 lines of logic. Constructor overloading: string first arg
+is path metadata, otherwise delegate to Vector. ~open()~ wraps handler arity so the
+stored effect is always ~async (ctx) => ...~. ~slurp()~ is path-aware ~set()~.
+
+#+begin_src js :tangle compiler/aperture/aperture.js
+import { Vector } from "@vivalence/vector/typology";
+
+const wrap = (handler) => {
+  const n = handler.length;
+  if (n === 0) return async () => handler();
+  if (n === 1) return async (ctx) => handler(ctx);
+  return async (ctx) => handler(ctx.input, ctx);
+};
+
+export class Aperture extends Vector {
+  constructor(first, second) {
+    if (typeof first === "string" || first == null) {
+      super(null, second);
+      this._path = first || null;
+    } else {
+      super(first, second);
+    }
+  }
+
+  open(signature, handler) {
+    return super.open(signature, wrap(handler));
+  }
+
+  slurp(other) {
+    if (other._path) this.branch(other._path).set(other);
+    else this.set(other);
+    return this;
+  }
+
+  get json() {
+    const path = this._path || "/";
+    const effects = [...this.effects.keys()].map((p) => p.nature);
+    const trajectories = [...this.trajectories.entries()].map(([p, v]) => {
+      const child = Object.create(Aperture.prototype);
+      Object.assign(child, v);
+      child._path = p.nature;
+      return child.json;
+    });
+    return { [path]: [...effects, ...trajectories].filter(Boolean) };
+  }
+
+  [Symbol.for("nodejs.util.inspect.custom")]() {
+    return `Aperture ${JSON.stringify(this.json, null, 2)}`;
+  }
+}
+#+end_src
+
+* Source: shared.js
+:PROPERTIES:
+:ID: aperture-shared
+:END:
+
+The single traversal point. Both compilers call ~dispatch~. Signal is constructed
+from the path string, ~traverse~ resolves effect + carry chain, params are extracted
+from steps. This is where parity comes from: one function, two callers, identical behavior.
+
+Note: ~traverse~ returns ~[effect, carry, steps, position]~. The carry is already
+composed via ~chain~ across all trie levels the signal passed through. Params accumulate
+from Pattern ~apply()~ at each step — parameter patterns return ~{ parameters: { key: val } }~.
+
+#+begin_src js :tangle compiler/aperture/shared.js
+import { Signal } from "@vivalence/typology";
+import { traverse } from "@vivalence/vector/controller";
+import { NotFound } from "@vivalence/vector/typology";
+
+export const params = (steps) =>
+  steps.reduce(
+    (acc, step) => (step?.parameters ? { ...acc, ...step.parameters } : acc),
+    {},
+  );
+
+export const dispatch = async (aperture, path, ctx) => {
+  const signal = new Signal(path);
+  const [effect, carry, steps] = traverse(aperture, signal);
+
+  if (!effect) throw new NotFound(signal);
+
+  ctx.params = params(steps);
+
+  await carry(ctx, async (ctx) => {
+    ctx.output = await effect(ctx);
+  });
+
+  return ctx;
+};
+#+end_src
+
+* Source: invoke.js — Internal Invocation Compiler
+:PROPERTIES:
+:ID: aperture-invoke
+:END:
+
+Replaces the old ~compose()~ method and the chaotic transport function in
+~lifecycle/integration.js~. Returns a ~(ctx) => Promise~ that drops directly
+into ~Connection~ as a transport function.
+
+~context()~ is the factory for synthetic invocation contexts. Mirrors the shape
+that Oak provides for HTTP but with ~Map~ headers and synthetic ~URL~.
+
+The old code was:
+#+begin_src js
+const composed = await die.good.aperture.compose(true);
+die.connection = new Connection(url, async (ctx) => {
+  ctx.input = ctx.input || ctx.request.body;
+  await composed(ctx);
+  ctx.response.body = ctx.output;
+  if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
+  else if (ctx.response.status === 404) ctx.response.setError();
+  // ...error handling
+});
+#+end_src
+
+Now:
+#+begin_src js
+die.connection = new Connection(url, compileInvoke(die.good.aperture));
+#+end_src
+
+#+begin_src js :tangle compiler/aperture/invoke.js
+import { dispatch } from "./shared.js";
+
+export function compileInvoke(aperture) {
+  return async (ctx) => {
+    const path =
+      ctx.request?.url?.pathname ||
+      (typeof ctx.request?.url === "string"
+        ? new URL(ctx.request.url, "http://internal").pathname
+        : null) ||
+      ctx.request?.path ||
+      "/";
+
+    ctx.input = ctx.input ?? ctx.request?.body ?? {};
+    ctx.state = ctx.state || {};
+
+    try {
+      await dispatch(aperture, path, ctx);
+      ctx.response.body = ctx.output;
+      if (ctx.response.status === 0 || ctx.response.status === 404)
+        ctx.response.status = 200;
+    } catch (e) {
+      if (e.code === "NOT_FOUND") {
+        ctx.response.status = 404;
+        ctx.response.body = { error: { code: "NOT_FOUND" } };
+      } else {
+        ctx.response.status = 500;
+        ctx.response.error = e;
+      }
+    }
+  };
+}
+
+export function context(path, body, options = {}) {
+  return {
+    input: body,
+    output: undefined,
+    state: {},
+    params: {},
+    request: {
+      body,
+      url: new URL(path, "http://internal"),
+      method: options.method || "POST",
+      headers: new Map(),
+    },
+    response: {
+      body: undefined,
+      status: 0,
+      headers: new Map(),
+    },
+  };
+}
+#+end_src
+
+* Source: oak.js — Oak HTTP Compiler
+:PROPERTIES:
+:ID: aperture-oak
+:END:
+
+Replaces the old ~serve()~ method. Registers a single catch-all Oak route that
+delegates to ~dispatch~. Oak is now an HTTP shell: parse body, build ctx, hand off
+to vector traverse. Params, middleware, 404 — all handled identically to invoke.
+
+The old code scattered params across Oak's own router matching (which used its own
+pattern syntax, independent of Vector's Pattern) and the Aperture's internal routing.
+Now there's one pattern system: Vector's ~Pattern~ with its ~patternmap~ (literal,
+parameter, wildcard, remainder).
+
+#+begin_src js :tangle compiler/aperture/oak.js
+import { Router } from "@oak/oak";
+import { dispatch } from "./shared.js";
+import parser from "./parser.js";
+
+export function compileOak(aperture, options = {}) {
+  const prefix = options.prefix || "";
+
+  const handler = async (oakCtx, next) => {
+    const pathname =
+      oakCtx.request.url.pathname.replace(new RegExp(`^${prefix}`), "") || "/";
+
+    const body = await parser(oakCtx);
+
+    const ctx = {
+      input: body,
+      output: undefined,
+      state: oakCtx.state,
+      params: {},
+      request: oakCtx.request,
+      response: oakCtx.response,
+    };
+
+    try {
+      await dispatch(aperture, pathname, ctx);
+      oakCtx.response.body = ctx.output;
+      if (oakCtx.response.status === 404) oakCtx.response.status = 200;
+    } catch (e) {
+      if (e.code === "NOT_FOUND") {
+        oakCtx.response.status = 404;
+        oakCtx.response.body = "Not Found";
+        return;
+      }
+      oakCtx.response.status = 500;
+      oakCtx.response.body = { error: e.message };
+    }
+  };
+
+  const router = new Router();
+  if (prefix) router.all(`${prefix}/(.*)`, handler);
+  else router.all("/(.*)", handler);
+
+  return {
+    router,
+    routes: () => router.routes(),
+    allowedMethods: () => router.allowedMethods(),
+    handler,
+  };
+}
+#+end_src
+
+* Source: parser.js
+:PROPERTIES:
+:ID: aperture-parser
+:END:
+
+Carried over unchanged. Handles Oak's body parsing polymorphism.
+
+#+begin_src js :tangle compiler/aperture/parser.js
+export default async function parseBody(ctx) {
+  const { method, body, headers = {} } = ctx.request;
+
+  if (method === "GET") return ctx.request.query || {};
+  if (!body) return {};
+
+  try {
+    switch (true) {
+      case typeof body.json === "function":
+        return await body.json();
+      case typeof body === "object":
+        return body;
+      case typeof body === "string":
+        try {
+          return JSON.parse(body);
+        } catch {
+          return { rawBody: body };
+        }
+      default:
+        return {};
+    }
+  } catch (error) {
+    console.error("[aperture/parser]", { error, method });
+    return {};
+  }
+}
+#+end_src
+
+* Source: index.js
+:PROPERTIES:
+:ID: aperture-index
+:END:
+
+#+begin_src js :tangle compiler/aperture/index.js
+export { Aperture } from "./aperture.js";
+export { compileInvoke, context } from "./invoke.js";
+export { compileOak } from "./oak.js";
+export { params, dispatch } from "./shared.js";
+export { default as parser } from "./parser.js";
+#+end_src
+
+* Tests: Baseline (Old Aperture)
+:PROPERTIES:
+:ID: test-baseline
+:END:
+
+Tests the OLD Oak-backed Aperture as-is. Run before migration to establish baseline.
+Expected: some tests will fail or expose inconsistencies — that's the point. The
+failures document the gaps.
+
+#+begin_src js :tangle tests/aperture/baseline.test.js
+import { assertEquals, assertExists, assert } from "@std/assert";
+import { describe, it, beforeAll, afterAll } from "@std/testing/bdd";
+import { Application, Router } from "@oak/oak";
+
+import { Aperture, Path, context as mkctx } from "@vivalence/vector/aperture";
+
+const PORT = 9876;
+const BASE = `http://localhost:${PORT}`;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const invoke = async (composed, path, body = {}, params = {}) => {
+  const ctx = mkctx(path, body, params);
+  await composed(ctx);
+  return ctx;
+};
+
+const http = async (path, body, method = "POST") => {
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: method === "GET" ? undefined : JSON.stringify(body),
+  });
+  return { status: res.status, body: await res.json().catch(() => null) };
+};
+
+describe("Aperture Baseline", () => {
+  describe("compose() — internal invocation", () => {
+    it("open() registers an effect reachable via compose", async () => {
+      const ap = new Aperture();
+      ap.open("/ping", () => "pong");
+
+      const ctx = await invoke(ap.compose(), "/ping");
+      assertEquals(ctx.output, "pong");
+    });
+
+    it("handler arity 0 — no args", async () => {
+      const ap = new Aperture();
+      ap.open("/zero", () => 42);
+
+      const ctx = await invoke(ap.compose(), "/zero");
+      assertEquals(ctx.output, 42);
+    });
+
+    it("handler arity 1 — receives ctx", async () => {
+      const ap = new Aperture();
+      ap.open("/one", (ctx) => ({ got: ctx.input }));
+
+      const ctx = await invoke(ap.compose(), "/one", { x: 1 });
+      assertEquals(ctx.output.got, { x: 1 });
+    });
+
+    it("handler arity 2 — receives (body, ctx)", async () => {
+      const ap = new Aperture();
+      ap.open("/two", (body, ctx) => ({ body, hasCtx: !!ctx }));
+
+      const ctx = await invoke(ap.compose(), "/two", { y: 2 });
+      assertEquals(ctx.output.body, { y: 2 });
+      assertEquals(ctx.output.hasCtx, true);
+    });
+
+    it("use() applies middleware in order", async () => {
+      const order = [];
+      const ap = new Aperture();
+
+      ap.use(async (ctx, next) => {
+        order.push("a:before");
+        await next();
+        order.push("a:after");
+      });
+      ap.use(async (ctx, next) => {
+        order.push("b:before");
+        await next();
+        order.push("b:after");
+      });
+      ap.open("/mw", () => {
+        order.push("effect");
+        return "ok";
+      });
+
+      const ctx = await invoke(ap.compose(), "/mw");
+      assertEquals(ctx.output, "ok");
+      assertEquals(order, ["a:before", "b:before", "effect", "b:after", "a:after"]);
+    });
+
+    it("middleware can decorate context", async () => {
+      const ap = new Aperture();
+      ap.use(async (ctx, next) => {
+        ctx.injected = "hello";
+        await next();
+      });
+      ap.open("/decorated", (body, ctx) => ctx.injected);
+
+      const ctx = await invoke(ap.compose(), "/decorated");
+      assertEquals(ctx.output, "hello");
+    });
+
+    it("branch() creates nested namespace", async () => {
+      const ap = new Aperture();
+      ap.branch("/api").open("/items", () => [1, 2, 3]);
+
+      const ctx = await invoke(ap.compose(), "/api/items");
+      assertEquals(ctx.output, [1, 2, 3]);
+    });
+
+    it("branch middleware scoped to branch", async () => {
+      const order = [];
+      const ap = new Aperture();
+
+      ap.use(async (ctx, next) => {
+        order.push("root");
+        await next();
+      });
+
+      const branch = ap.branch("/scoped");
+      branch.use(async (ctx, next) => {
+        order.push("branch");
+        await next();
+      });
+      branch.open("/hit", () => {
+        order.push("effect");
+        return "ok";
+      });
+
+      const ctx = await invoke(ap.compose(), "/scoped/hit");
+      assertEquals(ctx.output, "ok");
+      assert(order.includes("root"), "root middleware ran");
+      assert(order.includes("branch"), "branch middleware ran");
+      assert(order.includes("effect"), "effect ran");
+    });
+
+    it("params extracted from :param patterns", async () => {
+      const ap = new Aperture();
+      ap.open("/users/:id", (ctx) => ({ id: ctx.params.id }));
+
+      const ctx = await invoke(ap.compose(), "/users/42");
+      assertEquals(ctx.output.id, "42");
+    });
+
+    it("nested params across branch + open", async () => {
+      const ap = new Aperture();
+      ap.branch("/entities/:entity").open("/:method", (ctx) => ({
+        entity: ctx.params.entity,
+        method: ctx.params.method,
+      }));
+
+      const ctx = await invoke(ap.compose(), "/entities/user/find");
+      assertEquals(ctx.output.entity, "user");
+      assertEquals(ctx.output.method, "find");
+    });
+
+    it("slurp() absorbs another aperture", async () => {
+      const child = new Aperture(new Path("/child"));
+      child.open("/x", () => "from-child");
+
+      const parent = new Aperture();
+      parent.slurp(child);
+
+      const ctx = await invoke(parent.compose(), "/child/x");
+      assertEquals(ctx.output, "from-child");
+    });
+
+    it("slurp preserves child middleware", async () => {
+      const order = [];
+      const child = new Aperture(new Path("/inner"));
+      child.use(async (ctx, next) => {
+        order.push("child-mw");
+        await next();
+      });
+      child.open("/go", () => {
+        order.push("child-effect");
+        return "done";
+      });
+
+      const parent = new Aperture();
+      parent.use(async (ctx, next) => {
+        order.push("parent-mw");
+        await next();
+      });
+      parent.slurp(child);
+
+      const ctx = await invoke(parent.compose(), "/inner/go");
+      assertEquals(ctx.output, "done");
+      assert(order.includes("parent-mw"));
+      assert(order.includes("child-mw"));
+      assert(order.includes("child-effect"));
+    });
+
+    it("404 — unmatched route", async () => {
+      const ap = new Aperture();
+      ap.open("/exists", () => "yes");
+
+      const ctx = await invoke(ap.compose(), "/nope");
+      assert(
+        ctx.response.status === 404 || ctx.output === undefined,
+        "unmatched route yields 404 or undefined output",
+      );
+    });
+
+    it("compose(true) forces recompilation", async () => {
+      const ap = new Aperture();
+      ap.open("/v1", () => "first");
+
+      const c1 = ap.compose();
+      ap.open("/v2", () => "second");
+      const c2 = ap.compose(true);
+
+      const ctx = await invoke(c2, "/v2");
+      assertEquals(ctx.output, "second");
+    });
+
+    it("multiple effects on same aperture", async () => {
+      const ap = new Aperture();
+      ap.open("/a", () => "alpha");
+      ap.open("/b", () => "beta");
+
+      const composed = ap.compose();
+      assertEquals((await invoke(composed, "/a")).output, "alpha");
+      assertEquals((await invoke(composed, "/b")).output, "beta");
+    });
+  });
+
+  describe("serve() — HTTP invocation via Oak", () => {
+    let app, controller;
+
+    beforeAll(async () => {
+      const ap = new Aperture();
+
+      ap.use(async (ctx, next) => {
+        ctx.state.touched = true;
+        await next();
+      });
+
+      ap.open("/ping", () => ({ pong: true }));
+
+      ap.open("/echo", (body, ctx) => ({
+        body,
+        touched: ctx.state.touched,
+      }));
+
+      ap.open("/users/:id", (ctx) => ({
+        id: ctx.params.id,
+      }));
+
+      const branch = ap.branch("/api");
+      branch.use(async (ctx, next) => {
+        ctx.state.apiBranch = true;
+        await next();
+      });
+      branch.open("/items", () => [1, 2, 3]);
+      branch.open("/items/:itemId", (ctx) => ({
+        itemId: ctx.params.itemId,
+        apiBranch: ctx.state.apiBranch,
+      }));
+
+      app = new Application();
+      const router = new Router();
+      ap.serve(router);
+      app.use(router.routes());
+      app.use(router.allowedMethods());
+
+      controller = new AbortController();
+      app.listen({ port: PORT, signal: controller.signal });
+      await sleep(500);
+    });
+
+    afterAll(() => {
+      controller.abort();
+    });
+
+    it("GET /ping", async () => {
+      const res = await http("/ping", null, "GET");
+      assertEquals(res.body?.pong, true);
+    });
+
+    it("POST /echo with body", async () => {
+      const res = await http("/echo", { hello: "world" });
+      assertEquals(res.body?.body?.hello, "world");
+      assertEquals(res.body?.touched, true);
+    });
+
+    it("params from /users/:id", async () => {
+      const res = await http("/users/99", null, "GET");
+      assertEquals(res.body?.id, "99");
+    });
+
+    it("branch /api/items", async () => {
+      const res = await http("/api/items", null, "GET");
+      assertEquals(res.body, [1, 2, 3]);
+    });
+
+    it("branch params /api/items/:itemId", async () => {
+      const res = await http("/api/items/7", null, "GET");
+      assertEquals(res.body?.itemId, "7");
+      assertEquals(res.body?.apiBranch, true);
+    });
+
+    it("404 on unknown route", async () => {
+      const res = await fetch(`${BASE}/nonexistent`);
+      assert(res.status === 404 || res.status === 405);
+    });
+  });
+
+  describe("dual-mode parity", () => {
+    let ap, composed;
+
+    beforeAll(() => {
+      ap = new Aperture();
+
+      ap.use(async (ctx, next) => {
+        ctx.state = ctx.state || {};
+        ctx.state.mw = true;
+        await next();
+      });
+
+      ap.open("/echo", (body, ctx) => ({
+        body,
+        mw: ctx.state?.mw,
+      }));
+
+      ap.open("/entities/:entity/:method", (ctx) => ({
+        entity: ctx.params.entity,
+        method: ctx.params.method,
+      }));
+
+      composed = ap.compose(true);
+    });
+
+    it("internal: /echo matches HTTP behavior", async () => {
+      const ctx = await invoke(composed, "/echo", { x: 1 });
+      assertEquals(ctx.output.body, { x: 1 });
+      assertEquals(ctx.output.mw, true);
+    });
+
+    it("internal: params extracted same as HTTP", async () => {
+      const ctx = await invoke(composed, "/entities/literal/find");
+      assertEquals(ctx.output.entity, "literal");
+      assertEquals(ctx.output.method, "find");
+    });
+  });
+
+  describe("ctx.input / ctx.output contract", () => {
+    it("input is body, output is handler return", async () => {
+      const ap = new Aperture();
+      ap.open("/transform", (body, ctx) => {
+        return { doubled: body.n * 2 };
+      });
+
+      const ctx = await invoke(ap.compose(), "/transform", { n: 21 });
+      assertEquals(ctx.input, { n: 21 });
+      assertEquals(ctx.output, { doubled: 42 });
+    });
+
+    it("middleware can read input and mutate output", async () => {
+      const ap = new Aperture();
+      ap.use(async (ctx, next) => {
+        ctx.input.injected = true;
+        await next();
+        ctx.output.wrapped = true;
+      });
+      ap.open("/wrap", (body) => ({ saw: body.injected }));
+
+      const ctx = await invoke(ap.compose(), "/wrap", {});
+      assertEquals(ctx.output.saw, true);
+      assertEquals(ctx.output.wrapped, true);
+    });
+  });
+
+  describe("json inspection", () => {
+    it(".json reflects structure", () => {
+      const ap = new Aperture();
+      ap.open("/a", () => {});
+      ap.branch("/b").open("/c", () => {});
+
+      const json = ap.json;
+      assertExists(json);
+    });
+  });
+});
+#+end_src
+
+* Tests: Vector-Backed Aperture (New)
+:PROPERTIES:
+:ID: test-vector-backed
+:END:
+
+Same behavioral expectations as baseline, exercised against both compilers.
+Includes Aperture-is-a-Vector assertions and dual-mode parity checks.
+
+#+begin_src js :tangle tests/aperture/vector-backed.test.js
+import { assertEquals, assertExists, assert } from "@std/assert";
+import { describe, it, beforeAll, afterAll } from "@std/testing/bdd";
+import { Application } from "@oak/oak";
+
+import { Aperture, compileInvoke, compileOak, context } from "../aperture/index.js";
+
+const PORT = 9877;
+const BASE = `http://localhost:${PORT}`;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const invoke = async (fn, path, body = {}) => {
+  const ctx = context(path, body);
+  await fn(ctx);
+  return ctx;
+};
+
+const http = async (path, body, method = "POST") => {
+  const res = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: method === "GET" ? undefined : JSON.stringify(body),
+  });
+  return { status: res.status, body: await res.json().catch(() => null) };
+};
+
+describe("Aperture extends Vector — compileInvoke", () => {
+  it("open() registers an effect", async () => {
+    const ap = new Aperture();
+    ap.open("/ping", () => "pong");
+    const ctx = await invoke(compileInvoke(ap), "/ping");
+    assertEquals(ctx.output, "pong");
+  });
+
+  it("handler arity 0", async () => {
+    const ap = new Aperture();
+    ap.open("/zero", () => 42);
+    const ctx = await invoke(compileInvoke(ap), "/zero");
+    assertEquals(ctx.output, 42);
+  });
+
+  it("handler arity 1 — receives ctx", async () => {
+    const ap = new Aperture();
+    ap.open("/one", (ctx) => ({ got: ctx.input }));
+    const ctx = await invoke(compileInvoke(ap), "/one", { x: 1 });
+    assertEquals(ctx.output.got, { x: 1 });
+  });
+
+  it("handler arity 2 — receives (body, ctx)", async () => {
+    const ap = new Aperture();
+    ap.open("/two", (body, ctx) => ({ body, hasCtx: !!ctx }));
+    const ctx = await invoke(compileInvoke(ap), "/two", { y: 2 });
+    assertEquals(ctx.output.body, { y: 2 });
+    assertEquals(ctx.output.hasCtx, true);
+  });
+
+  it("use() applies middleware in order", async () => {
+    const order = [];
+    const ap = new Aperture();
+    ap.use(async (ctx, next) => {
+      order.push("a:before");
+      await next();
+      order.push("a:after");
+    });
+    ap.use(async (ctx, next) => {
+      order.push("b:before");
+      await next();
+      order.push("b:after");
+    });
+    ap.open("/mw", () => {
+      order.push("effect");
+      return "ok";
+    });
+
+    await invoke(compileInvoke(ap), "/mw");
+    assertEquals(order, ["a:before", "b:before", "effect", "b:after", "a:after"]);
+  });
+
+  it("middleware decorates context", async () => {
+    const ap = new Aperture();
+    ap.use(async (ctx, next) => {
+      ctx.injected = "hello";
+      await next();
+    });
+    ap.open("/decorated", (body, ctx) => ctx.injected);
+
+    const ctx = await invoke(compileInvoke(ap), "/decorated");
+    assertEquals(ctx.output, "hello");
+  });
+
+  it("branch() creates nested namespace", async () => {
+    const ap = new Aperture();
+    ap.branch("/api").open("/items", () => [1, 2, 3]);
+    const ctx = await invoke(compileInvoke(ap), "/api/items");
+    assertEquals(ctx.output, [1, 2, 3]);
+  });
+
+  it("branch() returns an Aperture", () => {
+    const ap = new Aperture();
+    const child = ap.branch("/sub");
+    assert(child instanceof Aperture);
+  });
+
+  it("branch middleware scoped to branch", async () => {
+    const order = [];
+    const ap = new Aperture();
+    ap.use(async (ctx, next) => {
+      order.push("root");
+      await next();
+    });
+
+    const branch = ap.branch("/scoped");
+    branch.use(async (ctx, next) => {
+      order.push("branch");
+      await next();
+    });
+    branch.open("/hit", () => {
+      order.push("effect");
+      return "ok";
+    });
+
+    const ctx = await invoke(compileInvoke(ap), "/scoped/hit");
+    assertEquals(ctx.output, "ok");
+    assert(order.includes("root"));
+    assert(order.includes("branch"));
+    assert(order.includes("effect"));
+  });
+
+  it("params from :param patterns", async () => {
+    const ap = new Aperture();
+    ap.open("/users/:id", (ctx) => ({ id: ctx.params.id }));
+    const ctx = await invoke(compileInvoke(ap), "/users/42");
+    assertEquals(ctx.output.id, "42");
+  });
+
+  it("nested params across branch + open", async () => {
+    const ap = new Aperture();
+    ap.branch("/entities/:entity").open("/:method", (ctx) => ({
+      entity: ctx.params.entity,
+      method: ctx.params.method,
+    }));
+
+    const ctx = await invoke(compileInvoke(ap), "/entities/user/find");
+    assertEquals(ctx.output.entity, "user");
+    assertEquals(ctx.output.method, "find");
+  });
+
+  it("slurp() absorbs another aperture at its _path", async () => {
+    const child = new Aperture("/child");
+    child.open("/x", () => "from-child");
+
+    const parent = new Aperture();
+    parent.slurp(child);
+
+    const ctx = await invoke(compileInvoke(parent), "/child/x");
+    assertEquals(ctx.output, "from-child");
+  });
+
+  it("slurp() without _path merges at root", async () => {
+    const child = new Aperture();
+    child.open("/flat", () => "merged");
+
+    const parent = new Aperture();
+    parent.slurp(child);
+
+    const ctx = await invoke(compileInvoke(parent), "/flat");
+    assertEquals(ctx.output, "merged");
+  });
+
+  it("slurp preserves child middleware", async () => {
+    const order = [];
+    const child = new Aperture("/inner");
+    child.use(async (ctx, next) => {
+      order.push("child-mw");
+      await next();
+    });
+    child.open("/go", () => {
+      order.push("child-effect");
+      return "done";
+    });
+
+    const parent = new Aperture();
+    parent.use(async (ctx, next) => {
+      order.push("parent-mw");
+      await next();
+    });
+    parent.slurp(child);
+
+    const ctx = await invoke(compileInvoke(parent), "/inner/go");
+    assertEquals(ctx.output, "done");
+    assert(order.includes("parent-mw"));
+    assert(order.includes("child-mw"));
+    assert(order.includes("child-effect"));
+  });
+
+  it("404 on unmatched route", async () => {
+    const ap = new Aperture();
+    ap.open("/exists", () => "yes");
+    const ctx = await invoke(compileInvoke(ap), "/nope");
+    assertEquals(ctx.response.status, 404);
+  });
+
+  it("multiple effects", async () => {
+    const ap = new Aperture();
+    ap.open("/a", () => "alpha");
+    ap.open("/b", () => "beta");
+    const fn = compileInvoke(ap);
+    assertEquals((await invoke(fn, "/a")).output, "alpha");
+    assertEquals((await invoke(fn, "/b")).output, "beta");
+  });
+
+  it("ctx.input / ctx.output contract", async () => {
+    const ap = new Aperture();
+    ap.open("/transform", (body) => ({ doubled: body.n * 2 }));
+    const ctx = await invoke(compileInvoke(ap), "/transform", { n: 21 });
+    assertEquals(ctx.input, { n: 21 });
+    assertEquals(ctx.output, { doubled: 42 });
+  });
+
+  it("middleware can mutate output after effect", async () => {
+    const ap = new Aperture();
+    ap.use(async (ctx, next) => {
+      ctx.input.injected = true;
+      await next();
+      ctx.output.wrapped = true;
+    });
+    ap.open("/wrap", (body) => ({ saw: body.injected }));
+
+    const ctx = await invoke(compileInvoke(ap), "/wrap", {});
+    assertEquals(ctx.output.saw, true);
+    assertEquals(ctx.output.wrapped, true);
+  });
+
+  it("aperture is a Vector — traverse/walk/invoke work on it", async () => {
+    const { Vector } = await import("@vivalence/vector/typology");
+    const ap = new Aperture();
+    assert(ap instanceof Vector);
+  });
+
+  it("deep nesting — branch.branch.open", async () => {
+    const ap = new Aperture();
+    ap.branch("/a").branch("/b").open("/c", () => "deep");
+
+    const ctx = await invoke(compileInvoke(ap), "/a/b/c");
+    assertEquals(ctx.output, "deep");
+  });
+
+  it("chained use + open on branch", async () => {
+    const ap = new Aperture();
+    ap.branch("/v1")
+      .use(async (ctx, next) => {
+        ctx.version = 1;
+        await next();
+      })
+      .open("/info", (ctx) => ({ version: ctx.version }));
+
+    const ctx = await invoke(compileInvoke(ap), "/v1/info");
+    assertEquals(ctx.output.version, 1);
+  });
+});
+
+describe("Aperture extends Vector — compileOak (HTTP)", () => {
+  let app, controller;
+
+  beforeAll(async () => {
+    const ap = new Aperture();
+
+    ap.use(async (ctx, next) => {
+      ctx.state.touched = true;
+      await next();
+    });
+
+    ap.open("/ping", () => ({ pong: true }));
+
+    ap.open("/echo", (body, ctx) => ({
+      body,
+      touched: ctx.state.touched,
+    }));
+
+    ap.open("/users/:id", (ctx) => ({ id: ctx.params.id }));
+
+    const branch = ap.branch("/api");
+    branch.use(async (ctx, next) => {
+      ctx.state.apiBranch = true;
+      await next();
+    });
+    branch.open("/items", () => [1, 2, 3]);
+    branch.open("/items/:itemId", (ctx) => ({
+      itemId: ctx.params.itemId,
+      apiBranch: ctx.state.apiBranch,
+    }));
+
+    const oak = compileOak(ap);
+    app = new Application();
+    app.use(oak.routes());
+    app.use(oak.allowedMethods());
+
+    controller = new AbortController();
+    app.listen({ port: PORT, signal: controller.signal });
+    await sleep(500);
+  });
+
+  afterAll(() => controller.abort());
+
+  it("GET /ping", async () => {
+    const res = await http("/ping", null, "GET");
+    assertEquals(res.body?.pong, true);
+  });
+
+  it("POST /echo with body", async () => {
+    const res = await http("/echo", { hello: "world" });
+    assertEquals(res.body?.body?.hello, "world");
+    assertEquals(res.body?.touched, true);
+  });
+
+  it("params /users/:id", async () => {
+    const res = await http("/users/99", null, "GET");
+    assertEquals(res.body?.id, "99");
+  });
+
+  it("branch /api/items", async () => {
+    const res = await http("/api/items", null, "GET");
+    assertEquals(res.body, [1, 2, 3]);
+  });
+
+  it("branch params /api/items/:itemId", async () => {
+    const res = await http("/api/items/7", null, "GET");
+    assertEquals(res.body?.itemId, "7");
+    assertEquals(res.body?.apiBranch, true);
+  });
+
+  it("404 on unknown route", async () => {
+    const res = await fetch(`${BASE}/nonexistent`);
+    assertEquals(res.status, 404);
+  });
+});
+
+describe("Dual-mode parity", () => {
+  const ap = new Aperture();
+  ap.use(async (ctx, next) => {
+    ctx.state = ctx.state || {};
+    ctx.state.mw = true;
+    await next();
+  });
+  ap.open("/echo", (body, ctx) => ({ body, mw: ctx.state?.mw }));
+  ap.open("/entities/:entity/:method", (ctx) => ({
+    entity: ctx.params.entity,
+    method: ctx.params.method,
+  }));
+
+  const fn = compileInvoke(ap);
+
+  it("internal /echo", async () => {
+    const ctx = await invoke(fn, "/echo", { x: 1 });
+    assertEquals(ctx.output.body, { x: 1 });
+    assertEquals(ctx.output.mw, true);
+  });
+
+  it("internal params match HTTP behavior", async () => {
+    const ctx = await invoke(fn, "/entities/literal/find");
+    assertEquals(ctx.output.entity, "literal");
+    assertEquals(ctx.output.method, "find");
+  });
+});
+#+end_src
+
+* Callsite Migration Reference
+:PROPERTIES:
+:ID: migration-callsites
+:END:
+
+** lifecycle/integration.js — Connection transport
+
+Old:
+#+begin_src js
+const composed = await die.good.aperture.compose(true);
+die.connection = new Connection(new Url("http://internal"), async (ctx) => {
+  try {
+    ctx.input = ctx.input || ctx.request.body;
+    await composed(ctx);
+    ctx.response.body = ctx.output;
+    if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
+    else if (ctx.response.status === 404) ctx.response.setError();
+  } catch (error) {
+    console.error("@runtime/daemon/integration");
+    ctx.response.status = 500;
+    ctx.response.error = error;
+  }
+});
+#+end_src
+
+New:
+#+begin_src js
+import { compileInvoke } from "@vivalence/vector/aperture";
+die.connection = new Connection(new Url("http://internal"), compileInvoke(die.good.aperture));
+#+end_src
+
+** lifecycle/resolution.js — HTTP serving
+
+Old:
+#+begin_src js
+daemonDie.good.aperture.slurp(child).serve(router);
+#+end_src
+
+New:
+#+begin_src js
+import { compileOak } from "@vivalence/vector/aperture";
+daemonDie.good.aperture.slurp(child);
+const oak = compileOak(daemonDie.good.aperture);
+app.use(oak.routes());
+app.use(oak.allowedMethods());
+#+end_src
+
+** Mode traits — PRODUCTIVE, VALENTIC, DATASET, VIEWABLE
+
+No change. These create ~new Aperture()~, call ~open()~, ~use()~, ~branch()~,
+~slurp()~ — same API. The Aperture is a Vector so all mode patterns compose identically.
+
+#+begin_src js
+const productionAperture = new Aperture();
+productionAperture
+  .branch("/generate")
+  .open("/pending", generate.pending)
+  .open("/fromSymbols", generate.fromSymbols);
+mode.aperture.slurp(productionAperture);
+#+end_src
+
+** Agentic compiler — unchanged
+
+~new Agentic(aperture)~ works because Aperture IS a Vector. The compiler walks
+~.effects~ and ~.trajectories~ — inherited. Tool registration, llmstxt generation,
+~invoke(aperture, path, ctx)~ — all unchanged.
+
+** Subscriber — unchanged
+
+~compiler.Subscriber(aperture.patterns, emitter)~ works. ~aperture.patterns~ is
+inherited from Vector. ~traverse(aperture, signal)~ works.
+
+* What Was Removed
+
+| Old                      | Replacement                      |
+|--------------------------+----------------------------------|
+| ~Aperture.compose()~     | ~compileInvoke(aperture)~        |
+| ~Aperture.serve()~       | ~compileOak(aperture)~           |
+| ~Aperture.composed~      | compiler handles caching         |
+| ~Aperture.router~        | no Oak on the Aperture           |
+| ~Aperture.descendants~   | inherited ~.trajectories~        |
+| ~@oak/oak~ import        | only in ~oak.js~ compiler        |
+| ~Aperture.path~ (Path)   | ~Aperture._path~ (string)        |
+
+* Open Spaces
+
+** Streaming dispatch (future)
+~ctx.output~ is untyped. When streaming arrives, ~dispatch~ gains:
+#+begin_src js
+ctx.streaming = isAsyncIterable(ctx.output);
+#+end_src
+Each compiler branches on it. No aperture/vector changes.
+
+** SharedEntity primitive (future)
+Lives outside the aperture. Uses aperture for transport (snapshot, stream, patch).
+Needs ~connection.subscribe()~ alongside ~connection.call()~.
+
+** compileSSE (future)
+A third compiler. Receives the same aperture, same traverse. Outputs SSE responses
+for streaming effects. Additive, not structural.
+
+** Connection.subscribe (future)
+Counterpart to ~Connection.call~. Opens persistent channel. HTTP side: SSE via fetch.
+Internal side: direct async iterator from ~compileInvoke~.

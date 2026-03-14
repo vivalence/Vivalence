@@ -4,41 +4,21 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
 
-import { Url, Path } from "@vivalence/typology";
-
-import paladin from "@vivalence/paladin";
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __repo = join(__dirname, "../../");
 const __ss = join(__repo, "./subsystems");
 
-await paladin.ikiro; // temporary magic
-const client = paladin.variant.clients.html;
+async function serverConfig() {
+  const paladin = (await import("@vivalence/paladin")).default;
+  await paladin.ikiro;
+  const client = paladin.variant.clients.html;
 
-// # scopes [paladin.scope.system,paladin.scope.registry];
+  let allowedHosts = paladin.is.dev;
+  if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
+  if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
+    allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
 
-let allowedHosts = paladin.is.dev;
-if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
-if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
-  allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
-
-// console.log("paladin.env, paladin.variant");
-// console.log(paladin.env, paladin.variant);
-// console.log({
-//   cors: { origin: client.statics.remote?.absolute },
-//   origin: client.statics.remote?.absolute,
-//   allowedHosts,
-
-//   host: client.statics.serve.hostname,
-//   port: parseInt(client.statics.serve.port),
-// });
-// console.log("allowedHosts,client.statics.remote,");
-// console.log(allowedHosts);
-
-export default defineConfig({
-  plugins: [sveltekit(), deno()], //
-  logLevel: "info",
-  server: {
+  return {
     cors: { origin: client.statics.remote?.absolute },
     origin: client.statics.remote?.absolute,
     allowedHosts,
@@ -53,7 +33,6 @@ export default defineConfig({
       ignored: ["**/node_modules/**", "**/#*"],
       include: [
         "./src/**/*",
-        // # TODO VIVA_REGISTER_DIR
         "../../register/**/*.{html,svelte.js,svelte,css}",
         "../../subsystems/typology/**/*",
         "../../subsystems/vector/**/*",
@@ -62,6 +41,15 @@ export default defineConfig({
         "../../subsystems/drapes/**/*",
       ],
     },
+  };
+}
+
+export default defineConfig(async ({ command }) => ({
+  plugins: [sveltekit(), deno()],
+  logLevel: "info",
+  server: command === "serve" ? await serverConfig() : {},
+  ssr: {
+    noExternal: true,
   },
   resolve: {
     alias: {
@@ -107,4 +95,4 @@ export default defineConfig({
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },
-});
+}));

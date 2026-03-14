@@ -1,30 +1,15 @@
-FROM vivalence/viva:alpine 
+FROM vivalence/viva:alpine
 
 WORKDIR /viva/repository
 
-# COPY systems/html ./systems/html
-# COPY subsystems/ ./subsystems/
-
-ENV VIVA_SYSTEM_MODE="CLIENT"
+COPY import_map.json ./import_map.json
+COPY systems/html/svelte.config.js ./systems/html/svelte.config.js
+COPY systems/html/vite.config.mjs ./systems/html/vite.config.mjs
+COPY systems/html/serve.js ./systems/html/serve.js
 
 RUN deno install
+RUN deno task html/bundle
 
-CMD ["deno", "task", "html/watch"]
+EXPOSE 1794
 
-# CMD ["deno", "task", "start"]
-# deno task --cwd ./systems/html watch
-
-# //
-# FROM viva/shell:latest
-# WORKDIR /repository
-# COPY config config
-# COPY --from=root /build/client/web ./build
-# EXPOSE 3000
-# CMD ["/start.sh"]
-# run ./build
-
-# or:
-# RUN viva run daemon lifecycle
-# pulls deps and builds, cycles healthchecks and handshakes, ends.
-## FROM --root
-# RUN viva run daemon daemonize
+CMD ["deno", "run", "-A", "systems/html/serve.js"]
