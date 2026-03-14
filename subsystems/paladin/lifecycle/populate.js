@@ -67,7 +67,8 @@ export async function scopes(paladin) {
     ],
     [
       "environment",
-      () => paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || paladin.is.citizen,
+      () =>
+        paladin.env.has("VIVA_ENVIRONMENT_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_ENVIRONMENT_MOUNT")) {

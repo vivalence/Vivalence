@@ -18,10 +18,10 @@ services:
       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
       - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
       - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
-      - PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com
-      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
-      # - PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501
-      # - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer
+      # - PUBLIC_VIVA_RUNTIME_REMOTE=https://runtime.s4y.vivalence.com
+      # - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
+      - PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer
       - SECRET_VIVA_JWT=TOTALLYSECUREKEYnot
       - SECRET_VIVA_ANTHROPIC_API_KEY=ANOTHERTOTALLYSECUREKEYnot
       # - SERVICE_NLP_KEY
