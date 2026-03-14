@@ -43,14 +43,14 @@ export const LiteralSchema = new EntitySchema({
       items: () => LiteralTraitsEnum,
       enum: true,
       array: true,
-      default: [],
+      defaultRaw: `'[]'`,
       type: types.json,
     },
 
     rank: {
       type: types.integer,
       nullable: true,
-      default: null,
+      defaultRaw: 'null',
     },
 
     memories: {

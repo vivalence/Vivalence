@@ -28,6 +28,8 @@ RUN apk add --no-cache \
     docker-cli \
     docker-cli-compose
 
+RUN rm -f /usr/local/lib/libgcc_s.so.1
+
 RUN cat >> /root/.bashrc <<'EOF'
 export EDITOR=vim VISUAL=vim
 export PATH="/root/.deno/bin:$PATH"

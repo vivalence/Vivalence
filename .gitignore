@@ -22,3 +22,5 @@ migrations/
 .DS_Store
 **/build
 .aider*
+.claude/worktrees
+.claude/settings.local.json

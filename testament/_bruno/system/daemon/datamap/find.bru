@@ -4,12 +4,21 @@ meta {
   seq: 3
 }
 
-get {
+post {
   url: {{DAEMON}}/entities/symbol/find
-  body: none
+  body: json
   auth: bearer
 }
 
 auth:bearer {
   token: {{accessToken}}
+}
+
+body:json {
+  {
+    "options": {
+      "limit": 1,
+      "populate":["literals"]
+    }
+  }
 }

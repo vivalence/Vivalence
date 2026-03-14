@@ -1,4 +1,4 @@
-import { Collection, EntitySchema, type Opt } from "@mikro-orm/core";
+import { Collection, EntitySchema, types, type Opt } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { SessionEntity } from "../index.ts";
@@ -28,11 +28,10 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
       items: () => UserRolesEnum,
       enum: true,
       array: true,
-      default: [UserRolesEnum.USER],
-      defaultRaw: `["${UserRolesEnum.USER}"]`,
+      defaultRaw: `'["${UserRolesEnum.USER}"]'`,
       columnType: "json",
     },
-    config: { type: "json" },
+    config: { type: types.json },
 
     // intents: {kind: "1:m", entity: () => IntentEntity, mappedBy: (intent) => intent.user,},
 

@@ -1,4 +1,4 @@
-import { EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
+import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
@@ -34,15 +34,14 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
 
     traits: {
       columnType: "json",
-      defaultRaw: `"[]"`,
+      defaultRaw: `'[]'`,
       enum: true,
       array: true,
       items: () => SessionTraitsEnum,
-      default: [],
     },
-    data: { type: "json" },
-    counter: { type: Number },
-    cursor: { type: Number },
+    data: { type: types.json },
+    counter: { type: types.integer },
+    cursor: { type: types.integer },
 
     // intent: {kind: "m:1", entity: () => IntentEntity, fieldName: "intent", updateRule: "cascade", deleteRule: "cascade",},
 

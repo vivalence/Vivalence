@@ -1,4 +1,4 @@
-import { EntitySchema, type Opt } from "@mikro-orm/core";
+import { EntitySchema, types, type Opt } from "@mikro-orm/core";
 import { BaseSchema, BaseEntity } from "./BaseEntity.ts";
 
 export class VirtualRepository extends Array {
@@ -29,8 +29,8 @@ export const VirtualSchema = new EntitySchema<VirtualEntity, BaseEntity>({
   name: "VirtualEntity",
   abstract: true,
   properties: {
-    slug: { type: String },
-    name: { type: String, nullable: true },
-    description: { type: String, nullable: true },
+    slug: { type: types.string },
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
   },
 });
