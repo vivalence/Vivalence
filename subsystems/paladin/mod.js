@@ -21,7 +21,7 @@ paladin.ikiro = (async function ikiro() {
   await resolve.variant(paladin);
   // await resolve.consumables(paladin);
   // await integrate.publish(paladin);
-  // await integrate.secure(paladin);
+  // await integrate.secure(paladin); // aspirational.
   // await integrate.validate(paladin);
   // await integrate.mountpoint(paladin);
   await integrate.statements(paladin);

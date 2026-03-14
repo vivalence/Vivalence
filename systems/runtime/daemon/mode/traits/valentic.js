@@ -26,8 +26,8 @@ export const VALENTIC = async (mode, daemon) => {
         // console.log("VALENCE RESPONSE", ctx.response.body);
       })
       .open(`/${valence.slug}`, async (ctx) => {
-        const mount = ctx.mode.mount.barf().branch(ctx.valence.data.GENERATIVE["mount"]).absolute;
-        const input = object.merge(ctx.valence.data.GENERATIVE["mask"], ctx.input);
+        const mount = ctx.mode.mount.barf().branch(ctx.valence.data.PRODUCTIVE["mount"]).absolute;
+        const input = object.merge(ctx.valence.data.PRODUCTIVE["mask"], ctx.input);
         const result = await ctx.daemon.call(mount, input);
         // console.log({ result });
         return result;

@@ -1,6 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Vector } from "@vivalence/vector";
-import runtime from "@vivalence/runtime";
+import { Signal } from "@vivalence/typology";
 
 import boot, { shutdown } from "./lifecycle/boot.js";
 import trajectory from "./trajectories/index.js";

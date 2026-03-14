@@ -8,7 +8,7 @@
 instructions, patterns and tools for testing the gestalten and valences of types, tools, and systems throughout viva.
 * example application 
 #+BEGIN_SRC javascript
-  import specimen from "@vivalence/specimen";
+  import specimen from "@vivalence/typology/specimen";
   //  specimen contains { expect,it,describe,} 
   import { is } from "@vivalence/typology";
   // depend

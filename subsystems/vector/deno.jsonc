@@ -16,6 +16,6 @@
     "test/carry": "deno test -A --no-check --watch tests/carry.test.js",
     "test/traverse": "deno test -A --no-check --watch tests/controller/traverse.test.js",
     "test/walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
-    "test/agentic": "deno test -A --no-check --watch tests/compiler/agentic.test.js",
+    "test/aperture/oak": "deno test -A --no-check --watch tests/compiler/aperture-oak.test.js",
   },
 }

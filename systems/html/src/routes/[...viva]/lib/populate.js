@@ -105,13 +105,22 @@ population
           .map((product) => {
             product.release = (callback) => {
               ctx.terminal.daemon //
-                .call("/entities/product/nativeUpdate", { id: product.id }, { status: "DONE" });
+                .call("/entities/product/nativeUpdate", {
+                  where: { id: product.id },
+                  options: { status: "DONE" }, // lol.
+                });
 
               ctx.terminal.stall.next(callback);
             };
             return product;
           })
-          .map((product) => new Buffer({ terminal: ctx.terminal, product }, product.mode.view));
+          .map(
+            (product) =>
+              new Buffer(
+                { terminal: ctx.terminal, product, ...(product.data.BUFFERED || {}) },
+                product.mode.view,
+              ),
+          );
       });
       ctx.terminal.stall.$status.set("IDLE");
       ctx.terminal.stall.pull();

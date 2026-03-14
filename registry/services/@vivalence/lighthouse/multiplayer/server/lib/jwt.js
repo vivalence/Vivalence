@@ -20,10 +20,7 @@ async function verifyJWT(token) {
 }
 
 async function createRefreshToken(payload) {
-  const refreshToken = await createJWT(
-    { ...payload, type: "refresh" },
-    refreshExpiresIn,
-  );
+  const refreshToken = await createJWT({ ...payload, type: "refresh" }, refreshExpiresIn);
 
   db.data.refresh[refreshToken] = {
     ...payload,
@@ -73,6 +70,7 @@ const rft = {
 };
 
 export default async function (service) {
+  // console.log("lighthouse/multiplayer", { service });
   if (!service.secrets?.jwt) {
     throw new Error("JWT secret not configured in service.secrets.jwt");
   }

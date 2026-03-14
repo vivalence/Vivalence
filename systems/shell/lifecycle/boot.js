@@ -1,4 +1,4 @@
-import { is } from "@vivalence/shared";
+import { is } from "@vivalence/typology";
 
 const children = new Set(); // [{manifest,config,instance}]
 

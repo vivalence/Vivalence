@@ -1,6 +1,5 @@
-import { is } from "@vivalence/shared";
 import { Vector } from "@vivalence/vector";
-import { gestalten } from "@vivalence/typology";
+import { is, gestalten } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 
 export default async function (shell) {

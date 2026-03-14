@@ -1,4 +1,5 @@
 export * from "@std/testing/bdd";
+export * from "@std/assert";
 export * from "@std/expect";
 
 import { describe, it } from "@std/testing/bdd";

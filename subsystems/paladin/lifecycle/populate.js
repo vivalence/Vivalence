@@ -5,8 +5,8 @@ export async function env(paladin) {
   // console.log("ENV CALL");
   // read process env
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
-    if (key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_"))
-      paladin.env.set(key, value);
+    if (key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_")) paladin.env.set(key, value);
+    if (key.startsWith("SECRET_VIVA_")) paladin.secret.set(key, value);
   }
 
   // read env file
@@ -29,11 +29,7 @@ export async function env(paladin) {
 
 export async function scopes(paladin) {
   paladin.scopes([
-    [
-      "system",
-      () => true,
-      () => new Path(paladin.env.get("VIVA_SYSTEM_MOUNT")),
-    ],
+    ["system", () => true, () => new Path(paladin.env.get("VIVA_SYSTEM_MOUNT"))],
     [
       "registry",
       () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
@@ -50,7 +46,7 @@ export async function scopes(paladin) {
   ]);
   paladin.scopes([
     [
-      "variant",
+      "variant", //
       () => paladin.env.has("VIVA_VARIANT_MOUNT"),
       () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
     ],
@@ -58,8 +54,7 @@ export async function scopes(paladin) {
     [
       "circuitry",
       () =>
-        paladin.env.has("VIVA_CIRCUITRY_MOUNT") ||
-        (paladin.scope.variant && paladin.is.citizen),
+        paladin.env.has("VIVA_CIRCUITRY_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
       () => {
         let envpath;
         if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
@@ -109,17 +104,9 @@ export async function scopes(paladin) {
 
   paladin.scopes([
     // Legacy aliases
-    [
-      "circuits",
-      () => paladin.scope.circuitry !== undefined,
-      () => paladin.scope.circuitry,
-    ],
+    ["circuits", () => paladin.scope.circuitry !== undefined, () => paladin.scope.circuitry],
 
-    [
-      "tilde",
-      () => paladin.scope.variant !== undefined,
-      () => paladin.scope.variant,
-    ],
+    ["tilde", () => paladin.scope.variant !== undefined, () => paladin.scope.variant],
   ]);
 }
 
@@ -137,12 +124,8 @@ export async function environment(paladin) {
   const allJsonFiles = await paladin.find.json(envpath);
 
   await Promise.all([
-    apply(paladin.secret)(
-      allJsonFiles.find((file) => file.absolute.includes("secret")),
-    ),
-    ...allJsonFiles
-      .filter((file) => !file.absolute.includes("secret"))
-      .map(apply(paladin.env)),
+    apply(paladin.secret)(allJsonFiles.find((file) => file.absolute.includes("secret"))),
+    ...allJsonFiles.filter((file) => !file.absolute.includes("secret")).map(apply(paladin.env)),
   ]);
 
   return paladin;

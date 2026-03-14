@@ -70,7 +70,7 @@ export async function lifecycle(daemon) {
 
     mode.manifest = await mode.connection.call("/manifest");
 
-    if (mode.implements("TERMINAL")) mode.view = await mode.connection.call("/view");
+    if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
     if (mode.implements("BUFFERED")) mode.link = mode.mount.rebase("/viva");
 
     daemon.entities.mode.add(mode);
@@ -127,7 +127,7 @@ export async function lifecycle(daemon) {
 //   "description": null,
 //   "data": {},
 //   "traits": [
-//     "TERMINAL",
+//     "VIEWABLE",
 //     "DATASET",
 //     "VALENTIC"
 //   ],
@@ -158,7 +158,7 @@ export async function lifecycle(daemon) {
 //     "description": null,
 //     "data": {},
 //     "traits": [
-//       "TERMINAL",
+//       "VIEWABLE",
 //       "DATASET",
 //       "VALENTIC"
 //     ],

@@ -15,15 +15,12 @@
   setContext("terminal", terminal);
 
   let unsubs = [];
-  // let booted = false;
 
   afterNavigate(({ to }) => {
     if (!to?.url) return;
-    // booted = true;
 
     parse(terminal, to.url);
     unsubs.push(serialize(terminal));
-    // console.log("afterNvigate", to?.url?.pathname, terminal.perspective, to?.url?.search);
   });
 
   unsubs.push(

@@ -1,11 +1,7 @@
 {
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
-  "exclude": [
-    "./testament",
-    "./docs", //
-    // "./registry",
-  ],
+  "exclude": ["./testament", "./docs"],
   "workspace": [
     "./systems/runtime",
     "./systems/html",
@@ -19,40 +15,116 @@
     "./subsystems/sheets",
   ],
   "tasks": {
-    // "build:add": "deno task -f @scope/add build"
     "tree": "tree -I 'node_modules|static' --prune",
-    "deno/install": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
-    "viva/install": "deno install --global -f -A -n viva ./systems/shell/mod.js",
-    "install": "deno run deno/install && deno run viva/install",
-    // "test:registry": "deno run --watch -A ./systems/shell/mod.js",
+
+    // "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
+    "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
+    "viva/install": "echo '#!/bin/sh\ncd '\"$(pwd)\"' && exec deno run -A ./systems/shell/mod.js \"$@\"' > ~/.deno/bin/viva && chmod +x ~/.deno/bin/viva",
+    "install": "deno task dependencies && deno task viva/install",
+
     "paladin/test": "deno run --watch -A ./subsystems/paladin/tests/*.test.js",
     "typology/test": "deno run --watch -A ./subsystems/typology/tests/**/*.test.js",
-    // "test:subsystems": "deno run --watch -A ./systems/shell/mod.js",
-    // "test:shell": "deno run --watch -A ./systems/shell/mod.js",
-    "runtime/start": "deno run -A  ./systems/runtime/run.js",
+
+    "runtime/start": "deno run -A ./systems/runtime/run.js",
     "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
+
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",
-    "html/watch": "deno task --cwd ./systems/html watch",
 
-    "html/bundle": "deno task --cwd ./systems/html bundle", // maybe ought be universal??
+    "html/watch": "deno task --cwd ./systems/html watch",
+    "html/bundle": "deno task --cwd ./systems/html bundle",
 
     "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
     "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",
-    "build": "DOCKER_BUILDKIT=1 deno run viva/build && deno run runtime/build && deno run html/build",
+    "build": "DOCKER_BUILDKIT=1 deno task viva/build && deno task runtime/build && deno task html/build",
 
     "viva/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
     "html/tag": "docker tag vivalence/html:alpine registry.vivalence.org/vivalence/html:alpine",
-    "tag": "deno run viva/tag && deno run runtime/tag && deno run html/tag",
+    "tag": "deno task viva/tag && deno task runtime/tag && deno task html/tag",
 
     "viva/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
     "html/push": "docker push registry.vivalence.org/vivalence/html:alpine",
-    "push": "deno run viva/push && deno run runtime/push && deno run html/push",
+    "push": "deno task viva/push && deno task runtime/push && deno task html/push",
 
-    "publish": "deno run build && deno run tag && deno run push",
+    "publish": "deno task build && deno task tag && deno task push",
+  },
+  "allowScripts": {
+    "allow": [],
+    "deny": [
+      "npm:argon2@0.44.0",
+      "npm:esbuild@0.25.12",
+      "npm:esbuild@0.27.2",
+      "npm:fsevents@2.3.3",
+      "npm:sqlite3@5.1.7",
+      "npm:svelte-preprocess@5.1.4",
+      "npm:svelte-preprocess@6.0.3",
+    ],
   },
 }
+
+// {
+//   "nodeModulesDir": "auto",
+//   "importMap": "./import_map.json",
+//   "exclude": [
+//     "./testament",
+//     "./docs", //
+//     // "./registry",
+//   ],
+//   "workspace": [
+//     "./systems/runtime",
+//     "./systems/html",
+//     "./systems/shell",
+//     "./subsystems/typology",
+//     "./subsystems/vector",
+//     "./subsystems/paladin",
+//     "./subsystems/shared",
+//     "./subsystems/dapper",
+//     "./subsystems/drapes",
+//     "./subsystems/sheets",
+//   ],
+//   "tasks": {
+//     // "build:add": "deno task -f @scope/add build"
+//     "tree": "tree -I 'node_modules|static' --prune",
+//     "deno/install": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
+//     "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
+//     "install": "deno run deno/install && deno run viva/install",
+//     // "test:registry": "deno run --watch -A ./systems/shell/mod.js",
+//     "paladin/test": "deno run --watch -A ./subsystems/paladin/tests/*.test.js",
+//     "typology/test": "deno run --watch -A ./subsystems/typology/tests/**/*.test.js",
+//     // "test:subsystems": "deno run --watch -A ./systems/shell/mod.js",
+//     // "test:shell": "deno run --watch -A ./systems/shell/mod.js",
+//     "runtime/start": "deno run -A  ./systems/runtime/run.js",
+//     "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
+//     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
+//     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
+//     "shell/do": "deno run -A ./systems/shell/mod.js",
+//     "html/watch": "deno task --cwd ./systems/html watch",
+
+//     "html/bundle": "deno task --cwd ./systems/html bundle", // maybe ought be universal??
+
+//     "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
+//     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
+//     "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",
+//     "build": "DOCKER_BUILDKIT=1 deno run viva/build && deno run runtime/build && deno run html/build",
+
+//     "viva/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
+//     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
+//     "html/tag": "docker tag vivalence/html:alpine registry.vivalence.org/vivalence/html:alpine",
+//     "tag": "deno run viva/tag && deno run runtime/tag && deno run html/tag",
+
+//     "viva/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
+//     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
+//     "html/push": "docker push registry.vivalence.org/vivalence/html:alpine",
+//     "push": "deno run viva/push && deno run runtime/push && deno run html/push",
+
+//     "publish": "deno run build && deno run tag && deno run push",
+//   },
+//   "allowScripts": {
+//     "allow": [],
+//     "deny": ["npm:argon2@0.44.0", "npm:esbuild@0.25.12", "npm:esbuild@0.27.2", "npm:fsevents@2.3.3", "npm:sqlite3@5.1.7", "npm:svelte-preprocess@5.1.4", "npm:svelte-preprocess@6.0.3"],
+//   },
+// }

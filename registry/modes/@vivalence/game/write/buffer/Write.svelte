@@ -1,12 +1,12 @@
 <script>
-  const { terminal, product, seek, direction, forgiving = true } = $props();
+  const { terminal, product, seek, recall, forgiving = true } = $props();
 
-  const dirProp = product?.data?.direction ?? direction ?? null;
-  const randomDir = () => (Math.random() > 0.5 ? "l1l2" : "l2l1");
+  const recallProp = product?.data?.BUFFERED.recall ?? recall ?? null;
+  const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
 
   let literal = $state(null);
   let loading = $state(true);
-  let dir = $state(dirProp ?? randomDir());
+  let activeRecall = $state(recallProp ?? randomRecall());
   let input = $state("");
   let submitted = $state(false);
   let result = $state(null);
@@ -15,22 +15,30 @@
   const known = $derived(literal?.data?.TRANSLATED?.known);
   const learning = $derived(literal?.data?.TRANSLATED?.learning);
   const example = $derived(literal?.data?.EXEMPLIFIED);
-  const prompt = $derived(dir === "l1l2" ? known : learning);
-  const answer = $derived(dir === "l1l2" ? learning : known);
-  const promptEx = $derived(example && (dir === "l1l2" ? example.known : example.learning));
-  const answerEx = $derived(example && (dir === "l1l2" ? example.learning : example.known));
-  const promptLabel = $derived(dir === "l1l2" ? "English" : "Português");
-  const answerLabel = $derived(dir === "l1l2" ? "Português" : "English");
+  const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
+  const answer = $derived(activeRecall === "KNOWN" ? known : learning);
+  const promptEx = $derived(
+    example && (activeRecall === "KNOWN" ? example.learning : example.known),
+  );
+  const answerEx = $derived(
+    example && (activeRecall === "KNOWN" ? example.known : example.learning),
+  );
+  const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
+  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+
+  console.log(product, literal);
+  $inspect(literal);
 
   const pick = async () => {
     const query = { take: 1 };
     if (seek) query.seek = seek;
+    if (literal) query.blacklist = { literals: [literal.id] };
     const [lit] = await terminal.daemon.call("/pick/literal/feed", query);
     return lit ?? null;
   };
 
-  (product ? Promise.resolve(product.data) : pick()).then((v) => {
-    literal = v;
+  (product ? Promise.resolve(product.data.BUFFERED.literal) : pick()).then((value) => {
+    literal = value;
     loading = false;
   });
 
@@ -47,46 +55,55 @@
   const parseAlts = (s) =>
     s
       .split("/")
-      .map((a) => a.replace(/\(.*?\)/g, "").trim())
+      .map((alt) => alt.replace(/\(.*?\)/g, "").trim())
       .filter(Boolean);
 
-  function evaluate(input, lit, d, word) {
-    const answer = d === "l1l2" ? lit.data.TRANSLATED.learning : lit.data.TRANSLATED.known;
-    if (word) return evaluateWord(input, answer);
-    return evaluateSentence(input, answer, lit.data.ANNOTATED?.tokens, d);
+  function evaluate(input, lit, currentRecall, word) {
+    const expected =
+      currentRecall === "KNOWN" ? lit.data.TRANSLATED.known : lit.data.TRANSLATED.learning;
+    if (word) return evaluateWord(input, expected);
+    return evaluateSentence(input, expected, lit.data.ANNOTATED?.tokens, currentRecall);
   }
 
   function evaluateWord(input, expected) {
-    const match = parseAlts(expected).some((a) => norm(input) === norm(a));
+    const match = parseAlts(expected).some((alt) => norm(input) === norm(alt));
     return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
   }
 
-  function evaluateSentence(input, expected, tokens, d) {
+  function evaluateSentence(input, expected, tokens, currentRecall) {
+    const match = norm(input) === norm(expected);
+
     if (!tokens) {
-      return { signal: norm(input) === norm(expected) ? "SUCCESS" : "MISTAKE", tokens: null };
+      return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
     }
 
-    const inputWords = norm(input).split(/\s+/);
-    const field = d === "l1l2" ? "form" : "gloss";
+    if (currentRecall === "KNOWN") {
+      const signal = match ? "SUCCESS" : "MISTAKE";
+      return { signal, tokens: tokens.map((tok) => ({ ...tok, signal })) };
+    }
 
+    const remaining = norm(input).split(/\s+/);
     const results = tokens.map((tok) => {
-      const parts = norm(tok[field]).split(/\s+/);
-      const found = parts.every((p) => inputWords.includes(p));
+      const parts = norm(tok.form).split(/\s+/);
+      const found = parts.every((part) => {
+        const index = remaining.indexOf(part);
+        if (index === -1) return false;
+        remaining.splice(index, 1);
+        return true;
+      });
       return { ...tok, signal: found ? "SUCCESS" : "MISTAKE" };
     });
 
-    const correct = results.filter((t) => t.signal === "SUCCESS").length;
+    const correct = results.filter((tok) => tok.signal === "SUCCESS").length;
     const total = results.length;
     const signal = correct === total ? "SUCCESS" : correct === 0 ? "FAILURE" : "MISTAKE";
 
     return { signal, tokens: results };
   }
-
   function review(result) {
+    console.log(JSON.stringify({ input, product, result }, null, 2));
     const scope = product ? { product: product.id } : { literal: literal.id };
     const path = product ? "/review/product" : "/review/literal";
-
-    // console.log("review:main", JSON.stringify({ literal, result, signal: result.signal, path }, null, 2),);
 
     terminal.daemon.call(path, { signal: result.signal, scope });
 
@@ -104,7 +121,7 @@
   function submit() {
     if (!input.trim() || submitted) return;
     submitted = true;
-    result = evaluate(input, literal, dir, isWord);
+    result = evaluate(input, literal, activeRecall, isWord);
     review(result);
   }
 
@@ -113,15 +130,15 @@
 
     loading = true;
     literal = await pick();
-    dir = dirProp ?? randomDir();
+    activeRecall = recallProp ?? randomRecall();
     input = "";
     submitted = false;
     result = null;
     loading = false;
   }
 
-  function handleKey(e) {
-    if (e.key === "Enter") {
+  function handleKey(event) {
+    if (event.key === "Enter") {
       if (!submitted) submit();
       else next();
     }
@@ -210,9 +227,8 @@
         <input
           class="field"
           value={input}
-          oninput={(e) => (input = e.target.value)}
+          oninput={(event) => (input = event.target.value)}
           placeholder="{answerLabel}…"
-          disabled={loading || !literal}
           autofocus />
         <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
       {:else}
@@ -285,7 +301,7 @@
     margin: 0 0 1.5rem 0;
   }
   .example.revealed {
-    margin: 0.75rem 0 0 0;
+    margin: 0.05rem 0 0 0;
   }
 
   .divider {

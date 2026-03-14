@@ -5,8 +5,7 @@ export * from "./traits/producer.js";
 export * from "./traits/dataset.js";
 export * from "./traits/valentic.js";
 
-export const TERMINAL = async (mode, daemon) => {
-  // console.log("TERMINAL", mode);
+export const VIEWABLE = async (mode, daemon) => {
   mode.cake.view.withBundler(svelte);
   await mode.cake.view.bundle();
   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));

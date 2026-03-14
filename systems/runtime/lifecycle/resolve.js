@@ -19,7 +19,7 @@ export async function attach(runtimeDie) {
   async function attachDaemons(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
       for (const mode of daemonDie.good.flatmodes()) {
-        if (!mode.implements("TERMINAL")) continue;
+        if (!mode.implements("VIEWABLE")) continue;
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)

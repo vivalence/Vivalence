@@ -5,14 +5,18 @@
     "jsr:@cliffy/command@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cliffy/flags@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cliffy/internal@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@cliffy/keycode@1.0.0-rc.7": "1.0.0-rc.7",
+    "jsr:@cliffy/prompt@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cliffy/table@1.0.0-rc.7": "1.0.0-rc.7",
     "jsr:@cross/runtime@1.0": "1.0.0",
     "jsr:@oak/commons@0.11": "0.11.0",
     "jsr:@oak/commons@1": "1.0.1",
     "jsr:@oak/oak@^17.1.0": "17.2.0",
     "jsr:@std/assert@1": "1.0.16",
+    "jsr:@std/assert@1.0": "1.0.16",
     "jsr:@std/assert@^1.0.14": "1.0.16",
     "jsr:@std/assert@^1.0.15": "1.0.16",
+    "jsr:@std/assert@~1.0.6": "1.0.16",
     "jsr:@std/bytes@1": "1.0.6",
     "jsr:@std/crypto@1": "1.0.5",
     "jsr:@std/crypto@1.0": "1.0.5",
@@ -20,6 +24,7 @@
     "jsr:@std/encoding@1": "1.0.10",
     "jsr:@std/encoding@1.0": "1.0.10",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
+    "jsr:@std/encoding@~1.0.5": "1.0.10",
     "jsr:@std/expect@1.0": "1.0.17",
     "jsr:@std/fmt@~1.0.2": "1.0.8",
     "jsr:@std/http@1": "1.0.23",
@@ -29,6 +34,7 @@
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/path@1": "1.1.4",
     "jsr:@std/path@1.0": "1.0.9",
+    "jsr:@std/path@~1.0.6": "1.0.9",
     "jsr:@std/semver@1.0": "1.0.7",
     "jsr:@std/testing@1.0": "1.0.16",
     "jsr:@std/text@~1.0.7": "1.0.16",
@@ -65,7 +71,7 @@
     "npm:jose@6.0.11": "6.0.11",
     "npm:lowdb@7": "7.0.1",
     "npm:nanostores@1.0": "1.0.1",
-    "npm:openai@4.67.2": "4.67.2_zod@4.3.5",
+    "npm:openai@4.67": "4.67.3_zod@4.3.5",
     "npm:path-to-regexp@^6.3.0": "6.3.0",
     "npm:postcss-cli@^11.0.1": "11.0.1_postcss@8.4.49",
     "npm:postcss@8.4.49": "8.4.49",
@@ -89,6 +95,8 @@
     "@cliffy/ansi@1.0.0-rc.7": {
       "integrity": "f71c921cce224c13d322e5cedba4f38e8f7354c7d855c9cb22729362a53f25aa",
       "dependencies": [
+        "jsr:@cliffy/internal",
+        "jsr:@std/encoding@~1.0.5",
         "jsr:@std/fmt"
       ]
     },
@@ -110,6 +118,21 @@
     },
     "@cliffy/internal@1.0.0-rc.7": {
       "integrity": "10412636ab3e67517d448be9eaab1b70c88eba9be22617b5d146257a11cc9b17"
+    },
+    "@cliffy/keycode@1.0.0-rc.7": {
+      "integrity": "5b3f6c33994e81a76b79f108b1989642ac22705840da33781f7972d7dff05503"
+    },
+    "@cliffy/prompt@1.0.0-rc.7": {
+      "integrity": "a9cbd13acd8073558447cae8ca4cf593c09d23bcbe429cc63346920c21187b83",
+      "dependencies": [
+        "jsr:@cliffy/ansi",
+        "jsr:@cliffy/internal",
+        "jsr:@cliffy/keycode",
+        "jsr:@std/assert@~1.0.6",
+        "jsr:@std/fmt",
+        "jsr:@std/path@~1.0.6",
+        "jsr:@std/text"
+      ]
     },
     "@cliffy/table@1.0.0-rc.7": {
       "integrity": "9fdd9776eda28a0b397981c400eeb1aa36da2371b43eefe12e6ff555290e3180",
@@ -2628,8 +2651,8 @@
         "wrappy"
       ]
     },
-    "openai@4.67.2_zod@4.3.5": {
-      "integrity": "sha512-u4FJFGXgqEHrCYcD5jAD4nHj6JCiicH+/dskQY7qka9R6hOw29R0kOz7GwcA9k2JKcLf86lzAWPtPagPbO8KnQ==",
+    "openai@4.67.3_zod@4.3.5": {
+      "integrity": "sha512-HT2tZgjLgRqbLQNKmYtjdF/4TQuiBvg1oGvTDhwpSEQzxo6/oM1us8VQ53vBK2BiKvCxFuq6gKGG70qfwrNhKg==",
       "dependencies": [
         "@types/node@18.19.130",
         "@types/node-fetch",
@@ -3788,7 +3811,7 @@
       "npm:jose@6.0.11",
       "npm:lowdb@7",
       "npm:nanostores@1.0",
-      "npm:openai@4.67.2",
+      "npm:openai@4.67",
       "npm:postcss-cli@^11.0.1",
       "npm:postcss@8.4.49",
       "npm:prettier-plugin-svelte@^3.1.0",

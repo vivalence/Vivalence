@@ -124,7 +124,7 @@ export async function modes(daemonDie) {
 
     if (!mode.aperture) mode.aperture = new Aperture();
 
-    if (mode.implements("TERMINAL")) {
+    if (mode.implements("VIEWABLE")) {
       mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
 
       const url = daemonDie.good.attach

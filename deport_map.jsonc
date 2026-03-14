@@ -5,6 +5,8 @@
     "@hexagon/croner": "jsr:@hexagon/croner@~9.0.0",
   },
   "deports": {
+    // "openai/": "https://deno.land/x/openai@4.67.2/",
+    // "cors": "https://deno.land/x/cors/mod.ts",
     "bak:json-logic-js": "npm:json-logic-js@2.0.5",
     "bak:jsonata": "npm:jsonata@2.0.5",
     "bak:json-schema-to-zod": "npm:json-schema-to-zod",

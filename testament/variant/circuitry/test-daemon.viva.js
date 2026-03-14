@@ -30,17 +30,18 @@ export const daemons = [
       "@vivalence/domain/language-learning",
       "@vivalence/ontology/word",
       "@vivalence/ontology/sentence",
-      "@vivalence/topology/brazilian",
+      "@vivalence/topology/english-to-brazilian:survival",
       // "@vivalence/topology/test",
     ],
 
     modes: [
-      // "@vivalence/game/shadow",
+      "@vivalence/game/flashcard",
+      "@vivalence/game/write",
+      "@vivalence/game/shadow",
+      "@vivalence/tactic/test",
       // "@vivalence/game/speed-judge",
       // "@vivalence/game/match",
       // "@vivalence/game/pick",
-      "@vivalence/tactic/test",
-      "@vivalence/game/write",
       // "@vivalence/game/cloze",
       // "@vivalence/game/dummy",
       // "@vivalence/teacher/dewey",
@@ -68,7 +69,7 @@ export const daemons = [
       module: "@vivalence/hallucinator/hal257",
       statics: {},
       secrets: {
-        anthropic: paladin.secret.get("ANTHROPIC_API_KEY"),
+        anthropic: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
       },
       profiles: {
         // DRONE: {provider: "anthropic", model: "claude-3-5-haiku-latest", dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 }, params: { temperature: 0.7, maxTokens: 4000 },}, ACADEMIC: {provider: "anthropic", model: "claude-3-7-sonnet-latest", dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 }, params: {thinking: { type: "enabled", budgetTokens: 12000 }, temperature: 0.7, maxTokens: 20000,},},
@@ -80,7 +81,7 @@ export const daemons = [
     consume: {
       nlp: {
         module: "@vivalence/service/nlp-stanza",
-        secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") },
+        secrets: { key: paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
         statics: {
           remote: new Url(paladin.env.get("SERVICE_NLP_REMOTE")),
           language: "es",
@@ -97,7 +98,7 @@ export const services = [
     // cake to be fabricated into a process by runtime, controlled via the control vector exported by the nlp.viva.js service module.
     slug: "nlp-stanza",
     module: "@vivalence/service/nlp-stanza",
-    secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") },
+    secrets: { key: paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
     statics: {
       serve: new Url(paladin.env.get("SERVICE_NLP_SERVE")),
       processors: "tokenize,mwt,pos,lemma,depparse",

@@ -1,11 +1,11 @@
-import { Router, Middleware } from "@oak/oak";
+import { Application } from "@oak/oak/application";
+import { Router } from "@oak/oak/router";
 import { compose } from "@oak/oak/middleware";
+
 import { Path } from "./path.ts";
 import { Handler, ApertureContext } from "./types.ts";
-import parser from "./parser.js";
 
 // ISSUE path parsing and middleware application are in tension in call(compose) vs http invocations.
-
 export default class Aperture {
   path: Path;
   composed: any;
@@ -45,6 +45,7 @@ export default class Aperture {
 
     this.router.all(routePath.toString(), async (ctx: ApertureContext) => {
       // ctx.response.status = 200;
+      // console.log("OPEN"); console.log("OPEN"); console.log("OPEN");
       if (handler.length === 0) ctx.output = await handler();
       else if (handler.length === 1) ctx.output = await handler(ctx);
       else if (handler.length === 2) ctx.output = await handler(ctx.input, ctx);
@@ -76,7 +77,7 @@ export default class Aperture {
 
       this.composed = compose([
         // this.path.toString(),
-        ...this.middlewares,
+        // ...this.middlewares,
         this.router.routes(),
         this.router.allowedMethods(),
       ]);

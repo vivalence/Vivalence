@@ -57,7 +57,7 @@ export const services = [
   {
     slug: "multiplayer",
     module: "@vivalence/lighthouse/multiplayer",
-    secrets: { jwt: paladin.secret.get("JWT_SECRET") },
+    secrets: { jwt: paladin.secret.get("SECRET_VIVA_JWT") },
     statics: { serve: new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
     datamap: {
       module: "@vivalence/datamap/libsql",

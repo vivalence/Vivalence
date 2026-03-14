@@ -1,9 +1,7 @@
 import { is, cast, fromm, Path } from "@vivalence/typology";
 
 export async function publish(paladin) {
-  const publish = Object.entries(paladin.env.vars).filter(([key]) =>
-    key.startsWith("PUBLIC_"),
-  );
+  const publish = Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("PUBLIC_"));
 
   for (const [key, value] of publish) {
     Deno.env.set(key, value);
@@ -43,6 +41,8 @@ export async function statements(paladin) {
 export async function secure(paladin) {
   delete paladin.secret;
   delete paladin.tilde;
+
+  // const secret = Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("SECRET_VIVA_")); console.log(secret); for (const [key, value] of secret) {Deno.env.set(key, null);} console.log("env", Deno.env.toObject());
 }
 
 export async function validate(paladin) {

@@ -8,4 +8,4 @@ COPY registry/ ./registry/
 
 ENV VIVA_SYSTEM_MODE="RUNTIME"
 
-CMD ["deno", "run", "-A", "systems/runtime/mod.js"]
+CMD ["deno", "run", "-A", "systems/runtime/run.js"]

@@ -11,11 +11,6 @@ export const PRODUCER = async (mode, daemon) => {
 
   const productionAperture = new Aperture()
 
-    // .use(async (ctx, next) => {
-    //   console.log(ctx.input.blacklist);
-    //   await next();
-    // })
-
     // request normalization + status boundary
     .use(async (ctx, next) => {
       if (!ctx.input.scope?.user) ctx.input.scope.user = ctx.user.id;
@@ -38,8 +33,6 @@ export const PRODUCER = async (mode, daemon) => {
 
     .use(async (ctx, next) => {
       ctx.input = new ProductionRequest(ctx.input);
-      ctx.input.seek = await new Seek().fromMask(ctx.input.seek, ctx);
-
       await next();
     })
 
@@ -63,7 +56,7 @@ export const PRODUCER = async (mode, daemon) => {
       await next();
     })
 
-    // request normalization + status boundary
+    // recalling -
     .use(async (ctx, next) => {
       const request = ctx.input;
 
@@ -125,40 +118,32 @@ export const PRODUCER = async (mode, daemon) => {
     // blacklist
     .use(async (ctx, next) => {
       ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
-      // console.log({ blacklist: ctx.input.blacklist });
       await ctx.input.blacklist.fromQueue(ctx.input.scope, ctx);
-      // console.log({ queuedblacklist: ctx.input.blacklist });
       await next();
     })
 
-    // persist new products
+    // make and persist products
     .use(async (ctx, next) => {
+      ctx.input.seek = await new Seek().fromMask(ctx.input.seek, ctx);
+
       await next();
 
       ctx.output = new ProductionResult(ctx.output);
 
-      if (is.empty(ctx.output.products)) return;
+      // if (is.empty(ctx.output.products)) return;
 
       ctx.output.products = ctx.output.products
         .map((product) => {
-          if (!product.scope.producer) product.scope.producer = mode.entity.id;
+          if (!product.producer) product.producer = mode.entity.id;
+          if (!product.session) product.session = ctx.session.id;
           product.position = ctx.session.counter++;
           product.status = "PENDING";
           return product;
         })
         .map((product) => {
           if (helper(product)) return product;
-          return ctx.daemon.entities.product.create({
-            ...object.omit(product, ["scope"]),
-            ...object.pick(product.scope, [
-              "literals",
-              "symbols",
-              "producer",
-              "commissioner",
-              "intent",
-              "session",
-            ]),
-          });
+          return ctx.daemon.entities.product.create({ ...product });
+          // return ctx.daemon.entities.product.create({...object.omit(product, ["scope"]), ...object.pick(product.scope, ["literals", "symbols", "producer", "commissioner", "intent", "session",]),});
         });
 
       await ctx.daemon.entities.em.flush();
