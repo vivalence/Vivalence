@@ -17,9 +17,9 @@ export const AuthenticatorEmbedSchema = new EntitySchema({
   class: AuthenticatorEmbedEntity,
   embeddable: true,
   properties: {
-    provider: { type: types.string, default: "" },
-    credentials: { type: types.json, defaultRaw: `"{}"` },
-    tokens: { type: types.json, defaultRaw: `"{}"` },
+    provider: { type: types.string, defaultRaw: `''` },
+    credentials: { type: types.json, defaultRaw: `'{}'` },
+    tokens: { type: types.json, defaultRaw: `'{}'` },
   },
 });
 
@@ -39,8 +39,7 @@ export const IdentitySchema = new EntitySchema({
       kind: "embedded",
       entity: "AuthenticatorEmbedEntity",
       object: true,
-      default: {},
-      defaultRaw: `"{}"`,
+      defaultRaw: `'{}'`,
     },
   },
 });

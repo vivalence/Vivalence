@@ -50,18 +50,18 @@ export const ProductSchema = new EntitySchema<ProductEntity, BaseEntity>({
       items: () => ProductTraitsEnum,
       enum: true,
       array: true,
-      default: [],
+      defaultRaw: `'[]'`,
       type: types.json,
     },
 
-    data: { type: "json" },
+    data: { type: types.json },
 
     status: {
       enum: true,
       items: () => ProductStatusEnum,
-      default: ProductStatusEnum.PENDING,
+      defaultRaw: `'${ProductStatusEnum.PENDING}'`,
     },
-    position: { type: Number },
+    position: { type: types.integer },
     session: {
       kind: "m:1",
       entity: () => SessionEntity,

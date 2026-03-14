@@ -49,7 +49,7 @@ export const SymbolSchema = new EntitySchema({
       items: () => SymbolTraitsEnum,
       enum: true,
       array: true,
-      default: [],
+      defaultRaw: `'[]'`,
       type: types.json,
     },
 

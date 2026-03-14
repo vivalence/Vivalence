@@ -1,4 +1,4 @@
-import { Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
 import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
 import { UserEntity } from "@vivalence/typology/entities";
@@ -71,26 +71,26 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     driver: {
       enum: true,
       items: () => MemoryDriverEnum,
-      default: MemoryDriverEnum.BAYESIAN,
+      defaultRaw: `'${MemoryDriverEnum.BAYESIAN}'`,
       onCreate: () => MemoryDriverEnum.BAYESIAN,
     },
     type: {
       enum: true,
       items: () => MemoryTypeEnum,
-      default: MemoryTypeEnum.INDIVIDUAL,
+      defaultRaw: `'${MemoryTypeEnum.INDIVIDUAL}'`,
       onCreate: () => MemoryTypeEnum.INDIVIDUAL,
     },
     status: {
       enum: true,
       items: () => MemoryStatusEnum,
-      default: MemoryStatusEnum.UNKNOWN,
+      defaultRaw: `'${MemoryStatusEnum.UNKNOWN}'`,
       onCreate: () => MemoryStatusEnum.UNKNOWN,
     },
 
-    state: { type: "json" },
-    history: { type: "json" },
+    state: { type: types.json },
+    history: { type: types.json },
 
-    nextIn: { type: Number, defaultRaw: `0.0`, fieldName: "nextIn" },
+    nextIn: { type: types.integer, defaultRaw: `0.0`, fieldName: "nextIn" },
     nextAt: { type: Date, fieldName: "nextAt" },
     lastAt: { type: Date, fieldName: "lastAt" },
   },

@@ -40,7 +40,7 @@ services:
     environment:
       - VIVA_SYSTEM_MODE=PRODUCTION
       - VIVA_SYSTEM_ROLE=CLIENT
-      - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/circuitry/client
+      - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/circuitry/html
       - VIVA_CLIENT_HTML_SERVE=http://0.0.0.0:1794
       - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
       - PUBLIC_VIVA_CLIENT_HTML_REMOTE=https://vivalence.com

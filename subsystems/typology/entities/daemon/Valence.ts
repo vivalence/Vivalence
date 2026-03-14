@@ -42,18 +42,18 @@ export const ValenceSchema = new EntitySchema({
     type: {
       enum: true,
       items: () => ValenceTypeEnum,
-      default: ValenceTypeEnum.SELFEVIDENT,
+      defaultRaw: `'${ValenceTypeEnum.SELFEVIDENT}'`,
     },
     traits: {
       items: () => ValenceTraitsEnum,
       enum: true,
       array: true,
-      default: [],
+      defaultRaw: `'[]'`,
     },
     name: { type: types.string, nullable: true },
     description: { type: types.string, nullable: true },
 
-    data: { type: types.json, default: {} },
+    data: { type: types.json, defaultRaw: `'{}'` },
 
     docs: { nullable: true, type: types.string }, // todo: json
 

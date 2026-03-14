@@ -1,4 +1,3 @@
-import paladin from "@vivalence/paladin";
 import { sleep, Url, Connection, ConnectionError } from "@vivalence/typology";
 import { context } from "@vivalence/vector/aperture";
 

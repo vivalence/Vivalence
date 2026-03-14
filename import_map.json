@@ -28,11 +28,11 @@
     "jose": "npm:jose@6.0.11",
     "nanostores": "npm:nanostores@1.0",
 
-    "@mikro-orm/core": "npm:@mikro-orm/core@6.6",
-    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6",
-    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.6",
+    "@mikro-orm/core": "npm:@mikro-orm/core@6.6.7",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6.7",
+    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.6.7",
 
-    "@libsql/client/node": "npm:@libsql/client/node",
+    "@libsql/client/node": "npm:@libsql/client@0.17.0/node",
 
     "@sinclair/typebox": "npm:typebox@1.0",
     "@sinclair/typebox/value": "npm:typebox/value",

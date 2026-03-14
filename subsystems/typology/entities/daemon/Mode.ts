@@ -48,7 +48,7 @@ export const ModeSchema = new EntitySchema({
       items: () => ModeTraitsEnum,
       enum: true,
       array: true,
-      default: [],
+      defaultRaw: `'[]'`,
     },
 
     installed: { type: types.boolean },
