@@ -1,13 +1,11 @@
 export function compose(middleware) {
-  if (!Array.isArray(middleware))
-    throw new TypeError("Middleware stack must be an array!");
+  if (!Array.isArray(middleware)) throw new TypeError("Middleware stack must be an array!");
 
   return function (context, next) {
     let index = -1;
 
     function dispatch(i) {
-      if (i <= index)
-        return Promise.reject(new Error("next() called multiple times"));
+      if (i <= index) return Promise.reject(new Error("next() called multiple times"));
 
       index = i;
 

@@ -1,82 +1,78 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { specimen } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 
-function createTestVector() {
-  const vector = new Vector();
+specimen.describe("Vector", () => {
+  specimen.describe("construction", () => {
+    specimen.it("creates with empty effects and trajectories", () => {
+      const vector = new Vector();
+      specimen.expect(vector.effects.size).toBe(0);
+      specimen.expect(vector.trajectories.size).toBe(0);
+      specimen.expect(vector.carry).toEqual([]);
+    });
+  });
 
-  vector
-    .branch("/users")
-    .open("/profile", async (ctx) => ({ user: input.id }))
-    .open("/:id", async (ctx) => ({ id: input.id }));
+  specimen.describe("branch", () => {
+    specimen.it("creates trajectory", () => {
+      const vector = new Vector();
+      const branch = vector.branch("users");
+      specimen.expect(vector.trajectories.size).toBe(1);
+      specimen.expect(branch).toBeInstanceOf(Vector);
+    });
 
-  vector
-    .branch("/posts")
-    .open("/create", async (ctx) => ({ created: true }))
-    .open("/:postId", async (ctx) => ({ post: input.postId }));
+    specimen.it("merges by hash", () => {
+      const vector = new Vector();
+      const a = vector.branch("users");
+      const b = vector.branch("users");
+      specimen.expect(a).toBe(b);
+      specimen.expect(vector.trajectories.size).toBe(1);
+    });
 
-  return vector;
-}
+    specimen.it("separates distinct branches", () => {
+      const vector = new Vector();
+      const users = vector.branch("users");
+      const posts = vector.branch("posts");
+      specimen.expect(users).not.toBe(posts);
+      specimen.expect(vector.trajectories.size).toBe(2);
+    });
+  });
 
-Deno.test("Vector branch creation and descendant tracking", () => {
-  const vector = createTestVector();
+  specimen.describe("open", () => {
+    specimen.it("registers effect", () => {
+      const vector = new Vector();
+      const f = () => {};
+      vector.open("greet", f);
+      specimen.expect(vector.effects.size).toBe(1);
+    });
 
-  assertEquals(vector.trajectories.size, 2);
+    specimen.it("decomposes multi-segment path", () => {
+      const vector = new Vector();
+      const f = () => {};
+      vector.open("/users/:id", f);
+      specimen.expect(vector.effects.size).toBe(0);
+      specimen.expect(vector.trajectories.size).toBe(1);
+      const branch = vector.branch("users");
+      const effectPattern = Array.from(branch.effects.keys())[0];
+      specimen.expect(effectPattern.nature).toBe(":id");
+      specimen.expect(branch.effects.get(effectPattern)).toBe(f);
+    });
+  });
 
-  const usersBranch = vector.branch("/users");
-  const postsBranch = vector.branch("/posts");
+  specimen.describe("use", () => {
+    specimen.it("pushes middleware to carry", () => {
+      const vector = new Vector();
+      const mw1 = async (_, next) => next();
+      const mw2 = async (_, next) => next();
+      vector.use(mw1).use(mw2);
+      specimen.expect(vector.carry.length).toBe(2);
+      specimen.expect(vector.carry[0]).toBe(mw1);
+      specimen.expect(vector.carry[1]).toBe(mw2);
+    });
 
-  assertEquals(usersBranch.effects.size, 2);
-  assertEquals(postsBranch.effects.size, 2);
-  assertEquals(usersBranch !== postsBranch, true);
-});
-
-Deno.test("Vector hash-based branch merging", () => {
-  const vector = new Vector();
-
-  const branch1 = vector.branch("/users");
-  const branch2 = vector.branch("/users");
-
-  assertEquals(branch1 === branch2, true);
-  assertEquals(vector.trajectories.size, 1);
-
-  branch1.open("/test", async () => ({ test: true }));
-
-  assertEquals(branch2.effects.size, 1);
-});
-
-Deno.test("@beef Vector effect registration with open method", () => {
-  const vector = new Vector();
-  const testEffect = async (ctx) => ({ result: "test" });
-
-  const usersBranch = vector.branch("/users");
-  vector.open("/users/:id", testEffect);
-
-  assertEquals(vector.trajectories.size, 1);
-  assertEquals(vector.effects.size, 0);
-
-  const effectPattern = Array.from(usersBranch.effects.keys())[0];
-
-  assertEquals(effectPattern.nature, ":id");
-  assertEquals(usersBranch.effects.get(effectPattern), testEffect);
-});
-
-Deno.test("Vector middleware registration and chaining", () => {
-  const vector = new Vector();
-  const middleware1 = async (ctx, next) => {
-    ctx.step1 = true;
-    return next();
-  };
-  const middleware2 = async (ctx, next) => {
-    ctx.step2 = true;
-    return next();
-  };
-
-  vector.use(middleware1).use(middleware2);
-
-  assertEquals(vector.carry.length, 2);
-  assertEquals(vector.carry[0], middleware1);
-  assertEquals(vector.carry[1], middleware2);
-
-  const branch = vector.branch("/test");
-  assertEquals(branch.carry.length, 0);
+    specimen.it("does not inherit to branches", () => {
+      const vector = new Vector();
+      vector.use(async (_, next) => next());
+      const branch = vector.branch("test");
+      specimen.expect(branch.carry.length).toBe(0);
+    });
+  });
 });

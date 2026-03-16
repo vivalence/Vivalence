@@ -1,6 +1,5 @@
-import { hash } from "@vivalence/shared";
 import { Signature } from "./signature.js";
-import { is } from "@vivalence/typology";
+import { hash, is } from "@vivalence/typology";
 
 export class Signal extends Signature {
   static coercions = [

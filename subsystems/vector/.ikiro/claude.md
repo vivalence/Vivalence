@@ -4,7 +4,7 @@
 
 ## Role
 
-Engine. Vector trees route signals through patterns to effects. Middleware accumulates as you traverse. Compiles to HTTP routes (Aperture → Oak) or LLM tool specs (Agentic). The entire routing system is ~150 lines of procedural code operating on typology's Signature hierarchy.
+Engine. Vector trees route signals through patterns to effects. Middleware accumulates as you traverse. Compiles to HTTP routes (Aperture → Oak), LLM tool specs (Agentic), or callable objects (Object compiler). The entire routing system is ~150 lines of procedural code operating on typology's Signature hierarchy.
 
 Planned: merge into typology. Aperture becomes a Vector compiler, not a standalone system.
 
@@ -20,7 +20,7 @@ Planned: merge into typology. Aperture becomes a Vector compiler, not a standalo
 
 ### Vector Class
 
-`prototypes/vector.js` (106 lines)
+`prototypes/vector.js` (76 lines)
 
 Two Maps drive everything:
 - `effects: Map<Pattern, Effect>` — terminal handlers (leaves)
@@ -43,60 +43,47 @@ Properties: `patterns` (all Pattern keys), `descendants` (trajectory values), `h
 
 ### Controller
 
-Six functions. Total ~153 lines. This is where the power lives.
+Six functions plus carry primitives.
 
-**traverse** `controller/traverse.js` (47 lines)
-Single-signal tree walk. Returns `[effect, carry, steps, position]`.
+**carry** `controller/carry.js`
+Middleware composition primitives. `compose(middleware[])` — Koa-style threading with double-call protection. `chain(first, second)` — combines two middleware functions. `forward` — identity pass-through. `standard` — the default carry strategy for the object compiler: creates `{ input }` context, writes `ctx.output`, returns it.
 
-Walks `signal.array` (segments), at each position calls `scope()` to find all matching patterns. Match resolution: if 1 match, use it. If 2 matches — prefer trajectory when signal continues, prefer effect when signal exhausted. Chains middleware from each position via `chain(carry, compose(position.carry))`. Remainder patterns get enumerated params.
+These are now shared by both controllers and compilers. `standard` is the canonical `(apply, effect) => callable` strategy pattern.
 
-This is the core insight: parallel walk through two trees (Pattern tree and Signal tree) simultaneously, accumulating middleware.
+**traverse** `controller/traverse.js`
+Single-signal tree walk. Returns `[effect, carry, steps, position]`. Uses `resolve(scope(position, signal), signal)` for match disambiguation — extracted to match.js for clarity.
 
-**compose** `controller/carry.js` (32 lines)
-Koa-style middleware composition. `compose(middleware[])` returns a function that threads the array with double-call protection (`next() called multiple times` error). `chain(first, second)` combines two middleware functions. `forward` is the identity (pass-through).
-
-27 lines enables arbitrary middleware stacking across the entire routing tree.
-
-**walk** `controller/walk.js` (24 lines)
-Async iterator-driven traversal. Loops while `position.heir` exists, calls `more(position.patterns)` to request next Signal (async — the caller decides what signal to feed next). 20-step limit (throws Long). Calls traverse internally for each step. Returns `[effect, carry, steps, trajectory]`.
+**walk** `controller/walk.js`
+Async iterator-driven traversal. Loops while `position.patterns.length` (enters for effects-only vectors, not just trajectories). Calls `more(position.patterns)` to request next Signal. 20-step limit (throws Long). Calls traverse internally for each step.
 
 **invoke** `controller/invoke.js` (13 lines)
 Single-shot wrapper. Coerces to Signal, calls traverse, throws NotFound if no effect, runs middleware stack → effect, returns `context.effect`.
 
-**match** `controller/match.js` (29 lines)
-Two strategies: `greedy()` returns first match (effects before trajectories), `scope()` collects all matches (trajectories first, then effects). traverse uses scope for rich match resolution.
+**match** `controller/match.js`
+Three functions: `scope()` collects all matches (trajectories first, then effects). `greedy()` returns first match (effects first). `resolve(matches, signal)` disambiguates: single match → use it, two matches → prefer trajectory when signal has heir, prefer effect when exhausted. Throws NotFound on empty. Used by traverse.
 
-**shotgun** `controller/shotgun.js` (31 lines)
+**shotgun** `controller/shotgun.js`
 Bulk routing. Flattens all matches across multiple signals via scope, pre-composes carry, returns array of `{effect, carry, steps, match}` route objects.
 
 ### Compilers
 
-**Agentic** `compiler/agentic.js` (161 lines)
-Converts Vector → LLM tool definitions. DFS compile walks the tree, normalizing paths ("/api/users" → "api_users"). Each effect becomes a tool with `execute` closure that calls `controller.invoke`. Reads `pattern.valence`, `pattern.input`, `pattern.output` for LLM descriptions. Generates `llmstxt` markdown documenting the tool tree.
+**Object** `compiler/object.js` (~20 lines)
+Compiles Vector → nested callable object. `compile(vector, carry = strategy)` does DFS: trajectories become nested objects, effects become async functions. The `carry` parameter is a strategy function `(apply, effect) => callable` that controls context creation, effect application, and result extraction.
+
+The strategy wraps itself at each branch to accumulate middleware — no explicit ancestor parameter. If a vector node has carry (middleware), the child's strategy becomes `(apply, effect) => parentStrategy(compose([...vector.carry, apply]), effect)`. This threads middleware through the strategy itself rather than alongside it.
+
+`ctx.input` / `ctx.output` follow the Aperture contract. The compiled object is a peer to Aperture — same context shape, different compilation target (callable object vs HTTP routes).
+
+Branch/effect collision: if a pattern appears in both trajectories and effects, the effect function gets the trajectory's nested properties via `Object.assign(fn, existingObject)`.
+
+**Agentic** `compiler/agentic.js`
+Converts Vector → LLM tool definitions. DFS compile walks the tree, normalizing paths ("/api/users" → "api_users"). Each effect becomes a tool with `execute` closure that calls `controller.invoke`. Reads `pattern.valence`, `pattern.input`, `pattern.output` for LLM descriptions. Generates `llmstxt` markdown.
 
 **Subscriber** `compiler/subscriber.js` (56 lines)
-ORM event → Signal mapper. Extracts entity name from constructor ("UserEntity" → "user"), creates `Signal([entity, event])`. Event hooks: onInit, onLoad, afterCreate, beforeCreate, afterUpdate, beforeUpdate. Gracefully ignores NOT_FOUND (routes without handlers).
+ORM event → Signal mapper. Extracts entity name from constructor ("UserEntity" → "user"), creates `Signal([entity, event])`. Event hooks: onInit, onLoad, afterCreate, beforeCreate, afterUpdate, beforeUpdate. Gracefully ignores NOT_FOUND.
 
-**Aperture** `compiler/aperture/` (306 lines total)
-Oak HTTP router DSL. Five files:
-
-`aperture.ts` (105 lines) — `Aperture` class. `open(path, handler)` registers HTTP handler with arity dispatch (0/1/2 params → different context binding). `branch(path)` creates nested namespace. `slurp(aperture)` absorbs another Aperture. `compose(force?)` generates middleware stack (cached). `serve(router)` registers into Oak Router. `json` getter for structure inspection.
-
-`index.ts` (28 lines) — Factory: `create(options)` and `context(path, body, params)` for test contexts.
-
-`path.ts` (13 lines) — Simple path wrapper with ancestor chain.
-
-`mw.js` (95 lines) — `cors()` (allowed origins: localhost, *.vivalence.com) and `notFound()` 404 handler.
-
-`parser.js` (50 lines) — Request body parsing: GET → query, POST → JSON/object/string.
-
-### Dual-Mode Parity
-
-Aperture enables identical semantics via two modes:
-- `compose()` for direct JS invocation (internal/test)
-- `serve()` for Oak HTTP integration (production)
-
-Handler arity dispatch makes this work: `handler()` (no args), `handler(ctx)` (full context), `handler(input, ctx)` (destructured). Same handler works in both modes.
+**Aperture** `compiler/aperture/` (~300 lines total)
+Oak HTTP router DSL. `open(path, handler)` registers with arity dispatch (0/1/2 params). `branch(path)` nests. `compose()` for direct invocation, `serve()` for Oak HTTP. Dual-mode parity via handler arity dispatch.
 
 ### Shards
 
@@ -107,40 +94,54 @@ Handler arity dispatch makes this work: `handler()` (no args), `handler(ctx)` (f
 | secure.js | 52 | `context(provider)` extracts auth, `authorize(claims[])` validates |
 | index.js | 18 | Re-exports: patterns, secure, caching, aperture.status, context.attach |
 
-catchAndRelease is notable: hash-based dedup with three paths — cache hit (immediate), in-flight dedup (await existing promise), first caller (execute + cache + resolve waiters).
-
 ### Error Types
 
-`prototypes/errors.js` (21 lines): Long (max steps exceeded), Short (empty signal stream), NotFound (stores signal).
+`prototypes/errors.js`: Long (max steps exceeded), Short (empty signal stream), NotFound (stores signal).
+
+## Key Patterns
+
+### The Strategy Pattern (carry)
+
+The object compiler's `carry` parameter is `(apply, effect) => callable`. This single function controls:
+1. Context creation from input
+2. How the effect is applied to context
+3. How the result is extracted
+
+The default `standard` strategy: creates `{ input }` context, runs `apply(ctx, terminal)`, returns `ctx.output`. Custom strategies enable different context shapes without changing the compiler.
+
+The strategy wraps itself during tree descent to accumulate middleware — eliminating the need for explicit ancestor tracking. This is the "profunctor" pattern: pack (input→ctx) + through (ctx,effect→ctx) + unpack (ctx→result) collapsed into one function.
+
+### Middleware imports from typology
+
+Controllers and compilers import middleware primitives from `@vivalence/typology` via `import { middleware } from "@vivalence/typology"`, accessing `middleware.compose`, `middleware.chain`, `middleware.forward`. The controller/carry.js file is the source, re-exported through typology.
 
 ## Tests
 
-665 total lines across 5 test files. Mix of Deno.test (direct) and describe/it (BDD via specimen).
+All tests use specimen pattern (BDD via `@vivalence/typology`). Run with `deno test --no-check --allow-all`.
 
-| File | Lines | Pattern | Coverage |
-|------|-------|---------|----------|
-| vector.test.js | 82 | Deno.test | Branch creation, hash merging, open() decomposition, carry stacking |
-| carry.test.js | 63 | Deno.test | compose execution order, chain, forward identity |
-| traverse.test.js | 84 | Deno.test | Effect finding, nested descendants, carry assembly, NotFound |
-| walk.test.js | 83 | Deno.test | Single/multi step, middleware composition, Long/Short errors |
-| aperture-oak.test.js | 353 | describe/it + HTTP | compose (16 tests) + serve (8 tests) + dual-mode parity (2) + ctx contract (2) + json inspection (1) |
-
-aperture-oak.test.js is the most comprehensive — tests both internal compose and HTTP serve paths, verifying parity. Uses a real Oak server with beforeAll/afterAll lifecycle.
+| File | Steps | Coverage |
+|------|-------|----------|
+| vector.test.js | 9 | construction, branch (hash merging), open (decomposition), use (carry isolation) |
+| carry.test.js | 7 | compose (ordering, context sharing, empty), chain, forward, standard |
+| controller/match.test.js | 11 | scope (trajectories, effects, both, empty), greedy (first match, priority, empty), resolve (single, empty throw, heir preference, exhausted preference) |
+| controller/traverse.test.js | 5 | effect finding, nested descendants, carry accumulation, NotFound, null effect on trajectory-only |
+| controller/invoke.test.js | 5 | invocation, context passing, middleware, path/signal on context, NotFound |
+| controller/walk.test.js | 3 | single step, no-heir effects, middleware carry |
+| compiler/object.test.js | 13 | flat effects, branching (nested, deep, siblings), middleware (wrapping, accumulation, context flow, custom strategy, strategy+branch composition) |
+| compiler/aperture-oak.test.js | 29 | compose + serve + dual-mode parity + context contract |
 
 ## Where Used
-
-These stubs should be populated as you trace dependencies through the system.
 
 - **Runtime**: Aperture compiles daemon routes to Oak. invoke() handles request dispatch. Subscriber maps ORM events to Signals for entity lifecycle hooks.
 - **Paladin**: Configures Vector trees during daemon composition. Attaches mode routes via branch/open.
 - **Registry/Modes**: Each mode registers its routes via Vector patterns.
 - **Agent**: Agentic compiler generates LLM tool specs from Vector trees.
-- **Typology**: Pattern and Signal are typology types consumed here. Planned merge will combine the packages.
+- **Typology**: Pattern and Signal are typology types consumed here. Middleware primitives (compose, chain, forward, standard) are re-exported through typology.
 
 ## Dependencies
 
-From typology: Pattern, Signal, Signature, Path, Url (core routing types).
-External: Oak (HTTP framework, used by Aperture), nanostores (not directly — via typology).
+From typology: Pattern, Signal, Signature, Path, Url, middleware primitives.
+External: Oak (HTTP framework, used by Aperture).
 
 ## Work Packages
 
@@ -148,34 +149,34 @@ External: Oak (HTTP framework, used by Aperture), nanostores (not directly — v
 - No tests for shotgun.js (bulk routing)
 - No tests for Agentic compiler (LLM tool generation)
 - No tests for Subscriber (ORM event → Signal mapping)
-- No tests for match.js (greedy vs scope strategies)
-- No tests for invoke.js (single-shot wrapper)
 - No tests for shards (caching, secure, patterns)
-- traverse.test.js missing: remainder handling, parallel match resolution, early exit on effect+trajectory conflict
-- carry.test.js missing: error propagation, context mutation
-- walk.test.js missing: signal.nature validation, early termination
-- No stress tests (deep trees, concurrent walks)
+- traverse: remainder handling, early exit on effect+trajectory conflict
+- walk: multi-step navigation (signal refresh issue — walk doesn't reset signal between steps, so multi-step interactive traversal doesn't work as expected)
+
+### Known Issues
+- traverse remainder increment bug: `match.params` and `match.parameters` get different keys due to double `remainder++` (lines 25-26)
+- walk signal refresh: after the first traverse call, `signal` retains its `.nature`, so `more()` is never called again for subsequent steps. Multi-step interactive walks don't work correctly.
+
+### Active Work
+- Object compiler: `mode.produce.[xyz]()` pattern — compiles Vector to callable object with strategy-driven context
+- Proxy compiler planned: extends object compiler with parameter/wildcard support via Proxy
+- Aperture migration: move from direct Oak routing to Vector → Oak compilation
+- Merge into typology planned
 
 ### Human Documentation Needs (Divio)
 - **Tutorial**: "Route your first signal through a vector" — walk through branch/open/invoke
 - **Explanation**: "How traverse walks two trees in parallel" — the core insight of the system
-- **Reference**: Complete controller API — all six functions with signatures and return types
+- **Explanation**: "The strategy pattern" — how (apply, effect) => callable enables compiler polymorphism
+- **Reference**: Complete controller API with signatures and return types
 - **How-to**: "Compile a Vector to Oak routes" — Aperture usage, dual-mode setup
-
-### Active Work
-- Aperture migration: move from direct Oak routing to Vector → Oak compilation
-- Object/proxy compiler: mode.produce.[xyz]() pattern via Vector
-- Merge into typology planned
-
-### Planned Changes
-- Vector → typology merge
-- Aperture becomes a compiler target, not standalone
+- **How-to**: "Build a custom compiler strategy" — context control via carry parameter
 
 ## Maintenance
 
 When you modify vector code:
-1. Run tests: `deno task test` in subsystems/vector
+1. Run tests: `deno test --no-check --allow-all` in subsystems/vector
 2. aperture-oak.test.js is the integration anchor — if routing changes, verify dual-mode parity
 3. If modifying traverse, check that carry composition order is preserved
-4. If adding a compiler, follow the agentic/subscriber pattern (DFS tree walk → output format)
+4. If adding a compiler, follow the object compiler pattern — strategy function `(apply, effect) => callable`
 5. Note: planned merge into typology — avoid deepening the package boundary
+6. Middleware primitives live in controller/carry.js but are consumed via `@vivalence/typology` middleware namespace

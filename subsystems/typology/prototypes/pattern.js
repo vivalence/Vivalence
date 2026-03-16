@@ -1,5 +1,4 @@
-import { is } from "@vivalence/typology";
-import { hash } from "@vivalence/shared";
+import { is, hash } from "@vivalence/typology";
 import { Signature } from "./signature.js";
 
 export class Pattern extends Signature {

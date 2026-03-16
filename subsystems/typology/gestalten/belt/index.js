@@ -10,3 +10,5 @@ export * as random from "./random.js";
 export * as sort from "./sort.js";
 export * as hash from "./hash.js";
 export * as crypto from "./crypto.js";
+
+export * as middleware from "./middleware.js";

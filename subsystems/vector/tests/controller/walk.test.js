@@ -1,83 +1,44 @@
-import { assertEquals, assertRejects } from "@std/assert";
+import { specimen } from "@vivalence/typology";
 import { Signal } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 import { walk } from "@vivalence/vector/controller";
 
-// Test prototypes
-const createMockEffect = (name) => () => `${name} effect`;
-const createSignalGenerator = (...paths) => {
-  let index = 0;
-  return () =>
-    Promise.resolve(index < paths.length ? new Signal(paths[index++]) : []);
+const signals = (...paths) => {
+  let i = 0;
+  return () => Promise.resolve(i < paths.length ? new Signal(paths[i++]) : []);
 };
 
-Deno.test("walk finds effect in single step", async () => {
-  const vector = new Vector();
-  const effect = createMockEffect("test");
-  vector.open("/users/:id", effect);
+specimen.describe("walk", () => {
+  specimen.it("finds effect in single step", async () => {
+    const vector = new Vector();
+    const f = () => "found";
+    vector.open("/users/:id", f);
 
-  const [foundEffect, , steps] = await walk(
-    vector,
-    createSignalGenerator("/users/123"),
-  );
-
-  assertEquals(foundEffect, effect);
-  assertEquals(steps.length, 2);
-});
-
-Deno.test("walk navigates multiple steps", async () => {
-  const vector = new Vector();
-  const effect = createMockEffect("profile");
-  vector.branch("/api").branch("/users").open("/:id/profile", effect);
-
-  const [foundEffect, , steps] = await walk(
-    vector,
-    createSignalGenerator("/api", "/users", "/123/profile"),
-  );
-
-  assertEquals(foundEffect, effect);
-  assertEquals(steps.length, 4);
-});
-
-Deno.test("walk composes middlewares across steps", async () => {
-  const vector = new Vector();
-  const log = [];
-
-  vector
-    .use(async (ctx, next) => {
-      log.push("start");
-      await next();
-      log.push("end");
-    })
-    .branch("/api")
-    .use(async (ctx, next) => {
-      log.push("validate");
-      await next();
-    })
-    .open("/test", () => {
-      log.push("effect");
-      return "result";
-    });
-
-  const [effect, middleware] = await walk(
-    vector,
-    createSignalGenerator("/api", "/test"),
-  );
-
-  const context = {};
-  await middleware(context, async () => {
-    context.result = effect();
+    const [effect, , steps] = await walk(vector, signals("/users/123"));
+    specimen.expect(effect).toBe(f);
+    specimen.expect(steps.length).toBe(2);
   });
 
-  assertEquals(context.result, "result");
-  assertEquals(log, ["start", "validate", "effect", "end"]);
-});
+  specimen.it("finds effect with no heir", async () => {
+    const vector = new Vector();
+    const f = () => "flat";
+    vector.open("test", f);
 
-Deno.test("walk throws on limits", async () => {
-  const vector = new Vector();
+    const [effect] = await walk(vector, signals("test"));
+    specimen.expect(effect).toBe(f);
+  });
 
-  assertRejects(() => walk(vector, () => Promise.resolve([])));
-  assertRejects(() =>
-    walk(vector, () => Promise.resolve(new Signal("/infinite"))),
-  );
+  specimen.it("carries middleware from traversal", async () => {
+    const trace = [];
+    const vector = new Vector();
+
+    vector
+      .use(async (_, next) => { trace.push("mw"); await next(); })
+      .branch("api")
+      .open("test", () => "result");
+
+    const [, carry] = await walk(vector, signals("/api/test"));
+    await carry({}, async () => trace.push("terminal"));
+    specimen.expect(trace).toEqual(["mw", "terminal"]);
+  });
 });

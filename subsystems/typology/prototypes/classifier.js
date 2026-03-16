@@ -1,11 +1,6 @@
-function hash(value) {
-  const str = typeof value === "string" ? value : JSON.stringify(value);
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-  }
-  return h.toString(36);
-}
+import { hash } from "@vivalence/typology";
+
+// function hash(value) {const str = typeof value === "string" ? value : JSON.stringify(value); let h = 0; for (let i = 0; i < str.length; i++) {h = ((h << 5) - h + str.charCodeAt(i)) | 0;} return h.toString(36);}
 
 class Feature {
   constructor(data = {}) {
@@ -36,7 +31,7 @@ class Classifiable {
   }
 
   get hash() {
-    return hash([this.type, this.value]);
+    return hash.array([this.type, this.value]);
   }
 
   from(ancestor) {
@@ -69,8 +64,7 @@ class Classifier {
 
   async parse(classifiable, ctx) {
     const parsers = this.classifiables.get(classifiable.constructor);
-    if (!parsers)
-      throw new Error(`Unknown classifiable: ${classifiable.constructor.name}`);
+    if (!parsers) throw new Error(`Unknown classifiable: ${classifiable.constructor.name}`);
 
     const features = [];
     for (const parser of parsers) {
@@ -81,7 +75,7 @@ class Classifier {
   }
 
   async _extract(classifiable, parser, ctx) {
-    const key = `${hash(parser.toString())}:${classifiable.hash}`;
+    const key = `${hash.string(parser.toString())}:${classifiable.hash}`;
 
     // Return cached
     const cached = this.cache.get(key);

@@ -11,11 +11,15 @@
   },
 
   "tasks": {
-    "test": "deno test -A --no-check --watch tests/*/*.test.js",
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
     "test/vector": "deno test -A --no-check --watch tests/vector.test.js",
-    "test/carry": "deno test -A --no-check --watch tests/carry.test.js",
-    "test/traverse": "deno test -A --no-check --watch tests/controller/traverse.test.js",
-    "test/walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
-    "test/aperture/oak": "deno test -A --no-check --watch tests/compiler/aperture-oak.test.js",
+    "test/compiler": "deno test -A --no-check --watch tests/compiler/*.test.js",
+    "test/compiler/object": "deno test -A --no-check --watch tests/compiler/object.test.js",
+    "test/compiler/aperture-oak": "deno test -A --no-check --watch tests/compiler/aperture-oak.test.js",
+    "test/controller": "deno test -A --no-check --watch tests/controller/*.test.js",
+    "test/controller/match": "deno test -A --no-check --watch tests/controller/match.test.js",
+    "test/controller/traverse": "deno test -A --no-check --watch tests/controller/traverse.test.js",
+    "test/controller/invoke": "deno test -A --no-check --watch tests/controller/invoke.test.js",
+    "test/controller/walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
   },
 }

@@ -1,6 +1,5 @@
 import { Signature } from "./signature.js";
-import { is } from "@vivalence/typology";
-import { hash } from "@vivalence/shared";
+import { hash, is } from "@vivalence/typology";
 
 // import { join } from "@std/path"; // URLs always use posix-style paths
 

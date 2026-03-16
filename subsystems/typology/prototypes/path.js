@@ -1,6 +1,5 @@
 import { Signature } from "./signature.js";
-import { hash } from "@vivalence/shared";
-import { is } from "@vivalence/typology";
+import { hash, is } from "@vivalence/typology";
 
 // console.log("{ Signature, is, hash }", Signature, is, hash);
 // import { join, normalize } from "@std/path";
