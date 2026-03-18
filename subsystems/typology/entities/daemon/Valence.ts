@@ -7,6 +7,7 @@ export enum ValenceTypeEnum {
   APPLICATIVE = "APPLICATIVE",
 }
 
+// legacy:
 export enum ValenceTraitsEnum {
   BUFFERED = "BUFFERED",
   PRODUCTIVE = "PRODUCTIVE", // in

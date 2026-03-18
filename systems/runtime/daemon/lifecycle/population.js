@@ -135,6 +135,14 @@ export async function modes(daemonDie) {
       mode.cake.view.withUrl(url);
     }
 
+    if (mode.implements("FRAUGHT")) {
+      mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
+      const url = daemonDie.good.attach
+        .branch("/freight")
+        .branch(mode.mount.absolute);
+      mode.cake.freight.withUrl(url);
+    }
+
     mode.entity = await daemonDie.good.entities.mode //
       .ensure({ type: mode.type, slug: mode.slug });
 

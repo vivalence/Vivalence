@@ -10,6 +10,7 @@ export enum LiteralTraitsEnum {
   EXEMPLIFIED = "EXEMPLIFIED",
   RANKED = "RANKED",
   ANNOTATED = "ANNOTATED",
+  VOCALIZED = "VOCALIZED",
 }
 
 export class LiteralEntity extends maps.kernel.literal.entity {
@@ -50,7 +51,7 @@ export const LiteralSchema = new EntitySchema({
     rank: {
       type: types.integer,
       nullable: true,
-      defaultRaw: 'null',
+      defaultRaw: "null",
     },
 
     memories: {

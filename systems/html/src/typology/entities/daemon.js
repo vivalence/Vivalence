@@ -1,10 +1,13 @@
 import { object } from "@vivalence/shared";
 import { Connection, Path } from "@vivalence/typology";
 import { ProductionResult, ProductionRequest } from "@vivalence/typology";
-import { Mode, Valence } from "@vivalence/html/typology";
-import { Repository, entities } from "@vivalence/html/typology";
-
-import { dataspace } from "$client";
+import { Mode } from "./mode.js";
+import { Valence } from "./valence.js";
+import { Repository } from "../prototypes/repository.js";
+import * as mode from "./mode.js";
+import * as valence from "./valence.js";
+import * as session from "./session.js";
+import * as product from "./product.js";
 
 export class Daemon {
   manifest = null;
@@ -12,14 +15,27 @@ export class Daemon {
   connection = null;
 
   entities = {
-    mode: new Repository(entities.mode), //
-    valence: new Repository(entities.valence), //
-    session: new Repository(entities.session), //
-    product: new Repository(entities.product), //
+    mode: new Repository(mode),
+    valence: new Repository(valence),
+    session: new Repository(session),
+    product: new Repository(product),
   };
+
+  cargo = {};
 
   constructor(connection) {
     this.connection = connection;
+  }
+
+  getAsset(asset) {
+    if (!this.cargo || !asset) return null;
+    if (asset.path) return this.cargo[asset.path] ?? null;
+    if (asset.slug) {
+      const entry = Object.entries(this.cargo)
+        .find(([k]) => k.endsWith("/" + asset.slug) || k.startsWith(asset.slug));
+      return entry?.[1] ?? null;
+    }
+    return null;
   }
 
   toJSON() {
@@ -75,6 +91,8 @@ export async function lifecycle(daemon) {
 
     daemon.entities.mode.add(mode);
   }
+
+  daemon.cargo = await daemon.connection.call("/cargo");
 
   const valences = await daemon.entities.valence.find({ type: "SELFEVIDENT" });
   // console.log(JSON.stringify({ modes, valences }));

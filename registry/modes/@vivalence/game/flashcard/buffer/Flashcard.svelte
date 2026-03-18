@@ -1,5 +1,10 @@
 <script>
+  import { Asset } from "@vivalence/drapes";
+  import { Keyboard } from "@vivalence/drapes";
+
   const { terminal, product, seek, recall } = $props();
+
+  let keyboard;
 
   const recallProp = product?.data.BUFFERED?.recall ?? recall ?? null;
   const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
@@ -13,6 +18,7 @@
   const known = $derived(literal?.data?.TRANSLATED?.known);
   const learning = $derived(literal?.data?.TRANSLATED?.learning);
   const example = $derived(literal?.data?.EXEMPLIFIED);
+  const asset = $derived(terminal.daemon.getAsset(literal?.data?.VOCALIZED?.asset));
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
   const answer = $derived(activeRecall === "KNOWN" ? known : learning);
   const promptEx = $derived(example && (activeRecall === "KNOWN" ? example.learning : example.known));
@@ -69,6 +75,7 @@
   }
 </script>
 
+<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
 <div class="bsp-node root">
@@ -82,6 +89,10 @@
 
         <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
 
+        {#if asset && activeRecall === "KNOWN"}
+          <Asset {asset} />
+        {/if}
+
         {#if isWord && promptEx}
           <p class="example">{promptEx}</p>
         {/if}
@@ -92,12 +103,15 @@
           <div class="reveal-block">
             <span class="reveal-label">{answerLabel}</span>
             <p class="answer" class:answer-word={isWord}>{answer}</p>
+            {#if asset && activeRecall === "LEARNING"}
+              <Asset {asset} />
+            {/if}
             {#if isWord && answerEx}
               <p class="example revealed">{answerEx}</p>
             {/if}
           </div>
         {:else}
-          <button class="tap-hint" onclick={reveal}>tap to reveal</button>
+          <button class="tap-hint" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}>tap to reveal</button>
         {/if}
       {:else if loading}
         <div class="loading"><span class="dot"></span></div>
@@ -110,11 +124,11 @@
       {#if loading}
         <span class="menu-hint">loading...</span>
       {:else if revealed}
-        <button class="btn btn-unknown" onclick={() => rate("FAILURE")}>Unknown</button>
-        <button class="btn btn-known" onclick={() => rate("SUCCESS")}>Known</button>
-        <button class="btn btn-easy" onclick={() => rate("MASTERY")}>Easy</button>
+        <button class="btn btn-unknown" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("FAILURE")}>Unknown</button>
+        <button class="btn btn-known" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("SUCCESS")}>Known</button>
+        <button class="btn btn-easy" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("MASTERY")}>Easy</button>
       {:else}
-        <button class="btn btn-reveal" onclick={reveal}>Reveal</button>
+        <button class="btn btn-reveal" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}>Reveal</button>
       {/if}
     </div>
   </div>

@@ -4,13 +4,21 @@ import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ProductEntity, ValenceEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
-  VIEWABLE = "VIEWABLE", //
-  DATASET = "DATASET", //
-  VALENTIC = "VALENTIC", //
-  PRODUCER = "PRODUCER", //
-  CHAOSMONKEY = "CHAOSMONKEY", //
-  TOPOGRAPHICAL = "TOPOGRAPHICAL", //
-  BUFFERED = "BUFFERED",
+  VIEWABLE = "VIEWABLE",
+  DATASET = "DATASET",
+  CHAOSMONKEY = "CHAOSMONKEY",
+  TOPOGRAPHICAL = "TOPOGRAPHICAL",
+
+  VALENTIC = "VALENTIC", // legecay
+  // INTENTIONAL = "INTENTIONAL", //
+
+  BUFFERED = "BUFFERED", // legacy
+  // SELFEVIDENT = "SELFEVIDENT",
+
+  PRODUCER = "PRODUCER", // legacy
+  // EMITTER = "EMITTER", // emitter
+
+  FRAUGHT = "FRAUGHT",
 }
 
 export class ModeRepository extends DataRepository {

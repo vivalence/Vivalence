@@ -56,11 +56,9 @@
     "allow": [],
     "deny": [
       "npm:argon2@0.44.0",
-      "npm:esbuild@0.25.12",
       "npm:esbuild@0.27.2",
       "npm:fsevents@2.3.3",
       "npm:sqlite3@5.1.7",
-      "npm:svelte-preprocess@5.1.4",
       "npm:svelte-preprocess@6.0.3",
     ],
   },

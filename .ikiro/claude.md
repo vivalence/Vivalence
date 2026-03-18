@@ -1,6 +1,6 @@
-# Vivalence
+# @vivalence/viva
 
-You are reading the root orientation document for the vivalence project. This is your first foothold. Use it well.
+You are reading the root orientation document for the @vivalence/viva project. This is your first foothold. Use it well.
 
 ## Before You Do Anything
 
@@ -10,7 +10,7 @@ The subsystem docs listed below are your next reads. But this document tells you
 
 ## What Is Vivalence
 
-A language learning operating system. Not an app — an OS. Types compose into routing, routing composes into daemons, daemons compose into a runtime. Game modes are plugins. Memory is Bayesian. The whole thing runs on Deno with MikroORM, Oak, Svelte, and Anthropic's Claude.
+An operating system with a language learning system as its first application. Not an app — an OS. Types compose into routing, routing composes into daemons, daemons compose into a runtime. Game modes are plugins. Memory is Bayesian. The whole thing runs on Deno with MikroORM, Oak, Svelte, and Anthropic's Claude.
 
 The power is emergent. Signature (211 lines) enables an entire routing ontology. Vector (107 lines) enables hierarchical routing with middleware accumulation. traverse (47 lines) walks two trees in parallel. compose (27 lines) enables arbitrary middleware stacking. These are not large systems — they are small, sharp tools that compose into large capability.
 
@@ -65,7 +65,6 @@ Use these terms precisely. Don't substitute generic alternatives.
 - **Die/Wafer lifecycle.** Wafer is the base container. Die extends with implementation. Lifecycle cascades parent → children.
 - **Trait system.** Traits are async functions applied to modes during daemon resolution. They compose middleware, endpoints, and behavior.
 - **bak/ directories** are archives. Old code kept for reference. Never suggest re-adding patterns from bak/.
-- **"ikiro" is deprecated.** The term will only ever disappear. Never use it in new code or docs.
 
 ## Testing Philosophy
 

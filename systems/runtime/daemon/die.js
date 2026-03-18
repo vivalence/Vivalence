@@ -45,10 +45,12 @@ export class Die extends Wafer {
 
     await lifecycle.resolution.kernel(this);
     await lifecycle.resolution.modes(this);
+    await lifecycle.resolution.freight(this);
 
     await aperture.datamap(this);
     await aperture.userspace(this);
     await aperture.modes(this);
+    await aperture.freight(this);
   }
 
   async integrate() {
@@ -69,31 +71,34 @@ export class Die extends Wafer {
 }
 
 async function test(daemonDie) {
-  const sentences = await daemonDie.good.entities.literal.find({
-    $and: [{ symbols: { slug: "sentence" } }, { symbols: { slug: "proficiency.survival" } }],
-  });
-
-  const missing = [];
-  for (const sentence of sentences) {
-    const results = await Promise.all(
-      sentence.data.ANNOTATED.tokens.map(async (token) => ({
-        sentence: { slug: sentence.slug, translated: sentence.translated },
-        token: token.literal,
-        found: await daemonDie.good.entities.literal.findOne({
-          slug: token.literal,
-          symbols: { slug: "word" },
-        }),
-      })),
-    );
-    results.filter((result) => !result.found).map((m) => missing.push(m));
-  }
-
-  console.log("sentences length", sentences.length);
-  console.log("missing length", missing.length);
-  missing.forEach((result) => console.log("missing:", result));
-  console.log("sentences length", sentences.length);
-  console.log("missing length", missing.length);
+  console.log(daemonDie.good.freight);
 }
+// async function test(daemonDie) {
+//   const sentences = await daemonDie.good.entities.literal.find({
+//     $and: [{ symbols: { slug: "sentence" } }, { symbols: { slug: "proficiency.survival" } }],
+//   });
+
+//   const missing = [];
+//   for (const sentence of sentences) {
+//     const results = await Promise.all(
+//       sentence.data.ANNOTATED.tokens.map(async (token) => ({
+//         sentence: { slug: sentence.slug, translated: sentence.translated },
+//         token: token.literal,
+//         found: await daemonDie.good.entities.literal.findOne({
+//           slug: token.literal,
+//           symbols: { slug: "word" },
+//         }),
+//       })),
+//     );
+//     results.filter((result) => !result.found).map((m) => missing.push(m));
+//   }
+
+//   console.log("sentences length", sentences.length);
+//   console.log("missing length", missing.length);
+//   missing.forEach((result) => console.log("missing:", result));
+//   console.log("sentences length", sentences.length);
+//   console.log("missing length", missing.length);
+// }
 
 // const literal = {slug: "lemma.gato:pos.noun:gender.masc:number.sing", traits: ["EXEMPLIFIED", "TRANSLATED"], annotation: {pos: "noun", lemma: "gato", gender: "masc", number: "sing",}, data: {TRANSLATED: {known: "cat", learning: "gato",}, EXEMPLIFIED: {known: "The cat is small", learning: "O gato é pequeno",},},};
 // const subjects = await daemonDie.good.entities.subject.find();

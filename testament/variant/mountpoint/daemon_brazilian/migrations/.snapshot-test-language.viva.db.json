@@ -79,7 +79,8 @@
             "TRANSLATED",
             "EXEMPLIFIED",
             "RANKED",
-            "ANNOTATED"
+            "ANNOTATED",
+            "VOCALIZED"
           ],
           "mappedType": "json"
         },
@@ -209,11 +210,12 @@
           "enumItems": [
             "VIEWABLE",
             "DATASET",
-            "VALENTIC",
-            "PRODUCER",
             "CHAOSMONKEY",
             "TOPOGRAPHICAL",
-            "BUFFERED"
+            "VALENTIC",
+            "BUFFERED",
+            "PRODUCER",
+            "FRAUGHT"
           ],
           "mappedType": "text"
         },

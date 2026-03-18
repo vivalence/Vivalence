@@ -1,4 +1,4 @@
-import { Entity } from "@vivalence/html/typology";
+import { Entity } from "../prototypes/entity.js";
 
 export class Valence extends Entity {
   implements(trait) {

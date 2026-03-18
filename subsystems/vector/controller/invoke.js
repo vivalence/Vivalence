@@ -1,13 +1,18 @@
-import { Signal } from "@vivalence/typology";
+import { Signal, fromm } from "@vivalence/typology";
 import { NotFound } from "@vivalence/vector/typology";
 import { traverse } from "./traverse.js";
 
-export async function invoke(vector, signal, context = { signal }) {
+export const strategy = (carry, effect, steps, signal) => async (input) => {
+  const ctx = { input, signal, params: fromm.match(steps).parameters };
+  await carry(ctx, async (c) => {
+    c.output = await effect(c);
+  });
+  return ctx.output;
+};
+
+export function invoke(vector, signal, execute = strategy) {
   signal = new Signal(signal);
-  const [effect, apply, path] = traverse(vector, signal);
+  const [effect, carry, steps] = traverse(vector, signal);
   if (!effect) throw new NotFound(signal);
-  context.path = path;
-  context.signal = signal;
-  await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
-  return context.effect;
+  return execute(carry, effect, steps, signal);
 }

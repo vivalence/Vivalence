@@ -13,15 +13,14 @@ async function serverConfig() {
   await paladin.ikiro;
   const client = paladin.variant.clients.html;
 
-  let allowedHosts = paladin.is.dev;
-  if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
-  if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS"))
-    allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
+  // let allowedHosts = paladin.is.dev;
+  // if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
+  // if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS")) allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
 
   return {
     cors: { origin: client.statics.remote?.absolute },
     origin: client.statics.remote?.absolute,
-    allowedHosts,
+    // allowedHosts,
 
     host: client.statics.serve.hostname,
     port: parseInt(client.statics.serve.port),
@@ -48,6 +47,7 @@ export default defineConfig(async ({ command }) => ({
   plugins: [sveltekit(), deno()],
   logLevel: "info",
   server: command === "serve" ? await serverConfig() : {},
+  preview: command === "serve" ? await serverConfig() : {},
   ssr: {
     noExternal: true,
   },
@@ -61,7 +61,6 @@ export default defineConfig(async ({ command }) => ({
       "$hut/surface": join(__dirname, "./src/surface/index.js"),
       "$hut/view": join(__dirname, "./src/surface/view/index.js"),
       "@vivalence/surface": join(__repo, "./subsystems/drapes/mod.js"),
-
       $hut: join(__dirname, "./src/app.js"),
 
       // STABLE
@@ -76,14 +75,8 @@ export default defineConfig(async ({ command }) => ({
       "@vivalence/vector/typology": join(__ss, "./vector/typology.js"), // ? needed ?
       "@vivalence/vector": join(__ss, "./vector/mod.js"), // ? needed ?
 
-      "@vivalence/dapper/font.css": join(
-        __repo,
-        "./subsystems/dapper/primitives/font.css",
-      ),
-      "@vivalence/dapper/bsp.css": join(
-        __repo,
-        "./subsystems/dapper/primitives/bsp.css",
-      ),
+      "@vivalence/dapper/font.css": join(__repo, "./subsystems/dapper/primitives/font.css"),
+      "@vivalence/dapper/bsp.css": join(__repo, "./subsystems/dapper/primitives/bsp.css"),
       "@vivalence/dapper": join(__repo, "./subsystems/dapper/mod.js"), // ? needed ?
       "@vivalence/drapes": join(__repo, "./subsystems/drapes/mod.js"), // ? needed ?
 

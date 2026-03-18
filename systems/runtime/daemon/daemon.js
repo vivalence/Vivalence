@@ -18,6 +18,7 @@ export class Daemon {
   brain = null;
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
   statics = null;
+  cargo = {};
   docs = {};
 
   kernel = {

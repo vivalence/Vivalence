@@ -3,11 +3,10 @@ import { lighthouse, dataspace } from "$client";
 
 export const ssr = false;
 
-let booted = false;
-export const load = async () => {
-  if (booted) return;
-  booted = true;
-  await entities.lighthouse.lifecycle(lighthouse);
+entities.lighthouse.hydrate(lighthouse);
 
-  // console.log(dataspace.daemon);
+export const load = async ({ url }) => {
+  if (!lighthouse.$isAuthorized.get()) return;
+  if (dataspace.daemon.$entities.get().length) return;
+  await entities.lighthouse.lifecycle(lighthouse);
 };

@@ -1,7 +1,6 @@
 import { effect } from "nanostores";
 import { Connection, shards } from "@vivalence/typology";
-import { Daemon } from "@vivalence/html/typology";
-import { dataspace } from "$client";
+import { Daemon } from "../daemon.js";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
 
@@ -32,7 +31,13 @@ const persistToStorage = (lighthouse) => {
   });
 };
 
+export function hydrate(lighthouse) {
+  hydrateFromStorage(lighthouse);
+  persistToStorage(lighthouse);
+}
+
 async function populate(lighthouse) {
+  const { dataspace } = await import("$client");
   const daemons = await lighthouse.connection.call("/entities/daemon/find");
 
   for (const daemonPojo of daemons) {
@@ -52,19 +57,13 @@ async function populate(lighthouse) {
 }
 
 export async function lifecycle(lighthouse) {
-  hydrateFromStorage(lighthouse);
-
   const verifyResult = await lighthouse.verify();
 
   if (verifyResult.status === "OK" || verifyResult.status === "NETWORK_ERROR") {
     if (!lighthouse.$isAuthorized.get()) throw new Error("Lighthouse unauthorized");
-    // else lighthouse.manifest = await lighthouse.connection.call("/manifest");
-    // something something retry()
   }
 
   lighthouse.manifest = await lighthouse.connection.call("/manifest");
-
-  persistToStorage(lighthouse);
 
   await populate(lighthouse);
 

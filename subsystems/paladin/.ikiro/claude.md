@@ -1,3 +1,7 @@
+> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
+>
+> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+
 # Paladin
 
 > Bootstrap and configuration. Reads circuitry, resolves variants, composes registry entries into functional units.

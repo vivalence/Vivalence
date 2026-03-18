@@ -1,9 +1,10 @@
 export default [
   {
     slug: "oi-tudo-bem",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "Hi, how are you?", learning: "Oi, tudo bem?" },
+      VOCALIZED: { asset: { path: "sentences/oi-tudo-bem.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Oi", gloss: "hi", deprel: "discourse", index: 0, literal: "oi.interjection" },
@@ -28,9 +29,10 @@ export default [
   },
   {
     slug: "tudo-bem-obrigado",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "Fine, thank you.", learning: "Tudo bem, obrigado." },
+      VOCALIZED: { asset: { path: "sentences/tudo-bem-obrigado.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Tudo", gloss: "everything", deprel: "nsubj", index: 0, literal: "tudo.pronoun" },
@@ -129,9 +131,10 @@ export default [
   },
   {
     slug: "bom-dia-como-voce-esta",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "Good morning, how are you?", learning: "Bom dia, como você está?" },
+      VOCALIZED: { asset: { path: "sentences/bom-dia-como-voce-esta.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Bom", gloss: "good", deprel: "amod", index: 0, literal: "bom.adjective" },
@@ -255,9 +258,10 @@ export default [
   },
   {
     slug: "tchau-ate-amanha",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "Bye, see you tomorrow.", learning: "Tchau, até amanhã." },
+      VOCALIZED: { asset: { path: "sentences/tchau-ate-amanha.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Tchau", gloss: "bye", deprel: "root", index: 0, literal: "tchau.interjection" },
@@ -281,9 +285,10 @@ export default [
   },
   {
     slug: "voce-fala-ingles",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "Do you speak English?", learning: "Você fala inglês?" },
+      VOCALIZED: { asset: { path: "sentences/voce-fala-ingles.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Você", gloss: "you", deprel: "nsubj", index: 0, literal: "você.pronoun" },
@@ -379,9 +384,10 @@ export default [
   },
   {
     slug: "eu-nao-entendo-desculpa",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "I don't understand, sorry.", learning: "Eu não entendo, desculpa." },
+      VOCALIZED: { asset: { path: "sentences/eu-nao-entendo-desculpa.wav" } },
       ANNOTATED: {
         tokens: [
           { form: "Eu", gloss: "I", deprel: "nsubj", index: 0, literal: "eu.pronoun" },
@@ -469,8 +475,9 @@ export default [
   },
   {
     slug: "com-licenca-onde-fica-o-banheiro",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
+      VOCALIZED: { asset: { path: "sentences/com-licenca-onde-fica-o-banheiro.wav" } },
       TRANSLATED: {
         known: "Excuse me, where is the bathroom?",
         learning: "Com licença, onde fica o banheiro?",
@@ -707,9 +714,10 @@ export default [
   },
   {
     slug: "quanto-custa-isso",
-    traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
+    traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     data: {
       TRANSLATED: { known: "How much does this cost?", learning: "Quanto custa isso?" },
+      VOCALIZED: { asset: { path: "sentences/quanto-custa-isso.wav" } },
       ANNOTATED: {
         tokens: [
           {

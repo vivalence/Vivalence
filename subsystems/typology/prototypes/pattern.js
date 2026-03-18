@@ -30,8 +30,8 @@ export class Pattern extends Signature {
 const probe = (signature) => patternmap.find(([, probe]) => probe(signature));
 
 const patternmap = [
-  ["wildcard", (signature) => signature === "*", (signal) => signal],
-  ["remainder", (signature) => signature === "(.*)", (signal) => signal],
+  ["wildcard", (signature) => signature === "*", (signal) => ({ ...signal, type: "wildcard" })],
+  ["remainder", (signature) => signature === "(.*)", (signal) => ({ ...signal, type: "remainder" })],
   [
     "parameter",
     (signature) => signature.startsWith(":"),

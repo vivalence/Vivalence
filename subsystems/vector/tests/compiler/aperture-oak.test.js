@@ -1,5 +1,6 @@
 import { expect, assertEquals, assertExists, assert } from "@vivalence/typology/specimen";
 import { describe, it, beforeAll, afterAll } from "@vivalence/typology/specimen";
+import { sleep } from "@vivalence/typology";
 
 import { Application, Router } from "@oak/oak";
 
@@ -7,8 +8,6 @@ import { Aperture, Path, context as mkctx, parser, mw } from "@vivalence/vector/
 
 const PORT = 9876;
 const BASE = `http://localhost:${PORT}`;
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const invoke = async (composed, path, body = {}, params = {}) => {
   const ctx = mkctx(path, body, params);
@@ -234,7 +233,7 @@ describe("Aperture Baseline", () => {
 
       controller = new AbortController();
       app.listen({ port: PORT, signal: controller.signal });
-      await sleep(500);
+      await sleep.ms(500);
     });
 
     afterAll(() => {

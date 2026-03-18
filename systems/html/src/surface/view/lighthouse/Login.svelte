@@ -2,8 +2,8 @@
   import { onMount } from "svelte";
   import { Text, Button, Input } from "@vivalence/drapes";
 
-  let username = $state("beef");
-  let password = $state("biggusdickus");
+  let username = $state("");
+  let password = $state("");
 
   let { lighthouse } = $props();
 

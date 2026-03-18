@@ -11,6 +11,11 @@ export const VIEWABLE = async (mode, daemon) => {
   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
 };
 
+export const FRAUGHT = async (mode, daemon) => {
+  await mode.cake.freight.index();
+  mode.aperture.open("/freight", () => mode.cake.freight.catalog);
+};
+
 export const CHAOSMONKEY = (mode, daemon) => {
   mode.brain = daemon.hallucinator; // ??naming unsettled...
   mode.aperture.use(async (ctx, next) => {

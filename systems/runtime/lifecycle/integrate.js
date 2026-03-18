@@ -1,5 +1,16 @@
 import paladin from "@vivalence/paladin";
 import { shards, Url, Connection } from "@vivalence/typology";
+import { compiler, Vector } from "@vivalence/vector";
+
+// const testVector = new Vector();
+// testVector.branch("/test/vector").open("/here", () => {
+//   return { success: true };
+// });
+
+// export async function test(die) {
+//   die.good.aperture.branch("/runtime").router.use(compiler.oak(testVector));
+//   // die.good.aperture.branch("/runtime").slurp(testVector);
+// }
 
 export async function announce(die) {
   for (const daemonDie of die.good.daemons) {

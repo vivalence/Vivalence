@@ -1,5 +1,4 @@
-import { specimen } from "@vivalence/typology";
-import { Signal } from "@vivalence/typology";
+import { specimen, Signal, fromm } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
 import { traverse } from "@vivalence/vector/controller";
 
@@ -44,22 +43,46 @@ specimen.describe("traverse", () => {
     specimen.expect(() => traverse(vector, new Signal("/nope"))).toThrow();
   });
 
-  specimen.it("matches remainder pattern", () => {
+  specimen.it("remainder consumes all segments and captures params", () => {
     const vector = new Vector();
     const f = () => "caught";
     vector.open("(.*)", f);
 
-    const [effect] = traverse(vector, new Signal("/any/deep/path"));
+    const [effect, , steps] = traverse(vector, new Signal("/any/deep/path"));
     specimen.expect(effect).toBe(f);
+    specimen.expect(steps.length).toBe(3);
+
+    const params = fromm.match(steps).parameters;
+    specimen.expect(params[0]).toBe("any");
+    specimen.expect(params[1]).toBe("deep");
+    specimen.expect(params[2]).toBe("path");
   });
 
-  specimen.it("remainder after literal branch", () => {
+  specimen.it("remainder after literal branch captures remaining", () => {
     const vector = new Vector();
     const f = () => "caught";
     vector.branch("api").open("(.*)", f);
 
     const [effect, , steps] = traverse(vector, new Signal("/api/anything/here"));
     specimen.expect(effect).toBe(f);
+
+    const params = fromm.match(steps).parameters;
+    specimen.expect(params[0]).toBe("anything");
+    specimen.expect(params[1]).toBe("here");
+  });
+
+  specimen.it("remainder + named params coexist", () => {
+    const vector = new Vector();
+    const f = () => "caught";
+    vector.branch(":tenant").open("(.*)", f);
+
+    const [effect, , steps] = traverse(vector, new Signal("/acme/any/path"));
+    specimen.expect(effect).toBe(f);
+
+    const params = fromm.match(steps).parameters;
+    specimen.expect(params.tenant).toBe("acme");
+    specimen.expect(params[0]).toBe("any");
+    specimen.expect(params[1]).toBe("path");
   });
 
   specimen.it("returns null effect when only trajectory matched", () => {

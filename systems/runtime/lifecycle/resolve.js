@@ -35,8 +35,34 @@ export async function attach(runtimeDie) {
     }
   }
 
+  async function attachFreight(runtimeDie) {
+    for (const daemonDie of runtimeDie.good.daemons) {
+      for (const mode of daemonDie.good.flatmodes()) {
+        if (!mode.implements("FRAUGHT")) continue;
+        runtimeDie.good.aperture
+          .branch("/attached/freight")
+          .branch(mode.mount.absolute)
+          .use(shards.context.attach("mode", mode))
+          .open("/(.*)", async (input, ctx) => {
+            const captured = fromm.params(ctx.params).path;
+            const query = captured.nature.replace(/^\//, "");
+            const entry = ctx.mode.cake.freight.resolve(query);
+            if (!entry) {
+              ctx.response.status = 404;
+              return;
+            }
+            const filePath = ctx.mode.cake.freight.path
+              .branch("/" + entry.path).absolute;
+            ctx.response.type = entry.type;
+            return await Deno.readFile(filePath);
+          });
+      }
+    }
+  }
+
   await attachProcesses(runtimeDie);
   await attachDaemons(runtimeDie);
+  await attachFreight(runtimeDie);
 }
 
 export async function expose(runtimeDie) {

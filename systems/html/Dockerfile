@@ -1,15 +1,43 @@
-FROM vivalence/viva:alpine
+FROM vivalence/viva:alpine AS build
 
 WORKDIR /viva/repository
-
-COPY import_map.json ./import_map.json
-COPY systems/html/svelte.config.js ./systems/html/svelte.config.js
-COPY systems/html/vite.config.mjs ./systems/html/vite.config.mjs
-COPY systems/html/serve.js ./systems/html/serve.js
+ENV VIVA_SYSTEM_MODE="BUILD"
+ENV VIVA_SYSTEM_ROLE="CLIENT"
 
 RUN deno install
 RUN deno task html/bundle
 
-EXPOSE 1794
+FROM nginx:alpine
 
-CMD ["deno", "run", "-A", "systems/html/serve.js"]
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=build /viva/repository/systems/html/build /usr/share/nginx/html
+
+COPY <<'NGINX' /etc/nginx/conf.d/default.conf
+server {
+    listen 1794;
+    root /usr/share/nginx/html;
+    location / {
+        try_files $uri /200.html;
+    }
+}
+NGINX
+
+COPY <<'ENTRYPOINT' /docker-entrypoint.sh
+#!/bin/sh
+ENV_JSON="{"
+FIRST=true
+for var in $(env | grep "^PUBLIC_VIVA_" | sort); do
+  key="${var%%=*}"
+  value="${var#*=}"
+  if [ "$FIRST" = true ]; then FIRST=false; else ENV_JSON="${ENV_JSON},"; fi
+  ENV_JSON="$ENV_JSON\"$key\":\"$value\""
+done
+ENV_JSON="$ENV_JSON}"
+echo "export const env=$ENV_JSON" > /usr/share/nginx/html/_app/env.js
+exec nginx -g "daemon off;"
+ENTRYPOINT
+
+RUN chmod +x /docker-entrypoint.sh
+
+EXPOSE 1794
+ENTRYPOINT ["/docker-entrypoint.sh"]

@@ -50,6 +50,11 @@ export class Vector {
   }
 
   set(vector) {
+    // depracated
+    return this.slurp(vector);
+  }
+
+  slurp(vector) {
     for (const [pattern, effect] of vector.effects) {
       this.effects.set(pattern, effect);
     }

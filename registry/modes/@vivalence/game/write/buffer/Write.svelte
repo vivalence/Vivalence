@@ -1,4 +1,6 @@
 <script>
+  import { Asset } from "@vivalence/drapes";
+
   const { terminal, product, seek, recall, forgiving = true } = $props();
 
   const recallProp = product?.data?.BUFFERED.recall ?? recall ?? null;
@@ -15,6 +17,7 @@
   const known = $derived(literal?.data?.TRANSLATED?.known);
   const learning = $derived(literal?.data?.TRANSLATED?.learning);
   const example = $derived(literal?.data?.EXEMPLIFIED);
+  const asset = $derived(terminal.daemon.getAsset(literal?.data?.VOCALIZED?.asset));
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
   const answer = $derived(activeRecall === "KNOWN" ? known : learning);
   const promptEx = $derived(
@@ -158,6 +161,10 @@
 
         <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
 
+        {#if asset && activeRecall === "KNOWN"}
+          <Asset {asset} />
+        {/if}
+
         {#if isWord && promptEx}
           <p class="example">{promptEx}</p>
         {/if}
@@ -210,6 +217,10 @@
               </div>
             {/if}
 
+            {#if asset && activeRecall === "LEARNING"}
+              <Asset {asset} />
+            {/if}
+
             {#if isWord && answerEx}
               <p class="example revealed">{answerEx}</p>
             {/if}
@@ -223,13 +234,14 @@
 
   <div class="bsp-chain-end menu">
     <div class="input-row">
+      <input
+        class="field"
+        value={input}
+        oninput={(event) => (input = event.target.value)}
+        placeholder="{answerLabel}…"
+        disabled={submitted}
+        autofocus />
       {#if !submitted}
-        <input
-          class="field"
-          value={input}
-          oninput={(event) => (input = event.target.value)}
-          placeholder="{answerLabel}…"
-          autofocus />
         <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
       {:else}
         <button class="btn-next" onclick={next} disabled={loading}>Next →</button>

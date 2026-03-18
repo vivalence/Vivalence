@@ -1,0 +1,263 @@
+#+TITLE: Vector → Typology Merge — Work Package
+#+AUTHOR: Vivalence
+
+* Intent
+
+Vector merges into typology. The routing engine was always a gestalt over
+typology's Signature hierarchy — controller is computation over Pattern/Signal,
+compiler is compilation of Vector trees into external targets (Oak, LLM tools,
+ORM events, callable objects). Two packages for one type system creates import
+indirection and forces consumers to juggle =@vivalence/vector= and
+=@vivalence/typology= for tightly coupled code.
+
+After merge: =@vivalence/vector= ceases to exist. All consumers import from
+=@vivalence/typology=. Controller and compiler become first-class gestalt
+categories alongside is/cast/not/fromm/belt/shard.
+
+** Design Constraints
+
+- Controller and compiler are gestalten: =gestalten/controller/=, =gestalten/compiler/=
+- Vector prototypes join the prototype family: =prototypes/vector.js=, =prototypes/context.js=
+- Vector errors nest into =prototypes/errors/vector.js=: Long, Short, NotFound
+- Both =shard/secure.js= kept — vector's becomes =shard/secure.vector.js=
+- Aperture .ts/.js files stay as-is — Deno handles mixed extensions
+- Oak/aperture compiler requires =index.client.js= exclusion — Oak unavailable on client
+- =subsystems/vector/= moves to =subsystems/vector.bak/= after merge
+
+* Completed Work
+
+- [x] carry (compose, chain, forward) → =typology/gestalten/belt/middleware.js=
+- [x] =belt/index.js= exports =middleware= namespace
+- [x] All vector controller/compiler imports use =import { middleware } from "@vivalence/typology"=
+- [x] Object compiler (=compiler/object.js=) — strategy pattern, DFS compilation
+- [x] Proxy compiler (=compiler/object.js=) — parameter/wildcard support via Proxy
+- [x] New tests: middleware.test.js (typology), invoke.test.js, match.test.js, object.test.js
+- [x] =gestalten/index.client.js= created (placeholder)
+- [x] Aperture workpackage written (=.ikiro/vector-aperture-compiler.workpackage.org=)
+
+* Phase 1 — Add to Typology (additive, nothing breaks)
+
+** Prototypes
+
+- [ ] Copy =vector/prototypes/vector.js= → =typology/prototypes/vector.js=
+  - Rewrite: Pattern, Signature imports → local =./pattern.js=, =./signature.js=
+- [ ] Copy =vector/prototypes/context.js= → =typology/prototypes/context.js=
+  - Standalone, no import changes
+- [ ] Create =typology/prototypes/errors/vector.js= with Long, Short, NotFound
+- [ ] Update =typology/prototypes/errors/index.js=: add =export * from "./vector.js"=
+- [ ] Update =typology/prototypes/index.ts=: add vector.js and context.js exports
+- [ ] Update =typology/prototypes/index.client.js=: add vector.js (client-safe)
+
+** Controller → gestalten/controller/
+
+Copy 5 controller files (carry already migrated to belt/middleware.js), rewrite imports:
+
+| File | Import Rewrites |
+|------+-----------------|
+| traverse.js | =@vivalence/typology= middleware stays. scope/resolve → local =./match.js= |
+| walk.js | Long, Short → =../../prototypes/errors/vector.js=. middleware stays. traverse → local |
+| invoke.js | Signal → =../../prototypes/signal.js=. traverse → local. errors → local |
+| match.js | Standalone — no changes |
+| shotgun.js | middleware.compose stays. scope → local =./match.js= |
+
+Create =gestalten/controller/index.js=:
+#+begin_src js
+export * from "./traverse.js";
+export * from "./walk.js";
+export * from "./invoke.js";
+export * from "./match.js";
+export * from "./shotgun.js";
+#+end_src
+
+** Compiler → gestalten/compiler/
+
+Copy compiler files, rewrite imports. Note: aperture is being reworked per the
+aperture workpackage — the new Aperture extends Vector and uses =compileInvoke=,
+=compileOak=, =dispatch= via =shared.js=. Use whatever state aperture is in
+at migration time.
+
+| File | Import Rewrites |
+|------+-----------------|
+| agentic.js | controller.invoke → =../controller/invoke.js= |
+| subscriber.js | Signal → =../../prototypes/signal.js= |
+| object.js | =@vivalence/typology= middleware import stays as-is |
+| aperture/* | =@vivalence/vector/typology= → =../../../prototypes/index.ts=. =@oak/oak= stays. =traverse=, =Signal=, =NotFound= → typology-local paths |
+
+Create =gestalten/compiler/index.js=:
+#+begin_src js
+export * from "./subscriber.js";
+export * from "./agentic.js";
+export * from "./object.js";
+#+end_src
+
+Create =gestalten/compiler/index.client.js= — excludes aperture (Oak unavailable on client):
+#+begin_src js
+export * from "./subscriber.js";
+export * from "./agentic.js";
+export * from "./object.js";
+#+end_src
+
+** Shards → shard/
+
+- [ ] Copy =vector/shards/caching.js= → =shard/caching.js=
+- [ ] Copy =vector/shards/secure.js= → =shard/secure.vector.js=
+- [ ] Verify =vector/shards/patterns.js= vs =shard/patterns.js= — merge if different
+- [ ] Add to =shard/index.js=: caching, secure.vector exports, =aperture.status= and =context.attach= utilities
+
+** Export Plumbing
+
+- [ ] Update =gestalten/index.js=:
+  #+begin_src js
+  export * as controller from "./controller/index.js";
+  export * as compiler from "./compiler/index.js";
+  #+end_src
+
+- [ ] Populate =gestalten/index.client.js=:
+  Same as =index.js= but compiler → =./compiler/index.client.js=
+
+- [ ] Update =mod.ts=:
+  #+begin_src js
+  export * as controller from "./gestalten/controller/index.js";
+  export * as compiler from "./gestalten/compiler/index.js";
+  #+end_src
+
+- [ ] Update =mod.client.js=:
+  Switch gestalten import to =./gestalten/index.client.js=
+  Add controller + compiler namespace exports
+
+- [ ] Update =deno.jsonc= exports:
+  #+begin_src json
+  "./controller": "./gestalten/controller/index.js",
+  "./compiler": "./gestalten/compiler/index.js",
+  "./aperture": "./gestalten/compiler/aperture/index.js",
+  "./shards": "./gestalten/shard/index.js"
+  #+end_src
+
+* Phase 2 — Verify Tests
+
+- [ ] Copy vector test files → =typology/tests/= (rewrite imports to =@vivalence/typology=):
+  - vector.test.js (9 steps)
+  - controller/traverse.test.js (5 steps)
+  - controller/walk.test.js (3 steps)
+  - controller/invoke.test.js (5 steps)
+  - controller/match.test.js (11 steps)
+  - compiler/object.test.js (13 steps)
+  - compiler/aperture tests (29+ steps — whatever state they're in)
+- [ ] Add test tasks to =typology/deno.jsonc=
+- [ ] Run all typology tests — old + migrated must pass
+
+* Phase 3 — Rewrite Consumers (~25 active files)
+
+** Import Rewrite Map
+
+| Old | New |
+|-----+-----|
+| =@vivalence/vector= | =@vivalence/typology= |
+| =@vivalence/vector/typology= | =@vivalence/typology= |
+| =@vivalence/vector/controller= | =@vivalence/typology/controller= |
+| =@vivalence/vector/compiler= | =@vivalence/typology/compiler= |
+| =@vivalence/vector/aperture= | =@vivalence/typology/aperture= |
+| =@vivalence/vector/shards= | =@vivalence/typology/shards= |
+
+** File List
+
+Runtime:
+- =systems/runtime/daemon/daemon.js= — Vector, shards, Aperture, mw
+- =systems/runtime/runtime.js= — Vector, Aperture
+- =systems/runtime/daemon/lifecycle/population.js= — Vector, compiler, controller, Aperture
+- =systems/runtime/daemon/lifecycle/resolution.js= — Aperture
+- =systems/runtime/daemon/lifecycle/integration.js= — context (Aperture)
+- =systems/runtime/lifecycle/populate.js= — Aperture
+- =systems/runtime/lifecycle/resolve.js= — mw, parser (Aperture)
+- =systems/runtime/daemon/mode/traits/producer.js= — Aperture
+
+Shell:
+- =systems/shell/lifecycle/call.js= — controller, compiler
+- =systems/shell/lifecycle/run.js= — controller, errors
+- =systems/shell/trajectories/index.js= — Vector
+
+Client:
+- =systems/html/client.viva.js= — Vector
+- =systems/html/src/routes/[...viva]/lib/populate.js= — Vector, controller, Context, NotFound
+- =systems/html/vite.config.mjs= — remove vector aliases
+
+Registry:
+- =registry/kernels/@vivalence/domain/learning/aperture/index.js= — Aperture
+- =registry/kernels/@vivalence/domain/learning/modes/index.js= — shards
+- =registry/services/@vivalence/nlp/service.viva.js= — Vector
+- =registry/services/@vivalence/hallucinator/hal/tests/hallucinator.test.js= — Vector
+- =registry/modes/@vivalence/tactic/test/test.viva.js= — Aperture
+- =registry/wafers/@vivalence/circuitry/runtime/daemon.viva.js= — Vector
+
+Typology self-refs:
+- =typology/prototypes/mode.js= — Aperture
+- =typology/gestalten/is/prototypes.js= — Vector
+- =typology/tests/agent.integration.test.js= — Vector
+- =typology/tests/agent.test.js= — Vector
+
+* Phase 4 — Remove Vector
+
+- [ ] Remove =./subsystems/vector= from root =deno.jsonc= workspace array
+- [ ] Move =subsystems/vector/= → =subsystems/vector.bak/=
+
+* Phase 5 — Documentation
+
+- [ ] Update =typology/.ikiro/claude.md= — add controller + compiler gestalten docs
+- [ ] Update root =CLAUDE.md= — system map (remove vector row), vocabulary, dead code registry
+- [ ] Grep =@vivalence/vector= — zero hits in non-bak files
+
+* Verification
+
+- =deno task typology/test= — all pass (old + migrated)
+- =deno task runtime/test= — all pass
+- =deno task runtime/start= — runtime boots
+- =deno task html/watch= — client builds without Oak import errors
+- Zero =@vivalence/vector= imports outside bak/
+
+* Client Exclusion Chain
+
+#+begin_src
+mod.client.js
+  └── gestalten/index.client.js
+        ├── is, cast, not, fromm, belt, shard  ← same as index.js
+        ├── controller/index.js                ← fully client-safe
+        └── compiler/index.client.js           ← NO aperture (Oak dep)
+              ├── agentic.js
+              ├── subscriber.js
+              └── object.js
+#+end_src
+
+* Dependency After Merge
+
+#+begin_src
+@vivalence/typology (merged)
+  prototypes/
+    signature.js, pattern.js, signal.js, path.js, url.js, action.js
+    vector.js, context.js                          ← from vector
+    errors/
+      index.js, connection.js, production.js       ← existing
+      vector.js                                    ← Long, Short, NotFound
+  gestalten/
+    is/, cast/, not/, fromm/                       ← unchanged
+    belt/
+      middleware.js                                 ← already done
+      ...existing utilities
+    shard/
+      secure.js                                    ← typology (authority + authorize)
+      secure.vector.js                             ← vector (context + authorize)
+      caching.js                                   ← from vector shards
+      ...existing
+    controller/                                    ← new gestalt
+      traverse.js, walk.js, invoke.js, match.js, shotgun.js
+    compiler/                                      ← new gestalt
+      agentic.js, subscriber.js, object.js
+      aperture/                                    ← Oak compiler (server-only)
+
+External: @oak/oak (only in compiler/aperture/)
+#+end_src
+
+* Known Issues to Resolve During Migration
+
+- traverse remainder increment bug: =match.params= and =match.parameters= get different keys due to double =remainder++= (lines 16-17 of traverse.js)
+- walk signal refresh: after first traverse call, signal retains its =.nature=, so =more()= is never called again for subsequent steps
+- Agentic compiler imports =controller= as a namespace — needs rewrite to direct import of =invoke=

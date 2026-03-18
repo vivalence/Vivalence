@@ -1,5 +1,9 @@
 <script>
+  import { Keyboard } from "@vivalence/drapes";
+
   const { terminal, product, seek = {}, recall, forgiving = true, speed = {} } = $props();
+
+  let keyboard;
 
   const recallProp = product?.data?.BUFFERED?.recall ?? recall ?? null;
   const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
@@ -180,6 +184,10 @@
     else loading = false;
   }
 
+  $effect(() => {
+    if (phase === "show") keyboard?.focus();
+  });
+
   function handleKey(event) {
     if (event.key === "Enter") {
       if (phase === "show") return skipToRecall();
@@ -189,6 +197,7 @@
   }
 </script>
 
+<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
 <div class="bsp-node root">
@@ -281,17 +290,20 @@
   <div class="bsp-chain-end menu">
     <div class="input-row">
       {#if phase === "show"}
-        <span class="menu-hint">reading...</span>
-      {:else if !submitted}
+        <span class="menu-hint" ontouchstart={(e) => keyboard?.guard(e)}>reading...</span>
+      {:else}
         <input
           class="field"
           value={input}
           oninput={(event) => (input = event.target.value)}
           placeholder="{answerLabel}…"
+          disabled={submitted}
           autofocus />
-        <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
-      {:else}
-        <button class="btn-next" onclick={next} disabled={loading}>Next →</button>
+        {#if !submitted}
+          <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
+        {:else}
+          <button class="btn-next" onclick={next} disabled={loading}>Next →</button>
+        {/if}
       {/if}
     </div>
   </div>

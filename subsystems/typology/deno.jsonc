@@ -20,5 +20,7 @@
     "test/classifier": "deno test -A --no-check --watch tests/classifier.test.js",
     "test/agent": "deno test -A --no-check --watch tests/agent.test.js",
     "test/agent/integration": "deno test -A --no-check --watch tests/agent.integration.test.js",
+    "test/freight": "deno test -A --no-check --watch tests/freight.test.js",
+    "test/context": "deno test -A --no-check --watch tests/context.test.js",
   },
 }

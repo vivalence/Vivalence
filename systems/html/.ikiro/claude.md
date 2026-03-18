@@ -1,3 +1,7 @@
+> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
+>
+> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+
 # HTML Client
 
 > Browser interface. Connects to daemon, renders modes, manages terminal/buffer lifecycle.
@@ -13,6 +17,7 @@ Surface. Under heavy construction. A SvelteKit app that connects to the runtime 
 - Tailwind CSS + PostCSS
 - nanostores for reactive state
 - @deno/vite-plugin for Deno compatibility
+- nginx:alpine for production serving (Docker)
 
 ## Structure
 
@@ -56,42 +61,47 @@ src/
 
 ### Bundle
 
-`deno task html/bundle` runs `vite build`. Requires paladin to resolve — needs env vars or circuitry:
+`deno task html/bundle` runs `vite build`. Only requires `VIVA_SYSTEM_MODE=BUILD` and `VIVA_SYSTEM_ROLE=CLIENT`. Paladin is NOT needed during build — `serverConfig()` in vite.config.mjs is gated behind `command === "serve"` and only runs for dev/preview.
 
-- **Local dev**: testament/variant/environment/ provides config via JSONC files
-- **Docker build**: env vars set in Dockerfile, VIVA_CIRCUITRY_MOUNT points to circuitry inside the image
-
-Key: adapter-static eliminates SSR entirely. The postbuild phase was failing under Deno because SSR workers couldn't resolve bare imports (`clsx`, `@sveltejs/kit/internal/server`). adapter-static with `fallback: "200.html"` sidesteps this — pure SPA output.
+Key: adapter-static eliminates SSR entirely. The postbuild phase was failing under Deno because SSR workers couldn't resolve bare imports (`clsx`, `@sveltejs/kit/internal/server`). adapter-static with `fallback: "200.html"` sidesteps this — pure SPA output. Revisit if Deno/Vite SSR resolution improves — adapter-node would eliminate the env.js entrypoint hack (see Docker Image below).
 
 `ssr.noExternal: true` in vite.config.mjs is required so that Vite bundles all dependencies into the SSR output rather than leaving bare imports for Deno to resolve (which fails in worker subprocesses).
 
+### Circular import constraint
+
+Entity files (`src/typology/entities/`) must NOT import from the barrel `@vivalence/html/typology`. The barrel re-exports all entities, creating circular dependencies that cause TDZ errors in the production bundle (Rollup flattens modules and can't linearize the cycle). Instead:
+
+- Entity files import `Entity` from `"../prototypes/entity.js"` (direct path)
+- `daemon.js` imports `Mode`, `Valence`, `Repository` from sibling/prototype files directly
+- `lighthouse/lifecycle.js` imports `Daemon` from `"../daemon.js"` and uses `await import("$client")` for `dataspace` (dynamic import breaks the static cycle)
+
+This works in dev (ESM live bindings resolve lazily) but breaks in production bundles. If you add a new entity or modify imports, verify with `deno task bundle && deno task preview`.
+
 ### Docker Image
 
-Dockerfile pattern:
-1. FROM vivalence/viva:alpine (has full repo + deps)
-2. COPY changed files (temporary bridge until base image is rebuilt)
-3. Set env vars for paladin: VIVA_SYSTEM_MODE=BUILD, VIVA_SYSTEM_ROLE=CLIENT, VIVA_CIRCUITRY_MOUNT, VIVA_CLIENT_HTML_SERVE, PUBLIC_VIVA_*
-4. `RUN deno task html/bundle` — builds static assets into systems/html/build/
-5. CMD runs serve.js — lightweight Deno static server with SPA fallback
+Multi-stage build:
+1. **Build stage** (vivalence/viva:alpine): sets `VIVA_SYSTEM_MODE=BUILD`, `VIVA_SYSTEM_ROLE=CLIENT`, runs `deno task html/bundle`. No circuitry, no PUBLIC_VIVA_* vars, no paladin needed.
+2. **Runtime stage** (nginx:alpine): copies `build/` from stage 1, serves static files on port 1794. nginx `try_files $uri $uri/ /200.html` handles SPA fallback for `[...viva]` routing.
 
-### serve.js
+**Environment variable injection**: SvelteKit adapter-static writes `PUBLIC_*` env vars to `build/_app/env.js` at build time. Since Docker build has no PUBLIC_VIVA_* vars, env.js is empty. The Dockerfile entrypoint script runs at container startup, reads `PUBLIC_VIVA_*` from docker-compose runtime env vars, and overwrites `_app/env.js` before nginx starts. This makes the image deployment-agnostic — same image, different env vars per deployment.
 
-14-line static file server using `@std/http/file-server`. Serves files from build/, falls back to 200.html for any non-file path (SPA client-side routing). Runs on port 1794.
+### Local Dev
 
-### Deployment Flow
-
-Docker-compose (registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml) sets:
-- `VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/circuitry/html`
-- `VIVA_CLIENT_HTML_SERVE=http://0.0.0.0:1794`
-- `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` and `PUBLIC_VIVA_CLIENT_HTML_REMOTE` with production URLs
-
-PUBLIC_VIVA_* vars that get baked into the SvelteKit bundle at build time determine where the client connects at runtime. For production builds, these should point to production URLs.
+- `deno task html/watch` — Vite dev server, needs `VIVA_SYSTEM_ROLE=CLIENT` and paladin (circuitry via testament/variant/environment/)
+- `deno task html/bundle` — production build, no paladin needed
+- `deno task html/preview` — serves the production build locally via Vite preview, needs paladin for host/port config
 
 ### vite.config.mjs and paladin
 
-The vite config imports paladin and awaits `paladin.ikiro` to get `paladin.variant.clients.html`. This provides server config (host, port, cors, allowedHosts). For `vite build`, the server config is irrelevant but paladin still needs to resolve — hence the env vars in the Dockerfile.
+Paladin is only loaded for dev and preview (`command === "serve"`), never during build. `serverConfig()` imports paladin, awaits `paladin.ikiro`, and reads `paladin.variant.clients.html` for host, port, cors config.
 
 Resolve aliases map `@vivalence/*` package imports to filesystem paths relative to the monorepo root. This is how the client accesses subsystem code (typology, shared, dapper, drapes, vector) without npm publishing.
+
+### Deployment Flow
+
+Docker-compose (registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml) sets runtime env vars on the html service:
+- `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` and `PUBLIC_VIVA_CLIENT_HTML_REMOTE` — injected into env.js at container startup
+- `VIVA_CIRCUITRY_MOUNT`, `VIVA_CLIENT_HTML_SERVE` — ignored by nginx (leftover from previous Deno-based serving)
 
 ## Work Packages
 
@@ -105,7 +115,7 @@ Resolve aliases map `@vivalence/*` package imports to filesystem paths relative 
 
 ### Active Work
 - Mobile readiness
-- ~~Serving built client (production)~~ DONE — adapter-static + serve.js + Docker
+- ~~Serving built client (production)~~ DONE — adapter-static + nginx + Docker multi-stage
 - Possible SvelteKit → Svelte migration
 - Possible React migration (future)
 - Session-first patterning

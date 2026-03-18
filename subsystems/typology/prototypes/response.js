@@ -6,6 +6,7 @@ export class Response {
     this.headers = new Map(Object.entries(response.headers || {}));
     this.body = response.body ?? null;
     this.error = response.error ?? null;
+    this.type = response.type ?? null;
   }
 
   get ok() {

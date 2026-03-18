@@ -7,15 +7,15 @@ specimen.describe("invoke", () => {
     const vector = new Vector();
     vector.open("greet", () => "hello");
 
-    const result = await invoke(vector, "greet");
+    const result = await invoke(vector, "greet")();
     specimen.expect(result).toBe("hello");
   });
 
-  specimen.it("passes context to effect", async () => {
+  specimen.it("passes input to effect", async () => {
     const vector = new Vector();
     vector.open("echo", (ctx) => ctx.input);
 
-    const result = await invoke(vector, "echo", { input: "ping" });
+    const result = await invoke(vector, "echo")("ping");
     specimen.expect(result).toBe("ping");
   });
 
@@ -26,22 +26,35 @@ specimen.describe("invoke", () => {
     vector.use(async (_, next) => { trace.push("mw"); await next(); });
     vector.open("action", () => { trace.push("effect"); return "done"; });
 
-    await invoke(vector, "action");
+    await invoke(vector, "action")();
     specimen.expect(trace).toEqual(["mw", "effect"]);
   });
 
-  specimen.it("sets path and signal on context", async () => {
+  specimen.it("extracts params from signal", async () => {
     const vector = new Vector();
-    const ctx = {};
-    vector.open("/users/:id", () => "found");
+    vector.open("/users/:id", (ctx) => ctx.params.id);
 
-    await invoke(vector, "/users/42", ctx);
-    specimen.expect(ctx.path).toBeTruthy();
-    specimen.expect(ctx.signal).toBeTruthy();
+    const result = await invoke(vector, "/users/42")();
+    specimen.expect(result).toBe("42");
   });
 
-  specimen.it("throws on no match", async () => {
+  specimen.it("throws on no match", () => {
     const vector = new Vector();
-    await specimen.expect(invoke(vector, "nope")).rejects.toThrow();
+    specimen.expect(() => invoke(vector, "nope")).toThrow();
+  });
+
+  specimen.it("custom strategy", async () => {
+    const vector = new Vector();
+    vector.open("ping", () => "pong");
+
+    const custom = (carry, effect, steps, signal) => async () => {
+      const ctx = { custom: true };
+      await carry(ctx, async (c) => { c.output = await effect(c); });
+      return { value: ctx.output, custom: ctx.custom };
+    };
+
+    const result = await invoke(vector, "ping", custom)();
+    specimen.expect(result.value).toBe("pong");
+    specimen.expect(result.custom).toBe(true);
   });
 });

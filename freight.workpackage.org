@@ -1,0 +1,802 @@
+#+TITLE: Freight — Asset Serving System
+#+STATUS: DRAFT
+
+* Summary
+
+Freight mirrors the View pattern for static file assets.
+Two new traits: FRAUGHT (mode provides assets), VOCALIZED (literal has audio).
+FRAUGHT is universal. First application: topology/brazilian-survival provides
+audio assets consumed by game/flashcard.
+
+Daemon-level freight merge: all FRAUGHT modes' catalogs merge into daemon.freight
+during resolution. Consuming modes don't need to know which mode owns an asset.
+
+* Reference: How View Works
+
+  The pattern freight mirrors end-to-end.
+
+  1. Prototype (typology/prototypes/view.js):
+     constructor receives relative path, wraps as Path.
+     Build step: bundle() compiles via esbuild.
+     Serve step: serve(branch) returns text + type.
+
+  2. Mode export (.viva.js):
+     const view = new View("buffer/flashcard.svelte.js");
+     export { manifest, view, dataset };
+
+  3. Population (daemon/lifecycle/population.js:127-136):
+     Resolves path: view.path.from(new Path(cake.mount.dirname))
+     Assigns URL: view.withUrl(daemonDie.good.attach.branch("/view").branch(...))
+
+  4. Trait handler (daemon/mode/traitmap.js:8-12):
+     view.withBundler(svelte); await view.bundle();
+     mode.aperture.open("/view", () => ({ url: view.url.absolute }));
+
+  5. Attachment (runtime/lifecycle/resolve.js:19-36):
+     /attached/view/{mode.mount}/(.*) serves bundled JS.
+     Uses fromm.params(ctx.params).path to extract the captured path.
+
+  6. Client (html/src/typology/entities/daemon.js:73):
+     if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
+     Frame.svelte: import(buffer.view.url)
+
+  Critical: mode.mount = URL path, mode.cake.mount = filesystem path.
+  Cake constructor does Object.assign so mode.view === mode.cake.view.
+
+* Paladin
+
+  No paladin changes needed. cast.viva (gestalten/cast/primitives.js:4-16) extracts
+  module exports as-is. If the module exports freight, it lands on the cake
+  automatically: { manifest, freight, dataset, mount }. The vip registers it
+  via pensieve.register({ ...cake, mount: new Path(path) }). Freight is just
+  another export — paladin is prototype-agnostic.
+
+* Design: Freight Prototype
+
+  Location: subsystems/typology/prototypes/freight.js
+  Server only. Uses Deno.readDir. NOT exported on client barrel.
+
+** Interface
+
+   constructor(path: string)
+     Wraps as Path. Passthrough: new Freight(existingFreight) === existingFreight.
+     Initializes entries = [].
+
+   withUrl(url: Url) → self
+     Stores attachment URL for catalog generation.
+
+   async index(root?: string) → self
+     Recursive scan of this.path.absolute. root is internal recursion param
+     tracking relative path. Populates this.entries.
+
+   resolve(query: string) → entry | undefined
+     Three-pass lookup in priority order:
+       1. Exact path match: query === entry.path
+       2. Path without extension: query === path minus ext
+       3. Slug match: query === entry.slug
+     Lets literal authors write either path ("sentences/oi-tudo-bem") or slug ("oi-tudo-bem").
+
+   get catalog → { [pathWithoutExt]: { type, url } }
+     Keys: entry path minus extension. Unique identifier per file.
+     url: this.url.branch("/" + entry.path).absolute, or null if withUrl not called.
+
+** Entry Shape
+
+   #+begin_src js
+   {
+     slug: "oi-tudo-bem",                  // filename minus extension
+     path: "sentences/oi-tudo-bem.mp3",    // relative to freight root, with extension
+     type: "audio/mpeg",                   // mime from extension
+   }
+   #+end_src
+
+   Flat files: path === filename ("beep.mp3").
+   Nested: path includes subdirectory ("sentences/oi-tudo-bem.mp3").
+
+** Mime Map
+
+   mp3→audio/mpeg wav→audio/wav ogg→audio/ogg
+   png→image/png jpg→image/jpeg jpeg→image/jpeg svg→image/svg+xml webp→image/webp
+   mp4→video/mp4 webm→video/webm json→application/json
+   Unknown → application/octet-stream
+
+** Implementation
+
+   #+begin_src js
+   import { Path } from "./path.js";
+
+   const MIME = {
+     mp3: "audio/mpeg", wav: "audio/wav", ogg: "audio/ogg",
+     png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg",
+     svg: "image/svg+xml", webp: "image/webp",
+     mp4: "video/mp4", webm: "video/webm",
+     json: "application/json",
+   };
+
+   export class Freight {
+     entries = [];
+
+     constructor(path) {
+       if (path instanceof Freight) return path;
+       this.path = new Path(path);
+     }
+
+     withUrl(url) {
+       this.url = url;
+       return this;
+     }
+
+     async index(root = "") {
+       const base = root
+         ? this.path.branch("/" + root).absolute
+         : this.path.absolute;
+
+       for await (const entry of Deno.readDir(base)) {
+         const relative = root ? root + "/" + entry.name : entry.name;
+         if (entry.isDirectory) {
+           await this.index(relative);
+           continue;
+         }
+         if (!entry.isFile) continue;
+         const ext = entry.name.split(".").pop().toLowerCase();
+         this.entries.push({
+           slug: entry.name.replace(/\.[^.]+$/, ""),
+           path: relative,
+           type: MIME[ext] || "application/octet-stream",
+         });
+       }
+       return this;
+     }
+
+     resolve(query) {
+       return (
+         this.entries.find((e) => e.path === query) ||
+         this.entries.find((e) => e.path.replace(/\.[^.]+$/, "") === query) ||
+         this.entries.find((e) => e.slug === query)
+       );
+     }
+
+     get catalog() {
+       return Object.fromEntries(
+         this.entries.map((e) => [
+           e.path.replace(/\.[^.]+$/, ""),
+           {
+             type: e.type,
+             url: this.url ? this.url.branch("/" + e.path).absolute : null,
+           },
+         ]),
+       );
+     }
+   }
+   #+end_src
+
+* Design: VOCALIZED Literal Trait
+
+  #+begin_src js
+  {
+    slug: "oi-tudo-bem",
+    traits: ["TRANSLATED", "ANNOTATED", "VOCALIZED", "RANKED"],
+    data: {
+      TRANSLATED: { known: "Hi, how are you?", learning: "Oi, tudo bem?" },
+      VOCALIZED: { asset: { path: "sentences/oi-tudo-bem.mp3" } },
+      RANKED: { rank: 1 },
+    },
+  }
+  #+end_src
+
+  - asset.path: file path relative to freight root, with extension.
+    Resolves via freight.resolve exact path match (first priority).
+  - VOCALIZED is domain-specific. System level only knows FRAUGHT.
+  - VOCALIZED lives in the domain entity definition, not typology.
+
+* Design: Daemon-Level Freight
+
+** Merge
+
+   After all modes resolve their traits (so FRAUGHT has run index()), a new
+   resolution step merges all FRAUGHT modes' catalogs into daemon.freight.
+
+   Location: daemon/lifecycle/resolution.js, new export freight().
+
+   #+begin_src js
+   export async function freight(daemonDie) {
+     daemonDie.good.freight = {};
+     for (const mode of daemonDie.good.flatmodes()) {
+       if (!mode.implements("FRAUGHT")) continue;
+       const catalog = mode.cake.freight.catalog;
+       for (const [key, value] of Object.entries(catalog)) {
+         if (daemonDie.good.freight[key]) {
+           console.warn(`[FREIGHT] slug collision: "${key}" — overwriting`);
+         }
+         daemonDie.good.freight[key] = value;
+       }
+     }
+   }
+   #+end_src
+
+   Slug collision is a dataset bug. Warn, don't crash.
+
+** Discovery Endpoint
+
+   Location: daemon/aperture/freight.js (new file, alongside modes.js,
+   datamap.js, userspace.js).
+
+   #+begin_src js
+   export async function freight(die) {
+     die.good.aperture.open("/freight", () => die.good.freight);
+   }
+   #+end_src
+
+   Call site: daemon/aperture/index.js (add export).
+   Client fetches: daemon.connection.call("/freight") → merged catalog.
+
+** Vector Compilation (future-ready)
+
+   The catalog's path-based keys are Vector-compatible. Future evolution:
+   compile freight entries into a Vector for the attachment instead of using
+   a catch-all (.*) handler. Each file becomes a named route:
+
+   #+begin_src js
+   const freightVector = new Vector();
+   for (const entry of mode.cake.freight.entries) {
+     freightVector.branch(entry.path.split("/").slice(0, -1).join("/"))
+       .open(entry.slug, serveFile(entry));
+   }
+   #+end_src
+
+   This enables: compiler.object(freightVector) for programmatic access,
+   compiler.oak(freightVector) for attachment routing. Not implemented in M1
+   but the data shape is designed for it.
+
+* Design: Runtime Attachment
+
+  File serving lives in runtime/lifecycle/resolve.js:attach() alongside
+  attachProcesses and attachDaemons. New function: attachFreight().
+
+** Path Extraction Detail
+
+   The (.*) capture via aperture produces params = { 0: "full/path/file.mp3" }.
+   fromm.params(ctx.params).path (gestalten/fromm/index.js:29-39) builds a Path
+   by iterating params[depth]. With a single capture, this yields a Path with
+   nature "/full/path/file.mp3" (Path normalizes by prepending /).
+
+   Freight entry paths don't have leading slash. Strip it before resolve:
+   path.nature.replace(/^\//, "")
+
+** Implementation
+
+   #+begin_src js
+   async function attachFreight(runtimeDie) {
+     for (const daemonDie of runtimeDie.good.daemons) {
+       for (const mode of daemonDie.good.flatmodes()) {
+         if (!mode.implements("FRAUGHT")) continue;
+         runtimeDie.good.aperture
+           .branch("/attached/freight")
+           .branch(mode.mount.absolute)
+           .use(shards.context.attach("mode", mode))
+           .open("/(.*)", async (input, ctx) => {
+             const captured = fromm.params(ctx.params).path;
+             const query = captured.nature.replace(/^\//, "");
+             const entry = ctx.mode.cake.freight.resolve(query);
+             if (!entry) {
+               ctx.response.status = 404;
+               return;
+             }
+             const filePath = ctx.mode.cake.freight.path
+               .branch("/" + entry.path).absolute;
+             ctx.response.type = entry.type;
+             return await Deno.readFile(filePath);
+           });
+       }
+     }
+   }
+   #+end_src
+
+   Uses /(.*) not /:file — filenames contain dots.
+   Uint8Array return: Oak handles binary via ctx.response.body.
+   ctx.response.type set before return bypasses JSON default in compose middleware.
+
+   URL structure:
+   http://HOST/attached/freight/daemon/SLUG/mode/topology/SLUG/file.mp3
+   Mirrors: http://HOST/attached/view/daemon/SLUG/mode/game/SLUG/bundle.js
+
+* Design: Client Integration
+
+** Daemon Lifecycle (html/src/typology/entities/daemon.js)
+
+   After mode setup loop, fetch merged daemon freight:
+
+   #+begin_src js
+   daemon.freight = await daemon.connection.call("/freight");
+   #+end_src
+
+   daemon.freight = { "oi-tudo-bem": { type: "audio/mpeg", url: "http://..." }, ... }
+
+** Buffer Context (html/src/routes/[...viva]/lib/populate.js)
+
+   Pass daemon.freight into Buffer context:
+
+   #+begin_src js
+   const buffer = new Buffer(
+     { terminal: ctx.terminal, freight: ctx.terminal.daemon.freight },
+     ctx.terminal.mode.view,
+   );
+   #+end_src
+
+** Game View
+
+   When a game view encounters a VOCALIZED literal:
+
+   #+begin_src js
+   const assetPath = product.literal.data.VOCALIZED.asset.path;
+   const key = assetPath.replace(/\.[^.]+$/, "");
+   const asset = buffer.context.freight[key];
+   // asset.url → full URL, asset.type → mime
+   // <audio src={asset.url} />
+   #+end_src
+
+* Design: Mode Export
+
+  #+begin_src js
+  import { Freight } from "@vivalence/typology";
+  import dataset from "./dataset/index.js";
+
+  const manifest = {
+    type: "topology",
+    slug: "english-to-brazilian-survival",
+    version: "0.0.0",
+    traits: ["DATASET", "FRAUGHT"],
+  };
+
+  const freight = new Freight("assets/audio");
+
+  export { manifest, freight, dataset };
+  #+end_src
+
+  On disk:
+  #+begin_example
+  registry/kernels/@vivalence/topology/english-to-brazilian-survival/
+    brazilian.viva.js
+    assets/audio/
+      oi-tudo-bem.mp3
+      eu.mp3
+      ...
+    dataset/
+      index.js
+      literals/
+  #+end_example
+
+* Changes By File
+
+** NEW subsystems/typology/prototypes/freight.js
+   Freight class. ~35 lines.
+
+** NEW subsystems/typology/tests/freight.test.js
+   Unit tests. See Testing section for full source.
+
+** subsystems/typology/prototypes/index.ts:14
+   #+begin_src js
+   export * from "./freight.js";
+   #+end_src
+
+** subsystems/typology/prototypes/index.client.js
+   Do NOT add freight. Server only (Deno.readDir).
+
+** subsystems/typology/deno.jsonc
+   #+begin_src json
+   "test/freight": "deno test -A --no-check --watch tests/freight.test.js"
+   #+end_src
+
+** subsystems/typology/entities/daemon/Mode.ts:14
+   Uncomment: FRAUGHT = "FRAUGHT",
+
+** subsystems/typology/entities/kernel/Literal.ts:9
+   #+begin_src ts
+   export enum LiteralTraitsEnum {
+     VOCALIZED = "VOCALIZED",
+   }
+   #+end_src
+
+** systems/runtime/daemon/mode/traitmap.js:12
+   After VIEWABLE:
+   #+begin_src js
+   export const FRAUGHT = async (mode, daemon) => {
+     await mode.cake.freight.index();
+     mode.aperture.open("/freight", () => mode.cake.freight.catalog);
+   };
+   #+end_src
+
+** systems/runtime/daemon/lifecycle/population.js:136
+   After VIEWABLE if-block:
+   #+begin_src js
+   if (mode.implements("FRAUGHT")) {
+     mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
+     const url = daemonDie.good.attach
+       .branch("/freight")
+       .branch(mode.mount.absolute);
+     mode.cake.freight.withUrl(url);
+   }
+   #+end_src
+
+** systems/runtime/daemon/daemon.js:20
+   Add property:
+   #+begin_src js
+   freight = {};
+   #+end_src
+
+** systems/runtime/daemon/lifecycle/resolution.js
+   Add freight merge (new export):
+   #+begin_src js
+   export async function freight(daemonDie) {
+     daemonDie.good.freight = {};
+     for (const mode of daemonDie.good.flatmodes()) {
+       if (!mode.implements("FRAUGHT")) continue;
+       const catalog = mode.cake.freight.catalog;
+       for (const [key, value] of Object.entries(catalog)) {
+         if (daemonDie.good.freight[key])
+           console.warn(`[FREIGHT] slug collision: "${key}"`);
+         daemonDie.good.freight[key] = value;
+       }
+     }
+   }
+   #+end_src
+
+** systems/runtime/daemon/die.js resolve()
+   Add after lifecycle.resolution.modes(this):
+   #+begin_src js
+   await lifecycle.resolution.freight(this);
+   #+end_src
+
+** NEW systems/runtime/daemon/aperture/freight.js
+   #+begin_src js
+   export async function freight(die) {
+     die.good.aperture.open("/freight", () => die.good.freight);
+   }
+   #+end_src
+
+** systems/runtime/daemon/aperture/index.js
+   Add export:
+   #+begin_src js
+   export * from "./freight.js";
+   #+end_src
+
+** systems/runtime/lifecycle/resolve.js
+   In attach(), add call:
+   #+begin_src js
+   await attachFreight(runtimeDie);
+   #+end_src
+   Add attachFreight function (see Runtime Attachment section).
+
+** systems/html/src/typology/entities/daemon.js
+   After mode loop (~line 77):
+   #+begin_src js
+   daemon.freight = await daemon.connection.call("/freight");
+   #+end_src
+
+** systems/html/src/routes/[...viva]/lib/populate.js
+   Pass freight into Buffer context (both BUFFERED and PRODUCTIVE paths).
+
+** registry/kernels/.../english-to-brazilian-survival/brazilian.viva.js
+   Add FRAUGHT trait and freight export.
+
+** registry/kernels/.../english-to-brazilian-survival/dataset/literals/sentences.js
+   Add VOCALIZED trait + data to literals with matching audio.
+
+** NEW registry/kernels/.../english-to-brazilian-survival/assets/audio/
+   Audio files (or dummy files for testing).
+
+* Testing
+
+** Layer 1: Freight Prototype — subsystems/typology/tests/freight.test.js
+
+   #+begin_src js
+   import { specimen, Path, Url } from "@vivalence/typology";
+   import { Freight } from "@vivalence/typology";
+
+   let dir;
+
+   async function fixtures() {
+     dir = await Deno.makeTempDir();
+     await Deno.writeFile(`${dir}/beep.mp3`, new Uint8Array([0xff, 0xfb]));
+     await Deno.writeFile(`${dir}/icon.png`, new Uint8Array([0x89, 0x50]));
+     await Deno.writeFile(`${dir}/data.json`, new TextEncoder().encode("{}"));
+     await Deno.writeFile(`${dir}/mystery.xyz`, new Uint8Array([0x00]));
+     await Deno.mkdir(`${dir}/nested`, { recursive: true });
+     await Deno.writeFile(`${dir}/nested/deep.wav`, new Uint8Array([0x52, 0x49]));
+     await Deno.mkdir(`${dir}/nested/deeper`, { recursive: true });
+     await Deno.writeFile(`${dir}/nested/deeper/buried.ogg`, new Uint8Array([0x4f, 0x67]));
+     return dir;
+   }
+
+   async function indexed(d) {
+     const freight = new Freight(d);
+     freight.path.from(new Path(d));
+     await freight.index();
+     return freight;
+   }
+
+   specimen.describe("Freight", () => {
+     specimen.describe("construction", () => {
+       specimen.it("from string wraps as Path", () => {
+         const freight = new Freight("assets/audio");
+         specimen.expect(freight.path.nature).toBe("/assets/audio");
+       });
+
+       specimen.it("from Freight returns same instance", () => {
+         const original = new Freight("assets");
+         const copy = new Freight(original);
+         specimen.expect(copy).toBe(original);
+       });
+
+       specimen.it("starts with empty entries", () => {
+         const freight = new Freight("assets");
+         specimen.expect(freight.entries).toEqual([]);
+       });
+     });
+
+     specimen.describe("withUrl", () => {
+       specimen.it("stores url and returns self", () => {
+         const freight = new Freight("assets");
+         const url = new Url("http://localhost:3000/attached/freight");
+         const result = freight.withUrl(url);
+         specimen.expect(result).toBe(freight);
+         specimen.expect(freight.url).toBe(url);
+       });
+     });
+
+     specimen.describe("index", () => {
+       specimen.it("populates entries from directory", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.entries.length).toBe(6);
+       });
+
+       specimen.it("slug is filename without extension", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.entries.find((e) => e.path === "beep.mp3");
+         specimen.expect(entry.slug).toBe("beep");
+       });
+
+       specimen.it("path is relative to freight root", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.entries.find((e) => e.slug === "deep");
+         specimen.expect(entry.path).toBe("nested/deep.wav");
+       });
+
+       specimen.it("recurses into subdirectories", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.entries.find((e) => e.slug === "buried");
+         specimen.expect(entry).toBeDefined();
+         specimen.expect(entry.path).toBe("nested/deeper/buried.ogg");
+       });
+
+       specimen.it("mp3 maps to audio/mpeg", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.entries.find((e) => e.slug === "beep").type)
+           .toBe("audio/mpeg");
+       });
+
+       specimen.it("png maps to image/png", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.entries.find((e) => e.slug === "icon").type)
+           .toBe("image/png");
+       });
+
+       specimen.it("json maps to application/json", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.entries.find((e) => e.slug === "data").type)
+           .toBe("application/json");
+       });
+
+       specimen.it("unknown extension maps to application/octet-stream", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.entries.find((e) => e.slug === "mystery").type)
+           .toBe("application/octet-stream");
+       });
+
+       specimen.it("empty directory produces empty entries", async () => {
+         const empty = await Deno.makeTempDir();
+         const freight = new Freight(empty);
+         freight.path.from(new Path(empty));
+         await freight.index();
+         specimen.expect(freight.entries).toEqual([]);
+       });
+
+       specimen.it("returns self for chaining", async () => {
+         const d = await fixtures();
+         const freight = new Freight(d);
+         freight.path.from(new Path(d));
+         const result = await freight.index();
+         specimen.expect(result).toBe(freight);
+       });
+     });
+
+     specimen.describe("resolve", () => {
+       specimen.it("finds by exact path", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.resolve("nested/deep.wav");
+         specimen.expect(entry).toBeDefined();
+         specimen.expect(entry.slug).toBe("deep");
+       });
+
+       specimen.it("finds by path without extension", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.resolve("nested/deep");
+         specimen.expect(entry).toBeDefined();
+         specimen.expect(entry.slug).toBe("deep");
+       });
+
+       specimen.it("finds by slug", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.resolve("beep");
+         specimen.expect(entry).toBeDefined();
+         specimen.expect(entry.path).toBe("beep.mp3");
+       });
+
+       specimen.it("path match takes priority over slug", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         const entry = freight.resolve("nested/deep");
+         specimen.expect(entry.path).toBe("nested/deep.wav");
+       });
+
+       specimen.it("returns undefined for missing", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.resolve("nonexistent")).toBeUndefined();
+       });
+     });
+
+     specimen.describe("catalog", () => {
+       specimen.it("keys are paths without extension", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         freight.withUrl(new Url("http://localhost:3000/freight"));
+         const catalog = freight.catalog;
+         specimen.expect(catalog["beep"]).toBeDefined();
+         specimen.expect(catalog["nested/deep"]).toBeDefined();
+         specimen.expect(catalog["nested/deeper/buried"]).toBeDefined();
+       });
+
+       specimen.it("values have type and url", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         freight.withUrl(new Url("http://localhost:3000/freight"));
+         const catalog = freight.catalog;
+         specimen.expect(catalog["beep"].type).toBe("audio/mpeg");
+         specimen.expect(catalog["beep"].url).toContain("beep.mp3");
+       });
+
+       specimen.it("url branches freight url by entry path", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         freight.withUrl(new Url("http://localhost:3000/freight"));
+         specimen.expect(freight.catalog["nested/deep"].url)
+           .toBe("http://localhost:3000/freight/nested/deep.wav");
+       });
+
+       specimen.it("url is null when withUrl not called", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         specimen.expect(freight.catalog["beep"].url).toBeNull();
+       });
+
+       specimen.it("includes all indexed entries", async () => {
+         const d = await fixtures();
+         const freight = await indexed(d);
+         freight.withUrl(new Url("http://localhost:3000/freight"));
+         specimen.expect(Object.keys(freight.catalog).length)
+           .toBe(freight.entries.length);
+       });
+     });
+   });
+   #+end_src
+
+** Layer 2: Enum Wiring
+   Compile-verified. No dedicated tests.
+
+** Layer 3: FRAUGHT Trait — systems/runtime/tests/daemon/freight.test.js
+
+   Light unit tests. Real Freight + real Aperture, mock mode object.
+
+   #+begin_src
+   describe "FRAUGHT trait"
+     setup:
+       temp dir with files
+       freight = new Freight(dir), resolve path, index
+       mode = { cake: { freight }, aperture: new Aperture(), implements: () => true }
+
+     it "indexes freight entries"
+        assert: mode.cake.freight.entries.length > 0
+
+     it "exposes /freight on mode aperture returning catalog"
+        invoke: aperture /freight endpoint
+        assert: returns object with expected keys and {type, url} values
+   #+end_src
+
+** Layer 4: Daemon Freight Merge
+
+   #+begin_src
+   describe "daemon freight merge"
+     it "single FRAUGHT mode → its catalog entries"
+     it "multiple FRAUGHT modes → union"
+     it "non-FRAUGHT modes ignored"
+     it "collision logs warning, last write wins"
+   #+end_src
+
+** Layer 5: Integration Tests (DESIGNED, DEFERRED)
+
+   Require running daemon with auth. Design only, not implemented.
+
+   #+begin_src
+   describe "freight integration"
+     it "FRAUGHT topology /freight returns catalog"
+        curl: /daemon/SLUG/mode/topology/SLUG/freight
+        assert: JSON with slug→{type, url}
+
+     it "daemon /freight returns merged catalog"
+        curl: /daemon/SLUG/freight
+        assert: contains entries from all FRAUGHT modes
+
+     it "attachment serves file bytes"
+        curl: URL from catalog
+        assert: body matches source file, content-type matches entry.type
+
+     it "404 for unknown freight path"
+        curl: /attached/freight/.../nonexistent.mp3
+        assert: 404
+
+     it "client daemon.freight populated"
+        assert: after lifecycle, daemon.freight contains merged catalog
+
+     it "VOCALIZED literal resolves in freight"
+        assert: literal.data.VOCALIZED.asset.path (minus ext) exists as key in daemon.freight
+
+     it "flashcard buffer context carries freight"
+        assert: buffer.context.freight is populated
+
+     it "audio plays for vocalized literal"
+        assert: audio element src matches freight URL
+   #+end_src
+
+* Milestones
+
+** M1: Freight Prototype
+   TDD. Tests first, then implement.
+   Files: freight.js, freight.test.js, index.ts, deno.jsonc
+   Gate: deno task test/freight — all green.
+
+** M2: Enum Wiring
+   Files: Mode.ts (uncomment FRAUGHT), Literal.ts (add VOCALIZED)
+   Gate: existing tests still pass.
+
+** M3: FRAUGHT Trait + Population
+   Files: traitmap.js, population.js, freight.test.js (runtime)
+   Gate: Layer 3 tests pass.
+
+** M4: Daemon Merge + Discovery + Attachment
+   Files: daemon.js, die.js, resolution.js, aperture/freight.js,
+          aperture/index.js, runtime/lifecycle/resolve.js
+   Gate: Layer 4 tests pass. Manual curl verification.
+
+** M5: Topology Wiring
+   Files: brazilian.viva.js, sentences.js, assets/audio/ (dummy files)
+   Gate: daemon boots, freight catalog populated, URLs serve files.
+
+** M6: Client Integration
+   Files: daemon.js (client), populate.js
+   Gate: daemon.freight available, buffer context carries freight.
+
+** M7: Game View Audio
+   Files: game view svelte component(s)
+   Gate: flashcard renders audio control, play works.

@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof -ti:4173)",
+      "Bash(xargs kill:*)",
+      "Bash(deno task:*)",
+      "Bash(lsof -ti:1794)",
+      "Bash(grep -A 5 '\"\"bundle\"\"' /Users/finn/vivalence/code/vivalence/systems/html/deno.jsonc)",
+      "Bash(docker info:*)",
+      "Bash(docker images:*)",
+      "Bash(docker run:*)",
+      "Bash(DOCKER_BUILDKIT=1 docker build -f systems/html/Dockerfile -t vivalence/html:alpine .)",
+      "Bash(curl -s http://localhost:1794/_app/env.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1794/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1794/viva/daemon/brazilian/mode/tactic/populate)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1794/_app/immutable/chunks/DigwmmiD.js)",
+      "Bash(docker stop:*)",
+      "Bash(DOCKER_BUILDKIT=1 docker build -f systems/html/Dockerfile -t vivalence/html:alpine --no-cache .)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:1794/viva/deep/route)",
+      "Bash(python3 -c \"import sys,json; [print\\(json.loads\\(l\\).get\\(''''message'''',{}\\).get\\(''''content'''',''''''''\\)[:200]\\) for l in sys.stdin if ''''human'''' in json.loads\\(l\\).get\\(''''role'''',''''''''\\)]\")",
+      "Bash(done)",
+      "Bash(python3:*)"
+    ]
+  }
+}

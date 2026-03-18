@@ -4,13 +4,15 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
       "TRANSLATED": {
         "known": "I",
         "learning": "eu"
       },
+      "VOCALIZED": { "asset": { "path": "words/eu.wav" } },
       "EXEMPLIFIED": {
         "known": "I am hungry",
         "learning": "Eu estou com fome"
@@ -59,13 +61,15 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
       "TRANSLATED": {
         "known": "you",
         "learning": "você"
       },
+      "VOCALIZED": { "asset": { "path": "words/voce.wav" } },
       "EXEMPLIFIED": {
         "known": "Are you okay?",
         "learning": "Você está bem?"
@@ -114,9 +118,11 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
+      "VOCALIZED": { "asset": { "path": "words/ele.wav" } },
       "TRANSLATED": {
         "known": "he",
         "learning": "ele"
@@ -169,9 +175,11 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
+      "VOCALIZED": { "asset": { "path": "words/ela.wav" } },
       "TRANSLATED": {
         "known": "she",
         "learning": "ela"
@@ -224,9 +232,11 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
+      "VOCALIZED": { "asset": { "path": "words/nos.wav" } },
       "TRANSLATED": {
         "known": "we",
         "learning": "nós"
@@ -276,9 +286,11 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
     "data": {
+      "VOCALIZED": { "asset": { "path": "words/eles.wav" } },
       "TRANSLATED": {
         "known": "they (masc.)",
         "learning": "eles"

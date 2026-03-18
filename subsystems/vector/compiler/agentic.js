@@ -54,13 +54,9 @@ export class Agentic {
       valence: pattern.valence || "",
       input: pattern.input,
       output: pattern.output,
-      execute: async (input, context = {}) => {
+      execute: async (input) => {
         try {
-          const result = await controller.invoke(vector, path, {
-            ...context,
-            input,
-          });
-          return result;
+          return await controller.invoke(vector, path)(input);
         } catch (error) {
           console.error(`[Agentic] Tool execution failed: ${toolName}`, error);
           throw error;

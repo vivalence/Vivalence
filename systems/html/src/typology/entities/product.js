@@ -1,3 +1,3 @@
-import { Entity } from "@vivalence/html/typology";
+import { Entity } from "../prototypes/entity.js";
 export class Product extends Entity {}
 export const prototype = Product;

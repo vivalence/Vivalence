@@ -6,7 +6,9 @@ import { object } from "@vivalence/typology";
 import { DataEntity, DataSchema, DataRepository } from "../index.ts";
 import { ProductEntity, SymbolEntity } from "../index.ts";
 
-export enum LiteralTraitsEnum {}
+export enum LiteralTraitsEnum {
+  _ = "_",
+}
 
 export class LiteralRepository extends DataRepository {
   unique(opt) {
