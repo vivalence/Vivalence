@@ -11,6 +11,9 @@
     "start": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite dev",
     "bundle": "deno run -A npm:vite build",
     "preview": "deno run -A npm:vite preview",
+
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test/scenario": "deno test -A --no-check --watch tests/scenario/*.test.js",
   },
 }
 

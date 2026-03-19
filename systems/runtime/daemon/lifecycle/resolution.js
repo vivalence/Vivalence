@@ -1,5 +1,4 @@
-import { Aperture } from "@vivalence/vector/aperture";
-import { is, shards } from "@vivalence/typology";
+import { Aperture, is, shards } from "@vivalence/typology";
 
 export async function kernel(daemonDie) {
   daemonDie.kernel.domain.aperture //

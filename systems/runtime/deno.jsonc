@@ -7,6 +7,7 @@
     "./run": "./run.js",
     "./daemon": "./daemon/index.js",
     "./process": "./process/index.js",
+    "./tests/scenario": "./tests/scenario/daemon.js",
   },
   "tasks": {
     "start": "deno run -A run.js",

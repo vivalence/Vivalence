@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{DAEMON}}/entities/symbol/find
+  url: {{DAEMON}}/entities/literal/find
   body: json
   auth: bearer
 }
@@ -15,10 +15,9 @@ auth:bearer {
 }
 
 body:json {
-  {
+  { 
     "options": {
-      "limit": 1,
-      "populate":["literals"]
+      "limit": 5,
     }
   }
 }

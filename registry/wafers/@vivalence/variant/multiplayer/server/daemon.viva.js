@@ -1,6 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Url, Env } from "@vivalence/typology";
-import { Vector } from "@vivalence/vector";
+import { Url, Env, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "circuit",

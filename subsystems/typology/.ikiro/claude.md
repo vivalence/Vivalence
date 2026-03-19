@@ -16,7 +16,7 @@ Library. A grabbag of composable building blocks — everything in the system bu
 |------|-------|---------|
 | mod.ts | 14 | Server entry — re-exports prototypes, gestalten, schematics, entities, specimen, types |
 | mod.client.js | 8 | Client entry — prototypes (client version), gestalten, trait only. Excludes entities/schematics/agents |
-| deno.jsonc | 25 | Package config. Exports: `.`, `./prototypes`, `./schematics`, `./gestalten`, `./entities`, `./specimen` |
+| deno.jsonc | — | Package config. Exports: `.`, `./prototypes`, `./schematics`, `./gestalten`, `./entities`, `./specimen`, `./controller`, `./compiler`, `./aperture` |
 
 ## Prototypes
 
@@ -67,14 +67,14 @@ AI execution controller. Fluent API: `withBrain(brain)`, `withInput(schema)`, `w
 
 Imports from @vivalence/shared: `validators` (AJV), `hash`, `obj` (stripNulls, merge).
 
-**Connection** `prototypes/connection.js` (237 lines)
-HTTP connection with middleware. `use(fn)` wraps transport, `branch(path)` creates child with extended URL, `fetch(endpoint, body, options)` executes request, `call()` fetch with error throwing, `aim()` curried call. State: nanostores atoms for `$state` (IDLE), `$error`, `$isConnected`, `$isError`.
+**Connection** `prototypes/connection.js`
+HTTP connection with middleware. `use(fn)` wraps transport, `branch(path)` creates child with extended URL, `fetch(endpoint, body, options)` executes request, `call()` fetch with error throwing, `aim()` curried call. State: nanostores atoms for `$state` (IDLE), `$error`, `$isConnected`, `$isError`. Raw protocol methods (bypass transport middleware): `subscribe(endpoint, options)` async generator for SSE consumption (buffers frames, yields JSON or string), `websocket(endpoint)` returns native WebSocket with http→ws URL conversion.
 
-**Request** `prototypes/request.js` (76 lines)
-HTTP request object. Properties: `url` (auto-coerced to Url), `method` (default POST), `headers` (Map), `body`, `query`, `path`, `options` (timeout: 30000, retries: 0, credentials: include), `signal` (lazy AbortController).
+**Request** `prototypes/request.js`
+HTTP request object. Properties: `url` (auto-coerced to Url), `method` (default POST), `headers` (Map), `body`, `query`, `path`, `raw` (native Request, set by http compiler — transient, not in clone/json), `options` (timeout: 30000, retries: 0, credentials: include), `signal` (lazy AbortController). `stream()` returns `raw?.body` (native ReadableStream) or null.
 
-**Response** `prototypes/response.js` (63 lines)
-HTTP response. Status helpers: `ok` (200-299), `isNetworkError` (0), `isServerError` (500+), `isClientError` (400-499), `isAuthError` (401/403).
+**Response** `prototypes/response.js`
+HTTP response. Status helpers: `ok` (200-299), `isNetworkError` (0), `isServerError` (500+), `isClientError` (400-499), `isAuthError` (401/403). Streaming: `stream(source)` creates pull-based ReadableStream from async iterable (strings encode via TextEncoder, Uint8Array passes through). `events(source)` composes over stream — sets type to `text/event-stream`, formats SSE frames (`data: ...\n\n`), delegates to stream().
 
 **Context** `prototypes/context.js` (17 lines)
 Unified request/response container. Wraps Request + Response with alias properties: `input` (get/set → `request.body`), `output` (get/set → `response.body`). Also holds `state: {}` and `params: {}`. Used by the http compiler as the execution context — middleware and effects operate on Context. The same shape used by Connection's transport layer and daemon internal calls.
@@ -104,7 +104,13 @@ Filtering/blocking utility.
 | env.js | 56 | Environment config |
 | mask.js | 33 | Exported but never imported outside typology — **likely dead** |
 
-**Error types:** BaseError, ConnectionError, ProductionError in prototypes/errors/.
+**Vector** `prototypes/vector.js`
+Hierarchical routing trie with middleware accumulation. Constructor takes `(ancestor, signature = Pattern)`. Three internal maps: `effects` (Pattern → effect function), `trajectories` (Pattern → child Vector), `carry` (middleware array). API: `use(middleware)` pushes to carry, `branch(signature)` creates/finds child Vector, `open(signature, effect)` registers leaf effect, `slurp(vector)` merges another Vector's effects/trajectories/carry. Multi-segment signatures auto-decompose via Pattern.heir — `open("a/b/c", fn)` branches a→b then sets effect at c.
+
+**Aperture** `prototypes/aperture.js` extends Vector
+Method-dispatch routing. `.get(sig, handler)`, `.post(sig, handler)`, `.put()`, `.patch()`, `.delete()` register HTTP method-specific handlers via internal `_route()`. When multiple methods are registered on the same pattern, a `methods()` dispatcher is created that checks `ctx.request.method` — returns 405 for unmatched methods. `.open()` effects become the `*` wildcard method fallback.
+
+**Error types:** BaseError, ConnectionError, ProductionError in prototypes/errors/. Vector errors (Long, Short, NotFound) in prototypes/errors/vector.js.
 
 ## Entities
 
@@ -209,16 +215,40 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | strings.js | 3 | String utilities |
 | time.js | 14 | Time utilities |
 
-### shard/ — Network Primitives (6 modules)
+### shard/ — Network Primitives + HTTP Shards
 
-| File | Lines | Contents |
-|------|-------|---------|
-| connection.js | 76 | Connection shard middleware |
-| context.js | 7 | Context extraction |
-| patterns.js | 1 | Pattern definitions |
-| request.js | 7 | Request handling |
-| secure.js | 120 | Security middleware (JWT) |
-| transporter.js | 120 | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
+| File | Contents |
+|------|---------|
+| connection.js | Connection shard middleware |
+| context.js | `attach(key, val)` — context extraction middleware |
+| patterns.js | Pattern definitions |
+| request.js | Request handling |
+| secure.js | Security middleware (JWT auth, authorize) |
+| transporter.js | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
+| cors.js | CORS wrapper — origin allowlist, preflight 204, header reflection |
+| caching.js | `catchAndRelease(id)` — Map-based response caching middleware |
+| websocket.js | `websocket(handler)` — WebSocket upgrade effect combinator. Arity 1, returns native Response. |
+| serve.js | `serve(root)` — static file serving effect. Remainder params reconstruct file path, MIME detection, Deno.open().readable streaming. |
+| analyzer.js | `Trace` class + `trace(name)` / `mark(name)` middleware. Trace collects named spans via `begin(name)`/`end(name)`, exposes `timing` getter for Server-Timing header. `trace()` creates `ctx.trace`, `mark()` adds checkpoints. Effects use `ctx.trace?.begin/end` for ad-hoc spans. HTTP compiler injects Server-Timing header from `ctx.trace.timing`. Universal — works across all compiler surfaces (http, object, proxy, agentic, subscriber). Extension point for OTel: `begin(name, attrs)` when `@opentelemetry/api` is added later. |
+
+### controller/ — Routing Operations
+
+| File | Contents |
+|------|---------|
+| traverse.js | `traverse(vector, signals)` — walks Vector trie matching Signal segments against Patterns. Returns `[effect, carry, steps, position]`. Handles literal, parameter, wildcard, and remainder match types. Accumulates middleware via `middleware.chain`. |
+| walk.js | `walk(vector, more)` — interactive traversal. Calls `more(patterns)` for each position, advances until effect found. Max 20 steps (Long error). |
+| invoke.js | `invoke(vector, signal, execute)` — one-shot: traverse + execute. Returns curried `async (input) => output`. |
+| match.js | `scope(vector, signal)` — collects all matching trajectories + effects. `greedy(vector, signal)` — first match wins. `resolve(matches, signal)` — picks best match (trajectory if more signals, effect if last). |
+| shotgun.js | `shotgun(vector, signals)` — flatMap scope across multiple signals. Returns array of `{effect, carry, steps, match}`. |
+
+### compiler/ — Vector Compilation Targets
+
+| File | Contents |
+|------|---------|
+| http.js | `http(vector)` — compiles Vector to `async (Request) => Response`. Content-type aware body parsing (JSON only), passes `raw` native Request to Context, native Response passthrough for WebSocket upgrades. Dispatches by effect arity (0/1/2). Injects `Server-Timing` header from `ctx.trace.timing` when analyzer trace middleware is active. |
+| object.js | `object(vector)` — compiles Vector to nested JS object. `proxy(vector)` — compiles to Proxy with dynamic property access for lazy traversal. Both use `strategy(apply, effect)` for middleware composition. |
+| agentic.js | `Agentic` class — compiles Vector into LLM tool definitions. Walks effects/trajectories, generates tool names from paths, registers `execute` functions via `controller.invoke`. Produces `.tools` map and `.llmstxt` documentation string. |
+| subscriber.js | `Subscriber` class — bridges ORM events to Vector signals. `emit(event, args)` constructs Signal from entity name + event type, dispatches through emitter. |
 
 ## Schematics
 
@@ -244,31 +274,40 @@ Current state: thin ergonomic wrapper. Future vision: lifecycle-driven BDD frame
 
 All tests use specimen's describe/it pattern with construction → gestalt → valences structure.
 
-| File | Lines | Tests |
-|------|-------|-------|
-| signature.test.js | 445 | Signature construction, trace/gauges hierarchy, Pattern matching, Signal handling |
-| production.test.js | 355 | ProductionRequest (batch, stock, demand, satisfiedBy), ProductionResult (conditions, status), recalls |
-| agent.test.js | 224 | Agent construction, context accumulation, input/output validation, generate/do |
-| path.test.js | 219 | Path normalization, branching, filename/dirname extraction |
-| connection.test.js | 218 | Connection construction, middleware chaining, branching, URL extension, errors |
-| agent.integration.test.js | 183 | Agent + brain integration, mock brain, full workflows |
-| classifier.test.js | 134 | Classifier parsing, Feature caching — **tests dead code** |
-| lookup.test.js | 65 | Lookup query parsing (string → {owner, type, slug}) |
-| url.test.js | 37 | URL parsing, branching, origin/pathname |
-| request.test.js | 26 | Request construction, headers, clone |
-| response.test.js | 11 | Response status checks |
-
-Total: ~1,917 lines of tests.
+| File | Tests |
+|------|-------|
+| signature.test.js | Signature construction, trace/gauges hierarchy, Pattern matching, Signal handling |
+| production.test.js | ProductionRequest (batch, stock, demand, satisfiedBy), ProductionResult (conditions, status), recalls |
+| agent.test.js | Agent construction, context accumulation, input/output validation, generate/do |
+| path.test.js | Path normalization, branching, filename/dirname extraction |
+| connection.test.js | Connection construction, middleware, branching, subscribe() SSE, websocket() lifecycle |
+| response.test.js | Response construction, stream() (async gen, string encoding, Uint8Array passthrough, chaining), events() (SSE framing, headers, concatenation) |
+| agent.integration.test.js | Agent + brain integration, mock brain, full workflows |
+| classifier.test.js | Classifier parsing — **tests dead code** |
+| lookup.test.js | Lookup query parsing (string → {owner, type, slug}) |
+| url.test.js | URL parsing, branching, origin/pathname |
+| request.test.js | Request construction, headers, clone |
+| vector.test.js | Vector construction, open, branch, middleware accumulation, slurp |
+| aperture.test.js | Aperture method dispatch (GET/POST/PUT), 405, open+method fallback, branching, middleware, params |
+| compiler/http.test.js | HTTP compiler: simple routes, middleware+params, response types, re-entrant calls, wildcards, remainders, SSE, upload streams, method dispatch, native Response passthrough, static file serving, Connection integration (fetcher + inline) |
+| compiler/object.test.js | Object compiler: strategy, nested compilation, proxy access |
+| controller/traverse.test.js | Traverse: literal, parameter, wildcard matching, middleware accumulation |
+| controller/match.test.js | Scope, greedy, resolve match strategies |
+| controller/walk.test.js | Interactive walk with signal provider |
+| controller/invoke.test.js | One-shot invoke with params |
+| shards/cors.test.js | CORS: preflight 204, origin allowlist, header reflection |
+| shards/websocket.test.js | WebSocket: shape (arity, flag), lifecycle (echo test over real connection) |
+| shards/serve.test.js | Static serving: MIME detection, HTML/JS/binary/404 via temp files |
+| shards/analyzer.test.js | Trace begin/end/timing, trace() middleware (Server-Timing header), mark() named checkpoints, mark without trace safety, ad-hoc begin/end in effects, branch-level mark isolation |
 
 ## Where Used
 
 These stubs should be populated as you trace dependencies through the system.
 
-- **Vector**: Pattern and Signal are the core routing types. Vector.branch creates Patterns; traverse matches Signals against Patterns. Url used in aperture compilation.
+- **Runtime**: Die extends Wafer. `compiler.http(aperture)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. `shard.transport.inline()` for daemon internal Connection. Subscriber maps ORM events via Vector. Entities managed via MikroORM. Mode/Valence entities drive daemon composition.
 - **Paladin**: Wafer is the base lifecycle container. Seek resolves entity references during populate. Status tracks daemon state.
-- **Runtime**: Die extends Wafer. Entities are managed via MikroORM. Mode/Valence entities drive daemon composition. Trait system applied during daemon lifecycle.
-- **Registry**: Mode manifests (.viva.js) declare traits from Mode.Traits enum. Literal/Symbol entities populated from topology datasets.
-- **Client**: Connection prototype drives server communication. mod.client.js is the entry point — gestalten + prototypes (client subset) + trait.
+- **Registry**: Mode manifests (.viva.js) declare traits from Mode.Traits enum. Literal/Symbol entities populated from topology datasets. Modes use Vector/Aperture for routing.
+- **Client**: Connection prototype drives server communication (including subscribe/websocket). mod.client.js is the entry point — gestalten + prototypes (client subset) + trait.
 
 ## Dependencies
 
@@ -286,10 +325,10 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 - agent.integration.test.js may reference removed @vivalence/shared patterns — verify
 - production.test.js — production system in flux, tests may be outdated
 - Missing: entity trait system tests (defineTrait, applyTraits, composeSubscriber)
-- Missing: gestalt belt/shard coverage (12+6 modules with no dedicated tests)
+- Missing: gestalt belt coverage (12 modules with no dedicated tests)
 - Missing: Remedy/RemedyHandler integration tests
 - Missing: schematics validation tests
-- response.test.js extremely thin (11 lines)
+- Missing: shotgun, agentic compiler, subscriber tests
 
 ### Human Documentation Needs (Divio)
 - **Reference**: Complete API surface for Signature hierarchy — method signatures, coercion rules, property contracts
@@ -298,10 +337,15 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 - **How-to**: "Add a new entity type" — BaseEntity vs DataEntity vs VirtualEntity, trait attachment, schema definition
 
 ### Active Work
-- Vector merge planned — typology will absorb vector
 - Asset entity type incoming (VERBALIZED trait on literals, mp3 vocalization)
 - @vivalence/shared removal — belt re-exports need migration (hash used in 7 prototype files)
 - Production system in flux — ProductionRequest/Result may change
+
+### Completed
+- ~~Vector merge~~ — Vector, Aperture, controller, compiler, shards absorbed into typology. `subsystems/vector/` deleted. All consumers rewritten to `@vivalence/typology`.
+- ~~HTTP feature surface~~ — Response.stream/events, Request.raw/stream, websocket shard, serve shard, Connection.subscribe/websocket. Full test coverage.
+- response.test.js expanded from 11 lines to full stream/events coverage
+- ~~Analyzer shard~~ — `Trace` class, `trace()`/`mark()` middleware, Server-Timing header injection in http compiler. Universal across all compiler surfaces. Extension point for OTel.
 
 ### Planned Changes
 - Specimen evolution into lifecycle-driven BDD framework
@@ -317,7 +361,9 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 
 When you modify typology code:
 1. Run tests: `deno task test` in subsystems/typology
-2. Check if Signature hierarchy changes affect Vector's Pattern/Signal usage
+2. Check if Signature hierarchy changes affect Pattern/Signal/Vector usage in controller/compiler
 3. If adding an entity, update entities/index.ts sets and maps
 4. If modifying gestalten/is, ensure specimen's custom `is` object stays in sync
 5. If touching @vivalence/shared imports, track the migration status
+6. Effects must return body values (not set ctx.response.body directly) — the compiler overwrites via `c.output = await effect(...)`
+7. Tests using native Deno `Response` in a file that imports typology's `Response` must use `globalThis.Response` to avoid shadowing

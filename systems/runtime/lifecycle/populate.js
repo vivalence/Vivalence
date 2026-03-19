@@ -1,6 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Url, Connection, Path } from "@vivalence/typology";
-import { Aperture } from "@vivalence/vector/aperture";
+import { Url, Connection, Path, Aperture } from "@vivalence/typology";
 import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
 

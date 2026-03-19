@@ -1,6 +1,6 @@
 import { Type } from "@sinclair/typebox";
 import paladin from "@vivalence/paladin";
-import { Vector } from "@vivalence/vector";
+import { Vector } from "@vivalence/typology";
 import { Agent, specimen, Action } from "@vivalence/typology";
 
 await paladin.ikiro;

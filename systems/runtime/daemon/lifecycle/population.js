@@ -1,9 +1,7 @@
 import paladin from "@vivalence/paladin";
 
-import { is, Mode, Url, Path, shards } from "@vivalence/typology";
+import { is, Mode, Url, Path, shards, Vector, Aperture, compiler, controller } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
-import { Vector, compiler, controller } from "@vivalence/vector";
-import { Aperture } from "@vivalence/vector/aperture";
 import { array } from "@vivalence/shared";
 // import { Vector, compiler, controller, shards } from "@vivalence/vector";
 

@@ -1,5 +1,5 @@
 import { ProductionResult } from "@vivalence/typology";
-import { Vector } from "@vivalence/vector";
+import { Vector } from "@vivalence/typology";
 
 import dataset from "./dataset/index.js";
 

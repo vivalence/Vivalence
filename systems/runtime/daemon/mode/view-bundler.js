@@ -18,11 +18,6 @@ const fileurl = new URL(import.meta.url);
 
 const importmap = {
   imports: {
-    "@vivalence/vector": join(reporoot, "subsystems/vector/mod.js"),
-    "@vivalence/vector/typology": join(
-      reporoot,
-      "./subsystems/vector/typology.js",
-    ),
     "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
     "@vivalence/shared": join(reporoot, "subsystems/shared/mod.client.js"),
     "@vivalence/drapes": join(reporoot, "subsystems/drapes/mod.js"),

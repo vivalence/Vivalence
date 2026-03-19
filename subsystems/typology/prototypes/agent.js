@@ -1,6 +1,6 @@
 import { hash } from "@vivalence/typology";
 import { validators, obj } from "@vivalence/shared";
-import { Agentic } from "@vivalence/vector/compiler";
+import { Agentic } from "@vivalence/typology/compiler";
 
 // TODO migrate to typebox for validator
 // import { Compile } from 'typebox'

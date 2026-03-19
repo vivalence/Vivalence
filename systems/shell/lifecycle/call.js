@@ -1,5 +1,4 @@
-import { controller, compiler } from "@vivalence/vector";
-import { Signal } from "@vivalence/typology";
+import { controller, compiler, Signal } from "@vivalence/typology";
 import { Prompt } from "@vivalence/sheets";
 
 export default async function call(client) {

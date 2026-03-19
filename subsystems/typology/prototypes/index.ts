@@ -28,3 +28,6 @@ export * from "./mode.js";
 export * from "./classifier.js";
 export * from "./blacklist.js";
 export * from "./remedy/index.ts";
+
+export * from "./vector.js";
+export * from "./aperture.js";

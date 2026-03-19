@@ -6,9 +6,7 @@
 
 import { prototypes } from "@vivalence/typology";
 import * as is from "./scalars.js";
-
-let VP;
-async function loadVector() { VP ??= (await import("@vivalence/vector")).Vector; }
+import { Vector as VP } from "@vivalence/typology";
 
 export function Signature(thing) {
   return thing instanceof prototypes.Signature;
@@ -61,8 +59,7 @@ export function vector(thing) {
 }
 
 export function Vector(thing) {
-  if (!VP) loadVector();
-  return VP ? thing instanceof VP : vector(thing);
+  return thing instanceof VP;
 }
 
 export function Aperture(thing) {

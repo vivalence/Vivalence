@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Vector } from "@vivalence/vector";
+import { Vector } from "@vivalence/typology";
 
 import { dirname, fromFileUrl } from "@std/path";
 const __dirname = dirname(fromFileUrl(import.meta.url));

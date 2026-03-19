@@ -197,7 +197,7 @@ During `resolve.compose()`, the Vector routing tree is compiled to a native HTTP
 1. `compiler.http(aperture)` — compiles Vector → `(Request) => Response` via traverse
 2. `shards.cors.wrap(handler)` — wraps with CORS (preflight 204, origin checking)
 
-The http compiler handles body parsing (`req.json()`), 404 (no match), 500 (catch), content-type dispatch (JSON/binary/text), and response header forwarding. No Oak middleware stack.
+The http compiler handles content-type aware body parsing (JSON only — non-JSON stays unparsed, accessible via `ctx.request.stream()`), passes native Request as `raw` for WebSocket upgrades, native Response passthrough, 404/500 error handling, and content-type dispatch (JSON/binary/stream). No Oak middleware stack.
 
 Each daemon gets mounted at `/daemon/{slug}/` via `.branch().slurp()` on the runtime aperture.
 
@@ -224,8 +224,7 @@ Old paladin-dependent tests moved to `tests/bak/`.
 ## Where Used
 
 - **Paladin**: Runtime consumes paladin.variant entirely — daemons, services, runtime config, clients
-- **Vector**: `compiler.http(vector)` compiles routes to native HTTP handler. `shards.cors.wrap()` for CORS. Subscriber maps ORM events. twitch Vector for events.
-- **Typology**: Die extends Wafer. Entities managed via MikroORM. Status, Connection, Url, Path used throughout.
+- **Typology**: Die extends Wafer. `compiler.http(vector)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. Subscriber maps ORM events. Vector/Aperture for routing. Entities managed via MikroORM. Status, Connection, Url, Path used throughout. All formerly `@vivalence/vector` imports are now `@vivalence/typology`.
 - **Registry**: Modes loaded via paladin.vip from registry/modes. Services loaded from registry/services. Kernels from registry/kernels.
 
 ## Work Packages
@@ -252,15 +251,14 @@ Old paladin-dependent tests moved to `tests/bak/`.
 - Session-first patterning (client + runtime sync)
 
 ### Completed
-- **Oak → Vector/http migration** — Oak removed. Runtime serves via `compiler.http()` + `Deno.serve`. CORS via `shards.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
+- **Oak → Vector/http migration** — Oak removed. Runtime serves via `compiler.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
+- **Vector → typology merge** — All `@vivalence/vector` imports rewritten to `@vivalence/typology`. Vector, Aperture, controller, compiler, shards all live in typology now.
 - **descendants.push fix** — process mounting was silently broken (`.descendants` getter returns new array, `.push()` was a no-op). Fixed to `.slurp()`.
 - **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
 
 ### Planned Changes
 - Production pipeline rewrite (producer trait in flux)
-- Vector→typology merge affects twitch and Subscriber usage
-- @oak/oak removal from root deno.jsonc
-- Old aperture compiler cleanup (compiler/aperture/, mw.js, parser.js)
+- Old aperture compiler cleanup (compiler/aperture/, mw.js, parser.js in bak)
 
 ## Maintenance
 

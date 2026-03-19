@@ -1,5 +1,0 @@
-jdex based docs of the viva system.
-broadly attempting to apply two patterns:
-c4 as a system analysis methodology
-divioo's 4 types of documentation 
-

@@ -1,7 +1,7 @@
 import { specimen, is } from "@vivalence/typology";
 import { Action, Agent } from "@vivalence/typology";
 import { Type } from "@sinclair/typebox";
-import { Vector } from "@vivalence/vector";
+import { Vector } from "@vivalence/typology";
 
 const mockBrain = {
   object: async ({ schema, system, prompt }) => {

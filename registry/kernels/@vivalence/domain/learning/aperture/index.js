@@ -1,4 +1,4 @@
-import { Aperture } from "@vivalence/vector/aperture";
+import { Aperture } from "@vivalence/typology";
 
 import * as pick from "./pick/index.js";
 import * as review from "./review/index.js";

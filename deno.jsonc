@@ -7,7 +7,6 @@
     "./systems/html",
     "./systems/shell",
     "./subsystems/typology",
-    "./subsystems/vector",
     "./subsystems/paladin",
     "./subsystems/shared",
     "./subsystems/dapper",
@@ -28,6 +27,7 @@
     "runtime/start": "deno run -A ./systems/runtime/run.js",
     "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
+    "html/test": "deno test -A --no-check --watch ./systems/html/tests/**/*.test.js",
 
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",

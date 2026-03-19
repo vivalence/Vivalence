@@ -1,5 +1,5 @@
 import { Status, Path } from "@vivalence/typology";
-import { shards } from "@vivalence/vector";
+
 
 // all runtime instances of types from the registry
 // base for instantiations such as modes and service or process providers.

@@ -1,6 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { shards, Url, Connection } from "@vivalence/typology";
-import { compiler, Vector } from "@vivalence/vector";
+import { shards, Url, Connection, compiler, Vector } from "@vivalence/typology";
 
 // const testVector = new Vector();
 // testVector.branch("/test/vector").open("/here", () => {

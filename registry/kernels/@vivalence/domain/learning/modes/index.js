@@ -1,5 +1,4 @@
-import { Mode } from "@vivalence/typology";
-import { shards } from "@vivalence/vector";
+import { Mode, shards } from "@vivalence/typology";
 
 //   // constraints/predicates (...that the mode must satisfy; exmpl: has trait viewable), guarantees (traits provided by domain and runtime)
 // schema using typebox

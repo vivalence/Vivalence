@@ -8,6 +8,7 @@ export default function find(config) {
     for (const entry of entries) {
       const path = join(dir, entry.name);
       if (entry.isDirectory()) {
+        if (entry.name === "bak" || entry.name === "archive") continue;
         yield* search(pattern, path);
       } else if (entry.name.match(pattern)) {
         yield path;

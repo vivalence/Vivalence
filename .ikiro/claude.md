@@ -10,7 +10,7 @@ The subsystem docs listed below are your next reads. But this document tells you
 
 ## What Is Vivalence
 
-An operating system with a language learning system as its first application. Not an app — an OS. Types compose into routing, routing composes into daemons, daemons compose into a runtime. Game modes are plugins. Memory is Bayesian. The whole thing runs on Deno with MikroORM, Oak, Svelte, and Anthropic's Claude.
+An operating system with a language learning system as its first application. Not an app — an OS. Types compose into routing, routing composes into daemons, daemons compose into a runtime. Game modes are plugins. Memory is Bayesian. The whole thing runs on Deno with MikroORM, Svelte, and Anthropic's Claude.
 
 The power is emergent. Signature (211 lines) enables an entire routing ontology. Vector (107 lines) enables hierarchical routing with middleware accumulation. traverse (47 lines) walks two trees in parallel. compose (27 lines) enables arbitrary middleware stacking. These are not large systems — they are small, sharp tools that compose into large capability.
 
@@ -20,8 +20,7 @@ If you find yourself thinking "this could use a framework for X" — stop. The f
 
 | Package | Role | Location | Doc |
 |---------|------|----------|-----|
-| **Typology** | Library | subsystems/typology/ | [claude.md](../subsystems/typology/.ikiro/claude.md) |
-| **Vector** | Engine | subsystems/vector/ | [claude.md](../subsystems/vector/.ikiro/claude.md) |
+| **Typology** | Library + Engine | subsystems/typology/ | [claude.md](../subsystems/typology/.ikiro/claude.md) |
 | **Paladin** | Composition | subsystems/paladin/ | [claude.md](../subsystems/paladin/.ikiro/claude.md) |
 | **Runtime** | Process | systems/runtime/ | [claude.md](../systems/runtime/.ikiro/claude.md) |
 | **Registry** | Marketplace | registry/ | [claude.md](../registry/.ikiro/claude.md) |
@@ -31,12 +30,11 @@ If you find yourself thinking "this could use a framework for X" — stop. The f
 | **HTML Client** | Surface | systems/html/ | [claude.md](../systems/html/.ikiro/claude.md) |
 
 **How they connect:**
-1. Typology defines the types (Signature, Pattern, Signal, entities, gestalten)
-2. Vector makes types executable (routing trie with middleware)
-3. Paladin reads circuitry and resolves the registry into a compiled variant
-4. Runtime boots daemons from the variant, applies mode traits, serves HTTP
-5. Registry holds everything domain-specific: kernels, modes, services, circuits
-6. Client connects to the daemon and renders mode views
+1. Typology defines the types AND makes them executable (prototypes + Vector routing trie + controller + compiler + shards)
+2. Paladin reads circuitry and resolves the registry into a compiled variant
+3. Runtime boots daemons from the variant, applies mode traits, serves HTTP via `compiler.http()` + `Deno.serve`
+4. Registry holds everything domain-specific: kernels, modes, services, circuits
+5. Client connects to the daemon and renders mode views
 
 ## Canonical Vocabulary
 
@@ -46,7 +44,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Typology**: gestalt, prototypes, entities, schematics, specimen
 
-**Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network)
+**Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network), controller (routing), compiler (compilation)
 
 **Signature hierarchy**: Signature → Pattern, Signal, Path, Url, Action
 
@@ -71,8 +69,8 @@ Use these terms precisely. Don't substitute generic alternatives.
 Structural testing. Specimen is king.
 
 Three patterns:
-1. **Specimen** (typology tests) — gestalt-first: construction → gestalt → valences. Uses describe/it from @std/testing/bdd + expect from @std/expect + gestalten.is for type assertions.
-2. **Deno native** (vector, paladin tests) — Deno.test + assertEquals. Direct function testing.
+1. **Specimen** (typology tests) — gestalt-first: construction → gestalt → valences. Uses describe/it from @std/testing/bdd + expect from @std/expect + gestalten.is for type assertions. Also covers vector/controller/compiler/shard tests.
+2. **Deno native** (paladin tests) — Deno.test + assertEquals. Direct function testing.
 3. **Lifecycle** (runtime tests) — validates phase transitions through populate → resolve → integrate → disintegrate.
 
 Future vision: specimen evolves into a lifecycle-driven BDD framework composed via Vector.
@@ -105,10 +103,11 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 
 ## Active Work Areas
 
-As of 2026-03-14 — verify these are still current by checking git log:
+As of 2026-03-19 — verify these are still current by checking git log:
 
-- Aperture migration (direct Oak routing → Vector → Oak compilation)
-- Vector → typology merge planned
+- ~~Aperture migration (Oak → Vector → http compilation)~~ DONE
+- ~~Vector → typology merge~~ DONE — Vector absorbed into typology, `subsystems/vector/` deleted
+- ~~HTTP feature surface (streams, SSE, WebSocket, static serving)~~ DONE — Response.stream/events, Request.raw/stream, websocket shard, serve shard, Connection.subscribe/websocket
 - mode.produce.[xyz]() pattern (Vector object/proxy compiler)
 - Asset entity type (VERBALIZED trait, mp3 vocalization, file serving)
 - Mobile readiness on client
@@ -211,12 +210,10 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 - Modes: no mode-level tests at all
 - Paladin: scopes untested, variant compilation untested
 - Typology: entity trait system untested, gestalt belt/shard untested
-- Vector: shotgun, agentic compiler, subscriber, match strategies untested
+- Typology: shotgun, agentic compiler, subscriber, match strategies untested (migrated from vector)
 
 **Cross-cutting active work:**
 - @vivalence/shared migration (belt re-exports, hash in 7+ files)
-- Vector → typology merge
-- Aperture → Vector compiler migration
 - Asset entity type across domain + runtime + client
 
 **Human documentation priorities (Divio):**

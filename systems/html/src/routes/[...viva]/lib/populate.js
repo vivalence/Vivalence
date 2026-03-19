@@ -1,6 +1,5 @@
 import { Buffer } from "@vivalence/html/typology";
-import { Vector, controller, Context, NotFound } from "@vivalence/vector";
-import { is, Signal, Blacklist, fromm } from "@vivalence/typology";
+import { Vector, controller, Context, NotFound, is, Signal, Blacklist, fromm } from "@vivalence/typology";
 
 import { dataspace } from "$client";
 import { env } from "$env/dynamic/public";

@@ -1,6 +1,4 @@
-import { Classifier, Remedy, Mode, Path } from "@vivalence/typology";
-import { Vector, shards } from "@vivalence/vector";
-import { Aperture } from "@vivalence/vector/aperture";
+import { Classifier, Remedy, Mode, Path, Vector, Aperture, shards } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
 
 export class Daemon {

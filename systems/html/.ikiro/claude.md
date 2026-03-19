@@ -95,7 +95,7 @@ Multi-stage build:
 
 Paladin is only loaded for dev and preview (`command === "serve"`), never during build. `serverConfig()` imports paladin, awaits `paladin.ikiro`, and reads `paladin.variant.clients.html` for host, port, cors config.
 
-Resolve aliases map `@vivalence/*` package imports to filesystem paths relative to the monorepo root. This is how the client accesses subsystem code (typology, shared, dapper, drapes, vector) without npm publishing.
+Resolve aliases map `@vivalence/*` package imports to filesystem paths relative to the monorepo root. This is how the client accesses subsystem code (typology, shared, dapper, drapes) without npm publishing.
 
 ### Deployment Flow
 

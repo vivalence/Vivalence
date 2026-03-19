@@ -1,6 +1,4 @@
-import { Url } from "@vivalence/typology";
-import { Vector } from "@vivalence/vector";
-import { Aperture } from "@vivalence/vector/aperture";
+import { Url, Vector, Aperture } from "@vivalence/typology";
 
 export class Runtime {
   server = null;

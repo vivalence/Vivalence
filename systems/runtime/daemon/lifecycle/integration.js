@@ -1,5 +1,4 @@
-import { Url, Connection, shard } from "@vivalence/typology";
-import { compiler } from "@vivalence/vector";
+import { Url, Connection, shard, compiler } from "@vivalence/typology";
 
 export async function call(die) {
   const handler = compiler.http(die.good.aperture);

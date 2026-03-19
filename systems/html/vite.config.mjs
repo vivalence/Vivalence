@@ -34,7 +34,6 @@ async function serverConfig() {
         "./src/**/*",
         "../../register/**/*.{html,svelte.js,svelte,css}",
         "../../subsystems/typology/**/*",
-        "../../subsystems/vector/**/*",
         "../../subsystems/shared/**/*",
         "../../subsystems/dapper/**/*",
         "../../subsystems/drapes/**/*",
@@ -71,9 +70,6 @@ export default defineConfig(async ({ command }) => ({
 
       "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
-
-      "@vivalence/vector/typology": join(__ss, "./vector/typology.js"), // ? needed ?
-      "@vivalence/vector": join(__ss, "./vector/mod.js"), // ? needed ?
 
       "@vivalence/dapper/font.css": join(__repo, "./subsystems/dapper/primitives/font.css"),
       "@vivalence/dapper/bsp.css": join(__repo, "./subsystems/dapper/primitives/bsp.css"),

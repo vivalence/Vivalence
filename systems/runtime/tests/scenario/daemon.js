@@ -1,6 +1,4 @@
-import { Url, Connection, shard, Path } from "@vivalence/typology";
-import { shards, compiler } from "@vivalence/vector";
-import { Aperture } from "@vivalence/vector/aperture";
+import { Url, Connection, shard, Path, shards, compiler, Aperture } from "@vivalence/typology";
 import { ModeEntity, UserEntity, SessionEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 
 import * as routes from "../../daemon/aperture/index.js";

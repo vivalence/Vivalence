@@ -14,3 +14,5 @@ export class BaseError extends Error {
     this.cause.emitter = path;
   }
 }
+
+export * from "./vector.js";
