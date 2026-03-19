@@ -1,4 +1,4 @@
-import { controller, errors, Signal } from "@vivalence/typology";
+import { steer, errors, Signal } from "@vivalence/typology";
 import { Prompt } from "@vivalence/sheets";
 
 export default async function run(client) {
@@ -6,7 +6,7 @@ export default async function run(client) {
   // console.log("Signal@shell", signal);
 
   const [effect, apply, steps, destination] = //
-    await controller.walk(client.trajectory, signal, async (patterns) => {
+    await steer.walk(client.trajectory, signal, async (patterns) => {
       const message = "";
       const options = [];
 

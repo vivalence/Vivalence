@@ -1,4 +1,4 @@
-import { controller } from "@vivalence/typology";
+import { steer } from "@vivalence/typology";
 
 export class Agentic {
   constructor(vector) {
@@ -56,7 +56,7 @@ export class Agentic {
       output: pattern.output,
       execute: async (input) => {
         try {
-          return await controller.invoke(vector, path)(input);
+          return await steer.invoke(vector, path)(input);
         } catch (error) {
           console.error(`[Agentic] Tool execution failed: ${toolName}`, error);
           throw error;

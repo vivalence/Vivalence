@@ -1,0 +1,684 @@
+#+TITLE: Cortex — Hallucinator Orchestration & Mode Hallucination Interface
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-19
+
+* Intent
+
+The cortex is the daemon-level orchestrator for all generative AI/ML
+interactions. Hallucinator services expose their faculties to the cortex.
+The cortex resolves providers by tune, constructs harness Vectors per mode trait,
+and compiles them to both callable objects and HTTP apertures.
+
+Modes never touch hallucinators directly. Modes interact with a harness — a
+Vector instance constructed by the cortex, carrying middleware, branches,
+and effects for each available faculty. The harness compiles via shape.object for
+server-side use, is attached to the Modes aperture for http exposure, and replicated on the
+client-side for consumption in the Modes View.
+
+This touches: typology (primitives, entities), registry (hallucinator services,
+mode traits), runtime (cortex composition, trait system, daemon lifecycle),
+and client (harness consumption, trait-specific UI).
+
+* Vocabulary (Settled)
+
+| Term | Definition |
+|------+------------|
+| cortex | Daemon-level orchestrator. Resolves providers, holds tunes, constructs harnesses. |
+| faculty | What a hallucinator can do. A capability contract with type, channels, delivery modes, tune, and a hallucinate function. |
+| channel | A data type that flows through a faculty. Faculties declare inbound channels (accepts) and outbound channels (produces). |
+| harness | A Vector instance constructed by the cortex for a specific mode trait. Compiled to object, HTTP, and proxy shapes. |
+| turn | Content container. Has role and parts. Carries metadata. |
+| part | Typed content atom. Discriminated by type string. Extensible per domain/service. |
+| tune | Resolution strategy as 3-vector: [cost, quality, speed], each 0-1. |
+| tier | Named heuristic tune. Maps to a 3-vector. |
+| dialogue | Interaction modality where turns are exchanged. Stateful. |
+| render | Interaction modality that produces parts directly. Stateless. |
+| whole | Delivery mode. Returns sealed turn. |
+| stream | Delivery mode. Returns open turn, parts accumulate. |
+
+* Design Decisions (Settled)
+
+1. All AI interaction is turns and parts. Faculties, channels, streaming — all
+   reduce to turns containing typed parts.
+
+2. A faculty is a contract declaring: type, channels (accepted/produced),
+   delivery modes, tune, context limit, and a hallucinate function.
+
+3. Hallucinator services expose arrays of faculties. The cortex
+   composes them into a routing table indexed by faculty type and tune.
+
+4. Model identity is implementation detail. The cortex never sees model
+   names. It sees faculties. The hallucinator internally maps faculty
+   to model.
+
+5. Conversation and action are the same mechanism. The harness has =turn=
+   (one exchange) and =resolve= (auto-loop on tool_use until done). No
+   separate action faculty.
+
+6. The harness is a Vector. The cortex constructs it with middleware (hydration,
+   context injection, personality), branches (per faculty type), and effects
+   (per operation). Shape compilers produce server/client/tool interfaces.
+
+7. System prompt is a turn with role =system=. Lives in the turns array.
+   The harness prepends it on every hallucinate call.
+
+8. Traits determine what harness branches a mode gets:
+   - CHAOSMONKEY: daemon has a cortex (base trait, already exists)
+   - LANGUAGED: mode gets conversation harness with personality
+   - AGENTIC: mode gets action harness with auto-resolve
+
+9. Render faculties (object, speech) are harness branches that don't accumulate
+   state. Same Vector, same compilation, no turn history.
+
+10. Tool definitions come from mode Vectors, shaped internally by the cortex
+    via the existing agentic compiler.
+
+11. Tune resolution: filter available faculties by type and channels,
+    find nearest tune in 3-space. Tiers are named presets.
+
+12. Whole/stream is declared per faculty by the hallucinator. Some faculties
+    support both (conversation, speech). Some are whole-only (object).
+    Some are stream-only (call). The consumer chooses among supported modes.
+
+13. One call to the cortex = one provider. If a mode needs text + audio +
+    image, that's three calls. The mode composes results. The cortex does
+    not orchestrate cross-provider assembly within a single interaction.
+
+* Primitives
+
+** Turn
+
+#+begin_src javascript
+{
+  role: 'system' | 'user' | 'assistant' | 'tool',
+  parts: [Part],
+  meta: {
+    usage: { input, output },
+    stop: 'end_turn' | 'tool_use' | 'max_tokens',
+    latency,
+  },
+}
+#+end_src
+
+Meta is present on assistant turns (produced by the hallucinator).
+System/user/tool turns have no meta.
+
+** Part (Core Types)
+
+#+begin_src javascript
+{ type: 'text', text }
+{ type: 'image', data, media }
+{ type: 'audio', data, media }
+{ type: 'video', data, media }
+{ type: 'document', data, media }
+{ type: 'object', data, schema }
+{ type: 'tool_use', id, name, input }
+{ type: 'tool_result', id, output }
+{ type: 'thinking', text }
+#+end_src
+
+Core types are defined in typology. Domain or service-specific types
+(e.g. prosody, expression) are defined by the daemon's hallucinator
+services or kernel. The type discriminator is an open string.
+
+MIME specifics (image/jpeg vs image/png) live on the part's =media=
+field. Faculty declarations use broad channel types (=image=, =audio=).
+Format-specific handling is the hallucinator service's responsibility.
+
+** Part Streaming Behavior
+
+In streamed delivery, parts arrive incrementally. Same shape, partial
+payload. The consumer accumulates.
+
+Different part types have different streaming characteristics:
+- text, audio: progressively useful (render/play each chunk)
+- tool_use: buffer until complete (partial JSON is unusable)
+- object: buffer until complete (schema validity requires completeness)
+- thinking: progressively useful
+
+This is consumer-level concern, not cortex architecture.
+
+* Faculty Contract
+
+What a hallucinator service exposes to the cortex. An array of these:
+
+#+begin_src javascript
+{
+  type: 'conversation',
+  accepts: ['text', 'image', 'document', 'tool_result', 'thinking'],
+  produces: ['text', 'thinking', 'tool_use'],
+  delivery: ['whole', 'stream'],
+  tune: [0.3, 0.7, 0.8],
+  context: 200000,
+
+  async hallucinate(turns, config) {
+  },
+}
+#+end_src
+
+- =type=: faculty type. One of: conversation, object, speech, call.
+- =accepts=: inbound channels — data types this faculty can receive.
+- =produces=: outbound channels — data types this faculty emits.
+- =delivery=: supported delivery modes.
+- =tune=: [cost, quality, speed] characterization of this faculty.
+- =context=: maximum input token capacity.
+- =hallucinate(turns, config)=: stateless. Receives all turns. Returns turn(s).
+  Config carries: system, tools (shaped), delivery preference, schema.
+
+The hallucinator service translates between the cortex's turn/part
+format and its provider's native API (Anthropic content blocks, OpenAI
+messages, ElevenLabs audio endpoint, etc.). All normalization is
+internal to the service.
+
+** Faculty Types
+
+| Type | Modality | Typical accepts | Typical produces | Delivery |
+|------+----------+-----------------+------------------+----------|
+| conversation | dialogue | text, image, document, tool_result, thinking | text, thinking, tool_use | whole, stream |
+| object | render | text | object | whole |
+| speech | render | text | audio | whole, stream |
+| call | dialogue | audio, text, tool_result | audio, text, tool_use | stream |
+
+** Example Hallucinator Providers
+
+#+begin_src javascript
+async function anthropicProvider(service) {
+  const anthropic = createAnthropic({ apiKey: service.secrets.anthropic })
+
+  const hallucinate = async (tune) => async (turns, config) => {
+    const model = tuneToModel(tune)
+    const messages = turns.map(turn => translateTurn(turn))
+    const tools = config.tools?.map(tool => translateTool(tool))
+
+    const response = await anthropic.messages.create({
+      model,
+      system: config.system,
+      messages,
+      tools,
+      stream: config.delivery === 'stream',
+    })
+
+    return translateResponse(response)
+  }
+
+  return [
+    {
+      type: 'conversation',
+      accepts: ['text', 'image', 'document', 'tool_result', 'thinking'],
+      produces: ['text', 'thinking', 'tool_use'],
+      delivery: ['whole', 'stream'],
+      tune: [0.9, 1.0, 0.3],
+      context: 200000,
+      hallucinate: hallucinate([0.9, 1.0, 0.3]),
+    },
+    {
+      type: 'conversation',
+      accepts: ['text', 'image', 'tool_result', 'thinking'],
+      produces: ['text', 'thinking', 'tool_use'],
+      delivery: ['whole', 'stream'],
+      tune: [0.3, 0.7, 0.8],
+      context: 200000,
+      hallucinate: hallucinate([0.3, 0.7, 0.8]),
+    },
+    {
+      type: 'conversation',
+      accepts: ['text', 'tool_result'],
+      produces: ['text', 'tool_use'],
+      delivery: ['whole', 'stream'],
+      tune: [0.1, 0.3, 1.0],
+      context: 200000,
+      hallucinate: hallucinate([0.1, 0.3, 1.0]),
+    },
+    {
+      type: 'object',
+      accepts: ['text'],
+      produces: ['object'],
+      delivery: ['whole'],
+      tune: [0.3, 0.7, 0.8],
+      hallucinate: hallucinate([0.3, 0.7, 0.8]),
+    },
+  ]
+}
+#+end_src
+
+#+begin_src javascript
+async function elevenlabsProvider(service) {
+  return [
+    {
+      type: 'speech',
+      accepts: ['text'],
+      produces: ['audio'],
+      delivery: ['whole', 'stream'],
+      tune: [0.5, 0.8, 0.6],
+      hallucinate: async (turns, config) => {
+        const text = turns.at(-1).parts.find(p => p.type === 'text').text
+        const audio = await elevenlabs.textToSpeech(text, config)
+        return {
+          role: 'assistant',
+          parts: [{ type: 'audio', data: audio, media: 'audio/mp3' }],
+          meta: { latency: elapsed },
+        }
+      },
+    },
+    {
+      type: 'speech',
+      accepts: ['text'],
+      produces: ['audio'],
+      delivery: ['whole', 'stream'],
+      tune: [0.3, 0.4, 0.9],
+      hallucinate: async (turns, config) => {
+      },
+    },
+  ]
+}
+#+end_src
+
+* Cortex Composition
+
+The daemon populates the cortex from its hallucinator services during
+the populate lifecycle phase.
+
+#+begin_src javascript
+function Cortex(faculties) {
+  const table = new Map()
+
+  for (const faculty of faculties) {
+    if (!table.has(faculty.type)) table.set(faculty.type, [])
+    table.get(faculty.type).push(faculty)
+  }
+
+  return {
+    table,
+
+    resolve(type, requirements) {
+      const candidates = table.get(type) || []
+      const eligible = candidates.filter(f =>
+        requirements.accepts?.every(a => f.accepts.includes(a)) ?? true
+      )
+      return nearest(eligible, requirements.tune ?? [0.5, 0.5, 0.5])
+    },
+
+    hallucinate(type, turns, config) {
+      const faculty = this.resolve(type, config)
+      return faculty.hallucinate(turns, config)
+    },
+
+    harness(mode, trait, config) {
+    },
+  }
+}
+#+end_src
+
+** Tune Resolution
+
+#+begin_src javascript
+const tiers = {
+  frugal:    [0.1, 0.3, 0.9],
+  balanced:  [0.4, 0.6, 0.6],
+  capable:   [0.6, 0.8, 0.4],
+  unleashed: [0.9, 1.0, 0.2],
+}
+
+function nearest(faculties, target) {
+  let best = null
+  let bestDistance = Infinity
+  for (const faculty of faculties) {
+    const d = Math.sqrt(
+      (faculty.tune[0] - target[0]) ** 2 +
+      (faculty.tune[1] - target[1]) ** 2 +
+      (faculty.tune[2] - target[2]) ** 2
+    )
+    if (d < bestDistance) { bestDistance = d; best = faculty }
+  }
+  return best
+}
+#+end_src
+
+* Harness Construction
+
+The harness is a Vector instance. The cortex constructs it based on the
+mode's traits and available faculties.
+
+** LANGUAGED Harness
+
+#+begin_src javascript
+function languagedHarness(mode, cortex) {
+  const harness = new Vector()
+
+  harness.use(async (signal, ctx) => {
+    ctx.turns = await ctx.session.load('turns') || []
+    ctx.system = {
+      role: 'system',
+      parts: [{ type: 'text', text: mode.cake.personality }],
+    }
+    ctx.tune = mode.cake.tune || 'balanced'
+    ctx.tools = mode.cake.tools
+  })
+
+  harness.use(async (signal, ctx) => {
+    ctx.system.parts.push({
+      type: 'text',
+      text: [
+        `Student: ${ctx.user.name}`,
+        `Level: ${ctx.session.data.level}`,
+        `Native: ${ctx.daemon.statics.language.known}`,
+        `Learning: ${ctx.daemon.statics.language.learning}`,
+      ].join('\n'),
+    })
+  })
+
+  const conversation = harness.branch('conversation')
+
+  conversation.open('turn', async (input, ctx) => {
+    ctx.turns.push(input)
+    const response = await cortex.hallucinate('conversation', ctx.turns, {
+      system: ctx.system,
+      tools: ctx.tools,
+      tune: ctx.tune,
+      delivery: ctx.delivery,
+    })
+    ctx.turns.push(response)
+    await ctx.session.save('turns', ctx.turns)
+    return response
+  })
+
+  conversation.open('resolve', async (input, ctx) => {
+    ctx.turns.push(input)
+    let turn = await cortex.hallucinate('conversation', ctx.turns, {
+      system: ctx.system,
+      tools: ctx.tools,
+      tune: ctx.tune,
+    })
+    ctx.turns.push(turn)
+    while (turn.meta.stop === 'tool_use') {
+      const toolParts = turn.parts.filter(p => p.type === 'tool_use')
+      const results = await Promise.all(toolParts.map(p =>
+        steer.invoke(ctx.tools, new Signal(p.name), p.input)
+      ))
+      const resultTurn = {
+        role: 'tool',
+        parts: results.map((output, i) => ({
+          type: 'tool_result',
+          id: toolParts[i].id,
+          output,
+        })),
+      }
+      ctx.turns.push(resultTurn)
+      turn = await cortex.hallucinate('conversation', ctx.turns, {
+        system: ctx.system,
+        tools: ctx.tools,
+        tune: ctx.tune,
+      })
+      ctx.turns.push(turn)
+    }
+    await ctx.session.save('turns', ctx.turns)
+    return turn
+  })
+
+  harness.branch('speech').open('render', async (input, ctx) => {
+    return await cortex.hallucinate('speech', [input], { tune: ctx.tune })
+  })
+
+  harness.branch('object').open('render', async (input, ctx) => {
+    return await cortex.hallucinate('object', [
+      ctx.system,
+      input,
+    ], { tune: ctx.tune })
+  })
+
+  return harness
+}
+#+end_src
+
+** Shape Compilation
+
+#+begin_src
+harness (Vector)
+  │
+  ├── shape.object(harness) → mode.hallucinate
+  │     mode.hallucinate.conversation.turn(userTurn)
+  │     mode.hallucinate.conversation.resolve(userTurn)
+  │     mode.hallucinate.speech.render(textTurn)
+  │     mode.hallucinate.object.render(promptTurn)
+  │
+  ├── shape.http(harness) → mode.aperture.slurp(...)
+  │     POST /hallucinate/conversation/turn
+  │     POST /hallucinate/conversation/resolve
+  │     POST /hallucinate/speech/render
+  │     POST /hallucinate/object/render
+  │
+  ├── shape.agentic(harness) → LLM tool definitions
+  │     (harness capabilities become tools for other LLMs)
+  │
+  └── shape.proxy(connection.branch('/hallucinate')) → client
+        client.hallucinate.conversation.turn(userTurn)
+        client.hallucinate.speech.render(textTurn)
+#+end_src
+
+Same interface everywhere. Server-side callable, HTTP-exposed,
+client-side consumable, LLM-toolable. All from one Vector.
+
+* Traits
+
+** CHAOSMONKEY (existing, updated)
+
+Base trait. Composes the cortex during daemon population from
+hallucinator service faculties.
+
+#+begin_src javascript
+export async function CHAOSMONKEY(mode, daemon) {
+  if (!daemon.cortex) return
+  mode.cake.cortex = daemon.cortex
+}
+#+end_src
+
+** LANGUAGED (new)
+
+Mode can have conversations. Has personality. Dedicated client-side
+chat UI.
+
+#+begin_src javascript
+export async function LANGUAGED(mode, daemon) {
+  const harness = languagedHarness(mode, daemon.cortex)
+
+  mode.hallucinate = shape.object(harness)
+
+  mode.aperture.branch('/hallucinate').slurp(harness)
+}
+#+end_src
+
+Client-side: detects LANGUAGED trait → loads chat interface, message
+history display, streaming message renderer, input controls.
+
+** AGENTIC (new)
+
+Mode can run autonomous tool loops. Dedicated client-side task UI.
+
+#+begin_src javascript
+export async function AGENTIC(mode, daemon) {
+  const harness = agenticHarness(mode, daemon.cortex)
+
+  mode.agent = shape.object(harness)
+
+  mode.aperture.branch('/agent').slurp(harness)
+}
+#+end_src
+
+Client-side: detects AGENTIC trait → loads task submission, progress
+display, result rendering.
+
+The agentic harness uses =resolve= as its primary effect (auto-loop on
+tool_use). It may have a different system prompt, different tools,
+and a different default tune than the LANGUAGED harness.
+
+* Daemon Lifecycle Integration
+
+** Population Phase
+
+#+begin_src
+daemon.populate()
+  └── cortex()
+        ├── resolve all hallucinator services via paladin.vip
+        ├── call each service's provider function
+        ├── collect all returned faculties
+        └── daemon.cortex = Cortex(allFaculties)
+#+end_src
+
+** Resolution Phase
+
+#+begin_src
+daemon.resolve()
+  └── for each mode:
+        ├── existing traits (VIEWABLE, DATASET, INTENTIONAL, EMITTER, ...)
+        ├── CHAOSMONKEY → attach cortex reference
+        ├── LANGUAGED → construct conversation harness, compile, mount
+        └── AGENTIC → construct action harness, compile, mount
+#+end_src
+
+* Open Questions
+
+** Session integration
+
+Turn history is persisted per-session. How does harness hydration interact
+with the existing session/buffer/intent system? The harness middleware
+loads turns from session storage and saves after each interaction.
+Exact persistence shape and session lifecycle TBD.
+
+** Streaming transport
+
+Streamed delivery through the harness aperture. The existing
+Response.stream() and Response.publish() support this. Connection's
+.subscribe() handles client-side SSE. Connection.publish() enables
+upstream streaming. Request.subscribe() enables server-side consumption
+of client-pushed SSE streams. Exact integration with the harness's
+streaming effects TBD.
+
+** Context window management
+
+The harness must prune or summarize turn history when it exceeds the
+faculty's context limit. Strategy: drop oldest non-system turns?
+Summarize? Sliding window? TBD. This is middleware on the harness.
+
+** Call faculty (realtime)
+
+Bidirectional audio. WebSocket-based. Harness branch for call would use
+Connection.websocket() transport. Turn boundaries determined by
+provider VAD. Fundamentally different transport from request/response
+faculties. Architecture TBD — may need its own harness pattern.
+
+** Harness serialization
+
+Turns (data) serialize trivially. The harness Vector (structure) is
+reconstructed from trait config on hydration. Only turn history and
+session-specific state need persistence. But exact serialize/revive
+boundary TBD.
+
+** Personality system
+
+LANGUAGED modes have personality in the system prompt. How is
+personality defined? Static text in mode.cake? Templated from mode
+config + user context? Composed from multiple sources? TBD.
+
+** Render tune override
+
+Render branches (speech, object) on the harness use the harness's default
+tune. But the mode may want a different tune for renders (frugal for
+pronunciation, capable for object generation). Override mechanism TBD.
+
+* Deferred Work
+
+** Multi-harness coordination
+
+A LANGUAGED mode might trigger an AGENTIC task from within a
+conversation. How do harnesses interact? Shared turn history? Separate
+histories with cross-references? Out of scope for initial
+implementation.
+
+** Client-side hallucination
+
+Certain renders (speech playback, lightweight object generation) might
+run client-side for latency. This requires a client-side cortex with
+its own provider faculties. Deferred.
+
+** Custom part types per daemon
+
+Domain or service-specific part types (prosody, expression, annotation).
+The discriminator is an open string — no core changes needed. But
+documentation and conventions for registering custom types TBD.
+
+** Embeddings and classification
+
+Utility AI operations (text→vector, text→category). May warrant their
+own faculty types or may be handled outside the cortex as non-
+hallucination operations. Deferred.
+
+** Rate limiting and cost tracking
+
+The cortex resolves by tune but doesn't track actual usage/cost.
+Aggregate usage tracking across faculties and modes. Budget enforcement.
+Deferred.
+
+* Cross-Cutting Concerns
+
+** Typology changes
+
+New primitives (Turn, Part shapes) need to live somewhere in typology.
+Possibly as gestalten (fromm/turn.js, fromm/part.js for constructors)
+or as lightweight prototypes. The cortex itself may be a prototype or
+a gestalt function.
+
+** ModeTraitsEnum update
+
+Current state in code (as of 2026-03-19):
+
+#+begin_src typescript
+export enum ModeTraitsEnum {
+  VIEWABLE = "VIEWABLE",
+  DATASET = "DATASET",
+  CHAOSMONKEY = "CHAOSMONKEY",
+  TOPOGRAPHICAL = "TOPOGRAPHICAL",
+  VALENTIC = "VALENTIC",       // legacy, will become INTENTIONAL
+  BUFFERED = "BUFFERED",       // legacy, will become SELFEVIDENT
+  PRODUCER = "PRODUCER",       // legacy, will become EMITTER
+  FRAUGHT = "FRAUGHT",
+  // INTENTIONAL, SELFEVIDENT, EMITTER commented out in source
+  // LANGUAGED, AGENTIC not yet added
+}
+#+end_src
+
+Target state (after buffer/intent migration + cortex):
+
+#+begin_src typescript
+export enum ModeTraitsEnum {
+  VIEWABLE = "VIEWABLE",
+  DATASET = "DATASET",
+  CHAOSMONKEY = "CHAOSMONKEY",
+  TOPOGRAPHICAL = "TOPOGRAPHICAL",
+  INTENTIONAL = "INTENTIONAL",
+  SELFEVIDENT = "SELFEVIDENT",
+  EMITTER = "EMITTER",
+  FRAUGHT = "FRAUGHT",
+  LANGUAGED = "LANGUAGED",
+  AGENTIC = "AGENTIC",
+}
+#+end_src
+
+** Hallucinator service contract update
+
+Existing hal257 returns ={object, action}=. New contract returns an
+array of faculties. The service.viva.js manifest and provider
+function need updating. Archive old provider shape.
+
+** Existing shape compilers
+
+shape.object, shape.http, shape.proxy, shape.agentic — all must handle
+the harness Vector's branch/effect structure. Verify existing compilers
+work with the harness pattern or extend as needed.
+
+** Vercel AI SDK integration
+
+Current hal257 uses @ai/sdk's generateObject and ToolLoopAgent. The
+new faculty hallucinate functions may continue using AI SDK internally or
+call provider APIs directly. AI SDK provides useful normalization for
+text LLM faculties. TTS and realtime faculties use provider APIs
+directly.

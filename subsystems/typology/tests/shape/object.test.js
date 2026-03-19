@@ -1,13 +1,13 @@
 import { specimen, middleware } from "@vivalence/typology";
-import { Vector, compiler } from "@vivalence/typology";
+import { Vector, shape } from "@vivalence/typology";
 
-specimen.describe("object compiler", () => {
+specimen.describe("object shape", () => {
   specimen.describe("flat effects", () => {
     specimen.it("compiles to callable property", async () => {
       const vector = new Vector();
       vector.open("greet", () => "hello");
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       specimen.expect(await output.greet()).toBe("hello");
     });
 
@@ -16,7 +16,7 @@ specimen.describe("object compiler", () => {
       vector.open("add", (ctx) => ctx.input.a + ctx.input.b);
       vector.open("mul", (ctx) => ctx.input.a * ctx.input.b);
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       specimen.expect(await output.add({ a: 2, b: 3 })).toBe(5);
       specimen.expect(await output.mul({ a: 2, b: 3 })).toBe(6);
     });
@@ -27,7 +27,7 @@ specimen.describe("object compiler", () => {
       const vector = new Vector();
       vector.branch("lorem").open("ipsum", () => "deep");
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       specimen.expect(await output.lorem.ipsum()).toBe("deep");
     });
 
@@ -38,7 +38,7 @@ specimen.describe("object compiler", () => {
         .branch("b")
         .open("c", async () => 42);
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       specimen.expect(await output.a.b.c()).toBe(42);
     });
 
@@ -47,7 +47,7 @@ specimen.describe("object compiler", () => {
       vector.branch("left").open("go", () => "L");
       vector.branch("right").open("go", () => "R");
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       specimen.expect(await output.left.go()).toBe("L");
       specimen.expect(await output.right.go()).toBe("R");
     });
@@ -65,7 +65,7 @@ specimen.describe("object compiler", () => {
       });
       vector.open("action", () => trace.push("effect"));
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       await output.action();
       specimen.expect(trace).toEqual(["before", "effect", "after"]);
     });
@@ -86,7 +86,7 @@ specimen.describe("object compiler", () => {
         })
         .open("call", () => trace.push("leaf"));
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       await output.api.call();
       specimen.expect(trace).toEqual(["root", "branch", "leaf"]);
     });
@@ -100,7 +100,7 @@ specimen.describe("object compiler", () => {
       });
       vector.open("check", (ctx) => ({ enriched: ctx.enriched }));
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       const result = await output.check();
       specimen.expect(result).toEqual({ enriched: true });
     });
@@ -119,7 +119,7 @@ specimen.describe("object compiler", () => {
           return result;
         };
 
-      const output = compiler.object(vector, passthrough);
+      const output = shape.object(vector, passthrough);
       specimen.expect(await output.greet()).toBe("hello");
     });
 
@@ -140,7 +140,7 @@ specimen.describe("object compiler", () => {
         })
         .open("info", (ctx) => ctx.daemon.name);
 
-      const output = compiler.object(vector);
+      const output = shape.object(vector);
       const result = await output.api.info();
       specimen.expect(result).toBe("d");
       specimen.expect(trace).toEqual(["root", "branch"]);
@@ -148,13 +148,13 @@ specimen.describe("object compiler", () => {
   });
 });
 
-specimen.describe("proxy compiler", () => {
+specimen.describe("proxy shape", () => {
   specimen.describe("literals", () => {
     specimen.it("compiles literal effects", async () => {
       const vector = new Vector();
       vector.open("greet", () => "hello");
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.greet()).toBe("hello");
     });
 
@@ -162,7 +162,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.branch("api").open("status", () => "ok");
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.api.status()).toBe("ok");
     });
   });
@@ -172,7 +172,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.branch("users").open(":id", (ctx) => ctx.params.id);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.users.john()).toBe("john");
       specimen.expect(await output.users["123"]()).toBe("123");
     });
@@ -184,7 +184,7 @@ specimen.describe("proxy compiler", () => {
         .branch(":id")
         .open("profile", (ctx) => ctx.params.id);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.users.john.profile()).toBe("john");
     });
 
@@ -194,7 +194,7 @@ specimen.describe("proxy compiler", () => {
       branch.open("me", () => "self");
       branch.open(":id", (ctx) => ctx.params.id);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.users.me()).toBe("self");
       specimen.expect(await output.users.john()).toBe("john");
     });
@@ -206,7 +206,7 @@ specimen.describe("proxy compiler", () => {
         .branch(":repo")
         .open("readme", (ctx) => `${ctx.params.org}/${ctx.params.repo}`);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.vivalence.vector.readme()).toBe("vivalence/vector");
     });
   });
@@ -216,7 +216,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.open("*", () => "caught");
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.anything()).toBe("caught");
     });
   });
@@ -226,7 +226,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.open("(.*)", (ctx) => ctx.params);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.some.deep.path()).toEqual({ 0: "some", 1: "deep", 2: "path" });
     });
 
@@ -234,7 +234,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.open("(.*)", (ctx) => ctx.params[0]);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.hello()).toBe("hello");
     });
 
@@ -242,7 +242,7 @@ specimen.describe("proxy compiler", () => {
       const vector = new Vector();
       vector.branch("api").open("(.*)", (ctx) => ctx.params);
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       specimen.expect(await output.api.foo.bar()).toEqual({ 0: "foo", 1: "bar" });
     });
   });
@@ -261,7 +261,7 @@ specimen.describe("proxy compiler", () => {
         return ctx.params.id;
       });
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       const result = await output.items.abc();
       specimen.expect(result).toBe("abc");
       specimen.expect(trace).toEqual(["mw", "effect"]);
@@ -274,7 +274,7 @@ specimen.describe("proxy compiler", () => {
         expand: ctx.input.expand,
       }));
 
-      const output = compiler.proxy(vector);
+      const output = shape.proxy(vector);
       const result = await output.users.john({ expand: true });
       specimen.expect(result).toEqual({ id: "john", expand: true });
     });

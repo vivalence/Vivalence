@@ -58,25 +58,25 @@ specimen.describe("Response", () => {
     });
   });
 
-  specimen.describe("events()", () => {
+  specimen.describe("publish()", () => {
     specimen.it("sets type to text/event-stream", () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield "x"; }
-      r.events(gen());
+      r.publish(gen());
       specimen.expect(r.type).toBe("text/event-stream");
     });
 
     specimen.it("sets cache-control header", () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield "x"; }
-      r.events(gen());
+      r.publish(gen());
       specimen.expect(r.headers.get("cache-control")).toBe("no-cache");
     });
 
     specimen.it("wraps objects as SSE data frames", async () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield { key: "val" }; }
-      r.events(gen());
+      r.publish(gen());
 
       const reader = r.body.getReader();
       const { value } = await reader.read();
@@ -87,7 +87,7 @@ specimen.describe("Response", () => {
     specimen.it("wraps strings as SSE data frames", async () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield "raw text"; }
-      r.events(gen());
+      r.publish(gen());
 
       const reader = r.body.getReader();
       const { value } = await reader.read();
@@ -98,7 +98,7 @@ specimen.describe("Response", () => {
     specimen.it("multiple events concatenate well-formed", async () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield { a: 1 }; yield "hello"; yield { b: 2 }; }
-      r.events(gen());
+      r.publish(gen());
 
       const reader = r.body.getReader();
       const chunks = [];
@@ -118,7 +118,7 @@ specimen.describe("Response", () => {
     specimen.it("returns this for chaining", () => {
       const r = new Response({ status: 200 });
       async function* gen() { yield "x"; }
-      const result = r.events(gen());
+      const result = r.publish(gen());
       specimen.expect(result).toBe(r);
     });
   });

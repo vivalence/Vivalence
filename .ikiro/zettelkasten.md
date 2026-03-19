@@ -1,6 +1,6 @@
 # Zettelkasten
 
-> Ideas for improving the .agent/claude.md documentation system. Capture here, evaluate later. Don't get distracted — just write the idea and move on.
+> Ideas for improving the .ikiro/ documentation system. Capture here, evaluate later. Don't get distracted — just write the idea and move on.
 
 ## How to Use This
 
@@ -22,8 +22,8 @@ Ideas about how the docs themselves are organized, formatted, or connected.
 - [ ] **Code snippet anchors**: Each doc should have 2-3 short code snippets showing the compositional elegance. The root doc mentions this but individual docs are still mostly prose.
 - [ ] **Version tracking**: Add a "Last verified against" git hash or date to each doc so future agents know how stale they might be.
 - [ ] **Quick-start per doc**: First 5 lines of each subsystem doc should answer "what is this, what files matter, what do I read first" — some are better at this than others.
-- [ ] **Dependency arrows in root doc**: The System Map table is good but a textual dependency flow (typology → vector → runtime, paladin → runtime, registry → paladin → runtime) would orient faster.
-- [ ] **Relative link gotcha**: All docs live inside `.agent/` directories. Links between docs must account for this — paths that look repo-root-relative will resolve wrong. The System Map links in the root doc work because agents interpret them as repo-root paths when using Read, but they're technically broken as relative markdown links. Consider whether to fix them or document the convention.
+- [ ] **Dependency arrows in root doc**: The System Map table is good but a textual dependency flow (typology → runtime, paladin → runtime, registry → paladin → runtime) would orient faster. Note: vector is now inside typology.
+- [ ] **Relative link gotcha**: All docs live inside `.ikiro/` directories. Links between docs must account for this — paths that look repo-root-relative will resolve wrong. The System Map links in the root doc work because agents interpret them as repo-root paths when using Read, but they're technically broken as relative markdown links. Consider whether to fix them or document the convention.
 
 ## Content Ideas
 
@@ -34,6 +34,11 @@ Ideas about what's missing or could be deeper.
 - [ ] **Circuitry format specification**: A complete reference for what a .viva.js circuit file can contain. Currently implied but never spelled out.
 - [ ] **Error handling patterns**: How do errors flow through the system? BaseError → ConnectionError → Response.isError → aperture middleware. Not documented anywhere.
 - [ ] **The nanostores pattern**: Client uses nanostores atoms everywhere. Document the reactive state pattern once, reference it from client + Connection + Status docs.
+- [ ] **Publish/subscribe naming convention as a pattern**: The transport surface uses publish/subscribe as a naming convention (not a pub/sub system). `publish` = send SSE-framed data (server Response.publish, client Connection.publish). `subscribe` = consume SSE-framed data (client Connection.subscribe, server Request.subscribe). This naming is intentional and consistent — document it as a pattern that future transports should follow.
+- [ ] **Harness-as-Vector architecture insight**: A harness is not a new primitive — it's a Vector instance. The cortex constructs it with middleware (hydration, context), branches (per faculty type), and effects (per operation). Same shape compilers apply. This means all existing Vector infrastructure (steer, shape, shards) works on harnesses. Document this as an architectural principle: "new capabilities are Vector instances, not new abstractions."
+- [ ] **Transport completeness analysis**: The three transport primitives (stream, publish/subscribe, websocket) cover the full space: unidirectional pull (stream), unidirectional push (subscribe), bidirectional event (publish/subscribe SSE), bidirectional stream (websocket). Future primitives (WebRTC for peer-to-peer, WebTransport for QUIC) would add new entries but not change the naming convention.
+- [ ] **Work package dependency graph**: harness depends on nothing; buffer/intent depends on nothing; session-first depends on buffer/intent. Package manager is independent. Document this so agents know what can be parallelized.
+- [ ] **Tune/tier as design primitive**: The 3-vector [cost, quality, speed] with named tiers (frugal, balanced, capable, unleashed) is a novel resolution strategy. Nearest-neighbor in 3-space picks the best available faculty. This could be documented as a general pattern beyond just AI — any service with quality/cost/latency tradeoffs could use it.
 
 ## Process Ideas
 

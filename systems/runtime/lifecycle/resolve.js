@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { fromm, shards, Url, Connection, compiler } from "@vivalence/typology";
+import { fromm, shards, Url, Connection, shape } from "@vivalence/typology";
 
 export async function attach(runtimeDie) {
   async function attachProcesses(runtimeDie) {
@@ -75,7 +75,7 @@ export async function expose(runtimeDie) {
 }
 
 export async function compose(runtimeDie) {
-  const handler = compiler.http(runtimeDie.good.aperture);
+  const handler = shape.http(runtimeDie.good.aperture);
   runtimeDie.good.handler = shards.cors.wrap(handler);
 }
 

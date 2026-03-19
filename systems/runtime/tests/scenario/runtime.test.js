@@ -1,4 +1,4 @@
-import { specimen, Url, Connection, shard, Path, shards, compiler, Aperture } from "@vivalence/typology";
+import { specimen, Url, Connection, shard, Path, shards, shape, Aperture } from "@vivalence/typology";
 import { create } from "./daemon.js";
 
 specimen.describe("runtime composition (scenario)", () => {
@@ -19,7 +19,7 @@ specimen.describe("runtime composition (scenario)", () => {
       .open("/manifest", () => scenario.daemon.manifest)
       .slurp(scenario.daemon.aperture);
 
-    runtimeHandler = compiler.http(runtime);
+    runtimeHandler = shape.http(runtime);
     runtimeConn = new Connection(
       new Url("http://test"),
       shard.transport.inline(runtimeHandler),

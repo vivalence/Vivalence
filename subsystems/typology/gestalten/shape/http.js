@@ -1,6 +1,4 @@
-import { Signal, Context, fromm } from "@vivalence/typology";
-import { traverse } from "@vivalence/typology/controller";
-import { NotFound } from "@vivalence/typology";
+import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
 
 export function http(vector) {
   return async (req) => {
@@ -18,7 +16,7 @@ export function http(vector) {
 
     try {
       const signal = new Signal(ctx.request.url.pathname);
-      const [effect, carry, steps] = traverse(vector, signal);
+      const [effect, carry, steps] = steer.traverse(vector, signal);
       if (!effect) return respond(ctx, 404);
 
       ctx.params = fromm.match(steps).parameters;

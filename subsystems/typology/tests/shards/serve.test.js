@@ -1,6 +1,7 @@
-import { specimen, sleep, shard } from "@vivalence/typology";
+import { specimen, sleep, shard, shape } from "@vivalence/typology";
 import { Aperture } from "@vivalence/typology/aperture";
-import { http } from "@vivalence/typology/compiler";
+
+const { http } = shape;
 
 const { serve } = shard;
 
@@ -18,7 +19,7 @@ specimen.describe("serve shard", () => {
     await Deno.remove(tmpDir, { recursive: true });
   });
 
-  specimen.describe("through http compiler", () => {
+  specimen.describe("through http shape", () => {
     let handler;
 
     specimen.beforeAll(() => {

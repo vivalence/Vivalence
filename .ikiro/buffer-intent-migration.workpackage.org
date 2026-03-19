@@ -1,12 +1,12 @@
 #+TITLE: Buffer / Intent / Emitter Migration — Work Package
 #+AUTHOR: Vivalence
-#+DATE: 2026-03-18
+#+DATE: 2026-03-20
 
 * Intent
 
 Two core entities migrate. Product becomes Buffer. Valence becomes Intent.
 Three mode traits rename. BUFFERED becomes SELFEVIDENT. VALENTIC becomes
-INTENTIONAL. PRODUCER becomes EMITTER. The emitter pattern replaces the
+INTENTED. PRODUCER becomes EMITTER. The emitter pattern replaces the
 production pipeline — modes emit buffers through a Vector compiled to both
 a callable object and an HTTP aperture.
 
@@ -16,18 +16,31 @@ schema diffing. The client keeps its current =[...viva]= routing structure.
 
 ** Design Decisions (Settled)
 
-1. Emitter returns buffer or buffer-shaped POJO. Trait middleware fills gaps
-   (mode ref, session, status). Can return single buffer or array.
+1. Emitter returns buffer-shaped POJOs. Normalization is middleware on the
+   emitter Vector, not a custom carry function for compile.object.
 2. Buffers are always persisted. Session persistence requires it.
 3. No producer/commissioner. Buffer has =mode= — the viewable mode whose
-   view renders this buffer. That's it.
+   view renders this buffer.
 4. SELFEVIDENT is a marker trait. No runtime function.
 5. Session has either mode, or mode and intent. Intent is associated with
-   a mode, so session.mode always exists.
+   a mode, so session.mode always exists. Session keeps its traits.
 6. Intent has =intent.data.mount= — a path telling the client where to call.
-   INTENTIONAL trait does DB upsert only, no routing.
+   INTENTED trait does DB upsert + symbol/literal relation resolution.
 7. Client keeps =[...viva]= catch-all routing. No URL scheme change in this
    migration.
+8. Buffer data is trait-keyed (=data.TRAIT_NAME=), consistent with Literal
+   pattern. System-level buffer traits: FURNISHED, STATEFUL, DIALOGIC, AGENTIC.
+   Domain-specific traits (recall direction, speed, etc.) are NOT system
+   vocabulary — they live in domain trait definitions applied later.
+9. Intent has traits (FURNISHED at minimum) and m:n relations with symbols
+   and literals. Symbols carry seek scope. Literals carry pinned content.
+   The INTENTED trait resolves symbol/literal slugs from the dataset to
+   actual entities during upsert.
+10. No client-side trait accessor methods in this migration. Mode views read
+    buffer POJOs directly (=buffer.data.FURNISHED.recall=). Future: domain
+    trait definitions transported to client via runtime serialization of
+    =defineTrait= method descriptors.
+11. Old =valentic.js= moved to =bak/=, not deleted.
 
 * Entity Targets
 
@@ -44,7 +57,15 @@ export enum BufferStatusEnum {
   STALE = "STALE",
 }
 
+export enum BufferTraitsEnum {
+  FURNISHED = "FURNISHED",
+  STATEFUL = "STATEFUL",
+  DIALOGIC = "DIALOGIC",
+  AGENTIC = "AGENTIC",
+}
+
 export class BufferEntity extends BaseEntity {
+  traits: BufferTraitsEnum[] & Opt = [];
   data: any & Opt = {};
   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   position: number & Opt = 0;
@@ -54,17 +75,17 @@ export class BufferEntity extends BaseEntity {
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
-
-  parent?: Rel<BufferEntity>;
-  children = new Collection<BufferEntity>(this);
 }
 #+end_src
 
 Changes from Product:
 - =producer= and =commissioner= → single =mode= (the viewable mode)
-- =traits= array removed (was BUFFERED/SIGNAL — now implicit)
-- =parent= / =children= self-referential (already on the current Buffer.ts sketch)
-- Schema no longer abstract
+- =traits= is BufferTraitsEnum (FURNISHED, STATEFUL, DIALOGIC, AGENTIC)
+  replacing ProductTraitsEnum (BUFFERED, SIGNAL)
+- Data is trait-keyed: =data.FURNISHED= holds view props,
+  =data.STATEFUL= holds persistent state, etc.
+- No parent/children self-referential (deferred)
+- Schema stays abstract (learning domain extends it)
 
 ** Intent (was Valence)
 
@@ -76,32 +97,37 @@ export enum IntentTypeEnum {
   APPLICATIVE = "APPLICATIVE",
 }
 
+export enum IntentTraitsEnum {
+  FURNISHED = "FURNISHED",
+}
+
 export class IntentEntity extends DataEntity {
   slug: string & Opt = "";
   type: IntentTypeEnum & Opt = IntentTypeEnum.SELFEVIDENT;
+  traits: IntentTraitsEnum[] & Opt = [];
   name?: string;
   description?: string;
   data: any & Opt = {};
+
   mode!: Rel<ModeEntity>;
+  symbols = new Collection<SymbolEntity>(this);
+  literals = new Collection<LiteralEntity>(this);
 }
 #+end_src
 
 Changes from Valence:
-- =traits= array removed entirely
+- =traits= is IntentTraitsEnum (FURNISHED), replacing ValenceTraitsEnum
+  (BUFFERED, PRODUCTIVE). Traits are now system-level behavior markers.
+- Data is trait-keyed: =data.FURNISHED= holds view prop configuration
+  (recall direction, speed, etc.)
+- m:n relations with symbols and literals. Symbols carry seek scope
+  (=["word", "proficiency.survival"]=). Literals carry pinned content.
+- No more =data.BUFFERED= / =data.PRODUCTIVE= nesting
 - Type determines behavior:
-  - SELFEVIDENT: =data= contains buffer template (recall, seek, speed, etc.)
-  - APPLICATIVE: =data= contains =mount= (emitter path), =queue=, =mask=
-- No more =data.BUFFERED= / =data.PRODUCTIVE= nesting — data is flat keyed by type
-
-Intent data shapes by type:
-
-#+begin_src javascript
-// SELFEVIDENT — data goes directly into buffer creation
-{ recall: "LEARNING", seek: { symbols: ["word", "proficiency.survival"] } }
-
-// APPLICATIVE — instructions for calling the emitter
-{ mount: "/introduction", queue: 1, mask: { batch: 1, stock: 1, seek: { symbols: [...] } } }
-#+end_src
+  - SELFEVIDENT: data.FURNISHED contains buffer template props
+  - APPLICATIVE: data.FURNISHED contains =mount= (emitter path), =queue=, =mask=
+- Fixed broken default (was =DESTINATION=, now =SELFEVIDENT=)
+- Dropped =docs= field
 
 ** Mode Entity
 
@@ -113,9 +139,9 @@ export enum ModeTraitsEnum {
   DATASET = "DATASET",
   CHAOSMONKEY = "CHAOSMONKEY",
   TOPOGRAPHICAL = "TOPOGRAPHICAL",
-  INTENTIONAL = "INTENTIONAL",   // was VALENTIC
-  SELFEVIDENT = "SELFEVIDENT",   // was BUFFERED
-  EMITTER = "EMITTER",           // was PRODUCER
+  INTENTED = "INTENTED",       // was VALENTIC
+  SELFEVIDENT = "SELFEVIDENT", // was BUFFERED
+  EMITTER = "EMITTER",         // was PRODUCER
   FRAUGHT = "FRAUGHT",
 }
 #+end_src
@@ -142,15 +168,36 @@ Changes:
 - Add =mode= (required — every session has a mode)
 - Add =intent= (optional — selfevident mode sessions have no intent)
 - =products= → =buffers=
-- =traits= removed (was placeholder =_=)
+- Keeps =traits= (session traits are where session behavior gets extended)
+
+** Kernel Entities (Literal, Symbol)
+
+Both gain inverse relations to Intent and Buffer, replacing Product:
+
+#+begin_src typescript
+// Literal — replace:
+//   products = new Collection<ProductEntity>(this)
+// with:
+   buffers = new Collection<BufferEntity>(this);
+   intents = new Collection<IntentEntity>(this);
+
+// Symbol — same pattern:
+   buffers = new Collection<BufferEntity>(this);
+   intents = new Collection<IntentEntity>(this);
+#+end_src
 
 * Mode File Targets (Registry)
+
+** Dataset format change
+
+Datasets declare intents as a top-level key, not nested under =entities=.
+Intent POJOs include =traits=, =symbols= (as slug arrays resolved by
+INTENTED trait), and trait-keyed =data=.
 
 ** Game mode (flashcard example)
 
 #+begin_src javascript
-import { View } from "@vivalence/typology";
-import { Vector } from "@vivalence/vector";
+import { View, Vector } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -158,28 +205,31 @@ const manifest = {
   name: "Flashcard",
   description: "Classic flashcard recall for words and sentences, both directions.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "SELFEVIDENT", "INTENTIONAL", "EMITTER"],
+  traits: ["VIEWABLE", "SELFEVIDENT", "INTENTED", "EMITTER"],
 };
 
 const view = new View("buffer/flashcard.svelte.js");
 
 const emitter = new Vector()
-  .open("/literal", (ctx) => {
-    return {
-      literal: ctx.input.literal,
-      recall: ctx.input.recall || "LEARNING",
-    };
-  });
+  .open("/literal", async (ctx) => ({
+    traits: ["FURNISHED"],
+    data: { FURNISHED: ctx.input.intent?.data?.FURNISHED ?? ctx.input },
+    literals: [ctx.input.literal?.id],
+  }));
 
 const dataset = {
-  entities: {
-    intent: [{
+  intent: [
+    {
       slug: "survival-flashcard",
       name: "Survival Flashcard",
       type: "SELFEVIDENT",
-      data: { recall: "LEARNING", seek: { symbols: ["word", "proficiency.survival"] } },
-    }],
-  },
+      traits: ["FURNISHED"],
+      data: {
+        FURNISHED: { recall: "LEARNING" },
+      },
+      symbols: ["word", "proficiency.survival"],
+    },
+  ],
 };
 
 export { manifest, view, emitter, dataset };
@@ -187,126 +237,165 @@ export { manifest, view, emitter, dataset };
 
 Notes:
 - Traits: VIEWABLE (has view), SELFEVIDENT (can open without intent),
-  INTENTIONAL (has intents in dataset), EMITTER (exports emitter Vector)
-- Emitter =/literal= takes ={literal, recall?}=, returns buffer-shaped data.
-  EMITTER trait middleware adds =mode=, =session=, =status= before persistence.
-- Dataset declares =intent= (was =valence=). No traits on the intent.
-  Type SELFEVIDENT + flat data replaces BUFFERED trait + nested data.BUFFERED.
+  INTENTED (has intents in dataset), EMITTER (exports emitter Vector)
+- Intent declares FURNISHED trait with domain config (recall direction).
+  Symbols as slug array — resolved to entities by INTENTED trait.
+- Emitter =/literal= returns FURNISHED buffer with data from the intent.
+  EMITTER trait middleware fills =mode=, =status= defaults.
 
 ** Tactic mode (test example)
 
 #+begin_src javascript
-import { ProductionResult } from "@vivalence/typology";
-import { Vector } from "@vivalence/vector";
-
+import { Vector } from "@vivalence/typology";
 import dataset from "./dataset/index.js";
 
-const manifest = {
+export const manifest = {
   type: "tactic",
   slug: "test",
-  traits: ["INTENTIONAL", "EMITTER"],
+  traits: ["INTENTED", "EMITTER"],
 };
 
-const emitter = new Vector()
-  .open("/introduction", async (ctx) => {
-    const [sentence] = await ctx.daemon.call("/pick/literal/feed", {
-      take: 1,
-      seek: ctx.input.seek,
-      blacklist: ctx.input.blacklist,
-    });
-
-    if (!sentence) return ProductionResult.cast.exhausted({ reason: "out of sentences" });
-
-    const tokens = (
-      await Promise.all(
-        sentence.data.ANNOTATED.tokens.map((token) => {
-          return ctx.daemon.entities.literal.findOne(
-            { slug: token.literal },
-            { populate: ["memories"], populateWhere: { memories: { user: ctx.user.id } } },
-          );
-        }),
-      )
-    ).filter(Boolean);
-
-    const buffers = [];
-
-    if (!sentence.memory) {
-      buffers.push(
-        await ctx.daemon.modes.game.shadow.emit.literal({
-          literal: sentence, recall: "KNOWN", speed: { rate: "SLOW" },
-        }),
-      );
-    }
-
-    for (const token of tokens) {
-      if (!token.memory || token.memory.status === "UNKNOWN") {
-        buffers.push(
-          await ctx.daemon.modes.game.shadow.emit.literal({
-            literal: token, recall: "LEARNING", speed: { rate: "SLOW" },
-          }),
-        );
-      } else if (token.memory.status === "LEARNING") {
-        buffers.push(
-          await ctx.daemon.modes.game.flashcard.emit.literal({
-            literal: token, recall: "LEARNING",
-          }),
-        );
-      }
-    }
-
-    for (const token of tokens) {
-      if (!token.memory || token.memory.status === "UNKNOWN") {
-        buffers.push(
-          await ctx.daemon.modes.game.write.emit.literal({
-            literal: token, recall: "LEARNING",
-          }),
-        );
-      }
-    }
-
-    if (!sentence.memory || sentence.memory.status === "UNKNOWN") {
-      buffers.push(
-        await ctx.daemon.modes.game.shadow.emit.literal({
-          literal: { ...sentence }, recall: "LEARNING",
-        }),
-      );
-    } else {
-      buffers.push(
-        await ctx.daemon.modes.game.write.emit.literal({
-          literal: { ...sentence }, recall: "LEARNING",
-        }),
-      );
-    }
-
-    return buffers;
+export const emitter = new Vector().open("/introduction", async (ctx) => {
+  const [sentence] = await ctx.daemon.call("/pick/literal/feed", {
+    take: 1,
+    seek: ctx.input.seek,
+    blacklist: ctx.input.blacklist,
   });
 
-export { manifest, emitter, dataset };
+  if (!sentence) return [];
+
+  const tokens = (
+    await Promise.all(
+      sentence.data.ANNOTATED.tokens.map((token) => {
+        return ctx.daemon.entities.literal.findOne(
+          { slug: token.literal },
+          { populate: ["memories"], populateWhere: { memories: { user: ctx.user.id } } },
+        );
+      }),
+    )
+  ).filter(Boolean);
+
+  const buffers = [];
+
+  if (!sentence.memory) {
+    buffers.push(
+      await ctx.daemon.modes.game.shadow.emit.literal({
+        literal: sentence, recall: "KNOWN", speed: { rate: "SLOW" },
+      }),
+    );
+  }
+
+  for (const token of tokens) {
+    if (!token.memory || token.memory.status === "UNKNOWN") {
+      buffers.push(
+        await ctx.daemon.modes.game.shadow.emit.literal({
+          literal: token, recall: "LEARNING", speed: { rate: "SLOW" },
+        }),
+      );
+    } else if (token.memory.status === "LEARNING") {
+      buffers.push(
+        await ctx.daemon.modes.game.flashcard.emit.literal({
+          literal: token, recall: "LEARNING",
+        }),
+      );
+    }
+  }
+
+  for (const token of tokens) {
+    if (!token.memory || token.memory.status === "UNKNOWN") {
+      buffers.push(
+        await ctx.daemon.modes.game.write.emit.literal({
+          literal: token, recall: "LEARNING",
+        }),
+      );
+    }
+  }
+
+  if (!sentence.memory || sentence.memory.status === "UNKNOWN") {
+    buffers.push(
+      await ctx.daemon.modes.game.shadow.emit.literal({
+        literal: { ...sentence }, recall: "LEARNING",
+      }),
+    );
+  } else {
+    buffers.push(
+      await ctx.daemon.modes.game.write.emit.literal({
+        literal: { ...sentence }, recall: "LEARNING",
+      }),
+    );
+  }
+
+  return buffers;
+});
+
+export { dataset };
 #+end_src
 
 Notes:
 - No VIEWABLE, no SELFEVIDENT (tactic has no view and cannot open without intent)
 - Emitter calls other modes' emitters: =ctx.daemon.modes.game.shadow.emit.literal(...)=
   instead of manually constructing product POJOs with raw mode IDs
-- Returns flat buffer array. EMITTER trait middleware persists each.
-- Dataset declares APPLICATIVE intent with =mount: "/introduction"=
+- Returns flat buffer array. EMITTER trait middleware normalizes each.
+- ProductionResult dropped — empty array replaces =.cast.exhausted()=
 
 ** Tactic dataset
 
 #+begin_src javascript
 export default {
-  entities: {
-    intent: [{
+  intent: [
+    {
       slug: "test",
       name: "Test",
       type: "APPLICATIVE",
+      traits: ["FURNISHED"],
       data: {
-        mount: "/introduction",
-        queue: 1,
-        mask: { batch: 1, stock: 1, seek: { symbols: ["sentence", "proficiency.survival"] } },
+        FURNISHED: {
+          mount: "/introduction",
+          queue: 1,
+          mask: { batch: 1, stock: 1 },
+        },
       },
-    }],
-  },
+      symbols: ["sentence", "proficiency.survival"],
+    },
+  ],
+};
+#+end_src
+
+** Shadow dataset
+
+#+begin_src javascript
+export default {
+  intent: [
+    {
+      slug: "survival-shadow",
+      name: "survival shadow",
+      type: "SELFEVIDENT",
+      traits: ["FURNISHED"],
+      data: {
+        FURNISHED: { recall: "LEARNING", speed: { rate: "SLOW" } },
+      },
+      symbols: ["sentence", "proficiency.survival"],
+    },
+  ],
+};
+#+end_src
+
+** Write dataset
+
+#+begin_src javascript
+export default {
+  intent: [
+    {
+      slug: "survival-words",
+      name: "survival writing",
+      type: "SELFEVIDENT",
+      traits: ["FURNISHED"],
+      data: {
+        FURNISHED: { recall: "LEARNING" },
+      },
+      symbols: ["sentence", "proficiency.survival"],
+    },
+  ],
 };
 #+end_src
 
@@ -324,16 +413,16 @@ daemon.modes.game.flashcard = {
     manifest                   raw module export
     view: View                 Svelte bundler reference
     emitter: Vector            the emitter Vector from .viva.js
-    dataset                    intent entities, symbol/literal data
+    dataset                    intent declarations, symbol/literal data
   }
 
-  emit: {                      compile.object(emitter) with EMITTER strategy
-    literal: async ({literal, recall?}) => Buffer
+  emit: {                      compile.object(emitter) — default carry
+    literal: async ({...}) => BufferPOJO[]
   }
 
   aperture routes:
     /view                      VIEWABLE — compiled Svelte bundle URL
-    /emit/literal              EMITTER — same Vector, compiled to Oak
+    /emit/literal              EMITTER — same Vector, compiled to HTTP
     /status                    standard
     /manifest                  standard
 }
@@ -349,7 +438,7 @@ daemon.modes.tactic.test = {
   cake: { manifest, emitter, dataset }
 
   emit: {
-    introduction: async ({seek, blacklist}) => Buffer[]
+    introduction: async ({seek, blacklist}) => BufferPOJO[]
   }
 
   aperture routes:
@@ -362,61 +451,69 @@ daemon.modes.tactic.test = {
 
 ** EMITTER (replaces PRODUCER)
 
-#+begin_src javascript
-export const EMITTER = async (mode, daemon) => {
-  if (!mode.cake.emitter) {
-    console.error("EMITTER mode missing emitter", { mode });
-    return;
-  }
+Normalization is middleware on the emitter Vector, not a custom carry
+function. The carry for =compile.object= is the default strategy.
 
-  // 1. Add context middleware to the emitter Vector
+#+begin_src javascript
+import { compiler } from "@vivalence/typology";
+
+export const EMITTER = async (mode, daemon) => {
+  if (!mode.cake.emitter) return;
+
   mode.cake.emitter.use(async (ctx, next) => {
     ctx.daemon = daemon;
     ctx.mode = mode;
-    ctx.user = ctx.user; // from aperture auth middleware
     await next();
   });
 
-  // 2. Compile to callable object on mode
-  mode.emit = compile.object(mode.cake.emitter, emitterStrategy);
+  mode.cake.emitter.use(async (ctx, next) => {
+    await next();
+    const raw = ctx.output;
+    const raws = Array.isArray(raw) ? raw.flat() : [raw];
+    ctx.output = raws.map((r) => ({
+      mode: r.mode ?? mode.entity.id,
+      status: r.status ?? "PENDING",
+      traits: r.traits ?? [],
+      data: r.data ?? {},
+      literals: r.literals ?? [],
+      symbols: r.symbols ?? [],
+    }));
+  });
 
-  // 3. Mount on aperture for HTTP access
+  mode.emit = compiler.object(mode.cake.emitter);
   mode.aperture.branch("/emit").slurp(mode.cake.emitter);
 };
 #+end_src
 
-The =emitterStrategy= wraps the effect return value into a buffer POJO:
+Three steps:
+1. Context middleware injects daemon + mode
+2. Normalization middleware shapes output into buffer POJOs (runs after effect)
+3. Compile to callable object (default carry) AND mount on aperture for HTTP
+
+** INTENTED (replaces VALENTIC)
+
+Upserts intents from dataset. Resolves symbol and literal slugs to entities
+and links via m:n relations.
 
 #+begin_src javascript
-const emitterStrategy = (apply, effect) => async (input) => {
-  const ctx = { input };
-  await apply(ctx, async (c) => {
-    const raw = await effect(c);
-    const raws = Array.isArray(raw) ? raw : [raw];
-    c.output = raws.map(r => ({
-      mode: r.mode ?? ctx.mode.entity.id,
-      data: r.data ?? r,
-      status: "PENDING",
-      literals: r.literals ?? [],
-      symbols: r.symbols ?? [],
-      ...r,
-    }));
-  });
-  return ctx.output;
-};
-#+end_src
-
-Details TBD: exact strategy shape, persistence (flush in middleware or
-caller?), session injection, single-vs-array unwrapping.
-
-** INTENTIONAL (replaces VALENTIC)
-
-Simplified to DB upsert only. No routing.
-
-#+begin_src javascript
-export const INTENTIONAL = async (mode, daemon) => {
-  for (const intentPojo of mode.cake.dataset.entities["intent"] || []) {
+export const INTENTED = async (mode, daemon) => {
+  for (const intentPojo of mode.cake.dataset?.intent || []) {
     intentPojo.mode = { id: mode.entity.id };
+
+    if (intentPojo.symbols) {
+      const resolved = await Promise.all(
+        intentPojo.symbols.map((slug) => daemon.entities.symbol.findOne({ slug })),
+      );
+      intentPojo.symbols = resolved.filter(Boolean);
+    }
+
+    if (intentPojo.literals) {
+      const resolved = await Promise.all(
+        intentPojo.literals.map((slug) => daemon.entities.literal.findOne({ slug })),
+      );
+      intentPojo.literals = resolved.filter(Boolean);
+    }
+
     await daemon.entities.intent.ensure(intentPojo);
   }
   await daemon.entities.em.flush();
@@ -424,9 +521,11 @@ export const INTENTIONAL = async (mode, daemon) => {
 #+end_src
 
 Current VALENTIC does upsert + per-valence routing + PRODUCTIVE delegation.
-INTENTIONAL does upsert only. The emitter aperture (=/emit/...=) is handled
-by the EMITTER trait. The client calls the emitter directly using
-=intent.data.mount=.
+INTENTED does upsert + symbol/literal resolution only. The emitter aperture
+(=/emit/...=) is handled by the EMITTER trait. The client calls the emitter
+directly using =intent.data.FURNISHED.mount=.
+
+Old =valentic.js= moved to =bak/=.
 
 ** SELFEVIDENT (replaces BUFFERED on mode)
 
@@ -441,35 +540,40 @@ VIEWABLE, DATASET, FRAUGHT, CHAOSMONKEY — no changes.
 * Client Changes
 
 Keep =[...viva]= routing and current structure. Rename entities and update
-populate logic.
+populate logic. No client-side trait accessor methods — views read POJOs
+directly (=buffer.data.FURNISHED.recall=).
 
 ** Entity renames
 
 | Current file | Target file | Class rename |
 |--------------+-------------+--------------|
-| valence.js | intent.js | Valence → Intent |
-| product.js | (remove) | Product → (gone, Buffer is entity now) |
+| valence.js   | intent.js   | Valence → Intent |
+| product.js   | (remove)    | Product → (gone, Buffer is entity now) |
 
 ** Buffer: prototype → entity
 
-Buffer moves from =prototypes/buffer.js= to =entities/buffer.js=. It gains
-server-mirrored fields (id from server, mode, data, status, session) while
-keeping client augmentation (view, context, hooks).
+Buffer stays in =prototypes/buffer.js= but gains =static hydrate()= for
+constructing from server POJOs. Client augmentation (view, context, hooks)
+preserved.
 
 #+begin_src javascript
-export class Buffer extends Entity {
-  // Server-mirrored (from buffer entity POJO):
-  // id, data, status, position, mode, session, literals, symbols
-
-  // Client augmentation:
-  view = null;
-  context = {};
-  hooks = [];
+export class Buffer {
+  constructor(context, view, hooks) {
+    this.id = belt.id.v7();
+    this.context = context;
+    this.context.buffer = this;
+    this.view = view;
+    this.status = new Status();
+    this.hooks = hooks || [];
+  }
 
   static hydrate(pojo, mode, terminal) {
-    const buffer = new Buffer(pojo);
-    buffer.view = mode.view;
-    buffer.context = { terminal, buffer, ...buffer.data };
+    const buffer = new Buffer(
+      { terminal, ...pojo.data, ...pojo },
+      mode.view,
+    );
+    buffer.serverId = pojo.id;
+    buffer.mode = mode;
     return buffer;
   }
 }
@@ -477,26 +581,16 @@ export class Buffer extends Entity {
 
 ** Terminal changes
 
-#+begin_src javascript
-export class Terminal {
-  stall = new Stall();
-  $phase = atom("STREAM");
-  $perspective = atom(null);
-  $daemon = atom(null);
-  $mode = atom(null);
-  $session = atom(null);
-  $intent = atom(null);    // was $valence
-  // ...
-}
-#+end_src
+=$valence= → =$intent= throughout.
 
 ** daemon.js changes
 
 - =entities.valence= → =entities.intent=
-- =entities.product= → =entities.buffer= (or remove — buffers come from stall)
+- =entities.product= → removed (buffers come from stall/emitter)
 - Valence hydration loop → Intent hydration loop
-- =valence.implements("PRODUCTIVE")= / produce() setup →
-  Intent.type === "APPLICATIVE" check, no produce middleware chain
+- =valence.implements("PRODUCTIVE")= / produce() middleware chain → removed
+  entirely. Client calls emitter directly via =mode.call("/emit" + mount)=.
+- =BUFFERED= → =SELFEVIDENT= for mode link setup
 - Connection branches update paths
 
 ** populate.js changes
@@ -512,7 +606,7 @@ Three paths (same as current, renamed):
 
 3. APPLICATIVE intent:
    =intent.type === "APPLICATIVE"= → =stall.withPull()= calls
-   =mode.call("/emit" + intent.data.mount, { ...intent.data.mask, ... })= →
+   =mode.call("/emit" + intent.data.FURNISHED.mount, { ...intent.data.FURNISHED.mask, ... })= →
    server returns buffer POJOs → hydrate each with its mode's view
 
 Key difference in path 3: buffers may reference different modes than the
@@ -520,9 +614,10 @@ intent's mode. The tactic creates flashcard/shadow/write buffers. Each
 buffer's =mode= field points at the viewable mode. Client resolves view:
 
 #+begin_src javascript
-const bufferPojos = await mode.call("/emit" + intent.data.mount, { ... });
+const bufferPojos = await mode.call("/emit" + intent.data.FURNISHED.mount, { ... });
 return bufferPojos.map(pojo => {
-  const viewMode = daemon.entities.mode.findOneLocal({ id: pojo.mode });
+  const viewMode = daemon.entities.mode.findOneLocal({ id: pojo.mode })
+    ?? terminal.mode;
   return Buffer.hydrate(pojo, viewMode, terminal);
 });
 #+end_src
@@ -530,7 +625,7 @@ return bufferPojos.map(pojo => {
 ** Navtree.svelte changes
 
 - =navigableModes= filter: =BUFFERED= → =SELFEVIDENT=
-- =valenticModes= filter: =VALENTIC= → =INTENTIONAL=
+- =valenticModes= filter: =VALENTIC= → =INTENTED=
 - =selfevidentValences= → =selfevidentIntents=
 - =navValence= → =navIntent=
 
@@ -540,7 +635,112 @@ return bufferPojos.map(pojo => {
 
 ** Stream.svelte changes
 
-- =terminal.valence?.queue= → =terminal.intent?.data?.queue=
+- =terminal.valence?.queue= → =terminal.intent?.data?.FURNISHED?.queue=
+
+** Svelte component props
+
+Game mode Svelte components (Flashcard.svelte, Write.svelte, Shadow.svelte)
+receive =product= as a prop. This becomes =buffer=. Views read from
+=buffer.data.FURNISHED= for domain config (recall direction, speed, literal)
+instead of =product.data.BUFFERED=.
+
+Currently: ={terminal, product, seek, recall, ...}=
+Target: ={terminal, buffer, ...buffer.data.FURNISHED}=
+
+* Test-Gated Execution
+
+Six gates. Each gate: write failing tests → implement until green → next gate.
+The scenario infrastructure (=domain.ts=, =seed.js=, =daemon.js=) evolves
+with each gate.
+
+** Gate 1: Entity Schemas Boot
+
+Modify =domain.ts= to use IntentSchema + BufferSchema instead of
+ValenceSchema + ProductSchema. Modify =seed.js= to create intent fixtures.
+Existing tests break — update to query with new names.
+
+Failing tests:
+- intent entity boots and seeds
+- buffer entity boots and seeds
+- session has mode and optional intent
+- intent queried through datamap routes
+
+Implementation: M1 — typology entity files.
+
+** Gate 2: Trait Enum + Mode Shape
+
+Seed mode with new trait names. Query and assert.
+
+Failing tests:
+- mode has SELFEVIDENT trait (not BUFFERED)
+- mode has INTENTED trait (not VALENTIC)
+- mode has EMITTER trait (not PRODUCER)
+- mode.intents relation populated (not mode.valences)
+
+Implementation: ModeTraitsEnum update, relation renames.
+
+** Gate 3: INTENTED Trait
+
+Extend =daemon.js= with intent POJOs in TestMode cake dataset. Apply trait.
+
+Failing tests:
+- INTENTED trait upserts intents from dataset
+- intent queryable after trait application
+- intent has correct type and traits
+- intent symbols resolved to entities
+
+Implementation: =intented.js= trait. Old =valentic.js= → =bak/=.
+
+** Gate 4: EMITTER Trait
+
+Extend TestMode with emitter Vector. Apply EMITTER trait.
+
+Failing tests:
+- EMITTER trait compiles callable on mode.emit
+- mode.emit.literal({...}) returns buffer-shaped POJOs
+- mode.emit.literal normalizes single return to array
+- /emit/literal HTTP route responds with buffer POJOs
+- emitter injects daemon + mode context into effect
+- cross-mode emit: one mode calls another mode's emit
+
+Implementation: =emitter.js= trait. Normalization middleware.
+
+** Gate 5: Client Entity Hydration
+
+Extend client hydration test to query intents and buffers.
+
+Failing tests:
+- hydrates intents through datamap (not valences)
+- intent has type, traits, and data fields
+- emitter responds via HTTP with buffer POJOs
+
+Implementation: M4 client entity renames.
+
+** Gate 6: Client Populate Paths
+
+Test the three populate paths against the scenario connection.
+
+Failing tests:
+- SELFEVIDENT mode: creates buffer from mode view, no intent needed
+- SELFEVIDENT intent: creates buffer from intent.data
+- APPLICATIVE intent: calls /emit + mount, hydrates returned buffer POJOs
+- APPLICATIVE intent: buffers reference correct viewable mode
+
+Implementation: populate.js rewrite, Svelte component updates.
+
+** Execution order
+
+#+begin_src
+Gate 1 (entities)  ──→  Gate 2 (trait enum)  ──→  Gate 3 (INTENTED)
+                                                         │
+                                                         ▼
+Gate 5 (client hydration)  ←──  Gate 4 (EMITTER)
+         │
+         ▼
+Gate 6 (client populate)
+#+end_src
+
+Registry mode files (M2) updated between Gates 3 and 4.
 
 * Milestones
 
@@ -550,19 +750,19 @@ Update entity definitions. MikroORM schema diff handles DB migration.
 
 Files:
 - =subsystems/typology/entities/daemon/Mode.ts= — trait enum update, relation renames
-- =subsystems/typology/entities/daemon/Valence.ts= → rename to =Intent.ts=, reshape
-- =subsystems/typology/entities/userspace/Product.ts= → remove (or archive)
+- =subsystems/typology/entities/daemon/Valence.ts= → delete, create =Intent.ts=
+- =subsystems/typology/entities/userspace/Product.ts= → keep on disk, stop exporting
 - =subsystems/typology/entities/userspace/Buffer.ts= — uncomment and reshape
-- =subsystems/typology/entities/userspace/Session.ts= — add mode/intent, remove traits
+- =subsystems/typology/entities/userspace/Session.ts= — add mode/intent, products→buffers
 - =subsystems/typology/entities/index.ts= — update exports and sets/maps
-- =subsystems/typology/entities/kernel/Literal.ts= — =products= → =buffers= relation
-- =subsystems/typology/entities/kernel/Symbol.ts= — =products= → =buffers= relation
+- =subsystems/typology/entities/kernel/Literal.ts= — products→buffers, add intents relation
+- =subsystems/typology/entities/kernel/Symbol.ts= — products→buffers, add intents relation
 
 Verification: =deno task typology/test= passes. Entity index exports resolve.
 
 ** M2: Registry Mode Files
 
-Update .viva.js manifests, add emitters, rename dataset valence → intent.
+Update .viva.js manifests, add emitters, restructure datasets.
 
 Files:
 - =registry/modes/@vivalence/game/flashcard/flashcard.viva.js= — traits, emitter, dataset
@@ -581,18 +781,21 @@ without error. (Full integration test requires M3.)
 New trait functions. Update traitmap and daemon lifecycle.
 
 Files:
-- =systems/runtime/daemon/mode/traitmap.js= — export EMITTER, INTENTIONAL, SELFEVIDENT
-- =systems/runtime/daemon/mode/traits/valentic.js= → rename to =intentional.js=, simplify
-- =systems/runtime/daemon/mode/traits/producer.js= → rename to =emitter.js=, implement
+- =systems/runtime/daemon/mode/traitmap.js= — export EMITTER, INTENTED, SELFEVIDENT
+- =systems/runtime/daemon/mode/traits/valentic.js= → move to =bak/=
+- =systems/runtime/daemon/mode/traits/producer.js= → move to =bak/=
+- Create =systems/runtime/daemon/mode/traits/intented.js=
+- Create =systems/runtime/daemon/mode/traits/emitter.js=
 - =systems/runtime/daemon/lifecycle/population.js= — mode instantiation uses new trait names
-- =systems/runtime/daemon/lifecycle/resolution.js= — apply new traits, =mode.emit= compilation
+- =systems/runtime/daemon/lifecycle/resolution.js= — apply new traits
 - =systems/runtime/daemon/daemon.js= — entity references (valence → intent, product → buffer)
 - =systems/runtime/daemon/die.js= — variant.traits update
-- =systems/runtime/daemon/aperture/userspace.js= — entity name updates
+- =systems/runtime/daemon/aperture/userspace.js= — already whitelists "intent"
+- =systems/runtime/daemon/aperture/modes.js= — TERMINAL → VIEWABLE check
 
-Verification: runtime boots. Daemon resolves modes with new traits. Emitter
-compiles. =mode.emit.literal({...})= returns buffer-shaped POJO.
-=/emit/literal= responds to HTTP.
+Verification: runtime scenario tests pass. Daemon resolves modes with new
+traits. Emitter compiles. =mode.emit.literal({...})= returns buffer-shaped
+POJOs. =/emit/literal= responds to HTTP.
 
 ** M4: Client
 
@@ -601,112 +804,93 @@ Rename entities, update populate, update UI components.
 Files:
 - =systems/html/src/typology/entities/valence.js= → rename to =intent.js=
 - =systems/html/src/typology/entities/product.js= → remove
-- =systems/html/src/typology/entities/index.js= — valence → intent, product → buffer
-- =systems/html/src/typology/entities/daemon.js= — valence → intent throughout lifecycle
+- =systems/html/src/typology/entities/index.js= — valence → intent, product removed
+- =systems/html/src/typology/entities/daemon.js= — valence → intent, drop produce chain
 - =systems/html/src/typology/entities/mode.js= — valences → intents
-- =systems/html/src/typology/prototypes/buffer.js= → move to entities, add hydrate
 - =systems/html/src/typology/prototypes/terminal.js= — $valence → $intent
-- =systems/html/src/typology/prototypes/index.js= — remove buffer export
+- =systems/html/src/typology/prototypes/buffer.js= — add static hydrate()
 - =systems/html/src/routes/[...viva]/lib/populate.js= — full rewrite (three paths)
 - =systems/html/src/routes/[...viva]/Navtree.svelte= — BUFFERED → SELFEVIDENT, valence → intent
 - =systems/html/src/routes/[...viva]/Modeline.svelte= — $valence → $intent
-- =systems/html/src/routes/[...viva]/phases/Stream.svelte= — valence.queue → intent.data.queue
-- =systems/html/src/routes/[...viva]/+page.svelte= — minor (if any)
+- =systems/html/src/routes/[...viva]/phases/Stream.svelte= — valence.queue → intent.data.FURNISHED.queue
 
-Verification: client builds (=deno task html/bundle=). Navigate to
-selfevident mode. Navigate to selfevident intent. Navigate to applicative
-intent and get buffers from emitter.
+Verification: client builds (=deno task html/bundle=). Client scenario tests pass.
 
 ** M5: Kernel Domain + Integration Test
 
 Update learning domain entity references.
 
 Files:
-- =registry/kernels/@vivalence/domain/learning/entities/userspace/Product.ts= — rename/reshape
-- =registry/kernels/@vivalence/domain/learning/aperture/review/product.js= — buffer
-- =registry/kernels/@vivalence/domain/learning/modes/index.js= — trait updates
+- =registry/kernels/@vivalence/domain/learning/entities/userspace/Product.ts= — extend BufferSchema
+- =registry/kernels/@vivalence/domain/learning/entities/index.js= — product → buffer
+- =registry/kernels/@vivalence/domain/learning/aperture/review/product.js= — producer/commissioner → mode
 - Testament DB snapshots / migrations
 
 Verification: full system test — runtime boots, client connects, flashcard
-valence works end-to-end, tactic test produces buffers.
+mode works end-to-end, tactic produces buffers.
 
 * Deferred Work
 
-These emerged during design but are out of scope for this migration.
-
 ** Session-first URL scheme
 
-Replace =[...viva]= catch-all with =/daemon/:slug/session/:id= routes.
-Session becomes the URL subject. Enables session resumption, cleaner
-routing, eliminates Vector-based populate.
+See =systems/html/.ikiro/session-first-routing.workpackage.org=. Depends on
+this migration completing.
 
-Considerations:
-- Session creation flow: navtree must create session before navigation
-- Daemon landing page: =/daemon/:slug= shows modes/intents + active sessions
-- UUID aesthetics: session IDs are long but functional
-- Post-login redirect destination
-- Whether to keep =/viva= prefix
+** Client-side trait accessor transport
 
-** Client entity/prototype refactor
+Domain defines trait mixins (=defineTrait=) applied to entities server-side.
+Client needs the accessor methods (=buffer.recall=) but can't import from
+domain (registry content, not core system).
 
-Split daemon.js (195 lines) into =daemon/Daemon.js= (class) +
-=daemon/lifecycle.js= (phased orchestration). Each entity gets its own
-directory with class + lifecycle. Buffer as proper entity (not prototype).
-Daemon lifecycle becomes: manifest → connections → modes → intents → cargo.
+Solution identified: runtime serializes trait method descriptors via
+=Object.getOwnPropertyDescriptors(trait.methods)= + =.get.toString()=.
+Serves at =/domain/traits= endpoint. Client reconstructs getters via
+=new Function()= and =Object.defineProperty=. No bundling needed.
 
-** Session resumption
+Requires:
+- Domain entity modules declare =traits: { buffer: [...] }= in default export
+- Runtime collects during populate, serializes during resolve
+- Client fetches during daemon lifecycle, applies before entity hydration
+- =applyTraits= already exported to client via =mod.client.js=
 
-With persisted buffers, navigating to an existing session could load
-pending/active buffers instead of generating new ones. Query:
-=find({ session: id, status: { $nin: ["DONE", "STALE"] } })=.
+** Emitter refinement
 
-** Emitter strategy refinement
-
-The =emitterStrategy= for compile.object needs design:
-- How does session context get injected? (from aperture auth middleware
-  vs from programmatic caller)
-- Persistence: does the strategy flush, or does the caller?
-- Single-vs-array unwrapping convention
-- Error/exhausted handling (ProductionResult patterns)
+- Session context injection (from aperture auth middleware vs programmatic caller)
+- Persistence: middleware flush or caller flush?
+- Error/exhausted signaling (ProductionResult replacement)
+- Buffer relation population (resolving literal/symbol IDs to entities for persistence)
 
 ** SELFEVIDENT buffer persistence
 
-For selfevident modes/intents, the buffer is created ad hoc. But since
-"buffers are always persisted," someone must persist it. Options:
+For selfevident modes/intents, the buffer is created ad hoc on the client.
+Since "buffers are always persisted," someone must persist it. Options:
 - Client POSTs to create buffer entity
 - A minimal server endpoint handles it
 - SELFEVIDENT modes get an implicit emitter
+
+** Algebraic buffer operations (deferred)
+
+Generator (→ Buffer[]), transformer (Buffer → Buffer), derivative (Buffer → Buffer[]).
+Parent/children self-referential relations on Buffer support derivative.
+Add when patterns crystallize.
 
 * Cross-Cutting Concerns
 
 ** Database migration
 
 MikroORM schema diffing handles table/column renames. Tables affected:
-- Valence → Intent (rename table + columns)
-- Product → Buffer (rename table, drop producer/commissioner/traits, add mode)
-- Session (add mode, add intent, drop traits, rename products → buffers)
+- Valence → Intent (rename table, add traits column, add symbol/literal join tables)
+- Product → Buffer (rename table, drop producer/commissioner/traits, add mode, add traits)
+- Session (add mode, add intent, rename products → buffers)
 - Mode (trait values in JSON arrays need data migration for existing rows)
-- Join tables: product_literals → buffer_literals, product_symbols → buffer_symbols
+- New join tables: intent_symbols, intent_literals, buffer_literals, buffer_symbols
 
 The JSON trait arrays in Mode rows need a data migration script — existing
 rows have VALENTIC/BUFFERED/PRODUCER strings that must become
-INTENTIONAL/SELFEVIDENT/EMITTER.
+INTENTED/SELFEVIDENT/EMITTER.
 
 ** Import paths
 
 - =@vivalence/typology= entity exports change (ValenceEntity → IntentEntity, etc.)
 - =@vivalence/html/typology= barrel changes (valence → intent, product removed)
 - Any file importing ProductEntity, ValenceEntity, or their enums needs updating
-
-** Svelte component props
-
-Game mode Svelte components (Flashcard.svelte, Write.svelte, Shadow.svelte)
-receive =product= as a prop. This becomes =buffer= or the prop naming
-changes to match the new context shape from Buffer.hydrate().
-
-Currently: ={terminal, product, seek, recall, ...}=
-Target: ={terminal, buffer, literal, recall, speed?, ...}=
-
-The buffer context spreads =buffer.data= which already contains literal,
-recall, speed — so the Svelte components may need minimal changes if they
-read from the spread data rather than from product.data.BUFFERED.

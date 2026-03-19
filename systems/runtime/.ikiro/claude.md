@@ -73,7 +73,7 @@ Wraps Runtime in `.good`. Lifecycle methods:
 - Iterates all terrans: `populate() → resolve() → integrate()` for each
 - `attach(die)` — routes process/daemon apertures
 - `expose(die)` — mounts daemon sub-apertures with status/manifest
-- `compose(die)` — `compiler.http(aperture)` → handler, `shards.cors.wrap(handler)` → CORS-wrapped handler
+- `compose(die)` — `shape.http(aperture)` → handler, `shards.cors.wrap(handler)` → CORS-wrapped handler
 - `launch(die)` — `Deno.serve({ port, hostname, signal, onListen }, handler)`
 - `wake(die)` — creates watchdog polling every 10s
 
@@ -140,7 +140,7 @@ Two key data structures:
 - `modes(die)` — for each mode: attaches context middleware, opens status/manifest endpoints, slurps mode aperture, **applies trait functions**, marks entity installed, attaches to daemon aperture with auth
 
 **integrate()** — `daemon/lifecycle/integration.*`:
-- `call(die)` — compiles aperture via `compiler.http()`, wraps in `shard.transport.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
+- `call(die)` — compiles aperture via `shape.http()`, wraps in `shard.transport.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
 - `uninstall(die)` — removes DB records for modes no longer loaded
 
 ## Mode Trait System
@@ -165,7 +165,9 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 
 **VALENTIC** `traits/valentic.js` (38 lines) — per-valence routing. For each valence, creates a branch under `/valence/{slug}` that sets scope and delegates to the PRODUCTIVE mount.
 
-**CHAOSMONKEY** `traitmap.js` — attaches hallucinator brain to mode.
+**CHAOSMONKEY** `traitmap.js` — attaches hallucinator brain to mode. (Will be updated by cortex workpackage to compose the cortex during daemon population from hallucinator faculties and construct harnesses per mode.)
+
+**FRAUGHT** `traitmap.js` — indexes freight catalog (mode.cake.freight), exposes `/freight` endpoint with catalog.
 
 ### Kernel Modes
 
@@ -194,10 +196,10 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 ### HTTP Compilation
 
 During `resolve.compose()`, the Vector routing tree is compiled to a native HTTP handler:
-1. `compiler.http(aperture)` — compiles Vector → `(Request) => Response` via traverse
+1. `shape.http(aperture)` — compiles Vector → `(Request) => Response` via traverse
 2. `shards.cors.wrap(handler)` — wraps with CORS (preflight 204, origin checking)
 
-The http compiler handles content-type aware body parsing (JSON only — non-JSON stays unparsed, accessible via `ctx.request.stream()`), passes native Request as `raw` for WebSocket upgrades, native Response passthrough, 404/500 error handling, and content-type dispatch (JSON/binary/stream). No Oak middleware stack.
+The http shape handles content-type aware body parsing (JSON only — non-JSON stays unparsed, accessible via `ctx.request.stream()`), passes native Request as `raw` for WebSocket upgrades, native Response passthrough, 404/500 error handling, and content-type dispatch (JSON/binary/stream). No Oak middleware stack.
 
 Each daemon gets mounted at `/daemon/{slug}/` via `.branch().slurp()` on the runtime aperture.
 
@@ -217,14 +219,14 @@ Self-contained scenario tests. No paladin, no network, :memory: SQLite. Run with
 Scenario infrastructure:
 - `scenario/domain.ts` — concrete Literal/Symbol/Product entities (slim test domain)
 - `scenario/seed.js` — MikroORM :memory: init + fixture data (2 literals, 1 symbol, 1 mode, 1 user, 1 session)
-- `scenario/daemon.js` — creates Daemon with real routes, compiles via `compiler.http()`, wraps in `Connection` via `shard.transport.inline()`
+- `scenario/daemon.js` — creates Daemon with real routes, compiles via `shape.http()`, wraps in `Connection` via `shard.transport.inline()`
 
 Old paladin-dependent tests moved to `tests/bak/`.
 
 ## Where Used
 
 - **Paladin**: Runtime consumes paladin.variant entirely — daemons, services, runtime config, clients
-- **Typology**: Die extends Wafer. `compiler.http(vector)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. Subscriber maps ORM events. Vector/Aperture for routing. Entities managed via MikroORM. Status, Connection, Url, Path used throughout. All formerly `@vivalence/vector` imports are now `@vivalence/typology`.
+- **Typology**: Die extends Wafer. `shape.http(vector)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. Subscriber maps ORM events. Vector/Aperture for routing. Entities managed via MikroORM. Status, Connection, Url, Path used throughout. All formerly `@vivalence/vector` imports are now `@vivalence/typology`.
 - **Registry**: Modes loaded via paladin.vip from registry/modes. Services loaded from registry/services. Kernels from registry/kernels.
 
 ## Work Packages
@@ -236,7 +238,7 @@ Old paladin-dependent tests moved to `tests/bak/`.
 - No tests for view-bundler.js (Svelte compilation)
 - No tests for Process system (process slurp now works — was silently broken via descendants.push no-op)
 - No tests for disintegrate cascade (shutdown sequence)
-- No tests for view/freight remainder `(.*)` serving (tested in http compiler, not runtime scenario)
+- No tests for view/freight remainder `(.*)` serving (tested in http shape, not runtime scenario)
 - No tests for watchdog patrol
 
 ### Human Documentation Needs (Divio)
@@ -246,19 +248,23 @@ Old paladin-dependent tests moved to `tests/bak/`.
 - **How-to**: "Add a new mode trait" — trait function signature, registration in traitmap
 
 ### Active Work
-- mode.produce.[xyz]() pattern (Vector object/proxy compiler)
+- mode.produce.[xyz]() pattern (Vector object/proxy shape)
 - Asset entity type (VERBALIZED trait, attachment serving)
 - Session-first patterning (client + runtime sync)
+- Hallucinator cortex — [cortex.workpackage.org](../../.ikiro/cortex.workpackage.org) — affects daemon lifecycle: new `population.cortex()` step collects faculties from hallucinator services, constructs Cortex. New traits LANGUAGED (conversation harness) and AGENTIC (action harness) construct harness Vectors during resolution. Harness-as-Vector pattern: harnesses are Vector instances compiled via shape.object/http/proxy/agentic. Integration with daemon aperture via `mode.aperture.branch('/hallucinate').slurp(harness)`.
+- Buffer/Intent migration — [buffer-intent-migration.workpackage.org](../../.ikiro/buffer-intent-migration.workpackage.org) — trait renames (PRODUCER→EMITTER, VALENTIC→INTENTIONAL, BUFFERED→SELFEVIDENT), entity renames throughout daemon lifecycle
 
 ### Completed
-- **Oak → Vector/http migration** — Oak removed. Runtime serves via `compiler.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
-- **Vector → typology merge** — All `@vivalence/vector` imports rewritten to `@vivalence/typology`. Vector, Aperture, controller, compiler, shards all live in typology now.
+- **Oak → Vector/http migration** — Oak removed. Runtime serves via `shape.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
+- **Vector → typology merge** — All `@vivalence/vector` imports rewritten to `@vivalence/typology`. Vector, Aperture, steer, shape, shards all live in typology now.
 - **descendants.push fix** — process mounting was silently broken (`.descendants` getter returns new array, `.push()` was a no-op). Fixed to `.slurp()`.
 - **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
 
 ### Planned Changes
-- Production pipeline rewrite (producer trait in flux)
-- Old aperture compiler cleanup (compiler/aperture/, mw.js, parser.js in bak)
+- Production pipeline rewrite → Emitter pattern (producer trait → emitter trait, Vector-based)
+- Old aperture shape cleanup (shape/aperture/, mw.js, parser.js in bak)
+- LANGUAGED/AGENTIC trait implementations (per cortex workpackage)
+- CHAOSMONKEY trait update (currently just attaches hallucinator brain; will be updated to compose cortex during population)
 
 ## Maintenance
 
@@ -268,4 +274,4 @@ When modifying runtime code:
 3. New traits go in daemon/mode/traits/ and get registered in traitmap.js
 4. New endpoints: follow the pattern in daemon/aperture/ — `.open()` or `.branch()` on daemon's Vector, effect arity (0/1/2 params)
 5. HTTP handler is compiled from Vector in `resolve.compose()` — route changes take effect at compile time, not dynamically
-6. Daemon internal connection uses the same compiled handler — `compiler.http()` + `shard.transport.inline()`
+6. Daemon internal connection uses the same compiled handler — `shape.http()` + `shard.transport.inline()`

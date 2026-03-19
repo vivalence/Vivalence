@@ -1,6 +1,7 @@
-import { specimen, Signal, fromm } from "@vivalence/typology";
+import { specimen, Signal, fromm, steer } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
-import { traverse } from "@vivalence/typology/controller";
+
+const { traverse } = steer;
 
 specimen.describe("traverse", () => {
   specimen.it("finds effect", () => {

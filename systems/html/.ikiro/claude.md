@@ -118,7 +118,9 @@ Docker-compose (registry/wafers/@vivalence/variant/multiplayer/docker-compose.ym
 - ~~Serving built client (production)~~ DONE — adapter-static + nginx + Docker multi-stage
 - Possible SvelteKit → Svelte migration
 - Possible React migration (future)
-- Session-first patterning
+- Session-first routing — [session-first-routing.workpackage.org](session-first-routing.workpackage.org) — replace [...viva] catch-all with /daemon/:slug/session/:id. Depends on buffer/intent migration.
+- Buffer/Intent entity renames on client side (valence→intent, product→buffer in entities, terminal, populate)
+- LANGUAGED/AGENTIC traits will need client-side detection and UI (chat interface, task submission) per harness workpackage
 
 ## Maintenance
 

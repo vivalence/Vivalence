@@ -1,11 +1,11 @@
-import { controller, compiler, Signal } from "@vivalence/typology";
+import { steer, shape, Signal } from "@vivalence/typology";
 import { Prompt } from "@vivalence/sheets";
 
 export default async function call(client) {
   client.call = async (signal, body = {}, params = {}) => {
     signal = new Signal();
 
-    const [effect, apply] = controller.traverse(client.trajectory, signal);
+    const [effect, apply] = steer.traverse(client.trajectory, signal);
 
     if (!effect) throw new errors.NotFound(signal);
 

@@ -21,7 +21,7 @@ export class Subscriber {
       });
     } catch (err) {
       if (err.code === "NOT_FOUND") return undefined;
-      console.log("[TWITCH ERROR] @vector/compiler/subscriber");
+      console.log("[TWITCH ERROR] @vector/shape/subscriber");
       console.trace(err);
       throw err;
     }

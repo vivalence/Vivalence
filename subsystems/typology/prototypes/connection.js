@@ -94,6 +94,32 @@ export class Connection {
     }
   }
 
+  async publish(endpoint, source, options = {}) {
+    const url = this.url.branch(endpoint).absolute;
+    const encoder = new TextEncoder();
+    const iterator = source[Symbol.asyncIterator]();
+    const body = new ReadableStream({
+      async pull(controller) {
+        const { value, done } = await iterator.next();
+        if (done) return controller.close();
+        const payload = typeof value === "string" ? value : JSON.stringify(value);
+        controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+      },
+    });
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "text/event-stream", ...options.headers },
+      body,
+      signal: options.signal,
+      duplex: "half",
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) return await res.json();
+    return await res.text();
+  }
+
   websocket(endpoint) {
     const url = this.url.branch(endpoint).absolute
       .replace(/^http/, "ws");

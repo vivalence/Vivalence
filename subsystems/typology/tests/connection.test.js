@@ -138,7 +138,7 @@ specimen.describe("integration", () => {
   });
 });
 
-specimen.describe("subscribe + websocket", () => {
+specimen.describe("subscribe + publish + websocket", () => {
   const PORT = 9883;
   const abort = new AbortController();
 
@@ -159,6 +159,31 @@ specimen.describe("subscribe + websocket", () => {
         return new globalThis.Response(body, {
           headers: { "content-type": "text/event-stream", "cache-control": "no-cache" },
         });
+      }
+
+      if (url.pathname === "/ingest") {
+        const reader = req.body.getReader();
+        const decoder = new TextDecoder();
+        const received = [];
+        return (async () => {
+          let buffer = "";
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const frames = buffer.split("\n\n");
+            buffer = frames.pop();
+            for (const frame of frames) {
+              const line = frame.split("\n").find((l) => l.startsWith("data: "));
+              if (!line) continue;
+              const payload = line.slice(6);
+              try { received.push(JSON.parse(payload)); } catch { received.push(payload); }
+            }
+          }
+          return new globalThis.Response(JSON.stringify({ received }), {
+            headers: { "content-type": "application/json" },
+          });
+        })();
       }
 
       if (url.pathname === "/ws") {
@@ -184,6 +209,19 @@ specimen.describe("subscribe + websocket", () => {
         events.push(event);
       }
       specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
+    });
+  });
+
+  specimen.describe("publish()", () => {
+    specimen.it("sends SSE stream and receives JSON response", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      async function* source() {
+        yield { a: 1 };
+        yield { b: 2 };
+        yield "end";
+      }
+      const result = await conn.publish("/ingest", source());
+      specimen.expect(result).toEqual({ received: [{ a: 1 }, { b: 2 }, "end"] });
     });
   });
 

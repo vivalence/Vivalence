@@ -1,7 +1,7 @@
-import { Url, Connection, shard, compiler } from "@vivalence/typology";
+import { Url, Connection, shard, shape } from "@vivalence/typology";
 
 export async function call(die) {
-  const handler = compiler.http(die.good.aperture);
+  const handler = shape.http(die.good.aperture);
   die.connection = new Connection(new Url("http://internal"), shard.transport.inline(handler));
 }
 

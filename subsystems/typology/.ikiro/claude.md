@@ -16,7 +16,7 @@ Library. A grabbag of composable building blocks — everything in the system bu
 |------|-------|---------|
 | mod.ts | 14 | Server entry — re-exports prototypes, gestalten, schematics, entities, specimen, types |
 | mod.client.js | 8 | Client entry — prototypes (client version), gestalten, trait only. Excludes entities/schematics/agents |
-| deno.jsonc | — | Package config. Exports: `.`, `./prototypes`, `./schematics`, `./gestalten`, `./entities`, `./specimen`, `./controller`, `./compiler`, `./aperture` |
+| deno.jsonc | — | Package config. Exports: `.`, `./prototypes`, `./schematics`, `./gestalten`, `./entities`, `./specimen`, `./steer`, `./shape`, `./aperture` |
 
 ## Prototypes
 
@@ -68,16 +68,16 @@ AI execution controller. Fluent API: `withBrain(brain)`, `withInput(schema)`, `w
 Imports from @vivalence/shared: `validators` (AJV), `hash`, `obj` (stripNulls, merge).
 
 **Connection** `prototypes/connection.js`
-HTTP connection with middleware. `use(fn)` wraps transport, `branch(path)` creates child with extended URL, `fetch(endpoint, body, options)` executes request, `call()` fetch with error throwing, `aim()` curried call. State: nanostores atoms for `$state` (IDLE), `$error`, `$isConnected`, `$isError`. Raw protocol methods (bypass transport middleware): `subscribe(endpoint, options)` async generator for SSE consumption (buffers frames, yields JSON or string), `websocket(endpoint)` returns native WebSocket with http→ws URL conversion.
+HTTP connection with middleware. `use(fn)` wraps transport, `branch(path)` creates child with extended URL, `fetch(endpoint, body, options)` executes request, `call()` fetch with error throwing, `aim()` curried call. State: nanostores atoms for `$state` (IDLE), `$error`, `$isConnected`, `$isError`. Raw protocol methods (bypass transport middleware): `subscribe(endpoint, options)` async generator for SSE consumption (buffers frames, yields JSON or string), `publish(endpoint, source, options)` sends SSE-framed async iterable upstream via streaming POST (duplex: half), `websocket(endpoint)` returns native WebSocket with http→ws URL conversion.
 
 **Request** `prototypes/request.js`
-HTTP request object. Properties: `url` (auto-coerced to Url), `method` (default POST), `headers` (Map), `body`, `query`, `path`, `raw` (native Request, set by http compiler — transient, not in clone/json), `options` (timeout: 30000, retries: 0, credentials: include), `signal` (lazy AbortController). `stream()` returns `raw?.body` (native ReadableStream) or null.
+HTTP request object. Properties: `url` (auto-coerced to Url), `method` (default POST), `headers` (Map), `body`, `query`, `path`, `raw` (native Request, set by http shape — transient, not in clone/json), `options` (timeout: 30000, retries: 0, credentials: include), `signal` (lazy AbortController). `stream()` returns `raw?.body` (native ReadableStream) or null. `subscribe()` async generator — reads SSE-framed data from `raw.body`, buffers frames, yields JSON-parsed or raw string payloads. Mirrors Connection.subscribe() but for incoming request bodies (server-side consumption of client-pushed SSE streams).
 
 **Response** `prototypes/response.js`
-HTTP response. Status helpers: `ok` (200-299), `isNetworkError` (0), `isServerError` (500+), `isClientError` (400-499), `isAuthError` (401/403). Streaming: `stream(source)` creates pull-based ReadableStream from async iterable (strings encode via TextEncoder, Uint8Array passes through). `events(source)` composes over stream — sets type to `text/event-stream`, formats SSE frames (`data: ...\n\n`), delegates to stream().
+HTTP response. Status helpers: `ok` (200-299), `isNetworkError` (0), `isServerError` (500+), `isClientError` (400-499), `isAuthError` (401/403). Streaming: `stream(source)` creates pull-based ReadableStream from async iterable (strings encode via TextEncoder, Uint8Array passes through). `publish(source)` composes over stream — sets type to `text/event-stream`, formats SSE frames (`data: ...\n\n`), delegates to stream(). (Was `events()` — renamed to `publish()` to align with the publish/subscribe transport convention.)
 
 **Context** `prototypes/context.js` (17 lines)
-Unified request/response container. Wraps Request + Response with alias properties: `input` (get/set → `request.body`), `output` (get/set → `response.body`). Also holds `state: {}` and `params: {}`. Used by the http compiler as the execution context — middleware and effects operate on Context. The same shape used by Connection's transport layer and daemon internal calls.
+Unified request/response container. Wraps Request + Response with alias properties: `input` (get/set → `request.body`), `output` (get/set → `response.body`). Also holds `state: {}` and `params: {}`. Used by the http shape as the execution context — middleware and effects operate on Context. The same shape used by Connection's transport layer and daemon internal calls.
 
 **Status** `prototypes/status.js` (66 lines)
 State tracking via nanostores atom. `set(update)` updates code/error/timestamp, `is(code[])` checks current code, `reflection` getter.
@@ -93,6 +93,9 @@ Filtering/blocking utility.
 
 **Classifier** `prototypes/classifier.js` (143 lines)
 **DEAD CODE.** Only referenced in bak/ and one test. Has inner classes Feature and Classifiable with hash-based caching. Hooks system via `on(type, fn)` and `parse(classifiable, ctx)`.
+
+**Freight** `prototypes/freight.js` (69 lines)
+Static asset catalog. `constructor(path)` takes filesystem path (auto-coerced to Path). `withUrl(url)` sets base URL for catalog URLs. `index(root)` recursively scans directory, collects entries with slug (filename sans extension), path (relative), and MIME type. `resolve(query)` finds by exact path, path-without-extension, or slug. `catalog` getter returns `{path: {type, url}}` object. Supports: mp3, wav, ogg, png, jpg, svg, webp, mp4, webm, json. Used by FRAUGHT trait to index mode freight directories.
 
 **Other small prototypes:**
 
@@ -157,7 +160,7 @@ Url string, slug (unique).
 Roles enum (USER, ADMIN, GUEST), config (JSON), sessions (1:m → Session).
 
 **Mode** `entities/daemon/Mode.ts` (86 lines) extends DataEntity
-Traits enum: VIEWABLE, DATASET, VALENTIC, PRODUCER, CHAOSMONKEY, TOPOGRAPHICAL, BUFFERED. Properties: slug, name, description, type, installed. Relations: valences (1:m), productions (1:m → Product as producer), commissions (1:m → Product as commissioner). Unique by type+slug.
+Traits enum: VIEWABLE, DATASET, VALENTIC (legacy), BUFFERED (legacy), PRODUCER (legacy), CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT. Commented-out future names: INTENTIONAL, SELFEVIDENT, EMITTER. Properties: slug, name, description, type, installed. Relations: valences (1:m), productions (1:m → Product as producer), commissions (1:m → Product as commissioner). Unique by type+slug.
 
 **Valence** `entities/daemon/Valence.ts` (75 lines) extends DataEntity
 Type enum (SELFEVIDENT, APPLICATIVE), Traits (BUFFERED, PRODUCTIVE). Properties: slug, name, description, type, docs. Mode relation (m:1, eager). Unique by slug+mode.
@@ -196,7 +199,7 @@ Complements cast. Error throwing on failed type checks.
 
 ### fromm/ — Conversions (48 lines)
 
-Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.parameters` from traverse step array — used by http compiler for route params), `params(params)` (reconstructs `.path` from numeric remainder params — used by view/freight serving).
+Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.parameters` from traverse step array — used by http shape for route params), `params(params)` (reconstructs `.path` from numeric remainder params — used by view/freight serving).
 
 ### belt/ — Utility Collections (12 modules)
 
@@ -207,6 +210,7 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | fn.js | 23 | compose, pipe, once, debounce |
 | hash.js | 14 | Hash generation |
 | id.js | 20 | UUID generation/validation |
+| middleware.js | 30 | `compose(middleware[])` — Koa-style middleware composition (27 lines that enable the entire middleware system). `chain(first, second)` — compose two middleware. `forward` — noop passthrough. |
 | object.js | 211 | Deep merge, clone, path set/get, diff |
 | promise.js | 59 | all, race, retry, timeout |
 | random.js | 105 | Random number/choice |
@@ -229,9 +233,9 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | caching.js | `catchAndRelease(id)` — Map-based response caching middleware |
 | websocket.js | `websocket(handler)` — WebSocket upgrade effect combinator. Arity 1, returns native Response. |
 | serve.js | `serve(root)` — static file serving effect. Remainder params reconstruct file path, MIME detection, Deno.open().readable streaming. |
-| analyzer.js | `Trace` class + `trace(name)` / `mark(name)` middleware. Trace collects named spans via `begin(name)`/`end(name)`, exposes `timing` getter for Server-Timing header. `trace()` creates `ctx.trace`, `mark()` adds checkpoints. Effects use `ctx.trace?.begin/end` for ad-hoc spans. HTTP compiler injects Server-Timing header from `ctx.trace.timing`. Universal — works across all compiler surfaces (http, object, proxy, agentic, subscriber). Extension point for OTel: `begin(name, attrs)` when `@opentelemetry/api` is added later. |
+| analyzer.js | `Trace` class + `trace(name)` / `mark(name)` middleware. Trace collects named spans via `begin(name)`/`end(name)`, exposes `timing` getter for Server-Timing header. `trace()` creates `ctx.trace`, `mark()` adds checkpoints. Effects use `ctx.trace?.begin/end` for ad-hoc spans. HTTP shape injects Server-Timing header from `ctx.trace.timing`. Universal — works across all shape surfaces (http, object, proxy, agentic, subscriber). Extension point for OTel: `begin(name, attrs)` when `@opentelemetry/api` is added later. |
 
-### controller/ — Routing Operations
+### steer/ — Routing Operations
 
 | File | Contents |
 |------|---------|
@@ -241,13 +245,13 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | match.js | `scope(vector, signal)` — collects all matching trajectories + effects. `greedy(vector, signal)` — first match wins. `resolve(matches, signal)` — picks best match (trajectory if more signals, effect if last). |
 | shotgun.js | `shotgun(vector, signals)` — flatMap scope across multiple signals. Returns array of `{effect, carry, steps, match}`. |
 
-### compiler/ — Vector Compilation Targets
+### shape/ — Vector Compilation Targets
 
 | File | Contents |
 |------|---------|
 | http.js | `http(vector)` — compiles Vector to `async (Request) => Response`. Content-type aware body parsing (JSON only), passes `raw` native Request to Context, native Response passthrough for WebSocket upgrades. Dispatches by effect arity (0/1/2). Injects `Server-Timing` header from `ctx.trace.timing` when analyzer trace middleware is active. |
 | object.js | `object(vector)` — compiles Vector to nested JS object. `proxy(vector)` — compiles to Proxy with dynamic property access for lazy traversal. Both use `strategy(apply, effect)` for middleware composition. |
-| agentic.js | `Agentic` class — compiles Vector into LLM tool definitions. Walks effects/trajectories, generates tool names from paths, registers `execute` functions via `controller.invoke`. Produces `.tools` map and `.llmstxt` documentation string. |
+| agentic.js | `Agentic` class — compiles Vector into LLM tool definitions. Walks effects/trajectories, generates tool names from paths, registers `execute` functions via `steer.invoke`. Produces `.tools` map and `.llmstxt` documentation string. |
 | subscriber.js | `Subscriber` class — bridges ORM events to Vector signals. `emit(event, args)` constructs Signal from entity name + event type, dispatches through emitter. |
 
 ## Schematics
@@ -280,21 +284,24 @@ All tests use specimen's describe/it pattern with construction → gestalt → v
 | production.test.js | ProductionRequest (batch, stock, demand, satisfiedBy), ProductionResult (conditions, status), recalls |
 | agent.test.js | Agent construction, context accumulation, input/output validation, generate/do |
 | path.test.js | Path normalization, branching, filename/dirname extraction |
-| connection.test.js | Connection construction, middleware, branching, subscribe() SSE, websocket() lifecycle |
-| response.test.js | Response construction, stream() (async gen, string encoding, Uint8Array passthrough, chaining), events() (SSE framing, headers, concatenation) |
+| connection.test.js | Connection construction, middleware, branching, subscribe() SSE, publish() upstream SSE, websocket() lifecycle |
+| response.test.js | Response construction, stream() (async gen, string encoding, Uint8Array passthrough, chaining), publish() (SSE framing, headers, concatenation) |
 | agent.integration.test.js | Agent + brain integration, mock brain, full workflows |
 | classifier.test.js | Classifier parsing — **tests dead code** |
 | lookup.test.js | Lookup query parsing (string → {owner, type, slug}) |
 | url.test.js | URL parsing, branching, origin/pathname |
+| context.test.js | Context construction, input/output aliases to request.body/response.body |
+| freight.test.js | Freight construction, index (directory scan, MIME detection, recursion), resolve (path/slug lookup), catalog (keys, URLs) |
+| middleware.test.js | Carry compose (execution order, shared context, empty array), chain (two middleware functions) |
 | request.test.js | Request construction, headers, clone |
 | vector.test.js | Vector construction, open, branch, middleware accumulation, slurp |
 | aperture.test.js | Aperture method dispatch (GET/POST/PUT), 405, open+method fallback, branching, middleware, params |
-| compiler/http.test.js | HTTP compiler: simple routes, middleware+params, response types, re-entrant calls, wildcards, remainders, SSE, upload streams, method dispatch, native Response passthrough, static file serving, Connection integration (fetcher + inline) |
-| compiler/object.test.js | Object compiler: strategy, nested compilation, proxy access |
-| controller/traverse.test.js | Traverse: literal, parameter, wildcard matching, middleware accumulation |
-| controller/match.test.js | Scope, greedy, resolve match strategies |
-| controller/walk.test.js | Interactive walk with signal provider |
-| controller/invoke.test.js | One-shot invoke with params |
+| shape/http.test.js | HTTP shape: simple routes, middleware+params, response types, re-entrant calls, wildcards, remainders, SSE (publish), upload streams, method dispatch, native Response passthrough, static file serving, Connection integration (fetcher + inline) |
+| shape/object.test.js | Object shape: strategy, nested compilation, proxy access |
+| steer/traverse.test.js | Traverse: literal, parameter, wildcard matching, middleware accumulation |
+| steer/match.test.js | Scope, greedy, resolve match strategies |
+| steer/walk.test.js | Interactive walk with signal provider |
+| steer/invoke.test.js | One-shot invoke with params |
 | shards/cors.test.js | CORS: preflight 204, origin allowlist, header reflection |
 | shards/websocket.test.js | WebSocket: shape (arity, flag), lifecycle (echo test over real connection) |
 | shards/serve.test.js | Static serving: MIME detection, HTML/JS/binary/404 via temp files |
@@ -304,7 +311,7 @@ All tests use specimen's describe/it pattern with construction → gestalt → v
 
 These stubs should be populated as you trace dependencies through the system.
 
-- **Runtime**: Die extends Wafer. `compiler.http(aperture)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. `shard.transport.inline()` for daemon internal Connection. Subscriber maps ORM events via Vector. Entities managed via MikroORM. Mode/Valence entities drive daemon composition.
+- **Runtime**: Die extends Wafer. `shape.http(aperture)` compiles routes to native HTTP handler. `shard.cors.wrap()` for CORS. `shard.transport.inline()` for daemon internal Connection. Subscriber maps ORM events via Vector. Entities managed via MikroORM. Mode/Valence entities drive daemon composition.
 - **Paladin**: Wafer is the base lifecycle container. Seek resolves entity references during populate. Status tracks daemon state.
 - **Registry**: Mode manifests (.viva.js) declare traits from Mode.Traits enum. Literal/Symbol entities populated from topology datasets. Modes use Vector/Aperture for routing.
 - **Client**: Connection prototype drives server communication (including subscribe/websocket). mod.client.js is the entry point — gestalten + prototypes (client subset) + trait.
@@ -328,7 +335,7 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 - Missing: gestalt belt coverage (12 modules with no dedicated tests)
 - Missing: Remedy/RemedyHandler integration tests
 - Missing: schematics validation tests
-- Missing: shotgun, agentic compiler, subscriber tests
+- Missing: shotgun, agentic shape, subscriber tests
 
 ### Human Documentation Needs (Divio)
 - **Reference**: Complete API surface for Signature hierarchy — method signatures, coercion rules, property contracts
@@ -340,16 +347,32 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 - Asset entity type incoming (VERBALIZED trait on literals, mp3 vocalization)
 - @vivalence/shared removal — belt re-exports need migration (hash used in 7 prototype files)
 - Production system in flux — ProductionRequest/Result may change
+- Cortex primitives (Turn, Part shapes) may land in typology as gestalten or lightweight prototypes — see [cortex.workpackage.org](../../.ikiro/cortex.workpackage.org)
+- Buffer/Intent entity migration — ModeTraitsEnum already has commented-out new names (INTENTIONAL, SELFEVIDENT, EMITTER) alongside legacy (VALENTIC, BUFFERED, PRODUCER)
 
 ### Completed
-- ~~Vector merge~~ — Vector, Aperture, controller, compiler, shards absorbed into typology. `subsystems/vector/` deleted. All consumers rewritten to `@vivalence/typology`.
-- ~~HTTP feature surface~~ — Response.stream/events, Request.raw/stream, websocket shard, serve shard, Connection.subscribe/websocket. Full test coverage.
-- response.test.js expanded from 11 lines to full stream/events coverage
-- ~~Analyzer shard~~ — `Trace` class, `trace()`/`mark()` middleware, Server-Timing header injection in http compiler. Universal across all compiler surfaces. Extension point for OTel.
+- ~~Vector merge~~ — Vector, Aperture, steer, shape, shards absorbed into typology. `subsystems/vector/` deleted. All consumers rewritten to `@vivalence/typology`.
+- ~~HTTP feature surface~~ — Response.stream/publish, Request.stream/subscribe, websocket shard, serve shard, Connection.subscribe/publish/websocket. Full test coverage.
+- ~~Transport rename: events→publish~~ — Response.events() renamed to Response.publish(). New Request.subscribe() for server-side SSE consumption. New Connection.publish() for client-side upstream SSE streaming.
+- response.test.js expanded from 11 lines to full stream/publish coverage
+- ~~Analyzer shard~~ — `Trace` class, `trace()`/`mark()` middleware, Server-Timing header injection in http shape. Universal across all shape surfaces. Extension point for OTel.
 
 ### Planned Changes
 - Specimen evolution into lifecycle-driven BDD framework
 - Note entity type (persistent cross-session state)
+
+### Transport Surface (Complete)
+
+The transport layer is now complete across three primitives:
+
+| Primitive | Server (Response/Request) | Client (Connection) | Shard |
+|-----------|---------------------------|---------------------|-------|
+| **stream** (raw) | Response.stream(asyncIterable), Request.stream() | — | — |
+| **publish/subscribe** (SSE) | Response.publish(asyncIterable) | Connection.subscribe(endpoint) consumes, Connection.publish(endpoint, source) sends | — |
+| **subscribe** (SSE incoming) | Request.subscribe() async generator | — | — |
+| **websocket** (bidirectional) | — | Connection.websocket(endpoint) | shard.websocket(handler) for upgrade |
+
+Future transport primitives (deferred): WebRTC (peer-to-peer media), WebTransport (QUIC-based bidirectional).
 
 ### Dead Code Flags
 - **Classifier** (143 lines) + its test (134 lines): only in bak code
@@ -361,9 +384,9 @@ External: @mikro-orm/core (entities), @sinclair/typebox (schematics), nanostores
 
 When you modify typology code:
 1. Run tests: `deno task test` in subsystems/typology
-2. Check if Signature hierarchy changes affect Pattern/Signal/Vector usage in controller/compiler
+2. Check if Signature hierarchy changes affect Pattern/Signal/Vector usage in steer/shape
 3. If adding an entity, update entities/index.ts sets and maps
 4. If modifying gestalten/is, ensure specimen's custom `is` object stays in sync
 5. If touching @vivalence/shared imports, track the migration status
-6. Effects must return body values (not set ctx.response.body directly) — the compiler overwrites via `c.output = await effect(...)`
+6. Effects must return body values (not set ctx.response.body directly) — the shape overwrites via `c.output = await effect(...)`
 7. Tests using native Deno `Response` in a file that imports typology's `Response` must use `globalThis.Response` to avoid shadowing

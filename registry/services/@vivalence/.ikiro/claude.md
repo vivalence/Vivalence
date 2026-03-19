@@ -29,7 +29,7 @@ Handles automatic migration. Creates repositories for each entity type.
 
 Wired in: test-system (runtime), test-daemon (brazilian daemon).
 
-### Hallucinator (hal257) — ACTIVE
+### Hallucinator (hal257) — ACTIVE (contract changing)
 
 `hallucinator/hal/` — 4 files
 
@@ -37,9 +37,14 @@ AI/LLM reasoning service wrapping the Anthropic API.
 
 **Manifest**: `{ type: "hallucinator", slug: "hal257", traits: ["MONK"] }`
 
-**Provider contract**: `provider(service) → { object, action }`
+**Current provider contract**: `provider(service) → { object, action }`
 - `object(options)` — structured output generation. Takes schema (TypeBox), system prompt, user prompt. Returns schema-validated object via Claude Sonnet.
 - `action(options)` — agent-based tool execution. Takes tools (Vector-derived), system prompt, user prompt. Runs ToolLoopAgent with max 10 steps.
+
+**Future provider contract** (per cortex workpackage): `provider(service) → Faculty[]`
+- Each channel declares: type, accepts, produces, delivery, tune, context, hallucinate(turns, config)
+- The `{object, action}` shape will be replaced by an array of faculties
+- Model identity becomes internal to the service — the cortex only sees faculties with tune vectors
 
 **Key files**:
 - `provider/index.js` (144 lines) — main implementation
@@ -159,8 +164,9 @@ Total: ~369 lines. Hallucinator tests require API key. Lighthouse tests require 
 - **Explanation**: "Why provider/consumer? Why not direct imports?" — the composition and deployment flexibility story
 
 ### Active Work
-- Hallucinator harness improvements (provider/consumer/typology pattern)
-- Voice conversation service (future — needs agent/connection/aperture groundwork)
+- Hallucinator cortex — [cortex.workpackage.org](../../../.ikiro/cortex.workpackage.org) — the hallucinator service contract is changing from `{object, action}` to an array of faculties. Each faculty declares type (conversation/object/speech/call), channels (accepted/produced data types), delivery modes (whole/stream), tune vector ([cost, quality, speed]), context limit, and a stateless `hallucinate(turns, config)` function. The cortex resolves providers by tune in 3-space. This is the biggest upcoming change to services.
+- Voice/speech service (future — ElevenLabs or similar, provides speech faculty)
+- Call service (future — realtime bidirectional audio, WebSocket-based)
 
 ### Dormant
 - NLP service: wired but may not be actively called in current modes

@@ -71,14 +71,17 @@ export const production = new Aperture()...;                   // if PRODUCER
 
 **Traits determine wiring:**
 
-| Trait | What it does | Applied by |
-|-------|-------------|------------|
-| VIEWABLE | Compiles Svelte view, exposes /view endpoint | traitmap.VIEWABLE |
-| BUFFERED | Manages buffer state lifecycle | traitmap (runtime) |
-| VALENTIC | Creates per-valence routing branches | traits/valentic.js |
-| PRODUCER | Attaches production pipeline middleware | traits/producer.js |
-| DATASET | Upserts symbols/literals from dataset | traits/dataset.js |
-| CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY |
+| Trait | What it does | Applied by | Status |
+|-------|-------------|------------|--------|
+| VIEWABLE | Compiles Svelte view, exposes /view endpoint | traitmap.VIEWABLE | Active |
+| BUFFERED | Manages buffer state lifecycle | traitmap (runtime) | Active (→ SELFEVIDENT) |
+| VALENTIC | Creates per-valence routing branches | traits/valentic.js | Active (→ INTENTIONAL) |
+| PRODUCER | Attaches production pipeline middleware | traits/producer.js | Active (→ EMITTER) |
+| DATASET | Upserts symbols/literals from dataset | traits/dataset.js | Active |
+| CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY | Active (expanding for cortex) |
+| FRAUGHT | Indexes freight catalog, exposes /freight | traitmap.FRAUGHT | Active |
+| LANGUAGED | Conversation harness with personality (planned) | — | Planned (cortex) |
+| AGENTIC | Action harness with auto-resolve (planned) | — | Planned (cortex) |
 
 **Valence dataset format:**
 
@@ -133,12 +136,14 @@ In `bak/`: agent, strategy, tactic (old version), teacher — 11+ archived exper
 ### Active Work
 - More game modes planned (conjugation practice, more interaction types)
 - Tactic entity management still being figured out
-- Production pipeline in flux (greed/recall quirks)
+- Production pipeline in flux → migrating to Emitter pattern (Vector-based, replaces Aperture pipeline)
+- Buffer/Intent migration will change dataset format: valence→intent, trait names on manifests
 
 ### Planned Changes
 - Many more modes coming
 - Asset integration (VERBALIZED literals with audio)
 - Note entity for persistent cross-session mode state
+- LANGUAGED/AGENTIC traits will give modes AI conversation and action capabilities via cortex harnesses
 
 ## Maintenance
 

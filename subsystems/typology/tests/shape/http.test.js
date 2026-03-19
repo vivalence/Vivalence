@@ -1,12 +1,13 @@
-import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard, NotFound } from "@vivalence/typology";
+import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard, NotFound, shape, steer } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 import { Aperture } from "@vivalence/typology/aperture";
-import { http } from "@vivalence/typology/compiler";
-import { traverse } from "@vivalence/typology/controller";
+
+const { http } = shape;
+const { traverse } = steer;
 
 const { serve } = shard;
 
-specimen.describe("http compiler", () => {
+specimen.describe("http shape", () => {
   specimen.describe("simple routes", () => {
     const vector = new Vector();
     vector.open("ping", () => "pong");
@@ -292,7 +293,7 @@ specimen.describe("http compiler", () => {
         yield { seq: 2 };
         yield "done";
       }
-      return ctx.response.events(source()).body;
+      return ctx.response.publish(source()).body;
     });
 
     const handler = http(vector);

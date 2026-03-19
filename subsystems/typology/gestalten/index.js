@@ -6,8 +6,8 @@ export * as shard from "./shard/index.js";
 export * as shards from "./shard/index.js";
 export * as belt from "./belt/index.js";
 export * from "./belt/index.js";
-export * as controller from "./controller/index.js";
-export * as compiler from "./compiler/index.js";
+export * as steer from "./steer/index.js";
+export * as shape from "./shape/index.js";
 
 // export * as check from "./belt/check/index.js"; // helpers for constraint testing schematic&relational; aka @shared/validators
 

@@ -1,5 +1,5 @@
 import { Buffer } from "@vivalence/html/typology";
-import { Vector, controller, Context, NotFound, is, Signal, Blacklist, fromm } from "@vivalence/typology";
+import { Vector, steer, Context, NotFound, is, Signal, Blacklist, fromm } from "@vivalence/typology";
 
 import { dataspace } from "$client";
 import { env } from "$env/dynamic/public";
@@ -10,7 +10,7 @@ import { get } from "svelte/store";
 export async function populate(terminal) {
   // console.log("POPULATE", terminal.perspective);
   const signal = new Signal(terminal.perspective);
-  const [effect, apply, match] = controller.traverse(population, signal);
+  const [effect, apply, match] = steer.traverse(population, signal);
 
   if (!effect) return;
   const params = fromm.match(match).parameters;

@@ -1,7 +1,8 @@
-import { specimen, shard } from "@vivalence/typology";
+import { specimen, shard, shape } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 import { Aperture } from "@vivalence/typology/aperture";
-import { http } from "@vivalence/typology/compiler";
+
+const { http } = shape;
 
 const { analyzer } = shard;
 const { Trace, trace, mark } = analyzer;

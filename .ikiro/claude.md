@@ -32,7 +32,7 @@ If you find yourself thinking "this could use a framework for X" — stop. The f
 **How they connect:**
 1. Typology defines the types AND makes them executable (prototypes + Vector routing trie + controller + compiler + shards)
 2. Paladin reads circuitry and resolves the registry into a compiled variant
-3. Runtime boots daemons from the variant, applies mode traits, serves HTTP via `compiler.http()` + `Deno.serve`
+3. Runtime boots daemons from the variant, applies mode traits, serves HTTP via `shape.http()` + `Deno.serve`
 4. Registry holds everything domain-specific: kernels, modes, services, circuits
 5. Client connects to the daemon and renders mode views
 
@@ -50,7 +50,13 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **System**: vector, aperture, paladin, daemon, mode, valence, wafer, die
 
-**Traits**: VIEWABLE, DATASET, VALENTIC, BUFFERED, PRODUCER, CHAOSMONKEY, TOPOGRAPHICAL
+**Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
+
+**Transport**: publish (server-side SSE framing via Response), subscribe (client-side SSE consumption via Connection/Request), websocket (bidirectional via Connection/shard), stream (raw ReadableStream via Response/Request)
+
+**Traits (current in code)**: VIEWABLE, DATASET, VALENTIC, BUFFERED, PRODUCER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT
+
+**Traits (planned, not yet in code)**: INTENTIONAL (replaces VALENTIC), SELFEVIDENT (replaces BUFFERED), EMITTER (replaces PRODUCER), LANGUAGED, AGENTIC
 
 **Memory signals**: MASTERY, SUCCESS, NEUTRAL, MISTAKE, FAILURE
 
@@ -63,6 +69,11 @@ Use these terms precisely. Don't substitute generic alternatives.
 - **Die/Wafer lifecycle.** Wafer is the base container. Die extends with implementation. Lifecycle cascades parent → children.
 - **Trait system.** Traits are async functions applied to modes during daemon resolution. They compose middleware, endpoints, and behavior.
 - **bak/ directories** are archives. Old code kept for reference. Never suggest re-adding patterns from bak/.
+- **Publish/Subscribe transport convention.** Three named transport primitives form a complete surface:
+  - `stream` — raw bytes. Response.stream(asyncIterable), Request.stream() returns ReadableStream.
+  - `publish`/`subscribe` — SSE-framed JSON. Response.publish(asyncIterable) formats SSE frames server-side. Connection.subscribe(endpoint) consumes SSE as async generator client-side. Request.subscribe() consumes SSE from incoming request body. Connection.publish(endpoint, asyncIterable) sends SSE-framed stream upstream.
+  - `websocket` — bidirectional. Connection.websocket(endpoint) opens WebSocket. shard.websocket(handler) upgrades server-side.
+- **Harness-as-Vector pattern.** AI interaction surfaces (cortex harnesses) are Vector instances with middleware, branches per faculty type, and effects per operation. Same shape compilers (object, http, proxy, agentic) apply to harnesses as to any Vector.
 
 ## Testing Philosophy
 
@@ -107,13 +118,16 @@ As of 2026-03-19 — verify these are still current by checking git log:
 
 - ~~Aperture migration (Oak → Vector → http compilation)~~ DONE
 - ~~Vector → typology merge~~ DONE — Vector absorbed into typology, `subsystems/vector/` deleted
-- ~~HTTP feature surface (streams, SSE, WebSocket, static serving)~~ DONE — Response.stream/events, Request.raw/stream, websocket shard, serve shard, Connection.subscribe/websocket
+- ~~HTTP feature surface (streams, SSE, WebSocket, static serving)~~ DONE — Response.stream/publish, Request.stream/subscribe, websocket shard, serve shard, Connection.subscribe/publish/websocket
+- ~~Transport rename: events→publish~~ DONE — Response.events() renamed to Response.publish(). New Request.subscribe() for incoming SSE consumption. New Connection.publish() for upstream SSE streaming.
 - mode.produce.[xyz]() pattern (Vector object/proxy compiler)
+- Buffer/Intent migration — [buffer-intent-migration.workpackage.org](buffer-intent-migration.workpackage.org) — Product→Buffer, Valence→Intent, PRODUCER→EMITTER, VALENTIC→INTENTIONAL, BUFFERED→SELFEVIDENT
 - Asset entity type (VERBALIZED trait, mp3 vocalization, file serving)
 - Mobile readiness on client
 - ~~Serving built client (production)~~ DONE — adapter-static + serve.js + Dockerfile
-- Hallucinator harness improvements
-- Session-first patterning (client + runtime sync)
+- Hallucinator cortex — [cortex.workpackage.org](cortex.workpackage.org) — daemon-level AI orchestrator with faculties, channels, harnesses (Vector), turns/parts, tune/tier resolution, LANGUAGED/AGENTIC traits
+- Session-first routing — [session-first-routing.workpackage.org](../systems/html/.ikiro/session-first-routing.workpackage.org) — depends on buffer/intent migration
+- Package manager — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — registry as jj-driven discovery scopes
 - More game modes (conjugation practice, "shittons of games")
 - Progression system (eventually)
 
@@ -204,6 +218,12 @@ This root document is the entry point for every future session. If it fails to o
 
 Each subsystem doc has its own Work Packages section. This is the master view:
 
+**Active work packages (with .org files):**
+- [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex: faculties, channels, harnesses, turns/parts, tune/tier, LANGUAGED/AGENTIC traits
+- [buffer-intent-migration.workpackage.org](buffer-intent-migration.workpackage.org) — Entity renames + trait renames across all layers
+- [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj-driven discovery scopes
+- [session-first-routing.workpackage.org](../systems/html/.ikiro/session-first-routing.workpackage.org) — Client URL scheme migration (depends on buffer/intent)
+
 **Critical testing gaps across the system:**
 - Learning domain: no tests for pick/review endpoints, memory drivers, signal schema
 - Runtime: no tests for PRODUCER/DATASET/VALENTIC traits, view bundler, process system
@@ -211,10 +231,13 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 - Paladin: scopes untested, variant compilation untested
 - Typology: entity trait system untested, gestalt belt/shard untested
 - Typology: shotgun, agentic compiler, subscriber, match strategies untested (migrated from vector)
+- Typology: new transport surface tests exist (publish/subscribe/websocket) but Request.subscribe() not yet tested
 
 **Cross-cutting active work:**
 - @vivalence/shared migration (belt re-exports, hash in 7+ files)
 - Asset entity type across domain + runtime + client
+- Buffer/Intent entity migration across typology + registry + runtime + client
+- Hallucinator service contract update (current {object, action} → faculty array for cortex)
 
 **Human documentation priorities (Divio):**
 1. Tutorial: "Build a new game mode" (most requested path for new agents)

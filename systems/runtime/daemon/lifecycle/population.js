@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
 
-import { is, Mode, Url, Path, shards, Vector, Aperture, compiler, controller } from "@vivalence/typology";
+import { is, Mode, Url, Path, shards, Vector, Aperture, shape, steer } from "@vivalence/typology";
 import { maps } from "@vivalence/typology/entities";
 import { array } from "@vivalence/shared";
 // import { Vector, compiler, controller, shards } from "@vivalence/vector";
@@ -170,9 +170,9 @@ export async function twitch(die) {
       .map((p) => p.signature)
       .map((s) => die.kernel.domain.entities.map[s].entity);
 
-    const subscriber = new compiler.Subscriber(subscriptions, async (signal, event) => {
+    const subscriber = new shape.Subscriber(subscriptions, async (signal, event) => {
       try {
-        const [effect, apply] = controller //
+        const [effect, apply] = steer //
           .traverse(die.good.entities.on, signal);
         const context = { event, daemon: die.good };
         context.daemon.entities.em = context.daemon.entities.em.fork();

@@ -1,6 +1,7 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, shape } from "@vivalence/typology";
 import { Aperture } from "@vivalence/typology/aperture";
-import { http } from "@vivalence/typology/compiler";
+
+const { http } = shape;
 
 specimen.describe("Aperture", () => {
   specimen.describe("method dispatch", () => {

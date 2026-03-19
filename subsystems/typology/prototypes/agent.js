@@ -1,6 +1,5 @@
-import { hash } from "@vivalence/typology";
+import { hash, shape } from "@vivalence/typology";
 import { validators, obj } from "@vivalence/shared";
-import { Agentic } from "@vivalence/typology/compiler";
 
 // TODO migrate to typebox for validator
 // import { Compile } from 'typebox'
@@ -53,7 +52,7 @@ export class Agent {
 
   withTools(vector) {
     // !process vector into tools. aka agentic()
-    this.tools = new Agentic(vector);
+    this.tools = new shape.Agentic(vector);
     return this;
   }
 

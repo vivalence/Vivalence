@@ -23,7 +23,7 @@ export class Response {
     return this;
   }
 
-  events(source) {
+  publish(source) {
     this.type = "text/event-stream";
     this.headers.set("cache-control", "no-cache");
     const framed = async function* () {

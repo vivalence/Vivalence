@@ -49,7 +49,7 @@ export const manifest = {
   slug: "unique-identifier",
   name: "Human-readable name",
   version: "0.0.1",
-  traits: ["DATASET", "VIEWABLE", "BUFFERED", "VALENTIC", "PRODUCER", ...],
+  traits: ["DATASET", "VIEWABLE", "BUFFERED", "VALENTIC", "PRODUCER", "FRAUGHT", ...],
 };
 ```
 
@@ -60,8 +60,8 @@ Beyond the manifest, entries export type-specific content:
 | domain | entities, modes, traits, aperture |
 | ontology | dataset (symbol hierarchy) |
 | topology | dataset (literals + symbol associations) |
-| game | view, dataset (valences) |
-| tactic | dataset (valences), production (Aperture pipeline) |
+| game | view, dataset (valences), optionally freight |
+| tactic | dataset (valences), production (Aperture pipeline) — migrating to emitter (Vector) |
 | service | provider(config), optionally aperture |
 | circuit | runtime, clients, daemons[], services[] |
 
@@ -122,6 +122,9 @@ Paladin resolves circuits during `resolve.circuitry()` and compiles them into `p
 - New modes incoming ("shittons of games" — conjugation practice, more game types)
 - Asset entity type (VERBALIZED trait on literals, mp3 vocalization)
 - Note entity type (persistent cross-session state for modes)
+- Hallucinator service contract changing to faculty array — see [cortex.workpackage.org](../.ikiro/cortex.workpackage.org)
+- Buffer/Intent migration — mode trait renames, valence→intent dataset format change
+- Package manager — registry evolving into jj-driven discovery scopes — see [very-important-packagemanager.workpackage.org](../.ikiro/very-important-packagemanager.workpackage.org)
 
 ### Dead / Archived
 - `modes/bak/`: agent, strategy, tactic (old version), teacher — 11+ archived modes

@@ -189,5 +189,6 @@ External: @cross/runtime (CurrentRuntime), @std/dotenv, @std/jsonc, @std/fs, @st
 - @vivalence/shared removal affects belt imports
 
 ### Planned Changes
-- Aperture migration may affect how mount points are resolved
+- ~~Aperture migration~~ DONE — mount points now resolved through Vector/shape compilation, not Oak
 - resolve.consumables() and resolve.cross() are commented out — cross-service validation planned
+- Package manager — VIP evolving to support jj-driven discovery scopes, see [very-important-packagemanager.workpackage.org](../../.ikiro/very-important-packagemanager.workpackage.org)

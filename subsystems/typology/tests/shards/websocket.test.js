@@ -1,6 +1,7 @@
-import { specimen, sleep, Url, Connection, shard } from "@vivalence/typology";
+import { specimen, sleep, Url, Connection, shard, shape } from "@vivalence/typology";
 import { Aperture } from "@vivalence/typology/aperture";
-import { http } from "@vivalence/typology/compiler";
+
+const { http } = shape;
 
 const { websocket } = shard;
 

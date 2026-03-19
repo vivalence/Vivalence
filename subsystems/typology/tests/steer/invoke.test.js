@@ -1,6 +1,7 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, steer } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
-import { invoke } from "@vivalence/typology/controller";
+
+const { invoke } = steer;
 
 specimen.describe("invoke", () => {
   specimen.it("invokes matched effect", async () => {

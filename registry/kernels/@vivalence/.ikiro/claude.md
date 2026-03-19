@@ -207,6 +207,8 @@ The domain aperture (pick/review) then queries this data to serve study items an
 ### Planned Changes
 - Note entity type (persistent cross-session state)
 - Classifier (eventual — automatic difficulty assessment)
+- Buffer/Intent migration — Product entity → Buffer entity, entity renames in aperture endpoints
+- Harness may introduce domain-specific part types (e.g. prosody, expression) — the part type discriminator is an open string per the harness workpackage
 
 ## Maintenance
 

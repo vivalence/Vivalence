@@ -1,4 +1,4 @@
-import { Url, Connection, shard, Path, shards, compiler, Aperture } from "@vivalence/typology";
+import { Url, Connection, shard, Path, shards, shape, Aperture } from "@vivalence/typology";
 import { ModeEntity, UserEntity, SessionEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 
 import * as routes from "../../daemon/aperture/index.js";
@@ -67,7 +67,7 @@ export async function create() {
   await routes.modes(die);
   await routes.freight(die);
 
-  const handler = compiler.http(daemon.aperture);
+  const handler = shape.http(daemon.aperture);
   const conn = new Connection(new Url("http://test"), shard.transport.inline(handler));
 
   return { daemon, die, handler, conn, orm, em, fixtures, mode };
