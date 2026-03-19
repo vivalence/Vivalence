@@ -8,7 +8,7 @@
 
 ## Role
 
-Process. The procedural orchestration layer. Runtime wraps everything in Die/Wafer lifecycle containers, boots daemons from paladin's compiled variant, applies mode traits, composes HTTP apertures, and serves it all via Oak. The recursive lifecycle cascade — parent populate/resolve/integrate flowing to children — is the core pattern.
+Process. The procedural orchestration layer. Runtime wraps everything in Die/Wafer lifecycle containers, boots daemons from paladin's compiled variant, applies mode traits, compiles Vector routes to HTTP handlers, and serves via Deno.serve. The recursive lifecycle cascade — parent populate/resolve/integrate flowing to children — is the core pattern.
 
 ## Entry Points
 
@@ -32,8 +32,8 @@ Process. The procedural orchestration layer. Runtime wraps everything in Die/Waf
    └─ runtime-level:
       ├─ attach()                   Route process/daemon apertures
       ├─ expose()                   Mount daemon manifests
-      ├─ compose()                  Assemble Oak middleware
-      ├─ launch()                   Start HTTP server
+      ├─ compose()                  Compile Vector → handler, wrap with CORS
+      ├─ launch()                   Deno.serve(handler)
       └─ wake()                     Activate watchdog
 5. await die.integrate()            Announce to lighthouse
 6. await die.perpetuate()           Keep-alive loop (10s patrol, signal handlers)
@@ -48,8 +48,9 @@ Shutdown mirrors this in reverse via `die.disintegrate()` — cascades to all te
 `runtime.js` (20 lines)
 
 Container holding the running system:
-- `server: Application` — Oak HTTP server
-- `aperture: Aperture` — root HTTP routing tree
+- `server: Deno.HttpServer` — HTTP server (set by launch)
+- `handler: (Request) => Response` — compiled HTTP handler (set by compose)
+- `aperture: Vector` — root routing tree (aliased as Aperture)
 - `twitch: Vector` — event system
 - `daemons: []` — DaemonDie instances
 - `processes: []` — ProcessDie instances
@@ -72,8 +73,8 @@ Wraps Runtime in `.good`. Lifecycle methods:
 - Iterates all terrans: `populate() → resolve() → integrate()` for each
 - `attach(die)` — routes process/daemon apertures
 - `expose(die)` — mounts daemon sub-apertures with status/manifest
-- `compose(die)` — CORS, 404, body parser, error handling, aperture composition into Oak
-- `launch(die)` — starts Oak server on configured host:port
+- `compose(die)` — `compiler.http(aperture)` → handler, `shards.cors.wrap(handler)` → CORS-wrapped handler
+- `launch(die)` — `Deno.serve({ port, hostname, signal, onListen }, handler)`
 - `wake(die)` — creates watchdog polling every 10s
 
 **integrate()** — `lifecycle.integration.announce(die)` registers daemons with lighthouse service.
@@ -101,7 +102,7 @@ Die extends Wafer with actual lifecycle implementation. The recursion: parent Di
 
 The business object wrapped by DaemonDie:
 - `manifest, mount, url` — identity
-- `aperture: Aperture` — HTTP routing for this daemon
+- `aperture: Vector` — HTTP routing tree (aliased as Aperture)
 - `connection, call` — internal RPC
 - `authority, brain, entity` — service handles
 - `kernel: { orm, em }` — database
@@ -139,7 +140,7 @@ Two key data structures:
 - `modes(die)` — for each mode: attaches context middleware, opens status/manifest endpoints, slurps mode aperture, **applies trait functions**, marks entity installed, attaches to daemon aperture with auth
 
 **integrate()** — `daemon/lifecycle/integration.*`:
-- `call(die)` — creates internal Connection with composed aperture as transport (enables `daemon.call(path, body)` without HTTP)
+- `call(die)` — compiles aperture via `compiler.http()`, wraps in `shard.transport.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
 - `uninstall(die)` — removes DB records for modes no longer loaded
 
 ## Mode Trait System
@@ -174,31 +175,31 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 
 `daemon/mode/view-bundler.js` (154 lines) — esbuild + Svelte plugin. Compiles `.svelte` files with import map resolution for @vivalence/* packages. Returns in-memory bundle (write: false).
 
-## HTTP Aperture
+## Route Registration
 
-### Daemon Aperture Endpoints
+### Daemon Routes
 
-`daemon/aperture/` (3 files, 73 lines total):
+`daemon/aperture/` (4 files) — registers effects on daemon's Vector during `die.resolve()`:
 
 **datamap.js** — `GET /entities/:entity/:method` → direct ORM access (find, findOne, create)
 
-**userspace.js** — `/userspace/` prefix:
-- `GET /status` — daemon status
+**userspace.js** — `/userspace/` prefix (all routes behind `shards.secure.authorize()`):
 - `GET /handshake` (auth) — `{success, user}`
 - `GET /entities/:entity/:method` — user-scoped CRUD (intent, session only), auto-filters by user.id
 
 **modes.js** — `GET /modes/:type/:method` — mode lookup by type and slug
 
-### Runtime Aperture Composition
+**freight.js** — `GET /cargo` — returns `daemon.cargo` (freight catalog)
 
-During `resolve.compose()`, the full middleware stack is assembled:
-1. CORS middleware (localhost, *.vivalence.com)
-2. 404 handler
-3. Body parser (ctx.input from request body)
-4. Error handler (500 on exception)
-5. Aperture tree composed into Oak router
+### HTTP Compilation
 
-Each daemon gets mounted at `/daemon/{slug}/` with its own aperture subtree.
+During `resolve.compose()`, the Vector routing tree is compiled to a native HTTP handler:
+1. `compiler.http(aperture)` — compiles Vector → `(Request) => Response` via traverse
+2. `shards.cors.wrap(handler)` — wraps with CORS (preflight 204, origin checking)
+
+The http compiler handles body parsing (`req.json()`), 404 (no match), 500 (catch), content-type dispatch (JSON/binary/text), and response header forwarding. No Oak middleware stack.
+
+Each daemon gets mounted at `/daemon/{slug}/` via `.branch().slurp()` on the runtime aperture.
 
 ## Process System
 
@@ -206,20 +207,24 @@ Each daemon gets mounted at `/daemon/{slug}/` with its own aperture subtree.
 
 ## Tests
 
-| File | Lines | Pattern | Coverage |
-|------|-------|---------|----------|
-| runtime/lifecycle.test.js | 47 | Lifecycle | Full boot/shutdown cycle, status transitions |
-| runtime/aperture.test.js | 42 | HTTP | GET /status, GET /manifest, daemon status/manifest via HTTP |
-| daemon/lifecycle.test.js | 41 | Lifecycle | Daemon creation from mask, full lifecycle cycle |
-| daemon/aperture.test.js | 44 | HTTP | Authenticated endpoints, daemon aperture via HTTP |
-| daemon/modes.test.js | 60 | HTTP | Mode manifest/status access, VIEWABLE view URL check |
+Self-contained scenario tests. No paladin, no network, :memory: SQLite. Run with `deno task test`.
 
-Total: ~234 lines. Tests require paladin.ikiro and real ORM initialization.
+| File | Steps | Coverage |
+|------|-------|----------|
+| scenario/routes.test.js | 12 | Daemon routes: freight, datamap (find/findOne), symbols, modes (findOne, view URL), userspace auth |
+| scenario/runtime.test.js | 7 | Runtime composition: status, manifest, daemon mounted under runtime, datamap via runtime path, 404 |
+
+Scenario infrastructure:
+- `scenario/domain.ts` — concrete Literal/Symbol/Product entities (slim test domain)
+- `scenario/seed.js` — MikroORM :memory: init + fixture data (2 literals, 1 symbol, 1 mode, 1 user, 1 session)
+- `scenario/daemon.js` — creates Daemon with real routes, compiles via `compiler.http()`, wraps in `Connection` via `shard.transport.inline()`
+
+Old paladin-dependent tests moved to `tests/bak/`.
 
 ## Where Used
 
 - **Paladin**: Runtime consumes paladin.variant entirely — daemons, services, runtime config, clients
-- **Vector**: Aperture compiles to Oak. Subscriber maps ORM events. twitch Vector for events.
+- **Vector**: `compiler.http(vector)` compiles routes to native HTTP handler. `shards.cors.wrap()` for CORS. Subscriber maps ORM events. twitch Vector for events.
 - **Typology**: Die extends Wafer. Entities managed via MikroORM. Status, Connection, Url, Path used throughout.
 - **Registry**: Modes loaded via paladin.vip from registry/modes. Services loaded from registry/services. Kernels from registry/kernels.
 
@@ -230,10 +235,9 @@ Total: ~234 lines. Tests require paladin.ikiro and real ORM initialization.
 - No tests for DATASET trait (symbol/literal upsert, batch chunking)
 - No tests for VALENTIC trait (per-valence routing)
 - No tests for view-bundler.js (Svelte compilation)
-- No tests for Process system
-- No tests for daemon internal connection (call via composed aperture)
+- No tests for Process system (process slurp now works — was silently broken via descendants.push no-op)
 - No tests for disintegrate cascade (shutdown sequence)
-- aperture tests depend on running server — no unit-level aperture tests
+- No tests for view/freight remainder `(.*)` serving (tested in http compiler, not runtime scenario)
 - No tests for watchdog patrol
 
 ### Human Documentation Needs (Divio)
@@ -243,15 +247,20 @@ Total: ~234 lines. Tests require paladin.ikiro and real ORM initialization.
 - **How-to**: "Add a new mode trait" — trait function signature, registration in traitmap
 
 ### Active Work
-- Aperture migration to Vector (compile to Oak instead of direct Oak routing)
 - mode.produce.[xyz]() pattern (Vector object/proxy compiler)
 - Asset entity type (VERBALIZED trait, attachment serving)
 - Session-first patterning (client + runtime sync)
 
+### Completed
+- **Oak → Vector/http migration** — Oak removed. Runtime serves via `compiler.http()` + `Deno.serve`. CORS via `shards.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
+- **descendants.push fix** — process mounting was silently broken (`.descendants` getter returns new array, `.push()` was a no-op). Fixed to `.slurp()`.
+- **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
+
 ### Planned Changes
 - Production pipeline rewrite (producer trait in flux)
 - Vector→typology merge affects twitch and Subscriber usage
-- Aperture becomes a compiler target
+- @oak/oak removal from root deno.jsonc
+- Old aperture compiler cleanup (compiler/aperture/, mw.js, parser.js)
 
 ## Maintenance
 
@@ -259,5 +268,6 @@ When modifying runtime code:
 1. Run tests: `deno task test` in systems/runtime
 2. Lifecycle changes must preserve cascade order (parent before children in populate, children before parent in disintegrate)
 3. New traits go in daemon/mode/traits/ and get registered in traitmap.js
-4. Aperture changes: verify both internal (compose) and HTTP (serve) paths
-5. New endpoints: follow the pattern in daemon/aperture/ — context attachment, auth middleware, handler arity
+4. New endpoints: follow the pattern in daemon/aperture/ — `.open()` or `.branch()` on daemon's Vector, effect arity (0/1/2 params)
+5. HTTP handler is compiled from Vector in `resolve.compose()` — route changes take effect at compile time, not dynamically
+6. Daemon internal connection uses the same compiled handler — `compiler.http()` + `shard.transport.inline()`

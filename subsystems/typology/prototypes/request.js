@@ -8,6 +8,7 @@ export class Request {
     this.body = request.body;
     this.query = request.query;
     this.path = request.path;
+    if (request.raw) this.raw = request.raw;
 
     this.options = {
       timeout: request.timeout ?? 30000,
@@ -29,6 +30,10 @@ export class Request {
 
   abort() {
     this._controller?.abort();
+  }
+
+  stream() {
+    return this.raw?.body || null;
   }
 
   clone() {

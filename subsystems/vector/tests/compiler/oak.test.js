@@ -1,222 +1,144 @@
-import { sleep, specimen, Url, Connection, Response } from "@vivalence/typology";
+import { sleep, specimen, Url, Connection } from "@vivalence/typology";
 import { Application } from "@oak/oak";
 import { Vector } from "@vivalence/vector";
-import { parser, mw } from "@vivalence/vector/aperture";
 import { oak } from "../../compiler/oak.js";
 
-const PORT = 9877;
+function buildVector() {
+  const vector = new Vector();
 
-function oakTransport(compiled) {
-  return async (ctx) => {
-    ctx.input = ctx.request.body;
-    ctx.request.url = new URL(ctx.request.url.absolute);
-    ctx.request.headers = new Headers();
-    await compiled(ctx, () => {});
-    ctx.response.body = ctx.output;
-    ctx.response.status = ctx.output !== undefined ? 200 : 404;
-  };
+  vector.open("/ping", () => "pong");
+  vector.open("/zero", () => 42);
+  vector.open("/echo", (input, ctx) => ({ body: input, method: ctx.request.method }));
+  vector.open("/users/:id", (ctx) => ({ id: ctx.params.id }));
+
+  vector
+    .branch("/api")
+    .use(async (ctx, next) => {
+      ctx.state.apiBranch = true;
+      await next();
+    })
+    .open("/items", () => [1, 2, 3])
+    .open("/items/:itemId", (ctx) => ({
+      itemId: ctx.params.itemId,
+      apiBranch: ctx.state.apiBranch,
+    }));
+
+  vector.use(async (ctx, next) => {
+    ctx.state.root = true;
+    await next();
+  });
+
+  vector.branch("/a/b/c").open("/leaf", () => ({ deep: true }));
+
+  return vector;
+}
+
+async function startOak(port, vector) {
+  const app = new Application();
+  const controller = new AbortController();
+  app.use(oak(vector));
+  await new Promise((resolve) => {
+    app.addEventListener("listen", resolve, { once: true });
+    app.listen({ port, signal: controller.signal });
+  });
+  await sleep.ms(100);
+  return controller;
 }
 
 specimen.describe("oak compiler", () => {
-  specimen.describe("compose — internal invocation", () => {
-    const vector = new Vector();
-
-    vector.use(async (ctx, next) => {
-      ctx.state = ctx.state || {};
-      ctx.state.touched = true;
-      await next();
-    });
-
-    vector.open("ping", () => "pong");
-    vector.open("zero", () => 42);
-    vector.open("one", (ctx) => ({ got: ctx.input, touched: ctx.state.touched }));
-    vector.open("two", (input, ctx) => ({ input, hasCtx: !!ctx }));
-    vector.open("users/:id", (ctx) => ({ id: ctx.params.id }));
-
-    const branch = vector.branch("api");
-    branch.use(async (ctx, next) => {
-      ctx.state.apiBranch = true;
-      await next();
-    });
-    branch.open("items", () => [1, 2, 3]);
-    branch.open("items/:itemId", (ctx) => ({
-      itemId: ctx.params.itemId,
-      apiBranch: ctx.state.apiBranch,
-    }));
-
-    const compiled = oak(vector);
-    const conn = new Connection(new Url("http://internal"), oakTransport(compiled));
-
-    specimen.it("routes, arity dispatch, and middleware", async () => {
-      specimen.expect(await conn.call("/ping")).toBe("pong");
-      specimen.expect(await conn.call("/zero")).toBe(42);
-
-      const one = await conn.call("/one", { x: 1 });
-      specimen.expect(one.got).toEqual({ x: 1 });
-      specimen.expect(one.touched).toBe(true);
-
-      const two = await conn.call("/two", { y: 2 });
-      specimen.expect(two.input).toEqual({ y: 2 });
-      specimen.expect(two.hasCtx).toBe(true);
-    });
-
-    specimen.it("params and branch middleware", async () => {
-      specimen.expect((await conn.call("/users/42")).id).toBe("42");
-      specimen.expect(await conn.call("/api/items")).toEqual([1, 2, 3]);
-
-      const item = await conn.call("/api/items/7");
-      specimen.expect(item.itemId).toBe("7");
-      specimen.expect(item.apiBranch).toBe(true);
-    });
-
-    specimen.it("unmatched route leaves output undefined", async () => {
-      specimen.expect(await conn.call("/nope")).toBe(undefined);
-    });
-  });
-
-  specimen.describe("ctx.input / ctx.output contract", () => {
-    const vector = new Vector();
-    vector.use(async (ctx, next) => {
-      ctx.input.injected = true;
-      await next();
-      ctx.output.wrapped = true;
-    });
-    vector.open("transform", (input, ctx) => ({ doubled: input.n * 2, saw: input.injected }));
-    vector.open("echo", (input, ctx) => ({ input }));
-
-    const compiled = oak(vector);
-    const conn = new Connection(new Url("http://internal"), oakTransport(compiled));
-
-    specimen.it("input preserved, output is return value, middleware can mutate both", async () => {
-      const tx = {
-        request: { body: { n: 21 }, url: new Url("http://internal/transform") },
-        response: new Response(),
-        state: {},
-      };
-      await conn.transport(tx);
-      specimen.expect(tx.input).toEqual({ n: 21, injected: true });
-      specimen.expect(tx.output.doubled).toBe(42);
-      specimen.expect(tx.output.saw).toBe(true);
-      specimen.expect(tx.output.wrapped).toBe(true);
-
-      const echo = {
-        request: { body: { x: 1 }, url: new Url("http://internal/echo") },
-        response: new Response(),
-        state: {},
-      };
-      await conn.transport(echo);
-      specimen.expect(echo.output.input).toEqual({ x: 1, injected: true });
-      specimen.expect(echo.output.wrapped).toBe(true);
-    });
-  });
-
-  specimen.describe("serve — HTTP invocation via Oak", () => {
-    const vector = new Vector();
-
-    vector.use(async (ctx, next) => {
-      ctx.state = ctx.state || {};
-      ctx.state.touched = true;
-      await next();
-    });
-
-    vector.open("ping", () => ({ pong: true }));
-    vector.open("echo", (input, ctx) => ({ input, touched: ctx.state.touched }));
-    vector.open("users/:id", (ctx) => ({ id: ctx.params.id }));
-
-    const branch = vector.branch("api");
-    branch.use(async (ctx, next) => {
-      ctx.state.apiBranch = true;
-      await next();
-    });
-    branch.open("items", () => [1, 2, 3]);
-    branch.open("items/:itemId", (ctx) => ({
-      itemId: ctx.params.itemId,
-      apiBranch: ctx.state.apiBranch,
-    }));
-
-    const app = new Application();
-    const controller = new AbortController();
-
-    app.use(mw.notFound).use(async (ctx, next) => {
-      ctx.input = await parser(ctx);
-      await next();
-      if (ctx.output) ctx.response.body = ctx.output;
-    });
-    app.use(oak(vector));
-
+  specimen.describe("HTTP serve", () => {
+    const PORT = 9877;
+    let controller;
     const conn = new Connection(new Url(`http://localhost:${PORT}`));
 
     specimen.beforeAll(async () => {
-      app.listen({ port: PORT, signal: controller.signal });
-      await sleep.ms(500);
+      controller = await startOak(PORT, buildVector());
     });
 
-    specimen.afterAll(() => {
-      controller.abort();
+    specimen.afterAll(() => controller.abort());
+
+    specimen.it("arity 0 — returns value as JSON", async () => {
+      specimen.expect(await conn.call("/ping")).toBe("pong");
     });
 
-    specimen.it("routes, params, and middleware over HTTP", async () => {
-      const ping = await conn.call("/ping");
-      specimen.expect(ping.pong).toBe(true);
-
-      const echo = await conn.call("/echo", { hello: "world" });
-      specimen.expect(echo.input.hello).toBe("world");
-      specimen.expect(echo.touched).toBe(true);
-
-      const user = await conn.call("/users/99");
-      specimen.expect(user.id).toBe("99");
-
-      const items = await conn.call("/api/items");
-      specimen.expect(items).toEqual([1, 2, 3]);
-
-      const item = await conn.call("/api/items/7");
-      specimen.expect(item.itemId).toBe("7");
-      specimen.expect(item.apiBranch).toBe(true);
+    specimen.it("arity 0 — number", async () => {
+      specimen.expect(await conn.call("/zero")).toBe(42);
     });
 
-    specimen.it("404 on unknown route", async () => {
+    specimen.it("arity 2 — receives parsed body", async () => {
+      const result = await conn.call("/echo", { hello: "world" });
+      specimen.expect(result.body.hello).toBe("world");
+    });
+
+    specimen.it("404 on unmatched route", async () => {
       const response = await conn.fetch("/nonexistent");
       specimen.expect(response.status).toBe(404);
     });
+
+    specimen.it("params from :id pattern", async () => {
+      const result = await conn.call("/users/42");
+      specimen.expect(result.id).toBe("42");
+    });
+
+    specimen.it("branch routes", async () => {
+      specimen.expect(await conn.call("/api/items")).toEqual([1, 2, 3]);
+    });
+
+    specimen.it("branch middleware + params accumulate", async () => {
+      const result = await conn.call("/api/items/7");
+      specimen.expect(result.itemId).toBe("7");
+      specimen.expect(result.apiBranch).toBe(true);
+    });
+
+    specimen.it("multi-segment branch path", async () => {
+      const result = await conn.call("/a/b/c/leaf");
+      specimen.expect(result.deep).toBe(true);
+    });
   });
 
-  specimen.describe("composition — multiple vectors", () => {
+  specimen.describe("composition — slurp", () => {
+    const PORT = 9878;
+    let controller;
+
     const domain = new Vector();
-    domain.open("pick", () => "picked");
-    domain.open("review", () => "reviewed");
+    domain.open("/pick", () => "picked");
+    domain.open("/review", () => "reviewed");
 
     const userspace = new Vector();
     userspace.use(async (ctx, next) => {
-      ctx.state = ctx.state || {};
       ctx.state.userscoped = true;
       await next();
     });
-    userspace.open("status", (ctx) => ({ userscoped: ctx.state.userscoped }));
-    userspace.branch("entities/:entity").open(":method", (ctx) => ({
+    userspace.open("/status", (ctx) => ({ userscoped: ctx.state.userscoped }));
+    userspace.branch("/entities/:entity").open("/:method", (ctx) => ({
       entity: ctx.params.entity,
       method: ctx.params.method,
       userscoped: ctx.state.userscoped,
     }));
 
     const daemon = new Vector();
-    daemon.use(async (ctx, next) => {
-      ctx.state = ctx.state || {};
-      ctx.state.daemon = true;
-      await next();
+    daemon.branch("/domain").slurp(domain);
+    daemon.branch("/userspace").slurp(userspace);
+
+    const conn = new Connection(new Url(`http://localhost:${PORT}`));
+
+    specimen.beforeAll(async () => {
+      controller = await startOak(PORT, daemon);
     });
-    daemon.branch("domain").set(domain);
-    daemon.branch("userspace").set(userspace);
 
-    const compiled = oak(daemon);
-    const conn = new Connection(new Url("http://internal"), oakTransport(compiled));
+    specimen.afterAll(() => controller.abort());
 
-    specimen.it("merged routes, child middleware, and params", async () => {
+    specimen.it("merged routes", async () => {
       specimen.expect(await conn.call("/domain/pick")).toBe("picked");
       specimen.expect(await conn.call("/domain/review")).toBe("reviewed");
+    });
 
+    specimen.it("child middleware preserved through slurp", async () => {
       const status = await conn.call("/userspace/status");
       specimen.expect(status.userscoped).toBe(true);
+    });
 
+    specimen.it("nested params across slurp", async () => {
       const entity = await conn.call("/userspace/entities/literal/find");
       specimen.expect(entity.entity).toBe("literal");
       specimen.expect(entity.method).toBe("find");

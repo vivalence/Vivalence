@@ -8,9 +8,9 @@
 
 ## Role
 
-Engine. Vector trees route signals through patterns to effects. Middleware accumulates as you traverse. Compiles to HTTP routes (Aperture → Oak), LLM tool specs (Agentic), or callable objects (Object compiler). The entire routing system is ~150 lines of procedural code operating on typology's Signature hierarchy.
+Engine. Vector trees route signals through patterns to effects. Middleware accumulates as you traverse. Compiles to native HTTP handlers (http compiler), LLM tool specs (Agentic), or callable objects (Object compiler). The entire routing system is ~150 lines of procedural code operating on typology's Signature hierarchy.
 
-Planned: merge into typology. Aperture becomes a Vector compiler, not a standalone system.
+`Aperture` is now an alias for `Vector` (prototypes/index.js). The old Oak-based Aperture in compiler/aperture/ is dead code pending cleanup. Planned: merge into typology.
 
 ## Entry Points
 
@@ -41,9 +41,9 @@ Two Maps drive everything:
 
 **use(middleware)** — Pushes to carry[].
 
-**set(vector)** — Merges effects, trajectories, carry from another Vector.
+**slurp(vector)** — Merges effects, trajectories, carry from another Vector into this one. `set()` is a deprecated alias.
 
-Properties: `patterns` (all Pattern keys), `descendants` (trajectory values), `heir` (first descendant).
+Properties: `patterns` (all Pattern keys), `descendants` (trajectory values — **getter returns new array, do not push to it**), `heir` (first descendant).
 
 ### Controller
 
@@ -61,7 +61,7 @@ Single-signal tree walk. Returns `[effect, carry, steps, position]`. Uses `resol
 Async iterator-driven traversal. Loops while `position.patterns.length` (enters for effects-only vectors, not just trajectories). Calls `more(position.patterns)` to request next Signal. 20-step limit (throws Long). Calls traverse internally for each step.
 
 **invoke** `controller/invoke.js` (13 lines)
-Single-shot wrapper. Coerces to Signal, calls traverse, throws NotFound if no effect, runs middleware stack → effect, returns `context.effect`.
+Synchronous single-shot. Coerces to Signal, calls traverse, throws NotFound if no effect, returns callable via strategy. `invoke(vector, signal, strategy)` — strategy is `(carry, effect, steps, signal) => async (input) => result`. Default strategy creates `{ input, signal, params }` context, runs carry → effect, returns `ctx.output`.
 
 **match** `controller/match.js`
 Three functions: `scope()` collects all matches (trajectories first, then effects). `greedy()` returns first match (effects first). `resolve(matches, signal)` disambiguates: single match → use it, two matches → prefer trajectory when signal has heir, prefer effect when exhausted. Throws NotFound on empty. Used by traverse.
@@ -86,8 +86,11 @@ Converts Vector → LLM tool definitions. DFS compile walks the tree, normalizin
 **Subscriber** `compiler/subscriber.js` (56 lines)
 ORM event → Signal mapper. Extracts entity name from constructor ("UserEntity" → "user"), creates `Signal([entity, event])`. Event hooks: onInit, onLoad, afterCreate, beforeCreate, afterUpdate, beforeUpdate. Gracefully ignores NOT_FOUND.
 
-**Aperture** `compiler/aperture/` (~300 lines total)
-Oak HTTP router DSL. `open(path, handler)` registers with arity dispatch (0/1/2 params). `branch(path)` nests. `compose()` for direct invocation, `serve()` for Oak HTTP. Dual-mode parity via handler arity dispatch.
+**HTTP** `compiler/http.js` (~50 lines)
+Compiles Vector → `(Request) => Response` handler. Uses traverse for routing, Context (from typology) for request/response lifecycle, `fromm.match(steps).parameters` for param extraction. Effect arity dispatch (0/1/2 params). Forwards all `ctx.response.headers`. Handles JSON, binary (Uint8Array/ReadableStream), 404 (no match), 500 (catch).
+
+**Aperture** `compiler/aperture/` (~300 lines total) **DEAD — pending cleanup.**
+Old Oak HTTP router DSL. Replaced by http compiler + Deno.serve. `Aperture` name now aliases `Vector` via prototypes/index.js.
 
 ### Shards
 
@@ -96,7 +99,8 @@ Oak HTTP router DSL. `open(path, handler)` registers with arity dispatch (0/1/2 
 | patterns.js | 1 | `bonnieblue = () => () => true` — always-match factory |
 | caching.js | 62 | `catchAndRelease(id)` — dedup cache with in-flight promise sharing |
 | secure.js | 52 | `context(provider)` extracts auth, `authorize(claims[])` validates |
-| index.js | 18 | Re-exports: patterns, secure, caching, aperture.status, context.attach |
+| cors.js | 45 | `wrap(serve)` — wraps `(Request)=>Response` handler with CORS (preflight, origin checking, header injection) |
+| index.js | 20 | Re-exports: patterns, secure, caching, cors, aperture.status, context.attach |
 
 ### Error Types
 
@@ -132,11 +136,13 @@ All tests use specimen pattern (BDD via `@vivalence/typology`). Run with `deno t
 | controller/invoke.test.js | 5 | invocation, context passing, middleware, path/signal on context, NotFound |
 | controller/walk.test.js | 3 | single step, no-heir effects, middleware carry |
 | compiler/object.test.js | 13 | flat effects, branching (nested, deep, siblings), middleware (wrapping, accumulation, context flow, custom strategy, strategy+branch composition) |
-| compiler/aperture-oak.test.js | 29 | compose + serve + dual-mode parity + context contract |
+| compiler/http.test.js | 30 | simple routes, middleware+params+branches, response types, re-entrant calls, wildcards, Deno.serve integration, inline transport |
+| shards/cors.test.js | 6 | preflight 204, method/header reflection, pass-through, wildcard, disallowed origin, vivalence.com |
+| compiler/aperture-oak.test.js | 29 | **DEAD — old Oak tests** |
 
 ## Where Used
 
-- **Runtime**: Aperture compiles daemon routes to Oak. invoke() handles request dispatch. Subscriber maps ORM events to Signals for entity lifecycle hooks.
+- **Runtime**: `compiler.http(vector)` compiles daemon/runtime routes to native HTTP handlers. `shards.cors.wrap()` adds CORS. `shard.transport.inline()` (from typology) bridges Connection ↔ handler for daemon internal calls. Subscriber maps ORM events to Signals for entity lifecycle hooks.
 - **Paladin**: Configures Vector trees during daemon composition. Attaches mode routes via branch/open.
 - **Registry/Modes**: Each mode registers its routes via Vector patterns.
 - **Agent**: Agentic compiler generates LLM tool specs from Vector trees.
@@ -144,8 +150,8 @@ All tests use specimen pattern (BDD via `@vivalence/typology`). Run with `deno t
 
 ## Dependencies
 
-From typology: Pattern, Signal, Signature, Path, Url, middleware primitives.
-External: Oak (HTTP framework, used by Aperture).
+From typology: Pattern, Signal, Signature, Path, Url, Context, middleware primitives, `fromm.match`.
+External: Oak still imported by dead aperture code — pending cleanup.
 
 ## Work Packages
 
@@ -154,32 +160,35 @@ External: Oak (HTTP framework, used by Aperture).
 - No tests for Agentic compiler (LLM tool generation)
 - No tests for Subscriber (ORM event → Signal mapping)
 - No tests for shards (caching, secure, patterns)
-- traverse: remainder handling, early exit on effect+trajectory conflict
 - walk: multi-step navigation (signal refresh issue — walk doesn't reset signal between steps, so multi-step interactive traversal doesn't work as expected)
 
 ### Known Issues
-- traverse remainder increment bug: `match.params` and `match.parameters` get different keys due to double `remainder++` (lines 25-26)
 - walk signal refresh: after the first traverse call, `signal` retains its `.nature`, so `more()` is never called again for subsequent steps. Multi-step interactive walks don't work correctly.
+
+### Completed
+- **Remainder bug fixed**: patternmap filters now propagate type via spread, traverse remainder branch uses `.nature`, single increment, consistent return order
+- **Invoke refactored**: synchronous, returns callable via strategy parameter `(carry, effect, steps, signal) => async (input) => result`
+- **Oak → http migration**: runtime serves via `compiler.http()` + `Deno.serve`. Old Aperture aliased to Vector.
 
 ### Active Work
 - Object compiler: `mode.produce.[xyz]()` pattern — compiles Vector to callable object with strategy-driven context
 - Proxy compiler planned: extends object compiler with parameter/wildcard support via Proxy
-- Aperture migration: move from direct Oak routing to Vector → Oak compilation
 - Merge into typology planned
+- Aperture cleanup: remove dead compiler/aperture/, aperture-oak tests, @oak/oak dependency
 
 ### Human Documentation Needs (Divio)
 - **Tutorial**: "Route your first signal through a vector" — walk through branch/open/invoke
 - **Explanation**: "How traverse walks two trees in parallel" — the core insight of the system
 - **Explanation**: "The strategy pattern" — how (apply, effect) => callable enables compiler polymorphism
 - **Reference**: Complete controller API with signatures and return types
-- **How-to**: "Compile a Vector to Oak routes" — Aperture usage, dual-mode setup
+- **How-to**: "Compile a Vector to an HTTP handler" — `compiler.http()`, Deno.serve, CORS wrapping
 - **How-to**: "Build a custom compiler strategy" — context control via carry parameter
 
 ## Maintenance
 
 When you modify vector code:
-1. Run tests: `deno test --no-check --allow-all` in subsystems/vector
-2. aperture-oak.test.js is the integration anchor — if routing changes, verify dual-mode parity
+1. Run tests: `deno test --no-check --allow-all` in subsystems/vector (skip aperture-oak and oak tests — dead)
+2. http.test.js is the integration anchor — covers routing, params, middleware, serve, inline transport
 3. If modifying traverse, check that carry composition order is preserved
 4. If adding a compiler, follow the object compiler pattern — strategy function `(apply, effect) => callable`
 5. Note: planned merge into typology — avoid deepening the package boundary

@@ -1,5 +1,34 @@
 import { ConnectionError } from "@vivalence/typology";
 
+export const inline = (serve) => async (ctx) => {
+  const req = new Request(ctx.request.url.absolute, {
+    method: ctx.request.method,
+    headers: {
+      "content-type": "application/json",
+      ...Object.fromEntries(ctx.request.headers),
+    },
+    body: ctx.request.method !== "GET" && ctx.request.body !== undefined
+      ? JSON.stringify(ctx.request.body)
+      : undefined,
+  });
+
+  const res = await serve(req);
+
+  ctx.response.status = res.status;
+  res.headers.forEach((v, k) => ctx.response.headers.set(k, v));
+
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    ctx.response.body = await res.json().catch(() => null);
+  } else if (contentType.startsWith("text/") || contentType.includes("/javascript")) {
+    ctx.response.body = await res.text();
+  } else if (res.body) {
+    ctx.response.body = new Uint8Array(await res.arrayBuffer());
+  }
+
+  if (!res.ok) ctx.response.setError();
+};
+
 export const fetcher = async (ctx) => {
   const { request, response } = ctx;
 

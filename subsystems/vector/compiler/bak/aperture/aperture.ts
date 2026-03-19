@@ -1,3 +1,4 @@
+// MARK: cleanup — entire aperture module is dead. Replaced by http compiler + Deno.serve.
 import { Application } from "@oak/oak/application";
 import { Router } from "@oak/oak/router";
 import { compose } from "@oak/oak/middleware";

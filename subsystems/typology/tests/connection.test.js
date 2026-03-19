@@ -1,4 +1,4 @@
-import { specimen, Url, Connection, Response } from "@vivalence/typology";
+import { specimen, Url, Connection, Response, sleep } from "@vivalence/typology";
 
 const stubFetch = (body) => async (ctx) => {
   ctx.response = new Response({ body, status: 200 });
@@ -135,6 +135,70 @@ specimen.describe("integration", () => {
 
     const result = await conn.call("/", {});
     specimen.expect(result).toContain("ip");
+  });
+});
+
+specimen.describe("subscribe + websocket", () => {
+  const PORT = 9883;
+  const abort = new AbortController();
+
+  specimen.beforeAll(async () => {
+    Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, (req) => {
+      const url = new URL(req.url);
+
+      if (url.pathname === "/events") {
+        const body = new ReadableStream({
+          start(controller) {
+            const encoder = new TextEncoder();
+            controller.enqueue(encoder.encode('data: {"seq":1}\n\n'));
+            controller.enqueue(encoder.encode('data: {"seq":2}\n\n'));
+            controller.enqueue(encoder.encode("data: fin\n\n"));
+            controller.close();
+          },
+        });
+        return new globalThis.Response(body, {
+          headers: { "content-type": "text/event-stream", "cache-control": "no-cache" },
+        });
+      }
+
+      if (url.pathname === "/ws") {
+        const { socket, response } = Deno.upgradeWebSocket(req);
+        socket.onmessage = (e) => socket.send(`echo:${e.data}`);
+        return response;
+      }
+
+      return new globalThis.Response("not found", { status: 404 });
+    });
+    await sleep.ms(100);
+  });
+
+  specimen.afterAll(() => {
+    abort.abort();
+  });
+
+  specimen.describe("subscribe()", () => {
+    specimen.it("consumes SSE stream as async iterator", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const events = [];
+      for await (const event of conn.subscribe("/events")) {
+        events.push(event);
+      }
+      specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
+    });
+  });
+
+  specimen.describe("websocket()", () => {
+    specimen.it("connects and echoes", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const ws = conn.websocket("/ws");
+      const opened = new Promise((r) => { ws.onopen = r; });
+      await opened;
+
+      const reply = new Promise((r) => { ws.onmessage = (e) => r(e.data); });
+      ws.send("hello");
+      specimen.expect(await reply).toBe("echo:hello");
+      ws.close();
+    });
   });
 });
 

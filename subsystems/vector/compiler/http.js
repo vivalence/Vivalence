@@ -4,12 +4,16 @@ import { NotFound } from "../prototypes/errors.js";
 
 export function http(vector) {
   return async (req) => {
-    const body = await req.json().catch(() => null);
+    const ct = req.headers.get("content-type") || "";
+    const body = ct.includes("application/json")
+      ? await req.json().catch(() => null)
+      : null;
     const ctx = new Context({
       body,
       url: req.url,
       method: req.method,
       headers: Object.fromEntries(req.headers),
+      raw: req,
     });
 
     try {
@@ -36,15 +40,15 @@ export function http(vector) {
 
 function respond(ctx, status) {
   const body = ctx.response.body;
+  if (body instanceof Response) return body;
   const s = status || ctx.response.status || (body != null ? 200 : 404);
   const type = ctx.response.type || "application/json";
+  const headers = Object.fromEntries(ctx.response.headers);
+  headers["content-type"] = type;
 
   if (body instanceof Uint8Array || body instanceof ReadableStream) {
-    return new Response(body, { status: s, headers: { "content-type": type } });
+    return new Response(body, { status: s, headers });
   }
 
-  return new Response(
-    JSON.stringify(body),
-    { status: s, headers: { "content-type": type } },
-  );
+  return new Response(JSON.stringify(body), { status: s, headers });
 }

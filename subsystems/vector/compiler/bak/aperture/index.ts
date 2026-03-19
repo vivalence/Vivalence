@@ -23,6 +23,7 @@ export function context(path, body, params) {
   };
 }
 
-export { Aperture, Path, mw, parser };
+export { Vector as Aperture } from "../../prototypes/vector.js";
+export { Aperture as LegacyAperture, Path, mw, parser };
 
 export default { create, context, mw, parser };

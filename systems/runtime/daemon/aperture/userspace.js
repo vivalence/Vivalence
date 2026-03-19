@@ -3,7 +3,6 @@ import { shards } from "@vivalence/typology";
 export async function userspace(daemonDie) {
   daemonDie.good.aperture
     .branch("/userspace") //
-    .open("/status", (body, ctx) => daemonDie.status.reflection)
     .use(shards.secure.authorize())
     .open("/handshake", async (_, ctx) => ({ success: true, user: ctx.user }))
     .open("/entities/:entity/:method", async (input, ctx) => {

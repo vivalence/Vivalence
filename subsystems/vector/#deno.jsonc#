@@ -7,7 +7,7 @@
     "./controller": "./controller/index.js",
     "./compiler": "./compiler/index.js",
     "./shards": "./shards/index.js",
-    "./aperture": "./prototypes/aperture.js",
+    // "./aperture": "./compiler/aperture/index.ts",
   },
 
   "tasks": {
@@ -25,10 +25,6 @@
     "test/controller/walk": "deno test -A --no-check --watch tests/controller/walk.test.js",
     "test/shards": "deno test -A --no-check --watch tests/shards/*.test.js",
     "test/shards/cors": "deno test -A --no-check --watch tests/shards/cors.test.js",
-    "test/shards/websocket": "deno test -A --no-check --watch tests/shards/websocket.test.js",
-    "test/shards/serve": "deno test -A --no-check --watch tests/shards/serve.test.js",
-    "test/prototypes": "deno test -A --no-check --watch tests/prototypes/*.test.js",
-    "test/prototypes/aperture": "deno test -A --no-check --watch tests/prototypes/aperture.test.js",
     "test/compiler/benchmark": "deno test -A --no-check tests/compiler/benchmark.test.js",
   },
 }

@@ -1,7 +1,9 @@
-import { specimen, Signal, Context, Url, Connection, sleep, fromm } from "@vivalence/typology";
+import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard } from "@vivalence/typology";
 import { Vector } from "@vivalence/vector";
+import { Aperture } from "../../prototypes/aperture.js";
 import { http } from "../../compiler/http.js";
 import { traverse } from "../../controller/traverse.js";
+import { serve } from "../../shards/serve.js";
 import { NotFound } from "../../prototypes/errors.js";
 
 specimen.describe("http compiler", () => {
@@ -257,33 +259,8 @@ specimen.describe("http compiler", () => {
       });
     });
 
-    specimen.describe("Connection internal (handler as transport)", () => {
-      function handlerTransport(handler) {
-        return async (ctx) => {
-          const nativeReq = new Request(ctx.request.url.absolute, {
-            method: ctx.request.method,
-            headers: {
-              "content-type": "application/json",
-              ...Object.fromEntries(ctx.request.headers),
-            },
-            body: ctx.request.method !== "GET" && ctx.request.body !== undefined
-              ? JSON.stringify(ctx.request.body)
-              : undefined,
-          });
-          const nativeRes = await handler(nativeReq);
-          ctx.response.status = nativeRes.status;
-          nativeRes.headers.forEach((v, k) => ctx.response.headers.set(k, v));
-          if (nativeRes.body) {
-            const contentType = nativeRes.headers.get("content-type") || "";
-            ctx.response.body = contentType.includes("application/json")
-              ? await nativeRes.json().catch(() => null)
-              : await nativeRes.text();
-          }
-          if (!nativeRes.ok) ctx.response.setError();
-        };
-      }
-
-      const conn = new Connection(new Url("http://internal"), handlerTransport(handler));
+    specimen.describe("Connection internal (inline transport)", () => {
+      const conn = new Connection(new Url("http://internal"), shard.transport.inline(handler));
 
       specimen.it("call without HTTP", async () => {
         specimen.expect(await conn.call("/ping")).toEqual({ pong: true });
@@ -304,6 +281,143 @@ specimen.describe("http compiler", () => {
         const response = await conn.fetch("/nonexistent");
         specimen.expect(response.status).toBe(404);
       });
+    });
+  });
+
+  specimen.describe("SSE streaming", () => {
+    const vector = new Vector();
+    vector.open("events", (ctx) => {
+      async function* source() {
+        yield { seq: 1 };
+        yield { seq: 2 };
+        yield "done";
+      }
+      return ctx.response.events(source()).body;
+    });
+
+    const handler = http(vector);
+
+    specimen.it("content-type is text/event-stream", async () => {
+      const res = await handler(new Request("http://localhost/events"));
+      specimen.expect(res.headers.get("content-type")).toBe("text/event-stream");
+    });
+
+    specimen.it("stream contains well-formed SSE frames", async () => {
+      const res = await handler(new Request("http://localhost/events"));
+      const text = await res.text();
+      specimen.expect(text).toContain('data: {"seq":1}\n\n');
+      specimen.expect(text).toContain('data: {"seq":2}\n\n');
+      specimen.expect(text).toContain("data: done\n\n");
+    });
+  });
+
+  specimen.describe("upload stream (non-JSON body)", () => {
+    const vector = new Vector();
+    vector.open("upload", async (input, ctx) => {
+      const stream = ctx.request.stream();
+      const reader = stream.getReader();
+      const chunks = [];
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        chunks.push(new TextDecoder().decode(value));
+      }
+      return { input, chunks };
+    });
+
+    const handler = http(vector);
+
+    specimen.it("non-JSON body leaves input null, stream available", async () => {
+      const body = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("chunk1"));
+          controller.enqueue(new TextEncoder().encode("chunk2"));
+          controller.close();
+        },
+      });
+      const res = await handler(new Request("http://localhost/upload", {
+        method: "POST",
+        headers: { "content-type": "application/octet-stream" },
+        body,
+      }));
+      const result = await res.json();
+      specimen.expect(result.input).toBe(null);
+      specimen.expect(result.chunks).toEqual(["chunk1", "chunk2"]);
+    });
+  });
+
+  specimen.describe("method dispatch via Aperture", () => {
+    const app = new Aperture();
+    app.get("resource", () => "get-result");
+    app.post("resource", (input, ctx) => ({ posted: input }));
+
+    const handler = http(app);
+
+    specimen.it("GET dispatches correctly", async () => {
+      const res = await handler(new Request("http://localhost/resource"));
+      specimen.expect(await res.json()).toBe("get-result");
+    });
+
+    specimen.it("POST dispatches correctly", async () => {
+      const res = await handler(new Request("http://localhost/resource", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ data: true }),
+      }));
+      specimen.expect((await res.json()).posted.data).toBe(true);
+    });
+
+    specimen.it("DELETE returns 405", async () => {
+      const res = await handler(new Request("http://localhost/resource", { method: "DELETE" }));
+      specimen.expect(res.status).toBe(405);
+    });
+  });
+
+  specimen.describe("native Response passthrough", () => {
+    const vector = new Vector();
+    vector.open("native", (ctx) => {
+      return new Response("direct", { status: 201, headers: { "x-custom": "yes" } });
+    });
+
+    const handler = http(vector);
+
+    specimen.it("returns the native Response unchanged", async () => {
+      const res = await handler(new Request("http://localhost/native"));
+      specimen.expect(res.status).toBe(201);
+      specimen.expect(res.headers.get("x-custom")).toBe("yes");
+      specimen.expect(await res.text()).toBe("direct");
+    });
+  });
+
+  specimen.describe("static file serving", () => {
+    let tmpDir;
+
+    specimen.beforeAll(async () => {
+      tmpDir = await Deno.makeTempDir();
+      await Deno.writeTextFile(`${tmpDir}/page.html`, "<p>hi</p>");
+      await Deno.writeFile(`${tmpDir}/data.bin`, new Uint8Array([0xCA, 0xFE]));
+    });
+
+    specimen.afterAll(async () => {
+      await Deno.remove(tmpDir, { recursive: true });
+    });
+
+    specimen.it("serves files with correct MIME via remainder", async () => {
+      const app = new Aperture();
+      app.get("static/(.*)", serve(tmpDir));
+      const handler = http(app);
+
+      const html = await handler(new Request("http://localhost/static/page.html"));
+      specimen.expect(html.status).toBe(200);
+      specimen.expect(html.headers.get("content-type")).toBe("text/html");
+      specimen.expect(await html.text()).toBe("<p>hi</p>");
+
+      const bin = await handler(new Request("http://localhost/static/data.bin"));
+      specimen.expect(bin.headers.get("content-type")).toBe("application/octet-stream");
+      await bin.arrayBuffer();
+
+      const missing = await handler(new Request("http://localhost/static/nope"));
+      specimen.expect(missing.status).toBe(404);
     });
   });
 });

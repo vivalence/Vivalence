@@ -1,3 +1,4 @@
+// MARK: cleanup — these tests use the old Oak-based Aperture. Replace with http compiler tests.
 import { expect, assertEquals, assertExists, assert } from "@vivalence/typology/specimen";
 import { describe, it, beforeAll, afterAll } from "@vivalence/typology/specimen";
 import { sleep } from "@vivalence/typology";

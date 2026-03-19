@@ -11,17 +11,10 @@
   "tasks": {
     "start": "deno run -A run.js",
     "watch": "deno run -A --watch run.js",
-    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test": "deno test -A --no-check --watch tests/scenario/*.test.js",
 
-    "test/runtime": "deno test -A --no-check --watch tests/runtime/*.test.js",
-    "test/runtime/lifecycle": "deno test -A --no-check --watch tests/runtime/lifecycle.test.js",
-    "test/runtime/aperture": "deno test -A --no-check --watch tests/runtime/aperture.test.js",
-
-    "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
-    "test/daemon/lifecycle": "deno test -A --no-check --watch tests/daemon/lifecycle.test.js",
-    "test/daemon/aperture": "deno test -A --no-check --watch tests/daemon/aperture.test.js",
-    "test/daemon/modes": "deno test -A --no-check --watch tests/daemon/modes.test.js",
-
-    "test/process": "deno test -A --no-check --watch tests/process/*.test.js",
+    "test/scenario": "deno test -A --no-check --watch tests/scenario/*.test.js",
+    "test/scenario/routes": "deno test -A --no-check --watch tests/scenario/routes.test.js",
+    "test/scenario/runtime": "deno test -A --no-check --watch tests/scenario/runtime.test.js",
   },
 }

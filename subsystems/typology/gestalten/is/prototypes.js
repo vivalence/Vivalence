@@ -4,9 +4,11 @@
 // uppercase is a fasho.
 // limit cases like signature evolve.
 
-import { Vector as VP } from "@vivalence/vector";
 import { prototypes } from "@vivalence/typology";
 import * as is from "./scalars.js";
+
+let VP;
+async function loadVector() { VP ??= (await import("@vivalence/vector")).Vector; }
 
 export function Signature(thing) {
   return thing instanceof prototypes.Signature;
@@ -59,7 +61,8 @@ export function vector(thing) {
 }
 
 export function Vector(thing) {
-  return thing instanceof VP;
+  if (!VP) loadVector();
+  return VP ? thing instanceof VP : vector(thing);
 }
 
 export function Aperture(thing) {

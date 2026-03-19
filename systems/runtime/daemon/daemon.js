@@ -1,6 +1,6 @@
 import { Classifier, Remedy, Mode, Path } from "@vivalence/typology";
 import { Vector, shards } from "@vivalence/vector";
-import { Aperture, mw } from "@vivalence/vector/aperture";
+import { Aperture } from "@vivalence/vector/aperture";
 import { maps } from "@vivalence/typology/entities";
 
 export class Daemon {
@@ -10,7 +10,6 @@ export class Daemon {
   attach = null; // Url(runtime.latch)
   url = null; // Url() system level integration.
   aperture = new Aperture() //
-    .use(mw.notFound)
     .use(shards.context.attach("daemon", this));
   connection = null;
   call = null;

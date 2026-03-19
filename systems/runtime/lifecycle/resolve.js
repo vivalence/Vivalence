@@ -1,6 +1,6 @@
 import paladin from "@vivalence/paladin";
-import { mw, parser } from "@vivalence/vector/aperture";
 import { fromm, shards, Url, Connection } from "@vivalence/typology";
+import { compiler, shards as vectorShards } from "@vivalence/vector";
 
 export async function attach(runtimeDie) {
   async function attachProcesses(runtimeDie) {
@@ -13,7 +13,7 @@ export async function attach(runtimeDie) {
         // processdie.mount.nature
         .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
         .use(shards.context.attach(processDie.type, processDie.mask))
-        .descendants.push(processDie.good);
+        .slurp(processDie.good);
     }
   }
   async function attachDaemons(runtimeDie) {
@@ -76,28 +76,8 @@ export async function expose(runtimeDie) {
 }
 
 export async function compose(runtimeDie) {
-  runtimeDie.good.server
-    .use(mw.cors)
-    .use(mw.notFound)
-    .use(async (ctx, next) => {
-      // UGLY! and technically false!
-      try {
-        ctx.input = await parser(ctx);
-        await next();
-        ctx.response.body = ctx.output;
-        if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
-        if (!ctx.response.type) ctx.response.type = "application/json";
-      } catch (error) {
-        console.error("@runtime/resolve");
-        console.error({ ctx: { input: ctx.input, output: ctx.output } });
-        console.error(error);
-        ctx.response.status = 500;
-        ctx.response.error = error;
-      }
-      // console.log("STATUS 2:", ctx.request.url.pathname, ctx.response.status);
-      // if (ctx.response.status === 404) console.log(ctx.request, ctx.response);
-    });
-  runtimeDie.good.server.use(runtimeDie.good.aperture.compose(true));
+  const handler = compiler.http(runtimeDie.good.aperture);
+  runtimeDie.good.handler = vectorShards.cors.wrap(handler);
 }
 
 export async function wake(die) {
@@ -115,21 +95,21 @@ export async function wake(die) {
 
 export async function launch(runtimeDie) {
   const url = paladin.variant.runtime?.statics?.serve;
-  console.log(`launching on ${url.absolute}`);
   if (!url) {
     console.warn("No runtime serve URL configured");
     return;
   }
 
-  runtimeDie.good.server.addEventListener("listen", ({ hostname, port, ...rest }) => {
-    console.log(`listening on ${hostname}:${port}`);
-  });
+  console.log(`launching on ${url.absolute}`);
 
-  runtimeDie.listening = runtimeDie.good.server.listen({
-    port: url.port,
+  runtimeDie.good.server = Deno.serve({
+    port: Number(url.port),
     hostname: url.hostname,
     signal: runtimeDie.abort.signal,
-  });
+    onListen({ hostname, port }) {
+      console.log(`listening on ${hostname}:${port}`);
+    },
+  }, runtimeDie.good.handler);
 
   runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
 }

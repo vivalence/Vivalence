@@ -76,6 +76,9 @@ HTTP request object. Properties: `url` (auto-coerced to Url), `method` (default 
 **Response** `prototypes/response.js` (63 lines)
 HTTP response. Status helpers: `ok` (200-299), `isNetworkError` (0), `isServerError` (500+), `isClientError` (400-499), `isAuthError` (401/403).
 
+**Context** `prototypes/context.js` (17 lines)
+Unified request/response container. Wraps Request + Response with alias properties: `input` (get/set → `request.body`), `output` (get/set → `response.body`). Also holds `state: {}` and `params: {}`. Used by the http compiler as the execution context — middleware and effects operate on Context. The same shape used by Connection's transport layer and daemon internal calls.
+
 **Status** `prototypes/status.js` (66 lines)
 State tracking via nanostores atom. `set(update)` updates code/error/timestamp, `is(code[])` checks current code, `reflection` getter.
 
@@ -187,7 +190,7 @@ Complements cast. Error throwing on failed type checks.
 
 ### fromm/ — Conversions (48 lines)
 
-Conversion functions: `viva`, `runtime`, `lookup`.
+Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.parameters` from traverse step array — used by http compiler for route params), `params(params)` (reconstructs `.path` from numeric remainder params — used by view/freight serving).
 
 ### belt/ — Utility Collections (12 modules)
 
@@ -215,7 +218,7 @@ Conversion functions: `viva`, `runtime`, `lookup`.
 | patterns.js | 1 | Pattern definitions |
 | request.js | 7 | Request handling |
 | secure.js | 120 | Security middleware (JWT) |
-| transporter.js | 93 | Transport/fetch implementation |
+| transporter.js | 120 | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
 
 ## Schematics
 

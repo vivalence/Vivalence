@@ -70,6 +70,36 @@ export class Connection {
     };
   }
 
+  async *subscribe(endpoint, options = {}) {
+    const url = this.url.branch(endpoint).absolute;
+    const res = await fetch(url, {
+      headers: { accept: "text/event-stream", ...options.headers },
+      signal: options.signal,
+    });
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const frames = buffer.split("\n\n");
+      buffer = frames.pop();
+      for (const frame of frames) {
+        const line = frame.split("\n").find((l) => l.startsWith("data: "));
+        if (!line) continue;
+        const payload = line.slice(6);
+        try { yield JSON.parse(payload); } catch { yield payload; }
+      }
+    }
+  }
+
+  websocket(endpoint) {
+    const url = this.url.branch(endpoint).absolute
+      .replace(/^http/, "ws");
+    return new WebSocket(url);
+  }
+
   get $isConnected() {
     return computed(this.$state, (s) => s === "CONNECTED");
   }

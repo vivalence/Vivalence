@@ -1,28 +1,9 @@
-import { sleep, Url, Connection, ConnectionError } from "@vivalence/typology";
-import { context } from "@vivalence/vector/aperture";
-
-// export async function domain(die) {if (is.fn(die.variant.modes.domain.aperture)) await die.variant.modes.domain.aperture(die.good.aperture);}
+import { Url, Connection, shard } from "@vivalence/typology";
+import { compiler } from "@vivalence/vector";
 
 export async function call(die) {
-  const composed = await die.good.aperture.compose(true);
-
-  die.connection = new Connection(new Url("http://internal"), async (ctx) => {
-    // UGLY! and technically wrong
-    try {
-      ctx.input = ctx.input || ctx.request.body;
-      await composed(ctx);
-      ctx.response.body = ctx.output;
-      // console.log({ output: ctx });
-      if (ctx.response.body && ctx.response.status === 404) ctx.response.status = 200;
-      else if (ctx.response.status === 404) ctx.response.setError();
-    } catch (error) {
-      console.error("@runtime/daemon/integration");
-      console.error({ ctx: { input: ctx.input, output: ctx.output } });
-      console.error(error);
-      ctx.response.status = 500;
-      ctx.response.error = error;
-    }
-  });
+  const handler = compiler.http(die.good.aperture);
+  die.connection = new Connection(new Url("http://internal"), shard.transport.inline(handler));
 }
 
 export async function uninstall(daemonDie) {
