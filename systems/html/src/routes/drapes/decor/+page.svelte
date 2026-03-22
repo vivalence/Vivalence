@@ -1,5 +1,5 @@
 <script>
-  import { Text, Pictogram } from "@vivalence/drapes";
+  import { Text, Pictogram, Audio } from "@vivalence/drapes";
   import Page from "../_Page.svelte";
   import Section from "../_Section.svelte";
   import Demo from "../_Demo.svelte";
@@ -105,6 +105,15 @@
         class="w-full max-w-md"
       />
       <Text size="sm" class="mt-2">Video with autoplay, loop, mute, and custom playback rate</Text>
+    </Demo>
+  </Section>
+
+  <Section title="Audio" description="Audio player with variant-driven presentation.">
+    <Demo label="Inline (tap to play/pause)" class="flex items-center gap-4">
+      <Audio variant="inline" src="/attached/cargo/words/a.mp3" />
+      <Audio variant="inline" src="/attached/cargo/words/bem.mp3" />
+      <Audio variant="inline" src="/attached/cargo/words/cafe.mp3" />
+      <Text size="sm">Each button generates unique bar heights from its URL</Text>
     </Demo>
   </Section>
 

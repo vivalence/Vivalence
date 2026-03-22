@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "how / as / like",
         "learning": "como"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 166,
         "zipf": 6.78,
-        "fpm": 6030.0
+        "fpm": 6030
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/como.mp3"
+        }
       }
     },
     "symbols": [
@@ -44,5 +50,94 @@ export default [
         "slug": "functional.question"
       }
     ]
-  }
+  },
+  {
+    "slug": "se.subordinating-conjunction",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "if",
+        "learning": "se (conj.)"
+      },
+      "EXEMPLIFIED": {
+        "known": "If you want, let's go",
+        "learning": "Se você quiser, vamos"
+      },
+      "RANKED": {
+        "rank": 16,
+        "zipf": 6.94,
+        "fpm": 8710
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/se.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.se"
+      },
+      {
+        "slug": "word.part-of-speech.subordinating-conjunction"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "functional.connector"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "embora.subordinating-conjunction",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "although/away",
+        "learning": "Embora"
+      },
+      "EXEMPLIFIED": {
+        "known": "Even though he apologized, I'm still furious.",
+        "learning": "Embora ele tenha se desculpado, eu ainda estou furioso."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/embora.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.embora"
+      },
+      {
+        "slug": "word.part-of-speech.subordinating-conjunction"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

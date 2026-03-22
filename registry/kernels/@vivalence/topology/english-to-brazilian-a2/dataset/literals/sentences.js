@@ -2,7 +2,7 @@ export default [
   {
     slug: "que-bom-que-voce-veio",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "How great that you came!", learning: "Que bom que você veio!" },
       ANNOTATED: {
         tokens: [
@@ -41,7 +41,7 @@ export default [
   {
     slug: "vou-te-ligar-amanha",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I'll call you tomorrow.", learning: "Vou te ligar amanhã." },
       ANNOTATED: {
         tokens: [
@@ -78,7 +78,7 @@ export default [
   {
     slug: "vai-chover-hoje",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "It's going to rain today.", learning: "Vai chover hoje." },
       ANNOTATED: {
         tokens: [
@@ -108,7 +108,7 @@ export default [
   {
     slug: "a-gente-vai-sair-mais-tarde",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "We're going out later.", learning: "A gente vai sair mais tarde." },
       ANNOTATED: {
         tokens: [
@@ -141,7 +141,7 @@ export default [
   {
     slug: "vou-dar-um-jeito",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I'll figure it out.", learning: "Vou dar um jeito." },
       ANNOTATED: {
         tokens: [
@@ -172,7 +172,7 @@ export default [
   {
     slug: "acho-que-vai-chover",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I think it's going to rain.", learning: "Acho que vai chover." },
       ANNOTATED: {
         tokens: [
@@ -215,7 +215,7 @@ export default [
   {
     slug: "voce-gostaria-de-um-cafe",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "Would you like some coffee?", learning: "Você gostaria de um café?" },
       ANNOTATED: {
         tokens: [
@@ -248,7 +248,7 @@ export default [
   {
     slug: "podia-ser-pior",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "It could be worse.", learning: "Podia ser pior." },
       ANNOTATED: {
         tokens: [
@@ -278,7 +278,7 @@ export default [
   {
     slug: "eu-ia-falar-com-voce",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I was going to talk to you.", learning: "Eu ia falar com você." },
       ANNOTATED: {
         tokens: [
@@ -311,7 +311,7 @@ export default [
   {
     slug: "o-jogo-foi-cancelado",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "The match was cancelled.", learning: "O jogo foi cancelado." },
       ANNOTATED: {
         tokens: [
@@ -350,7 +350,7 @@ export default [
   {
     slug: "ela-se-casou-ano-passado",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "She got married last year.", learning: "Ela se casou ano passado." },
       ANNOTATED: {
         tokens: [
@@ -390,7 +390,7 @@ export default [
   {
     slug: "eles-estao-se-conhecendo",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: {
         known: "They are getting to know each other.",
         learning: "Eles estão se conhecendo.",
@@ -432,7 +432,7 @@ export default [
   {
     slug: "eu-nao-sei-se-consigo",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I don't know if I can manage it.", learning: "Eu não sei se consigo." },
       ANNOTATED: {
         tokens: [
@@ -476,7 +476,7 @@ export default [
   {
     slug: "nao-to-com-vontade",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I don't feel like it.", learning: "Não tô com vontade." },
       ANNOTATED: {
         tokens: [
@@ -507,7 +507,7 @@ export default [
   {
     slug: "voce-pode-me-dar-uma-carona",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "Can you give me a ride?", learning: "Você pode me dar uma carona?" },
       ANNOTATED: {
         tokens: [
@@ -541,7 +541,7 @@ export default [
   {
     slug: "por-que-voce-esta-com-tanta-pressa",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: {
         known: "Why are you in such a hurry?",
         learning: "Por que você está com tanta pressa?",
@@ -580,7 +580,7 @@ export default [
   {
     slug: "voce-ja-foi-ao-rio",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "Have you ever been to Rio?", learning: "Você já foi ao Rio?" },
       ANNOTATED: {
         tokens: [
@@ -614,7 +614,7 @@ export default [
   {
     slug: "prefiro-ficar-em-casa-hoje",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: {
         known: "I prefer to stay home today.",
         learning: "Prefiro ficar em casa hoje.",
@@ -649,7 +649,7 @@ export default [
   {
     slug: "preciso-passar-no-banco",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "I need to stop by the bank.", learning: "Preciso passar no banco." },
       ANNOTATED: {
         tokens: [
@@ -686,7 +686,7 @@ export default [
   {
     slug: "tem-que-ir-agora",
     traits: ["TRANSLATED", "ANNOTATED"],
-    data: {
+    trait: {
       TRANSLATED: { known: "We have to go now.", learning: "Tem que ir agora." },
       ANNOTATED: {
         tokens: [

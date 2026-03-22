@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "right? (tag)",
         "learning": "né"
@@ -19,6 +20,11 @@ export default [
         "rank": 19493,
         "zipf": 4.71,
         "fpm": 51.3
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/né.mp3"
+        }
       }
     },
     "symbols": [
@@ -50,9 +56,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "okay / alright",
         "learning": "tá"
@@ -64,7 +71,12 @@ export default [
       "RANKED": {
         "rank": 8696,
         "zipf": 5.06,
-        "fpm": 115.0
+        "fpm": 115
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tá.mp3"
+        }
       }
     },
     "symbols": [
@@ -90,5 +102,5 @@ export default [
         "slug": "functional.discourse"
       }
     ]
-  }
+  },
 ];

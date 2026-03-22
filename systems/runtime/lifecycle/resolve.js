@@ -9,7 +9,6 @@ export async function attach(runtimeDie) {
         .open("/manifest", () => processDie.manifest);
 
       runtimeDie.good.aperture
-        // processdie.mount.nature
         .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
         .use(shards.context.attach(processDie.type, processDie.mask))
         .slurp(processDie.good);
@@ -18,50 +17,57 @@ export async function attach(runtimeDie) {
   async function attachDaemons(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
       for (const mode of daemonDie.good.flatmodes()) {
-        if (!mode.implements("VIEWABLE")) continue;
+        if (!mode.implements("BUFFERED")) continue;
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)
           .use(shards.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
-            // console.log("paladin.is.dev", paladin.is.dev, ctx.mode.view);
-            if (paladin.is.dev) await ctx.mode.view.bundle();
+            if (paladin.is.dev) await ctx.mode.cake.buffer.bundle();
             ctx.response.type = "application/javascript";
-            return ctx.mode.view.serve(fromm.params(ctx.params).path).text;
+            return ctx.mode.cake.buffer.serve(fromm.params(ctx.params).path).text;
           });
       }
+      // for (const mode of daemonDie.good.flatmodes()) {
+      //   if (!mode.implements("VIEWABLE")) continue;
+      //   runtimeDie.good.aperture.branch("/attached/view").branch(mode.mount.absolute)
+      //     .use(shards.context.attach("mode", mode))
+      //     .open("/(.*)", async (input, ctx) => {
+      //       if (paladin.is.dev) await ctx.mode.view.bundle();
+      //       ctx.response.type = "application/javascript";
+      //       return ctx.mode.view.serve(fromm.params(ctx.params).path).text;
+      //     });
+      // }
     }
   }
 
-  async function attachFreight(runtimeDie) {
+  async function attachCargo(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
-      for (const mode of daemonDie.good.flatmodes()) {
-        if (!mode.implements("FRAUGHT")) continue;
-        runtimeDie.good.aperture
-          .branch("/attached/freight")
-          .branch(mode.mount.absolute)
-          .use(shards.context.attach("mode", mode))
-          .open("/(.*)", async (input, ctx) => {
-            const captured = fromm.params(ctx.params).path;
-            const query = captured.nature.replace(/^\//, "");
-            const entry = ctx.mode.cake.freight.resolve(query);
-            if (!entry) {
-              ctx.response.status = 404;
-              return;
-            }
-            const filePath = ctx.mode.cake.freight.path
-              .branch("/" + entry.path).absolute;
+      const modes = daemonDie.good.flatmodes().filter((m) => m.implements("FRAUGHT"));
+      if (!modes.length) continue;
+
+      runtimeDie.good.aperture
+        .branch("/attached/cargo")
+        .branch(daemonDie.good.mount.nature)
+        .use(shards.context.attach("daemon", daemonDie.good))
+        .open("/(.*)", async (input, ctx) => {
+          const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
+          for (const mode of modes) {
+            const entry = mode.cake.freight.resolve(query);
+            if (!entry) continue;
+            const filePath = mode.cake.freight.path.branch("/" + entry.path).absolute;
             ctx.response.type = entry.type;
             return await Deno.readFile(filePath);
-          });
-      }
+          }
+          ctx.response.status = 404;
+        });
     }
   }
 
   await attachProcesses(runtimeDie);
   await attachDaemons(runtimeDie);
-  await attachFreight(runtimeDie);
+  await attachCargo(runtimeDie);
 }
 
 export async function expose(runtimeDie) {
@@ -101,14 +107,17 @@ export async function launch(runtimeDie) {
 
   console.log(`launching on ${url.absolute}`);
 
-  runtimeDie.good.server = Deno.serve({
-    port: Number(url.port),
-    hostname: url.hostname,
-    signal: runtimeDie.abort.signal,
-    onListen({ hostname, port }) {
-      console.log(`listening on ${hostname}:${port}`);
+  runtimeDie.good.server = Deno.serve(
+    {
+      port: Number(url.port),
+      hostname: url.hostname,
+      signal: runtimeDie.abort.signal,
+      onListen({ hostname, port }) {
+        console.log(`listening on ${hostname}:${port}`);
+      },
     },
-  }, runtimeDie.good.handler);
+    runtimeDie.good.handler,
+  );
 
   runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
 }

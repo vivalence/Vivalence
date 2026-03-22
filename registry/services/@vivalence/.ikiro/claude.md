@@ -73,7 +73,8 @@ Full identity and authentication service. ATTACHED trait means it runs as a proc
 - `POST /auth/logout` — invalidate refresh token
 - `POST /auth/verify` — check access token validity
 - `POST /auth/refresh` — issue new access token from refresh token
-- `GET /entities/:entity/:method` — identity/daemon CRUD
+- `/entities/identity/*` — full CRUD via `shard.datamap.repository()`
+- `/entities/daemon/*` — full CRUD via `shard.datamap.repository()`
 
 **Key files**:
 - `server/authority.js` (392 lines) — auth workflow
@@ -138,15 +139,14 @@ The daemon's `populate.core()` resolves all service references via `paladin.vip.
 | File | Lines | Coverage |
 |------|-------|----------|
 | hallucinator/hal/tests/hallucinator.test.js | 108 | Object generation, agent tool execution (uses Anthropic API) |
-| lighthouse/multiplayer/tests/auth.test.js | 85 | Login/signup flow, token validation |
-| lighthouse/multiplayer/tests/lighthouse.test.js | 176 | Complete auth workflow: signup, login, verify, refresh, logout |
-
-Total: ~369 lines. Hallucinator tests require API key. Lighthouse tests require running server.
+| lighthouse/multiplayer/tests/auth.test.js | 85 | Login/signup flow, token validation (requires running server) |
+| lighthouse/multiplayer/tests/lighthouse.test.js | 176 | Complete auth workflow (requires running server) |
+| lighthouse/multiplayer/tests/datamap.test.js | 91 | Entity CRUD via scenario: daemon find/findOne/create/update/remove, identity find/findOne, 404 errors (self-contained, imports `@vivalence/runtime/scenarios`) |
 
 ## Where Used
 
 - **Runtime**: Services resolved during daemon populate phase. Lighthouse attached as process. Datamap provides ORM. Hallucinator provides brain.
-- **Daemon modes**: CHAOSMONKEY trait uses hallucinator. PRODUCER trait uses products from datamap ORM. Auth middleware from lighthouse.
+- **Daemon modes**: CHAOSMONKEY trait uses hallucinator. EMITTER trait produces buffers. Auth middleware from lighthouse via `shards.secure.authority()` + `authorize()`.
 - **Circuitry**: test-system.viva.js and test-daemon.viva.js wire services into the system.
 
 ## Work Packages
@@ -167,6 +167,9 @@ Total: ~369 lines. Hallucinator tests require API key. Lighthouse tests require 
 - Hallucinator cortex — [cortex.workpackage.org](../../../.ikiro/cortex.workpackage.org) — the hallucinator service contract is changing from `{object, action}` to an array of faculties. Each faculty declares type (conversation/object/speech/call), channels (accepted/produced data types), delivery modes (whole/stream), tune vector ([cost, quality, speed]), context limit, and a stateless `hallucinate(turns, config)` function. The cortex resolves providers by tune in 3-space. This is the biggest upcoming change to services.
 - Voice/speech service (future — ElevenLabs or similar, provides speech faculty)
 - Call service (future — realtime bidirectional audio, WebSocket-based)
+
+### Completed
+- **Lighthouse datamap migration** — replaced parametric `/:entity/:method` handler with per-entity `shard.datamap.repository()` branches. Self-contained scenario test via `@vivalence/runtime/scenarios` (lighthouse.js). Old `expose()` preserved as comment in entities.js.
 
 ### Dormant
 - NLP service: wired but may not be actively called in current modes

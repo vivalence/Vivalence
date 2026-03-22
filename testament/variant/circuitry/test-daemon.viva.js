@@ -35,8 +35,8 @@ export const daemons = [
 
     modes: [
       "@vivalence/game/flashcard",
-      "@vivalence/game/write",
-      "@vivalence/game/shadow",
+      // "@vivalence/game/write",
+      // "@vivalence/game/shadow",
       "@vivalence/tactic/test",
       // "@vivalence/game/speed-judge",
       // "@vivalence/game/match",

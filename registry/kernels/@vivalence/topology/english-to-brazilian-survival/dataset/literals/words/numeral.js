@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "zero",
         "learning": "zero"
@@ -19,6 +20,11 @@ export default [
         "rank": 21368,
         "zipf": 4.67,
         "fpm": 46.8
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/zero.mp3"
+        }
       }
     },
     "symbols": [
@@ -50,9 +56,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "one",
         "learning": "um"
@@ -64,7 +71,12 @@ export default [
       "RANKED": {
         "rank": 87,
         "zipf": 7.06,
-        "fpm": 11500.0
+        "fpm": 11500
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/um.mp3"
+        }
       }
     },
     "symbols": [
@@ -99,9 +111,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "two (fem.)",
         "learning": "duas"
@@ -113,7 +126,12 @@ export default [
       "RANKED": {
         "rank": 2041,
         "zipf": 5.69,
-        "fpm": 490.0
+        "fpm": 490
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/duas.mp3"
+        }
       }
     },
     "symbols": [
@@ -148,9 +166,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "two (masc.)",
         "learning": "dois"
@@ -162,7 +181,12 @@ export default [
       "RANKED": {
         "rank": 1202,
         "zipf": 5.92,
-        "fpm": 832.0
+        "fpm": 832
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/dois.mp3"
+        }
       }
     },
     "symbols": [
@@ -197,9 +221,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "three",
         "learning": "três"
@@ -211,7 +236,12 @@ export default [
       "RANKED": {
         "rank": 1818,
         "zipf": 5.74,
-        "fpm": 550.0
+        "fpm": 550
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/três.mp3"
+        }
       }
     },
     "symbols": [
@@ -243,9 +273,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "four",
         "learning": "quatro"
@@ -257,7 +288,12 @@ export default [
       "RANKED": {
         "rank": 3802,
         "zipf": 5.42,
-        "fpm": 263.0
+        "fpm": 263
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/quatro.mp3"
+        }
       }
     },
     "symbols": [
@@ -289,9 +325,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "five",
         "learning": "cinco"
@@ -303,7 +340,12 @@ export default [
       "RANKED": {
         "rank": 4082,
         "zipf": 5.39,
-        "fpm": 245.0
+        "fpm": 245
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cinco.mp3"
+        }
       }
     },
     "symbols": [
@@ -335,9 +377,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "six",
         "learning": "seis"
@@ -349,7 +392,12 @@ export default [
       "RANKED": {
         "rank": 5618,
         "zipf": 5.25,
-        "fpm": 178.0
+        "fpm": 178
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/seis.mp3"
+        }
       }
     },
     "symbols": [
@@ -381,9 +429,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "seven",
         "learning": "sete"
@@ -395,7 +444,12 @@ export default [
       "RANKED": {
         "rank": 8696,
         "zipf": 5.06,
-        "fpm": 115.0
+        "fpm": 115
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sete.mp3"
+        }
       }
     },
     "symbols": [
@@ -427,9 +481,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "eight",
         "learning": "oito"
@@ -442,6 +497,11 @@ export default [
         "rank": 11223,
         "zipf": 4.95,
         "fpm": 89.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/oito.mp3"
+        }
       }
     },
     "symbols": [
@@ -473,9 +533,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "nine",
         "learning": "nove"
@@ -488,6 +549,11 @@ export default [
         "rank": 15480,
         "zipf": 4.81,
         "fpm": 64.6
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/nove.mp3"
+        }
       }
     },
     "symbols": [
@@ -519,9 +585,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "ten",
         "learning": "dez"
@@ -533,7 +600,12 @@ export default [
       "RANKED": {
         "rank": 7937,
         "zipf": 5.1,
-        "fpm": 126.0
+        "fpm": 126
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/dez.mp3"
+        }
       }
     },
     "symbols": [
@@ -559,5 +631,5 @@ export default [
         "slug": "functional.number"
       }
     ]
-  }
+  },
 ];

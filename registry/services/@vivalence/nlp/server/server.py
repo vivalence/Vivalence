@@ -22,6 +22,8 @@ def serialize_token(word) -> Dict[str, Any]:
         "xpos": word.xpos,
         "upos": word.upos,
         "feats": word.feats,
+        "deprel": word.deprel,
+        "head": word.head,
         "start_char": word.start_char,
         "end_char": word.end_char,
     }

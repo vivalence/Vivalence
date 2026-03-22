@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "day",
         "learning": "dia"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 588,
         "zipf": 6.23,
-        "fpm": 1700.0
+        "fpm": 1700
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/dia.mp3"
+        }
       }
     },
     "symbols": [
@@ -56,9 +62,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "house / home",
         "learning": "casa"
@@ -70,7 +77,12 @@ export default [
       "RANKED": {
         "rank": 1024,
         "zipf": 5.99,
-        "fpm": 977.0
+        "fpm": 977
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/casa.mp3"
+        }
       }
     },
     "symbols": [
@@ -108,9 +120,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "name",
         "learning": "nome"
@@ -122,7 +135,12 @@ export default [
       "RANKED": {
         "rank": 1698,
         "zipf": 5.77,
-        "fpm": 589.0
+        "fpm": 589
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/nome.mp3"
+        }
       }
     },
     "symbols": [
@@ -154,9 +172,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "moment",
         "learning": "momento"
@@ -168,7 +187,12 @@ export default [
       "RANKED": {
         "rank": 2237,
         "zipf": 5.65,
-        "fpm": 447.0
+        "fpm": 447
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/momento.mp3"
+        }
       }
     },
     "symbols": [
@@ -203,9 +227,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hour / time",
         "learning": "hora"
@@ -217,7 +242,12 @@ export default [
       "RANKED": {
         "rank": 2571,
         "zipf": 5.59,
-        "fpm": 389.0
+        "fpm": 389
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/hora.mp3"
+        }
       }
     },
     "symbols": [
@@ -252,9 +282,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "water",
         "learning": "água"
@@ -266,7 +297,12 @@ export default [
       "RANKED": {
         "rank": 2755,
         "zipf": 5.56,
-        "fpm": 363.0
+        "fpm": 363
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/água.mp3"
+        }
       }
     },
     "symbols": [
@@ -301,9 +337,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "problem",
         "learning": "problema"
@@ -315,7 +352,12 @@ export default [
       "RANKED": {
         "rank": 3236,
         "zipf": 5.49,
-        "fpm": 309.0
+        "fpm": 309
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/problema.mp3"
+        }
       }
     },
     "symbols": [
@@ -347,9 +389,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "night / evening",
         "learning": "noite"
@@ -361,7 +404,12 @@ export default [
       "RANKED": {
         "rank": 1905,
         "zipf": 5.72,
-        "fpm": 525.0
+        "fpm": 525
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/noite.mp3"
+        }
       }
     },
     "symbols": [
@@ -396,9 +444,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "afternoon",
         "learning": "tarde"
@@ -410,7 +459,12 @@ export default [
       "RANKED": {
         "rank": 3021,
         "zipf": 5.52,
-        "fpm": 331.0
+        "fpm": 331
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tarde.mp3"
+        }
       }
     },
     "symbols": [
@@ -445,9 +499,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "coffee",
         "learning": "café"
@@ -459,7 +514,12 @@ export default [
       "RANKED": {
         "rank": 9524,
         "zipf": 5.02,
-        "fpm": 105.0
+        "fpm": 105
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/café.mp3"
+        }
       }
     },
     "symbols": [
@@ -497,9 +557,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "food",
         "learning": "comida"
@@ -511,7 +572,12 @@ export default [
       "RANKED": {
         "rank": 8929,
         "zipf": 5.05,
-        "fpm": 112.0
+        "fpm": 112
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/comida.mp3"
+        }
       }
     },
     "symbols": [
@@ -546,9 +612,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "supermarket / market",
         "learning": "mercado"
@@ -560,7 +627,12 @@ export default [
       "RANKED": {
         "rank": 7752,
         "zipf": 5.11,
-        "fpm": 129.0
+        "fpm": 129
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mercado.mp3"
+        }
       }
     },
     "symbols": [
@@ -595,9 +667,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hospital",
         "learning": "hospital"
@@ -609,7 +682,12 @@ export default [
       "RANKED": {
         "rank": 8333,
         "zipf": 5.08,
-        "fpm": 120.0
+        "fpm": 120
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/hospital.mp3"
+        }
       }
     },
     "symbols": [
@@ -644,9 +722,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "bus",
         "learning": "ônibus"
@@ -659,6 +738,11 @@ export default [
         "rank": 12887,
         "zipf": 4.89,
         "fpm": 77.6
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ônibus.mp3"
+        }
       }
     },
     "symbols": [
@@ -696,9 +780,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "bill / account",
         "learning": "conta"
@@ -710,7 +795,12 @@ export default [
       "RANKED": {
         "rank": 2457,
         "zipf": 5.61,
-        "fpm": 407.0
+        "fpm": 407
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/conta.mp3"
+        }
       }
     },
     "symbols": [
@@ -745,9 +835,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "card",
         "learning": "cartão"
@@ -760,6 +851,11 @@ export default [
         "rank": 18622,
         "zipf": 4.73,
         "fpm": 53.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cartão.mp3"
+        }
       }
     },
     "symbols": [
@@ -794,9 +890,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "permission",
         "learning": "licença"
@@ -807,8 +904,13 @@ export default [
       },
       "RANKED": {
         "rank": 10000,
-        "zipf": 5.0,
-        "fpm": 100.0
+        "zipf": 5,
+        "fpm": 100
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/licença.mp3"
+        }
       }
     },
     "symbols": [
@@ -846,9 +948,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "bathroom",
         "learning": "banheiro"
@@ -860,7 +963,12 @@ export default [
       "RANKED": {
         "rank": 18182,
         "zipf": 4.74,
-        "fpm": 55.0
+        "fpm": 55
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/banheiro.mp3"
+        }
       }
     },
     "symbols": [
@@ -898,9 +1006,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "pleasure / nice to meet you",
         "learning": "prazer"
@@ -913,6 +1022,11 @@ export default [
         "rank": 15129,
         "zipf": 4.82,
         "fpm": 66.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/prazer.mp3"
+        }
       }
     },
     "symbols": [
@@ -947,9 +1061,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "point / stop",
         "learning": "ponto"
@@ -961,7 +1076,12 @@ export default [
       "RANKED": {
         "rank": 4274,
         "zipf": 5.37,
-        "fpm": 234.0
+        "fpm": 234
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ponto.mp3"
+        }
       }
     },
     "symbols": [
@@ -996,9 +1116,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "taxi",
         "learning": "táxi"
@@ -1011,6 +1132,11 @@ export default [
         "rank": 86957,
         "zipf": 4.06,
         "fpm": 11.5
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/táxi.mp3"
+        }
       }
     },
     "symbols": [
@@ -1045,9 +1171,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hunger",
         "learning": "fome"
@@ -1060,6 +1187,11 @@ export default [
         "rank": 10718,
         "zipf": 4.97,
         "fpm": 93.3
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/fome.mp3"
+        }
       }
     },
     "symbols": [
@@ -1097,9 +1229,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "thirst",
         "learning": "sede"
@@ -1112,6 +1245,11 @@ export default [
         "rank": 11481,
         "zipf": 4.94,
         "fpm": 87.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sede.mp3"
+        }
       }
     },
     "symbols": [
@@ -1149,9 +1287,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "favor",
         "learning": "favor"
@@ -1163,7 +1302,12 @@ export default [
       "RANKED": {
         "rank": 3636,
         "zipf": 5.44,
-        "fpm": 275.0
+        "fpm": 275
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/favor.mp3"
+        }
       }
     },
     "symbols": [
@@ -1198,9 +1342,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "Portuguese (language)",
         "learning": "português"
@@ -1212,7 +1357,12 @@ export default [
       "RANKED": {
         "rank": 5618,
         "zipf": 5.25,
-        "fpm": 178.0
+        "fpm": 178
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/português.mp3"
+        }
       }
     },
     "symbols": [
@@ -1247,9 +1397,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "English (language)",
         "learning": "inglês"
@@ -1261,7 +1412,12 @@ export default [
       "RANKED": {
         "rank": 5882,
         "zipf": 5.23,
-        "fpm": 170.0
+        "fpm": 170
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/inglês.mp3"
+        }
       }
     },
     "symbols": [
@@ -1296,9 +1452,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "beer",
         "learning": "cerveja"
@@ -1311,6 +1468,11 @@ export default [
         "rank": 23981,
         "zipf": 4.62,
         "fpm": 41.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cerveja.mp3"
+        }
       }
     },
     "symbols": [
@@ -1348,9 +1510,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "money / cash",
         "learning": "dinheiro"
@@ -1362,7 +1525,12 @@ export default [
       "RANKED": {
         "rank": 2950,
         "zipf": 5.53,
-        "fpm": 339.0
+        "fpm": 339
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/dinheiro.mp3"
+        }
       }
     },
     "symbols": [
@@ -1397,9 +1565,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "exit",
         "learning": "saída"
@@ -1412,6 +1581,11 @@ export default [
         "rank": 12300,
         "zipf": 4.91,
         "fpm": 81.3
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/saída.mp3"
+        }
       }
     },
     "symbols": [
@@ -1446,9 +1620,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "bank",
         "learning": "banco"
@@ -1460,7 +1635,12 @@ export default [
       "RANKED": {
         "rank": 8547,
         "zipf": 5.07,
-        "fpm": 117.0
+        "fpm": 117
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/banco.mp3"
+        }
       }
     },
     "symbols": [
@@ -1495,9 +1675,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "beach",
         "learning": "praia"
@@ -1509,7 +1690,12 @@ export default [
       "RANKED": {
         "rank": 8547,
         "zipf": 5.07,
-        "fpm": 117.0
+        "fpm": 117
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/praia.mp3"
+        }
       }
     },
     "symbols": [
@@ -1544,9 +1730,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "number",
         "learning": "número"
@@ -1558,7 +1745,12 @@ export default [
       "RANKED": {
         "rank": 2882,
         "zipf": 5.54,
-        "fpm": 347.0
+        "fpm": 347
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/número.mp3"
+        }
       }
     },
     "symbols": [
@@ -1590,9 +1782,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "help",
         "learning": "ajuda"
@@ -1604,7 +1797,12 @@ export default [
       "RANKED": {
         "rank": 3984,
         "zipf": 5.4,
-        "fpm": 251.0
+        "fpm": 251
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ajuda.mp3"
+        }
       }
     },
     "symbols": [
@@ -1639,9 +1837,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "question",
         "learning": "pergunta"
@@ -1653,7 +1852,12 @@ export default [
       "RANKED": {
         "rank": 6623,
         "zipf": 5.18,
-        "fpm": 151.0
+        "fpm": 151
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pergunta.mp3"
+        }
       }
     },
     "symbols": [
@@ -1688,9 +1892,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "world",
         "learning": "mundo"
@@ -1702,7 +1907,12 @@ export default [
       "RANKED": {
         "rank": 909,
         "zipf": 6.04,
-        "fpm": 1100.0
+        "fpm": 1100
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mundo.mp3"
+        }
       }
     },
     "symbols": [
@@ -1734,9 +1944,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "pianist",
         "learning": "pianista"
@@ -1749,6 +1960,11 @@ export default [
         "rank": 268817,
         "zipf": 3.57,
         "fpm": 3.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pianista.mp3"
+        }
       }
     },
     "symbols": [
@@ -1783,9 +1999,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "doctor",
         "learning": "médico"
@@ -1797,7 +2014,12 @@ export default [
       "RANKED": {
         "rank": 9804,
         "zipf": 5.01,
-        "fpm": 102.0
+        "fpm": 102
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/médico.mp3"
+        }
       }
     },
     "symbols": [
@@ -1832,9 +2054,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "room",
         "learning": "quarto"
@@ -1846,7 +2069,12 @@ export default [
       "RANKED": {
         "rank": 6024,
         "zipf": 5.22,
-        "fpm": 166.0
+        "fpm": 166
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/quarto.mp3"
+        }
       }
     },
     "symbols": [
@@ -1881,9 +2109,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "map",
         "learning": "mapa"
@@ -1896,6 +2125,11 @@ export default [
         "rank": 19493,
         "zipf": 4.71,
         "fpm": 51.3
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mapa.mp3"
+        }
       }
     },
     "symbols": [
@@ -1930,9 +2164,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "pharmacy",
         "learning": "farmácia"
@@ -1945,6 +2180,11 @@ export default [
         "rank": 98039,
         "zipf": 4.01,
         "fpm": 10.2
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/farmácia.mp3"
+        }
       }
     },
     "symbols": [
@@ -1979,9 +2219,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "cell phone",
         "learning": "celular"
@@ -1994,6 +2235,11 @@ export default [
         "rank": 10235,
         "zipf": 4.99,
         "fpm": 97.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/celular.mp3"
+        }
       }
     },
     "symbols": [
@@ -2025,9 +2271,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "police",
         "learning": "polícia"
@@ -2039,7 +2286,12 @@ export default [
       "RANKED": {
         "rank": 3891,
         "zipf": 5.41,
-        "fpm": 257.0
+        "fpm": 257
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/polícia.mp3"
+        }
       }
     },
     "symbols": [
@@ -2074,9 +2326,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hotel",
         "learning": "hotel"
@@ -2089,6 +2342,11 @@ export default [
         "rank": 12887,
         "zipf": 4.89,
         "fpm": 77.6
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/hotel.mp3"
+        }
       }
     },
     "symbols": [
@@ -2123,9 +2381,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "key",
         "learning": "chave"
@@ -2138,6 +2397,11 @@ export default [
         "rank": 13812,
         "zipf": 4.86,
         "fpm": 72.4
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/chave.mp3"
+        }
       }
     },
     "symbols": [
@@ -2172,9 +2436,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "rain",
         "learning": "chuva"
@@ -2187,6 +2452,11 @@ export default [
         "rank": 16207,
         "zipf": 4.79,
         "fpm": 61.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/chuva.mp3"
+        }
       }
     },
     "symbols": [
@@ -2221,9 +2491,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "umbrella",
         "learning": "guarda-chuva"
@@ -2236,6 +2507,11 @@ export default [
         "rank": 28249,
         "zipf": 4.55,
         "fpm": 35.4
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/guarda-chuva.mp3"
+        }
       }
     },
     "symbols": [
@@ -2270,9 +2546,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "door",
         "learning": "porta"
@@ -2284,7 +2561,12 @@ export default [
       "RANKED": {
         "rank": 8547,
         "zipf": 5.07,
-        "fpm": 117.0
+        "fpm": 117
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/porta.mp3"
+        }
       }
     },
     "symbols": [
@@ -2319,9 +2601,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "time / weather",
         "learning": "tempo"
@@ -2333,7 +2616,12 @@ export default [
       "RANKED": {
         "rank": 952,
         "zipf": 6.02,
-        "fpm": 1050.0
+        "fpm": 1050
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tempo.mp3"
+        }
       }
     },
     "symbols": [
@@ -2368,9 +2656,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "left",
         "learning": "esquerda"
@@ -2383,6 +2672,11 @@ export default [
         "rank": 10471,
         "zipf": 4.98,
         "fpm": 95.5
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/esquerda.mp3"
+        }
       }
     },
     "symbols": [
@@ -2417,9 +2711,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "right (direction)",
         "learning": "direita"
@@ -2432,6 +2727,11 @@ export default [
         "rank": 12019,
         "zipf": 4.92,
         "fpm": 83.2
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/direita.mp3"
+        }
       }
     },
     "symbols": [
@@ -2466,9 +2766,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "help! (emergency)",
         "learning": "socorro"
@@ -2480,7 +2781,12 @@ export default [
       "RANKED": {
         "rank": 20408,
         "zipf": 4.69,
-        "fpm": 49.0
+        "fpm": 49
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/socorro.mp3"
+        }
       }
     },
     "symbols": [
@@ -2517,7 +2823,7 @@ export default [
       "TRANSLATED",
       "RANKED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "Wi-Fi",
         "learning": "wifi"
@@ -2555,5 +2861,978 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  }
+  },
+  {
+    "slug": "cidade.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "city",
+        "learning": "cidade"
+      },
+      "EXEMPLIFIED": {
+        "known": "I love this city",
+        "learning": "Eu amo essa cidade"
+      },
+      "RANKED": {
+        "rank": 124,
+        "zipf": 5.85,
+        "fpm": 708
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cidade.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.lemma.cidade"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.space"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "rua.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "street",
+        "learning": "rua"
+      },
+      "EXEMPLIFIED": {
+        "known": "I live on a quiet street",
+        "learning": "Eu moro numa rua tranquila"
+      },
+      "RANKED": {
+        "rank": 407,
+        "zipf": 5.35,
+        "fpm": 224
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/rua.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.lemma.rua"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.space"
+      },
+      {
+        "slug": "domain.transport"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mãe.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "mother / mom",
+        "learning": "mãe"
+      },
+      "EXEMPLIFIED": {
+        "known": "My mom called me",
+        "learning": "Minha mãe me ligou"
+      },
+      "RANKED": {
+        "rank": 220,
+        "zipf": 5.73,
+        "fpm": 537
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mãe.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.lemma.mãe"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.family"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "carro.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "car",
+        "learning": "carro"
+      },
+      "EXEMPLIFIED": {
+        "known": "My car broke down",
+        "learning": "Meu carro quebrou"
+      },
+      "RANKED": {
+        "rank": 432,
+        "zipf": 5.24,
+        "fpm": 174
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/carro.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.lemma.carro"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.transport"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "irmão.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "brother / sibling",
+        "learning": "irmão / irmã"
+      },
+      "EXEMPLIFIED": {
+        "known": "My brother lives in Rio",
+        "learning": "Meu irmão mora no Rio"
+      },
+      "RANKED": {
+        "rank": 438,
+        "zipf": 5.23,
+        "fpm": 170
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/irmão.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.lemma.irmão"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.family"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "olho.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "eye",
+        "learning": "olho"
+      },
+      "EXEMPLIFIED": {
+        "known": "She has green eyes",
+        "learning": "Ela tem olhos verdes"
+      },
+      "RANKED": {
+        "rank": 637,
+        "zipf": 4.89,
+        "fpm": 77.6
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/olho.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.lemma.olho"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "domain.body"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "avião.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "airplane",
+        "learning": "avião"
+      },
+      "EXEMPLIFIED": {
+        "known": "I go to Brazil by airplane.",
+        "learning": "Eu vou para o Brasil de avião."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/avião.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.avião"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "bagunça.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "mess",
+        "learning": "bagunça"
+      },
+      "EXEMPLIFIED": {
+        "known": "Clean up this mess.",
+        "learning": "Limpa essa bagunça."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/bagunça.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bagunça"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "caixa.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "box",
+        "learning": "caixa"
+      },
+      "EXEMPLIFIED": {
+        "known": "This box is very heavy, so I can't carry it.",
+        "learning": "Esta caixa é muito pesada, então não posso carregá-la."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/caixa.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.caixa"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "erro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "error/mistake",
+        "learning": "erro"
+      },
+      "EXEMPLIFIED": {
+        "known": "When did the error occur?",
+        "learning": "Como o erro surgiu?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/erro.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.erro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "francês.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "French",
+        "learning": "francês"
+      },
+      "EXEMPLIFIED": {
+        "known": "Can you speak French, too?",
+        "learning": "Você sabe falar francês também?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/francês.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.francês"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "medo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "fear",
+        "learning": "medo"
+      },
+      "EXEMPLIFIED": {
+        "known": "What's your greatest fear?",
+        "learning": "Qual é o seu maior medo?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/medo.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.medo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "melhor.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "best/better",
+        "learning": "melhor"
+      },
+      "EXEMPLIFIED": {
+        "known": "Do your best.",
+        "learning": "Faça o seu melhor!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/melhor.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.melhor"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "mimimi.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "whining",
+        "learning": "mimimi"
+      },
+      "EXEMPLIFIED": {
+        "known": "Quit whining.",
+        "learning": "Para de mimimi."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mimimi.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.mimimi"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "motivo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "reason",
+        "learning": "motivo"
+      },
+      "EXEMPLIFIED": {
+        "known": "Do you know the reason?",
+        "learning": "Você sabe o motivo?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/motivo.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.motivo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "negócio.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "business/deal",
+        "learning": "negócio"
+      },
+      "EXEMPLIFIED": {
+        "known": "I don't want to be involved in this affair.",
+        "learning": "Não quero ser envolvido nesse negócio."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/negócio.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.negócio"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "pouco.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "little/few",
+        "learning": "pouco"
+      },
+      "EXEMPLIFIED": {
+        "known": "I cannot walk any farther.",
+        "learning": "Não posso andar mais nem um pouco."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pouco.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.pouco"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "relógio.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "clock/watch",
+        "learning": "relógio"
+      },
+      "EXEMPLIFIED": {
+        "known": "He lost the watch which he had bought the day before.",
+        "learning": "Ele perdeu o relógio que havia comprado no dia anterior."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/relógio.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.relógio"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tipo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "type/kind",
+        "learning": "tipos"
+      },
+      "EXEMPLIFIED": {
+        "known": "There are various kinds of coffee.",
+        "learning": "Há diversos tipos de café."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tipo.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tipo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "trânsito.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "traffic",
+        "learning": "trânsito"
+      },
+      "EXEMPLIFIED": {
+        "known": "We're stuck in traffic.",
+        "learning": "Estamos presos no trânsito."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/trânsito.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.trânsito"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "verdade.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "truth",
+        "learning": "verdade"
+      },
+      "EXEMPLIFIED": {
+        "known": "Tell me the truth.",
+        "learning": "Me diz a verdade."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/verdade.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.verdade"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "vontade.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "will/desire",
+        "learning": "vontade"
+      },
+      "EXEMPLIFIED": {
+        "known": "I don't want to eat.",
+        "learning": "Estou sem vontade de comer."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/vontade.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.vontade"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Type } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import { Vector } from "@vivalence/typology";
 import { Agent, specimen, Action } from "@vivalence/typology";

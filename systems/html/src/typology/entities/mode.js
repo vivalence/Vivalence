@@ -2,11 +2,12 @@ import { Entity } from "../prototypes/entity.js";
 
 export class Mode extends Entity {
   // call
-  // manifest
-  // view
-  valences = new Set();
+  // link
+  // buffered
+  intents = new Set();
+
   implements(trait) {
-    return this.manifest?.traits?.includes(trait);
+    return this.traits?.includes(trait);
   }
 
   toJSON() {
@@ -17,9 +18,8 @@ export class Mode extends Entity {
       traits: this.traits,
       daemon: this.daemon?.slug ?? null,
       mount: this.mount?.nature ?? null,
-      valences: [...(this.valences || [])].map((v) => v?.slug ?? v),
-      view: this.view ? { Component: !!this.view?.Component, url: this.view?.url ?? null } : null,
-      manifest: this.manifest,
+      intents: [...(this.intents || [])].map((i) => i?.slug ?? i),
+      buffered: this.buffered ? { url: this.buffered.url ?? null } : null,
     };
   }
 }

@@ -1,4 +1,4 @@
-import { View } from "@vivalence/typology";
+import { BufferView, Vector, Type, BufferSchema, Ref } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -6,31 +6,51 @@ const manifest = {
   name: "Flashcard",
   description: "Classic flashcard recall for words and sentences, both directions.",
   version: "0.1.0",
-  traits: ["VIEWABLE", "BUFFERED", "VALENTIC"],
+  traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
-const view = new View("buffer/flashcard.svelte.js");
+const buffer = new BufferView(
+  "buffer/flashcard.svelte.js",
+  BufferSchema.of({
+    data: { recall: Type.String({ default: "LEARNING" }) },
+    literals: Type.Array(Ref),
+  }),
+);
+
+const emitter = new Vector().open("/literal", async (ctx) => {
+  return ctx.mode.buffer({
+    data: { recall: ctx.input.recall },
+    literals: [ctx.input.literal],
+  });
+});
 
 const dataset = {
-  entities: {
-    valence: [
-      {
-        slug: "survival-flashcard",
-        name: "Survival Flashcard",
-        description: "",
-        type: "SELFEVIDENT",
-        traits: ["BUFFERED"],
-        data: {
-          BUFFERED: {
-            recall: "LEARNING",
-            seek: {
-              symbols: ["word", "proficiency.survival"],
-            },
-          },
-        },
-      },
-    ],
-  },
+  intent: [],
 };
 
-export { manifest, view, dataset };
+export { manifest, buffer, emitter, dataset };
+
+// import { View, Vector } from "@vivalence/typology";
+//
+// const manifest = {
+//   type: "game",
+//   slug: "flashcard",
+//   name: "Flashcard",
+//   description: "Classic flashcard recall for words and sentences, both directions.",
+//   version: "0.1.0",
+//   traits: ["VIEWABLE", "INTENTED", "EMITTER"],
+// };
+//
+// const view = new View("buffer/flashcard.svelte.js");
+//
+// const emitter = new Vector().open("/literal", async (ctx) => ({
+//   traits: ["FURNISHED"],
+//   trait: { FURNISHED: ctx.input.intent?.trait?.FURNISHED ?? ctx.input },
+//   literals: [ctx.input.literal?.id],
+// }));
+//
+// const dataset = {
+//   intent: [],
+// };
+//
+// export { manifest, view, emitter, dataset };

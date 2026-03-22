@@ -16,16 +16,16 @@ export class ConnectionError extends Error {
     return new ConnectionError("TIMEOUT", message, context);
   }
 
-  static server(status, context) {
-    return new ConnectionError("SERVER", `Server error: ${status}`, context);
+  static server(status, context, detail = "") {
+    return new ConnectionError("SERVER", `Server error: ${status}${detail}`, context);
   }
 
   static auth(message, context) {
     return new ConnectionError("AUTH", message, context);
   }
 
-  static client(status, context) {
-    return new ConnectionError("CLIENT", `Client error: ${status}`, context);
+  static client(status, context, detail = "") {
+    return new ConnectionError("CLIENT", `Client error: ${status}${detail}`, context);
   }
 
   static fromFetch(error, request) {
@@ -39,10 +39,13 @@ export class ConnectionError extends Error {
   }
 
   static fromStatus(status, response) {
-    if (status >= 500) return ConnectionError.server(status, { response });
+    const body = response?.body;
+    const detail = body?.message || body?.code || "";
+    const suffix = detail ? ` — ${detail}` : "";
+    if (status >= 500) return ConnectionError.server(status, { response }, suffix);
     if (status === 401 || status === 403)
-      return ConnectionError.auth("Unauthorized", { response });
-    if (status >= 400) return ConnectionError.client(status, { response });
+      return ConnectionError.auth(`Unauthorized${suffix}`, { response });
+    if (status >= 400) return ConnectionError.client(status, { response }, suffix);
     return null;
   }
 }

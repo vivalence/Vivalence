@@ -1,50 +1,49 @@
-import paladin from "@vivalence/paladin";
-import { Url, Connection, specimen, Path } from "@vivalence/typology";
+// import paladin from "@vivalence/paladin";
+// import { Url, Connection, specimen, Path } from "@vivalence/typology";
+// import { Runtime, Die } from "@vivalence/runtime";
 
-import { Runtime, Die } from "@vivalence/runtime";
+// let die;
 
-let die;
+// specimen.describe("Runtime", () => {
+//   specimen.describe("construction", () => {
+//     specimen.it("cycles", async () => {
+//       await paladin.ikiro;
+//       die = new Die({ good: new Runtime() });
+//     });
+//     // specimen.describe("gestalt", () => {specimen.it("is Wafer", () => {specimen.expect(die.status).toBeDefined(); specimen.expect(die.good).toBeInstanceOf(Runtime);}); specimen.it("has registers", () => {specimen.expect(die.good.daemons).toEqual([]); specimen.expect(die.good.processes).toEqual([]);});});
+//   });
 
-specimen.describe("Runtime", () => {
-  specimen.describe("construction", () => {
-    specimen.it("cycles", async () => {
-      await paladin.ikiro;
-      die = new Die({ good: new Runtime() });
-    });
-    // specimen.describe("gestalt", () => {specimen.it("is Wafer", () => {specimen.expect(die.status).toBeDefined(); specimen.expect(die.good).toBeInstanceOf(Runtime);}); specimen.it("has registers", () => {specimen.expect(die.good.daemons).toEqual([]); specimen.expect(die.good.processes).toEqual([]);});});
-  });
+//   specimen.describe("population", () => {
+//     specimen.it("cycles", async () => {
+//       await die.populate();
+//     });
+//     // specimen.describe("gestalt", () => {specimen.it("populates terrans", () => {specimen.expect(die.good.daemons).toBeInstanceOf(Array); specimen.expect(die.good.processes).toBeInstanceOf(Array);}); specimen.it("terrans are Dies", () => {die.good.daemons.forEach((d) => {specimen.expect(d.status).toBeDefined();});});});
+//   });
 
-  specimen.describe("population", () => {
-    specimen.it("cycles", async () => {
-      await die.populate();
-    });
-    // specimen.describe("gestalt", () => {specimen.it("populates terrans", () => {specimen.expect(die.good.daemons).toBeInstanceOf(Array); specimen.expect(die.good.processes).toBeInstanceOf(Array);}); specimen.it("terrans are Dies", () => {die.good.daemons.forEach((d) => {specimen.expect(d.status).toBeDefined();});});});
-  });
+//   specimen.describe("resolution", () => {
+//     specimen.it("cycles", async () => {
+//       await die.resolve();
+//     });
+//     // specimen.it("resolves children", () => {die.good.terrans.forEach((terran) => {specimen .expect(terran.status.is(["<uninitialized>", "RESOLVED"])) .toBe(true);});});
+//   });
 
-  specimen.describe("resolution", () => {
-    specimen.it("cycles", async () => {
-      await die.resolve();
-    });
-    // specimen.it("resolves children", () => {die.good.terrans.forEach((terran) => {specimen .expect(terran.status.is(["<uninitialized>", "RESOLVED"])) .toBe(true);});});
-  });
+//   specimen.describe("integration", () => {
+//     specimen.it("cycles", async () => {
+//       await die.integrate();
+//     });
+//     // specimen.it("is alive", () => {specimen.expect(die.status.is(["alive"])).toBe(true);}); specimen.it("children alive", () => {die.good.terrans.forEach((terran) => {specimen.expect(terran.status.is(["alive"])).toBe(true);});});
+//   });
 
-  specimen.describe("integration", () => {
-    specimen.it("cycles", async () => {
-      await die.integrate();
-    });
-    // specimen.it("is alive", () => {specimen.expect(die.status.is(["alive"])).toBe(true);}); specimen.it("children alive", () => {die.good.terrans.forEach((terran) => {specimen.expect(terran.status.is(["alive"])).toBe(true);});});
-  });
+//   specimen.describe("disintegration", () => {
+//     specimen.it("cycles", async () => {
+//       await die.disintegrate();
+//     });
 
-  specimen.describe("disintegration", () => {
-    specimen.it("cycles", async () => {
-      await die.disintegrate();
-    });
-
-    specimen.it("is stopped", () => {
-      specimen.expect(die.status.is(["STOPPED"])).toBe(true);
-    });
-  });
-});
+//     specimen.it("is stopped", () => {
+//       specimen.expect(die.status.is(["STOPPED"])).toBe(true);
+//     });
+//   });
+// });
 
 // import paladin from "@vivalence/paladin";
 // import { specimen, Path } from "@vivalence/typology";

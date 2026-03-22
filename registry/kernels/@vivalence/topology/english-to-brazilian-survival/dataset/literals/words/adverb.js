@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "no / not",
         "learning": "não"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 87,
         "zipf": 7.06,
-        "fpm": 11500.0
+        "fpm": 11500
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/não.mp3"
+        }
       }
     },
     "symbols": [
@@ -53,9 +59,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "very / a lot",
         "learning": "muito"
@@ -67,7 +74,12 @@ export default [
       "RANKED": {
         "rank": 427,
         "zipf": 6.37,
-        "fpm": 2340.0
+        "fpm": 2340
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/muito.mp3"
+        }
       }
     },
     "symbols": [
@@ -99,9 +111,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "more / most",
         "learning": "mais"
@@ -113,7 +126,12 @@ export default [
       "RANKED": {
         "rank": 190,
         "zipf": 6.72,
-        "fpm": 5250.0
+        "fpm": 5250
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mais.mp3"
+        }
       }
     },
     "symbols": [
@@ -145,9 +163,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "well / fine",
         "learning": "bem"
@@ -159,7 +178,12 @@ export default [
       "RANKED": {
         "rank": 602,
         "zipf": 6.22,
-        "fpm": 1660.0
+        "fpm": 1660
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/bem.mp3"
+        }
       }
     },
     "symbols": [
@@ -188,9 +212,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "here",
         "learning": "aqui"
@@ -202,7 +227,12 @@ export default [
       "RANKED": {
         "rank": 662,
         "zipf": 6.18,
-        "fpm": 1510.0
+        "fpm": 1510
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/aqui.mp3"
+        }
       }
     },
     "symbols": [
@@ -231,9 +261,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "now",
         "learning": "agora"
@@ -245,7 +276,12 @@ export default [
       "RANKED": {
         "rank": 758,
         "zipf": 6.12,
-        "fpm": 1320.0
+        "fpm": 1320
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/agora.mp3"
+        }
       }
     },
     "symbols": [
@@ -274,9 +310,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "later / after",
         "learning": "depois"
@@ -288,7 +325,12 @@ export default [
       "RANKED": {
         "rank": 870,
         "zipf": 6.06,
-        "fpm": 1150.0
+        "fpm": 1150
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/depois.mp3"
+        }
       }
     },
     "symbols": [
@@ -317,9 +359,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "where",
         "learning": "onde"
@@ -331,7 +374,12 @@ export default [
       "RANKED": {
         "rank": 893,
         "zipf": 6.05,
-        "fpm": 1120.0
+        "fpm": 1120
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/onde.mp3"
+        }
       }
     },
     "symbols": [
@@ -363,9 +411,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "today",
         "learning": "hoje"
@@ -377,7 +426,12 @@ export default [
       "RANKED": {
         "rank": 1318,
         "zipf": 5.88,
-        "fpm": 759.0
+        "fpm": 759
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/hoje.mp3"
+        }
       }
     },
     "symbols": [
@@ -406,9 +460,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "then / so",
         "learning": "então"
@@ -420,7 +475,12 @@ export default [
       "RANKED": {
         "rank": 1350,
         "zipf": 5.87,
-        "fpm": 741.0
+        "fpm": 741
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/então.mp3"
+        }
       }
     },
     "symbols": [
@@ -449,9 +509,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "yes",
         "learning": "sim"
@@ -463,7 +524,12 @@ export default [
       "RANKED": {
         "rank": 1621,
         "zipf": 5.79,
-        "fpm": 617.0
+        "fpm": 617
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sim.mp3"
+        }
       }
     },
     "symbols": [
@@ -489,9 +555,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "tomorrow",
         "learning": "amanhã"
@@ -503,7 +570,12 @@ export default [
       "RANKED": {
         "rank": 5747,
         "zipf": 5.24,
-        "fpm": 174.0
+        "fpm": 174
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/amanhã.mp3"
+        }
       }
     },
     "symbols": [
@@ -532,9 +604,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "a little / few",
         "learning": "pouco"
@@ -546,7 +619,12 @@ export default [
       "RANKED": {
         "rank": 1862,
         "zipf": 5.73,
-        "fpm": 537.0
+        "fpm": 537
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pouco.mp3"
+        }
       }
     },
     "symbols": [
@@ -575,9 +653,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "slowly",
         "learning": "devagar"
@@ -590,6 +669,11 @@ export default [
         "rank": 68966,
         "zipf": 4.16,
         "fpm": 14.5
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/devagar.mp3"
+        }
       }
     },
     "symbols": [
@@ -618,9 +702,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "maybe / perhaps",
         "learning": "talvez"
@@ -632,7 +717,12 @@ export default [
       "RANKED": {
         "rank": 4902,
         "zipf": 5.31,
-        "fpm": 204.0
+        "fpm": 204
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/talvez.mp3"
+        }
       }
     },
     "symbols": [
@@ -658,9 +748,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "already / right away",
         "learning": "já"
@@ -672,7 +763,12 @@ export default [
       "RANKED": {
         "rank": 478,
         "zipf": 6.32,
-        "fpm": 2090.0
+        "fpm": 2090
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/já.mp3"
+        }
       }
     },
     "symbols": [
@@ -704,9 +800,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "when",
         "learning": "quando"
@@ -718,7 +815,12 @@ export default [
       "RANKED": {
         "rank": 500,
         "zipf": 6.3,
-        "fpm": 2000.0
+        "fpm": 2000
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/quando.mp3"
+        }
       }
     },
     "symbols": [
@@ -750,9 +852,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "so / such",
         "learning": "tão"
@@ -764,7 +867,12 @@ export default [
       "RANKED": {
         "rank": 1318,
         "zipf": 5.88,
-        "fpm": 759.0
+        "fpm": 759
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tão.mp3"
+        }
       }
     },
     "symbols": [
@@ -793,9 +901,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "yesterday",
         "learning": "ontem"
@@ -807,7 +916,12 @@ export default [
       "RANKED": {
         "rank": 5495,
         "zipf": 5.26,
-        "fpm": 182.0
+        "fpm": 182
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ontem.mp3"
+        }
       }
     },
     "symbols": [
@@ -836,9 +950,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "away",
         "learning": "embora"
@@ -850,7 +965,12 @@ export default [
       "RANKED": {
         "rank": 3311,
         "zipf": 5.48,
-        "fpm": 302.0
+        "fpm": 302
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/embora.mp3"
+        }
       }
     },
     "symbols": [
@@ -882,9 +1002,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "always",
         "learning": "sempre"
@@ -896,7 +1017,12 @@ export default [
       "RANKED": {
         "rank": 1096,
         "zipf": 5.96,
-        "fpm": 912.0
+        "fpm": 912
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sempre.mp3"
+        }
       }
     },
     "symbols": [
@@ -925,9 +1051,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "never",
         "learning": "nunca"
@@ -939,7 +1066,12 @@ export default [
       "RANKED": {
         "rank": 1202,
         "zipf": 5.92,
-        "fpm": 832.0
+        "fpm": 832
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/nunca.mp3"
+        }
       }
     },
     "symbols": [
@@ -968,9 +1100,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "also / too",
         "learning": "também"
@@ -982,7 +1115,12 @@ export default [
       "RANKED": {
         "rank": 490,
         "zipf": 6.31,
-        "fpm": 2040.0
+        "fpm": 2040
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/também.mp3"
+        }
       }
     },
     "symbols": [
@@ -1008,9 +1146,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "there",
         "learning": "lá"
@@ -1022,7 +1161,12 @@ export default [
       "RANKED": {
         "rank": 1621,
         "zipf": 5.79,
-        "fpm": 617.0
+        "fpm": 617
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/lá.mp3"
+        }
       }
     },
     "symbols": [
@@ -1045,5 +1189,303 @@ export default [
         "slug": "domain.space"
       }
     ]
-  }
+  },
+  {
+    "slug": "ainda.adverb",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "still / yet",
+        "learning": "ainda"
+      },
+      "EXEMPLIFIED": {
+        "known": "I am still here",
+        "learning": "Eu ainda estou aqui"
+      },
+      "RANKED": {
+        "rank": 62,
+        "zipf": 6.18,
+        "fpm": 1510
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ainda.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.ainda"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.high-frequency"
+      },
+      {
+        "slug": "functional.time"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "assim.adverb",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "like this / so / therefore",
+        "learning": "assim"
+      },
+      "EXEMPLIFIED": {
+        "known": "Do it like this",
+        "learning": "Faz assim"
+      },
+      "RANKED": {
+        "rank": 75,
+        "zipf": 6.06,
+        "fpm": 1150
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/assim.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.assim"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "como.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "how",
+        "learning": "Como"
+      },
+      "EXEMPLIFIED": {
+        "known": "When did the error occur?",
+        "learning": "Como o erro surgiu?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/como.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.como"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "nem.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "not even",
+        "learning": "nem"
+      },
+      "EXEMPLIFIED": {
+        "known": "I'm not even Canadian.",
+        "learning": "Eu nem sou canadense."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/nem.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.nem"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "portanto.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "therefore",
+        "learning": "portanto"
+      },
+      "EXEMPLIFIED": {
+        "known": "It's cold, so I want to eat something hot.",
+        "learning": "Está frio, portanto quero comer algo quente."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/portanto.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.portanto"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "quão.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "how (much)",
+        "learning": "quão"
+      },
+      "EXEMPLIFIED": {
+        "known": "However hungry you are, you must eat slowly.",
+        "learning": "Não importa quão faminto você está, você deve comer devagar."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/quão.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quão"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "tanto.adverb",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "so much",
+        "learning": "tanto"
+      },
+      "EXEMPLIFIED": {
+        "known": "I don't want to wait that long.",
+        "learning": "Eu não quero esperar tanto."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tanto.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.tanto"
+      },
+      {
+        "slug": "word.part-of-speech.adverb"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

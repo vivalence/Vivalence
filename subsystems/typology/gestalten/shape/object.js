@@ -1,9 +1,10 @@
-import { middleware } from "@vivalence/typology";
+import { is, middleware } from "@vivalence/typology";
 
 export const strategy = (apply, effect) => async (input) => {
   const ctx = { input };
   await apply(ctx, async (c) => {
-    c.output = await effect(c);
+    const result = await effect(c);
+    if (!is.undefined(result)) c.output = result;
   });
   return ctx.output;
 };
@@ -63,25 +64,22 @@ function proxyNode(vector, carry, params) {
 
       for (const [pattern, fn] of vector.effects) {
         if (pattern.type === "parameter" || pattern.type === "wildcard") {
-          const merged = pattern.type === "parameter"
-            ? { ...params, [pattern.nature.slice(1)]: key }
-            : params;
+          const merged =
+            pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
           return proxyEffect(carry, mw, fn, merged);
         }
       }
 
       for (const [pattern, descendant] of vector.trajectories) {
         if (pattern.type === "parameter" || pattern.type === "wildcard") {
-          const merged = pattern.type === "parameter"
-            ? { ...params, [pattern.nature.slice(1)]: key }
-            : params;
+          const merged =
+            pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
           return proxyNode(descendant, next, merged);
         }
       }
 
       for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "remainder")
-          return proxyRemainder(carry, mw, fn, params, 0, key);
+        if (pattern.type === "remainder") return proxyRemainder(carry, mw, fn, params, 0, key);
       }
     },
   });

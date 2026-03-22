@@ -1,6 +1,6 @@
 import { effect } from "nanostores";
 import { Connection, shards } from "@vivalence/typology";
-import { Daemon } from "../daemon.js";
+import { Daemon, lifecycle as daemonLifecycle } from "../daemon.js";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
 
@@ -51,7 +51,8 @@ async function populate(lighthouse) {
     const daemon = new Daemon(connection);
 
     daemon.lighthouse = lighthouse;
-    await dataspace.daemon.spawn(daemon);
+    await daemonLifecycle(daemon);
+    dataspace.daemon.merge(daemon);
     lighthouse.daemons.add(daemon);
   }
 }

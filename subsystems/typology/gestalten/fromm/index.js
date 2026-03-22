@@ -31,7 +31,7 @@ export const params = (params) => {
     get path() {
       const path = new prototypes.Path();
       while (params[path.depth]) {
-        path.stick(params[path.depth]);
+        path.yeet(params[path.depth]);
       }
       return path.heir.pop();
     },

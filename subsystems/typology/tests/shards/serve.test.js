@@ -1,5 +1,4 @@
-import { specimen, sleep, shard, shape } from "@vivalence/typology";
-import { Aperture } from "@vivalence/typology/aperture";
+import { specimen, sleep, shard, shape, Aperture } from "@vivalence/typology";
 
 const { http } = shape;
 

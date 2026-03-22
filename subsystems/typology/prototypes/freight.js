@@ -60,6 +60,7 @@ export class Freight {
       this.lading.map((e) => [
         e.path,
         {
+          path: e.path,
           type: e.type,
           url: this.url ? this.url.branch("/" + e.path).absolute : null,
         },

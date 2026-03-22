@@ -1,24 +1,21 @@
 import { Cascade, types, EntitySchema, Collection, type Opt, type Rel } from "@mikro-orm/core";
 
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
-import { ProductEntity, ValenceEntity } from "../index.ts";
+import { IntentEntity } from "../index.ts";
+import { BufferEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
   VIEWABLE = "VIEWABLE",
   DATASET = "DATASET",
   CHAOSMONKEY = "CHAOSMONKEY",
   TOPOGRAPHICAL = "TOPOGRAPHICAL",
-
-  VALENTIC = "VALENTIC", // legecay
-  // INTENTIONAL = "INTENTIONAL", //
-
-  BUFFERED = "BUFFERED", // legacy
-  // SELFEVIDENT = "SELFEVIDENT",
-
-  PRODUCER = "PRODUCER", // legacy
-  // EMITTER = "EMITTER", // emitter
-
+  INTENTED = "INTENTED",
+  SELFEVIDENT = "SELFEVIDENT",
+  EMITTER = "EMITTER",
   FRAUGHT = "FRAUGHT",
+  VALENTIC = "VALENTIC", // legacy
+  BUFFERED = "BUFFERED", // legacy
+  PRODUCER = "PRODUCER", // legacy
 }
 
 export class ModeRepository extends DataRepository {
@@ -34,10 +31,10 @@ export class ModeEntity extends DataEntity {
   traits: ModeTraitsEnum[] & Opt = [];
   type?: string;
   installed: Boolean = false;
+  version?: string;
 
-  valences = new Collection<ValenceEntity>(this);
-  productions = new Collection<ProductEntity>(this);
-  commissions = new Collection<ProductEntity>(this);
+  intents = new Collection<IntentEntity>(this);
+  buffers = new Collection<BufferEntity>(this);
 }
 
 export const ModeSchema = new EntitySchema({
@@ -52,6 +49,9 @@ export const ModeSchema = new EntitySchema({
     slug: { type: types.string },
     name: { type: types.string, nullable: true },
     description: { type: types.string, nullable: true },
+    installed: { type: types.boolean },
+    version: { type: types.string, nullable: true },
+
     traits: {
       items: () => ModeTraitsEnum,
       enum: true,
@@ -59,29 +59,18 @@ export const ModeSchema = new EntitySchema({
       defaultRaw: `'[]'`,
     },
 
-    installed: { type: types.boolean },
-
-    productions: {
+    intents: {
       kind: "1:m",
-      entity: () => ProductEntity,
-      mappedBy: (product) => product.producer,
-      cascade: [Cascade.REMOVE],
-      orphanRemoval: true,
-    },
-    commissions: {
-      kind: "1:m",
-      entity: () => ProductEntity,
-      mappedBy: (product) => product.commissioner,
+      entity: () => IntentEntity,
+      mappedBy: (intent) => intent.mode,
       cascade: [Cascade.REMOVE],
       orphanRemoval: true,
     },
 
-    valences: {
+    buffers: {
       kind: "1:m",
-      entity: () => ValenceEntity,
-      mappedBy: (valence) => valence.mode,
-      cascade: [Cascade.REMOVE],
-      orphanRemoval: true,
+      entity: () => BufferEntity,
+      mappedBy: (buffer) => buffer.mode,
     },
   },
 });

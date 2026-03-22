@@ -1,15 +1,14 @@
-import { View } from "@vivalence/typology";
-import { svelte } from "./view-bundler.js";
-
-export * from "./traits/producer.js";
 export * from "./traits/dataset.js";
-export * from "./traits/valentic.js";
+export * from "./traits/intented.js";
+export * from "./traits/emitter.js";
+export * from "./traits/buffered.js";
 
-export const VIEWABLE = async (mode, daemon) => {
-  mode.cake.view.withBundler(svelte);
-  await mode.cake.view.bundle();
-  mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
-};
+export const SELFEVIDENT = () => {};
+
+// export const VIEWABLE = (mode, daemon) => {
+//   mode.cake.view.withBundler(svelte);
+//   mode.aperture.open("/view", () => ({ url: mode.cake.view.url.absolute }));
+// };
 
 export const FRAUGHT = async (mode, daemon) => {
   await mode.cake.freight.index();

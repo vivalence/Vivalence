@@ -34,9 +34,11 @@
 
     "@libsql/client/node": "npm:@libsql/client@0.17.0/node",
 
-    "@sinclair/typebox": "npm:typebox@1.0",
-    "@sinclair/typebox/value": "npm:typebox/value",
-    "@sinclair/typebox/compiler": "npm:typebox/compiler",
+    "typebox": "npm:typebox@1.0",
+    "typebox/value": "npm:typebox@1.0/value",
+    "typebox/compile": "npm:typebox@1.0/compile",
+    "typebox/system": "npm:typebox@1.0/system",
+    "typebox/error": "npm:typebox@1.0/error",
 
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0",
     "vite": "npm:vite@6.3.3",

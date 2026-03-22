@@ -58,6 +58,7 @@ export class Connection {
     const response = await this.fetch(endpoint, body, options);
 
     if (response.error) {
+      response.error.message = `${response.error.message} @ ${this.url.branch(endpoint).pathname}`;
       throw response.error;
     }
 

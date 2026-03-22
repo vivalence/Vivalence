@@ -1,11 +1,11 @@
 import { specimen } from "@vivalence/typology";
-import { create } from "@vivalence/runtime/tests/scenario";
+import { daemon } from "@vivalence/runtime/scenarios";
 
 specimen.describe("client ↔ runtime (scenario)", () => {
   let scenario, conn;
 
   specimen.beforeAll(async () => {
-    scenario = await create();
+    scenario = await daemon.create();
     conn = scenario.conn;
   });
 

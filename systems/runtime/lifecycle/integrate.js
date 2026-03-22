@@ -21,8 +21,8 @@ export async function announce(die) {
         // console.log("response", ctx);
       },
     );
-    await connection.call("/entities/daemon/expect", {
-      where: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
+    await connection.call("/entities/daemon/ensure", {
+      data: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
     });
   }
 }

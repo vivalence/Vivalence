@@ -2,63 +2,53 @@
   import { Asset } from "@vivalence/drapes";
   import { Keyboard } from "@vivalence/drapes";
 
-  const { terminal, product, seek, recall } = $props();
+  const { terminal, buffer } = $props();
 
   let keyboard;
 
-  const recallProp = product?.data.BUFFERED?.recall ?? recall ?? null;
+  const data = buffer.data ?? {};
   const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
 
-  let literal = $state(null);
-  let loading = $state(true);
-  let activeRecall = $state(recallProp ?? randomRecall());
+  let literal = $state(buffer.literals?.[0] ?? null);
+  let loading = $state(!literal);
+  let activeRecall = $state(data.recall ?? randomRecall());
   let revealed = $state(false);
 
   const isWord = $derived(literal?.symbol?.word);
-  const known = $derived(literal?.data?.TRANSLATED?.known);
-  const learning = $derived(literal?.data?.TRANSLATED?.learning);
-  const example = $derived(literal?.data?.EXEMPLIFIED);
-  const asset = $derived(terminal.daemon.getAsset(literal?.data?.VOCALIZED?.asset));
+  const known = $derived(literal?.trait?.TRANSLATED?.known);
+  const learning = $derived(literal?.trait?.TRANSLATED?.learning);
+  const example = $derived(literal?.trait?.EXEMPLIFIED);
+  const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
   const answer = $derived(activeRecall === "KNOWN" ? known : learning);
-  const promptEx = $derived(example && (activeRecall === "KNOWN" ? example.learning : example.known));
-  const answerEx = $derived(example && (activeRecall === "KNOWN" ? example.known : example.learning));
+  const promptEx = $derived(
+    example && (activeRecall === "KNOWN" ? example.learning : example.known),
+  );
+  const answerEx = $derived(
+    example && (activeRecall === "KNOWN" ? example.known : example.learning),
+  );
   const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
-
-  const pick = async () => {
-    const query = { take: 1 };
-    if (seek) query.seek = seek;
-    if (literal) query.blacklist = { literals: [literal.id] };
-    const [lit] = await terminal.daemon.call("/pick/literal/feed", query);
-    return lit ?? null;
-  };
-
-  (product ? Promise.resolve(product.data.BUFFERED.literal) : pick()).then((value) => {
-    literal = value;
-    loading = false;
-  });
+  $inspect("asset ", asset);
+  if (!literal) {
+    terminal.daemon.call("/pick/literal/feed", { take: 1 }).then(([lit]) => {
+      literal = lit ?? null;
+      loading = false;
+    });
+  }
 
   function reveal() {
     revealed = true;
   }
 
-  function review(signal) {
-    const scope = product ? { product: product.id } : { literal: literal.id };
-    const path = product ? "/review/product" : "/review/literal";
-    terminal.daemon.call(path, { signal, scope });
+  function review(literal, signal) {
+    const scope = { literal: literal.id };
+    terminal.daemon.call("/review/literal", { signal, scope });
   }
 
   async function rate(signal) {
-    review(signal);
-
-    if (product) return product.release();
-
-    loading = true;
-    literal = await pick();
-    activeRecall = recallProp ?? randomRecall();
-    revealed = false;
-    loading = false;
+    review(literal, signal);
+    buffer.release();
   }
 
   function handleKey(event) {
@@ -87,31 +77,38 @@
           <span class="meta-type">{isWord ? "word" : "sentence"}</span>
         </div>
 
-        <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
-
-        {#if asset && activeRecall === "KNOWN"}
-          <Asset {asset} />
-        {/if}
-
-        {#if isWord && promptEx}
-          <p class="example">{promptEx}</p>
-        {/if}
+        <div class="prompt-row">
+          <div class="prompt-text">
+            <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
+            {#if isWord && promptEx}
+              <p class="example">{promptEx}</p>
+            {/if}
+          </div>
+          {#if asset && activeRecall === "KNOWN"}
+            <Asset autoplay={true} {asset} />
+          {/if}
+        </div>
 
         {#if revealed}
           <div class="divider"></div>
 
           <div class="reveal-block">
             <span class="reveal-label">{answerLabel}</span>
-            <p class="answer" class:answer-word={isWord}>{answer}</p>
-            {#if asset && activeRecall === "LEARNING"}
-              <Asset {asset} />
-            {/if}
-            {#if isWord && answerEx}
-              <p class="example revealed">{answerEx}</p>
-            {/if}
+            <div class="prompt-row">
+              <div class="prompt-text">
+                <p class="answer" class:answer-word={isWord}>{answer}</p>
+                {#if isWord && answerEx}
+                  <p class="example revealed">{answerEx}</p>
+                {/if}
+              </div>
+              {#if asset && activeRecall === "LEARNING"}
+                <Asset autoplay={true} {asset} />
+              {/if}
+            </div>
           </div>
         {:else}
-          <button class="tap-hint" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}>tap to reveal</button>
+          <button class="tap-hint" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}
+            >tap to reveal</button>
         {/if}
       {:else if loading}
         <div class="loading"><span class="dot"></span></div>
@@ -124,19 +121,33 @@
       {#if loading}
         <span class="menu-hint">loading...</span>
       {:else if revealed}
-        <button class="btn btn-unknown" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("FAILURE")}>Unknown</button>
-        <button class="btn btn-known" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("SUCCESS")}>Known</button>
-        <button class="btn btn-easy" ontouchstart={(e) => keyboard.guard(e)} onclick={() => rate("MASTERY")}>Easy</button>
+        <button
+          class="btn btn-unknown"
+          ontouchstart={(e) => keyboard.guard(e)}
+          onclick={() => rate("FAILURE")}>Unknown</button>
+        <button
+          class="btn btn-known"
+          ontouchstart={(e) => keyboard.guard(e)}
+          onclick={() => rate("SUCCESS")}>Known</button>
+        <button
+          class="btn btn-easy"
+          ontouchstart={(e) => keyboard.guard(e)}
+          onclick={() => rate("MASTERY")}>Easy</button>
       {:else}
-        <button class="btn btn-reveal" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}>Reveal</button>
+        <button class="btn btn-reveal" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}
+          >Reveal</button>
       {/if}
     </div>
   </div>
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
+  .root {
+    grid-template-rows: 1fr auto;
+  }
+  .content {
+    overflow-y: auto;
+  }
 
   .stage {
     max-width: 480px;
@@ -174,6 +185,16 @@
     opacity: 0.6;
   }
 
+  .prompt-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .prompt-text {
+    flex: 1;
+    min-width: 0;
+  }
+
   .prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
@@ -181,7 +202,9 @@
     line-height: 1.2;
     margin: 0 0 0.5rem 0;
   }
-  .prompt-word { font-size: var(--font-size-3xl); }
+  .prompt-word {
+    font-size: var(--font-size-3xl);
+  }
 
   .example {
     font-family: var(--font-family-serif-heading);
@@ -190,7 +213,9 @@
     font-style: italic;
     margin: 0 0 1.5rem 0;
   }
-  .example.revealed { margin: 0.75rem 0 0 0; }
+  .example.revealed {
+    margin: 0.75rem 0 0 0;
+  }
 
   .tap-hint {
     margin-top: 1rem;
@@ -227,7 +252,9 @@
     margin: 0;
     line-height: 1.2;
   }
-  .answer-word { font-size: var(--font-size-2xl); }
+  .answer-word {
+    font-size: var(--font-size-2xl);
+  }
 
   .loading {
     display: flex;
@@ -243,8 +270,13 @@
     animation: pulse 1s ease-in-out infinite;
   }
   @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   .menu {
@@ -278,9 +310,18 @@
     cursor: pointer;
     font-family: var(--font-family-sans-text);
   }
-  .btn-unknown { background: var(--colors-system-error-surface); color: var(--colors-system-error-contrast); }
-  .btn-known { background: var(--colors-system-success-surface); color: var(--colors-system-success-contrast); }
-  .btn-easy { background: var(--colors-theme-primary-surface); color: var(--colors-theme-primary-contrast); }
+  .btn-unknown {
+    background: var(--colors-system-error-surface);
+    color: var(--colors-system-error-contrast);
+  }
+  .btn-known {
+    background: var(--colors-system-success-surface);
+    color: var(--colors-system-success-contrast);
+  }
+  .btn-easy {
+    background: var(--colors-theme-primary-surface);
+    color: var(--colors-theme-primary-contrast);
+  }
   .btn-reveal {
     background: transparent;
     border: 1px solid var(--colors-skeleton-1-boundary);
@@ -288,9 +329,17 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 12vh; }
-    .prompt { font-size: var(--font-size-xl); }
-    .prompt-word { font-size: var(--font-size-2xl); }
-    .menu { padding: 0.625rem 1rem; }
+    .stage {
+      padding-top: 12vh;
+    }
+    .prompt {
+      font-size: var(--font-size-xl);
+    }
+    .prompt-word {
+      font-size: var(--font-size-2xl);
+    }
+    .menu {
+      padding: 0.625rem 1rem;
+    }
   }
 </style>

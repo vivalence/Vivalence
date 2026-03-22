@@ -25,8 +25,8 @@ async function getDriver(scope, ctx) {
     if (!symbol.traits.includes("LEARNABLE"))
       throw new Error("Symbol is not learnable");
 
-    driver = symbol.data.LEARNABLE.driver || driver;
-    type = symbol.data.LEARNABLE.type || type;
+    driver = symbol.trait.LEARNABLE.driver || driver;
+    type = symbol.trait.LEARNABLE.type || type;
 
     return [drivers[driver], { driver, type }];
   }

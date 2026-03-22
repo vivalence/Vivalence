@@ -46,13 +46,16 @@ export class Stall {
     const status = this.$status.get();
     if (["CLOSED", "PULLING"].includes(status)) return;
     // if (this.$queue.get().length > this.threshold) return;
-    if (!this.handlers.pull) return; //console.log("@stall/pull() handler.pull missing");
+    if (!this.handlers.pull) {
+      console.log("@stall/pull() handler.pull missing");
+      return;
+    }
 
     this.$status.set("PULLING");
 
     try {
-      const products = await this.handlers.pull(this);
-      this.$queue.set([...this.$queue.get(), ...products]);
+      const buffers = await this.handlers.pull(this);
+      this.$queue.set([...this.$queue.get(), ...buffers]);
       if (!this.$active.get()) {
         const [first, ...rest] = this.$queue.get();
         this.$queue.set(rest);
@@ -66,8 +69,8 @@ export class Stall {
     }
   }
 
-  push(products) {
-    this.$queue.set([...this.$queue.get(), ...cast.array(products)]);
+  push(buffers) {
+    this.$queue.set([...this.$queue.get(), ...cast.array(buffers)]);
 
     if (!this.$active.get()) {
       const [first, ...rest] = this.$queue.get();

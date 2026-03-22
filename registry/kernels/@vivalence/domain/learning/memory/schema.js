@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Type } from "@vivalence/typology";
 
 const SignalEnum = Type.Union([
   Type.Literal("MASTERY"),

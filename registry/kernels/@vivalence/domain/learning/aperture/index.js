@@ -11,9 +11,9 @@ export const aperture = new Aperture()
   .open("/pick/literal/byStatus", pick.literal.byStatus)
   .open("/pick/literal/byStrength", pick.literal.byStrength)
   // .open("/pick/symbol/feed", pick.symbol.feed) .open("/pick/symbol/byStatus", pick.symbol.byStatus) .open("/pick/symbol/byStrength", pick.symbol.byStrength)
-  .open("/review/product", review.product)
+  // .open("/review/buffer", review.buffer)
   .open("/review/literal", review.literal)
-  .open("/review/symbol", review.symbol)
+  // .open("/review/symbol", review.symbol)
   .open("/review/memory", review.memory);
 // .open("/classify/text", classify.text);
 

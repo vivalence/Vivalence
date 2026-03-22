@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "of / from",
         "learning": "de"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 21,
         "zipf": 7.68,
-        "fpm": 47900.0
+        "fpm": 47900
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/de.mp3"
+        }
       }
     },
     "symbols": [
@@ -50,9 +56,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "in / at",
         "learning": "em"
@@ -64,7 +71,12 @@ export default [
       "RANKED": {
         "rank": 72,
         "zipf": 7.14,
-        "fpm": 13800.0
+        "fpm": 13800
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/em.mp3"
+        }
       }
     },
     "symbols": [
@@ -99,9 +111,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "for / to",
         "learning": "para"
@@ -113,7 +126,12 @@ export default [
       "RANKED": {
         "rank": 85,
         "zipf": 7.07,
-        "fpm": 11700.0
+        "fpm": 11700
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/para.mp3"
+        }
       }
     },
     "symbols": [
@@ -145,9 +163,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "with",
         "learning": "com"
@@ -159,7 +178,12 @@ export default [
       "RANKED": {
         "rank": 102,
         "zipf": 6.99,
-        "fpm": 9770.0
+        "fpm": 9770
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/com.mp3"
+        }
       }
     },
     "symbols": [
@@ -191,9 +215,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "for / by / through",
         "learning": "por"
@@ -205,7 +230,12 @@ export default [
       "RANKED": {
         "rank": 132,
         "zipf": 6.88,
-        "fpm": 7590.0
+        "fpm": 7590
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/por.mp3"
+        }
       }
     },
     "symbols": [
@@ -237,9 +267,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "without",
         "learning": "sem"
@@ -251,7 +282,12 @@ export default [
       "RANKED": {
         "rank": 741,
         "zipf": 6.13,
-        "fpm": 1350.0
+        "fpm": 1350
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sem.mp3"
+        }
       }
     },
     "symbols": [
@@ -280,9 +316,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "until / see you",
         "learning": "até"
@@ -294,7 +331,12 @@ export default [
       "RANKED": {
         "rank": 617,
         "zipf": 6.21,
-        "fpm": 1620.0
+        "fpm": 1620
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/até.mp3"
+        }
       }
     },
     "symbols": [
@@ -326,9 +368,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "to (direction)",
         "learning": "a"
@@ -340,7 +383,12 @@ export default [
       "RANKED": {
         "rank": 30,
         "zipf": 7.52,
-        "fpm": 33100.0
+        "fpm": 33100
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/a.mp3"
+        }
       }
     },
     "symbols": [
@@ -366,5 +414,5 @@ export default [
         "slug": "functional.grammar"
       }
     ]
-  }
+  },
 ];

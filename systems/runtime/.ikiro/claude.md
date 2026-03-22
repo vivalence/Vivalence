@@ -16,7 +16,7 @@ Process. The procedural orchestration layer. Runtime wraps everything in Die/Waf
 |------|-------|---------|
 | mod.js | 20 | Exports: Runtime, Die, lifecycle, daemon, process namespaces |
 | run.js | 75 | Boot entry. Awaits paladin, creates Runtime Die, runs lifecycle, perpetuates |
-| deno.jsonc | 27 | Exports: `.`, `./run`, `./daemon`, `./process`. Tasks for test suites per subsystem |
+| deno.jsonc | 21 | Exports: `.`, `./run`, `./daemon`, `./process`, `./scenarios`. Tasks: test/daemon, test/mode, test/runtime |
 
 ## Boot Sequence (run.js)
 
@@ -131,7 +131,7 @@ Two key data structures:
 - `authority(die)` — sets up lighthouse auth middleware on aperture
 - `acid(die)` — initializes hallucinator (AI service)
 - `modes(die)` — instantiates Mode objects from registered modules, assigns mounts/URLs, creates mode entities in DB, links VIEWABLE modes to view bundler
-- `twitch(die)` — sets up Subscriber (ORM events → Signals via Vector)
+- `twitch(die)` — registers `shape.subscriber(entities.twitch)` on the EM event manager (2 lines — routes ORM lifecycle events through the twitch Vector)
 - `handlers(die)` — adds `flatmodes()` helper
 - `services(die)` — loads external services via consume config
 
@@ -145,7 +145,7 @@ Two key data structures:
 
 ## Mode Trait System
 
-`daemon/mode/traitmap.js` (58 lines) + `daemon/mode/traits/` (3 files)
+`daemon/mode/traitmap.js` + `daemon/mode/traits/` (5 files, 2 dead: producer.js, valentic.js)
 
 Traits are async functions `(mode, daemon)` applied during daemon resolution. Each trait can modify the mode's aperture, attach middleware, or perform setup.
 
@@ -153,17 +153,9 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 
 **DATASET** `traits/dataset.js` (76 lines) — upserts symbols and literals from `mode.cake.dataset.entities`. Batches in chunks of 100. Links symbols ↔ literals bidirectionally.
 
-**PRODUCER** `traits/producer.js` (154 lines) — the production pipeline. Middleware chain:
-1. Normalize request scope (set user)
-2. Load valence, session, intent
-3. Cast to ProductionRequest
-4. Flush ACTIVE products to STALE
-5. Greed: serve from PENDING queue first
-6. Lock: prevent concurrent production (Map-based per session/valence/commissioner)
-7. Blacklist: filter known bad products
-8. Production: call mode.cake.production to create new products
+**INTENTED** `traits/intented.js` — iterates `mode.cake.dataset.intent[]`, resolves symbol slugs to SymbolEntity references, upserts IntentEntity rows via `daemon.entities.intent.ensure()`. Seeds the intent graph at daemon startup.
 
-**VALENTIC** `traits/valentic.js` (38 lines) — per-valence routing. For each valence, creates a branch under `/valence/{slug}` that sets scope and delegates to the PRODUCTIVE mount.
+**EMITTER** `traits/emitter.js` — activates if `mode.cake.emitter` is set (a Vector). Prepends daemon/mode context middleware, appends buffer-shape normalizer (status, traits, trait, literals, symbols). Exposes `mode.emit = shape.object(emitterVector)` for in-process calls and branches into `mode.aperture` at `/emit` for HTTP access.
 
 **CHAOSMONKEY** `traitmap.js` — attaches hallucinator brain to mode. (Will be updated by cortex workpackage to compose the cortex during daemon population from hallucinator faculties and construct harnesses per mode.)
 
@@ -183,15 +175,19 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 
 `daemon/aperture/` (4 files) — registers effects on daemon's Vector during `die.resolve()`:
 
-**datamap.js** — `GET /entities/:entity/:method` → direct ORM access (find, findOne, create)
+**datamap.js** — per-entity branches using `shard.datamap.repository()` + `shard.datamap.reactive()`:
+- `/entities/literal` — full CRUD + reactive SSE subscriptions
+- `/entities/symbol` — full CRUD + reactive SSE subscriptions
+- `/entities/mode` — full CRUD (no reactive — modes are static)
+- `/entities/intent` — full CRUD (no reactive — intents are static)
 
 **userspace.js** — `/userspace/` prefix (all routes behind `shards.secure.authorize()`):
-- `GET /handshake` (auth) — `{success, user}`
-- `GET /entities/:entity/:method` — user-scoped CRUD (intent, session only), auto-filters by user.id
+- `/handshake` — `{success, user}`
+- `/entities/session` — full CRUD via `shard.datamap.repository()` + `shard.datamap.reactive()`, scoped to authenticated user via `shard.datamap.scope(ctx => ({ user: ctx.user.id }))`
 
-**modes.js** — `GET /modes/:type/:method` — mode lookup by type and slug
+**modes.js** — `POST /modes/:type/:method` — mode lookup by type and slug
 
-**freight.js** — `GET /cargo` — returns `daemon.cargo` (freight catalog)
+**freight.js** — `POST /cargo` — returns `daemon.cargo` (freight catalog)
 
 ### HTTP Compilation
 
@@ -207,21 +203,35 @@ Each daemon gets mounted at `/daemon/{slug}/` via `.branch().slurp()` on the run
 
 `process/` (22 lines total) — lightweight. Process wraps a mask, ProcessDie extends Wafer with minimal lifecycle (just sets status to alive). Processes are ATTACHED services that provide their own aperture — mounted at `/attached/process/{type}/{slug}`.
 
+The lighthouse multiplayer service is the primary process. Its aperture serves auth routes (`/auth/*`) and entity routes (`/entities/identity/*`, `/entities/daemon/*` via `shard.datamap.repository()`). The lighthouse scenario test lives in `@vivalence/runtime/scenarios` (lighthouse.js) and is consumed by `registry/services/@vivalence/lighthouse/multiplayer/tests/datamap.test.js`.
+
 ## Tests
 
-Self-contained scenario tests. No paladin, no network, :memory: SQLite. Run with `deno task test`.
+Self-contained scenario tests organized by scope. No paladin, no network, :memory: SQLite. Exported via `@vivalence/runtime/scenarios`.
 
-| File | Steps | Coverage |
-|------|-------|----------|
-| scenario/routes.test.js | 12 | Daemon routes: freight, datamap (find/findOne), symbols, modes (findOne, view URL), userspace auth |
-| scenario/runtime.test.js | 7 | Runtime composition: status, manifest, daemon mounted under runtime, datamap via runtime path, 404 |
+```
+tests/
+├── scenarios/                    Shared fixtures (exported via deno.jsonc)
+│   ├── index.js                  Re-exports daemon, lighthouse
+│   ├── entities.ts               Domain schemas (LiteralDomain+TRANSLATED) + seed()
+│   ├── daemon.js                 create() → { conn, authedConn, orm, em, fixtures, mode }
+│   └── lighthouse.js             create() → { conn, orm, em, repos, fixtures }
+├── daemon/                       Daemon-scope tests
+│   ├── datamap.test.js           Entity CRUD, errors, options sanitization, modes (15 steps)
+│   ├── userspace.test.js         Auth gating, session create, user scoping (6 steps)
+│   └── freight.test.js           Cargo (1 step)
+├── mode/                         Mode-scope tests
+│   ├── traits.test.js            INTENTED upsert/resolve, EMITTER compile/normalize/HTTP (9 steps)
+│   └── entities.test.js          Direct fixture assertions (5 steps)
+└── runtime/                      Runtime-scope tests
+    └── composition.test.js       Daemon mounted under runtime aperture (6 steps)
+```
 
-Scenario infrastructure:
-- `scenario/domain.ts` — concrete Literal/Symbol/Product entities (slim test domain)
-- `scenario/seed.js` — MikroORM :memory: init + fixture data (2 literals, 1 symbol, 1 mode, 1 user, 1 session)
-- `scenario/daemon.js` — creates Daemon with real routes, compiles via `shape.http()`, wraps in `Connection` via `shard.transport.inline()`
+7 suites, 55 steps, ~2s. `deno task test` runs all.
 
-Old paladin-dependent tests moved to `tests/bak/`.
+Scenarios are composable — the lighthouse scenario is also imported by `registry/services/@vivalence/lighthouse/multiplayer/tests/datamap.test.js` (11 steps) via `@vivalence/runtime/scenarios`.
+
+Old monolithic tests preserved in `tests/scenarios/bak/`.
 
 ## Where Used
 
@@ -232,14 +242,13 @@ Old paladin-dependent tests moved to `tests/bak/`.
 ## Work Packages
 
 ### Testing Gaps
-- No tests for PRODUCER trait pipeline (greed, lock, blacklist, production chain)
 - No tests for DATASET trait (symbol/literal upsert, batch chunking)
-- No tests for VALENTIC trait (per-valence routing)
 - No tests for view-bundler.js (Svelte compilation)
 - No tests for Process system (process slurp now works — was silently broken via descendants.push no-op)
 - No tests for disintegrate cascade (shutdown sequence)
 - No tests for view/freight remainder `(.*)` serving (tested in http shape, not runtime scenario)
 - No tests for watchdog patrol
+- No smoke tests against a live running server (Connection is the generic connect — just needs a URL)
 
 ### Human Documentation Needs (Divio)
 - **Tutorial**: "Boot the runtime locally" — env setup, circuitry, run.js
@@ -248,20 +257,20 @@ Old paladin-dependent tests moved to `tests/bak/`.
 - **How-to**: "Add a new mode trait" — trait function signature, registration in traitmap
 
 ### Active Work
-- mode.produce.[xyz]() pattern (Vector object/proxy shape)
 - Asset entity type (VERBALIZED trait, attachment serving)
 - Session-first patterning (client + runtime sync)
 - Hallucinator cortex — [cortex.workpackage.org](../../.ikiro/cortex.workpackage.org) — affects daemon lifecycle: new `population.cortex()` step collects faculties from hallucinator services, constructs Cortex. New traits LANGUAGED (conversation harness) and AGENTIC (action harness) construct harness Vectors during resolution. Harness-as-Vector pattern: harnesses are Vector instances compiled via shape.object/http/proxy/agentic. Integration with daemon aperture via `mode.aperture.branch('/hallucinate').slurp(harness)`.
-- Buffer/Intent migration — [buffer-intent-migration.workpackage.org](../../.ikiro/buffer-intent-migration.workpackage.org) — trait renames (PRODUCER→EMITTER, VALENTIC→INTENTIONAL, BUFFERED→SELFEVIDENT), entity renames throughout daemon lifecycle
 
 ### Completed
 - **Oak → Vector/http migration** — Oak removed. Runtime serves via `shape.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
 - **Vector → typology merge** — All `@vivalence/vector` imports rewritten to `@vivalence/typology`. Vector, Aperture, steer, shape, shards all live in typology now.
 - **descendants.push fix** — process mounting was silently broken (`.descendants` getter returns new array, `.push()` was a no-op). Fixed to `.slurp()`.
 - **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
+- **Buffer/Intent migration** — PRODUCER→EMITTER, VALENTIC→INTENTED, BUFFERED→SELFEVIDENT, entity.data→entity.trait. Old traits in bak.
+- **Datamap migration (Phase A)** — replaced parametric `/:entity/:method` handlers with per-entity `shard.datamap.repository()` + `shard.datamap.reactive()` branches. Fixed session create bug (server read `input.where`, client sent `{data}`). Renamed `entities.on` → `entities.twitch`. Rewrote `population.twitch()` from 30 broken lines to 2. Tests split by scope: daemon/ (22 steps), mode/ (14 steps), runtime/ (6 steps).
+- **Emitter pattern** — mode.emit via `shape.object(emitterVector)`. INTENTED + EMITTER traits replace VALENTIC + PRODUCER.
 
 ### Planned Changes
-- Production pipeline rewrite → Emitter pattern (producer trait → emitter trait, Vector-based)
 - Old aperture shape cleanup (shape/aperture/, mw.js, parser.js in bak)
 - LANGUAGED/AGENTIC trait implementations (per cortex workpackage)
 - CHAOSMONKEY trait update (currently just attaches hallucinator brain; will be updated to compose cortex during population)
@@ -269,7 +278,7 @@ Old paladin-dependent tests moved to `tests/bak/`.
 ## Maintenance
 
 When modifying runtime code:
-1. Run tests: `deno task test` in systems/runtime
+1. Run tests: `deno task test` (all), or `deno task test/daemon`, `deno task test/mode`, `deno task test/runtime` by scope
 2. Lifecycle changes must preserve cascade order (parent before children in populate, children before parent in disintegrate)
 3. New traits go in daemon/mode/traits/ and get registered in traitmap.js
 4. New endpoints: follow the pattern in daemon/aperture/ — `.open()` or `.branch()` on daemon's Vector, effect arity (0/1/2 params)

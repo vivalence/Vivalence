@@ -6,12 +6,11 @@ import { Stall } from "./stall.js";
 export class Terminal {
   stall = new Stall();
   $phase = atom("STREAM");
-  $perspective = atom(null);
 
   $daemon = atom(null);
   $mode = atom(null);
   $session = atom(null);
-  $valence = atom(null);
+  $intent = atom(null);
 
   get daemon() {
     return this.$daemon.get();
@@ -31,11 +30,11 @@ export class Terminal {
   set session(v) {
     this.$session.set(v);
   }
-  get valence() {
-    return this.$valence.get();
+  get intent() {
+    return this.$intent.get();
   }
-  set valence(v) {
-    this.$valence.set(v);
+  set intent(v) {
+    this.$intent.set(v);
   }
   get phase() {
     return this.$phase.get();
@@ -43,29 +42,21 @@ export class Terminal {
   set phase(v) {
     this.$phase.set(v);
   }
-  get perspective() {
-    return this.$perspective.get();
-  }
-  set perspective(v) {
-    this.$perspective.set(v);
-  }
   reset() {
     this.stall.reset();
-    this.$valence.set(null);
+    this.$intent.set(null);
     this.$mode.set(null);
     this.$daemon.set(null);
     this.$session.set(null);
-    this.$perspective.set(null);
   }
 
   toJSON() {
     return {
       phase: this.$phase.get(),
-      perspective: this.$perspective.get(),
       daemon: this.$daemon.get()?.slug ?? null,
       mode: this.$mode.get()?.slug ?? null,
       session: this.$session.get()?.id ?? null,
-      valence: this.$valence.get()?.slug ?? null,
+      intent: this.$intent.get()?.slug ?? null,
       stall: this.stall.toJSON(),
     };
   }

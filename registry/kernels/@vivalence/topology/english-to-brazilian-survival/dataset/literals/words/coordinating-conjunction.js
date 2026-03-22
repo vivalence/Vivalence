@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "and",
         "learning": "e"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 37,
         "zipf": 7.43,
-        "fpm": 26900.0
+        "fpm": 26900
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/e.mp3"
+        }
       }
     },
     "symbols": [
@@ -50,9 +56,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "or",
         "learning": "ou"
@@ -64,7 +71,12 @@ export default [
       "RANKED": {
         "rank": 389,
         "zipf": 6.41,
-        "fpm": 2570.0
+        "fpm": 2570
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/ou.mp3"
+        }
       }
     },
     "symbols": [
@@ -93,9 +105,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "but",
         "learning": "mas"
@@ -107,7 +120,12 @@ export default [
       "RANKED": {
         "rank": 251,
         "zipf": 6.6,
-        "fpm": 3980.0
+        "fpm": 3980
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/mas.mp3"
+        }
       }
     },
     "symbols": [
@@ -133,5 +151,45 @@ export default [
         "slug": "functional.connector"
       }
     ]
-  }
+  },
+  {
+    "slug": "que.coordinating-conjunction",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "that/what",
+        "learning": "que"
+      },
+      "EXEMPLIFIED": {
+        "known": "How embarrassing!",
+        "learning": "Que mico!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/que.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.que"
+      },
+      {
+        "slug": "word.part-of-speech.coordinating-conjunction"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

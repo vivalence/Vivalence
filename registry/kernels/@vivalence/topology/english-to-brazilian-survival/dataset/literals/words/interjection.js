@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hi / hello",
         "learning": "oi"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 6452,
         "zipf": 5.19,
-        "fpm": 155.0
+        "fpm": 155
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/oi.mp3"
+        }
       }
     },
     "symbols": [
@@ -50,9 +56,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "thank you",
         "learning": "obrigado / obrigada"
@@ -64,7 +71,12 @@ export default [
       "RANKED": {
         "rank": 6329,
         "zipf": 5.2,
-        "fpm": 158.0
+        "fpm": 158
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/obrigado.mp3"
+        }
       }
     },
     "symbols": [
@@ -93,9 +105,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "sorry / excuse me",
         "learning": "desculpa"
@@ -107,7 +120,12 @@ export default [
       "RANKED": {
         "rank": 9524,
         "zipf": 5.02,
-        "fpm": 105.0
+        "fpm": 105
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/desculpa.mp3"
+        }
       }
     },
     "symbols": [
@@ -136,9 +154,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "bye",
         "learning": "tchau"
@@ -151,6 +170,11 @@ export default [
         "rank": 39841,
         "zipf": 4.4,
         "fpm": 25.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/tchau.mp3"
+        }
       }
     },
     "symbols": [
@@ -176,5 +200,45 @@ export default [
         "slug": "domain.social"
       }
     ]
-  }
+  },
+  {
+    "slug": "bem-vindo.interjection",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "welcome",
+        "learning": "Bem-vindo"
+      },
+      "EXEMPLIFIED": {
+        "known": "Welcome to the real world!",
+        "learning": "Bem-vindo ao mundo real!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/bem-vindo.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bem-vindo"
+      },
+      {
+        "slug": "word.part-of-speech.interjection"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

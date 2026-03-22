@@ -8,3 +8,4 @@ export * as caching from "./caching.js";
 export * as analyzer from "./analyzer.js";
 export { websocket } from "./websocket.js";
 export { serve } from "./serve.js";
+export * as datamap from "./datamap.js";

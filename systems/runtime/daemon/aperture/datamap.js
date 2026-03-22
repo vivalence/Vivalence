@@ -1,10 +1,38 @@
+import { shard } from "@vivalence/typology";
+
 export async function datamap(die) {
-  die.good.aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    const entity = ctx.daemon.entities[ctx.params.entity];
-    return await ctx.daemon.entities.em[ctx.params.method](
-      entity.entityName,
-      body.where || {},
-      body.options || {},
-    );
-  });
+  const { entities } = die.good;
+
+  die.good.aperture.open("/datamap", () =>
+    shard.datamap.strip(entities.em.getMetadata()),
+  );
+
+  die.good.aperture
+    .branch("/entities/literal")
+    .slurp(shard.datamap.repository(entities.literal))
+    .slurp(shard.datamap.reactive(entities.literal, entities.twitch));
+
+  die.good.aperture
+    .branch("/entities/symbol")
+    .slurp(shard.datamap.repository(entities.symbol))
+    .slurp(shard.datamap.reactive(entities.symbol, entities.twitch));
+
+  die.good.aperture
+    .branch("/entities/mode")
+    .slurp(shard.datamap.repository(entities.mode));
+
+  die.good.aperture
+    .branch("/entities/intent")
+    .slurp(shard.datamap.repository(entities.intent));
 }
+
+// export async function datamap(die) {
+//   die.good.aperture.open("/entities/:entity/:method", async (body, ctx) => {
+//     const entity = ctx.daemon.entities[ctx.params.entity];
+//     return await ctx.daemon.entities.em[ctx.params.method](
+//       entity.entityName,
+//       body.where || {},
+//       body.options || {},
+//     );
+//   });
+// }

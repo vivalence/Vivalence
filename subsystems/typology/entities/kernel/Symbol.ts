@@ -2,7 +2,7 @@ import { EntityRepositoryType, Cascade, types, Collection, EntitySchema } from "
 import { type Opt, type Rel } from "@mikro-orm/core";
 import { DataRepository, DataSchema, DataEntity } from "../index.ts";
 
-import { ProductEntity, LiteralEntity } from "../index.ts";
+import { LiteralEntity } from "../index.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
@@ -22,12 +22,11 @@ export class SymbolEntity extends DataEntity {
   // name?: string;
   // description?: string;
 
-  data: any & Opt = {};
+  trait: any & Opt = {};
 
   // ancestor?: Rel<SymbolEntity>;
   // decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
-  products = new Collection<ProductEntity>(this);
 
   [EntityRepositoryType]?: SymbolRepository;
 }
@@ -53,7 +52,7 @@ export const SymbolSchema = new EntitySchema({
       type: types.json,
     },
 
-    data: { type: types.json },
+    trait: { type: types.json },
 
     literals: {
       kind: "m:n",
@@ -64,11 +63,6 @@ export const SymbolSchema = new EntitySchema({
 
     // ancestor: {kind: "m:1", entity: () => SymbolEntity, inversedBy: (symbol) => symbol.decendants, nullable: true,}, decendants: {kind: "1:m", entity: () => SymbolEntity, mappedBy: (symbol) => symbol.ancestor,},
 
-    products: {
-      kind: "m:n",
-      entity: () => ProductEntity,
-      inversedBy: (product) => product.symbols,
-    },
   },
 });
 

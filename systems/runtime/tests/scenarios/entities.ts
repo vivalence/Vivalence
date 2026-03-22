@@ -1,0 +1,144 @@
+import { MikroORM } from "@mikro-orm/core";
+import { SqliteDriver } from "@mikro-orm/sqlite";
+import { types, EntitySchema, type Opt } from "@mikro-orm/core";
+
+import {
+  LiteralEntity,
+  LiteralSchema,
+  SymbolEntity,
+  SymbolSchema,
+  BufferEntity,
+  BufferSchema,
+  ModeEntity,
+  ModeSchema,
+  IntentSchema,
+  UserSchema,
+  SessionSchema,
+  IntentEntity,
+  UserEntity,
+  SessionEntity,
+} from "@vivalence/typology/entities";
+
+export enum LiteralTraits {
+  TRANSLATED = "TRANSLATED",
+}
+
+export const LiteralDomain = new EntitySchema({
+  class: LiteralEntity,
+  extends: LiteralSchema,
+  tableName: "Literal",
+  name: "Literal",
+  properties: {
+    traits: {
+      items: () => LiteralTraits,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      type: types.json,
+    },
+  },
+});
+
+export const SymbolDomain = new EntitySchema({
+  class: SymbolEntity,
+  extends: SymbolSchema,
+  tableName: "Symbol",
+  name: "Symbol",
+});
+
+export const BufferDomain = new EntitySchema({
+  class: BufferEntity,
+  extends: BufferSchema,
+  tableName: "Buffer",
+  name: "Buffer",
+});
+
+const schemas = [
+  LiteralDomain,
+  SymbolDomain,
+  BufferDomain,
+  ModeSchema,
+  IntentSchema,
+  UserSchema,
+  SessionSchema,
+];
+
+export { LiteralEntity, SymbolEntity, BufferEntity };
+
+export async function seed() {
+  const orm = await MikroORM.init({
+    driver: SqliteDriver,
+    dbName: ":memory:",
+    entities: schemas,
+    allowGlobalContext: true,
+  });
+
+  await orm.schema.refreshDatabase();
+  const em = orm.em;
+
+  const user = em.create(UserEntity, { roles: ["USER"], config: {} });
+  await em.flush();
+
+  const hello = em.create(LiteralEntity, {
+    slug: "hello",
+    traits: ["TRANSLATED"],
+    trait: { TRANSLATED: { known: "hello", learning: "olá" } },
+    symbol: {},
+  });
+
+  const goodbye = em.create(LiteralEntity, {
+    slug: "goodbye",
+    traits: ["TRANSLATED"],
+    trait: { TRANSLATED: { known: "goodbye", learning: "tchau" } },
+    symbol: {},
+  });
+
+  const greeting = em.create(SymbolEntity, {
+    slug: "greeting",
+    traits: ["ONTOLOGICAL"],
+    trait: {},
+  });
+
+  await em.flush();
+
+  hello.symbols.add(greeting);
+  goodbye.symbols.add(greeting);
+  await em.flush();
+
+  const mode = em.create(ModeEntity, {
+    slug: "flashcard",
+    type: "game",
+    traits: ["BUFFERED", "SELFEVIDENT", "INTENTED", "EMITTER"],
+    installed: true,
+  });
+
+  await em.flush();
+
+  const intent = em.create(IntentEntity, {
+    slug: "survival-flashcard",
+    type: "SELFEVIDENT",
+    traits: ["FURNISHED"],
+    name: "Survival Flashcard",
+    trait: { FURNISHED: { recall: "LEARNING", seek: { symbols: ["greeting"] } } },
+    mode,
+  });
+
+  await em.flush();
+
+  const session = em.create(SessionEntity, {
+    user,
+    mode,
+    intent,
+    trait: {},
+    cursor: 0,
+    counter: 0,
+  });
+
+  await em.flush();
+
+  return {
+    orm,
+    em,
+    fixtures: { user, hello, goodbye, greeting, mode, intent, session },
+  };
+}

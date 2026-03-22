@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "the (masc.)",
         "learning": "o"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 34,
         "zipf": 7.47,
-        "fpm": 29500.0
+        "fpm": 29500
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/o.mp3"
+        }
       }
     },
     "symbols": [
@@ -59,9 +65,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "the (fem.)",
         "learning": "a"
@@ -73,7 +80,12 @@ export default [
       "RANKED": {
         "rank": 30,
         "zipf": 7.52,
-        "fpm": 33100.0
+        "fpm": 33100
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/a.mp3"
+        }
       }
     },
     "symbols": [
@@ -114,9 +126,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "a / an (masc.)",
         "learning": "um"
@@ -128,7 +141,12 @@ export default [
       "RANKED": {
         "rank": 87,
         "zipf": 7.06,
-        "fpm": 11500.0
+        "fpm": 11500
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/um.mp3"
+        }
       }
     },
     "symbols": [
@@ -166,9 +184,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "a / an (fem.)",
         "learning": "uma"
@@ -179,8 +198,13 @@ export default [
       },
       "RANKED": {
         "rank": 100,
-        "zipf": 7.0,
-        "fpm": 10000.0
+        "zipf": 7,
+        "fpm": 10000
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/uma.mp3"
+        }
       }
     },
     "symbols": [
@@ -218,9 +242,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "my (masc.)",
         "learning": "meu"
@@ -232,7 +257,12 @@ export default [
       "RANKED": {
         "rank": 524,
         "zipf": 6.28,
-        "fpm": 1910.0
+        "fpm": 1910
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/meu.mp3"
+        }
       }
     },
     "symbols": [
@@ -270,9 +300,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "your (masc.)",
         "learning": "seu"
@@ -284,7 +315,12 @@ export default [
       "RANKED": {
         "rank": 331,
         "zipf": 6.48,
-        "fpm": 3020.0
+        "fpm": 3020
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/seu.mp3"
+        }
       }
     },
     "symbols": [
@@ -322,9 +358,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "this / that (masc.)",
         "learning": "esse"
@@ -336,7 +373,12 @@ export default [
       "RANKED": {
         "rank": 952,
         "zipf": 6.02,
-        "fpm": 1050.0
+        "fpm": 1050
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/esse.mp3"
+        }
       }
     },
     "symbols": [
@@ -365,5 +407,165 @@ export default [
         "slug": "word.pronoun-type.demonstrative"
       }
     ]
-  }
+  },
+  {
+    "slug": "diverso.determiner",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "diversos",
+        "learning": "diversos"
+      },
+      "EXEMPLIFIED": {
+        "known": "There are various kinds of coffee.",
+        "learning": "Há diversos tipos de café."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/diverso.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.diverso"
+      },
+      {
+        "slug": "word.part-of-speech.determiner"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "este.determiner",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "this",
+        "learning": "este"
+      },
+      "EXEMPLIFIED": {
+        "known": "How much is this ring worth?",
+        "learning": "Quanto vale este anel?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/este.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.este"
+      },
+      {
+        "slug": "word.part-of-speech.determiner"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "qualquer.determiner",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "any",
+        "learning": "qualquer"
+      },
+      "EXEMPLIFIED": {
+        "known": "This could happen to anybody.",
+        "learning": "Isso pode acontecer com qualquer um."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/qualquer.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.qualquer"
+      },
+      {
+        "slug": "word.part-of-speech.determiner"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sua.determiner",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "your/her",
+        "learning": "sua"
+      },
+      "EXEMPLIFIED": {
+        "known": "This is how I met your mother.",
+        "learning": "Foi assim que conheci sua mãe."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/sua.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sua"
+      },
+      {
+        "slug": "word.part-of-speech.determiner"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

@@ -30,7 +30,7 @@ export const DATASET = async (mode, daemon) => {
 
 async function upsert(daemon, type, data) {
   const existing = await daemon.entities[type].findOne({ slug: data.slug });
-  if (existing) return existing.assign(data);
+  if (existing) return existing.assign(object.patch(existing, data));
   return daemon.entities[type].create(data);
 }
 

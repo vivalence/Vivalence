@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { Type } from "@vivalence/typology";
 import {
   jsonSchema,
   tool as makeTool,

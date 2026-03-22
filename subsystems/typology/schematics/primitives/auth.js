@@ -1,5 +1,5 @@
-import { ID, Slug, Type } from "@vivalence/typology/schematics";
-import { JWTToken, Username, Password } from "@vivalence/typology/schematics";
+import { ID, Slug, Type } from "@vivalence/typology";
+import { JWTToken, Username, Password } from "@vivalence/typology";
 
 export const AuthorityToken = Type.Object(
   {

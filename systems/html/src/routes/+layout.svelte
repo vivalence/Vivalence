@@ -8,19 +8,17 @@
   import { Shelve, Box } from "@vivalence/drapes";
 
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import client from "$client";
   import { dataspace, lighthouse } from "$client";
-
-  // import { Ticker } from "@vivalence/html/surface";
 
   let { children } = $props();
   let isIdentified = lighthouse.$isIdentified;
   let identity = lighthouse.$identity;
-  // $inspect($isIdentified)
 </script>
 
 <div class="hidden">
-  {#if !$isIdentified}
+  {#if !$isIdentified && $page.url.pathname !== "/"}
     {goto("/")}
   {/if}
 </div>

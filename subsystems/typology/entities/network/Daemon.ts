@@ -1,14 +1,21 @@
 import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
-import { BaseEntity, BaseSchema } from "../index.ts";
+import { DataEntity, DataSchema, DataRepository } from "../index.ts";
 
-export class DaemonEntity extends BaseEntity {
+export class DaemonRepository extends DataRepository {
+  unique(query) {
+    return { slug: query.slug };
+  }
+}
+
+export class DaemonEntity extends DataEntity {
   url!: string;
   slug!: string;
 }
 
 export const DaemonSchema = new EntitySchema({
   class: DaemonEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
+  repository: () => DaemonRepository,
   name: "Daemon",
   tableName: "Daemon",
   properties: {
@@ -21,7 +28,7 @@ export default {
   type: "daemon",
   schema: DaemonSchema,
   entity: DaemonEntity,
-  // repository: DaemonRepository,
+  repository: DaemonRepository,
 };
 
 // export class VirtualRepository extends Array {

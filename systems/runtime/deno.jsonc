@@ -7,15 +7,15 @@
     "./run": "./run.js",
     "./daemon": "./daemon/index.js",
     "./process": "./process/index.js",
-    "./tests/scenario": "./tests/scenario/daemon.js",
+    "./scenarios": "./tests/scenarios/index.js",
   },
   "tasks": {
-    "start": "deno run -A run.js",
+    "run": "deno run -A run.js",
     "watch": "deno run -A --watch run.js",
-    "test": "deno test -A --no-check --watch tests/scenario/*.test.js",
+    "test": "deno test -A --no-check --watch tests/**/*.test.js",
 
-    "test/scenario": "deno test -A --no-check --watch tests/scenario/*.test.js",
-    "test/scenario/routes": "deno test -A --no-check --watch tests/scenario/routes.test.js",
-    "test/scenario/runtime": "deno test -A --no-check --watch tests/scenario/runtime.test.js",
+    "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
+    "test/mode": "deno test -A --no-check --watch tests/mode/*.test.js",
+    "test/runtime": "deno test -A --no-check --watch tests/runtime/*.test.js",
   },
 }

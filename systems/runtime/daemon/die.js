@@ -1,9 +1,9 @@
 import { is, object, Wafer, Blacklist } from "@vivalence/typology";
-import { raw } from "@mikro-orm/sqlite";
+// import { raw } from "@mikro-orm/sqlite";
 
 import * as lifecycle from "./lifecycle/index.js";
-// import * as kernel from "./kernel/index.js";
 import * as aperture from "./aperture/index.js";
+// import * as kernel from "./kernel/index.js";
 
 export class Die extends Wafer {
   register = {

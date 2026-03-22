@@ -1,6 +1,4 @@
-import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard, NotFound, shape, steer } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-import { Aperture } from "@vivalence/typology/aperture";
+import { specimen, Signal, Context, Url, Connection, sleep, fromm, shard, NotFound, shape, steer, Vector, Aperture } from "@vivalence/typology";
 
 const { http } = shape;
 const { traverse } = steer;

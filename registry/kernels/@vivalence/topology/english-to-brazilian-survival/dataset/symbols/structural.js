@@ -5,7 +5,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Proficiency > Survival",
@@ -19,7 +19,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Proficiency > High Frequency",
@@ -33,7 +33,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Proficiency > Brazilianism",
@@ -47,7 +47,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > A1",
@@ -61,7 +61,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > A2",
@@ -75,7 +75,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > B1",
@@ -89,7 +89,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > B2",
@@ -103,7 +103,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > C1",
@@ -117,7 +117,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "CEFR > C2",
@@ -131,7 +131,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Grammar",
@@ -145,7 +145,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Pronoun",
@@ -159,7 +159,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Modal",
@@ -173,7 +173,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Auxiliary",
@@ -187,7 +187,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Connector",
@@ -201,7 +201,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Negation",
@@ -215,7 +215,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Aspect",
@@ -229,7 +229,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Degree",
@@ -243,7 +243,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Question",
@@ -257,7 +257,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Number",
@@ -271,7 +271,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Time",
@@ -285,7 +285,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Discourse",
@@ -299,7 +299,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Functional > Politeness",
@@ -313,7 +313,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > State",
@@ -327,7 +327,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Health",
@@ -341,7 +341,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Social",
@@ -355,7 +355,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Home",
@@ -369,7 +369,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Food",
@@ -383,7 +383,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Education",
@@ -397,7 +397,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Money",
@@ -411,7 +411,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Space",
@@ -425,7 +425,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Directions",
@@ -439,7 +439,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Transport",
@@ -453,7 +453,7 @@ export default [
       "STRUCTURAL",
       "LABELED"
     ],
-    "data": {
+    "trait": {
       "STRUCTURAL": {},
       "LABELED": {
         "name": "Domain > Entertainment",

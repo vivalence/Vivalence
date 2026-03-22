@@ -2,21 +2,24 @@ import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/
 
 import { BaseEntity, BaseSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
-import { ProductEntity } from "../index.ts";
+import { ModeEntity } from "../index.ts";
+import { IntentEntity } from "../index.ts";
+import { BufferEntity } from "../index.ts";
 
 export enum SessionTraitsEnum {
-  _ = "_", // ?stateful
+  _ = "_",
 }
 
 export class SessionEntity extends BaseEntity {
   user!: Rel<UserEntity>;
+  mode!: Rel<ModeEntity>;
+  intent?: Rel<IntentEntity>;
   traits: SessionTraitsEnum[] & Opt = [];
-  data: any & Opt = {};
+  trait: any & Opt = {};
   cursor: number & Opt = 0;
   counter: number & Opt = 0;
 
-  products = new Collection<ProductEntity>(this);
-  // intent: Rel<IntentEntity>;
+  buffers = new Collection<BufferEntity>(this);
 }
 
 export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
@@ -32,6 +35,19 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       deleteRule: "cascade",
     },
 
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+    },
+
+    intent: {
+      kind: "m:1",
+      entity: () => IntentEntity,
+      fieldName: "intent",
+      nullable: true,
+    },
+
     traits: {
       columnType: "json",
       defaultRaw: `'[]'`,
@@ -39,17 +55,14 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       array: true,
       items: () => SessionTraitsEnum,
     },
-    data: { type: types.json },
+    trait: { type: types.json },
     counter: { type: types.integer },
     cursor: { type: types.integer },
 
-    // intent: {kind: "m:1", entity: () => IntentEntity, fieldName: "intent", updateRule: "cascade", deleteRule: "cascade",},
-
-    products: {
+    buffers: {
       kind: "1:m",
-      entity: () => ProductEntity,
-      mappedBy: (product) => product.session,
-      fieldName: "products",
+      entity: () => BufferEntity,
+      mappedBy: (buffer) => buffer.session,
     },
   },
 });

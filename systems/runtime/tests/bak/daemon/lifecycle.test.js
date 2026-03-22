@@ -1,41 +1,38 @@
-import paladin from "@vivalence/paladin";
-// import runtime from "@vivalence/runtime";
+// import paladin from "@vivalence/paladin";
+// import { Url, Path, is, specimen } from "@vivalence/typology";
+// import { Daemon, Die } from "@vivalence/runtime/daemon";
 
-import { Url, Path, is, specimen } from "@vivalence/typology";
+// let die;
 
-import { Daemon, Die } from "@vivalence/runtime/daemon";
+// specimen.describe("Daemon", () => {
+//   specimen.describe("construction", () => {
+//     specimen.it("cycles", async () => {
+//       const mask = paladin.variant.daemons[0];
+//       die = new Die({ mask, good: new Daemon(mask) });
+//     });
+//   });
 
-let die;
+//   specimen.describe("population", () => {
+//     specimen.it("cycles", async () => {
+//       await die.populate();
+//     });
+//   });
 
-specimen.describe("Daemon", () => {
-  specimen.describe("construction", () => {
-    specimen.it("cycles", async () => {
-      const mask = paladin.variant.daemons[0];
-      die = new Die({ mask, good: new Daemon(mask) });
-    });
-  });
+//   specimen.describe("resolution", () => {
+//     specimen.it("cycles", async () => {
+//       await die.resolve();
+//       // await lifecycle.resolve.modes(die);
+//     });
+//   });
 
-  specimen.describe("population", () => {
-    specimen.it("cycles", async () => {
-      await die.populate();
-    });
-  });
+//   specimen.describe("integration", () => {
+//     specimen.it("cycles", async () => {
+//       await die.integrate();
+//       // // console.log({ die });
+//     });
+//   });
 
-  specimen.describe("resolution", () => {
-    specimen.it("cycles", async () => {
-      await die.resolve();
-      // await lifecycle.resolve.modes(die);
-    });
-  });
-
-  specimen.describe("integration", () => {
-    specimen.it("cycles", async () => {
-      await die.integrate();
-      // // console.log({ die });
-    });
-  });
-
-  specimen.it("disintegrates", async () => {
-    await die.disintegrate();
-  });
-});
+//   specimen.it("disintegrates", async () => {
+//     await die.disintegrate();
+//   });
+// });

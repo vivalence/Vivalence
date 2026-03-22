@@ -3,7 +3,6 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
 import { fileURLToPath } from "node:url";
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const __repo = join(__dirname, "../../");
 const __ss = join(__repo, "./subsystems");
@@ -28,11 +27,11 @@ async function serverConfig() {
     strictPort: true,
     fs: { allow: ["./", "../..", "../../node_modules"] },
     watch: {
-      usePolling: true,
-      ignored: ["**/node_modules/**", "**/#*"],
+      usePolling: false,
+      ignored: ["**/node_modules/**", "**/#*", "**/bak/**"],
       include: [
         "./src/**/*",
-        "../../register/**/*.{html,svelte.js,svelte,css}",
+        "../../registry/**/*.{html,svelte,js,css}",
         "../../subsystems/typology/**/*",
         "../../subsystems/shared/**/*",
         "../../subsystems/dapper/**/*",
@@ -52,16 +51,6 @@ export default defineConfig(async ({ command }) => ({
   },
   resolve: {
     alias: {
-      // legacy
-      "$client/typology": join(__dirname, "./src/typology/index.js"),
-      "$client/surface": join(__dirname, "./src/surface/index.js"),
-      "$client/view": join(__dirname, "./src/surface/view/index.js"),
-      "$hut/typology": join(__dirname, "./src/typology/index.js"),
-      "$hut/surface": join(__dirname, "./src/surface/index.js"),
-      "$hut/view": join(__dirname, "./src/surface/view/index.js"),
-      "@vivalence/surface": join(__repo, "./subsystems/drapes/mod.js"),
-      $hut: join(__dirname, "./src/app.js"),
-
       // STABLE
       $client: join(__dirname, "./src/client.js"),
 
@@ -70,6 +59,7 @@ export default defineConfig(async ({ command }) => ({
 
       "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
+      "@vivalence/typology/schematics": join(__ss, "./typology/schematics/index.js"),
 
       "@vivalence/dapper/font.css": join(__repo, "./subsystems/dapper/primitives/font.css"),
       "@vivalence/dapper/bsp.css": join(__repo, "./subsystems/dapper/primitives/bsp.css"),

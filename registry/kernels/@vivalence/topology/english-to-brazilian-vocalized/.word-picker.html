@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vivalence Word Audio Picker</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: "SF Mono", "Fira Code", monospace; background: #0a0a0a; color: #e0e0e0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; user-select: none; }
+.header { padding: 10px 20px; background: #111; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+.header h1 { font-size: 14px; font-weight: 600; color: #fff; }
+.stats { font-size: 12px; color: #888; }
+.stats .done { color: #4ade80; }
+.stats .skipped { color: #fbbf24; }
+.help { font-size: 10px; color: #555; padding: 4px 20px; background: #0d0d0d; border-bottom: 1px solid #222; flex-shrink: 0; }
+.help kbd { background: #222; color: #aaa; padding: 0 4px; border-radius: 2px; font-size: 10px; border: 1px solid #444; }
+.main { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 200px; border-right: 1px solid #222; overflow-y: auto; flex-shrink: 0; }
+.sidebar-item { padding: 5px 10px; cursor: pointer; font-size: 11px; display: flex; justify-content: space-between; align-items: center; }
+.sidebar-item:hover { background: #1a1a1a; }
+.sidebar-item.active { background: #162016; color: #4ade80; font-weight: 600; }
+.sidebar-item.picked { color: #4ade80; }
+.sidebar-item.skipped { color: #fbbf24; }
+.sidebar-item .ct { color: #444; font-size: 10px; }
+.sidebar-item .ck { margin-left: 4px; font-size: 10px; }
+.center { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; gap: 20px; }
+.lemma-word { font-size: 48px; font-weight: 700; color: #fff; }
+.lemma-info { font-size: 12px; color: #666; }
+.cards { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; max-width: 900px; }
+.card { width: 140px; padding: 16px 12px; border-radius: 8px; border: 2px solid #222; background: #111; cursor: pointer; text-align: center; transition: all 0.15s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.card:hover { border-color: #444; background: #1a1a1a; }
+.card.focused { border-color: #3b82f6; background: #111827; box-shadow: 0 0 20px rgba(59,130,246,0.15); }
+.card.selected { border-color: #4ade80; background: #0f2a1a; }
+.card .card-num { font-size: 20px; font-weight: 700; color: #444; }
+.card.focused .card-num { color: #3b82f6; }
+.card.selected .card-num { color: #4ade80; }
+.card .card-speaker { font-size: 11px; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+.card .card-meta { font-size: 10px; color: #555; }
+.card .card-votes { font-size: 10px; color: #666; }
+.progress-bar { width: 300px; height: 3px; background: #222; border-radius: 2px; overflow: hidden; }
+.progress-inner { height: 100%; background: #3b82f6; width: 0%; transition: width 0.1s linear; }
+.footer { padding: 6px 20px; background: #111; border-top: 1px solid #333; display: flex; justify-content: space-between; font-size: 10px; color: #555; flex-shrink: 0; }
+.save-flash { color: #4ade80; opacity: 0; transition: opacity 0.3s; }
+.save-flash.on { opacity: 1; }
+.filter-bar { display: flex; align-items: center; gap: 8px; padding: 6px 20px; background: #0d0d0d; border-bottom: 1px solid #222; flex-shrink: 0; }
+.filter-bar input[type="text"] { background: #1a1a1a; border: 1px solid #333; color: #e0e0e0; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-family: inherit; outline: none; width: 160px; }
+.filter-bar input[type="text"]:focus { border-color: #3b82f6; }
+.filter-bar label { font-size: 10px; color: #777; cursor: pointer; display: flex; align-items: center; gap: 3px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Word Audio Picker</h1>
+  <div class="stats">
+    <span class="done" id="stat-done">0</span> picked
+    &middot; <span class="skipped" id="stat-skipped">0</span> skipped
+    &middot; <span id="stat-remaining">499</span> remaining
+    &middot; <span id="stat-total">499</span> total
+    <span class="save-flash" id="save-flash">saved</span>
+  </div>
+</div>
+<div class="help">
+  <kbd>h</kbd><kbd>l</kbd><kbd>&larr;</kbd><kbd>&rarr;</kbd> candidate &nbsp;
+  <kbd>j</kbd><kbd>k</kbd><kbd>&uarr;</kbd><kbd>&darr;</kbd> lemma &nbsp;
+  <kbd>1</kbd>-<kbd>9</kbd> jump &nbsp;
+  <kbd>Space</kbd> pick+next &nbsp;
+  <kbd>Enter</kbd> pick+replay &nbsp;
+  <kbd>s</kbd> skip &nbsp;
+  <kbd>u</kbd> undo &nbsp;
+  <kbd>x</kbd> export &nbsp;
+  <kbd>/</kbd> search &nbsp;
+  <kbd>Esc</kbd> clear
+</div>
+<div class="filter-bar">
+  <input type="text" id="search" placeholder="search..." />
+  <label><input type="checkbox" id="filter-unpicked" /> unpicked</label>
+  <label><input type="checkbox" id="filter-picked" /> picked</label>
+</div>
+<div class="main">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="center">
+    <div class="lemma-word" id="lemma-word">&mdash;</div>
+    <div class="lemma-info" id="lemma-info"></div>
+    <div class="cards" id="cards"></div>
+    <div class="progress-bar"><div class="progress-inner" id="progress"></div></div>
+  </div>
+</div>
+<div class="footer">
+  <span id="status">Ready</span>
+  <span>auto-saves to disk</span>
+</div>
+<script>
+const DATA = {"acordar":[{"s":"2168009","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48}],"aeroporto":[{"s":"150394","g":"m","v":0,"k":50},{"s":"1975594","g":"m","v":0,"k":50},{"s":"MateusAM","g":"m","v":0,"k":60},{"s":"aeroporto","g":"m","v":0,"k":50},{"s":"andreia_brasil","g":"f","v":0,"k":65}],"ali":[{"s":"Sirasp","g":"f","v":0,"k":48}],"alto":[{"s":"72561","g":"m","v":0,"k":50},{"s":"jcontar","g":"m","v":0,"k":62}],"amor":[{"s":"126768","g":"m","v":0,"k":50},{"s":"1726869","g":"m","v":0,"k":50},{"s":"2781668","g":"m","v":0,"k":50},{"s":"3375853","g":"m","v":0,"k":50},{"s":"6318329","g":"m","v":0,"k":50},{"s":"Leleski","g":"m","v":0,"k":50},{"s":"amor","g":"m","v":0,"k":50},{"s":"biskurt","g":"m","v":0,"k":50},{"s":"brunofiletto","g":"m","v":0,"k":50},{"s":"educlj","g":"m","v":0,"k":50},{"s":"lenon_76","g":"m","v":0,"k":59}],"arroz":[{"s":"1975625","g":"m","v":0,"k":50},{"s":"4818344","g":"m","v":0,"k":50},{"s":"MateusAM","g":"m","v":0,"k":60},{"s":"arroz","g":"m","v":0,"k":50},{"s":"megskae","g":"m","v":0,"k":50}],"aula":[{"s":"5730647","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48}],"bairro":[{"s":"1182","g":"m","v":0,"k":50},{"s":"Leandro","g":"m","v":0,"k":50}],"baixo":[{"s":"265986","g":"m","v":0,"k":50},{"s":"andreia_brasil","g":"f","v":0,"k":65}],"beber":[{"s":"135099","g":"m","v":0,"k":50},{"s":"beber","g":"m","v":0,"k":50},{"s":"forvobrasil","g":"m","v":0,"k":50}],"boca":[{"s":"5554228","g":"m","v":0,"k":50},{"s":"boca","g":"m","v":0,"k":50},{"s":"megskae","g":"m","v":0,"k":50},{"s":"ricnester","g":"m","v":0,"k":60}],"braço":[{"s":"15718","g":"m","v":0,"k":50},{"s":"3502805","g":"m","v":0,"k":50},{"s":"Coelho","g":"m","v":0,"k":45},{"s":"Vitorcr","g":"m","v":0,"k":59},{"s":"bra%C3%A7o","g":"m","v":0,"k":50}],"cabeça":[{"s":"1348529","g":"m","v":0,"k":50},{"s":"2161653","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48},{"s":"cabe%C3%A7a","g":"m","v":0,"k":50},{"s":"divabr","g":"f","v":0,"k":60}],"cadeira":[{"s":"1362285","g":"m","v":0,"k":50},{"s":"265979","g":"m","v":0,"k":50},{"s":"3375860","g":"m","v":0,"k":50},{"s":"andreia_brasil","g":"f","v":0,"k":65},{"s":"cadeira","g":"m","v":0,"k":50},{"s":"lenon_76","g":"m","v":0,"k":59},{"s":"ulissesdorio","g":"m","v":0,"k":50}],"calor":[{"s":"1524877","g":"m","v":0,"k":50},{"s":"calor","g":"m","v":0,"k":50},{"s":"ledsr","g":"m","v":0,"k":50}],"cedo":[{"s":"3212022","g":"m","v":0,"k":50},{"s":"cedo","g":"m","v":0,"k":50},{"s":"erikasb","g":"f","v":0,"k":58}],"começar":[{"s":"230223","g":"m","v":0,"k":50},{"s":"Ricarte","g":"m","v":0,"k":50},{"s":"come%C3%A7ar","g":"m","v":0,"k":50}],"cozinha":[{"s":"2218344","g":"m","v":0,"k":50},{"s":"59308","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48},{"s":"cozinha","g":"m","v":0,"k":50},{"s":"escribe80","g":"m","v":0,"k":50}],"deus":[{"s":"2041282","g":"m","v":0,"k":50},{"s":"8367595","g":"m","v":0,"k":50},{"s":"caipira","g":"m","v":0,"k":50},{"s":"deus","g":"m","v":0,"k":50},{"s":"jlqueimado","g":"m","v":0,"k":50}],"emprego":[{"s":"3038634","g":"m","v":0,"k":50},{"s":"HdeA_Rio_de_Janeiro","g":"f","v":0,"k":58},{"s":"emprego","g":"m","v":0,"k":50},{"s":"zewill","g":"m","v":0,"k":50}],"entrar":[{"s":"184091","g":"m","v":0,"k":50},{"s":"andfm106","g":"m","v":0,"k":50}],"essa":[{"s":"287994","g":"m","v":0,"k":50},{"s":"pathgs","g":"f","v":0,"k":38}],"estudar":[{"s":"84309","g":"m","v":0,"k":50},{"s":"estudar","g":"m","v":0,"k":50},{"s":"grimpanda","g":"m","v":0,"k":50},{"s":"veraluz16","g":"f","v":0,"k":50}],"fácil":[{"s":"3437445","g":"m","v":0,"k":50},{"s":"HdeA_Rio_de_Janeiro","g":"f","v":0,"k":58}],"família":[{"s":"4244393","g":"m","v":0,"k":50},{"s":"Prys__","g":"f","v":0,"k":50}],"feijão":[{"s":"2990733","g":"m","v":0,"k":50},{"s":"feij%C3%A3o","g":"m","v":0,"k":50},{"s":"rstoterau","g":"m","v":0,"k":59}],"festa":[{"s":"1577323","g":"m","v":0,"k":50},{"s":"5213325","g":"m","v":0,"k":50},{"s":"Marcos059","g":"m","v":0,"k":50},{"s":"festa","g":"m","v":0,"k":50}],"filme":[{"s":"2198071","g":"m","v":0,"k":50},{"s":"coohrus","g":"m","v":0,"k":56}],"gente":[{"s":"1667015","g":"m","v":0,"k":50},{"s":"1726596","g":"m","v":0,"k":50},{"s":"339613","g":"m","v":0,"k":50},{"s":"brunofiletto","g":"m","v":0,"k":50},{"s":"eumesmo","g":"m","v":0,"k":60},{"s":"gente","g":"m","v":0,"k":50},{"s":"italo_","g":"m","v":0,"k":50}],"história":[{"s":"GiancarloBattaglia","g":"m","v":0,"k":50}],"jogo":[{"s":"265982","g":"m","v":0,"k":50},{"s":"andreia_brasil","g":"f","v":0,"k":65}],"logo":[{"s":"2906196","g":"m","v":0,"k":50},{"s":"ricnester","g":"m","v":0,"k":60}],"lugar":[{"s":"150446","g":"m","v":0,"k":50},{"s":"andreia_brasil","g":"f","v":0,"k":65}],"mesa":[{"s":"4007","g":"m","v":0,"k":50},{"s":"RDMantega","g":"m","v":0,"k":50},{"s":"jefersonfs","g":"m","v":0,"k":50},{"s":"mesa","g":"m","v":0,"k":50}],"minha":[{"s":"1713500","g":"m","v":0,"k":50},{"s":"hiroy","g":"m","v":0,"k":58},{"s":"minha","g":"m","v":0,"k":50}],"mão":[{"s":"1350105","g":"m","v":0,"k":50},{"s":"divabr","g":"f","v":0,"k":60},{"s":"m%C3%A3o","g":"m","v":0,"k":50}],"notícia":[{"s":"Sirasp","g":"f","v":0,"k":48}],"ouvir":[{"s":"5621541","g":"m","v":0,"k":50},{"s":"Ferreirasouz","g":"m","v":0,"k":50},{"s":"ouvir","g":"m","v":0,"k":50},{"s":"patycioffi","g":"f","v":0,"k":50}],"porque":[{"s":"40514","g":"m","v":0,"k":50},{"s":"dionifer","g":"m","v":0,"k":50},{"s":"porque","g":"m","v":0,"k":50}],"preço":[{"s":"2198075","g":"m","v":0,"k":50},{"s":"coohrus","g":"m","v":0,"k":56}],"pé":[{"s":"2161589","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48}],"restaurante":[{"s":"1257747","g":"m","v":0,"k":50},{"s":"2197259","g":"m","v":0,"k":50},{"s":"analice","g":"f","v":0,"k":50},{"s":"coohrus","g":"m","v":0,"k":56},{"s":"restaurante","g":"m","v":0,"k":50}],"ruim":[{"s":"5807462","g":"m","v":0,"k":50},{"s":"Sirasp","g":"f","v":0,"k":48}],"segundo":[{"s":"415277","g":"m","v":0,"k":50},{"s":"famadas","g":"m","v":0,"k":50},{"s":"segundo","g":"m","v":0,"k":50}],"só":[{"s":"156216","g":"m","v":0,"k":50},{"s":"claramaria63","g":"f","v":0,"k":50}],"último":[{"s":"2198800","g":"m","v":0,"k":50},{"s":"coohrus","g":"m","v":0,"k":56}],"velho":[{"s":"133909","g":"m","v":0,"k":50},{"s":"Alvren","g":"m","v":0,"k":50},{"s":"velho","g":"m","v":0,"k":50}],"viagem":[{"s":"130374","g":"m","v":0,"k":50},{"s":"lauralopes","g":"f","v":0,"k":61},{"s":"viagem","g":"m","v":0,"k":50}]};
+const GLOSS = {"acordar":"to wake up","aeroporto":"airport","ali":"there","alto":"tall/high","amor":"love","arroz":"rice","aula":"class/lesson","bairro":"neighborhood","baixo":"low/short","beber":"to drink","boca":"mouth","braço":"arm","cabeça":"head","cadeira":"chair","calor":"heat","cedo":"early","começar":"to start","cozinha":"kitchen","deus":"god","emprego":"job","entrar":"to enter","essa":"that","estudar":"to study","fácil":"easy","família":"family","feijão":"beans","festa":"party","filme":"movie","gente":"people","história":"story/history","jogo":"game","logo":"soon","lugar":"place","mesa":"table","minha":"my","mão":"hand","notícia":"news","ouvir":"to hear","porque":"because","preço":"price","pé":"foot","restaurante":"restaurant","ruim":"bad","segundo":"second","só":"only/alone","último":"last","velho":"old","viagem":"trip"};
+const lemmas = Object.keys(DATA).sort(function(a, b) { return a.localeCompare(b, "pt-BR"); });
+var picks = {};
+var skips = {};
+var cli = 0;
+var cci = 0;
+var audio = null;
+var filtered = lemmas.slice();
+var saveTimer = null;
+
+function $(id) { return document.getElementById(id); }
+
+function stopAudio() {
+  if (audio) { audio.pause(); audio.currentTime = 0; audio = null; }
+  $("progress").style.width = "0%";
+}
+
+function playAt(lemma, idx) {
+  stopAudio();
+  if (!sortedCands || idx >= sortedCands.length) return;
+  var c = sortedCands[idx];
+  var path = "freight/audio/words/candidates/" + encodeURIComponent(lemma) + "/" + encodeURIComponent(c.s) + ".mp3";
+  audio = new Audio(path);
+  audio.play().catch(function(){});
+  audio.ontimeupdate = function() {
+    if (audio && audio.duration) $("progress").style.width = (audio.currentTime / audio.duration * 100) + "%";
+  };
+  audio.onended = function() { $("progress").style.width = "0%"; audio = null; };
+  $("status").textContent = lemma + " \u2192 " + c.s;
+}
+
+function serverSave() {
+  fetch("/api/picks", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ picks: picks, skips: skips })
+  }).then(function() {
+    var el = $("save-flash");
+    el.classList.add("on");
+    setTimeout(function() { el.classList.remove("on"); }, 1200);
+  }).catch(function() { $("status").textContent = "SAVE FAILED"; });
+}
+
+function save() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(serverSave, 400);
+}
+
+function updateStats() {
+  var np = Object.keys(picks).length;
+  var ns = Object.keys(skips).length;
+  $("stat-done").textContent = np;
+  $("stat-skipped").textContent = ns;
+  $("stat-remaining").textContent = lemmas.length - np - ns;
+  $("stat-total").textContent = lemmas.length;
+}
+
+function applyFilter() {
+  var q = $("search").value.toLowerCase().trim();
+  var up = $("filter-unpicked").checked;
+  var pk = $("filter-picked").checked;
+  filtered = lemmas.filter(function(l) {
+    if (q && l.toLowerCase().indexOf(q) === -1) return false;
+    if (up && (picks[l] || skips[l])) return false;
+    if (pk && !picks[l]) return false;
+    return true;
+  });
+  renderSidebar();
+  if (filtered.length > 0) {
+    cli = Math.min(cli, filtered.length - 1);
+    goLemma(cli);
+  }
+}
+
+function renderSidebar() {
+  var h = "";
+  for (var i = 0; i < filtered.length; i++) {
+    var l = filtered[i];
+    var cls = "sidebar-item";
+    if (i === cli) cls += " active";
+    if (picks[l]) cls += " picked";
+    if (skips[l]) cls += " skipped";
+    var ck = picks[l] ? "\u2713" : skips[l] ? "\u2014" : "";
+    h += '<div class="' + cls + '" data-i="' + i + '"><span>' + l + ' <span style="color:#555;font-size:9px">' + (GLOSS[l] || '') + '</span></span><span><span class="ct">' + DATA[l].length + '</span><span class="ck">' + ck + '</span></span></div>';
+  }
+  $("sidebar").innerHTML = h;
+}
+
+function speakerStats(speaker) {
+  var w = 0, t = 0;
+  for (var l in picks) {
+    var cands = DATA[l];
+    if (!cands) continue;
+    var available = false;
+    for (var i = 0; i < cands.length; i++) { if (cands[i].s === speaker) { available = true; break; } }
+    if (available) { t++; if (picks[l] === speaker) w++; }
+  }
+  return { wins: w, total: t, pct: t > 0 ? Math.round(100 * w / t) : 0 };
+}
+
+var sortedCands = null;
+
+function sortCandsForLemma(lemma) {
+  sortedCands = (DATA[lemma] || []).slice();
+  sortedCands.sort(function(a, b) { return speakerStats(b.s).pct - speakerStats(a.s).pct || speakerStats(b.s).wins - speakerStats(a.s).wins; });
+}
+
+function renderCards(lemma) {
+  var cands = sortedCands || (DATA[lemma] || []).slice();
+  $("lemma-word").innerHTML = lemma + (GLOSS[lemma] ? ' <span style="color:#999;font-size:28px;font-weight:400">' + GLOSS[lemma] + '</span>' : '');
+  $("lemma-info").textContent = cands.length + " candidate" + (cands.length !== 1 ? "s" : "") + (picks[lemma] ? " \u00b7 winner: " + picks[lemma] : "") + (skips[lemma] ? " \u00b7 skipped" : "");
+
+  var h = "";
+  for (var i = 0; i < cands.length; i++) {
+    var c = cands[i];
+    var st = speakerStats(c.s);
+    var cls = "card";
+    if (i === cci) cls += " focused";
+    if (picks[lemma] === c.s) cls += " selected";
+    h += '<div class="' + cls + '" data-i="' + i + '">';
+    h += '<span class="card-num">' + (i + 1) + '</span>';
+    h += '<span class="card-speaker">' + c.s + '</span>';
+    h += '<span class="card-meta">' + c.g + ' \u00b7 ' + c.k + 'kb</span>';
+    if (st.total) h += '<span class="card-votes">' + st.wins + '/' + st.total + ' \u00b7 ' + st.pct + '%</span>';
+    h += '</div>';
+  }
+  $("cards").innerHTML = h;
+}
+
+function goLemma(idx) {
+  cli = idx;
+  cci = 0;
+  var lemma = filtered[idx];
+  if (!lemma) return;
+  sortCandsForLemma(lemma);
+  renderSidebar();
+  renderCards(lemma);
+  playAt(lemma, 0);
+  var el = $("sidebar").querySelector(".active");
+  if (el) el.scrollIntoView({ block: "nearest" });
+}
+
+function goCandidate(idx) {
+  var lemma = filtered[cli];
+  if (!sortedCands) return;
+  cci = Math.max(0, Math.min(idx, sortedCands.length - 1));
+  renderCards(lemma);
+  playAt(lemma, cci);
+}
+
+function pickAndAdvance() {
+  var lemma = filtered[cli];
+  if (!sortedCands) return;
+  picks[lemma] = sortedCands[cci].s;
+  delete skips[lemma];
+  save();
+  updateStats();
+  if (cli < filtered.length - 1) goLemma(cli + 1);
+  else { renderSidebar(); renderCards(lemma); }
+}
+
+function pickAndReplay() {
+  var lemma = filtered[cli];
+  if (!sortedCands) return;
+  picks[lemma] = sortedCands[cci].s;
+  delete skips[lemma];
+  save();
+  updateStats();
+  renderSidebar();
+  renderCards(lemma);
+  playAt(lemma, cci);
+}
+
+function skipCurrent() {
+  var lemma = filtered[cli];
+  skips[lemma] = true;
+  delete picks[lemma];
+  save();
+  updateStats();
+  if (cli < filtered.length - 1) goLemma(cli + 1);
+  else { renderSidebar(); renderCards(lemma); }
+}
+
+function undoCurrent() {
+  var lemma = filtered[cli];
+  delete picks[lemma];
+  delete skips[lemma];
+  save();
+  updateStats();
+  renderSidebar();
+  renderCards(lemma);
+}
+
+function exportPicks() {
+  var out = {};
+  for (var l in picks) {
+    out[l] = { speaker: picks[l], path: "freight/audio/words/candidates/" + l + "/" + picks[l] + ".mp3" };
+  }
+  var blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "word-audio-picks.json";
+  a.click();
+  $("status").textContent = "Exported " + Object.keys(out).length + " picks";
+}
+
+$("sidebar").addEventListener("click", function(e) {
+  var item = e.target.closest(".sidebar-item");
+  if (item) goLemma(parseInt(item.dataset.i));
+});
+
+$("cards").addEventListener("click", function(e) {
+  var card = e.target.closest(".card");
+  if (card) goCandidate(parseInt(card.dataset.i));
+});
+
+$("cards").addEventListener("dblclick", function(e) {
+  var card = e.target.closest(".card");
+  if (card) { cci = parseInt(card.dataset.i); pickAndAdvance(); }
+});
+
+document.addEventListener("keydown", function(e) {
+  if (e.target === $("search")) {
+    if (e.key === "Escape") { $("search").value = ""; $("search").blur(); applyFilter(); }
+    return;
+  }
+  if (e.key === "/") { e.preventDefault(); $("search").focus(); return; }
+
+  var handled = true;
+  switch (e.key) {
+    case "h": case "ArrowLeft": goCandidate(cci - 1); break;
+    case "l": case "ArrowRight": goCandidate(cci + 1); break;
+    case "k": case "ArrowUp": if (cli > 0) goLemma(cli - 1); break;
+    case "j": case "ArrowDown": if (cli < filtered.length - 1) goLemma(cli + 1); break;
+    case " ": pickAndAdvance(); break;
+    case "Enter": pickAndReplay(); break;
+    case "s": skipCurrent(); break;
+    case "u": undoCurrent(); break;
+    case "x": exportPicks(); break;
+    default:
+      if (e.key >= "1" && e.key <= "9") goCandidate(parseInt(e.key) - 1);
+      else handled = false;
+  }
+  if (handled) e.preventDefault();
+});
+
+$("search").addEventListener("input", applyFilter);
+$("filter-unpicked").addEventListener("change", applyFilter);
+$("filter-picked").addEventListener("change", applyFilter);
+
+fetch("/api/picks").then(function(r) { return r.json(); }).then(function(d) {
+  picks = d.picks || {};
+  skips = d.skips || {};
+  updateStats();
+  renderSidebar();
+  var first = filtered.findIndex(function(l) { return !picks[l] && !skips[l]; });
+  goLemma(first >= 0 ? first : 0);
+}).catch(function() {
+  updateStats();
+  renderSidebar();
+  goLemma(0);
+});
+</script>
+</body>
+</html>

@@ -1,26 +1,12 @@
-import { object } from "@vivalence/shared";
-import { Connection, Path } from "@vivalence/typology";
-import { ProductionResult, ProductionRequest } from "@vivalence/typology";
+import { Connection, Path, RemoteRepository, shard } from "@vivalence/typology";
 import { Mode } from "./mode.js";
-import { Valence } from "./valence.js";
-import { Repository } from "../prototypes/repository.js";
-import * as mode from "./mode.js";
-import * as valence from "./valence.js";
-import * as session from "./session.js";
-import * as product from "./product.js";
+import { Intent } from "./intent.js";
 
 export class Daemon {
   manifest = null;
   mount = null;
   connection = null;
-
-  entities = {
-    mode: new Repository(mode),
-    valence: new Repository(valence),
-    session: new Repository(session),
-    product: new Repository(product),
-  };
-
+  entities = {};
   cargo = {};
 
   constructor(connection) {
@@ -31,8 +17,9 @@ export class Daemon {
     if (!this.cargo || !asset) return null;
     if (asset.path) return this.cargo[asset.path] ?? null;
     if (asset.slug) {
-      const entry = Object.entries(this.cargo)
-        .find(([k]) => k.endsWith("/" + asset.slug) || k.startsWith(asset.slug));
+      const entry = Object.entries(this.cargo).find(
+        ([k]) => k.endsWith("/" + asset.slug) || k.startsWith(asset.slug),
+      );
       return entry?.[1] ?? null;
     }
     return null;
@@ -43,12 +30,6 @@ export class Daemon {
       slug: this.slug ?? this.manifest?.slug ?? null,
       mount: this.mount?.nature ?? null,
       manifest: this.manifest,
-      entities: {
-        mode: this.entities.mode.toJSON(),
-        valence: this.entities.valence.toJSON(),
-        session: this.entities.session.toJSON(),
-        product: this.entities.product.toJSON(),
-      },
     };
   }
 }
@@ -67,128 +48,101 @@ export async function lifecycle(daemon) {
   daemon.call = daemon.connection.call.bind(daemon.connection);
   daemon.mount = new Path(`/daemon/${daemon.slug}`);
 
-  daemon.entities.mode.connect(daemon.connection.branch("/entities/mode"));
-  daemon.entities.valence.connect(daemon.connection.branch("/entities/valence"));
-  daemon.entities.session.connect(daemon.connection.branch("/userspace/entities/session"));
-  daemon.entities.product.connect(daemon.connection.branch("/userspace/entities/product"));
+  const lighthouseSlug = daemon.lighthouse?.manifest?.slug ?? "default";
+  daemon.link = new Path(`/${lighthouseSlug}/${daemon.slug}`).rebase("/viva");
 
-  const modes = await daemon.entities.mode.find();
-  for (const modePojo of modes) {
-    const mode = new Mode(modePojo);
-    mode.valences = new Set();
+  daemon.entities = {
+    mode: new RemoteRepository(Mode).connect(daemon.connection.branch("/entities/mode")),
+    intent: new RemoteRepository(Intent).connect(daemon.connection.branch("/entities/intent")),
+    session: new RemoteRepository().connect(
+      daemon.connection.branch("/userspace/entities/session"),
+    ),
+    buffer: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/buffer")),
+  };
 
-    mode.daemon = daemon;
-    mode.mount = daemon.mount //
-      .branch(`/mode/${mode.type}/${mode.slug}`);
-
-    mode.connection = daemon.connection.branch(mode.mount.nature);
-    mode.call = mode.connection.call.bind(mode.connection);
-
-    mode.manifest = await mode.connection.call("/manifest");
-
-    if (mode.implements("VIEWABLE")) mode.view = await mode.connection.call("/view");
-    if (mode.implements("BUFFERED")) mode.link = mode.mount.rebase("/viva");
-
-    daemon.entities.mode.add(mode);
-  }
+  const schema = await daemon.connection.call("/datamap");
+  shard.datamap.wire(daemon.entities, schema);
 
   daemon.cargo = await daemon.connection.call("/cargo");
 
-  const valences = await daemon.entities.valence.find({ type: "SELFEVIDENT" });
-  // console.log(JSON.stringify({ modes, valences }));
-  for (const valencePojo of valences) {
-    const valence = new Valence(valencePojo);
-    valence.mode = await daemon.entities.mode //
-      .findOne({ id: valencePojo.mode.id });
-
-    valence.link = valence.mode.mount.branch(`/valence/${valence.slug}`).rebase("/viva");
-
-    if (valence.implements("PRODUCTIVE")) {
-      valence.queue = valence.data["PRODUCTIVE"].queue ?? 0;
-      valence.produce = valence.mode.connection
-        .clone()
-        .use(async (ctx, next) => {
-          // ctx.request.body = new ProductionRequest(ctx.request.body);
-          await next();
-          ctx.response.body = new ProductionResult(ctx.response.body);
-        })
-        .use(async (ctx, next) => {
-          await next();
-
-          ctx.response.body.products = await Promise.all(
-            ctx.response.body.products.map(async (product) => {
-              product.mode = await daemon.entities.mode.findOne({
-                id: product.producer.id ?? product.producer,
-              });
-              return product;
-            }),
-          );
-
-          // console.log("VALENCE RESPONSE", ctx.response.body);
-        })
-        .aim(`/valence/${valence.slug}`);
-      // .aim(valence.data.GENERATIVE["mount"], valence.data.GENERATIVE["mask"]);
+  const modes = await daemon.entities.mode.find();
+  const modeById = new Map();
+  for (const m of modes) {
+    m.intents = new Set();
+    m.daemon = daemon;
+    m.mount = daemon.mount.branch(`/mode/${m.type}/${m.slug}`);
+    m.connection = daemon.connection.branch(m.mount.nature);
+    m.call = m.connection.call.bind(m.connection);
+    if (m.implements("BUFFERED")) {
+      m.buffered = await m.connection.call("/buffered");
+      m.buffer = (desc = {}) => ({
+        mode: m.id,
+        data: { ...(m.buffered?.schema?.data ?? {}), ...(desc.data ?? {}) },
+        literals: desc.literals ?? [],
+        symbols: desc.symbols ?? [],
+      });
     }
-
-    valence.mode.valences.add(valence);
-    daemon.entities.valence.add(valence);
+    // if (m.implements("BUFFERED")) {
+    //   m.buffered = await m.connection.call("/buffered");
+    //   m.buffer = (props = {}) => ({
+    //     mode: m.id,
+    //     props: { ...(m.buffered?.schema ?? {}), ...props },
+    //   });
+    // }
+    m.link = daemon.link.branch(`/${m.type}/${m.slug}`);
+    modeById.set(m.id, m);
   }
 
-  // const intents = await daemon.connection.call("/entities/intent/find"); for (const intentPojo of intents) {const intent = new Intent(intentPojo); intent.daemon = daemon; daemon.intents.add(intent); dataspace.intent.add(intent);}
+  const intents = await daemon.entities.intent.find();
+  const intentById = new Map();
+  for (const i of intents) {
+    const modeId = i.mode?.id ?? i.mode;
+    i.mode = modeById.get(modeId);
+
+    if (!i.mode) throw new Error("Intents Mode not found");
+
+    i.link = i.mode.link.branch(`/${i.slug}`);
+
+    if (i.type === "APPLICATIVE" && i.trait?.FEEDING) {
+      i.emit = i.mode.connection
+        .clone()
+        .use(async (ctx, next) => {
+          await next();
+          ctx.response.body = ctx.response.body.map((pojo) => {
+            pojo.mode = modeById.get(pojo.mode) ?? pojo.mode;
+            return pojo;
+          });
+        })
+        .aim(i.trait.FEEDING.mount, {
+          intent: i.id,
+          ...(i.trait.FEEDING.mask ?? {}),
+          defaults: i.trait.FURNISHED ?? {},
+        });
+    }
+
+    i.mode.intents.add(i);
+    intentById.set(i.id, i);
+  }
+
+  daemon.entities.mode.resolve = (mode) => {
+    const enriched = modeById.get(mode.id);
+    if (enriched && enriched !== mode) {
+      Object.assign(mode, enriched);
+    }
+  };
+
+  daemon.entities.intent.resolve = (intent) => {
+    const modeId = typeof intent.mode === "object" ? intent.mode.id : intent.mode;
+    intent.mode = modeById.get(modeId) ?? intent.mode;
+  };
+
+  daemon.entities.session.resolve = (session) => {
+    session.daemon = daemon;
+    const modeId = typeof session.mode === "object" ? session.mode.id : session.mode;
+    session.mode = modeById.get(modeId) ?? session.mode;
+    if (session.intent) {
+      const intentId = typeof session.intent === "object" ? session.intent.id : session.intent;
+      session.intent = intentById.get(intentId) ?? session.intent;
+    }
+  };
 }
-
-// Mode pojo  {
-//   "id": "019af50e-a950-74ea-91e6-e372d3abc2f5",
-//   "slug": "eva",
-//   "type": "agent",
-//   "name": null,
-//   "description": null,
-//   "data": {},
-//   "traits": [
-//     "VIEWABLE",
-//     "DATASET",
-//     "VALENTIC"
-//   ],
-//   "installed": false
-// }
-
-// Valence pojo {
-//   "id": "019af513-a3a5-73a8-8eb6-7adf5c55a6d4",
-//   "slug": "populate",
-//   "type": null,
-//   "name": null,
-//   "description": null,
-//   "data": {
-//     "DESTINATION": {
-//       "commissioner": "/feed"
-//     }
-//   },
-//   "traits": [
-//     "DESTINATION"
-//   ],
-//   "docs": "populate the runtime with entities",
-//   "resolve": {},
-//   "mode": {
-//     "id": "019af50e-a950-74ea-91e6-e372d3abc2f5",
-//     "slug": "eva",
-//     "type": "agent",
-//     "name": null,
-//     "description": null,
-//     "data": {},
-//     "traits": [
-//       "VIEWABLE",
-//       "DATASET",
-//       "VALENTIC"
-//     ],
-//     "installed": false
-//   }
-// }
-// console.log(gaia.connection.status.code.get());
-// console.log(gaia.authority.get(), gaia.identity.get());
-
-// for (const [type, entity] of Object.entries(entities)) {
-//   if (entity.lifecycle) entity.lifecycle = entity.lifecycle(daemon);
-//   daemon.entities[type] = new Repository(entity);
-// }
-
-// this.call = new Call(this.connection)  .use(backstop(this)) .use(authorize(this.$authority));

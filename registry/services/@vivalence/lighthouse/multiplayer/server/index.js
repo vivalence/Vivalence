@@ -1,7 +1,7 @@
 import { Status } from "@vivalence/typology";
 
 import * as entity from "./entities.js";
-import * as authority from "./authority.js";
+import * as authority from "./auth.js";
 import * as identity from "./identity.js";
 // import { inject, expose, systemmap } from "./entities.js";
 
@@ -29,5 +29,5 @@ export default async function server(aperture, service) {
     .use(identity.inject());
 
   authority.expose(service, aperture);
-  entity.expose(service, aperture);
+  entity.expose(service, aperture, orm);
 }

@@ -50,10 +50,26 @@ src/
 
 `client.js` creates Connection from PUBLIC_VIVA_LIGHTHOUSE_REMOTE. Lighthouse wraps it with middleware (authorize, retry, timeout, track). On boot (`+layout.js`), Lighthouse.lifecycle() fetches `/manifest`, branches connections per entity type, hydrates Mode and Valence objects, sets up `.call()` and `.produce()` methods.
 
+## Principles
+
+### DOM is a consumer of the dataspace
+
+Components (Svelte files, routes) do NOT construct, populate, or resolve entities. They consume resolved state from the dataspace. They may:
+- **Integrate** — subscribe to reactive state, bind to atoms
+- **Consume** — read entity properties, iterate collections
+- **Affect** — trigger actions (create session, release buffer, navigate)
+
+They do NOT:
+- Enrich entities with resolved references (that's typology/lifecycle)
+- Resolve IDs to instances (that's the Repository or daemon lifecycle)
+- Build paths or URLs (entities carry their own via `.link`)
+
+If a component needs a resolved entity, the dataspace delivers it resolved. If it isn't, the gap is in the typology layer, not the component.
+
 ## Key Patterns
 
-- **nanostores atoms** for reactive state (Terminal holds $phase, $daemon, $mode, $session, $valence)
-- **Terminal + Buffer lifecycle**: Terminal manages phase (STREAM/CHAT/FEED), Buffer holds state per mode
+- **nanostores atoms** for reactive state (Terminal holds $phase, $daemon, $mode, $session, $intent)
+- **Terminal + Stall lifecycle**: Terminal is a session in action — holds resolved session state (daemon, mode, intent) + view state (phase). Stall manages buffer queue (active, queue, pull, hooks). Populate Vector resolves entities from URL and configures both.
 - **Repository pattern** for entity collections
 - **Connection.branch()** for path-based routing (mirrors server-side Aperture structure)
 

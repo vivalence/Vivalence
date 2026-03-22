@@ -1,6 +1,5 @@
-import { specimen, Url, Connection } from "@vivalence/typology";
+import { specimen, Url, Connection, Value } from "@vivalence/typology";
 import { shards } from "@vivalence/typology";
-import { Value } from "@sinclair/typebox/value";
 import { scalars, primitives, bodies, types } from "@vivalence/typology";
 
 const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";

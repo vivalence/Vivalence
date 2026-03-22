@@ -24,7 +24,7 @@
     "paladin/test": "deno run --watch -A ./subsystems/paladin/tests/*.test.js",
     "typology/test": "deno run --watch -A ./subsystems/typology/tests/**/*.test.js",
 
-    "runtime/start": "deno run -A ./systems/runtime/run.js",
+    "runtime/run": "deno run -A ./systems/runtime/run.js",
     "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
     "html/test": "deno test -A --no-check --watch ./systems/html/tests/**/*.test.js",
@@ -54,13 +54,7 @@
   },
   "allowScripts": {
     "allow": [],
-    "deny": [
-      "npm:argon2@0.44.0",
-      "npm:esbuild@0.27.2",
-      "npm:fsevents@2.3.3",
-      "npm:sqlite3@5.1.7",
-      "npm:svelte-preprocess@6.0.3",
-    ],
+    "deny": ["npm:argon2", "npm:esbuild", "npm:sqlite3", "npm:svelte-preprocess", "npm:fsevents"],
   },
 }
 

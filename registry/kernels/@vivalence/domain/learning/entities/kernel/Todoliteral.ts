@@ -60,10 +60,10 @@ export class LiteralEntity extends maps.kernel.literal.entity {
 
   // SORTED
   get sortIndex() {
-    return this.data.SORTED?.index ?? null;
+    return this.trait.SORTED?.index ?? null;
   }
   set sortIndex(index) {
-    this.data = { ...this.data, SORTED: { index } };
+    this.trait = { ...this.trait, SORTED: { index } };
     if (!this.traits.includes(LiteralTraitsEnum.SORTED)) {
       this.traits.push(LiteralTraitsEnum.SORTED);
     }
@@ -90,7 +90,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
     for (const trait of this.traits) {
       const validate = validators[trait];
       if (!validate) continue; // unknown/future trait, skip
-      if (!validate(this.data[trait])) {
+      if (!validate(this.trait[trait])) {
         throw new Error(`Literal.data.${trait} is invalid: ${ajv.errorsText(validate.errors)}`);
       }
     }

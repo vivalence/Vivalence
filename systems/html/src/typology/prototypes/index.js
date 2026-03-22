@@ -1,7 +1,7 @@
 // export * from "./mode.js";
 export * from "./entity.js";
-export * from "./repository.js";
-export * from "./buffer.js";
+// export * from "./repository.js"; // moved to bak/ — use RemoteRepository from @vivalence/typology
+// export * from "./buffer.js";
 export * from "./terminal.js";
 export * from "./stall.js";
 

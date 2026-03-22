@@ -3,9 +3,7 @@ import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
 export function http(vector) {
   return async (req) => {
     const ct = req.headers.get("content-type") || "";
-    const body = ct.includes("application/json")
-      ? await req.json().catch(() => null)
-      : null;
+    const body = ct.includes("application/json") ? await req.json().catch(() => null) : null;
     const ctx = new Context({
       body,
       url: req.url,
@@ -22,13 +20,16 @@ export function http(vector) {
       ctx.params = fromm.match(steps).parameters;
 
       await carry(ctx, async (c) => {
-        if (effect.length === 0) c.output = await effect();
-        else if (effect.length === 1) c.output = await effect(c);
-        else if (effect.length === 2) c.output = await effect(c.input, c);
+        let result;
+        if (effect.length === 0) result = await effect();
+        else if (effect.length === 1) result = await effect(c);
+        else if (effect.length === 2) result = await effect(c.input, c);
+        if (result !== undefined) c.output = result;
       });
     } catch (e) {
       if (e instanceof NotFound || e.code === "NOT_FOUND") return respond(ctx, 404);
       console.error(e);
+      ctx.output = { code: "INTERNAL", message: e.message };
       return respond(ctx, 500);
     }
 
@@ -45,9 +46,10 @@ function respond(ctx, status) {
   headers["content-type"] = type;
   if (ctx.trace?.timing) headers["server-timing"] = ctx.trace.timing;
 
-  if (body instanceof Uint8Array || body instanceof ReadableStream) {
+  if (body instanceof Uint8Array || body instanceof ReadableStream || typeof body === "string") {
     return new Response(body, { status: s, headers });
   }
 
+  // console.log("RESPONSE", JSON.stringify(body), { status: s, headers });
   return new Response(JSON.stringify(body), { status: s, headers });
 }

@@ -27,7 +27,7 @@
   <div class="bsp-node content">
     <div class="stage">
 
-      <div class="hint">{item?.known}</div>
+
 
       <div class="tokens">
         {#each item?.tokens ?? [] as tok, i}

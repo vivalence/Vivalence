@@ -54,7 +54,7 @@ export async function datamap(daemonDie) {
   daemonDie.good.entities = {
     ...entities,
     em: daemonDie.good.kernel.orm.em.fork(),
-    on: new Vector(),
+    twitch: new Vector(),
   };
 
   for (const variant of daemonDie.variant.entities) {
@@ -117,32 +117,37 @@ export async function modes(daemonDie) {
 
   for (const { register, variant } of registeredModes) {
     const mode = new variant.prototype(register);
-    mode.mount = daemonDie.good.mount.branch(`/mode/${mode.type}/${mode.slug}`);
+    mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
     mode.url = daemonDie.good.url.branch(mode.mount.nature);
 
     if (!mode.aperture) mode.aperture = new Aperture();
 
-    if (mode.implements("VIEWABLE")) {
-      mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
+    if (mode.implements("BUFFERED")) {
+      mode.cake.buffer.path.from(new Path(mode.cake.mount.dirname));
 
       const url = daemonDie.good.attach
         .branch("/view")
         .branch(mode.mount.absolute)
-        .branch(mode.cake.view.path.nature);
+        .branch(mode.cake.buffer.path.nature);
 
-      mode.cake.view.withUrl(url);
+      mode.cake.buffer.withUrl(url);
     }
+
+    // if (mode.implements("VIEWABLE")) {
+    //   mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
+    //   const url = daemonDie.good.attach
+    //     .branch("/view").branch(mode.mount.absolute).branch(mode.cake.view.path.nature);
+    //   mode.cake.view.withUrl(url);
+    // }
 
     if (mode.implements("FRAUGHT")) {
       mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
-      const url = daemonDie.good.attach
-        .branch("/freight")
-        .branch(mode.mount.absolute);
+      const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
       mode.cake.freight.withUrl(url);
     }
 
     mode.entity = await daemonDie.good.entities.mode //
-      .ensure({ type: mode.type, slug: mode.slug });
+      .ensure(mode.manifest);
 
     mode.entity.traits = array //
       .unique([...mode.entity.traits, ...mode.traits]);
@@ -165,36 +170,41 @@ export function handlers(daemonDie) {
 }
 
 export async function twitch(die) {
-  try {
-    const subscriptions = die.good.entities.on.patterns
-      .map((p) => p.signature)
-      .map((s) => die.kernel.domain.entities.map[s].entity);
-
-    const subscriber = new shape.Subscriber(subscriptions, async (signal, event) => {
-      try {
-        const [effect, apply] = steer //
-          .traverse(die.good.entities.on, signal);
-        const context = { event, daemon: die.good };
-        context.daemon.entities.em = context.daemon.entities.em.fork();
-        await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
-        await context.daemon.entities.em.flush();
-      } catch (error) {
-        if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
-      }
-    });
-
-    die.good.entities.em
-      .getEventManager() //
-      .registerSubscriber(subscriber);
-
-    //
-  } catch (e) {
-    console.log("@runtime/runtime/integrate/twitch");
-    console.log("[expected to fail on pattern signature entity lookup]");
-    console.log("[haha future me.]");
-    throw e;
-  }
+  const sub = shape.subscriber(die.good.entities.twitch);
+  die.good.entities.em.getEventManager().registerSubscriber(sub);
 }
+
+// export async function twitch(die) {
+//   try {
+//     const subscriptions = die.good.entities.on.patterns
+//       .map((p) => p.signature)
+//       .map((s) => die.kernel.domain.entities.map[s].entity);
+//
+//     const subscriber = new shape.Subscriber(subscriptions, async (signal, event) => {
+//       try {
+//         const [effect, apply] = steer //
+//           .traverse(die.good.entities.on, signal);
+//         const context = { event, daemon: die.good };
+//         context.daemon.entities.em = context.daemon.entities.em.fork();
+//         await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+//         await context.daemon.entities.em.flush();
+//       } catch (error) {
+//         if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
+//       }
+//     });
+//
+//     die.good.entities.em
+//       .getEventManager() //
+//       .registerSubscriber(subscriber);
+//
+//     //
+//   } catch (e) {
+//     console.log("@runtime/runtime/integrate/twitch");
+//     console.log("[expected to fail on pattern signature entity lookup]");
+//     console.log("[haha future me.]");
+//     throw e;
+//   }
+// }
 
 // export async function twitches(die) {
 //   for (const handler of Object.values(ontology.populate)) await handler(die);

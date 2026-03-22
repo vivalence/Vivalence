@@ -1,23 +1,23 @@
 <script>
   import { Asset } from "@vivalence/drapes";
 
-  const { terminal, product, seek, recall, forgiving = true } = $props();
+  const { terminal, buffer, forgiving = true } = $props();
 
-  const recallProp = product?.data?.BUFFERED.recall ?? recall ?? null;
+  const data = buffer.data ?? {};
   const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
 
-  let literal = $state(null);
-  let loading = $state(true);
-  let activeRecall = $state(recallProp ?? randomRecall());
+  let literal = $state(buffer.literals?.[0] ?? null);
+  let loading = $state(!literal);
+  let activeRecall = $state(data.recall ?? randomRecall());
   let input = $state("");
   let submitted = $state(false);
   let result = $state(null);
 
   const isWord = $derived(literal?.symbol?.word);
-  const known = $derived(literal?.data?.TRANSLATED?.known);
-  const learning = $derived(literal?.data?.TRANSLATED?.learning);
-  const example = $derived(literal?.data?.EXEMPLIFIED);
-  const asset = $derived(terminal.daemon.getAsset(literal?.data?.VOCALIZED?.asset));
+  const known = $derived(literal?.trait?.TRANSLATED?.known);
+  const learning = $derived(literal?.trait?.TRANSLATED?.learning);
+  const example = $derived(literal?.trait?.EXEMPLIFIED);
+  const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
   const answer = $derived(activeRecall === "KNOWN" ? known : learning);
   const promptEx = $derived(
@@ -29,21 +29,12 @@
   const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
 
-  console.log(product, literal);
-  $inspect(literal);
-
-  const pick = async () => {
-    const query = { take: 1 };
-    if (seek) query.seek = seek;
-    if (literal) query.blacklist = { literals: [literal.id] };
-    const [lit] = await terminal.daemon.call("/pick/literal/feed", query);
-    return lit ?? null;
-  };
-
-  (product ? Promise.resolve(product.data.BUFFERED.literal) : pick()).then((value) => {
-    literal = value;
-    loading = false;
-  });
+  if (!literal) {
+    terminal.daemon.call("/pick/literal/feed", { take: 1 }).then(([lit]) => {
+      literal = lit ?? null;
+      loading = false;
+    });
+  }
 
   const norm = forgiving
     ? (s) =>
@@ -63,9 +54,9 @@
 
   function evaluate(input, lit, currentRecall, word) {
     const expected =
-      currentRecall === "KNOWN" ? lit.data.TRANSLATED.known : lit.data.TRANSLATED.learning;
+      currentRecall === "KNOWN" ? lit.trait.TRANSLATED.known : lit.trait.TRANSLATED.learning;
     if (word) return evaluateWord(input, expected);
-    return evaluateSentence(input, expected, lit.data.ANNOTATED?.tokens, currentRecall);
+    return evaluateSentence(input, expected, lit.trait.ANNOTATED?.tokens, currentRecall);
   }
 
   function evaluateWord(input, expected) {
@@ -104,11 +95,8 @@
     return { signal, tokens: results };
   }
   function review(result) {
-    console.log(JSON.stringify({ input, product, result }, null, 2));
-    const scope = product ? { product: product.id } : { literal: literal.id };
-    const path = product ? "/review/product" : "/review/literal";
-
-    terminal.daemon.call(path, { signal: result.signal, scope });
+    const scope = { buffer: buffer.id };
+    terminal.daemon.call("/review/buffer", { signal: result.signal, scope });
 
     if (result.tokens) {
       for (const tok of result.tokens) {
@@ -129,15 +117,7 @@
   }
 
   async function next() {
-    if (product) return product.release();
-
-    loading = true;
-    literal = await pick();
-    activeRecall = recallProp ?? randomRecall();
-    input = "";
-    submitted = false;
-    result = null;
-    loading = false;
+    buffer.release();
   }
 
   function handleKey(event) {

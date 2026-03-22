@@ -30,7 +30,7 @@ If you find yourself thinking "this could use a framework for X" — stop. The f
 | **HTML Client** | Surface | systems/html/ | [claude.md](../systems/html/.ikiro/claude.md) |
 
 **How they connect:**
-1. Typology defines the types AND makes them executable (prototypes + Vector routing trie + controller + compiler + shards)
+1. Typology defines the types AND makes them executable (prototypes + Vector routing trie + steer + shape + shards)
 2. Paladin reads circuitry and resolves the registry into a compiled variant
 3. Runtime boots daemons from the variant, applies mode traits, serves HTTP via `shape.http()` + `Deno.serve`
 4. Registry holds everything domain-specific: kernels, modes, services, circuits
@@ -44,19 +44,39 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Typology**: gestalt, prototypes, entities, schematics, specimen
 
-**Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network), controller (routing), compiler (compilation)
+**Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network), steer (routing), shape (compilation)
 
 **Signature hierarchy**: Signature → Pattern, Signal, Path, Url, Action
 
-**System**: vector, aperture, paladin, daemon, mode, valence, wafer, die
+**System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, terminal, stall, lobby, door
+
+**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:session), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (persistent bottom bar, only chrome), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation)
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
 
 **Transport**: publish (server-side SSE framing via Response), subscribe (client-side SSE consumption via Connection/Request), websocket (bidirectional via Connection/shard), stream (raw ReadableStream via Response/Request)
 
-**Traits (current in code)**: VIEWABLE, DATASET, VALENTIC, BUFFERED, PRODUCER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT
+**Datamap**: shard.datamap.repository (MikroORM repo → CRUD Aperture), shard.datamap.reactive (repo + twitch Vector → Broadcaster + /subscribe SSE), shard.datamap.ingest (incoming SSE → repo mutations), shard.datamap.scope (ctx → patch middleware), shard.datamap.errors (exception → HTTP status), RemoteRepository (client-side generic repo over Connection — identity map via `merge`/`_upsert`, `resolve` hook for re-enrichment after upsert, `_upsert` skips undefined incoming values), Broadcaster (async pub/sub with filtered subscriptions + timeout), EntityStore (schema-driven repo wiring — Phase C)
 
-**Traits (planned, not yet in code)**: INTENTIONAL (replaces VALENTIC), SELFEVIDENT (replaces BUFFERED), EMITTER (replaces PRODUCER), LANGUAGED, AGENTIC
+**Steer controllers**: traverse (one signal → one effect), invoke (traverse + execute), shotgun (fire all effects along the way), shine (fire only terminal hits), spray (navigate then harvest subtree), spread (multi-signal scope at one level)
+
+**Subscriber**: shape.subscriber(vector) — function returning MikroORM EventSubscriber POJO, routes entity events via steer.shine through a twitch Vector
+
+**Mode traits**: BUFFERED (was VIEWABLE — bundles, serves, wires mode.buffer()), DATASET, INTENTED, SELFEVIDENT, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT (+ VIEWABLE, VALENTIC, PRODUCER as legacy in enum only)
+
+**Intent traits**: FURNISHED (default buffer props), FEEDING (mount, queue, mask: {seek, batch})
+
+**Buffer entity (server)**: `{data, index, mode, session, literals, symbols}` — no traits, no status on server. `data` (was props) holds value fields, `literals`/`symbols` are m:n relations. `mode.buffer()` creates real MikroORM entities. Status is client-only. Review results live in memory system.
+
+**Buffer (client)**: `Buffer.from(pojo, view)` — pojo is server data (`{id, mode, data, literals, symbols}`), view is `mode.buffered` (`{url, schema}`). `context` and `release` are set by the environment (populate's `mint()`), not by Buffer.from. `mint()` sets `buffer.context = { buffer, terminal }`. Frame.svelte passes `buffer.context` to the Svelte component. Buffers are registered in daemon's buffer repo via `merge` for navigation.
+
+**Schematics**: TypeBox schemas mirroring entity shapes. `Ref` scalar (ID string or object-with-id — universal relation type). `BufferSchema.of({data, literals, symbols})` — mode declares its buffer contract. Three tiers: static base in `typology/schematics` (import time), mode contract via `.of()` (declaration time), runtime-computed from ORM metadata in `daemon.kernel.schematics` (after boot, deferred). `Value.Default(schema, value)` replaces manual default spreading. **TypeBox shim**: `schematics/scalars/index.js` is the ONLY file that imports from `@sinclair/typebox`. All other code imports `Type`, `Value`, etc. from `@vivalence/typology`. No `/schematics` scope needed. Schema suffix (`BufferSchema`, `BaseEntitySchema`) used only when ORM entity name collision exists.
+
+**Intent types**: SELFEVIDENT (mode can open without intent), APPLICATIVE (intent feeds buffers via emitter)
+
+**Entity trait data**: `entity.trait.TRAIT_NAME` — the `trait` column is a JSON object keyed by trait name (was `data`, renamed)
+
+**Traits (planned, not yet in code)**: LANGUAGED, AGENTIC (cortex)
 
 **Memory signals**: MASTERY, SUCCESS, NEUTRAL, MISTAKE, FAILURE
 
@@ -74,6 +94,53 @@ Use these terms precisely. Don't substitute generic alternatives.
   - `publish`/`subscribe` — SSE-framed JSON. Response.publish(asyncIterable) formats SSE frames server-side. Connection.subscribe(endpoint) consumes SSE as async generator client-side. Request.subscribe() consumes SSE from incoming request body. Connection.publish(endpoint, asyncIterable) sends SSE-framed stream upstream.
   - `websocket` — bidirectional. Connection.websocket(endpoint) opens WebSocket. shard.websocket(handler) upgrades server-side.
 - **Harness-as-Vector pattern.** AI interaction surfaces (cortex harnesses) are Vector instances with middleware, branches per faculty type, and effects per operation. Same shape compilers (object, http, proxy, agentic) apply to harnesses as to any Vector.
+- **JSON Merge Patch (RFC 7396) for entity upsert.** `null` means delete in `deepMergeCore` (belt/object.js). Omission means don't touch. Tradeoff: can never store `null` as a meaningful value. Arrays replaced wholesale (no positional deletion).
+
+## Principles
+
+Rules of engagement. Not guidelines — gates.
+
+### Hard Gates
+
+Non-negotiable. If you catch yourself rationalizing past one, stop.
+
+- **NO IMPLEMENTATION WITHOUT DESIRED END STATE STATED IN PLAIN LANGUAGE.** If you can't say what's true after the work that isn't true now, you don't understand the task yet. Ask.
+- **NO DIFF APPLIED WITHOUT EXPLICIT APPROVAL.** Propose the complete diff. Wait. Never chain showing a diff with applying it.
+- **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION.** Before saying "done," run the relevant tests and confirm output. Evidence before assertions.
+- **NO FIXES WITHOUT READING THE CODE FIRST.** Don't propose changes to code you haven't read. Don't assume entity fields exist — read the schema.
+- **NO VCS OPERATIONS WITHOUT EXPLICIT COMMAND.** Never run jj commands that modify the graph (new, commit, squash, rebase, abandon, bookmark) unless Finn explicitly asks. This includes "helpful" commits. Finn manages the entire version control graph.
+
+### Aesthetic
+
+Code is beautiful, elegant, minimal. No comments — comments are user space. Code is self-documenting through naming and structure. Don't force abstractions where explicit repetition carries meaning; three explicit lines that each do something slightly different are better than a loop that erases the differences. Complexity emerges from simplicity, from composition, not from individual cleverness.
+
+### Presentation
+
+Show complete code — every line, every import, every function body. Never use `...` or `// rest`. The code IS the communication; incomplete code is incomplete communication. Start with usage: who calls this, what does the test look like, why this shape. Then show internals. Propose the complete diff and wait for explicit approval before implementing. Never chain showing a diff with applying it in the same message. New files need review too. Don't show changes to import/export index files — that's clutter. Handle re-exports silently. When replacing code, keep the old version as a comment below unless explicitly told to delete it — Finn's code history is his reference.
+
+### Design
+
+**Desired end state first. Always.** Before touching code, before proposing a diff, before designing anything — get crystal clear on the expected outcome. What does the system look like when this is done? What is true that wasn't true before? What can the user do? What does the data look like? If you can't state the desired end state in plain language, you don't understand the task yet. Ask until you do. This is not a guideline — it is the gate that opens everything else.
+
+**Emergence over workarounds.** Never solve a problem by working around it. Design the system so the problem's source disappears. If you're writing adapter code, extraction logic, compatibility shims, or cross-concern plumbing — stop. The system should be structured so that information flows naturally to where it's needed. If it doesn't, the structure is wrong, not the plumbing. This is why the type system is thick, why entities carry their own paths, why `mode.buffer()` exists. Every design decision should make future problems impossible, not just solvable.
+
+Design and implementation are separate modes. Never mix them. In design mode: show usage, show complete diffs, wait for approval. In implementation mode: write code, run tests, report results. "Rethink" means improve, not delete and reverse — show the revised approach alongside the current one, get confirmation before changing direction. Verify entity fields exist before writing code that references them — read the schema, don't assume. Fix existing tests before designing new features. Inspect real data, don't theorize about APIs.
+
+### Testing
+
+Each concept gets its own test file. Integration tests run over real HTTP, not just inline transport. Never leak internal state for testing convenience. Tests live at the level of the package they test — typology tests typology, runtime tests runtime. Use package exports for cross-package imports, never deep relative paths. Don't jam two concepts into one test file, and don't create separate files for tiny additions to an existing concept.
+
+### jj
+
+This repo uses **jj (Jujutsu)**, not git. jj is the version control system — git is the colocated backend. When reading history, always use jj commands (`jj log`, `jj diff`, `jj show`), never git equivalents (`git log`, `git diff`, `git show`). Don't run jj commands that modify the graph (new, commit, rebase, squash, abandon, bookmark) — Finn manages the entire version control graph. This applies to subagents too.
+
+### Boundaries
+
+Don't delete databases, migration files, or perform destructive data operations without explicit approval. Don't use Claude Code worktrees — jj treats worktree contents as new files, causing ghost commits. Gestalten namespaces (shape, steer, shard) are only for Vectors — don't put non-Vector concerns there. Transport adapters go in `typology/gestalten/shard/transporter.js`.
+
+### Communication
+
+Never present things that are layers as if they are parallel alternatives. If X uses Y internally, they're layers — show the stack. If they're independent choices, show the choices. Never mix. Use canonical vocabulary precisely — don't substitute generic alternatives. Terms are chosen deliberately and become canonical once settled.
 
 ## Testing Philosophy
 
@@ -94,7 +161,114 @@ When starting a session on vivalence:
 2. Read the subsystem doc(s) relevant to your task
 3. Read the actual code — the docs are scaffolds, not substitutes
 4. Check the Work Packages section in the relevant doc for known gaps and active work
-5. After completing work, update the relevant doc (see Self-Improvement Protocol below)
+5. After completing work, run the relevant routines (see Routines below)
+
+### Anti-Rationalization Table
+
+If you catch yourself thinking any of these, stop — you're drifting.
+
+| Thought | Reality |
+|---------|---------|
+| "I'll just add a helper function" | Emergence over workarounds. Rethink the structure. |
+| "This comment explains the tricky bit" | No comments in code. Rename until it's obvious. |
+| "I'll use git log to check" | This is a jj repo. Use jj commands. |
+| "Let me amend this quickly" | Don't touch the jj graph. Finn manages it. |
+| "I'll just commit this real quick" | No VCS operations without explicit command. Ever. |
+| "I already know the entity shape" | Re-read it. Server buffer ≠ client buffer ≠ schematic. |
+| "I'll show the diff and apply it" | Two separate messages. Always. |
+| "This is basically done, I'll clean up later" | Run the tests first. No completion claims without verification. |
+| "I'll add a shim for backwards compat" | Delete the old thing. No shims, no re-exports, no _vars. |
+| "Let me refactor this while I'm here" | Only touch what was asked. Scope creep erodes trust. |
+| "The bak/ version had a good pattern" | bak/ is an archive. Those patterns were deliberately abandoned. |
+| "I'll import Type from @sinclair/typebox" | Use the shim. Import from @vivalence/typology. Only scalars/index.js touches typebox directly. |
+
+## Routines
+
+Named protocols invoked during sessions. These are deliberate maintenance acts on the ontology itself.
+
+### ikiro/workpackage
+
+**Trigger:** Mid-session, after meaningful progress on the current task.
+
+Keep workpackage state current so the next session starts from truth, not stale notes.
+
+1. Read the active workpackage file
+2. Update: phase transitions, decisions made, blockers discovered, implementation details settled
+3. Add gaps discovered during implementation
+4. If a workpackage is complete, mark it done in the master index
+5. If new cross-cutting work surfaced, note it
+
+### ikiro/reflection
+
+**Trigger:** After a correction, process insight, or when explicitly invoked.
+
+The ontology learns. Method and process updates propagate into principles, conventions, and vocabulary. Stale state gets cleaned.
+
+1. Identify what changed in how we work — a new rule, a refined principle, a deprecated term
+2. Update the relevant principle in this document, or add a new convention
+3. Update canonical vocabulary if terms were coined or deprecated
+4. Scan memory files — consolidate any that are now absorbed into principles or conventions. If a memory is fully captured by the ontology, delete it
+5. Scan project memories — remove snapshots that no longer reflect current state
+6. Verify memory index (MEMORY.md) is accurate after deletions
+
+### ikiro/principle
+
+**Trigger:** When Finn states something to remember — a rule, a preference, a correction.
+
+Absorb it into the ontology. Principles live in this document, not in memory files.
+
+1. Identify which existing principle it extends, or whether it's a new one
+2. Update the relevant principle section in this document
+3. If it's a new convention or vocabulary term, add it to the appropriate section
+4. If a memory file exists for a superseded version of this rule, delete it
+
+### ikiro/method
+
+**Trigger:** When Finn identifies a process-level pattern — how we work on something specific, not a high-level value.
+
+Methods are about process. Principles are about values. "Always show diffs first" is a principle. "When designing a new primitive, define the process loops first" is a method.
+
+1. Identify the method — what's the process pattern?
+2. If it relates to an active workpackage, add it there as a section
+3. If it's cross-cutting, add it to this doc under a Methods section (create if needed)
+4. Workpackage changelog: every workpackage gets a =* Changelog= section. Each ikiro invocation that touches the workpackage appends an entry with date and what changed.
+
+### ikiro/verify
+
+**Trigger:** Before claiming any implementation work is complete.
+
+Evidence before assertions. This is the gate between "I think it works" and "it works."
+
+1. Run the relevant test suite — not just the new tests, the existing ones too
+2. If there's a build step, run it
+3. Confirm output matches expected behavior — read the actual output, don't assume from exit code
+4. Only then proceed to ikiro/workpackage updates or completion claims
+
+### ikiro/compact
+
+**Trigger:** End of session, or when explicitly invoked.
+
+Compress the session's learnings into the ontology. The system should be cleaner after you leave than when you arrived.
+
+1. Update orientation: active work areas (mark done, add new), dead code registry (add/remove entries), canonical vocabulary (new terms from this session)
+2. Compress zettelkasten: implement the good ideas, discard the stale ones, keep the pending ones sharp
+3. Update workpackage states for anything that moved
+4. Audit dead code flags against the actual repo — remove entries for deleted files, add entries for newly dead code
+5. Run ikiro/reflection (memory cleanup is part of leaving clean)
+6. Report: what shipped, what's blocked, what the next session should pick up
+
+### Routine Composition
+
+Which routines chain into which workflows:
+
+```
+design:      ikiro/workpackage → [design mode: show diffs, wait] → ikiro/principle
+implement:   [write code] → ikiro/verify → ikiro/workpackage → ikiro/reflection
+correct:     ikiro/principle → ikiro/reflection
+end session: ikiro/compact (includes ikiro/reflection)
+```
+
+ikiro/verify is the gate between implementation and completion. Nothing downstream of it runs if verification fails.
 
 ## Dead Code Registry
 
@@ -111,25 +285,35 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 | hallucinator archive | registry/services/@vivalence/hallucinator/hal/archive/ | Legacy providers (Groq, OpenAI, etc.) |
 | 11+ archived modes | registry/modes/@vivalence/bak/ | Abandoned pedagogical approaches |
 | Archived topologies | registry/kernels/@vivalence/topology/bak/ | Spanish, Latin, etc. |
+| ValenceEntity + valence.js | typology + client | Replaced by IntentEntity + intent.js |
+| ProductEntity + product.js | typology + client | Replaced by BufferEntity (typology) + buffer prototype (client) |
+| valentic.js / producer.js | runtime/daemon/mode/traits/ | Replaced by intented.js / emitter.js |
+| Old runtime test scenarios | runtime/tests/scenarios/bak/ | Superseded by scope-split tests (daemon/, mode/, runtime/) |
+| shape.Subscriber class | typology | Replaced by shape.subscriber(vector) function |
+| entities.on (Vector) | runtime/daemon/lifecycle/population.js | Renamed to entities.twitch |
+| Old parametric entity routes | runtime/daemon/aperture/ (commented) | Replaced by shard.datamap per-entity branches |
+| valentic.js / producer.js | runtime/daemon/mode/traits/ | Replaced by intented.js / emitter.js |
+| [...viva] catch-all route | html/src/routes/[...viva]/ | Superseded by viva/ + viva/[...terminal]/ — +page.svelte moved to bak/ |
+| Navtree.svelte | html/src/routes/[...viva]/Navtree.svelte | Replaced by lobby doors. Not imported by new routes |
+| Old populate.js | html/src/routes/[...viva]/lib/populate.js | Replaced by session-anchored populate in viva/[...terminal]/lib/ |
+| Old url.js | html/src/routes/[...viva]/lib/url.js | Replaced by $lib/url.js (parseTerminalPath) |
+| m.link / i.link (old computation) | html/src/typology/entities/daemon.js | Recomputed from daemon.link root (was SELFEVIDENT-gated mount.rebase) |
+| View prototype | typology/prototypes/view.js | Replaced by BufferView (same file, renamed class). Client Buffer now in html/src/typology/entities/buffer.js |
+| Old Buffer prototype (client) | html/src/typology/prototypes/buffer.js | Deleted — Buffer is now an Entity in html/src/typology/entities/buffer.js |
+| Commented code in populate.js | html/src/routes/viva/[...terminal]/lib/populate.js | Old Buffer.hydrate paths removed, clean mint() factory in place |
 
 ## Active Work Areas
 
-As of 2026-03-19 — verify these are still current by checking git log:
+As of 2026-03-25:
 
-- ~~Aperture migration (Oak → Vector → http compilation)~~ DONE
-- ~~Vector → typology merge~~ DONE — Vector absorbed into typology, `subsystems/vector/` deleted
-- ~~HTTP feature surface (streams, SSE, WebSocket, static serving)~~ DONE — Response.stream/publish, Request.stream/subscribe, websocket shard, serve shard, Connection.subscribe/publish/websocket
-- ~~Transport rename: events→publish~~ DONE — Response.events() renamed to Response.publish(). New Request.subscribe() for incoming SSE consumption. New Connection.publish() for upstream SSE streaming.
-- mode.produce.[xyz]() pattern (Vector object/proxy compiler)
-- Buffer/Intent migration — [buffer-intent-migration.workpackage.org](buffer-intent-migration.workpackage.org) — Product→Buffer, Valence→Intent, PRODUCER→EMITTER, VALENTIC→INTENTIONAL, BUFFERED→SELFEVIDENT
-- Asset entity type (VERBALIZED trait, mp3 vocalization, file serving)
+- Audio player variants — inline DONE (drapes/decor/Audio.svelte). Dictation and longform variants deferred
 - Mobile readiness on client
-- ~~Serving built client (production)~~ DONE — adapter-static + serve.js + Dockerfile
 - Hallucinator cortex — [cortex.workpackage.org](cortex.workpackage.org) — daemon-level AI orchestrator with faculties, channels, harnesses (Vector), turns/parts, tune/tier resolution, LANGUAGED/AGENTIC traits
-- Session-first routing — [session-first-routing.workpackage.org](../systems/html/.ikiro/session-first-routing.workpackage.org) — depends on buffer/intent migration
+- Datamap shard + client entity migration — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org) — typology DONE (40 tests), runtime DONE, lighthouse DONE. Client (B), schema projection (C), reactive E2E (E) next
 - Package manager — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — registry as jj-driven discovery scopes
-- More game modes (conjugation practice, "shittons of games")
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — game modes (cloze, pick, listen, reorder, dictation, speed-judge, match, minimal-pair) + tactics (vocabulary, introduction, decomposition, morphology, comprehension) + conversational tactics (immersion, remediation — post-cortex)
 - Progression system (eventually)
+- DB migration — props→data column rename, buffer_literals/buffer_symbols join tables (deferred to deploy)
 
 ## Divio Documentation + Testing Matrix
 
@@ -220,23 +404,21 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 
 **Active work packages (with .org files):**
 - [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex: faculties, channels, harnesses, turns/parts, tune/tier, LANGUAGED/AGENTIC traits
-- [buffer-intent-migration.workpackage.org](buffer-intent-migration.workpackage.org) — Entity renames + trait renames across all layers
 - [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj-driven discovery scopes
-- [session-first-routing.workpackage.org](../systems/html/.ikiro/session-first-routing.workpackage.org) — Client URL scheme migration (depends on buffer/intent)
+- [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics: symbol-driven learning toolset, emitter + conversational architectures
 
 **Critical testing gaps across the system:**
 - Learning domain: no tests for pick/review endpoints, memory drivers, signal schema
-- Runtime: no tests for PRODUCER/DATASET/VALENTIC traits, view bundler, process system
+- Runtime: datamap CRUD, userspace auth+scoping, freight, INTENTED, EMITTER, full lifecycle smoke test all tested (54 steps, 7 suites). DATASET trait, view bundler, process system untested
 - Modes: no mode-level tests at all
 - Paladin: scopes untested, variant compilation untested
 - Typology: entity trait system untested, gestalt belt/shard untested
-- Typology: shotgun, agentic compiler, subscriber, match strategies untested (migrated from vector)
+- Typology: agentic compiler untested, shotgun/shine/spray tested indirectly via datamap reactive
 - Typology: new transport surface tests exist (publish/subscribe/websocket) but Request.subscribe() not yet tested
 
 **Cross-cutting active work:**
 - @vivalence/shared migration (belt re-exports, hash in 7+ files)
 - Asset entity type across domain + runtime + client
-- Buffer/Intent entity migration across typology + registry + runtime + client
 - Hallucinator service contract update (current {object, action} → faculty array for cortex)
 
 **Human documentation priorities (Divio):**

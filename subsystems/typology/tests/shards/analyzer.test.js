@@ -1,6 +1,4 @@
-import { specimen, shard, shape } from "@vivalence/typology";
-import { Vector } from "@vivalence/typology";
-import { Aperture } from "@vivalence/typology/aperture";
+import { specimen, shard, shape, Vector, Aperture } from "@vivalence/typology";
 
 const { http } = shape;
 

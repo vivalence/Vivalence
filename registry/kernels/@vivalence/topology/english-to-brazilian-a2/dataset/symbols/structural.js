@@ -2,7 +2,7 @@ export default [
   {
     slug: "proficiency.survival",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Proficiency > Survival",
@@ -13,7 +13,7 @@ export default [
   {
     slug: "proficiency.high-frequency",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Proficiency > High Frequency",
@@ -24,7 +24,7 @@ export default [
   {
     slug: "proficiency.brazilianism",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Proficiency > Brazilianism",
@@ -35,7 +35,7 @@ export default [
   {
     slug: "proficiency.cefr.a1",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Proficiency > CEFR > A1", description: "Absolute beginner." },
     },
@@ -43,7 +43,7 @@ export default [
   {
     slug: "proficiency.cefr.a2",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Proficiency > CEFR > A2", description: "Elementary." },
     },
@@ -51,7 +51,7 @@ export default [
   {
     slug: "proficiency.cefr.b1",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Proficiency > CEFR > B1", description: "Intermediate." },
     },
@@ -59,7 +59,7 @@ export default [
   {
     slug: "proficiency.cefr.b2",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Proficiency > CEFR > B2", description: "Upper-intermediate." },
     },
@@ -67,7 +67,7 @@ export default [
   {
     slug: "proficiency.cefr.c1",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Proficiency > CEFR > C1", description: "Advanced." },
     },
@@ -75,13 +75,13 @@ export default [
   {
     slug: "proficiency.cefr.c2",
     traits: ["STRUCTURAL", "LABELED"],
-    data: { STRUCTURAL: {}, LABELED: { name: "Proficiency > CEFR > C2", description: "Mastery." } },
+    trait: { STRUCTURAL: {}, LABELED: { name: "Proficiency > CEFR > C2", description: "Mastery." } },
   },
 
   {
     slug: "functional.grammar",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Grammar",
@@ -92,7 +92,7 @@ export default [
   {
     slug: "functional.pronoun",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Pronoun",
@@ -103,7 +103,7 @@ export default [
   {
     slug: "functional.modal",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Modal",
@@ -114,7 +114,7 @@ export default [
   {
     slug: "functional.auxiliary",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Auxiliary",
@@ -125,7 +125,7 @@ export default [
   {
     slug: "functional.connector",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Connector",
@@ -136,7 +136,7 @@ export default [
   {
     slug: "functional.negation",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Negation",
@@ -147,7 +147,7 @@ export default [
   {
     slug: "functional.aspect",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Aspect",
@@ -159,7 +159,7 @@ export default [
   {
     slug: "functional.intensifier",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Intensifier",
@@ -170,7 +170,7 @@ export default [
   {
     slug: "functional.question",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Functional > Question", description: "Interrogative words." },
     },
@@ -178,7 +178,7 @@ export default [
   {
     slug: "functional.number",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Functional > Number", description: "Numerals and quantity words." },
     },
@@ -186,7 +186,7 @@ export default [
   {
     slug: "functional.time",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Time",
@@ -197,7 +197,7 @@ export default [
   {
     slug: "functional.discourse",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Discourse",
@@ -208,7 +208,7 @@ export default [
   {
     slug: "functional.filler",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Filler",
@@ -219,7 +219,7 @@ export default [
   {
     slug: "functional.politeness",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Functional > Politeness",
@@ -231,12 +231,12 @@ export default [
   {
     slug: "domain.body",
     traits: ["STRUCTURAL", "LABELED"],
-    data: { STRUCTURAL: {}, LABELED: { name: "Domain > Body", description: "Body parts." } },
+    trait: { STRUCTURAL: {}, LABELED: { name: "Domain > Body", description: "Body parts." } },
   },
   {
     slug: "domain.state",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > State",
@@ -247,7 +247,7 @@ export default [
   {
     slug: "domain.health",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Health", description: "Illness, medicine, symptoms, emergency." },
     },
@@ -255,7 +255,7 @@ export default [
   {
     slug: "domain.mind",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Mind", description: "Emotions, cognition, and mental states." },
     },
@@ -263,7 +263,7 @@ export default [
   {
     slug: "domain.social",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Social",
@@ -274,7 +274,7 @@ export default [
   {
     slug: "domain.relationship",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Relationship",
@@ -285,12 +285,12 @@ export default [
   {
     slug: "domain.family",
     traits: ["STRUCTURAL", "LABELED"],
-    data: { STRUCTURAL: {}, LABELED: { name: "Domain > Family", description: "Kinship terms." } },
+    trait: { STRUCTURAL: {}, LABELED: { name: "Domain > Family", description: "Kinship terms." } },
   },
   {
     slug: "domain.home",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Home", description: "Household, furniture, domestic life." },
     },
@@ -298,7 +298,7 @@ export default [
   {
     slug: "domain.food",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Food", description: "Food, drink, and cooking." },
     },
@@ -306,7 +306,7 @@ export default [
   {
     slug: "domain.clothing",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Clothing", description: "Garments and accessories." },
     },
@@ -314,7 +314,7 @@ export default [
   {
     slug: "domain.work",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Work", description: "Jobs and professional life." },
     },
@@ -322,7 +322,7 @@ export default [
   {
     slug: "domain.education",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Education", description: "School, study, and learning." },
     },
@@ -330,7 +330,7 @@ export default [
   {
     slug: "domain.money",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Money", description: "Commerce, prices, and transactions." },
     },
@@ -338,7 +338,7 @@ export default [
   {
     slug: "domain.city",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > City",
@@ -349,7 +349,7 @@ export default [
   {
     slug: "domain.space",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Space",
@@ -360,7 +360,7 @@ export default [
   {
     slug: "domain.directions",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Directions",
@@ -371,7 +371,7 @@ export default [
   {
     slug: "domain.transport",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Transport",
@@ -382,7 +382,7 @@ export default [
   {
     slug: "domain.travel",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Travel", description: "Trips, airports, hotels, and tourism." },
     },
@@ -390,7 +390,7 @@ export default [
   {
     slug: "domain.weather",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Weather", description: "Rain, sun, temperature, and seasons." },
     },
@@ -398,12 +398,12 @@ export default [
   {
     slug: "domain.animals",
     traits: ["STRUCTURAL", "LABELED"],
-    data: { STRUCTURAL: {}, LABELED: { name: "Domain > Animals", description: "Fauna." } },
+    trait: { STRUCTURAL: {}, LABELED: { name: "Domain > Animals", description: "Fauna." } },
   },
   {
     slug: "domain.nature",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Nature", description: "Landscape, plants, and environment." },
     },
@@ -411,7 +411,7 @@ export default [
   {
     slug: "domain.time",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: {
         name: "Domain > Time",
@@ -422,12 +422,12 @@ export default [
   {
     slug: "domain.color",
     traits: ["STRUCTURAL", "LABELED"],
-    data: { STRUCTURAL: {}, LABELED: { name: "Domain > Color", description: "Colors." } },
+    trait: { STRUCTURAL: {}, LABELED: { name: "Domain > Color", description: "Colors." } },
   },
   {
     slug: "domain.shape",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Shape", description: "Shapes, sizes, and physical description." },
     },
@@ -435,7 +435,7 @@ export default [
   {
     slug: "domain.entertainment",
     traits: ["STRUCTURAL", "LABELED"],
-    data: {
+    trait: {
       STRUCTURAL: {},
       LABELED: { name: "Domain > Entertainment", description: "Music, film, sport, and leisure." },
     },

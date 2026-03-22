@@ -1,5 +1,4 @@
-import { Type } from "@sinclair/typebox";
-import { Timestamp } from "../scalars/index.js";
+import { Type, Timestamp } from "../scalars/index.js";
 
 export const StatusCode = Type.Union([
   Type.Literal("IDLE"),

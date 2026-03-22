@@ -45,8 +45,8 @@
           "length": null,
           "mappedType": "text"
         },
-        "data": {
-          "name": "data",
+        "trait": {
+          "name": "trait",
           "type": "json",
           "unsigned": false,
           "autoincrement": false,
@@ -198,6 +198,27 @@
           "length": null,
           "mappedType": "text"
         },
+        "installed": {
+          "name": "installed",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "false",
+          "mappedType": "integer"
+        },
+        "version": {
+          "name": "version",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
         "traits": {
           "name": "traits",
           "type": "text",
@@ -212,23 +233,15 @@
             "DATASET",
             "CHAOSMONKEY",
             "TOPOGRAPHICAL",
+            "INTENTED",
+            "SELFEVIDENT",
+            "EMITTER",
+            "FRAUGHT",
             "VALENTIC",
             "BUFFERED",
-            "PRODUCER",
-            "FRAUGHT"
+            "PRODUCER"
           ],
           "mappedType": "text"
-        },
-        "installed": {
-          "name": "installed",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "false",
-          "mappedType": "integer"
         }
       },
       "name": "Mode",
@@ -301,6 +314,175 @@
           "primary": false,
           "nullable": false,
           "length": null,
+          "default": "''",
+          "mappedType": "text"
+        },
+        "type": {
+          "name": "type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "'SELFEVIDENT'",
+          "enumItems": [
+            "SELFEVIDENT",
+            "APPLICATIVE"
+          ],
+          "mappedType": "enum"
+        },
+        "traits": {
+          "name": "traits",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "'[]'",
+          "enumItems": [
+            "FURNISHED",
+            "FEEDING"
+          ],
+          "mappedType": "text"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "trait": {
+          "name": "trait",
+          "type": "json",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "'{}'",
+          "mappedType": "json"
+        },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        }
+      },
+      "name": "Intent",
+      "indexes": [
+        {
+          "columnNames": [
+            "mode"
+          ],
+          "composite": false,
+          "keyName": "Intent_mode_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "Intent_slug_mode_unique",
+          "columnNames": [
+            "slug",
+            "mode"
+          ],
+          "composite": true,
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
+          "keyName": "primary",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "Intent_mode_foreign": {
+          "constraintName": "Intent_mode_foreign",
+          "columnNames": [
+            "mode"
+          ],
+          "localTableName": "Intent",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Mode",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
           "mappedType": "text"
         },
         "traits": {
@@ -319,8 +501,8 @@
           ],
           "mappedType": "json"
         },
-        "data": {
-          "name": "data",
+        "trait": {
+          "name": "trait",
           "type": "json",
           "unsigned": false,
           "autoincrement": false,
@@ -567,6 +749,26 @@
           "length": null,
           "mappedType": "text"
         },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "intent": {
+          "name": "intent",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
         "traits": {
           "name": "traits",
           "type": "json",
@@ -581,8 +783,8 @@
           ],
           "mappedType": "json"
         },
-        "data": {
-          "name": "data",
+        "trait": {
+          "name": "trait",
           "type": "json",
           "unsigned": false,
           "autoincrement": false,
@@ -627,6 +829,26 @@
           "unique": false
         },
         {
+          "columnNames": [
+            "mode"
+          ],
+          "composite": false,
+          "keyName": "Session_mode_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "intent"
+          ],
+          "composite": false,
+          "keyName": "Session_intent_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
           "keyName": "primary",
           "columnNames": [
             "id"
@@ -650,6 +872,31 @@
           ],
           "referencedTableName": "User",
           "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "Session_mode_foreign": {
+          "constraintName": "Session_mode_foreign",
+          "columnNames": [
+            "mode"
+          ],
+          "localTableName": "Session",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Mode",
+          "updateRule": "cascade"
+        },
+        "Session_intent_foreign": {
+          "constraintName": "Session_intent_foreign",
+          "columnNames": [
+            "intent"
+          ],
+          "localTableName": "Session",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Intent",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
@@ -689,21 +936,6 @@
           "default": "CURRENT_TIMESTAMP",
           "mappedType": "datetime"
         },
-        "traits": {
-          "name": "traits",
-          "type": "json",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "'[]'",
-          "enumItems": [
-            "BUFFERED",
-            "SIGNAL"
-          ],
-          "mappedType": "json"
-        },
         "data": {
           "name": "data",
           "type": "json",
@@ -712,35 +944,29 @@
           "primary": false,
           "nullable": false,
           "length": null,
+          "default": "'{}'",
           "mappedType": "json"
         },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "'PENDING'",
-          "enumItems": [
-            "PENDING",
-            "ACTIVE",
-            "DONE",
-            "ERROR",
-            "STALE"
-          ],
-          "mappedType": "enum"
-        },
-        "position": {
-          "name": "position",
+        "index": {
+          "name": "index",
           "type": "integer",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "length": null,
+          "default": "0",
           "mappedType": "integer"
+        },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
         },
         "session": {
           "name": "session",
@@ -751,56 +977,26 @@
           "nullable": false,
           "length": null,
           "mappedType": "text"
-        },
-        "producer": {
-          "name": "producer",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
-        },
-        "commissioner": {
-          "name": "commissioner",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
         }
       },
-      "name": "Product",
+      "name": "Buffer",
       "indexes": [
+        {
+          "columnNames": [
+            "mode"
+          ],
+          "composite": false,
+          "keyName": "Buffer_mode_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
         {
           "columnNames": [
             "session"
           ],
           "composite": false,
-          "keyName": "Product_session_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "producer"
-          ],
-          "composite": false,
-          "keyName": "Product_producer_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "columnNames": [
-            "commissioner"
-          ],
-          "composite": false,
-          "keyName": "Product_commissioner_index",
+          "keyName": "Buffer_session_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -818,40 +1014,28 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "Product_session_foreign": {
-          "constraintName": "Product_session_foreign",
+        "Buffer_mode_foreign": {
+          "constraintName": "Buffer_mode_foreign",
+          "columnNames": [
+            "mode"
+          ],
+          "localTableName": "Buffer",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Mode",
+          "updateRule": "cascade"
+        },
+        "Buffer_session_foreign": {
+          "constraintName": "Buffer_session_foreign",
           "columnNames": [
             "session"
           ],
-          "localTableName": "Product",
+          "localTableName": "Buffer",
           "referencedColumnNames": [
             "id"
           ],
           "referencedTableName": "Session",
-          "updateRule": "cascade"
-        },
-        "Product_producer_foreign": {
-          "constraintName": "Product_producer_foreign",
-          "columnNames": [
-            "producer"
-          ],
-          "localTableName": "Product",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "Mode",
-          "updateRule": "cascade"
-        },
-        "Product_commissioner_foreign": {
-          "constraintName": "Product_commissioner_foreign",
-          "columnNames": [
-            "commissioner"
-          ],
-          "localTableName": "Product",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "Mode",
           "updateRule": "cascade"
         }
       },
@@ -859,6 +1043,16 @@
     },
     {
       "columns": {
+        "buffer_entity_id": {
+          "name": "buffer_entity_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
         "symbol_entity_id": {
           "name": "symbol_entity_id",
           "type": "text",
@@ -868,36 +1062,26 @@
           "nullable": false,
           "length": null,
           "mappedType": "text"
-        },
-        "product_entity_id": {
-          "name": "product_entity_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
         }
       },
-      "name": "symbol_products",
+      "name": "buffer_symbols",
       "indexes": [
         {
           "columnNames": [
-            "symbol_entity_id"
+            "buffer_entity_id"
           ],
           "composite": false,
-          "keyName": "symbol_products_symbol_entity_id_index",
+          "keyName": "buffer_symbols_buffer_entity_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "product_entity_id"
+            "symbol_entity_id"
           ],
           "composite": false,
-          "keyName": "symbol_products_product_entity_id_index",
+          "keyName": "buffer_symbols_symbol_entity_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -905,8 +1089,8 @@
         {
           "keyName": "primary",
           "columnNames": [
-            "symbol_entity_id",
-            "product_entity_id"
+            "buffer_entity_id",
+            "symbol_entity_id"
           ],
           "composite": true,
           "constraint": true,
@@ -916,29 +1100,29 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "symbol_products_symbol_entity_id_foreign": {
-          "constraintName": "symbol_products_symbol_entity_id_foreign",
+        "buffer_symbols_buffer_entity_id_foreign": {
+          "constraintName": "buffer_symbols_buffer_entity_id_foreign",
+          "columnNames": [
+            "buffer_entity_id"
+          ],
+          "localTableName": "buffer_symbols",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Buffer",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "buffer_symbols_symbol_entity_id_foreign": {
+          "constraintName": "buffer_symbols_symbol_entity_id_foreign",
           "columnNames": [
             "symbol_entity_id"
           ],
-          "localTableName": "symbol_products",
+          "localTableName": "buffer_symbols",
           "referencedColumnNames": [
             "id"
           ],
           "referencedTableName": "Symbol",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        },
-        "symbol_products_product_entity_id_foreign": {
-          "constraintName": "symbol_products_product_entity_id_foreign",
-          "columnNames": [
-            "product_entity_id"
-          ],
-          "localTableName": "symbol_products",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "Product",
           "deleteRule": "cascade",
           "updateRule": "cascade"
         }
@@ -947,6 +1131,16 @@
     },
     {
       "columns": {
+        "buffer_entity_id": {
+          "name": "buffer_entity_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
         "literal_entity_id": {
           "name": "literal_entity_id",
           "type": "text",
@@ -956,36 +1150,26 @@
           "nullable": false,
           "length": null,
           "mappedType": "text"
-        },
-        "product_entity_id": {
-          "name": "product_entity_id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
         }
       },
-      "name": "literal_products",
+      "name": "buffer_literals",
       "indexes": [
         {
           "columnNames": [
-            "literal_entity_id"
+            "buffer_entity_id"
           ],
           "composite": false,
-          "keyName": "literal_products_literal_entity_id_index",
+          "keyName": "buffer_literals_buffer_entity_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
         },
         {
           "columnNames": [
-            "product_entity_id"
+            "literal_entity_id"
           ],
           "composite": false,
-          "keyName": "literal_products_product_entity_id_index",
+          "keyName": "buffer_literals_literal_entity_id_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -993,8 +1177,8 @@
         {
           "keyName": "primary",
           "columnNames": [
-            "literal_entity_id",
-            "product_entity_id"
+            "buffer_entity_id",
+            "literal_entity_id"
           ],
           "composite": true,
           "constraint": true,
@@ -1004,29 +1188,29 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "literal_products_literal_entity_id_foreign": {
-          "constraintName": "literal_products_literal_entity_id_foreign",
+        "buffer_literals_buffer_entity_id_foreign": {
+          "constraintName": "buffer_literals_buffer_entity_id_foreign",
+          "columnNames": [
+            "buffer_entity_id"
+          ],
+          "localTableName": "buffer_literals",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Buffer",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "buffer_literals_literal_entity_id_foreign": {
+          "constraintName": "buffer_literals_literal_entity_id_foreign",
           "columnNames": [
             "literal_entity_id"
           ],
-          "localTableName": "literal_products",
+          "localTableName": "buffer_literals",
           "referencedColumnNames": [
             "id"
           ],
           "referencedTableName": "Literal",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        },
-        "literal_products_product_entity_id_foreign": {
-          "constraintName": "literal_products_product_entity_id_foreign",
-          "columnNames": [
-            "product_entity_id"
-          ],
-          "localTableName": "literal_products",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "Product",
           "deleteRule": "cascade",
           "updateRule": "cascade"
         }
@@ -1256,185 +1440,6 @@
             "id"
           ],
           "referencedTableName": "Literal",
-          "deleteRule": "cascade",
-          "updateRule": "cascade"
-        }
-      },
-      "nativeEnums": {}
-    },
-    {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "CURRENT_TIMESTAMP",
-          "mappedType": "datetime"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "CURRENT_TIMESTAMP",
-          "mappedType": "datetime"
-        },
-        "slug": {
-          "name": "slug",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "''",
-          "mappedType": "text"
-        },
-        "type": {
-          "name": "type",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "'SELFEVIDENT'",
-          "enumItems": [
-            "SELFEVIDENT",
-            "APPLICATIVE"
-          ],
-          "mappedType": "enum"
-        },
-        "traits": {
-          "name": "traits",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "'[]'",
-          "enumItems": [
-            "BUFFERED",
-            "PRODUCTIVE"
-          ],
-          "mappedType": "text"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": null,
-          "mappedType": "text"
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": null,
-          "mappedType": "text"
-        },
-        "data": {
-          "name": "data",
-          "type": "json",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "default": "'{}'",
-          "mappedType": "json"
-        },
-        "docs": {
-          "name": "docs",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": null,
-          "mappedType": "text"
-        },
-        "mode": {
-          "name": "mode",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "text"
-        }
-      },
-      "name": "Valence",
-      "indexes": [
-        {
-          "columnNames": [
-            "mode"
-          ],
-          "composite": false,
-          "keyName": "Valence_mode_index",
-          "constraint": false,
-          "primary": false,
-          "unique": false
-        },
-        {
-          "keyName": "Valence_slug_mode_unique",
-          "columnNames": [
-            "slug",
-            "mode"
-          ],
-          "composite": true,
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
-          "keyName": "primary",
-          "columnNames": [
-            "id"
-          ],
-          "composite": false,
-          "constraint": true,
-          "primary": true,
-          "unique": true
-        }
-      ],
-      "checks": [],
-      "foreignKeys": {
-        "Valence_mode_foreign": {
-          "constraintName": "Valence_mode_foreign",
-          "columnNames": [
-            "mode"
-          ],
-          "localTableName": "Valence",
-          "referencedColumnNames": [
-            "id"
-          ],
-          "referencedTableName": "Mode",
           "deleteRule": "cascade",
           "updateRule": "cascade"
         }

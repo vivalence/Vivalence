@@ -24,11 +24,11 @@ export class LiteralEntity extends maps.kernel.literal.entity {
   }
 
   get translated() {
-    return this.data.TRANSLATED;
+    return this.trait.TRANSLATED;
   }
 
   get example() {
-    return this.data.EXEMPLIFIED;
+    return this.trait.EXEMPLIFIED;
   }
 
   // toJSON(...args: any[]) {const json = super.toJSON(...args); json.memory = this.memory?.toJSON?.() ?? this.memory ?? null; return json;}
@@ -69,10 +69,10 @@ export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
     return [LiteralEntity];
   }
   beforeCreate({ entity }: EventArgs<LiteralEntity>) {
-    entity.rank = entity.data?.RANKED?.rank ?? 999999; // ugh
+    entity.rank = entity.trait?.RANKED?.rank ?? 999999; // ugh
   }
   beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
-    entity.rank = entity.data?.RANKED?.rank ?? 999999; // ugh
+    entity.rank = entity.trait?.RANKED?.rank ?? 999999; // ugh
   }
 }
 

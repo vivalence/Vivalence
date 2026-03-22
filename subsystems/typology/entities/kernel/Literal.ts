@@ -4,7 +4,7 @@ import { EventSubscriber, type EventArgs } from "@mikro-orm/core";
 import { object } from "@vivalence/typology";
 
 import { DataEntity, DataSchema, DataRepository } from "../index.ts";
-import { ProductEntity, SymbolEntity } from "../index.ts";
+import { SymbolEntity } from "../index.ts";
 
 export enum LiteralTraitsEnum {
   _ = "_",
@@ -20,11 +20,10 @@ export class LiteralEntity extends DataEntity {
   traits: LiteralTraitsEnum[] & Opt = [];
   slug: string & Opt = "";
 
-  data: any & Opt = {};
+  trait: any & Opt = {};
   symbol: Record<string, any> & Opt = {};
 
   symbols = new Collection<SymbolEntity>(this);
-  products = new Collection<ProductEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
 }
 
@@ -44,7 +43,7 @@ export const LiteralSchema = new EntitySchema({
       defaultRaw: `'[]'`,
       type: types.json,
     },
-    data: { type: types.json },
+    trait: { type: types.json },
     symbol: { type: types.json, defaultRaw: `'{}'` },
 
     symbols: {
@@ -52,11 +51,6 @@ export const LiteralSchema = new EntitySchema({
       entity: () => SymbolEntity,
       mappedBy: (symbol) => symbol.literals,
       cascade: [Cascade.REMOVE],
-    },
-    products: {
-      kind: "m:n",
-      entity: () => ProductEntity,
-      inversedBy: (product) => product.literals,
     },
   },
 });

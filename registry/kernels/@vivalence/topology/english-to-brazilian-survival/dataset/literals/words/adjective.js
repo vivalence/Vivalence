@@ -4,9 +4,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "good",
         "learning": "bom / boa"
@@ -18,7 +19,12 @@ export default [
       "RANKED": {
         "rank": 1096,
         "zipf": 5.96,
-        "fpm": 912.0
+        "fpm": 912
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/bom.mp3"
+        }
       }
     },
     "symbols": [
@@ -53,9 +59,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "next / nearby",
         "learning": "próximo / próxima"
@@ -67,7 +74,12 @@ export default [
       "RANKED": {
         "rank": 6173,
         "zipf": 5.21,
-        "fpm": 162.0
+        "fpm": 162
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/próximo.mp3"
+        }
       }
     },
     "symbols": [
@@ -105,9 +117,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "hot",
         "learning": "quente"
@@ -120,6 +133,11 @@ export default [
         "rank": 16207,
         "zipf": 4.79,
         "fpm": 61.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/quente.mp3"
+        }
       }
     },
     "symbols": [
@@ -151,9 +169,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "tired",
         "learning": "cansado / cansada"
@@ -166,6 +185,11 @@ export default [
         "rank": 30211,
         "zipf": 4.52,
         "fpm": 33.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cansado.mp3"
+        }
       }
     },
     "symbols": [
@@ -200,9 +224,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "expensive",
         "learning": "caro / cara"
@@ -215,6 +240,11 @@ export default [
         "rank": 23419,
         "zipf": 4.63,
         "fpm": 42.7
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/caro.mp3"
+        }
       }
     },
     "symbols": [
@@ -249,9 +279,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "better / best",
         "learning": "melhor"
@@ -263,7 +294,12 @@ export default [
       "RANKED": {
         "rank": 1047,
         "zipf": 5.98,
-        "fpm": 955.0
+        "fpm": 955
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/melhor.mp3"
+        }
       }
     },
     "symbols": [
@@ -295,9 +331,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "near / close",
         "learning": "perto"
@@ -309,7 +346,12 @@ export default [
       "RANKED": {
         "rank": 5376,
         "zipf": 5.27,
-        "fpm": 186.0
+        "fpm": 186
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/perto.mp3"
+        }
       }
     },
     "symbols": [
@@ -341,9 +383,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "far",
         "learning": "longe"
@@ -355,7 +398,12 @@ export default [
       "RANKED": {
         "rank": 6897,
         "zipf": 5.16,
-        "fpm": 145.0
+        "fpm": 145
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/longe.mp3"
+        }
       }
     },
     "symbols": [
@@ -387,9 +435,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "cold",
         "learning": "frio / fria"
@@ -402,6 +451,11 @@ export default [
         "rank": 14793,
         "zipf": 4.83,
         "fpm": 67.6
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/frio.mp3"
+        }
       }
     },
     "symbols": [
@@ -436,9 +490,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "big / large",
         "learning": "grande"
@@ -450,7 +505,12 @@ export default [
       "RANKED": {
         "rank": 1122,
         "zipf": 5.95,
-        "fpm": 891.0
+        "fpm": 891
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/grande.mp3"
+        }
       }
     },
     "symbols": [
@@ -479,9 +539,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "small",
         "learning": "pequeno / pequena"
@@ -493,7 +554,12 @@ export default [
       "RANKED": {
         "rank": 7407,
         "zipf": 5.13,
-        "fpm": 135.0
+        "fpm": 135
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pequeno.mp3"
+        }
       }
     },
     "symbols": [
@@ -525,9 +591,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "open",
         "learning": "aberto / aberta"
@@ -540,6 +607,11 @@ export default [
         "rank": 13495,
         "zipf": 4.87,
         "fpm": 74.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/aberto.mp3"
+        }
       }
     },
     "symbols": [
@@ -571,9 +643,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "closed",
         "learning": "fechado / fechada"
@@ -586,6 +659,11 @@ export default [
         "rank": 30211,
         "zipf": 4.52,
         "fpm": 33.1
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/fechado.mp3"
+        }
       }
     },
     "symbols": [
@@ -617,9 +695,10 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED"
+      "RANKED",
+      "VOCALIZED"
     ],
-    "data": {
+    "trait": {
       "TRANSLATED": {
         "known": "other / another",
         "learning": "outro / outra"
@@ -631,7 +710,12 @@ export default [
       "RANKED": {
         "rank": 1585,
         "zipf": 5.8,
-        "fpm": 631.0
+        "fpm": 631
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/outro.mp3"
+        }
       }
     },
     "symbols": [
@@ -657,5 +741,463 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  }
+  },
+  {
+    "slug": "claro.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "clear / of course",
+        "learning": "claro"
+      },
+      "EXEMPLIFIED": {
+        "known": "Of course, no problem",
+        "learning": "Claro, sem problema"
+      },
+      "RANKED": {
+        "rank": 393,
+        "zipf": 5.38,
+        "fpm": 240
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/claro.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "word.lemma.claro"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "proficiency.brazilianism"
+      },
+      {
+        "slug": "functional.discourse"
+      }
+    ]
+  },
+  {
+    "slug": "anterior.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "previous",
+        "learning": "anterior"
+      },
+      "EXEMPLIFIED": {
+        "known": "I had bought it the week before.",
+        "learning": "Eu o havia comprado na semana anterior."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/anterior.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.anterior"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "especial.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "special",
+        "learning": "especial"
+      },
+      "EXEMPLIFIED": {
+        "known": "This is a very special day.",
+        "learning": "Hoje é um dia muito especial."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/especial.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.especial"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "faminto.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "hungry",
+        "learning": "faminto"
+      },
+      "EXEMPLIFIED": {
+        "known": "However hungry you are, you must eat slowly.",
+        "learning": "Não importa quão faminto você está, você deve comer devagar."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/faminto.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.faminto"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "furioso.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "furious",
+        "learning": "furioso"
+      },
+      "EXEMPLIFIED": {
+        "known": "Even though he apologized, I'm still furious.",
+        "learning": "Embora ele tenha se desculpado, eu ainda estou furioso."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/furioso.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.furioso"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "maior.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "bigger",
+        "learning": "maior"
+      },
+      "EXEMPLIFIED": {
+        "known": "What's your greatest fear?",
+        "learning": "Qual é o seu maior medo?"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/maior.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.maior"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "pesado.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "heavy",
+        "learning": "pesada"
+      },
+      "EXEMPLIFIED": {
+        "known": "This box is very heavy, so I can't carry it.",
+        "learning": "Esta caixa é muito pesada, então não posso carregá-la."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pesado.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.pesado"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "preso.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "stuck/arrested",
+        "learning": "presos"
+      },
+      "EXEMPLIFIED": {
+        "known": "Tom was arrested in Boston.",
+        "learning": "Tom foi preso em Boston."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/preso.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.preso"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "principal.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "main",
+        "learning": "principal"
+      },
+      "EXEMPLIFIED": {
+        "known": "This is the main street of this city.",
+        "learning": "Esta é a rua principal desta cidade."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/principal.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.principal"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "pronto.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "ready",
+        "learning": "pronto"
+      },
+      "EXEMPLIFIED": {
+        "known": "Everything is ready.",
+        "learning": "Está tudo pronto."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pronto.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.pronto"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "real.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "real/royal",
+        "learning": "real"
+      },
+      "EXEMPLIFIED": {
+        "known": "Welcome to the real world!",
+        "learning": "Bem-vindo ao mundo real!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/real.mp3"
+        }
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.real"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
 ];

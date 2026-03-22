@@ -14,12 +14,11 @@ export * from "./network/Identity.ts";
 export * from "./network/Daemon.ts";
 
 export * from "./daemon/Mode.ts";
-export * from "./daemon/Valence.ts";
+export * from "./daemon/Intent.ts";
 export * from "./daemon/User.ts";
 
-export * from "./userspace/Product.ts";
+export * from "./userspace/Buffer.ts";
 export * from "./userspace/Session.ts";
-// export * from "./userspace/Intent.ts";
 
 // import subject from "./kernel/Subject.ts";
 // import dimension from "./kernel/Dimension.ts";
@@ -31,24 +30,21 @@ import constraint from "./kernel/Constraint.ts";
 import identity from "./network/Identity.ts";
 import daemon from "./network/Daemon.ts";
 
-import valence from "./daemon/Valence.ts";
+import intent from "./daemon/Intent.ts";
 import mode from "./daemon/Mode.ts";
 import user from "./daemon/User.ts";
 
-// import intent from "./userspace/Intent.ts";
 import session from "./userspace/Session.ts";
-import product from "./userspace/Product.ts";
+import buffer from "./userspace/Buffer.ts";
 
 // import virtual from "./base/VirtualEntity.ts";
 // import data from "./base/DataEntity.ts";
 // import base from "./base/BaseEntity.ts";
 // export const entity = [base, data, virtual];
 
-export const daemon = [valence, user, mode];
+export const daemon = [intent, user, mode];
 
 export const userspace = [
-  // product,
-  // intent,
   session,
 ];
 
@@ -80,14 +76,13 @@ export const maps = {
     daemon,
   },
   daemon: {
-    valence,
+    intent,
     mode,
     user,
   },
   userspace: {
-    // intent,
+    buffer,
     session,
-    product,
   },
   kernel: {
     literal,

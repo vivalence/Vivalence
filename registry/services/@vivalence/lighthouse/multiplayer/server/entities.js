@@ -1,9 +1,9 @@
 import paladin from "@vivalence/paladin";
 import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-// import { mikro } from "@vivalence/typology/entities/mikro";
 import { v7 } from "uuid";
 import { join } from "@std/path";
+import { shard } from "@vivalence/typology";
 
 import {
   IdentitySchema,
@@ -40,35 +40,47 @@ export function inject(orm) {
   };
 }
 
-export function expose(service, aperture) {
-  aperture.open("/entities/:entity/:method", async (body, ctx) => {
-    if (!["upsert", "expect"].includes(ctx.params.method)) {
-      const entity = ctx.entities[ctx.params.entity];
-      return await ctx.entities.em[ctx.params.method](
-        entity.entityName,
-        body.where,
-        body.options,
-      );
-    }
+export function expose(service, aperture, orm) {
+  const em = orm.em.fork();
+  const identityRepo = em.getRepository(IdentityEntity);
+  const daemonRepo = em.getRepository(DaemonEntity);
 
-    const where = {};
-    if (body.where.id) where.id = body.where.id;
-    else if (body.where.slug) where.slug = body.where.slug;
-    else throw new Error("invalid request body");
+  aperture
+    .branch("/entities/identity")
+    .slurp(shard.datamap.repository(identityRepo));
 
-    // console.log({ where, entity: null });
-    let entity = await ctx.entities[ctx.params.entity].findOne(where); // gestalt primitive signal [belt?]
-    // console.log({ where, entity });
-
-    if (!entity) {
-      entity = await ctx.entities[ctx.params.entity].create(body.where);
-    } else {
-      ctx.entities[ctx.params.entity].assign(entity, body.where);
-    }
-
-    return entity;
-  });
+  aperture
+    .branch("/entities/daemon")
+    .slurp(shard.datamap.repository(daemonRepo));
 }
+
+// export function expose(service, aperture) {
+//   aperture.open("/entities/:entity/:method", async (body, ctx) => {
+//     if (!["upsert", "expect"].includes(ctx.params.method)) {
+//       const entity = ctx.entities[ctx.params.entity];
+//       return await ctx.entities.em[ctx.params.method](
+//         entity.entityName,
+//         body.where,
+//         body.options,
+//       );
+//     }
+//
+//     const where = {};
+//     if (body.where.id) where.id = body.where.id;
+//     else if (body.where.slug) where.slug = body.where.slug;
+//     else throw new Error("invalid request body");
+//
+//     let entity = await ctx.entities[ctx.params.entity].findOne(where);
+//
+//     if (!entity) {
+//       entity = await ctx.entities[ctx.params.entity].create(body.where);
+//     } else {
+//       ctx.entities[ctx.params.entity].assign(entity, body.where);
+//     }
+//
+//     return entity;
+//   });
+// }
 
 // const entity = ctx.entities[ctx.params.entity];
 // const method = ctx.entities.em[ctx.params.method];

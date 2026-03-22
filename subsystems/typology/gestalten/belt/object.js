@@ -144,6 +144,7 @@ const deepMergeCore = (current, options, visited, ...sources) => {
 
     for (const key in source) {
       const sourceValue = source[key];
+      if (sourceValue === null) { delete current[key]; continue; }
       const customFn = options.customMergeFunctions?.[sourceValue?.constructor?.name];
 
       if (sourceValue && customFn) {
