@@ -1,0 +1,27 @@
+meta {
+  name: present
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{GAME_EXHIBIT}}/emit/present
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "layout": "table",
+    "title": "New words",
+    "literals": []
+  }
+}
+
+docs {
+  emit an exhibit buffer — present literals in table or pattern layout
+}

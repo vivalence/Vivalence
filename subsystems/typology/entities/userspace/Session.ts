@@ -39,6 +39,8 @@ export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
       kind: "m:1",
       entity: () => ModeEntity,
       fieldName: "mode",
+      updateRule: "cascade",
+      deleteRule: "cascade",
     },
 
     intent: {

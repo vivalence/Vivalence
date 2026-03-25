@@ -1,5 +1,4 @@
-import { Url, Connection, shard, Mode, Path, shards, shape, Aperture, Vector, BufferView } from "@vivalence/typology";
-import { Type, BufferSchema, Ref } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shards, shape, Aperture, Vector, BufferView, v } from "@vivalence/typology";
 import {
   ModeEntity,
   IntentEntity,
@@ -41,9 +40,8 @@ export async function create() {
   mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
   mode.entity = fixtures.mode;
 
-  mode.cake.buffer = new BufferView("buffer/flashcard.svelte.js", BufferSchema.of({
-    data: { recall: Type.String({ default: "LEARNING" }) },
-    literals: Type.Array(Ref),
+  mode.cake.buffer = new BufferView("buffer/flashcard.svelte.js", v.buffer({
+    data: { recall: v.string({ default: "LEARNING" }) },
   }));
   mode.cake.buffer.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));
 

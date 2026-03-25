@@ -1,7 +1,7 @@
-import { ID, Slug, Type } from "@vivalence/typology";
+import { ID, Slug, v } from "@vivalence/typology";
 import { JWTToken, Username, Password } from "@vivalence/typology";
 
-export const AuthorityToken = Type.Object(
+export const AuthorityToken = v.object(
   {
     access: JWTToken,
     refresh: JWTToken,
@@ -9,11 +9,11 @@ export const AuthorityToken = Type.Object(
   { description: "Token pair for session management" },
 );
 
-export const IdentityReference = Type.Object(
+export const IdentityReference = v.object(
   {
     id: ID,
-    slug: Type.Optional(Slug),
-    authentication: Type.Optional(Type.Null()),
+    slug: Slug.optional(),
+    authentication: v.null().optional(),
   },
   {
     description: "daemon internal identity reference",
@@ -21,30 +21,30 @@ export const IdentityReference = Type.Object(
   },
 );
 
-export const LoginRequest = Type.Object({
+export const LoginRequest = v.object({
   username: Username,
   password: Password,
 });
 
-export const SignupRequest = Type.Object({
+export const SignupRequest = v.object({
   username: Username,
   password: Password,
 });
 
-export const VerifyRequest = Type.Object({
+export const VerifyRequest = v.object({
   access: JWTToken,
 });
 
-export const RefreshRequest = Type.Object({
+export const RefreshRequest = v.object({
   refresh: JWTToken,
 });
 
-export const LogoutRequest = Type.Object({
+export const LogoutRequest = v.object({
   refresh: JWTToken,
 });
 
 // Response bodies
-export const AuthResponse = Type.Object(
+export const AuthResponse = v.object(
   {
     authority: AuthorityToken,
     identity: IdentityReference,
@@ -52,15 +52,15 @@ export const AuthResponse = Type.Object(
   { description: "Login/signup success response" },
 );
 
-export const VerifyResponse = Type.Object({
-  success: Type.Boolean(),
-  identity: Type.Optional(IdentityReference),
+export const VerifyResponse = v.object({
+  success: v.boolean(),
+  identity: IdentityReference.optional(),
 });
 
-export const RefreshResponse = Type.Object({
+export const RefreshResponse = v.object({
   access: JWTToken,
 });
 
-export const LogoutResponse = Type.Object({
-  success: Type.Boolean(),
+export const LogoutResponse = v.object({
+  success: v.boolean(),
 });

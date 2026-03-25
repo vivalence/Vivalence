@@ -71,6 +71,8 @@ export const ModeSchema = new EntitySchema({
       kind: "1:m",
       entity: () => BufferEntity,
       mappedBy: (buffer) => buffer.mode,
+      cascade: [Cascade.REMOVE],
+      orphanRemoval: true,
     },
   },
 });

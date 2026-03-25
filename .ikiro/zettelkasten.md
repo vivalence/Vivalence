@@ -48,6 +48,10 @@ Ideas about the self-improvement protocol itself.
 - [ ] **Staleness detector**: When reading a doc, check 3 random file paths mentioned. If any are wrong, flag the doc for a refresh pass.
 - [ ] **Work Packages sync**: Before starting a task, read the relevant Work Packages. After finishing, update them. Make this part of the Session Protocol in the root doc.
 
+- [x] **Modes doc stale**: Rewritten 2026-03-26. All 9 game modes, 2 tactics, current traits, emitter wiring, memory integration.
+- [ ] **Memory driver reference doc**: The mikro-superpowers.org covers entity layers but not the driver interface (encode/evolve/assess). A companion doc or section covering driver contracts, signal semantics, and SQL strength composition would help future agents.
+- [ ] **Bruno test coverage map**: Now have Bruno tests for all game emitters, tactic emitters, and domain pick/review routes. No doc tracks what's covered vs. not.
+
 ## Testing Ideas
 
 Ideas specifically about testing documentation and gaps.

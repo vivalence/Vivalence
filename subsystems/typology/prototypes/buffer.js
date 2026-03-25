@@ -3,13 +3,14 @@ import { Value, is, Url, Path } from "@vivalence/typology";
 export class BufferView {
   bundles = [];
   schema = {};
-  constructor(path, schema = {}, opts = { greedy: true }) {
-    if (path instanceof BufferView) return path;
+  constructor(mount, schema = {}) {
+    if (mount instanceof BufferView) return mount;
+    if (typeof mount === "object" && !(mount instanceof BufferView)) {
+      schema = mount.schema ?? {};
+      mount = mount.mount;
+    }
     this.schema = schema;
-    this.path = new Path(path);
-    if (opts.url) this.withUrl(opts.url);
-    if (opts.bundler) this.withBundler(opts.bundler);
-    if (this.bundler && opts.greedy) (async () => await this.bundle())();
+    this.path = new Path(mount);
   }
   cast(desc = {}) {
     if (!desc.data) desc.data = {};

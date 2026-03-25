@@ -452,6 +452,114 @@ tactics with LANGUAGED/AGENTIC traits.
    the sentence literal get /review/literal calls. Learning compounds
    across modes.
 
+* Implementation: Game Mode Contracts
+
+Scaffolded 2026-03-25. All five modes in =registry/modes/@vivalence/game/=.
+
+** Gameplay Enum Pattern
+
+Every mode with multiple interaction variants exposes =data.gameplay= — a
+string enum. Set by the tactic (from memory status, learner preference,
+or explicit input). The Svelte component switches behavior on gameplay.
+
+=data.forgiving= (boolean, default true) on any mode accepting typed input.
+Controls diacritical normalization.
+
+** Cloze — =game/cloze/=
+
+Gameplay: ="type"= | ="pick"= | ="listen"=
+
+- =type= — see sentence with gap(s), type missing word(s)
+- =pick= — see sentence with gap(s), select from shuffled options
+- =listen= — hear vocalized sentence, fill in blanks (no text shown)
+
+Multiple blanks via =data.blankIndices: number[]=. Listen gameplay is
+the killer: hear "Espero que você ______ bem", type "esteja".
+
+Buffer schema: ={data: {recall, gameplay, blankIndices, options?, forgiving}, literals: [sentence]}=
+
+Domain: MUST ANNOTATED tokens. MUST TRANSLATED. VOCALIZED for listen gameplay.
+
+Review: per-blank-token + sentence. Correct blank = SUCCESS on token literal.
+All correct = SUCCESS on sentence. Any wrong = NEUTRAL on sentence.
+
+Emitter =/literal=: receives ={literal, blankIndices, gameplay, options?}=
+
+** Pick — =game/pick/=
+
+No gameplay enum — pick IS the gameplay.
+
+Buffer schema: ={data: {recall}, literals: [target, ...distractors]}=
+
+Emitter =/literal=: self-serves distractors from =/pick/literal/feed= when
+tactic doesn't provide them. Fetches 3 same-band literals.
+
+Review: correct = SUCCESS target. Wrong = FAILURE target + FAILURE distractor.
+Two negative signals.
+
+Keyboard: 1-4 number keys. Closed on mobile.
+
+** Match — =game/match/=
+
+Gameplay: ="translate"= | ="describe"= (describe is cortex-gated, future)
+
+- =translate= — match known↔learning pairs
+- =describe= — match descriptor text (from =data.descriptions[]=) to literal
+
+Buffer schema: ={data: {recall, gameplay, descriptions?}, literals: [batch]}=
+
+Failure is sticky. Once a literal gets a wrong match attempt, FAILURE is
+permanent. Even correct selection afterward doesn't remedy it. On both
+literals in the wrong match.
+
+Emitter =/batch=: receives ={literals, gameplay, descriptions?}=
+
+Sentences: allowed. Cap at 4-5 candidates for sentence batches (UX concern).
+
+** Speed Judge — =game/speed-judge/=
+
+Gameplay: ="visual"= | ="audio"= | ="audio-only"=
+
+- =visual= — see word + translation, judge correct/wrong
+- =audio= — hear audio + see text, judge
+- =audio-only= — hear audio + see translation only (advanced)
+
+Batch mode: =data.items[]= with ={target, shown, correct, distractor?}=
+indices into =literals[]=. Component works through the list. Flow state.
+
+Buffer schema: ={data: {recall, gameplay, timeLimit, items[]}, literals: [all]}=
+
+Emitter =/literal=: single-literal entry. Coin-flips correct/wrong. Self-serves
+distractor. Guards for identical translations (conjugation forms).
+
+Tactic calls =mode.buffer()= directly for batch with pre-built items array.
+
+Swipe: left = wrong, right = correct. 50px threshold.
+Keyboard: left/1 = wrong, right/2 = correct. Timer bar at top.
+
+Review: batch at end. Correct = SUCCESS target. Wrong = FAILURE target +
+FAILURE distractor. Timeout = FAILURE target.
+
+** Listen — =game/listen/=
+
+Gameplay: ="pick"= | ="type"=
+
+Set by memory status (UNKNOWN/LEARNING → pick, KNOWN → type) or by tactic.
+
+Buffer schema: ={data: {recall, gameplay, forgiving}, literals: [target, ...distractors?]}=
+
+Recall direction:
+- LEARNING = hear Portuguese → produce English meaning
+- KNOWN = hear Portuguese → produce Portuguese text (transcription)
+
+Emitter =/literal=: self-serves distractors for pick gameplay. Heuristic:
+same proficiency band + same POS + similar length.
+
+Audio: REQUIRED. Autoplay on mount. =r= to replay. FRAUGHT trait on manifest.
+
+Type mode: MISTAKE signal for close answers (levenshtein ≤ 2).
+Pick mode: FAILURE on target + distractor for wrong picks.
+
 * Changelog
 
 - 2026-03-25: Initial design. Symbol axes mapped, two architectures
@@ -459,3 +567,14 @@ tactics with LANGUAGED/AGENTIC traits.
   (vocabulary, introduction, decomposition, morphology, comprehension,
   immersion + remediation). Ten game modes specified across three tiers.
   Seven-phase sequencing. Cortex dependency isolated.
+- 2026-03-25: Scaffolded five game modes (cloze, pick, match, speed-judge,
+  listen). All with BufferView + BufferSchema + emitter + SELFEVIDENT.
+  Gameplay enum pattern established. Distractor self-service in pick/listen
+  emitters. Batch mode for speed-judge. Sticky failure for match. Multi-blank
+  cloze with listen gameplay. Swipe support for speed-judge.
+- 2026-03-25: Batch literal support for flashcard, shadow, write, listen (type).
+  recall field now =Optional(Union(String, Array(String)))= — omit for random
+  per literal, string for fixed, array for per-literal. Each component walks
+  =buffer.literals= as a queue, advancing on completion, releasing after last.
+  Emitters gain =/batch= endpoint alongside =/literal=. Position counter in
+  meta row when queue > 1. Self-serve pulls 3 literals (was 1) for SELFEVIDENT.

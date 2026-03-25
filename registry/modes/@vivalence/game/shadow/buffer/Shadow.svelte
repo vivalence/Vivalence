@@ -7,10 +7,18 @@
 
   const data = buffer.data ?? {};
   const speed = data.speed ?? {};
-  const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
+  const queue = buffer.literals ?? [];
 
-  let activeRecall = $state(data.recall ?? randomRecall());
-  let literal = $state(buffer.literals?.[0] ?? null);
+  function recallFor(i) {
+    const r = data.recall;
+    if (!r) return Math.random() > 0.5 ? "KNOWN" : "LEARNING";
+    if (Array.isArray(r)) return r[i] ?? (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
+    return r;
+  }
+
+  let currentIndex = $state(0);
+  let activeRecall = $state(recallFor(0));
+  let literal = $state(queue[0] ?? null);
   let loading = $state(!literal);
   let phase = $state("show");
   let input = $state("");
@@ -18,6 +26,9 @@
   let result = $state(null);
   let elapsed = $state(0);
   let timerInterval = $state(null);
+
+  const total = $derived(queue.length);
+  const position = $derived(currentIndex + 1);
 
   const isWord = $derived(literal?.symbol?.word);
   const known = $derived(literal?.trait?.TRANSLATED?.known);
@@ -47,11 +58,6 @@
   });
 
   const progress = $derived(Math.max(0, 1 - elapsed / timeMs));
-
-  const pick = async () => {
-    const [lit] = await terminal.daemon.call("/pick/literal/feed", { take: 1 });
-    return lit ?? null;
-  };
 
   const norm = forgiving
     ? (s) =>
@@ -152,9 +158,13 @@
   if (literal) {
     begin(literal);
   } else {
-    pick().then((value) => {
-      if (value) begin(value);
-      else loading = false;
+    terminal.daemon.call("/pick/literal/feed", { take: 3 }).then((lits) => {
+      if (lits?.length) {
+        for (const l of lits) queue.push(l);
+        begin(queue[0]);
+      } else {
+        loading = false;
+      }
     });
   }
 
@@ -167,7 +177,16 @@
 
   async function next() {
     clearInterval(timerInterval);
-    buffer.release();
+    if (currentIndex + 1 < queue.length) {
+      currentIndex++;
+      activeRecall = recallFor(currentIndex);
+      input = "";
+      submitted = false;
+      result = null;
+      begin(queue[currentIndex]);
+    } else {
+      buffer.release();
+    }
   }
 
   $effect(() => {
@@ -199,6 +218,7 @@
             <span class="meta-phase meta-phase-show"
               >memorize {activeRecall === "KNOWN" ? "known" : "learning"}</span>
             <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+            {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
             <span class="meta-time">{(timeMs / 1000).toFixed(1)}s</span>
             <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
             {#if forgiving}<span class="meta-hint">forgiving</span>{/if}

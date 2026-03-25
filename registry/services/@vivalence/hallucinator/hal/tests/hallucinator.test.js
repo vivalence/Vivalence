@@ -1,4 +1,4 @@
-import { Type } from "@vivalence/typology";
+import { v } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import { Vector } from "@vivalence/typology";
 import { Agent, specimen, Action } from "@vivalence/typology";
@@ -25,9 +25,9 @@ specimen.describe("Hal Object Generation", () => {
   });
   specimen.describe("object generation", () => {
     specimen.it("generates simple object", async () => {
-      const schema = Type.Object({
-        message: Type.String({ description: "A greeting message" }),
-        timestamp: Type.Number({ description: "Unix timestamp" }),
+      const schema = v.object({
+        message: v.string({ description: "A greeting message" }),
+        timestamp: v.number({ description: "Unix timestamp" }),
       });
 
       const result = await brain.object({
@@ -57,9 +57,9 @@ specimen.describe("Hal Action with Agent", () => {
           nature: "add",
 
           valence: "Add two numbers together",
-          input: Type.Object({
-            a: Type.Number({ description: "First number" }),
-            b: Type.Number({ description: "Second number" }),
+          input: v.object({
+            a: v.number({ description: "First number" }),
+            b: v.number({ description: "Second number" }),
           }),
         },
         (ctx) => {
@@ -72,9 +72,9 @@ specimen.describe("Hal Action with Agent", () => {
         {
           nature: "multiply",
           valence: "Multiply two numbers together",
-          input: Type.Object({
-            a: Type.Number({ description: "First number" }),
-            b: Type.Number({ description: "Second number" }),
+          input: v.object({
+            a: v.number({ description: "First number" }),
+            b: v.number({ description: "Second number" }),
           }),
         },
         (ctx) => {
@@ -91,7 +91,7 @@ specimen.describe("Hal Action with Agent", () => {
     const agent = new Agent("calculator")
       .withBrain(brain)
       .withTools(mathTools)
-      .withInput(Type.Object({ problem: Type.String() }))
+      .withInput(v.object({ problem: v.string() }))
       .withContext("role", "Math assistant. Use tools to solve step by step.")
       .withTemplate((input) => `Solve: ${input.problem}`);
 

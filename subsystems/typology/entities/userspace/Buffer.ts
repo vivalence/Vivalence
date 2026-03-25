@@ -30,6 +30,8 @@ export const BufferSchema = new EntitySchema<BufferEntity, BaseEntity>({
       kind: "m:1",
       entity: () => ModeEntity,
       fieldName: "mode",
+      updateRule: "cascade",
+      deleteRule: "cascade",
     },
 
     session: {

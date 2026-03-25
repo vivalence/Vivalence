@@ -3,14 +3,14 @@ import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/
 import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
 import { UserEntity } from "@vivalence/typology/entities";
 
-import { SymbolEntity } from "../kernel/Symbol.ts";
 import { LiteralEntity } from "../kernel/Literal.ts";
-// import { PlayEntity } from "../userspace/Play.ts";
+import { TraceEntity } from "./Trace.ts";
+import { drivers } from "../../memory/index.js";
 
 export enum MemoryDriverEnum {
   BAYESIAN = "BAYESIAN",
   BOOLEAN = "BOOLEAN",
-  AGENTIC = "AGENTIC",
+  COUNTER = "COUNTER",
 }
 
 export enum MemoryTypeEnum {
@@ -29,18 +29,34 @@ export enum MemoryStatusEnum {
 export class MemoryEntity extends BaseEntity {
   user!: Rel<UserEntity>;
   literal!: Rel<LiteralEntity>;
-  // symbol?: Rel<SymbolEntity>;
-  // plays = new Collection<PlayEntity>(this);
+  traces = new Collection<TraceEntity>(this);
 
   driver: MemoryDriverEnum & Opt = MemoryDriverEnum.BAYESIAN;
   status: MemoryStatusEnum & Opt = MemoryStatusEnum.UNKNOWN;
   type: MemoryTypeEnum & Opt = MemoryTypeEnum.INDIVIDUAL;
 
   state: any & Opt = {};
-  history: any & Opt = [];
+  lastSignal!: string & Opt;
+  strength!: number & Opt;
   nextIn!: number & Opt;
   nextAt!: Date & Opt;
   lastAt!: Date & Opt;
+
+  evolve(signal, driver) {
+    if (typeof signal === "string") signal = { enum: signal };
+
+    const result = this.state
+      ? driver.evolve(signal, this)
+      : driver.encode(signal);
+
+    this.state = result.state;
+    this.status = result.status;
+    this.nextIn = result.nextIn;
+    this.nextAt = new Date(result.nextAt);
+    this.lastAt = new Date();
+
+    return { ...result, lastAt: this.lastAt, signal };
+  }
 }
 
 export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
@@ -62,12 +78,12 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
       fieldName: "literal",
       updateRule: "cascade",
       deleteRule: "cascade",
-      // nullable: true,
     },
-    // symbol: {kind: "m:1", entity: () => SymbolEntity, fieldName: "symbol", updateRule: "cascade", deleteRule: "cascade", nullable: true,},
-
-    // plays: {kind: "1:m", entity: () => PlayEntity, mappedBy: (play) => play.memory,},
-
+    traces: {
+      kind: "1:m",
+      entity: () => TraceEntity,
+      mappedBy: (trace) => trace.memory,
+    },
     driver: {
       enum: true,
       items: () => MemoryDriverEnum,
@@ -88,7 +104,27 @@ export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
     },
 
     state: { type: types.json },
-    history: { type: types.json },
+
+    lastSignal: {
+      type: types.string,
+      formula: (table) => `(SELECT json_extract(t.signal, '$.enum') FROM Trace t WHERE t.memory = ${table}.id ORDER BY t.created_at DESC LIMIT 1)`,
+      persist: false,
+      nullable: true,
+    },
+
+    strength: {
+      type: types.float,
+      formula: (table) => {
+        const cases = Object.values(drivers)
+          .filter((d) => d.sql?.strength)
+          .map((d) => `WHEN '${d.type}' THEN ${d.sql.strength(table)}`)
+          .join(" ");
+        return `CASE ${table}.driver ${cases} ELSE 0.0 END`;
+      },
+      persist: false,
+      lazy: true,
+      nullable: true,
+    },
 
     nextIn: { type: types.integer, defaultRaw: `0.0`, fieldName: "nextIn" },
     nextAt: { type: Date, fieldName: "nextAt" },
@@ -100,5 +136,4 @@ export default {
   type: "memory",
   schema: MemorySchema,
   entity: MemoryEntity,
-  // repository: TopographyRepository,
 };

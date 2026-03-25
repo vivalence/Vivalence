@@ -1,0 +1,31 @@
+meta {
+  name: warmup
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{TACTIC_SURVIVAL}}/emit/warmup
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "batch": 4,
+    "seek": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    }
+  }
+}
+
+docs {
+  survival warmup — easy recall, recognition + audio
+}

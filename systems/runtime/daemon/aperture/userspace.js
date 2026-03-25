@@ -14,7 +14,8 @@ export async function userspace(daemonDie) {
   branch
     .branch("/entities/buffer")
     .use(shard.datamap.scope((ctx) => ({ session: { user: ctx.user.id } })))
-    .slurp(shard.datamap.repository(entities.buffer));
+    .slurp(shard.datamap.repository(entities.buffer))
+    .slurp(shard.datamap.reactive(entities.buffer, entities.twitch));
 
   branch.open("/handshake", async (ctx) => ({ success: true, user: ctx.user }));
 }

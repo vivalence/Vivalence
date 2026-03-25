@@ -1,7 +1,8 @@
-import { Type, ID, Timestamp } from "../scalars/index.js";
+import { v } from "../lib.js";
+import { ID, Timestamp } from "../scalars/index.js";
 
-export const BaseEntitySchema = Type.Object({
-  id: Type.Optional(ID),
-  createdAt: Type.Optional(Timestamp),
-  updatedAt: Type.Optional(Timestamp),
+export const BaseEntitySchema = v.object({
+  id: ID.optional(),
+  createdAt: Timestamp.optional(),
+  updatedAt: Timestamp.optional(),
 }, { $id: "BaseEntity", additionalProperties: true });

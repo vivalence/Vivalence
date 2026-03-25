@@ -44,8 +44,8 @@
     "npm:@deno/vite-plugin@1.0": "1.0.6_vite@6.3.3__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0",
     "npm:@libsql/client@0.17.0": "0.17.0",
     "npm:@mikro-orm/core@6.6.7": "6.6.7",
-    "npm:@mikro-orm/migrations@6.6.7": "6.6.7_@mikro-orm+core@6.6.7_@types+node@24.2.0",
-    "npm:@mikro-orm/sqlite@6.6.7": "6.6.7_@mikro-orm+core@6.6.7",
+    "npm:@mikro-orm/migrations@6.6.7": "6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0",
+    "npm:@mikro-orm/sqlite@6.6.7": "6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0",
     "npm:@modelcontextprotocol/sdk@^1.10.0": "1.25.2_zod@4.3.5_ajv@8.17.1_express@5.2.1",
     "npm:@sveltejs/adapter-auto@3.3": "3.3.1_@sveltejs+kit@2.43.8__@sveltejs+vite-plugin-svelte@5.1.1___svelte@5.39.6____acorn@8.15.0___vite@6.3.3____@types+node@24.2.0____picomatch@4.0.3___@types+node@24.2.0__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__acorn@8.15.0__@types+node@24.2.0_@sveltejs+vite-plugin-svelte@5.1.1__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__@types+node@24.2.0_svelte@5.39.6__acorn@8.15.0_vite@6.3.3__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0",
     "npm:@sveltejs/adapter-static@3": "3.0.10_@sveltejs+kit@2.43.8__@sveltejs+vite-plugin-svelte@5.1.1___svelte@5.39.6____acorn@8.15.0___vite@6.3.3____@types+node@24.2.0____picomatch@4.0.3___@types+node@24.2.0__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__acorn@8.15.0__@types+node@24.2.0",
@@ -59,6 +59,7 @@
     "npm:ajv@8.17.1": "8.17.1",
     "npm:argon2@0.44.0": "0.44.0",
     "npm:autoprefixer@10.4.20": "10.4.20_postcss@8.4.49",
+    "npm:better-sqlite3@*": "12.8.0",
     "npm:bits-ui@^1.4.0": "1.8.0_svelte@5.39.6__acorn@8.15.0",
     "npm:carbon-icons-svelte@^13.3.0": "13.8.0",
     "npm:ebisu-js@2.1.3": "2.1.3",
@@ -748,16 +749,20 @@
         "reflect-metadata"
       ]
     },
-    "@mikro-orm/knex@6.6.7_@mikro-orm+core@6.6.7": {
+    "@mikro-orm/knex@6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0": {
       "integrity": "sha512-/EfSu3D1A5OrV3vyHSILbFrV0B4FFbHn4Fa3qc1wKf8Dl5adZlPe7jj+R4c87V1+oLo6VzST1sT4Rhp7NWArdw==",
       "dependencies": [
         "@mikro-orm/core",
+        "better-sqlite3",
         "fs-extra",
         "knex",
         "sqlstring"
+      ],
+      "optionalPeers": [
+        "better-sqlite3"
       ]
     },
-    "@mikro-orm/migrations@6.6.7_@mikro-orm+core@6.6.7_@types+node@24.2.0": {
+    "@mikro-orm/migrations@6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0": {
       "integrity": "sha512-OFVcOwD5pUwWNjmoUSoCSAOAlepib0KfYPkM6nvBokRiMO3H6VPUitAPMPygPx5cPSVzTaAvW7gT6sS48VTwxA==",
       "dependencies": [
         "@mikro-orm/core",
@@ -766,7 +771,7 @@
         "umzug"
       ]
     },
-    "@mikro-orm/sqlite@6.6.7_@mikro-orm+core@6.6.7": {
+    "@mikro-orm/sqlite@6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0": {
       "integrity": "sha512-CC0wFUYa6KbW5uOzYL1p7dki6VMgtknaUNF73uBI1O7QRq2VZFTujKHRWX9A05VNriry4/PGSFMg8K2C85gt/A==",
       "dependencies": [
         "@mikro-orm/core",
@@ -1290,6 +1295,14 @@
     "baseline-browser-mapping@2.9.14": {
       "integrity": "sha512-B0xUquLkiGLgHhpPBqvl7GWegWBUNuujQ6kXd/r1U38ElPT6Ok8KZ8e+FpUGEc2ZoRQUzq/aUnaKFc/svWUGSg==",
       "bin": true
+    },
+    "better-sqlite3@12.8.0": {
+      "integrity": "sha512-RxD2Vd96sQDjQr20kdP+F+dK/1OUNiVOl200vKBZY8u0vTwysfolF6Hq+3ZK2+h8My9YvZhHsF+RSGZW2VYrPQ==",
+      "dependencies": [
+        "bindings",
+        "prebuild-install"
+      ],
+      "scripts": true
     },
     "binary-extensions@2.3.0": {
       "integrity": "sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw=="

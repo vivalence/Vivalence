@@ -42,7 +42,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Lifecycle**: construct → populate → resolve → integrate (→ disintegrate)
 
-**Typology**: gestalt, prototypes, entities, schematics, specimen
+**Typology**: gestalt, prototypes, entities, schematics, specimen, v
 
 **Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network), steer (routing), shape (compilation)
 
@@ -64,13 +64,17 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Mode traits**: BUFFERED (was VIEWABLE — bundles, serves, wires mode.buffer()), DATASET, INTENTED, SELFEVIDENT, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT (+ VIEWABLE, VALENTIC, PRODUCER as legacy in enum only)
 
+**BufferView**: `new BufferView(mount, schema)` or `new BufferView({ mount, schema })` — mount is a path to a `.svelte` file (auto-packed by bundler) or `.svelte.js` file (legacy manual pack). The bundler auto-wraps `.svelte` entries with mount/unmount via esbuild stdin, keeping the svelte runtime inside the bundle (no dual-runtime). `outfile: entry` preserves the source path in output so `serve(branch)` path matching works. `serve(branch)` reconstructs the absolute path and finds the matching output file — never simplified to just `bundles[0]`.
+
 **Intent traits**: FURNISHED (default buffer props), FEEDING (mount, queue, mask: {seek, batch})
 
 **Buffer entity (server)**: `{data, index, mode, session, literals, symbols}` — no traits, no status on server. `data` (was props) holds value fields, `literals`/`symbols` are m:n relations. `mode.buffer()` creates real MikroORM entities. Status is client-only. Review results live in memory system.
 
 **Buffer (client)**: `Buffer.from(pojo, view)` — pojo is server data (`{id, mode, data, literals, symbols}`), view is `mode.buffered` (`{url, schema}`). `context` and `release` are set by the environment (populate's `mint()`), not by Buffer.from. `mint()` sets `buffer.context = { buffer, terminal }`. Frame.svelte passes `buffer.context` to the Svelte component. Buffers are registered in daemon's buffer repo via `merge` for navigation.
 
-**Schematics**: TypeBox schemas mirroring entity shapes. `Ref` scalar (ID string or object-with-id — universal relation type). `BufferSchema.of({data, literals, symbols})` — mode declares its buffer contract. Three tiers: static base in `typology/schematics` (import time), mode contract via `.of()` (declaration time), runtime-computed from ORM metadata in `daemon.kernel.schematics` (after boot, deferred). `Value.Default(schema, value)` replaces manual default spreading. **TypeBox shim**: `schematics/scalars/index.js` is the ONLY file that imports from `@sinclair/typebox`. All other code imports `Type`, `Value`, etc. from `@vivalence/typology`. No `/schematics` scope needed. Schema suffix (`BufferSchema`, `BaseEntitySchema`) used only when ORM entity name collision exists.
+**Schematics**: `v` is the sole schematics interface. Fluent Proxy over TypeBox — `v.string().default().desc().optional()`. Returns real TypeBox JSON Schema objects. **Structure**: `schematics/lib.js` is the ONLY file that imports from `@sinclair/typebox` (TypeBox shim + enhance proxy + entityFactory). `schematics/scalars/` holds domain scalars (ID, Slug, Timestamp, etc.). `schematics/entities/` holds entity descriptors (own fields + relation thunks). `schematics/index.js` assembles v: wires entity factories + `v.rel()` after all modules load. **Primitives**: `v.string(opts)`, `v.number(opts)`, `v.boolean()`, `v.integer()`, `v.object(props, opts)`, `v.array(items, opts)`, `v.union()`, `v.intersect()`, `v.const(val)` (JSON Schema `const`, was TypeBox `Literal`), `v.record()`, `v.any()`, `v.unknown()`, `v.null()`. **Chains**: `.default(val)` / `.default` (dual: setter/getter), `.desc(text)`, `.optional()`, `.$id(name)` (dual: setter/getter). **Instance ops**: `.check(val)`, `.create()`, `.clean(val)`, `.errors(val)`, `.compile()`, `.defaults(val)`. **Static ops**: `v.diff(a,b)`, `v.patch(val, edits)`, `v.equal(a,b)`, `v.clone(val)`. **JSON Schema**: `v.$ref(schema)` for `$ref`, `.$id(name)` for `$id`. **Relations**: `v.rel(schema)` — MikroORM Rel duality, `Union(ID, schema)`. For m:1/1:1 single relations. Collections (m:n/1:m) use `v.array(v.entity())` directly — no rel needed. **Entities**: `v.buffer(spec)`, `v.literal(spec)`, `v.symbol(spec)`, `v.mode(spec)`, `v.intent(spec)`, `v.session(spec)`, `v.user(spec)` — each built via `entityFactory(descriptor, BaseEntitySchema)`. No args = base schema. With spec = narrowed. Descriptors declare own fields + relation thunks resolved at call time. Cycle detection (Literal ↔ Symbol) returns base schema without relations. **Constraints**: via constructor opts — `v.string({ minLength: 1, pattern: "^..." })`. All JSON Schema keywords supported. **Interop**: `Type` remains as escape hatch. `v.*()` and `Type.*()` produce the same objects, mixable freely. **Legacy**: `Ref` scalar still exported for backwards compat. `BufferSchema` replaced by `BufferDescriptor` + `v.buffer()`. Old `v.literal()` (TypeBox Literal) renamed to `v.const()` to free the name for the Literal entity.
+
+**Gameplay**: `data.gameplay` string enum on modes with multiple interaction variants. Set by tactic or intent. Cloze: type|pick|listen. Match: translate|describe. Judge: visual|audio|audio-only. Listen: pick|type. `data.forgiving` boolean for typed input normalization.
 
 **Intent types**: SELFEVIDENT (mode can open without intent), APPLICATIVE (intent feeds buffers via emitter)
 
@@ -81,6 +85,8 @@ Use these terms precisely. Don't substitute generic alternatives.
 **Memory signals**: MASTERY, SUCCESS, NEUTRAL, MISTAKE, FAILURE
 
 **Memory states**: UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
+
+**Memory drivers**: BAYESIAN (ebisu), BOOLEAN (binary), COUNTER (streak). Driver interface: encode(signal) → {state, status, nextIn, nextAt}, evolve(signal, memory) → same, assess(memory) → {status, nextIn, nextAt}. Each driver exports sql.strength(table) for lazy formula composition. Drivers are pure — no entity refs, no IO.
 
 ## Conventions
 
@@ -180,7 +186,9 @@ If you catch yourself thinking any of these, stop — you're drifting.
 | "I'll add a shim for backwards compat" | Delete the old thing. No shims, no re-exports, no _vars. |
 | "Let me refactor this while I'm here" | Only touch what was asked. Scope creep erodes trust. |
 | "The bak/ version had a good pattern" | bak/ is an archive. Those patterns were deliberately abandoned. |
-| "I'll import Type from @sinclair/typebox" | Use the shim. Import from @vivalence/typology. Only scalars/index.js touches typebox directly. |
+| "I'll import Type from @sinclair/typebox" | Use the shim. Import from @vivalence/typology. Only lib.js touches typebox directly. |
+| "I'll use Type.String() for this schema" | Use v.string(). v is the sole schematics interface. Type is the escape hatch. |
+| "I'll use Ref for this relation" | Use v.rel(v.entity()) for single relations, v.array(v.entity()) for collections. Ref is legacy. |
 
 ## Routines
 
@@ -299,19 +307,36 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 | Old url.js | html/src/routes/[...viva]/lib/url.js | Replaced by $lib/url.js (parseTerminalPath) |
 | m.link / i.link (old computation) | html/src/typology/entities/daemon.js | Recomputed from daemon.link root (was SELFEVIDENT-gated mount.rebase) |
 | View prototype | typology/prototypes/view.js | Replaced by BufferView (same file, renamed class). Client Buffer now in html/src/typology/entities/buffer.js |
+| pack() + belt/ | drapes/belt/pack.js, drapes/belt/ | Deleted — bundler auto-wraps .svelte entries. Only bak/ references remain |
+| View export alias | typology/prototypes/index.ts | `export { BufferView as View }` — only bak/ modes use View. Active modes use BufferView |
+| .svelte.js buffer wrappers | registry/modes/**/buffer/*.svelte.js | Deleted — .viva.js now points at .svelte directly |
 | Old Buffer prototype (client) | html/src/typology/prototypes/buffer.js | Deleted — Buffer is now an Entity in html/src/typology/entities/buffer.js |
 | Commented code in populate.js | html/src/routes/viva/[...terminal]/lib/populate.js | Old Buffer.hydrate paths removed, clean mint() factory in place |
+| todo/ game stubs | registry/modes/@vivalence/game/bak/todo/ | Superseded by proper game modes in game/{cloze,pick,match,judge,listen}/ |
+| Aperture pick/ + review/ | domain/learning/aperture/bak.pick/, bak.review/ | Replaced by LiteralRepository methods (feed/novel/due/findBySymbols) + literal.review(). Aperture index.js is thin exposition |
+| Aperture lib/ (shared, get, sort, filter) | domain/learning/aperture/bak.pick/lib/ | Dead — all query logic now in LiteralRepository |
+| Seek, Scope, Blacklist classes | typology/prototypes/ | Superseded by native MikroORM queries + findByIdentifiers |
+| LiteralSubscriber (domain rank) | domain/learning/entities/kernel/Literal.ts | Replaced by rank formula — COALESCE(json_extract(trait, '$.RANKED.rank'), 999999) |
+| memory.history JSON array | domain/learning/entities/userspace/Memory.ts | Replaced by Trace entity (1:M on memory) |
+| Play.bak.js | domain/learning/entities/userspace/ | Replaced by Trace entity |
+| Old memory drivers (dirs) | domain/learning/memory/bak/bayesian/, bak/boolean/ | Replaced by flat bayesian.js, boolean.js, counter.js with encode/evolve/assess interface |
+| memory/schema.js | domain/learning/memory/bak/schema.js | Signal validation moved inline; schema unused |
+| getMemoryDriver / validateDriver | domain/learning/memory/bak/ (was index.js) | Dead — symbol-scoped driver resolution removed (symbols not reviewable) |
+| primitives/production.js | schematics/primitives/production.js | Dead — references `Type` without import, uses abandoned PRODUCER vocabulary |
+| BufferSchema (standalone) | schematics/entities/buffer.js | Replaced by BufferDescriptor + v.buffer(). Old .of() pattern superseded by entityFactory |
+| Ref as v method | was v.ref() | Replaced by v.rel() for typed relations. Ref scalar still in scalars/ for backwards compat |
 
 ## Active Work Areas
 
-As of 2026-03-25:
+As of 2026-03-26 (updated end of session):
 
 - Audio player variants — inline DONE (drapes/decor/Audio.svelte). Dictation and longform variants deferred
 - Mobile readiness on client
 - Hallucinator cortex — [cortex.workpackage.org](cortex.workpackage.org) — daemon-level AI orchestrator with faculties, channels, harnesses (Vector), turns/parts, tune/tier resolution, LANGUAGED/AGENTIC traits
 - Datamap shard + client entity migration — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org) — typology DONE (40 tests), runtime DONE, lighthouse DONE. Client (B), schema projection (C), reactive E2E (E) next
 - Package manager — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — registry as jj-driven discovery scopes
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — game modes (cloze, pick, listen, reorder, dictation, speed-judge, match, minimal-pair) + tactics (vocabulary, introduction, decomposition, morphology, comprehension) + conversational tactics (immersion, remediation — post-cortex)
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — game modes scaffolded (cloze, pick, match, judge, listen, exhibit). Batch literal support on flashcard/shadow/write/listen. Survival tactic created (5 phases in emitter/ dir). LiteralRepository with findBySymbols/feed/novel/due/byStrength. Trace entity + literal.review() + memory.apply(). Aperture with byStatus + byStrength routes. Server-side emitters migrated to repo methods. Memory drivers refactored: encode/evolve/assess interface, Bayesian (ebisu, clamped, decay 0.5), Boolean, Counter (new streak-based). 36-step Bayesian test suite. Tier 2 (reorder, dictation) and Tier 3 (minimal-pair) pending. Conversational tactics post-cortex.
+- **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — IMPLEMENTED. M1 (lib.js: enhance + primitives + constraints + instance/static ops + entityFactory), M2 (110 test steps). Entity descriptors for all daemon entities. v.rel() for MikroORM Rel duality. v.const() renamed from v.literal(). Schematics refactored: lib.js (sole TypeBox consumer), scalars/ (domain), entities/ (descriptors). M3 (game mode migration) pending.
 - Progression system (eventually)
 - DB migration — props→data column rename, buffer_literals/buffer_symbols join tables (deferred to deploy)
 
@@ -406,10 +431,11 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 - [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex: faculties, channels, harnesses, turns/parts, tune/tier, LANGUAGED/AGENTIC traits
 - [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj-driven discovery scopes
 - [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics: symbol-driven learning toolset, emitter + conversational architectures
+- [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — Fluent schema builder over TypeBox via Proxy. v.string().default().desc().optional() — Zod ergonomics, JSON Schema output
 
 **Critical testing gaps across the system:**
 - Learning domain: no tests for pick/review endpoints, memory drivers, signal schema
-- Runtime: datamap CRUD, userspace auth+scoping, freight, INTENTED, EMITTER, full lifecycle smoke test all tested (54 steps, 7 suites). DATASET trait, view bundler, process system untested
+- Runtime: datamap CRUD, userspace auth+scoping, freight, INTENTED, EMITTER, full lifecycle smoke test all tested (54 steps, 7 suites). DATASET trait, process system untested. View bundler tested (7 steps: svelte bundler + BufferView pipeline with legacy .svelte.js and direct .svelte entries)
 - Modes: no mode-level tests at all
 - Paladin: scopes untested, variant compilation untested
 - Typology: entity trait system untested, gestalt belt/shard untested

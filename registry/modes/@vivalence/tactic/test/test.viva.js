@@ -9,9 +9,10 @@ export const manifest = {
 };
 
 export const emitter = new Vector().open("/flashcards", async (ctx) => {
-  const literals = await ctx.daemon.call("/pick/literal/feed", {
+  const literals = await ctx.daemon.entities.literal.feed({
+    symbols: ctx.input.seek?.symbols,
+    user: ctx.user.id,
     take: ctx.input.batch ?? 3,
-    seek: ctx.input.seek,
     blacklist: ctx.input.blacklist,
   });
 

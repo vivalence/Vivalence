@@ -1,3 +1,4 @@
+import { goto } from "$app/navigation";
 import { Buffer } from "@vivalence/html/typology";
 import { Vector, steer, Signal, fromm, is } from "@vivalence/typology";
 import { dataspace } from "$client";
@@ -59,6 +60,7 @@ population
       ? { ...mode.buffer(), session: ctx.terminal.session.id }
       : { mode: mode.id, session: ctx.terminal.session.id, data: {} };
     const buffer = mint(pojo, mode, ctx.terminal);
+    buffer.release = () => goto("/viva");
     ctx.terminal.stall.push(buffer);
     ctx.terminal.stall.$status.set("IDLE");
   })

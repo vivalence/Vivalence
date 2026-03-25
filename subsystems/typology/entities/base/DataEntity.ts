@@ -6,6 +6,7 @@ import {
   EntityRepositoryType,
   type Opt,
 } from "@mikro-orm/core";
+import { is } from "@vivalence/typology";
 import { v7 } from "uuid";
 
 export class DataEntity extends BaseEntity {
@@ -39,6 +40,36 @@ export class DataRepository extends EntityRepository {
       return existing;
     }
     return await this.create(query);
+  }
+
+  async findByIdentifiers(refs, opts?) {
+    const ids = [];
+    const slugs = [];
+
+    for (const ref of Array.isArray(refs) ? refs : [refs]) {
+      if (ref == null) continue;
+      if (typeof ref === "string") {
+        if (is.id(ref)) ids.push(ref);
+        else slugs.push(ref);
+      } else if (ref.id) {
+        ids.push(ref.id);
+      } else if (ref.slug) {
+        slugs.push(ref.slug);
+      }
+    }
+
+    const where: any = {};
+    if (ids.length && slugs.length) {
+      where.$or = [{ id: { $in: ids } }, { slug: { $in: slugs } }];
+    } else if (ids.length) {
+      where.id = { $in: ids };
+    } else if (slugs.length) {
+      where.slug = { $in: slugs };
+    } else {
+      return [];
+    }
+
+    return this.find(where, opts);
   }
 }
 export const DataSchema = new EntitySchema({

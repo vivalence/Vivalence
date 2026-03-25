@@ -1,4 +1,4 @@
-import { BufferView, Vector, Type, BufferSchema, Ref } from "@vivalence/typology";
+import { cast, BufferView, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -10,23 +10,25 @@ const manifest = {
 };
 
 const buffer = new BufferView(
-  "buffer/flashcard.svelte.js",
-  BufferSchema.of({
-    data: { recall: Type.String({ default: "LEARNING" }) },
-    literals: Type.Array(Ref),
+  "buffer/Flashcard.svelte",
+  v.buffer({
+    data: {
+      recall: v.union([v.string(), v.array(v.string())], {
+        description: "LEARNING, KNOWN, per-literal array, or omit for random",
+      }).optional(),
+    },
   }),
 );
 
-const emitter = new Vector().open("/literal", async (ctx) => {
+const emitter = new Vector().open("/literals", async (ctx) => {
   return ctx.mode.buffer({
     data: { recall: ctx.input.recall },
-    literals: [ctx.input.literal],
+    literals: ctx.input.literals ?? cast.array(ctx.input.literal),
   });
 });
+// .open("/batch", async (ctx) => {return ctx.mode.buffer({data: { recall: ctx.input.recall }, literals: ctx.input.literals,});});
 
-const dataset = {
-  intent: [],
-};
+const dataset = { intent: [] };
 
 export { manifest, buffer, emitter, dataset };
 

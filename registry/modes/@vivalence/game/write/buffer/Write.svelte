@@ -4,14 +4,25 @@
   const { terminal, buffer, forgiving = true } = $props();
 
   const data = buffer.data ?? {};
-  const randomRecall = () => (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
+  const queue = buffer.literals ?? [];
 
-  let literal = $state(buffer.literals?.[0] ?? null);
+  function recallFor(i) {
+    const r = data.recall;
+    if (!r) return Math.random() > 0.5 ? "KNOWN" : "LEARNING";
+    if (Array.isArray(r)) return r[i] ?? (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
+    return r;
+  }
+
+  let currentIndex = $state(0);
+  let literal = $state(queue[0] ?? null);
   let loading = $state(!literal);
-  let activeRecall = $state(data.recall ?? randomRecall());
+  let activeRecall = $state(recallFor(0));
   let input = $state("");
   let submitted = $state(false);
   let result = $state(null);
+
+  const total = $derived(queue.length);
+  const position = $derived(currentIndex + 1);
 
   const isWord = $derived(literal?.symbol?.word);
   const known = $derived(literal?.trait?.TRANSLATED?.known);
@@ -30,8 +41,11 @@
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { take: 1 }).then(([lit]) => {
-      literal = lit ?? null;
+    terminal.daemon.call("/pick/literal/feed", { take: 3 }).then((lits) => {
+      if (lits?.length) {
+        for (const l of lits) queue.push(l);
+        literal = queue[0];
+      }
       loading = false;
     });
   }
@@ -117,7 +131,16 @@
   }
 
   async function next() {
-    buffer.release();
+    if (currentIndex + 1 < queue.length) {
+      currentIndex++;
+      activeRecall = recallFor(currentIndex);
+      literal = queue[currentIndex];
+      input = "";
+      submitted = false;
+      result = null;
+    } else {
+      buffer.release();
+    }
   }
 
   function handleKey(event) {
@@ -136,6 +159,7 @@
         <div class="meta">
           <span class="meta-lang">{promptLabel}</span>
           <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+          {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
           {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
         </div>
 

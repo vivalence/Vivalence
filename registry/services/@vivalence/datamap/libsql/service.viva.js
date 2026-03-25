@@ -20,6 +20,7 @@ async function provider(datamap, variant) {
     migrations: {
       tableName: "_mikro_migrations",
       path: datamap.mount.branch("migrations").absolute,
+      transactional: false,
     },
   });
 

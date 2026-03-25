@@ -1,44 +1,13 @@
-import { Type } from "typebox";
+import { v } from "../lib.js";
 
-export { Type, Infer } from "typebox";
-export { Value } from "typebox/value";
-export { System } from "typebox/system";
-export { Compile, Validator } from "typebox/compile";
-export { IsValidationError } from "typebox/error";
+export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)");
 
-export const ID = Type.String({
-  minLength: 1,
-  description: "Unique identifier (UUID)",
-});
+export const Slug = v.string({ pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }).desc("URL-compliant identifier");
 
-export const Slug = Type.String({
-  pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-  description: "URL-compliant identifier",
-});
+export const JWTToken = v.string({ pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$" }).desc("JWT token string");
 
-export const Ref = Type.Union([ID, Type.Object({ id: ID }, { additionalProperties: true })], {
-  $id: "Ref",
-});
+export const Timestamp = v.string({ format: "date-time" }).desc("ISO 8601 timestamp");
 
-Ref.to = (schema) => Type.Union([ID, Type.Ref(schema)]);
+export const Username = v.string({ minLength: 1, maxLength: 64 }).desc("User identifier");
 
-export const JWTToken = Type.String({
-  pattern: "^[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]+\\.[A-Za-z0-9-_]*$",
-  description: "JWT token string",
-});
-
-export const Timestamp = Type.String({
-  format: "date-time",
-  description: "ISO 8601 timestamp",
-});
-
-export const Username = Type.String({
-  minLength: 1,
-  maxLength: 64,
-  description: "User identifier",
-});
-
-export const Password = Type.String({
-  minLength: 1,
-  description: "Password string",
-});
+export const Password = v.string({ minLength: 1 }).desc("Password string");

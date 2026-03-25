@@ -1,0 +1,151 @@
+#+TITLE: MikroORM Superpowers — Entity Power Layers
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-26
+#+STATUS: REFERENCE
+
+* Overview
+
+Five layers of MikroORM power, each with a clear job.
+
+| Layer           | Scope          | When               | Purpose                                  |
+|-----------------+----------------+--------------------+------------------------------------------|
+| Formula         | SQL-level      | Every SELECT       | Computed properties that exist on load    |
+| Filter          | SQL-level      | Pre-fetch          | Scoped reality — reshape what queries see |
+| Repository      | Query-level    | On demand          | Domain verbs — named, composable finders  |
+| Virtual Entity  | Query-level    | On demand          | Cross-entity aggregation as queryable view|
+| Entity Method   | Instance-level | Post-fetch         | Object-level actions and checks           |
+
+* Formula
+
+SQL expression computed on every SELECT. Read-only, not persisted.
+Defined in EntitySchema =properties= with =formula= + =persist: false=.
+
+Use for: anything you want to query, sort, or filter by that derives
+from stored data. Replaces subscriber-computed columns (one source of
+truth), replaces JS-side filtering (push to SQL).
+
+#+BEGIN_SRC js
+// EntitySchema property:
+rank: {
+  type: types.integer,
+  formula: `COALESCE(json_extract(trait, '$.RANKED.rank'), 999999)`,
+  persist: false,
+}
+
+// Usage — just exists on load:
+const lit = await em.findOne(Literal, { slug: 'chamar.verb' });
+lit.rank // 42 — computed by DB
+
+// Can query and sort:
+await em.find(Literal, { rank: { $lt: 100 } }, { orderBy: { rank: 'ASC' } });
+#+END_SRC
+
+* Filter
+
+Conditional WHERE clause toggled at query time. Defined once on schema,
+applied anywhere. Can be default-on (safety net) or opt-in.
+
+Use for: user scoping, safety constraints, trait-based narrowing.
+
+#+BEGIN_SRC js
+// EntitySchema:
+filters: {
+  implements: {
+    cond: (args) => {
+      // all specified traits must be present in the JSON array
+    },
+    default: false,
+  },
+}
+
+// Usage — opt in per query:
+await em.find(Literal, {}, {
+  filters: { implements: { traits: ['VOCALIZED', 'TRANSLATED'] } },
+});
+
+// Or enable globally for a request context:
+em.setFilterParams('forUser', { userId });
+em.getFilter('forUser').enabled = true;
+#+END_SRC
+
+* Repository Methods
+
+Named finders on the Repository class. Domain verbs. Compose queries,
+resolve slugs, handle populateWhere, enforce conventions.
+
+Use for: any recurring query pattern. The tactic speaks domain
+language, the repository translates to MikroORM.
+
+#+BEGIN_SRC js
+// Definition — on the Repository:
+class LiteralRepository extends DataRepository {
+  async feed({ symbols, user, take, blacklist }) { ... }
+  async findBySymbols(query, opts) { ... }
+  async findForUser(where, opts) { ... }  // extracts user from where
+}
+
+// Usage — on ctx.daemon.entities.literal (the repo instance):
+const words = await ctx.daemon.entities.literal.feed({
+  symbols: ['word', 'proficiency.survival'],
+  user: ctx.user.id,
+  take: 8,
+});
+
+// findBySymbols — set theory:
+await ctx.daemon.entities.literal.findBySymbols(
+  { all: ['word'], any: ['domain.food'], none: ['proficiency.cefr.c2'],
+    memories: { $none: { user } } },
+  { orderBy: { rank: 'ASC' }, limit: 12 },
+);
+
+// findForUser — user in where, extracts for populateWhere:
+await ctx.daemon.entities.literal.findForUser(
+  { user, memories: { status: 'LEARNING' } },
+  { limit: 20 },
+);
+#+END_SRC
+
+* Virtual Entity
+
+Entity backed by SQL expression, not a table. No primary key, no
+migration, no persistence. =em.find()= wraps expression as subquery
+with WHERE/ORDER/LIMIT on top.
+
+Use for: cross-entity aggregation, progress views, activity feeds.
+
+#+BEGIN_SRC js
+// EntitySchema with expression:
+expression: (em) => em.createQueryBuilder(Symbol, 's')
+  .select(['s.id', 's.slug', 'COUNT(...) as totalLiterals', ...])
+  .join(...)
+  .groupBy('s.id')
+
+// Usage — queryable like any entity:
+await em.find(SymbolProgress, { slug: { $like: 'domain.%' } },
+  { orderBy: { completionRate: 'ASC' } });
+#+END_SRC
+
+* Entity Method
+
+Methods on the entity class. Post-fetch behavior. Runtime checks,
+domain actions, convenience accessors.
+
+Use for: =implements()= trait checks, =review()= signal processing,
+computed getters (=.translated=, =.memory=).
+
+#+BEGIN_SRC js
+// On entity class:
+implements(trait) { return this.traits.includes(trait); }
+async review(signal, ctx) { ... }
+
+// Usage:
+if (lit.implements('VOCALIZED')) { ... }
+await lit.review('SUCCESS', ctx);
+#+END_SRC
+
+* Design Principle
+
+Formulas and filters are SQL-level (pre-fetch). Repository methods
+compose queries. Virtual entities are named queries. Entity methods
+are post-fetch behavior. Each layer has one job. Push filtering down
+to the lowest possible layer.

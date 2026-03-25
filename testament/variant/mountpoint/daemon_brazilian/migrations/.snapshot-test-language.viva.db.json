@@ -83,17 +83,6 @@
             "VOCALIZED"
           ],
           "mappedType": "json"
-        },
-        "rank": {
-          "name": "rank",
-          "type": "integer",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
-          "length": null,
-          "default": "null",
-          "mappedType": "integer"
         }
       },
       "name": "Literal",
@@ -884,6 +873,7 @@
             "id"
           ],
           "referencedTableName": "Mode",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "Session_intent_foreign": {
@@ -974,7 +964,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "length": null,
           "mappedType": "text"
         }
@@ -1024,6 +1014,7 @@
             "id"
           ],
           "referencedTableName": "Mode",
+          "deleteRule": "cascade",
           "updateRule": "cascade"
         },
         "Buffer_session_foreign": {
@@ -1036,6 +1027,7 @@
             "id"
           ],
           "referencedTableName": "Session",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },
@@ -1283,7 +1275,7 @@
           "enumItems": [
             "BAYESIAN",
             "BOOLEAN",
-            "AGENTIC"
+            "COUNTER"
           ],
           "mappedType": "enum"
         },
@@ -1321,16 +1313,6 @@
         },
         "state": {
           "name": "state",
-          "type": "json",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "length": null,
-          "mappedType": "json"
-        },
-        "history": {
-          "name": "history",
           "type": "json",
           "unsigned": false,
           "autoincrement": false,
@@ -1441,6 +1423,254 @@
           ],
           "referencedTableName": "Literal",
           "deleteRule": "cascade",
+          "updateRule": "cascade"
+        }
+      },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "datetime",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "CURRENT_TIMESTAMP",
+          "mappedType": "datetime"
+        },
+        "user": {
+          "name": "user",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "literal": {
+          "name": "literal",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "memory": {
+          "name": "memory",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "mode": {
+          "name": "mode",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "session": {
+          "name": "session",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "text"
+        },
+        "signal": {
+          "name": "signal",
+          "type": "json",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "json"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "text"
+        },
+        "snapshot": {
+          "name": "snapshot",
+          "type": "json",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "mappedType": "json"
+        }
+      },
+      "name": "Trace",
+      "indexes": [
+        {
+          "columnNames": [
+            "user"
+          ],
+          "composite": false,
+          "keyName": "Trace_user_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "literal"
+          ],
+          "composite": false,
+          "keyName": "Trace_literal_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "memory"
+          ],
+          "composite": false,
+          "keyName": "Trace_memory_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "mode"
+          ],
+          "composite": false,
+          "keyName": "Trace_mode_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "session"
+          ],
+          "composite": false,
+          "keyName": "Trace_session_index",
+          "constraint": false,
+          "primary": false,
+          "unique": false
+        },
+        {
+          "keyName": "primary",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "Trace_user_foreign": {
+          "constraintName": "Trace_user_foreign",
+          "columnNames": [
+            "user"
+          ],
+          "localTableName": "Trace",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "User",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "Trace_literal_foreign": {
+          "constraintName": "Trace_literal_foreign",
+          "columnNames": [
+            "literal"
+          ],
+          "localTableName": "Trace",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Literal",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "Trace_memory_foreign": {
+          "constraintName": "Trace_memory_foreign",
+          "columnNames": [
+            "memory"
+          ],
+          "localTableName": "Trace",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Memory",
+          "deleteRule": "cascade",
+          "updateRule": "cascade"
+        },
+        "Trace_mode_foreign": {
+          "constraintName": "Trace_mode_foreign",
+          "columnNames": [
+            "mode"
+          ],
+          "localTableName": "Trace",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Mode",
+          "deleteRule": "set null",
+          "updateRule": "cascade"
+        },
+        "Trace_session_foreign": {
+          "constraintName": "Trace_session_foreign",
+          "columnNames": [
+            "session"
+          ],
+          "localTableName": "Trace",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "Session",
+          "deleteRule": "set null",
           "updateRule": "cascade"
         }
       },

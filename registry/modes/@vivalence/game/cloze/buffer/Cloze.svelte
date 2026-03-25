@@ -1,0 +1,378 @@
+<script>
+  import { Keyboard, Asset } from "@vivalence/drapes";
+
+  const { terminal, buffer } = $props();
+
+  let keyboard;
+
+  const data = buffer.data ?? {};
+  const gameplay = data.gameplay ?? "type";
+  const blankIndices = new Set(data.blankIndices ?? []);
+  const forgiving = data.forgiving ?? true;
+
+  let literal = $state(buffer.literals?.[0] ?? null);
+  let loading = $state(!literal);
+  let submitted = $state(false);
+  let answers = $state({});
+
+  const tokens = $derived(literal?.trait?.ANNOTATED?.tokens ?? []);
+  const known = $derived(literal?.trait?.TRANSLATED?.known);
+  const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
+  const isListenMode = $derived(gameplay === "listen");
+
+  if (!literal) {
+    terminal.daemon.call("/pick/literal/feed", { take: 1, seek: { traits: ["ANNOTATED"] } }).then(([lit]) => {
+      literal = lit ?? null;
+      if (literal && !blankIndices.size) blankIndices.add(0);
+      loading = false;
+    });
+  }
+
+  function normalize(text) {
+    if (!forgiving) return text.trim();
+    return text.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
+  function evaluate(index) {
+    const token = tokens[index];
+    if (!token) return false;
+    return normalize(answers[index] ?? "") === normalize(token.form);
+  }
+
+  function submit() {
+    if (submitted) return;
+    submitted = true;
+
+    for (const i of blankIndices) {
+      const token = tokens[i];
+      if (!token) continue;
+      const correct = evaluate(i);
+      const literalRef = token.literal ?? literal.id;
+      terminal.daemon.call("/review/literal", {
+        signal: correct ? "SUCCESS" : "FAILURE",
+        scope: { literal: typeof literalRef === "object" ? literalRef.id ?? literalRef : literalRef },
+      });
+    }
+
+    const allCorrect = [...blankIndices].every(evaluate);
+    terminal.daemon.call("/review/literal", {
+      signal: allCorrect ? "SUCCESS" : "NEUTRAL",
+      scope: { literal: literal.id },
+    });
+  }
+
+  function advance() {
+    buffer.release();
+  }
+
+  function handleKey(event) {
+    if (event.key === "Enter" && !submitted) {
+      event.preventDefault();
+      submit();
+    } else if (event.key === "Enter" && submitted) {
+      event.preventDefault();
+      advance();
+    }
+  }
+
+  function selectOption(index, option) {
+    if (submitted) return;
+    answers[index] = option;
+    const allFilled = [...blankIndices].every((i) => answers[i]);
+    if (allFilled) submit();
+  }
+
+  const options = $derived(
+    gameplay === "pick" && data.options?.length
+      ? data.options
+      : gameplay === "pick"
+        ? [...new Set([...blankIndices].map((i) => tokens[i]?.form).filter(Boolean))]
+        : [],
+  );
+</script>
+
+<Keyboard bind:this={keyboard} />
+<svelte:window onkeydown={handleKey} />
+
+<div class="bsp-node root">
+  <div class="bsp-node content">
+    <div class="stage">
+      {#if literal}
+        {#if !isListenMode}
+          <div class="meta">
+            <span class="meta-lang">Português</span>
+            {#if known}
+              <span class="meta-hint">{known}</span>
+            {/if}
+          </div>
+        {:else}
+          <div class="meta">
+            <span class="meta-lang">Listen</span>
+          </div>
+          {#if asset}
+            <div class="audio-row">
+              <Asset autoplay={true} {asset} />
+            </div>
+          {/if}
+        {/if}
+
+        <div class="tokens">
+          {#each tokens as token, i}
+            {#if blankIndices.has(i)}
+              <span class="gap">
+                {#if submitted}
+                  {@const correct = evaluate(i)}
+                  <span class="gap-answer" class:gap-ok={correct} class:gap-wrong={!correct}>
+                    {token.form}
+                  </span>
+                  {#if !correct && answers[i]}
+                    <span class="gap-yours">{answers[i]}</span>
+                  {/if}
+                {:else if gameplay === "type" || gameplay === "listen"}
+                  <input
+                    class="gap-input"
+                    type="text"
+                    placeholder={token.gloss ?? "…"}
+                    bind:value={answers[i]}
+                    autofocus={i === [...blankIndices][0]}
+                  />
+                {:else}
+                  <span class="gap-gloss">{token.gloss ?? "…"}</span>
+                {/if}
+              </span>
+            {:else if !isListenMode}
+              <span class="tok">{token.form}</span>
+            {:else}
+              <span class="tok tok-hidden">{'_'.repeat(token.form.length)}</span>
+            {/if}
+          {/each}
+        </div>
+
+        {#if gameplay === "pick" && !submitted}
+          <div class="options">
+            {#each options as opt}
+              {@const selected = Object.values(answers).includes(opt)}
+              <button
+                class="opt"
+                class:opt-selected={selected}
+                ontouchstart={(e) => keyboard.guard(e)}
+                onclick={() => {
+                  const nextBlank = [...blankIndices].find((i) => !answers[i]);
+                  if (nextBlank !== undefined) selectOption(nextBlank, opt);
+                }}
+                disabled={submitted}
+              >
+                {opt}
+              </button>
+            {/each}
+          </div>
+        {/if}
+
+      {:else if loading}
+        <div class="loading"><span class="dot"></span></div>
+      {/if}
+    </div>
+  </div>
+
+  <div class="bsp-chain-end menu">
+    <div class="input-row">
+      {#if loading}
+        <span class="menu-hint">loading…</span>
+      {:else if submitted}
+        <button class="btn btn-next" ontouchstart={(e) => keyboard.guard(e)} onclick={advance}>
+          Next
+        </button>
+      {:else if gameplay === "type" || gameplay === "listen"}
+        <button class="btn btn-submit" ontouchstart={(e) => keyboard.guard(e)} onclick={submit}>
+          Check
+        </button>
+      {:else}
+        <span class="menu-hint">fill the gap</span>
+      {/if}
+    </div>
+  </div>
+</div>
+
+<style>
+  .root { grid-template-rows: 1fr auto; }
+  .content { overflow-y: auto; }
+
+  .stage {
+    max-width: 480px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 15vh 1.25rem 2rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    align-items: baseline;
+  }
+  .meta-lang {
+    font-family: var(--font-family-code);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--colors-theme-primary-contrast);
+  }
+  .meta-hint {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.85rem;
+    color: var(--colors-skeleton-1-boundary);
+    font-style: italic;
+  }
+
+  .audio-row {
+    margin-bottom: 1.5rem;
+  }
+
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    align-items: baseline;
+    margin-bottom: 1.75rem;
+  }
+
+  .tok {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-xl);
+    color: var(--colors-palette-gray-10);
+  }
+  .tok-hidden {
+    color: var(--colors-skeleton-1-boundary);
+    letter-spacing: 0.15em;
+  }
+
+  .gap {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 2px solid var(--colors-theme-primary-contrast);
+    padding: 0.125rem 0.25rem;
+    min-width: 3rem;
+  }
+
+  .gap-input {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-xl);
+    color: var(--colors-palette-gray-10);
+    background: none;
+    border: none;
+    outline: none;
+    width: 100%;
+    min-width: 4rem;
+    max-width: 10rem;
+    text-align: center;
+    padding: 0;
+  }
+
+  .gap-gloss {
+    font-family: var(--font-family-code);
+    font-size: 0.65rem;
+    color: var(--colors-skeleton-1-boundary);
+  }
+
+  .gap-answer {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-xl);
+  }
+  .gap-ok { color: var(--colors-system-success-contrast); }
+  .gap-wrong { color: var(--colors-system-error-contrast); }
+
+  .gap-yours {
+    font-family: var(--font-family-code);
+    font-size: 0.6rem;
+    color: var(--colors-system-error-contrast);
+    text-decoration: line-through;
+    opacity: 0.7;
+  }
+
+  .options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .opt {
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, var(--colors-skeleton-2-surface));
+    color: var(--colors-palette-gray-100);
+    font-size: var(--font-size-lg);
+    font-family: var(--font-family-serif-heading);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .opt:hover:not(:disabled) { border-color: var(--colors-skeleton-1-contrast); }
+  .opt-selected {
+    background: color-mix(in srgb, var(--colors-theme-primary-surface) 60%, transparent);
+    border-color: var(--colors-theme-primary-contrast);
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 2rem;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--colors-skeleton-1-boundary);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  .menu {
+    border-top: 1px solid var(--colors-skeleton-1-boundary);
+    padding: 0.75rem 1.25rem;
+  }
+  .input-row {
+    max-width: 480px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.5rem;
+  }
+  .menu-hint {
+    display: block;
+    width: 100%;
+    text-align: center;
+    padding: 0.625rem;
+    color: var(--colors-skeleton-1-boundary);
+    font-size: 0.75rem;
+    font-family: var(--font-family-code);
+  }
+
+  .btn {
+    flex: 1;
+    padding: 0.625rem 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-family-sans-text);
+  }
+  .btn-submit {
+    background: var(--colors-theme-primary-surface);
+    color: var(--colors-theme-primary-contrast);
+  }
+  .btn-next {
+    background: transparent;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    color: var(--colors-skeleton-1-contrast);
+  }
+
+  @media (max-width: 640px) {
+    .stage { padding-top: 10vh; }
+    .tok, .gap-answer, .gap-input { font-size: var(--font-size-lg); }
+    .opt { font-size: var(--font-size-base); padding: 0.5rem 1rem; }
+    .menu { padding: 0.625rem 1rem; }
+  }
+</style>

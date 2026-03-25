@@ -1,0 +1,31 @@
+meta {
+  name: literal
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{GAME_JUDGE}}/emit/literal
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "literal": {
+      "slug": "chamar.verb"
+    },
+    "recall": "LEARNING",
+    "speed": {
+      "rate": "NORMAL"
+    }
+  }
+}
+
+docs {
+  emit a judge buffer — timed true/false on translation pair
+}

@@ -10,147 +10,188 @@
 
 Feature implementation. Modes are the player-facing experiences — flashcards, writing practice, shadow reading. Each mode is a registry package with a manifest declaring its traits and a .viva.js exporting its components. The runtime's trait system wires them into the daemon during the resolve phase.
 
-## Active Modes
-
-### Game Modes
-
-Three working game modes under `game/`:
-
-**Flashcard** `game/flashcard/flashcard.viva.js`
-- Type: game, slug: flashcard, version: 0.1.0
-- Traits: VIEWABLE, BUFFERED, VALENTIC
-- View: `buffer/Flashcard.svelte` (282 lines)
-- Dataset: 1 valence (survival-flashcard), seeks word + proficiency.survival symbols
-- Classic bidirectional recall. Player sees one side, guesses the other.
-
-**Write** `game/write/write.viva.js`
-- Type: game, slug: write
-- Traits: VIEWABLE, VALENTIC
-- View: `buffer/Write.svelte` (521 lines)
-- Dataset: 1 valence (survival-words), seeks sentence + proficiency.survival symbols
-- Writing practice for sentences.
-
-**Shadow** `game/shadow/shadow.viva.js`
-- Type: game, slug: shadow
-- Traits: VIEWABLE, VALENTIC, BUFFERED
-- View: `buffer/Shadow.svelte` (612 lines — largest game mode)
-- Dataset: 1 valence (survival-shadow), seeks sentence + proficiency.survival, speed: SLOW
-- Shadow reading/listening practice for sentences.
-
-### Tactic Mode
-
-**Test** `tactic/test/test.viva.js`
-- Type: tactic, slug: test
-- Traits: VALENTIC, PRODUCER
-- No view (not VIEWABLE — orchestrates, doesn't display)
-- Dataset: 1 valence (test), PRODUCTIVE trait with mount `/generate/introduction`
-- Production pipeline (101 lines): Aperture-based
-
-Production workflow:
-1. Fetch a sentence via `/pick/literal/feed` with seek criteria
-2. Extract all tokens from the sentence's ANNOTATED data
-3. Resolve token memories for the current user
-4. Generate products routed to different game modes based on memory status:
-   - Shadow: for unknown/unlearned content (sentence or tokens)
-   - Flashcard: for tokens in LEARNING status
-   - Write: for tokens with unknown memory
-5. Returns `ProductionResult.nominal({ products })`
-
-The tactic adapts game mode selection based on the learner's current memory state.
-
 ## Mode Anatomy
 
 Every mode exports from its .viva.js:
 
 ```javascript
-export const manifest = { type, slug, name, version, traits };
-export const view = new View("buffer/Component.svelte.js");  // if VIEWABLE
-export const dataset = { entities: { valence: [...] } };      // if VALENTIC
-export const production = new Aperture()...;                   // if PRODUCER
+import { BufferView, Vector, v } from "@vivalence/typology";
+
+export const manifest = { type, slug, name, description, version, traits };
+export const buffer = new BufferView("buffer/Component.svelte", v.buffer({ data: { ... } }));
+export const emitter = new Vector().open("/literal", async (ctx) => { ... });
+export const dataset = { intent: [...] };
 ```
 
 **Traits determine wiring:**
 
-| Trait | What it does | Applied by | Status |
-|-------|-------------|------------|--------|
-| VIEWABLE | Compiles Svelte view, exposes /view endpoint | traitmap.VIEWABLE | Active |
-| BUFFERED | Manages buffer state lifecycle | traitmap (runtime) | Active (→ SELFEVIDENT) |
-| VALENTIC | Creates per-valence routing branches | traits/valentic.js | Active (→ INTENTIONAL) |
-| PRODUCER | Attaches production pipeline middleware | traits/producer.js | Active (→ EMITTER) |
-| DATASET | Upserts symbols/literals from dataset | traits/dataset.js | Active |
-| CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY | Active (expanding for cortex) |
-| FRAUGHT | Indexes freight catalog, exposes /freight | traitmap.FRAUGHT | Active |
-| LANGUAGED | Conversation harness with personality (planned) | — | Planned (cortex) |
-| AGENTIC | Action harness with auto-resolve (planned) | — | Planned (cortex) |
+| Trait | What it does | Applied by |
+|-------|-------------|------------|
+| BUFFERED | Bundles Svelte view, serves /view endpoint, wires mode.buffer() factory | traitmap.BUFFERED |
+| INTENTED | Upserts intents from dataset, creates per-intent routing | traits/intented.js |
+| EMITTER | Attaches emitter Vector as /emit endpoints, injects daemon/mode context | traits/emitter.js |
+| SELFEVIDENT | Mode can open without an intent (standalone) | traitmap.SELFEVIDENT |
+| DATASET | Upserts symbols/literals from dataset | traits/dataset.js |
+| CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY |
+| FRAUGHT | Indexes freight catalog (audio, images), exposes /freight | traitmap.FRAUGHT |
+| TOPOGRAPHICAL | Carries topology-level data | traitmap.TOPOGRAPHICAL |
+| LANGUAGED | Conversation harness with personality (planned) | — |
+| AGENTIC | Action harness with auto-resolve (planned) | — |
 
-**Valence dataset format:**
+**Intent dataset format:**
 
 ```javascript
 {
   slug: "survival-flashcard",
   type: "SELFEVIDENT",
-  traits: ["BUFFERED"],
+  traits: ["FURNISHED"],
   data: {
-    BUFFERED: {
-      recall: "LEARNING",
+    FURNISHED: {
       seek: { symbols: ["word", "proficiency.survival"] }
     }
   }
 }
 ```
 
-Valences with PRODUCTIVE trait define production configuration:
+## Active Game Modes
+
+Nine game modes under `game/`. All share: BUFFERED, INTENTED, EMITTER traits. Most add SELFEVIDENT.
+
+| Mode | Slug | Emitter route | Gameplay variants | Description |
+|------|------|---------------|-------------------|-------------|
+| Pick | pick | /literal | — | Multiple choice from distractors. One tap. |
+| Judge | judge | /literal | visual, audio, audio-only | Timed true/false on translation pairs. |
+| Listen | listen | /literal | pick, type | Audio-first recall. Requires VOCALIZED. FRAUGHT. |
+| Exhibit | exhibit | /present | — | Present structured knowledge. No testing. |
+| Flashcard | flashcard | /literals | — | Classic bidirectional recall. |
+| Match | match | /batch | translate, describe | Connect literal pairs across two columns. |
+| Cloze | cloze | /literal | type, pick, listen | Fill blanked tokens in a sentence. |
+| Shadow | shadow | /literals | — | Shadow reading/listening with speed control. |
+| Write | write | /literals | — | Free text production. |
+
+**Emitter pattern**: Each game mode exports an `emitter` Vector with one route. The route receives `ctx.input` (literal, distractors, recall, gameplay, speed) and returns a buffer via `ctx.mode.buffer({ data, literals })`.
+
+Server-side callers (tactics) invoke emitters as `ctx.daemon.modes.game.{slug}.emit.{route}(input)`.
+Client-side callers use `terminal.daemon.call` through the aperture wire protocol.
+
+**Distractor fetching**: Pick, Judge, and Listen emitters auto-fetch distractors via `ctx.daemon.entities.literal.feed()` when none are provided in input.
+
+## Active Tactics
+
+Two tactics under `tactic/`. Tactics orchestrate game modes — they don't render directly.
+
+### Survival `tactic/survival/`
+
+Five-phase session for Brazilian Portuguese. Each phase is a separate file in `emitter/`:
+
+| Phase | File | Default batch | Strategy |
+|-------|------|---------------|----------|
+| warmup | warmup.js | 8 | Easy recall — exhibit new, flash KNOWN, judge SLOW, listen pick |
+| buildup | buildup.js | 6 | Conjugation paradigms — exhibit, pick with paradigm distractors, match, judge |
+| exercise | exercise.js | 3 | Deep sentence work — token resolution, shadow, cloze, judge, write, listen |
+| drill | drill.js | 12 | High volume verb reps — exhibit, flash LEARNING, write, judge FAST |
+| cooldown | cooldown.js | 8 | Relaxed listening — listen pick KNOWN, flash KNOWN |
+
+All phases call `ctx.daemon.entities.literal.feed()` directly (not through aperture).
+Exercise phase resolves sentence tokens via `ctx.daemon.entities.literal.findOne()` with user-scoped memory population.
+
+### Test `tactic/test/`
+
+Minimal tactic for development. One emitter route `/flashcards` that feeds literals through flashcard buffers.
+
+## Emitter Wiring
+
+The EMITTER trait (`runtime/daemon/mode/traits/emitter.js`) does three things:
+
+1. Injects `ctx.daemon` and `ctx.mode` into emitter middleware
+2. Resolves `ctx.input.seek` via `Seek.fromMask()` and `ctx.input.blacklist` via `new Blacklist()`
+3. Post-processes output: assigns session + counter index to buffers, flushes em, serializes response
+
+The emitter Vector is exposed two ways:
+- `mode.emit = shape.object(emitter)` — local callable object
+- `mode.aperture.branch("/emit").slurp(emitter)` — HTTP endpoint at `/emit/{route}`
+
+## Buffer Schema
+
+Game modes define their buffer data schema using `v.buffer()`:
+
 ```javascript
-data: {
-  PRODUCTIVE: {
-    mount: "/generate/introduction",
-    queue: 1,
-    mask: { batch: 1, stock: 1, seek: { symbols: [...] } }
-  }
-}
+const buffer = new BufferView(
+  "buffer/Judge.svelte",
+  v.buffer({
+    data: {
+      recall: v.string({ default: "LEARNING" }),
+      gameplay: v.string({ default: "visual" }),
+      speed: v.object({ rate: v.string(), base: v.number(), multiplier: v.number() }).optional(),
+      items: v.array(v.object({ target: v.number(), shown: v.string(), correct: v.boolean() })),
+    },
+  }),
+);
 ```
+
+`mode.buffer({ data, literals })` creates a real MikroORM BufferEntity with the data and literal relations.
+
+## Memory Integration
+
+Game mode Svelte components call review through the aperture:
+```javascript
+terminal.daemon.call("/review/literal", { signal: "SUCCESS", scope: { literal: lit.id } })
+```
+
+The aperture resolves the literal and calls `literal.review(signal, ctx)` which:
+1. Finds or creates the user's Memory for this literal
+2. Calls `memory.apply(signal, driver)` — dispatches to the driver's `evolve()` or `encode()`
+3. Creates a Trace entity
+4. Flushes
+
+Memory drivers: BAYESIAN (ebisu, default), BOOLEAN (binary), COUNTER (streak-based). See `domain/learning/memory/` and `.ikiro/memory-drivers.workpackage.org`.
 
 ## Archived Modes
 
-In `bak/`: agent, strategy, tactic (old version), teacher — 11+ archived experimental modes. These represent abandoned pedagogical approaches from before the kernel simplification.
+In `game/bak/`: conjugations, flashcards (old), translations, todo stubs — abandoned approaches from before the kernel simplification.
+In `tactic/bak/`: old tactic format tests.
 
 ## Where Used
 
-- **Runtime daemon**: Modes are instantiated during daemon populate, traits applied during resolve
-- **Tactic**: Produces products that reference game mode producer IDs
-- **Client**: Loads mode views via VIEWABLE URL, manages buffer lifecycle
+- **Runtime daemon**: Modes instantiated during populate, traits applied during resolve
+- **Tactics**: Orchestrate game modes via `ctx.daemon.modes.game.{slug}.emit.{route}()`
+- **Client**: Loads Svelte views via BUFFERED /view URL, calls /emit and /review via daemon.call
 
 ## Work Packages
 
-### Testing Gaps
-- No mode-level tests for any active mode
-- No end-to-end mode lifecycle tests (load → trait application → aperture → production)
-- Tactic production pipeline has no tests (most complex mode logic)
-- No tests for view bundle compilation per mode
-
-### Human Documentation Needs (Divio)
-- **Tutorial**: "Build a new game mode" — manifest, view component, dataset, trait selection
-- **Reference**: Mode manifest format, trait contracts, valence data structure
-- **How-to**: "Add a new tactic" — production pipeline via Aperture, ProductionResult API
+### Testing
+- Bruno tests exist for all game emitters and tactic emitters (`testament/_bruno/variants/daemons/test-language/modes/`)
+- Bayesian driver: 36-step test suite (`domain/learning/tests/memory/bayesian.test.js`)
+- No mode-level unit tests (Svelte components untested)
+- No end-to-end mode lifecycle tests
 
 ### Active Work
-- More game modes planned (conjugation practice, more interaction types)
-- Tactic entity management still being figured out
-- Production pipeline in flux → migrating to Emitter pattern (Vector-based, replaces Aperture pipeline)
-- Buffer/Intent migration will change dataset format: valence→intent, trait names on manifests
+- implements filter + method across all entities via trait.js
+- Wire exhibit + survival into daemon circuitry, end-to-end verify
+- Counter + Boolean driver tests
+- Tier 2 game modes (reorder, dictation)
+- Tier 3 game modes (minimal-pair)
+- Conversational tactics (post-cortex)
 
-### Planned Changes
-- Many more modes coming
-- Asset integration (VERBALIZED literals with audio)
-- Note entity for persistent cross-session mode state
-- LANGUAGED/AGENTIC traits will give modes AI conversation and action capabilities via cortex harnesses
+### Human Documentation Needs (Divio)
+- **Tutorial**: "Build a new game mode" — manifest, BufferView, emitter, dataset, trait selection
+- **Reference**: Emitter context shape, buffer data schema patterns, gameplay enum conventions
+- **How-to**: "Add a new tactic" — emitter dir pattern, phase composition, literal feed integration
 
 ## Maintenance
 
-When adding a new mode:
-1. Create directory: `registry/modes/@vivalence/{type}/{slug}/`
-2. Export manifest with appropriate traits from `{slug}.viva.js`
-3. If VIEWABLE: create `buffer/{Component}.svelte` + wrapper `.svelte.js`
-4. If VALENTIC: export dataset with valence entities
-5. If PRODUCER: export production Aperture with generation endpoints
-6. Wire into circuitry's daemon modes array: `"@vivalence/{type}/{slug}"`
+When adding a new game mode:
+1. Create `registry/modes/@vivalence/game/{slug}/{slug}.viva.js`
+2. Export manifest with traits (at minimum: BUFFERED, INTENTED, EMITTER)
+3. Create `buffer/{Name}.svelte` — BufferView points at it
+4. Define emitter Vector with route(s)
+5. Export dataset with intent entities if INTENTED
+6. Wire into circuitry's daemon modes array
+7. Add Bruno test at `testament/_bruno/variants/daemons/test-language/modes/game/{slug}/`
+
+When adding a new tactic:
+1. Create `registry/modes/@vivalence/tactic/{slug}/`
+2. Create `emitter/` dir with one file per phase + `index.js` assembling the Vector
+3. Export manifest (INTENTED, EMITTER), emitter, dataset from `.viva.js`
+4. Phases call `ctx.daemon.entities.literal.feed()` directly and compose buffers via `ctx.daemon.modes.game.{slug}.emit.{route}()`
+5. Add Bruno tests for each emitter phase

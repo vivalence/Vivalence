@@ -5,48 +5,24 @@ meta {
 }
 
 post {
-  url: {{ENG2LAT}}/review/unit
+  url: {{DAEMON}}/review/literal
   body: json
-  auth: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
 }
 
 body:json {
   {
-    "signal": "NEUTRAL",
+    "signal": "SUCCESS",
     "scope": {
-      "user": {
-        "id": "localhost"
-      },
-      "unit": {
-        "id": "0197403a-8010-72f8-b216-00b9a2ae0b20"
-      }
+      "literal": "019c39b4-8ecf-724a-8e45-363e0158c12a"
     }
   }
 }
 
 docs {
-    # get weakest tags from a list of tags
-    returns data {
-        "id": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
-        "createdAt": "2024-04-19T04:39:00.468",
-        "updatedAt": "2024-04-19T04:39:00.468",
-        "name": "Verb Haber",
-        "type": [
-            "STRUCTURAL",
-            "COMPLETABLE"
-        ],
-        "data": {
-            "STRUCTURAL": {},
-            "COMPLETABLE": {}
-        },
-        "memory": {
-            "id": "6f91e955-70c8-47c0-85f5-258cf4a05a4e",
-            "state": [4, 4, 0.26],
-            "tagId": "05a4c4ab-2c70-4e72-b5ca-cdb19a9b36d2",
-            "status": "UNKNOWN",
-            "unitId": null,
-            "lastSeen": "2024-04-22T18:38:05.999",
-            "strength": -22.92964389442014
-        }
-    }
+  review a literal — applies signal to memory via literal.review()
 }

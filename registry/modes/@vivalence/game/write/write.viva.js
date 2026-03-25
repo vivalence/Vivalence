@@ -1,4 +1,4 @@
-import { BufferView, Vector, Type, BufferSchema, Ref } from "@vivalence/typology";
+import { cast, BufferView, Vector, v } from "@vivalence/typology";
 import dataset from "./dataset/index.js";
 
 const manifest = {
@@ -8,16 +8,20 @@ const manifest = {
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
-const buffer = new BufferView("buffer/write.svelte.js", BufferSchema.of({
-  data: { recall: Type.String({ default: "LEARNING" }) },
-  literals: Type.Array(Ref),
+const buffer = new BufferView("buffer/Write.svelte", v.buffer({
+  data: {
+    recall: v.union([v.string(), v.array(v.string())], {
+      description: "LEARNING, KNOWN, per-literal array, or omit for random",
+    }).optional(),
+    forgiving: v.boolean({ default: true }).desc("Normalize diacritics and case when evaluating"),
+  },
 }));
 
-const emitter = new Vector().open("/literal", async (ctx) => {
+const emitter = new Vector().open("/literals", async (ctx) => {
   const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
   return ctx.mode.buffer({
     data: { recall },
-    literals: [ctx.input.literal],
+    literals: ctx.input.literals ?? cast.array(ctx.input.literal),
   });
 });
 

@@ -1,4 +1,4 @@
-import { Type } from "@vivalence/typology";
+import { v } from "@vivalence/typology";
 import {
   jsonSchema,
   tool as makeTool,
@@ -54,7 +54,7 @@ function formatTools(agentic) {
   const tools = agentic.tools || agentic;
 
   return Object.entries(tools).reduce((acc, [name, tool]) => {
-    const schema = tool.input || Type.Object({});
+    const schema = tool.input || v.object({});
     const jsonSchemaObj = JSON.parse(JSON.stringify(schema));
     if (!jsonSchemaObj.type) jsonSchemaObj.type = "object";
 

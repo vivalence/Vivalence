@@ -1,0 +1,28 @@
+meta {
+  name: literal
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{GAME_PICK}}/emit/literal
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "literal": {
+      "slug": "chamar.verb"
+    },
+    "recall": "LEARNING"
+  }
+}
+
+docs {
+  emit a pick buffer for a literal with auto-fetched distractors
+}

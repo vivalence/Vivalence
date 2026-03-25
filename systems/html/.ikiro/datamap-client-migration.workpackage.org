@@ -1,7 +1,8 @@
 #+TITLE: Datamap Shard + Client Entity Migration — Work Package
 #+AUTHOR: Vivalence
 #+DATE: 2026-03-20
-#+UPDATED: 2026-03-20
+#+UPDATED: 2026-03-26
+#+STATUS: COMPLETE
 
 * Intent
 
@@ -267,7 +268,7 @@ The service itself doesn't change. It returns repos. The change is in how
 the runtime wires those repos into aperture routes — from raw EM dispatch
 to =shard.datamap.repository()=.
 
-* Phase B — Client Entity Migration
+* Phase B — Client Entity Migration — DONE (2026-03-23)
 
 Replace =systems/html/src/typology/prototypes/repository.js= with
 =RemoteRepository= from =@vivalence/typology=. Refactor =daemon.js=
@@ -420,7 +421,7 @@ After Phase A + B:
 - Buffer population works (selfevident + applicative)
 - Navigation tree shows modes with intents
 
-* Phase C — Schema Projection + EntityStore
+* Phase C — Schema Projection + EntityStore — DONE (2026-03-23)
 
 Add a =/schema= endpoint on daemons that returns entity metadata
 extracted from MikroORM. Build =EntityStore= on the client that takes
@@ -514,7 +515,7 @@ the client what entities exist and where they're served.
 - =systems/runtime/daemon/aperture/= — add =/schema= endpoint
 - =systems/html/src/typology/entities/daemon.js= — use EntityStore
 
-* Phase D — Lighthouse as EntityStore — SERVER-SIDE DONE (2026-03-23)
+* Phase D — Lighthouse as EntityStore — DONE (2026-03-23)
 
 Apply the same pattern to lighthouse. Lighthouse manages Identity and
 Daemon entities. If lighthouse exposes =/schema=, the client builds an
@@ -571,7 +572,7 @@ layer is what gets replaced — the auth logic stays.
 - RemoteRepository provides local caching + reactive capability
 - Foundation for multi-lighthouse support
 
-* Phase E — Reactive Subscriptions End-to-End
+* Phase E — Reactive Subscriptions End-to-End — INFRASTRUCTURE DONE (2026-03-26)
 
 Wire the full subscription path:
 MikroORM entity mutates → =shape.subscriber= catches it → =steer.shine=

@@ -1,0 +1,29 @@
+meta {
+  name: literal
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{GAME_LISTEN}}/emit/literal
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "literal": {
+      "slug": "chamar.verb"
+    },
+    "gameplay": "pick",
+    "recall": "LEARNING"
+  }
+}
+
+docs {
+  emit a listen buffer — audio-first recall with pick or type
+}

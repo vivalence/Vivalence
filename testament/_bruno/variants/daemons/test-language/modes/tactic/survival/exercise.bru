@@ -1,0 +1,31 @@
+meta {
+  name: exercise
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{TACTIC_SURVIVAL}}/emit/exercise
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "batch": 2,
+    "seek": {
+      "symbols": [
+        "sentence",
+        "proficiency.survival"
+      ]
+    }
+  }
+}
+
+docs {
+  survival exercise — deep sentence work with token resolution
+}

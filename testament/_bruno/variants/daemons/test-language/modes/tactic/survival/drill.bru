@@ -1,0 +1,31 @@
+meta {
+  name: drill
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{TACTIC_SURVIVAL}}/emit/drill
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "batch": 6,
+    "seek": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    }
+  }
+}
+
+docs {
+  survival drill — high volume isolated verb reps
+}

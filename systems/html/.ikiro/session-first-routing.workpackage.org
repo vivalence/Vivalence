@@ -1,6 +1,7 @@
 #+TITLE: Session-First Client Routing — Work Package
 #+AUTHOR: Vivalence
 #+DATE: 2026-03-18
+#+STATUS: COMPLETE
 
 * Intent
 

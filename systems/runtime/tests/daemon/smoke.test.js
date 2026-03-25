@@ -35,7 +35,7 @@ specimen.describe("smoke: full lifecycle", () => {
     specimen.expect(result.length).toBe(1);
     specimen.expect(result[0].id).toBeTruthy();
     specimen.expect(result[0].data.recall).toBe("LEARNING");
-    specimen.expect(result[0].literals).toContain(scenario.fixtures.hello.id);
+    specimen.expect(result[0].literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
   });
 
   specimen.it("query buffers via userspace", async () => {

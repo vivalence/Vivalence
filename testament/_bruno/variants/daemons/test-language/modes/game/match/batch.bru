@@ -1,0 +1,27 @@
+meta {
+  name: batch
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{GAME_MATCH}}/emit/batch
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "literals": [],
+    "gameplay": "translate",
+    "recall": "LEARNING"
+  }
+}
+
+docs {
+  emit a match buffer — pair matching from batch of literals
+}

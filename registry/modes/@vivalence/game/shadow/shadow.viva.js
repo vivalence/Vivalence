@@ -1,4 +1,4 @@
-import { BufferView, Vector, Type, BufferSchema, Ref } from "@vivalence/typology";
+import { cast, BufferView, Vector, v } from "@vivalence/typology";
 
 import dataset from "./dataset/index.js";
 
@@ -9,16 +9,20 @@ const manifest = {
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
-const buffer = new BufferView("buffer/shadow.svelte.js", BufferSchema.of({
-  data: { recall: Type.String({ default: "LEARNING" }), speed: Type.Optional(Type.Object({})) },
-  literals: Type.Array(Ref),
+const buffer = new BufferView("buffer/Shadow.svelte", v.buffer({
+  data: {
+    recall: v.union([v.string(), v.array(v.string())], {
+      description: "LEARNING, KNOWN, per-literal array, or omit for random",
+    }).optional(),
+    speed: v.object({}).desc("Speed preset {rate: FAST|NORMAL|SLOW} or custom {base, multiplier}").optional(),
+  },
 }));
 
-const emitter = new Vector().open("/literal", async (ctx) => {
+const emitter = new Vector().open("/literals", async (ctx) => {
   const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
   return ctx.mode.buffer({
     data: { recall, speed: ctx.input.speed ?? null },
-    literals: [ctx.input.literal],
+    literals: ctx.input.literals ?? cast.array(ctx.input.literal),
   });
 });
 
