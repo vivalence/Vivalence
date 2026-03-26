@@ -23,7 +23,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/não.mp3"
+          "path": "words/na-tl-o.mp3"
         }
       }
     },
@@ -479,7 +479,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/então.mp3"
+          "path": "words/enta-tl-o.mp3"
         }
       }
     },
@@ -574,7 +574,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/amanhã.mp3"
+          "path": "words/amanha-tl.mp3"
         }
       }
     },
@@ -767,7 +767,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/já.mp3"
+          "path": "words/ja-ac.mp3"
         }
       }
     },
@@ -871,7 +871,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tão.mp3"
+          "path": "words/ta-tl-o.mp3"
         }
       }
     },
@@ -1119,7 +1119,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/também.mp3"
+          "path": "words/tambe-ac-m.mp3"
         }
       }
     },
@@ -1165,7 +1165,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/lá.mp3"
+          "path": "words/la-ac.mp3"
         }
       }
     },
@@ -1293,7 +1293,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1308,6 +1309,11 @@ export default [
         "asset": {
           "path": "words/como.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15,
+        "zipf": 6.78,
+        "fpm": 6030
       }
     },
     "symbols": [
@@ -1333,7 +1339,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1348,6 +1355,11 @@ export default [
         "asset": {
           "path": "words/nem.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 78,
+        "zipf": 5.87,
+        "fpm": 741
       }
     },
     "symbols": [
@@ -1373,7 +1385,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1388,6 +1401,11 @@ export default [
         "asset": {
           "path": "words/portanto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 282,
+        "zipf": 5.09,
+        "fpm": 123
       }
     },
     "symbols": [
@@ -1413,7 +1431,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1426,8 +1445,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/quão.mp3"
+          "path": "words/qua-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 501,
+        "zipf": 4.5,
+        "fpm": 32
       }
     },
     "symbols": [
@@ -1453,7 +1477,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1468,6 +1493,11 @@ export default [
         "asset": {
           "path": "words/tanto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 136,
+        "zipf": 5.58,
+        "fpm": 380
       }
     },
     "symbols": [
@@ -1487,5 +1517,5 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  },
-];
+  }
+]

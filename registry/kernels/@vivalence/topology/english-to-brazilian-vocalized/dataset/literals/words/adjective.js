@@ -17,7 +17,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/alemão.mp3"
+          "path": "words/alema-tl-o.mp3"
         }
       }
     },
@@ -57,7 +57,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/americano.mp3"
+          "path": "words/americana.mp3"
         }
       }
     },
@@ -217,7 +217,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aquecido.mp3"
+          "path": "words/aquecida.mp3"
         }
       }
     },
@@ -657,7 +657,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/coberto.mp3"
+          "path": "words/coberta.mp3"
         }
       }
     },
@@ -697,7 +697,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/completo.mp3"
+          "path": "words/completas.mp3"
         }
       }
     },
@@ -737,7 +737,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/compreensível.mp3"
+          "path": "words/compreensi-ac-vel.mp3"
         }
       }
     },
@@ -817,7 +817,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/contrário.mp3"
+          "path": "words/contra-ac-rio.mp3"
         }
       }
     },
@@ -937,7 +937,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/difícil.mp3"
+          "path": "words/difi-ac-cil.mp3"
         }
       }
     },
@@ -1017,7 +1017,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/errado.mp3"
+          "path": "words/errada.mp3"
         }
       }
     },
@@ -1097,7 +1097,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/excelente.mp3"
+          "path": "words/excelentes.mp3"
         }
       }
     },
@@ -1217,7 +1217,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/francês.mp3"
+          "path": "words/france-cf-s.mp3"
         }
       }
     },
@@ -1441,7 +1441,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/inglês.mp3"
+          "path": "words/ingle-cf-s.mp3"
         }
       }
     },
@@ -1561,7 +1561,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/justo.mp3"
+          "path": "words/justa.mp3"
         }
       }
     },
@@ -1641,7 +1641,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/longo.mp3"
+          "path": "words/longos.mp3"
         }
       }
     },
@@ -1813,7 +1813,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mínimo.mp3"
+          "path": "words/mi-ac-nimo.mp3"
         }
       }
     },
@@ -1933,7 +1933,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/necessário.mp3"
+          "path": "words/necessa-ac-rio.mp3"
         }
       }
     },
@@ -1973,7 +1973,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/novo.mp3"
+          "path": "words/nova.mp3"
         }
       }
     },
@@ -2065,7 +2065,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pesado.mp3"
+          "path": "words/pesada.mp3"
         }
       }
     },
@@ -2105,7 +2105,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/político.mp3"
+          "path": "words/poli-ac-ticas.mp3"
         }
       }
     },
@@ -2145,7 +2145,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/possível.mp3"
+          "path": "words/possi-ac-vel.mp3"
         }
       }
     },
@@ -2185,7 +2185,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/preso.mp3"
+          "path": "words/presos.mp3"
         }
       }
     },
@@ -2225,7 +2225,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/preto.mp3"
+          "path": "words/pretos.mp3"
         }
       }
     },
@@ -2265,7 +2265,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/primeiro.mp3"
+          "path": "words/primeira.mp3"
         }
       }
     },
@@ -2551,7 +2551,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/seco.mp3"
+          "path": "words/secas.mp3"
         }
       }
     },
@@ -2911,7 +2911,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ótimo.mp3"
+          "path": "words/o-ac-timo.mp3"
         }
       }
     },
@@ -2951,7 +2951,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/único.mp3"
+          "path": "words/u-ac-nica.mp3"
         }
       }
     },

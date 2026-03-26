@@ -23,7 +23,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/né.mp3"
+          "path": "words/ne-ac.mp3"
         }
       }
     },
@@ -75,7 +75,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tá.mp3"
+          "path": "words/ta-ac.mp3"
         }
       }
     },

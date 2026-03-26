@@ -413,12 +413,13 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
+      "RANKED",
       "VOCALIZED"
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "diversos",
-        "learning": "diversos"
+        "known": "several / various",
+        "learning": "diverso"
       },
       "EXEMPLIFIED": {
         "known": "There are various kinds of coffee.",
@@ -428,6 +429,11 @@ export default [
         "asset": {
           "path": "words/diverso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 619,
+        "zipf": 3.43,
+        "fpm": 3
       }
     },
     "symbols": [
@@ -453,7 +459,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -468,6 +475,11 @@ export default [
         "asset": {
           "path": "words/este.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 50,
+        "zipf": 6.05,
+        "fpm": 1120
       }
     },
     "symbols": [
@@ -493,7 +505,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -508,6 +521,11 @@ export default [
         "asset": {
           "path": "words/qualquer.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 91,
+        "zipf": 5.79,
+        "fpm": 617
       }
     },
     "symbols": [
@@ -533,7 +551,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -548,6 +567,11 @@ export default [
         "asset": {
           "path": "words/sua.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 22,
+        "zipf": 6.48,
+        "fpm": 3020
       }
     },
     "symbols": [
@@ -567,5 +591,5 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  },
-];
+  }
+]

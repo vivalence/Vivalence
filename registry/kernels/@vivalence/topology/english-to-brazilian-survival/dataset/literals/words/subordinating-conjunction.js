@@ -62,7 +62,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "if",
-        "learning": "se (conj.)"
+        "learning": "se"
       },
       "EXEMPLIFIED": {
         "known": "If you want, let's go",
@@ -105,7 +105,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -120,6 +121,11 @@ export default [
         "asset": {
           "path": "words/embora.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 153,
+        "zipf": 5.48,
+        "fpm": 302
       }
     },
     "symbols": [
@@ -139,5 +145,5 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  },
-];
+  }
+]

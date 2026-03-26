@@ -433,7 +433,7 @@
 
   .menu {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .input-row {
     max-width: 480px;
@@ -442,18 +442,18 @@
   .menu-hint {
     display: block;
     text-align: center;
-    padding: 0.875rem;
+    padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-family: var(--font-family-code);
   }
 
   .btn {
     width: 100%;
-    padding: 0.875rem;
-    border-radius: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.625rem;
     border: none;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -470,9 +470,13 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 8vh; }
-    .type-input { font-size: var(--font-size-lg); }
-    .option-text { font-size: var(--font-size-sm); }
-    .menu { padding: 0.75rem 1rem; }
+    .stage { padding-top: 6vh; padding-left: 1rem; padding-right: 1rem; }
+    .audio-block { margin-bottom: 1.5rem; }
+    .type-input { font-size: var(--font-size-lg); font-family: var(--font-family-sans-text); }
+    .option { padding: 1rem 1rem; }
+    .option-text { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); }
+    .btn { padding: 1.125rem; font-size: 1rem; }
+    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
   }
 </style>

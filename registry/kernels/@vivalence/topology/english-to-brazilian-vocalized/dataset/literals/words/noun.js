@@ -337,7 +337,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aniversário.mp3"
+          "path": "words/aniversa-ac-rio.mp3"
         }
       }
     },
@@ -497,7 +497,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aspecto.mp3"
+          "path": "words/aspectos.mp3"
         }
       }
     },
@@ -657,7 +657,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/avião.mp3"
+          "path": "words/avia-tl-o.mp3"
         }
       }
     },
@@ -697,7 +697,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/bagunça.mp3"
+          "path": "words/bagunc-cd-a.mp3"
         }
       }
     },
@@ -937,7 +937,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/binóculo.mp3"
+          "path": "words/bino-ac-culo.mp3"
         }
       }
     },
@@ -1057,7 +1057,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/cabelo.mp3"
+          "path": "words/cabelos.mp3"
         }
       }
     },
@@ -1103,7 +1103,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/café.mp3"
+          "path": "words/cafe-ac.mp3"
         }
       }
     },
@@ -1533,7 +1533,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/cerimônia.mp3"
+          "path": "words/cerimo-cf-nia.mp3"
         }
       }
     },
@@ -1733,7 +1733,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/combustão.mp3"
+          "path": "words/combusta-tl-o.mp3"
         }
       }
     },
@@ -1853,7 +1853,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/confiança.mp3"
+          "path": "words/confianc-cd-a.mp3"
         }
       }
     },
@@ -1973,7 +1973,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/contrário.mp3"
+          "path": "words/contra-ac-rio.mp3"
         }
       }
     },
@@ -2053,7 +2053,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/coração.mp3"
+          "path": "words/corac-cd-a-tl-o.mp3"
         }
       }
     },
@@ -2093,7 +2093,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/célula.mp3"
+          "path": "words/ce-ac-lula.mp3"
         }
       }
     },
@@ -2133,7 +2133,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/decisão.mp3"
+          "path": "words/decisa-tl-o.mp3"
         }
       }
     },
@@ -2213,7 +2213,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/descendente.mp3"
+          "path": "words/descendentes.mp3"
         }
       }
     },
@@ -2351,7 +2351,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/diferença.mp3"
+          "path": "words/diferenc-cd-a.mp3"
         }
       }
     },
@@ -2486,7 +2486,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/efeito.mp3"
+          "path": "words/efeitos.mp3"
         }
       }
     },
@@ -2606,7 +2606,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/esforço.mp3"
+          "path": "words/esforc-cd-o.mp3"
         }
       }
     },
@@ -2935,7 +2935,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/folha.mp3"
+          "path": "words/folhas.mp3"
         }
       }
     },
@@ -3113,7 +3113,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/francês.mp3"
+          "path": "words/france-cf-s.mp3"
         }
       }
     },
@@ -3273,7 +3273,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/frequência.mp3"
+          "path": "words/freque-cf-ncia.mp3"
         }
       }
     },
@@ -3313,7 +3313,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/função.mp3"
+          "path": "words/func-cd-a-tl-o.mp3"
         }
       }
     },
@@ -3473,7 +3473,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/gás.mp3"
+          "path": "words/gases.mp3"
         }
       }
     },
@@ -3743,7 +3743,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ideia.mp3"
+          "path": "words/ideias.mp3"
         }
       }
     },
@@ -3823,7 +3823,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/imaginação.mp3"
+          "path": "words/imaginac-cd-a-tl-o.mp3"
         }
       }
     },
@@ -3863,7 +3863,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/imigrante.mp3"
+          "path": "words/imigrantes.mp3"
         }
       }
     },
@@ -3903,7 +3903,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/importância.mp3"
+          "path": "words/importa-cf-ncia.mp3"
         }
       }
     },
@@ -3949,7 +3949,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/inglês.mp3"
+          "path": "words/ingle-cf-s.mp3"
         }
       }
     },
@@ -3998,7 +3998,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/inteligência.mp3"
+          "path": "words/intelige-cf-ncia.mp3"
         }
       }
     },
@@ -4038,7 +4038,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/invenção.mp3"
+          "path": "words/invenc-cd-a-tl-o.mp3"
         }
       }
     },
@@ -4078,7 +4078,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/irmão.mp3"
+          "path": "words/irma-tl-o.mp3"
         }
       }
     },
@@ -4198,7 +4198,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/laboratório.mp3"
+          "path": "words/laborato-ac-rio.mp3"
         }
       }
     },
@@ -4238,7 +4238,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/laranja.mp3"
+          "path": "words/laranjas.mp3"
         }
       }
     },
@@ -4278,7 +4278,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/leão.mp3"
+          "path": "words/lea-tl-o.mp3"
         }
       }
     },
@@ -4398,7 +4398,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/língua.mp3"
+          "path": "words/li-ac-ngua.mp3"
         }
       }
     },
@@ -4518,7 +4518,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/manhã.mp3"
+          "path": "words/manha-tl.mp3"
         }
       }
     },
@@ -4558,7 +4558,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/maçã.mp3"
+          "path": "words/mac-cd-a-tl.mp3"
         }
       }
     },
@@ -4638,7 +4638,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/meio.mp3"
+          "path": "words/meia.mp3"
         }
       }
     },
@@ -4718,7 +4718,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/menino.mp3"
+          "path": "words/meninas.mp3"
         }
       }
     },
@@ -4832,7 +4832,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/minuto.mp3"
+          "path": "words/minutos.mp3"
         }
       }
     },
@@ -5164,7 +5164,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/máximo.mp3"
+          "path": "words/ma-ac-ximo.mp3"
         }
       }
     },
@@ -5204,7 +5204,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mãe.mp3"
+          "path": "words/ma-tl-e.mp3"
         }
       }
     },
@@ -5250,7 +5250,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/médico.mp3"
+          "path": "words/me-ac-dico.mp3"
         }
       }
     },
@@ -5299,7 +5299,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mês.mp3"
+          "path": "words/me-cf-s.mp3"
         }
       }
     },
@@ -5339,7 +5339,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mídia.mp3"
+          "path": "words/mi-ac-dia.mp3"
         }
       }
     },
@@ -5379,7 +5379,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/música.mp3"
+          "path": "words/mu-ac-sica.mp3"
         }
       }
     },
@@ -5459,7 +5459,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/negócio.mp3"
+          "path": "words/nego-ac-cio.mp3"
         }
       }
     },
@@ -5751,7 +5751,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/opinião.mp3"
+          "path": "words/opinia-tl-o.mp3"
         }
       }
     },
@@ -5791,7 +5791,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/oxigênio.mp3"
+          "path": "words/oxige-cf-nio.mp3"
         }
       }
     },
@@ -6031,7 +6031,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/país.mp3"
+          "path": "words/pai-ac-s.mp3"
         }
       }
     },
@@ -6231,7 +6231,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pintura.mp3"
+          "path": "words/pinturas.mp3"
         }
       }
     },
@@ -6446,7 +6446,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/posição.mp3"
+          "path": "words/posic-cd-a-tl-o.mp3"
         }
       }
     },
@@ -6566,7 +6566,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/praça.mp3"
+          "path": "words/prac-cd-a.mp3"
         }
       }
     },
@@ -6646,7 +6646,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/prisão.mp3"
+          "path": "words/prisa-tl-o.mp3"
         }
       }
     },
@@ -6818,7 +6818,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/prédio.mp3"
+          "path": "words/pre-ac-dio.mp3"
         }
       }
     },
@@ -6858,7 +6858,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pão.mp3"
+          "path": "words/pa-tl-o.mp3"
         }
       }
     },
@@ -7073,7 +7073,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/refeição.mp3"
+          "path": "words/refeic-cd-a-tl-o.mp3"
         }
       }
     },
@@ -7153,7 +7153,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/relógio.mp3"
+          "path": "words/relo-ac-gio.mp3"
         }
       }
     },
@@ -7273,7 +7273,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ruína.mp3"
+          "path": "words/rui-ac-na.mp3"
         }
       }
     },
@@ -7313,7 +7313,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/salário.mp3"
+          "path": "words/sala-ac-rio.mp3"
         }
       }
     },
@@ -7353,7 +7353,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sapato.mp3"
+          "path": "words/sapatos.mp3"
         }
       }
     },
@@ -7593,7 +7593,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sonho.mp3"
+          "path": "words/sonhos.mp3"
         }
       }
     },
@@ -7713,7 +7713,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/série.mp3"
+          "path": "words/se-ac-rie.mp3"
         }
       }
     },
@@ -7753,7 +7753,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sócio.mp3"
+          "path": "words/so-ac-cios.mp3"
         }
       }
     },
@@ -7833,7 +7833,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tecido.mp3"
+          "path": "words/tecidos.mp3"
         }
       }
     },
@@ -7913,7 +7913,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/televisão.mp3"
+          "path": "words/televisa-tl-o.mp3"
         }
       }
     },
@@ -8073,7 +8073,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tipo.mp3"
+          "path": "words/tipos.mp3"
         }
       }
     },
@@ -8193,7 +8193,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/trânsito.mp3"
+          "path": "words/tra-cf-nsito.mp3"
         }
       }
     },
@@ -8233,7 +8233,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/unicórnio.mp3"
+          "path": "words/unico-ac-rnio.mp3"
         }
       }
     },
@@ -8679,7 +8679,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/água.mp3"
+          "path": "words/a-ac-gua.mp3"
         }
       }
     },
@@ -8728,7 +8728,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ícone.mp3"
+          "path": "words/i-ac-cone.mp3"
         }
       }
     },
@@ -8768,7 +8768,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/óleo.mp3"
+          "path": "words/o-ac-leo.mp3"
         }
       }
     },

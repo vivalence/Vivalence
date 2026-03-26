@@ -97,7 +97,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/além.mp3"
+          "path": "words/ale-ac-m.mp3"
         }
       }
     },
@@ -143,7 +143,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/amanhã.mp3"
+          "path": "words/amanha-tl.mp3"
         }
       }
     },
@@ -395,7 +395,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/através.mp3"
+          "path": "words/atrave-ac-s.mp3"
         }
       }
     },
@@ -435,7 +435,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/atrás.mp3"
+          "path": "words/atra-ac-s.mp3"
         }
       }
     },
@@ -779,7 +779,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/então.mp3"
+          "path": "words/enta-tl-o.mp3"
         }
       }
     },
@@ -997,7 +997,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/já.mp3"
+          "path": "words/ja-ac.mp3"
         }
       }
     },
@@ -1282,7 +1282,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/não.mp3"
+          "path": "words/na-tl-o.mp3"
         }
       }
     },
@@ -1451,7 +1451,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/quão.mp3"
+          "path": "words/qua-tl-o.mp3"
         }
       }
     },
@@ -1623,7 +1623,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/também.mp3"
+          "path": "words/tambe-ac-m.mp3"
         }
       }
     },

@@ -157,7 +157,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -172,6 +173,11 @@ export default [
         "asset": {
           "path": "words/que.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4,
+        "zipf": 7.44,
+        "fpm": 27500
       }
     },
     "symbols": [
@@ -191,5 +197,5 @@ export default [
         "slug": "proficiency.survival"
       }
     ]
-  },
-];
+  }
+]

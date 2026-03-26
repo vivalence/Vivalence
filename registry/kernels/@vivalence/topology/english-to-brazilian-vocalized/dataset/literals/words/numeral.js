@@ -262,7 +262,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/três.mp3"
+          "path": "words/tre-cf-s.mp3"
         }
       }
     },

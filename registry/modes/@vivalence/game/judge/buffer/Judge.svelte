@@ -269,7 +269,7 @@
   .content { overflow: hidden; }
 
   .timer-bar {
-    height: 2px;
+    height: 3px;
     background: var(--colors-skeleton-1-boundary);
   }
   .timer-fill {
@@ -367,30 +367,30 @@
 
   .menu {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .input-row {
     max-width: 480px;
     margin: 0 auto;
     display: flex;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
   .menu-hint {
     display: block;
     width: 100%;
     text-align: center;
-    padding: 0.625rem;
+    padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-family: var(--font-family-code);
   }
 
   .btn {
     flex: 1;
-    padding: 0.75rem 0.5rem;
-    border-radius: 0.5rem;
+    padding: 1rem 0.5rem;
+    border-radius: 0.625rem;
     border: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -405,11 +405,13 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 10vh; }
-    .source { font-size: var(--font-size-xl); }
+    .stage { padding-top: 8vh; padding-left: 1rem; padding-right: 1rem; }
+    .source { font-size: var(--font-size-xl); font-family: var(--font-family-sans-text); font-weight: 600; margin-bottom: 1.25rem; }
     .source-word { font-size: var(--font-size-2xl); }
-    .shown { font-size: var(--font-size-lg); }
-    .shown-word { font-size: var(--font-size-xl); }
-    .menu { padding: 0.625rem 1rem; }
+    .shown-row { padding: 1rem 1.25rem; }
+    .shown { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); }
+    .shown-word { font-size: var(--font-size-lg); }
+    .btn { padding: 1.125rem 0.5rem; font-size: 1.05rem; }
+    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
   }
 </style>

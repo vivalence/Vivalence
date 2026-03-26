@@ -1,7 +1,7 @@
 #+TITLE: Modes — Game Modes & Tactics for Language Learning
 #+AUTHOR: Vivalence
 #+DATE: 2026-03-25
-#+STATUS: DESIGN
+#+STATUS: ACTIVE
 
 * Intent
 
@@ -57,10 +57,13 @@ UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
 
 * Architecture 1: Emitter Tactics
 
-A tactic seeks literals by symbol coordinates, then emits buffers to
-game modes. The intent's FEEDING trait defines the seek mask. The
-emitter Vector routes content to the appropriate game mode based on
-literal type, memory state, or tactic logic.
+A tactic queries literals by symbol coordinates via LiteralRepository
+methods (feed, novel, due, byStrength, findBySymbols), then emits
+buffers to game modes. The intent's FEEDING trait defines the query
+parameters (symbols, batch). The emitter Vector routes content to the
+appropriate game mode based on literal type, memory state, or tactic
+logic. Memory.lastSignal (formula from Trace) enables error-aware
+content selection.
 
 ** Tactic: Vocabulary
 
@@ -182,10 +185,9 @@ tactic composer.
 
 * Game Modes
 
-** Tier 1 — Fill Gaps in Learning Loop
+** Tier 1 — Fill Gaps in Learning Loop (DONE)
 
-These modes are the next to build. They unlock the decomposition and
-morphology tactics.
+All built and operational. Unlocks decomposition and morphology tactics.
 
 *** Cloze (stub exists: game/todo/cloze)
 
@@ -354,20 +356,25 @@ can't seek without the symbols being authored.
 
 | Dependency | For | Status |
 |------------+-----+--------|
-| /pick/literal/feed supports seek by token-level symbols | Decomposition tactic | Needs extension |
-| Distractor generation (same-symbol different-literal lookup) | Pick, speed-judge, minimal-pair | New pick endpoint or tactic logic |
+| LiteralRepository.findBySymbols (all/any/none) | All tactics | DONE |
+| LiteralRepository.feed/novel/due/byStrength | Content selection | DONE |
+| Memory.lastSignal formula (via Trace) | Error-aware selection | DONE |
+| Trace entity (immutable review log) | Audit + lastSignal | DONE |
+| Distractor generation (same-symbol different-literal lookup) | Pick, speed-judge, minimal-pair | Tactic logic (self-serve in emitters) |
 | Cortex (faculties, harnesses, LANGUAGED/AGENTIC traits) | Immersion, remediation, speech render | Separate workpackage |
 | Keymap shards | Mode keyboard interaction patterns | Designed in client.workpackage.org |
 
 * Sequencing
 
-** Phase 1: Tier 1 Game Modes (no new tactics needed)
+** Phase 1: Tier 1 Game Modes — DONE
 
-Build cloze, pick, listen as game modes. Each is: manifest + BufferView
-+ emitter Vector + Svelte component. The existing test tactic can route
-to them for manual verification. Wire into circuitry.
+All Tier 1 modes built and validated: cloze, pick, listen, judge, match,
+exhibit. Each has manifest + BufferView + emitter Vector + Svelte component.
+Self-loading in buffer components (fetch via /pick/literal/feed when
+emitter not called). Survival tactic routes to all of them.
 
-Deliverable: three new game modes addressable by any tactic.
+Additionally: flashcard, write, shadow (pre-existing) all migrated to v
+schematics. All 9 game modes operational.
 
 ** Phase 2: Vocabulary Tactic Expansion
 
@@ -578,3 +585,26 @@ Pick mode: FAILURE on target + distractor for wrong picks.
   =buffer.literals= as a queue, advancing on completion, releasing after last.
   Emitters gain =/batch= endpoint alongside =/literal=. Position counter in
   meta row when queue > 1. Self-serve pulls 3 literals (was 1) for SELFEVIDENT.
+- 2026-03-26: v schema migration (M3). All 9 game modes migrated from
+  Type/BufferSchema/Ref to v.*. Scalars migrated to v.string(). Ref
+  deleted — replaced by v.rel(). production.js baked. 107 test steps.
+- 2026-03-26: Six SELFEVIDENT modes validated in browser (pick, cloze,
+  listen, exhibit — working; judge, match — broken). Root cause: selfevident
+  path bypasses emitter, calls mode.buffer() client-side with empty data.
+  Fix: added self-loading to Judge (fetches literals + builds items client-side).
+  Fix: Match allMatched guard (literals.length > 0 prevents 0===0 immediate release).
+  Fix: selfevident buffer.release() now navigates to lobby via goto("/viva").
+  Design pass: reduced font sizes on Pick prompt, option text, Listen options,
+  Exhibit table text. All 6 modes now functional and styled.
+- 2026-03-26: FK constraint investigation. Session.mode and Buffer.mode
+  missing deleteRule — MikroORM defaults to NO ACTION in SQLite. Added
+  deleteRule: "cascade" + updateRule: "cascade" on both. Added
+  cascade/orphanRemoval on Mode.buffers collection. Added
+  transactional: false to migration config (SQLite PRAGMA foreign_keys
+  cannot change inside transaction). listen.viva.js FRAUGHT trait removed
+  (freight belongs to topology kernel, not game mode).
+- 2026-03-26: seek is dead. Next: refactor all emitters — kill seek wrapper
+  in domain aperture + tactic dataset + tactic emitters. Rewrite warmup
+  (use Memory.lastSignal for error-prone word prioritization) and cooldown
+  (focus on FAILURE/MISTAKE items via findBySymbols + lastSignal). Game mode
+  emitters already clean — none use seek.

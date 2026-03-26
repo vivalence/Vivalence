@@ -62,7 +62,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "thank you",
-        "learning": "obrigado / obrigada"
+        "learning": "obrigado"
       },
       "EXEMPLIFIED": {
         "known": "Thank you very much",
@@ -206,7 +206,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -221,6 +222,11 @@ export default [
         "asset": {
           "path": "words/bem-vindo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 381,
+        "zipf": 4.84,
+        "fpm": 69
       }
     },
     "symbols": [
@@ -241,4 +247,59 @@ export default [
       }
     ]
   },
-];
+  {
+    "slug": "obrigada.interjection",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "thank you (said by a woman)",
+        "learning": "obrigada"
+      },
+      "EXEMPLIFIED": {
+        "known": "Thank you so much!",
+        "learning": "Muito obrigada!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/obrigada.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 243,
+        "zipf": 5.2,
+        "fpm": 158
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.obrigado"
+      },
+      {
+        "slug": "word.part-of-speech.interjection"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "functional.politeness"
+      },
+      {
+        "slug": "domain.social"
+      }
+    ]
+  }
+]

@@ -1,4 +1,11 @@
-import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
+import {
+  types,
+  Collection,
+  EntitySchema,
+  EntityRepositoryType,
+  type Opt,
+  type Rel,
+} from "@mikro-orm/core";
 import { maps } from "@vivalence/typology/entities";
 import { object } from "@vivalence/typology";
 
@@ -45,7 +52,8 @@ export class LiteralRepository extends maps.kernel.literal.repository {
     if (due.length >= take) return due.slice(0, take);
 
     const novel = await this.novel({
-      symbols, user,
+      symbols,
+      user,
       take: take - due.length,
       blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d) => d.id)] },
     });
@@ -117,7 +125,10 @@ export class LiteralRepository extends maps.kernel.literal.repository {
     }
 
     if (noneSyms.length) {
-      where.symbols = { ...(where.symbols || {}), $none: { id: { $in: noneSyms.map((s) => s.id) } } };
+      where.symbols = {
+        ...(where.symbols || {}),
+        $none: { id: { $in: noneSyms.map((s) => s.id) } },
+      };
     }
 
     return this.find(where, opts);
@@ -147,7 +158,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
   }
 
   async review(signal, ctx) {
-    const em = this.getEntityManager();
+    const em = ctx.daemon.entities.em;
     const user = ctx.user.id;
 
     let memory = this.memory;
@@ -173,7 +184,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
     const trace = em.create(TraceEntity, {
       user,
       literal: this.id,
-      memory: memory.id,
+      memory: memory,
       mode: ctx.mode?.id ?? null,
       session: ctx.session?.id ?? null,
       signal: result.signal,

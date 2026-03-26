@@ -372,7 +372,7 @@
 
   .menu {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .input-row {
     max-width: 480px;
@@ -381,20 +381,20 @@
   .menu-hint {
     display: block;
     text-align: center;
-    padding: 0.875rem;
+    padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-family: var(--font-family-code);
   }
 
   .btn-got-it {
     width: 100%;
-    padding: 0.875rem;
-    border-radius: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.625rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -404,15 +404,28 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 5vh; }
+    .stage { padding-top: 4vh; padding-left: 0.75rem; padding-right: 0.75rem; }
     .title { font-size: var(--font-size-xl); }
-    .table-row { grid-template-columns: 5.5rem 1fr 1fr auto; }
-    .table-form { font-size: var(--font-size-base); }
+    .table { gap: 0.375rem; }
+    .table-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      padding: 0.75rem 0.875rem;
+    }
+    .table-person {
+      font-size: 0.6rem;
+      margin-bottom: 0.125rem;
+    }
+    .table-form { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); font-weight: 600; }
+    .table-gloss { font-size: 0.8rem; font-family: var(--font-family-sans-text); }
+    .table-audio { align-self: flex-start; margin-top: 0.25rem; }
     .contrastive { flex-direction: column; }
     .contrast-divider {
       width: 100%;
       height: 1px;
     }
-    .menu { padding: 0.75rem 1rem; }
+    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+    .btn-got-it { padding: 1.125rem; font-size: 1rem; }
   }
 </style>

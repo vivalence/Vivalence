@@ -301,7 +301,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/água.mp3"
+          "path": "words/a-ac-gua.mp3"
         }
       }
     },
@@ -518,7 +518,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/café.mp3"
+          "path": "words/cafe-ac.mp3"
         }
       }
     },
@@ -741,7 +741,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ônibus.mp3"
+          "path": "words/o-cf-nibus.mp3"
         }
       }
     },
@@ -854,7 +854,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/cartão.mp3"
+          "path": "words/carta-tl-o.mp3"
         }
       }
     },
@@ -909,7 +909,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/licença.mp3"
+          "path": "words/licenc-cd-a.mp3"
         }
       }
     },
@@ -1135,7 +1135,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/táxi.mp3"
+          "path": "words/ta-ac-xi.mp3"
         }
       }
     },
@@ -1361,7 +1361,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/português.mp3"
+          "path": "words/portugue-cf-s.mp3"
         }
       }
     },
@@ -1416,7 +1416,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/inglês.mp3"
+          "path": "words/ingle-cf-s.mp3"
         }
       }
     },
@@ -1584,7 +1584,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/saída.mp3"
+          "path": "words/sai-ac-da.mp3"
         }
       }
     },
@@ -1749,7 +1749,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/número.mp3"
+          "path": "words/nu-ac-mero.mp3"
         }
       }
     },
@@ -2018,7 +2018,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/médico.mp3"
+          "path": "words/me-ac-dico.mp3"
         }
       }
     },
@@ -2183,7 +2183,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/farmácia.mp3"
+          "path": "words/farma-ac-cia.mp3"
         }
       }
     },
@@ -2290,7 +2290,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/polícia.mp3"
+          "path": "words/poli-ac-cia.mp3"
         }
       }
     },
@@ -2999,7 +2999,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mãe.mp3"
+          "path": "words/ma-tl-e.mp3"
         }
       }
     },
@@ -3096,7 +3096,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "brother / sibling",
-        "learning": "irmão / irmã"
+        "learning": "irmão"
       },
       "EXEMPLIFIED": {
         "known": "My brother lives in Rio",
@@ -3109,7 +3109,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/irmão.mp3"
+          "path": "words/irma-tl-o.mp3"
         }
       }
     },
@@ -3200,7 +3200,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3213,8 +3214,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/avião.mp3"
+          "path": "words/avia-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 470,
+        "zipf": 4.61,
+        "fpm": 41
       }
     },
     "symbols": [
@@ -3240,7 +3246,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3253,8 +3260,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/bagunça.mp3"
+          "path": "words/bagunc-cd-a.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 560,
+        "zipf": 4.13,
+        "fpm": 14
       }
     },
     "symbols": [
@@ -3280,7 +3292,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3295,6 +3308,11 @@ export default [
         "asset": {
           "path": "words/caixa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 357,
+        "zipf": 4.9,
+        "fpm": 79
       }
     },
     "symbols": [
@@ -3320,7 +3338,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3335,6 +3354,11 @@ export default [
         "asset": {
           "path": "words/erro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 358,
+        "zipf": 4.9,
+        "fpm": 79
       }
     },
     "symbols": [
@@ -3360,7 +3384,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3373,8 +3398,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/francês.mp3"
+          "path": "words/france-cf-s.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 376,
+        "zipf": 4.87,
+        "fpm": 74
       }
     },
     "symbols": [
@@ -3400,7 +3430,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3415,6 +3446,11 @@ export default [
         "asset": {
           "path": "words/medo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 176,
+        "zipf": 5.39,
+        "fpm": 245
       }
     },
     "symbols": [
@@ -3440,7 +3476,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3455,6 +3492,11 @@ export default [
         "asset": {
           "path": "words/melhor.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 62,
+        "zipf": 5.98,
+        "fpm": 955
       }
     },
     "symbols": [
@@ -3480,7 +3522,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3495,6 +3538,11 @@ export default [
         "asset": {
           "path": "words/mimimi.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 631,
+        "zipf": 2.74,
+        "fpm": 1
       }
     },
     "symbols": [
@@ -3520,7 +3568,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3535,6 +3584,11 @@ export default [
         "asset": {
           "path": "words/motivo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 286,
+        "zipf": 5.08,
+        "fpm": 120
       }
     },
     "symbols": [
@@ -3560,7 +3614,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3573,8 +3628,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/negócio.mp3"
+          "path": "words/nego-ac-cio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 321,
+        "zipf": 5.01,
+        "fpm": 102
       }
     },
     "symbols": [
@@ -3600,7 +3660,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3615,6 +3676,11 @@ export default [
         "asset": {
           "path": "words/pouco.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 102,
+        "zipf": 5.73,
+        "fpm": 537
       }
     },
     "symbols": [
@@ -3640,7 +3706,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3653,8 +3720,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/relógio.mp3"
+          "path": "words/relo-ac-gio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 522,
+        "zipf": 4.38,
+        "fpm": 24
       }
     },
     "symbols": [
@@ -3680,12 +3752,13 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
+      "RANKED",
       "VOCALIZED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "type/kind",
-        "learning": "tipos"
+        "learning": "tipo"
       },
       "EXEMPLIFIED": {
         "known": "There are various kinds of coffee.",
@@ -3695,6 +3768,11 @@ export default [
         "asset": {
           "path": "words/tipo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 111,
+        "zipf": 5.69,
+        "fpm": 490
       }
     },
     "symbols": [
@@ -3720,7 +3798,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3733,8 +3812,13 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/trânsito.mp3"
+          "path": "words/tra-cf-nsito.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 492,
+        "zipf": 4.54,
+        "fpm": 35
       }
     },
     "symbols": [
@@ -3760,7 +3844,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3775,6 +3860,11 @@ export default [
         "asset": {
           "path": "words/verdade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 116,
+        "zipf": 5.65,
+        "fpm": 447
       }
     },
     "symbols": [
@@ -3800,7 +3890,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3815,6 +3906,11 @@ export default [
         "asset": {
           "path": "words/vontade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 260,
+        "zipf": 5.16,
+        "fpm": 145
       }
     },
     "symbols": [
@@ -3835,4 +3931,59 @@ export default [
       }
     ]
   },
-];
+  {
+    "slug": "irmã.noun",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "sister",
+        "learning": "irmã"
+      },
+      "EXEMPLIFIED": {
+        "known": "My sister lives in São Paulo.",
+        "learning": "Minha irmã mora em São Paulo."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/irma-tl.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 230,
+        "zipf": 5.23,
+        "fpm": 170
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.irmão"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "word.number.singular"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.social"
+      }
+    ]
+  }
+]

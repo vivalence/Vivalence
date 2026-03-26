@@ -97,7 +97,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/alguém.mp3"
+          "path": "words/algue-ac-m.mp3"
         }
       }
     },
@@ -191,7 +191,7 @@ export default [
     "trait": {
       "VOCALIZED": {
         "asset": {
-          "path": "words/ele.mp3"
+          "path": "words/ela.mp3"
         }
       },
       "TRANSLATED": {
@@ -259,7 +259,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/este.mp3"
+          "path": "words/ele.mp3"
         }
       }
     },
@@ -519,7 +519,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/meu.mp3"
+          "path": "words/minha.mp3"
         }
       }
     },
@@ -651,7 +651,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ninguém.mp3"
+          "path": "words/ningue-ac-m.mp3"
         }
       }
     },
@@ -684,7 +684,7 @@ export default [
     "trait": {
       "VOCALIZED": {
         "asset": {
-          "path": "words/nós.mp3"
+          "path": "words/no-ac-s.mp3"
         }
       },
       "TRANSLATED": {
@@ -749,7 +749,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/o.mp3"
+          "path": "words/no-ac-s.mp3"
         }
       }
     },
@@ -1117,7 +1117,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/todo.mp3"
+          "path": "words/todos.mp3"
         }
       }
     },
@@ -1246,7 +1246,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/você.mp3"
+          "path": "words/voce-cf.mp3"
         }
       },
       "EXEMPLIFIED": {
@@ -1310,7 +1310,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/vocês.mp3"
+          "path": "words/voce-cf-s.mp3"
         }
       }
     },

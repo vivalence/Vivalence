@@ -10,7 +10,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "good",
-        "learning": "bom / boa"
+        "learning": "bom"
       },
       "EXEMPLIFIED": {
         "known": "The food is very good",
@@ -65,7 +65,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "next / nearby",
-        "learning": "próximo / próxima"
+        "learning": "próximo"
       },
       "EXEMPLIFIED": {
         "known": "The nearest supermarket",
@@ -78,7 +78,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/próximo.mp3"
+          "path": "words/pro-ac-ximo.mp3"
         }
       }
     },
@@ -175,7 +175,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "tired",
-        "learning": "cansado / cansada"
+        "learning": "cansado"
       },
       "EXEMPLIFIED": {
         "known": "She is tired",
@@ -230,7 +230,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "expensive",
-        "learning": "caro / cara"
+        "learning": "caro"
       },
       "EXEMPLIFIED": {
         "known": "Why is this so expensive?",
@@ -441,7 +441,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "cold",
-        "learning": "frio / fria"
+        "learning": "frio"
       },
       "EXEMPLIFIED": {
         "known": "It is cold today",
@@ -545,7 +545,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "small",
-        "learning": "pequeno / pequena"
+        "learning": "pequeno"
       },
       "EXEMPLIFIED": {
         "known": "The room is small",
@@ -597,7 +597,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "open",
-        "learning": "aberto / aberta"
+        "learning": "aberto"
       },
       "EXEMPLIFIED": {
         "known": "The store is open",
@@ -649,7 +649,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "closed",
-        "learning": "fechado / fechada"
+        "learning": "fechado"
       },
       "EXEMPLIFIED": {
         "known": "The door is closed",
@@ -701,7 +701,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "other / another",
-        "learning": "outro / outra"
+        "learning": "outro"
       },
       "EXEMPLIFIED": {
         "known": "Is there another exit?",
@@ -805,7 +805,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -820,6 +821,11 @@ export default [
         "asset": {
           "path": "words/anterior.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 344,
+        "zipf": 4.94,
+        "fpm": 87
       }
     },
     "symbols": [
@@ -845,7 +851,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -860,6 +867,11 @@ export default [
         "asset": {
           "path": "words/especial.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 190,
+        "zipf": 5.34,
+        "fpm": 219
       }
     },
     "symbols": [
@@ -885,7 +897,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -900,6 +913,11 @@ export default [
         "asset": {
           "path": "words/faminto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 621,
+        "zipf": 3.41,
+        "fpm": 3
       }
     },
     "symbols": [
@@ -925,7 +943,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -940,6 +959,11 @@ export default [
         "asset": {
           "path": "words/furioso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 614,
+        "zipf": 3.51,
+        "fpm": 3
       }
     },
     "symbols": [
@@ -965,7 +989,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -980,6 +1005,11 @@ export default [
         "asset": {
           "path": "words/maior.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 87,
+        "zipf": 5.8,
+        "fpm": 631
       }
     },
     "symbols": [
@@ -1005,12 +1035,13 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
+      "RANKED",
       "VOCALIZED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "heavy",
-        "learning": "pesada"
+        "learning": "pesado"
       },
       "EXEMPLIFIED": {
         "known": "This box is very heavy, so I can't carry it.",
@@ -1020,6 +1051,11 @@ export default [
         "asset": {
           "path": "words/pesado.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 520,
+        "zipf": 4.4,
+        "fpm": 25
       }
     },
     "symbols": [
@@ -1045,12 +1081,13 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
+      "RANKED",
       "VOCALIZED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "stuck/arrested",
-        "learning": "presos"
+        "learning": "preso"
       },
       "EXEMPLIFIED": {
         "known": "Tom was arrested in Boston.",
@@ -1060,6 +1097,11 @@ export default [
         "asset": {
           "path": "words/preso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 330,
+        "zipf": 4.99,
+        "fpm": 98
       }
     },
     "symbols": [
@@ -1085,7 +1127,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1100,6 +1143,11 @@ export default [
         "asset": {
           "path": "words/principal.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 213,
+        "zipf": 5.27,
+        "fpm": 186
       }
     },
     "symbols": [
@@ -1125,7 +1173,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1140,6 +1189,11 @@ export default [
         "asset": {
           "path": "words/pronto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 372,
+        "zipf": 4.88,
+        "fpm": 76
       }
     },
     "symbols": [
@@ -1165,7 +1219,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1180,6 +1235,11 @@ export default [
         "asset": {
           "path": "words/real.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 199,
+        "zipf": 5.31,
+        "fpm": 204
       }
     },
     "symbols": [
@@ -1200,4 +1260,469 @@ export default [
       }
     ]
   },
-];
+  {
+    "slug": "aberta.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "open (fem.)",
+        "learning": "aberta"
+      },
+      "EXEMPLIFIED": {
+        "known": "The window is open.",
+        "learning": "A janela está aberta."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/aberta.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 373,
+        "zipf": 4.87,
+        "fpm": 74
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.aberto"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
+      }
+    ]
+  },
+  {
+    "slug": "boa.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "good (fem.)",
+        "learning": "boa"
+      },
+      "EXEMPLIFIED": {
+        "known": "Have a good trip!",
+        "learning": "Boa viagem!"
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/boa.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 63,
+        "zipf": 5.96,
+        "fpm": 912
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.bom"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "proficiency.high-frequency"
+      },
+      {
+        "slug": "domain.social"
+      }
+    ]
+  },
+  {
+    "slug": "cansada.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "tired (fem.)",
+        "learning": "cansada"
+      },
+      "EXEMPLIFIED": {
+        "known": "She is very tired.",
+        "learning": "Ela está muito cansada."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cansada.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 494,
+        "zipf": 4.52,
+        "fpm": 33
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.cansado"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.state"
+      }
+    ]
+  },
+  {
+    "slug": "cara.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "expensive (fem.)",
+        "learning": "cara"
+      },
+      "EXEMPLIFIED": {
+        "known": "This bag is too expensive.",
+        "learning": "Essa bolsa é muito cara."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/cara.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 462,
+        "zipf": 4.63,
+        "fpm": 43
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.caro"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.money"
+      }
+    ]
+  },
+  {
+    "slug": "fechada.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "closed (fem.)",
+        "learning": "fechada"
+      },
+      "EXEMPLIFIED": {
+        "known": "The store is closed today.",
+        "learning": "A loja está fechada hoje."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/fechada.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 495,
+        "zipf": 4.52,
+        "fpm": 33
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.fechado"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.space"
+      }
+    ]
+  },
+  {
+    "slug": "fria.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "cold (fem.)",
+        "learning": "fria"
+      },
+      "EXEMPLIFIED": {
+        "known": "The water is cold.",
+        "learning": "A água está fria."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/fria.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 384,
+        "zipf": 4.83,
+        "fpm": 68
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.frio"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.state"
+      }
+    ]
+  },
+  {
+    "slug": "outra.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "another / other (fem.)",
+        "learning": "outra"
+      },
+      "EXEMPLIFIED": {
+        "known": "Let's try another time.",
+        "learning": "Vamos tentar outra vez."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/outra.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 88,
+        "zipf": 5.8,
+        "fpm": 631
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.outro"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "pequena.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "small (fem.)",
+        "learning": "pequena"
+      },
+      "EXEMPLIFIED": {
+        "known": "The house is small but cozy.",
+        "learning": "A casa é pequena mas aconchegante."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pequena.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 268,
+        "zipf": 5.13,
+        "fpm": 135
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.pequeno"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "próxima.adjective",
+    "traits": [
+      "EXEMPLIFIED",
+      "TRANSLATED",
+      "RANKED",
+      "VOCALIZED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "next (fem.)",
+        "learning": "próxima"
+      },
+      "EXEMPLIFIED": {
+        "known": "The next stop is mine.",
+        "learning": "A próxima parada é a minha."
+      },
+      "VOCALIZED": {
+        "asset": {
+          "path": "words/pro-ac-xima.mp3"
+        }
+      },
+      "RANKED": {
+        "rank": 241,
+        "zipf": 5.21,
+        "fpm": 162
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.próximo"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      },
+      {
+        "slug": "domain.directions"
+      }
+    ]
+  }
+]

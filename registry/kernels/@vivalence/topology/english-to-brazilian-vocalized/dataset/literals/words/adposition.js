@@ -75,7 +75,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/até.mp3"
+          "path": "words/ate-ac.mp3"
         }
       }
     },

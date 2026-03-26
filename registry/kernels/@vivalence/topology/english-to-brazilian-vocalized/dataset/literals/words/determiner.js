@@ -17,7 +17,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/algum.mp3"
+          "path": "words/alguma.mp3"
         }
       }
     },
@@ -57,7 +57,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aquele.mp3"
+          "path": "words/aqueles.mp3"
         }
       }
     },
@@ -137,7 +137,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/diverso.mp3"
+          "path": "words/diversos.mp3"
         }
       }
     },
@@ -330,7 +330,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/muito.mp3"
+          "path": "words/muitos.mp3"
         }
       }
     },
@@ -410,7 +410,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/nosso.mp3"
+          "path": "words/nossa.mp3"
         }
       }
     },
@@ -867,7 +867,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/vário.mp3"
+          "path": "words/va-ac-rios.mp3"
         }
       }
     },

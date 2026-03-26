@@ -17,7 +17,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/abrir.mp3"
+          "path": "words/abriram.mp3"
         }
       }
     },
@@ -69,7 +69,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aceitar.mp3"
+          "path": "words/aceitei.mp3"
         }
       }
     },
@@ -121,7 +121,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aceitar.mp3"
+          "path": "words/aceitou.mp3"
         }
       }
     },
@@ -173,7 +173,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/achar.mp3"
+          "path": "words/acho.mp3"
         }
       }
     },
@@ -268,7 +268,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/afetar.mp3"
+          "path": "words/afeta.mp3"
         }
       }
     },
@@ -320,7 +320,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/afirmar.mp3"
+          "path": "words/afirma.mp3"
         }
       }
     },
@@ -372,7 +372,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/amar.mp3"
+          "path": "words/amo.mp3"
         }
       }
     },
@@ -424,7 +424,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/amar.mp3"
+          "path": "words/amam.mp3"
         }
       }
     },
@@ -565,7 +565,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aparecer.mp3"
+          "path": "words/apareceu.mp3"
         }
       }
     },
@@ -660,7 +660,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/apresentar.mp3"
+          "path": "words/apresentou.mp3"
         }
       }
     },
@@ -712,7 +712,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/apresentar.mp3"
+          "path": "words/apresentado.mp3"
         }
       }
     },
@@ -758,7 +758,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/assistir.mp3"
+          "path": "words/assistindo.mp3"
         }
       }
     },
@@ -801,7 +801,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/assistir.mp3"
+          "path": "words/assista.mp3"
         }
       }
     },
@@ -853,7 +853,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/aumentar.mp3"
+          "path": "words/aumentou.mp3"
         }
       }
     },
@@ -1052,7 +1052,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/combinar.mp3"
+          "path": "words/combinaram.mp3"
         }
       }
     },
@@ -1208,7 +1208,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/cometer.mp3"
+          "path": "words/cometem.mp3"
         }
       }
     },
@@ -1312,7 +1312,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/comprar.mp3"
+          "path": "words/comprado.mp3"
         }
       }
     },
@@ -1358,7 +1358,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/compreender.mp3"
+          "path": "words/compreendendo.mp3"
         }
       }
     },
@@ -1401,7 +1401,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/concordar.mp3"
+          "path": "words/concorda.mp3"
         }
       }
     },
@@ -1453,7 +1453,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/conhecer.mp3"
+          "path": "words/conheci.mp3"
         }
       }
     },
@@ -1505,7 +1505,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/conseguir.mp3"
+          "path": "words/conseguimos.mp3"
         }
       }
     },
@@ -1661,7 +1661,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/conseguir.mp3"
+          "path": "words/conseguem.mp3"
         }
       }
     },
@@ -1713,7 +1713,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/considerar.mp3"
+          "path": "words/considerou.mp3"
         }
       }
     },
@@ -1765,7 +1765,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/considerar.mp3"
+          "path": "words/considerado.mp3"
         }
       }
     },
@@ -1906,7 +1906,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/construir.mp3"
+          "path": "words/construi-ac.mp3"
         }
       }
     },
@@ -1958,7 +1958,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/convidar.mp3"
+          "path": "words/convidou.mp3"
         }
       }
     },
@@ -2056,7 +2056,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/correr.mp3"
+          "path": "words/correu.mp3"
         }
       }
     },
@@ -2151,7 +2151,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/crescer.mp3"
+          "path": "words/crescendo.mp3"
         }
       }
     },
@@ -2194,7 +2194,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/crescer.mp3"
+          "path": "words/cresci.mp3"
         }
       }
     },
@@ -2246,7 +2246,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/criar.mp3"
+          "path": "words/criou.mp3"
         }
       }
     },
@@ -2350,7 +2350,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/dar.mp3"
+          "path": "words/deu.mp3"
         }
       }
     },
@@ -2402,7 +2402,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/definir.mp3"
+          "path": "words/definido.mp3"
         }
       }
     },
@@ -2543,7 +2543,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/depender.mp3"
+          "path": "words/depende.mp3"
         }
       }
     },
@@ -2638,7 +2638,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/descobrir.mp3"
+          "path": "words/descobriu.mp3"
         }
       }
     },
@@ -2733,7 +2733,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/desculpar.mp3"
+          "path": "words/desculpado.mp3"
         }
       }
     },
@@ -2883,7 +2883,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/dever.mp3"
+          "path": "words/deve.mp3"
         }
       }
     },
@@ -2935,7 +2935,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/discutir.mp3"
+          "path": "words/discuti.mp3"
         }
       }
     },
@@ -3293,7 +3293,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/encontrar.mp3"
+          "path": "words/encontra.mp3"
         }
       }
     },
@@ -3590,7 +3590,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/envolver.mp3"
+          "path": "words/envolvido.mp3"
         }
       }
     },
@@ -3780,7 +3780,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/esquecer.mp3"
+          "path": "words/esquec-cd-a.mp3"
         }
       }
     },
@@ -4299,7 +4299,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/faltar.mp3"
+          "path": "words/faltaram.mp3"
         }
       }
     },
@@ -4351,7 +4351,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/faltar.mp3"
+          "path": "words/faltou.mp3"
         }
       }
     },
@@ -4596,7 +4596,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/fechar.mp3"
+          "path": "words/feche.mp3"
         }
       }
     },
@@ -4648,7 +4648,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ficar.mp3"
+          "path": "words/ficou.mp3"
         }
       }
     },
@@ -4706,7 +4706,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ficar.mp3"
+          "path": "words/fico.mp3"
         }
       }
     },
@@ -4770,7 +4770,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/formar.mp3"
+          "path": "words/formaram.mp3"
         }
       }
     },
@@ -4822,7 +4822,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/formar.mp3"
+          "path": "words/formam.mp3"
         }
       }
     },
@@ -4926,7 +4926,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/fumar.mp3"
+          "path": "words/fuma.mp3"
         }
       }
     },
@@ -4978,7 +4978,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ganhar.mp3"
+          "path": "words/ganhou.mp3"
         }
       }
     },
@@ -5201,7 +5201,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/haver.mp3"
+          "path": "words/havia.mp3"
         }
       }
     },
@@ -5253,7 +5253,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/haver.mp3"
+          "path": "words/ha-ac.mp3"
         }
       }
     },
@@ -5305,7 +5305,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ignorar.mp3"
+          "path": "words/ignorou.mp3"
         }
       }
     },
@@ -5357,7 +5357,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/importar.mp3"
+          "path": "words/importa.mp3"
         }
       }
     },
@@ -5415,7 +5415,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ir.mp3"
+          "path": "words/vamos.mp3"
         }
       }
     },
@@ -5494,7 +5494,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ir.mp3"
+          "path": "words/vou.mp3"
         }
       }
     },
@@ -5573,7 +5573,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ir.mp3"
+          "path": "words/va-tl-o.mp3"
         }
       }
     },
@@ -5652,7 +5652,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ir.mp3"
+          "path": "words/vai.mp3"
         }
       }
     },
@@ -5725,7 +5725,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/lançar.mp3"
+          "path": "words/lanc-cd-ada.mp3"
         }
       }
     },
@@ -5771,7 +5771,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/lembrar.mp3"
+          "path": "words/lembra.mp3"
         }
       }
     },
@@ -5952,7 +5952,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/limpar.mp3"
+          "path": "words/limpa.mp3"
         }
       }
     },
@@ -6004,7 +6004,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/mandar.mp3"
+          "path": "words/mandei.mp3"
         }
       }
     },
@@ -6197,7 +6197,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/morrer.mp3"
+          "path": "words/morreu.mp3"
         }
       }
     },
@@ -6249,7 +6249,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/navegar.mp3"
+          "path": "words/navegando.mp3"
         }
       }
     },
@@ -6387,7 +6387,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ocorrer.mp3"
+          "path": "words/ocorreu.mp3"
         }
       }
     },
@@ -6439,7 +6439,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/odiar.mp3"
+          "path": "words/odeio.mp3"
         }
       }
     },
@@ -6491,7 +6491,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/oferecer.mp3"
+          "path": "words/ofereceu.mp3"
         }
       }
     },
@@ -6543,7 +6543,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/olhar.mp3"
+          "path": "words/olhou.mp3"
         }
       }
     },
@@ -6638,7 +6638,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/par.mp3"
+          "path": "words/pare.mp3"
         }
       }
     },
@@ -6733,7 +6733,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/parecer.mp3"
+          "path": "words/parece.mp3"
         }
       }
     },
@@ -6785,7 +6785,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/participar.mp3"
+          "path": "words/participou.mp3"
         }
       }
     },
@@ -6923,7 +6923,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pedir.mp3"
+          "path": "words/pedi.mp3"
         }
       }
     },
@@ -7018,7 +7018,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pensar.mp3"
+          "path": "words/pensava.mp3"
         }
       }
     },
@@ -7113,7 +7113,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/perder.mp3"
+          "path": "words/perdeu.mp3"
         }
       }
     },
@@ -7165,7 +7165,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/poderia.mp3"
         }
       }
     },
@@ -7223,7 +7223,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/posso.mp3"
         }
       }
     },
@@ -7287,7 +7287,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/podes.mp3"
         }
       }
     },
@@ -7339,7 +7339,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/podem.mp3"
         }
       }
     },
@@ -7397,7 +7397,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/pode.mp3"
         }
       }
     },
@@ -7461,7 +7461,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/poder.mp3"
+          "path": "words/possa.mp3"
         }
       }
     },
@@ -7513,7 +7513,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/preparar.mp3"
+          "path": "words/preparou.mp3"
         }
       }
     },
@@ -7565,7 +7565,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/preso.mp3"
+          "path": "words/presas.mp3"
         }
       }
     },
@@ -7660,7 +7660,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/publicar.mp3"
+          "path": "words/publicado.mp3"
         }
       }
     },
@@ -7706,7 +7706,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/pular.mp3"
+          "path": "words/pulando.mp3"
         }
       }
     },
@@ -7749,7 +7749,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/querer.mp3"
+          "path": "words/queremos.mp3"
         }
       }
     },
@@ -7807,7 +7807,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/querer.mp3"
+          "path": "words/quero.mp3"
         }
       }
     },
@@ -7877,7 +7877,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/querer.mp3"
+          "path": "words/quer.mp3"
         }
       }
     },
@@ -7984,7 +7984,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/referir.mp3"
+          "path": "words/referiu.mp3"
         }
       }
     },
@@ -8036,7 +8036,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/representar.mp3"
+          "path": "words/representava.mp3"
         }
       }
     },
@@ -8088,7 +8088,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/representar.mp3"
+          "path": "words/representa.mp3"
         }
       }
     },
@@ -8189,7 +8189,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/saber.mp3"
+          "path": "words/sei.mp3"
         }
       }
     },
@@ -8256,7 +8256,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/saber.mp3"
+          "path": "words/sabe.mp3"
         }
       }
     },
@@ -8317,7 +8317,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sair.mp3"
+          "path": "words/saiu.mp3"
         }
       }
     },
@@ -8369,7 +8369,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/seguir.mp3"
+          "path": "words/siga.mp3"
         }
       }
     },
@@ -8421,7 +8421,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sentir.mp3"
+          "path": "words/sentindo.mp3"
         }
       }
     },
@@ -8464,7 +8464,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/sentir.mp3"
+          "path": "words/sentiram.mp3"
         }
       }
     },
@@ -8650,7 +8650,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ser.mp3"
+          "path": "words/sou.mp3"
         }
       }
     },
@@ -8726,7 +8726,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ser.mp3"
+          "path": "words/sa-tl-o.mp3"
         }
       }
     },
@@ -8802,7 +8802,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ser.mp3"
+          "path": "words/e-ac.mp3"
         }
       }
     },
@@ -8915,7 +8915,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/servir.mp3"
+          "path": "words/serve.mp3"
         }
       }
     },
@@ -9160,7 +9160,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/surgir.mp3"
+          "path": "words/surgiram.mp3"
         }
       }
     },
@@ -9212,7 +9212,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/surgir.mp3"
+          "path": "words/surgiu.mp3"
         }
       }
     },
@@ -9264,7 +9264,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tentar.mp3"
+          "path": "words/tentando.mp3"
         }
       }
     },
@@ -9307,7 +9307,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tentar.mp3"
+          "path": "words/tente.mp3"
         }
       }
     },
@@ -9359,7 +9359,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ter.mp3"
+          "path": "words/tinha.mp3"
         }
       }
     },
@@ -9417,7 +9417,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ter.mp3"
+          "path": "words/te-cf-m.mp3"
         }
       }
     },
@@ -9493,7 +9493,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ter.mp3"
+          "path": "words/tem.mp3"
         }
       }
     },
@@ -9606,7 +9606,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ter.mp3"
+          "path": "words/tenha.mp3"
         }
       }
     },
@@ -9658,7 +9658,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tocar.mp3"
+          "path": "words/tocou.mp3"
         }
       }
     },
@@ -9710,7 +9710,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tornar.mp3"
+          "path": "words/tornam.mp3"
         }
       }
     },
@@ -9762,7 +9762,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/trabalhar.mp3"
+          "path": "words/trabalhamos.mp3"
         }
       }
     },
@@ -9814,7 +9814,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/trabalhar.mp3"
+          "path": "words/trabalha.mp3"
         }
       }
     },
@@ -9866,7 +9866,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/transformar.mp3"
+          "path": "words/transformou.mp3"
         }
       }
     },
@@ -9918,7 +9918,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/tratar.mp3"
+          "path": "words/tratou.mp3"
         }
       }
     },
@@ -9970,7 +9970,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/trazer.mp3"
+          "path": "words/trouxe.mp3"
         }
       }
     },
@@ -10022,7 +10022,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/valer.mp3"
+          "path": "words/vale.mp3"
         }
       }
     },
@@ -10117,7 +10117,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ver.mp3"
+          "path": "words/viu.mp3"
         }
       }
     },
@@ -10169,7 +10169,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ver.mp3"
+          "path": "words/ve-cf.mp3"
         }
       }
     },
@@ -10221,7 +10221,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ver.mp3"
+          "path": "words/visto.mp3"
         }
       }
     },
@@ -10267,7 +10267,7 @@ export default [
       },
       "VOCALIZED": {
         "asset": {
-          "path": "words/ver.mp3"
+          "path": "words/veja.mp3"
         }
       }
     },

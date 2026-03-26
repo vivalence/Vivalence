@@ -18,6 +18,7 @@
   let selectedLeft = $state(null);
   let connections = $state([]);
   let failed = $state(new Set());
+  let errored = new Set();
 
   function shuffle(arr) {
     const a = [...arr];
@@ -48,11 +49,12 @@
     rightItems = shuffle([...lits]);
     connections = [];
     failed = new Set();
+    errored = new Set();
     selectedLeft = null;
   }
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 6 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { take: 4 }).then((lits) => {
       literals = lits ?? [];
       init(literals);
       loading = false;
@@ -78,7 +80,13 @@
     if (isCorrect) {
       connections = [...connections, { id: lit.id }];
     } else {
+      errored.add(selectedLeft.id);
+      errored.add(lit.id);
       failed = new Set([...failed, selectedLeft.id, lit.id]);
+      const a = selectedLeft.id, b = lit.id;
+      setTimeout(() => {
+        failed = new Set([...failed].filter((id) => id !== a && id !== b));
+      }, 400);
     }
 
     selectedLeft = null;
@@ -93,7 +101,7 @@
 
     for (const lit of literals) {
       terminal.daemon.call("/review/literal", {
-        signal: failed.has(lit.id) ? "FAILURE" : "SUCCESS",
+        signal: errored.has(lit.id) ? "FAILURE" : "SUCCESS",
         scope: { literal: lit.id },
       });
     }
@@ -275,7 +283,7 @@
 
   .menu {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .input-row {
     max-width: 560px;
@@ -284,16 +292,18 @@
   .menu-hint {
     display: block;
     text-align: center;
-    padding: 0.625rem;
+    padding: 1rem;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     font-family: var(--font-family-code);
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 4vh; }
-    .cell { font-size: var(--font-size-sm); padding: 0.625rem 0.75rem; }
+    .stage { padding-top: 3vh; padding-left: 0.75rem; padding-right: 0.75rem; }
+    .cell { font-size: var(--font-size-sm); font-family: var(--font-family-sans-text); padding: 0.75rem 0.625rem; min-height: 3rem; display: flex; align-items: center; }
     .grid { gap: 0.5rem; }
-    .menu { padding: 0.75rem 1rem; }
+    .column { gap: 0.375rem; }
+    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
+    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
   }
 </style>
