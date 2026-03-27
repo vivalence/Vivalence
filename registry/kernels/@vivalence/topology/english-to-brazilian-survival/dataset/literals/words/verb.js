@@ -308,13 +308,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I was",
-        "learning": "ser"
+        "learning": "fui"
       },
       "EXEMPLIFIED": {
         "known": "I was the first",
@@ -325,11 +324,7 @@ export default [
         "zipf": 5.4,
         "fpm": 251
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/ser.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -384,13 +379,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "was",
-        "learning": "ser"
+        "learning": "foi"
       },
       "EXEMPLIFIED": {
         "known": "It was good",
@@ -401,11 +395,7 @@ export default [
         "zipf": 6.58,
         "fpm": 3800
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/ser.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -460,13 +450,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "used to be",
-        "learning": "ser"
+        "learning": "era"
       },
       "EXEMPLIFIED": {
         "known": "I used to be shy",
@@ -477,11 +466,7 @@ export default [
         "zipf": 6.1,
         "fpm": 1260
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/ser.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -825,13 +810,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I am (state)",
-        "learning": "estar"
+        "learning": "estou"
       },
       "EXEMPLIFIED": {
         "known": "I am tired",
@@ -842,11 +826,7 @@ export default [
         "zipf": 5.83,
         "fpm": 676
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/estar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -901,13 +881,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "is (state)",
-        "learning": "estar"
+        "learning": "está"
       },
       "EXEMPLIFIED": {
         "known": "She is at home",
@@ -918,11 +897,7 @@ export default [
         "zipf": 6.28,
         "fpm": 1910
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/estar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -977,13 +952,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "we are (state)",
-        "learning": "estar"
+        "learning": "estamos"
       },
       "EXEMPLIFIED": {
         "known": "We are ready",
@@ -994,11 +968,7 @@ export default [
         "zipf": 5.47,
         "fpm": 295
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/estar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -1053,13 +1023,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "they are (state)",
-        "learning": "estar"
+        "learning": "estão"
       },
       "EXEMPLIFIED": {
         "known": "They are outside",
@@ -1070,11 +1039,7 @@ export default [
         "zipf": 6.03,
         "fpm": 1070
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/estar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -1129,13 +1094,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "was (state)",
-        "learning": "estar"
+        "learning": "estava"
       },
       "EXEMPLIFIED": {
         "known": "I was sleeping",
@@ -1146,11 +1110,7 @@ export default [
         "zipf": 5.74,
         "fpm": 550
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/estar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -2409,13 +2369,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "went",
-        "learning": "ir"
+        "learning": "foi"
       },
       "EXEMPLIFIED": {
         "known": "She went to school",
@@ -2426,11 +2385,7 @@ export default [
         "zipf": 6.58,
         "fpm": 3800
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/ir.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -3663,8 +3618,8 @@ export default [
         "learning": "precisar"
       },
       "EXEMPLIFIED": {
-        "known": "No need to go",
-        "learning": "Não precisa ir"
+        "known": "You're going to need help",
+        "learning": "Você vai precisar de ajuda"
       },
       "RANKED": {
         "rank": 20408,
@@ -3712,13 +3667,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I speak",
-        "learning": "falar"
+        "learning": "falo"
       },
       "EXEMPLIFIED": {
         "known": "I speak Portuguese",
@@ -3729,11 +3683,7 @@ export default [
         "zipf": 4.66,
         "fpm": 45.7
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/falar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -3782,13 +3732,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "speaks",
-        "learning": "falar"
+        "learning": "fala"
       },
       "EXEMPLIFIED": {
         "known": "She speaks English",
@@ -3799,11 +3748,7 @@ export default [
         "zipf": 5.35,
         "fpm": 224
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/falar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -3852,13 +3797,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I spoke",
-        "learning": "falar"
+        "learning": "falei"
       },
       "EXEMPLIFIED": {
         "known": "I spoke to him",
@@ -3869,11 +3813,7 @@ export default [
         "zipf": 4.84,
         "fpm": 69.2
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/falar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -3922,13 +3862,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "speaking",
-        "learning": "falar"
+        "learning": "falando"
       },
       "EXEMPLIFIED": {
         "known": "She is on the phone",
@@ -3939,11 +3878,7 @@ export default [
         "zipf": 5.33,
         "fpm": 214
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/falar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4038,13 +3973,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "speak",
-        "learning": "falar"
+        "learning": "fale"
       },
       "EXEMPLIFIED": {
         "known": "Speak louder",
@@ -4055,11 +3989,7 @@ export default [
         "zipf": 4.49,
         "fpm": 30.9
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/falar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4105,13 +4035,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I understand",
-        "learning": "entender"
+        "learning": "entendo"
       },
       "EXEMPLIFIED": {
         "known": "I don't understand",
@@ -4122,11 +4051,7 @@ export default [
         "zipf": 4.83,
         "fpm": 67.6
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/entender.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4175,13 +4100,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "understands",
-        "learning": "entender"
+        "learning": "entende"
       },
       "EXEMPLIFIED": {
         "known": "He doesn't understand",
@@ -4192,11 +4116,7 @@ export default [
         "zipf": 4.76,
         "fpm": 57.5
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/entender.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4245,13 +4165,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I understood",
-        "learning": "entender"
+        "learning": "entendi"
       },
       "EXEMPLIFIED": {
         "known": "I understood now",
@@ -4262,11 +4181,7 @@ export default [
         "zipf": 4.66,
         "fpm": 45.7
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/entender.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4315,13 +4230,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "understanding",
-        "learning": "entender"
+        "learning": "entendendo"
       },
       "EXEMPLIFIED": {
         "known": "I'm understanding better",
@@ -4332,11 +4246,7 @@ export default [
         "zipf": 4.12,
         "fpm": 13.2
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/entender.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -4431,13 +4341,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "is located / stays",
-        "learning": "ficar"
+        "learning": "fica"
       },
       "EXEMPLIFIED": {
         "known": "Where is the bathroom?",
@@ -4448,11 +4357,7 @@ export default [
         "zipf": 5.47,
         "fpm": 295
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/ficar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -5083,13 +4988,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I like",
-        "learning": "gostar"
+        "learning": "gosto"
       },
       "EXEMPLIFIED": {
         "known": "I like it a lot",
@@ -5100,11 +5004,7 @@ export default [
         "zipf": 5.36,
         "fpm": 229
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/gostar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -5150,13 +5050,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "likes",
-        "learning": "gostar"
+        "learning": "gosta"
       },
       "EXEMPLIFIED": {
         "known": "She likes coffee",
@@ -5167,11 +5066,7 @@ export default [
         "zipf": 5.14,
         "fpm": 138
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/gostar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -5226,8 +5121,8 @@ export default [
         "learning": "gostar"
       },
       "EXEMPLIFIED": {
-        "known": "I like to eat",
-        "learning": "Gosto de comer"
+        "known": "I want to like vegetables",
+        "learning": "Eu quero gostar de legumes"
       },
       "RANKED": {
         "rank": 19960,
@@ -5589,13 +5484,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "costs",
-        "learning": "custar"
+        "learning": "custa"
       },
       "EXEMPLIFIED": {
         "known": "How much?",
@@ -5606,11 +5500,7 @@ export default [
         "zipf": 4.57,
         "fpm": 37.2
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/custar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -5939,28 +5829,23 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "wait",
-        "learning": "esperar"
+        "learning": "espere"
       },
       "EXEMPLIFIED": {
         "known": "Wait a moment",
-        "learning": "Espera um momento"
+        "learning": "Espere um momento"
       },
       "RANKED": {
         "rank": 8547,
         "zipf": 5.07,
         "fpm": 117
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/esperar.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -6344,13 +6229,12 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "I sleep",
-        "learning": "dormir"
+        "learning": "durmo"
       },
       "EXEMPLIFIED": {
         "known": "I sleep early",
@@ -6361,11 +6245,7 @@ export default [
         "zipf": 3.77,
         "fpm": 5.9
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/dormir.mp3"
-        }
-      }
+      "VOCALIZED": null
     },
     "symbols": [
       {
@@ -6719,8 +6599,8 @@ export default [
         "learning": "levar"
       },
       "EXEMPLIFIED": {
-        "known": "Take me there",
-        "learning": "Me leva lá"
+        "known": "Can I take this?",
+        "learning": "Posso levar isso?"
       },
       "RANKED": {
         "rank": 5495,
@@ -6777,8 +6657,8 @@ export default [
         "learning": "esperar"
       },
       "EXEMPLIFIED": {
-        "known": "Wait a moment",
-        "learning": "Espera um momento"
+        "known": "I'll wait here",
+        "learning": "Vou esperar aqui"
       },
       "RANKED": {
         "rank": 9091,
@@ -6835,8 +6715,8 @@ export default [
         "learning": "ligar"
       },
       "EXEMPLIFIED": {
-        "known": "I'll call you",
-        "learning": "Eu te ligo"
+        "known": "I need to call him",
+        "learning": "Preciso ligar para ele"
       },
       "RANKED": {
         "rank": 18182,
@@ -6893,8 +6773,8 @@ export default [
         "learning": "voltar"
       },
       "EXEMPLIFIED": {
-        "known": "I'll be back",
-        "learning": "Já volto"
+        "known": "I want to come back tomorrow",
+        "learning": "Quero voltar amanhã"
       },
       "RANKED": {
         "rank": 5000,
@@ -7009,8 +6889,8 @@ export default [
         "learning": "chamar"
       },
       "EXEMPLIFIED": {
-        "known": "Call the police",
-        "learning": "Chama a polícia"
+        "known": "I need to call a taxi",
+        "learning": "Preciso chamar um táxi"
       },
       "RANKED": {
         "rank": 9091,
@@ -7067,8 +6947,8 @@ export default [
         "learning": "virar"
       },
       "EXEMPLIFIED": {
-        "known": "Turn left",
-        "learning": "Vira à esquerda"
+        "known": "You should turn left",
+        "learning": "Você deve virar à esquerda"
       },
       "RANKED": {
         "rank": 26316,
@@ -7125,8 +7005,8 @@ export default [
         "learning": "demorar"
       },
       "EXEMPLIFIED": {
-        "known": "How long does it take?",
-        "learning": "Quanto tempo demora?"
+        "known": "It won't take long",
+        "learning": "Não vai demorar muito"
       },
       "RANKED": {
         "rank": 47847,
@@ -7183,8 +7063,8 @@ export default [
         "learning": "morar"
       },
       "EXEMPLIFIED": {
-        "known": "I live in Brazil",
-        "learning": "Eu moro no Brasil"
+        "known": "I want to live in Brazil",
+        "learning": "Quero morar no Brasil"
       },
       "RANKED": {
         "rank": 33113,
@@ -7241,8 +7121,8 @@ export default [
         "learning": "preferir"
       },
       "EXEMPLIFIED": {
-        "known": "I prefer this one",
-        "learning": "Eu prefiro esse"
+        "known": "Can I prefer another one?",
+        "learning": "Posso preferir outro?"
       },
       "RANKED": {
         "rank": 162075,
@@ -7455,8 +7335,8 @@ export default [
         "learning": "andar"
       },
       "EXEMPLIFIED": {
-        "known": "Tom is on the third floor.",
-        "learning": "Tom está no terceiro andar."
+        "known": "Let's walk in the park",
+        "learning": "Vamos andar no parque"
       },
       "VOCALIZED": {
         "asset": {
@@ -7553,23 +7433,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "carry",
-        "learning": "carregar"
+        "learning": "carrega"
       },
       "EXEMPLIFIED": {
-        "known": "This box is very heavy, so I can't carry it.",
-        "learning": "Esta caixa é muito pesada, então não posso carregá-la."
+        "known": "The truck carries a lot of cargo",
+        "learning": "O caminhão carrega muita carga"
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/carregar.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 516,
         "zipf": 4.41,
@@ -7669,23 +7544,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "buy",
-        "learning": "comprar"
+        "learning": "comprou"
       },
       "EXEMPLIFIED": {
         "known": "Tom bought a larger car.",
         "learning": "Tom comprou um carro maior."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/comprar.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 246,
         "zipf": 5.18,
@@ -7736,8 +7606,8 @@ export default [
         "learning": "comprado"
       },
       "EXEMPLIFIED": {
-        "known": "Tom bought a larger car.",
-        "learning": "Tom comprou um carro maior."
+        "known": "I had already bought the bread",
+        "learning": "Eu já tinha comprado o pão"
       },
       "VOCALIZED": {
         "asset": {
@@ -7837,23 +7707,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "manage/can",
-        "learning": "conseguir"
+        "learning": "consigo"
       },
       "EXEMPLIFIED": {
         "known": "I can't help it.",
         "learning": "Não consigo evitar."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/conseguir.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 255,
         "zipf": 5.17,
@@ -7904,8 +7769,8 @@ export default [
         "learning": "deu"
       },
       "EXEMPLIFIED": {
-        "known": "Do your best.",
-        "learning": "Dê o melhor de si!"
+        "known": "He gave me a gift",
+        "learning": "Ele me deu um presente"
       },
       "VOCALIZED": {
         "asset": {
@@ -7953,23 +7818,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "let/leave",
-        "learning": "deixar"
+        "learning": "deixe"
       },
       "EXEMPLIFIED": {
         "known": "Let me have a taste.",
         "learning": "Deixe-me experimentar."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/deixar.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 155,
         "zipf": 5.47,
@@ -8179,23 +8039,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "say",
-        "learning": "dizer"
+        "learning": "diz"
       },
       "EXEMPLIFIED": {
         "known": "Tell me the truth.",
         "learning": "Me diz a verdade."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/dizer.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 112,
         "zipf": 5.68,
@@ -8237,23 +8092,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "find/meet",
-        "learning": "encontrar"
+        "learning": "encontrei"
       },
       "EXEMPLIFIED": {
         "known": "I met him in January.",
         "learning": "Eu o encontrei em janeiro."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/encontrar.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 202,
         "zipf": 5.3,
@@ -8304,8 +8154,8 @@ export default [
         "learning": "encontrar"
       },
       "EXEMPLIFIED": {
-        "known": "I met him in January.",
-        "learning": "Eu o encontrei em janeiro."
+        "known": "I need to find my key",
+        "learning": "Preciso encontrar minha chave"
       },
       "VOCALIZED": {
         "asset": {
@@ -8387,23 +8237,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "involve",
-        "learning": "envolver"
+        "learning": "envolvendo"
       },
       "EXEMPLIFIED": {
         "known": "I am not getting involved.",
         "learning": "Não estou me envolvendo."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/envolver.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 535,
         "zipf": 4.31,
@@ -8445,8 +8290,8 @@ export default [
         "learning": "envolvido"
       },
       "EXEMPLIFIED": {
-        "known": "I am not getting involved.",
-        "learning": "Não estou me envolvendo."
+        "known": "He was involved in the scandal",
+        "learning": "Ele foi envolvido no escândalo"
       },
       "VOCALIZED": {
         "asset": {
@@ -8537,23 +8382,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "do/make",
-        "learning": "fazer"
+        "learning": "faça"
       },
       "EXEMPLIFIED": {
         "known": "Do your best.",
         "learning": "Faça o seu melhor!"
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/fazer.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 42,
         "zipf": 6.18,
@@ -8595,23 +8435,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "do/make",
-        "learning": "fazer"
+        "learning": "fez"
       },
       "EXEMPLIFIED": {
-        "known": "Do your best.",
-        "learning": "Faça o seu melhor!"
+        "known": "He made a cake",
+        "learning": "Ele fez um bolo"
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/fazer.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 42,
         "zipf": 6.18,
@@ -8659,7 +8494,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "close",
-        "learning": "Feche"
+        "learning": "feche"
       },
       "EXEMPLIFIED": {
         "known": "Close your eyes.",
@@ -8720,8 +8555,8 @@ export default [
         "learning": "havia"
       },
       "EXEMPLIFIED": {
-        "known": "There are various kinds of coffee.",
-        "learning": "Há diversos tipos de café."
+        "known": "There were many people there",
+        "learning": "Havia muitas pessoas lá"
       },
       "VOCALIZED": {
         "asset": {
@@ -8775,7 +8610,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "there is",
-        "learning": "Há"
+        "learning": "há"
       },
       "EXEMPLIFIED": {
         "known": "There are various kinds of coffee.",
@@ -8940,7 +8775,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "clean (it)!",
-        "learning": "Limpa"
+        "learning": "limpa"
       },
       "EXEMPLIFIED": {
         "known": "Clean up this mess.",
@@ -9157,8 +8992,8 @@ export default [
         "learning": "poderia"
       },
       "EXEMPLIFIED": {
-        "known": "Tom can leave tomorrow.",
-        "learning": "Tom pode partir amanhã."
+        "known": "Could you help me?",
+        "learning": "Você poderia me ajudar?"
       },
       "VOCALIZED": {
         "asset": {
@@ -9313,8 +9148,8 @@ export default [
         "learning": "ser"
       },
       "EXEMPLIFIED": {
-        "known": "Isn't it the other way around?",
-        "learning": "Não é o contrário?"
+        "known": "I want to be happy",
+        "learning": "Quero ser feliz"
       },
       "VOCALIZED": {
         "asset": {
@@ -9353,23 +9188,18 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "to underestimate",
-        "learning": "subestimar"
+        "learning": "subestime"
       },
       "EXEMPLIFIED": {
         "known": "Don't underestimate me.",
         "learning": "Não me subestime."
       },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/subestimar.mp3"
-        }
-      },
+      "VOCALIZED": null,
       "RANKED": {
         "rank": 628,
         "zipf": 3.03,
@@ -9417,7 +9247,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "try!",
-        "learning": "Tente"
+        "learning": "tente"
       },
       "EXEMPLIFIED": {
         "known": "Try to remember.",
@@ -9478,8 +9308,8 @@ export default [
         "learning": "tenha"
       },
       "EXEMPLIFIED": {
-        "known": "You have many books.",
-        "learning": "Você tem muitos livros."
+        "known": "I hope you have luck",
+        "learning": "Espero que você tenha sorte"
       },
       "VOCALIZED": {
         "asset": {
@@ -9536,8 +9366,8 @@ export default [
         "learning": "veja"
       },
       "EXEMPLIFIED": {
-        "known": "I'd like to see you if possible.",
-        "learning": "Gostaria de vê-la, se possível."
+        "known": "I hope you see this",
+        "learning": "Espero que você veja isso"
       },
       "VOCALIZED": {
         "asset": {

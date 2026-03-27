@@ -13,8 +13,8 @@ export default [
         "learning": "bom"
       },
       "EXEMPLIFIED": {
-        "known": "The food is very good",
-        "learning": "A comida está muito boa"
+        "known": "The coffee is very good",
+        "learning": "O café está muito bom"
       },
       "RANKED": {
         "rank": 1096,
@@ -178,8 +178,8 @@ export default [
         "learning": "cansado"
       },
       "EXEMPLIFIED": {
-        "known": "She is tired",
-        "learning": "Ela está cansada"
+        "known": "He is tired",
+        "learning": "Ele está cansado"
       },
       "RANKED": {
         "rank": 30211,
@@ -600,8 +600,8 @@ export default [
         "learning": "aberto"
       },
       "EXEMPLIFIED": {
-        "known": "The store is open",
-        "learning": "A loja está aberta"
+        "known": "The bank is open",
+        "learning": "O banco está aberto"
       },
       "RANKED": {
         "rank": 13495,
@@ -652,8 +652,8 @@ export default [
         "learning": "fechado"
       },
       "EXEMPLIFIED": {
-        "known": "The door is closed",
-        "learning": "A porta está fechada"
+        "known": "The market is closed",
+        "learning": "O mercado está fechado"
       },
       "RANKED": {
         "rank": 30211,
@@ -704,8 +704,8 @@ export default [
         "learning": "outro"
       },
       "EXEMPLIFIED": {
-        "known": "Is there another exit?",
-        "learning": "Tem outra saída?"
+        "known": "Is there another way?",
+        "learning": "Tem outro caminho?"
       },
       "RANKED": {
         "rank": 1585,
@@ -1044,8 +1044,8 @@ export default [
         "learning": "pesado"
       },
       "EXEMPLIFIED": {
-        "known": "This box is very heavy, so I can't carry it.",
-        "learning": "Esta caixa é muito pesada, então não posso carregá-la."
+        "known": "The book is heavy",
+        "learning": "O livro é pesado"
       },
       "VOCALIZED": {
         "asset": {

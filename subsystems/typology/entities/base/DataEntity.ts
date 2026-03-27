@@ -1,27 +1,11 @@
-import {
-  types,
-  EntitySchema,
-  EntityRepository,
-  BaseEntity,
-  EntityRepositoryType,
-  type Opt,
-} from "@mikro-orm/core";
+import { types, EntitySchema, EntityRepository, BaseEntity, raw, type Opt } from "@mikro-orm/core";
 import { is } from "@vivalence/typology";
 import { v7 } from "uuid";
 
 export class DataEntity extends BaseEntity {
-  [EntityRepositoryType]?: DataRepository;
   id!: string;
   createdAt!: Date & Opt;
   updatedAt!: Date & Opt;
-
-  // slug: string & Opt = "";
-  // name?: string;
-  // description?: string;
-
-  // traits: string[] & Opt = [];
-  // type?: string;
-  // data: any & Opt = {};
 }
 
 export class DataRepository extends EntityRepository {
@@ -30,9 +14,9 @@ export class DataRepository extends EntityRepository {
     console.log(`${this.constructor.name} needs custom .unique()`);
     return x;
   }
-  async findByTrait(trait) {
-    return this.find({ traits: { $in: [trait] } });
-  }
+
+  // async findByTrait(trait) {return this.find({ traits: { $in: [trait] } });}
+
   async ensure(query) {
     const existing = await this.findOne(this.unique(query));
     if (existing) {
@@ -42,7 +26,38 @@ export class DataRepository extends EntityRepository {
     return await this.create(query);
   }
 
+  find(where, opts?) {
+    return super.find(this.resolveTraits(where), opts);
+  }
+
+  findOne(where, opts?) {
+    return super.findOne(this.resolveTraits(where), opts);
+  }
+
+  resolveTraits(where) {
+    if (!where?.traits) return where;
+    const { traits, ...rest } = where;
+
+    const spec = typeof traits === "string" ? { $contains: [traits] }
+      : Array.isArray(traits) ? { $contains: traits }
+      : traits;
+
+    const col = `\`${this.entityName.charAt(0).toLowerCase()}0\`.traits`;
+    const has    = (t) => ({ [raw(`${col} LIKE ?`,     [`%${t}%`])]: [] });
+    const hasNot = (t) => ({ [raw(`${col} NOT LIKE ?`, [`%${t}%`])]: [] });
+
+    const conds = [
+      ...(spec.$contains ?? []).map(has),
+      ...(spec.$overlap  ? [{ $or: spec.$overlap.map(has) }] : []),
+      ...(spec.$none     ?? []).map(hasNot),
+    ];
+
+    if (conds.length) rest.$and = [...(rest.$and || []), ...conds];
+    return rest;
+  }
+
   async findByIdentifiers(refs, opts?) {
+    // ugly, because dataentities dont have slugs necessarily.
     const ids = [];
     const slugs = [];
 
@@ -72,6 +87,7 @@ export class DataRepository extends EntityRepository {
     return this.find(where, opts);
   }
 }
+
 export const DataSchema = new EntitySchema({
   class: DataEntity,
   abstract: true,
@@ -91,13 +107,5 @@ export const DataSchema = new EntitySchema({
       defaultRaw: `CURRENT_TIMESTAMP`,
       lazy: true,
     },
-
-    // slug: { type: types.string },
-    // name: { type: types.string, nullable: true },
-    // description: { type: types.string, nullable: true },
-
-    // type: { type: types.string, nullable: true },
-    // traits: {type: types.json, enum: true, array: true, items: () => [], default: [],},
-    // data: { type: types.json, default: {} },
   },
 });

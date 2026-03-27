@@ -6,8 +6,9 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { maps } from "@vivalence/typology/entities";
-import { object } from "@vivalence/typology";
+// import { maps } from "@vivalence/typology/entities";
+import { literal as base } from "@vivalence/typology/entities";
+import { object, is } from "@vivalence/typology";
 
 import { MemoryEntity } from "../userspace/Memory.ts";
 import { TraceEntity } from "../userspace/Trace.ts";
@@ -22,120 +23,61 @@ export enum LiteralTraitsEnum {
   VOCALIZED = "VOCALIZED",
 }
 
-export class LiteralRepository extends maps.kernel.literal.repository {
-  async findForUser(where, opts: any = {}) {
-    const { user, ...query } = where;
-    return this.find(query, {
-      ...opts,
-      populate: [...(opts.populate || []), "memories"],
-      populateWhere: {
-        ...(opts.populateWhere || {}),
-        memories: { user },
-      },
-    });
-  }
-
-  async findOneForUser(where, opts: any = {}) {
-    const { user, ...query } = where;
-    return this.findOne(query, {
-      ...opts,
-      populate: [...(opts.populate || []), "memories"],
-      populateWhere: {
-        ...(opts.populateWhere || {}),
-        memories: { user },
-      },
-    });
-  }
-
-  async feed({ symbols, user, take, blacklist }: any) {
-    const due = await this.due({ symbols, user, take, blacklist });
-    if (due.length >= take) return due.slice(0, take);
+export class LiteralRepository extends base.repository {
+  async feed({ limit, blacklist, where }: any) {
+    const due = await this.due({ limit, blacklist, where });
+    if (due.length >= limit) return due.slice(0, limit);
 
     const novel = await this.novel({
-      symbols,
-      user,
-      take: take - due.length,
+      limit: limit - due.length,
       blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d) => d.id)] },
+      where,
     });
     return [...due, ...novel];
   }
 
-  async novel({ symbols, user, take, blacklist }: any) {
-    return this.findBySymbols(
-      {
-        ...(symbols?.length && { all: symbols }),
-        memories: { $none: { user } },
-        ...(blacklist?.literals?.length && { id: { $nin: blacklist.literals } }),
-      },
-      { orderBy: { rank: "ASC" }, limit: take },
+  async novel({ limit, blacklist, where }: any) {
+    return this.find(
+      object.merge(
+        { memories: { $none: {} } },
+        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        where,
+      ),
+      { orderBy: { rank: "ASC" }, limit: limit },
     );
   }
 
-  async due({ symbols, user, take, blacklist }: any) {
-    return this.findBySymbols(
-      {
-        ...(symbols?.length && { all: symbols }),
-        memories: { user, nextAt: { $lt: new Date() } },
-        ...(blacklist?.literals?.length && { id: { $nin: blacklist.literals } }),
-      },
+  async due({ limit, blacklist, where }: any) {
+    return this.find(
+      object.merge(
+        { memories: { nextAt: { $lt: new Date() } } },
+        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        where,
+      ),
       {
         populate: ["memories"],
-        populateWhere: { memories: { user } },
-        limit: take,
+        limit: limit,
       },
     );
   }
 
-  async byStrength({ symbols, user, take, blacklist }: any) {
-    return this.findBySymbols(
-      {
-        ...(symbols?.length && { all: symbols }),
-        memories: { user },
-        ...(blacklist?.literals?.length && { id: { $nin: blacklist.literals } }),
-      },
+  async byStrength({ limit, blacklist, where }: any) {
+    return this.find(
+      object.merge(
+        { memories: {} },
+        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        where,
+      ),
       {
         populate: ["memories"],
-        populateWhere: { memories: { user } },
         orderBy: { memories: { strength: "ASC" } },
-        limit: take,
+        limit: limit,
       },
     );
-  }
-
-  async findBySymbols(query, opts: any = {}) {
-    if (Array.isArray(query)) query = { all: query };
-
-    const { all, any, none } = query;
-    const where: any = object.omit(query, ["all", "any", "none"]);
-
-    const symbolRepo = this.em.getRepository(SymbolEntity);
-    const idOpts = { fields: ["id"] };
-    const [allSyms, anySyms, noneSyms] = await Promise.all([
-      all?.length ? symbolRepo.findByIdentifiers(all, idOpts) : [],
-      any?.length ? symbolRepo.findByIdentifiers(any, idOpts) : [],
-      none?.length ? symbolRepo.findByIdentifiers(none, idOpts) : [],
-    ]);
-
-    if (allSyms.length) {
-      where.$and = [...(where.$and || []), ...allSyms.map((s) => ({ symbols: s.id }))];
-    }
-
-    if (anySyms.length) {
-      where.symbols = { ...(where.symbols || {}), id: { $in: anySyms.map((s) => s.id) } };
-    }
-
-    if (noneSyms.length) {
-      where.symbols = {
-        ...(where.symbols || {}),
-        $none: { id: { $in: noneSyms.map((s) => s.id) } },
-      };
-    }
-
-    return this.find(where, opts);
   }
 }
 
-export class LiteralEntity extends maps.kernel.literal.entity {
+export class LiteralEntity extends base.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
   rank!: number & Opt;
   memories = new Collection<MemoryEntity>(this);
@@ -163,7 +105,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
 
     let memory = this.memory;
     if (!memory) {
-      memory = await em.findOne(MemoryEntity, { user, literal: this.id });
+      memory = await em.findOne(MemoryEntity, { literal: this.id });
     }
 
     if (!memory) {
@@ -186,7 +128,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
       literal: this.id,
       memory: memory,
       mode: ctx.mode?.id ?? null,
-      session: ctx.session?.id ?? null,
+      thread: ctx.thread?.id ?? null,
       signal: result.signal,
       status: result.status,
       snapshot: {
@@ -204,7 +146,7 @@ export class LiteralEntity extends maps.kernel.literal.entity {
 
 export const LiteralSchema = new EntitySchema({
   class: LiteralEntity,
-  extends: maps.kernel.literal.schema,
+  extends: base.schema,
   tableName: "Literal",
   name: "Literal",
   repository: () => LiteralRepository,

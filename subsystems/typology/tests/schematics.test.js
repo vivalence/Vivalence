@@ -1,13 +1,13 @@
-import { specimen, BaseEntitySchema, Value, v } from "@vivalence/typology";
+import { specimen, DataEntitySchema, Value, v } from "@vivalence/typology";
 
 specimen.describe("schematics", () => {
-  specimen.describe("BaseEntitySchema", () => {
+  specimen.describe("DataEntitySchema", () => {
     specimen.it("all fields optional", () => {
-      specimen.expect(Value.Check(BaseEntitySchema, {})).toBe(true);
+      specimen.expect(Value.Check(DataEntitySchema, {})).toBe(true);
     });
 
     specimen.it("accepts full shape", () => {
-      specimen.expect(Value.Check(BaseEntitySchema, {
+      specimen.expect(Value.Check(DataEntitySchema, {
         id: "abc-123",
         createdAt: "2026-03-25T00:00:00Z",
         updatedAt: "2026-03-25T00:00:00Z",
@@ -15,7 +15,7 @@ specimen.describe("schematics", () => {
     });
 
     specimen.it("allows additional properties", () => {
-      specimen.expect(Value.Check(BaseEntitySchema, { slug: "test" })).toBe(true);
+      specimen.expect(Value.Check(DataEntitySchema, { slug: "test" })).toBe(true);
     });
   });
 
@@ -31,7 +31,7 @@ specimen.describe("schematics", () => {
       specimen.expect(v.buffer().check({
         id: "buf-1",
         mode: "mode-id",
-        session: "sess-1",
+        thread: "thread-1",
         index: 3,
         data: { recall: "LEARNING" },
         literals: [{ slug: "hello" }, { slug: "world" }],

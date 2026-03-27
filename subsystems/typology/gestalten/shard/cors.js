@@ -1,4 +1,4 @@
-const origins = ["localhost(:[0-9]+)?", "*.vivalence.com", "*vivalence.com"];
+const origins = ["*", "localhost(:[0-9]+)?", "*.vivalence.com", "*vivalence.com"];
 
 const patterns = origins.map((origin) => {
   const adjusted = origin
@@ -25,6 +25,7 @@ function headers(origin) {
 
 export function wrap(serve) {
   return async (req) => {
+    // console.log({ req });
     const origin = req.headers.get("origin");
 
     if (req.method === "OPTIONS") {
@@ -43,6 +44,10 @@ export function wrap(serve) {
     const merged = new Headers(res.headers);
     for (const [k, v] of Object.entries(headers(origin))) merged.set(k, v);
 
-    return new Response(res.body, { status: res.status, statusText: res.statusText, headers: merged });
+    return new Response(res.body, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: merged,
+    });
   };
 }

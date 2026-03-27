@@ -1,10 +1,7 @@
 <script>
   import { Asset } from "@vivalence/drapes";
-  import { Keyboard } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
-
-  let keyboard;
 
   const data = buffer.data ?? {};
   const queue = buffer.literals ?? [];
@@ -40,9 +37,9 @@
   );
   const promptLabel = $derived(activeRecall === "KNOWN" ? "Português" : "English");
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
-  $inspect("asset ", asset);
+
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { take: 3 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         literal = queue[0];
@@ -79,18 +76,17 @@
       if (!revealed) reveal();
     }
     if (revealed) {
-      if (event.key === "1") rate("FAILURE");
+      if (event.key === "1") rate("MISTAKE");
       if (event.key === "2") rate("SUCCESS");
       if (event.key === "3") rate("MASTERY");
     }
   }
 </script>
 
-<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literal}
         <div class="meta">
@@ -129,7 +125,7 @@
             </div>
           </div>
         {:else}
-          <button class="tap-hint" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}
+          <button class="tap-zone" onmousedown={(e) => e.preventDefault()} onclick={reveal}
             >tap to reveal</button>
         {/if}
       {:else if loading}
@@ -138,25 +134,25 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading...</span>
       {:else if revealed}
         <button
           class="btn btn-unknown"
-          ontouchstart={(e) => keyboard.guard(e)}
-          onclick={() => rate("FAILURE")}>Unknown</button>
+          onmousedown={(e) => e.preventDefault()}
+          onclick={() => rate("MISTAKE")}>Unknown</button>
         <button
           class="btn btn-known"
-          ontouchstart={(e) => keyboard.guard(e)}
+          onmousedown={(e) => e.preventDefault()}
           onclick={() => rate("SUCCESS")}>Known</button>
         <button
           class="btn btn-easy"
-          ontouchstart={(e) => keyboard.guard(e)}
+          onmousedown={(e) => e.preventDefault()}
           onclick={() => rate("MASTERY")}>Easy</button>
       {:else}
-        <button class="btn btn-reveal" ontouchstart={(e) => keyboard.guard(e)} onclick={reveal}
+        <button class="btn btn-reveal" onmousedown={(e) => e.preventDefault()} onclick={reveal}
           >Reveal</button>
       {/if}
     </div>
@@ -164,20 +160,14 @@
 </div>
 
 <style>
-  .root {
-    grid-template-rows: 1fr auto;
-  }
-  .content {
-    overflow-y: auto;
-  }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 20vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -239,16 +229,20 @@
     margin: 0.75rem 0 0 0;
   }
 
-  .tap-hint {
-    margin-top: 1rem;
+  .tap-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
     background: none;
     border: none;
-    padding: 0;
+    padding: 1rem;
     font-family: var(--font-family-code);
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     color: var(--colors-skeleton-1-boundary);
     cursor: pointer;
-    text-align: left;
+    width: 100%;
   }
 
   .divider {
@@ -292,16 +286,11 @@
     animation: pulse 1s ease-in-out infinite;
   }
   @keyframes pulse {
-    0%,
-    100% {
-      opacity: 0.3;
-    }
-    50% {
-      opacity: 1;
-    }
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
   }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
     padding: 0.75rem 1.25rem;
   }
@@ -320,14 +309,19 @@
     color: var(--colors-skeleton-1-boundary);
     font-size: 0.75rem;
     font-family: var(--font-family-code);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .btn {
     flex: 1;
-    padding: 0.625rem 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 0.5rem;
     border-radius: 0.5rem;
     border: none;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
@@ -351,17 +345,7 @@
   }
 
   @media (max-width: 640px) {
-    .stage {
-      padding-top: 12vh;
-    }
-    .prompt {
-      font-size: var(--font-size-xl);
-    }
-    .prompt-word {
-      font-size: var(--font-size-2xl);
-    }
-    .menu {
-      padding: 0.625rem 1rem;
-    }
+    .prompt { font-size: var(--font-size-xl); }
+    .prompt-word { font-size: var(--font-size-2xl); }
   }
 </style>

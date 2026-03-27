@@ -9,12 +9,12 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "how / as / like",
+        "known": "as / like",
         "learning": "como"
       },
       "EXEMPLIFIED": {
-        "known": "How are you?",
-        "learning": "Como você está?"
+        "known": "Do as I do",
+        "learning": "Faça como eu"
       },
       "RANKED": {
         "rank": 166,
@@ -110,8 +110,8 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "although/away",
-        "learning": "Embora"
+        "known": "although",
+        "learning": "embora"
       },
       "EXEMPLIFIED": {
         "known": "Even though he apologized, I'm still furious.",

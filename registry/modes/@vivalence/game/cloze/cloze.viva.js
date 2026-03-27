@@ -6,7 +6,7 @@ const manifest = {
   name: "Cloze",
   description: "Fill blanked tokens in a sentence. Typed, picked, or audio-prompted. Per-token review.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER", "SELFEVIDENT"],
+  traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
 const buffer = new BufferView(
@@ -22,19 +22,58 @@ const buffer = new BufferView(
   }),
 );
 
-const emitter = new Vector().open("/literal", async (ctx) => {
-  return ctx.mode.buffer({
-    data: {
-      recall: ctx.input.recall ?? "LEARNING",
-      gameplay: ctx.input.gameplay ?? "type",
-      blankIndices: ctx.input.blankIndices ?? [0],
-      options: ctx.input.options,
-      forgiving: ctx.input.forgiving ?? true,
-    },
-    literals: [ctx.input.literal],
+const emitter = new Vector()
+  .open("/literal", async (ctx) => {
+    return ctx.mode.buffer({
+      data: {
+        recall: ctx.input.recall ?? "LEARNING",
+        gameplay: ctx.input.gameplay ?? "type",
+        blankIndices: ctx.input.blankIndices ?? [0],
+        options: ctx.input.options,
+        forgiving: ctx.input.forgiving ?? true,
+      },
+      literals: [ctx.input.literal],
+    });
+  })
+  .open("/feed", async (ctx) => {
+    const limit = ctx.input.limit ?? 1;
+    const all = await ctx.daemon.entities.literal.feed({
+      limit: limit * 3,
+      blacklist: ctx.input.blacklist,
+      where: ctx.input.where,
+    });
+    const annotated = all.filter((l) => l.traits?.includes("ANNOTATED"));
+    if (!annotated.length) return [];
+    const lit = annotated[0];
+    const tokens = lit.trait?.ANNOTATED?.tokens ?? [];
+    const blankIndices = tokens.length
+      ? [Math.floor(Math.random() * tokens.length)]
+      : [0];
+    return ctx.mode.buffer({
+      data: {
+        recall: ctx.input.defaults?.recall ?? "LEARNING",
+        gameplay: ctx.input.defaults?.gameplay ?? "type",
+        blankIndices,
+        forgiving: true,
+      },
+      literals: [lit],
+    });
   });
-});
 
-const dataset = { intent: [] };
+const dataset = {
+  intent: [{
+    slug: "feed",
+    name: "Cloze",
+    type: "APPLICATIVE",
+    traits: ["FEEDING"],
+    trait: {
+      FEEDING: {
+        mount: "/emit/feed",
+        queue: 1,
+        mask: { limit: 1 },
+      },
+    },
+  }],
+};
 
 export { manifest, buffer, emitter, dataset };

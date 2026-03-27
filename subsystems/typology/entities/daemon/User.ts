@@ -1,7 +1,7 @@
 import { Collection, EntitySchema, types, type Opt } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../index.ts";
-import { SessionEntity } from "../index.ts";
+import { DataEntity, DataSchema } from "../index.ts";
+import { ThreadEntity } from "../index.ts";
 
 export enum UserRolesEnum {
   USER = "USER",
@@ -9,17 +9,17 @@ export enum UserRolesEnum {
   GUEST = "GUEST",
 }
 
-export class UserEntity extends BaseEntity {
+export class UserEntity extends DataEntity {
   roles: UserRolesEnum[] & Opt = [UserRolesEnum.USER];
   config: any & Opt = {};
 
-  sessions = new Collection<SessionEntity>(this);
+  threads = new Collection<ThreadEntity>(this);
   // intents = new Collection<IntentEntity>(this);
 }
 
-export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
+export const UserSchema = new EntitySchema<UserEntity, DataEntity>({
   class: UserEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   tableName: "User",
   name: "user",
 
@@ -35,10 +35,10 @@ export const UserSchema = new EntitySchema<UserEntity, BaseEntity>({
 
     // intents: {kind: "1:m", entity: () => IntentEntity, mappedBy: (intent) => intent.user,},
 
-    sessions: {
+    threads: {
       kind: "1:m",
-      entity: () => SessionEntity,
-      mappedBy: (session) => session.user,
+      entity: () => ThreadEntity,
+      mappedBy: (thread) => thread.user,
     },
   },
 });

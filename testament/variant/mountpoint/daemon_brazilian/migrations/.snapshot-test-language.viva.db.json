@@ -805,14 +805,14 @@
           "mappedType": "integer"
         }
       },
-      "name": "Session",
+      "name": "Thread",
       "indexes": [
         {
           "columnNames": [
             "user"
           ],
           "composite": false,
-          "keyName": "Session_user_index",
+          "keyName": "Thread_user_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -822,7 +822,7 @@
             "mode"
           ],
           "composite": false,
-          "keyName": "Session_mode_index",
+          "keyName": "Thread_mode_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -832,7 +832,7 @@
             "intent"
           ],
           "composite": false,
-          "keyName": "Session_intent_index",
+          "keyName": "Thread_intent_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -850,12 +850,12 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "Session_user_foreign": {
-          "constraintName": "Session_user_foreign",
+        "Thread_user_foreign": {
+          "constraintName": "Thread_user_foreign",
           "columnNames": [
             "user"
           ],
-          "localTableName": "Session",
+          "localTableName": "Thread",
           "referencedColumnNames": [
             "id"
           ],
@@ -863,12 +863,12 @@
           "deleteRule": "cascade",
           "updateRule": "cascade"
         },
-        "Session_mode_foreign": {
-          "constraintName": "Session_mode_foreign",
+        "Thread_mode_foreign": {
+          "constraintName": "Thread_mode_foreign",
           "columnNames": [
             "mode"
           ],
-          "localTableName": "Session",
+          "localTableName": "Thread",
           "referencedColumnNames": [
             "id"
           ],
@@ -876,12 +876,12 @@
           "deleteRule": "cascade",
           "updateRule": "cascade"
         },
-        "Session_intent_foreign": {
-          "constraintName": "Session_intent_foreign",
+        "Thread_intent_foreign": {
+          "constraintName": "Thread_intent_foreign",
           "columnNames": [
             "intent"
           ],
-          "localTableName": "Session",
+          "localTableName": "Thread",
           "referencedColumnNames": [
             "id"
           ],
@@ -958,8 +958,8 @@
           "length": null,
           "mappedType": "text"
         },
-        "session": {
-          "name": "session",
+        "thread": {
+          "name": "thread",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -983,10 +983,10 @@
         },
         {
           "columnNames": [
-            "session"
+            "thread"
           ],
           "composite": false,
-          "keyName": "Buffer_session_index",
+          "keyName": "Buffer_thread_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1017,16 +1017,16 @@
           "deleteRule": "cascade",
           "updateRule": "cascade"
         },
-        "Buffer_session_foreign": {
-          "constraintName": "Buffer_session_foreign",
+        "Buffer_thread_foreign": {
+          "constraintName": "Buffer_thread_foreign",
           "columnNames": [
-            "session"
+            "thread"
           ],
           "localTableName": "Buffer",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "Session",
+          "referencedTableName": "Thread",
           "deleteRule": "set null",
           "updateRule": "cascade"
         }
@@ -1502,8 +1502,8 @@
           "length": null,
           "mappedType": "text"
         },
-        "session": {
-          "name": "session",
+        "thread": {
+          "name": "thread",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
@@ -1587,10 +1587,10 @@
         },
         {
           "columnNames": [
-            "session"
+            "thread"
           ],
           "composite": false,
-          "keyName": "Trace_session_index",
+          "keyName": "Trace_thread_index",
           "constraint": false,
           "primary": false,
           "unique": false
@@ -1660,16 +1660,16 @@
           "deleteRule": "set null",
           "updateRule": "cascade"
         },
-        "Trace_session_foreign": {
-          "constraintName": "Trace_session_foreign",
+        "Trace_thread_foreign": {
+          "constraintName": "Trace_thread_foreign",
           "columnNames": [
-            "session"
+            "thread"
           ],
           "localTableName": "Trace",
           "referencedColumnNames": [
             "id"
           ],
-          "referencedTableName": "Session",
+          "referencedTableName": "Thread",
           "deleteRule": "set null",
           "updateRule": "cascade"
         }

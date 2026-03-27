@@ -23,12 +23,12 @@ specimen.describe("mode entities (direct)", () => {
     specimen.expect(scenario.fixtures.intent.trait.FURNISHED.recall).toBe("LEARNING");
   });
 
-  specimen.it("session has mode", () => {
-    specimen.expect(scenario.fixtures.session.mode).toBeTruthy();
+  specimen.it("thread has mode", () => {
+    specimen.expect(scenario.fixtures.thread.mode).toBeTruthy();
   });
 
-  specimen.it("session has intent", () => {
-    specimen.expect(scenario.fixtures.session.intent).toBeTruthy();
+  specimen.it("thread has intent", () => {
+    specimen.expect(scenario.fixtures.thread.intent).toBeTruthy();
   });
 
   specimen.it("mode entity has new traits", () => {

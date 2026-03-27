@@ -1,9 +1,5 @@
 <script>
-  import { Keyboard } from "@vivalence/drapes";
-
   const { terminal, buffer } = $props();
-
-  let keyboard;
 
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
@@ -54,7 +50,7 @@
   }
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 4 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
       literals = lits ?? [];
       init(literals);
       loading = false;
@@ -101,7 +97,7 @@
 
     for (const lit of literals) {
       terminal.daemon.call("/review/literal", {
-        signal: errored.has(lit.id) ? "FAILURE" : "SUCCESS",
+        signal: errored.has(lit.id) ? "MISTAKE" : "SUCCESS",
         scope: { literal: lit.id },
       });
     }
@@ -114,10 +110,8 @@
   });
 </script>
 
-<Keyboard bind:this={keyboard} />
-
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literals.length}
         <div class="meta">
@@ -136,7 +130,7 @@
                 class:cell-connected={isConnected}
                 class:cell-selected={isSelected}
                 class:cell-failed={isFailed && !isConnected}
-                ontouchstart={(e) => keyboard.guard(e)}
+                onmousedown={(e) => e.preventDefault()}
                 onclick={() => tapLeft(lit)}
                 disabled={isConnected}
               >
@@ -153,7 +147,7 @@
                 class="cell"
                 class:cell-connected={isConnected}
                 class:cell-failed={isFailed && !isConnected}
-                ontouchstart={(e) => keyboard.guard(e)}
+                onmousedown={(e) => e.preventDefault()}
                 onclick={() => tapRight(lit)}
                 disabled={isConnected}
               >
@@ -169,7 +163,7 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading…</span>
@@ -185,16 +179,14 @@
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
-
   .stage {
     max-width: 560px;
     width: 100%;
     margin: 0 auto;
-    padding: 8vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -230,6 +222,7 @@
   }
 
   .cell {
+    min-height: 48px;
     padding: 0.75rem 0.875rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
@@ -281,9 +274,9 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 560px;
@@ -299,11 +292,8 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 3vh; padding-left: 0.75rem; padding-right: 0.75rem; }
-    .cell { font-size: var(--font-size-sm); font-family: var(--font-family-sans-text); padding: 0.75rem 0.625rem; min-height: 3rem; display: flex; align-items: center; }
+    .cell { font-size: var(--font-size-sm); font-family: var(--font-family-sans-text); padding: 0.75rem 0.625rem; min-height: 48px; display: flex; align-items: center; }
     .grid { gap: 0.5rem; }
     .column { gap: 0.375rem; }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
-    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
   }
 </style>

@@ -23,10 +23,10 @@ specimen.beforeAll(async () => {
   aperture.branch("/intent").slurp(shard.datamap.repository(repos.intent))
 
   aperture
-    .branch("/session")
+    .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(repos.session))
+    .slurp(shard.datamap.repository(repos.thread))
 
   const sub = shape.subscriber(twitch)
   scenario.em.getEventManager().registerSubscriber(sub)
@@ -122,18 +122,18 @@ specimen.describe("shard.datamap.repository", () => {
 
 specimen.describe("shard.datamap.scope", () => {
   specimen.it("injects into create", async () => {
-    const session = await conn.call("/session/create", {
+    const thread = await conn.call("/thread/create", {
       data: { mode: scenario.fixtures.mode.id, trait: {}, cursor: 0, counter: 0 },
     })
     const userId = scenario.fixtures.user.id
-    const sessionUser = typeof session.user === "object" ? session.user.id : session.user
-    specimen.expect(sessionUser).toBe(userId)
+    const threadUser = typeof thread.user === "object" ? thread.user.id : thread.user
+    specimen.expect(threadUser).toBe(userId)
   })
 
   specimen.it("filters find", async () => {
-    const sessions = await conn.call("/session/find", { where: {} })
+    const threads = await conn.call("/thread/find", { where: {} })
     const userId = scenario.fixtures.user.id
-    for (const s of sessions) {
+    for (const s of threads) {
       const su = typeof s.user === "object" ? s.user.id : s.user
       specimen.expect(su).toBe(userId)
     }
@@ -274,7 +274,7 @@ specimen.describe("shard.datamap.strip", () => {
     specimen.expect(schema.symbol).toBeDefined()
     specimen.expect(schema.mode).toBeDefined()
     specimen.expect(schema.intent).toBeDefined()
-    specimen.expect(schema.session).toBeDefined()
+    specimen.expect(schema.thread).toBeDefined()
   })
 
   specimen.it("skips pivot tables", () => {

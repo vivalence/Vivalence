@@ -8,7 +8,7 @@ export default async () => {
   //   },
   // });
 
-  // const sessions = await ctx.daemon(`/entities/session/getAll`); console.log("sessions", sessions);
+  // const threads = await ctx.daemon(`/entities/thread/getAll`); console.log("threads", threads);
   // const tag = await ctx.runtime(`/entities/tag/findOne`, { slug: "" });
   // const { data: runtimes, error } = await ctx.call(`/daemon/entities/runtime/getAll`);
   const runtimes = [];
@@ -32,10 +32,10 @@ export default async () => {
               href: `/${runtime.slug}/dag/dependency`,
             },
             {
-              title: "test session",
+              title: "test thread",
               icon: { carbon: "ScisControlTower" },
               type: "link",
-              href: `/${runtime.slug}/buffers/session/test`,
+              href: `/${runtime.slug}/buffers/thread/test`,
             },
 
             //   {

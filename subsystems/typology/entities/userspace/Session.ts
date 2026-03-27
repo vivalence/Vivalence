@@ -1,6 +1,6 @@
 import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../index.ts";
+import { DataEntity, DataSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 import { IntentEntity } from "../index.ts";
@@ -10,7 +10,7 @@ export enum SessionTraitsEnum {
   _ = "_",
 }
 
-export class SessionEntity extends BaseEntity {
+export class SessionEntity extends DataEntity {
   user!: Rel<UserEntity>;
   mode!: Rel<ModeEntity>;
   intent?: Rel<IntentEntity>;
@@ -22,9 +22,9 @@ export class SessionEntity extends BaseEntity {
   buffers = new Collection<BufferEntity>(this);
 }
 
-export const SessionSchema = new EntitySchema<SessionEntity, BaseEntity>({
+export const SessionSchema = new EntitySchema<SessionEntity, DataEntity>({
   class: SessionEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   tableName: "Session",
   properties: {
     user: {

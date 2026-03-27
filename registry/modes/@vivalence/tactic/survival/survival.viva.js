@@ -5,7 +5,7 @@ export const manifest = {
   type: "tactic",
   slug: "survival",
   name: "Survival",
-  description: "Five-phase session for conquering survival Brazilian Portuguese.",
+  description: "Five-phase thread for conquering survival Brazilian Portuguese.",
   traits: ["INTENTED", "EMITTER"],
 };
 

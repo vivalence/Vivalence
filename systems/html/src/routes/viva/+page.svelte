@@ -1,44 +1,58 @@
 <script>
   import { goto } from "$app/navigation";
-  import { onMount } from "svelte";
-  import { Pictogram } from "@vivalence/drapes";
+  import { onMount, setContext } from "svelte";
   import { dataspace } from "$client";
+  import { Terminal } from "@vivalence/html/typology";
+  import Modeline from "./Modeline.svelte";
 
-  let sessions = $state([]);
+  const terminal = new Terminal();
+  setContext("terminal", terminal);
+
+  let threads = $state([]);
   const daemons = dataspace.daemon.$entities;
 
   onMount(async () => {
     const all = [];
     for (const daemon of dataspace.daemon.$entities.get()) {
       try {
-        const found = await daemon.entities.session.find({}, { populate: ["mode", "intent"] });
+        const found = await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
         all.push(...found);
       } catch (e) {
-        console.error(`[lobby] sessions for ${daemon.slug}`, e);
+        console.error(`[lobby] threads for ${daemon.slug}`, e);
       }
     }
-    sessions = all.slice(0, 10);
+    threads = all.slice(0, 10);
   });
 
-  function modesFor(daemon) {
-    return daemon.entities.mode.$entities.get().filter((m) => m.implements("SELFEVIDENT"));
-  }
+  function navigableByType(daemon) {
+    const modes = [...daemon.entities.mode.$entities.get()];
+    const intents = [...daemon.entities.intent.$entities.get()];
+    const groups = {};
 
-  function intentsFor(daemon) {
-    return daemon.entities.intent.$entities.get();
+    for (const m of modes) {
+      const modeIntents = intents.filter((i) => i.mode?.id === m.id);
+      const selfevident = m.implements("SELFEVIDENT");
+      if (!selfevident && modeIntents.length === 0) continue;
+
+      const type = m.type?.toLowerCase() ?? "other";
+      if (!groups[type]) groups[type] = [];
+      groups[type].push({ mode: m, intents: modeIntents, selfevident });
+    }
+
+    return Object.entries(groups);
   }
 
   async function enterMode(mode) {
-    const session = await mode.daemon.entities.session.create({ mode: mode.id });
-    goto(mode.link.branch(`/${session.id}`).absolute);
+    const thread = await mode.daemon.entities.thread.create({ mode: mode.id });
+    goto(mode.link.branch(`/${thread.id}`).absolute);
   }
 
   async function enterIntent(intent) {
-    const session = await intent.mode.daemon.entities.session.create({
+    const thread = await intent.mode.daemon.entities.thread.create({
       mode: intent.mode.id,
       intent: intent.id,
     });
-    goto(intent.link.branch(`/${session.id}`).absolute);
+    goto(intent.link.branch(`/${thread.id}`).absolute);
   }
 
   function resume(s) {
@@ -48,14 +62,14 @@
   }
 </script>
 
-<div class="bsp-node" style="grid-template-rows: 1fr auto; height: 100dvh;">
-  <div class="lobby">
-    {#if sessions.length > 0}
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface lobby">
+    {#if threads.length > 0}
       <div class="lobby-section">
         <div class="lobby-heading">recent</div>
         <div class="lobby-grid">
-          {#each sessions as s (s.id)}
-            <button class="lobby-door door-session" onclick={() => resume(s)}>
+          {#each threads as s (s.id)}
+            <button class="lobby-door door-thread" onclick={() => resume(s)}>
               <span class="door-daemon">{s.daemon?.slug}</span>
               <span class="door-label">{s.mode?.manifest?.name ?? s.mode?.slug ?? "—"}</span>
               {#if s.intent}
@@ -70,36 +84,44 @@
     {#each $daemons as daemon (daemon.slug)}
       <div class="lobby-section">
         <div class="lobby-heading">{daemon.manifest?.name ?? daemon.slug}</div>
-        <div class="lobby-grid">
-          {#each modesFor(daemon) as mode (mode.id)}
-            <button class="lobby-door door-mode" onclick={() => enterMode(mode)}>
-              <span class="door-tags">
-                <span class="door-tag tag-selfevident-mode">selfevident mode</span>
-                <span class="door-tag tag-type">{mode.type}</span>
-              </span>
-              <span class="door-label">{mode.manifest?.name ?? mode.slug}</span>
-            </button>
-          {/each}
+        {#each navigableByType(daemon) as [type, entries]}
+          <div class="lobby-type">{type}</div>
+          {@const singles = entries.filter(e => !e.selfevident && e.intents.length === 1)}
+          {@const multis = entries.filter(e => e.selfevident || e.intents.length > 1)}
 
-          {#each intentsFor(daemon) as intent (intent.id)}
-            <button class="lobby-door {intent.type === 'APPLICATIVE' ? 'door-intent-applicative' : 'door-intent-selfevident'}" onclick={() => enterIntent(intent)}>
-              <span class="door-tags">
-                <span class="door-tag {intent.type === 'APPLICATIVE' ? 'tag-applicative' : 'tag-selfevident-intent'}">{intent.type?.toLowerCase()} intent</span>
-                <span class="door-tag tag-type">{intent.mode?.manifest?.name ?? intent.mode?.slug}</span>
-              </span>
-              <span class="door-label">{intent.name ?? intent.slug}</span>
-            </button>
+          {#if singles.length}
+            <div class="lobby-grid">
+              {#each singles as { mode, intents } (mode.id)}
+                <button class="lobby-door door-intent" onclick={() => enterIntent(intents[0])}>
+                  <span class="door-label">{intents[0].name ?? intents[0].slug}</span>
+                  <span class="door-sub">{mode.manifest?.name ?? mode.slug}</span>
+                </button>
+              {/each}
+            </div>
+          {/if}
+
+          {#each multis as { mode, intents, selfevident } (mode.id)}
+            <div class="lobby-mode-heading">{mode.manifest?.name ?? mode.slug}</div>
+            <div class="lobby-grid">
+              {#if selfevident}
+                <button class="lobby-door door-mode" onclick={() => enterMode(mode)}>
+                  <span class="door-label">{mode.manifest?.name ?? mode.slug}</span>
+                </button>
+              {/if}
+              {#each intents as intent (intent.id)}
+                <button class="lobby-door door-intent" onclick={() => enterIntent(intent)}>
+                  <span class="door-label">{intent.name ?? intent.slug}</span>
+                </button>
+              {/each}
+            </div>
           {/each}
-        </div>
+        {/each}
       </div>
     {/each}
   </div>
 
-  <div class="ml">
-    <button class="ml-logo" onclick={() => goto("/viva")}>
-      <Pictogram src="/images/pictogram_viket/pic-vinca-viket_white.png" alt="lobby" size="sm" />
-    </button>
-    <span class="ml-spacer"></span>
+  <div class="viva-controls">
+    <Modeline />
   </div>
 </div>
 
@@ -109,7 +131,6 @@
     max-width: 800px;
     width: 100%;
     margin: 0 auto;
-    overflow-y: auto;
   }
 
   .lobby-section {
@@ -122,12 +143,31 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--colors-skeleton-2-contrast);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  .lobby-type {
+    font-family: var(--font-family-code);
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--colors-theme-primary-contrast);
+    margin: 16px 0 8px;
+  }
+
+  .lobby-mode-heading {
+    font-family: var(--font-family-code);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--colors-skeleton-2-contrast);
+    margin: 8px 0 4px 2px;
   }
 
   .lobby-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 8px;
   }
 
@@ -135,7 +175,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    padding: 12px;
+    padding: 10px 12px;
     background: var(--colors-skeleton-1-surface);
     border: 1px solid var(--colors-skeleton-1-boundary);
     border-radius: 6px;
@@ -149,11 +189,12 @@
     border-color: var(--colors-skeleton-2-contrast);
   }
 
-  .door-daemon {
-    font-size: 8px;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--colors-skeleton-2-contrast);
+  .door-mode {
+    border-left: 3px solid var(--colors-theme-primary-contrast);
+  }
+
+  .door-intent {
+    border-left: 3px solid var(--colors-skeleton-1-boundary);
   }
 
   .door-label {
@@ -161,97 +202,20 @@
     color: var(--colors-skeleton-1-contrast);
   }
 
+  .door-daemon {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--colors-skeleton-2-contrast);
+  }
+
   .door-sub {
     font-size: var(--font-size-xs);
     color: var(--colors-skeleton-2-contrast);
   }
 
-  .door-tags {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-  }
-
-  .door-tag {
-    font-size: 8px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 1px 5px;
-    border-radius: 3px;
-  }
-
-  .tag-selfevident-mode {
-    color: var(--colors-theme-primary-contrast);
-    background: color-mix(in srgb, var(--colors-theme-primary-contrast) 15%, transparent);
-  }
-
-  .tag-selfevident-intent {
-    color: #6ba3d6;
-    background: color-mix(in srgb, #6ba3d6 15%, transparent);
-  }
-
-  .tag-applicative {
-    color: #d6a36b;
-    background: color-mix(in srgb, #d6a36b 15%, transparent);
-  }
-
-  .tag-type {
-    color: var(--colors-skeleton-2-contrast);
-    background: color-mix(in srgb, var(--colors-skeleton-2-contrast) 10%, transparent);
-  }
-
-  .door-mode {
-    border-left: 3px solid var(--colors-theme-primary-contrast);
-  }
-
-  .door-intent-selfevident {
-    border-left: 3px solid #6ba3d6;
-  }
-
-  .door-intent-applicative {
-    border-left: 3px solid #d6a36b;
-  }
-
-  .door-session {
+  .door-thread {
     border-left: 3px solid var(--colors-system-success-contrast, #4a4);
   }
 
-  .ml {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 30px;
-    padding: 0 10px 0 0;
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    background: var(--colors-skeleton-1-surface);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-1-contrast);
-    user-select: none;
-  }
-
-  .ml-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 100%;
-    flex-shrink: 0;
-    background: none;
-    border: none;
-    border-right: 1px solid var(--colors-skeleton-1-boundary);
-    cursor: pointer;
-    padding: 0;
-    opacity: 0.4;
-  }
-
-  .ml-logo:hover {
-    opacity: 1;
-    background: var(--colors-skeleton-2-surface);
-  }
-
-  .ml-spacer {
-    flex: 1;
-  }
 </style>

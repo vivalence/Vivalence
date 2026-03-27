@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { fromm, shards, Url, Connection, shape } from "@vivalence/typology";
+import { fromm, shard, Url, Connection, shape } from "@vivalence/typology";
 
 export async function attach(runtimeDie) {
   async function attachProcesses(runtimeDie) {
@@ -10,7 +10,7 @@ export async function attach(runtimeDie) {
 
       runtimeDie.good.aperture
         .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
-        .use(shards.context.attach(processDie.type, processDie.mask))
+        .use(shard.context.attach(processDie.type, processDie.mask))
         .slurp(processDie.good);
     }
   }
@@ -21,7 +21,7 @@ export async function attach(runtimeDie) {
         runtimeDie.good.aperture //
           .branch("/attached/view")
           .branch(mode.mount.absolute)
-          .use(shards.context.attach("mode", mode))
+          .use(shard.context.attach("mode", mode))
           .open("/status", () => ({ status: "success" }))
           .open("/(.*)", async (input, ctx) => {
             if (paladin.is.dev) await ctx.mode.cake.buffer.bundle();
@@ -32,7 +32,7 @@ export async function attach(runtimeDie) {
       // for (const mode of daemonDie.good.flatmodes()) {
       //   if (!mode.implements("VIEWABLE")) continue;
       //   runtimeDie.good.aperture.branch("/attached/view").branch(mode.mount.absolute)
-      //     .use(shards.context.attach("mode", mode))
+      //     .use(shard.context.attach("mode", mode))
       //     .open("/(.*)", async (input, ctx) => {
       //       if (paladin.is.dev) await ctx.mode.view.bundle();
       //       ctx.response.type = "application/javascript";
@@ -50,7 +50,7 @@ export async function attach(runtimeDie) {
       runtimeDie.good.aperture
         .branch("/attached/cargo")
         .branch(daemonDie.good.mount.nature)
-        .use(shards.context.attach("daemon", daemonDie.good))
+        .use(shard.context.attach("daemon", daemonDie.good))
         .open("/(.*)", async (input, ctx) => {
           const query = fromm.params(ctx.params).path.absolute.replace(/^\//, "");
           for (const mode of modes) {
@@ -73,6 +73,11 @@ export async function attach(runtimeDie) {
 export async function expose(runtimeDie) {
   for (const daemonDie of runtimeDie.good.daemons) {
     runtimeDie.good.aperture
+      // .use(async (ctx, next) => {
+      //   console.log("REQUEST", ctx.request);
+      //   await next();
+      //   console.log("RESPONSE", ctx.response);
+      // })
       .branch(daemonDie.good.mount.nature) // .branch(`/daemon/${daemonDie.slug}`)
       .open("/status", () => daemonDie.status.reflection)
       .open("/manifest", () => daemonDie.manifest)
@@ -82,7 +87,7 @@ export async function expose(runtimeDie) {
 
 export async function compose(runtimeDie) {
   const handler = shape.http(runtimeDie.good.aperture);
-  runtimeDie.good.handler = shards.cors.wrap(handler);
+  runtimeDie.good.handler = shard.cors.wrap(handler);
 }
 
 export async function wake(die) {
@@ -127,7 +132,7 @@ export async function launch(runtimeDie) {
 //     runtimeDie.good.aperture
 //       // .branch(`/daemon/${daemonDie.slug}`)
 //       .branch(daemonDie.mount.nature)
-//       .use(shards.context.attach("daemon", daemonDie.good))
+//       .use(shard.context.attach("daemon", daemonDie.good))
 //       .open("/status", () => daemonDie.status.reflection)
 //       .open("/manifest", () => daemonDie.manifest)
 //       .descendants.push(daemonDie.good.aperture);
@@ -140,7 +145,7 @@ export async function launch(runtimeDie) {
 //     runtimeDie.good.aperture //
 //       .branch(`/attached/view`)
 //       .branch(daemonDie.mount.nature)
-//       .use(shards.context.attach("daemon", daemonDie.good))
+//       .use(shard.context.attach("daemon", daemonDie.good))
 //       // .use(async (ctx, next) => {
 //       //   console.log("ctx.daemon", ctx.daemon);
 //       // })
@@ -184,7 +189,7 @@ export async function launch(runtimeDie) {
 //     runtimeDie.good.aperture
 //       // processdie.mount.nature
 //       .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
-//       .use(shards.context.attach(processDie.type, processDie.mask))
+//       .use(shard.context.attach(processDie.type, processDie.mask))
 //       .descendants.push(processDie.good);
 //   }
 // }

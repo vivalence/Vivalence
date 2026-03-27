@@ -10,7 +10,7 @@ function mime(path) {
   return MIME[path.split(".").pop()?.toLowerCase()] || "application/octet-stream";
 }
 
-export function serve(root) {
+export function file(root) {
   const fn = async (ctx) => {
     let i = 0, parts = [];
     while (ctx.params[i] !== undefined) parts.push(ctx.params[i++]);
@@ -25,5 +25,16 @@ export function serve(root) {
     }
   };
   Object.defineProperty(fn, "length", { value: 1 });
+  return fn;
+}
+
+export function websocket(handler) {
+  const fn = (ctx) => {
+    const { socket, response } = Deno.upgradeWebSocket(ctx.request.raw);
+    handler(socket, ctx);
+    return response;
+  };
+  Object.defineProperty(fn, "length", { value: 1 });
+  fn.websocket = true;
   return fn;
 }

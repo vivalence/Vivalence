@@ -1,8 +1,14 @@
 import paladin from "@vivalence/paladin";
+import { wrap } from "@mikro-orm/core";
 
-import { is, Mode, Url, Path, shards, Vector, Aperture, shape, steer } from "@vivalence/typology";
-import { maps } from "@vivalence/typology/entities";
-import { array } from "@vivalence/shared";
+// import { Mode, Url, Path, Vector, Aperture } from "@vivalence/typology";
+import { Mode, Url, Path, Aperture, shard } from "@vivalence/typology";
+import { is, array, shape, steer } from "@vivalence/typology";
+// import { maps } from "@vivalence/typology/entities";
+import { sets } from "@vivalence/typology/entities";
+
+// import { RequestContext } from "@mikro-orm/core";
+
 // import { Vector, compiler, controller, shards } from "@vivalence/vector";
 
 import * as kernelmodes from "../mode/kernel.js";
@@ -33,9 +39,9 @@ export async function core(die) {
   die.variant.modes = [...kernelmodes.modes, ...(die.kernel.domain.modes || [])];
 
   die.variant.entities = [
-    ...maps.sets.daemon,
-    ...maps.sets.kernel,
-    ...maps.sets.userspace,
+    ...sets.daemon,
+    ...sets.kernel,
+    ...sets.userspace,
     ...die.kernel.domain.entities,
   ];
 }
@@ -46,34 +52,23 @@ export function wiring(daemonDie) {
 }
 
 export async function datamap(daemonDie) {
-  const { orm, entities } = await daemonDie.register.datamap //
-    .provider(daemonDie.mask.datamap, daemonDie.variant.entities);
+  // const { orm, repositories } = await daemonDie.register.datamap //
+  //   .provider(daemonDie.mask.datamap, daemonDie.variant.entities);
+  // daemonDie.good.kernel.orm = orm;
+  // daemonDie.good.entities = { ...repositories, twitch: new Vector() };
+  // daemonDie.good.aperture.use((ctx, next) => {
+  //   return RequestContext.create(daemonDie.good.kernel.orm.em, next);
+  // });
 
-  daemonDie.good.kernel.orm = orm;
+  daemonDie.datamap = await daemonDie.register.datamap.provider(
+    daemonDie.mask.datamap,
+    daemonDie.variant.entities,
+  );
 
-  daemonDie.good.entities = {
-    ...entities,
-    em: daemonDie.good.kernel.orm.em.fork(),
-    twitch: new Vector(),
-  };
+  daemonDie.good.entities = daemonDie.datamap.entities;
 
-  for (const variant of daemonDie.variant.entities) {
-    if (!variant.entity) continue;
-
-    const repository = await daemonDie.good.entities.em //
-      .getRepository(variant.entity);
-
-    daemonDie.good.entities[variant.type] = repository;
-  }
-
-  // die.good.ontology.topography = await die.good.entities.em .getRepository(maps.ontology.topography.entity);
-  // die.good.ontology.dimension = await die.good.entities.em .getRepository(maps.ontology.dimension.entity);
-}
-
-export async function acid(daemonDie) {
-  daemonDie.good.hallucinator = await daemonDie.register.hallucinator //
-    .provider(daemonDie.mask.hallucinator);
-  // console.log("@daemon/population daemonDie.good.hallucinator", daemonDie.good.hallucinator,);
+  daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch));
+  daemonDie.good.aperture.use(shard.datamap.inject(daemonDie.datamap));
 }
 
 export async function authority(daemonDie) {
@@ -81,7 +76,7 @@ export async function authority(daemonDie) {
     .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
 
   daemonDie.good.aperture //
-    .use(shards.secure.authority(daemonDie.good.lighthouse))
+    .use(shard.secure.authority(daemonDie.good.lighthouse))
     .use(async (ctx, next) => {
       ctx.daemon.connection = daemonDie.connection.clone(); //
       ctx.daemon.connection //
@@ -94,6 +89,12 @@ export async function authority(daemonDie) {
     });
 }
 
+export async function acid(daemonDie) {
+  daemonDie.good.hallucinator = await daemonDie.register.hallucinator //
+    .provider(daemonDie.mask.hallucinator);
+  // console.log("@daemon/population daemonDie.good.hallucinator", daemonDie.good.hallucinator,);
+}
+
 export async function services(daemonDie) {
   for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
     const servicecake = daemonDie.register.consume[slug];
@@ -102,63 +103,66 @@ export async function services(daemonDie) {
 }
 
 export async function modes(daemonDie) {
-  const registeredModes = [...daemonDie.register.kernel, ...daemonDie.register.modes]
-    .map((register) => {
-      const variant = daemonDie.variant.modes //
-        .find((v) => register.manifest.type === v.type);
+  await daemonDie.datamap.shard.context(async () => {
+    const registeredModes = [...daemonDie.register.kernel, ...daemonDie.register.modes]
+      .map((register) => {
+        const variant = daemonDie.variant.modes //
+          .find((v) => register.manifest.type === v.type);
 
-      if (variant) return { variant, register };
+        if (variant) return { variant, register };
 
-      console.log(`@runtime/daemon/population/modes(${register.type})`);
-      console.log("variant not found during mode construction");
-      console.log({ register });
-    })
-    .filter(Boolean);
+        console.log(`@runtime/daemon/population/modes(${register.type})`);
+        console.log("variant not found during mode construction");
+        console.log({ register });
+      })
+      .filter(Boolean);
 
-  for (const { register, variant } of registeredModes) {
-    const mode = new variant.prototype(register);
-    mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
-    mode.url = daemonDie.good.url.branch(mode.mount.nature);
+    for (const { register, variant } of registeredModes) {
+      const mode = new variant.prototype(register);
+      mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
+      mode.url = daemonDie.good.url.branch(mode.mount.nature);
 
-    if (!mode.aperture) mode.aperture = new Aperture();
+      if (!mode.aperture) mode.aperture = new Aperture();
 
-    if (mode.implements("BUFFERED")) {
-      mode.cake.buffer.path.from(new Path(mode.cake.mount.dirname));
+      if (mode.implements("BUFFERED")) {
+        mode.cake.buffer.path.from(new Path(mode.cake.mount.dirname));
 
-      const url = daemonDie.good.attach
-        .branch("/view")
-        .branch(mode.mount.absolute)
-        .branch(mode.cake.buffer.path.nature);
+        const url = daemonDie.good.attach
+          .branch("/view")
+          .branch(mode.mount.absolute)
+          .branch(mode.cake.buffer.path.nature);
 
-      mode.cake.buffer.withUrl(url);
+        mode.cake.buffer.withUrl(url);
+      }
+
+      // if (mode.implements("VIEWABLE")) {
+      //   mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
+      //   const url = daemonDie.good.attach
+      //     .branch("/view").branch(mode.mount.absolute).branch(mode.cake.view.path.nature);
+      //   mode.cake.view.withUrl(url);
+      // }
+
+      if (mode.implements("FRAUGHT")) {
+        mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
+        const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
+        mode.cake.freight.withUrl(url);
+      }
+
+      mode.entity = await daemonDie.good.entities.mode //
+        .ensure(mode.manifest);
+
+      mode.entity.traits = array //
+        .unique([...mode.entity.traits, ...mode.traits]);
+
+      await daemonDie.good.entities.em.flush();
+
+      mode.entity = wrap(mode.entity).toPOJO();
+      mode.id = mode.entity.id; // ugly
+
+      if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
+      daemonDie.good.modes[mode.type][mode.slug] = mode;
     }
-
-    // if (mode.implements("VIEWABLE")) {
-    //   mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
-    //   const url = daemonDie.good.attach
-    //     .branch("/view").branch(mode.mount.absolute).branch(mode.cake.view.path.nature);
-    //   mode.cake.view.withUrl(url);
-    // }
-
-    if (mode.implements("FRAUGHT")) {
-      mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
-      const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
-      mode.cake.freight.withUrl(url);
-    }
-
-    mode.entity = await daemonDie.good.entities.mode //
-      .ensure(mode.manifest);
-
-    mode.entity.traits = array //
-      .unique([...mode.entity.traits, ...mode.traits]);
-
-    mode.id = mode.entity.id; // ugly
-
-    if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
-    daemonDie.good.modes[mode.type][mode.slug] = mode;
-  }
-
-  await daemonDie.good.entities.em.flush();
+  });
 }
 
 export function handlers(daemonDie) {
@@ -169,10 +173,11 @@ export function handlers(daemonDie) {
       .flat();
 }
 
-export async function twitch(die) {
-  const sub = shape.subscriber(die.good.entities.twitch);
-  die.good.entities.em.getEventManager().registerSubscriber(sub);
-}
+// twitch setup moved to datamap()
+// export async function twitch(die) {
+//   const sub = shape.subscriber(die.good.entities.twitch);
+//   die.good.entities.em.getEventManager().registerSubscriber(sub);
+// }
 
 // export async function twitch(die) {
 //   try {

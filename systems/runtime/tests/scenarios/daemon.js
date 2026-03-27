@@ -1,9 +1,10 @@
-import { Url, Connection, shard, Mode, Path, shards, shape, Aperture, Vector, BufferView, v } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, BufferView, v } from "@vivalence/typology";
+import { RequestContext } from "@mikro-orm/core";
 import {
   ModeEntity,
   IntentEntity,
   UserEntity,
-  SessionEntity,
+  ThreadEntity,
   LiteralEntity,
   SymbolEntity,
 } from "@vivalence/typology/entities";
@@ -19,6 +20,7 @@ const BUFFERED = (mode, daemon) => {
     schema: mode.cake.buffer.schema,
   }));
   mode.buffer = (desc = {}) => {
+    // const em = daemon.entities.em;
     const em = daemon.entities.em;
     const buffer = em.create(BufferEntity, {
       mode: mode.entity.id,
@@ -39,6 +41,7 @@ export async function create() {
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
   mode.entity = fixtures.mode;
+  mode.id = fixtures.mode.id;
 
   mode.cake.buffer = new BufferView("buffer/flashcard.svelte.js", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
@@ -52,7 +55,7 @@ export async function create() {
         name: "Survival Flashcard",
         type: "SELFEVIDENT",
         traits: ["FURNISHED"],
-        trait: { FURNISHED: { recall: "LEARNING", seek: { symbols: ["greeting"] } } },
+        trait: { FURNISHED: { recall: "LEARNING", where: { symbols: ["greeting"] } } },
       },
     ],
   };
@@ -65,11 +68,17 @@ export async function create() {
     });
   });
 
+  // const daemon = {
+  //   ...
+  //   entities: { em, twitch: new Vector() },
+  //   ...
+  // };
   const daemon = {
     manifest: { slug: "test-daemon", traits: [] },
     mount: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
-    entities: { em, twitch: new Vector() },
+    twitch: new Vector(),
+    entities: { em },
     modes: { game: { flashcard: mode } },
     cargo: { version: "0.0.1", test: true },
     services: {},
@@ -78,17 +87,18 @@ export async function create() {
     },
   };
 
-  daemon.aperture.use(shards.context.attach("daemon", daemon));
+  daemon.aperture.use(shard.context.attach("daemon", daemon));
 
   daemon.entities.literal = em.getRepository(LiteralEntity);
   daemon.entities.symbol = em.getRepository(SymbolEntity);
   daemon.entities.mode = em.getRepository(ModeEntity);
   daemon.entities.intent = em.getRepository(IntentEntity);
-  daemon.entities.session = em.getRepository(SessionEntity);
+  daemon.entities.thread = em.getRepository(ThreadEntity);
   daemon.entities.user = em.getRepository(UserEntity);
   daemon.entities.buffer = em.getRepository(BufferEntity);
 
-  const sub = shape.subscriber(daemon.entities.twitch);
+  // const sub = shape.subscriber(daemon.entities.twitch);
+  const sub = shape.subscriber(daemon.twitch);
   em.getEventManager().registerSubscriber(sub);
 
   daemon.aperture.use(async (ctx, next) => {
@@ -111,6 +121,17 @@ export async function create() {
 
   const die = {
     good: daemon,
+    datamap: {
+      entities: daemon.entities,
+      context:      (fn) => RequestContext.create(orm.em, fn),
+      bind:         (name, resolve) => async (ctx, next) => {
+        RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx));
+        await next();
+      },
+      introspect:   () => orm.getMetadata(),
+      subscribe:    (sub) => orm.em.getEventManager().registerSubscriber(sub),
+      disintegrate: () => orm.close(),
+    },
     status: { reflection: { code: "ALIVE" } },
     manifest: daemon.manifest,
   };
@@ -120,7 +141,8 @@ export async function create() {
   await routes.modes(die);
   await routes.freight(die);
 
-  daemon.aperture.open("/datamap", () => shard.datamap.strip(orm.getMetadata()));
+  // daemon.aperture.open("/datamap", () => shard.datamap.strip(orm.getMetadata()));
+  daemon.aperture.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
 
   const handler = shape.http(daemon.aperture);
   const conn = new Connection(new Url("http://test"), shard.transport.inline(handler));

@@ -1,57 +1,57 @@
 import paladin from "@vivalence/paladin";
-import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
-import { Migrator } from "@mikro-orm/migrations";
-import { v7 } from "uuid";
-import { join } from "@std/path";
+// import { MikroORM, defineConfig, FlushMode } from "@mikro-orm/sqlite";
+// import { Migrator } from "@mikro-orm/migrations";
+// import { v7 } from "uuid";
+// import { join } from "@std/path";
 import { shard } from "@vivalence/typology";
 
 import {
-  IdentitySchema,
-  IdentityEntity,
-  DaemonSchema,
-  DaemonEntity,
+  // IdentitySchema,
+  // DaemonSchema,
   AuthenticatorEmbedSchema,
+  identity,
+  daemon,
 } from "@vivalence/typology/entities";
 
 export async function systemmap(servicemask) {
   const datamap = await paladin.vip.accio(servicemask.datamap.module);
 
-  const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema] //
-    .map((schema) => ({ schema }));
+  // const variant = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
+  //   .map((schema) => ({ schema }));
+  const variant = [identity, daemon, { schema: AuthenticatorEmbedSchema }];
 
-  const { orm, entities } = await datamap.provider(
-    servicemask.datamap,
-    variant,
-  );
-
-  return { orm, entities };
+  // const { orm, entities } = await datamap.provider(servicemask.datamap, variant);
+  // return { orm, entities };
+  return await datamap.provider(servicemask.datamap, variant);
 }
 
-export function inject(orm) {
-  return async (ctx, next) => {
-    const em = orm.em.fork();
-    ctx.entities = {
-      em,
-      identity: await em.getRepository(IdentityEntity),
-      daemon: await em.getRepository(DaemonEntity),
-    };
-    await next();
-    await em.flush();
-  };
-}
+// export function inject(orm) {
+//   return async (ctx, next) => {
+//     const em = orm.em.fork();
+//     ctx.entities = {
+//       em,
+//       identity: await em.getRepository(IdentityEntity),
+//       daemon: await em.getRepository(DaemonEntity),
+//     };
+//     await next();
+//     await em.flush();
+//   };
+// }
 
-export function expose(service, aperture, orm) {
-  const em = orm.em.fork();
-  const identityRepo = em.getRepository(IdentityEntity);
-  const daemonRepo = em.getRepository(DaemonEntity);
-
+// export function expose(service, aperture, orm) {
+//   const em = orm.em.fork();
+//   const identityRepo = em.getRepository(IdentityEntity);
+//   const daemonRepo = em.getRepository(DaemonEntity);
+export function expose(service, aperture, datamap) {
   aperture
     .branch("/entities/identity")
-    .slurp(shard.datamap.repository(identityRepo));
+    // .slurp(shard.datamap.repository(identityRepo));
+    .slurp(shard.datamap.repository(datamap.entities.identity));
 
   aperture
     .branch("/entities/daemon")
-    .slurp(shard.datamap.repository(daemonRepo));
+    // .slurp(shard.datamap.repository(daemonRepo));
+    .slurp(shard.datamap.repository(datamap.entities.daemon));
 }
 
 // export function expose(service, aperture) {

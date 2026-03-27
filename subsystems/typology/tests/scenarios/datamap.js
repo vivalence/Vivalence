@@ -7,7 +7,7 @@ import {
   ModeEntity, ModeSchema,
   IntentEntity, IntentSchema,
   UserEntity, UserSchema,
-  SessionEntity, SessionSchema,
+  ThreadEntity, ThreadSchema,
 } from "@vivalence/typology/entities"
 
 const LiteralConcrete = new EntitySchema({
@@ -27,7 +27,7 @@ const BufferConcrete = new EntitySchema({
 
 export const schemas = [
   LiteralConcrete, SymbolConcrete, BufferConcrete,
-  ModeSchema, IntentSchema, UserSchema, SessionSchema,
+  ModeSchema, IntentSchema, UserSchema, ThreadSchema,
 ]
 
 export async function seed() {
@@ -65,7 +65,7 @@ export async function seed() {
     mode: em.getRepository(ModeEntity),
     intent: em.getRepository(IntentEntity),
     user: em.getRepository(UserEntity),
-    session: em.getRepository(SessionEntity),
+    thread: em.getRepository(ThreadEntity),
   }
 
   return { orm, em, repos, fixtures: { user, symbol, hello, goodbye, mode } }

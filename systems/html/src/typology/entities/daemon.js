@@ -54,16 +54,14 @@ export async function lifecycle(daemon) {
   daemon.entities = {
     mode: new RemoteRepository(Mode).connect(daemon.connection.branch("/entities/mode")),
     intent: new RemoteRepository(Intent).connect(daemon.connection.branch("/entities/intent")),
-    session: new RemoteRepository().connect(
-      daemon.connection.branch("/userspace/entities/session"),
-    ),
+    thread: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/thread")),
     buffer: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/buffer")),
   };
 
   const schema = await daemon.connection.call("/datamap");
   shard.datamap.wire(daemon.entities, schema);
 
-  daemon.cargo = await daemon.connection.call("/cargo");
+  daemon.cargo = await daemon.connection.call("/cargo"); // such a shortcut.
 
   const modes = await daemon.entities.mode.find();
   const modeById = new Map();
@@ -136,13 +134,13 @@ export async function lifecycle(daemon) {
     intent.mode = modeById.get(modeId) ?? intent.mode;
   };
 
-  daemon.entities.session.resolve = (session) => {
-    session.daemon = daemon;
-    const modeId = typeof session.mode === "object" ? session.mode.id : session.mode;
-    session.mode = modeById.get(modeId) ?? session.mode;
-    if (session.intent) {
-      const intentId = typeof session.intent === "object" ? session.intent.id : session.intent;
-      session.intent = intentById.get(intentId) ?? session.intent;
+  daemon.entities.thread.resolve = (thread) => {
+    thread.daemon = daemon;
+    const modeId = typeof thread.mode === "object" ? thread.mode.id : thread.mode;
+    thread.mode = modeById.get(modeId) ?? thread.mode;
+    if (thread.intent) {
+      const intentId = typeof thread.intent === "object" ? thread.intent.id : thread.intent;
+      thread.intent = intentById.get(intentId) ?? thread.intent;
     }
   };
 }

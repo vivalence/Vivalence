@@ -7,7 +7,7 @@ export const UserDescriptor = {
     config: v.record(v.string(), v.unknown()).optional(),
   },
   relations: {
-    sessions: () => v.array(v.session()).optional(),
+    threads: () => v.array(v.thread()).optional(),
   },
   narrowable: ["config"],
 };

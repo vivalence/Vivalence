@@ -117,19 +117,19 @@ specimen.describe("daemon datamap", () => {
     specimen.expect(schema).toBeTruthy();
     specimen.expect(schema.literal).toBeTruthy();
     specimen.expect(schema.literal.properties).toBeTruthy();
-    specimen.expect(schema.session).toBeTruthy();
-    specimen.expect(schema.session.properties.mode).toBeTruthy();
-    specimen.expect(schema.session.properties.mode.kind).toBe("m:1");
+    specimen.expect(schema.thread).toBeTruthy();
+    specimen.expect(schema.thread.properties.mode).toBeTruthy();
+    specimen.expect(schema.thread.properties.mode.kind).toBe("m:1");
   });
 
   specimen.it("wire repos from schema enables cross-repo hydration", async () => {
     const schema = await scenario.conn.call("/datamap");
     const mode = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"));
     const intent = new RemoteRepository().connect(scenario.conn.branch("/entities/intent"));
-    const session = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/session"));
-    shard.datamap.wire({ mode, intent, session }, schema);
+    const thread = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"));
+    shard.datamap.wire({ mode, intent, thread }, schema);
 
-    specimen.expect(session._schema._stores.mode).toBe(mode);
+    specimen.expect(thread._schema._stores.mode).toBe(mode);
     specimen.expect(intent._schema._stores.mode).toBe(mode);
 
     await mode.find();

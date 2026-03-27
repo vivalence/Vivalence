@@ -1,5 +1,4 @@
 <script>
-  import { onMount } from "svelte";
   import { Text, Button, Input } from "@vivalence/drapes";
 
   let username = $state("");
@@ -7,16 +6,33 @@
 
   let { lighthouse } = $props();
 
+  const status = lighthouse.$status;
+
+  const busy = $derived(["AUTHENTICATING", "VERIFYING", "REFRESHING"].includes($status.code));
+
   const submit = (e) => {
+    if (busy) return;
     lighthouse.login(username, password);
   };
 </script>
 
-<div class="bsp-node">
-  <Input placeholder="Name" bind:value={username} />
-  <Input placeholder="Password" type="password" bind:value={password} />
+<div class="flex flex-col gap-4">
+  <Input placeholder="Name" bind:value={username} disabled={busy} />
+  <Input placeholder="Password" type="password" bind:value={password} disabled={busy} />
+
+  {#if $status.code === "ERROR" || $status.code === "SESSION_EXPIRED" || $status.code === "OFFLINE"}
+    <Text size="xs" color="system-error">
+      {$status.message ??
+        ($status.code === "SESSION_EXPIRED"
+          ? "session expired"
+          : $status.code === "OFFLINE"
+            ? "network unavailable"
+            : "login failed")}
+    </Text>
+  {/if}
+
   <div>
-    <Button onclick={submit}>Login</Button>
+    <Button onclick={submit} loading={busy} disabled={busy}>Login</Button>
   </div>
 </div>
 
@@ -50,7 +66,7 @@
 <!--       bind:value={username} -->
 <!--       variant="primary" -->
 <!--       size="md" /> -->
-    
+
 <!--     <Input  -->
 <!--       placeholder="Passphrase"  -->
 <!--       type="password"  -->
@@ -69,7 +85,7 @@
 <!--         Initialize Connection -->
 <!--       </Text> -->
 <!--     </Button> -->
-    
+
 <!--     <Text variant="text" size="xs" color="palette-gray-400" class="text-center opacity-60"> -->
 <!--       homini finem sui · hominibus telam mundi -->
 <!--     </Text> -->

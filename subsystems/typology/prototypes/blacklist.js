@@ -55,7 +55,7 @@ export class Blacklist {
     const criteria = { status: { $in: ["PENDING", "ACTIVE"] } };
     if (scope.product) criteria.id = scope.product;
     // if (scope.user) criteria.user = scope.user;
-    if (scope.session) criteria.session = scope.session;
+    if (scope.thread) criteria.thread = scope.thread;
     if (scope.producer) criteria.producer = scope.producer;
     if (scope.commissioner) criteria.commissioner = scope.commissioner;
 

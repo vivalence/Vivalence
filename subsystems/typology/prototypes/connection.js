@@ -1,12 +1,12 @@
 import { atom, computed } from "nanostores";
-import { shards, Url, Request, Response } from "@vivalence/typology";
+import { shard, Url, Request, Response } from "@vivalence/typology";
 import { object } from "@vivalence/typology";
 
 export class Connection {
   $state = atom("IDLE");
   $error = atom(null);
 
-  constructor(url, transport = shards.transport.fetcher) {
+  constructor(url, transport = shard.transport.fetcher) {
     this.url = url instanceof Url ? url : new Url(url);
     this.transport = transport;
   }
@@ -145,7 +145,7 @@ export class Connection {
 //   $state = atom("UNRESOLVED");
 //   $error = atom(null);
 
-//   constructor(url, transport = shards.transport.fetcher) {
+//   constructor(url, transport = shard.transport.fetcher) {
 //     this.url = url instanceof Url ? url : new Url(url);
 //     this.transport = transport;
 //     this.use(track(this));

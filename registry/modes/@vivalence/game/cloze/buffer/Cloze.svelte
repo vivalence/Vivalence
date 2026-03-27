@@ -1,5 +1,5 @@
 <script>
-  import { Keyboard, Asset } from "@vivalence/drapes";
+  import { Keyboard, Asset, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -21,7 +21,7 @@
   const isListenMode = $derived(gameplay === "listen");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { take: 1, seek: { traits: ["ANNOTATED"] } }).then(([lit]) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 1, where: { traits: { $contains: "ANNOTATED" } } }).then(([lit]) => {
       literal = lit ?? null;
       if (literal && !blankIndices.size) blankIndices.add(0);
       loading = false;
@@ -49,7 +49,7 @@
       const correct = evaluate(i);
       const literalRef = token.literal ?? literal.id;
       terminal.daemon.call("/review/literal", {
-        signal: correct ? "SUCCESS" : "FAILURE",
+        signal: correct ? "SUCCESS" : "MISTAKE",
         scope: { literal: typeof literalRef === "object" ? literalRef.id ?? literalRef : literalRef },
       });
     }
@@ -92,10 +92,11 @@
 </script>
 
 <Keyboard bind:this={keyboard} />
+<ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literal}
         {#if !isListenMode}
@@ -134,7 +135,6 @@
                     type="text"
                     placeholder={token.gloss ?? "…"}
                     bind:value={answers[i]}
-                    autofocus={i === [...blankIndices][0]}
                   />
                 {:else}
                   <span class="gap-gloss">{token.gloss ?? "…"}</span>
@@ -174,16 +174,16 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading…</span>
       {:else if submitted}
-        <button class="btn btn-next" ontouchstart={(e) => keyboard.guard(e)} onclick={advance}>
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Next
         </button>
       {:else if gameplay === "type" || gameplay === "listen"}
-        <button class="btn btn-submit" ontouchstart={(e) => keyboard.guard(e)} onclick={submit}>
+        <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submit}>
           Check
         </button>
       {:else}
@@ -194,16 +194,14 @@
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 15vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -300,6 +298,7 @@
   }
 
   .opt {
+    min-height: 48px;
     padding: 0.625rem 1.25rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
@@ -329,9 +328,9 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -351,7 +350,8 @@
 
   .btn {
     flex: 1;
-    padding: 1rem 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 0.5rem;
     border-radius: 0.625rem;
     border: none;
     font-size: 1rem;
@@ -370,14 +370,10 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 8vh; padding-left: 1rem; padding-right: 1rem; }
     .tokens { gap: 0.25rem; margin-bottom: 1.5rem; }
     .tok, .gap-answer, .gap-input { font-size: var(--font-size-lg); font-family: var(--font-family-sans-text); }
     .gap { min-width: 3.5rem; border-bottom-width: 2px; }
     .gap-input { min-width: 3.5rem; }
-    .opt { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); padding: 0.75rem 1rem; }
-    .btn { padding: 1.125rem 0.5rem; font-size: 1rem; }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
-    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
+    .opt { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); padding: 0.75rem 1rem; min-height: 48px; }
   }
 </style>

@@ -18,33 +18,29 @@ const buffer = new BufferView("buffer/Shadow.svelte", v.buffer({
   },
 }));
 
-const emitter = new Vector().open("/literals", async (ctx) => {
-  const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
-  return ctx.mode.buffer({
-    data: { recall, speed: ctx.input.speed ?? null },
-    literals: ctx.input.literals ?? cast.array(ctx.input.literal),
+const emitter = new Vector()
+  .open("/literals", async (ctx) => {
+    const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
+    return ctx.mode.buffer({
+      data: { recall, speed: ctx.input.speed ?? null },
+      literals: ctx.input.literals ?? cast.array(ctx.input.literal),
+    });
+  })
+  .open("/feed", async (ctx) => {
+    const limit = ctx.input.limit ?? 3;
+    const literals = await ctx.daemon.entities.literal.feed({
+      limit,
+      blacklist: ctx.input.blacklist,
+      where: ctx.input.where,
+    });
+    if (!literals.length) return [];
+    return ctx.mode.buffer({
+      data: {
+        recall: ctx.input.defaults?.recall,
+        speed: ctx.input.defaults?.speed ?? null,
+      },
+      literals,
+    });
   });
-});
 
 export { manifest, buffer, emitter, dataset };
-
-// import { View, Vector } from "@vivalence/typology";
-//
-// import dataset from "./dataset/index.js";
-//
-// const manifest = {
-//   type: "game",
-//   slug: "shadow",
-//   name: "Shadow",
-//   traits: ["VIEWABLE", "INTENTED", "EMITTER"],
-// };
-//
-// const view = new View("buffer/shadow.svelte.js");
-//
-// const emitter = new Vector().open("/literal", async (ctx) => ({
-//   traits: ["FURNISHED"],
-//   trait: { FURNISHED: ctx.input.intent?.trait?.FURNISHED ?? ctx.input },
-//   literals: [ctx.input.literal?.id],
-// }));
-//
-// export { manifest, view, emitter, dataset };

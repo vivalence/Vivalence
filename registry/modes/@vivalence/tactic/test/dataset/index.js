@@ -11,8 +11,8 @@ export default {
           mount: "/emit/flashcards",
           queue: 3,
           mask: {
-            seek: { symbols: ["word", "proficiency.survival"] },
-            batch: 3,
+            where: { symbols: ["word", "proficiency.survival"] },
+            limit: 3,
           },
         },
       },

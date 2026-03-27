@@ -342,11 +342,12 @@ similar symbols, frequent MISTAKE signals).
 
 | Content | For | Authored Where |
 |---------+-----+----------------|
-| Conjugated verb forms as literals with morphology symbols | Morphology tactic | topology dataset |
+| Conjugated verb forms as literals with morphology symbols | Morphology tactic | topology dataset — DONE (survival 359 + a1 897 entities, all conjugation paradigms covered) |
 | Structural symbols grouping conjugation paradigms | Morphology tactic (paradigm lookup) | topology symbols |
-| Functional symbols on word literals (pronoun, connector, etc.) | Decomposition tactic | topology literals (word files) |
-| Sentence force/mood symbols on sentence literals | Sentence construction tactics | topology literals (sentence files) |
-| VOCALIZED trait on more literals | Comprehension tactic | topology literals + freight audio |
+| Functional symbols on word literals (pronoun, connector, etc.) | Decomposition tactic | topology literals (word files) — DONE (functional.* symbols on survival words) |
+| Sentence force/mood symbols on sentence literals | Sentence construction tactics | topology literals (sentence files) — already present |
+| VOCALIZED trait on more literals | Comprehension tactic | topology literals + freight audio — DONE (1050 mp3s, 1250 entities with VOCALIZED, 0 orphaned audio) |
+| RANKED trait on all word literals | Content ordering | topology literals — DONE (0 entities missing RANKED, wordfreq-sourced rank/zipf/fpm) |
 
 The game modes themselves don't depend on topology content — they
 render whatever buffer props the tactic provides. But the tactics
@@ -608,3 +609,42 @@ Pick mode: FAILURE on target + distractor for wrong picks.
   (use Memory.lastSignal for error-prone word prioritization) and cooldown
   (focus on FAILURE/MISTAKE items via findBySymbols + lastSignal). Game mode
   emitters already clean — none use seek.
+- 2026-03-28: Query interface refactored. seek→where, take/batch→limit everywhere.
+  resolveSymbols replaces findBySymbols — synchronous slug→m:n join in
+  find/findOne override. Native MikroORM queries, no roundtrip. All 9 game
+  modes, 5 tactic emitters, aperture, dataset masks migrated.
+  Integration test: 41 steps (was 39), includes trait+symbol combo queries.
+- 2026-03-28: MikroORM user filter. Schema-declared filters on Memory/Trace
+  (`filters: { user: { cond, default: true } }`). Datamap bind as shard
+  middleware. user: ctx.user.id removed from all 11 game/tactic emitters,
+  aperture, and LiteralRepository methods. findForUser/findOneForUser deleted.
+  populateWhere: { memories: { user } } no longer needed.
+- 2026-03-28: resolveTraits on DataRepository. SQLite shim for JSON array
+  queries — $contains/$overlap/$none map to LIKE expressions. Table alias
+  computed from entityName. Wired into find/findOne. Callers write
+  `{ traits: ["VOCALIZED"] }` — resolveTraits handles the SQL.
+- 2026-03-28: Listen hint button (? toggle, h keybind, shows opposite
+  translation). Pick correctness matches by answerText for duplicate
+  translations. Auto-advance on pick selection (800ms correct, 1200ms wrong).
+  FAILURE→MISTAKE across all 6 game buffer components.
+- 2026-03-27: Vocalized kernel freight → survival/a1 entity pipeline complete.
+  1256 entities (359 survival + 897 a1). 1050 mp3s on disk, 0 orphaned.
+  All entities have RANKED (wordfreq: rank, zipf, fpm). 1250 entities have
+  VOCALIZED (6 without = no audio on disk). 0 VOCALIZED mismatches (audio
+  form = translated.learning). 247/247 non-proper sentence token literals
+  covered by survival word entities. VOCALIZED paths corrected from lemma
+  audio to conjugation audio (441 fixes). A1 verb slug ordering fixed
+  (328 singular.first → first.singular). 4 malformed slugs removed
+  (amarrer, sirvir, viar, tilde-slug). 10 duplicate slugs deduped.
+  51 known-field translations corrected (Portuguese → English).
+  142 new entities created (verb infinitives, gender/plural variants).
+  Days of week not in survival (not in sentences). Numerals 0-10 complete.
+  4 proper nouns excluded (Brasil, Tom, Eva, janeiro — no word entities).
+- 2026-03-29: Mobile layout overhaul. See client-layout.workpackage.org.
+  All 10 buffers migrated to viva-frame/surface/controls pattern.
+  Keyboard component removed from 5 button-only modes (Pick, Match,
+  Judge, Flashcard, Exhibit) — replaced by onmousedown preventDefault.
+  ViewportLock component added to 4 text-input modes (Write, Shadow,
+  Listen, Cloze). Keyboard persistence: inputs never disabled, focus
+  maintained across Check/Next transitions. Judge converted to FEEDING
+  intent (was SELFEVIDENT). Modeline: lobby tab added, navigate→intents.

@@ -354,9 +354,9 @@ specimen.describe("v", () => {
     });
 
     specimen.it("chains with .optional()", () => {
-      const s = v.object({ session: v.rel(v.session()).optional() });
+      const s = v.object({ thread: v.rel(v.thread()).optional() });
       specimen.expect(s.check({})).toBe(true);
-      specimen.expect(s.check({ session: "sess-1" })).toBe(true);
+      specimen.expect(s.check({ thread: "thread-1" })).toBe(true);
     });
   });
 
@@ -492,9 +492,9 @@ specimen.describe("v", () => {
     });
   });
 
-  specimen.describe("v.session()", () => {
-    specimen.it("base schema validates a session", () => {
-      specimen.expect(v.session().check({
+  specimen.describe("v.thread()", () => {
+    specimen.it("base schema validates a thread", () => {
+      specimen.expect(v.thread().check({
         user: "user-id",
         mode: "mode-id",
         trait: {},
@@ -502,7 +502,7 @@ specimen.describe("v", () => {
     });
 
     specimen.it("narrowed schema validates trait shape", () => {
-      const schema = v.session({
+      const schema = v.thread({
         trait: {
           progress: v.object({ level: v.integer() }),
         },
@@ -515,7 +515,7 @@ specimen.describe("v", () => {
     });
 
     specimen.it("accepts optional intent ref", () => {
-      specimen.expect(v.session().check({
+      specimen.expect(v.thread().check({
         user: "u",
         mode: "m",
         trait: {},

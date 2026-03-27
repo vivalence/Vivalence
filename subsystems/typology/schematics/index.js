@@ -12,23 +12,23 @@ export * as entities from "./entities/index.js";
 import { v, entityFactory } from "./lib.js";
 import { ID } from "./scalars/index.js";
 import {
-  BaseEntitySchema,
+  DataEntitySchema,
   BufferDescriptor,
   LiteralDescriptor,
   SymbolDescriptor,
   ModeDescriptor,
   IntentDescriptor,
-  SessionDescriptor,
+  ThreadDescriptor,
   UserDescriptor,
 } from "./entities/index.js";
 
 v.rel     = (schema) => v.union([ID, schema]);
-v.literal = entityFactory(LiteralDescriptor, BaseEntitySchema);
-v.symbol  = entityFactory(SymbolDescriptor, BaseEntitySchema);
-v.buffer  = entityFactory(BufferDescriptor, BaseEntitySchema);
-v.mode    = entityFactory(ModeDescriptor, BaseEntitySchema);
-v.intent  = entityFactory(IntentDescriptor, BaseEntitySchema);
-v.session = entityFactory(SessionDescriptor, BaseEntitySchema);
-v.user    = entityFactory(UserDescriptor, BaseEntitySchema);
+v.literal = entityFactory(LiteralDescriptor, DataEntitySchema);
+v.symbol  = entityFactory(SymbolDescriptor, DataEntitySchema);
+v.buffer  = entityFactory(BufferDescriptor, DataEntitySchema);
+v.mode    = entityFactory(ModeDescriptor, DataEntitySchema);
+v.intent  = entityFactory(IntentDescriptor, DataEntitySchema);
+v.thread = entityFactory(ThreadDescriptor, DataEntitySchema);
+v.user    = entityFactory(UserDescriptor, DataEntitySchema);
 
 export { v };

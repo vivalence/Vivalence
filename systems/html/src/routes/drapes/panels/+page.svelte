@@ -1,19 +1,16 @@
 <script>
-  import { Card, Modeline, Icon, Loader, Desk } from "@vivalence/drapes";
+  import { Card, Icon, Loader, Desk } from "@vivalence/drapes";
   import { Button, Text, Textarea, Paragraph } from "@vivalence/drapes";
   import Page from "../_Page.svelte";
   import Section from "../_Section.svelte";
   import Demo from "../_Demo.svelte";
 
-  let modalineText = $state("System ready");
   let deskInput = $state("");
   let submitting = $state(false);
 
   async function handleDeskSubmit() {
     submitting = true;
-    modalineText = `Processing: ${deskInput}`;
     await new Promise(resolve => setTimeout(resolve, 2000));
-    modalineText = `Completed: ${deskInput}`;
     deskInput = "";
     submitting = false;
   }
@@ -79,34 +76,6 @@
         <Icon carbon="Cube" size={s} variant="ui" />
       {/each}
     </Demo>
-  </Section>
-
-  <Section title="Modeline" description="Three-zone status bar component (left, center, right).">
-    <div class="space-y-3">
-      <Demo>
-        <Modeline size="sm">
-          {#snippet left()}<Icon emoji="📄" size="sm" /><Text size="sm" class="ml-2">document.txt</Text>{/snippet}
-          {#snippet center()}<Text size="sm">{modalineText}</Text>{/snippet}
-          {#snippet right()}<Text size="sm">Ln 42, Col 12</Text>{/snippet}
-        </Modeline>
-      </Demo>
-
-      <Demo>
-        <Modeline size="md">
-          {#snippet left()}<Button size="sm" variant="secondary">File</Button><Button size="sm" variant="secondary">Edit</Button>{/snippet}
-          {#snippet center()}<Text weight="medium">Vivalence Editor</Text>{/snippet}
-          {#snippet right()}<Icon carbon="Add" size="sm" variant="ui" /><Icon carbon="Cognitive" size="sm" variant="ui" />{/snippet}
-        </Modeline>
-      </Demo>
-
-      <Demo>
-        <Modeline size="lg">
-          {#snippet left()}<Icon emoji="⚙️" size="md" />{/snippet}
-          {#snippet center()}<Text size="lg" weight="medium">Settings</Text>{/snippet}
-          {#snippet right()}<Button size="sm">Save</Button>{/snippet}
-        </Modeline>
-      </Demo>
-    </div>
   </Section>
 
   <Section title="Loader" description="Animated loading indicator with motivational messages.">

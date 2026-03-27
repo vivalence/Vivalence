@@ -1,3 +1,15 @@
 export default {
-  intent: [],
+  intent: [{
+    slug: "feed",
+    name: "Write",
+    type: "APPLICATIVE",
+    traits: ["FEEDING"],
+    trait: {
+      FEEDING: {
+        mount: "/emit/feed",
+        queue: 1,
+        mask: { batch: 3 },
+      },
+    },
+  }],
 };

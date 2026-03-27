@@ -30,7 +30,7 @@ export const dataset = { intent: [...] };
 | BUFFERED | Bundles Svelte view, serves /view endpoint, wires mode.buffer() factory | traitmap.BUFFERED |
 | INTENTED | Upserts intents from dataset, creates per-intent routing | traits/intented.js |
 | EMITTER | Attaches emitter Vector as /emit endpoints, injects daemon/mode context | traits/emitter.js |
-| SELFEVIDENT | Mode can open without an intent (standalone) | traitmap.SELFEVIDENT |
+| SELFEVIDENT | Legacy — no active modes use this. Was: mode can open without intent | traitmap.SELFEVIDENT |
 | DATASET | Upserts symbols/literals from dataset | traits/dataset.js |
 | CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY |
 | FRAUGHT | Indexes freight catalog (audio, images), exposes /freight | traitmap.FRAUGHT |
@@ -38,38 +38,41 @@ export const dataset = { intent: [...] };
 | LANGUAGED | Conversation harness with personality (planned) | — |
 | AGENTIC | Action harness with auto-resolve (planned) | — |
 
-**Intent dataset format:**
+**Intent dataset format (APPLICATIVE with FEEDING):**
 
 ```javascript
 {
-  slug: "survival-flashcard",
-  type: "SELFEVIDENT",
-  traits: ["FURNISHED"],
-  data: {
-    FURNISHED: {
-      seek: { symbols: ["word", "proficiency.survival"] }
-    }
-  }
+  slug: "feed",
+  name: "Pick",
+  type: "APPLICATIVE",
+  traits: ["FEEDING"],
+  trait: {
+    FEEDING: {
+      mount: "/emit/feed",
+      queue: 1,
+      mask: { batch: 4 },
+    },
+  },
 }
 ```
 
 ## Active Game Modes
 
-Nine game modes under `game/`. All share: BUFFERED, INTENTED, EMITTER traits. Most add SELFEVIDENT.
+Nine game modes under `game/`. All share: BUFFERED, INTENTED, EMITTER traits. Each has a `feed` APPLICATIVE intent.
 
-| Mode | Slug | Emitter route | Gameplay variants | Description |
-|------|------|---------------|-------------------|-------------|
-| Pick | pick | /literal | — | Multiple choice from distractors. One tap. |
-| Judge | judge | /literal | visual, audio, audio-only | Timed true/false on translation pairs. |
-| Listen | listen | /literal | pick, type | Audio-first recall. Requires VOCALIZED. FRAUGHT. |
-| Exhibit | exhibit | /present | — | Present structured knowledge. No testing. |
-| Flashcard | flashcard | /literals | — | Classic bidirectional recall. |
-| Match | match | /batch | translate, describe | Connect literal pairs across two columns. |
-| Cloze | cloze | /literal | type, pick, listen | Fill blanked tokens in a sentence. |
-| Shadow | shadow | /literals | — | Shadow reading/listening with speed control. |
-| Write | write | /literals | — | Free text production. |
+| Mode | Slug | Emitter routes | Gameplay variants | Description |
+|------|------|----------------|-------------------|-------------|
+| Pick | pick | /literal, /feed | — | Multiple choice from distractors. One tap. |
+| Judge | judge | /literal, /feed | visual, audio, audio-only | Timed true/false on translation pairs. |
+| Listen | listen | /literal, /feed | pick, type | Audio-first recall. Requires VOCALIZED. |
+| Exhibit | exhibit | /present, /feed | — | Present structured knowledge. No testing. |
+| Flashcard | flashcard | /literals, /feed | — | Classic bidirectional recall. |
+| Match | match | /batch, /feed | translate, describe | Connect literal pairs across two columns. |
+| Cloze | cloze | /literal, /feed | type, pick, listen | Fill blanked tokens in a sentence. |
+| Shadow | shadow | /literals, /feed | — | Shadow reading/listening with speed control. |
+| Write | write | /literals, /feed | — | Free text production. |
 
-**Emitter pattern**: Each game mode exports an `emitter` Vector with one route. The route receives `ctx.input` (literal, distractors, recall, gameplay, speed) and returns a buffer via `ctx.mode.buffer({ data, literals })`.
+**Emitter pattern**: Each game mode exports an `emitter` Vector with two routes. The original route (`/literal`, `/literals`, `/batch`, `/present`) receives pre-fetched content from tactic callers. The `/feed` route self-sources literals via `ctx.daemon.entities.literal.feed()` — used by the mode's APPLICATIVE intent for standalone play. Feed routes accept optional `seek`, `blacklist`, `where`, `batch` from the FEEDING mask.
 
 Server-side callers (tactics) invoke emitters as `ctx.daemon.modes.game.{slug}.emit.{route}(input)`.
 Client-side callers use `terminal.daemon.call` through the aperture wire protocol.

@@ -1,10 +1,10 @@
 // todo reintegrate entities from topology
-import { BaseEntity } from "./BaseEntity.ts";
+import { DataEntity } from "./DataEntity.ts";
 import { defineEntity } from "@mikro-orm/core";
 
 export const properties = defineEntity.properties;
 
-export class Entity extends BaseEntity {
+export class Entity extends DataEntity {
   // id!: number;
   // createdAt!: Date;
   // updatedAt!: Date;

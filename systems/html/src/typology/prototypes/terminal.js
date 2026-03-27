@@ -9,7 +9,7 @@ export class Terminal {
 
   $daemon = atom(null);
   $mode = atom(null);
-  $session = atom(null);
+  $thread = atom(null);
   $intent = atom(null);
 
   get daemon() {
@@ -24,11 +24,11 @@ export class Terminal {
   set mode(v) {
     this.$mode.set(v);
   }
-  get session() {
-    return this.$session.get();
+  get thread() {
+    return this.$thread.get();
   }
-  set session(v) {
-    this.$session.set(v);
+  set thread(v) {
+    this.$thread.set(v);
   }
   get intent() {
     return this.$intent.get();
@@ -47,7 +47,7 @@ export class Terminal {
     this.$intent.set(null);
     this.$mode.set(null);
     this.$daemon.set(null);
-    this.$session.set(null);
+    this.$thread.set(null);
   }
 
   toJSON() {
@@ -55,7 +55,7 @@ export class Terminal {
       phase: this.$phase.get(),
       daemon: this.$daemon.get()?.slug ?? null,
       mode: this.$mode.get()?.slug ?? null,
-      session: this.$session.get()?.id ?? null,
+      thread: this.$thread.get()?.id ?? null,
       intent: this.$intent.get()?.slug ?? null,
       stall: this.stall.toJSON(),
     };

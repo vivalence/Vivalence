@@ -27,11 +27,11 @@ specimen.beforeAll(async () => {
     .slurp(shard.datamap.repository(repos.mode))
 
   aperture
-    .branch("/session")
+    .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(repos.session))
-    .slurp(shard.datamap.reactive(repos.session, twitch))
+    .slurp(shard.datamap.repository(repos.thread))
+    .slurp(shard.datamap.reactive(repos.thread, twitch))
 
   const sub = shape.subscriber(twitch)
   scenario.em.getEventManager().registerSubscriber(sub)

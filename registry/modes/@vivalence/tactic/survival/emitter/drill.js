@@ -4,10 +4,9 @@
 
 export default async (ctx) => {
   const forms = await ctx.daemon.entities.literal.feed({
-    symbols: ctx.input.seek?.symbols,
-    user: ctx.user.id,
-    take: ctx.input.batch ?? 12,
+    limit: ctx.input.limit ?? 12,
     blacklist: ctx.input.blacklist,
+    where: ctx.input.where,
   });
   if (!forms.length) return [];
 

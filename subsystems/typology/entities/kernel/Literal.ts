@@ -14,6 +14,32 @@ export class LiteralRepository extends DataRepository {
   unique(opt) {
     return { slug: opt.slug };
   }
+
+  find(where, opts?) {
+    return super.find(this.resolveSymbols(where), opts);
+  }
+
+  findOne(where, opts?) {
+    return super.findOne(this.resolveSymbols(where), opts);
+  }
+
+  resolveSymbols(where) {
+    if (!where?.symbols) return where;
+    const { symbols, ...rest } = where;
+
+    const spec = Array.isArray(symbols) ? { $all: symbols } : symbols;
+    if (typeof spec !== "object" || (spec.$all == null && spec.$in == null && spec.$none == null))
+      return { ...rest, symbols: spec };
+
+    const { $all, $in, $none } = spec;
+    const slug = (s) => typeof s === "string" ? { slug: s } : s;
+
+    if ($all?.length)  rest.$and = [...(rest.$and || []), ...$all.map((s) => ({ symbols: slug(s) }))];
+    if ($in?.length)   rest.symbols = { slug: { $in } };
+    if ($none?.length) rest.symbols = { ...(rest.symbols || {}), $none: { slug: { $in: $none } } };
+
+    return rest;
+  }
 }
 
 export class LiteralEntity extends DataEntity {

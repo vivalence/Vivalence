@@ -6,5 +6,10 @@ meta {
 
 get {
   url: {{DAEMON}}/status
+  body: none
+  auth: bearer
 }
 
+auth:bearer {
+  token: {{accessToken}}
+}

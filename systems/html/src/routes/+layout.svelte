@@ -1,32 +1,40 @@
 <script>
-  import "@vivalence/dapper/bsp.css";
   import "@vivalence/dapper/font.css";
   import "../client.css";
-  import "./+layout.css";
 
-  import { Text, Pictogram } from "@vivalence/drapes";
-  import { Shelve, Box } from "@vivalence/drapes";
-
+  import { dev } from "$app/environment";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
-  import client from "$client";
-  import { dataspace, lighthouse } from "$client";
+  import { onMount } from "svelte";
+  import { lighthouse } from "$client";
+
+  onMount(() => {
+    if (!dev) return;
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/eruda";
+    s.onload = () => eruda.init();
+    document.head.appendChild(s);
+  });
 
   let { children } = $props();
   let isIdentified = lighthouse.$isIdentified;
-  let identity = lighthouse.$identity;
+
+  $effect(() => {
+    if (!$isIdentified && $page.url.pathname !== "/") goto("/");
+  });
 </script>
 
-<div class="hidden">
-  {#if !$isIdentified && $page.url.pathname !== "/"}
-    {goto("/")}
-  {/if}
+<div class="viva-root bg-skeleton-app-surface">
+  {@render children()}
 </div>
 
-<Shelve class="bsp-chain bg-skeleton-app-surface ">
-  <!-- <Box class="t-ticker border-b border-skeleton-1-boundary"> <Ticker /> </Box> -->
-
-    {@render children()}
-  <!-- <Box class="t-content"> </Box> -->
-
-</Shelve>
+<style>
+  .viva-root {
+    position: fixed;
+    top: var(--viva-t, 0px);
+    left: 0;
+    width: 100%;
+    height: var(--viva-h, 100dvh);
+    overflow: hidden;
+  }
+</style>

@@ -1,21 +1,23 @@
-import { shard, shards } from "@vivalence/typology";
+import { shard } from "@vivalence/typology";
 
 export async function userspace(daemonDie) {
   const { entities } = daemonDie.good;
   const branch = daemonDie.good.aperture.branch("/userspace");
-  branch.use(shards.secure.authorize());
+  branch.use(shard.secure.authorize());
 
   branch
-    .branch("/entities/session")
+    .branch("/entities/thread")
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(entities.session))
-    .slurp(shard.datamap.reactive(entities.session, entities.twitch));
+    .slurp(shard.datamap.repository(entities.thread))
+    // .slurp(shard.datamap.reactive(entities.thread, entities.twitch));
+    .slurp(shard.datamap.reactive(entities.thread, daemonDie.good.twitch));
 
   branch
     .branch("/entities/buffer")
-    .use(shard.datamap.scope((ctx) => ({ session: { user: ctx.user.id } })))
+    .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.buffer))
-    .slurp(shard.datamap.reactive(entities.buffer, entities.twitch));
+    // .slurp(shard.datamap.reactive(entities.buffer, entities.twitch));
+    .slurp(shard.datamap.reactive(entities.buffer, daemonDie.good.twitch));
 
   branch.open("/handshake", async (ctx) => ({ success: true, user: ctx.user }));
 }
@@ -31,7 +33,7 @@ export async function userspace(daemonDie) {
 //       const params = ctx.params;
 //       if (!input.where) input.where = {};
 //
-//       if (!["intent", "session"].includes(params.entity)) throw new Error("unsupported entity");
+//       if (!["intent", "thread"].includes(params.entity)) throw new Error("unsupported entity");
 //       if (!["find", "findOne", "create"].includes(params.method))
 //         throw new Error("unsupported method");
 //

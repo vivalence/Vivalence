@@ -1,5 +1,6 @@
 <script>
-  import { Keyboard, Asset } from "@vivalence/drapes";
+  import { string, array } from "@vivalence/typology";
+  import { Keyboard, Asset, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -24,6 +25,7 @@
   let typed = $state("");
   let selected = $state(null);
   let shuffled = $state([]);
+  let hinted = $state(false);
 
   const target = $derived(gameplay === "type" ? literals[currentIndex] : literals[0]);
   const isWord = $derived(target?.symbol?.word);
@@ -32,40 +34,47 @@
   const position = $derived(currentIndex + 1);
 
   const answer = $derived(
-    target && (activeRecall === "LEARNING"
-      ? target.trait?.TRANSLATED?.known
-      : target.trait?.TRANSLATED?.learning),
+    target &&
+      (activeRecall === "KNOWN"
+        ? target.trait?.TRANSLATED?.known
+        : target.trait?.TRANSLATED?.learning),
   );
-  const answerLabel = $derived(activeRecall === "LEARNING" ? "English" : "Português");
+  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+  const hint = $derived(
+    target &&
+      (activeRecall === "KNOWN"
+        ? target.trait?.TRANSLATED?.learning
+        : target.trait?.TRANSLATED?.known),
+  );
 
   function answerText(lit) {
-    return activeRecall === "LEARNING"
+    return activeRecall === "KNOWN"
       ? lit?.trait?.TRANSLATED?.known
       : lit?.trait?.TRANSLATED?.learning;
   }
 
-  function shuffle(arr) {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-  }
-
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 4 }).then((lits) => {
-      literals = lits ?? [];
-      shuffled = shuffle(literals);
-      loading = false;
-    });
+    terminal.daemon
+      .call("/pick/literal/feed", { limit: 4 })
+      .then((lits) => {
+        literals = lits ?? [];
+        shuffled = array.shuffle(literals);
+        loading = false;
+      })
+      .catch((e) => {
+        loading = false;
+      });
   } else {
-    shuffled = shuffle(literals);
+    shuffled = array.shuffle(literals);
   }
 
   function normalize(text) {
     if (!forgiving) return text.trim();
-    return text.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    return text
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
   }
 
   function evaluateTyped() {
@@ -73,23 +82,9 @@
     const expected = normalize(answer);
     const got = normalize(typed);
     if (got === expected) return "correct";
-    const similarity = levenshtein(got, expected);
+    const similarity = string.levenshtein(got, expected);
     if (similarity <= 2 && got.length > 3) return "close";
     return "wrong";
-  }
-
-  function levenshtein(a, b) {
-    const m = a.length, n = b.length;
-    const dp = Array.from({ length: m + 1 }, (_, i) => [i]);
-    for (let j = 1; j <= n; j++) dp[0][j] = j;
-    for (let i = 1; i <= m; i++) {
-      for (let j = 1; j <= n; j++) {
-        dp[i][j] = a[i - 1] === b[j - 1]
-          ? dp[i - 1][j - 1]
-          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
-    return dp[m][n];
   }
 
   function submitType() {
@@ -97,7 +92,7 @@
     answered = true;
 
     const result = evaluateTyped();
-    const signal = result === "correct" ? "SUCCESS" : result === "close" ? "MISTAKE" : "FAILURE";
+    const signal = result === "correct" ? "SUCCESS" : result === "close" ? "NEUTRAL" : "MISTAKE";
 
     terminal.daemon.call("/review/literal", {
       signal,
@@ -110,19 +105,22 @@
     selected = lit;
     answered = true;
 
-    const isCorrect = lit === target || lit?.id === target?.id;
+    const isCorrect =
+      lit === target || lit?.id === target?.id || answerText(lit) === answerText(target);
 
     terminal.daemon.call("/review/literal", {
-      signal: isCorrect ? "SUCCESS" : "FAILURE",
+      signal: isCorrect ? "SUCCESS" : "MISTAKE",
       scope: { literal: target.id },
     });
 
     if (!isCorrect) {
       terminal.daemon.call("/review/literal", {
-        signal: "FAILURE",
+        signal: "MISTAKE",
         scope: { literal: lit.id },
       });
     }
+
+    setTimeout(() => advance(), isCorrect ? 800 : 1200);
   }
 
   function advance() {
@@ -131,33 +129,50 @@
       activeRecall = recallFor(currentIndex);
       typed = "";
       answered = false;
+      hinted = false;
     } else {
       buffer.release();
     }
   }
 
   const pickCorrect = $derived(
-    selected && (selected === target || selected?.id === target?.id),
+    selected &&
+      (selected === target ||
+        selected?.id === target?.id ||
+        answerText(selected) === answerText(target)),
   );
   const typeResult = $derived(answered && gameplay === "type" ? evaluateTyped() : null);
 
+  let inputEl = $state(null);
+
+  $effect(() => {
+    if (gameplay === "type" && inputEl) inputEl.focus();
+  });
+
   function handleKey(event) {
     if (gameplay === "type") {
-      if (event.key === "Enter" && !answered) {
+      if (["Enter", "Space"].includes(event.key) && !answered) {
         event.preventDefault();
         submitType();
-      } else if (event.key === "Enter" && answered) {
+      } else if (["Enter", "Space"].includes(event.key) && answered) {
         event.preventDefault();
         advance();
-      } else if (event.key === "r" && !event.target.closest("input")) {
+      } else if (event.key === "h" && !event.target.closest("input")) {
         event.preventDefault();
+        hinted = !hinted;
       }
       return;
     }
 
     if (event.target.closest("input,textarea")) return;
 
-    if (answered && event.key === "Enter") {
+    if (event.key === "h") {
+      event.preventDefault();
+      hinted = !hinted;
+      return;
+    }
+
+    if (answered && ["Enter", "Space"].includes(event.key)) {
       event.preventDefault();
       advance();
       return;
@@ -172,10 +187,11 @@
 </script>
 
 <Keyboard bind:this={keyboard} />
+<ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if target}
         <div class="meta">
@@ -184,12 +200,18 @@
           {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
         </div>
 
-        <div class="audio-block">
-          {#if asset}
-            <Asset autoplay={true} {asset} />
-          {:else}
-            <span class="no-audio">no audio available</span>
-          {/if}
+        <div class="audio-row">
+          <div class="audio-block">
+            {#if asset}
+              <Asset autoplay={true} {asset} />
+            {:else}
+              <span class="no-audio">no audio available</span>
+            {/if}
+          </div>
+          <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
+            {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span
+              >{/if}
+          </button>
         </div>
 
         {#if gameplay === "type"}
@@ -200,12 +222,12 @@
               class:input-correct={typeResult === "correct"}
               class:input-close={typeResult === "close"}
               class:input-wrong={typeResult === "wrong"}
+              class:input-locked={answered}
               type="text"
-              bind:value={typed}
-              disabled={answered}
-              autofocus
-              placeholder="type your answer…"
-            />
+              bind:this={inputEl}
+              value={typed}
+              oninput={(event) => { if (!answered) typed = event.target.value; else event.target.value = typed; }}
+              placeholder="type your answer…" />
             {#if answered}
               <div class="type-feedback">
                 {#if typeResult === "correct"}
@@ -224,7 +246,10 @@
             <div class="options">
               {#each shuffled as lit, i}
                 {@const isThis = selected === lit || selected?.id === lit?.id}
-                {@const isAnswer = lit === target || lit?.id === target?.id}
+                {@const isAnswer =
+                  lit === target ||
+                  lit?.id === target?.id ||
+                  answerText(lit) === answerText(target)}
                 <button
                   class="option"
                   class:option-correct={answered && isAnswer}
@@ -232,8 +257,7 @@
                   class:option-dimmed={answered && !isThis && !isAnswer}
                   ontouchstart={(e) => keyboard.guard(e)}
                   onclick={() => selectPick(lit)}
-                  disabled={answered}
-                >
+                  disabled={answered}>
                   <span class="option-key">{i + 1}</span>
                   <span class="option-text">{answerText(lit)}</span>
                 </button>
@@ -241,23 +265,22 @@
             </div>
           </div>
         {/if}
-
       {:else if loading}
         <div class="loading"><span class="dot"></span></div>
       {/if}
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading…</span>
       {:else if answered}
-        <button class="btn btn-next" ontouchstart={(e) => keyboard.guard(e)} onclick={advance}>
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Next
         </button>
       {:else if gameplay === "type"}
-        <button class="btn btn-submit" ontouchstart={(e) => keyboard.guard(e)} onclick={submitType}>
+        <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submitType}>
           Check
         </button>
       {:else}
@@ -268,16 +291,14 @@
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 12vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -301,10 +322,45 @@
     color: var(--colors-skeleton-1-boundary);
   }
 
+  .audio-row {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
   .audio-block {
     display: flex;
     justify-content: center;
-    margin-bottom: 2rem;
+  }
+  .hint-toggle {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    border-radius: 0.375rem;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hint-toggle:hover {
+    opacity: 1;
+  }
+  .hint-label {
+    font-family: var(--font-family-code);
+    font-size: 0.85rem;
+    color: var(--colors-skeleton-1-boundary);
+  }
+  .hint-text {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.85rem;
+    color: var(--colors-palette-gray-100);
   }
   .no-audio {
     font-family: var(--font-family-code);
@@ -330,15 +386,28 @@
     color: var(--colors-palette-gray-10);
     background: none;
     border: none;
+    min-width: 0;
     border-bottom: 2px solid var(--colors-skeleton-1-boundary);
     outline: none;
     padding: 0.5rem 0;
     width: 100%;
   }
-  .type-input:focus { border-color: var(--colors-theme-primary-contrast); }
-  .input-correct { border-color: var(--colors-system-success-contrast); color: var(--colors-system-success-contrast); }
-  .input-close { border-color: var(--colors-system-warning-contrast, #c90); color: var(--colors-system-warning-contrast, #c90); }
-  .input-wrong { border-color: var(--colors-system-error-contrast); color: var(--colors-system-error-contrast); }
+  .type-input:focus {
+    border-color: var(--colors-theme-primary-contrast);
+  }
+  .input-correct {
+    border-color: var(--colors-system-success-contrast);
+    color: var(--colors-system-success-contrast);
+  }
+  .input-close {
+    border-color: var(--colors-system-warning-contrast, #c90);
+    color: var(--colors-system-warning-contrast, #c90);
+  }
+  .input-wrong {
+    border-color: var(--colors-system-error-contrast);
+    color: var(--colors-system-error-contrast);
+  }
+  .input-locked { opacity: 0.4; pointer-events: none; }
 
   .type-feedback {
     margin-top: 0.5rem;
@@ -382,16 +451,23 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-height: 48px;
     padding: 0.875rem 1.125rem;
     border-radius: 0.625rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, var(--colors-skeleton-2-surface));
+    background: color-mix(
+      in srgb,
+      var(--colors-skeleton-1-surface) 70%,
+      var(--colors-skeleton-2-surface)
+    );
     color: var(--colors-palette-gray-100);
     cursor: pointer;
     text-align: left;
     transition: all 0.12s;
   }
-  .option:hover:not(:disabled) { border-color: var(--colors-skeleton-1-contrast); }
+  .option:hover:not(:disabled) {
+    border-color: var(--colors-skeleton-1-contrast);
+  }
 
   .option-key {
     font-family: var(--font-family-code);
@@ -416,7 +492,9 @@
     border-color: var(--colors-system-error-contrast);
     color: var(--colors-system-error-contrast);
   }
-  .option-dimmed { opacity: 0.35; }
+  .option-dimmed {
+    opacity: 0.35;
+  }
 
   .loading {
     display: flex;
@@ -425,15 +503,25 @@
     padding-top: 2rem;
   }
   .dot {
-    width: 6px; height: 6px; border-radius: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: var(--colors-skeleton-1-boundary);
     animation: pulse 1s ease-in-out infinite;
   }
-  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -450,7 +538,8 @@
 
   .btn {
     width: 100%;
-    padding: 1rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
     border-radius: 0.625rem;
     border: none;
     font-size: 1rem;
@@ -470,13 +559,7 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 6vh; padding-left: 1rem; padding-right: 1rem; }
-    .audio-block { margin-bottom: 1.5rem; }
     .type-input { font-size: var(--font-size-lg); font-family: var(--font-family-sans-text); }
-    .option { padding: 1rem 1rem; }
     .option-text { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); }
-    .btn { padding: 1.125rem; font-size: 1rem; }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
-    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
   }
 </style>

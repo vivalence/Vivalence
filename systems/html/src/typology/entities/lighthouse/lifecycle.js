@@ -1,5 +1,5 @@
 import { effect } from "nanostores";
-import { Connection, shards } from "@vivalence/typology";
+import { Connection, shard } from "@vivalence/typology";
 import { Daemon, lifecycle as daemonLifecycle } from "../daemon.js";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
@@ -46,7 +46,7 @@ async function populate(lighthouse) {
     if (exists) continue;
 
     const connection = new Connection(daemonPojo.url) //
-      .use(shards.connection.authorize(lighthouse.$authority));
+      .use(shard.connection.authorize(lighthouse.$authority));
 
     const daemon = new Daemon(connection);
 

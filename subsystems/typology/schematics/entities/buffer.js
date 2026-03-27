@@ -8,7 +8,7 @@ export const BufferDescriptor = {
   },
   relations: {
     mode: () => v.rel(v.mode()).optional(),
-    session: () => v.rel(v.session()).optional(),
+    thread: () => v.rel(v.thread()).optional(),
     literals: () => v.array(v.literal()).optional(),
     symbols: () => v.array(v.symbol()).optional(),
   },

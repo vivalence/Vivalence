@@ -212,7 +212,7 @@ export default [
     "trait": {
       "TRANSLATED": {
         "known": "welcome",
-        "learning": "Bem-vindo"
+        "learning": "bem-vindo"
       },
       "EXEMPLIFIED": {
         "known": "Welcome to the real world!",

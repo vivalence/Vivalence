@@ -16,8 +16,11 @@ auth:bearer {
 
 body:json {
   {
-    "take": 2,
-    "seek": {
+    "limit": 1,
+    "where": {
+      "traits": [
+        "VOCALIZED"
+      ],
       "symbols": [
         "word",
         "proficiency.survival"

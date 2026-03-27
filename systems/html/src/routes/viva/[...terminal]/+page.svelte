@@ -4,7 +4,7 @@
   import { Terminal } from "@vivalence/html/typology";
   import { populate } from "./lib/populate.js";
 
-  import Modeline from "./Modeline.svelte";
+  import Modeline from "../Modeline.svelte";
   import Stream from "./phases/Stream.svelte";
 
   const terminal = new Terminal();
@@ -26,11 +26,13 @@
   const phase = terminal.$phase;
 </script>
 
-<div class="bsp-node" style="grid-template-rows: 1fr auto; height: 100dvh;">
-  <div class="bsp-node">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface" style="overflow: hidden;">
     {#if $phase === "STREAM"}
       <Stream />
     {/if}
   </div>
-  <Modeline />
+  <div class="viva-controls">
+    <Modeline />
+  </div>
 </div>

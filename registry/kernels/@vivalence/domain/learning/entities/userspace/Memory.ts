@@ -1,6 +1,6 @@
 import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
+import { DataEntity, DataSchema } from "@vivalence/typology/entities";
 import { UserEntity } from "@vivalence/typology/entities";
 
 import { LiteralEntity } from "../kernel/Literal.ts";
@@ -26,7 +26,7 @@ export enum MemoryStatusEnum {
   GRADUATED = "GRADUATED",
 }
 
-export class MemoryEntity extends BaseEntity {
+export class MemoryEntity extends DataEntity {
   user!: Rel<UserEntity>;
   literal!: Rel<LiteralEntity>;
   traces = new Collection<TraceEntity>(this);
@@ -59,11 +59,17 @@ export class MemoryEntity extends BaseEntity {
   }
 }
 
-export const MemorySchema = new EntitySchema<MemoryEntity, BaseEntity>({
+export const MemorySchema = new EntitySchema<MemoryEntity, DataEntity>({
   class: MemoryEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   uniques: [{ properties: ["user", "literal"] }],
   tableName: "Memory",
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
   properties: {
     user: {
       kind: "m:1",

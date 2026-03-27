@@ -19,16 +19,14 @@ export class SymbolRepository extends DataRepository {
 export class SymbolEntity extends DataEntity {
   traits: SymbolTraitsEnum[] & Opt = [];
   slug: string & Opt = "";
-  // name?: string;
-  // description?: string;
 
   trait: any & Opt = {};
 
-  // ancestor?: Rel<SymbolEntity>;
-  // decendants = new Collection<SymbolEntity>(this);
   literals = new Collection<LiteralEntity>(this);
 
   [EntityRepositoryType]?: SymbolRepository;
+  // ancestor?: Rel<SymbolEntity>;
+  // decendants = new Collection<SymbolEntity>(this);
 }
 
 export const SymbolSchema = new EntitySchema({
@@ -62,7 +60,6 @@ export const SymbolSchema = new EntitySchema({
     },
 
     // ancestor: {kind: "m:1", entity: () => SymbolEntity, inversedBy: (symbol) => symbol.decendants, nullable: true,}, decendants: {kind: "1:m", entity: () => SymbolEntity, mappedBy: (symbol) => symbol.ancestor,},
-
   },
 });
 
@@ -71,7 +68,7 @@ export default {
   traits: SymbolTraitsEnum,
   schema: SymbolSchema,
   entity: SymbolEntity,
-  // repository: TopographyRepository,
+  repository: SymbolRepository,
 };
 
 // // really more of a domain thing.

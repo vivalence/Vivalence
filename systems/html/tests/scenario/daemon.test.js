@@ -43,11 +43,11 @@ specimen.describe("daemon entities", () => {
     specimen.expect(literals[0].symbols[0]).toBe(symbol.$entities.get()[0])
   })
 
-  specimen.it("session create through authed connection", async () => {
+  specimen.it("thread create through authed connection", async () => {
     const mode = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"))
-    const session = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/session"))
+    const thread = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"))
     const modes = await mode.find()
-    const created = await session.create({
+    const created = await thread.create({
       mode: modes[0].id, trait: {}, cursor: 0, counter: 0,
     })
     specimen.expect(created.id).toBeDefined()

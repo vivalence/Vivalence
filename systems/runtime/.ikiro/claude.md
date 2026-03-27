@@ -105,9 +105,9 @@ The business object wrapped by DaemonDie:
 - `aperture: Vector` — HTTP routing tree (aliased as Aperture)
 - `connection, call` — internal RPC
 - `authority, brain, entity` — service handles
-- `kernel: { orm, em }` — database
-- `entities: {}` — repository map
-- `twitch: Vector` — event system
+- `kernel: {}` — reserved
+- `entities: {}` — repository map + em (set by datamap provider, repos resolve through RequestContext)
+- `twitch: Vector` — event system (on Runtime prototype, subscriber wired via datamap.subscribe)
 - `modes: {}` — `{type: {slug: Mode}}`
 - `services: {}` — external service providers
 - `statics, docs` — config and documentation
@@ -127,17 +127,16 @@ Two key data structures:
 **populate()** — `daemon/lifecycle/population.*`:
 - `core(die)` — resolves all registers via `paladin.vip.accioMap`, partitions kernel by type (domain/topology/ontology), merges traits and modes, collects entity schemas
 - `wiring(die)` — copies statics/docs from mask
-- `datamap(die)` — initializes MikroORM, creates entity repositories
+- `datamap(die)` — calls datamap service provider, stores result on `daemonDie.datamap`. Sets `good.entities` from provider's repositories. Wires twitch subscriber via `datamap.subscribe()`. Adds `shard.datamap.inject(datamap)` middleware (RequestContext per request + ctx.entities).
 - `authority(die)` — sets up lighthouse auth middleware on aperture
 - `acid(die)` — initializes hallucinator (AI service)
-- `modes(die)` — instantiates Mode objects from registered modules, assigns mounts/URLs, creates mode entities in DB, links VIEWABLE modes to view bundler
-- `twitch(die)` — registers `shape.subscriber(entities.twitch)` on the EM event manager (2 lines — routes ORM lifecycle events through the twitch Vector)
+- `modes(die)` — instantiates Mode objects from registered modules, assigns mounts/URLs, creates mode entities in DB (wrapped in `datamap.context()` for EM access), links BUFFERED modes to buffer bundler
 - `handlers(die)` — adds `flatmodes()` helper
 - `services(die)` — loads external services via consume config
 
 **resolve()** — `daemon/lifecycle/resolution.*`:
-- `kernel(die)` — attaches domain aperture with daemon context and auth
-- `modes(die)` — for each mode: attaches context middleware, opens status/manifest endpoints, slurps mode aperture, **applies trait functions**, marks entity installed, attaches to daemon aperture with auth
+- `kernel(die)` — attaches domain aperture with daemon context and auth. Adds `shard.ambient.store((ctx) => ({ user: ctx.user, entities: ctx.entities }))` after authorize — establishes the ambient scope for the entire request. Then `datamap.bind("user", ...)` for MikroORM filters.
+- `modes(die)` — wrapped in `datamap.context()`. For each mode: attaches context middleware, opens status/manifest endpoints, slurps mode aperture, **applies trait functions**, marks entity installed, attaches to daemon aperture with auth. Flushes at end.
 
 **integrate()** — `daemon/lifecycle/integration.*`:
 - `call(die)` — compiles aperture via `shape.http()`, wraps in `shard.transport.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
@@ -153,9 +152,9 @@ Traits are async functions `(mode, daemon)` applied during daemon resolution. Ea
 
 **DATASET** `traits/dataset.js` (76 lines) — upserts symbols and literals from `mode.cake.dataset.entities`. Batches in chunks of 100. Links symbols ↔ literals bidirectionally.
 
-**INTENTED** `traits/intented.js` — iterates `mode.cake.dataset.intent[]`, resolves symbol slugs to SymbolEntity references, upserts IntentEntity rows via `daemon.entities.intent.ensure()`. Seeds the intent graph at daemon startup.
+**INTENTED** `traits/intented.js` — iterates `mode.cake.dataset.intent[]`, upserts IntentEntity rows via `daemon.entities.intent.ensure()`. Sets `intentPojo.mode = mode.entity.id` (scalar PK, not POJO — POJO form `{ id: ... }` triggers MikroORM ghost entity creation). Seeds the intent graph at daemon startup. All 9 game modes now have FEEDING intents registered here.
 
-**EMITTER** `traits/emitter.js` — activates if `mode.cake.emitter` is set (a Vector). Prepends daemon/mode context middleware, appends buffer-shape normalizer (status, traits, trait, literals, symbols). Exposes `mode.emit = shape.object(emitterVector)` for in-process calls and branches into `mode.aperture` at `/emit` for HTTP access.
+**EMITTER** `traits/emitter.js` — activates if `mode.cake.emitter` is set (a Vector). First middleware: `shard.ambient.assign` inherits `user` and `entities` from the ambient scope (set by `shard.ambient.store` in resolution.kernel) — this is how shape.object emitter contexts get ctx.user without going through the HTTP authorize chain. Then: daemon/mode context middleware, session lookup, seek/blacklist conversion, post-processor (session assignment, flush, flat output). Post-processor returns entities — no POJO serialization. `toJSON()` handles serialization at the HTTP boundary. Exposes `mode.emit = shape.object(emitterVector)` for in-process calls and branches into `mode.aperture` at `/emit` for HTTP access.
 
 **CHAOSMONKEY** `traitmap.js` — attaches hallucinator brain to mode. (Will be updated by cortex workpackage to compose the cortex during daemon population from hallucinator faculties and construct harnesses per mode.)
 
@@ -219,7 +218,9 @@ tests/
 ├── daemon/                       Daemon-scope tests
 │   ├── datamap.test.js           Entity CRUD, errors, options sanitization, modes (15 steps)
 │   ├── userspace.test.js         Auth gating, session create, user scoping (6 steps)
-│   └── freight.test.js           Cargo (1 step)
+│   ├── freight.test.js           Cargo (1 step)
+│   ├── smoke.test.js             Emit + persist + query lifecycle (6 steps)
+│   └── integration.test.js       Live runtime via HTTP: auth, all 9 game emitters, 5 tactic phases, pick routes, review, session (39 steps)
 ├── mode/                         Mode-scope tests
 │   ├── traits.test.js            INTENTED upsert/resolve, EMITTER compile/normalize/HTTP (9 steps)
 │   └── entities.test.js          Direct fixture assertions (5 steps)
@@ -248,7 +249,7 @@ Old monolithic tests preserved in `tests/scenarios/bak/`.
 - No tests for disintegrate cascade (shutdown sequence)
 - No tests for view/freight remainder `(.*)` serving (tested in http shape, not runtime scenario)
 - No tests for watchdog patrol
-- No smoke tests against a live running server (Connection is the generic connect — just needs a URL)
+- ~~No smoke tests against a live running server~~ — integration.test.js (39 steps via HTTP fetcher against live runtime)
 
 ### Human Documentation Needs (Divio)
 - **Tutorial**: "Boot the runtime locally" — env setup, circuitry, run.js
@@ -268,7 +269,17 @@ Old monolithic tests preserved in `tests/scenarios/bak/`.
 - **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
 - **Buffer/Intent migration** — PRODUCER→EMITTER, VALENTIC→INTENTED, BUFFERED→SELFEVIDENT, entity.data→entity.trait. Old traits in bak.
 - **Datamap migration (Phase A)** — replaced parametric `/:entity/:method` handlers with per-entity `shard.datamap.repository()` + `shard.datamap.reactive()` branches. Fixed session create bug (server read `input.where`, client sent `{data}`). Renamed `entities.on` → `entities.twitch`. Rewrote `population.twitch()` from 30 broken lines to 2. Tests split by scope: daemon/ (22 steps), mode/ (14 steps), runtime/ (6 steps).
+- **Datamap ownership refactor** — MikroORM consolidated into datamap service provider. Provider returns opaque interface: `{ entities, context, bind, introspect, subscribe, disintegrate }`. `shard.datamap.inject(datamap)` wraps requests in RequestContext + sets ctx.entities. No `@mikro-orm/*` imports outside typology/entities, domain entities, the service, and test harnesses. `daemonDie.datamap` holds the provider return (die-level). `good.entities` is the userspace projection (repos + em trampoline). Startup code wrapped in `datamap.context()`. User filter via `datamap.bind("user", ...)` after authorize. Lighthouse uses same interface. `entities.twitch` → `good.twitch` (Runtime prototype). `maps` removed from entities/index.ts — direct named exports + flat `sets`.
 - **Emitter pattern** — mode.emit via `shape.object(emitterVector)`. INTENTED + EMITTER traits replace VALENTIC + PRODUCER.
+- **Ambient context propagation** — `shard.ambient.store` on daemon aperture (after authorize) puts `{ user, entities }` into AsyncLocalStorage scope. `shard.ambient.assign` on EMITTER vector inherits them into shape.object contexts. Fixes ctx.user being undefined when tactic emitters (warmup, buildup, etc.) call game emitters (judge, listen, etc.) via mode.emit — shape.object creates bare `{ input }` contexts that previously had no user/entities.
+- **shards → shard rename** — all `shards` imports across runtime, typology, lighthouse, html client, domain kernel renamed to `shard` (singular).
+- **shard.serve namespace** — `shard.serve.file()` (was bare `serve()`), `shard.serve.websocket()` (was bare `websocket()`). Old `shard/websocket.js` deleted, merged into `shard/serve.js`.
+- **Domain Symbol repository fix** — MikroORM EntitySchema `extends` does not inherit the `repository` field. Domain's SymbolSchema now explicitly declares `repository: () => base.repository` + `[EntityRepositoryType]` on entity class. Fixes `symbolRepo.findByIdentifiers is not a function` in LiteralRepository.findBySymbols.
+- **Entity flow (no POJO serialization)** — EMITTER post-processor returns entities, not POJOs. `toJSON()` handles serialization at the HTTP boundary. Fixes double-serialization bug where tactic emitters calling sub-emitters via shape.object received already-serialized POJOs, then the tactic's own post-processor tried to re-serialize (calling `getItems()` on plain arrays → `[]`).
+- **Listen emitter VOCALIZED guard** — listen.viva.js emitter checks `traits.includes("VOCALIZED")`, returns `[]` for non-vocalized literals. Tactic emitters fixed from `w.trait?.VOCALIZED` (falsy for null values) to `w.traits?.includes("VOCALIZED")`.
+- **Domain repo `where` param** — LiteralRepository feed/novel/due/byStrength accept optional `where` object, spread into the query before `findBySymbols`. Domain aperture pick routes pass `where` through. Non-breaking.
+- **Integration test** — `tests/daemon/integration.test.js` (39 steps). Connects to live runtime via HTTP fetcher transport. Covers: auth login, domain pick (feed/novel/due/byStrength/symbol-filtered), all 9 game mode emitters, all 5 survival tactic phases, domain review (create/evolve/failure/slug), session lifecycle.
+- **Selfevident → Applicative migration** — All 9 game modes: removed SELFEVIDENT trait, added `/feed` emitter route + `feed` APPLICATIVE intent with FEEDING trait. Feed routes self-source literals via `literal.feed()` with optional seek/blacklist/where. Mode-specific logic: listen over-fetches ×3 and filters VOCALIZED, cloze over-fetches ×3 and filters ANNOTATED, judge builds items with coin flip distractor, pick/match/exhibit/flashcard/shadow/write fetch appropriate batch sizes. INTENTED trait fix: `intentPojo.mode` now receives scalar PK (not POJO) to avoid MikroORM ghost entity creation on first insert.
 
 ### Planned Changes
 - Old aperture shape cleanup (shape/aperture/, mw.js, parser.js in bak)

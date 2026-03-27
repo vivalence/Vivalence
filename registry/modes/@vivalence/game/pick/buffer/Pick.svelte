@@ -1,9 +1,7 @@
 <script>
-  import { Keyboard, Asset } from "@vivalence/drapes";
+  import { Asset } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
-
-  let keyboard;
 
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
@@ -41,7 +39,7 @@
   }
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 4 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
       literals = lits ?? [];
       shuffled = shuffle(literals);
       loading = false;
@@ -57,13 +55,13 @@
     const isCorrect = lit === target || lit?.id === target?.id;
 
     terminal.daemon.call("/review/literal", {
-      signal: isCorrect ? "SUCCESS" : "FAILURE",
+      signal: isCorrect ? "SUCCESS" : "MISTAKE",
       scope: { literal: target.id },
     });
 
     if (!isCorrect) {
       terminal.daemon.call("/review/literal", {
-        signal: "FAILURE",
+        signal: "MISTAKE",
         scope: { literal: lit.id },
       });
     }
@@ -93,11 +91,10 @@
   }
 </script>
 
-<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if target}
         <div class="meta">
@@ -121,7 +118,7 @@
               class:option-correct={answered && isAnswer}
               class:option-wrong={answered && isThis && !isAnswer}
               class:option-dimmed={answered && !isThis && !isAnswer}
-              ontouchstart={(e) => keyboard.guard(e)}
+              onmousedown={(e) => e.preventDefault()}
               onclick={() => select(lit)}
               disabled={answered}
             >
@@ -137,12 +134,12 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading…</span>
       {:else if answered}
-        <button class="btn btn-next" ontouchstart={(e) => keyboard.guard(e)} onclick={advance}>
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Next
         </button>
       {:else}
@@ -153,16 +150,14 @@
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 15vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -218,6 +213,7 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    min-height: 48px;
     padding: 0.875rem 1.125rem;
     border-radius: 0.625rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
@@ -267,9 +263,9 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -285,7 +281,8 @@
   }
   .btn-next {
     width: 100%;
-    padding: 1rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
     border-radius: 0.625rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
@@ -297,13 +294,8 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 6vh; padding-left: 1rem; padding-right: 1rem; }
     .prompt { font-size: var(--font-size-lg); }
     .prompt-word { font-size: var(--font-size-xl); }
-    .option { padding: 1rem 1rem; }
     .option-text { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
-    .menu-hint { padding: 0.75rem; font-size: 0.85rem; }
-    .btn-next { padding: 1.125rem; font-size: 1rem; }
   }
 </style>

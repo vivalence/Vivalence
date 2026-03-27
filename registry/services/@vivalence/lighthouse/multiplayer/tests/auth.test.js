@@ -1,9 +1,9 @@
 import { specimen, Url, Connection } from "@vivalence/typology";
-import { shards } from "@vivalence/typology";
+import { shard } from "@vivalence/typology";
 
 const lighthouse = new Connection(
   new Url("http://localhost:1729/attached/process/lighthouse/multiplayer"),
-  shards.transport.fetcher,
+  shard.transport.fetcher,
 );
 
 let tokens = {};

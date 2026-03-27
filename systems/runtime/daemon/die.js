@@ -30,7 +30,7 @@ export class Die extends Wafer {
     await lifecycle.population.authority(this);
     await lifecycle.population.acid(this);
     await lifecycle.population.modes(this);
-    await lifecycle.population.twitch(this);
+    // await lifecycle.population.twitch(this);
     await lifecycle.population.handlers(this);
     await lifecycle.population.services(this);
   }
@@ -64,7 +64,8 @@ export class Die extends Wafer {
 
   async disintegrate() {
     // todo: refactor to abort controller
-    await this.good.kernel.orm?.close?.();
+    // await this.good.kernel.orm?.close?.();
+    await this.datamap?.disintegrate();
     // await sleep(1);
     this.status.set("stopped");
   }

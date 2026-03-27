@@ -40,16 +40,23 @@ export function http(vector) {
 function respond(ctx, status) {
   const body = ctx.response.body;
   if (body instanceof Response) return body;
+
   const s = status || ctx.response.status || (body != null ? 200 : 404);
   const type = ctx.response.type || "application/json";
   const headers = Object.fromEntries(ctx.response.headers);
   headers["content-type"] = type;
   if (ctx.trace?.timing) headers["server-timing"] = ctx.trace.timing;
 
-  if (body instanceof Uint8Array || body instanceof ReadableStream || typeof body === "string") {
+  // binary / stream — pass through
+  if (body instanceof Uint8Array || body instanceof ReadableStream) {
     return new Response(body, { status: s, headers });
   }
 
-  // console.log("RESPONSE", JSON.stringify(body), { status: s, headers });
+  // explicit non-JSON type (text/html, text/plain, etc.) — raw string
+  if (type !== "application/json") {
+    return new Response(body ?? "", { status: s, headers });
+  }
+
+  // default: JSON
   return new Response(JSON.stringify(body), { status: s, headers });
 }

@@ -12,7 +12,8 @@ specimen.describe("Aperture", () => {
 
     specimen.it("GET dispatches to .get() handler", async () => {
       const res = await handler(new Request("http://localhost/x"));
-      specimen.expect(await res.text()).toBe("got");
+      // specimen.expect(await res.text()).toBe("got");
+      specimen.expect(await res.json()).toBe("got");
     });
 
     specimen.it("POST dispatches to .post() handler", async () => {
@@ -51,12 +52,14 @@ specimen.describe("Aperture", () => {
 
     specimen.it("GET dispatches to explicit handler", async () => {
       const res = await handler(new Request("http://localhost/dual"));
-      specimen.expect(await res.text()).toBe("explicit-get");
+      // specimen.expect(await res.text()).toBe("explicit-get");
+      specimen.expect(await res.json()).toBe("explicit-get");
     });
 
     specimen.it("POST falls back to open handler via wildcard", async () => {
       const res = await handler(new Request("http://localhost/dual", { method: "POST" }));
-      specimen.expect(await res.text()).toBe("fallback");
+      // specimen.expect(await res.text()).toBe("fallback");
+      specimen.expect(await res.json()).toBe("fallback");
     });
   });
 

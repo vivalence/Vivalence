@@ -1,24 +1,24 @@
 import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "../index.ts";
+import { DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
-import { SessionEntity } from "../index.ts";
+import { ThreadEntity } from "../index.ts";
 import { LiteralEntity } from "../index.ts";
 import { SymbolEntity } from "../index.ts";
 
-export class BufferEntity extends BaseEntity {
+export class BufferEntity extends DataEntity {
   data: any & Opt = {};
   index: number & Opt = 0;
 
   mode!: Rel<ModeEntity>;
-  session?: Rel<SessionEntity>;
+  thread?: Rel<ThreadEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
 }
 
-export const BufferSchema = new EntitySchema<BufferEntity, BaseEntity>({
-  extends: BaseSchema,
+export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
+  extends: DataSchema,
   name: "Buffer",
   tableName: "Buffer",
   abstract: true,
@@ -34,10 +34,10 @@ export const BufferSchema = new EntitySchema<BufferEntity, BaseEntity>({
       deleteRule: "cascade",
     },
 
-    session: {
+    thread: {
       kind: "m:1",
-      entity: () => SessionEntity,
-      fieldName: "session",
+      entity: () => ThreadEntity,
+      fieldName: "thread",
       nullable: true,
     },
 
@@ -82,5 +82,5 @@ export default {
 //   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
 //   index: number & Opt = 0;
 //   mode!: Rel<ModeEntity>;
-//   session!: Rel<SessionEntity>;
+//   thread!: Rel<ThreadEntity>;
 // }

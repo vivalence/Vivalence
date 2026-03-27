@@ -5,6 +5,7 @@ import { types, EntitySchema, type Opt } from "@mikro-orm/core";
 import {
   LiteralEntity,
   LiteralSchema,
+  LiteralRepository,
   SymbolEntity,
   SymbolSchema,
   BufferEntity,
@@ -13,10 +14,10 @@ import {
   ModeSchema,
   IntentSchema,
   UserSchema,
-  SessionSchema,
+  ThreadSchema,
   IntentEntity,
   UserEntity,
-  SessionEntity,
+  ThreadEntity,
 } from "@vivalence/typology/entities";
 
 export enum LiteralTraits {
@@ -28,6 +29,7 @@ export const LiteralDomain = new EntitySchema({
   extends: LiteralSchema,
   tableName: "Literal",
   name: "Literal",
+  repository: () => LiteralRepository,
   properties: {
     traits: {
       items: () => LiteralTraits,
@@ -60,7 +62,7 @@ const schemas = [
   ModeSchema,
   IntentSchema,
   UserSchema,
-  SessionSchema,
+  ThreadSchema,
 ];
 
 export { LiteralEntity, SymbolEntity, BufferEntity };
@@ -119,13 +121,13 @@ export async function seed() {
     type: "SELFEVIDENT",
     traits: ["FURNISHED"],
     name: "Survival Flashcard",
-    trait: { FURNISHED: { recall: "LEARNING", seek: { symbols: ["greeting"] } } },
+    trait: { FURNISHED: { recall: "LEARNING", where: { symbols: ["greeting"] } } },
     mode,
   });
 
   await em.flush();
 
-  const session = em.create(SessionEntity, {
+  const thread = em.create(ThreadEntity, {
     user,
     mode,
     intent,
@@ -139,6 +141,6 @@ export async function seed() {
   return {
     orm,
     em,
-    fixtures: { user, hello, goodbye, greeting, mode, intent, session },
+    fixtures: { user, hello, goodbye, greeting, mode, intent, thread },
   };
 }

@@ -81,7 +81,7 @@ specimen.describe("buffer lifecycle", () => {
   specimen.it("emit pojo consumed by Buffer.from with correct view", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
-      session: scenario.fixtures.session.id,
+      thread: scenario.fixtures.thread.id,
     });
     const pojo = result[0];
 
@@ -93,14 +93,15 @@ specimen.describe("buffer lifecycle", () => {
     specimen.expect(buffer.view).toBe(buffered);
     specimen.expect(buffer.view.url).toBeTruthy();
     specimen.expect(buffer.data.recall).toBe("LEARNING");
-    specimen.expect(buffer.literals).toContain(scenario.fixtures.hello.id);
+    // specimen.expect(buffer.literals).toContain(scenario.fixtures.hello.id);
+    specimen.expect(buffer.literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.context).toBe(null);
   });
 
   specimen.it("mint sets context on buffer", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
-      session: scenario.fixtures.session.id,
+      thread: scenario.fixtures.thread.id,
     });
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
@@ -116,7 +117,7 @@ specimen.describe("buffer lifecycle", () => {
   specimen.it("Buffer.from into stall produces active buffer with view", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
-      session: scenario.fixtures.session.id,
+      thread: scenario.fixtures.thread.id,
     });
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
@@ -130,13 +131,14 @@ specimen.describe("buffer lifecycle", () => {
     specimen.expect(terminal.stall.$active.get()).toBeTruthy();
     specimen.expect(terminal.stall.$active.get().view).toBe(buffered);
     specimen.expect(terminal.stall.$active.get().data.recall).toBe("LEARNING");
-    specimen.expect(terminal.stall.$active.get().literals).toContain(scenario.fixtures.hello.id);
+    // specimen.expect(terminal.stall.$active.get().literals).toContain(scenario.fixtures.hello.id);
+    specimen.expect(terminal.stall.$active.get().literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
   });
 
   specimen.it("blacklist extraction from buffer.literals", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
-      session: scenario.fixtures.session.id,
+      thread: scenario.fixtures.thread.id,
     });
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");

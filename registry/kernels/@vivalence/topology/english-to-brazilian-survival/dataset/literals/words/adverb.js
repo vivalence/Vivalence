@@ -1298,12 +1298,12 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "how",
-        "learning": "Como"
+        "known": "how (interrogative)",
+        "learning": "como"
       },
       "EXEMPLIFIED": {
-        "known": "When did the error occur?",
-        "learning": "Como o erro surgiu?"
+        "known": "How are you?",
+        "learning": "Como você está?"
       },
       "VOCALIZED": {
         "asset": {

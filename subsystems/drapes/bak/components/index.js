@@ -10,7 +10,6 @@ import Text from "./text/Text.svelte";
 // import Widget from "./widget/Widget.svelte";
 import Pictogram from "./pictogram/Pictogram.svelte";
 import Textarea from "./textarea/Textarea.svelte";
-import Modeline from "./modeline/Modeline.svelte";
 import Desk from "./desk/Desk.svelte";
 
 export {
@@ -28,5 +27,4 @@ export {
   Tag,
   Text,
   // Widget,
-  Modeline,
 };

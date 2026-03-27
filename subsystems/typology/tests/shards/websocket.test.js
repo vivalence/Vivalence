@@ -2,11 +2,9 @@ import { specimen, sleep, Url, Connection, shard, shape, Aperture } from "@vival
 
 const { http } = shape;
 
-const { websocket } = shard;
-
 specimen.describe("websocket shard", () => {
   specimen.describe("shape", () => {
-    const effect = websocket(() => {});
+    const effect = shard.serve.websocket(() => {});
 
     specimen.it("is a function", () => {
       specimen.expect(typeof effect).toBe("function");
@@ -23,7 +21,7 @@ specimen.describe("websocket shard", () => {
 
   specimen.describe("lifecycle", () => {
     const app = new Aperture();
-    app.get("ws", websocket((socket, ctx) => {
+    app.get("ws", shard.serve.websocket((socket, ctx) => {
       socket.onmessage = (e) => socket.send(e.data);
     }));
     app.get("health", () => "ok");

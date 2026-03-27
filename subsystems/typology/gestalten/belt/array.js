@@ -1,3 +1,5 @@
+import { levenshtein } from "./string.js";
+
 export const unique = (source) => {
   return [...new Set(source)].filter((s) => s !== null);
 };
@@ -38,3 +40,12 @@ export function shuffle(array) {
 export const reverse = (array) => {
   return [...array].reverse();
 };
+
+export const closest = (target, candidates) =>
+  candidates.reduce(
+    (best, candidate) => {
+      const dist = levenshtein(target, candidate);
+      return dist < best.distance ? { value: candidate, distance: dist } : best;
+    },
+    { value: null, distance: Infinity },
+  );

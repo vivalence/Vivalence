@@ -1,5 +1,5 @@
 <script>
-  import { Keyboard } from "@vivalence/drapes";
+  import { Keyboard, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
 
@@ -111,7 +111,7 @@
 
     const correct = results.filter((tok) => tok.signal === "SUCCESS").length;
     const total = results.length;
-    const signal = correct === total ? "SUCCESS" : correct === 0 ? "FAILURE" : "MISTAKE";
+    const signal = correct === total ? "SUCCESS" : correct === 0 ? "MISTAKE" : "MISTAKE";
 
     return { signal, tokens: results };
   }
@@ -158,7 +158,7 @@
   if (literal) {
     begin(literal);
   } else {
-    terminal.daemon.call("/pick/literal/feed", { take: 3 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         begin(queue[0]);
@@ -189,8 +189,14 @@
     }
   }
 
+  let inputEl = $state(null);
+
   $effect(() => {
-    if (phase === "show") keyboard?.focus();
+    if (phase === "recall" && inputEl) {
+      inputEl.focus();
+    } else if (phase === "show" && keyboard) {
+      keyboard.focus();
+    }
   });
 
   function handleKey(event) {
@@ -203,10 +209,11 @@
 </script>
 
 <Keyboard bind:this={keyboard} />
+<ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literal}
         {#if phase === "show"}
@@ -293,22 +300,22 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if phase === "show"}
-        <span class="menu-hint" ontouchstart={(e) => keyboard?.guard(e)}>reading...</span>
+        <button class="btn btn-skip" onmousedown={(e) => e.preventDefault()} onclick={skipToRecall}>I'm ready</button>
       {:else}
         <input
           class="field"
+          class:field-locked={submitted}
+          bind:this={inputEl}
           value={input}
-          oninput={(event) => (input = event.target.value)}
-          placeholder="{answerLabel}…"
-          disabled={submitted}
-          autofocus />
+          oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
+          placeholder="{answerLabel}…" />
         {#if !submitted}
-          <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
+          <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
         {:else}
-          <button class="btn-next" onclick={next} disabled={loading}>Next →</button>
+          <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
         {/if}
       {/if}
     </div>
@@ -316,20 +323,14 @@
 </div>
 
 <style>
-  .root {
-    grid-template-rows: 1fr auto;
-  }
-  .content {
-    overflow-y: auto;
-  }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 15vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .progress {
@@ -339,7 +340,6 @@
     overflow: hidden;
     margin-bottom: 1.25rem;
   }
-
   .progress-fill {
     height: 100%;
     background: var(--colors-system-warning-contrast);
@@ -353,30 +353,17 @@
     margin-bottom: 0.75rem;
     align-items: baseline;
   }
-
-  .meta-phase,
-  .meta-type,
-  .meta-time {
+  .meta-phase, .meta-type, .meta-time {
     font-family: var(--font-family-code);
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-
-  .meta-phase-show {
-    color: var(--colors-theme-accent-contrast);
-  }
-  .meta-phase-recall {
-    color: var(--colors-theme-primary-contrast);
-  }
-  .meta-type {
-    color: var(--colors-skeleton-1-boundary);
-    font-weight: 500;
-  }
-  .meta-time {
-    color: var(--colors-theme-primary-contrast);
-  }
+  .meta-phase-show { color: var(--colors-theme-accent-contrast); }
+  .meta-phase-recall { color: var(--colors-theme-primary-contrast); }
+  .meta-type { color: var(--colors-skeleton-1-boundary); font-weight: 500; }
+  .meta-time { color: var(--colors-theme-primary-contrast); }
   .meta-hint {
     font-family: var(--font-family-code);
     font-size: 0.55rem;
@@ -391,9 +378,7 @@
     line-height: 1.2;
     margin: 0 0 0.5rem 0;
   }
-  .prompt-word {
-    font-size: var(--font-size-3xl);
-  }
+  .prompt-word { font-size: var(--font-size-3xl); }
 
   .translation {
     font-size: 0.95rem;
@@ -401,7 +386,6 @@
     font-family: var(--font-family-sans-text);
     margin: 0;
   }
-
   .recall-prompt {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-lg);
@@ -414,7 +398,6 @@
     background: var(--colors-skeleton-1-boundary);
     margin: 1.5rem 0;
   }
-
   .feedback {
     display: flex;
     flex-direction: column;
@@ -427,17 +410,9 @@
     gap: 0.5rem;
     margin-bottom: 0.25rem;
   }
-  .signal-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-  .signal-dot.ok {
-    background: var(--colors-system-success-contrast);
-  }
-  .signal-dot.wrong {
-    background: var(--colors-system-error-contrast);
-  }
+  .signal-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .signal-dot.ok { background: var(--colors-system-success-contrast); }
+  .signal-dot.wrong { background: var(--colors-system-error-contrast); }
   .signal-text {
     font-size: 0.75rem;
     font-weight: 600;
@@ -445,102 +420,32 @@
     text-transform: uppercase;
     font-family: var(--font-family-sans-text);
   }
-  .signal-text.ok {
-    color: var(--colors-system-success-contrast);
-  }
-  .signal-text.wrong {
-    color: var(--colors-system-error-contrast);
-  }
+  .signal-text.ok { color: var(--colors-system-success-contrast); }
+  .signal-text.wrong { color: var(--colors-system-error-contrast); }
 
-  .fb-block {
-    display: flex;
-    flex-direction: column;
-    gap: 0.125rem;
-  }
-  .fb-key {
-    font-family: var(--font-family-code);
-    font-size: 0.6rem;
-    color: var(--colors-skeleton-1-boundary);
-  }
-  .fb-val {
-    font-size: 1.125rem;
-    font-family: var(--font-family-sans-text);
-  }
-  .fb-val.ok {
-    color: var(--colors-system-success-contrast);
-  }
-  .fb-val.wrong {
-    color: var(--colors-system-error-contrast);
-  }
-  .fb-answer {
-    font-family: var(--font-family-serif-heading);
-    font-size: 1.25rem;
-    color: var(--colors-theme-primary-contrast);
-  }
+  .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
+  .fb-key { font-family: var(--font-family-code); font-size: 0.6rem; color: var(--colors-skeleton-1-boundary); }
+  .fb-val { font-size: 1.125rem; font-family: var(--font-family-sans-text); }
+  .fb-val.ok { color: var(--colors-system-success-contrast); }
+  .fb-val.wrong { color: var(--colors-system-error-contrast); }
+  .fb-answer { font-family: var(--font-family-serif-heading); font-size: 1.25rem; color: var(--colors-theme-primary-contrast); }
 
-  .tokens {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.125rem;
-    margin-top: 0.25rem;
-  }
-  .tok {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0.375rem 0.5rem;
-    border-radius: 0.25rem;
-  }
-  .tok-ok {
-    background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent);
-  }
-  .tok-miss {
-    background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent);
-  }
-  .tok-form {
-    font-family: var(--font-family-serif-heading);
-    font-size: 1rem;
-    line-height: 1.2;
-  }
-  .tok-ok .tok-form {
-    color: var(--colors-system-success-contrast);
-  }
-  .tok-miss .tok-form {
-    color: var(--colors-system-error-contrast);
-  }
-  .tok-gloss {
-    font-family: var(--font-family-code);
-    font-size: 0.55rem;
-    color: var(--colors-skeleton-1-boundary);
-    margin-top: 0.125rem;
-  }
+  .tokens { display: flex; flex-wrap: wrap; gap: 0.125rem; margin-top: 0.25rem; }
+  .tok { display: flex; flex-direction: column; align-items: center; padding: 0.375rem 0.5rem; border-radius: 0.25rem; }
+  .tok-ok { background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent); }
+  .tok-miss { background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent); }
+  .tok-form { font-family: var(--font-family-serif-heading); font-size: 1rem; line-height: 1.2; }
+  .tok-ok .tok-form { color: var(--colors-system-success-contrast); }
+  .tok-miss .tok-form { color: var(--colors-system-error-contrast); }
+  .tok-gloss { font-family: var(--font-family-code); font-size: 0.55rem; color: var(--colors-skeleton-1-boundary); margin-top: 0.125rem; }
 
-  .loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-top: 2rem;
-  }
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--colors-skeleton-1-boundary);
-    animation: pulse 1s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 0.3;
-    }
-    50% {
-      opacity: 1;
-    }
-  }
+  .loading { display: flex; align-items: center; justify-content: center; padding-top: 2rem; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--colors-skeleton-1-boundary); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -551,80 +456,55 @@
   }
   .field {
     flex: 1;
-    padding: 0.875rem 1.125rem;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(
-      in srgb,
-      var(--colors-skeleton-1-surface) 50%,
-      var(--colors-skeleton-app-surface)
-    );
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
   }
-  .field::placeholder {
-    color: var(--colors-skeleton-1-boundary);
-  }
-  .field:disabled {
-    opacity: 0.4;
-  }
-  .btn-check {
-    padding: 0.875rem 1.75rem;
+  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field-locked { opacity: 0.4; pointer-events: none; }
+
+  .btn {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     border: none;
-    background: var(--colors-theme-primary-surface);
-    color: var(--colors-theme-primary-contrast);
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
     white-space: nowrap;
+    flex-shrink: 0;
   }
-  .btn-check:disabled {
-    opacity: 0.4;
-    cursor: default;
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-check {
+    background: var(--colors-theme-primary-surface);
+    color: var(--colors-theme-primary-contrast);
   }
   .btn-next {
-    width: 100%;
-    padding: 0.875rem;
-    border-radius: 0.5rem;
+    flex: 1;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
     color: var(--colors-palette-gray-200);
-    font-size: 0.875rem;
     font-weight: 500;
-    cursor: pointer;
-    font-family: var(--font-family-sans-text);
   }
-  .btn-next:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-  .menu-hint {
-    display: block;
-    width: 100%;
-    text-align: center;
-    padding: 0.875rem;
+  .btn-skip {
+    flex: 1;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
     color: var(--colors-skeleton-1-boundary);
-    font-size: 0.75rem;
-    font-family: var(--font-family-code);
+    font-weight: 500;
   }
 
   @media (max-width: 640px) {
-    .stage {
-      padding-top: 10vh;
-    }
-    .prompt {
-      font-size: var(--font-size-xl);
-    }
-    .prompt-word {
-      font-size: var(--font-size-2xl);
-    }
-    .menu {
-      padding: 0.75rem 1rem;
-    }
+    .prompt { font-size: var(--font-size-xl); }
+    .prompt-word { font-size: var(--font-size-2xl); }
   }
 </style>

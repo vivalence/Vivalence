@@ -6,7 +6,7 @@ const manifest = {
   name: "Judge",
   description: "Timed true/false on translation pairs. Swipe or tap. Batch flow through items list.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER", "SELFEVIDENT"],
+  traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
 const buffer = new BufferView(
@@ -33,14 +33,9 @@ const buffer = new BufferView(
   }),
 );
 
-const emitter = new Vector().open("/literal", async (ctx) => {
-  const target = ctx.input.literal;
-  const recall = ctx.input.recall ?? "LEARNING";
+function buildItem(target, distractor, recall) {
   const t = target.trait?.TRANSLATED;
   const targetText = recall === "LEARNING" ? t?.known : t?.learning;
-
-  const pool = ctx.input.distractors ?? await ctx.daemon.entities.literal.feed({ user: ctx.user.id, take: 1, blacklist: ctx.input.blacklist });
-  const distractor = pool[0];
   const d = distractor?.trait?.TRANSLATED;
   const distractorText = recall === "LEARNING" ? d?.known : d?.learning;
 
@@ -48,22 +43,75 @@ const emitter = new Vector().open("/literal", async (ctx) => {
   const canDistract = distractor && distractorText && distractorText !== targetText;
   const correct = coinFlip || !canDistract;
 
-  return ctx.mode.buffer({
-    data: {
-      recall,
-      gameplay: ctx.input.gameplay ?? "visual",
-      speed: ctx.input.speed ?? null,
-      items: [{
-        target: 0,
+  return { targetText, distractorText, canDistract, correct };
+}
+
+const emitter = new Vector()
+  .open("/literal", async (ctx) => {
+    const target = ctx.input.literal;
+    const recall = ctx.input.recall ?? "LEARNING";
+
+    const pool = ctx.input.distractors ?? await ctx.daemon.entities.literal.feed({ limit: 1, blacklist: ctx.input.blacklist, where: { symbol: { word: target.symbol?.word } } });
+    const distractor = pool[0];
+    const { targetText, distractorText, canDistract, correct } = buildItem(target, distractor, recall);
+
+    return ctx.mode.buffer({
+      data: {
+        recall,
+        gameplay: ctx.input.gameplay ?? "visual",
+        speed: ctx.input.speed ?? null,
+        items: [{
+          target: 0,
+          shown: correct ? targetText : distractorText,
+          correct,
+          distractor: correct ? undefined : 1,
+        }],
+      },
+      literals: canDistract && !correct ? [target, distractor] : [target],
+    });
+  })
+  .open("/feed", async (ctx) => {
+    const recall = ctx.input.defaults?.recall ?? "LEARNING";
+    const limit = ctx.input.limit ?? 4;
+    const literals = await ctx.daemon.entities.literal.feed({ limit, blacklist: ctx.input.blacklist });
+    if (!literals.length) return [];
+
+    const items = [];
+    const allLiterals = [...literals];
+    for (let i = 0; i < literals.length; i++) {
+      const target = literals[i];
+      const others = literals.filter((_, j) => j !== i);
+      const distractor = others[Math.floor(Math.random() * others.length)];
+      const { targetText, distractorText, canDistract, correct } = buildItem(target, distractor, recall);
+
+      items.push({
+        target: i,
         shown: correct ? targetText : distractorText,
         correct,
-        distractor: correct ? undefined : 1,
-      }],
-    },
-    literals: canDistract && !correct ? [target, distractor] : [target],
-  });
-});
+        distractor: !correct && canDistract ? literals.indexOf(distractor) : undefined,
+      });
+    }
 
-const dataset = { intent: [] };
+    return ctx.mode.buffer({
+      data: { recall, gameplay: ctx.input.defaults?.gameplay ?? "visual", speed: ctx.input.defaults?.speed ?? null, items },
+      literals: allLiterals,
+    });
+  });
+
+const dataset = {
+  intent: [{
+    slug: "feed",
+    name: "Judge",
+    type: "APPLICATIVE",
+    traits: ["FEEDING"],
+    trait: {
+      FEEDING: {
+        mount: "/emit/feed",
+        queue: 1,
+        mask: { limit: 4 },
+      },
+    },
+  }],
+};
 
 export { manifest, buffer, emitter, dataset };

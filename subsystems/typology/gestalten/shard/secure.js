@@ -1,3 +1,5 @@
+// import { RequestContext } from "@mikro-orm/core";
+
 export function authority(provider) {
   return async (ctx, next) => {
     ctx.authority = provider;
@@ -56,6 +58,8 @@ export function authorize(claims = []) {
       };
       return;
     }
+
+    // RequestContext.getEntityManager().setFilterParams("user", { id: ctx.user.id });
 
     // if (claims.length > 0) {const userClaims = ctx.user.claims || []; const missing = claims.filter(c => !userClaims.includes(c)); if (missing.length > 0) {ctx.response.status = 403; ctx.response.body = {status: "ERROR", error: { code: "INSUFFICIENT_CLAIMS", message: `Missing claims: ${missing.join(", ")}` }}; return;}}
 

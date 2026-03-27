@@ -1,5 +1,5 @@
 import { map, atom, computed } from "nanostores";
-import { shards } from "@vivalence/typology";
+import { shard } from "@vivalence/typology";
 
 export class Lighthouse {
   daemons = new Set();
@@ -12,10 +12,10 @@ export class Lighthouse {
 
   constructor(connection) {
     this.connection = connection
-      .use(shards.connection.authorize(this.$authority))
-      .use(shards.connection.retry({ maxRetries: 2 }))
-      .use(shards.connection.timeout())
-      .use(shards.connection.track(connection));
+      .use(shard.connection.authorize(this.$authority))
+      .use(shard.connection.retry({ maxRetries: 2 }))
+      .use(shard.connection.timeout())
+      .use(shard.connection.track(connection));
   }
 
   async login(username, password) {
@@ -163,7 +163,7 @@ export class Lighthouse {
 
 //   constructor(connection) {
 //     this.connection = connection //
-//       .use(shards.connection.authorize(this.$authority));
+//       .use(shard.connection.authorize(this.$authority));
 //   }
 //   get json() {
 //     return {

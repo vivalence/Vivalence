@@ -6,15 +6,15 @@ export async function call(die) {
 }
 
 export async function uninstall(daemonDie) {
-  const installed = await daemonDie.good.entities.mode.find({});
-  const loadedIds = new Set(daemonDie.good.flatmodes().map(({ entity }) => entity.id));
+  await daemonDie.datamap.shard.context(async () => {
+    const installed = await daemonDie.good.entities.mode.find({});
+    const loadedIds = new Set(daemonDie.good.flatmodes().map(({ entity }) => entity.id));
 
-  for (const mode of installed) {
-    if (!loadedIds.has(mode.id)) {
-      const entity = await daemonDie.good.entities.mode.findOneOrFail({ id: mode.id });
-      await daemonDie.good.entities.mode.getEntityManager().removeAndFlush(entity);
+    for (const mode of installed) {
+      if (!loadedIds.has(mode.id)) {
+        const entity = await daemonDie.good.entities.mode.findOneOrFail({ id: mode.id });
+        await daemonDie.good.entities.mode.getEntityManager().removeAndFlush(entity);
+      }
     }
-  }
-
-  await daemonDie.good.entities.em.flush();
+  });
 }

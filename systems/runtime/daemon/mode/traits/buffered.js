@@ -1,5 +1,6 @@
 import { join } from "@std/path";
-import { helper } from "@mikro-orm/core";
+// import { helper } from "@mikro-orm/core";
+import { helper } from "@vivalence/typology/entities";
 import { bundle, is } from "@vivalence/typology";
 import { BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/entities";
 import paladin from "@vivalence/paladin";

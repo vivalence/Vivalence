@@ -3,19 +3,24 @@ import { shard } from "@vivalence/typology";
 export async function datamap(die) {
   const { entities } = die.good;
 
+  // die.good.aperture.open("/datamap", () =>
+  //   shard.datamap.strip(entities.em.getMetadata()),
+  // );
   die.good.aperture.open("/datamap", () =>
-    shard.datamap.strip(entities.em.getMetadata()),
+    shard.datamap.strip(die.datamap.introspect()),
   );
 
   die.good.aperture
     .branch("/entities/literal")
     .slurp(shard.datamap.repository(entities.literal))
-    .slurp(shard.datamap.reactive(entities.literal, entities.twitch));
+    // .slurp(shard.datamap.reactive(entities.literal, entities.twitch));
+    .slurp(shard.datamap.reactive(entities.literal, die.good.twitch));
 
   die.good.aperture
     .branch("/entities/symbol")
     .slurp(shard.datamap.repository(entities.symbol))
-    .slurp(shard.datamap.reactive(entities.symbol, entities.twitch));
+    // .slurp(shard.datamap.reactive(entities.symbol, entities.twitch));
+    .slurp(shard.datamap.reactive(entities.symbol, die.good.twitch));
 
   die.good.aperture
     .branch("/entities/mode")

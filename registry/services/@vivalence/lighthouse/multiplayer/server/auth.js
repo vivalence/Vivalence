@@ -1,4 +1,5 @@
-import { wrap } from "@mikro-orm/core";
+// import { wrap } from "@mikro-orm/core";
+import { wrap } from "@vivalence/typology/entities";
 // import hash from "@vivalence/shared/hash";
 import * as argon2 from "argon2";
 import createJWT from "./lib/jwt.js";

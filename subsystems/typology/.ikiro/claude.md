@@ -217,7 +217,7 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | hash.js | 14 | Hash generation |
 | id.js | 20 | UUID generation/validation |
 | middleware.js | 30 | `compose(middleware[])` — Koa-style middleware composition (27 lines that enable the entire middleware system). `chain(first, second)` — compose two middleware. `forward` — noop passthrough. |
-| object.js | 211 | Deep merge, clone, path set/get, diff |
+| object.js | 220 | Deep merge, clone, path set/get, diff, `assign(target, source)` deep mutating merge with same-reference guard |
 | promise.js | 59 | all, race, retry, timeout |
 | random.js | 105 | Random number/choice |
 | sleep.js | 8 | Sleep utility |
@@ -230,15 +230,15 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | File | Contents |
 |------|---------|
 | connection.js | Connection shard middleware |
-| context.js | `attach(key, val)` — context extraction middleware |
+| context.js | `attach(key, val)` — context extraction middleware (sets on entry, cleans on exit) |
+| ambient.js | `store(resolve)` — wraps next() in AsyncLocalStorage with resolve(ctx) as store. `combine(fn)` — fn(ctx, store) imperative merge. `assign(fn)` — object.assign(ctx, fn(store)) deep merge. `current()` — read store. Server-only (uses node:async_hooks). |
 | patterns.js | Pattern definitions |
 | request.js | Request handling |
 | secure.js | `authority(provider)` — sets `ctx.authority = provider`. `authorize(claims)` — full auth chain: checks Bearer header → calls `ctx.authority.authenticate(token)` → calls `identity.getUser()` → sets `ctx.user`. Returns 401 on missing header, invalid token, or unknown user. Test scenarios must provide a mock authority, not just set ctx.user directly. |
 | transporter.js | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
 | cors.js | CORS wrapper — origin allowlist, preflight 204, header reflection |
 | caching.js | `catchAndRelease(id)` — Map-based response caching middleware |
-| websocket.js | `websocket(handler)` — WebSocket upgrade effect combinator. Arity 1, returns native Response. |
-| serve.js | `serve(root)` — static file serving effect. Remainder params reconstruct file path, MIME detection, Deno.open().readable streaming. |
+| serve.js | `file(root)` — static file serving effect (remainder params → filepath, MIME detection, Deno.open streaming). `websocket(handler)` — WebSocket upgrade effect (arity 1, returns native Response). Both are effect combinators accessed as `shard.serve.file()` and `shard.serve.websocket()`. |
 | analyzer.js | `Trace` class + `trace(name)` / `mark(name)` middleware. Trace collects named spans via `begin(name)`/`end(name)`, exposes `timing` getter for Server-Timing header. `trace()` creates `ctx.trace`, `mark()` adds checkpoints. Effects use `ctx.trace?.begin/end` for ad-hoc spans. HTTP shape injects Server-Timing header from `ctx.trace.timing`. Universal — works across all shape surfaces (http, object, proxy, agentic, subscriber). Extension point for OTel: `begin(name, attrs)` when `@opentelemetry/api` is added later. |
 | datamap.js | Three composable shards, each returning an Aperture (compose via `.slurp()`): `repository(repo)` — CRUD routes (find, findOne, findOneOrFail, findAndCount, count, create, upsert, ensure, update, remove) with options sanitization whitelist. `reactive(repo, twitch)` — opens entity event handlers on a twitch Vector, creates Broadcaster + `/subscribe` SSE endpoint. `ingest(repo)` — `/ingest` POST endpoint consuming incoming SSE via `ctx.request.subscribe()`, applies create/update/delete to repo. Plus: `scope(ctx => patch)` — middleware setting `ctx.scope`. `errors()` — middleware translating MikroORM exceptions to HTTP status codes + `{code}` bodies. Entity name normalization: `getEntityName().toLowerCase().replace("entity", "")`. Two client-side functions: `strip(metadata)` — projects ORM metadata into a client-consumable schema (entity names normalized, only relation properties: m:1, 1:m, m:n, skips scalars/embedded/abstract/pivot). `wire(entities, schema)` — takes an object of RemoteRepositories + a schema from strip, wires `_stores` on each repo so `_hydrate` resolves cross-repo relations automatically. |
 

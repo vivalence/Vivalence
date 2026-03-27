@@ -403,7 +403,7 @@ specimen.describe("http shape", () => {
 
     specimen.it("serves files with correct MIME via remainder", async () => {
       const app = new Aperture();
-      app.get("static/(.*)", serve(tmpDir));
+      app.get("static/(.*)", serve.file(tmpDir));
       const handler = http(app);
 
       const html = await handler(new Request("http://localhost/static/page.html"));

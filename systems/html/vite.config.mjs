@@ -1,4 +1,5 @@
 import deno from "@deno/vite-plugin";
+import { Url } from "@vivalence/typology";
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
@@ -11,6 +12,8 @@ async function serverConfig() {
   const paladin = (await import("@vivalence/paladin")).default;
   await paladin.ikiro;
   const client = paladin.variant.clients.html;
+  // const client = {slug: "html", module: "@vivalence/html", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};
+  // console.log({ client });
 
   // let allowedHosts = paladin.is.dev;
   // if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];

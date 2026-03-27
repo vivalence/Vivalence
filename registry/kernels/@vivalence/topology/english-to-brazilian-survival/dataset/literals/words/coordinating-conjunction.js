@@ -166,8 +166,8 @@ export default [
         "learning": "que"
       },
       "EXEMPLIFIED": {
-        "known": "How embarrassing!",
-        "learning": "Que mico!"
+        "known": "I know that he's coming",
+        "learning": "Eu sei que ele vem"
       },
       "VOCALIZED": {
         "asset": {

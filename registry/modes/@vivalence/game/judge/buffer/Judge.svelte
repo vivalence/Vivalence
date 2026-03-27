@@ -1,9 +1,7 @@
 <script>
-  import { Keyboard, Asset } from "@vivalence/drapes";
+  import { Asset } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
-
-  let keyboard;
 
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
@@ -57,6 +55,14 @@
       : null,
   );
 
+  const correctText = $derived(
+    target && (recall === "LEARNING"
+      ? target.trait?.TRANSLATED?.known
+      : target.trait?.TRANSLATED?.learning),
+  );
+
+  const lastResult = $derived(judged ? results[results.length - 1] : null);
+
   const progress = $derived(timeMs > 0 ? elapsed / timeMs : 0);
   const urgent = $derived(progress >= 0.7);
 
@@ -97,7 +103,7 @@
       } else {
         finish();
       }
-    }, correct ? 200 : 800);
+    }, correct ? 800 : 1500);
   }
 
   function finish() {
@@ -105,14 +111,14 @@
     for (const r of results) {
       const targetLit = literals[r.target];
       terminal.daemon.call("/review/literal", {
-        signal: r.correct ? "SUCCESS" : "FAILURE",
+        signal: r.correct ? "SUCCESS" : "MISTAKE",
         scope: { literal: targetLit.id },
       });
       if (!r.correct && r.distractor !== undefined) {
         const distractorLit = literals[r.distractor];
         if (distractorLit) {
           terminal.daemon.call("/review/literal", {
-            signal: "FAILURE",
+            signal: "MISTAKE",
             scope: { literal: distractorLit.id },
           });
         }
@@ -154,7 +160,7 @@
   }
 
   if (!items.length && !literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 4 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 4 }).then((lits) => {
       if (!lits?.length) return;
       literals = lits;
       const built = lits.map((lit, i) => {
@@ -180,16 +186,15 @@
   } else if (items.length) startTimer();
 </script>
 
-<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
+<div class="viva-frame" style="height: 100%;">
   <div class="timer-bar">
     <div class="timer-fill" class:timer-urgent={urgent} style="width: {Math.max(0, 1 - progress) * 100}%"></div>
   </div>
 
   <div
-    class="bsp-node content"
+    class="viva-surface"
     ontouchstart={handleTouchStart}
     ontouchmove={handleTouchMove}
     ontouchend={handleTouchEnd}
@@ -216,22 +221,34 @@
         {/if}
 
         <div class="shown-row">
-          <p class="shown" class:shown-word={isWord}
-            class:shown-correct={judged && item.correct}
-            class:shown-wrong={judged && !item.correct}
-          >
+          <p class="shown" class:shown-word={isWord}>
             {item.shown}
           </p>
         </div>
 
-        {#if judged}
+        {#if lastResult}
           <div class="feedback">
-            {#if results[results.length - 1]?.correct}
-              <span class="fb-ok">✓</span>
-            {:else if results[results.length - 1]?.timeout}
-              <span class="fb-timeout">time</span>
-            {:else}
-              <span class="fb-wrong">✗</span>
+            <div class="fb-line" class:fb-ok={lastResult.correct} class:fb-miss={!lastResult.correct}>
+              <span class="fb-icon">{lastResult.correct ? "✓" : "✗"}</span>
+              <span class="fb-text">
+                {#if lastResult.timeout}
+                  time ran out
+                {:else if lastResult.correct && item.correct}
+                  that was right
+                {:else if lastResult.correct && !item.correct}
+                  that was wrong
+                {:else if !lastResult.correct && item.correct}
+                  that was right
+                {:else}
+                  that was actually correct
+                {/if}
+              </span>
+            </div>
+            {#if !item.correct && correctText}
+              <div class="fb-answer">
+                <span class="fb-answer-label">correct</span>
+                <span class="fb-answer-text">{correctText}</span>
+              </div>
             {/if}
           </div>
         {/if}
@@ -242,7 +259,7 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if done}
         <span class="menu-hint">complete</span>
@@ -251,12 +268,12 @@
       {:else}
         <button
           class="btn btn-wrong"
-          ontouchstart={(e) => keyboard.guard(e)}
+          onmousedown={(e) => e.preventDefault()}
           onclick={() => judge(false)}
         >✗ Wrong</button>
         <button
           class="btn btn-correct"
-          ontouchstart={(e) => keyboard.guard(e)}
+          onmousedown={(e) => e.preventDefault()}
           onclick={() => judge(true)}
         >✓ Correct</button>
       {/if}
@@ -265,10 +282,8 @@
 </div>
 
 <style>
-  .root { grid-template-rows: auto 1fr auto; }
-  .content { overflow: hidden; }
-
   .timer-bar {
+    flex-shrink: 0;
     height: 3px;
     background: var(--colors-skeleton-1-boundary);
   }
@@ -285,13 +300,14 @@
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 15vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     transition: transform 0.05s;
     user-select: none;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -322,7 +338,11 @@
   .audio-row { margin-bottom: 1rem; }
 
   .shown-row {
-    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1.5rem;
     border-radius: 0.75rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 80%, var(--colors-skeleton-2-surface));
@@ -335,21 +355,51 @@
     line-height: 1.3;
   }
   .shown-word { font-size: var(--font-size-2xl); }
-  .shown-correct { color: var(--colors-system-success-contrast); }
-  .shown-wrong { color: var(--colors-system-error-contrast); }
 
   .feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     margin-top: 1rem;
-    font-size: var(--font-size-2xl);
+    width: 100%;
   }
-  .fb-ok { color: var(--colors-system-success-contrast); }
-  .fb-wrong { color: var(--colors-system-error-contrast); }
-  .fb-timeout {
+  .fb-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  .fb-icon {
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .fb-text {
     font-family: var(--font-family-code);
     font-size: 0.75rem;
-    color: var(--colors-system-error-contrast);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
+  }
+  .fb-ok .fb-icon, .fb-ok .fb-text { color: var(--colors-system-success-contrast); }
+  .fb-miss .fb-icon, .fb-miss .fb-text { color: var(--colors-system-error-contrast); }
+
+  .fb-answer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+  }
+  .fb-answer-label {
+    font-family: var(--font-family-code);
+    font-size: 0.6rem;
+    color: var(--colors-skeleton-1-boundary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .fb-answer-text {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-lg);
+    color: var(--colors-theme-primary-contrast);
   }
 
   .loading {
@@ -365,9 +415,9 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -387,7 +437,8 @@
 
   .btn {
     flex: 1;
-    padding: 1rem 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 0.5rem;
     border-radius: 0.625rem;
     border: none;
     font-size: 1rem;
@@ -405,13 +456,9 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 8vh; padding-left: 1rem; padding-right: 1rem; }
     .source { font-size: var(--font-size-xl); font-family: var(--font-family-sans-text); font-weight: 600; margin-bottom: 1.25rem; }
     .source-word { font-size: var(--font-size-2xl); }
-    .shown-row { padding: 1rem 1.25rem; }
     .shown { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); }
     .shown-word { font-size: var(--font-size-lg); }
-    .btn { padding: 1.125rem 0.5rem; font-size: 1.05rem; }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
   }
 </style>

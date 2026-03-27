@@ -1,13 +1,13 @@
-import { Status } from "@vivalence/typology";
+import { Status, shard } from "@vivalence/typology";
 
 import * as entity from "./entities.js";
 import * as authority from "./auth.js";
 import * as identity from "./identity.js";
-// import { inject, expose, systemmap } from "./entities.js";
 
 // TODO: universal mask first.
 export default async function server(aperture, service) {
-  const { orm, entities } = await entity.systemmap(service, aperture);
+  // const { orm, entities } = await entity.systemmap(service, aperture);
+  const datamap = await entity.systemmap(service, aperture);
 
   aperture
     .use(async (ctx, next) => {
@@ -24,10 +24,12 @@ export default async function server(aperture, service) {
         }
       }
     })
+    // .use(entity.inject(orm))
+    .use(shard.datamap.inject(datamap))
     .use(await authority.inject(service))
-    .use(entity.inject(orm))
     .use(identity.inject());
 
   authority.expose(service, aperture);
-  entity.expose(service, aperture, orm);
+  // entity.expose(service, aperture, orm);
+  entity.expose(service, aperture, datamap);
 }

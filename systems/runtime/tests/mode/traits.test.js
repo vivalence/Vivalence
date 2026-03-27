@@ -26,9 +26,9 @@ specimen.describe("mode traits", () => {
       specimen.expect(intent.traits).toEqual(["FURNISHED"]);
     });
 
-    specimen.it("intent has seek in trait data", async () => {
+    specimen.it("intent has where in trait data", async () => {
       const intent = await scenario.em.findOne(IntentEntity, { slug: "survival-flashcard" });
-      specimen.expect(intent.trait.FURNISHED.seek.symbols).toEqual(["greeting"]);
+      specimen.expect(intent.trait.FURNISHED.where.symbols).toEqual(["greeting"]);
     });
 
     specimen.it("intent queryable via datamap", async () => {
@@ -76,7 +76,7 @@ specimen.describe("mode traits", () => {
       });
       specimen.expect(Array.isArray(result)).toBe(true);
       specimen.expect(result.length).toBe(1);
-      specimen.expect(result[0].mode).toBe(scenario.fixtures.mode.id);
+      specimen.expect(result[0].mode.id ?? result[0].mode).toBe(scenario.fixtures.mode.id);
       specimen.expect(result[0].data.recall).toBe("LEARNING");
       specimen.expect(result[0].literals).toBeTruthy();
     });
@@ -96,10 +96,10 @@ specimen.describe("mode traits", () => {
       specimen.expect(result[0].literals).toBeTruthy();
     });
 
-    specimen.it("persists buffer to DB when session provided", async () => {
+    specimen.it("persists buffer to DB when thread provided", async () => {
       const result = await scenario.mode.emit.literal({
         literal: { id: scenario.fixtures.hello.id },
-        session: scenario.fixtures.session.id,
+        thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result[0].id).toBeTruthy();
       const found = await scenario.em.findOne(BufferEntity, { id: result[0].id }, { populate: ["literals"] });
@@ -109,21 +109,21 @@ specimen.describe("mode traits", () => {
       specimen.expect(found.literals.getItems()).toHaveLength(1);
     });
 
-    specimen.it("persisted buffer has correct index from session counter", async () => {
-      const before = scenario.fixtures.session.counter;
+    specimen.it("persisted buffer has correct index from thread counter", async () => {
+      const before = scenario.fixtures.thread.counter;
       const result = await scenario.mode.emit.literal({
         literal: { id: scenario.fixtures.hello.id },
-        session: scenario.fixtures.session.id,
+        thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result[0].index).toBe(before);
-      specimen.expect(scenario.fixtures.session.counter).toBe(before + 1);
+      specimen.expect(scenario.fixtures.thread.counter).toBe(before + 1);
     });
 
-    specimen.it("buffer without session has null session", async () => {
+    specimen.it("buffer without thread has null thread", async () => {
       const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
       const found = await scenario.em.findOne(BufferEntity, { id: result[0].id });
       specimen.expect(found).toBeTruthy();
-      specimen.expect(found.session).toBeNull();
+      specimen.expect(found.thread).toBeNull();
     });
   });
 });
@@ -146,7 +146,7 @@ specimen.describe("mode traits", () => {
 //     specimen.expect(result[0].props.literal).toEqual({ id: scenario.fixtures.hello.id });
 //     specimen.expect(result[0].props.recall).toBe("LEARNING");
 //   });
-//   specimen.it("persists buffer to DB when session provided", async () => {
+//   specimen.it("persists buffer to DB when thread provided", async () => {
 //     const found = await scenario.em.findOne(BufferEntity, { id: result[0].id });
 //     specimen.expect(found.props.literal).toEqual({ id: scenario.fixtures.hello.id });
 //   });

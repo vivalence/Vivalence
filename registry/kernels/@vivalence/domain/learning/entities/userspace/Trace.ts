@@ -1,27 +1,33 @@
 import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { BaseEntity, BaseSchema } from "@vivalence/typology/entities";
-import { UserEntity, ModeEntity, SessionEntity } from "@vivalence/typology/entities";
+import { DataEntity, DataSchema } from "@vivalence/typology/entities";
+import { UserEntity, ModeEntity, ThreadEntity } from "@vivalence/typology/entities";
 
 import { LiteralEntity } from "../kernel/Literal.ts";
 import { MemoryEntity } from "./Memory.ts";
 
-export class TraceEntity extends BaseEntity {
+export class TraceEntity extends DataEntity {
   user!: Rel<UserEntity>;
   literal!: Rel<LiteralEntity>;
   memory!: Rel<MemoryEntity>;
   mode?: Rel<ModeEntity>;
-  session?: Rel<SessionEntity>;
+  thread?: Rel<ThreadEntity>;
 
   signal: any & Opt = {};
   status!: string & Opt;
   snapshot: any & Opt = {};
 }
 
-export const TraceSchema = new EntitySchema<TraceEntity, BaseEntity>({
+export const TraceSchema = new EntitySchema<TraceEntity, DataEntity>({
   class: TraceEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   tableName: "Trace",
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
   properties: {
     user: {
       kind: "m:1",
@@ -50,10 +56,10 @@ export const TraceSchema = new EntitySchema<TraceEntity, BaseEntity>({
       fieldName: "mode",
       nullable: true,
     },
-    session: {
+    thread: {
       kind: "m:1",
-      entity: () => SessionEntity,
-      fieldName: "session",
+      entity: () => ThreadEntity,
+      fieldName: "thread",
       nullable: true,
     },
 

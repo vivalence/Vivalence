@@ -1,9 +1,7 @@
 <script>
-  import { Keyboard, Asset } from "@vivalence/drapes";
+  import { Asset } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
-
-  let keyboard;
 
   const data = buffer.data ?? {};
   const layout = data.layout ?? "table";
@@ -15,7 +13,7 @@
   let loading = $state(!literals.length);
 
   if (!literals.length) {
-    terminal.daemon.call("/pick/literal/feed", { take: 6 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 6 }).then((lits) => {
       literals = lits ?? [];
       loading = false;
     });
@@ -74,11 +72,10 @@
   }
 </script>
 
-<Keyboard bind:this={keyboard} />
 <svelte:window onkeydown={handleKey} />
 
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literals.length}
         <div class="meta">
@@ -104,7 +101,7 @@
                 <span class="table-form">{learning(lit)}</span>
                 <span class="table-gloss">{known(lit)}</span>
                 {#if lit?.trait?.VOCALIZED?.asset}
-                  <button class="table-audio" ontouchstart={(e) => keyboard.guard(e)} onclick={() => playAudio(lit)}>
+                  <button class="table-audio" onmousedown={(e) => e.preventDefault()} onclick={() => playAudio(lit)}>
                     <span class="audio-icon"></span>
                   </button>
                 {/if}
@@ -158,12 +155,12 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       {#if loading}
         <span class="menu-hint">loading...</span>
       {:else}
-        <button class="btn btn-got-it" ontouchstart={(e) => keyboard.guard(e)} onclick={advance}>
+        <button class="btn btn-got-it" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Got it
         </button>
       {/if}
@@ -172,16 +169,14 @@
 </div>
 
 <style>
-  .root { grid-template-rows: 1fr auto; }
-  .content { overflow-y: auto; }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 8vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -257,7 +252,12 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.25rem;
+    padding: 0.5rem;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .audio-icon {
     display: inline-block;
@@ -370,9 +370,9 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -389,7 +389,8 @@
 
   .btn-got-it {
     width: 100%;
-    padding: 1rem;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
     border-radius: 0.625rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
@@ -404,7 +405,6 @@
   }
 
   @media (max-width: 640px) {
-    .stage { padding-top: 4vh; padding-left: 0.75rem; padding-right: 0.75rem; }
     .title { font-size: var(--font-size-xl); }
     .table { gap: 0.375rem; }
     .table-row {
@@ -413,19 +413,11 @@
       gap: 0.125rem;
       padding: 0.75rem 0.875rem;
     }
-    .table-person {
-      font-size: 0.6rem;
-      margin-bottom: 0.125rem;
-    }
+    .table-person { font-size: 0.6rem; margin-bottom: 0.125rem; }
     .table-form { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); font-weight: 600; }
     .table-gloss { font-size: 0.8rem; font-family: var(--font-family-sans-text); }
     .table-audio { align-self: flex-start; margin-top: 0.25rem; }
     .contrastive { flex-direction: column; }
-    .contrast-divider {
-      width: 100%;
-      height: 1px;
-    }
-    .menu { padding: 1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom, 0px)); }
-    .btn-got-it { padding: 1.125rem; font-size: 1rem; }
+    .contrast-divider { width: 100%; height: 1px; }
   }
 </style>

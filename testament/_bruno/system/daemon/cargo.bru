@@ -1,0 +1,15 @@
+meta {
+  name: cargo
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{DAEMON}}/cargo
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}

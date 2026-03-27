@@ -2,8 +2,6 @@ import { specimen, sleep, shard, shape, Aperture } from "@vivalence/typology";
 
 const { http } = shape;
 
-const { serve } = shard;
-
 specimen.describe("serve shard", () => {
   let tmpDir;
 
@@ -23,7 +21,7 @@ specimen.describe("serve shard", () => {
 
     specimen.beforeAll(() => {
       const app = new Aperture();
-      app.get("assets/(.*)", serve(tmpDir));
+      app.get("assets/(.*)", shard.serve.file(tmpDir));
       handler = http(app);
     });
 

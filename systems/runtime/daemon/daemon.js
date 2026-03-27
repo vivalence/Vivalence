@@ -1,5 +1,5 @@
-import { Classifier, Remedy, Mode, Path, Vector, Aperture, shards } from "@vivalence/typology";
-import { maps } from "@vivalence/typology/entities";
+import { Classifier, Remedy, Mode, Path, Vector, Aperture, shard } from "@vivalence/typology";
+// import { maps } from "@vivalence/typology/entities";
 
 export class Daemon {
   // slug = null;
@@ -8,7 +8,7 @@ export class Daemon {
   attach = null; // Url(runtime.latch)
   url = null; // Url() system level integration.
   aperture = new Aperture() //
-    .use(shards.context.attach("daemon", this));
+    .use(shard.context.attach("daemon", this));
   connection = null;
   call = null;
   authority = null; // lighthouse client

@@ -13,8 +13,8 @@ export default [
         "learning": "de"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "A cup of coffee",
+        "learning": "Uma xícara de café"
       },
       "RANKED": {
         "rank": 21,
@@ -65,8 +65,8 @@ export default [
         "learning": "em"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "She is at home",
+        "learning": "Ela está em casa"
       },
       "RANKED": {
         "rank": 72,
@@ -120,8 +120,8 @@ export default [
         "learning": "para"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "This is for you",
+        "learning": "Isso é para você"
       },
       "RANKED": {
         "rank": 85,
@@ -172,8 +172,8 @@ export default [
         "learning": "com"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "I'll go with you",
+        "learning": "Vou com você"
       },
       "RANKED": {
         "rank": 102,
@@ -224,8 +224,8 @@ export default [
         "learning": "por"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "Thanks for everything",
+        "learning": "Obrigado por tudo"
       },
       "RANKED": {
         "rank": 132,
@@ -276,8 +276,8 @@ export default [
         "learning": "sem"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "Coffee without sugar",
+        "learning": "Café sem açúcar"
       },
       "RANKED": {
         "rank": 741,
@@ -325,8 +325,8 @@ export default [
         "learning": "até"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "See you tomorrow!",
+        "learning": "Até amanhã!"
       },
       "RANKED": {
         "rank": 617,
@@ -377,8 +377,8 @@ export default [
         "learning": "a"
       },
       "EXEMPLIFIED": {
-        "known": "I am from Brazil",
-        "learning": "Eu sou do Brasil"
+        "known": "Let's go to the park",
+        "learning": "Vamos ao parque"
       },
       "RANKED": {
         "rank": 30,
@@ -414,5 +414,5 @@ export default [
         "slug": "functional.grammar"
       }
     ]
-  },
-];
+  }
+]

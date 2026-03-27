@@ -1026,7 +1026,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "the",
+        "known": "him",
         "learning": "o"
       },
       "EXEMPLIFIED": {
@@ -1050,52 +1050,6 @@ export default [
       },
       {
         "slug": "word.lemma.o"
-      },
-      {
-        "slug": "word.part-of-speech.pronoun"
-      },
-      {
-        "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
-      }
-    ]
-  },
-  {
-    "slug": "que.pronoun",
-    "traits": [
-      "TRANSLATED",
-      "EXEMPLIFIED",
-      "VOCALIZED",
-      "RANKED"
-    ],
-    "trait": {
-      "TRANSLATED": {
-        "known": "that/what",
-        "learning": "Que"
-      },
-      "EXEMPLIFIED": {
-        "known": "How embarrassing!",
-        "learning": "Que mico!"
-      },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/que.mp3"
-        }
-      },
-      "RANKED": {
-        "rank": 4,
-        "zipf": 7.44,
-        "fpm": 27500
-      }
-    },
-    "symbols": [
-      {
-        "slug": "word"
-      },
-      {
-        "slug": "word.lemma.que"
       },
       {
         "slug": "word.part-of-speech.pronoun"

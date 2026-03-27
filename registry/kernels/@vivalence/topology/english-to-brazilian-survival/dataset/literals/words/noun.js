@@ -2445,8 +2445,8 @@ export default [
         "learning": "chuva"
       },
       "EXEMPLIFIED": {
-        "known": "It's raining",
-        "learning": "Está chovendo"
+        "known": "The rain won't stop",
+        "learning": "A chuva não para"
       },
       "RANKED": {
         "rank": 16207,

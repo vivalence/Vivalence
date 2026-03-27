@@ -207,6 +207,20 @@ export function patch(target, source) {
   return merge(pick(target, Object.keys(source)), source);
 }
 
+export function assign(target, source) {
+  if (target === source) return target;
+  for (const key of Object.keys(source)) {
+    const val = source[key];
+    if (val === target[key]) continue;
+    if (is.object(val) && !is.array(val) && is.object(target[key])) {
+      assign(target[key], val);
+    } else {
+      target[key] = val;
+    }
+  }
+  return target;
+}
+
 export function values(obj) {
   return Object.values(obj);
 }

@@ -4,7 +4,7 @@ import { create } from "../scenarios/daemon.js";
 
 specimen.describe("smoke: full lifecycle", () => {
   let scenario;
-  let session;
+  let thread;
   let buffers;
 
   specimen.beforeAll(async () => {
@@ -15,21 +15,21 @@ specimen.describe("smoke: full lifecycle", () => {
     await scenario.orm.close();
   });
 
-  specimen.it("create session via userspace", async () => {
-    session = await scenario.authedConn.call("/userspace/entities/session/create", {
+  specimen.it("create thread via userspace", async () => {
+    thread = await scenario.authedConn.call("/userspace/entities/thread/create", {
       data: {
         mode: scenario.fixtures.mode.id,
         intent: scenario.fixtures.intent.id,
       },
     });
-    specimen.expect(session.id).toBeTruthy();
-    specimen.expect(session.mode).toBeTruthy();
+    specimen.expect(thread.id).toBeTruthy();
+    specimen.expect(thread.mode).toBeTruthy();
   });
 
-  specimen.it("emit via HTTP with session → buffers persisted", async () => {
+  specimen.it("emit via HTTP with thread → buffers persisted", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.hello.id },
-      session: session.id,
+      thread: thread.id,
     });
     buffers = result;
     specimen.expect(result.length).toBe(1);
@@ -40,7 +40,7 @@ specimen.describe("smoke: full lifecycle", () => {
 
   specimen.it("query buffers via userspace", async () => {
     const found = await scenario.authedConn.call("/userspace/entities/buffer/find", {
-      where: { session: session.id },
+      where: { thread: thread.id },
     });
     specimen.expect(found.length).toBeGreaterThan(0);
     const match = found.find((b) => b.id === buffers[0].id);
@@ -57,14 +57,14 @@ specimen.describe("smoke: full lifecycle", () => {
   specimen.it("second emit increments index", async () => {
     const result = await scenario.conn.call("/mode/game/flashcard/emit/literal", {
       literal: { id: scenario.fixtures.goodbye.id },
-      session: session.id,
+      thread: thread.id,
     });
     specimen.expect(result[0].index).toBeGreaterThan(buffers[0].index);
   });
 
   specimen.it("all buffers ordered by index", async () => {
     const all = await scenario.authedConn.call("/userspace/entities/buffer/find", {
-      where: { session: session.id },
+      where: { thread: thread.id },
     });
     const indexs = all.map((b) => b.index);
     const sorted = [...indexs].sort((a, b) => a - b);
@@ -73,7 +73,7 @@ specimen.describe("smoke: full lifecycle", () => {
 });
 
 // specimen.describe("smoke (old)", () => {
-//   specimen.it("emit via HTTP with session → buffers persisted", async () => {
+//   specimen.it("emit via HTTP with thread → buffers persisted", async () => {
 //     specimen.expect(result[0].props.literal).toEqual({ id: scenario.fixtures.hello.id });
 //   });
 //   specimen.it("query buffers via userspace", async () => {

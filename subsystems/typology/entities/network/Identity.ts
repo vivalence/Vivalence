@@ -5,7 +5,7 @@ import {
   type Opt,
   type Rel,
 } from "@mikro-orm/core";
-import { BaseEntity, BaseSchema } from "../index.ts";
+import { DataEntity, DataSchema } from "../index.ts";
 
 export class AuthenticatorEmbedEntity {
   provider!: string;
@@ -23,14 +23,14 @@ export const AuthenticatorEmbedSchema = new EntitySchema({
   },
 });
 
-export class IdentityEntity extends BaseEntity {
+export class IdentityEntity extends DataEntity {
   slug!: string;
   authentication: AuthenticatorEmbedEntity & Opt = {};
 }
 
 export const IdentitySchema = new EntitySchema({
   class: IdentityEntity,
-  extends: BaseSchema,
+  extends: DataSchema,
   tableName: "Identity",
   name: "Identity",
   properties: {

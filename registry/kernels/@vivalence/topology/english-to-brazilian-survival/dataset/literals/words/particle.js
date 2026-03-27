@@ -65,8 +65,8 @@ export default [
         "learning": "tá"
       },
       "EXEMPLIFIED": {
-        "known": "It's hot today",
-        "learning": "Tá quente hoje"
+        "known": "Okay, let's go!",
+        "learning": "Tá bom, vamos!"
       },
       "RANKED": {
         "rank": 8696,
@@ -102,5 +102,5 @@ export default [
         "slug": "functional.discourse"
       }
     ]
-  },
-];
+  }
+]

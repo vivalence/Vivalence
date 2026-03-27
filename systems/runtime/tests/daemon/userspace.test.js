@@ -18,7 +18,7 @@ specimen.describe("daemon userspace", () => {
   });
 
   specimen.it("entities require auth", async () => {
-    const response = await scenario.conn.fetch("/userspace/entities/session/find", {});
+    const response = await scenario.conn.fetch("/userspace/entities/thread/find", {});
     specimen.expect(response.status).toBe(401);
   });
 
@@ -28,8 +28,8 @@ specimen.describe("daemon userspace", () => {
     specimen.expect(result.user).toBeTruthy();
   });
 
-  specimen.it("session create with data body", async () => {
-    const result = await scenario.authedConn.call("/userspace/entities/session/create", {
+  specimen.it("thread create with data body", async () => {
+    const result = await scenario.authedConn.call("/userspace/entities/thread/create", {
       data: { mode: scenario.fixtures.mode.id },
     });
     specimen.expect(result.id).toBeTruthy();
@@ -37,22 +37,22 @@ specimen.describe("daemon userspace", () => {
     specimen.expect(result.mode).toBeTruthy();
   });
 
-  specimen.it("session find scoped to user", async () => {
-    const result = await scenario.authedConn.call("/userspace/entities/session/find", {
+  specimen.it("thread find scoped to user", async () => {
+    const result = await scenario.authedConn.call("/userspace/entities/thread/find", {
       where: {},
     });
     specimen.expect(Array.isArray(result)).toBe(true);
     specimen.expect(result.length).toBeGreaterThan(0);
   });
 
-  specimen.it("session findOne scoped to user", async () => {
-    const sessions = await scenario.authedConn.call("/userspace/entities/session/find", {
+  specimen.it("thread findOne scoped to user", async () => {
+    const threads = await scenario.authedConn.call("/userspace/entities/thread/find", {
       where: {},
     });
-    const result = await scenario.authedConn.call("/userspace/entities/session/findOne", {
-      where: { id: sessions[0].id },
+    const result = await scenario.authedConn.call("/userspace/entities/thread/findOne", {
+      where: { id: threads[0].id },
     });
     specimen.expect(result).toBeTruthy();
-    specimen.expect(result.id).toBe(sessions[0].id);
+    specimen.expect(result.id).toBe(threads[0].id);
   });
 });

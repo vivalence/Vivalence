@@ -3,70 +3,49 @@ import { is } from "@vivalence/typology";
 
 export const aperture = new Aperture()
   .open("/pick/literal/feed", async (input, ctx) => {
-    const { seek, blacklist, batch, stock } = input;
-    const take = input.take || (batch || 0) + (stock || 0);
+    const { blacklist, where } = input;
+    const limit = input.limit || 10;
 
-    return ctx.daemon.entities.literal.feed({
-      symbols: seek?.symbols,
-      user: ctx.user.id,
-      take,
-      blacklist,
-    });
+    return ctx.daemon.entities.literal.feed({ limit, blacklist, where });
   })
 
   .open("/pick/literal/novel", async (input, ctx) => {
-    const { seek, blacklist, batch, stock } = input;
-    const take = input.take || (batch || 0) + (stock || 0);
+    const { blacklist, where } = input;
+    const limit = input.limit || 10;
 
-    return ctx.daemon.entities.literal.novel({
-      symbols: seek?.symbols,
-      user: ctx.user.id,
-      take,
-      blacklist,
-    });
+    return ctx.daemon.entities.literal.novel({ limit, blacklist, where });
   })
 
   .open("/pick/literal/due", async (input, ctx) => {
-    const { seek, blacklist, batch, stock } = input;
-    const take = input.take || (batch || 0) + (stock || 0);
+    const { blacklist, where } = input;
+    const limit = input.limit || 10;
 
-    return ctx.daemon.entities.literal.due({
-      symbols: seek?.symbols,
-      user: ctx.user.id,
-      take,
-      blacklist,
-    });
+    return ctx.daemon.entities.literal.due({ limit, blacklist, where });
   })
 
   .open("/pick/literal/byStatus", async (input, ctx) => {
-    const { seek, blacklist, status, batch, stock } = input;
-    const take = input.take || (batch || 0) + (stock || 0);
+    const { blacklist, where, status } = input;
+    const limit = input.limit || 10;
 
-    return ctx.daemon.entities.literal.findBySymbols(
+    return ctx.daemon.entities.literal.find(
       {
-        ...(seek?.symbols?.length && { all: seek.symbols }),
-        memories: { user: ctx.user.id, status },
+        memories: { status },
         ...(blacklist?.literals?.length && { id: { $nin: blacklist.literals } }),
+        ...where,
       },
       {
         populate: ["memories"],
-        populateWhere: { memories: { user: ctx.user.id } },
         orderBy: { rank: "ASC" },
-        limit: take,
+        limit,
       },
     );
   })
 
   .open("/pick/literal/byStrength", async (input, ctx) => {
-    const { seek, blacklist, batch, stock } = input;
-    const take = input.take || (batch || 0) + (stock || 0);
+    const { blacklist, where } = input;
+    const limit = input.limit || 10;
 
-    return ctx.daemon.entities.literal.byStrength({
-      symbols: seek?.symbols,
-      user: ctx.user.id,
-      take,
-      blacklist,
-    });
+    return ctx.daemon.entities.literal.byStrength({ limit, blacklist, where });
   })
 
   .open("/review/literal", async (input, ctx) => {

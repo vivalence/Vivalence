@@ -1,4 +1,4 @@
-import { specimen, Url, Connection, shard, Path, shards, shape, Aperture } from "@vivalence/typology";
+import { specimen, Url, Connection, shard, Path, shape, Aperture } from "@vivalence/typology";
 import { create } from "../scenarios/daemon.js";
 
 specimen.describe("runtime composition", () => {

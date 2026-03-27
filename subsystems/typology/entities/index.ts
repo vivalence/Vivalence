@@ -1,12 +1,11 @@
-export * from "./base/BaseEntity.ts";
-export * from "./base/VirtualEntity.ts";
+export { wrap, helper } from "@mikro-orm/core";
+
 export * from "./base/DataEntity.ts";
+export * from "./base/VirtualEntity.ts";
 export { trait } from "./base/trait.js";
 
 export * from "./kernel/Literal.ts";
 export * from "./kernel/Symbol.ts";
-// export * from "./kernel/Subject.ts";
-// export * from "./kernel/Dimension.ts";
 export * from "./kernel/Issue.ts";
 export * from "./kernel/Constraint.ts";
 
@@ -18,10 +17,8 @@ export * from "./daemon/Intent.ts";
 export * from "./daemon/User.ts";
 
 export * from "./userspace/Buffer.ts";
-export * from "./userspace/Session.ts";
+export * from "./userspace/Thread.ts";
 
-// import subject from "./kernel/Subject.ts";
-// import dimension from "./kernel/Dimension.ts";
 import literal from "./kernel/Literal.ts";
 import symbol from "./kernel/Symbol.ts";
 import issue from "./kernel/Issue.ts";
@@ -34,63 +31,17 @@ import intent from "./daemon/Intent.ts";
 import mode from "./daemon/Mode.ts";
 import user from "./daemon/User.ts";
 
-import session from "./userspace/Session.ts";
+import thread from "./userspace/Thread.ts";
 import buffer from "./userspace/Buffer.ts";
 
-// import virtual from "./base/VirtualEntity.ts";
-// import data from "./base/DataEntity.ts";
-// import base from "./base/BaseEntity.ts";
-// export const entity = [base, data, virtual];
-
-export const daemon = [intent, user, mode];
-
-export const userspace = [
-  session,
-];
-
-export const kernel = [
-  // constraint,
-  // issue,
-  literal,
-  symbol,
-  // subject,
-  // dimension,
-];
-
-export const network = [identity, daemon];
+export { literal, symbol, issue, constraint };
+export { identity, daemon };
+export { intent, mode, user };
+export { thread, buffer };
 
 export const sets = {
-  network,
-  daemon,
-  userspace,
-  kernel,
-};
-
-export const maps = {
-  virtual: {
-    constraint,
-    issue,
-  },
-  network: {
-    identity,
-    daemon,
-  },
-  daemon: {
-    intent,
-    mode,
-    user,
-  },
-  userspace: {
-    buffer,
-    session,
-  },
-  kernel: {
-    literal,
-    symbol,
-    // subject,
-    // dimension,
-    // constraint,
-    // issue,
-  },
-  sets,
+  network: [identity, daemon],
+  daemon: [intent, user, mode],
+  kernel: [literal, symbol],
+  userspace: [thread, buffer], //
 };

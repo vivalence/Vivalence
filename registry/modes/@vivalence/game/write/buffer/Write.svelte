@@ -1,5 +1,5 @@
 <script>
-  import { Asset } from "@vivalence/drapes";
+  import { Asset, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
 
@@ -41,7 +41,7 @@
   const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
 
   if (!literal) {
-    terminal.daemon.call("/pick/literal/feed", { take: 3 }).then((lits) => {
+    terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((lits) => {
       if (lits?.length) {
         for (const l of lits) queue.push(l);
         literal = queue[0];
@@ -104,7 +104,7 @@
 
     const correct = results.filter((tok) => tok.signal === "SUCCESS").length;
     const total = results.length;
-    const signal = correct === total ? "SUCCESS" : correct === 0 ? "FAILURE" : "MISTAKE";
+    const signal = correct === total ? "SUCCESS" : correct === 0 ? "MISTAKE" : "MISTAKE";
 
     return { signal, tokens: results };
   }
@@ -143,6 +143,12 @@
     }
   }
 
+  let inputEl = $state(null);
+
+  $effect(() => {
+    if (inputEl) inputEl.focus();
+  });
+
   function handleKey(event) {
     if (event.key === "Enter") {
       if (!submitted) submit();
@@ -151,9 +157,10 @@
   }
 </script>
 
+<ViewportLock />
 <svelte:window onkeydown={handleKey} />
-<div class="bsp-node root">
-  <div class="bsp-node content">
+<div class="viva-frame" style="height: 100%;">
+  <div class="viva-surface">
     <div class="stage">
       {#if literal}
         <div class="meta">
@@ -236,39 +243,33 @@
     </div>
   </div>
 
-  <div class="bsp-chain-end menu">
+  <div class="viva-controls controls">
     <div class="input-row">
       <input
         class="field"
+        class:field-locked={submitted}
+        bind:this={inputEl}
         value={input}
-        oninput={(event) => (input = event.target.value)}
-        placeholder="{answerLabel}…"
-        disabled={submitted}
-        autofocus />
+        oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
+        placeholder="{answerLabel}…" />
       {#if !submitted}
-        <button class="btn-check" onclick={submit} disabled={loading || !literal}>Check</button>
+        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
       {:else}
-        <button class="btn-next" onclick={next} disabled={loading}>Next →</button>
+        <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
       {/if}
     </div>
   </div>
 </div>
 
 <style>
-  .root {
-    grid-template-rows: 1fr auto;
-  }
-  .content {
-    overflow-y: auto;
-  }
-
   .stage {
     max-width: 480px;
     width: 100%;
     margin: 0 auto;
-    padding: 20vh 1.25rem 2rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
   }
 
   .meta {
@@ -454,9 +455,9 @@
     }
   }
 
-  .menu {
+  .controls {
     border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 1rem 1.25rem;
+    padding: 0.75rem 1.25rem;
   }
   .input-row {
     max-width: 480px;
@@ -467,28 +468,23 @@
   }
   .field {
     flex: 1;
-    padding: 0.875rem 1.125rem;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
-    background: color-mix(
-      in srgb,
-      var(--colors-skeleton-1-surface) 50%,
-      var(--colors-skeleton-app-surface)
-    );
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
     color: var(--colors-palette-gray-10);
-    font-size: 1.0625rem;
+    font-size: 1rem;
     font-family: var(--font-family-serif-heading);
     outline: none;
     box-sizing: border-box;
   }
-  .field::placeholder {
-    color: var(--colors-skeleton-1-boundary);
-  }
-  .field:disabled {
-    opacity: 0.4;
-  }
+  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field-locked { opacity: 0.4; pointer-events: none; }
   .btn-check {
-    padding: 0.875rem 1.75rem;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     border: none;
     background: var(--colors-theme-primary-surface);
@@ -498,14 +494,13 @@
     cursor: pointer;
     font-family: var(--font-family-sans-text);
     white-space: nowrap;
+    flex-shrink: 0;
   }
-  .btn-check:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
+  .btn-check:disabled { opacity: 0.4; cursor: default; }
   .btn-next {
     width: 100%;
-    padding: 0.875rem;
+    min-height: 48px;
+    padding: 0.75rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
@@ -515,23 +510,10 @@
     cursor: pointer;
     font-family: var(--font-family-sans-text);
   }
-  .btn-next:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
+  .btn-next:disabled { opacity: 0.4; cursor: default; }
 
   @media (max-width: 640px) {
-    .stage {
-      padding-top: 12vh;
-    }
-    .prompt {
-      font-size: var(--font-size-xl);
-    }
-    .prompt-word {
-      font-size: var(--font-size-2xl);
-    }
-    .menu {
-      padding: 0.75rem 1rem;
-    }
+    .prompt { font-size: var(--font-size-xl); }
+    .prompt-word { font-size: var(--font-size-2xl); }
   }
 </style>

@@ -1,5 +1,5 @@
-import { EntitySchema, types, type Opt } from "@mikro-orm/core";
-import { BaseSchema, BaseEntity } from "./BaseEntity.ts";
+import { BaseEntity as MikroBaseEntity } from "@mikro-orm/core";
+import { type Opt } from "@mikro-orm/core";
 
 export class VirtualRepository extends Array {
   "#entity": any;
@@ -16,21 +16,8 @@ export class VirtualRepository extends Array {
   }
 }
 
-export class VirtualEntity extends BaseEntity {
-  // [EntityRepositoryType]?: VirtualRepository;
+export class VirtualEntity extends MikroBaseEntity {
   slug: string & Opt = "";
   name?: string;
   description?: string;
 }
-
-export const VirtualSchema = new EntitySchema<VirtualEntity, BaseEntity>({
-  class: VirtualEntity,
-  extends: BaseSchema,
-  name: "VirtualEntity",
-  abstract: true,
-  properties: {
-    slug: { type: types.string },
-    name: { type: types.string, nullable: true },
-    description: { type: types.string, nullable: true },
-  },
-});

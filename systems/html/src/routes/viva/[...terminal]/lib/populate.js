@@ -44,27 +44,27 @@ population
     const daemon = dataspace.daemon.findOneLocal({ slug: ctx.params.daemon });
     if (!daemon) throw new Error(`daemon not found: ${ctx.params.daemon}`);
 
-    const session = await daemon.entities.session.findOne({ id: ctx.params.session });
-    if (!session) throw new Error(`session not found: ${ctx.params.session}`);
+    const thread = await daemon.entities.thread.findOne({ id: ctx.params.thread });
+    if (!thread) throw new Error(`thread not found: ${ctx.params.thread}`);
 
     ctx.terminal.daemon = daemon;
-    ctx.terminal.session = session;
-    ctx.terminal.mode = session.mode;
-    ctx.terminal.intent = session.intent ?? null;
+    ctx.terminal.thread = thread;
+    ctx.terminal.mode = thread.mode;
+    ctx.terminal.intent = thread.intent ?? null;
 
     await next();
   })
-  .open("/:session", async (ctx) => {
+  .open("/:thread", async (ctx) => {
     const mode = ctx.terminal.mode;
     const pojo = mode.buffer
-      ? { ...mode.buffer(), session: ctx.terminal.session.id }
-      : { mode: mode.id, session: ctx.terminal.session.id, data: {} };
+      ? { ...mode.buffer(), thread: ctx.terminal.thread.id }
+      : { mode: mode.id, thread: ctx.terminal.thread.id, data: {} };
     const buffer = mint(pojo, mode, ctx.terminal);
     buffer.release = () => goto("/viva");
     ctx.terminal.stall.push(buffer);
     ctx.terminal.stall.$status.set("IDLE");
   })
-  .open("/:intent/:session", async (ctx) => {
+  .open("/:intent/:thread", async (ctx) => {
     if (ctx.terminal.intent?.type === "APPLICATIVE") {
       ctx.terminal.stall.withPull(async () => {
         const queued = ctx.terminal.stall.queue;
@@ -74,7 +74,7 @@ population
             .map((l) => (typeof l === "object" ? l.id : l)),
         };
         const bufferPojos = await ctx.terminal.intent.emit({
-          session: ctx.terminal.session.id,
+          thread: ctx.terminal.thread.id,
           blacklist,
         });
         return bufferPojos.map((pojo) => {
@@ -89,8 +89,8 @@ population
     } else {
       const mode = ctx.terminal.mode;
       const pojo = mode.buffer
-        ? { ...mode.buffer(), session: ctx.terminal.session.id }
-        : { mode: mode.id, session: ctx.terminal.session.id, data: {} };
+        ? { ...mode.buffer(), thread: ctx.terminal.thread.id }
+        : { mode: mode.id, thread: ctx.terminal.thread.id, data: {} };
       const buffer = mint(pojo, mode, ctx.terminal);
       ctx.terminal.stall.push(buffer);
       ctx.terminal.stall.$status.set("IDLE");

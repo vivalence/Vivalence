@@ -4,10 +4,9 @@
 
 export default async (ctx) => {
   const sentences = await ctx.daemon.entities.literal.feed({
-    symbols: ctx.input.seek?.symbols,
-    user: ctx.user.id,
-    take: ctx.input.batch ?? 3,
+    limit: ctx.input.limit ?? 3,
     blacklist: ctx.input.blacklist,
+    where: ctx.input.where,
   });
   if (!sentences.length) return [];
 
@@ -24,7 +23,7 @@ export default async (ctx) => {
             .map((t) =>
               ctx.daemon.entities.literal.findOne(
                 { slug: t.literal },
-                { populate: ["memories"], populateWhere: { memories: { user: ctx.user.id } } },
+                { populate: ["memories"] },
               ),
             ),
         )
@@ -145,7 +144,7 @@ export default async (ctx) => {
   // ── listen(type) sentences
 
   for (const { sentence } of sentenceTokens) {
-    if (sentence.trait?.VOCALIZED) {
+    if (sentence.traits?.includes("VOCALIZED")) {
       buffers.push(
         await modes.listen.emit.literal({
           literal: sentence,
@@ -159,7 +158,7 @@ export default async (ctx) => {
   // ── listen(pick) untouched/unknown words
 
   for (const lit of [...untouchedWords, ...unknownWords]) {
-    if (lit.trait?.VOCALIZED) {
+    if (lit.traits?.includes("VOCALIZED")) {
       buffers.push(
         await modes.listen.emit.literal({
           literal: lit,
@@ -173,7 +172,7 @@ export default async (ctx) => {
   // ── listen(type) learning words
 
   for (const lit of learningWords) {
-    if (lit.trait?.VOCALIZED) {
+    if (lit.traits?.includes("VOCALIZED")) {
       buffers.push(
         await modes.listen.emit.literal({
           literal: lit,

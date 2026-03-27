@@ -1,5 +1,5 @@
 export * as object from "./object.js";
-export * as strings from "./strings.js";
+export * as string from "./string.js";
 export * as array from "./array.js";
 export * as fn from "./fn.js";
 export * as promise from "./promise.js";
@@ -10,5 +10,6 @@ export * as random from "./random.js";
 export * as sort from "./sort.js";
 export * as hash from "./hash.js";
 export * as crypto from "./crypto.js";
-
 export * as middleware from "./middleware.js";
+
+export * as strings from "./string.js";
