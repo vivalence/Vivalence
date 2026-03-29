@@ -1,0 +1,29 @@
+meta {
+  name: update
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/entities/literal/update
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "slug": "test-literal"
+    },
+    "data": {
+      "trait": {
+        "target": "updated target",
+        "native": "updated native"
+      }
+    }
+  }
+}

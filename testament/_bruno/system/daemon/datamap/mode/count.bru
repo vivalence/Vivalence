@@ -1,11 +1,11 @@
 meta {
-  name: find
+  name: count
   type: http
   seq: 3
 }
 
 post {
-  url: {{DAEMON}}/entities/literal/find
+  url: {{DAEMON}}/entities/mode/count
   body: json
   auth: bearer
 }
@@ -15,9 +15,7 @@ auth:bearer {
 }
 
 body:json {
-  { 
-   "where":{
-      "id":"019d35e8-056c-7151-8f61-e7c76fe5128c"
-   }
+  {
+    "where": {}
   }
 }

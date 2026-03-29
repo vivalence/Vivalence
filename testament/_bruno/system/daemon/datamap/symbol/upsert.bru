@@ -1,0 +1,28 @@
+meta {
+  name: upsert
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/entities/symbol/upsert
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "slug": "test-symbol",
+      "traits": ["ONTOLOGICAL", "STRUCTURAL"],
+      "trait": {
+        "name": "Test Symbol Updated",
+        "description": "An updated test symbol"
+      }
+    }
+  }
+}

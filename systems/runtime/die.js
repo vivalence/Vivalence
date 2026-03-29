@@ -61,7 +61,7 @@ export class Die extends Wafer {
         return;
       }
       await this.good.ters?.patrol();
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      await new Promise((resolve) => setTimeout(resolve, 60000));
     }
   }
 }

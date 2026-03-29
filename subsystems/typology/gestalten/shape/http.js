@@ -3,9 +3,7 @@ import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
 export function http(vector) {
   return async (req) => {
     const ct = req.headers.get("content-type") || "";
-    const body = ct.includes("application/json") ? await req.json().catch(() => null) : null;
     const ctx = new Context({
-      body,
       url: req.url,
       method: req.method,
       headers: Object.fromEntries(req.headers),
@@ -13,6 +11,8 @@ export function http(vector) {
     });
 
     try {
+      if (ct.includes("application/json")) ctx.input = await req.json();
+
       const signal = new Signal(ctx.request.url.pathname);
       const [effect, carry, steps] = steer.traverse(vector, signal);
       if (!effect) return respond(ctx, 404);
@@ -27,6 +27,10 @@ export function http(vector) {
         if (result !== undefined) c.output = result;
       });
     } catch (e) {
+      if (e instanceof SyntaxError) {
+        ctx.output = { code: "BAD_REQUEST", message: e.message };
+        return respond(ctx, 400);
+      }
       if (e instanceof NotFound || e.code === "NOT_FOUND") return respond(ctx, 404);
       console.error(e);
       ctx.output = { code: "INTERNAL", message: e.message };

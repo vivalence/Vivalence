@@ -1,0 +1,27 @@
+meta {
+  name: create
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON}}/entities/literal/create
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "slug": "test-literal",
+      "trait": {
+        "target": "test target",
+        "native": "test native"
+      }
+    }
+  }
+}

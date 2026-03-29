@@ -1,0 +1,26 @@
+meta {
+  name: upsert
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/entities/mode/upsert
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "type": "game",
+      "slug": "test-mode",
+      "name": "Test Mode Updated",
+      "version": "0.0.2"
+    }
+  }
+}

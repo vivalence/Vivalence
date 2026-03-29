@@ -1,0 +1,26 @@
+meta {
+  name: schema
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{DAEMON}}/datamap
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+tests {
+  test("returns entity schema map", function () {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+    expect(data).to.have.property("literal");
+    expect(data).to.have.property("symbol");
+    expect(data).to.have.property("mode");
+    expect(data).to.have.property("intent");
+  });
+}

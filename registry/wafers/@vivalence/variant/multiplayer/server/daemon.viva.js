@@ -32,7 +32,13 @@ export const daemons = [
       "@vivalence/game/flashcard",
       "@vivalence/game/write",
       "@vivalence/game/shadow",
-      "@vivalence/tactic/test",
+      "@vivalence/game/judge",
+      "@vivalence/game/match",
+      "@vivalence/game/pick",
+      "@vivalence/game/cloze",
+      "@vivalence/game/listen",
+      "@vivalence/game/exhibit",
+      "@vivalence/tactic/survival",
     ],
 
     lighthouse: {

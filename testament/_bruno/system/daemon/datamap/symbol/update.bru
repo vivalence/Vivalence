@@ -1,0 +1,29 @@
+meta {
+  name: update
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/entities/symbol/update
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "slug": "test-symbol"
+    },
+    "data": {
+      "traits": ["ONTOLOGICAL", "LABELED"],
+      "trait": {
+        "name": "Renamed Symbol"
+      }
+    }
+  }
+}

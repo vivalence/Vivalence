@@ -1,0 +1,27 @@
+meta {
+  name: create
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON}}/entities/intent/create
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "slug": "test-intent",
+      "type": "SELFEVIDENT",
+      "traits": ["FURNISHED"],
+      "name": "Test Intent",
+      "trait": {}
+    }
+  }
+}

@@ -1,0 +1,26 @@
+meta {
+  name: update
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/entities/mode/update
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "id": "019d23ee-9330-77bc-92c8-8a3e0ad83683"
+    },
+    "data": {
+      "installed": false
+    }
+  }
+}

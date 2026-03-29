@@ -1,0 +1,26 @@
+meta {
+  name: upsert
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/entities/intent/upsert
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "slug": "test-intent",
+      "type": "SELFEVIDENT",
+      "traits": ["FURNISHED", "FEEDING"],
+      "name": "Test Intent Updated"
+    }
+  }
+}

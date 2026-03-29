@@ -1,0 +1,28 @@
+meta {
+  name: create
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON}}/entities/symbol/create
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "slug": "test-symbol",
+      "traits": ["ONTOLOGICAL"],
+      "trait": {
+        "name": "Test Symbol",
+        "description": "A test symbol"
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+meta {
+  name: findOne
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON}}/entities/literal/findOne
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "slug": "hello"
+    },
+    "options": {
+      "populate": ["symbols"]
+    }
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: count
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON}}/entities/intent/count
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {}
+  }
+}
