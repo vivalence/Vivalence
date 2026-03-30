@@ -9,15 +9,17 @@ export class Stall {
   $error = atom(null);
   $status = atom("<uninitialized>");
 
+  threshold = 0;
   handlers = { pull: null, hooks: [] };
 
   get queue() {
     return [...this.$queue.get(), this.$active.get()].filter(Boolean);
   }
 
-  withPull(pull) {
+  withPull(pull, threshold = 0) {
     this.handlers.pull = pull;
     this.handlers.hooks = []; // this makes hook bundling on buffer render an imperative!
+    this.threshold = threshold;
     return this;
   }
 
@@ -45,7 +47,7 @@ export class Stall {
   async pull() {
     const status = this.$status.get();
     if (["CLOSED", "PULLING"].includes(status)) return;
-    // if (this.$queue.get().length > this.threshold) return;
+    if (this.$queue.get().length > this.threshold) return;
     if (!this.handlers.pull) {
       console.log("@stall/pull() handler.pull missing");
       return;

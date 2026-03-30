@@ -145,9 +145,9 @@ export async function create() {
   daemon.aperture.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
 
   const handler = shape.http(daemon.aperture);
-  const conn = new Connection(new Url("http://test"), shard.transport.inline(handler));
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
 
-  const authedConn = new Connection(new Url("http://test"), shard.transport.inline(handler));
+  const authedConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
   authedConn.use(async (ctx, next) => {
     ctx.request.headers.set("authorization", "Bearer test-token");
     await next();

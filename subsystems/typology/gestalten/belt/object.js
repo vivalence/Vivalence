@@ -160,12 +160,20 @@ const deepMergeCore = (current, options, visited, ...sources) => {
             ? new Set(sourceValue)
             : new Set([...(current[key] || []), ...sourceValue]);
       } else if (is.array(sourceValue)) {
-        current[key] =
-          options.arrayMergeStrategy === "unique"
-            ? [...new Set([...(current[key] || []), ...sourceValue])]
-            : options.arrayMergeStrategy === "replace"
-              ? sourceValue
-              : [...(current[key] || []), ...sourceValue];
+        if (options.arrayMergeStrategy === "unique") {
+          const existing = current[key] || []
+          const seen = new Set(existing.map((x) => typeof x === "object" ? JSON.stringify(x) : x))
+          const merged = [...existing]
+          for (const item of sourceValue) {
+            const k = typeof item === "object" ? JSON.stringify(item) : item
+            if (!seen.has(k)) { seen.add(k); merged.push(item) }
+          }
+          current[key] = merged
+        } else {
+          current[key] = options.arrayMergeStrategy === "replace"
+            ? sourceValue
+            : [...(current[key] || []), ...sourceValue]
+        }
       } else if (sourceValue instanceof Date) {
         if (!(current[key] instanceof Date)) {
           current[key] = sourceValue;

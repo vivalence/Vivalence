@@ -258,7 +258,7 @@ specimen.describe("http shape", () => {
     });
 
     specimen.describe("Connection internal (inline transport)", () => {
-      const conn = new Connection(new Url("http://internal"), shard.transport.inline(handler));
+      const conn = new Connection(new Url("http://internal"), shard.transmitter.inline(handler));
 
       specimen.it("call without HTTP", async () => {
         specimen.expect(await conn.call("/ping")).toEqual({ pong: true });

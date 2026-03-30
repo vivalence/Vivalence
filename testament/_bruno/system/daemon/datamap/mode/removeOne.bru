@@ -1,11 +1,11 @@
 meta {
-  name: remove
+  name: removeOne
   type: http
-  seq: 9
+  seq: 7
 }
 
 post {
-  url: {{DAEMON}}/entities/symbol/remove
+  url: {{DAEMON}}/entities/mode/removeOne
   body: json
   auth: bearer
 }
@@ -17,7 +17,8 @@ auth:bearer {
 body:json {
   {
     "where": {
-      "slug": "test-symbol"
+      "type": "game",
+      "slug": "test-mode"
     }
   }
 }

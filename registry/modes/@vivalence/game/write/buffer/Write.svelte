@@ -109,8 +109,10 @@
     return { signal, tokens: results };
   }
   function review(result) {
-    const scope = { buffer: buffer.id };
-    terminal.daemon.call("/review/buffer", { signal: result.signal, scope });
+    terminal.daemon.call("/review/literal", {
+      signal: result.signal,
+      scope: { literal: literal.id },
+    });
 
     if (result.tokens) {
       for (const tok of result.tokens) {

@@ -126,23 +126,22 @@ export function repository(repo) {
     );
   }
 
+  aperture.post("/updateOne", scoped("where", (input) => repo.updateOne(input.where || {}, input.data || {})));
+  aperture.post("/update", scoped("where", (input) => repo.update(input.where || {}, input.data || {})));
+
   aperture.post(
-    "/update",
+    "/removeOne",
     scoped("where", async (input) => {
-      const entity = await repo.findOneOrFail(input.where || {});
-      entity.assign(input.data || {});
-      await em().flush();
-      return entity;
+      const entity = await repo.removeOne(input.where || {});
+      return { ok: true, id: entity.id };
     }),
   );
 
   aperture.post(
     "/remove",
     scoped("where", async (input) => {
-      const entity = await repo.findOneOrFail(input.where || {});
-      em().remove(entity);
-      await em().flush();
-      return { ok: true };
+      const entities = await repo.remove(input.where || {});
+      return { count: entities.length, ids: entities.map((e) => e.id) };
     }),
   );
 

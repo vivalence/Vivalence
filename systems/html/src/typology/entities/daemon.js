@@ -37,16 +37,20 @@ export class Daemon {
 export const prototype = Daemon;
 
 export async function lifecycle(daemon) {
-  try {
-    daemon.manifest = await daemon.connection.call("/manifest");
-  } catch (error) {
-    console.log("Error setting up daemon", { daemon });
-    throw new Error("daemon doesnt manifest");
-  }
+  const [manifest, schema, cargo] = await Promise.all([
+    daemon.connection.call("/manifest").catch((error) => {
+      console.log("Error setting up daemon", { daemon });
+      throw new Error("daemon doesnt manifest");
+    }),
+    daemon.connection.call("/datamap"),
+    daemon.connection.call("/cargo"),
+  ]);
 
-  daemon.slug = daemon.manifest.slug;
+  daemon.manifest = manifest;
+  daemon.slug = manifest.slug;
   daemon.call = daemon.connection.call.bind(daemon.connection);
   daemon.mount = new Path(`/daemon/${daemon.slug}`);
+  daemon.cargo = cargo;
 
   const lighthouseSlug = daemon.lighthouse?.manifest?.slug ?? "default";
   daemon.link = new Path(`/${lighthouseSlug}/${daemon.slug}`).rebase("/viva");
@@ -57,13 +61,13 @@ export async function lifecycle(daemon) {
     thread: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/thread")),
     buffer: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/buffer")),
   };
-
-  const schema = await daemon.connection.call("/datamap");
   shard.datamap.wire(daemon.entities, schema);
 
-  daemon.cargo = await daemon.connection.call("/cargo"); // such a shortcut.
+  const [modes, intents] = await Promise.all([
+    daemon.entities.mode.find(),
+    daemon.entities.intent.find(),
+  ]);
 
-  const modes = await daemon.entities.mode.find();
   const modeById = new Map();
   for (const m of modes) {
     m.intents = new Set();
@@ -71,7 +75,12 @@ export async function lifecycle(daemon) {
     m.mount = daemon.mount.branch(`/mode/${m.type}/${m.slug}`);
     m.connection = daemon.connection.branch(m.mount.nature);
     m.call = m.connection.call.bind(m.connection);
-    if (m.implements("BUFFERED")) {
+    m.link = daemon.link.branch(`/${m.type}/${m.slug}`);
+    modeById.set(m.id, m);
+  }
+
+  await Promise.all(
+    modes.filter((m) => m.implements("BUFFERED")).map(async (m) => {
       m.buffered = await m.connection.call("/buffered");
       m.buffer = (desc = {}) => ({
         mode: m.id,
@@ -79,19 +88,9 @@ export async function lifecycle(daemon) {
         literals: desc.literals ?? [],
         symbols: desc.symbols ?? [],
       });
-    }
-    // if (m.implements("BUFFERED")) {
-    //   m.buffered = await m.connection.call("/buffered");
-    //   m.buffer = (props = {}) => ({
-    //     mode: m.id,
-    //     props: { ...(m.buffered?.schema ?? {}), ...props },
-    //   });
-    // }
-    m.link = daemon.link.branch(`/${m.type}/${m.slug}`);
-    modeById.set(m.id, m);
-  }
+    }),
+  );
 
-  const intents = await daemon.entities.intent.find();
   const intentById = new Map();
   for (const i of intents) {
     const modeId = i.mode?.id ?? i.mode;

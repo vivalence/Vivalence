@@ -6,7 +6,7 @@ export class Connection {
   $state = atom("IDLE");
   $error = atom(null);
 
-  constructor(url, transport = shard.transport.fetcher) {
+  constructor(url, transport = shard.transmitter.fetcher) {
     this.url = url instanceof Url ? url : new Url(url);
     this.transport = transport;
   }
@@ -145,7 +145,7 @@ export class Connection {
 //   $state = atom("UNRESOLVED");
 //   $error = atom(null);
 
-//   constructor(url, transport = shard.transport.fetcher) {
+//   constructor(url, transport = shard.transmitter.fetcher) {
 //     this.url = url instanceof Url ? url : new Url(url);
 //     this.transport = transport;
 //     this.use(track(this));

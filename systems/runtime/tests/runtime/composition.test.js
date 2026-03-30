@@ -22,7 +22,7 @@ specimen.describe("runtime composition", () => {
     runtimeHandler = shape.http(runtime);
     runtimeConn = new Connection(
       new Url("http://test"),
-      shard.transport.inline(runtimeHandler),
+      shard.transmitter.inline(runtimeHandler),
     );
   });
 

@@ -128,8 +128,8 @@ Async pub/sub primitive. `subscribe(filter)` returns `{iterable, unsubscribe}` w
 **BaseEntity** `entities/base/BaseEntity.ts` (42 lines) extends MikroBaseEntity
 UUID v7 primary key, auto timestamps (createdAt, updatedAt).
 
-**DataEntity** `entities/base/DataEntity.ts` (72 lines) extends BaseEntity
-Repository with `unique(x)` (must override), `findByTrait(trait)`, `ensure(query)` (upsert).
+**DataEntity** `entities/base/DataEntity.ts` extends BaseEntity
+DataRepository with `unique(x)` (must override), `ensure(query)` (upsert), `updateOne(where, data)` → entity, `update(where, data)` → entity[], `removeOne(where)` → entity, `remove(where)` → entity[]. Overrides `find`/`findOne` with `resolveTraits` (SQLite JSON array queries). `findByIdentifiers(refs)` resolves mixed id/slug arrays.
 
 **VirtualEntity** `entities/base/VirtualEntity.ts` (36 lines) extends BaseEntity
 In-memory collection-backed. Repository extends Array. Properties: slug, name, description.
@@ -166,7 +166,7 @@ Url string, slug (unique).
 Roles enum (USER, ADMIN, GUEST), config (JSON), sessions (1:m → Session).
 
 **Mode** `entities/daemon/Mode.ts` (86 lines) extends DataEntity
-Traits enum: VIEWABLE, DATASET, INTENTED, SELFEVIDENT, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT (+ VALENTIC, BUFFERED, PRODUCER as legacy in enum only). Properties: slug, name, description, type, installed. Relations: intents (1:m → Intent), buffers (1:m → Buffer). Unique by type+slug.
+Traits enum: DATASET, EXPOSED, CHAOSMONKEY, TOPOGRAPHICAL, INTENTED, SELFEVIDENT, EMITTER, FRAUGHT, BUFFERED. Properties: slug, name, description, type, installed. Relations: intents (1:m → Intent), buffers (1:m → Buffer). Unique by type+slug.
 
 **Intent** `entities/daemon/Intent.ts` extends DataEntity
 Type enum (SELFEVIDENT, APPLICATIVE), Traits (FURNISHED, FEEDING). Properties: slug, name, description, type, trait (JSON). Mode relation (m:1, eager). Symbols (m:n), Literals (m:n). Unique by slug+mode.
@@ -235,12 +235,12 @@ Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.pa
 | patterns.js | Pattern definitions |
 | request.js | Request handling |
 | secure.js | `authority(provider)` — sets `ctx.authority = provider`. `authorize(claims)` — full auth chain: checks Bearer header → calls `ctx.authority.authenticate(token)` → calls `identity.getUser()` → sets `ctx.user`. Returns 401 on missing header, invalid token, or unknown user. Test scenarios must provide a mock authority, not just set ctx.user directly. |
-| transporter.js | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
+| transmitter.js | `fetcher` — HTTP fetch transport. `inline(serve)` — bridges Connection ctx ↔ native `(Request)=>Response` handler without HTTP. Used by runtime for daemon internal Connection. |
 | cors.js | CORS wrapper — origin allowlist, preflight 204, header reflection |
 | caching.js | `catchAndRelease(id)` — Map-based response caching middleware |
 | serve.js | `file(root)` — static file serving effect (remainder params → filepath, MIME detection, Deno.open streaming). `websocket(handler)` — WebSocket upgrade effect (arity 1, returns native Response). Both are effect combinators accessed as `shard.serve.file()` and `shard.serve.websocket()`. |
 | analyzer.js | `Trace` class + `trace(name)` / `mark(name)` middleware. Trace collects named spans via `begin(name)`/`end(name)`, exposes `timing` getter for Server-Timing header. `trace()` creates `ctx.trace`, `mark()` adds checkpoints. Effects use `ctx.trace?.begin/end` for ad-hoc spans. HTTP shape injects Server-Timing header from `ctx.trace.timing`. Universal — works across all shape surfaces (http, object, proxy, agentic, subscriber). Extension point for OTel: `begin(name, attrs)` when `@opentelemetry/api` is added later. |
-| datamap.js | Three composable shards, each returning an Aperture (compose via `.slurp()`): `repository(repo)` — CRUD routes (find, findOne, findOneOrFail, findAndCount, count, create, upsert, ensure, update, remove) with options sanitization whitelist. `reactive(repo, twitch)` — opens entity event handlers on a twitch Vector, creates Broadcaster + `/subscribe` SSE endpoint. `ingest(repo)` — `/ingest` POST endpoint consuming incoming SSE via `ctx.request.subscribe()`, applies create/update/delete to repo. Plus: `scope(ctx => patch)` — middleware setting `ctx.scope`. `errors()` — middleware translating MikroORM exceptions to HTTP status codes + `{code}` bodies. Entity name normalization: `getEntityName().toLowerCase().replace("entity", "")`. Two client-side functions: `strip(metadata)` — projects ORM metadata into a client-consumable schema (entity names normalized, only relation properties: m:1, 1:m, m:n, skips scalars/embedded/abstract/pivot). `wire(entities, schema)` — takes an object of RemoteRepositories + a schema from strip, wires `_stores` on each repo so `_hydrate` resolves cross-repo relations automatically. |
+| datamap.js | Three composable shards, each returning an Aperture (compose via `.slurp()`): `repository(repo)` — CRUD routes (find, findOne, findOneOrFail, findAndCount, count, create, upsert, ensure, updateOne, update, removeOne, remove) as thin HTTP exposition over DataRepository methods. `reactive(repo, twitch)` — opens entity event handlers on a twitch Vector, creates Broadcaster + `/subscribe` SSE endpoint. `ingest(repo)` — `/ingest` POST endpoint consuming incoming SSE via `ctx.request.subscribe()`, applies create/update/delete to repo. Plus: `scope(ctx => patch)` — middleware setting `ctx.scope`. `errors()` — middleware translating MikroORM exceptions to HTTP status codes + `{code}` bodies. Entity name normalization: `getEntityName().toLowerCase().replace("entity", "")`. Two client-side functions: `strip(metadata)` — projects ORM metadata into a client-consumable schema (entity names normalized, only relation properties: m:1, 1:m, m:n, skips scalars/embedded/abstract/pivot). `wire(entities, schema)` — takes an object of RemoteRepositories + a schema from strip, wires `_stores` on each repo so `_hydrate` resolves cross-repo relations automatically. |
 
 ### steer/ — Routing Operations
 
@@ -323,7 +323,7 @@ All tests use specimen's describe/it pattern with construction → gestalt → v
 
 These stubs should be populated as you trace dependencies through the system.
 
-- **Runtime**: Die extends Wafer. `shape.http(aperture)` compiles routes. `shard.datamap.repository()` + `.reactive()` + `.scope()` wire entity CRUD routes. `shard.transport.inline()` for daemon internal Connection. `shape.subscriber(twitch)` routes ORM events via Vector. Mode/Intent entities drive daemon composition. Runtime scenarios (`@vivalence/runtime/scenarios`) import typology entities and the Mode prototype.
+- **Runtime**: Die extends Wafer. `shape.http(aperture)` compiles routes. `shard.datamap.repository()` + `.reactive()` + `.scope()` wire entity CRUD routes. `shard.transmitter.inline()` for daemon internal Connection. `shape.subscriber(twitch)` routes ORM events via Vector. Mode/Intent entities drive daemon composition. Runtime scenarios (`@vivalence/runtime/scenarios`) import typology entities and the Mode prototype.
 - **Paladin**: Wafer is the base lifecycle container. Seek resolves entity references during populate. Status tracks daemon state.
 - **Registry**: Mode manifests (.viva.js) declare traits from Mode.Traits enum. Literal/Symbol entities populated from topology datasets. Modes use Vector/Aperture for routing.
 - **Client**: Connection prototype drives server communication (including subscribe/websocket). mod.client.js is the entry point — gestalten + prototypes (client subset) + trait.

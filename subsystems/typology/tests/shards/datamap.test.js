@@ -34,7 +34,7 @@ specimen.beforeAll(async () => {
   const handler = shape.http(aperture)
   conn = new Connection(
     new Url("http://test"),
-    shard.transport.inline(handler),
+    shard.transmitter.inline(handler),
   )
 })
 
@@ -78,7 +78,7 @@ specimen.describe("shard.datamap.repository", () => {
 
   specimen.it("update", async () => {
     const created = await conn.call("/literal/create", { data: { slug: "mutable", trait: {} } })
-    const updated = await conn.call("/literal/update", {
+    const updated = await conn.call("/literal/updateOne", {
       where: { id: created.id }, data: { trait: { TAGGED: true } },
     })
     specimen.expect(updated.trait.TAGGED).toBe(true)
@@ -86,7 +86,7 @@ specimen.describe("shard.datamap.repository", () => {
 
   specimen.it("remove", async () => {
     const created = await conn.call("/literal/create", { data: { slug: "ephemeral", trait: {} } })
-    const result = await conn.call("/literal/remove", { where: { id: created.id } })
+    const result = await conn.call("/literal/removeOne", { where: { id: created.id } })
     specimen.expect(result.ok).toBe(true)
     const gone = await scenario.repos.literal.findOne({ slug: "ephemeral" })
     specimen.expect(gone).toBeNull()
@@ -99,10 +99,10 @@ specimen.describe("shard.datamap.repository", () => {
     specimen.expect(first.slug).toBe("ensured")
 
     const second = await conn.call("/mode/ensure", {
-      data: { slug: "ensured", type: "test", traits: ["VIEWABLE"], installed: true },
+      data: { slug: "ensured", type: "test", traits: ["BUFFERED"], installed: true },
     })
     specimen.expect(second.id).toBe(first.id)
-    specimen.expect(second.traits).toContain("VIEWABLE")
+    specimen.expect(second.traits).toContain("BUFFERED")
   })
 
   specimen.it("populate passes through", async () => {
@@ -142,7 +142,7 @@ specimen.describe("shard.datamap.scope", () => {
 
 specimen.describe("shard.datamap.errors", () => {
   specimen.it("404 on update not found", async () => {
-    const res = await conn.fetch("/literal/update", {
+    const res = await conn.fetch("/literal/updateOne", {
       where: { id: "00000000-0000-0000-0000-000000000000" }, data: {},
     })
     specimen.expect(res.status).toBe(404)
@@ -150,7 +150,7 @@ specimen.describe("shard.datamap.errors", () => {
   })
 
   specimen.it("404 on remove not found", async () => {
-    const res = await conn.fetch("/literal/remove", {
+    const res = await conn.fetch("/literal/removeOne", {
       where: { id: "00000000-0000-0000-0000-000000000000" },
     })
     specimen.expect(res.status).toBe(404)
@@ -376,6 +376,6 @@ specimen.describe("shard.datamap.wire", () => {
 
     const modes = await modeRepo.find()
     specimen.expect(modes[0]).toBeInstanceOf(TestMode)
-    specimen.expect(modes[0].implements("VIEWABLE")).toBe(true)
+    specimen.expect(modes[0].implements("BUFFERED")).toBe(true)
   })
 })

@@ -40,21 +40,22 @@ async function populate(lighthouse) {
   const { dataspace } = await import("$client");
   const daemons = await lighthouse.connection.call("/entities/daemon/find");
 
-  for (const daemonPojo of daemons) {
-    const exists = await dataspace.daemon.findOne({ "connection.url": daemonPojo.url });
-    // $entities.get().find((d) => d.connection.url === daemonPojo.url);
-    if (exists) continue;
+  await Promise.all(
+    daemons.map(async (daemonPojo) => {
+      const exists = await dataspace.daemon.findOne({ "connection.url": daemonPojo.url });
+      if (exists) return;
 
-    const connection = new Connection(daemonPojo.url) //
-      .use(shard.connection.authorize(lighthouse.$authority));
+      const connection = new Connection(daemonPojo.url) //
+        .use(shard.connection.authorize(lighthouse.$authority));
 
-    const daemon = new Daemon(connection);
+      const daemon = new Daemon(connection);
 
-    daemon.lighthouse = lighthouse;
-    await daemonLifecycle(daemon);
-    dataspace.daemon.merge(daemon);
-    lighthouse.daemons.add(daemon);
-  }
+      daemon.lighthouse = lighthouse;
+      await daemonLifecycle(daemon);
+      dataspace.daemon.merge(daemon);
+      lighthouse.daemons.add(daemon);
+    }),
+  );
 }
 
 export async function lifecycle(lighthouse) {

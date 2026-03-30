@@ -27,7 +27,7 @@
   let shuffled = $state([]);
   let hinted = $state(false);
 
-  const target = $derived(gameplay === "type" ? literals[currentIndex] : literals[0]);
+  const target = $derived(data.target ? literals.find((l) => l.id === data.target) : literals[0]);
   const isWord = $derived(target?.symbol?.word);
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
   const total = $derived(gameplay === "type" ? literals.length : 1);

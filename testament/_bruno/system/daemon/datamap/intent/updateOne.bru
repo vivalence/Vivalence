@@ -1,0 +1,30 @@
+meta {
+  name: updateOne
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/entities/intent/updateOne
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "slug": "test-intent"
+    },
+    "data": {
+      "name": "Test Intent Renamed",
+      "description": "An updated test intent",
+      "trait": {
+        "custom": "value"
+      }
+    }
+  }
+}

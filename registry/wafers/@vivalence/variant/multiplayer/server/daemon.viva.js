@@ -34,6 +34,8 @@ export const daemons = [
       "@vivalence/game/shadow",
       "@vivalence/game/judge",
       "@vivalence/game/match",
+      "@vivalence/game/conjugation",
+      "@vivalence/game/paradigm",
       "@vivalence/game/pick",
       "@vivalence/game/cloze",
       "@vivalence/game/listen",

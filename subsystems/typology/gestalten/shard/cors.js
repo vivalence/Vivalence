@@ -1,4 +1,4 @@
-const origins = ["*", "localhost(:[0-9]+)?", "*.vivalence.com", "*vivalence.com"];
+const origins = ["localhost(:[0-9]+)?", "*.vivalence.com", "*vivalence.com"];
 
 const patterns = origins.map((origin) => {
   const adjusted = origin

@@ -1,4 +1,4 @@
-import { object, BufferView, Vector, v } from "@vivalence/typology";
+import { object, array, BufferView, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -52,6 +52,7 @@ const emitter = new Vector()
 
     return ctx.mode.buffer({
       data: {
+        target: lit.id,
         recall: ctx.input.recall ?? "LEARNING",
         gameplay,
         forgiving: ctx.input.forgiving ?? true,

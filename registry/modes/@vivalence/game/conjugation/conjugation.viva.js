@@ -91,7 +91,7 @@ const emitter = new Vector()
         }),
       );
     }
-    return buffers;
+    return array.shuffle(buffers);
   });
 
 const dataset = {

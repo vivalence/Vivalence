@@ -4,7 +4,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -19,6 +20,11 @@ export default [
         "asset": {
           "path": "words/acampamento.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 46729,
+        "zipf": 4.33,
+        "fpm": 21.4
       }
     },
     "symbols": [
@@ -44,7 +50,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -59,6 +66,11 @@ export default [
         "asset": {
           "path": "words/acidente.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 13495,
+        "zipf": 4.87,
+        "fpm": 74.1
       }
     },
     "symbols": [
@@ -84,7 +96,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -99,6 +112,11 @@ export default [
         "asset": {
           "path": "words/acordo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2571,
+        "zipf": 5.59,
+        "fpm": 389
       }
     },
     "symbols": [
@@ -124,7 +142,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -139,6 +158,11 @@ export default [
         "asset": {
           "path": "words/americano.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 11482,
+        "zipf": 4.94,
+        "fpm": 87.1
       }
     },
     "symbols": [
@@ -164,7 +188,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -179,6 +204,11 @@ export default [
         "asset": {
           "path": "words/amigo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4167,
+        "zipf": 5.38,
+        "fpm": 240
       }
     },
     "symbols": [
@@ -204,7 +234,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -219,6 +250,11 @@ export default [
         "asset": {
           "path": "words/andar.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12019,
+        "zipf": 4.92,
+        "fpm": 83.2
       }
     },
     "symbols": [
@@ -244,7 +280,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -259,6 +296,11 @@ export default [
         "asset": {
           "path": "words/anel.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 47847,
+        "zipf": 4.32,
+        "fpm": 20.9
       }
     },
     "symbols": [
@@ -284,7 +326,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -299,6 +342,11 @@ export default [
         "asset": {
           "path": "words/animal.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 17794,
+        "zipf": 4.75,
+        "fpm": 56.2
       }
     },
     "symbols": [
@@ -324,7 +372,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -339,6 +388,11 @@ export default [
         "asset": {
           "path": "words/aniversa-ac-rio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10235,
+        "zipf": 4.99,
+        "fpm": 97.7
       }
     },
     "symbols": [
@@ -364,7 +418,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -379,6 +434,11 @@ export default [
         "asset": {
           "path": "words/ano.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 676,
+        "zipf": 6.17,
+        "fpm": 1480
       }
     },
     "symbols": [
@@ -404,7 +464,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -419,6 +480,11 @@ export default [
         "asset": {
           "path": "words/ar.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6329,
+        "zipf": 5.2,
+        "fpm": 158
       }
     },
     "symbols": [
@@ -444,7 +510,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -459,6 +526,11 @@ export default [
         "asset": {
           "path": "words/artista.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15129,
+        "zipf": 4.82,
+        "fpm": 66.1
       }
     },
     "symbols": [
@@ -484,7 +556,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -499,6 +572,11 @@ export default [
         "asset": {
           "path": "words/aspectos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 25127,
+        "zipf": 4.6,
+        "fpm": 39.8
       }
     },
     "symbols": [
@@ -524,7 +602,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -539,6 +618,11 @@ export default [
         "asset": {
           "path": "words/assassinato.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 19048,
+        "zipf": 4.72,
+        "fpm": 52.5
       }
     },
     "symbols": [
@@ -564,7 +648,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -579,6 +664,11 @@ export default [
         "asset": {
           "path": "words/astronauta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 228834,
+        "zipf": 3.64,
+        "fpm": 4.4
       }
     },
     "symbols": [
@@ -604,7 +694,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -619,6 +710,11 @@ export default [
         "asset": {
           "path": "words/ataque.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8696,
+        "zipf": 5.06,
+        "fpm": 115
       }
     },
     "symbols": [
@@ -644,7 +740,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -659,6 +756,11 @@ export default [
         "asset": {
           "path": "words/avia-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 24570,
+        "zipf": 4.61,
+        "fpm": 40.7
       }
     },
     "symbols": [
@@ -684,7 +786,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -699,6 +802,11 @@ export default [
         "asset": {
           "path": "words/bagunc-cd-a.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 74074,
+        "zipf": 4.13,
+        "fpm": 13.5
       }
     },
     "symbols": [
@@ -724,7 +832,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -739,6 +848,11 @@ export default [
         "asset": {
           "path": "words/banda.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9346,
+        "zipf": 5.03,
+        "fpm": 107
       }
     },
     "symbols": [
@@ -764,7 +878,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -779,6 +894,11 @@ export default [
         "asset": {
           "path": "words/bandeira.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 22883,
+        "zipf": 4.64,
+        "fpm": 43.7
       }
     },
     "symbols": [
@@ -804,7 +924,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -819,6 +940,11 @@ export default [
         "asset": {
           "path": "words/barba.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 67568,
+        "zipf": 4.17,
+        "fpm": 14.8
       }
     },
     "symbols": [
@@ -844,7 +970,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -859,6 +986,11 @@ export default [
         "asset": {
           "path": "words/barulho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28818,
+        "zipf": 4.54,
+        "fpm": 34.7
       }
     },
     "symbols": [
@@ -884,7 +1016,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -899,6 +1032,11 @@ export default [
         "asset": {
           "path": "words/bicicleta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 38911,
+        "zipf": 4.41,
+        "fpm": 25.7
       }
     },
     "symbols": [
@@ -924,7 +1062,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -939,6 +1078,11 @@ export default [
         "asset": {
           "path": "words/bino-ac-culo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3164557,
+        "zipf": 2.5,
+        "fpm": 0.3
       }
     },
     "symbols": [
@@ -964,7 +1108,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -979,6 +1124,11 @@ export default [
         "asset": {
           "path": "words/bolo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28169,
+        "zipf": 4.55,
+        "fpm": 35.5
       }
     },
     "symbols": [
@@ -1004,7 +1154,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1019,6 +1170,11 @@ export default [
         "asset": {
           "path": "words/busca.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7937,
+        "zipf": 5.1,
+        "fpm": 126
       }
     },
     "symbols": [
@@ -1044,7 +1200,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1059,6 +1216,11 @@ export default [
         "asset": {
           "path": "words/cabelos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 38912,
+        "zipf": 4.41,
+        "fpm": 25.7
       }
     },
     "symbols": [
@@ -1099,7 +1261,7 @@ export default [
       "RANKED": {
         "rank": 9524,
         "zipf": 5.02,
-        "fpm": 105.0
+        "fpm": 105
       },
       "VOCALIZED": {
         "asset": {
@@ -1142,7 +1304,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1157,6 +1320,11 @@ export default [
         "asset": {
           "path": "words/caixa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12594,
+        "zipf": 4.9,
+        "fpm": 79.4
       }
     },
     "symbols": [
@@ -1182,7 +1350,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1197,6 +1366,11 @@ export default [
         "asset": {
           "path": "words/cama.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10000,
+        "zipf": 5,
+        "fpm": 100
       }
     },
     "symbols": [
@@ -1222,7 +1396,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1237,6 +1412,11 @@ export default [
         "asset": {
           "path": "words/caminho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5748,
+        "zipf": 5.24,
+        "fpm": 174
       }
     },
     "symbols": [
@@ -1262,7 +1442,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1277,6 +1458,11 @@ export default [
         "asset": {
           "path": "words/candidato.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 13496,
+        "zipf": 4.87,
+        "fpm": 74.1
       }
     },
     "symbols": [
@@ -1302,7 +1488,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1317,6 +1504,11 @@ export default [
         "asset": {
           "path": "words/cantor.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 25708,
+        "zipf": 4.59,
+        "fpm": 38.9
       }
     },
     "symbols": [
@@ -1342,7 +1534,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1357,6 +1550,11 @@ export default [
         "asset": {
           "path": "words/carro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15130,
+        "zipf": 4.82,
+        "fpm": 66.1
       }
     },
     "symbols": [
@@ -1397,7 +1595,7 @@ export default [
       "RANKED": {
         "rank": 1024,
         "zipf": 5.99,
-        "fpm": 977.0
+        "fpm": 977
       },
       "VOCALIZED": {
         "asset": {
@@ -1440,7 +1638,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1455,6 +1654,11 @@ export default [
         "asset": {
           "path": "words/causa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3717,
+        "zipf": 5.43,
+        "fpm": 269
       }
     },
     "symbols": [
@@ -1480,7 +1684,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1495,6 +1700,11 @@ export default [
         "asset": {
           "path": "words/caverna.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 107181,
+        "zipf": 3.97,
+        "fpm": 9.3
       }
     },
     "symbols": [
@@ -1520,7 +1730,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1535,6 +1746,11 @@ export default [
         "asset": {
           "path": "words/cerimo-cf-nia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 33113,
+        "zipf": 4.48,
+        "fpm": 30.2
       }
     },
     "symbols": [
@@ -1560,7 +1776,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1575,6 +1792,11 @@ export default [
         "asset": {
           "path": "words/cidade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1412,
+        "zipf": 5.85,
+        "fpm": 708
       }
     },
     "symbols": [
@@ -1600,7 +1822,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1615,6 +1838,11 @@ export default [
         "asset": {
           "path": "words/cima.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6024,
+        "zipf": 5.22,
+        "fpm": 166
       }
     },
     "symbols": [
@@ -1640,7 +1868,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1655,6 +1884,11 @@ export default [
         "asset": {
           "path": "words/clique.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 17795,
+        "zipf": 4.75,
+        "fpm": 56.2
       }
     },
     "symbols": [
@@ -1680,7 +1914,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1695,6 +1930,11 @@ export default [
         "asset": {
           "path": "words/coisa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1176,
+        "zipf": 5.93,
+        "fpm": 851
       }
     },
     "symbols": [
@@ -1720,7 +1960,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1735,6 +1976,11 @@ export default [
         "asset": {
           "path": "words/combusta-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 288184,
+        "zipf": 3.54,
+        "fpm": 3.5
       }
     },
     "symbols": [
@@ -1760,7 +2006,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1775,6 +2022,11 @@ export default [
         "asset": {
           "path": "words/comum.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6760,
+        "zipf": 5.17,
+        "fpm": 148
       }
     },
     "symbols": [
@@ -1800,7 +2052,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1815,6 +2068,11 @@ export default [
         "asset": {
           "path": "words/concurso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 19960,
+        "zipf": 4.7,
+        "fpm": 50.1
       }
     },
     "symbols": [
@@ -1840,7 +2098,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1855,6 +2114,11 @@ export default [
         "asset": {
           "path": "words/confianc-cd-a.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 17796,
+        "zipf": 4.75,
+        "fpm": 56.2
       }
     },
     "symbols": [
@@ -1880,7 +2144,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1895,6 +2160,11 @@ export default [
         "asset": {
           "path": "words/conosco.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28170,
+        "zipf": 4.55,
+        "fpm": 35.5
       }
     },
     "symbols": [
@@ -1920,7 +2190,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1935,6 +2206,11 @@ export default [
         "asset": {
           "path": "words/conselho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6623,
+        "zipf": 5.18,
+        "fpm": 151
       }
     },
     "symbols": [
@@ -1960,7 +2236,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -1975,6 +2252,11 @@ export default [
         "asset": {
           "path": "words/contra-ac-rio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10472,
+        "zipf": 4.98,
+        "fpm": 95.5
       }
     },
     "symbols": [
@@ -2000,7 +2282,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2015,6 +2298,11 @@ export default [
         "asset": {
           "path": "words/conversa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10236,
+        "zipf": 4.99,
+        "fpm": 97.7
       }
     },
     "symbols": [
@@ -2040,7 +2328,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2055,6 +2344,11 @@ export default [
         "asset": {
           "path": "words/corac-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5236,
+        "zipf": 5.28,
+        "fpm": 191
       }
     },
     "symbols": [
@@ -2080,7 +2374,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2095,6 +2390,11 @@ export default [
         "asset": {
           "path": "words/ce-ac-lula.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 36365,
+        "zipf": 4.44,
+        "fpm": 27.5
       }
     },
     "symbols": [
@@ -2120,7 +2420,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2135,6 +2436,11 @@ export default [
         "asset": {
           "path": "words/decisa-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6761,
+        "zipf": 5.17,
+        "fpm": 148
       }
     },
     "symbols": [
@@ -2160,7 +2466,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2175,6 +2482,11 @@ export default [
         "asset": {
           "path": "words/dele.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2882,
+        "zipf": 5.54,
+        "fpm": 347
       }
     },
     "symbols": [
@@ -2200,7 +2512,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2215,6 +2528,11 @@ export default [
         "asset": {
           "path": "words/descendentes.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 68966,
+        "zipf": 4.16,
+        "fpm": 14.5
       }
     },
     "symbols": [
@@ -2240,7 +2558,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2255,6 +2574,11 @@ export default [
         "asset": {
           "path": "words/dever.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 34723,
+        "zipf": 4.46,
+        "fpm": 28.8
       }
     },
     "symbols": [
@@ -2295,7 +2619,7 @@ export default [
       "RANKED": {
         "rank": 588,
         "zipf": 6.23,
-        "fpm": 1700.0
+        "fpm": 1700
       },
       "VOCALIZED": {
         "asset": {
@@ -2338,7 +2662,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2353,6 +2678,11 @@ export default [
         "asset": {
           "path": "words/diferenc-cd-a.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9804,
+        "zipf": 5.01,
+        "fpm": 102
       }
     },
     "symbols": [
@@ -2393,7 +2723,7 @@ export default [
       "RANKED": {
         "rank": 2950,
         "zipf": 5.53,
-        "fpm": 339.0
+        "fpm": 339
       },
       "VOCALIZED": {
         "asset": {
@@ -2433,7 +2763,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2448,6 +2779,11 @@ export default [
         "asset": {
           "path": "words/discurso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 19493,
+        "zipf": 4.71,
+        "fpm": 51.3
       }
     },
     "symbols": [
@@ -2473,7 +2809,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2488,6 +2825,11 @@ export default [
         "asset": {
           "path": "words/efeitos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15848,
+        "zipf": 4.8,
+        "fpm": 63.1
       }
     },
     "symbols": [
@@ -2513,7 +2855,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2528,6 +2871,11 @@ export default [
         "asset": {
           "path": "words/erro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12595,
+        "zipf": 4.9,
+        "fpm": 79.4
       }
     },
     "symbols": [
@@ -2553,7 +2901,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2568,6 +2917,11 @@ export default [
         "asset": {
           "path": "words/escola.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3021,
+        "zipf": 5.52,
+        "fpm": 331
       }
     },
     "symbols": [
@@ -2593,7 +2947,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2608,6 +2963,11 @@ export default [
         "asset": {
           "path": "words/esforc-cd-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 20408,
+        "zipf": 4.69,
+        "fpm": 49
       }
     },
     "symbols": [
@@ -2632,7 +2992,8 @@ export default [
     "slug": "explosivo.noun",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED"
+      "EXEMPLIFIED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2642,6 +3003,11 @@ export default [
       "EXEMPLIFIED": {
         "known": "A series of explosions left the laboratory in ruins.",
         "learning": "Uma série de explosivos transformou o laboratório em ruínas."
+      },
+      "RANKED": {
+        "rank": 151286,
+        "zipf": 3.82,
+        "fpm": 6.6
       }
     },
     "symbols": [
@@ -2667,7 +3033,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2682,6 +3049,11 @@ export default [
         "asset": {
           "path": "words/falta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3636,
+        "zipf": 5.44,
+        "fpm": 275
       }
     },
     "symbols": [
@@ -2707,7 +3079,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2722,6 +3095,11 @@ export default [
         "asset": {
           "path": "words/farinha.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 86958,
+        "zipf": 4.06,
+        "fpm": 11.5
       }
     },
     "symbols": [
@@ -2760,9 +3138,9 @@ export default [
         "learning": "Por favor"
       },
       "RANKED": {
-        "rank": 3636,
+        "rank": 3637,
         "zipf": 5.44,
-        "fpm": 275.0
+        "fpm": 275
       },
       "VOCALIZED": {
         "asset": {
@@ -2802,7 +3180,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2817,6 +3196,11 @@ export default [
         "asset": {
           "path": "words/felicidade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 22884,
+        "zipf": 4.64,
+        "fpm": 43.7
       }
     },
     "symbols": [
@@ -2842,7 +3226,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2857,6 +3242,11 @@ export default [
         "asset": {
           "path": "words/filho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5128,
+        "zipf": 5.29,
+        "fpm": 195
       }
     },
     "symbols": [
@@ -2882,7 +3272,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2897,6 +3288,11 @@ export default [
         "asset": {
           "path": "words/fogareiro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7246377,
+        "zipf": 2.14,
+        "fpm": 0.1
       }
     },
     "symbols": [
@@ -2922,7 +3318,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -2937,6 +3334,11 @@ export default [
         "asset": {
           "path": "words/folhas.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 39842,
+        "zipf": 4.4,
+        "fpm": 25.1
       }
     },
     "symbols": [
@@ -2975,7 +3377,7 @@ export default [
         "learning": "Estou com fome"
       },
       "RANKED": {
-        "rank": 10718,
+        "rank": 10720,
         "zipf": 4.97,
         "fpm": 93.3
       },
@@ -3020,7 +3422,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3035,6 +3438,11 @@ export default [
         "asset": {
           "path": "words/forma.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1549,
+        "zipf": 5.81,
+        "fpm": 646
       }
     },
     "symbols": [
@@ -3060,7 +3468,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3075,6 +3484,11 @@ export default [
         "asset": {
           "path": "words/foto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2288,
+        "zipf": 5.64,
+        "fpm": 437
       }
     },
     "symbols": [
@@ -3100,7 +3514,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3115,6 +3530,11 @@ export default [
         "asset": {
           "path": "words/france-cf-s.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 13498,
+        "zipf": 4.87,
+        "fpm": 74.1
       }
     },
     "symbols": [
@@ -3140,7 +3560,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3155,6 +3576,11 @@ export default [
         "asset": {
           "path": "words/frango.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 46730,
+        "zipf": 4.33,
+        "fpm": 21.4
       }
     },
     "symbols": [
@@ -3180,7 +3606,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3195,6 +3622,11 @@ export default [
         "asset": {
           "path": "words/frase.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 35461,
+        "zipf": 4.45,
+        "fpm": 28.2
       }
     },
     "symbols": [
@@ -3220,7 +3652,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3235,6 +3668,11 @@ export default [
         "asset": {
           "path": "words/freio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 186220,
+        "zipf": 3.73,
+        "fpm": 5.4
       }
     },
     "symbols": [
@@ -3260,7 +3698,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3275,6 +3714,11 @@ export default [
         "asset": {
           "path": "words/freque-cf-ncia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28171,
+        "zipf": 4.55,
+        "fpm": 35.5
       }
     },
     "symbols": [
@@ -3300,7 +3744,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3315,6 +3760,11 @@ export default [
         "asset": {
           "path": "words/func-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 11751,
+        "zipf": 4.93,
+        "fpm": 85.1
       }
     },
     "symbols": [
@@ -3340,7 +3790,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3355,6 +3806,11 @@ export default [
         "asset": {
           "path": "words/garoto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12596,
+        "zipf": 4.9,
+        "fpm": 79.4
       }
     },
     "symbols": [
@@ -3380,7 +3836,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3395,6 +3852,11 @@ export default [
         "asset": {
           "path": "words/gelo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 25128,
+        "zipf": 4.6,
+        "fpm": 39.8
       }
     },
     "symbols": [
@@ -3420,7 +3882,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3435,6 +3898,11 @@ export default [
         "asset": {
           "path": "words/guerra.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3312,
+        "zipf": 5.48,
+        "fpm": 302
       }
     },
     "symbols": [
@@ -3460,7 +3928,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3475,6 +3944,11 @@ export default [
         "asset": {
           "path": "words/gases.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 90910,
+        "zipf": 4.04,
+        "fpm": 11
       }
     },
     "symbols": [
@@ -3500,7 +3974,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3515,6 +3990,11 @@ export default [
         "asset": {
           "path": "words/hino.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 50000,
+        "zipf": 4.3,
+        "fpm": 20
       }
     },
     "symbols": [
@@ -3540,7 +4020,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3555,6 +4036,11 @@ export default [
         "asset": {
           "path": "words/homem.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2689,
+        "zipf": 5.57,
+        "fpm": 372
       }
     },
     "symbols": [
@@ -3593,9 +4079,9 @@ export default [
         "learning": "Que horas são?"
       },
       "RANKED": {
-        "rank": 2571,
+        "rank": 2572,
         "zipf": 5.59,
-        "fpm": 389.0
+        "fpm": 389
       },
       "VOCALIZED": {
         "asset": {
@@ -3648,7 +4134,7 @@ export default [
         "learning": "O hotel fica perto da praia"
       },
       "RANKED": {
-        "rank": 12887,
+        "rank": 12888,
         "zipf": 4.89,
         "fpm": 77.6
       },
@@ -3690,7 +4176,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3705,6 +4192,11 @@ export default [
         "asset": {
           "path": "words/humor.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 19050,
+        "zipf": 4.72,
+        "fpm": 52.5
       }
     },
     "symbols": [
@@ -3730,7 +4222,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3745,6 +4238,11 @@ export default [
         "asset": {
           "path": "words/ideias.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 14793,
+        "zipf": 4.83,
+        "fpm": 67.6
       }
     },
     "symbols": [
@@ -3770,7 +4268,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3785,6 +4284,11 @@ export default [
         "asset": {
           "path": "words/idiota.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 23419,
+        "zipf": 4.63,
+        "fpm": 42.7
       }
     },
     "symbols": [
@@ -3810,7 +4314,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3825,6 +4330,11 @@ export default [
         "asset": {
           "path": "words/imaginac-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 57473,
+        "zipf": 4.24,
+        "fpm": 17.4
       }
     },
     "symbols": [
@@ -3850,7 +4360,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3865,6 +4376,11 @@ export default [
         "asset": {
           "path": "words/imigrantes.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 44643,
+        "zipf": 4.35,
+        "fpm": 22.4
       }
     },
     "symbols": [
@@ -3890,7 +4406,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -3905,6 +4422,11 @@ export default [
         "asset": {
           "path": "words/importa-cf-ncia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10966,
+        "zipf": 4.96,
+        "fpm": 91.2
       }
     },
     "symbols": [
@@ -3943,9 +4465,9 @@ export default [
         "learning": "Você fala inglês?"
       },
       "RANKED": {
-        "rank": 5882,
+        "rank": 5883,
         "zipf": 5.23,
-        "fpm": 170.0
+        "fpm": 170
       },
       "VOCALIZED": {
         "asset": {
@@ -3985,7 +4507,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4000,6 +4523,11 @@ export default [
         "asset": {
           "path": "words/intelige-cf-ncia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 23420,
+        "zipf": 4.63,
+        "fpm": 42.7
       }
     },
     "symbols": [
@@ -4025,7 +4553,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4040,6 +4569,11 @@ export default [
         "asset": {
           "path": "words/invenc-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 257069,
+        "zipf": 3.59,
+        "fpm": 3.9
       }
     },
     "symbols": [
@@ -4065,7 +4599,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4080,6 +4615,11 @@ export default [
         "asset": {
           "path": "words/irma-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5884,
+        "zipf": 5.23,
+        "fpm": 170
       }
     },
     "symbols": [
@@ -4105,7 +4645,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4120,6 +4661,11 @@ export default [
         "asset": {
           "path": "words/janela.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 24571,
+        "zipf": 4.61,
+        "fpm": 40.7
       }
     },
     "symbols": [
@@ -4145,7 +4691,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4160,6 +4707,11 @@ export default [
         "asset": {
           "path": "words/jornal.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8547,
+        "zipf": 5.07,
+        "fpm": 117
       }
     },
     "symbols": [
@@ -4185,7 +4737,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4200,6 +4753,11 @@ export default [
         "asset": {
           "path": "words/laborato-ac-rio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 25129,
+        "zipf": 4.6,
+        "fpm": 39.8
       }
     },
     "symbols": [
@@ -4225,7 +4783,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4240,6 +4799,11 @@ export default [
         "asset": {
           "path": "words/laranjas.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 302115,
+        "zipf": 3.52,
+        "fpm": 3.3
       }
     },
     "symbols": [
@@ -4265,7 +4829,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4280,6 +4845,11 @@ export default [
         "asset": {
           "path": "words/lea-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 20877,
+        "zipf": 4.68,
+        "fpm": 47.9
       }
     },
     "symbols": [
@@ -4305,7 +4875,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4320,6 +4891,11 @@ export default [
         "asset": {
           "path": "words/livro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7092,
+        "zipf": 5.15,
+        "fpm": 141
       }
     },
     "symbols": [
@@ -4345,7 +4921,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4360,6 +4937,11 @@ export default [
         "asset": {
           "path": "words/lua.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 16587,
+        "zipf": 4.78,
+        "fpm": 60.3
       }
     },
     "symbols": [
@@ -4385,7 +4967,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4400,6 +4983,11 @@ export default [
         "asset": {
           "path": "words/li-ac-ngua.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5619,
+        "zipf": 5.25,
+        "fpm": 178
       }
     },
     "symbols": [
@@ -4425,7 +5013,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4440,6 +5029,11 @@ export default [
         "asset": {
           "path": "words/maioria.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4902,
+        "zipf": 5.31,
+        "fpm": 204
       }
     },
     "symbols": [
@@ -4465,7 +5059,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4480,6 +5075,11 @@ export default [
         "asset": {
           "path": "words/maneira.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4369,
+        "zipf": 5.36,
+        "fpm": 229
       }
     },
     "symbols": [
@@ -4505,7 +5105,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4520,6 +5121,11 @@ export default [
         "asset": {
           "path": "words/manha-tl.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4567,
+        "zipf": 5.34,
+        "fpm": 219
       }
     },
     "symbols": [
@@ -4545,7 +5151,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4560,6 +5167,11 @@ export default [
         "asset": {
           "path": "words/mac-cd-a-tl.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 98039,
+        "zipf": 4.01,
+        "fpm": 10.2
       }
     },
     "symbols": [
@@ -4585,7 +5197,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4600,6 +5213,11 @@ export default [
         "asset": {
           "path": "words/medo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4083,
+        "zipf": 5.39,
+        "fpm": 245
       }
     },
     "symbols": [
@@ -4625,7 +5243,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4640,6 +5259,11 @@ export default [
         "asset": {
           "path": "words/meia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 10722,
+        "zipf": 4.97,
+        "fpm": 93.3
       }
     },
     "symbols": [
@@ -4665,7 +5289,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4680,6 +5305,11 @@ export default [
         "asset": {
           "path": "words/melhor.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1048,
+        "zipf": 5.98,
+        "fpm": 955
       }
     },
     "symbols": [
@@ -4705,7 +5335,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4720,6 +5351,11 @@ export default [
         "asset": {
           "path": "words/meninas.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 14124,
+        "zipf": 4.85,
+        "fpm": 70.8
       }
     },
     "symbols": [
@@ -4744,7 +5380,8 @@ export default [
     "slug": "mico.noun",
     "traits": [
       "TRANSLATED",
-      "EXEMPLIFIED"
+      "EXEMPLIFIED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4754,6 +5391,11 @@ export default [
       "EXEMPLIFIED": {
         "known": "How embarrassing!",
         "learning": "Que mico!"
+      },
+      "RANKED": {
+        "rank": 549451,
+        "zipf": 3.26,
+        "fpm": 1.8
       }
     },
     "symbols": [
@@ -4779,7 +5421,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4794,6 +5437,11 @@ export default [
         "asset": {
           "path": "words/mimimi.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1818182,
+        "zipf": 2.74,
+        "fpm": 0.6
       }
     },
     "symbols": [
@@ -4819,7 +5467,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4834,6 +5483,11 @@ export default [
         "asset": {
           "path": "words/minutos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5001,
+        "zipf": 5.3,
+        "fpm": 200
       }
     },
     "symbols": [
@@ -4859,7 +5513,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4874,6 +5529,11 @@ export default [
         "asset": {
           "path": "words/mistura.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28172,
+        "zipf": 4.55,
+        "fpm": 35.5
       }
     },
     "symbols": [
@@ -4899,7 +5559,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4914,6 +5575,11 @@ export default [
         "asset": {
           "path": "words/montanha.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 32362,
+        "zipf": 4.49,
+        "fpm": 30.9
       }
     },
     "symbols": [
@@ -4939,7 +5605,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4954,6 +5621,11 @@ export default [
         "asset": {
           "path": "words/monte.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9806,
+        "zipf": 5.01,
+        "fpm": 102
       }
     },
     "symbols": [
@@ -4979,7 +5651,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -4994,6 +5667,11 @@ export default [
         "asset": {
           "path": "words/moreno.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 90911,
+        "zipf": 4.04,
+        "fpm": 11
       }
     },
     "symbols": [
@@ -5019,7 +5697,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5034,6 +5713,11 @@ export default [
         "asset": {
           "path": "words/motivo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8333,
+        "zipf": 5.08,
+        "fpm": 120
       }
     },
     "symbols": [
@@ -5059,7 +5743,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5074,6 +5759,11 @@ export default [
         "asset": {
           "path": "words/mulher.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2137,
+        "zipf": 5.67,
+        "fpm": 468
       }
     },
     "symbols": [
@@ -5114,7 +5804,7 @@ export default [
       "RANKED": {
         "rank": 909,
         "zipf": 6.04,
-        "fpm": 1100.0
+        "fpm": 1100
       },
       "VOCALIZED": {
         "asset": {
@@ -5151,7 +5841,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5166,6 +5857,11 @@ export default [
         "asset": {
           "path": "words/ma-ac-ximo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 16208,
+        "zipf": 4.79,
+        "fpm": 61.7
       }
     },
     "symbols": [
@@ -5191,7 +5887,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5206,6 +5903,11 @@ export default [
         "asset": {
           "path": "words/ma-tl-e.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1862,
+        "zipf": 5.73,
+        "fpm": 537
       }
     },
     "symbols": [
@@ -5244,9 +5946,9 @@ export default [
         "learning": "Eu preciso de um médico"
       },
       "RANKED": {
-        "rank": 9804,
+        "rank": 9807,
         "zipf": 5.01,
-        "fpm": 102.0
+        "fpm": 102
       },
       "VOCALIZED": {
         "asset": {
@@ -5286,7 +5988,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5301,6 +6004,11 @@ export default [
         "asset": {
           "path": "words/me-cf-s.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4786,
+        "zipf": 5.32,
+        "fpm": 209
       }
     },
     "symbols": [
@@ -5326,7 +6034,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5341,6 +6050,11 @@ export default [
         "asset": {
           "path": "words/mi-ac-dia.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15849,
+        "zipf": 4.8,
+        "fpm": 63.1
       }
     },
     "symbols": [
@@ -5366,7 +6080,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5381,6 +6096,11 @@ export default [
         "asset": {
           "path": "words/mu-ac-sica.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2756,
+        "zipf": 5.56,
+        "fpm": 363
       }
     },
     "symbols": [
@@ -5406,7 +6126,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5421,6 +6142,11 @@ export default [
         "asset": {
           "path": "words/navio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 26317,
+        "zipf": 4.58,
+        "fpm": 38
       }
     },
     "symbols": [
@@ -5446,7 +6172,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5461,6 +6188,11 @@ export default [
         "asset": {
           "path": "words/nego-ac-cio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9808,
+        "zipf": 5.01,
+        "fpm": 102
       }
     },
     "symbols": [
@@ -5486,7 +6218,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5501,6 +6234,11 @@ export default [
         "asset": {
           "path": "words/neve.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 43668,
+        "zipf": 4.36,
+        "fpm": 22.9
       }
     },
     "symbols": [
@@ -5539,9 +6277,9 @@ export default [
         "learning": "Qual é o seu nome?"
       },
       "RANKED": {
-        "rank": 1698,
+        "rank": 1700,
         "zipf": 5.77,
-        "fpm": 589.0
+        "fpm": 589
       },
       "VOCALIZED": {
         "asset": {
@@ -5578,7 +6316,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5593,6 +6332,11 @@ export default [
         "asset": {
           "path": "words/nuvem.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 79366,
+        "zipf": 4.1,
+        "fpm": 12.6
       }
     },
     "symbols": [
@@ -5618,7 +6362,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5633,6 +6378,11 @@ export default [
         "asset": {
           "path": "words/objetivo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5885,
+        "zipf": 5.23,
+        "fpm": 170
       }
     },
     "symbols": [
@@ -5658,7 +6408,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5673,6 +6424,11 @@ export default [
         "asset": {
           "path": "words/oferta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 27548,
+        "zipf": 4.56,
+        "fpm": 36.3
       }
     },
     "symbols": [
@@ -5698,7 +6454,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5713,6 +6470,11 @@ export default [
         "asset": {
           "path": "words/olho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5620,
+        "zipf": 5.25,
+        "fpm": 178
       }
     },
     "symbols": [
@@ -5738,7 +6500,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5753,6 +6516,11 @@ export default [
         "asset": {
           "path": "words/opinia-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8930,
+        "zipf": 5.05,
+        "fpm": 112
       }
     },
     "symbols": [
@@ -5778,7 +6546,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5793,6 +6562,11 @@ export default [
         "asset": {
           "path": "words/oxige-cf-nio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 79368,
+        "zipf": 4.1,
+        "fpm": 12.6
       }
     },
     "symbols": [
@@ -5818,7 +6592,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5833,6 +6608,11 @@ export default [
         "asset": {
           "path": "words/pai.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5621,
+        "zipf": 5.25,
+        "fpm": 178
       }
     },
     "symbols": [
@@ -5858,7 +6638,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5873,6 +6654,11 @@ export default [
         "asset": {
           "path": "words/palavra.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5377,
+        "zipf": 5.27,
+        "fpm": 186
       }
     },
     "symbols": [
@@ -5898,7 +6684,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5913,6 +6700,11 @@ export default [
         "asset": {
           "path": "words/parte.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1260,
+        "zipf": 5.9,
+        "fpm": 794
       }
     },
     "symbols": [
@@ -5938,7 +6730,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5953,6 +6746,11 @@ export default [
         "asset": {
           "path": "words/partido.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5886,
+        "zipf": 5.23,
+        "fpm": 170
       }
     },
     "symbols": [
@@ -5978,7 +6776,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -5993,6 +6792,11 @@ export default [
         "asset": {
           "path": "words/paz.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4903,
+        "zipf": 5.31,
+        "fpm": 204
       }
     },
     "symbols": [
@@ -6018,7 +6822,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6033,6 +6838,11 @@ export default [
         "asset": {
           "path": "words/pai-ac-s.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2290,
+        "zipf": 5.64,
+        "fpm": 437
       }
     },
     "symbols": [
@@ -6058,7 +6868,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6073,6 +6884,11 @@ export default [
         "asset": {
           "path": "words/pena.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5237,
+        "zipf": 5.28,
+        "fpm": 191
       }
     },
     "symbols": [
@@ -6098,7 +6914,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6113,6 +6930,11 @@ export default [
         "asset": {
           "path": "words/personagem.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15484,
+        "zipf": 4.81,
+        "fpm": 64.6
       }
     },
     "symbols": [
@@ -6138,7 +6960,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6153,6 +6976,11 @@ export default [
         "asset": {
           "path": "words/peso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15850,
+        "zipf": 4.8,
+        "fpm": 63.1
       }
     },
     "symbols": [
@@ -6178,7 +7006,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6193,6 +7022,11 @@ export default [
         "asset": {
           "path": "words/pessoa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 645,
+        "zipf": 6.19,
+        "fpm": 1550
       }
     },
     "symbols": [
@@ -6218,7 +7052,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6233,6 +7068,11 @@ export default [
         "asset": {
           "path": "words/pinturas.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 90912,
+        "zipf": 4.04,
+        "fpm": 11
       }
     },
     "symbols": [
@@ -6258,7 +7098,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6273,6 +7114,11 @@ export default [
         "asset": {
           "path": "words/plano.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5887,
+        "zipf": 5.23,
+        "fpm": 170
       }
     },
     "symbols": [
@@ -6298,7 +7144,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6313,6 +7160,11 @@ export default [
         "asset": {
           "path": "words/pneu.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 162076,
+        "zipf": 3.79,
+        "fpm": 6.2
       }
     },
     "symbols": [
@@ -6338,7 +7190,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6353,6 +7206,11 @@ export default [
         "asset": {
           "path": "words/pomba.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 331126,
+        "zipf": 3.48,
+        "fpm": 3
       }
     },
     "symbols": [
@@ -6391,9 +7249,9 @@ export default [
         "learning": "A porta está fechada"
       },
       "RANKED": {
-        "rank": 8547,
+        "rank": 8548,
         "zipf": 5.07,
-        "fpm": 117.0
+        "fpm": 117
       },
       "VOCALIZED": {
         "asset": {
@@ -6433,7 +7291,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6448,6 +7307,11 @@ export default [
         "asset": {
           "path": "words/posic-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7247,
+        "zipf": 5.14,
+        "fpm": 138
       }
     },
     "symbols": [
@@ -6473,7 +7337,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6488,6 +7353,11 @@ export default [
         "asset": {
           "path": "words/pouco.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1863,
+        "zipf": 5.73,
+        "fpm": 537
       }
     },
     "symbols": [
@@ -6513,7 +7383,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6528,6 +7399,11 @@ export default [
         "asset": {
           "path": "words/prato.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 38914,
+        "zipf": 4.41,
+        "fpm": 25.7
       }
     },
     "symbols": [
@@ -6553,7 +7429,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6568,6 +7445,11 @@ export default [
         "asset": {
           "path": "words/prac-cd-a.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12598,
+        "zipf": 4.9,
+        "fpm": 79.4
       }
     },
     "symbols": [
@@ -6593,7 +7475,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6608,6 +7491,11 @@ export default [
         "asset": {
           "path": "words/presente.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6025,
+        "zipf": 5.22,
+        "fpm": 166
       }
     },
     "symbols": [
@@ -6633,7 +7521,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6648,6 +7537,11 @@ export default [
         "asset": {
           "path": "words/prisa-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8549,
+        "zipf": 5.07,
+        "fpm": 117
       }
     },
     "symbols": [
@@ -6686,9 +7580,9 @@ export default [
         "learning": "Tem um problema"
       },
       "RANKED": {
-        "rank": 3236,
+        "rank": 3237,
         "zipf": 5.49,
-        "fpm": 309.0
+        "fpm": 309
       },
       "VOCALIZED": {
         "asset": {
@@ -6725,7 +7619,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6740,6 +7635,11 @@ export default [
         "asset": {
           "path": "words/professor.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6026,
+        "zipf": 5.22,
+        "fpm": 166
       }
     },
     "symbols": [
@@ -6765,7 +7665,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6780,6 +7681,11 @@ export default [
         "asset": {
           "path": "words/prostituta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 204082,
+        "zipf": 3.69,
+        "fpm": 4.9
       }
     },
     "symbols": [
@@ -6805,7 +7711,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6820,6 +7727,11 @@ export default [
         "asset": {
           "path": "words/pre-ac-dio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 17392,
+        "zipf": 4.76,
+        "fpm": 57.5
       }
     },
     "symbols": [
@@ -6845,7 +7757,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6860,6 +7773,11 @@ export default [
         "asset": {
           "path": "words/pa-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 20410,
+        "zipf": 4.69,
+        "fpm": 49
       }
     },
     "symbols": [
@@ -6898,9 +7816,9 @@ export default [
         "learning": "Eu quero um quarto"
       },
       "RANKED": {
-        "rank": 6024,
+        "rank": 6027,
         "zipf": 5.22,
-        "fpm": 166.0
+        "fpm": 166
       },
       "VOCALIZED": {
         "asset": {
@@ -6940,7 +7858,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6955,6 +7874,11 @@ export default [
         "asset": {
           "path": "words/quitanda.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2754821,
+        "zipf": 2.56,
+        "fpm": 0.4
       }
     },
     "symbols": [
@@ -6980,7 +7904,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -6995,6 +7920,11 @@ export default [
         "asset": {
           "path": "words/realidade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8334,
+        "zipf": 5.08,
+        "fpm": 120
       }
     },
     "symbols": [
@@ -7020,7 +7950,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7035,6 +7966,11 @@ export default [
         "asset": {
           "path": "words/rede.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4275,
+        "zipf": 5.37,
+        "fpm": 234
       }
     },
     "symbols": [
@@ -7060,7 +7996,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7075,6 +8012,11 @@ export default [
         "asset": {
           "path": "words/refeic-cd-a-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 83335,
+        "zipf": 4.08,
+        "fpm": 12
       }
     },
     "symbols": [
@@ -7100,7 +8042,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7115,6 +8058,11 @@ export default [
         "asset": {
           "path": "words/rei.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8132,
+        "zipf": 5.09,
+        "fpm": 123
       }
     },
     "symbols": [
@@ -7140,7 +8088,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7155,6 +8104,11 @@ export default [
         "asset": {
           "path": "words/relo-ac-gio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 41667,
+        "zipf": 4.38,
+        "fpm": 24
       }
     },
     "symbols": [
@@ -7180,7 +8134,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7195,6 +8150,11 @@ export default [
         "asset": {
           "path": "words/resposta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7753,
+        "zipf": 5.11,
+        "fpm": 129
       }
     },
     "symbols": [
@@ -7220,7 +8180,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7235,6 +8196,11 @@ export default [
         "asset": {
           "path": "words/rua.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4464,
+        "zipf": 5.35,
+        "fpm": 224
       }
     },
     "symbols": [
@@ -7260,7 +8226,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7275,6 +8242,11 @@ export default [
         "asset": {
           "path": "words/rui-ac-na.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 323626,
+        "zipf": 3.49,
+        "fpm": 3.1
       }
     },
     "symbols": [
@@ -7300,7 +8272,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7315,6 +8288,11 @@ export default [
         "asset": {
           "path": "words/sala-ac-rio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 25712,
+        "zipf": 4.59,
+        "fpm": 38.9
       }
     },
     "symbols": [
@@ -7340,7 +8318,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7355,6 +8334,11 @@ export default [
         "asset": {
           "path": "words/sapatos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 66226,
+        "zipf": 4.18,
+        "fpm": 15.1
       }
     },
     "symbols": [
@@ -7380,7 +8364,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7395,6 +8380,11 @@ export default [
         "asset": {
           "path": "words/semana.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2514,
+        "zipf": 5.6,
+        "fpm": 398
       }
     },
     "symbols": [
@@ -7420,7 +8410,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7435,6 +8426,11 @@ export default [
         "asset": {
           "path": "words/sinal.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12022,
+        "zipf": 4.92,
+        "fpm": 83.2
       }
     },
     "symbols": [
@@ -7460,7 +8456,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7475,6 +8472,11 @@ export default [
         "asset": {
           "path": "words/skate.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 134954,
+        "zipf": 3.87,
+        "fpm": 7.4
       }
     },
     "symbols": [
@@ -7500,7 +8502,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7515,6 +8518,11 @@ export default [
         "asset": {
           "path": "words/sociedade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 5002,
+        "zipf": 5.3,
+        "fpm": 200
       }
     },
     "symbols": [
@@ -7540,7 +8548,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7555,6 +8564,11 @@ export default [
         "asset": {
           "path": "words/sol.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 7754,
+        "zipf": 5.11,
+        "fpm": 129
       }
     },
     "symbols": [
@@ -7580,7 +8594,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7595,6 +8610,11 @@ export default [
         "asset": {
           "path": "words/sonhos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15485,
+        "zipf": 4.81,
+        "fpm": 64.6
       }
     },
     "symbols": [
@@ -7620,7 +8640,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7635,6 +8656,11 @@ export default [
         "asset": {
           "path": "words/sorte.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9526,
+        "zipf": 5.02,
+        "fpm": 105
       }
     },
     "symbols": [
@@ -7660,7 +8686,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7675,6 +8702,11 @@ export default [
         "asset": {
           "path": "words/superior.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9351,
+        "zipf": 5.03,
+        "fpm": 107
       }
     },
     "symbols": [
@@ -7700,7 +8732,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7715,6 +8748,11 @@ export default [
         "asset": {
           "path": "words/se-ac-rie.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3638,
+        "zipf": 5.44,
+        "fpm": 275
       }
     },
     "symbols": [
@@ -7740,7 +8778,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7755,6 +8794,11 @@ export default [
         "asset": {
           "path": "words/so-ac-cios.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 95239,
+        "zipf": 4.02,
+        "fpm": 10.5
       }
     },
     "symbols": [
@@ -7780,7 +8824,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7795,6 +8840,11 @@ export default [
         "asset": {
           "path": "words/tapete.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 104713,
+        "zipf": 3.98,
+        "fpm": 9.6
       }
     },
     "symbols": [
@@ -7820,7 +8870,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7835,6 +8886,11 @@ export default [
         "asset": {
           "path": "words/tecidos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 85470,
+        "zipf": 4.07,
+        "fpm": 11.7
       }
     },
     "symbols": [
@@ -7860,7 +8916,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7875,6 +8932,11 @@ export default [
         "asset": {
           "path": "words/telefone.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12890,
+        "zipf": 4.89,
+        "fpm": 77.6
       }
     },
     "symbols": [
@@ -7900,7 +8962,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7915,6 +8978,11 @@ export default [
         "asset": {
           "path": "words/televisa-tl-o.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 9527,
+        "zipf": 5.02,
+        "fpm": 105
       }
     },
     "symbols": [
@@ -7940,7 +9008,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7955,6 +9024,11 @@ export default [
         "asset": {
           "path": "words/tempestade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 30212,
+        "zipf": 4.52,
+        "fpm": 33.1
       }
     },
     "symbols": [
@@ -7980,7 +9054,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -7995,6 +9070,11 @@ export default [
         "asset": {
           "path": "words/terno.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 177937,
+        "zipf": 3.75,
+        "fpm": 5.6
       }
     },
     "symbols": [
@@ -8020,7 +9100,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8035,6 +9116,11 @@ export default [
         "asset": {
           "path": "words/testemunha.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 63293,
+        "zipf": 4.2,
+        "fpm": 15.8
       }
     },
     "symbols": [
@@ -8060,7 +9146,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8075,6 +9162,11 @@ export default [
         "asset": {
           "path": "words/tipos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 12023,
+        "zipf": 4.92,
+        "fpm": 83.2
       }
     },
     "symbols": [
@@ -8100,7 +9192,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8115,6 +9208,11 @@ export default [
         "asset": {
           "path": "words/trabalho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1480,
+        "zipf": 5.83,
+        "fpm": 676
       }
     },
     "symbols": [
@@ -8140,7 +9238,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8155,6 +9254,11 @@ export default [
         "asset": {
           "path": "words/trem.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 23981,
+        "zipf": 4.62,
+        "fpm": 41.7
       }
     },
     "symbols": [
@@ -8180,7 +9284,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8195,6 +9300,11 @@ export default [
         "asset": {
           "path": "words/tra-cf-nsito.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 28819,
+        "zipf": 4.54,
+        "fpm": 34.7
       }
     },
     "symbols": [
@@ -8220,7 +9330,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8235,6 +9346,11 @@ export default [
         "asset": {
           "path": "words/unico-ac-rnio.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 427350,
+        "zipf": 3.37,
+        "fpm": 2.3
       }
     },
     "symbols": [
@@ -8260,7 +9376,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8275,6 +9392,11 @@ export default [
         "asset": {
           "path": "words/urso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 93459,
+        "zipf": 4.03,
+        "fpm": 10.7
       }
     },
     "symbols": [
@@ -8300,7 +9422,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8315,6 +9438,11 @@ export default [
         "asset": {
           "path": "words/uso.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3718,
+        "zipf": 5.43,
+        "fpm": 269
       }
     },
     "symbols": [
@@ -8340,7 +9468,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8355,6 +9484,11 @@ export default [
         "asset": {
           "path": "words/velocidade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 15135,
+        "zipf": 4.82,
+        "fpm": 66.1
       }
     },
     "symbols": [
@@ -8380,7 +9514,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8395,6 +9530,11 @@ export default [
         "asset": {
           "path": "words/verdade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2238,
+        "zipf": 5.65,
+        "fpm": 447
       }
     },
     "symbols": [
@@ -8420,7 +9560,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8435,6 +9576,11 @@ export default [
         "asset": {
           "path": "words/vez.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1149,
+        "zipf": 5.94,
+        "fpm": 871
       }
     },
     "symbols": [
@@ -8460,7 +9606,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8475,6 +9622,11 @@ export default [
         "asset": {
           "path": "words/vida.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 953,
+        "zipf": 6.02,
+        "fpm": 1050
       }
     },
     "symbols": [
@@ -8500,7 +9652,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8515,6 +9668,11 @@ export default [
         "asset": {
           "path": "words/vinho.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 22885,
+        "zipf": 4.64,
+        "fpm": 43.7
       }
     },
     "symbols": [
@@ -8540,7 +9698,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8555,6 +9714,11 @@ export default [
         "asset": {
           "path": "words/volta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2342,
+        "zipf": 5.63,
+        "fpm": 427
       }
     },
     "symbols": [
@@ -8580,7 +9744,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8595,6 +9760,11 @@ export default [
         "asset": {
           "path": "words/volume.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 18183,
+        "zipf": 4.74,
+        "fpm": 55
       }
     },
     "symbols": [
@@ -8620,7 +9790,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8635,6 +9806,11 @@ export default [
         "asset": {
           "path": "words/vontade.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6897,
+        "zipf": 5.16,
+        "fpm": 145
       }
     },
     "symbols": [
@@ -8673,9 +9849,9 @@ export default [
         "learning": "Água, por favor"
       },
       "RANKED": {
-        "rank": 2755,
+        "rank": 2757,
         "zipf": 5.56,
-        "fpm": 363.0
+        "fpm": 363
       },
       "VOCALIZED": {
         "asset": {
@@ -8715,7 +9891,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8730,6 +9907,11 @@ export default [
         "asset": {
           "path": "words/i-ac-cone.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 79369,
+        "zipf": 4.1,
+        "fpm": 12.6
       }
     },
     "symbols": [
@@ -8755,7 +9937,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -8770,6 +9953,11 @@ export default [
         "asset": {
           "path": "words/o-ac-leo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 32363,
+        "zipf": 4.49,
+        "fpm": 30.9
       }
     },
     "symbols": [

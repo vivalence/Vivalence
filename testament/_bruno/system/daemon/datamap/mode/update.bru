@@ -1,7 +1,7 @@
 meta {
   name: update
   type: http
-  seq: 6
+  seq: 8
 }
 
 post {
@@ -17,7 +17,9 @@ auth:bearer {
 body:json {
   {
     "where": {
-      "id": "019d23ee-9330-77bc-92c8-8a3e0ad83683"
+      "type": {
+        "$in": ["game", "topology"]
+      }
     },
     "data": {
       "installed": false

@@ -26,6 +26,34 @@ export class DataRepository extends EntityRepository {
     return await this.create(query);
   }
 
+  async updateOne(where, data) {
+    const entity = await this.findOneOrFail(where);
+    entity.assign(data);
+    await this.em.flush();
+    return entity;
+  }
+
+  async update(where, data) {
+    const entities = await this.find(where);
+    for (const entity of entities) entity.assign(data);
+    await this.em.flush();
+    return entities;
+  }
+
+  async removeOne(where) {
+    const entity = await this.findOneOrFail(where);
+    this.em.remove(entity);
+    await this.em.flush();
+    return entity;
+  }
+
+  async remove(where) {
+    const entities = await this.find(where);
+    for (const entity of entities) this.em.remove(entity);
+    await this.em.flush();
+    return entities;
+  }
+
   find(where, opts?) {
     return super.find(this.resolveTraits(where), opts);
   }

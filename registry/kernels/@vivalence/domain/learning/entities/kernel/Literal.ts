@@ -1,12 +1,11 @@
+import { types, Collection, EntitySchema, EventSubscriber, ChangeSetType } from "@mikro-orm/core";
 import {
-  types,
-  Collection,
-  EntitySchema,
   EntityRepositoryType,
   type Opt,
   type Rel,
+  type EventArgs,
+  type FlushEventArgs,
 } from "@mikro-orm/core";
-// import { maps } from "@vivalence/typology/entities";
 import { literal as base } from "@vivalence/typology/entities";
 import { object, is } from "@vivalence/typology";
 
@@ -85,7 +84,7 @@ export class LiteralRepository extends base.repository {
 
 export class LiteralEntity extends base.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
-  rank!: number & Opt;
+  rank: number & Opt = 999999;
   memories = new Collection<MemoryEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
 
@@ -167,8 +166,7 @@ export const LiteralSchema = new EntitySchema({
 
     rank: {
       type: types.integer,
-      formula: (table) => `COALESCE(json_extract(${table}.trait, '$.RANKED.rank'), 999999)`,
-      persist: true,
+      default: 999999,
       nullable: true,
     },
 
@@ -180,10 +178,64 @@ export const LiteralSchema = new EntitySchema({
   },
 });
 
+export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
+  getSubscribedEntities() {
+    return [LiteralEntity];
+  }
+
+  beforeCreate({ entity }: EventArgs<LiteralEntity>) {
+    entity.rank = entity.trait?.RANKED?.rank ?? 999999;
+  }
+
+  beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
+    entity.rank = entity.trait?.RANKED?.rank ?? 999999;
+  }
+
+  async afterFlush({ em, uow }: FlushEventArgs) {
+    const pending = this.collect(uow.getChangeSets());
+    if (!pending.length) return;
+
+    const allSlugs = [...new Set(pending.flatMap((p) => p.slugs))];
+    const refs = await em.find(LiteralEntity, { slug: { $in: allSlugs } });
+    const bySlug = new Map(refs.map((r) => [r.slug, r.id]));
+
+    const rows = pending.flatMap((p) =>
+      p.slugs
+        .map((s) => bySlug.get(s))
+        .filter(Boolean)
+        .map((refId) => `('${p.id}', '${refId}')`),
+    );
+
+    if (!rows.length) return;
+    await em
+      .getConnection()
+      .execute(
+        `INSERT OR IGNORE INTO literal_uses (literal_entity_1_id, literal_entity_2_id) VALUES ${rows.join(", ")}`,
+      );
+  }
+
+  annotated(entity: LiteralEntity): string[] {
+    const tokens = entity.trait?.ANNOTATED?.tokens;
+    if (!tokens) return [];
+    return tokens.map((t) => t.literal).filter(Boolean);
+  }
+
+  collect(changeSets) {
+    const pending = [];
+    for (const cs of changeSets) {
+      if (!(cs.entity instanceof LiteralEntity)) continue;
+      const slugs = [...new Set(this.annotated(cs.entity))];
+      if (slugs.length) pending.push({ id: cs.entity.id, slugs });
+    }
+    return pending;
+  }
+}
+
 export default {
   type: "literal",
   traits: LiteralTraitsEnum,
   schema: LiteralSchema,
   entity: LiteralEntity,
   repository: LiteralRepository,
+  subscriber: LiteralSubscriber,
 };

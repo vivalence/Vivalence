@@ -1,11 +1,11 @@
 meta {
-  name: update
+  name: updateOne
   type: http
-  seq: 8
+  seq: 6
 }
 
 post {
-  url: {{DAEMON}}/entities/intent/update
+  url: {{DAEMON}}/entities/mode/updateOne
   body: json
   auth: bearer
 }
@@ -17,10 +17,9 @@ auth:bearer {
 body:json {
   {
     "where": {
-      "type": "APPLICATIVE"
-    },
+      "id": "019d3e6b-b6f3-77a5-8908-540ba9f2d0af"  },
     "data": {
-      "description": "batch updated"
+      "installed": false
     }
   }
 }

@@ -1,3 +1,4 @@
+import { array } from "@vivalence/typology";
 // ── warmup ──────────────────────────────────────────────────────────
 // easy recall, get in the mood. no typing. recognition + audio.
 // exhibit new → flash (KNOWN) → judge (SLOW) → listen (pick, KNOWN)
@@ -24,10 +25,13 @@ export default async (ctx) => {
   }
 
   buffers.push(
-    await ctx.daemon.modes.game.flashcard.emit.literals({ recall: "KNOWN", literals: words }),
+    await ctx.daemon.modes.game.flashcard.emit.literals({
+      recall: "KNOWN",
+      literals: array.shuffle(words),
+    }),
   );
 
-  for (const lit of words) {
+  for (const lit of array.shuffle(words)) {
     buffers.push(
       await ctx.daemon.modes.game.judge.emit.literal({
         literal: lit,
@@ -38,7 +42,7 @@ export default async (ctx) => {
   }
 
   const vocalized = words.filter((w) => w.traits?.includes("VOCALIZED"));
-  for (const lit of vocalized) {
+  for (const lit of array.shuffle(vocalized)) {
     buffers.push(
       await ctx.daemon.modes.game.listen.emit.literal({
         literal: lit,

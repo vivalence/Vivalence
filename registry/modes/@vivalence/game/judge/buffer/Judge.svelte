@@ -17,9 +17,10 @@
   const sourceField = recall === "LEARNING" ? "learning" : "known";
 
   const isWord = target?.symbol?.word;
-  const asset = target?.trait?.VOCALIZED?.asset
-    ? terminal.daemon.getAsset(target.trait.VOCALIZED.asset)
-    : null;
+  const asset =
+    (gameplay === "audio" || gameplay === "audio-only")
+      ? terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset)
+      : null;
 
   const sourceText = target && gameplay !== "audio-only"
     ? target.trait?.TRANSLATED?.[sourceField]

@@ -4,7 +4,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -19,6 +20,11 @@ export default [
         "asset": {
           "path": "words/alguma.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3311,
+        "zipf": 5.48,
+        "fpm": 302
       }
     },
     "symbols": [
@@ -44,7 +50,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -59,6 +66,11 @@ export default [
         "asset": {
           "path": "words/aqueles.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 6758,
+        "zipf": 5.17,
+        "fpm": 148
       }
     },
     "symbols": [
@@ -84,7 +96,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -99,6 +112,11 @@ export default [
         "asset": {
           "path": "words/cujo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 16978,
+        "zipf": 4.77,
+        "fpm": 58.9
       }
     },
     "symbols": [
@@ -124,7 +142,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -139,6 +158,11 @@ export default [
         "asset": {
           "path": "words/diversos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 8697,
+        "zipf": 5.06,
+        "fpm": 115
       }
     },
     "symbols": [
@@ -179,7 +203,7 @@ export default [
       "RANKED": {
         "rank": 952,
         "zipf": 6.02,
-        "fpm": 1050.0
+        "fpm": 1050
       },
       "VOCALIZED": {
         "asset": {
@@ -219,7 +243,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -234,6 +259,11 @@ export default [
         "asset": {
           "path": "words/este.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 893,
+        "zipf": 6.05,
+        "fpm": 1120
       }
     },
     "symbols": [
@@ -272,9 +302,9 @@ export default [
         "learning": "Meu nome é Eva"
       },
       "RANKED": {
-        "rank": 524,
+        "rank": 525,
         "zipf": 6.28,
-        "fpm": 1910.0
+        "fpm": 1910
       },
       "VOCALIZED": {
         "asset": {
@@ -317,7 +347,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -332,6 +363,11 @@ export default [
         "asset": {
           "path": "words/muitos.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2883,
+        "zipf": 5.54,
+        "fpm": 347
       }
     },
     "symbols": [
@@ -357,7 +393,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -372,6 +409,11 @@ export default [
         "asset": {
           "path": "words/nenhum.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 4568,
+        "zipf": 5.34,
+        "fpm": 219
       }
     },
     "symbols": [
@@ -397,7 +439,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -412,6 +455,11 @@ export default [
         "asset": {
           "path": "words/nossa.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1352,
+        "zipf": 5.87,
+        "fpm": 741
       }
     },
     "symbols": [
@@ -452,7 +500,7 @@ export default [
       "RANKED": {
         "rank": 34,
         "zipf": 7.47,
-        "fpm": 29500.0
+        "fpm": 29500
       },
       "VOCALIZED": {
         "asset": {
@@ -498,7 +546,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -513,6 +562,11 @@ export default [
         "asset": {
           "path": "words/outro.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1289,
+        "zipf": 5.89,
+        "fpm": 776
       }
     },
     "symbols": [
@@ -538,7 +592,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -553,6 +608,11 @@ export default [
         "asset": {
           "path": "words/qualquer.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1621,
+        "zipf": 5.79,
+        "fpm": 617
       }
     },
     "symbols": [
@@ -578,7 +638,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -593,6 +654,11 @@ export default [
         "asset": {
           "path": "words/que.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 37,
+        "zipf": 7.44,
+        "fpm": 27500
       }
     },
     "symbols": [
@@ -631,9 +697,9 @@ export default [
         "learning": "Qual é o seu nome?"
       },
       "RANKED": {
-        "rank": 331,
+        "rank": 332,
         "zipf": 6.48,
-        "fpm": 3020.0
+        "fpm": 3020
       },
       "VOCALIZED": {
         "asset": {
@@ -676,7 +742,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -691,6 +758,11 @@ export default [
         "asset": {
           "path": "words/sua.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 333,
+        "zipf": 6.48,
+        "fpm": 3020
       }
     },
     "symbols": [
@@ -716,7 +788,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -731,6 +804,11 @@ export default [
         "asset": {
           "path": "words/tanto.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 2634,
+        "zipf": 5.58,
+        "fpm": 380
       }
     },
     "symbols": [
@@ -756,7 +834,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -771,6 +850,11 @@ export default [
         "asset": {
           "path": "words/todo.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1204,
+        "zipf": 5.92,
+        "fpm": 832
       }
     },
     "symbols": [
@@ -809,9 +893,9 @@ export default [
         "learning": "Um cachorro está no parque"
       },
       "RANKED": {
-        "rank": 87,
+        "rank": 88,
         "zipf": 7.06,
-        "fpm": 11500.0
+        "fpm": 11500
       },
       "VOCALIZED": {
         "asset": {
@@ -854,7 +938,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -869,6 +954,11 @@ export default [
         "asset": {
           "path": "words/va-ac-rios.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3475,
+        "zipf": 5.46,
+        "fpm": 288
       }
     },
     "symbols": [

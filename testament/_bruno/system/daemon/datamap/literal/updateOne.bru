@@ -1,11 +1,11 @@
 meta {
-  name: update
+  name: updateOne
   type: http
-  seq: 8
+  seq: 6
 }
 
 post {
-  url: {{DAEMON}}/entities/symbol/update
+  url: {{DAEMON}}/entities/literal/updateOne
   body: json
   auth: bearer
 }
@@ -17,13 +17,12 @@ auth:bearer {
 body:json {
   {
     "where": {
-      "traits": {
-        "$contains": ["ONTOLOGICAL"]
-      }
+      "slug": "test-literal"
     },
     "data": {
       "trait": {
-        "batch": true
+        "target": "updated target",
+        "native": "updated native"
       }
     }
   }

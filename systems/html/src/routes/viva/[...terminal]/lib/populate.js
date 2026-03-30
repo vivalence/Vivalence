@@ -18,7 +18,7 @@ function mint(pojo, mode, terminal) {
   const buffer = Buffer.from(pojo, view);
   buffer.context = { buffer, terminal };
   buffer.release = () => {
-    terminal.daemon.entities.buffer.update(buffer.id, {});
+    terminal.daemon.entities.buffer.updateOne(buffer.id, {});
     terminal.stall.next();
   };
   if (buffer.id) terminal.daemon.entities.buffer.merge(buffer);
@@ -29,7 +29,7 @@ function mint(pojo, mode, terminal) {
 //   const view = mode.buffered ?? null;
 //   const buffer = Buffer.from(pojo, view, { terminal });
 //   buffer.release = () => {
-//     terminal.daemon.entities.buffer.update(buffer.id, {});
+//     terminal.daemon.entities.buffer.updateOne(buffer.id, {});
 //     terminal.stall.next();
 //   };
 //   if (buffer.id) terminal.daemon.entities.buffer.merge(buffer);
@@ -66,6 +66,7 @@ population
   })
   .open("/:intent/:thread", async (ctx) => {
     if (ctx.terminal.intent?.type === "APPLICATIVE") {
+      const queue = ctx.terminal.intent.trait?.FEEDING?.queue ?? 0;
       ctx.terminal.stall.withPull(async () => {
         const queued = ctx.terminal.stall.queue;
         const blacklist = {
@@ -83,7 +84,7 @@ population
           });
           return mint(pojo, viewMode, ctx.terminal);
         });
-      });
+      }, queue);
       ctx.terminal.stall.$status.set("IDLE");
       ctx.terminal.stall.pull();
     } else {

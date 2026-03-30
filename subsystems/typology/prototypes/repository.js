@@ -59,16 +59,28 @@ export class RemoteRepository {
     return this.merge(result);
   }
 
-  async update(where = {}, data = {}) {
-    const result = await this._connection.call("/update", { where, data });
+  async updateOne(where = {}, data = {}) {
+    const result = await this._connection.call("/updateOne", { where, data });
     return this.merge(result);
+  }
+
+  async update(where = {}, data = {}) {
+    const results = await this._connection.call("/update", { where, data });
+    return results.map((r) => this.merge(r));
+  }
+
+  async removeOne(where = {}) {
+    if (this._connection) {
+      await this._connection.call("/removeOne", { where });
+    }
+    if (where.id) this._drop(where.id);
   }
 
   async remove(where = {}) {
     if (this._connection) {
-      await this._connection.call("/remove", { where });
+      const { ids } = await this._connection.call("/remove", { where });
+      for (const id of ids) this._drop(id);
     }
-    if (where.id) this._drop(where.id);
   }
 
   subscribe(where = {}) {

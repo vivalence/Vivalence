@@ -11,7 +11,7 @@
   let selected = $state(null);
   let shuffled = $state([]);
 
-  const target = $derived(literals[0]);
+  const target = $derived(data.target ? literals.find((l) => l.id === data.target) : literals[0]);
   const isWord = $derived(target?.symbol?.word);
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
 

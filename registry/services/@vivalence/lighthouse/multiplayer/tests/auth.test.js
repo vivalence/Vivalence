@@ -3,7 +3,7 @@ import { shard } from "@vivalence/typology";
 
 const lighthouse = new Connection(
   new Url("http://localhost:1729/attached/process/lighthouse/multiplayer"),
-  shard.transport.fetcher,
+  shard.transmitter.fetcher,
 );
 
 let tokens = {};

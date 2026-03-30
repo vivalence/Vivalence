@@ -75,7 +75,7 @@ specimen.describe("daemon datamap", () => {
   });
 
   specimen.it("update literal", async () => {
-    const result = await scenario.conn.call("/entities/literal/update", {
+    const result = await scenario.conn.call("/entities/literal/updateOne", {
       where: { slug: "obrigado" },
       data: { trait: { TRANSLATED: { known: "thank you", learning: "obrigado" } } },
     });
@@ -83,7 +83,7 @@ specimen.describe("daemon datamap", () => {
   });
 
   specimen.it("remove literal", async () => {
-    const result = await scenario.conn.call("/entities/literal/remove", {
+    const result = await scenario.conn.call("/entities/literal/removeOne", {
       where: { slug: "obrigado" },
     });
     specimen.expect(result.ok).toBe(true);
@@ -97,7 +97,7 @@ specimen.describe("daemon datamap", () => {
   });
 
   specimen.it("update nonexistent returns 404", async () => {
-    const response = await scenario.conn.fetch("/entities/literal/update", {
+    const response = await scenario.conn.fetch("/entities/literal/updateOne", {
       where: { slug: "nonexistent" },
       data: {},
     });

@@ -58,7 +58,7 @@ export async function create() {
     .slurp(shard.datamap.repository(repos.daemon));
 
   const handler = shape.http(aperture);
-  const conn = new Connection(new Url("http://test"), shard.transport.inline(handler));
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
 
   return { conn, orm, em, repos, fixtures, aperture };
 }

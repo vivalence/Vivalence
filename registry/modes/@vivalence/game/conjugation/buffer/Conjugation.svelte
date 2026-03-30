@@ -80,6 +80,8 @@
       signal: correct ? "SUCCESS" : "MISTAKE",
       scope: { literal: target.id },
     });
+
+    setTimeout(() => advance(), correct ? 800 : 1500);
   }
 
   function advance() {
@@ -128,17 +130,15 @@
           <div class="feedback">
             <div class="fb-line" class:fb-ok={correct} class:fb-miss={!correct}>
               <span class="fb-icon">{correct ? "✓" : "✗"}</span>
-              <span class="fb-input">{input}</span>
+              <span class="fb-input">{correct ? answer : string.clean(input)}</span>
+              {#if targetAsset}
+                <Asset asset={targetAsset} variant="dot" autoplay={true} />
+              {/if}
             </div>
             {#if !correct}
               <div class="fb-answer">
                 <span class="fb-answer-label">expected</span>
                 <span class="fb-answer-text">{answer}</span>
-              </div>
-            {/if}
-            {#if targetAsset}
-              <div class="fb-audio">
-                <Asset asset={targetAsset} variant="dot" autoplay={correct} />
               </div>
             {/if}
           </div>
@@ -289,8 +289,6 @@
     font-size: var(--font-size-lg);
     color: var(--colors-theme-primary-contrast);
   }
-
-  .fb-audio { margin-top: 0.25rem; }
 
   /* ── controls ── */
   .controls {

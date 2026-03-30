@@ -1,37 +1,47 @@
-import paladin from "@vivalence/paladin";
-import { Signal } from "@vivalence/typology";
+import paladin from "@vivalence/paladin"
+import { Vector, Signal } from "@vivalence/typology"
 
-import boot, { shutdown } from "./lifecycle/boot.js";
-import trajectory from "./trajectories/index.js";
-import call from "./lifecycle/call.js";
-import run from "./lifecycle/run.js";
-// import tools from "./tools/index.js";
+import boot from "./lifecycle/boot.js"
+import parse from "./lifecycle/parse.js"
+import trajectory from "./trajectories/index.js"
+import call from "./lifecycle/call.js"
+import run from "./lifecycle/run.js"
+import { create as createOutput } from "./lib/output.js"
 
-// // @CONSTRUCT
-// shell is a special type of mode. variant.mode=shell
+await paladin.ikiro
 
-const signal = new Signal(Deno.args);
+const { flags, signal, body, argv } = parse(Deno.args)
+
+const isAgent = !Deno.stdin.isTerminal() || flags.json
 
 export const client = {
   process: null,
-  trajectory: null,
-};
+  trajectory: new Vector(),
+  signal: new Signal(signal),
+  body,
+  argv,
+  flags,
+  output: createOutput(isAgent),
+  isAgent,
+}
 
-await boot(client);
+await boot(client)
+await trajectory(client)
+await call(client)
 
-// await registry.init(paladin.registry);
-
-// // @POPULATE
-await trajectory(client);
-await call(client);
-
-// // @RESOLVE
-try {
-  let i = 0;
-  while (true && i++ < 25) await run(client);
-  // keep alive
-} catch (error) {
-  console.error("[viva shell ERROR]");
-  console.error(error);
-  // shutdown("VIVA_SHUTDOWN");
+if (isAgent || signal) {
+  try {
+    const result = await client.call(signal, body)
+    if (result !== undefined) client.output.print(result)
+  } catch (error) {
+    client.output.error(error.message)
+    Deno.exit(1)
+  }
+} else {
+  try {
+    let i = 0
+    while (i++ < 25) await run(client)
+  } catch (error) {
+    client.output.error(error.message)
+  }
 }

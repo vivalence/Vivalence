@@ -53,6 +53,8 @@ export class LiteralEntity extends DataEntity {
   ontology: string & Opt = "";
 
   symbols = new Collection<SymbolEntity>(this);
+  uses = new Collection<LiteralEntity>(this);
+  in = new Collection<LiteralEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
 }
 
@@ -82,51 +84,56 @@ export const LiteralSchema = new EntitySchema({
       mappedBy: (symbol) => symbol.literals,
       cascade: [Cascade.REMOVE],
     },
+    uses: {
+      kind: "m:n",
+      entity: () => LiteralEntity,
+      inversedBy: "in",
+    },
+    in: {
+      kind: "m:n",
+      entity: () => LiteralEntity,
+      mappedBy: "uses",
+    },
   },
 });
-
-function computeSymbol(entity: LiteralEntity) {
-  if (!entity.symbols.isInitialized()) return entity.symbol;
-
-  const result = {};
-  const symbols = [...entity.symbols.getItems()].sort(
-    (a, b) => a.slug.split(".").length - b.slug.split(".").length,
-  );
-
-  for (const symbol of symbols) {
-    object.set(result, symbol.slug);
-  }
-
-  return result;
-}
-
-function computeOntology(entity: LiteralEntity): string {
-  if (!entity.symbols.isInitialized()) return entity.ontology;
-
-  const topographical = entity.symbols
-    .getItems()
-    .filter((s) => s.traits.includes("TOPOGRAPHICAL" as any));
-
-  if (topographical.length === 0) return;
-  if (topographical.length > 1)
-    throw new Error(
-      `Literal "${entity.slug}" must have exactly one TOPOGRAPHICAL symbol, found ${topographical.length}`,
-    );
-
-  return topographical[0].slug;
-}
 
 export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
   getSubscribedEntities() {
     return [LiteralEntity];
   }
+
+  symbol(entity: LiteralEntity) {
+    if (!entity.symbols.isInitialized()) return entity.symbol;
+    const result = {};
+    const symbols = [...entity.symbols.getItems()].sort(
+      (a, b) => a.slug.split(".").length - b.slug.split(".").length,
+    );
+    for (const symbol of symbols) {
+      object.set(result, symbol.slug);
+    }
+    return result;
+  }
+
+  ontology(entity: LiteralEntity): string {
+    if (!entity.symbols.isInitialized()) return entity.ontology;
+    const topographical = entity.symbols
+      .getItems()
+      .filter((s) => s.traits.includes("TOPOGRAPHICAL" as any));
+    if (topographical.length === 0) return;
+    if (topographical.length > 1)
+      throw new Error(
+        `Literal "${entity.slug}" must have exactly one TOPOGRAPHICAL symbol, found ${topographical.length}`,
+      );
+    return topographical[0].slug;
+  }
+
   beforeCreate({ entity }: EventArgs<LiteralEntity>) {
-    entity.symbol = computeSymbol(entity);
-    entity.ontology = computeOntology(entity);
+    entity.symbol = this.symbol(entity);
+    entity.ontology = this.ontology(entity);
   }
   beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
-    entity.symbol = computeSymbol(entity);
-    entity.ontology = computeOntology(entity);
+    entity.symbol = this.symbol(entity);
+    entity.ontology = this.ontology(entity);
   }
 }
 

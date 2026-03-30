@@ -2,7 +2,7 @@ import { Url, Connection, shard, shape } from "@vivalence/typology";
 
 export async function call(die) {
   const handler = shape.http(die.good.aperture);
-  die.connection = new Connection(new Url("http://internal"), shard.transport.inline(handler));
+  die.connection = new Connection(new Url("http://internal"), shard.transmitter.inline(handler));
 }
 
 export async function uninstall(daemonDie) {

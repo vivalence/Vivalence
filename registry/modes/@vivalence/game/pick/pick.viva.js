@@ -29,7 +29,7 @@ const emitter = new Vector()
       });
     }
     return ctx.mode.buffer({
-      data: { recall: ctx.input.recall ?? "LEARNING" },
+      data: { target: ctx.input.literal.id, recall: ctx.input.recall ?? "LEARNING" },
       literals: [ctx.input.literal, ...distractors],
     });
   })

@@ -26,11 +26,28 @@ export default async (ctx) => {
   const buffers = [];
 
   // ── fetch paradigm ────────────────────────────────────────────────
-  // pick the most frequent verb that still has room to grow.
-  // averageRank ASC = most common first. limit 1 = focus on one verb.
+  // exclude lemmas already represented in the blacklist.
+  // then pick the most frequent remaining verb.
+
+  const blacklistIds = ctx.input.blacklist?.literals ?? [];
+  let freshLemmas = lemmas;
+
+  if (blacklistIds.length) {
+    const seen = await ctx.daemon.entities.literal.find(
+      { id: { $in: blacklistIds } },
+      { populate: ["symbols"] },
+    );
+    const seenLemmas = new Set(
+      seen
+        .flatMap((l) => l.symbols.getItems().map((s) => s.slug))
+        .filter((s) => s.startsWith("word.lemma.")),
+    );
+    freshLemmas = lemmas.filter((l) => !seenLemmas.has(l));
+  }
+  if (!freshLemmas.length) return [];
 
   const conjugations = await ctx.daemon.entities.conjugation.find(
-    { lemma: { slug: { $in: lemmas } } },
+    { lemma: { slug: { $in: freshLemmas } } },
     {
       populate: ["lemma", "tense", "mood", "infinitive", ...PERSON_SLOTS],
       orderBy: { averageRank: "ASC" },
@@ -90,7 +107,7 @@ export default async (ctx) => {
   // low-stakes recognition before production. the other forms of the
   // same verb are natural distractors. only untouched + weak.
 
-  for (const lit of [...untouched, ...weak]) {
+  for (const lit of array.shuffle([...untouched, ...weak])) {
     const distractors = forms.filter((f) => f.id !== lit.id);
     if (distractors.length) {
       buffers.push(
@@ -133,7 +150,7 @@ export default async (ctx) => {
   // untouched/weak get NORMAL speed (more thinking time).
   // strong forms get FAST (building automaticity).
 
-  for (const lit of forms) {
+  for (const lit of array.shuffle(forms)) {
     const isWeak = untouched.includes(lit) || weak.includes(lit);
     buffers.push(
       await modes.judge.emit.literal({
@@ -150,7 +167,7 @@ export default async (ctx) => {
   // untouched → weak → strong: hardest forms get the most reps.
 
   const drillOrder = [...untouched, ...weak, ...strong];
-  for (const lit of drillOrder) {
+  for (const lit of array.shuffle(drillOrder)) {
     buffers.push(
       await modes.conjugation.emit.literal({
         literal: lit,

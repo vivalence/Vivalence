@@ -139,7 +139,7 @@ Two key data structures:
 - `modes(die)` — wrapped in `datamap.context()`. For each mode: attaches context middleware, opens status/manifest endpoints, slurps mode aperture, **applies trait functions**, marks entity installed, attaches to daemon aperture with auth. Flushes at end.
 
 **integrate()** — `daemon/lifecycle/integration.*`:
-- `call(die)` — compiles aperture via `shape.http()`, wraps in `shard.transport.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
+- `call(die)` — compiles aperture via `shape.http()`, wraps in `shard.transmitter.inline()`, creates internal Connection (enables `daemon.call(path, body)` without HTTP)
 - `uninstall(die)` — removes DB records for modes no longer loaded
 
 ## Mode Trait System
@@ -263,7 +263,7 @@ Old monolithic tests preserved in `tests/scenarios/bak/`.
 - Hallucinator cortex — [cortex.workpackage.org](../../.ikiro/cortex.workpackage.org) — affects daemon lifecycle: new `population.cortex()` step collects faculties from hallucinator services, constructs Cortex. New traits LANGUAGED (conversation harness) and AGENTIC (action harness) construct harness Vectors during resolution. Harness-as-Vector pattern: harnesses are Vector instances compiled via shape.object/http/proxy/agentic. Integration with daemon aperture via `mode.aperture.branch('/hallucinate').slurp(harness)`.
 
 ### Completed
-- **Oak → Vector/http migration** — Oak removed. Runtime serves via `shape.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transport.inline()`. Old aperture code in bak.
+- **Oak → Vector/http migration** — Oak removed. Runtime serves via `shape.http()` + `Deno.serve`. CORS via `shard.cors.wrap()`. Daemon internal connection via `shard.transmitter.inline()`. Old aperture code in bak.
 - **Vector → typology merge** — All `@vivalence/vector` imports rewritten to `@vivalence/typology`. Vector, Aperture, steer, shape, shards all live in typology now.
 - **descendants.push fix** — process mounting was silently broken (`.descendants` getter returns new array, `.push()` was a no-op). Fixed to `.slurp()`.
 - **Scenario test infrastructure** — self-contained tests with slim domain, :memory: ORM, no paladin dependency.
@@ -294,4 +294,4 @@ When modifying runtime code:
 3. New traits go in daemon/mode/traits/ and get registered in traitmap.js
 4. New endpoints: follow the pattern in daemon/aperture/ — `.open()` or `.branch()` on daemon's Vector, effect arity (0/1/2 params)
 5. HTTP handler is compiled from Vector in `resolve.compose()` — route changes take effect at compile time, not dynamically
-6. Daemon internal connection uses the same compiled handler — `shape.http()` + `shard.transport.inline()`
+6. Daemon internal connection uses the same compiled handler — `shape.http()` + `shard.transmitter.inline()`

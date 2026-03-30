@@ -7,7 +7,7 @@ import { specimen, Connection, Url, shard } from "@vivalence/typology";
 const BASE = "http://localhost:2501";
 
 function http(base) {
-  const conn = new Connection(new Url(base), shard.transport.fetcher);
+  const conn = new Connection(new Url(base), shard.transmitter.fetcher);
   return {
     raw: conn,
     async login(username, password) {

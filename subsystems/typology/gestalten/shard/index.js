@@ -1,4 +1,4 @@
-export * as transport from "./transporter.js";
+export * as transmitter from "./transmitter.js";
 export * as context from "./context.js";
 export * as secure from "./secure.js";
 export * as connection from "./connection.js";

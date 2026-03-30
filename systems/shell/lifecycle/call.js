@@ -1,24 +1,23 @@
-import { steer, shape, Signal } from "@vivalence/typology";
-import { Prompt } from "@vivalence/sheets";
+import { steer, Signal, errors } from "@vivalence/typology"
 
-export default async function call(client) {
-  client.call = async (signal, body = {}, params = {}) => {
-    signal = new Signal();
+export default function call(client) {
+  client.call = async (signal, body = {}) => {
+    signal = new Signal(signal)
 
-    const [effect, apply] = steer.traverse(client.trajectory, signal);
+    const [effect, apply] = steer.traverse(client.trajectory, signal)
 
-    if (!effect) throw new errors.NotFound(signal);
+    if (!effect) throw new errors.NotFound(signal)
 
     const context = {
       input: body,
-      tools: client.tools,
+      argv: client.argv,
+      flags: client.flags,
+      output: client.output,
       call: client.call,
-    };
+    }
 
-    await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+    await apply(context, async (ctx) => (ctx.result = await effect(ctx)))
 
-    return context.effect;
-
-    // try {} catch (error) {if (error instanceof errors.NotFound) {console.log("[404] Signal not found:", signal); return { error: "Not Found", signal, status: 404 };} throw error;}
-  };
+    return context.result
+  }
 }

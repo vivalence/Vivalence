@@ -97,7 +97,7 @@ export async function create() {
   await routes.freight(die);
 
   const handler = shape.http(daemon.aperture);
-  const conn = new Connection(new Url("http://test"), shard.transport.inline(handler));
+  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
 
   return { daemon, die, handler, conn, orm, em, fixtures, mode };
 }

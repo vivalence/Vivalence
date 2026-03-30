@@ -4,7 +4,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -19,6 +20,11 @@ export default [
         "asset": {
           "path": "words/300.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 598802,
+        "zipf": 3.22,
+        "fpm": 1.7
       }
     },
     "symbols": [
@@ -59,7 +65,7 @@ export default [
       "RANKED": {
         "rank": 4082,
         "zipf": 5.39,
-        "fpm": 245.0
+        "fpm": 245
       },
       "VOCALIZED": {
         "asset": {
@@ -111,7 +117,7 @@ export default [
       "RANKED": {
         "rank": 1202,
         "zipf": 5.92,
-        "fpm": 832.0
+        "fpm": 832
       },
       "VOCALIZED": {
         "asset": {
@@ -164,7 +170,7 @@ export default [
         "learning": "Esteja aqui às nove"
       },
       "RANKED": {
-        "rank": 15480,
+        "rank": 15482,
         "zipf": 4.81,
         "fpm": 64.6
       },
@@ -203,7 +209,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -218,6 +225,11 @@ export default [
         "asset": {
           "path": "words/trinta.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 33900,
+        "zipf": 4.47,
+        "fpm": 29.5
       }
     },
     "symbols": [
@@ -256,9 +268,9 @@ export default [
         "learning": "Três cafés, por favor"
       },
       "RANKED": {
-        "rank": 1818,
+        "rank": 1819,
         "zipf": 5.74,
-        "fpm": 550.0
+        "fpm": 550
       },
       "VOCALIZED": {
         "asset": {

@@ -19,7 +19,7 @@ export default [
       "RANKED": {
         "rank": 30,
         "zipf": 7.52,
-        "fpm": 33100.0
+        "fpm": 33100
       },
       "VOCALIZED": {
         "asset": {
@@ -71,7 +71,7 @@ export default [
       "RANKED": {
         "rank": 617,
         "zipf": 6.21,
-        "fpm": 1620.0
+        "fpm": 1620
       },
       "VOCALIZED": {
         "asset": {
@@ -123,7 +123,7 @@ export default [
       "RANKED": {
         "rank": 102,
         "zipf": 6.99,
-        "fpm": 9770.0
+        "fpm": 9770
       },
       "VOCALIZED": {
         "asset": {
@@ -160,7 +160,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -175,6 +176,11 @@ export default [
         "asset": {
           "path": "words/como.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 166,
+        "zipf": 6.78,
+        "fpm": 6030
       }
     },
     "symbols": [
@@ -215,7 +221,7 @@ export default [
       "RANKED": {
         "rank": 21,
         "zipf": 7.68,
-        "fpm": 47900.0
+        "fpm": 47900
       },
       "VOCALIZED": {
         "asset": {
@@ -252,7 +258,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -267,6 +274,11 @@ export default [
         "asset": {
           "path": "words/durante.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 1548,
+        "zipf": 5.81,
+        "fpm": 646
       }
     },
     "symbols": [
@@ -307,7 +319,7 @@ export default [
       "RANKED": {
         "rank": 72,
         "zipf": 7.14,
-        "fpm": 13800.0
+        "fpm": 13800
       },
       "VOCALIZED": {
         "asset": {
@@ -347,7 +359,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -362,6 +375,11 @@ export default [
         "asset": {
           "path": "words/entre.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 775,
+        "zipf": 6.11,
+        "fpm": 1290
       }
     },
     "symbols": [
@@ -402,7 +420,7 @@ export default [
       "RANKED": {
         "rank": 85,
         "zipf": 7.07,
-        "fpm": 11700.0
+        "fpm": 11700
       },
       "VOCALIZED": {
         "asset": {
@@ -454,7 +472,7 @@ export default [
       "RANKED": {
         "rank": 132,
         "zipf": 6.88,
-        "fpm": 7590.0
+        "fpm": 7590
       },
       "VOCALIZED": {
         "asset": {
@@ -491,7 +509,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -506,6 +525,11 @@ export default [
         "asset": {
           "path": "words/que.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 36,
+        "zipf": 7.44,
+        "fpm": 27500
       }
     },
     "symbols": [
@@ -544,9 +568,9 @@ export default [
         "learning": "Eu sou do Brasil"
       },
       "RANKED": {
-        "rank": 741,
+        "rank": 742,
         "zipf": 6.13,
-        "fpm": 1350.0
+        "fpm": 1350
       },
       "VOCALIZED": {
         "asset": {
@@ -580,7 +604,8 @@ export default [
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED"
+      "VOCALIZED",
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
@@ -595,6 +620,11 @@ export default [
         "asset": {
           "path": "words/sob.mp3"
         }
+      },
+      "RANKED": {
+        "rank": 3393,
+        "zipf": 5.47,
+        "fpm": 295
       }
     },
     "symbols": [

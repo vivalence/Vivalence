@@ -18,7 +18,7 @@ specimen.beforeAll(async () => {
 
   conn = new Connection(
     new Url("http://test"),
-    shard.transport.inline(shape.http(aperture)),
+    shard.transmitter.inline(shape.http(aperture)),
   )
 })
 
@@ -83,9 +83,9 @@ specimen.describe("RemoteRepository", () => {
       specimen.expect(modeRepo.$entities.get()).toContain(entity)
     })
 
-    specimen.it("update preserves identity", async () => {
+    specimen.it("updateOne preserves identity", async () => {
       const entity = await remote.create({ slug: "repo-mut", trait: {} })
-      const updated = await remote.update({ id: entity.id }, { trait: { X: 1 } })
+      const updated = await remote.updateOne({ id: entity.id }, { trait: { X: 1 } })
       specimen.expect(updated).toBe(entity)
       specimen.expect(updated.trait.X).toBe(1)
     })
@@ -93,7 +93,7 @@ specimen.describe("RemoteRepository", () => {
     specimen.it("remove drops from store", async () => {
       const entity = await remote.create({ slug: "repo-rm", trait: {} })
       const before = remote.$entities.get().length
-      await remote.remove({ id: entity.id })
+      await remote.removeOne({ id: entity.id })
       specimen.expect(remote.$entities.get().length).toBe(before - 1)
     })
   })

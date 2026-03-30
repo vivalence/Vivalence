@@ -58,12 +58,12 @@ specimen.describe("datamap over HTTP", () => {
     const found = await conn.call("/literal/find", { where: { slug: "net-create" } })
     specimen.expect(found.length).toBe(1)
 
-    const updated = await conn.call("/literal/update", {
+    const updated = await conn.call("/literal/updateOne", {
       where: { id: created.id }, data: { trait: { NET: true } },
     })
     specimen.expect(updated.trait.NET).toBe(true)
 
-    const removed = await conn.call("/literal/remove", { where: { id: created.id } })
+    const removed = await conn.call("/literal/removeOne", { where: { id: created.id } })
     specimen.expect(removed.ok).toBe(true)
   })
 })
@@ -108,7 +108,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     })()
 
     await sleep.ms(50)
-    await conn.call("/literal/update", {
+    await conn.call("/literal/updateOne", {
       where: { id: created.id }, data: { trait: { UPDATED: true } },
     })
     await reader
@@ -133,7 +133,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     })()
 
     await sleep.ms(50)
-    await conn.call("/literal/remove", { where: { id: created.id } })
+    await conn.call("/literal/removeOne", { where: { id: created.id } })
     await reader
 
     specimen.expect(events[0].op).toBe("delete")
@@ -175,11 +175,11 @@ specimen.describe("RemoteRepository over HTTP", () => {
     const found = await repo.find({ slug: "remote-net" })
     specimen.expect(found.length).toBeGreaterThan(0)
 
-    const updated = await repo.update({ id: created.id }, { trait: { R: 1 } })
+    const updated = await repo.updateOne({ id: created.id }, { trait: { R: 1 } })
     specimen.expect(updated).toBe(created)
     specimen.expect(updated.trait.R).toBe(1)
 
-    await repo.remove({ id: created.id })
+    await repo.removeOne({ id: created.id })
     specimen.expect(repo.$entities.get()).not.toContain(created)
   })
 

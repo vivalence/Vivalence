@@ -4,25 +4,29 @@ import {
   LiteralEntity, LiteralSchema,
   SymbolEntity, SymbolSchema,
   BufferEntity, BufferSchema,
-  ModeEntity, ModeSchema,
+  ModeEntity, ModeSchema, ModeRepository,
   IntentEntity, IntentSchema,
   UserEntity, UserSchema,
   ThreadEntity, ThreadSchema,
+  DataRepository,
 } from "@vivalence/typology/entities"
 
 const LiteralConcrete = new EntitySchema({
   class: LiteralEntity, extends: LiteralSchema,
   tableName: "Literal", name: "Literal",
+  repository: () => DataRepository,
 })
 
 const SymbolConcrete = new EntitySchema({
   class: SymbolEntity, extends: SymbolSchema,
   tableName: "Symbol", name: "Symbol",
+  repository: () => DataRepository,
 })
 
 const BufferConcrete = new EntitySchema({
   class: BufferEntity, extends: BufferSchema,
   tableName: "Buffer", name: "Buffer",
+  repository: () => DataRepository,
 })
 
 export const schemas = [
@@ -54,7 +58,7 @@ export async function seed() {
   await em.flush()
 
   const mode = em.create(ModeEntity, {
-    slug: "test", type: "test", traits: ["VIEWABLE"], installed: true,
+    slug: "test", type: "test", traits: ["BUFFERED"], installed: true,
   })
   await em.flush()
 
