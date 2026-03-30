@@ -29,14 +29,19 @@ export class Url extends Signature {
   // nature = "/";
   // origin = null;
   static coercions = [
-    [(u) => is.url(u), (u) => ({ nature: u.pathname || u.nature, origin: u.origin })],
     [
-      (u) => is.string(u),
-      (s) => {
-        const u = new URL(s);
-        return { nature: u.pathname, origin: u.origin };
+      (u) => is.url(u) && is.string(u),
+      (u) => {
+        const url = new URL(u);
+        return { nature: url.pathname, origin: url.origin };
       },
     ],
+    [
+      (u) => is.url(u) && !is.string(u),
+      (u) => ({ nature: u.pathname || u.nature, origin: u.origin }),
+    ],
+    [(u) => is.Signal(u), (u) => ({ nature: u.pathname })],
+    [(u) => is.string(u), (s) => ({ nature: normalize(s) })],
   ];
 
   hasher() {

@@ -8,13 +8,7 @@
   import { onMount } from "svelte";
   import { lighthouse } from "$client";
 
-  onMount(() => {
-    if (!dev) return;
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/eruda";
-    s.onload = () => eruda.init();
-    document.head.appendChild(s);
-  });
+  // onMount(() => {if (!dev) return; const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/eruda"; s.onload = () => eruda.init(); document.head.appendChild(s);});
 
   let { children } = $props();
   let isIdentified = lighthouse.$isIdentified;

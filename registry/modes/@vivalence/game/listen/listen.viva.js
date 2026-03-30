@@ -45,7 +45,7 @@ const emitter = new Vector()
         (await ctx.daemon.entities.literal.feed({
           limit: 3,
           blacklist: ctx.input.blacklist,
-          where: { symbol: { word: lit.symbol?.word } },
+          where: { ontology: lit.ontology },
         }));
       literals = [lit, ...distractors];
     }

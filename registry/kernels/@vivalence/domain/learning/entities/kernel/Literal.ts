@@ -40,7 +40,9 @@ export class LiteralRepository extends base.repository {
     return this.find(
       object.merge(
         { memories: { $none: {} } },
-        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        is.array(blacklist?.literals) && blacklist.literals.length
+          ? { id: { $nin: blacklist.literals } }
+          : {},
         where,
       ),
       { orderBy: { rank: "ASC" }, limit: limit },
@@ -51,7 +53,9 @@ export class LiteralRepository extends base.repository {
     return this.find(
       object.merge(
         { memories: { nextAt: { $lt: new Date() } } },
-        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        is.array(blacklist?.literals) && blacklist.literals.length
+          ? { id: { $nin: blacklist.literals } }
+          : {},
         where,
       ),
       {
@@ -65,7 +69,9 @@ export class LiteralRepository extends base.repository {
     return this.find(
       object.merge(
         { memories: {} },
-        is.array(blacklist?.literals) && blacklist.literals.length ? { id: { $nin: blacklist.literals } } : {},
+        is.array(blacklist?.literals) && blacklist.literals.length
+          ? { id: { $nin: blacklist.literals } }
+          : {},
         where,
       ),
       {
@@ -162,7 +168,8 @@ export const LiteralSchema = new EntitySchema({
     rank: {
       type: types.integer,
       formula: (table) => `COALESCE(json_extract(${table}.trait, '$.RANKED.rank'), 999999)`,
-      persist: false,
+      persist: true,
+      nullable: true,
     },
 
     memories: {

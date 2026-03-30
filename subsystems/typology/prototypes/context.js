@@ -2,11 +2,12 @@ import { Request } from "./request.js";
 import { Response } from "./response.js";
 
 export class Context {
-  constructor(request) {
-    this.request = request instanceof Request ? request : new Request(request);
-    this.response = new Response();
-    this.state = {};
-    this.params = {};
+  constructor(context = {}) {
+    Object.assign(this, context);
+    this.request = this.request instanceof Request ? this.request : new Request(this.request ?? {});
+    this.response = this.response ?? new Response();
+    this.params = this.params ?? {};
+    this.state = this.state ?? {};
   }
 
   get input() { return this.request.body; }

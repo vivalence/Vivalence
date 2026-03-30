@@ -1,5 +1,5 @@
-import { specimen, middleware } from "@vivalence/typology";
-import { Vector, shape } from "@vivalence/typology";
+import { specimen, middleware, v } from "@vivalence/typology";
+import { Vector, shape, steer } from "@vivalence/typology";
 
 specimen.describe("object shape", () => {
   specimen.describe("flat effects", () => {
@@ -144,6 +144,89 @@ specimen.describe("object shape", () => {
       const result = await output.api.info();
       specimen.expect(result).toBe("d");
       specimen.expect(trace).toEqual(["root", "branch"]);
+    });
+  });
+});
+
+specimen.describe("guarded strategy", () => {
+  specimen.describe("leaf validation", () => {
+    specimen.it("passes valid input", async () => {
+      const vector = new Vector();
+      vector.open(
+        { nature: "/feed", input: v.object({ limit: v.integer() }) },
+        (ctx) => ctx.input.limit,
+      );
+
+      const output = shape.object(vector, steer.guarded);
+      specimen.expect(await output.feed({ limit: 5 })).toBe(5);
+    });
+
+    specimen.it("rejects invalid input", async () => {
+      const vector = new Vector();
+      vector.open(
+        { nature: "/feed", input: v.object({ limit: v.integer() }) },
+        (ctx) => ctx.input.limit,
+      );
+
+      const output = shape.object(vector, steer.guarded);
+      let threw = false;
+      try { await output.feed({ limit: "abc" }); }
+      catch (e) { threw = e.code === "VALIDATION"; }
+      specimen.expect(threw).toBe(true);
+    });
+  });
+
+  specimen.describe("branch validation", () => {
+    specimen.it("validates branch schema before leaf", async () => {
+      const vector = new Vector();
+      vector
+        .branch({ nature: "/emit", input: v.object({ thread: v.string() }) })
+        .open(
+          { nature: "/literal", input: v.object({ literal: v.string() }) },
+          (ctx) => ctx.input.literal,
+        );
+
+      const output = shape.object(vector, steer.guarded);
+      specimen.expect(await output.emit.literal({ thread: "t1", literal: "hello" })).toBe("hello");
+    });
+
+    specimen.it("rejects when branch schema fails", async () => {
+      const vector = new Vector();
+      vector
+        .branch({ nature: "/emit", input: v.object({ thread: v.string() }) })
+        .open("/literal", (ctx) => ctx.input);
+
+      const output = shape.object(vector, steer.guarded);
+      let threw = false;
+      try { await output.emit.literal({ thread: 999 }); }
+      catch (e) { threw = e.code === "VALIDATION"; }
+      specimen.expect(threw).toBe(true);
+    });
+  });
+
+  specimen.describe("defaults", () => {
+    specimen.it("applies defaults before execution", async () => {
+      const vector = new Vector();
+      vector.open(
+        { nature: "/feed", input: v.object({ limit: v.integer().default(10) }) },
+        (ctx) => ctx.input.limit,
+      );
+
+      const output = shape.object(vector, steer.guarded);
+      specimen.expect(await output.feed({})).toBe(10);
+    });
+  });
+
+  specimen.describe("opt-in", () => {
+    specimen.it("routed skips validation", async () => {
+      const vector = new Vector();
+      vector.open(
+        { nature: "/feed", input: v.object({ limit: v.integer() }) },
+        (ctx) => "ok",
+      );
+
+      const output = shape.object(vector, steer.direct);
+      specimen.expect(await output.feed({ limit: "not a number" })).toBe("ok");
     });
   });
 });

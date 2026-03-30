@@ -162,7 +162,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "that/what",
+        "known": "that",
         "learning": "que"
       },
       "EXEMPLIFIED": {

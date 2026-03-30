@@ -5,17 +5,15 @@ import { IntentEntity } from "../index.ts";
 import { BufferEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
-  VIEWABLE = "VIEWABLE",
   DATASET = "DATASET",
+  EXPOSED = "EXPOSED",
   CHAOSMONKEY = "CHAOSMONKEY",
   TOPOGRAPHICAL = "TOPOGRAPHICAL",
   INTENTED = "INTENTED",
   SELFEVIDENT = "SELFEVIDENT",
   EMITTER = "EMITTER",
   FRAUGHT = "FRAUGHT",
-  VALENTIC = "VALENTIC", // legacy
-  BUFFERED = "BUFFERED", // legacy
-  PRODUCER = "PRODUCER", // legacy
+  BUFFERED = "BUFFERED",
 }
 
 export class ModeRepository extends DataRepository {

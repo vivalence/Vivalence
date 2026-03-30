@@ -1,4 +1,5 @@
 import { Vector } from "./vector.js";
+import { dispatch } from "../gestalten/steer/strategy.js";
 
 export class Aperture extends Vector {
   get(sig, handler)    { return this._route("GET", sig, handler); }
@@ -35,24 +36,17 @@ export class Aperture extends Vector {
 }
 
 export function method(m, handler) {
-  return (input, ctx) =>
-    ctx.request.method === m ? dispatch(handler, input, ctx) : undefined;
+  return (ctx) =>
+    ctx.request.method === m ? dispatch(handler, ctx) : undefined;
 }
 
 export function methods(map) {
   const m = map || {};
-  const fn = (input, ctx) => {
+  const fn = (ctx) => {
     const handler = m[ctx.request.method] || m["*"];
     if (!handler) { ctx.response.status = 405; return null; }
-    return dispatch(handler, input, ctx);
+    return dispatch(handler, ctx);
   };
-  Object.defineProperty(fn, "length", { value: 2 });
   fn.methods = m;
   return fn;
-}
-
-function dispatch(fn, input, ctx) {
-  if (fn.length === 0) return fn();
-  if (fn.length === 1) return fn(ctx);
-  return fn(input, ctx);
 }

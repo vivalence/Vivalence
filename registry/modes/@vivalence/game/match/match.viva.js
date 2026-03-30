@@ -41,8 +41,8 @@ const emitter = new Vector()
     if (literals.length < 2) return [];
     return ctx.mode.buffer({
       data: {
-        recall: ctx.input.defaults?.recall ?? "LEARNING",
-        gameplay: ctx.input.defaults?.gameplay ?? "translate",
+        recall: ctx.input.recall ?? "LEARNING",
+        gameplay: ctx.input.gameplay ?? "translate",
       },
       literals,
     });

@@ -131,13 +131,12 @@ specimen.describe("http shape", () => {
           const [effect, carry, steps] = traverse(vec, signal);
           if (!effect) throw new NotFound(signal);
           const inner = new Context({
-            body, url: `http://internal${path}`, method: "POST",
+            request: { body, url: `http://internal${path}`, method: "POST" },
+            params: fromm.match(steps).parameters,
           });
-          inner.params = fromm.match(steps).parameters;
           await carry(inner, async (c) => {
-            if (effect.length === 0) c.output = await effect();
-            else if (effect.length === 1) c.output = await effect(c);
-            else if (effect.length === 2) c.output = await effect(c.input, c);
+            const result = await steer.dispatch(effect, c);
+            if (result !== undefined) c.output = result;
           });
           return inner.output;
         };

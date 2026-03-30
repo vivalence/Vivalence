@@ -11,5 +11,5 @@ export const manifest = {
   name: "Language Learning",
   description: "Domain for learning with literals symbols ebisu and annotations",
   version: "0.0.5",
-  traits: [],
+  traits: ["EXPOSED"],
 };

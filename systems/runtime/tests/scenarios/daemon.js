@@ -61,7 +61,7 @@ export async function create() {
   };
 
   mode.cake.emitter = new Vector().open("/literal", async (ctx) => {
-    const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
+    const recall = ctx.input.recall;
     return ctx.mode.buffer({
       data: { recall },
       literals: [ctx.input.literal],

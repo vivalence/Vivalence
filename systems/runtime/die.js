@@ -19,12 +19,12 @@ export class Die extends Wafer {
 
     await lifecycle.resolution.attach(this);
     await lifecycle.resolution.expose(this);
-    await lifecycle.resolution.compose(this);
-    await lifecycle.resolution.launch(this);
-    await lifecycle.resolution.wake(this);
+    // await lifecycle.resolution.compose(this);
   }
 
   async integrate() {
+    await lifecycle.integration.launch(this);
+    await lifecycle.integration.wake(this);
     await lifecycle.integration.announce(this);
     this.status.set("alive");
   }

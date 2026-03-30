@@ -1,4 +1,4 @@
-import { specimen, is, Path, Pattern, Signal } from "@vivalence/typology";
+import { specimen, is, Path, Pattern, Signal, v } from "@vivalence/typology";
 
 specimen.describe("Signature", () => {
   let signature;
@@ -149,6 +149,67 @@ specimen.describe("Signal", () => {
         specimen.expect(child.index).toBe(1);
         specimen.expect(root.gauges.length).toBe(1);
       });
+    });
+  });
+});
+
+specimen.describe("Pattern descriptor", () => {
+  specimen.describe("object form", () => {
+    specimen.it("parses nature and attaches valence", () => {
+      const input = v.object({ limit: v.number(), recall: v.string() });
+      const pattern = new Pattern({ nature: "/users/:id", input, valence: "fetch user" });
+
+      specimen.expect(pattern.nature).toBe("users");
+      specimen.expect(pattern.type).toBe("literal");
+
+      const leaf = pattern.fin;
+      specimen.expect(leaf.nature).toBe(":id");
+      specimen.expect(leaf.input).toBe(input);
+      specimen.expect(leaf.valence).toBe("fetch user");
+    });
+
+    specimen.it("works with single-segment nature", () => {
+      const input = v.object({ limit: v.integer(), where: v.any() });
+      const pattern = new Pattern({ nature: "/feed", input });
+
+      specimen.expect(pattern.nature).toBe("feed");
+      specimen.expect(pattern.input).toBe(input);
+    });
+
+    specimen.it("preserves routing behavior", () => {
+      const pattern = new Pattern({ nature: "/users", valence: "list users" });
+      const signal = new Signal("users");
+      const result = pattern.apply(signal);
+
+      specimen.expect(result).toBeTruthy();
+      specimen.expect(result.nature).toBe("users");
+    });
+  });
+
+  specimen.describe("function form", () => {
+    specimen.it("invokes fn with Pattern constructor", () => {
+      let received;
+      const pattern = new Pattern((s) => {
+        received = s;
+        return { nature: "/feed", valence: "fetch items" };
+      });
+
+      specimen.expect(received).toBe(Pattern);
+      specimen.expect(pattern.nature).toBe("feed");
+      specimen.expect(pattern.valence).toBe("fetch items");
+    });
+
+    specimen.it("attaches input to leaf on multi-segment", () => {
+      const input = v.object({ recall: v.string(), gameplay: v.string() });
+      const pattern = new Pattern((s) => ({
+        nature: "/emit/literal",
+        input,
+      }));
+
+      specimen.expect(pattern.nature).toBe("emit");
+      const leaf = pattern.fin;
+      specimen.expect(leaf.nature).toBe("literal");
+      specimen.expect(leaf.input).toBe(input);
     });
   });
 });

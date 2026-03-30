@@ -1,4 +1,4 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
 specimen.describe("Vector", () => {
@@ -54,6 +54,41 @@ specimen.describe("Vector", () => {
       const effectPattern = Array.from(branch.effects.keys())[0];
       specimen.expect(effectPattern.nature).toBe(":id");
       specimen.expect(branch.effects.get(effectPattern)).toBe(f);
+    });
+  });
+
+  specimen.describe("open with descriptor", () => {
+    specimen.it("registers effect with object descriptor", () => {
+      const vector = new Vector();
+      const input = v.object({ limit: v.integer(), where: v.any() });
+      const f = () => {};
+      vector.open({ nature: "/feed", input, valence: "fetch items" }, f);
+
+      const branch = vector.branch("feed");
+      specimen.expect(branch).toBeDefined();
+    });
+
+    specimen.it("input lands on the leaf pattern", () => {
+      const vector = new Vector();
+      const input = v.object({ recall: v.string(), gameplay: v.string() });
+      const f = () => {};
+      vector.open({ nature: "/emit/literal", input }, f);
+
+      const emit = vector.branch("emit");
+      const pattern = Array.from(emit.effects.keys())[0];
+      specimen.expect(pattern.nature).toBe("literal");
+      specimen.expect(pattern.input).toBe(input);
+      specimen.expect(emit.effects.get(pattern)).toBe(f);
+    });
+
+    specimen.it("registers effect with function descriptor", () => {
+      const vector = new Vector();
+      const input = v.object({ limit: v.integer() });
+      const f = () => {};
+      vector.open((s) => ({ nature: "/feed", input }), f);
+
+      const branch = vector.branch("feed");
+      specimen.expect(branch).toBeDefined();
     });
   });
 

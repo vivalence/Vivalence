@@ -23,22 +23,24 @@ export class LiteralRepository extends DataRepository {
     return super.findOne(this.resolveSymbols(where), opts);
   }
 
-  resolveSymbols(where) {
-    if (!where?.symbols) return where;
-    const { symbols, ...rest } = where;
+  resolveSymbols(query) {
+    if (!query?.symbols) return query;
+    const { symbols, ...where } = query;
 
     const spec = Array.isArray(symbols) ? { $all: symbols } : symbols;
     if (typeof spec !== "object" || (spec.$all == null && spec.$in == null && spec.$none == null))
-      return { ...rest, symbols: spec };
+      return { ...where, symbols: spec };
 
     const { $all, $in, $none } = spec;
-    const slug = (s) => typeof s === "string" ? { slug: s } : s;
+    const slug = (s) => (typeof s === "string" ? { slug: s } : s);
 
-    if ($all?.length)  rest.$and = [...(rest.$and || []), ...$all.map((s) => ({ symbols: slug(s) }))];
-    if ($in?.length)   rest.symbols = { slug: { $in } };
-    if ($none?.length) rest.symbols = { ...(rest.symbols || {}), $none: { slug: { $in: $none } } };
+    if ($all?.length)
+      where.$and = [...(where.$and || []), ...$all.map((s) => ({ symbols: slug(s) }))];
+    if ($in?.length) where.symbols = { slug: { $in } };
+    if ($none?.length)
+      where.symbols = { ...(where.symbols || {}), $none: { slug: { $in: $none } } };
 
-    return rest;
+    return where;
   }
 }
 
@@ -48,6 +50,7 @@ export class LiteralEntity extends DataEntity {
 
   trait: any & Opt = {};
   symbol: Record<string, any> & Opt = {};
+  ontology: string & Opt = "";
 
   symbols = new Collection<SymbolEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
@@ -71,6 +74,7 @@ export const LiteralSchema = new EntitySchema({
     },
     trait: { type: types.json },
     symbol: { type: types.json, defaultRaw: `'{}'` },
+    ontology: { type: types.string, default: "" },
 
     symbols: {
       kind: "m:n",
@@ -96,15 +100,33 @@ function computeSymbol(entity: LiteralEntity) {
   return result;
 }
 
+function computeOntology(entity: LiteralEntity): string {
+  if (!entity.symbols.isInitialized()) return entity.ontology;
+
+  const topographical = entity.symbols
+    .getItems()
+    .filter((s) => s.traits.includes("TOPOGRAPHICAL" as any));
+
+  if (topographical.length === 0) return;
+  if (topographical.length > 1)
+    throw new Error(
+      `Literal "${entity.slug}" must have exactly one TOPOGRAPHICAL symbol, found ${topographical.length}`,
+    );
+
+  return topographical[0].slug;
+}
+
 export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
   getSubscribedEntities() {
     return [LiteralEntity];
   }
   beforeCreate({ entity }: EventArgs<LiteralEntity>) {
     entity.symbol = computeSymbol(entity);
+    entity.ontology = computeOntology(entity);
   }
   beforeUpdate({ entity }: EventArgs<LiteralEntity>) {
     entity.symbol = computeSymbol(entity);
+    entity.ontology = computeOntology(entity);
   }
 }
 

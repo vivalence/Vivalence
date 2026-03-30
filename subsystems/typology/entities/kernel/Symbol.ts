@@ -8,6 +8,7 @@ export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
   STRUCTURAL = "STRUCTURAL", // organizing of literals into sets or categories
   LABELED = "LABELED", // for name and description
+  TOPOGRAPHICAL = "TOPOGRAPHICAL", // marks the ontology a literal belongs to
 }
 
 export class SymbolRepository extends DataRepository {

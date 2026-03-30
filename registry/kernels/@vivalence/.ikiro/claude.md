@@ -210,6 +210,10 @@ The domain aperture (pick/review) then queries this data to serve study items an
 - Buffer/Intent migration — Product entity → Buffer entity, entity renames in aperture endpoints
 - Harness may introduce domain-specific part types (e.g. prosody, expression) — the part type discriminator is an open string per the harness workpackage
 
+## Quality Criteria
+
+See [topology-quality-criteria.md](topology-quality-criteria.md) for the complete data quality checklist. This covers TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED trait contracts, symbol requirements, verb conventions, the suffix encoding for diacritics, and the 14-item audit checklist. Read it before touching any topology literal data.
+
 ## Maintenance
 
 When modifying kernels:

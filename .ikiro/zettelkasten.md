@@ -66,3 +66,5 @@ Ideas specifically about testing documentation and gaps.
 
 (Move ideas here when done, with date and brief note)
 
+- [x] **2026-03-30 — Harness-as-Vector architecture insight**: Documented in root claude.md conventions. Also extended: pattern descriptors now carry input/output schemas, strategies (direct/guarded) are pluggable, and all shape compilers benefit from the same Vector infrastructure.
+

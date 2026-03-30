@@ -51,8 +51,8 @@ const emitter = new Vector()
       : [0];
     return ctx.mode.buffer({
       data: {
-        recall: ctx.input.defaults?.recall ?? "LEARNING",
-        gameplay: ctx.input.defaults?.gameplay ?? "type",
+        recall: ctx.input.recall ?? "LEARNING",
+        gameplay: ctx.input.gameplay ?? "type",
         blankIndices,
         forgiving: true,
       },

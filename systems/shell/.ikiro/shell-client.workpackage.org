@@ -1,0 +1,265 @@
+#+TITLE: Shell Client — Operator Interface for Humans and Agents
+#+AUTHOR: Vivalence
+#+DATE: 2026-03-30
+
+* Intent
+
+The shell is the universal operator interface for vivalence. Two operators,
+one shell: humans get interactive navigation (Prompt.Select + formatted
+output), agents get structured I/O (JSON in/out, one-shot commands). Same
+trajectory tree, same middleware chain, same effects — different presentation.
+
+The first customer is Claude. Working against topology data files is blind —
+Claude can edit entities but cannot verify them against the running database,
+test pick algorithms, check asset resolution, or inspect mode status. The
+shell bridges file-level editing to runtime verification.
+
+The second customer is Finn. The shell replaces ad-hoc Bruno collections and
+curl commands with a consistent, discoverable operator tool that knows how to
+authenticate, find daemons, and query entities.
+
+* What Claude Needs (First Customer Requirements)
+
+| need | why | command shape |
+|------+-----+---------------|
+| Query entities | Verify DATASET upserts after topology edits | find literal {slug: "falar.verb.infinitive"} |
+| Count entities | Sanity check entity populations | count literal |
+| Check freight | Verify VOCALIZED mp3s serve from kernel | cargo words/falo.mp3 |
+| Conjugation completeness | Query symbol-filtered literals for paradigm gaps | find literal {symbols: {$all: [...]}} |
+| Test pick algorithm | See what spaced repetition serves | pick/feed |
+| Record reviews | Test review flow against live memory | review falar.verb.infinitive SUCCESS |
+| Mode/daemon status | Basic health check | status |
+
+All of these reduce to: auth + Connection + RemoteRepository (via strip + wire).
+Domain-specific endpoints (pick, review) are additional connection.call() routes.
+
+* What Already Exists
+
+The shell at =systems/shell/= has solid bones:
+
+- Vector/Signal/Pattern routing — same as daemon Aperture
+- =steer.walk()= for interactive navigation with Prompt.Select
+- =steer.traverse()= for programmatic one-shot commands
+- Process management (spawn, shutdown, signal handling)
+- Installed as =~/.deno/bin/viva= via =deno task viva/install=
+
+What's broken or empty:
+
+- =shell.invocation= vs =client.trajectory= naming mismatch — crashes on use
+- All trajectory handlers are commented out or stubbed
+- No auth, no Connection, no RemoteRepository wiring
+- No output formatting (JSON vs pretty)
+- No arg parsing (signal path vs body vs flags)
+
+* Architecture Decisions
+
+** 1. Two-mode detection
+
+#+begin_src
+Interactive:  Deno.stdin.isTerminal() && no --json flag
+Agent:        !Deno.stdin.isTerminal() || --json flag
+#+end_src
+
+Interactive mode uses Prompt.Select for ambiguous navigation, formatted tables
+for output. Agent mode takes the full signal path + JSON body as args, returns
+JSON to stdout.
+
+** 2. Auth via session file
+
+=~/.viva/session.json= stores ={ lighthouse, authority: {access, refresh}, identity }=.
+The =shard.connection.authorize= middleware expects =$authority.get()= — the session
+file provides this without nanostores reactivity.
+
+Login once, use until token expires. Refresh on demand.
+
+** 3. Repos via strip + wire
+
+Same bootstrap as the HTML client:
+
+1. Authenticate with lighthouse
+2. Connect to daemon
+3. Fetch =/datamap= (strip) — entity schema
+4. Create RemoteRepository per entity type
+5. Wire cross-repo hydration (=shard.datamap.wire=)
+
+After wiring, every entity type has find/findOne/count/create/update/remove
+automatically. No per-endpoint hardcoding.
+
+** 4. Domain endpoints are connection.call()
+
+Kernel-specific endpoints (pick/feed, pick/novel, review/literal) are not entity
+CRUD — they're domain aperture routes. The shell calls these directly via
+=connection.call("/pick/literal/feed", body)=. No RemoteRepository needed.
+
+** 5. Signal + body arg parsing
+
+#+begin_src
+viva auth/login beef biggusdickus
+viva daemon/brazilian/entities/literal/find '{"where":{"slug":"falar.verb.infinitive"}}'
+viva --json daemon/brazilian/status
+#+end_src
+
+Rules:
+- Flags (=--json=, =--daemon=) extracted first
+- Last arg that parses as JSON object/array becomes the body
+- Remaining args joined with =/= to form the Signal path
+- Non-JSON positional args after the path available as =ctx.argv=
+
+* MCP Exploration
+
+** The question: is MCP a mode type?
+
+No. MCP is a presentation layer — analogous to how =shape.http= compiles a Vector
+into an HTTP handler. Three options for where it lives:
+
+*** Option A: shape.mcp (shape compiler)
+
+=shape.http(vector)= → HTTP handler
+=shape.mcp(vector)= → MCP tool server
+
+A Vector's effects become MCP tools. Input schemas derived from schematics (v).
+Most architecturally consistent — shapes ARE compilation targets for Vectors.
+
+*** Option B: MCP as a trait
+
+Any mode can opt into MCP exposure. The trait walks the mode's aperture during
+resolution and registers tools. Thin wrapper around shape.mcp if Option A exists.
+
+*** Option C: The shell IS the MCP server
+
+=viva --mcp= starts the shell as an MCP stdio server. It authenticates, connects
+to the daemon, and exposes tools derived from the API surface. Claude Code
+connects to it as a local MCP server.
+
+Three presentation layers, one trajectory tree:
+- Human: Prompt.Select + formatted output
+- Agent: JSON args → JSON stdout
+- MCP: JSON-RPC stdio (tools/list, tools/call)
+
+** Design preference
+
+Option C for immediate value — the shell is already the operator interface.
+Running it as an MCP server is just another output mode.
+
+Option A (shape.mcp) is the long-term primitive. When it exists, Option C becomes
+trivial: =viva --mcp= compiles the trajectory tree via shape.mcp and connects
+the stdio transport.
+
+Option B (trait) follows naturally: a mode with the MCP trait has its aperture
+compiled via shape.mcp and mounted as a daemon-level MCP endpoint.
+
+** MCP protocol fit
+
+MCP is JSON-RPC 2.0. Tools have typed inputSchema (JSON Schema). This maps
+directly to =v= schematics — v already produces JSON Schema objects.
+
+Transport options:
+- =stdio= — shell as subprocess, Claude Code as client. Zero infrastructure.
+- =Streamable HTTP= — daemon serves MCP at an HTTP endpoint. Requires session management.
+
+For the shell, stdio is natural. For daemon-level exposure, Streamable HTTP fits
+the existing =Deno.serve= architecture. Both can coexist.
+
+** What an MCP tool definition looks like
+
+#+begin_src json
+{
+  "name": "find_literal",
+  "description": "Query literal entities with MikroORM-style where clauses",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "where": { "type": "object" },
+      "options": {
+        "type": "object",
+        "properties": {
+          "populate": { "type": "array", "items": { "type": "string" } },
+          "limit": { "type": "integer" },
+          "offset": { "type": "integer" },
+          "orderBy": { "type": "object" }
+        }
+      }
+    }
+  }
+}
+#+end_src
+
+For each entity type (literal, symbol, mode, intent, thread, buffer), auto-generate
+CRUD tools. For domain endpoints, hand-define tools with proper schemas.
+
+** Implemented (2026-03-30)
+
+=shape.mcp= and =shard.receiver.stdio= are DONE. 86 lines total.
+
+- =steer.rollup(vector, execute)= — recursive tree walk, returns =[{ pattern, steps, fn }]=. 18 lines, 14 test specs.
+- =shape.mcp(vector, info)= — compiles Vector → MCP tool server. Pattern descriptors → tool definitions. Handle returns complete JSON-RPC 2.0 envelopes. 53 lines, 20 test specs.
+- =shard.receiver.stdio(handle)= — generic newline-delimited JSON I/O over stdin/stdout. Protocol-agnostic. 15 lines.
+
+MCP as a mode trait: mode exports =mcp= Vector with pattern descriptors (=nature=, =input=, =output=, =valence=). Trait compiles via =shape.mcp=, mounts transport. The Vector uses normal branching — =branch("find").open("literal", handler)= → tool name =find_literal=.
+
+* Phases
+
+** Phase 1: Bootstrap (fix what's broken)
+
+- Fix naming: =client.trajectory= ← =new Vector()=, trajectories use =shell.trajectory=
+- Init paladin: =await paladin.ikiro= before accessing env vars
+- Arg parser: split flags, signal path, JSON body, positional argv
+- Output handler: JSON for agent mode, formatted for interactive
+- Session lib: read/write/clear =~/.viva/session.json=
+
+** Phase 2: Auth + Connection
+
+- =/auth/login= trajectory: call lighthouse, persist session
+- =/auth/status= trajectory: show current identity
+- =/auth/refresh= trajectory: refresh access token
+- =/auth/logout= trajectory: revoke + clear session
+- Connection factory: create daemon Connection with Bearer middleware from session
+
+** Phase 3: Entity CRUD (strip + wire)
+
+- =/daemon/:slug= middleware: resolve daemon URL, create Connection, fetch /datamap, wire repos
+- =/daemon/:slug/entities/:type/:method= catch-all: route to RemoteRepository
+- Methods: find, findOne, findAndCount, count, create, update, remove
+- Populate + ordering options pass through
+
+** Phase 4: Domain endpoints
+
+- =/daemon/:slug/pick/:method= — feed, novel, due, byStatus, byStrength
+- =/daemon/:slug/review/literal= — review with signal
+- =/daemon/:slug/cargo= — freight catalog
+- =/daemon/:slug/modes= — mode discovery + status
+
+** Phase 5: Shell MCP mode
+
+- =viva --mcp= — shell as MCP stdio server, bridges trajectory tree via shape.mcp + shard.receiver.stdio
+- Tool auto-generation from strip schema + domain endpoints
+
+** Phase 6: MCP trait for modes
+
+- MCP trait in runtime: mode exports =mcp= Vector, trait compiles via shape.mcp
+- Streamable HTTP transport (=shard.receiver.http=) for daemon-level MCP endpoint
+- Register in =ModeTraitsEnum=
+
+* Parked Ideas
+
+** Vector tree introspection
+
+Serialize a Vector's effects+trajectories tree as downloadable JSON.
+The daemon could expose this at a TBD endpoint (=/manifest= is taken for daemon metadata).
+Any client auto-discovers API surface. Especially useful for domain-specific
+kernel apertures that vary per daemon. Not needed now — strip+wire covers entities.
+
+* Vocabulary
+
+| Term | Definition |
+|------+------------|
+| operator | Human or agent using the shell to interact with the runtime |
+| session | Persisted auth state at ~/.viva/session.json |
+| trajectory | A route in the shell's Vector tree — the CLI equivalent of an aperture branch |
+| receiver | Server-side I/O bridge (shard.receiver) — counterpart to transport (client-side) |
+| rollup | steer controller — recursive tree walk collecting all effects with metadata |
+
+* Changelog
+
+- 2026-03-30: Initial workpackage. Concept design for shell revival with Claude as first customer. MCP exploration as future phase. Vector introspection idea parked.
+- 2026-03-30: MCP implemented. steer.rollup (18L, 14 specs), shape.mcp (53L, 20 specs), shard.receiver.stdio (15L). Steer cleanup: shine→shotgun rename, dead controllers to bak.js. Total MCP stack: 86 lines.

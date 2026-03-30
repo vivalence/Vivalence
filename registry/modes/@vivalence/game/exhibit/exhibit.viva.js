@@ -43,9 +43,9 @@ const emitter = new Vector()
     if (!literals.length) return [];
     return ctx.mode.buffer({
       data: {
-        layout: ctx.input.defaults?.layout ?? "table",
-        title: ctx.input.defaults?.title ?? "",
-        subtitle: ctx.input.defaults?.subtitle,
+        layout: ctx.input.layout ?? "table",
+        title: ctx.input.title ?? "",
+        subtitle: ctx.input.subtitle,
       },
       literals,
     });

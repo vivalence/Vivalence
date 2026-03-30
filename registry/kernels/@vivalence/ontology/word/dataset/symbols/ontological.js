@@ -1,10 +1,11 @@
 export default [
   {
     slug: "word",
-    traits: ["ONTOLOGICAL", "LABELED"],
+    traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
     data: {
       ONTOLOGICAL: {},
       LABELED: { name: "Word", description: "A word" },
+      TOPOGRAPHICAL: {},
     },
   },
   {

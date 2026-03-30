@@ -26,10 +26,15 @@ export default {
           mount: "/emit/buildup",
           queue: 1,
           mask: {
-            where: { symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"] },
-            limit: 6,
-            title: "Present tense",
-            subtitle: "presente do indicativo",
+            lemmas: [
+              "word.lemma.falar", "word.lemma.precisar",
+              "word.lemma.entender", "word.lemma.comer",
+              "word.lemma.abrir", "word.lemma.partir",
+              "word.lemma.ser", "word.lemma.estar",
+              "word.lemma.ir", "word.lemma.ter",
+              "word.lemma.poder", "word.lemma.querer",
+              "word.lemma.saber", "word.lemma.fazer",
+            ],
           },
         },
       },
@@ -60,7 +65,9 @@ export default {
           mount: "/emit/drill",
           queue: 1,
           mask: {
-            where: { symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"] },
+            where: {
+              symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"],
+            },
             limit: 12,
             title: "Verb drill",
           },

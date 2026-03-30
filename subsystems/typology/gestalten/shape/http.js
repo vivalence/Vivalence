@@ -3,34 +3,25 @@ import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
 export function http(vector) {
   return async (req) => {
     const ct = req.headers.get("content-type") || "";
+    const body = ct.includes("application/json") ? await req.json().catch(() => null) : null;
     const ctx = new Context({
-      url: req.url,
-      method: req.method,
-      headers: Object.fromEntries(req.headers),
-      raw: req,
+      request: { body, url: req.url, method: req.method, headers: Object.fromEntries(req.headers), raw: req },
     });
 
     try {
-      if (ct.includes("application/json")) ctx.input = await req.json();
-
-      const signal = new Signal(ctx.request.url.pathname);
+      const signal = new Signal(new URL(req.url).pathname);
       const [effect, carry, steps] = steer.traverse(vector, signal);
       if (!effect) return respond(ctx, 404);
 
       ctx.params = fromm.match(steps).parameters;
+      ctx.signal = signal;
+      ctx.steps = steps;
 
       await carry(ctx, async (c) => {
-        let result;
-        if (effect.length === 0) result = await effect();
-        else if (effect.length === 1) result = await effect(c);
-        else if (effect.length === 2) result = await effect(c.input, c);
+        const result = await steer.dispatch(effect, c);
         if (result !== undefined) c.output = result;
       });
     } catch (e) {
-      if (e instanceof SyntaxError) {
-        ctx.output = { code: "BAD_REQUEST", message: e.message };
-        return respond(ctx, 400);
-      }
       if (e instanceof NotFound || e.code === "NOT_FOUND") return respond(ctx, 404);
       console.error(e);
       ctx.output = { code: "INTERNAL", message: e.message };
@@ -51,16 +42,13 @@ function respond(ctx, status) {
   headers["content-type"] = type;
   if (ctx.trace?.timing) headers["server-timing"] = ctx.trace.timing;
 
-  // binary / stream — pass through
   if (body instanceof Uint8Array || body instanceof ReadableStream) {
     return new Response(body, { status: s, headers });
   }
 
-  // explicit non-JSON type (text/html, text/plain, etc.) — raw string
   if (type !== "application/json") {
     return new Response(body ?? "", { status: s, headers });
   }
 
-  // default: JSON
   return new Response(JSON.stringify(body), { status: s, headers });
 }

@@ -19,7 +19,7 @@ const buffer = new BufferView("buffer/Write.svelte", v.buffer({
 
 const emitter = new Vector()
   .open("/literals", async (ctx) => {
-    const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
+    const recall = ctx.input.recall;
     return ctx.mode.buffer({
       data: { recall },
       literals: ctx.input.literals ?? cast.array(ctx.input.literal),
@@ -34,7 +34,7 @@ const emitter = new Vector()
     });
     if (!literals.length) return [];
     return ctx.mode.buffer({
-      data: { recall: ctx.input.defaults?.recall },
+      data: { recall: ctx.input.recall },
       literals,
     });
   });

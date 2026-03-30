@@ -66,6 +66,17 @@
           "default": "'{}'",
           "mappedType": "json"
         },
+        "ontology": {
+          "name": "ontology",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": null,
+          "default": "''",
+          "mappedType": "text"
+        },
         "traits": {
           "name": "traits",
           "type": "json",
@@ -83,6 +94,16 @@
             "VOCALIZED"
           ],
           "mappedType": "json"
+        },
+        "rank": {
+          "name": "rank",
+          "type": "integer",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": null,
+          "mappedType": "integer"
         }
       },
       "name": "Literal",
@@ -218,17 +239,15 @@
           "length": null,
           "default": "'[]'",
           "enumItems": [
-            "VIEWABLE",
             "DATASET",
+            "EXPOSED",
             "CHAOSMONKEY",
             "TOPOGRAPHICAL",
             "INTENTED",
             "SELFEVIDENT",
             "EMITTER",
             "FRAUGHT",
-            "VALENTIC",
-            "BUFFERED",
-            "PRODUCER"
+            "BUFFERED"
           ],
           "mappedType": "text"
         }
@@ -486,7 +505,8 @@
           "enumItems": [
             "ONTOLOGICAL",
             "STRUCTURAL",
-            "LABELED"
+            "LABELED",
+            "TOPOGRAPHICAL"
           ],
           "mappedType": "json"
         },

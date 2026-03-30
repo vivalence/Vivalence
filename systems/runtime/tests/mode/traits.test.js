@@ -1,6 +1,16 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, shape, Aperture, Vector, Mode } from "@vivalence/typology";
 import { IntentEntity, BufferEntity } from "@vivalence/typology/entities";
 import { create } from "../scenarios/daemon.js";
+
+const EXPOSED = (mode) => {
+  if (!mode.aperture) {
+    console.warn(`[EXPOSED] ${mode.type}/${mode.slug} has no aperture`);
+    return;
+  }
+  return () => {
+    mode.call = shape.object(mode.aperture);
+  };
+};
 
 specimen.describe("mode traits", () => {
   let scenario;
@@ -61,6 +71,68 @@ specimen.describe("mode traits", () => {
       const result = await scenario.conn.call("/mode/game/flashcard/buffered");
       specimen.expect(result.url).toBeTruthy();
       specimen.expect(result.schema).toBeTruthy();
+    });
+  });
+
+  specimen.describe("EXPOSED", () => {
+    specimen.it("returns finalizer that compiles mode.call", async () => {
+      const finalizer = await EXPOSED(scenario.mode, scenario.daemon);
+      specimen.expect(typeof finalizer).toBe("function");
+      await finalizer();
+      specimen.expect(scenario.mode.call).toBeTruthy();
+    });
+
+    specimen.it("mode.call.emit.literal works (same as mode.emit)", async () => {
+      const result = await scenario.mode.call.emit.literal({
+        literal: { id: scenario.fixtures.hello.id },
+      });
+      specimen.expect(Array.isArray(result)).toBe(true);
+      specimen.expect(result[0].data.recall).toBe("LEARNING");
+    });
+
+    specimen.it("mode.call.buffered returns url and schema", async () => {
+      const result = await scenario.mode.call.buffered();
+      specimen.expect(result.url).toBeTruthy();
+      specimen.expect(result.schema).toBeTruthy();
+    });
+
+    specimen.it("arity 2 handlers work through object compilation", async () => {
+      const mode = new Mode({ manifest: { type: "test", slug: "arity", traits: ["EXPOSED"] } });
+      mode.aperture = new Aperture();
+      mode.aperture.open("/echo", (input, ctx) => ({ got: input, has: "daemon" in ctx }));
+      mode.aperture.use(async (ctx, next) => { ctx.daemon = "d"; await next(); });
+      const fin = await EXPOSED(mode);
+      await fin();
+      const result = await mode.call.echo({ x: 1 });
+      specimen.expect(result.got).toEqual({ x: 1 });
+      specimen.expect(result.has).toBe(true);
+    });
+
+    specimen.it("context has daemon and mode, no request", async () => {
+      const mode = new Mode({ manifest: { type: "test", slug: "ctx-check", traits: ["EXPOSED"] } });
+      mode.aperture = new Aperture();
+      mode.aperture.open("/probe", (ctx) => ({
+        hasDaemon: "daemon" in ctx,
+        hasMode: "mode" in ctx,
+        hasRequest: "request" in ctx,
+      }));
+      mode.aperture.use(async (ctx, next) => {
+        ctx.daemon = "d";
+        ctx.mode = "m";
+        await next();
+      });
+      const fin = await EXPOSED(mode);
+      await fin();
+      const result = await mode.call.probe();
+      specimen.expect(result.hasDaemon).toBe(true);
+      specimen.expect(result.hasMode).toBe(true);
+      specimen.expect(result.hasRequest).toBe(false);
+    });
+
+    specimen.it("returns undefined when mode has no aperture", async () => {
+      const mode = new Mode({ manifest: { type: "test", slug: "no-ap", traits: ["EXPOSED"] } });
+      const result = await EXPOSED(mode);
+      specimen.expect(result).toBeUndefined();
     });
   });
 

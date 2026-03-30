@@ -114,7 +114,6 @@ export async function lifecycle(daemon) {
         .aim(i.trait.FEEDING.mount, {
           intent: i.id,
           ...(i.trait.FEEDING.mask ?? {}),
-          defaults: i.trait.FURNISHED ?? {},
         });
     }
 

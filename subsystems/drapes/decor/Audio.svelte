@@ -86,6 +86,34 @@
       </svg>
     {/if}
   </button>
+{:else if variant === "dot"}
+  <button
+    class="audio-dot {className}"
+    class:audio-playing={playing}
+    onclick={toggle}
+    onmousedown={(e) => e.preventDefault()}
+    aria-label={playing ? "Pause" : "Play"}
+  >
+    {#if playing}
+      <svg viewBox="0 0 60 60" class="audio-bars-dot">
+        {#each bars as height, i}
+          <rect
+            x={6 + i * 7.5}
+            y={30 - (height / 100) * 21}
+            width="4"
+            height={(height / 100) * 42}
+            rx="2"
+            class="audio-bar"
+            style="animation-delay: {i * 0.08}s"
+          />
+        {/each}
+      </svg>
+    {:else}
+      <svg viewBox="0 0 60 60" class="audio-play-dot">
+        <path d="M22 16 L22 44 L46 30 Z" />
+      </svg>
+    {/if}
+  </button>
 {:else}
   {#if src}
     <audio controls {preload} {autoplay}>
@@ -145,6 +173,38 @@
   .audio-playing .audio-bar {
     fill: var(--colors-theme-primary-contrast);
     animation: pulse 0.6s ease-in-out infinite alternate;
+  }
+
+  /* ── compact variant ── */
+  .audio-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .audio-dot:hover {
+    background: var(--colors-skeleton-1-surface);
+    border-color: var(--colors-skeleton-2-contrast);
+  }
+  .audio-dot.audio-playing {
+    border-color: var(--colors-theme-primary-contrast);
+  }
+  .audio-bars-dot { width: 22px; height: 22px; }
+  .audio-play-dot { width: 18px; height: 18px; }
+  .audio-play-dot path {
+    fill: var(--colors-skeleton-2-contrast);
+    transition: fill 0.15s;
+  }
+  .audio-dot:hover .audio-play-dot path {
+    fill: var(--colors-theme-primary-contrast);
   }
 
   @keyframes pulse {

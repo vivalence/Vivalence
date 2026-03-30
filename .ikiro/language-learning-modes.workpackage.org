@@ -532,21 +532,29 @@ Gameplay: ="visual"= | ="audio"= | ="audio-only"=
 - =audio= — hear audio + see text, judge
 - =audio-only= — hear audio + see translation only (advanced)
 
-Batch mode: =data.items[]= with ={target, shown, correct, distractor?}=
-indices into =literals[]=. Component works through the list. Flow state.
+Single-item buffers. =data.distractor= boolean — true means =literals[1]=
+is the wrong translation source. =literals[0]= is always the target.
+Component derives shown text from literals + recall direction.
 
-Buffer schema: ={data: {recall, gameplay, timeLimit, items[]}, literals: [all]}=
+Buffer schema: ={data: {recall, gameplay, speed, distractor}, literals: [target, distractor?]}=
 
-Emitter =/literal=: single-literal entry. Coin-flips correct/wrong. Self-serves
-distractor. Guards for identical translations (conjugation forms).
+Emitter =/literal=: single-literal entry. Fetches distractor from seen items
+(={ memories: {} }=, not feed). Coin-flips correct/wrong. Guards for identical
+translations. =/feed= calls =ctx.mode.emit.literal()= in a loop — self-referential.
 
-Tactic calls =mode.buffer()= directly for batch with pre-built items array.
+Speed presets (base + multiplier per character):
+- FAST: 1500ms + 80ms/char
+- NORMAL: 2500ms + 120ms/char (default)
+- SLOW: 3500ms + 180ms/char
+
+Override via =data.speed.base= and/or =data.speed.multiplier=. Absent
+multiplier falls through to preset. =multiplier: 0= means base is absolute.
 
 Swipe: left = wrong, right = correct. 50px threshold.
 Keyboard: left/1 = wrong, right/2 = correct. Timer bar at top.
 
-Review: batch at end. Correct = SUCCESS target. Wrong = FAILURE target +
-FAILURE distractor. Timeout = FAILURE target.
+Review: Correct = SUCCESS target. Wrong = MISTAKE target.
+Timeout = MISTAKE target.
 
 ** Listen — =game/listen/=
 
@@ -648,3 +656,22 @@ Pick mode: FAILURE on target + distractor for wrong picks.
   Listen, Cloze). Keyboard persistence: inputs never disabled, focus
   maintained across Check/Next transitions. Judge converted to FEEDING
   intent (was SELFEVIDENT). Modeline: lobby tab added, navigate→intents.
+- 2026-03-29: Judge mode rewrite. Schema: items[] array → data.distractor
+  boolean. Single-item buffers. /literal is the atom — fetches distractor
+  via literal.feed (same ontology, blacklisted target). /feed calls
+  ctx.mode.emit.literal() in a loop (self-referential, same pattern as
+  warmup tactic). buildItem() deleted. Component simplified: no iteration,
+  no client-side fallback, derives shown text from literals + recall.
+  defaults sweep: removed i.trait.FURNISHED injection from client
+  daemon.js, replaced ctx.input.defaults?.X with ctx.input.X across all 9
+  game mode emitters + test scenario. defaults was dead plumbing —
+  FURNISHED never overlapped with FEEDING intents, always resolved to {}.
+  Distractor type matching fixed: symbol: { word: target.symbol?.word }
+  (exact JSON match on morphological profile) replaced with ontology:
+  target.ontology (flat string column, word vs sentence). Swept across
+  judge, pick, listen. Old constraint was always returning empty pool —
+  every literal has a unique symbol.word subtree. Speed presets: multiplier
+  fallthrough fixed (was hardcoded 0, now falls through to preset.multiplier).
+  Schema multiplier changed from default(0) to optional — prevents
+  v.defaults() from stamping 0 over the preset. Sentences now scale with
+  text length.

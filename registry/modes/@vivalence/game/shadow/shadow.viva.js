@@ -20,7 +20,7 @@ const buffer = new BufferView("buffer/Shadow.svelte", v.buffer({
 
 const emitter = new Vector()
   .open("/literals", async (ctx) => {
-    const recall = ctx.input.recall ?? ctx.input.defaults?.recall;
+    const recall = ctx.input.recall;
     return ctx.mode.buffer({
       data: { recall, speed: ctx.input.speed ?? null },
       literals: ctx.input.literals ?? cast.array(ctx.input.literal),
@@ -36,8 +36,8 @@ const emitter = new Vector()
     if (!literals.length) return [];
     return ctx.mode.buffer({
       data: {
-        recall: ctx.input.defaults?.recall,
-        speed: ctx.input.defaults?.speed ?? null,
+        recall: ctx.input.recall,
+        speed: ctx.input.speed ?? null,
       },
       literals,
     });

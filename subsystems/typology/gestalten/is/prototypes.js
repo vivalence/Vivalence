@@ -72,7 +72,7 @@ export function View(thing) {
 }
 
 export function url(thing) {
-  // must have required keys of url.pathname xxx
+  if (is.string(thing)) return thing.includes("://");
   if (thing.origin && (thing.pathname || thing.nature)) return true;
   return false;
 }

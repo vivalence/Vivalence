@@ -85,47 +85,10 @@ export async function expose(runtimeDie) {
   }
 }
 
-export async function compose(runtimeDie) {
-  const handler = shape.http(runtimeDie.good.aperture);
-  runtimeDie.good.handler = shard.cors.wrap(handler);
-}
-
-export async function wake(die) {
-  die.good.ters = {
-    async patrol() {
-      for (const terran of die.good.terrans) {
-        if (terran.status.is("ERROR")) {
-          console.warn(`Terran unhealthy`, terran.slug);
-        }
-      }
-      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
-    },
-  };
-}
-
-export async function launch(runtimeDie) {
-  const url = paladin.variant.runtime?.statics?.serve;
-  if (!url) {
-    console.warn("No runtime serve URL configured");
-    return;
-  }
-
-  console.log(`launching on ${url.absolute}`);
-
-  runtimeDie.good.server = Deno.serve(
-    {
-      port: Number(url.port),
-      hostname: url.hostname,
-      signal: runtimeDie.abort.signal,
-      onListen({ hostname, port }) {
-        console.log(`listening on ${hostname}:${port}`);
-      },
-    },
-    runtimeDie.good.handler,
-  );
-
-  runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
-}
+// export async function compose(runtimeDie) {
+// const handler = shape.http(runtimeDie.good.aperture);
+// runtimeDie.good.handler = shard.cors.wrap(handler);
+// }
 
 // export async function attach(runtimeDie) {
 //   for (const daemonDie of runtimeDie.good.daemons) {

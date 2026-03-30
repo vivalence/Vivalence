@@ -16,9 +16,16 @@ auth:bearer {
 
 body:json {
   {
-    "where": {},
+    "where": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    },
     "options": {
-      "populate": ["symbols"],
+      "populate": [
+        "symbols"
+      ],
       "limit": 10
     }
   }

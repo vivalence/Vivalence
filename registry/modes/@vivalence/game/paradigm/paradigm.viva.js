@@ -1,0 +1,148 @@
+import { BufferView, Vector, v } from "@vivalence/typology";
+
+const manifest = {
+  type: "game",
+  slug: "paradigm",
+  name: "Paradigm",
+  description: "Fill a conjugation table cell by cell. Type each form.",
+  version: "0.1.0",
+  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+};
+
+const buffer = new BufferView(
+  "buffer/Paradigm.svelte",
+  v.buffer({
+    data: {
+      infinitive: v.string().desc("Literal ID of the infinitive"),
+      firstSingular: v.string().optional(),
+      secondSingular: v.string().optional(),
+      thirdSingular: v.string().optional(),
+      firstPlural: v.string().optional(),
+      secondPlural: v.string().optional(),
+      thirdPlural: v.string().optional(),
+      tense: v.string().desc("Symbol ID of the tense"),
+      mood: v.string().desc("Symbol ID of the mood"),
+      lemma: v.string().desc("Symbol ID of the lemma"),
+      recall: v
+        .union([
+          v.string(),
+          v.object({
+            firstSingular: v.string().optional(),
+            secondSingular: v.string().optional(),
+            thirdSingular: v.string().optional(),
+            firstPlural: v.string().optional(),
+            secondPlural: v.string().optional(),
+            thirdPlural: v.string().optional(),
+          }),
+        ])
+        .desc("LEARNING/KNOWN globally or per-slot")
+        .optional(),
+      feedback: v.string({ default: "realtime" }).desc("realtime or batch"),
+      order: v.string({ default: "ordered" }).desc("ordered or random"),
+    },
+  }),
+);
+
+const PERSON_SLOTS = [
+  "firstSingular",
+  "secondSingular",
+  "thirdSingular",
+  "firstPlural",
+  "secondPlural",
+  "thirdPlural",
+];
+
+const emitter = new Vector()
+  .open("/conjugation", async (ctx) => {
+    const conj = ctx.input.conjugation;
+    const data = {
+      lemma: conj.lemma?.id,
+      tense: conj.tense?.id,
+      mood: conj.mood?.id,
+      recall: ctx.input.recall ?? "LEARNING",
+      feedback: ctx.input.feedback ?? "realtime",
+      order: ctx.input.order ?? "ordered",
+    };
+
+    const literals = [];
+    if (conj.infinitive) {
+      data.infinitive = conj.infinitive.id;
+      literals.push(conj.infinitive);
+    }
+    for (const slot of PERSON_SLOTS) {
+      if (conj[slot]) {
+        data[slot] = conj[slot].id;
+        literals.push(conj[slot]);
+      }
+    }
+
+    const symbols = [conj.lemma, conj.tense, conj.mood].filter(Boolean);
+
+    return ctx.mode.buffer({ data, literals, symbols });
+  })
+  .open("/feed", async (ctx) => {
+    const limit = ctx.input.limit ?? 1;
+    const lemmas = ctx.input.lemmas;
+
+    const conjugations = await ctx.daemon.entities.conjugation.find(
+      { lemma: { slug: { $in: lemmas } } },
+      {
+        populate: ["lemma", "tense", "mood", "infinitive", ...PERSON_SLOTS],
+        orderBy: { averageRank: "ASC" },
+        limit,
+      },
+    );
+
+    if (!conjugations.length) return [];
+
+    const buffers = [];
+    for (const conj of conjugations) {
+      buffers.push(
+        await ctx.mode.emit.conjugation({
+          conjugation: conj,
+          recall: ctx.input.recall,
+          feedback: ctx.input.feedback,
+          order: ctx.input.order,
+        }),
+      );
+    }
+    return buffers;
+  });
+
+const dataset = {
+  intent: [
+    {
+      slug: "feed",
+      name: "Paradigm",
+      type: "APPLICATIVE",
+      traits: ["FEEDING"],
+      trait: {
+        FEEDING: {
+          mount: "/emit/feed",
+          queue: 1,
+          mask: {
+            limit: 1,
+            lemmas: [
+              "word.lemma.falar",
+              "word.lemma.precisar",
+              "word.lemma.entender",
+              "word.lemma.comer",
+              "word.lemma.abrir",
+              "word.lemma.partir",
+              "word.lemma.ser",
+              "word.lemma.estar",
+              "word.lemma.ir",
+              "word.lemma.ter",
+              "word.lemma.poder",
+              "word.lemma.querer",
+              "word.lemma.saber",
+              "word.lemma.fazer",
+            ],
+          },
+        },
+      },
+    },
+  ],
+};
+
+export { manifest, buffer, emitter, dataset };

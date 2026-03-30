@@ -11,7 +11,7 @@ export class Signature {
 
     signature = this.coerce(signature);
 
-    if (is.fn(signature)) signature = signature(this.constructor);
+    if (is.fn(signature)) signature = this.coerce(signature(this.constructor));
     if (signature instanceof this.constructor) return signature.from(trace);
     if (signature instanceof Signature) this.nature = signature.nature;
 

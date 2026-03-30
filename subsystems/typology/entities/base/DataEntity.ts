@@ -38,18 +38,21 @@ export class DataRepository extends EntityRepository {
     if (!where?.traits) return where;
     const { traits, ...rest } = where;
 
-    const spec = typeof traits === "string" ? { $contains: [traits] }
-      : Array.isArray(traits) ? { $contains: traits }
-      : traits;
+    const spec =
+      typeof traits === "string"
+        ? { $contains: [traits] }
+        : Array.isArray(traits)
+          ? { $contains: traits }
+          : traits;
 
     const col = `\`${this.entityName.charAt(0).toLowerCase()}0\`.traits`;
-    const has    = (t) => ({ [raw(`${col} LIKE ?`,     [`%${t}%`])]: [] });
+    const has = (t) => ({ [raw(`${col} LIKE ?`, [`%${t}%`])]: [] });
     const hasNot = (t) => ({ [raw(`${col} NOT LIKE ?`, [`%${t}%`])]: [] });
 
     const conds = [
       ...(spec.$contains ?? []).map(has),
-      ...(spec.$overlap  ? [{ $or: spec.$overlap.map(has) }] : []),
-      ...(spec.$none     ?? []).map(hasNot),
+      ...(spec.$overlap ? [{ $or: spec.$overlap.map(has) }] : []),
+      ...(spec.$none ?? []).map(hasNot),
     ];
 
     if (conds.length) rest.$and = [...(rest.$and || []), ...conds];

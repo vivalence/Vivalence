@@ -1,4 +1,4 @@
-import { Aperture, is, shard } from "@vivalence/typology";
+import { is, shard } from "@vivalence/typology";
 
 export async function kernel(daemonDie) {
   daemonDie.kernel.domain.aperture // not needed anymore?
@@ -35,8 +35,15 @@ export async function modes(daemonDie) {
 
       if (mode.cake.aperture) mode.aperture.slurp(mode.cake.aperture);
 
+      const finalizers = [];
       for (const trait of mode.traits) {
-        await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
+        const result = await daemonDie.variant.traits[trait]?.(mode, daemonDie.good);
+        if (is.fn(result)) finalizers.push(result);
+      }
+      for (const finalize of finalizers) await finalize();
+
+      if (mode.cake.aperture && !mode.implements("EXPOSED")) {
+        console.warn(`[trait] ${mode.type}/${mode.slug} exports aperture without EXPOSED`);
       }
 
       await daemonDie.good.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: true });

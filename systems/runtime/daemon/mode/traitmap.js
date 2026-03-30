@@ -1,9 +1,21 @@
+import { shape } from "@vivalence/typology";
+
 export * from "./traits/dataset.js";
 export * from "./traits/intented.js";
 export * from "./traits/emitter.js";
 export * from "./traits/buffered.js";
 
 export const SELFEVIDENT = () => {};
+
+export const EXPOSED = (mode) => {
+  if (!mode.aperture) {
+    console.warn(`[EXPOSED] ${mode.type}/${mode.slug} has no aperture`);
+    return;
+  }
+  return () => {
+    mode.call = shape.object(mode.aperture);
+  };
+};
 
 // export const VIEWABLE = (mode, daemon) => {
 //   mode.cake.view.withBundler(svelte);

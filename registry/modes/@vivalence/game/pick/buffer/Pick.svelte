@@ -65,6 +65,8 @@
         scope: { literal: lit.id },
       });
     }
+
+    setTimeout(() => advance(), isCorrect ? 800 : 1500);
   }
 
   function advance() {

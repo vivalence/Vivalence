@@ -33,11 +33,9 @@
   function known(lit) { return lit?.trait?.TRANSLATED?.known; }
   function learning(lit) { return lit?.trait?.TRANSLATED?.learning; }
 
-  const hasAudio = $derived(literals.some((l) => l?.trait?.VOCALIZED?.asset));
-
-  function playAudio(lit) {
-    const a = terminal.daemon.getAsset(lit?.trait?.VOCALIZED?.asset);
-    if (a) a.play?.();
+  function getAudio(lit) {
+    const ref = lit?.trait?.VOCALIZED?.asset;
+    return ref ? terminal.daemon.getAsset(ref) : null;
   }
 
   function parseTemplate(tpl, lits) {
@@ -100,10 +98,10 @@
                 {/if}
                 <span class="table-form">{learning(lit)}</span>
                 <span class="table-gloss">{known(lit)}</span>
-                {#if lit?.trait?.VOCALIZED?.asset}
-                  <button class="table-audio" onmousedown={(e) => e.preventDefault()} onclick={() => playAudio(lit)}>
-                    <span class="audio-icon"></span>
-                  </button>
+                {#if getAudio(lit)}
+                  <span class="table-dot">
+                    <Asset asset={getAudio(lit)} variant="dot" />
+                  </span>
                 {/if}
               </div>
             {/each}
@@ -222,8 +220,9 @@
   }
   .table-row {
     display: grid;
-    grid-template-columns: 7rem 1fr 1fr auto;
-    align-items: baseline;
+    grid-template-columns: minmax(5rem, auto) 1fr auto;
+    gap: 0 1rem;
+    align-items: center;
     padding: 0.625rem 0.75rem;
     border-radius: 0.375rem;
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
@@ -248,26 +247,9 @@
     color: var(--colors-skeleton-1-boundary);
     line-height: 1.35;
   }
-  .table-audio {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-    min-width: 44px;
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .table-dot {
+    justify-self: end;
   }
-  .audio-icon {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--colors-skeleton-1-boundary);
-    opacity: 0.5;
-  }
-  .audio-icon:hover { opacity: 1; }
 
   /* ── pattern layout ── */
   .pattern-template {
@@ -416,7 +398,6 @@
     .table-person { font-size: 0.6rem; margin-bottom: 0.125rem; }
     .table-form { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); font-weight: 600; }
     .table-gloss { font-size: 0.8rem; font-family: var(--font-family-sans-text); }
-    .table-audio { align-self: flex-start; margin-top: 0.25rem; }
     .contrastive { flex-direction: column; }
     .contrast-divider { width: 100%; height: 1px; }
   }

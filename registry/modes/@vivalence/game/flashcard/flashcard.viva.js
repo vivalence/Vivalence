@@ -36,7 +36,7 @@ const emitter = new Vector()
     });
     if (!literals.length) return [];
     return ctx.mode.buffer({
-      data: { recall: ctx.input.defaults?.recall },
+      data: { recall: ctx.input.recall },
       literals,
     });
   });

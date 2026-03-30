@@ -19,3 +19,12 @@ export class NotFound extends Error {
     this.signal = signal;
   }
 }
+
+export class ValidationError extends Error {
+  code = "VALIDATION";
+  constructor(errors, signal) {
+    super(`Validation failed: ${errors.map((e) => e.message).join(", ")}`);
+    this.errors = errors;
+    this.signal = signal;
+  }
+}

@@ -4,6 +4,22 @@ import { Signature } from "./signature.js";
 export class Pattern extends Signature {
   static coercions = [
     [
+      (s) => is.object(s) && is.string(s.nature) && !is.fn(s.filter),
+      function (s) {
+        const { nature, ...valence } = s;
+        const segments = nature
+          .split("/")
+          .filter((s) => s.length > 0)
+          .map((signature) => {
+            const [type, , filter] = probe(signature);
+            if (type && filter) return { type, nature: signature, filter };
+          })
+          .filter(Boolean);
+        if (segments.length > 0) Object.assign(segments[segments.length - 1], valence);
+        return segments;
+      },
+    ],
+    [
       (s) => is.string(s),
       (s) => {
         return s

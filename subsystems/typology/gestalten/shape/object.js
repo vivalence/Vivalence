@@ -1,29 +1,24 @@
-import { is, middleware } from "@vivalence/typology";
+import { middleware, steer, Signal } from "@vivalence/typology";
 
-export const strategy = (apply, effect) => async (input) => {
-  const ctx = { input };
-  await apply(ctx, async (c) => {
-    const result = await effect(c);
-    if (!is.undefined(result)) c.output = result;
-  });
-  return ctx.output;
-};
-
-export function object(vector, carry = strategy) {
+export function object(vector, execute = steer.direct, signal = new Signal(), steps = []) {
   const output = {};
 
   for (const [pattern, descendant] of vector.trajectories) {
+    const child = signal.branch(pattern.nature);
     output[pattern.nature] = object(
       descendant,
       vector.carry.length
-        ? (apply, effect) => carry(middleware.compose([...vector.carry, apply]), effect)
-        : carry,
+        ? (apply, effect, s, sig) => execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
+        : execute,
+      child,
+      [...steps, pattern],
     );
   }
 
   for (const [pattern, effect] of vector.effects) {
     const key = pattern.nature;
-    const fn = carry(middleware.compose(vector.carry), effect);
+    const leaf = signal.branch(pattern.nature);
+    const fn = execute(middleware.compose(vector.carry), effect, [...steps, pattern], leaf);
     if (output[key]) Object.assign(fn, output[key]);
     output[key] = fn;
   }
@@ -31,21 +26,21 @@ export function object(vector, carry = strategy) {
   return output;
 }
 
-export function proxy(vector, carry = strategy) {
-  return proxyNode(vector, carry, {});
+export function proxy(vector, execute = steer.direct) {
+  return proxyNode(vector, execute, {}, new Signal(), []);
 }
 
-function proxyEffect(carry, mw, fn, params) {
-  return carry(mw, (ctx) => {
+function proxyEffect(execute, mw, fn, params, steps, signal) {
+  return execute(mw, (ctx) => {
     ctx.params = { ...params, ...ctx.params };
     return fn(ctx);
-  });
+  }, steps, signal);
 }
 
-function proxyNode(vector, carry, params) {
+function proxyNode(vector, execute, params, signal, steps) {
   const next = vector.carry.length
-    ? (apply, fn) => carry(middleware.compose([...vector.carry, apply]), fn)
-    : carry;
+    ? (apply, effect, s, sig) => execute(middleware.compose([...vector.carry, apply]), effect, s, sig)
+    : execute;
   const mw = middleware.compose(vector.carry);
 
   return new Proxy(Object.create(null), {
@@ -54,19 +49,19 @@ function proxyNode(vector, carry, params) {
 
       for (const [pattern, fn] of vector.effects) {
         if (pattern.type === "literal" && pattern.nature === key)
-          return proxyEffect(carry, mw, fn, params);
+          return proxyEffect(execute, mw, fn, params, [...steps, pattern], signal.branch(key));
       }
 
       for (const [pattern, descendant] of vector.trajectories) {
         if (pattern.type === "literal" && pattern.nature === key)
-          return proxyNode(descendant, next, params);
+          return proxyNode(descendant, next, params, signal.branch(key), [...steps, pattern]);
       }
 
       for (const [pattern, fn] of vector.effects) {
         if (pattern.type === "parameter" || pattern.type === "wildcard") {
           const merged =
             pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
-          return proxyEffect(carry, mw, fn, merged);
+          return proxyEffect(execute, mw, fn, merged, [...steps, pattern], signal.branch(key));
         }
       }
 
@@ -74,24 +69,24 @@ function proxyNode(vector, carry, params) {
         if (pattern.type === "parameter" || pattern.type === "wildcard") {
           const merged =
             pattern.type === "parameter" ? { ...params, [pattern.nature.slice(1)]: key } : params;
-          return proxyNode(descendant, next, merged);
+          return proxyNode(descendant, next, merged, signal.branch(key), [...steps, pattern]);
         }
       }
 
       for (const [pattern, fn] of vector.effects) {
-        if (pattern.type === "remainder") return proxyRemainder(carry, mw, fn, params, 0, key);
+        if (pattern.type === "remainder") return proxyRemainder(execute, mw, fn, params, 0, key, [...steps, pattern], signal);
       }
     },
   });
 }
 
-function proxyRemainder(carry, mw, fn, params, index, key) {
+function proxyRemainder(execute, mw, fn, params, index, key, steps, signal) {
   const merged = { ...params, [index]: key };
-  const invoke = proxyEffect(carry, mw, fn, merged);
+  const invoke = proxyEffect(execute, mw, fn, merged, steps, signal.branch(key));
   return new Proxy(invoke, {
     get(target, next) {
       if (typeof next === "symbol") return target[next];
-      return proxyRemainder(carry, mw, fn, merged, index + 1, next);
+      return proxyRemainder(execute, mw, fn, merged, index + 1, next, steps, signal.branch(key));
     },
   });
 }

@@ -25,7 +25,7 @@ const emitter = new Vector()
       distractors = await ctx.daemon.entities.literal.feed({
                 limit: 3,
         blacklist: ctx.input.blacklist,
-        where: { symbol: { word: ctx.input.literal.symbol?.word } },
+        where: { ontology: ctx.input.literal.ontology },
       });
     }
     return ctx.mode.buffer({
@@ -42,7 +42,7 @@ const emitter = new Vector()
     });
     if (literals.length < 2) return [];
     return ctx.mode.buffer({
-      data: { recall: ctx.input.defaults?.recall ?? "LEARNING" },
+      data: { recall: ctx.input.recall ?? "LEARNING" },
       literals,
     });
   });

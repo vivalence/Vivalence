@@ -11,12 +11,11 @@ export default async (ctx) => {
   if (!words.length) return [];
 
   const buffers = [];
-  const modes = ctx.daemon.modes.game;
 
   const untouched = words.filter((w) => !w.memory || w.memory.status === "UNTOUCHED");
   if (untouched.length) {
     buffers.push(
-      await modes.exhibit.emit.present({
+      await ctx.daemon.modes.game.exhibit.emit.present({
         layout: "table",
         title: "New words",
         literals: untouched,
@@ -25,15 +24,12 @@ export default async (ctx) => {
   }
 
   buffers.push(
-    await modes.flashcard.emit.literals({
-      recall: "KNOWN",
-      literals: words,
-    }),
+    await ctx.daemon.modes.game.flashcard.emit.literals({ recall: "KNOWN", literals: words }),
   );
 
   for (const lit of words) {
     buffers.push(
-      await modes.judge.emit.literal({
+      await ctx.daemon.modes.game.judge.emit.literal({
         literal: lit,
         recall: "KNOWN",
         speed: { rate: "SLOW" },
@@ -44,7 +40,7 @@ export default async (ctx) => {
   const vocalized = words.filter((w) => w.traits?.includes("VOCALIZED"));
   for (const lit of vocalized) {
     buffers.push(
-      await modes.listen.emit.literal({
+      await ctx.daemon.modes.game.listen.emit.literal({
         literal: lit,
         gameplay: "pick",
         recall: "KNOWN",

@@ -11,6 +11,43 @@ import { shard, Url, Connection, shape, Vector } from "@vivalence/typology";
 //   // die.good.aperture.branch("/runtime").slurp(testVector);
 // }
 
+export async function wake(die) {
+  die.good.ters = {
+    async patrol() {
+      for (const terran of die.good.terrans) {
+        if (terran.status.is("ERROR")) {
+          console.warn(`Terran unhealthy`, terran.slug);
+        }
+      }
+      console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
+    },
+  };
+}
+
+export async function launch(runtimeDie) {
+  const url = paladin.variant.runtime?.statics?.serve;
+  if (!url) {
+    console.warn("No runtime serve URL configured");
+    return;
+  }
+
+  console.log(`launching on ${url.absolute}`);
+
+  runtimeDie.good.server = Deno.serve(
+    {
+      port: Number(url.port),
+      hostname: url.hostname,
+      signal: runtimeDie.abort.signal,
+      onListen({ hostname, port }) {
+        console.log(`listening on ${hostname}:${port}`);
+      },
+    },
+    shard.cors.wrap(shape.http(runtimeDie.good.aperture)),
+  );
+
+  runtimeDie.status.set({ code: "RUNNING", label: url.absolute });
+}
+
 export async function announce(die) {
   for (const daemonDie of die.good.daemons) {
     // console.log(daemonDie.mask);

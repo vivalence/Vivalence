@@ -72,7 +72,27 @@ export class Die extends Wafer {
 }
 
 async function test(daemonDie) {
-  console.log(daemonDie.good.freight);
+  await daemonDie.datamap.shard.context(async () => {
+    const conjugations = await daemonDie.good.entities.conjugation.find(
+      {},
+      {
+        populate: [
+          "firstSingular",
+          "secondSingular",
+          "thirdSingular",
+          "firstPlural",
+          "secondPlural",
+          "thirdPlural",
+          "lemma",
+          "tense",
+          "mood",
+          "infinitive",
+        ],
+        limit: 5,
+      },
+    );
+    console.log({ conjugations });
+  });
 }
 // async function test(daemonDie) {
 //   const sentences = await daemonDie.good.entities.literal.find({

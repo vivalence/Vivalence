@@ -12,7 +12,7 @@ The subsystem docs listed below are your next reads. But this document tells you
 
 An operating system with a language learning system as its first application. Not an app — an OS. Types compose into routing, routing composes into daemons, daemons compose into a runtime. Game modes are plugins. Memory is Bayesian. The whole thing runs on Deno with MikroORM, Svelte, and Anthropic's Claude.
 
-The power is emergent. Signature (211 lines) enables an entire routing ontology. Vector (107 lines) enables hierarchical routing with middleware accumulation. traverse (47 lines) walks two trees in parallel. compose (27 lines) enables arbitrary middleware stacking. These are not large systems — they are small, sharp tools that compose into large capability.
+The power is emergent. Signature (211 lines) enables an entire routing ontology. Vector (107 lines) enables hierarchical routing with middleware accumulation. traverse (47 lines) walks two trees in parallel. compose (27 lines) enables arbitrary middleware stacking. rollup (18 lines) + shape.mcp (53 lines) = a fully compliant MCP tool server with typed schemas, validation, and middleware — 86 lines total, zero dependencies outside typology. These are not large systems — they are small, sharp tools that compose into large capability.
 
 If you find yourself thinking "this could use a framework for X" — stop. The framework IS the types. Read them again.
 
@@ -46,13 +46,15 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Gestalten**: is (predicates), cast (coercion), not (negation), fromm (conversion), belt (utilities), shard (network), steer (routing), shape (compilation)
 
-**Signature hierarchy**: Signature → Pattern, Signal, Path, Url, Action
+**Signature hierarchy**: Signature → Pattern, Signal, Path, Url, Action. Url accepts full URLs (`is.url` — strings with `://` or objects with `.origin`), Signals (`is.Signal` — instanceof), or bare paths (strings without `://` — normalized, no origin). Signal→Url conversion via `u.pathname`.
 
 **System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, terminal, stall, lobby, door
 
 **Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 44px mobile / 32px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation)
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
+
+**Context**: `new Context({ request: { body, url, method, headers, raw }, params, signal, steps })` — execution envelope. Object.assign then field-by-field defaults (request→Request, response→Response, params→{}, state→{}). `ctx.input` proxies to `request.body`, `ctx.output` proxies to `response.body`. Created by shape.http (full HTTP request) and steer strategies (body + signal as url). Connection creates Request directly for client-side calls.
 
 **Transport**: publish (server-side SSE framing via Response), subscribe (client-side SSE consumption via Connection/Request), websocket (bidirectional via Connection/shard.serve), stream (raw ReadableStream via Response/Request)
 
@@ -62,9 +64,15 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Datamap**: shard.datamap.inject (datamap provider → RequestContext per request + ctx.entities), shard.datamap.repository (MikroORM repo → CRUD Aperture), shard.datamap.reactive (repo + twitch Vector → Broadcaster + /subscribe SSE), shard.datamap.ingest (incoming SSE → repo mutations), shard.datamap.scope (ctx → patch middleware), shard.datamap.errors (exception → HTTP status), RemoteRepository (client-side generic repo over Connection — identity map via `merge`/`_upsert`, `resolve` hook for re-enrichment after upsert, `_upsert` skips undefined incoming values), Broadcaster (async pub/sub with filtered subscriptions + timeout), EntityStore (schema-driven repo wiring — Phase C). **Datamap service provider** returns opaque interface: `{ entities, shard: { context(fn), bind(name, resolve) }, introspect(), subscribe(sub), disintegrate() }`. `bind` is a middleware factory: `bind("user", (ctx) => ({ user: ctx.user.id }))` returns shard-shaped `(ctx, next)` that calls `setFilterParams`. Entity schemas declare MikroORM filters natively via `filters: { user: { cond: (args) => ({ user: args.user }), default: true } }`. No `@mikro-orm/*` imports outside typology/entities, domain entities, and the service itself.
 
-**Steer controllers**: traverse (one signal → one effect), invoke (traverse + execute), shotgun (fire all effects along the way), shine (fire only terminal hits), spray (navigate then harvest subtree), spread (multi-signal scope at one level)
+**Steer** (4 modules): **match** — greedy, scope, resolve (pattern matching at one node). **navigate** — traverse (one signal → one effect), walk (interactive/async). **strategy** — dispatch (arity-aware effect call), direct (execute with Context + signal + steps + params), guarded (validate input against step schemas then execute). **apply** — invoke (traverse + execute), shotgun (navigate signal, fire all terminal effects — used by shape.subscriber for multi-listener event dispatch), rollup (recursive tree walk, collect all effects as `[{ pattern, steps, fn }]` — used by shape.mcp for tool compilation). Strategies are pluggable: `shape.object(vector, steer.guarded)` opts into validation, `steer.direct` is the default. `guarded` walks all steps (branch + leaf patterns) checking `pattern.input` schemas via TypeBox `Value.Default` + `Value.Errors`.
 
-**Subscriber**: shape.subscriber(vector) — function returning MikroORM EventSubscriber POJO, routes entity events via steer.shine through a twitch Vector
+**Pattern descriptors**: `vector.open({ nature: "/feed", input: v.object({...}), output: v.buffer({...}), valence: "fetch items" }, effect)` — or function form `vector.open((s) => ({ nature, input, output }), effect)`. Extra properties land on the leaf Pattern via `{ nature, ...valence }` destructure in Pattern's object coercion. Branch patterns carry schemas too: `vector.branch({ nature: "/emit", input: v.object({...}) })`. Use `input`/`output`, never `schema`.
+
+**Subscriber**: shape.subscriber(vector) — function returning MikroORM EventSubscriber POJO, routes entity events via steer.shotgun through a twitch Vector
+
+**MCP**: shape.mcp(vector, info) — compiles Vector into MCP tool server via steer.rollup. Pattern descriptors provide tool metadata: `nature` → tool name (joined with `_` through branches), `valence` → description, `input` → inputSchema, `output` → outputSchema. Returns `{ handle, tools, handlers }`. `handle(message)` processes JSON-RPC 2.0 messages (initialize, tools/list, tools/call) with complete envelope wrapping. `tools` is the MCP tool definition array. `handlers` is a Map of tool name → guarded callable. Validation, defaults, and middleware accumulation all work through the standard steer.guarded strategy. MCP as a mode trait: mode exports `mcp` Vector, trait compiles via shape.mcp, mounts transport.
+
+**Receiver**: `shard.receiver.stdio(handle)` — generic inbound I/O: reads newline-delimited JSON from stdin, dispatches to handle, writes responses to stdout. Protocol-agnostic — knows nothing about JSON-RPC or MCP. The counterpart to `shard.transport` (outbound). Symmetric: transport sends, receiver receives.
 
 **Mode traits**: BUFFERED (was VIEWABLE — bundles, serves, wires mode.buffer()), DATASET, INTENTED, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT (+ VIEWABLE, VALENTIC, PRODUCER, SELFEVIDENT as legacy in enum only — no active modes use SELFEVIDENT)
 
@@ -137,6 +145,8 @@ Show complete code — every line, every import, every function body. Never use 
 **Desired end state first. Always.** Before touching code, before proposing a diff, before designing anything — get crystal clear on the expected outcome. What does the system look like when this is done? What is true that wasn't true before? What can the user do? What does the data look like? If you can't state the desired end state in plain language, you don't understand the task yet. Ask until you do. This is not a guideline — it is the gate that opens everything else.
 
 **Emergence over workarounds.** Never solve a problem by working around it. Design the system so the problem's source disappears. If you're writing adapter code, extraction logic, compatibility shims, or cross-concern plumbing — stop. The system should be structured so that information flows naturally to where it's needed. If it doesn't, the structure is wrong, not the plumbing. This is why the type system is thick, why entities carry their own paths, why `mode.buffer()` exists. Every design decision should make future problems impossible, not just solvable.
+
+**Architecture over expedience.** This system is pre-users, pre-migration, pre-constraint. Maximum freedom. Never reach for the simplest hack when we can lay a foundation. The principle is: work on the system as a whole, solve problems by engineering the architecture such that the problem doesn't arise in the first place. We are guided by simplicity, elegance, and power — not by speed of delivery. A 50-line primitive in typology that makes an entire class of problems disappear is worth more than a 5-line patch that fixes one symptom. When you see a gap, ask: what's the long-term shape? Build that.
 
 Design and implementation are separate modes. Never mix them. In design mode: show usage, show complete diffs, wait for approval. In implementation mode: write code, run tests, report results. "Rethink" means improve, not delete and reverse — show the revised approach alongside the current one, get confirmation before changing direction. Verify entity fields exist before writing code that references them — read the schema, don't assume. Fix existing tests before designing new features. Inspect real data, don't theorize about APIs.
 
@@ -296,7 +306,7 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 | Classifier + Feature prototypes | typology/prototypes/classifier.js | Dead (only in bak + 1 test) |
 | Mask prototype | typology/prototypes/mask.js | Likely dead (never imported outside typology) |
 | sheets subsystem | subsystems/sheets/ | Completely unused |
-| Shell system | systems/shell/ | Dormant |
+| Shell system | systems/shell/ | Active — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) |
 | NLP service | registry/services/@vivalence/nlp/ | Wired but uncertain activity |
 | lighthouse/localhost | registry/services/@vivalence/lighthouse/localhost/ | Not wired in circuitry |
 | hallucinator archive | registry/services/@vivalence/hallucinator/hal/archive/ | Legacy providers (Groq, OpenAI, etc.) |
@@ -330,6 +340,8 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 | Aperture lib/ (shared, get, sort, filter) | domain/learning/aperture/bak.pick/lib/ | Dead — all query logic now in LiteralRepository |
 | findBySymbols | typology/entities/kernel/Literal.ts | Dead method — replaced by resolveSymbols in find/findOne override. Slug resolution via native MikroORM m:n queries, no roundtrip |
 | Scope, Blacklist classes | typology/prototypes/ | Superseded by native MikroORM queries |
+| Old steer files (traverse.js, walk.js, invoke.js, shotgun.js, spread.js, dispatch.js) | typology/gestalten/steer/ | Replaced by match.js, navigate.js, strategy.js, apply.js |
+| Old steer controllers (shotgun-along, spray, harvest, collect) | typology/gestalten/steer/bak.js | Dead — no live consumers. shine renamed to shotgun (terminal multi-match). rollup added (recursive tree collection) |
 | drapes Modeline component | was drapes/panels/Modeline.svelte | Deleted — app uses single Modeline at routes/viva/Modeline.svelte |
 | Old modeline files | html/bak/[...viva]/Modeline.svelte, bak/Modeline.svelte, surface/panels/bak.modeline.svelte, drapes/bak/components/modeline/ | Deleted |
 | Navtree.svelte | was html/bak/[...viva]/Navtree.svelte | Deleted — navtree logic merged into Modeline panel |
@@ -354,6 +366,9 @@ Known dead or dormant code — don't document it, don't suggest using it, don't 
 | SessionEntity / SessionSchema | was typology/entities/userspace/Session.ts | Renamed to ThreadEntity / ThreadSchema in Thread.ts. v.session() → v.thread(). All refs updated. DB needs table recreation for FK fix |
 | session.js (client) | was html/src/typology/entities/session.js | Renamed to thread.js. Session class → Thread class |
 | SessionDescriptor | was schematics/entities/session.js | Renamed to ThreadDescriptor in thread.js |
+| symbol.word distractor matching | was on judge/pick/listen emitters | Replaced by `ontology` column match — symbol.word was exact JSON match on full morphological profile, always returned empty |
+| defaults key on emitter input | was client daemon.js + all /feed emitters | Removed — FURNISHED never overlapped FEEDING, defaults was always {} |
+| buildItem() in judge | was judge.viva.js | Deleted — logic inlined, then simplified to single boolean distractor |
 
 ## Active Work Areas
 
@@ -364,8 +379,9 @@ As of 2026-03-26 (updated end of session):
 - Hallucinator cortex — [cortex.workpackage.org](cortex.workpackage.org) — daemon-level AI orchestrator with faculties, channels, harnesses (Vector), turns/parts, tune/tier resolution, LANGUAGED/AGENTIC traits
 - Datamap shard + client entity migration — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org) — typology DONE (40 tests), runtime DONE, lighthouse DONE. **Datamap ownership refactor DONE** — service provider owns all MikroORM, opaque interface, RequestContext per request, `shard.datamap.inject()`. Client (B), schema projection (C), reactive E2E (E) next
 - Package manager — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — registry as jj-driven discovery scopes
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — All 9 game modes APPLICATIVE with `/feed` emitter routes. Survival tactic (5 phases). LiteralRepository with resolveSymbols/feed/novel/due/byStrength — `where` + `limit` unified query interface, synchronous slug resolution via native MikroORM m:n queries. Trace entity + literal.review(). Memory drivers: Bayesian (ebisu), Boolean, Counter. 36-step Bayesian test suite. Distractor type matching (symbol.word) on judge/pick/listen. MikroORM user filter on Memory/Trace — schema-declared, bind as shard middleware, zero manual user threading. resolveTraits on DataRepository — SQLite shim for JSON array queries ($contains/$overlap/$none → LIKE). **DONE**: seek→where, batch/take→limit, findBySymbols→resolveSymbols, modeline redesign, user filter, resolveTraits, FAILURE→MISTAKE. **Open**: emitter exhaustion ontology (stall retries forever on empty), emitter-level symbol type partitioning. Tier 2 (reorder, dictation) and Tier 3 (minimal-pair) pending. Conversational tactics post-cortex.
-- **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — IMPLEMENTED. M1 (lib.js: enhance + primitives + constraints + instance/static ops + entityFactory), M2 (110 test steps). Entity descriptors for all daemon entities. v.rel() for MikroORM Rel duality. v.const() renamed from v.literal(). Schematics refactored: lib.js (sole TypeBox consumer), scalars/ (domain), entities/ (descriptors). M3 (game mode migration) pending.
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — All 9 game modes APPLICATIVE with `/feed` emitter routes. Survival tactic (5 phases). LiteralRepository with resolveSymbols/feed/novel/due/byStrength — `where` + `limit` unified query interface, synchronous slug resolution via native MikroORM m:n queries. Trace entity + literal.review(). Memory drivers: Bayesian (ebisu), Boolean, Counter. 36-step Bayesian test suite. Distractor type matching via `ontology` column on judge/pick/listen. `defaults` sweep complete — FURNISHED injection removed from client. MikroORM user filter on Memory/Trace — schema-declared, bind as shard middleware, zero manual user threading. resolveTraits on DataRepository — SQLite shim for JSON array queries ($contains/$overlap/$none → LIKE). **DONE**: seek→where, batch/take→limit, findBySymbols→resolveSymbols, modeline redesign, user filter, resolveTraits, FAILURE→MISTAKE. **Open**: emitter exhaustion ontology (stall retries forever on empty). Tier 2 (reorder, dictation) and Tier 3 (minimal-pair) pending. Conversational tactics post-cortex.
+- **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — IMPLEMENTED. M1 (lib.js: enhance + primitives + constraints + instance/static ops + entityFactory), M2 (110 test steps). Entity descriptors for all daemon entities. v.rel() for MikroORM Rel duality. v.const() renamed from v.literal(). Schematics refactored: lib.js (sole TypeBox consumer), scalars/ (domain), entities/ (descriptors). **Pattern descriptors DONE** — vector.open accepts `{ nature, input, output, valence }` descriptors. Steer reorg (match/navigate/strategy/apply). Strategies: direct + guarded (opt-in validation via TypeBox Value). Context unified — strategies create real Contexts with signal-as-url. M3 (game mode migration) pending.
+- **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface for humans and agents. Claude as first customer. Auth + Connection + strip/wire repos. MCP as future phase (shape.mcp compiler + viva --mcp stdio mode)
 - Progression system (eventually)
 - DB migration — props→data column rename, buffer_literals/buffer_symbols join tables, **session→thread table+FK recreation** (deferred to deploy)
 
@@ -461,6 +477,7 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 - [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj-driven discovery scopes
 - [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics: symbol-driven learning toolset, emitter + conversational architectures
 - [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — Fluent schema builder over TypeBox via Proxy. v.string().default().desc().optional() — Zod ergonomics, JSON Schema output
+- [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface: auth + strip/wire repos + domain endpoints. Claude as first customer. MCP as future phase
 
 **Critical testing gaps across the system:**
 - Learning domain: pick/review endpoints tested via integration test (39 steps). Memory drivers, signal schema still untested in isolation
@@ -468,7 +485,7 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 - Modes: all 9 game mode emitters + 5 tactic phases tested via integration test. No isolated mode-level tests
 - Paladin: scopes untested, variant compilation untested
 - Typology: entity trait system untested, gestalt belt/shard untested
-- Typology: agentic compiler untested, shotgun/shine/spray tested indirectly via datamap reactive
+- Typology: agentic compiler untested. rollup tested (14 specs). shape.mcp tested (20 specs). shard.receiver.stdio untested (needs process-level integration test)
 - Typology: new transport surface tests exist (publish/subscribe/websocket) but Request.subscribe() not yet tested
 
 **Cross-cutting active work:**
