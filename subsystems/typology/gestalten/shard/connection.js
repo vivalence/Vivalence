@@ -1,4 +1,4 @@
-import { Response } from "@vivalence/typology";
+import { Response, Url } from "@vivalence/typology";
 
 export const authorize = ($authority) => async (ctx, next) => {
   const auth = $authority.get();
@@ -54,6 +54,72 @@ export const retry =
       }
     }
   };
+
+export const batch = (options = {}) => {
+  const { url, endpoint = "/batch", filter } = options;
+  let queue = null;
+  const basePath = url?.pathname ?? "";
+
+  return async (ctx, next) => {
+    if (filter && !filter(ctx)) return next();
+
+    const fullPath = ctx.request.url.pathname;
+    const path = basePath && fullPath.startsWith(basePath)
+      ? fullPath.slice(basePath.length) || "/"
+      : fullPath;
+    const body = ctx.request.body;
+    const method = ctx.request.method;
+
+    if (!queue) {
+      queue = [];
+      const q = queue;
+
+      queueMicrotask(() => {
+        queue = null;
+
+        if (q.length === 1) {
+          const entry = q[0];
+          entry.next().then(entry.resolve, entry.reject);
+          return;
+        }
+
+        const lead = q[0];
+        lead.ctx.request.body = q.map((e) => ({ path: e.path, body: e.body, method: e.method }));
+        lead.ctx.request.url = url
+          ? url.branch(endpoint)
+          : new Url(`${lead.ctx.request.url.origin}${endpoint}`);
+        lead.ctx.request.method = "POST";
+
+        lead
+          .next()
+          .then(() => {
+            const results = lead.ctx.response.body;
+            for (let i = 0; i < q.length; i++) {
+              const entry = q[i];
+              const result = results[i];
+              if (!result || result.status >= 400) {
+                entry.ctx.response.status = result?.status ?? 500;
+                entry.ctx.response.body = result?.body ?? null;
+                entry.ctx.response.setError();
+                entry.reject(entry.ctx.response.error);
+              } else {
+                entry.ctx.response.status = result.status;
+                entry.ctx.response.body = result.body;
+                entry.resolve();
+              }
+            }
+          })
+          .catch((err) => {
+            for (const entry of q) entry.reject(err);
+          });
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      queue.push({ ctx, path, body, method, next, resolve, reject });
+    });
+  };
+};
 
 export const track = (connection) => async (ctx, next) => {
   connection.$state.set("CONNECTING");

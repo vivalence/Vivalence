@@ -46,7 +46,7 @@ export class Stall {
 
   async pull() {
     const status = this.$status.get();
-    if (["CLOSED", "PULLING"].includes(status)) return;
+    if (["CLOSED", "PULLING", "EXHAUSTED", "ERROR"].includes(status)) return;
     if (this.$queue.get().length > this.threshold) return;
     if (!this.handlers.pull) {
       console.log("@stall/pull() handler.pull missing");
@@ -56,14 +56,20 @@ export class Stall {
     this.$status.set("PULLING");
 
     try {
-      const buffers = await this.handlers.pull(this);
+      const result = await this.handlers.pull(this);
+      const buffers = result?.buffers ?? result ?? [];
+      const condition = result?.condition ?? (buffers.length ? "NOMINAL" : "EXHAUSTED");
+
       this.$queue.set([...this.$queue.get(), ...buffers]);
-      if (!this.$active.get()) {
+      if (!this.$active.get() && this.$queue.get().length) {
         const [first, ...rest] = this.$queue.get();
         this.$queue.set(rest);
         this.$active.set(first);
       }
-      if (this.$status.get() === "PULLING") this.$status.set("IDLE");
+
+      if (condition === "NOMINAL")        this.$status.set("IDLE");
+      else if (condition === "EXHAUSTED") this.$status.set("EXHAUSTED");
+      else if (condition === "ERROR")     { this.$status.set("ERROR"); this.$error.set(result.error); }
     } catch (error) {
       console.log("[STALL PULL ERROR]", this, error);
       this.$status.set("ERROR");

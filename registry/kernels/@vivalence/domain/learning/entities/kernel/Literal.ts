@@ -20,22 +20,24 @@ export enum LiteralTraitsEnum {
   RANKED = "RANKED",
   ANNOTATED = "ANNOTATED",
   VOCALIZED = "VOCALIZED",
+  CONJUGATED = "CONJUGATED",
 }
 
 export class LiteralRepository extends base.repository {
-  async feed({ limit, blacklist, where }: any) {
-    const due = await this.due({ limit, blacklist, where });
+  async feed({ limit, blacklist, where, populate }: any) {
+    const due = await this.due({ limit, blacklist, where, populate });
     if (due.length >= limit) return due.slice(0, limit);
 
     const novel = await this.novel({
       limit: limit - due.length,
       blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d) => d.id)] },
       where,
+      populate,
     });
     return [...due, ...novel];
   }
 
-  async novel({ limit, blacklist, where }: any) {
+  async novel({ limit, blacklist, where, populate }: any) {
     return this.find(
       object.merge(
         { memories: { $none: {} } },
@@ -44,11 +46,11 @@ export class LiteralRepository extends base.repository {
           : {},
         where,
       ),
-      { orderBy: { rank: "ASC" }, limit: limit },
+      { orderBy: { rank: "ASC" }, limit, populate },
     );
   }
 
-  async due({ limit, blacklist, where }: any) {
+  async due({ limit, blacklist, where, populate }: any) {
     return this.find(
       object.merge(
         { memories: { nextAt: { $lt: new Date() } } },
@@ -58,13 +60,13 @@ export class LiteralRepository extends base.repository {
         where,
       ),
       {
-        populate: ["memories"],
-        limit: limit,
+        populate: populate ? [...populate, "memories"] : ["memories"],
+        limit,
       },
     );
   }
 
-  async byStrength({ limit, blacklist, where }: any) {
+  async byStrength({ limit, blacklist, where, populate }: any) {
     return this.find(
       object.merge(
         { memories: {} },
@@ -74,9 +76,25 @@ export class LiteralRepository extends base.repository {
         where,
       ),
       {
-        populate: ["memories"],
+        populate: populate ? [...populate, "memories"] : ["memories"],
         orderBy: { memories: { strength: "ASC" } },
-        limit: limit,
+        limit,
+      },
+    );
+  }
+
+  async byLastSignal({ signals, limit, blacklist, where, populate }: any) {
+    return this.find(
+      object.merge(
+        { memories: { lastSignal: { $in: signals } } },
+        is.array(blacklist?.literals) && blacklist.literals.length
+          ? { id: { $nin: blacklist.literals } }
+          : {},
+        where,
+      ),
+      {
+        populate: populate ? [...populate, "memories"] : ["memories"],
+        limit,
       },
     );
   }
@@ -220,11 +238,22 @@ export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
     return tokens.map((t) => t.literal).filter(Boolean);
   }
 
+  conjugated(entity: LiteralEntity): string[] {
+    const conj = entity.trait?.CONJUGATED;
+    if (!conj) return [];
+    const slugs = Object.values(conj.paradigm ?? {});
+    if (conj.infinitive) slugs.push(conj.infinitive);
+    return slugs.filter(Boolean);
+  }
+
   collect(changeSets) {
     const pending = [];
     for (const cs of changeSets) {
       if (!(cs.entity instanceof LiteralEntity)) continue;
-      const slugs = [...new Set(this.annotated(cs.entity))];
+      const slugs = [...new Set([
+        ...this.annotated(cs.entity),
+        ...this.conjugated(cs.entity),
+      ])];
       if (slugs.length) pending.push({ id: cs.entity.id, slugs });
     }
     return pending;

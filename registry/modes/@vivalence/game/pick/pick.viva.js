@@ -1,4 +1,4 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { string, BufferView, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -20,17 +20,34 @@ const buffer = new BufferView(
 
 const emitter = new Vector()
   .open("/literal", async (ctx) => {
-    let distractors = ctx.input.distractors ?? [];
-    if (!distractors.length) {
-      distractors = await ctx.daemon.entities.literal.feed({
-                limit: 3,
+    const lit = ctx.input.literal;
+    const recall = ctx.input.recall ?? "LEARNING";
+    const textOf = (l) =>
+      recall === "KNOWN" ? l.trait?.TRANSLATED?.known : l.trait?.TRANSLATED?.learning;
+    const target = string.fold(textOf(lit) ?? "");
+
+    let pool = ctx.input.distractors ?? [];
+    if (!pool.length) {
+      pool = await ctx.daemon.entities.literal.feed({
+        limit: 6,
         blacklist: ctx.input.blacklist,
-        where: { ontology: ctx.input.literal.ontology },
+        where: { ontology: lit.ontology },
       });
     }
+
+    const seen = new Set([target]);
+    const scored = [];
+    for (const d of pool) {
+      const t = string.fold(textOf(d) ?? "");
+      if (seen.has(t)) continue;
+      seen.add(t);
+      scored.push({ d, score: string.dice(target, t) });
+    }
+    scored.sort((a, b) => b.score - a.score);
+
     return ctx.mode.buffer({
-      data: { target: ctx.input.literal.id, recall: ctx.input.recall ?? "LEARNING" },
-      literals: [ctx.input.literal, ...distractors],
+      data: { target: lit.id, recall },
+      literals: [lit, ...scored.slice(0, 3).map((s) => s.d)],
     });
   })
   .open("/feed", async (ctx) => {

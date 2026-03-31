@@ -19,7 +19,8 @@ kernels/@vivalence/
 ├── domain/learning/          The learning engine (entities, memory, pick/review API)
 ├── ontology/
 │   ├── word/                 Universal Dependencies POS hierarchy
-│   └── sentence/             Grammatical structure hierarchy
+│   ├── sentence/             Grammatical structure hierarchy
+│   └── conjugation/          Conjugation paradigms (thin — uses word symbols)
 └── topology/
     ├── english-to-brazilian-survival/   Main curriculum (~14k lines of data)
     ├── english-to-brazilian-a1/         A1 proficiency subset
@@ -35,17 +36,22 @@ Exports: entities, modes (Game + Tactic prototypes), aperture (pick/review endpo
 
 ### Entities
 
-Four entity schemas from `entities/index.js`:
+Five entity schemas from `entities/index.js` (Conjugation virtual entity removed):
 
-**Literal** `entities/kernel/Literal.ts` (87 lines) — extends typology's LiteralEntity.
-Traits: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED.
-Additional: `rank` (frequency, lower = more common), `memories` (1:many → Memory).
+**Literal** `entities/kernel/Literal.ts` — extends typology's LiteralEntity.
+Traits: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED.
+Additional: `rank` (frequency/order, lower = higher priority), `memories` (1:many → Memory).
+Repository: feed, novel, due, byStrength, byLastSignal — all accept `{ limit, blacklist, where, populate }`.
 
 Trait data contracts:
 - TRANSLATED: `{ known: "hello", learning: "olá" }`
 - EXEMPLIFIED: `{ known: "Hi!", learning: "Oi!" }`
-- RANKED: `{ rank: 100, zipf: 7.5, fpm: 50000 }`
-- ANNOTATED: `{ tokens: [...], pos: "noun", ... }`
+- RANKED: `{ rank: 100, zipf: 7.5, fpm: 50000 }` (words) or `{ rank: 1 }` (conjugations, self-referential)
+- ANNOTATED: `{ tokens: [...] }` — sentence tokens with literal slug refs
+- VOCALIZED: `{ asset: { path: "words/falo.mp3" } }`
+- CONJUGATED: `{ infinitive: "slug", paradigm: { firstSingular: "slug", thirdSingular: "slug", firstPlural: "slug", thirdPlural: "slug" } }`
+
+LiteralSubscriber (afterFlush): resolves ANNOTATED token slugs + CONJUGATED paradigm/infinitive slugs → `uses` junction rows via raw SQL.
 
 **Symbol** `entities/kernel/Symbol.ts` (36 lines) — extends typology's SymbolEntity.
 Symbol traits via `symbol.data`: LEARNABLE `{ driver: "BAYESIAN", type: "INDIVIDUAL" }`, COMPLETABLE (mutually exclusive with LEARNABLE).
@@ -118,6 +124,14 @@ Symbol hierarchy (464 lines): grammatical structure.
 - `sentence.mood.{indicative, subjunctive}`
 - `sentence.tense.{present, past, future}`
 - `sentence.aspect.{perfective, imperfective}`
+
+### Conjugation Ontology
+
+`ontology/conjugation/conjugation.viva.js` — type: "ontology", slug: "conjugation", version: "0.1.0", traits: ["DATASET"]
+
+Minimal: single TOPOGRAPHICAL symbol `conjugation`. All dimensional symbols (lemma, tense, mood, suffix, regularity) come from the word ontology. Conjugation literals are groupings of word literals — they share the same symbol vocabulary.
+
+Conjugation literal shape: slug `lemma.tense.mood`, ontology "conjugation", CONJUGATED trait with `{ infinitive, paradigm: { slot: slug } }`. Connected to form literals via `uses`/`in` M:N self-relation. Learnable — has its own Memory.
 
 ## Topologies
 

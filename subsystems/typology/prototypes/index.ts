@@ -29,6 +29,7 @@ export * from "./mode.js";
 
 export * from "./classifier.js";
 export * from "./blacklist.js";
+export * from "./yield.js";
 export * from "./remedy/index.ts";
 
 export * from "./vector.js";

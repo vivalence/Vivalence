@@ -980,12 +980,12 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "this",
+        "known": "this (pron.)",
         "learning": "este"
       },
       "EXEMPLIFIED": {
-        "known": "How much is this ring worth?",
-        "learning": "Quanto vale este anel?"
+        "known": "This is my favorite",
+        "learning": "Este é o meu favorito"
       },
       "VOCALIZED": {
         "asset": {

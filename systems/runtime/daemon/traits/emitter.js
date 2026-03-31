@@ -1,4 +1,4 @@
-import { shape, shard, Seek, Blacklist } from "@vivalence/typology";
+import { shape, shard, Seek, Blacklist, Yield, accumulator } from "@vivalence/typology";
 
 export const EMITTER = async (mode, daemon) => {
   if (!mode.cake.emitter) return;
@@ -29,22 +29,33 @@ export const EMITTER = async (mode, daemon) => {
   });
 
   mode.cake.emitter.use(async (ctx, next) => {
+    ctx.yield = accumulator();
     await next();
-    const raw = ctx.output;
-    const entities = Array.isArray(raw) ? raw.flat() : [raw];
 
-    if (ctx.thread) {
-      for (const buffer of entities) {
+    const raw = ctx.output;
+    const result = raw?.condition ? raw : ctx.yield.resolve(raw);
+
+    if (ctx.thread && result.condition === "NOMINAL") {
+      for (const buffer of result.buffers) {
         buffer.thread = ctx.thread;
         buffer.index = ctx.thread.counter++;
       }
     }
-    await daemon.entities.em.flush();
 
-    ctx.output = entities;
+    await daemon.entities.em.flush();
+    ctx.output = result;
   });
 
-  mode.emit = shape.object(mode.cake.emitter);
+  const compiled = shape.object(mode.cake.emitter);
+  mode.emit = Object.fromEntries(
+    Object.entries(compiled).map(([key, fn]) => [
+      key,
+      async (...args) => {
+        const result = await fn(...args);
+        return result?.condition === "NOMINAL" ? result.buffers : result;
+      },
+    ]),
+  );
   mode.aperture.branch("/emit").slurp(mode.cake.emitter);
 };
 

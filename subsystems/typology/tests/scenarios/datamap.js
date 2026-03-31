@@ -29,6 +29,8 @@ const BufferConcrete = new EntitySchema({
   repository: () => DataRepository,
 })
 
+export { SymbolConcrete, BufferConcrete }
+
 export const schemas = [
   LiteralConcrete, SymbolConcrete, BufferConcrete,
   ModeSchema, IntentSchema, UserSchema, ThreadSchema,

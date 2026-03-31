@@ -3,12 +3,10 @@ import { array, hash, is, cast } from "@vivalence/typology";
 export class Signature {
   // nature = null; trace = null; gauges = [];
   static coercions = [];
-
   // [Symbol.for("nodejs.util.inspect.custom")]() {return `${this.constructor.name}:${this.absolute} [${this.nature}]`;}
 
   constructor(signature = null, trace = null) {
     if (!is.array(this.gauges)) this.gauges = [];
-
     signature = this.coerce(signature);
 
     if (is.fn(signature)) signature = this.coerce(signature(this.constructor));

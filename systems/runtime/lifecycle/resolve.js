@@ -72,16 +72,12 @@ export async function attach(runtimeDie) {
 
 export async function expose(runtimeDie) {
   for (const daemonDie of runtimeDie.good.daemons) {
-    runtimeDie.good.aperture
-      // .use(async (ctx, next) => {
-      //   console.log("REQUEST", ctx.request);
-      //   await next();
-      //   console.log("RESPONSE", ctx.response);
-      // })
-      .branch(daemonDie.good.mount.nature) // .branch(`/daemon/${daemonDie.slug}`)
+    const daemonBranch = runtimeDie.good.aperture.branch(daemonDie.good.mount.nature);
+    daemonBranch
       .open("/status", () => daemonDie.status.reflection)
       .open("/manifest", () => daemonDie.manifest)
-      .slurp(daemonDie.good.aperture);
+      .slurp(daemonDie.good.aperture)
+      .open("/batch", shard.batch.route(daemonBranch));
   }
 }
 

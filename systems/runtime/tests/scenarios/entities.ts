@@ -6,10 +6,7 @@ import {
   LiteralEntity,
   LiteralSchema,
   LiteralRepository,
-  SymbolEntity,
-  SymbolSchema,
   BufferEntity,
-  BufferSchema,
   ModeEntity,
   ModeSchema,
   IntentSchema,
@@ -18,7 +15,13 @@ import {
   IntentEntity,
   UserEntity,
   ThreadEntity,
+  SymbolEntity,
 } from "@vivalence/typology/entities";
+
+import {
+  SymbolConcrete,
+  BufferConcrete,
+} from "@vivalence/typology/scenarios";
 
 export enum LiteralTraits {
   TRANSLATED = "TRANSLATED",
@@ -41,30 +44,17 @@ export const LiteralDomain = new EntitySchema({
   },
 });
 
-export const SymbolDomain = new EntitySchema({
-  class: SymbolEntity,
-  extends: SymbolSchema,
-  tableName: "Symbol",
-  name: "Symbol",
-});
-
-export const BufferDomain = new EntitySchema({
-  class: BufferEntity,
-  extends: BufferSchema,
-  tableName: "Buffer",
-  name: "Buffer",
-});
-
 const schemas = [
   LiteralDomain,
-  SymbolDomain,
-  BufferDomain,
+  SymbolConcrete,
+  BufferConcrete,
   ModeSchema,
   IntentSchema,
   UserSchema,
   ThreadSchema,
 ];
 
+export { SymbolConcrete as SymbolDomain, BufferConcrete as BufferDomain };
 export { LiteralEntity, SymbolEntity, BufferEntity };
 
 export async function seed() {

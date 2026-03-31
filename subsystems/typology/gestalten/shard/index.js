@@ -9,3 +9,4 @@ export * as serve from "./serve.js";
 export * as datamap from "./datamap.js";
 export * as ambient from "./ambient.js";
 export * as receiver from "./receiver.js";
+export * as batch from "./batch.js";

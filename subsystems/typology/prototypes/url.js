@@ -25,6 +25,7 @@ function join(...paths) {
 
   return normalize(joined);
 }
+
 export class Url extends Signature {
   // nature = "/";
   // origin = null;

@@ -1,4 +1,4 @@
-import { object, array, BufferView, Vector, v } from "@vivalence/typology";
+import { object, array, string, BufferView, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -40,14 +40,32 @@ const emitter = new Vector()
     let literals = [lit];
 
     if (gameplay === "pick") {
-      const distractors =
+      const recall = ctx.input.recall ?? "LEARNING";
+      const textOf = (l) =>
+        recall === "KNOWN" ? l.trait?.TRANSLATED?.known : l.trait?.TRANSLATED?.learning;
+      const learningOf = (l) => string.fold(l.trait?.TRANSLATED?.learning ?? "");
+      const target = string.fold(textOf(lit) ?? "");
+      const targetLearning = learningOf(lit);
+
+      const pool =
         ctx.input.distractors ??
         (await ctx.daemon.entities.literal.feed({
-          limit: 3,
+          limit: 6,
           blacklist: ctx.input.blacklist,
           where: { ontology: lit.ontology },
         }));
-      literals = [lit, ...distractors];
+
+      const seen = new Set([target]);
+      const scored = [];
+      for (const d of pool) {
+        const t = string.fold(textOf(d) ?? "");
+        if (seen.has(t)) continue;
+        if (learningOf(d) === targetLearning) continue;
+        seen.add(t);
+        scored.push({ d, score: string.dice(target, t) });
+      }
+      scored.sort((a, b) => b.score - a.score);
+      literals = [lit, ...scored.slice(0, 3).map((s) => s.d)];
     }
 
     return ctx.mode.buffer({

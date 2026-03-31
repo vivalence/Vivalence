@@ -6,6 +6,8 @@
     ".": "./mod.js",
     "./run": "./run.js",
     "./daemon": "./daemon/index.js",
+    "./daemon/aperture": "./daemon/aperture/index.js",
+    "./daemon/traits": "./daemon/traits/index.js",
     "./process": "./process/index.js",
     "./scenarios": "./tests/scenarios/index.js",
   },

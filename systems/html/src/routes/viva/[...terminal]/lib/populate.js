@@ -74,16 +74,22 @@ population
             .flatMap((b) => b.literals ?? [])
             .map((l) => (typeof l === "object" ? l.id : l)),
         };
-        const bufferPojos = await ctx.terminal.intent.emit({
+        const result = await ctx.terminal.intent.emit({
           thread: ctx.terminal.thread.id,
           blacklist,
         });
-        return bufferPojos.map((pojo) => {
-          const viewMode = ctx.terminal.daemon.entities.mode.findOneLocal({
-            id: is.id(pojo.mode) ? pojo.mode : pojo.mode.id,
-          });
-          return mint(pojo, viewMode, ctx.terminal);
-        });
+
+        if (result.condition !== "NOMINAL") return result;
+
+        return {
+          ...result,
+          buffers: result.buffers.map((pojo) => {
+            const viewMode = ctx.terminal.daemon.entities.mode.findOneLocal({
+              id: is.id(pojo.mode) ? pojo.mode : pojo.mode.id,
+            });
+            return mint(pojo, viewMode, ctx.terminal);
+          }),
+        };
       }, queue);
       ctx.terminal.stall.$status.set("IDLE");
       ctx.terminal.stall.pull();

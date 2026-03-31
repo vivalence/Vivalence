@@ -1,18 +1,12 @@
 import paladin from "@vivalence/paladin";
 import { wrap } from "@mikro-orm/core";
 
-// import { Mode, Url, Path, Vector, Aperture } from "@vivalence/typology";
 import { Mode, Url, Path, Aperture, shard } from "@vivalence/typology";
 import { is, array, shape, steer } from "@vivalence/typology";
-// import { maps } from "@vivalence/typology/entities";
 import { sets } from "@vivalence/typology/entities";
 
-// import { RequestContext } from "@mikro-orm/core";
-
-// import { Vector, compiler, controller, shards } from "@vivalence/vector";
-
-import * as kernelmodes from "../mode/kernel.js";
-import * as traitmap from "../mode/traitmap.js";
+import * as kernel from "../kernel.js";
+import * as traits from "../traits/index.js";
 
 export async function core(die) {
   die.register = await paladin.vip.accioMap({
@@ -31,12 +25,12 @@ export async function core(die) {
   };
 
   die.variant.traits = {
-    ...kernelmodes.traits,
-    ...traitmap,
+    ...kernel.traits,
+    ...traits,
     ...(die.kernel.domain.traits || {}),
   };
 
-  die.variant.modes = [...kernelmodes.modes, ...(die.kernel.domain.modes || [])];
+  die.variant.modes = [...kernel.modes, ...(die.kernel.domain.modes || [])];
 
   die.variant.entities = [
     ...sets.daemon,
@@ -52,14 +46,6 @@ export function wiring(daemonDie) {
 }
 
 export async function datamap(daemonDie) {
-  // const { orm, repositories } = await daemonDie.register.datamap //
-  //   .provider(daemonDie.mask.datamap, daemonDie.variant.entities);
-  // daemonDie.good.kernel.orm = orm;
-  // daemonDie.good.entities = { ...repositories, twitch: new Vector() };
-  // daemonDie.good.aperture.use((ctx, next) => {
-  //   return RequestContext.create(daemonDie.good.kernel.orm.em, next);
-  // });
-
   daemonDie.datamap = await daemonDie.register.datamap.provider(
     daemonDie.mask.datamap,
     daemonDie.variant.entities,
@@ -78,7 +64,7 @@ export async function authority(daemonDie) {
   daemonDie.good.aperture //
     .use(shard.secure.authority(daemonDie.good.lighthouse))
     .use(async (ctx, next) => {
-      ctx.daemon.connection = daemonDie.connection.clone(); //
+      ctx.daemon.connection = daemonDie.connection.clone();
       ctx.daemon.connection //
         .use(async (context, next) => {
           context.request.headers.set("authorization", ctx.request.headers.get("authorization"));
@@ -92,7 +78,6 @@ export async function authority(daemonDie) {
 export async function acid(daemonDie) {
   daemonDie.good.hallucinator = await daemonDie.register.hallucinator //
     .provider(daemonDie.mask.hallucinator);
-  // console.log("@daemon/population daemonDie.good.hallucinator", daemonDie.good.hallucinator,);
 }
 
 export async function services(daemonDie) {
@@ -135,13 +120,6 @@ export async function modes(daemonDie) {
         mode.cake.buffer.withUrl(url);
       }
 
-      // if (mode.implements("VIEWABLE")) {
-      //   mode.cake.view.path.from(new Path(mode.cake.mount.dirname));
-      //   const url = daemonDie.good.attach
-      //     .branch("/view").branch(mode.mount.absolute).branch(mode.cake.view.path.nature);
-      //   mode.cake.view.withUrl(url);
-      // }
-
       if (mode.implements("FRAUGHT")) {
         mode.cake.freight.path.from(new Path(mode.cake.mount.dirname));
         const url = daemonDie.good.attach.branch("/cargo").branch(daemonDie.good.mount.nature);
@@ -157,7 +135,7 @@ export async function modes(daemonDie) {
       await daemonDie.good.entities.em.flush();
 
       mode.entity = wrap(mode.entity).toPOJO();
-      mode.id = mode.entity.id; // ugly
+      mode.id = mode.entity.id;
 
       if (!daemonDie.good.modes[mode.type]) daemonDie.good.modes[mode.type] = {};
       daemonDie.good.modes[mode.type][mode.slug] = mode;
@@ -166,55 +144,8 @@ export async function modes(daemonDie) {
 }
 
 export function handlers(daemonDie) {
-  // daemonDie.good.flatmodules = () => [Object.values(daemonDie.good.kernel), Object.values(daemonDie.good.modes)] .flat() .map((type) => Object.values(type)) .flat();
   daemonDie.good.flatmodes = () =>
     Object.values(daemonDie.good.modes)
       .map((type) => Object.values(type))
       .flat();
 }
-
-// twitch setup moved to datamap()
-// export async function twitch(die) {
-//   const sub = shape.subscriber(die.good.entities.twitch);
-//   die.good.entities.em.getEventManager().registerSubscriber(sub);
-// }
-
-// export async function twitch(die) {
-//   try {
-//     const subscriptions = die.good.entities.on.patterns
-//       .map((p) => p.signature)
-//       .map((s) => die.kernel.domain.entities.map[s].entity);
-//
-//     const subscriber = new shape.Subscriber(subscriptions, async (signal, event) => {
-//       try {
-//         const [effect, apply] = steer //
-//           .traverse(die.good.entities.on, signal);
-//         const context = { event, daemon: die.good };
-//         context.daemon.entities.em = context.daemon.entities.em.fork();
-//         await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
-//         await context.daemon.entities.em.flush();
-//       } catch (error) {
-//         if (!["NOT_FOUND", "LONG", "SHORT"].includes(error.code)) throw error;
-//       }
-//     });
-//
-//     die.good.entities.em
-//       .getEventManager() //
-//       .registerSubscriber(subscriber);
-//
-//     //
-//   } catch (e) {
-//     console.log("@runtime/runtime/integrate/twitch");
-//     console.log("[expected to fail on pattern signature entity lookup]");
-//     console.log("[haha future me.]");
-//     throw e;
-//   }
-// }
-
-// export async function twitches(die) {
-//   for (const handler of Object.values(ontology.populate)) await handler(die);
-//   for (const handler of Object.values(ontology.resolve)) await handler(die);
-// }
-
-//   if (die.register.modules.domain.lifecycle.construct)
-//     await die.register.modules.domain.lifecycle.construct(die.good);

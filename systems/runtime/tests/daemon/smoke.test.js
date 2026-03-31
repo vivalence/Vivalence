@@ -31,11 +31,12 @@ specimen.describe("smoke: full lifecycle", () => {
       literal: { id: scenario.fixtures.hello.id },
       thread: thread.id,
     });
-    buffers = result;
-    specimen.expect(result.length).toBe(1);
-    specimen.expect(result[0].id).toBeTruthy();
-    specimen.expect(result[0].data.recall).toBe("LEARNING");
-    specimen.expect(result[0].literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
+    specimen.expect(result.condition).toBe("NOMINAL");
+    buffers = result.buffers;
+    specimen.expect(buffers).toHaveLength(1);
+    specimen.expect(buffers[0].id).toBeTruthy();
+    specimen.expect(buffers[0].data.recall).toBe("LEARNING");
+    specimen.expect(buffers[0].literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
   });
 
   specimen.it("query buffers via userspace", async () => {
@@ -59,7 +60,8 @@ specimen.describe("smoke: full lifecycle", () => {
       literal: { id: scenario.fixtures.goodbye.id },
       thread: thread.id,
     });
-    specimen.expect(result[0].index).toBeGreaterThan(buffers[0].index);
+    specimen.expect(result.condition).toBe("NOMINAL");
+    specimen.expect(result.buffers[0].index).toBeGreaterThan(buffers[0].index);
   });
 
   specimen.it("all buffers ordered by index", async () => {
@@ -71,16 +73,3 @@ specimen.describe("smoke: full lifecycle", () => {
     specimen.expect(indexs).toEqual(sorted);
   });
 });
-
-// specimen.describe("smoke (old)", () => {
-//   specimen.it("emit via HTTP with thread → buffers persisted", async () => {
-//     specimen.expect(result[0].props.literal).toEqual({ id: scenario.fixtures.hello.id });
-//   });
-//   specimen.it("query buffers via userspace", async () => {
-//     specimen.expect(match.props.literal).toBeTruthy();
-//   });
-//   specimen.it("buffer props persisted correctly", async () => {
-//     specimen.expect(buffer.props.literal).toEqual({ id: scenario.fixtures.hello.id });
-//     specimen.expect(buffer.props.recall).toBe("LEARNING");
-//   });
-// });

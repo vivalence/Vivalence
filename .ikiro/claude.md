@@ -54,51 +54,51 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
 
-**Context**: `new Context({ request: { body, url, method, headers, raw }, params, signal, steps })` — execution envelope. Object.assign then field-by-field defaults (request→Request, response→Response, params→{}, state→{}). `ctx.input` proxies to `request.body`, `ctx.output` proxies to `response.body`. Created by shape.http (full HTTP request) and steer strategies (body + signal as url). Connection creates Request directly for client-side calls.
+**Context**: Execution envelope. `ctx.input` → `request.body`, `ctx.output` → `response.body`. Created by shape.http and steer strategies.
 
-**Transport**: publish (server-side SSE framing via Response), subscribe (client-side SSE consumption via Connection/Request), websocket (bidirectional via Connection/shard.serve), stream (raw ReadableStream via Response/Request)
+**Transport**: publish (SSE framing), subscribe (SSE consumption), websocket (bidirectional), stream (raw ReadableStream)
 
-**Ambient**: `shard.ambient.store(resolve)` — middleware wrapping `next()` in AsyncLocalStorage with `resolve(ctx)` as the store value. `shard.ambient.combine(fn)` — middleware calling `fn(ctx, store)` for imperative merge. `shard.ambient.assign(fn)` — middleware calling `object.assign(ctx, fn(store))` for deep merge. `shard.ambient.current()` — read the store directly. Used by daemon: `store` after authorize puts `{ user, entities }` in scope, `assign` on EMITTER vector inherits them into shape.object contexts.
+**Ambient**: `shard.ambient.store/combine/assign/current` — AsyncLocalStorage scope. Daemon uses store after authorize for `{ user, entities }`, EMITTER uses assign to inherit.
 
-**Serve**: `shard.serve.file(root)` — static file serving effect (MIME detection, Deno.open streaming). `shard.serve.websocket(handler)` — WebSocket upgrade effect. Both are effect combinators returning arity-1 handler functions.
+**Serve**: `shard.serve.file(root)` static files, `shard.serve.websocket(handler)` upgrade. Effect combinators.
 
-**Datamap**: shard.datamap.inject (datamap provider → RequestContext per request + ctx.entities), shard.datamap.repository (MikroORM repo → CRUD Aperture: find, findOne, findOneOrFail, findAndCount, count, create, upsert, ensure, updateOne, update, removeOne, remove), shard.datamap.reactive (repo + twitch Vector → Broadcaster + /subscribe SSE), shard.datamap.ingest (incoming SSE → repo mutations), shard.datamap.scope (ctx → patch middleware), shard.datamap.errors (exception → HTTP status), RemoteRepository (client-side generic repo over Connection — identity map via `merge`/`_upsert`, `resolve` hook for re-enrichment after upsert, `_upsert` skips undefined incoming values), Broadcaster (async pub/sub with filtered subscriptions + timeout), EntityStore (schema-driven repo wiring — Phase C). **CRUD convention**: `find`/`update`/`remove` operate on many (where clause), `findOne`/`updateOne`/`removeOne` operate on single. DataRepository owns the implementations; shard is thin HTTP exposition. `update`/`updateOne` go through UoW (events fire, reactive works). `remove`/`removeOne` likewise. Shard shapes remove responses: `{ ok, id }` / `{ count, ids }`. **Datamap service provider** returns opaque interface: `{ entities, shard: { context(fn), bind(name, resolve) }, introspect(), subscribe(sub), disintegrate() }`. `bind` is a middleware factory: `bind("user", (ctx) => ({ user: ctx.user.id }))` returns shard-shaped `(ctx, next)` that calls `setFilterParams`. Entity schemas declare MikroORM filters natively via `filters: { user: { cond: (args) => ({ user: args.user }), default: true } }`. No `@mikro-orm/*` imports outside typology/entities, domain entities, and the service itself.
+**Datamap**: `inject` (RequestContext), `repository` (CRUD Aperture), `reactive` (Broadcaster + SSE), `ingest` (incoming SSE → repo), `scope` (query patch), `errors` (exception → HTTP status), `wire` (cross-repo relations). RemoteRepository mirrors server CRUD over Connection with persist/cast/merge. Datamap provider returns `{ entities, shard: { context, bind }, introspect, subscribe, disintegrate }`. CRUD convention: `find`/`update`/`remove` = many, `findOne`/`updateOne`/`removeOne` = single.
 
-**Steer** (4 modules): **match** — greedy, scope, resolve (pattern matching at one node). **navigate** — traverse (one signal → one effect), walk (interactive/async). **strategy** — dispatch (arity-aware effect call), direct (execute with Context + signal + steps + params), guarded (validate input against step schemas then execute). **apply** — invoke (traverse + execute), shotgun (navigate signal, fire all terminal effects — used by shape.subscriber for multi-listener event dispatch), rollup (recursive tree walk, collect all effects as `[{ pattern, steps, fn }]` — used by shape.mcp for tool compilation). Strategies are pluggable: `shape.object(vector, steer.guarded)` opts into validation, `steer.direct` is the default. `guarded` walks all steps (branch + leaf patterns) checking `pattern.input` schemas via TypeBox `Value.Default` + `Value.Errors`.
+**Batch**: `shard.batch.route(aperture)` server multiplexer, `shard.connection.batch({url})` client DataLoader via queueMicrotask.
 
-**Pattern descriptors**: `vector.open({ nature: "/feed", input: v.object({...}), output: v.buffer({...}), valence: "fetch items" }, effect)` — or function form `vector.open((s) => ({ nature, input, output }), effect)`. Extra properties land on the leaf Pattern via `{ nature, ...valence }` destructure in Pattern's object coercion. Branch patterns carry schemas too: `vector.branch({ nature: "/emit", input: v.object({...}) })`. Use `input`/`output`, never `schema`.
+**Steer** (4 modules): match (greedy/scope/resolve), navigate (traverse/walk), strategy (direct/guarded), apply (invoke/shotgun/rollup). Strategies pluggable: `shape.object(vector, steer.guarded)` opts into validation.
 
-**Subscriber**: shape.subscriber(vector) — async function returning MikroORM EventSubscriber POJO, routes entity events via steer.shotgun through a twitch Vector. Handlers awaited sequentially. Entity subscribers (LiteralSubscriber, LiteralDomainSubscriber) registered via datamap provider from entity default export `subscriber` field
+**Pattern descriptors**: `vector.open({ nature, input, output, valence }, effect)`. Use `input`/`output`, never `schema`.
 
-**MCP**: shape.mcp(vector, info) — compiles Vector into MCP tool server via steer.rollup. Pattern descriptors provide tool metadata: `nature` → tool name (joined with `_` through branches), `valence` → description, `input` → inputSchema, `output` → outputSchema. Returns `{ handle, tools, handlers }`. `handle(message)` processes JSON-RPC 2.0 messages (initialize, tools/list, tools/call) with complete envelope wrapping. `tools` is the MCP tool definition array. `handlers` is a Map of tool name → guarded callable. Validation, defaults, and middleware accumulation all work through the standard steer.guarded strategy. MCP as a mode trait: mode exports `mcp` Vector, trait compiles via shape.mcp, mounts transport.
+**Subscriber**: `shape.subscriber(vector)` → MikroORM EventSubscriber POJO, routes via steer.shotgun through twitch Vector.
 
-**Receiver**: `shard.receiver.stdio(handle)` — generic inbound I/O: reads newline-delimited JSON from stdin, dispatches to handle, writes responses to stdout. Protocol-agnostic — knows nothing about JSON-RPC or MCP. The counterpart to `shard.transmitter` (outbound). Symmetric: transport sends, receiver receives.
+**MCP**: `shape.mcp(vector, info)` → `{ handle, tools, handlers }`. JSON-RPC 2.0 tool server via steer.rollup + guarded.
 
-**Mode traits**: BUFFERED, DATASET, INTENTED, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT, EXPOSED, SELFEVIDENT. ModeTraitsEnum is the source of truth — VIEWABLE/VALENTIC/PRODUCER removed from enum.
+**Receiver**: `shard.receiver.stdio(handle)` — newline-delimited JSON stdin/stdout. Protocol-agnostic.
 
-**BufferView**: `new BufferView(mount, schema)` or `new BufferView({ mount, schema })` — mount is a path to a `.svelte` file (auto-packed by bundler) or `.svelte.js` file (legacy manual pack). The bundler auto-wraps `.svelte` entries with mount/unmount via esbuild stdin, keeping the svelte runtime inside the bundle (no dual-runtime). `outfile: entry` preserves the source path in output so `serve(branch)` path matching works. `serve(branch)` reconstructs the absolute path and finds the matching output file — never simplified to just `bundles[0]`.
+**Mode traits**: BUFFERED, DATASET, INTENTED, EMITTER, CHAOSMONKEY, TOPOGRAPHICAL, FRAUGHT, EXPOSED, SELFEVIDENT.
 
-**Intent traits**: FURNISHED (default buffer props), FEEDING (mount, queue, mask: {where, limit}). All 9 game modes have a `feed` APPLICATIVE intent with FEEDING mount `/emit/feed`. Feed routes self-source literals via `literal.feed()` and create mode-appropriate buffers. Tactics also use FEEDING for their phase emitters (warmup, buildup, etc.). `where` carries symbol scoping and column filters (was `seek`). `limit` caps results (was `batch`/`take`).
+**BufferView**: `new BufferView(mount, schema)` — mount points at `.svelte` file, auto-packed by bundler.
 
-**Buffer entity (server)**: `{data, index, mode, thread, literals, symbols}` — no traits, no status on server. `data` (was props) holds value fields, `literals`/`symbols` are m:n relations. `mode.buffer()` creates real MikroORM entities. Entities flow through the system — EMITTER post-processor returns entities, not POJOs. Serialization happens at the HTTP boundary via `toJSON()` in `shape.http`'s `JSON.stringify`. Status is client-only. Review results live in memory system.
+**Intent traits**: FURNISHED (default props), FEEDING (mount, queue, mask: {where, limit}). All game modes have `feed` APPLICATIVE intent.
 
-**Buffer (client)**: `Buffer.from(pojo, view)` — pojo is server data (`{id, mode, data, literals, symbols}`), view is `mode.buffered` (`{url, schema}`). `context` and `release` are set by the environment (populate's `mint()`), not by Buffer.from. `mint()` sets `buffer.context = { buffer, terminal }`. Frame.svelte passes `buffer.context` to the Svelte component. Buffers are registered in daemon's buffer repo via `merge` for navigation.
+**Buffer (server)**: `{data, index, mode, thread, literals, symbols}`. Entities flow through system; `toJSON()` serializes at HTTP boundary.
 
-**Schematics**: `v` is the sole schematics interface. Fluent Proxy over TypeBox — `v.string().default().desc().optional()`. Returns real TypeBox JSON Schema objects. **Structure**: `schematics/lib.js` is the ONLY file that imports from `@sinclair/typebox` (TypeBox shim + enhance proxy + entityFactory). `schematics/scalars/` holds domain scalars (ID, Slug, Timestamp, etc.). `schematics/entities/` holds entity descriptors (own fields + relation thunks). `schematics/index.js` assembles v: wires entity factories + `v.rel()` after all modules load. **Primitives**: `v.string(opts)`, `v.number(opts)`, `v.boolean()`, `v.integer()`, `v.object(props, opts)`, `v.array(items, opts)`, `v.union()`, `v.intersect()`, `v.const(val)` (JSON Schema `const`, was TypeBox `Literal`), `v.record()`, `v.any()`, `v.unknown()`, `v.null()`. **Chains**: `.default(val)` / `.default` (dual: setter/getter), `.desc(text)`, `.optional()`, `.$id(name)` (dual: setter/getter). **Instance ops**: `.check(val)`, `.create()`, `.clean(val)`, `.errors(val)`, `.compile()`, `.defaults(val)`. **Static ops**: `v.diff(a,b)`, `v.patch(val, edits)`, `v.equal(a,b)`, `v.clone(val)`. **JSON Schema**: `v.$ref(schema)` for `$ref`, `.$id(name)` for `$id`. **Relations**: `v.rel(schema)` — MikroORM Rel duality, `Union(ID, schema)`. For m:1/1:1 single relations. Collections (m:n/1:m) use `v.array(v.entity())` directly — no rel needed. **Entities**: `v.buffer(spec)`, `v.literal(spec)`, `v.symbol(spec)`, `v.mode(spec)`, `v.intent(spec)`, `v.thread(spec)`, `v.user(spec)` — each built via `entityFactory(descriptor, BaseEntitySchema)`. No args = base schema. With spec = narrowed. Descriptors declare own fields + relation thunks resolved at call time. Cycle detection (Literal ↔ Symbol) returns base schema without relations. **Constraints**: via constructor opts — `v.string({ minLength: 1, pattern: "^..." })`. All JSON Schema keywords supported. **Interop**: `Type` remains as escape hatch. `v.*()` and `Type.*()` produce the same objects, mixable freely. **Legacy**: `Ref` scalar still exported for backwards compat. `BufferSchema` replaced by `BufferDescriptor` + `v.buffer()`. Old `v.literal()` (TypeBox Literal) renamed to `v.const()` to free the name for the Literal entity.
+**Buffer (client)**: `Buffer.from(pojo, view)`. `mint()` sets context + release. Registered in daemon buffer repo.
 
-**Gameplay**: `data.gameplay` string enum on modes with multiple interaction variants. Set by tactic or intent. Cloze: type|pick|listen. Match: translate|describe. Judge: visual|audio|audio-only. Listen: pick|type. `data.forgiving` boolean for typed input normalization.
+**Schematics**: `v` — fluent Proxy over TypeBox. `v.string().default().desc().optional()`. `lib.js` is sole TypeBox consumer. `v.rel(schema)` for m:1 relations, `v.array(v.entity())` for collections. Entity factories: `v.buffer(spec)`, `v.literal(spec)`, etc.
 
-**Intent types**: SELFEVIDENT (fallback — mode opens without intent, client creates empty buffer), APPLICATIVE (intent feeds buffers via emitter — primary path for all game modes and tactics). Client wiring: `daemon.js` aims intent.emit at `FEEDING.mount` with mask merged. `populate.js` calls `intent.emit({thread, blacklist})` via stall.withPull.
+**Gameplay**: `data.gameplay` string enum per mode. `data.forgiving` boolean for typed input.
 
-**Entity trait data**: `entity.trait.TRAIT_NAME` — the `trait` column is a JSON object keyed by trait name (was `data`, renamed)
+**Intent types**: SELFEVIDENT (fallback), APPLICATIVE (primary — feeds buffers via emitter).
 
-**Traits (planned, not yet in code)**: LANGUAGED, AGENTIC (cortex)
+**Yield protocol**: `Yield.NOMINAL(buffers)`, `Yield.EXHAUSTED(meta)`, `Yield.ERROR(error)`. `condition` discriminant. `accumulator()` factory for `ctx.yield`. `mode.emit` unwraps NOMINAL for internal callers; HTTP returns full envelope.
 
 **Memory signals**: MASTERY, SUCCESS, NEUTRAL, MISTAKE, FAILURE
 
 **Memory states**: UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
 
-**Memory drivers**: BAYESIAN (ebisu), BOOLEAN (binary), COUNTER (streak). Driver interface: encode(signal) → {state, status, nextIn, nextAt}, evolve(signal, memory) → same, assess(memory) → {status, nextIn, nextAt}. Each driver exports sql.strength(table) for lazy formula composition. Drivers are pure — no entity refs, no IO.
+**Memory drivers**: BAYESIAN (ebisu), BOOLEAN, COUNTER. Interface: encode/evolve/assess. Pure — no entity refs, no IO.
 
 ## Conventions
 
@@ -166,16 +166,58 @@ Don't delete databases, migration files, or perform destructive data operations 
 
 Never present things that are layers as if they are parallel alternatives. If X uses Y internally, they're layers — show the stack. If they're independent choices, show the choices. Never mix. Use canonical vocabulary precisely — don't substitute generic alternatives. Terms are chosen deliberately and become canonical once settled.
 
-## Testing Philosophy
+## Testing Architecture
 
-Structural testing. Specimen is king.
+Structural testing. Specimen is king. Each layer tests what's novel to itself — never re-test what a lower layer already covers.
 
-Three patterns:
-1. **Specimen** (typology tests) — gestalt-first: construction → gestalt → valences. Uses describe/it from @std/testing/bdd + expect from @std/expect + gestalten.is for type assertions. Also covers vector/controller/compiler/shard tests.
-2. **Deno native** (paladin tests) — Deno.test + assertEquals. Direct function testing.
-3. **Lifecycle** (runtime tests) — validates phase transitions through populate → resolve → integrate → disintegrate.
+### Layers
 
-Future vision: specimen evolves into a lifecycle-driven BDD framework composed via Vector.
+| Layer | Package | Scenario | What it tests |
+|-------|---------|----------|---------------|
+| **Shard** | typology | `datamap.seed()` | Shard CRUD, routing primitives, schema ops, transport, repository identity |
+| **Daemon** | runtime | `daemon.create()` | Trait composition, auth gating, daemon route wiring, mode emission, lifecycle |
+| **Mode** | runtime | `mountMode(viva)` | Individual mode emitters, buffer shapes, intent seeding (planned) |
+| **Client** | html | imports runtime scenario | Prototype wrapping, persistence round-trip, Buffer.from lifecycle, schema wiring |
+
+### Scenario Hierarchy
+
+```
+typology/scenarios/datamap.js
+  └─ exports: { schemas, seed, SymbolConcrete, BufferConcrete }
+  └─ provides: ORM + em + bare entities (user, symbol, 2 literals, mode)
+
+runtime/scenarios/entities.ts
+  └─ imports: SymbolConcrete, BufferConcrete from typology
+  └─ adds: LiteralDomain (LiteralRepository with feed/novel/due), richer fixtures (TRANSLATED traits, intent, thread)
+
+runtime/scenarios/daemon.js
+  └─ imports: seed from entities.ts
+  └─ provides: full daemon (aperture, routes, auth, conn, authedConn)
+```
+
+Each scenario extends the previous. Never duplicate schema definitions — import and extend.
+
+### Testing Principles
+
+**Test what's novel to the layer.** Typology tests shard CRUD. Runtime doesn't re-test CRUD — it tests that daemon routes wire shards correctly, that traits compose, that auth gates work. Client doesn't re-test routing — it tests that prototypes survive persistence, that schema wiring resolves relations.
+
+**Test for strain, not basics.** Don't test that `typeof x === "number"` on a known number. Don't test fixture shape — if `seed()` breaks, everything breaks. Test edge cases: empty inputs, missing references, concurrent operations, boundary conditions. The default path works; find conditions that break.
+
+**Multi-step flows over individual assertions.** "Create thread, find scoped to user, findOne matches" is one test with three assertions, not three tests with one assertion each. Fewer test entries, more ground covered per entry.
+
+**Scenarios mirror production.** `repository: () => DataRepository` must be declared on every domain schema (MikroORM `extends` doesn't inherit it). Prototype classes must be used in scenarios that test client paths. If a test passes without these but the browser crashes, the scenario is lying.
+
+### Specimen
+
+Test runner: `specimen` (re-export of `@std/testing/bdd` + `@std/expect`). Import: `import { specimen } from "@vivalence/typology"`. Pattern: `specimen.describe()`, `specimen.it()`, `specimen.expect()`, `specimen.beforeAll()`, `specimen.afterAll()`.
+
+### Anti-Patterns
+
+- Don't test fixture shape (if seed() breaks, everything breaks — write a seed-level smoke test, not per-field checks)
+- Don't re-test CRUD at the daemon layer — typology covers it exhaustively
+- Don't test JS semantics (isDefined, isArray, typeof on known-good values)
+- Don't create separate test files for trivial additions — extend existing concept files
+- Don't use deep relative paths for cross-package imports — use package exports (`@vivalence/runtime/scenarios`)
 
 ## Session Protocol
 
@@ -299,97 +341,33 @@ ikiro/verify is the gate between implementation and completion. Nothing downstre
 
 ## Dead Code Registry
 
-Known dead or dormant code — don't document it, don't suggest using it, don't extend it:
+Still on disk — don't document, extend, or suggest using:
 
 | What | Where | Status |
 |------|-------|--------|
-| Classifier + Feature prototypes | typology/prototypes/classifier.js | Dead (only in bak + 1 test) |
-| Mask prototype | typology/prototypes/mask.js | Likely dead (never imported outside typology) |
 | sheets subsystem | subsystems/sheets/ | Completely unused |
-| Shell system | systems/shell/ | Active — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) |
-| NLP service | registry/services/@vivalence/nlp/ | Wired but uncertain activity |
-| lighthouse/localhost | registry/services/@vivalence/lighthouse/localhost/ | Not wired in circuitry |
-| hallucinator archive | registry/services/@vivalence/hallucinator/hal/archive/ | Legacy providers (Groq, OpenAI, etc.) |
-| 11+ archived modes | registry/modes/@vivalence/bak/ | Abandoned pedagogical approaches |
+| NLP service | registry/services/@vivalence/nlp/ | Uncertain activity |
+| lighthouse/localhost | registry/services/@vivalence/lighthouse/localhost/ | Not wired |
+| hallucinator archive | registry/services/@vivalence/hallucinator/hal/archive/ | Legacy providers |
+| Archived modes | registry/modes/@vivalence/bak/ | Abandoned approaches |
 | Archived topologies | registry/kernels/@vivalence/topology/bak/ | Spanish, Latin, etc. |
-| ValenceEntity + valence.js | typology + client | Replaced by IntentEntity + intent.js |
-| ProductEntity + product.js | typology + client | Replaced by BufferEntity (typology) + buffer prototype (client) |
-| valentic.js / producer.js | runtime/daemon/mode/traits/ | Replaced by intented.js / emitter.js |
-| Old runtime test scenarios | runtime/tests/scenarios/bak/ | Superseded by scope-split tests (daemon/, mode/, runtime/) |
-| shape.Subscriber class | typology | Replaced by shape.subscriber(vector) function |
-| entities.on (Vector) | runtime/daemon/lifecycle/population.js | Renamed to good.twitch (on Runtime prototype). entities.twitch dead |
-| maps export | typology/entities/index.ts | Replaced by direct named exports (literal, symbol, etc.) + flat sets object |
-| population.twitch() | runtime/daemon/lifecycle/population.js | Removed — twitch subscriber wired in datamap() via datamap.subscribe() |
-| daemon.kernel.orm | runtime/daemon/daemon.js | Removed — ORM access via daemonDie.datamap interface only |
-| Old parametric entity routes | runtime/daemon/aperture/ (commented) | Replaced by shard.datamap per-entity branches |
-| valentic.js / producer.js | runtime/daemon/mode/traits/ | Replaced by intented.js / emitter.js |
-| [...viva] catch-all route | html/src/routes/[...viva]/ | Superseded by viva/ + viva/[...terminal]/ — +page.svelte moved to bak/ |
-| Navtree.svelte | html/src/routes/[...viva]/Navtree.svelte | Replaced by lobby doors. Not imported by new routes |
-| Old populate.js | html/src/routes/[...viva]/lib/populate.js | Replaced by thread-anchored populate in viva/[...terminal]/lib/ |
-| Old url.js | html/src/routes/[...viva]/lib/url.js | Replaced by $lib/url.js (parseTerminalPath) |
-| m.link / i.link (old computation) | html/src/typology/entities/daemon.js | Recomputed from daemon.link root (was SELFEVIDENT-gated mount.rebase) |
-| View prototype | typology/prototypes/view.js | Replaced by BufferView (same file, renamed class). Client Buffer now in html/src/typology/entities/buffer.js |
-| pack() + belt/ | drapes/belt/pack.js, drapes/belt/ | Deleted — bundler auto-wraps .svelte entries. Only bak/ references remain |
-| View export alias | typology/prototypes/index.ts | `export { BufferView as View }` — only bak/ modes use View. Active modes use BufferView |
-| .svelte.js buffer wrappers | registry/modes/**/buffer/*.svelte.js | Deleted — .viva.js now points at .svelte directly |
-| Old Buffer prototype (client) | html/src/typology/prototypes/buffer.js | Deleted — Buffer is now an Entity in html/src/typology/entities/buffer.js |
-| Commented code in populate.js | html/src/routes/viva/[...terminal]/lib/populate.js | Old Buffer.hydrate paths removed, clean mint() factory in place |
-| todo/ game stubs | registry/modes/@vivalence/game/bak/todo/ | Superseded by proper game modes in game/{cloze,pick,match,judge,listen,exhibit}/ |
-| SELFEVIDENT trait impl | runtime/daemon/mode/traitmap.js | No-op function. No active modes use SELFEVIDENT — all game modes migrated to APPLICATIVE intents |
-| Aperture pick/ + review/ | domain/learning/aperture/bak.pick/, bak.review/ | Replaced by LiteralRepository methods (feed/novel/due) + literal.review(). Aperture index.js is thin exposition |
-| Aperture lib/ (shared, get, sort, filter) | domain/learning/aperture/bak.pick/lib/ | Dead — all query logic now in LiteralRepository |
-| findBySymbols | typology/entities/kernel/Literal.ts | Dead method — replaced by resolveSymbols in find/findOne override. Slug resolution via native MikroORM m:n queries, no roundtrip |
-| Scope, Blacklist classes | typology/prototypes/ | Superseded by native MikroORM queries |
-| Old steer files (traverse.js, walk.js, invoke.js, shotgun.js, spread.js, dispatch.js) | typology/gestalten/steer/ | Replaced by match.js, navigate.js, strategy.js, apply.js |
-| Old steer controllers (shotgun-along, spray, harvest, collect) | typology/gestalten/steer/bak.js | Dead — no live consumers. shine renamed to shotgun (terminal multi-match). rollup added (recursive tree collection) |
-| drapes Modeline component | was drapes/panels/Modeline.svelte | Deleted — app uses single Modeline at routes/viva/Modeline.svelte |
-| Old modeline files | html/bak/[...viva]/Modeline.svelte, bak/Modeline.svelte, surface/panels/bak.modeline.svelte, drapes/bak/components/modeline/ | Deleted |
-| Navtree.svelte | was html/bak/[...viva]/Navtree.svelte | Deleted — navtree logic merged into Modeline panel |
-| seek param / Seek for symbols | was on feed/novel/due/aperture/emitters | Replaced by where.symbols — resolveSymbols handles $all/$in/$none sugar with native MikroORM slug queries |
-| take param | was on feed/novel/due/aperture/emitters | Replaced by limit everywhere |
-| batch param | was on FEEDING mask + emitters | Replaced by limit everywhere |
-| LiteralSubscriber (domain rank) | domain/learning/entities/kernel/Literal.ts | Replaced by rank formula + LiteralDomainSubscriber (afterFlush uses wiring) |
-| computeSymbol/computeOntology standalone fns | typology/entities/kernel/Literal.ts | Moved to LiteralSubscriber class methods (symbol/ontology) |
-| memory.history JSON array | domain/learning/entities/userspace/Memory.ts | Replaced by Trace entity (1:M on memory) |
-| Play.bak.js | domain/learning/entities/userspace/ | Replaced by Trace entity |
-| Old memory drivers (dirs) | domain/learning/memory/bak/bayesian/, bak/boolean/ | Replaced by flat bayesian.js, boolean.js, counter.js with encode/evolve/assess interface |
-| memory/schema.js | domain/learning/memory/bak/schema.js | Signal validation moved inline; schema unused |
-| getMemoryDriver / validateDriver | domain/learning/memory/bak/ (was index.js) | Dead — symbol-scoped driver resolution removed (symbols not reviewable) |
-| primitives/production.js | schematics/primitives/production.js | Dead — references `Type` without import, uses abandoned PRODUCER vocabulary |
-| BufferSchema (standalone) | schematics/entities/buffer.js | Replaced by BufferDescriptor + v.buffer(). Old .of() pattern superseded by entityFactory |
-| Ref as v method | was v.ref() | Replaced by v.rel() for typed relations. Ref scalar still in scalars/ for backwards compat |
-| shard/websocket.js | typology/gestalten/shard/ | Deleted — merged into shard/serve.js as `shard.serve.websocket()` |
-| `shards` export alias | was re-exported alongside `shard` | Removed — `shard` (singular) is the only export |
-| findForUser / findOneForUser | domain/learning/entities/kernel/Literal.ts | Deleted — MikroORM filter on Memory auto-scopes by user |
-| user param on feed/novel/due/byStrength | domain/learning/entities/kernel/Literal.ts | Removed — user auto-injected via MikroORM filter |
-| user: ctx.user.id in emitters | all game + tactic emitters, aperture | Removed — filter handles it |
-| populateWhere: { memories: { user } } | aperture, exercise emitter | Removed — filter handles it |
-| SessionEntity / SessionSchema | was typology/entities/userspace/Session.ts | Renamed to ThreadEntity / ThreadSchema in Thread.ts. v.session() → v.thread(). All refs updated. DB needs table recreation for FK fix |
-| session.js (client) | was html/src/typology/entities/session.js | Renamed to thread.js. Session class → Thread class |
-| SessionDescriptor | was schematics/entities/session.js | Renamed to ThreadDescriptor in thread.js |
-| symbol.word distractor matching | was on judge/pick/listen emitters | Replaced by `ontology` column match — symbol.word was exact JSON match on full morphological profile, always returned empty |
-| defaults key on emitter input | was client daemon.js + all /feed emitters | Removed — FURNISHED never overlapped FEEDING, defaults was always {} |
-| buildItem() in judge | was judge.viva.js | Deleted — logic inlined, then simplified to single boolean distractor |
-| data.distractor boolean | judge buffer data | Replaced by data.target + data.distractor as literal IDs (was boolean + index-based) |
-| /review/buffer route | was called by Shadow + Write | Doesn't exist — replaced by /review/literal with scope.literal |
-| playAudio() in Exhibit | exhibit buffer/Exhibit.svelte | Replaced by Asset variant="dot" component (was broken — called .play() on {url,type} object) |
-| Stall threshold commented out | html/src/typology/prototypes/stall.js line 48 | Re-enabled — wired to FEEDING.queue via withPull(pull, threshold) |
+| Game mode stubs | registry/modes/@vivalence/game/bak/todo/ | Superseded by proper modes |
+| SELFEVIDENT trait impl | runtime/daemon/traits/index.js | No-op — all modes use APPLICATIVE |
+| Old EMITTER commented code | runtime/daemon/traits/emitter.js lines 62-93 | Pre-Yield post-processor |
+| Old BUFFERED commented code | runtime/daemon/traits/buffered.js lines 46-56 | Pre-ensure buffer factory |
 
 ## Active Work Areas
 
-As of 2026-03-31 (updated end of session):
+As of 2026-03-31:
 
-- **Literal hierarchy** — `uses`/`in` directed M:N self-relation on Literal (typology). Domain LiteralDomainSubscriber resolves ANNOTATED token slugs into junction rows via afterFlush + raw SQL. shape.subscriber made async. Typology LiteralSubscriber refactored (class methods). **Open**: CONJUGATED resolver, twitch migration question (entity subscribers vs twitch handlers)
-- Audio player variants — inline DONE (drapes/decor/Audio.svelte). Dictation and longform variants deferred
-- Mobile readiness on client
-- Hallucinator cortex — [cortex.workpackage.org](cortex.workpackage.org) — daemon-level AI orchestrator with faculties, channels, harnesses (Vector), turns/parts, tune/tier resolution, LANGUAGED/AGENTIC traits
-- Datamap shard + client entity migration — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org) — typology DONE (40 tests), runtime DONE, lighthouse DONE. **Datamap ownership refactor DONE** — service provider owns all MikroORM, opaque interface, RequestContext per request, `shard.datamap.inject()`. Client (B), schema projection (C), reactive E2E (E) next
-- Package manager — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — registry as jj-driven discovery scopes
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — 11 game modes (9 original + paradigm + conjugation). Survival tactic (5 phases, buildup paradigm-native). **Conjugation virtual entity** — MikroORM expression-based, pivots Literal×Symbol into lemma×tense×mood paradigms. 7 literal slots (infinitive + 6 person×number) + 3 symbol relations (lemma/tense/mood). User-scoped strength/rank aggregation via expression callback + filter params. **Paradigm mode** — fill table cell by cell, realtime/batch feedback, per-slot recall directionality. **Conjugation mode** — single card drill with infinitive+person+tense context. **Buffer data.target pattern** — literal roles stored by ID in buffer.data, not array position. Applied to judge, pick, listen. **Stall threshold** — FEEDING.queue wired into stall.withPull, gate check re-enabled. **string.fold/clean/separate** — forgiving text comparison in typology/belt/string.js. LiteralRepository with resolveSymbols/feed/novel/due/byStrength. Memory drivers: Bayesian, Boolean, Counter. MikroORM user filter on Memory/Trace. **Audio dot variant** on Audio.svelte (32px compact). **Open**: emitter exhaustion ontology, Conjugation SQL performance at scale, CompletableSymbol virtual entity. Tier 2 (reorder, dictation) pending. Conversational tactics post-cortex.
-- **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — IMPLEMENTED. M1 (lib.js: enhance + primitives + constraints + instance/static ops + entityFactory), M2 (110 test steps). Entity descriptors for all daemon entities. v.rel() for MikroORM Rel duality. v.const() renamed from v.literal(). Schematics refactored: lib.js (sole TypeBox consumer), scalars/ (domain), entities/ (descriptors). **Pattern descriptors DONE** — vector.open accepts `{ nature, input, output, valence }` descriptors. Steer reorg (match/navigate/strategy/apply). Strategies: direct + guarded (opt-in validation via TypeBox Value). Context unified — strategies create real Contexts with signal-as-url. M3 (game mode migration) pending.
-- **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface for humans and agents. Claude as first customer. Auth + Connection + strip/wire repos. MCP as future phase (shape.mcp compiler + viva --mcp stdio mode)
-- Progression system (eventually)
-- DB migration — props→data column rename, buffer_literals/buffer_symbols join tables, **session→thread table+FK recreation** (deferred to deploy)
+- **Literal hierarchy** — `uses`/`in` M:N self-relation. LiteralSubscriber afterFlush. Open: twitch migration question
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Yield protocol done. Open: CompletableSymbol, browser testing, Tier 2 (reorder, dictation)
+- **Cortex** — [cortex.workpackage.org](cortex.workpackage.org). Design done, not yet built
+- **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch + RemoteRepository persistence DONE
+- **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org). MCP as future phase
+- **Package manager** — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org). Design only
+- **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org). DONE (M1+M2). M3 game mode migration pending
+- Mobile readiness, progression system, DB migration (session→thread FK recreation) — deferred
 
 ## Divio Documentation + Testing Matrix
 
@@ -409,66 +387,7 @@ Each subsystem doc has a Work Packages section identifying gaps in both document
 
 ## Self-Improvement Protocol
 
-This is the most important section in this document. These docs are not finished artifacts — they are living scaffolds that you must maintain, question, challenge, and improve every time you work in this codebase.
-
-### The Core Question
-
-Every time you finish a task, ask yourself:
-
-**"What would I have needed to read earlier, such that this process would have gone smoother, faster, better, with lower friction, leading to better outcomes faster?"**
-
-Then write that thing into the appropriate doc. Not a note to yourself — a clear, useful addition that the next agent (or you in a fresh session) can actually use.
-
-### When to Update
-
-- **After learning something new** about a subsystem that isn't documented
-- **After code changes** that make a doc inaccurate
-- **After finding inaccuracies** — fix them immediately, don't leave them as traps
-- **After completing a task** — update Work Packages (mark done, add discovered gaps)
-- **After being briefed on new work** — add to relevant Work Packages
-- **After struggling** — if you had to figure something out the hard way, document the shortcut
-
-### What to Update
-
-- **"Where Used" stubs** — these start empty. As you trace code, fill them in. Every cross-reference you add saves a future agent minutes of grepping.
-- **Dead code flags** — verify or remove them. If something was dead and is now used, update the flag.
-- **New patterns** — if you discover a pattern not documented (a new trait, a new composition technique, a new test approach), add it.
-- **Method signatures** — if they changed, update them. Stale signatures are worse than no documentation.
-- **Work Packages** — this is the heartbeat. Completed tasks get marked. New gaps get added. Active work areas get updated.
-
-### How to Improve
-
-- **Add code examples** that demonstrate compositional elegance. Show how 27 lines of compose() enables the entire middleware system. Show how one Signature class yields an entire routing ontology. The ratio of power to lines is extreme — make that visible.
-- **Add test patterns** — when you write a test that uses a novel approach, document the pattern.
-- **Cross-reference between docs** — the system is deeply interconnected. A change in typology affects vector affects runtime. Make those connections explicit.
-- **Improve this root doc** — if you find a better way to organize the system map, a clearer way to explain conventions, a more useful session protocol, change it. This document improves itself.
-
-### Quality Signals
-
-How to tell if the docs are good:
-- File paths are accurate (files exist where docs say they do)
-- Method signatures match the actual code
-- Dead code flags are verified (not stale guesses)
-- "Where Used" sections have real cross-references (not just "[populate]" stubs)
-- Work Packages reflect actual current state (not a snapshot from weeks ago)
-- A new agent reading these docs can start productive work without 30 minutes of exploration
-
-### The Docs Are Your Partner
-
-You don't just read these docs — you co-author them. Every session you run is an opportunity to make the next session better. The compound effect is enormous: a small update today saves 10 minutes next week, which saves an hour next month, which means the system ships faster.
-
-Don't treat documentation as a chore that happens after the work. Treat it as part of the work. The doc update is not overhead — it's the return on investment from everything you just learned.
-
-### Improving This Document
-
-This root document is the entry point for every future session. If it fails to orient an agent quickly and correctly, everything downstream suffers. So:
-
-- If the System Map is missing a package, add it
-- If the Canonical Vocabulary has a new term, add it
-- If the Active Work Areas are stale, update them from git log
-- If the Dead Code Registry has entries that are now alive (or dead entries not listed), fix it
-- If you can think of a better Session Protocol, write it
-- If this Self-Improvement Protocol doesn't motivate you to actually improve the docs, rewrite it until it does
+These docs are living scaffolds. After every task, ask: **"What would the next session need to know?"** Write it in the appropriate doc. Keep file paths accurate, method signatures current, dead code flags verified, Work Packages reflecting actual state.
 
 ## Zettelkasten
 
@@ -478,29 +397,12 @@ This root document is the entry point for every future session. If it fails to o
 
 Each subsystem doc has its own Work Packages section. This is the master view:
 
-**Active work packages (with .org files):**
-- [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex: faculties, channels, harnesses, turns/parts, tune/tier, LANGUAGED/AGENTIC traits
-- [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj-driven discovery scopes
-- [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics: symbol-driven learning toolset, emitter + conversational architectures
-- [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org) — Fluent schema builder over TypeBox via Proxy. v.string().default().desc().optional() — Zod ergonomics, JSON Schema output
-- [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface: auth + strip/wire repos + domain endpoints. Claude as first customer. MCP as future phase
+**Active work packages:**
+- [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex
+- [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics
+- [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface + MCP
+- [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj scopes
 
-**Critical testing gaps across the system:**
-- Learning domain: pick/review endpoints tested via integration test (39 steps). Memory drivers, signal schema still untested in isolation
-- Runtime: datamap CRUD, userspace auth+scoping, freight, INTENTED, EMITTER, full lifecycle smoke test all tested (54 steps, 7 suites). Integration test adds 41 steps over live HTTP (all 9 game emitters, 5 tactic phases, pick routes, review). DATASET trait, process system untested. View bundler tested (7 steps)
-- Modes: all 9 game mode emitters + 5 tactic phases tested via integration test. No isolated mode-level tests
-- Paladin: scopes untested, variant compilation untested
-- Typology: entity trait system untested, gestalt belt/shard untested
-- Typology: agentic compiler untested. rollup tested (14 specs). shape.mcp tested (20 specs). shard.receiver.stdio untested (needs process-level integration test)
-- Typology: new transport surface tests exist (publish/subscribe/websocket) but Request.subscribe() not yet tested
+**Key testing gaps:** Memory drivers untested in isolation. DATASET trait, process system untested. Paladin untested. No isolated mode-level tests (mountMode harness planned — phases 5+6). Agentic compiler untested.
 
-**Cross-cutting active work:**
-- @vivalence/shared migration (belt re-exports, hash in 7+ files)
-- Asset entity type across domain + runtime + client
-- Hallucinator service contract update (current {object, action} → faculty array for cortex)
-
-**Human documentation priorities (Divio):**
-1. Tutorial: "Build a new game mode" (most requested path for new agents)
-2. Explanation: "How Signature composition works" (core insight of the system)
-3. Reference: Pick/review API contracts (most used endpoints)
-4. How-to: "Add a topology" (most common data task)
+**Cross-cutting:** @vivalence/shared migration, asset entity type, hallucinator contract update

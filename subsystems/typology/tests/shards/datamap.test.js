@@ -321,8 +321,8 @@ specimen.describe("shard.datamap.wire", () => {
       symbol: { properties: { literals: { kind: "m:n", target: "literal" } } },
     }
     shard.datamap.wire({ literal, symbol }, schema)
-    specimen.expect(literal._schema._stores.symbol).toBe(symbol)
-    specimen.expect(symbol._schema._stores.literal).toBe(literal)
+    specimen.expect(literal.schema.stores.symbol).toBe(symbol)
+    specimen.expect(symbol.schema.stores.literal).toBe(literal)
   })
 
   specimen.it("handles self-referential relations", () => {
@@ -334,7 +334,7 @@ specimen.describe("shard.datamap.wire", () => {
       } },
     }
     shard.datamap.wire({ buffer }, schema)
-    specimen.expect(buffer._schema._stores.buffer).toBe(buffer)
+    specimen.expect(buffer.schema.stores.buffer).toBe(buffer)
   })
 
   specimen.it("skips missing targets", () => {
@@ -343,7 +343,7 @@ specimen.describe("shard.datamap.wire", () => {
       literal: { properties: { symbols: { kind: "m:n", target: "symbol" } } },
     }
     shard.datamap.wire({ literal }, schema)
-    specimen.expect(literal._schema._stores.symbol).toBeUndefined()
+    specimen.expect(literal.schema.stores.symbol).toBeUndefined()
   })
 
   specimen.it("hydrates cross-repo relations through wired stores", async () => {

@@ -5,7 +5,7 @@ const manifest = {
   slug: "paradigm",
   name: "Paradigm",
   description: "Fill a conjugation table cell by cell. Type each form.",
-  version: "0.1.0",
+  version: "0.2.0",
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
@@ -15,10 +15,8 @@ const buffer = new BufferView(
     data: {
       infinitive: v.string().desc("Literal ID of the infinitive"),
       firstSingular: v.string().optional(),
-      secondSingular: v.string().optional(),
       thirdSingular: v.string().optional(),
       firstPlural: v.string().optional(),
-      secondPlural: v.string().optional(),
       thirdPlural: v.string().optional(),
       tense: v.string().desc("Symbol ID of the tense"),
       mood: v.string().desc("Symbol ID of the mood"),
@@ -28,10 +26,8 @@ const buffer = new BufferView(
           v.string(),
           v.object({
             firstSingular: v.string().optional(),
-            secondSingular: v.string().optional(),
             thirdSingular: v.string().optional(),
             firstPlural: v.string().optional(),
-            secondPlural: v.string().optional(),
             thirdPlural: v.string().optional(),
           }),
         ])
@@ -43,63 +39,62 @@ const buffer = new BufferView(
   }),
 );
 
-const PERSON_SLOTS = [
-  "firstSingular",
-  "secondSingular",
-  "thirdSingular",
-  "firstPlural",
-  "secondPlural",
-  "thirdPlural",
-];
-
 const emitter = new Vector()
   .open("/conjugation", async (ctx) => {
-    const conj = ctx.input.conjugation;
+    const conjugation = ctx.input.conjugation;
+    const conj = conjugation.trait.CONJUGATED;
+    const bySlug = new Map(conjugation.uses.getItems().map((f) => [f.slug, f]));
+
     const data = {
-      lemma: conj.lemma?.id,
-      tense: conj.tense?.id,
-      mood: conj.mood?.id,
       recall: ctx.input.recall ?? "LEARNING",
       feedback: ctx.input.feedback ?? "realtime",
       order: ctx.input.order ?? "ordered",
     };
 
     const literals = [];
-    if (conj.infinitive) {
-      data.infinitive = conj.infinitive.id;
-      literals.push(conj.infinitive);
+    const infinitive = bySlug.get(conj.infinitive);
+    if (infinitive) {
+      data.infinitive = infinitive.id;
+      literals.push(infinitive);
     }
-    for (const slot of PERSON_SLOTS) {
-      if (conj[slot]) {
-        data[slot] = conj[slot].id;
-        literals.push(conj[slot]);
+    for (const [slot, slug] of Object.entries(conj.paradigm)) {
+      const form = bySlug.get(slug);
+      if (form) {
+        data[slot] = form.id;
+        literals.push(form);
       }
     }
 
-    const symbols = [conj.lemma, conj.tense, conj.mood].filter(Boolean);
+    const symbols = conjugation.symbols.isInitialized() ? conjugation.symbols.getItems() : [];
+    const lemma = symbols.find((s) => s.slug.startsWith("word.lemma."));
+    const tense = symbols.find((s) => s.slug.startsWith("word.tense."));
+    const mood = symbols.find((s) => s.slug.startsWith("word.mood."));
+    if (lemma) data.lemma = lemma.id;
+    if (tense) data.tense = tense.id;
+    if (mood) data.mood = mood.id;
 
-    return ctx.mode.buffer({ data, literals, symbols });
+    return ctx.mode.buffer({
+      data,
+      literals: [conjugation, ...literals],
+      symbols: [lemma, tense, mood].filter(Boolean),
+    });
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 1;
-    const lemmas = ctx.input.lemmas;
 
-    const conjugations = await ctx.daemon.entities.conjugation.find(
-      { lemma: { slug: { $in: lemmas } } },
-      {
-        populate: ["lemma", "tense", "mood", "infinitive", ...PERSON_SLOTS],
-        orderBy: { averageRank: "ASC" },
-        limit,
-      },
-    );
-
-    if (!conjugations.length) return [];
+    const paradigms = await ctx.daemon.entities.literal.feed({
+      limit,
+      blacklist: ctx.input.blacklist,
+      where: { ontology: "conjugation", ...ctx.input.where },
+      populate: ["uses", "symbols"],
+    });
+    if (!paradigms.length) return [];
 
     const buffers = [];
-    for (const conj of conjugations) {
+    for (const p of paradigms) {
       buffers.push(
         await ctx.mode.emit.conjugation({
-          conjugation: conj,
+          conjugation: p,
           recall: ctx.input.recall,
           feedback: ctx.input.feedback,
           order: ctx.input.order,
@@ -121,23 +116,8 @@ const dataset = {
           mount: "/emit/feed",
           queue: 1,
           mask: {
+            where: { ontology: "conjugation" },
             limit: 1,
-            lemmas: [
-              "word.lemma.falar",
-              "word.lemma.precisar",
-              "word.lemma.entender",
-              "word.lemma.comer",
-              "word.lemma.abrir",
-              "word.lemma.partir",
-              "word.lemma.ser",
-              "word.lemma.estar",
-              "word.lemma.ir",
-              "word.lemma.ter",
-              "word.lemma.poder",
-              "word.lemma.querer",
-              "word.lemma.saber",
-              "word.lemma.fazer",
-            ],
           },
         },
       },

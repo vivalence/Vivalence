@@ -8,7 +8,7 @@ export default {
       trait: {
         FEEDING: {
           mount: "/emit/warmup",
-          queue: 1,
+          queue: 2,
           mask: {
             where: { symbols: ["word", "proficiency.survival"] },
             limit: 8,
@@ -24,24 +24,10 @@ export default {
       trait: {
         FEEDING: {
           mount: "/emit/buildup",
-          queue: 1,
+          queue: 3,
           mask: {
-            lemmas: [
-              "word.lemma.falar",
-              "word.lemma.precisar",
-              "word.lemma.entender",
-              "word.lemma.comer",
-              "word.lemma.abrir",
-              "word.lemma.partir",
-              "word.lemma.ser",
-              "word.lemma.estar",
-              "word.lemma.ir",
-              "word.lemma.ter",
-              "word.lemma.poder",
-              "word.lemma.querer",
-              "word.lemma.saber",
-              "word.lemma.fazer",
-            ],
+            where: { ontology: "conjugation" },
+            limit: 1,
           },
         },
       },
@@ -54,7 +40,7 @@ export default {
       trait: {
         FEEDING: {
           mount: "/emit/exercise",
-          queue: 1,
+          queue: 3,
           mask: {
             where: { symbols: ["sentence", "proficiency.survival"] },
             limit: 3,
@@ -70,7 +56,7 @@ export default {
       trait: {
         FEEDING: {
           mount: "/emit/drill",
-          queue: 1,
+          queue: 2,
           mask: {
             where: {
               symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"],
@@ -89,9 +75,9 @@ export default {
       trait: {
         FEEDING: {
           mount: "/emit/cooldown",
-          queue: 1,
+          queue: 2,
           mask: {
-            where: { symbols: ["proficiency.survival"] },
+            where: { symbols: ["word", "proficiency.survival"] },
             limit: 8,
           },
         },

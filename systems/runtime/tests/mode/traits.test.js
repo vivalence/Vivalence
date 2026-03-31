@@ -86,8 +86,8 @@ specimen.describe("mode traits", () => {
       const result = await scenario.mode.call.emit.literal({
         literal: { id: scenario.fixtures.hello.id },
       });
-      specimen.expect(Array.isArray(result)).toBe(true);
-      specimen.expect(result[0].data.recall).toBe("LEARNING");
+      specimen.expect(result.condition).toBe("NOMINAL");
+      specimen.expect(result.buffers[0].data.recall).toBe("LEARNING");
     });
 
     specimen.it("mode.call.buffered returns url and schema", async () => {
@@ -126,7 +126,7 @@ specimen.describe("mode traits", () => {
       const result = await mode.call.probe();
       specimen.expect(result.hasDaemon).toBe(true);
       specimen.expect(result.hasMode).toBe(true);
-      specimen.expect(result.hasRequest).toBe(false);
+      specimen.expect(result.hasRequest).toBe(true);
     });
 
     specimen.it("returns undefined when mode has no aperture", async () => {
@@ -142,7 +142,7 @@ specimen.describe("mode traits", () => {
       specimen.expect(typeof scenario.mode.emit.literal).toBe("function");
     });
 
-    specimen.it("mode.emit.literal returns wire format", async () => {
+    specimen.it("mode.emit.literal returns unwrapped buffers", async () => {
       const result = await scenario.mode.emit.literal({
         literal: { id: scenario.fixtures.hello.id },
       });
@@ -158,14 +158,14 @@ specimen.describe("mode traits", () => {
       specimen.expect(Array.isArray(result)).toBe(true);
     });
 
-    specimen.it("/emit/literal HTTP route responds with wire format", async () => {
+    specimen.it("/emit/literal HTTP route responds with Yield", async () => {
       const result = await scenario.conn.call(
         "/mode/game/flashcard/emit/literal",
         { literal: { id: scenario.fixtures.hello.id } },
       );
-      specimen.expect(Array.isArray(result)).toBe(true);
-      specimen.expect(result[0].data).toBeTruthy();
-      specimen.expect(result[0].literals).toBeTruthy();
+      specimen.expect(result.condition).toBe("NOMINAL");
+      specimen.expect(result.buffers[0].data).toBeTruthy();
+      specimen.expect(result.buffers[0].literals).toBeTruthy();
     });
 
     specimen.it("persists buffer to DB when thread provided", async () => {
@@ -197,29 +197,18 @@ specimen.describe("mode traits", () => {
       specimen.expect(found).toBeTruthy();
       specimen.expect(found.thread).toBeNull();
     });
+
+    specimen.it("empty return yields EXHAUSTED", async () => {
+      const emptyMode = new Mode({ manifest: { type: "game", slug: "empty", traits: ["EMITTER"] } });
+      emptyMode.aperture = new Aperture();
+      emptyMode.entity = scenario.fixtures.mode;
+      emptyMode.id = scenario.fixtures.mode.id;
+      emptyMode.cake.emitter = new Vector().open("/nothing", async () => []);
+      const { EMITTER: E } = await import("@vivalence/runtime/daemon/traits");
+      await E(emptyMode, scenario.daemon);
+      const result = await emptyMode.emit.nothing({});
+      specimen.expect(result.condition).toBe("EXHAUSTED");
+      specimen.expect(result.buffers).toEqual([]);
+    });
   });
 });
-
-// specimen.describe("BUFFERED (old)", () => {
-//   specimen.it("mode.buffer() produces correct shape", () => {
-//     const result = scenario.mode.buffer({ literal: { id: "test-literal" } });
-//     specimen.expect(result.mode).toBe(scenario.fixtures.mode.id);
-//     specimen.expect(result.props.literal).toEqual({ id: "test-literal" });
-//     specimen.expect(result.props.recall).toBe("LEARNING");
-//   });
-//   specimen.it("/buffered endpoint serves url and schema", async () => {
-//     const result = await scenario.conn.call("/mode/game/flashcard/buffered");
-//     specimen.expect(result.schema).toEqual({ literal: null, recall: "LEARNING" });
-//   });
-// });
-// specimen.describe("EMITTER (old)", () => {
-//   specimen.it("mode.emit.literal returns {mode, props} shape", async () => {
-//     const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.hello.id } });
-//     specimen.expect(result[0].props.literal).toEqual({ id: scenario.fixtures.hello.id });
-//     specimen.expect(result[0].props.recall).toBe("LEARNING");
-//   });
-//   specimen.it("persists buffer to DB when thread provided", async () => {
-//     const found = await scenario.em.findOne(BufferEntity, { id: result[0].id });
-//     specimen.expect(found.props.literal).toEqual({ id: scenario.fixtures.hello.id });
-//   });
-// });

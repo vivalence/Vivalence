@@ -1,4 +1,4 @@
-import { BufferView, Vector, v } from "@vivalence/typology";
+import { array, BufferView, Vector, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -6,7 +6,7 @@ const manifest = {
 
   name: "Conjugation",
   description: "Type the conjugated form from infinitive + person + tense.",
-  version: "0.1.0",
+  version: "0.2.0",
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 
@@ -14,6 +14,7 @@ const buffer = new BufferView(
   "buffer/Conjugation.svelte",
   v.buffer({
     data: {
+      conjugation: v.string().optional().desc("Literal ID of the conjugation"),
       infinitive: v.string().desc("Literal ID of the infinitive"),
       target: v.string().desc("Literal ID of the form to type"),
       tense: v.string().desc("Symbol ID of the tense"),
@@ -24,23 +25,16 @@ const buffer = new BufferView(
   }),
 );
 
-const PERSON_SLOTS = [
-  "firstSingular",
-  "secondSingular",
-  "thirdSingular",
-  "firstPlural",
-  "secondPlural",
-  "thirdPlural",
-];
-
 const emitter = new Vector()
   .open("/literal", async (ctx) => {
     const target = ctx.input.literal;
     const infinitive = ctx.input.infinitive;
+    const conjugation = ctx.input.conjugation;
     const recall = ctx.input.recall ?? "LEARNING";
 
     return ctx.mode.buffer({
       data: {
+        conjugation: conjugation?.id,
         target: target.id,
         infinitive: infinitive?.id,
         tense: ctx.input.tense?.id,
@@ -48,50 +42,42 @@ const emitter = new Vector()
         lemma: ctx.input.lemma?.id,
         recall,
       },
-      literals: [target, infinitive].filter(Boolean),
+      literals: [target, infinitive, conjugation].filter(Boolean),
       symbols: [ctx.input.tense, ctx.input.mood, ctx.input.lemma].filter(Boolean),
     });
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
-    const lemmas = ctx.input.lemmas;
 
-    const conjugations = await ctx.daemon.entities.conjugation.find(
-      { lemma: { slug: { $in: lemmas } } },
-      {
-        populate: ["lemma", "tense", "mood", "infinitive", ...PERSON_SLOTS],
-        orderBy: { averageRank: "ASC" },
-      },
-    );
+    const conjugations = await ctx.daemon.entities.literal.feed({
+      limit,
+      blacklist: ctx.input.blacklist,
+      where: { ontology: "conjugation", ...ctx.input.where },
+      populate: ["uses", "symbols"],
+    });
     if (!conjugations.length) return [];
 
-    // Flatten all populated slots into individual cards
     const cards = [];
-    for (const conj of conjugations) {
-      for (const slot of PERSON_SLOTS) {
-        if (conj[slot]) {
-          cards.push({
-            literal: conj[slot],
-            infinitive: conj.infinitive,
-            tense: conj.tense,
-            mood: conj.mood,
-            lemma: conj.lemma,
-          });
-        }
+    for (const p of conjugations) {
+      const conj = p.trait.CONJUGATED;
+      const bySlug = new Map(p.uses.getItems().map((f) => [f.slug, f]));
+      const infinitive = bySlug.get(conj.infinitive);
+      const symbols = p.symbols.getItems();
+      const tense = symbols.find((s) => s.slug.startsWith("word.tense."));
+      const mood = symbols.find((s) => s.slug.startsWith("word.mood."));
+      const lemma = symbols.find((s) => s.slug.startsWith("word.lemma."));
+
+      for (const slug of Object.values(conj.conjugation)) {
+        const form = bySlug.get(slug);
+        if (form) cards.push({ literal: form, infinitive, tense, mood, lemma, conjugation: p });
       }
     }
 
-    // Emit up to limit
     const buffers = [];
-    for (const card of cards.slice(0, limit)) {
-      buffers.push(
-        await ctx.mode.emit.literal({
-          ...card,
-          recall: ctx.input.recall,
-        }),
-      );
+    for (const card of array.shuffle(cards)) {
+      buffers.push(await ctx.mode.emit.literal({ ...card, recall: ctx.input.recall }));
     }
-    return array.shuffle(buffers);
+    return buffers;
   });
 
 const dataset = {
@@ -106,23 +92,8 @@ const dataset = {
           mount: "/emit/feed",
           queue: 1,
           mask: {
+            where: { ontology: "conjugation" },
             limit: 4,
-            lemmas: [
-              "word.lemma.falar",
-              "word.lemma.precisar",
-              "word.lemma.entender",
-              "word.lemma.comer",
-              "word.lemma.abrir",
-              "word.lemma.partir",
-              "word.lemma.ser",
-              "word.lemma.estar",
-              "word.lemma.ir",
-              "word.lemma.ter",
-              "word.lemma.poder",
-              "word.lemma.querer",
-              "word.lemma.saber",
-              "word.lemma.fazer",
-            ],
           },
         },
       },

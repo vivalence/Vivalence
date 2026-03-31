@@ -234,6 +234,8 @@ export function wire(entities, schema) {
     for (const [prop, rel] of Object.entries(meta.properties)) {
       if (rel.target && entities[rel.target]) stores[rel.target] = entities[rel.target];
     }
-    entities[name]._schema = { ...meta, _stores: stores };
+    const wired = { ...meta, stores };
+    entities[name].schema = wired;
+    if (entities[name].kind) entities[name].kind.schema = wired;
   }
 }

@@ -47,6 +47,7 @@
     "npm:@mikro-orm/migrations@6.6.7": "6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0",
     "npm:@mikro-orm/sqlite@6.6.7": "6.6.7_@mikro-orm+core@6.6.7_better-sqlite3@12.8.0",
     "npm:@modelcontextprotocol/sdk@^1.10.0": "1.25.2_zod@4.3.5_ajv@8.17.1_express@5.2.1",
+    "npm:@nanostores/persistent@1.0": "1.0.0_nanostores@1.0.1",
     "npm:@sveltejs/adapter-auto@3.3": "3.3.1_@sveltejs+kit@2.43.8__@sveltejs+vite-plugin-svelte@5.1.1___svelte@5.39.6____acorn@8.15.0___vite@6.3.3____@types+node@24.2.0____picomatch@4.0.3___@types+node@24.2.0__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__acorn@8.15.0__@types+node@24.2.0_@sveltejs+vite-plugin-svelte@5.1.1__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__@types+node@24.2.0_svelte@5.39.6__acorn@8.15.0_vite@6.3.3__@types+node@24.2.0__picomatch@4.0.3_@types+node@24.2.0",
     "npm:@sveltejs/adapter-static@3": "3.0.10_@sveltejs+kit@2.43.8__@sveltejs+vite-plugin-svelte@5.1.1___svelte@5.39.6____acorn@8.15.0___vite@6.3.3____@types+node@24.2.0____picomatch@4.0.3___@types+node@24.2.0__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__acorn@8.15.0__@types+node@24.2.0",
     "npm:@sveltejs/kit@2.43": "2.43.8_@sveltejs+vite-plugin-svelte@5.1.1__svelte@5.39.6___acorn@8.15.0__vite@6.3.3___@types+node@24.2.0___picomatch@4.0.3__@types+node@24.2.0_svelte@5.39.6__acorn@8.15.0_vite@6.3.3__@types+node@24.2.0__picomatch@4.0.3_acorn@8.15.0_@types+node@24.2.0",
@@ -800,6 +801,12 @@
         "raw-body",
         "zod",
         "zod-to-json-schema"
+      ]
+    },
+    "@nanostores/persistent@1.0.0_nanostores@1.0.1": {
+      "integrity": "sha512-iuucWTxcxSLwHvcxBTIAwofDc+KO7cw5EiQklAltJX6Ynx/CKTecOCUG76kF42yNnCZZQcMeuIcl99DkxekIig==",
+      "dependencies": [
+        "nanostores"
       ]
     },
     "@neon-rs/load@0.0.4": {
@@ -3858,6 +3865,7 @@
       "npm:@mikro-orm/migrations@6.6.7",
       "npm:@mikro-orm/sqlite@6.6.7",
       "npm:@modelcontextprotocol/sdk@^1.10.0",
+      "npm:@nanostores/persistent@1.0",
       "npm:@sveltejs/adapter-auto@3.3",
       "npm:@sveltejs/adapter-static@3",
       "npm:@sveltejs/kit@2.43",

@@ -2,98 +2,60 @@ import { array } from "@vivalence/typology";
 // ── buildup ─────────────────────────────────────────────────────────
 // conjugation paradigms. structured introduction → active recall → drill.
 //
-// see       → exhibit the full table
-// recognize → pick with paradigm-internal distractors
-// connect   → match form ↔ translation
-// build     → paradigm: fill the table yourself
-// speed     → judge, slower for weak, faster for familiar
-// produce   → conjugation cards: forms without the scaffold, weakest first
-
-const PERSON_SLOTS = [
-  "firstSingular",
-  "secondSingular",
-  "thirdSingular",
-  "firstPlural",
-  "secondPlural",
-  "thirdPlural",
-];
+// see           → exhibit the full table
+// recognize     → pick with paradigm-internal distractors
+// connect       → match form ↔ translation
+// build         → paradigm: fill the table yourself
+// contextualize → sentences containing these forms
+// speed         → judge, slower for weak, faster for familiar
+// produce       → conjugation cards: forms without the scaffold, weakest first
 
 export default async (ctx) => {
-  const lemmas = ctx.input.lemmas;
-  if (!lemmas?.length) return [];
-
   const modes = ctx.daemon.modes.game;
   const buffers = [];
 
-  // ── fetch paradigm ────────────────────────────────────────────────
-  // exclude lemmas already represented in the blacklist.
-  // then pick the most frequent remaining verb.
-
-  const blacklistIds = ctx.input.blacklist?.literals ?? [];
-  let freshLemmas = lemmas;
-
-  if (blacklistIds.length) {
-    const seen = await ctx.daemon.entities.literal.find(
-      { id: { $in: blacklistIds } },
-      { populate: ["symbols"] },
-    );
-    const seenLemmas = new Set(
-      seen
-        .flatMap((l) => l.symbols.getItems().map((s) => s.slug))
-        .filter((s) => s.startsWith("word.lemma.")),
-    );
-    freshLemmas = lemmas.filter((l) => !seenLemmas.has(l));
-  }
-  if (!freshLemmas.length) return [];
-
-  const conjugations = await ctx.daemon.entities.conjugation.find(
-    { lemma: { slug: { $in: freshLemmas } } },
-    {
-      populate: ["lemma", "tense", "mood", "infinitive", ...PERSON_SLOTS],
-      orderBy: { averageRank: "ASC" },
-      limit: 1,
-    },
-  );
+  const conjugations = await ctx.daemon.entities.literal.feed({
+    limit: 1,
+    blacklist: ctx.input.blacklist,
+    where: { ontology: "conjugation", ...ctx.input.where },
+    populate: ["uses.memories", "symbols"],
+  });
   if (!conjugations.length) return [];
 
-  const conj = conjugations[0];
-  const infinitive = conj.infinitive;
-  const forms = PERSON_SLOTS.map((s) => conj[s]).filter(Boolean);
+  const conjugation = conjugations[0];
+  const conj = conjugation.trait.CONJUGATED;
+  const bySlug = new Map(conjugation.uses.getItems().map((f) => [f.slug, f]));
+
+  const infinitive = bySlug.get(conj.infinitive);
+  const forms = Object.values(conj.paradigm)
+    .map((slug) => bySlug.get(slug))
+    .filter(Boolean);
   if (!forms.length) return [];
 
-  // ── also fetch these literals with memories populated ──────────────
-  // the conjugation entity gives us structure but not memory state.
-  // re-fetch the same literals so we know what's untouched/weak/strong.
-
-  const formIds = forms.map((f) => f.id);
-  const withMemory = await ctx.daemon.entities.literal.find(
-    { id: { $in: formIds } },
-    { populate: ["memories"] },
-  );
-  const byId = Object.fromEntries(withMemory.map((l) => [l.id, l]));
-
   const untouched = forms.filter((f) => {
-    const m = byId[f.id]?.memory;
+    const m = f.memory;
     return !m || m.status === "UNTOUCHED";
   });
   const weak = forms.filter((f) => {
-    const s = byId[f.id]?.memory?.status;
+    const s = f.memory?.status;
     return s === "UNKNOWN" || s === "LEARNING";
   });
   const strong = forms.filter((f) => {
-    const s = byId[f.id]?.memory?.status;
+    const s = f.memory?.status;
     return s === "KNOWN" || s === "GRADUATED";
   });
 
+  const symbols = conjugation.symbols.getItems();
+  const tenseSymbol = symbols.find((s) => s.slug.startsWith("word.tense."));
+  const moodSymbol = symbols.find((s) => s.slug.startsWith("word.mood."));
+  const lemmaSymbol = symbols.find((s) => s.slug.startsWith("word.lemma."));
+
   const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
-  const tenseLabel = conj.tense?.trait?.LABELED?.name ?? "";
-  const moodLabel = conj.mood?.trait?.LABELED?.name ?? "";
+  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? "";
+  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? "";
   const subtitle = [tenseLabel, moodLabel].filter(Boolean).join(" ");
 
-  // ── 1. SEE — exhibit the full table ───────────────────────────────
-  // always show the table so the learner sees the pattern.
-  // title is the infinitive, subtitle is the tense/mood.
-
+  // ── 1. SEE — exhibit the full table
   buffers.push(
     await modes.exhibit.emit.present({
       layout: "table",
@@ -103,10 +65,7 @@ export default async (ctx) => {
     }),
   );
 
-  // ── 2. RECOGNIZE — pick with paradigm-internal distractors ────────
-  // low-stakes recognition before production. the other forms of the
-  // same verb are natural distractors. only untouched + weak.
-
+  // ── 2. RECOGNIZE — pick with paradigm-internal distractors
   for (const lit of array.shuffle([...untouched, ...weak])) {
     const distractors = forms.filter((f) => f.id !== lit.id);
     if (distractors.length) {
@@ -120,9 +79,7 @@ export default async (ctx) => {
     }
   }
 
-  // ── 3. CONNECT — match form ↔ translation ─────────────────────────
-  // link forms to meanings before timed pressure.
-
+  // ── 3. CONNECT — match form ↔ translation
   if (forms.length >= 2) {
     buffers.push(
       await modes.match.emit.batch({
@@ -133,23 +90,34 @@ export default async (ctx) => {
     );
   }
 
-  // ── 4. BUILD — paradigm: fill the table yourself ──────────────────
-  // structured recall. the learner has seen, picked, matched.
-  // now reconstruct the whole paradigm before timed pressure.
-
+  // ── 4. BUILD — paradigm: fill the table yourself
   buffers.push(
     await modes.paradigm.emit.conjugation({
-      conjugation: conj,
+      conjugation,
       recall: "LEARNING",
       feedback: "realtime",
       order: "ordered",
     }),
   );
 
-  // ── 5. SPEED — judge, paced by familiarity ────────────────────────
-  // untouched/weak get NORMAL speed (more thinking time).
-  // strong forms get FAST (building automaticity).
+  // ── 5. CONTEXTUALIZE — sentences containing these forms
+  for (const form of forms) {
+    const sentences = await ctx.daemon.entities.literal.find(
+      { ontology: "sentence", uses: form.id },
+      { limit: 1 },
+    );
+    if (sentences.length) {
+      buffers.push(
+        await modes.exhibit.emit.present({
+          layout: "pattern",
+          title: form.trait?.TRANSLATED?.learning ?? "",
+          literals: sentences,
+        }),
+      );
+    }
+  }
 
+  // ── 6. SPEED — judge, paced by familiarity
   for (const lit of array.shuffle(forms)) {
     const isWeak = untouched.includes(lit) || weak.includes(lit);
     buffers.push(
@@ -162,19 +130,17 @@ export default async (ctx) => {
     );
   }
 
-  // ── 6. PRODUCE — conjugation cards, weakest first ─────────────────
-  // individual form production without the table scaffold.
-  // untouched → weak → strong: hardest forms get the most reps.
-
+  // ── 7. PRODUCE — conjugation cards, weakest first
   const drillOrder = [...untouched, ...weak, ...strong];
   for (const lit of array.shuffle(drillOrder)) {
     buffers.push(
       await modes.conjugation.emit.literal({
         literal: lit,
+        conjugation,
         infinitive,
-        tense: conj.tense,
-        mood: conj.mood,
-        lemma: conj.lemma,
+        tense: tenseSymbol,
+        mood: moodSymbol,
+        lemma: lemmaSymbol,
         recall: "LEARNING",
       }),
     );

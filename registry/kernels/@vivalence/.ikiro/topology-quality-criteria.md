@@ -305,6 +305,24 @@ For edits that require human judgment (e.g., English verb conjugation), don't ap
 
 This caught errors like `"he/she buy"` (should be `"he/she bought"`) that a naive prefix-prepending approach would miss.
 
+### Rank verification pass
+
+When RANKED data is added or suspected of lemma contamination, verify all entries against wordfreq for the specific surface form:
+
+```python
+from wordfreq import zipf_frequency, word_frequency
+
+for e in entities:
+    learning = e["trait"]["TRANSLATED"]["learning"]
+    ranked = e["trait"]["RANKED"]
+    correct_zipf = round(zipf_frequency(learning, 'pt'), 2)
+    correct_fpm = round(word_frequency(learning, 'pt') * 1e6, 1)
+    correct_rank = round(10 ** (9.0 - correct_zipf)) if correct_zipf > 0 else 999999
+    # Flag if zipf differs by >0.05 or rank differs by >10%
+```
+
+**Known failure mode**: when generating conjugation entries from a lemma template, rank/zipf/fpm get copied from the lemma instead of looked up per form. This makes all conjugations of `fazer` show rank 42 when `faz`=1380, `fazemos`=38905, `faço`=7413. The learner then gets rare forms mixed in with common ones. Always look up `zipf_frequency(conjugated_form, 'pt')`, never `zipf_frequency(lemma, 'pt')`.
+
 ## Quality Audit Checklist
 
 Run before shipping any topology changes:
@@ -318,7 +336,7 @@ Run before shipping any topology changes:
 7. **Gender agrees between learning and example** (masculine word, masculine example)
 8. **VOCALIZED path decodes to match learning** (not the infinitive)
 9. **VOCALIZED mp3 exists in the entity's own kernel freight** (not just in vocalized kernel)
-10. **RANKED populated** (rank, zipf, fpm)
+10. **RANKED populated** (rank, zipf, fpm) — **per-form, not per-lemma**
 11. **No duplicate slugs**
 12. **Symbols complete** per the tables above
 13. **Verb known has person context** ("I/he/she/we/they" for conjugated, "to" for infinitive, "!" for imperative)

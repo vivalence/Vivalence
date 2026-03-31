@@ -12,14 +12,12 @@ specimen.describe("daemon userspace", () => {
     await scenario.orm.close();
   });
 
-  specimen.it("handshake requires auth", async () => {
-    const response = await scenario.conn.fetch("/userspace/handshake");
-    specimen.expect(response.status).toBe(401);
-  });
+  specimen.it("unauthenticated requests return 401", async () => {
+    const handshake = await scenario.conn.fetch("/userspace/handshake");
+    specimen.expect(handshake.status).toBe(401);
 
-  specimen.it("entities require auth", async () => {
-    const response = await scenario.conn.fetch("/userspace/entities/thread/find", {});
-    specimen.expect(response.status).toBe(401);
+    const entities = await scenario.conn.fetch("/userspace/entities/thread/find", {});
+    specimen.expect(entities.status).toBe(401);
   });
 
   specimen.it("handshake returns user when authed", async () => {
@@ -28,31 +26,24 @@ specimen.describe("daemon userspace", () => {
     specimen.expect(result.user).toBeTruthy();
   });
 
-  specimen.it("thread create with data body", async () => {
-    const result = await scenario.authedConn.call("/userspace/entities/thread/create", {
+  specimen.it("thread lifecycle scoped to user", async () => {
+    const created = await scenario.authedConn.call("/userspace/entities/thread/create", {
       data: { mode: scenario.fixtures.mode.id },
     });
-    specimen.expect(result.id).toBeTruthy();
-    specimen.expect(result.user).toBeTruthy();
-    specimen.expect(result.mode).toBeTruthy();
-  });
+    specimen.expect(created.id).toBeTruthy();
+    specimen.expect(created.user).toBeTruthy();
+    specimen.expect(created.mode).toBeTruthy();
 
-  specimen.it("thread find scoped to user", async () => {
-    const result = await scenario.authedConn.call("/userspace/entities/thread/find", {
+    const found = await scenario.authedConn.call("/userspace/entities/thread/find", {
       where: {},
     });
-    specimen.expect(Array.isArray(result)).toBe(true);
-    specimen.expect(result.length).toBeGreaterThan(0);
-  });
+    specimen.expect(Array.isArray(found)).toBe(true);
+    specimen.expect(found.length).toBeGreaterThan(0);
 
-  specimen.it("thread findOne scoped to user", async () => {
-    const threads = await scenario.authedConn.call("/userspace/entities/thread/find", {
-      where: {},
+    const one = await scenario.authedConn.call("/userspace/entities/thread/findOne", {
+      where: { id: found[0].id },
     });
-    const result = await scenario.authedConn.call("/userspace/entities/thread/findOne", {
-      where: { id: threads[0].id },
-    });
-    specimen.expect(result).toBeTruthy();
-    specimen.expect(result.id).toBe(threads[0].id);
+    specimen.expect(one).toBeTruthy();
+    specimen.expect(one.id).toBe(found[0].id);
   });
 });

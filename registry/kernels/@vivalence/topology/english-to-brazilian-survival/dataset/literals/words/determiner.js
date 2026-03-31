@@ -464,7 +464,7 @@ export default [
     ],
     "trait": {
       "TRANSLATED": {
-        "known": "this",
+        "known": "this (det.)",
         "learning": "este"
       },
       "EXEMPLIFIED": {

@@ -1,4 +1,4 @@
-import { BufferView, Vector, array, v } from "@vivalence/typology";
+import { BufferView, Vector, array, string, v } from "@vivalence/typology";
 
 const manifest = {
   type: "game",
@@ -40,10 +40,16 @@ const emitter = new Vector()
         blacklist: { literals: [target.id] },
         where: { ontology: target.ontology },
       }));
-    const distractor = array.shuffle(pool)[0];
-    const targetText = target.trait?.TRANSLATED?.[field];
-    const distractorText = distractor?.trait?.TRANSLATED?.[field];
-    const useDistractor = distractor && distractorText !== targetText && Math.random() > 0.5;
+    const targetText = string.fold(target.trait?.TRANSLATED?.[field] ?? "");
+    const scored = [];
+    for (const d of pool) {
+      const t = string.fold(d.trait?.TRANSLATED?.[field] ?? "");
+      if (t === targetText) continue;
+      scored.push({ d, score: string.dice(targetText, t) });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    const distractor = scored[0]?.d ?? null;
+    const useDistractor = distractor && Math.random() > 0.5;
 
     return ctx.mode.buffer({
       data: {

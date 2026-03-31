@@ -61,3 +61,13 @@ export const similarity = (a, b) => {
   const max = Math.max(a.length, b.length);
   return max === 0 ? 1 : 1 - levenshtein(a, b) / max;
 };
+
+export const dice = (a, b) => {
+  if (a === b) return 1;
+  const sa = new Set(a);
+  const sb = new Set(b);
+  if (!sa.size || !sb.size) return 0;
+  let shared = 0;
+  for (const c of sa) if (sb.has(c)) shared++;
+  return (2 * shared) / (sa.size + sb.size);
+};

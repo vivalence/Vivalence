@@ -12,16 +12,17 @@
   const daemons = dataspace.daemon.$entities;
 
   onMount(async () => {
-    const all = [];
-    for (const daemon of dataspace.daemon.$entities.get()) {
-      try {
-        const found = await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
-        all.push(...found);
-      } catch (e) {
-        console.error(`[lobby] threads for ${daemon.slug}`, e);
-      }
-    }
-    threads = all.slice(0, 10);
+    const results = await Promise.all(
+      dataspace.daemon.$entities.get().map((daemon) =>
+        daemon.entities.thread
+          .find({}, { populate: ["mode", "intent"] })
+          .catch((e) => {
+            console.error(`[lobby] threads for ${daemon.slug}`, e);
+            return [];
+          }),
+      ),
+    );
+    threads = results.flat().slice(0, 10);
   });
 
   function navigableByType(daemon) {

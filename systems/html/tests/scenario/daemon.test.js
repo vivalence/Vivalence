@@ -27,8 +27,8 @@ specimen.describe("daemon entities", () => {
     const literal = new RemoteRepository()
     const symbol = new RemoteRepository()
     shard.datamap.wire({ literal, symbol }, schema)
-    specimen.expect(literal._schema._stores.symbol).toBe(symbol)
-    specimen.expect(symbol._schema._stores.literal).toBe(literal)
+    specimen.expect(literal.schema.stores.symbol).toBe(symbol)
+    specimen.expect(symbol.schema.stores.literal).toBe(literal)
   })
 
   specimen.it("cross-repo identity through wired hydration", async () => {

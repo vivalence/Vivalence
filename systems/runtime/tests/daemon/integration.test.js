@@ -6,6 +6,10 @@ import { specimen, Connection, Url, shard } from "@vivalence/typology";
 
 const BASE = "http://localhost:2501";
 
+async function alive(url) {
+  try { await fetch(url); return true; } catch { return false; }
+}
+
 function http(base) {
   const conn = new Connection(new Url(base), shard.transmitter.fetcher);
   return {
@@ -28,6 +32,7 @@ function http(base) {
 }
 
 specimen.describe("integration: full client lifecycle", () => {
+  let skip = false;
   const client = http(BASE);
   const d = client.daemon("brazilian");
   let identity;
@@ -35,10 +40,17 @@ specimen.describe("integration: full client lifecycle", () => {
   let words = [];
   let thread;
 
+  specimen.beforeAll(async () => {
+    skip = !(await alive(BASE));
+    if (skip) console.log("  SKIP: no runtime at", BASE);
+  });
+
+  const it = (name, fn) => specimen.it(name, async () => { if (!skip) await fn(); });
+
   // ─── auth ─────────────────────────────────────────────────
 
   specimen.describe("auth", () => {
-    specimen.it("login returns tokens and identity", async () => {
+    it("login returns tokens and identity", async () => {
       const res = await client.login("beef", "biggusdickus");
       identity = res.identity;
       specimen.expect(res.authority.access).toBeTruthy();
@@ -50,7 +62,7 @@ specimen.describe("integration: full client lifecycle", () => {
   // ─── domain aperture: pick ────────────────────────────────
 
   specimen.describe("domain: pick", () => {
-    specimen.it("feed returns mixed due + novel literals", async () => {
+    it("feed returns mixed due + novel literals", async () => {
       const res = await d.pick("pick/literal/feed", { limit: 6 });
       specimen.expect(res.length).toBeGreaterThan(0);
       specimen.expect(res.length).toBeLessThanOrEqual(6);
@@ -60,7 +72,7 @@ specimen.describe("integration: full client lifecycle", () => {
       literals = res;
     });
 
-    specimen.it("novel returns only unseen literals", async () => {
+    it("novel returns only unseen literals", async () => {
       const res = await d.pick("pick/literal/novel", { limit: 3 });
       specimen.expect(res.length).toBeGreaterThan(0);
       for (const lit of res) {
@@ -68,7 +80,7 @@ specimen.describe("integration: full client lifecycle", () => {
       }
     });
 
-    specimen.it("due returns literals with past nextAt", async () => {
+    it("due returns literals with past nextAt", async () => {
       const res = await d.pick("pick/literal/due", { limit: 3 });
       // may be empty if nothing is due — that's valid
       if (res.length > 0) {
@@ -76,14 +88,14 @@ specimen.describe("integration: full client lifecycle", () => {
       }
     });
 
-    specimen.it("byStrength returns literals ordered by weakness", async () => {
+    it("byStrength returns literals ordered by weakness", async () => {
       const res = await d.pick("pick/literal/byStrength", { limit: 3 });
       if (res.length > 0) {
         specimen.expect(res[0].id).toBeTruthy();
       }
     });
 
-    specimen.it("feed with symbol filter narrows results", async () => {
+    it("feed with symbol filter narrows results", async () => {
       words = await d.pick("pick/literal/feed", {
         where: { symbols: ["word"] },
         limit: 6,
@@ -92,7 +104,7 @@ specimen.describe("integration: full client lifecycle", () => {
       specimen.expect(words[0].trait.TRANSLATED).toBeTruthy();
     });
 
-    specimen.it("feed with trait filter returns only matching traits", async () => {
+    it("feed with trait filter returns only matching traits", async () => {
       const res = await d.pick("pick/literal/feed", {
         where: { traits: ["VOCALIZED"] },
         limit: 3,
@@ -103,7 +115,7 @@ specimen.describe("integration: full client lifecycle", () => {
       }
     });
 
-    specimen.it("feed with trait + symbol filter combines both", async () => {
+    it("feed with trait + symbol filter combines both", async () => {
       const res = await d.pick("pick/literal/feed", {
         where: { traits: ["VOCALIZED"], symbols: ["word"] },
         limit: 3,
@@ -119,67 +131,63 @@ specimen.describe("integration: full client lifecycle", () => {
   // ─── game mode emitters ───────────────────────────────────
 
   specimen.describe("game: exhibit", () => {
-    specimen.it("emit/present returns buffer with layout data", async () => {
+    it("emit/present returns Yield with layout data", async () => {
       const res = await d.emit("game/exhibit", "present", {
         layout: "table",
         title: "Test words",
         literals: literals.slice(0, 3),
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].data.layout).toBe("table");
-      specimen.expect(bufs[0].data.title).toBe("Test words");
-      specimen.expect(bufs[0].literals.length).toBe(3);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].data.layout).toBe("table");
+      specimen.expect(res.buffers[0].data.title).toBe("Test words");
+      specimen.expect(res.buffers[0].literals.length).toBe(3);
     });
   });
 
   specimen.describe("game: flashcard", () => {
-    specimen.it("emit/literals returns buffer with recall", async () => {
+    it("emit/literals returns Yield with recall", async () => {
       const res = await d.emit("game/flashcard", "literals", {
         recall: "KNOWN",
         literals: literals.slice(0, 3),
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].data.recall).toBe("KNOWN");
-      specimen.expect(bufs[0].literals.length).toBe(3);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.buffers[0].literals.length).toBe(3);
     });
   });
 
   specimen.describe("game: judge", () => {
-    specimen.it("emit/literal returns buffer with items + distractor logic", async () => {
+    it("emit/literal returns Yield with items + distractor logic", async () => {
       const target = words[0];
       const res = await d.emit("game/judge", "literal", {
         literal: target,
         recall: "KNOWN",
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].data.items.length).toBe(1);
-      specimen.expect(bufs[0].data.items[0].target).toBe(0);
-      specimen.expect(typeof bufs[0].data.items[0].correct).toBe("boolean");
-      specimen.expect(bufs[0].data.items[0].shown).toBeTruthy();
-      specimen.expect(bufs[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].data.target).toBeTruthy();
+      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   specimen.describe("game: pick", () => {
-    specimen.it("emit/literal returns buffer with target + distractors", async () => {
+    it("emit/literal returns Yield with target + distractors", async () => {
       const target = words[0];
       const res = await d.emit("game/pick", "literal", {
         literal: target,
         recall: "KNOWN",
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      // target + up to 3 distractors
-      specimen.expect(bufs[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   specimen.describe("game: listen", () => {
-    specimen.it("emit/literal with pick gameplay returns buffer with distractors", async () => {
-      // need a vocalized word
+    it("emit/literal with pick gameplay returns Yield with distractors", async () => {
       const vocalized = words.find((w) => w.traits?.includes("VOCALIZED"));
       if (!vocalized) {
         console.log("  SKIP: no vocalized word available");
@@ -190,28 +198,27 @@ specimen.describe("integration: full client lifecycle", () => {
         gameplay: "pick",
         recall: "KNOWN",
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   specimen.describe("game: match", () => {
-    specimen.it("emit/batch returns buffer with batch literals", async () => {
+    it("emit/batch returns Yield with batch literals", async () => {
       const batch = literals.slice(0, 4);
       const res = await d.emit("game/match", "batch", {
         recall: "KNOWN",
         literals: batch,
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].literals.length).toBe(4);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].literals.length).toBe(4);
     });
   });
 
   specimen.describe("game: cloze", () => {
-    specimen.it("emit/literal returns buffer with blank data", async () => {
-      // need an annotated literal (sentence with tokens)
+    it("emit/literal returns Yield with blank data", async () => {
       const annotated = literals.find((l) => l.traits?.includes("ANNOTATED"));
       if (!annotated) {
         console.log("  SKIP: no annotated literal available");
@@ -222,93 +229,90 @@ specimen.describe("integration: full client lifecycle", () => {
         recall: "LEARNING",
         gameplay: "type",
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].literals.length).toBeGreaterThanOrEqual(1);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].literals.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   specimen.describe("game: write", () => {
-    specimen.it("emit/literals returns buffer with recall", async () => {
+    it("emit/literals returns Yield with recall", async () => {
       const res = await d.emit("game/write", "literals", {
         recall: "LEARNING",
         literals: literals.slice(0, 2),
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].data.recall).toBe("LEARNING");
-      specimen.expect(bufs[0].literals.length).toBe(2);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].data.recall).toBe("LEARNING");
+      specimen.expect(res.buffers[0].literals.length).toBe(2);
     });
   });
 
   specimen.describe("game: shadow", () => {
-    specimen.it("emit/literals returns buffer with speed data", async () => {
+    it("emit/literals returns Yield with speed data", async () => {
       const res = await d.emit("game/shadow", "literals", {
         recall: "KNOWN",
         literals: literals.slice(0, 2),
       });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBe(1);
-      specimen.expect(bufs[0].data.recall).toBe("KNOWN");
-      specimen.expect(bufs[0].literals.length).toBe(2);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBe(1);
+      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
+      specimen.expect(res.buffers[0].literals.length).toBe(2);
     });
   });
 
   // ─── tactic emitters ─────────────────────────────────────
 
   specimen.describe("tactic: survival", () => {
-    specimen.it("warmup returns buffers from exhibit + flashcard + judge + listen", async () => {
+    it("warmup returns Yield with buffers", async () => {
       const res = await d.emit("tactic/survival", "warmup", { batch: 4 });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBeGreaterThan(0);
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBeGreaterThan(0);
 
-      // every buffer should have entities with ids, not empty objects
-      for (const buf of bufs) {
+      for (const buf of res.buffers) {
         specimen.expect(buf.id).toBeTruthy();
         specimen.expect(buf.mode).toBeTruthy();
         specimen.expect(buf.data).toBeTruthy();
-        // literals should be populated (the fix we're verifying)
         specimen.expect(buf.literals).toBeTruthy();
       }
 
-      // at least one buffer should have literals
-      const withLiterals = bufs.filter((b) => b.literals?.length > 0);
+      const withLiterals = res.buffers.filter((b) => b.literals?.length > 0);
       specimen.expect(withLiterals.length).toBeGreaterThan(0);
     });
 
-    specimen.it("cooldown returns buffers from listen + flashcard", async () => {
+    it("cooldown returns Yield with buffers", async () => {
       const res = await d.emit("tactic/survival", "cooldown", { batch: 4 });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBeGreaterThan(0);
-      for (const buf of bufs) {
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBeGreaterThan(0);
+      for (const buf of res.buffers) {
         specimen.expect(buf.id).toBeTruthy();
         specimen.expect(buf.data).toBeTruthy();
       }
     });
 
-    specimen.it("buildup returns buffers from exhibit + pick + match + judge", async () => {
+    it("buildup returns Yield with buffers", async () => {
       const res = await d.emit("tactic/survival", "buildup", { batch: 4 });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBeGreaterThan(0);
-      for (const buf of bufs) {
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBeGreaterThan(0);
+      for (const buf of res.buffers) {
         specimen.expect(buf.id).toBeTruthy();
       }
     });
 
-    specimen.it("drill returns buffers from exhibit + flashcard + write + judge", async () => {
+    it("drill returns Yield with buffers", async () => {
       const res = await d.emit("tactic/survival", "drill", { batch: 4 });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBeGreaterThan(0);
-      for (const buf of bufs) {
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBeGreaterThan(0);
+      for (const buf of res.buffers) {
         specimen.expect(buf.id).toBeTruthy();
       }
     });
 
-    specimen.it("exercise returns buffers from exhibit + shadow + cloze + judge + write + listen", async () => {
+    it("exercise returns Yield with buffers", async () => {
       const res = await d.emit("tactic/survival", "exercise", { batch: 2 });
-      const bufs = [res].flat();
-      specimen.expect(bufs.length).toBeGreaterThan(0);
-      for (const buf of bufs) {
+      specimen.expect(res.condition).toBe("NOMINAL");
+      specimen.expect(res.buffers.length).toBeGreaterThan(0);
+      for (const buf of res.buffers) {
         specimen.expect(buf.id).toBeTruthy();
       }
     });
@@ -319,7 +323,7 @@ specimen.describe("integration: full client lifecycle", () => {
   specimen.describe("domain: review", () => {
     let reviewLiteral;
 
-    specimen.it("review creates memory from signal", async () => {
+    it("review creates memory from signal", async () => {
       // pick a novel literal to review fresh
       const novel = await d.pick("pick/literal/novel", { take: 1 });
       specimen.expect(novel.length).toBeGreaterThan(0);
@@ -335,7 +339,7 @@ specimen.describe("integration: full client lifecycle", () => {
       specimen.expect(litRef).toBe(reviewLiteral.id);
     });
 
-    specimen.it("second review evolves memory state", async () => {
+    it("second review evolves memory state", async () => {
       const memory = await d.review({
         literal: reviewLiteral.id,
         signal: "SUCCESS",
@@ -346,7 +350,7 @@ specimen.describe("integration: full client lifecycle", () => {
       specimen.expect(new Date(memory.nextAt).getTime()).toBeGreaterThan(Date.now() - 1000);
     });
 
-    specimen.it("failure signal updates memory status", async () => {
+    it("failure signal updates memory status", async () => {
       const memory = await d.review({
         literal: reviewLiteral.id,
         signal: "FAILURE",
@@ -356,7 +360,7 @@ specimen.describe("integration: full client lifecycle", () => {
       specimen.expect(["UNKNOWN", "LEARNING"].includes(memory.status)).toBe(true);
     });
 
-    specimen.it("review by slug works", async () => {
+    it("review by slug works", async () => {
       const memory = await d.review({
         literal: reviewLiteral.slug,
         signal: "SUCCESS",
@@ -370,7 +374,7 @@ specimen.describe("integration: full client lifecycle", () => {
   // ─── thread lifecycle ────────────────────────────────────
 
   specimen.describe("thread lifecycle", () => {
-    specimen.it("create thread, emit with thread, query buffers", async () => {
+    it("create thread, emit with thread, query buffers", async () => {
       // find a mode + intent to create a thread against
       const modes = await client.raw.call("/daemon/brazilian/modes/game/findOne", {
         where: { slug: "flashcard" },

@@ -1,36 +1,32 @@
 // ── exercise ────────────────────────────────────────────────────────
-// deep sentence work. resolves tokens, groups by memory status.
-// exhibit new sentences + words → shadow → cloze → judge → write → listen
+// deep sentence work. graph-powered token resolution.
+// adaptive cloze: blank producible words, scaffold the rest.
 
 export default async (ctx) => {
   const sentences = await ctx.daemon.entities.literal.feed({
     limit: ctx.input.limit ?? 3,
     blacklist: ctx.input.blacklist,
     where: ctx.input.where,
+    populate: ["uses.memories"],
   });
   if (!sentences.length) return [];
 
   const buffers = [];
   const modes = ctx.daemon.modes.game;
 
-  const sentenceTokens = await Promise.all(
-    sentences.map(async (sentence) => {
-      const raw = sentence.trait?.ANNOTATED?.tokens ?? [];
-      const resolved = (
-        await Promise.all(
-          raw
-            .filter((t) => t.literal && t.deprel !== "punct")
-            .map((t) =>
-              ctx.daemon.entities.literal.findOne(
-                { slug: t.literal },
-                { populate: ["memories"] },
-              ),
-            ),
-        )
-      ).filter(Boolean);
-      return { sentence, tokens: resolved, raw };
-    }),
-  );
+  // ── resolve tokens via graph ──────────────────────────────────────
+  const sentenceTokens = sentences.map((sentence) => {
+    const raw = sentence.trait?.ANNOTATED?.tokens ?? [];
+    const usedWords = sentence.uses.isInitialized() ? sentence.uses.getItems() : [];
+    const bySlug = new Map(usedWords.map((w) => [w.slug, w]));
+
+    const tokens = raw
+      .filter((t) => t.literal && t.deprel !== "punct")
+      .map((t) => bySlug.get(t.literal))
+      .filter(Boolean);
+
+    return { sentence, tokens, raw };
+  });
 
   const seen = new Set();
   const untouchedWords = [];
@@ -49,7 +45,6 @@ export default async (ctx) => {
   }
 
   // ── exhibit untouched sentences
-
   const untouchedSentences = sentences.filter(
     (s) => !s.memory || s.memory.status === "UNTOUCHED",
   );
@@ -64,7 +59,6 @@ export default async (ctx) => {
   }
 
   // ── exhibit untouched words
-
   if (untouchedWords.length) {
     buffers.push(
       await modes.exhibit.emit.present({
@@ -76,7 +70,6 @@ export default async (ctx) => {
   }
 
   // ── shadow sentences
-
   for (const { sentence } of sentenceTokens) {
     buffers.push(
       await modes.shadow.emit.literals({
@@ -87,14 +80,21 @@ export default async (ctx) => {
     );
   }
 
-  // ── cloze untouched/unknown tokens in context
-
-  const clozeable = new Set([...untouchedWords, ...unknownWords].map((w) => w.slug));
+  // ── adaptive cloze: blank producible words ────────────────────────
+  // blank LEARNING/KNOWN words — the learner should be able to produce these.
+  // leave UNTOUCHED/UNKNOWN visible as scaffolding.
+  const blankable = new Set();
+  for (const { tokens } of sentenceTokens) {
+    for (const tok of tokens) {
+      const status = tok.memory?.status;
+      if (status === "LEARNING" || status === "KNOWN") blankable.add(tok.slug);
+    }
+  }
 
   for (const { sentence, raw } of sentenceTokens) {
     const blankIndices = raw
       .map((t, i) => ({ t, i }))
-      .filter(({ t }) => t.deprel !== "punct" && t.literal && clozeable.has(t.literal))
+      .filter(({ t }) => t.deprel !== "punct" && t.literal && blankable.has(t.literal))
       .map(({ i }) => i);
 
     if (blankIndices.length) {
@@ -110,7 +110,6 @@ export default async (ctx) => {
   }
 
   // ── judge unknown (normal speed) + learning (fast)
-
   for (const lit of unknownWords) {
     buffers.push(
       await modes.judge.emit.literal({
@@ -131,7 +130,6 @@ export default async (ctx) => {
   }
 
   // ── write sentences
-
   for (const { sentence } of sentenceTokens) {
     buffers.push(
       await modes.write.emit.literals({
@@ -142,7 +140,6 @@ export default async (ctx) => {
   }
 
   // ── listen(type) sentences
-
   for (const { sentence } of sentenceTokens) {
     if (sentence.traits?.includes("VOCALIZED")) {
       buffers.push(
@@ -156,7 +153,6 @@ export default async (ctx) => {
   }
 
   // ── listen(pick) untouched/unknown words
-
   for (const lit of [...untouchedWords, ...unknownWords]) {
     if (lit.traits?.includes("VOCALIZED")) {
       buffers.push(
@@ -170,7 +166,6 @@ export default async (ctx) => {
   }
 
   // ── listen(type) learning words
-
   for (const lit of learningWords) {
     if (lit.traits?.includes("VOCALIZED")) {
       buffers.push(

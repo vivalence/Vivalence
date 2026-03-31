@@ -10,9 +10,8 @@ import {
 } from "@vivalence/typology/entities";
 import { BufferEntity, seed } from "./entities.ts";
 
-import * as routes from "../../daemon/aperture/index.js";
-import { INTENTED } from "../../daemon/mode/traits/intented.js";
-import { EMITTER } from "../../daemon/mode/traits/emitter.js";
+import * as routes from "@vivalence/runtime/daemon/aperture";
+import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
 
 const BUFFERED = (mode, daemon) => {
   mode.aperture.open("/buffered", () => ({
@@ -36,8 +35,8 @@ const BUFFERED = (mode, daemon) => {
 export async function create() {
   const { orm, em, fixtures } = await seed();
 
-  const traits = ["BUFFERED", "SELFEVIDENT", "INTENTED", "EMITTER"];
-  const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits } });
+  const modeTraits = ["BUFFERED", "SELFEVIDENT", "INTENTED", "EMITTER"];
+  const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
   mode.entity = fixtures.mode;

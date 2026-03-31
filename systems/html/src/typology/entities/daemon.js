@@ -56,8 +56,8 @@ export async function lifecycle(daemon) {
   daemon.link = new Path(`/${lighthouseSlug}/${daemon.slug}`).rebase("/viva");
 
   daemon.entities = {
-    mode: new RemoteRepository(Mode).connect(daemon.connection.branch("/entities/mode")),
-    intent: new RemoteRepository(Intent).connect(daemon.connection.branch("/entities/intent")),
+    mode: new RemoteRepository(Mode).connect(daemon.connection.branch("/entities/mode")).persist(),
+    intent: new RemoteRepository(Intent).connect(daemon.connection.branch("/entities/intent")).persist(),
     thread: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/thread")),
     buffer: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/buffer")),
   };
@@ -105,10 +105,13 @@ export async function lifecycle(daemon) {
         .clone()
         .use(async (ctx, next) => {
           await next();
-          ctx.response.body = ctx.response.body.map((pojo) => {
-            pojo.mode = modeById.get(pojo.mode) ?? pojo.mode;
-            return pojo;
-          });
+          const body = ctx.response.body;
+          if (body?.buffers) {
+            body.buffers = body.buffers.map((pojo) => {
+              pojo.mode = modeById.get(pojo.mode) ?? pojo.mode;
+              return pojo;
+            });
+          }
         })
         .aim(i.trait.FEEDING.mount, {
           intent: i.id,

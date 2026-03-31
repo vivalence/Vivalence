@@ -138,11 +138,11 @@ specimen.describe("RemoteRepository", () => {
       specimen.expect(remote.merge(null)).toBeNull()
     })
 
-    specimen.it("_drop removes by id", () => {
+    specimen.it("drop removes by id", () => {
       const remote = new RemoteRepository()
       remote.merge({ id: "1", slug: "a" })
       remote.merge({ id: "2", slug: "b" })
-      remote._drop("1")
+      remote.drop("1")
       specimen.expect(remote.$entities.get().length).toBe(1)
       specimen.expect(remote.$entities.get()[0].id).toBe("2")
     })
@@ -214,19 +214,19 @@ specimen.describe("RemoteRepository", () => {
 
       const stores = { mode: modes, intent: intents }
 
-      modes._schema = {
+      modes.schema = {
         properties: {},
-        _stores: stores,
+        stores,
       }
-      intents._schema = {
+      intents.schema = {
         properties: {
           mode: { kind: "m:1", target: "mode" },
         },
-        _stores: stores,
+        stores,
       }
 
       const mode = modes.merge({ id: "m1", slug: "flashcard" })
-      const intent = intents._hydrate({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } })
+      const intent = intents.cast({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } })
 
       specimen.expect(intent.mode).toBe(mode)
     })
@@ -237,19 +237,19 @@ specimen.describe("RemoteRepository", () => {
 
       const stores = { mode: modes, intent: intents }
 
-      modes._schema = {
+      modes.schema = {
         properties: {
           intents: { kind: "1:m", target: "intent" },
         },
-        _stores: stores,
+        stores,
       }
-      intents._schema = {
+      intents.schema = {
         properties: {},
-        _stores: stores,
+        stores,
       }
 
       const i1 = intents.merge({ id: "i1", slug: "a" })
-      const mode = modes._hydrate({ id: "m1", intents: [{ id: "i1", slug: "a" }, { id: "i2", slug: "b" }] })
+      const mode = modes.cast({ id: "m1", intents: [{ id: "i1", slug: "a" }, { id: "i2", slug: "b" }] })
 
       specimen.expect(mode.intents[0]).toBe(i1)
       specimen.expect(mode.intents[1].id).toBe("i2")
@@ -257,19 +257,19 @@ specimen.describe("RemoteRepository", () => {
 
     specimen.it("skips hydration when no schema", () => {
       const remote = new RemoteRepository()
-      const entity = remote._hydrate({ id: "1", slug: "raw" })
+      const entity = remote.cast({ id: "1", slug: "raw" })
       specimen.expect(entity.slug).toBe("raw")
     })
 
     specimen.it("skips null relation values", () => {
       const remote = new RemoteRepository()
-      remote._schema = {
+      remote.schema = {
         properties: {
           mode: { kind: "m:1", target: "mode" },
         },
-        _stores: {},
+        stores: {},
       }
-      const entity = remote._hydrate({ id: "1", mode: null })
+      const entity = remote.cast({ id: "1", mode: null })
       specimen.expect(entity.mode).toBeNull()
     })
   })

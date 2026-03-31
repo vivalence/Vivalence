@@ -7,3 +7,4 @@ export * as caching from "./caching.js";
 export * as analyzer from "./analyzer.js";
 export * as serve from "./serve.js";
 export * as datamap from "./datamap.js";
+export * as batch from "./batch.js";

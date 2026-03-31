@@ -23,7 +23,41 @@
     <Frame buffer={active} />
   {/if}
 {:else}
-  <div class="flex items-center justify-center" style="height: 100%;">
-    <p class="text-skeleton-2-contrast">{$status}</p>
+  <div class="yield-state">
+    {#if $status === "EXHAUSTED"}
+      <p class="yield-label">session complete</p>
+    {:else if $status === "ERROR"}
+      <p class="yield-label yield-error">{terminal.stall.$error.get()?.message ?? "error"}</p>
+    {:else}
+      <span class="yield-dot"></span>
+    {/if}
   </div>
 {/if}
+
+<style>
+  .yield-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .yield-label {
+    font-family: var(--font-family-code);
+    font-size: 0.75rem;
+    color: var(--colors-skeleton-1-boundary);
+  }
+  .yield-error {
+    color: var(--colors-system-error-contrast);
+  }
+  .yield-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--colors-skeleton-1-boundary);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+</style>

@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: {{DAEMON}}/userspace/entities/thread/find
+  url: {{DAEMON}}/userspace/entities/buffer/findOne
   body: json
   auth: bearer
 }
@@ -16,6 +16,7 @@ auth:bearer {
 
 body:json {
   {
+  "where":{"id":"019d42b0-89fd-7360-8c62-ed5ccf136767"}
   }
 }
 
