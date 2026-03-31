@@ -1155,52 +1155,6 @@ export default [
     ]
   },
   {
-    "slug": "um.pronoun",
-    "traits": [
-      "TRANSLATED",
-      "EXEMPLIFIED",
-      "VOCALIZED",
-      "RANKED"
-    ],
-    "trait": {
-      "TRANSLATED": {
-        "known": "a/one",
-        "learning": "um"
-      },
-      "EXEMPLIFIED": {
-        "known": "She treated him like a king.",
-        "learning": "Ela o tratou como um rei."
-      },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/um.mp3"
-        }
-      },
-      "RANKED": {
-        "rank": 9,
-        "zipf": 7.06,
-        "fpm": 11500
-      }
-    },
-    "symbols": [
-      {
-        "slug": "word"
-      },
-      {
-        "slug": "word.lemma.um"
-      },
-      {
-        "slug": "word.part-of-speech.pronoun"
-      },
-      {
-        "slug": "proficiency.cefr.a1"
-      },
-      {
-        "slug": "proficiency.survival"
-      }
-    ]
-  },
-  {
     "slug": "toda.pronoun",
     "traits": [
       "EXEMPLIFIED",

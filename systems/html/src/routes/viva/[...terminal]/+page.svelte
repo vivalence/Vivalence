@@ -9,7 +9,6 @@
 
   const terminal = new Terminal();
   setContext("terminal", terminal);
-  window.__viva_terminal = terminal;
 
   function mount(segments) {
     if (!segments) return;

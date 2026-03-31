@@ -1,0 +1,25 @@
+meta {
+  name: create
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/memory/create
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {
+      "literal": "",
+      "driver": "BAYESIAN",
+      "status": "UNKNOWN"
+    }
+  }
+}

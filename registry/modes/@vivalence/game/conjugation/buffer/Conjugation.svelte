@@ -1,5 +1,5 @@
 <script>
-  import { Asset, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Keyboard, ViewportLock } from "@vivalence/drapes";
   import { string } from "@vivalence/typology";
 
   const { terminal, buffer } = $props();
@@ -21,20 +21,6 @@
   const tenseSymbol = findSymbol(data.tense);
   const moodSymbol = findSymbol(data.mood);
 
-  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? "";
-  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? "";
-  const headerLabel = [tenseLabel, moodLabel].filter(Boolean).join(" · ") || "conjugation";
-
-  const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
-  const infinitiveKnown = infinitive?.trait?.TRANSLATED?.known ?? "";
-  const infinitiveAsset = infinitive?.trait?.VOCALIZED?.asset
-    ? terminal.daemon.getAsset(infinitive.trait.VOCALIZED.asset)
-    : null;
-
-  const targetAsset = target?.trait?.VOCALIZED?.asset
-    ? terminal.daemon.getAsset(target.trait.VOCALIZED.asset)
-    : null;
-
   // Derive person label from target's symbols
   function personLabel(lit) {
     const syms = lit?.symbol ?? {};
@@ -49,6 +35,20 @@
 
   const person = personLabel(target);
 
+  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
+  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
+  const headerLabel = [tenseLabel, moodLabel, person].filter(Boolean).join(" · ");
+
+  const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
+  const infinitiveKnown = infinitive?.trait?.TRANSLATED?.known ?? "";
+  const infinitiveAsset = infinitive?.trait?.VOCALIZED?.asset
+    ? terminal.daemon.getAsset(infinitive.trait.VOCALIZED.asset)
+    : null;
+
+  const targetAsset = target?.trait?.VOCALIZED?.asset
+    ? terminal.daemon.getAsset(target.trait.VOCALIZED.asset)
+    : null;
+
   // Recall direction
   const prompt = recall === "KNOWN"
     ? target?.trait?.TRANSLATED?.learning
@@ -57,13 +57,17 @@
     ? target?.trait?.TRANSLATED?.known
     : target?.trait?.TRANSLATED?.learning;
 
+  let hintVisible = $state(false);
   let input = $state("");
   let submitted = $state(false);
   let correct = $state(false);
   let inputEl = $state(null);
+  let audioFinished = $state(!targetAsset);
+  let keyboard;
 
   $effect(() => {
     if (inputEl && !submitted) inputEl.focus();
+    else if (submitted && keyboard) keyboard.focus();
   });
 
   function evaluate(text) {
@@ -81,7 +85,14 @@
       scope: { literal: target.id },
     });
 
-    setTimeout(() => advance(), correct ? 800 : 1500);
+    if (audioFinished) {
+      setTimeout(() => advance(), correct ? 800 : 1500);
+    }
+  }
+
+  function onAudioEnded() {
+    audioFinished = true;
+    if (submitted) setTimeout(() => advance(), correct ? 400 : 800);
   }
 
   function advance() {
@@ -98,6 +109,7 @@
   }
 </script>
 
+<Keyboard bind:this={keyboard} />
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
@@ -110,17 +122,23 @@
 
       <div class="header">
         <div class="header-text">
-          <h2 class="infinitive">{infinitiveText}</h2>
-          <p class="header-known">{infinitiveKnown}</p>
-          <p class="tense-label">{headerLabel}</p>
+          <h2 class="infinitive">{infinitiveKnown}</h2>
+          {#if headerLabel}
+            <p class="tense-label">{headerLabel}</p>
+          {/if}
         </div>
-        {#if infinitiveAsset}
-          <Asset asset={infinitiveAsset} variant="dot" />
-        {/if}
+        <div class="header-actions">
+          <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveText : "?"}</button>
+          {#if infinitiveAsset}
+            <Asset asset={infinitiveAsset} variant="dot" />
+          {/if}
+        </div>
       </div>
 
       <div class="card">
-        <span class="person">{person}</span>
+        {#if person}
+          <span class="person">{person}</span>
+        {/if}
 
         {#if recall === "LEARNING" && prompt}
           <p class="prompt">{prompt}</p>
@@ -132,7 +150,7 @@
               <span class="fb-icon">{correct ? "✓" : "✗"}</span>
               <span class="fb-input">{correct ? answer : string.clean(input)}</span>
               {#if targetAsset}
-                <Asset asset={targetAsset} variant="dot" autoplay={true} />
+                <Asset asset={targetAsset} variant="dot" autoplay={true} onended={onAudioEnded} />
               {/if}
             </div>
             {#if !correct}
@@ -149,20 +167,21 @@
 
   <div class="viva-controls controls">
     <div class="input-row">
-      {#if submitted}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else}
-        <input
-          class="field"
-          bind:this={inputEl}
-          value={input}
-          oninput={(e) => { input = e.target.value; }}
-          placeholder="type the form…"
-        />
+      <input
+        class="field"
+        class:field-locked={submitted}
+        bind:this={inputEl}
+        value={input}
+        oninput={(e) => { if (!submitted) input = e.target.value; else e.target.value = input; }}
+        placeholder="type the form…"
+      />
+      {#if !submitted}
         <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit}>
           Check
+        </button>
+      {:else}
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+          Next
         </button>
       {/if}
     </div>
@@ -202,6 +221,28 @@
     margin-bottom: 1.5rem;
   }
   .header-text { flex: 1; }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-hint {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    color: var(--colors-skeleton-1-boundary);
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.75rem;
+    font-style: italic;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
   .infinitive {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-2xl);
@@ -317,6 +358,7 @@
     box-sizing: border-box;
   }
   .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field-locked { opacity: 0.4; pointer-events: none; }
 
   .btn-check {
     min-height: 48px;

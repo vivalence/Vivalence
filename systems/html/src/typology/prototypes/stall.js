@@ -57,19 +57,24 @@ export class Stall {
 
     try {
       const result = await this.handlers.pull(this);
-      const buffers = result?.buffers ?? result ?? [];
+      const buffers = result?.buffers;
       const condition = result?.condition ?? (buffers.length ? "NOMINAL" : "EXHAUSTED");
 
+      buffers.sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
       this.$queue.set([...this.$queue.get(), ...buffers]);
+
       if (!this.$active.get() && this.$queue.get().length) {
         const [first, ...rest] = this.$queue.get();
         this.$queue.set(rest);
         this.$active.set(first);
       }
 
-      if (condition === "NOMINAL")        this.$status.set("IDLE");
+      if (condition === "NOMINAL") this.$status.set("IDLE");
       else if (condition === "EXHAUSTED") this.$status.set("EXHAUSTED");
-      else if (condition === "ERROR")     { this.$status.set("ERROR"); this.$error.set(result.error); }
+      else if (condition === "ERROR") {
+        this.$status.set("ERROR");
+        this.$error.set(result.error);
+      }
     } catch (error) {
       console.log("[STALL PULL ERROR]", this, error);
       this.$status.set("ERROR");
@@ -100,9 +105,7 @@ export class Stall {
   }
 
   runHooks(prev, active, promise) {
-    const prevHooks = prev?.hooks || [];
-    [...prevHooks, ...this.handlers.hooks] //
-      .forEach((f) => f(prev, active, promise));
+    this.handlers.hooks.forEach((f) => f(prev, active, promise));
   }
 
   toJSON() {

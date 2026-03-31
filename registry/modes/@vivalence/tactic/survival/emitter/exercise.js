@@ -12,17 +12,20 @@ export default async (ctx) => {
   if (!sentences.length) return [];
 
   const buffers = [];
-  const modes = ctx.daemon.modes.game;
+
+
+  // ── distractor pool: one fetch, shared across all game emits ──────
+  const distractors = await ctx.daemon.entities.literal.find(ctx.input.where ?? {}, { limit: 30 });
 
   // ── resolve tokens via graph ──────────────────────────────────────
   const sentenceTokens = sentences.map((sentence) => {
     const raw = sentence.trait?.ANNOTATED?.tokens ?? [];
     const usedWords = sentence.uses.isInitialized() ? sentence.uses.getItems() : [];
-    const bySlug = new Map(usedWords.map((w) => [w.slug, w]));
+    const bySlug = new Map(usedWords.map((word) => [word.slug, word]));
 
     const tokens = raw
-      .filter((t) => t.literal && t.deprel !== "punct")
-      .map((t) => bySlug.get(t.literal))
+      .filter((token) => token.literal && token.deprel !== "punct")
+      .map((token) => bySlug.get(token.literal))
       .filter(Boolean);
 
     return { sentence, tokens, raw };
@@ -37,20 +40,19 @@ export default async (ctx) => {
     for (const tok of tokens) {
       if (seen.has(tok.id)) continue;
       seen.add(tok.id);
-      const status = tok.memory?.status;
-      if (!status || status === "UNTOUCHED") untouchedWords.push(tok);
-      else if (status === "UNKNOWN") unknownWords.push(tok);
-      else if (status === "LEARNING") learningWords.push(tok);
+      if (!tok.memory || tok.memory.is.virgin) untouchedWords.push(tok);
+      else if (tok.memory.status === "UNKNOWN") unknownWords.push(tok);
+      else if (tok.memory.status === "LEARNING") learningWords.push(tok);
     }
   }
 
   // ── exhibit untouched sentences
   const untouchedSentences = sentences.filter(
-    (s) => !s.memory || s.memory.status === "UNTOUCHED",
+    (sentence) => !sentence.memory || sentence.memory.is.virgin,
   );
   if (untouchedSentences.length) {
     buffers.push(
-      await modes.exhibit.emit.present({
+      await ctx.daemon.modes.game.exhibit.emit.present({
         layout: "pattern",
         title: "New sentences",
         literals: untouchedSentences,
@@ -61,7 +63,7 @@ export default async (ctx) => {
   // ── exhibit untouched words
   if (untouchedWords.length) {
     buffers.push(
-      await modes.exhibit.emit.present({
+      await ctx.daemon.modes.game.exhibit.emit.present({
         layout: "table",
         title: "New words",
         literals: untouchedWords,
@@ -72,7 +74,7 @@ export default async (ctx) => {
   // ── shadow sentences
   for (const { sentence } of sentenceTokens) {
     buffers.push(
-      await modes.shadow.emit.literals({
+      await ctx.daemon.modes.game.shadow.emit.literals({
         literal: sentence,
         recall: "KNOWN",
         speed: { rate: "SLOW" },
@@ -86,20 +88,19 @@ export default async (ctx) => {
   const blankable = new Set();
   for (const { tokens } of sentenceTokens) {
     for (const tok of tokens) {
-      const status = tok.memory?.status;
-      if (status === "LEARNING" || status === "KNOWN") blankable.add(tok.slug);
+      if (tok.memory?.status === "LEARNING" || tok.memory?.is?.strong) blankable.add(tok.slug);
     }
   }
 
   for (const { sentence, raw } of sentenceTokens) {
     const blankIndices = raw
-      .map((t, i) => ({ t, i }))
-      .filter(({ t }) => t.deprel !== "punct" && t.literal && blankable.has(t.literal))
-      .map(({ i }) => i);
+      .map((token, index) => ({ token, index }))
+      .filter(({ token }) => token.deprel !== "punct" && token.literal && blankable.has(token.literal))
+      .map(({ index }) => index);
 
     if (blankIndices.length) {
       buffers.push(
-        await modes.cloze.emit.literal({
+        await ctx.daemon.modes.game.cloze.emit.literal({
           literal: sentence,
           blankIndices,
           gameplay: "type",
@@ -110,19 +111,21 @@ export default async (ctx) => {
   }
 
   // ── judge unknown (normal speed) + learning (fast)
-  for (const lit of unknownWords) {
+  for (const literal of unknownWords) {
     buffers.push(
-      await modes.judge.emit.literal({
-        literal: lit,
+      await ctx.daemon.modes.game.judge.emit.literal({
+        literal,
+        distractors,
         recall: "LEARNING",
         speed: { rate: "NORMAL" },
       }),
     );
   }
-  for (const lit of learningWords) {
+  for (const literal of learningWords) {
     buffers.push(
-      await modes.judge.emit.literal({
-        literal: lit,
+      await ctx.daemon.modes.game.judge.emit.literal({
+        literal,
+        distractors,
         recall: "LEARNING",
         speed: { rate: "FAST" },
       }),
@@ -132,7 +135,7 @@ export default async (ctx) => {
   // ── write sentences
   for (const { sentence } of sentenceTokens) {
     buffers.push(
-      await modes.write.emit.literals({
+      await ctx.daemon.modes.game.write.emit.literals({
         literal: sentence,
         recall: "LEARNING",
       }),
@@ -143,7 +146,7 @@ export default async (ctx) => {
   for (const { sentence } of sentenceTokens) {
     if (sentence.traits?.includes("VOCALIZED")) {
       buffers.push(
-        await modes.listen.emit.literal({
+        await ctx.daemon.modes.game.listen.emit.literal({
           literal: sentence,
           gameplay: "type",
           recall: "LEARNING",
@@ -153,11 +156,12 @@ export default async (ctx) => {
   }
 
   // ── listen(pick) untouched/unknown words
-  for (const lit of [...untouchedWords, ...unknownWords]) {
-    if (lit.traits?.includes("VOCALIZED")) {
+  for (const literal of [...untouchedWords, ...unknownWords]) {
+    if (literal.traits?.includes("VOCALIZED")) {
       buffers.push(
-        await modes.listen.emit.literal({
-          literal: lit,
+        await ctx.daemon.modes.game.listen.emit.literal({
+          literal,
+          distractors,
           gameplay: "pick",
           recall: "LEARNING",
         }),
@@ -166,11 +170,11 @@ export default async (ctx) => {
   }
 
   // ── listen(type) learning words
-  for (const lit of learningWords) {
-    if (lit.traits?.includes("VOCALIZED")) {
+  for (const literal of learningWords) {
+    if (literal.traits?.includes("VOCALIZED")) {
       buffers.push(
-        await modes.listen.emit.literal({
-          literal: lit,
+        await ctx.daemon.modes.game.listen.emit.literal({
+          literal,
           gameplay: "type",
           recall: "LEARNING",
         }),

@@ -5,6 +5,7 @@
     variant = "inline",
     preload = "auto",
     autoplay = false,
+    onended = null,
     class: className = "",
   } = $props();
 
@@ -33,7 +34,7 @@
     const a = new Audio();
     a.preload = preload;
     a.src = src;
-    const onEnded = () => { playing = false; };
+    const onEnded = () => { playing = false; onended?.(); };
     a.addEventListener("ended", onEnded);
     if (autoplay) {
       a.play().then(() => { playing = true; }).catch(() => {});

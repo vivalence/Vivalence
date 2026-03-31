@@ -1,5 +1,5 @@
 <script>
-  import { Asset, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Keyboard, ViewportLock } from "@vivalence/drapes";
   import { string } from "@vivalence/typology";
 
   const { terminal, buffer } = $props();
@@ -30,11 +30,12 @@
   const tenseSymbol = findSymbol(data.tense);
   const moodSymbol = findSymbol(data.mood);
 
-  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? "";
-  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? "";
-  const headerLabel = [tenseLabel, moodLabel].filter(Boolean).join(" · ") || "conjugation";
+  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
+  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
+  const headerLabel = [tenseLabel, moodLabel].filter(Boolean).join(" · ");
 
-  const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
+  const infinitiveText = infinitive?.trait?.TRANSLATED?.known ?? "";
+  const infinitiveHint = infinitive?.trait?.TRANSLATED?.learning ?? "";
   const infinitiveAsset = infinitive?.trait?.VOCALIZED?.asset
     ? terminal.daemon.getAsset(infinitive.trait.VOCALIZED.asset)
     : null;
@@ -102,7 +103,10 @@
   let reviewed = $state(false);
   let input = $state("");
   let inputEl = $state(null);
+  let hintVisible = $state(false);
+  let keyboard;
 
+  const conjugation = literals[0];
   const activeSlot = $derived(cursor < queue.length ? queue[cursor] : null);
   const allCommitted = $derived(activeSlots.every((s) => cells[s.key].committed));
   const progress = $derived(activeSlots.filter((s) => cells[s.key].committed).length);
@@ -112,6 +116,7 @@
 
   $effect(() => {
     if (inputEl && activeSlot && !reviewed) inputEl.focus();
+    else if (keyboard && (reviewed || allCommitted)) keyboard.focus();
   });
 
   function evaluate(text, slot) {
@@ -143,12 +148,29 @@
     }
 
     cursor++;
+
+    if (feedbackMode === "realtime" && activeSlots.every((s) => cells[s.key].committed)) {
+      reviewConjugation();
+      setTimeout(() => advance(), mistakeCount > 0 ? 1500 : 800);
+    }
   }
 
   function skipCell() {
     if (!activeSlot) return;
     input = "";
     cursor++;
+  }
+
+  function reviewConjugation() {
+    if (!conjugation) return;
+    const total = activeSlots.length;
+    const mistakes = activeSlots.filter((s) => cells[s.key].signal === "MISTAKE").length;
+    const ratio = mistakes / total;
+    const signal = mistakes === 0 ? "MASTERY" : mistakes === total ? "FAILURE" : ratio >= 0.6 ? "MISTAKE" : "SUCCESS";
+    terminal.daemon.call("/review/literal", {
+      signal: { enum: signal },
+      scope: { literal: conjugation.id },
+    });
   }
 
   function reviewBatch() {
@@ -164,6 +186,8 @@
         scope: { literal: slot.literal.id },
       });
     }
+
+    reviewConjugation();
   }
 
   function advance() {
@@ -176,14 +200,15 @@
       if (event.key === "Enter") advance();
       return;
     }
-    if (!activeSlot && allCommitted) {
-      if (feedbackMode === "batch" && event.key === "Enter") reviewBatch();
-      else if (feedbackMode === "realtime" && event.key === "Enter") advance();
-      return;
-    }
     if (event.key === "Enter") {
       event.preventDefault();
-      commitCell();
+      if (allCommitted) {
+        if (feedbackMode === "batch") reviewBatch();
+        else advance();
+      } else {
+        commitCell();
+      }
+      return;
     }
     if (event.key === "Tab") {
       event.preventDefault();
@@ -192,6 +217,7 @@
   }
 </script>
 
+<Keyboard bind:this={keyboard} />
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
@@ -206,11 +232,16 @@
       <div class="header">
         <div class="header-text">
           <h2 class="infinitive">{infinitiveText}</h2>
-          <p class="tense-label">{headerLabel}</p>
+          {#if headerLabel}
+            <p class="tense-label">{headerLabel}</p>
+          {/if}
         </div>
-        {#if infinitiveAsset}
-          <Asset asset={infinitiveAsset} variant="dot" />
-        {/if}
+        <div class="header-actions">
+          <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveHint : "?"}</button>
+          {#if infinitiveAsset}
+            <Asset asset={infinitiveAsset} variant="dot" />
+          {/if}
+        </div>
       </div>
 
       <div class="table">
@@ -286,10 +317,12 @@
           onkeydown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
+              e.stopPropagation();
               commitCell();
             }
             if (e.key === "Tab") {
               e.preventDefault();
+              e.stopPropagation();
               skipCell();
             }
           }}
@@ -344,6 +377,28 @@
   }
   .header-text {
     flex: 1;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-hint {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    color: var(--colors-skeleton-1-boundary);
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.75rem;
+    font-style: italic;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
   }
   .infinitive {
     font-family: var(--font-family-serif-heading);

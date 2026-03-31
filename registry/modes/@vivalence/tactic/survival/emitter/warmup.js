@@ -1,81 +1,68 @@
 import { array } from "@vivalence/typology";
 // ── warmup ──────────────────────────────────────────────────────────
 // activate what you know. build confidence. no typing.
-// trace-informed: pull recent successes + learning items.
-// mix with fresh feed for randomness. works for first session too.
+// three sources: near-due successes, due now, weak by strength.
+// 4 each, 12 total, deduped and shuffled.
 
 export default async (ctx) => {
-  const literal = ctx.daemon.entities.literal;
-  const modes = ctx.daemon.modes.game;
-  const buffers = [];
-  const limit = ctx.input.limit ?? 8;
+  let buffers = [];
+  const horizon = new Date(Date.now() + (ctx.input.horizon ?? 48) * 60 * 60 * 1000);
+  const seen = new Set();
+  const collect = (items) => {
+    const added = [];
+    for (const item of items) {
+      if (seen.has(item.id)) continue;
+      seen.add(item.id);
+      added.push(item);
+    }
+    return added;
+  };
 
-  // ── fetch: success words + regular feed, mixed ────────────────────
-  const successes = await literal.byLastSignal({
-    signals: ["SUCCESS", "MASTERY"],
-    limit: Math.ceil(limit / 2),
-    blacklist: ctx.input.blacklist,
-    where: { ...ctx.input.where, memories: { status: { $in: ["LEARNING", "KNOWN"] } } },
-  });
-
-  const remaining = limit - successes.length;
-  const fresh = remaining > 0
-    ? await literal.feed({
-        limit: remaining,
-        blacklist: { literals: [...(ctx.input.blacklist?.literals ?? []), ...successes.map((s) => s.id)] },
-        where: ctx.input.where,
-      })
-    : [];
-
-  const words = array.shuffle([...successes, ...fresh]);
-  if (!words.length) return [];
-
-  // ── find a readable sentence (all uses-words are LEARNING/KNOWN) ──
-  const sentences = await literal.find(
-    { ontology: "sentence", ...ctx.input.where },
-    { populate: ["uses.memories"], limit: 10 },
-  );
-  const readable = sentences.find((s) =>
-    s.uses.getItems().every((w) => {
-      const status = w.memory?.status;
-      return status === "LEARNING" || status === "KNOWN" || status === "GRADUATED";
+  // ── source A: near-due successes (due within horizon) ─────────────
+  const failures = collect(
+    await ctx.daemon.entities.literal.byLastSignal({
+      signals: ["MISTAKE", "FAILURE", "NEUTRAL"],
+      limit: 4,
+      blacklist: ctx.input.blacklist,
+      where: { ...ctx.input.where, memories: { nextAt: { $lt: horizon } } },
     }),
   );
-  if (readable) {
-    buffers.push(
-      await modes.exhibit.emit.present({
-        layout: "pattern",
-        title: "You can read this",
-        literals: [readable],
-      }),
-    );
-  }
+  // ── source B: due right now ───────────────────────────────────────
+  const due = collect(
+    await ctx.daemon.entities.literal.due({
+      limit: 4,
+      blacklist: ctx.input.blacklist,
+      where: ctx.input.where,
+    }),
+  );
+  // ── source C: weakest by strength ─────────────────────────────────
+  const weak = collect(
+    await ctx.daemon.entities.literal.byStrength({
+      limit: 4,
+      blacklist: ctx.input.blacklist,
+      where: { ...ctx.input.where, memories: { strength: { $lte: 0.5 } } },
+    }),
+  );
+  const words = array.shuffle([...failures, ...due, ...weak]);
+  if (!words.length) return [];
 
-  // ── exhibit new words ─────────────────────────────────────────────
-  const untouched = words.filter((w) => !w.memory || w.memory.status === "UNTOUCHED");
-  if (untouched.length) {
-    buffers.push(
-      await modes.exhibit.emit.present({
-        layout: "table",
-        title: "New words",
-        literals: untouched,
-      }),
-    );
-  }
+  // ── distractor pool: one fetch, shared across all game emits ──────
+  const distractors = await ctx.daemon.entities.literal.find(ctx.input.where ?? {}, { limit: 30 });
 
   // ── flashcard (KNOWN direction) ───────────────────────────────────
   buffers.push(
-    await modes.flashcard.emit.literals({
+    await ctx.daemon.modes.game.flashcard.emit.literals({
       recall: "KNOWN",
-      literals: words,
+      literals: array.shuffle(words),
     }),
   );
 
   // ── judge (SLOW) ─────────────────────────────────────────────────
-  for (const lit of array.shuffle(words)) {
+  for (const literal of words) {
     buffers.push(
-      await modes.judge.emit.literal({
-        literal: lit,
+      await ctx.daemon.modes.game.judge.emit.literal({
+        literal,
+        distractors,
         recall: "KNOWN",
         speed: { rate: "SLOW" },
       }),
@@ -83,13 +70,28 @@ export default async (ctx) => {
   }
 
   // ── listen(pick) vocalized ────────────────────────────────────────
-  const vocalized = words.filter((w) => w.traits?.includes("VOCALIZED"));
-  for (const lit of array.shuffle(vocalized)) {
+  const vocalized = words.filter((word) => word.traits?.includes("VOCALIZED"));
+  for (const literal of vocalized) {
     buffers.push(
-      await modes.listen.emit.literal({
-        literal: lit,
+      await ctx.daemon.modes.game.listen.emit.literal({
+        literal,
+        distractors,
         gameplay: "pick",
         recall: "KNOWN",
+      }),
+    );
+  }
+
+  buffers = array.shuffle(buffers);
+
+  // ── exhibit new words ─────────────────────────────────────────────
+  const untouched = words.filter((word) => !word.memory || word.memory.is.virgin);
+  if (untouched.length) {
+    buffers.unshift(
+      await ctx.daemon.modes.game.exhibit.emit.present({
+        layout: "table",
+        title: "New words",
+        literals: untouched,
       }),
     );
   }

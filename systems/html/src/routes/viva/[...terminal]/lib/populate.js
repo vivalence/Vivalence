@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
 import { Buffer } from "@vivalence/html/typology";
-import { Vector, steer, Signal, fromm, is } from "@vivalence/typology";
+import { Blacklist, Vector, steer, Signal, fromm, is } from "@vivalence/typology";
 import { dataspace } from "$client";
 
 export async function populate(terminal, segments) {
@@ -17,24 +17,10 @@ function mint(pojo, mode, terminal) {
   const view = mode.buffered ?? null;
   const buffer = Buffer.from(pojo, view);
   buffer.context = { buffer, terminal };
-  buffer.release = () => {
-    terminal.daemon.entities.buffer.updateOne(buffer.id, {});
-    terminal.stall.next();
-  };
+  buffer.on.release(() => terminal.stall.next());
   if (buffer.id) terminal.daemon.entities.buffer.merge(buffer);
   return buffer;
 }
-
-// function mint(pojo, mode, terminal) {
-//   const view = mode.buffered ?? null;
-//   const buffer = Buffer.from(pojo, view, { terminal });
-//   buffer.release = () => {
-//     terminal.daemon.entities.buffer.updateOne(buffer.id, {});
-//     terminal.stall.next();
-//   };
-//   if (buffer.id) terminal.daemon.entities.buffer.merge(buffer);
-//   return buffer;
-// }
 
 const population = new Vector();
 
@@ -60,20 +46,18 @@ population
       ? { ...mode.buffer(), thread: ctx.terminal.thread.id }
       : { mode: mode.id, thread: ctx.terminal.thread.id, data: {} };
     const buffer = mint(pojo, mode, ctx.terminal);
-    buffer.release = () => goto("/viva");
+    buffer.on.release(() => goto("/viva"));
     ctx.terminal.stall.push(buffer);
     ctx.terminal.stall.$status.set("IDLE");
   })
   .open("/:intent/:thread", async (ctx) => {
     if (ctx.terminal.intent?.type === "APPLICATIVE") {
       const queue = ctx.terminal.intent.trait?.FEEDING?.queue ?? 0;
+      // const queue = 50;
       ctx.terminal.stall.withPull(async () => {
-        const queued = ctx.terminal.stall.queue;
-        const blacklist = {
-          literals: queued
-            .flatMap((b) => b.literals ?? [])
-            .map((l) => (typeof l === "object" ? l.id : l)),
-        };
+        const stallQueue = ctx.terminal.stall.queue;
+        const blacklist = new Blacklist().absorb(stallQueue);
+
         const result = await ctx.terminal.intent.emit({
           thread: ctx.terminal.thread.id,
           blacklist,

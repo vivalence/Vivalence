@@ -5,22 +5,17 @@ import { array } from "@vivalence/typology";
 // exhibit errors → flashcard (KNOWN) → sentence context → listen
 
 export default async (ctx) => {
-  const literal = ctx.daemon.entities.literal;
-  const modes = ctx.daemon.modes.game;
-  const limit = ctx.input.limit ?? 8;
-  const where = ctx.input.where;
-
-  let literals = await literal.byLastSignal({
+  let literals = await ctx.daemon.entities.literal.byLastSignal({
     signals: ["FAILURE", "MISTAKE"],
-    limit,
-    where,
+    limit: ctx.input.limit ?? 8,
+    where: ctx.input.where,
   });
 
   if (!literals.length) {
-    literals = await literal.byStrength({ limit, where });
+    literals = await ctx.daemon.entities.literal.byStrength({ limit: ctx.input.limit ?? 8, where: ctx.input.where });
   }
   if (!literals.length) {
-    literals = await literal.due({ limit, where });
+    literals = await ctx.daemon.entities.literal.due({ limit: ctx.input.limit ?? 8, where: ctx.input.where });
   }
   if (!literals.length) return [];
 
@@ -28,7 +23,7 @@ export default async (ctx) => {
 
   // ── exhibit errors
   buffers.push(
-    await modes.exhibit.emit.present({
+    await ctx.daemon.modes.game.exhibit.emit.present({
       layout: "table",
       title: "Let's review",
       literals,
@@ -37,21 +32,21 @@ export default async (ctx) => {
 
   // ── flashcard (KNOWN direction — show the answer, rebuild confidence)
   buffers.push(
-    await modes.flashcard.emit.literals({
+    await ctx.daemon.modes.game.flashcard.emit.literals({
       recall: "KNOWN",
       literals: array.shuffle(literals),
     }),
   );
 
   // ── sentence context for each error word
-  for (const lit of literals) {
-    const sentences = await literal.find(
-      { ontology: "sentence", uses: lit.id },
+  for (const literal of literals) {
+    const sentences = await ctx.daemon.entities.literal.find(
+      { ontology: "sentence", uses: literal.id },
       { limit: 1 },
     );
     if (sentences.length) {
       buffers.push(
-        await modes.shadow.emit.literals({
+        await ctx.daemon.modes.game.shadow.emit.literals({
           literal: sentences[0],
           recall: "KNOWN",
           speed: { rate: "SLOW" },
@@ -60,12 +55,16 @@ export default async (ctx) => {
     }
   }
 
+  // ── distractor pool: one fetch, shared across all game emits ──────
+  const distractors = await ctx.daemon.entities.literal.find(ctx.input.where ?? {}, { limit: 30 });
+
   // ── listen(pick) vocalized errors
-  const vocalized = literals.filter((w) => w.traits?.includes("VOCALIZED"));
-  for (const lit of array.shuffle(vocalized)) {
+  const vocalized = literals.filter((literal) => literal.traits?.includes("VOCALIZED"));
+  for (const literal of array.shuffle(vocalized)) {
     buffers.push(
-      await modes.listen.emit.literal({
-        literal: lit,
+      await ctx.daemon.modes.game.listen.emit.literal({
+        literal,
+        distractors,
         gameplay: "pick",
         recall: "KNOWN",
       }),

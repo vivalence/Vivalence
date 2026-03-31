@@ -25,6 +25,8 @@ const emitter = new Vector()
     const textOf = (l) =>
       recall === "KNOWN" ? l.trait?.TRANSLATED?.known : l.trait?.TRANSLATED?.learning;
     const target = string.fold(textOf(lit) ?? "");
+    const learningOf = (l) => string.fold(l.trait?.TRANSLATED?.learning ?? "");
+    const targetLearning = learningOf(lit);
 
     let pool = ctx.input.distractors ?? [];
     if (!pool.length) {
@@ -36,11 +38,15 @@ const emitter = new Vector()
     }
 
     const seen = new Set([target]);
+    const seenLearning = new Set([targetLearning]);
     const scored = [];
     for (const d of pool) {
       const t = string.fold(textOf(d) ?? "");
       if (seen.has(t)) continue;
+      const l = learningOf(d);
+      if (seenLearning.has(l)) continue;
       seen.add(t);
+      seenLearning.add(l);
       scored.push({ d, score: string.dice(target, t) });
     }
     scored.sort((a, b) => b.score - a.score);

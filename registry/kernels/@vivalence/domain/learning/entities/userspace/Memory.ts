@@ -42,12 +42,21 @@ export class MemoryEntity extends DataEntity {
   nextAt!: Date & Opt;
   lastAt!: Date & Opt;
 
+  get is() {
+    return {
+      virgin: !this.status || this.status === "UNTOUCHED",
+      weak: this.status === "UNKNOWN" || this.status === "LEARNING",
+      familiar: this.status === "LEARNING" || this.status === "KNOWN",
+      strong: this.status === "KNOWN" || this.status === "GRADUATED",
+      succeeded: this.lastSignal === "SUCCESS" || this.lastSignal === "MASTERY",
+      failed: this.lastSignal === "FAILURE" || this.lastSignal === "MISTAKE",
+    };
+  }
+
   evolve(signal, driver) {
     if (typeof signal === "string") signal = { enum: signal };
 
-    const result = this.state
-      ? driver.evolve(signal, this)
-      : driver.encode(signal);
+    const result = this.state ? driver.evolve(signal, this) : driver.encode(signal);
 
     this.state = result.state;
     this.status = result.status;
@@ -113,7 +122,8 @@ export const MemorySchema = new EntitySchema<MemoryEntity, DataEntity>({
 
     lastSignal: {
       type: types.string,
-      formula: (table) => `(SELECT json_extract(t.signal, '$.enum') FROM Trace t WHERE t.memory = ${table}.id ORDER BY t.created_at DESC LIMIT 1)`,
+      formula: (table) =>
+        `(SELECT json_extract(t.signal, '$.enum') FROM Trace t WHERE t.memory = ${table}.id ORDER BY t.created_at DESC LIMIT 1)`,
       persist: false,
       nullable: true,
     },

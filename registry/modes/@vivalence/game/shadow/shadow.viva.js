@@ -6,6 +6,8 @@ const manifest = {
   type: "game",
   slug: "shadow",
   name: "Shadow",
+  description: "Timed memorization then typed recall. Shows answer briefly, then tests. Per-token scoring for sentences. Speed presets.",
+  version: "0.2.0",
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 

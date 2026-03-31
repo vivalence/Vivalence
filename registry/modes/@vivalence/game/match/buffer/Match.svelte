@@ -105,9 +105,6 @@
     buffer.release();
   }
 
-  $effect(() => {
-    if (allMatched) checkComplete();
-  });
 </script>
 
 <div class="viva-frame" style="height: 100%;">

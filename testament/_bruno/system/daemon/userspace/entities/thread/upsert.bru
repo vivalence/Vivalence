@@ -1,0 +1,21 @@
+meta {
+  name: upsert
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/thread/upsert
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "data": {}
+  }
+}

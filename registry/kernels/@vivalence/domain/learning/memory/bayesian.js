@@ -91,6 +91,6 @@ export default {
   assess,
   sql: {
     strength: (table) =>
-      `exp(-(julianday('now') - julianday(${table}.lastAt)) * 24.0 / json_extract(${table}.state, '$[2]'))`,
+      `exp(-(julianday('now') - julianday(${table}.lastAt / 1000.0, 'unixepoch')) * 24.0 / json_extract(${table}.state, '$[2]'))`,
   },
 };

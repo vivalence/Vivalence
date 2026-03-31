@@ -23,8 +23,7 @@ export const EMITTER = async (mode, daemon) => {
   });
 
   mode.cake.emitter.use(async (ctx, next) => {
-    // if (ctx.input.seek) ctx.input.seek = await new Seek().fromMask(ctx.input.seek, ctx);
-    if (ctx.input.blacklist) ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+    ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
     await next();
   });
 

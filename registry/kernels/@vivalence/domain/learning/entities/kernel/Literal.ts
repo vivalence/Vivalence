@@ -30,7 +30,7 @@ export class LiteralRepository extends base.repository {
 
     const novel = await this.novel({
       limit: limit - due.length,
-      blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d) => d.id)] },
+      blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d: any) => d.id)] },
       where,
       populate,
     });
@@ -38,43 +38,25 @@ export class LiteralRepository extends base.repository {
   }
 
   async novel({ limit, blacklist, where, populate }: any) {
-    return this.find(
-      object.merge(
-        { memories: { $none: {} } },
-        is.array(blacklist?.literals) && blacklist.literals.length
-          ? { id: { $nin: blacklist.literals } }
-          : {},
-        where,
-      ),
-      { orderBy: { rank: "ASC" }, limit, populate },
-    );
+    const filter = object.merge({ memories: { $none: {} } }, { id: { $nin: blacklist?.literals || [] } }, where);
+    return this.find(filter, { orderBy: { rank: "ASC" }, limit, populate });
   }
 
   async due({ limit, blacklist, where, populate }: any) {
-    return this.find(
-      object.merge(
-        { memories: { nextAt: { $lt: new Date() } } },
-        is.array(blacklist?.literals) && blacklist.literals.length
-          ? { id: { $nin: blacklist.literals } }
-          : {},
-        where,
-      ),
-      {
-        populate: populate ? [...populate, "memories"] : ["memories"],
-        limit,
-      },
+    const filter = object.merge(
+      { memories: { nextAt: { $lt: new Date() } } },
+      { id: { $nin: blacklist?.literals || [] } },
+      where,
     );
+    return this.find(filter, {
+      populate: populate ? [...populate, "memories"] : ["memories"],
+      limit,
+    });
   }
 
   async byStrength({ limit, blacklist, where, populate }: any) {
     return this.find(
-      object.merge(
-        { memories: {} },
-        is.array(blacklist?.literals) && blacklist.literals.length
-          ? { id: { $nin: blacklist.literals } }
-          : {},
-        where,
-      ),
+      object.merge({ memories: {} }, { id: { $nin: blacklist?.literals || [] } }, where),
       {
         populate: populate ? [...populate, "memories"] : ["memories"],
         orderBy: { memories: { strength: "ASC" } },
@@ -87,9 +69,7 @@ export class LiteralRepository extends base.repository {
     return this.find(
       object.merge(
         { memories: { lastSignal: { $in: signals } } },
-        is.array(blacklist?.literals) && blacklist.literals.length
-          ? { id: { $nin: blacklist.literals } }
-          : {},
+        { id: { $nin: blacklist?.literals || [] } },
         where,
       ),
       {
@@ -250,10 +230,7 @@ export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
     const pending = [];
     for (const cs of changeSets) {
       if (!(cs.entity instanceof LiteralEntity)) continue;
-      const slugs = [...new Set([
-        ...this.annotated(cs.entity),
-        ...this.conjugated(cs.entity),
-      ])];
+      const slugs = [...new Set([...this.annotated(cs.entity), ...this.conjugated(cs.entity)])];
       if (slugs.length) pending.push({ id: cs.entity.id, slugs });
     }
     return pending;

@@ -50,7 +50,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, terminal, stall, lobby, door
 
-**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 44px mobile / 32px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation)
+**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 52px mobile / 40px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count, counter button opens Inspector), inspector (routes/viva/Inspector.svelte — debug panel anchored to right of modeline, two tabs: buffers [queue visualization with skip/select/expand/DnD] and traces [polled review history with signal/status/literal/nextIn]. Reusable components in surface/inspector/), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation)
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
 
@@ -62,7 +62,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Serve**: `shard.serve.file(root)` static files, `shard.serve.websocket(handler)` upgrade. Effect combinators.
 
-**Datamap**: `inject` (RequestContext), `repository` (CRUD Aperture), `reactive` (Broadcaster + SSE), `ingest` (incoming SSE → repo), `scope` (query patch), `errors` (exception → HTTP status), `wire` (cross-repo relations). RemoteRepository mirrors server CRUD over Connection with persist/cast/merge. Datamap provider returns `{ entities, shard: { context, bind }, introspect, subscribe, disintegrate }`. CRUD convention: `find`/`update`/`remove` = many, `findOne`/`updateOne`/`removeOne` = single.
+**Datamap**: `inject` (RequestContext), `repository` (CRUD Aperture), `reactive` (Broadcaster + SSE), `ingest` (incoming SSE → repo), `scope` (query patch), `errors` (exception → HTTP status), `wire` (cross-repo relations). RemoteRepository mirrors server CRUD over Connection with persist/cast/merge/store. `persist()` hydrates from localStorage through `merge()` (guaranteeing prototypes), `store()` writes to localStorage on every `put()`/`drop()` — no third-party persistence layer. Datamap provider returns `{ entities, shard: { context, bind }, introspect, subscribe, disintegrate }`. CRUD convention: `find`/`update`/`remove` = many, `findOne`/`updateOne`/`removeOne` = single.
 
 **Batch**: `shard.batch.route(aperture)` server multiplexer, `shard.connection.batch({url})` client DataLoader via queueMicrotask.
 
@@ -100,6 +100,8 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Memory drivers**: BAYESIAN (ebisu), BOOLEAN, COUNTER. Interface: encode/evolve/assess. Pure — no entity refs, no IO.
 
+**Memory.is**: Compound status getters on MemoryEntity. `virgin` (no status or UNTOUCHED), `weak` (UNTOUCHED or UNKNOWN), `familiar` (LEARNING or KNOWN), `strong` (KNOWN or GRADUATED), `succeeded` (last signal SUCCESS or MASTERY), `failed` (last signal FAILURE or MISTAKE). Usage: `entity.memory?.is?.weak`, `entity.memory?.is?.familiar`.
+
 ## Conventions
 
 - **No comments in code.** Comments are user space. Code is self-documenting through naming and structure.
@@ -116,6 +118,8 @@ Use these terms precisely. Don't substitute generic alternatives.
 - **EntitySchema `extends` does NOT inherit `repository`.** When a domain schema extends a typology base schema, the `repository` field must be re-declared on the domain schema. MikroORM resolves the repository class from the leaf schema's metadata — it does not walk the extends chain for it. Similarly, `[EntityRepositoryType]` must be re-declared on the domain entity class.
 - **`shard` not `shards`.** The shard namespace is `shard` (singular). All imports from typology use `import { shard } from "@vivalence/typology"`.
 - **SQLite `ALTER TABLE RENAME COLUMN` does NOT update FK constraints.** MikroORM's auto-migrator generates column renames, but the FK target table remains unchanged. For table renames that have FK references, the DB needs table recreation or a fresh schema. Never silently delete and recreate — ask first.
+- **No shorthand alias variables.** Don't create `const modes = ctx.daemon.modes.game` or `const literal = ctx.daemon.entities.literal`. Read off the objects directly. Loop variables use full names: `literal` not `lit`, `form` not `f`, `sentence` not `s`, `word` not `w`, `token` not `t`.
+- **SQLite date functions need `unixepoch` modifier.** MikroORM stores dates as millisecond timestamps. SQLite's `julianday()` and `datetime()` can't parse raw milliseconds — use `julianday(column / 1000.0, 'unixepoch')`. Without the modifier, these functions silently return NULL.
 - **Check traits via `traits` array, not `trait` object.** `entity.traits.includes("VOCALIZED")` — not `entity.trait?.VOCALIZED`. Trait values can be `null` (e.g., `VOCALIZED: null` means "is vocalized" with no additional data), which is falsy. The `traits` array is the source of truth for trait presence.
 
 ## Principles
@@ -361,9 +365,9 @@ Still on disk — don't document, extend, or suggest using:
 As of 2026-03-31:
 
 - **Literal hierarchy** — `uses`/`in` M:N self-relation. LiteralSubscriber afterFlush. Open: twitch migration question
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Yield protocol done. Open: CompletableSymbol, browser testing, Tier 2 (reorder, dictation)
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Yield protocol done. Distractor selection: emitters dedup on learning text via `string.fold`/`string.dice`, tactics pre-fetch shared pool (approach E). Warmup: 3-source scheduling (near-due mistakes/failures/neutral, due now, weak by strength ≤0.5, 48h horizon). Buildup: conditional exhibit, shadow/write by sentence status, due verbs mixed into judge/conjugation. Paradigm reviews conjugation entity (composite signal: 0 mistakes→MASTERY, all→FAILURE, ≥60%→MISTAKE, else→SUCCESS). All tactics use `memory.is.*` getters, no shorthand variables. Strength formula browser-verified working. Keyboard persistence: Conjugation + Paradigm import hidden Keyboard component to keep iOS keyboard open across steps. Trace-based blacklist: emitter middleware queries traces from last 3 minutes, merges into blacklist to prevent cross-pull repetition. Open: CompletableSymbol, Tier 2 (reorder, dictation)
 - **Cortex** — [cortex.workpackage.org](cortex.workpackage.org). Design done, not yet built
-- **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch + RemoteRepository persistence DONE
+- **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch DONE. RemoteRepository persistence rewritten — owns localStorage directly (no `persistentAtom`), all writes go through `merge()` to guarantee prototypes. Client daemon.entities expanded: trace + literal repos added. Server trace route mounted at `/userspace/entities/trace` with scope + repository + reactive. Open: persist test needs updating, identity map not yet formalized, SSE subscribe for traces (server endpoint exists via `datamap.reactive`, client `repo.subscribe()` ready)
 - **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org). MCP as future phase
 - **Package manager** — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org). Design only
 - **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org). DONE (M1+M2). M3 game mode migration pending

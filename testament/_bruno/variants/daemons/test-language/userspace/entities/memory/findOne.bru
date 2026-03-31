@@ -1,0 +1,24 @@
+meta {
+  name: findOne
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/memory/findOne
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {},
+    "options": {
+      "populate": ["literal", "traces"]
+    }
+  }
+}

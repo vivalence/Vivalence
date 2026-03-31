@@ -1,0 +1,22 @@
+meta {
+  name: updateOne
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/trace/updateOne
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {},
+    "data": {}
+  }
+}

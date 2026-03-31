@@ -1,5 +1,0 @@
-{
-  "SERVICE_NLP_PORT": "5555",
-  "SERVICE_NLP_SERVE": "http://0.0.0.0:5555",
-  "SERVICE_NLP_REMOTE": "https://nlp.syzygy.vivalence.com",
-}

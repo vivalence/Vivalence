@@ -25,6 +25,20 @@ import {
 
 export enum LiteralTraits {
   TRANSLATED = "TRANSLATED",
+  ANNOTATED = "ANNOTATED",
+  VOCALIZED = "VOCALIZED",
+}
+
+// Extends base repo with a stub .feed() that the domain kernel normally provides.
+// Real .feed() does due/novel spaced-repetition split; this just returns literals.
+class TestLiteralRepository extends LiteralRepository {
+  async feed({ limit, blacklist, where, populate }: any) {
+    const filters: any = { ...where };
+    if (blacklist?.literals?.length) {
+      filters.id = { $nin: blacklist.literals.map((literal: any) => literal?.id ?? literal) };
+    }
+    return this.find(filters, { limit, populate });
+  }
 }
 
 export const LiteralDomain = new EntitySchema({
@@ -32,7 +46,7 @@ export const LiteralDomain = new EntitySchema({
   extends: LiteralSchema,
   tableName: "Literal",
   name: "Literal",
-  repository: () => LiteralRepository,
+  repository: () => TestLiteralRepository,
   properties: {
     traits: {
       items: () => LiteralTraits,
@@ -85,6 +99,20 @@ export async function seed() {
     symbol: {},
   });
 
+  const thanks = em.create(LiteralEntity, {
+    slug: "thanks",
+    traits: ["TRANSLATED"],
+    trait: { TRANSLATED: { known: "thanks", learning: "obrigado" } },
+    symbol: {},
+  });
+
+  const please = em.create(LiteralEntity, {
+    slug: "please",
+    traits: ["TRANSLATED"],
+    trait: { TRANSLATED: { known: "please", learning: "por favor" } },
+    symbol: {},
+  });
+
   const greeting = em.create(SymbolEntity, {
     slug: "greeting",
     traits: ["ONTOLOGICAL"],
@@ -95,6 +123,8 @@ export async function seed() {
 
   hello.symbols.add(greeting);
   goodbye.symbols.add(greeting);
+  thanks.symbols.add(greeting);
+  please.symbols.add(greeting);
   await em.flush();
 
   const mode = em.create(ModeEntity, {
@@ -131,6 +161,6 @@ export async function seed() {
   return {
     orm,
     em,
-    fixtures: { user, hello, goodbye, greeting, mode, intent, thread },
+    fixtures: { user, hello, goodbye, thanks, please, greeting, mode, intent, thread },
   };
 }

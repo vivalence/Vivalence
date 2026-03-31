@@ -8,7 +8,8 @@ RUN apk add --no-cache \
     ca-certificates \
     openssh-client \
     libgcc \
-    libstdc++
+    libstdc++ \
+    sqlite
 
 RUN apk add --no-cache \
     bat \

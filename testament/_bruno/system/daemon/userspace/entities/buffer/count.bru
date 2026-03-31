@@ -1,0 +1,21 @@
+meta {
+  name: count
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/buffer/count
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {}
+  }
+}

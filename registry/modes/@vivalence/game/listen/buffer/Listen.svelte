@@ -186,7 +186,7 @@
   }
 </script>
 
-<Keyboard bind:this={keyboard} />
+{#if gameplay === "type"}<Keyboard bind:this={keyboard} />{/if}
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
@@ -255,7 +255,7 @@
                   class:option-correct={answered && isAnswer}
                   class:option-wrong={answered && isThis && !isAnswer}
                   class:option-dimmed={answered && !isThis && !isAnswer}
-                  ontouchstart={(e) => keyboard.guard(e)}
+                  ontouchstart={(e) => e.preventDefault()}
                   onclick={() => selectPick(lit)}
                   disabled={answered}>
                   <span class="option-key">{i + 1}</span>

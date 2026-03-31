@@ -3,6 +3,7 @@
   import { Pictogram } from "@vivalence/drapes";
   import { getContext } from "svelte";
   import { dataspace } from "$client";
+  import Inspector from "./Inspector.svelte";
 
   const terminal = getContext("terminal");
   const daemon = terminal.$daemon;
@@ -16,6 +17,7 @@
   let panelOpen = $state(false);
   let panelTab = $state("intents");
   let threads = $state([]);
+  let inspectorOpen = $state(false);
 
   const daemons = dataspace.daemon.$entities;
 
@@ -82,6 +84,7 @@
 
   function togglePanel() {
     panelOpen = !panelOpen;
+    if (panelOpen) inspectorOpen = false;
     if (panelOpen && panelTab === "threads") loadThreads();
   }
 
@@ -158,7 +161,7 @@
     class="ml-menu"
     class:open={panelOpen}
     onclick={(e) => { e.stopPropagation(); togglePanel(); }}>
-    <Pictogram src="/images/pictogram_viket/pic-vinca-viket_white.png" alt="menu" size="sm" />
+    <Pictogram src="/images/pictogram_viket/pic-vinca-viket_white.png" alt="menu" size="xl" />
   </button>
 
   <span class="ml-seg hi">{$daemon?.slug ?? ""}</span>
@@ -173,13 +176,17 @@
 
   <span class="ml-spacer"></span>
 
-  <span class="ml-status">
+  <button
+    class="ml-counter"
+    onclick={(e) => { e.stopPropagation(); inspectorOpen = !inspectorOpen; panelOpen = false; }}>
     <span class="ml-dot" class:pulling={$status === "PULLING"} class:error={$status === "ERROR"}></span>
     {#if $active}
       <span class="ml-seg lo">{($queue?.length ?? 0) + 1}</span>
     {/if}
-  </span>
+  </button>
 </div>
+
+<Inspector bind:open={inspectorOpen} />
 
 <style>
   /* ── Bar ── */
@@ -187,8 +194,8 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 44px;
-    padding: 0 12px 0 0;
+    height: 52px;
+    padding: 0 14px 0 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     border-top: 1px solid var(--colors-skeleton-1-boundary);
     background: var(--colors-skeleton-1-surface);
@@ -200,9 +207,9 @@
 
   @media (min-width: 768px) {
     .ml {
-      height: 32px;
-      gap: 6px;
-      font-size: var(--font-size-xs);
+      height: 40px;
+      gap: 8px;
+      font-size: var(--font-size-sm);
       padding-bottom: 0;
     }
   }
@@ -211,7 +218,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
+    width: 52px;
     height: 100%;
     flex-shrink: 0;
     background: none;
@@ -225,7 +232,7 @@
 
   @media (min-width: 768px) {
     .ml-menu {
-      width: 32px;
+      width: 40px;
     }
   }
 
@@ -252,7 +259,7 @@
 
   .ml-sep {
     color: var(--colors-skeleton-1-boundary);
-    font-size: 10px;
+    font-size: 12px;
     flex-shrink: 0;
   }
 
@@ -261,11 +268,24 @@
     min-width: 0;
   }
 
-  .ml-status {
+  .ml-counter {
     display: flex;
     align-items: center;
     gap: 6px;
     flex-shrink: 0;
+    background: none;
+    border: none;
+    border-left: 1px solid var(--colors-skeleton-1-boundary);
+    height: 100%;
+    padding: 0 12px;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ml-counter:hover {
+    background: var(--colors-skeleton-2-surface);
   }
 
   .ml-dot {
@@ -301,7 +321,7 @@
 
   .ml-panel {
     position: fixed;
-    bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(52px + env(safe-area-inset-bottom, 0px));
     left: 0;
     right: 0;
     max-height: 60vh;
@@ -316,7 +336,7 @@
 
   @media (min-width: 768px) {
     .ml-panel {
-      bottom: 32px;
+      bottom: 40px;
       max-width: 360px;
       border-radius: 8px 8px 0 0;
     }

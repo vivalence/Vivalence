@@ -1,0 +1,21 @@
+meta {
+  name: remove
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/thread/remove
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {}
+  }
+}

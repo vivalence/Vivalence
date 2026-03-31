@@ -4,10 +4,10 @@ export class Blacklist {
   constructor(input = {}) {
     this.literals = input.literals || [];
     this.symbols = input.symbols || [];
-    this.products = input.products || [];
+    this.buffers = input.buffers || [];
   }
 
-  fromScope(scope) {
+  absorb(scope) {
     const visited = new WeakSet();
 
     const getArray = (obj, prop) => {
@@ -24,7 +24,9 @@ export class Blacklist {
       if (!obj || typeof obj !== "object" || visited.has(obj)) return;
       visited.add(obj);
 
-      getArray(obj, "literals").forEach((lit) => {
+      const lits = getArray(obj, "literals");
+
+      lits.forEach((lit) => {
         if (is.string(lit)) this.literals.push(lit);
         else if (lit?.id) this.literals.push(lit.id);
         extractIds(lit);
@@ -36,14 +38,14 @@ export class Blacklist {
         extractIds(sym);
       });
 
-      getArray(obj, "products").forEach((prod) => {
-        if (is.string(prod)) this.products.push(prod);
-        else if (prod?.id) this.products.push(prod.id);
+      getArray(obj, "buffers").forEach((prod) => {
+        if (is.string(prod)) this.buffers.push(prod);
+        else if (prod?.id) this.buffers.push(prod.id);
         extractIds(prod);
       });
 
       Object.entries(obj).forEach(([key, val]) => {
-        if (!["literals", "symbols", "products"].includes(key)) extractIds(val);
+        if (!["literals", "symbols", "buffers"].includes(key)) extractIds(val);
       });
     };
 
@@ -51,110 +53,95 @@ export class Blacklist {
     return this.prune();
   }
 
-  async fromQueue(scope, ctx) {
-    const criteria = { status: { $in: ["PENDING", "ACTIVE"] } };
-    if (scope.product) criteria.id = scope.product;
-    // if (scope.user) criteria.user = scope.user;
-    if (scope.thread) criteria.thread = scope.thread;
-    if (scope.producer) criteria.producer = scope.producer;
-    if (scope.commissioner) criteria.commissioner = scope.commissioner;
-
-    const products = await ctx.daemon.entities.product.find(criteria, {
-      populate: ["literals", "symbols"],
-      fields: ["id", "literals.id", "symbols.id"],
-    });
-
-    products.forEach((product) => this.fromScope(product));
-    return this;
-  }
+  // async fromQueue(scope, ctx) {const criteria = { status: { $in: ["PENDING", "ACTIVE"] } }; if (scope.buffer) criteria.id = scope.buffer; // if (scope.user) criteria.user = scope.user; if (scope.thread) criteria.thread = scope.thread; if (scope.mode) criteria.mode = scope.mode; const buffers = await ctx.daemon.entities.buffer.find(criteria, {populate: ["literals", "symbols"], fields: ["id", "literals.id", "symbols.id"],}); buffers.forEach((buffer) => this.absorb(buffer)); return this;}
 
   prune() {
-    this.literals = [...new Set(this.literals)];
-    this.symbols = [...new Set(this.symbols)];
-    this.products = [...new Set(this.products)];
+    this.literals = [...new Set(this.literals)].filter(Boolean);
+    this.symbols = [...new Set(this.symbols)].filter(Boolean);
+    this.buffers = [...new Set(this.buffers)].filter(Boolean);
     return this;
   }
 }
-// export class Blacklist {
-//   constructor(input = {}) {
-//     this.literals = input.literals || [];
-//     this.symbols = input.symbols || [];
-//     this.products = input.products || [];
-//   }
-//   fromScope(scope) {
-//     const extractIds = (obj) => {
-//       // if (obj.literal) {this.literals.push(obj.literal.id); extractIds(obj.literal);} if (obj.symbol) {this.symbols.push(obj.symbol.id); extractIds(obj.symbol);} if (obj.product) {if (obj.product.id) this.products.push(obj.product.id);}
+// // export class Blacklist {
+// //   constructor(input = {}) {
+// //     this.literals = input.literals || [];
+// //     this.symbols = input.symbols || [];
+// //     this.buffers = input.buffers || [];
+// //   }
+// //   absorb(scope) {
+// //     const extractIds = (obj) => {
+// //       // if (obj.literal) {this.literals.push(obj.literal.id); extractIds(obj.literal);} if (obj.symbol) {this.symbols.push(obj.symbol.id); extractIds(obj.symbol);} if (obj.buffer) {if (obj.buffer.id) this.buffers.push(obj.buffer.id);}
 
-//       if (obj.literals && Array.isArray(obj.literals)) {
-//         obj.literals.forEach((literal) => {
-//           this.literals.push(literal.id);
-//           extractIds(literal);
-//         });
-//       }
+// //       if (obj.literals && Array.isArray(obj.literals)) {
+// //         obj.literals.forEach((literal) => {
+// //           this.literals.push(literal.id);
+// //           extractIds(literal);
+// //         });
+// //       }
 
-//       if (obj.symbols && Array.isArray(obj.symbols)) {
-//         obj.symbols.forEach((symbol) => {
-//           this.symbols.push(symbol.id);
-//           extractIds(symbol);
-//         });
-//       }
+// //       if (obj.symbols && Array.isArray(obj.symbols)) {
+// //         obj.symbols.forEach((symbol) => {
+// //           this.symbols.push(symbol.id);
+// //           extractIds(symbol);
+// //         });
+// //       }
 
-//       if (obj.products && Array.isArray(obj.products)) {
-//         obj.products.forEach((product) => this.products.push(product.id));
-//       }
+// //       if (obj.buffers && Array.isArray(obj.buffers)) {
+// //         obj.buffers.forEach((buffer) => this.buffers.push(buffer.id));
+// //       }
 
-//       Object.keys(obj).forEach((key) => {
-//         if (["literals", "symbols", "products"].includes(key)) return;
-//         if (
-//           typeof obj[key] === "object" &&
-//           obj[key] !== null &&
-//           !Array.isArray(obj[key])
-//         ) {
-//           extractIds(obj[key]);
-//         }
-//       });
-//     };
-//     if (scope) extractIds(scope);
-//     return this.prune();
-//   }
-//   fromStall(stall) {
-//     [stall.active, ...stall.queue]
-//       .filter((item) => item?.product?.scope)
-//       .map((item) => item.scope)
-//       .forEach((scope) => this.fromScope(scope));
-//     return this;
-//   }
-//   async fromQueue(scope, ctx) {
-//     const criteria = { type: { $ne: "SIGNAL" } };
+// //       Object.keys(obj).forEach((key) => {
+// //         if (["literals", "symbols", "buffers"].includes(key)) return;
+// //         if (
+// //           typeof obj[key] === "object" &&
+// //           obj[key] !== null &&
+// //           !Array.isArray(obj[key])
+// //         ) {
+// //           extractIds(obj[key]);
+// //         }
+// //       });
+// //     };
+// //     if (scope) extractIds(scope);
+// //     return this.prune();
+// //   }
+// //   fromStall(stall) {
+// //     [stall.active, ...stall.queue]
+// //       .filter((item) => item?.buffer?.scope)
+// //       .map((item) => item.scope)
+// //       .forEach((scope) => this.absorb(scope));
+// //     return this;
+// //   }
+// //   async fromQueue(scope, ctx) {
+// //     const criteria = { type: { $ne: "SIGNAL" } };
 
-//     if (scope.product) criteria.id = scope.product.id;
-//     if (scope.user) criteria.user = scope.user.id;
-//     if (scope.producer) criteria.producer = scope.producer.id;
-//     if (scope.generator) criteria.generator = scope.generator.id;
-//     // if (scope.intent) criteria.intent = scope.intent.id;
+// //     if (scope.buffer) criteria.id = scope.buffer.id;
+// //     if (scope.user) criteria.user = scope.user.id;
+// //     if (scope.producer) criteria.producer = scope.producer.id;
+// //     if (scope.generator) criteria.generator = scope.generator.id;
+// //     // if (scope.intent) criteria.intent = scope.intent.id;
 
-//     const products = await ctx.daemon.entities.product.find(criteria, {
-//       populate: ["literals", "symbols"],
-//       fields: ["id", "literals.id", "symbols.id"],
-//     });
-//     products.map((product) => this.fromScope(product));
+// //     const buffers = await ctx.daemon.entities.buffer.find(criteria, {
+// //       populate: ["literals", "symbols"],
+// //       fields: ["id", "literals.id", "symbols.id"],
+// //     });
+// //     buffers.map((buffer) => this.absorb(buffer));
 
-//     return this;
-//   }
+// //     return this;
+// //   }
 
-//   prune() {
-//     if (this.literals && Array.isArray(this.literals)) {
-//       this.literals = Array.from(new Set(this.literals));
-//     }
+// //   prune() {
+// //     if (this.literals && Array.isArray(this.literals)) {
+// //       this.literals = Array.from(new Set(this.literals));
+// //     }
 
-//     if (this.symbols && Array.isArray(this.symbols)) {
-//       this.symbols = Array.from(new Set(this.symbols));
-//     }
+// //     if (this.symbols && Array.isArray(this.symbols)) {
+// //       this.symbols = Array.from(new Set(this.symbols));
+// //     }
 
-//     if (this.products && Array.isArray(this.products)) {
-//       this.products = Array.from(new Set(this.products));
-//     }
+// //     if (this.buffers && Array.isArray(this.buffers)) {
+// //       this.buffers = Array.from(new Set(this.buffers));
+// //     }
 
-//     return this;
-//   }
-// }
+// //     return this;
+// //   }
+// // }

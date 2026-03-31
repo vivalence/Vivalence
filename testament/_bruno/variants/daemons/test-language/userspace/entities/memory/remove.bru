@@ -1,0 +1,21 @@
+meta {
+  name: remove
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/memory/remove
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {}
+  }
+}

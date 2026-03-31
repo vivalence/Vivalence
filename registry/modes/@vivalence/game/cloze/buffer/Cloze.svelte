@@ -155,7 +155,7 @@
               <button
                 class="opt"
                 class:opt-selected={selected}
-                ontouchstart={(e) => keyboard.guard(e)}
+                ontouchstart={(e) => e.preventDefault()}
                 onclick={() => {
                   const nextBlank = [...blankIndices].find((i) => !answers[i]);
                   if (nextBlank !== undefined) selectOption(nextBlank, opt);

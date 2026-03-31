@@ -56,12 +56,15 @@ const emitter = new Vector()
         }));
 
       const seen = new Set([target]);
+      const seenLearning = new Set([targetLearning]);
       const scored = [];
       for (const d of pool) {
         const t = string.fold(textOf(d) ?? "");
         if (seen.has(t)) continue;
-        if (learningOf(d) === targetLearning) continue;
+        const l = learningOf(d);
+        if (seenLearning.has(l)) continue;
         seen.add(t);
+        seenLearning.add(l);
         scored.push({ d, score: string.dice(target, t) });
       }
       scored.sort((a, b) => b.score - a.score);

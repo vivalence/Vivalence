@@ -1,14 +1,30 @@
 import { Entity } from "../prototypes/entity.js";
+import { fn } from "@vivalence/typology";
 
 export class Buffer extends Entity {
   view = null;
   context = null;
+  hooks = { mount: [], render: [], tick: [], release: [], destroy: [] };
+
+  on = {
+    mount:   (callback) => { this.hooks.mount.push(fn.once(callback)); return this; },
+    render:  (callback) => { this.hooks.render.push(fn.once(callback)); return this; },
+    tick:    (callback) => { this.hooks.tick.push(callback); return this; },
+    release: (callback) => { this.hooks.release.push(fn.once(callback)); return this; },
+    destroy: (callback) => { this.hooks.destroy.push(fn.once(callback)); return this; },
+  };
 
   static from(pojo, view) {
     const buffer = new Buffer(pojo);
     buffer.view = view;
     return buffer;
   }
+
+  mount()      { for (const hook of this.hooks.mount) hook(this); }
+  render(...a) { for (const hook of this.hooks.render) hook(this, ...a); }
+  tick(...a)   { for (const hook of this.hooks.tick) hook(this, ...a); }
+  release(...a){ for (const hook of this.hooks.release) hook(this, ...a); }
+  destroy()    { for (const hook of this.hooks.destroy) hook(this); }
 
   toJSON() {
     return {
@@ -21,26 +37,5 @@ export class Buffer extends Entity {
     };
   }
 }
-
-// export class Buffer extends Entity {
-//   view = null;
-//   context = null;
-//
-//   static from(pojo, view, context) {
-//     const buffer = new Buffer(pojo);
-//     buffer.view = view;
-//     buffer.context = { ...context, buffer, ...(buffer.props ?? {}) };
-//     return buffer;
-//   }
-//
-//   toJSON() {
-//     return {
-//       id: this.id,
-//       mode: typeof this.mode === "object" ? this.mode?.slug : this.mode,
-//       view: this.view ? { url: this.view.url } : null,
-//       props: this.props,
-//     };
-//   }
-// }
 
 export const prototype = Buffer;

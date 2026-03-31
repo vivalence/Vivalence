@@ -4,7 +4,7 @@ const manifest = {
   type: "game",
   slug: "judge",
   name: "Judge",
-  description: "Timed true/false on translation pairs. Swipe or tap.",
+  description: "True/false on translation pairs. Correct or distractor pairing. Visual, audio, or audio-only gameplay. Optional speed presets.",
   version: "0.1.0",
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
@@ -37,14 +37,17 @@ const emitter = new Vector()
       ctx.input.distractors ??
       (await ctx.daemon.entities.literal.feed({
         limit: 3,
-        blacklist: { literals: [target.id] },
+        blacklist: { literals: [...(ctx.input.blacklist?.literals ?? []), target.id] },
         where: { ontology: target.ontology },
       }));
     const targetText = string.fold(target.trait?.TRANSLATED?.[field] ?? "");
+    const targetLearning = string.fold(target.trait?.TRANSLATED?.learning ?? "");
     const scored = [];
     for (const d of pool) {
       const t = string.fold(d.trait?.TRANSLATED?.[field] ?? "");
       if (t === targetText) continue;
+      const l = string.fold(d.trait?.TRANSLATED?.learning ?? "");
+      if (l === targetLearning) continue;
       scored.push({ d, score: string.dice(targetText, t) });
     }
     scored.sort((a, b) => b.score - a.score);

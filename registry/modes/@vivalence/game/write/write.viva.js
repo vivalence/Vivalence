@@ -5,6 +5,8 @@ const manifest = {
   type: "game",
   slug: "write",
   name: "Write",
+  description: "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
+  version: "0.2.0",
   traits: ["BUFFERED", "INTENTED", "EMITTER"],
 };
 

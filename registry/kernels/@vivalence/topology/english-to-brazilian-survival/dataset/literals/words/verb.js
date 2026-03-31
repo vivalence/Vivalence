@@ -5012,27 +5012,21 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "turn!",
-        "learning": "vira"
+        "learning": "vire"
       },
       "EXEMPLIFIED": {
         "known": "Turn left",
-        "learning": "Vira à esquerda"
+        "learning": "Vire à esquerda"
       },
       "RANKED": {
-        "rank": 38911,
-        "zipf": 4.41,
-        "fpm": 25.7
-      },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/vira.mp3"
-        }
+        "rank": 131826,
+        "zipf": 3.88,
+        "fpm": 7.6
       }
     },
     "symbols": [
@@ -5152,27 +5146,21 @@ export default [
     "traits": [
       "EXEMPLIFIED",
       "TRANSLATED",
-      "RANKED",
-      "VOCALIZED"
+      "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "call!",
-        "learning": "chama"
+        "learning": "chame"
       },
       "EXEMPLIFIED": {
         "known": "Call the police!",
-        "learning": "Chama a polícia!"
+        "learning": "Chame a polícia!"
       },
       "RANKED": {
-        "rank": 8130,
-        "zipf": 5.09,
-        "fpm": 123
-      },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/chama.mp3"
-        }
+        "rank": 107152,
+        "zipf": 3.97,
+        "fpm": 9.3
       }
     },
     "symbols": [
@@ -8255,31 +8243,25 @@ export default [
     ]
   },
   {
-    "slug": "limpar.verb.imperative.present.second.singular",
+    "slug": "limpar.verb.imperative.present.third.singular",
     "traits": [
       "TRANSLATED",
       "EXEMPLIFIED",
-      "VOCALIZED",
       "RANKED"
     ],
     "trait": {
       "TRANSLATED": {
         "known": "clean!",
-        "learning": "limpa"
+        "learning": "limpe"
       },
       "EXEMPLIFIED": {
         "known": "Clean up this mess.",
-        "learning": "Limpa essa bagunça."
-      },
-      "VOCALIZED": {
-        "asset": {
-          "path": "words/limpa.mp3"
-        }
+        "learning": "Limpe essa bagunça."
       },
       "RANKED": {
-        "rank": 34674,
-        "zipf": 4.46,
-        "fpm": 28.8
+        "rank": 398107,
+        "zipf": 3.4,
+        "fpm": 2.5
       }
     },
     "symbols": [
@@ -8299,7 +8281,7 @@ export default [
         "slug": "word.tense.present"
       },
       {
-        "slug": "word.person.second"
+        "slug": "word.person.third"
       },
       {
         "slug": "word.number.singular"

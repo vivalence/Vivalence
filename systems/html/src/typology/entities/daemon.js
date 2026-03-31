@@ -38,10 +38,7 @@ export const prototype = Daemon;
 
 export async function lifecycle(daemon) {
   const [manifest, schema, cargo] = await Promise.all([
-    daemon.connection.call("/manifest").catch((error) => {
-      console.log("Error setting up daemon", { daemon });
-      throw new Error("daemon doesnt manifest");
-    }),
+    daemon.connection.call("/manifest"),
     daemon.connection.call("/datamap"),
     daemon.connection.call("/cargo"),
   ]);
@@ -52,14 +49,18 @@ export async function lifecycle(daemon) {
   daemon.mount = new Path(`/daemon/${daemon.slug}`);
   daemon.cargo = cargo;
 
-  const lighthouseSlug = daemon.lighthouse?.manifest?.slug ?? "default";
+  const lighthouseSlug = daemon.lighthouse.manifest.slug;
   daemon.link = new Path(`/${lighthouseSlug}/${daemon.slug}`).rebase("/viva");
 
   daemon.entities = {
     mode: new RemoteRepository(Mode).connect(daemon.connection.branch("/entities/mode")).persist(),
-    intent: new RemoteRepository(Intent).connect(daemon.connection.branch("/entities/intent")).persist(),
+    intent: new RemoteRepository(Intent)
+      .connect(daemon.connection.branch("/entities/intent"))
+      .persist(),
     thread: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/thread")),
     buffer: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/buffer")),
+    trace: new RemoteRepository().connect(daemon.connection.branch("/userspace/entities/trace")),
+    literal: new RemoteRepository().connect(daemon.connection.branch("/entities/literal")),
   };
   shard.datamap.wire(daemon.entities, schema);
 
@@ -80,15 +81,17 @@ export async function lifecycle(daemon) {
   }
 
   await Promise.all(
-    modes.filter((m) => m.implements("BUFFERED")).map(async (m) => {
-      m.buffered = await m.connection.call("/buffered");
-      m.buffer = (desc = {}) => ({
-        mode: m.id,
-        data: { ...(m.buffered?.schema?.data ?? {}), ...(desc.data ?? {}) },
-        literals: desc.literals ?? [],
-        symbols: desc.symbols ?? [],
-      });
-    }),
+    modes
+      .filter((m) => m.implements("BUFFERED"))
+      .map(async (m) => {
+        m.buffered = await m.connection.call("/buffered");
+        m.buffer = (desc = {}) => ({
+          mode: m.id,
+          data: { ...(m.buffered?.schema?.data ?? {}), ...(desc.data ?? {}) },
+          literals: desc.literals ?? [],
+          symbols: desc.symbols ?? [],
+        });
+      }),
   );
 
   const intentById = new Map();

@@ -14,7 +14,6 @@ const buffer = new BufferView(
   "buffer/Conjugation.svelte",
   v.buffer({
     data: {
-      conjugation: v.string().optional().desc("Literal ID of the conjugation"),
       infinitive: v.string().desc("Literal ID of the infinitive"),
       target: v.string().desc("Literal ID of the form to type"),
       tense: v.string().desc("Symbol ID of the tense"),
@@ -29,12 +28,10 @@ const emitter = new Vector()
   .open("/literal", async (ctx) => {
     const target = ctx.input.literal;
     const infinitive = ctx.input.infinitive;
-    const conjugation = ctx.input.conjugation;
     const recall = ctx.input.recall ?? "LEARNING";
 
     return ctx.mode.buffer({
       data: {
-        conjugation: conjugation?.id,
         target: target.id,
         infinitive: infinitive?.id,
         tense: ctx.input.tense?.id,
@@ -42,7 +39,7 @@ const emitter = new Vector()
         lemma: ctx.input.lemma?.id,
         recall,
       },
-      literals: [target, infinitive, conjugation].filter(Boolean),
+      literals: [target, infinitive].filter(Boolean),
       symbols: [ctx.input.tense, ctx.input.mood, ctx.input.lemma].filter(Boolean),
     });
   })

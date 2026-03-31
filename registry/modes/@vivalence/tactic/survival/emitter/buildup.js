@@ -2,87 +2,77 @@ import { array } from "@vivalence/typology";
 // ── buildup ─────────────────────────────────────────────────────────
 // conjugation paradigms. structured introduction → active recall → drill.
 //
-// see           → exhibit the full table
-// recognize     → pick with paradigm-internal distractors
-// connect       → match form ↔ translation
-// build         → paradigm: fill the table yourself
-// contextualize → sentences containing these forms
-// speed         → judge, slower for weak, faster for familiar
-// produce       → conjugation cards: forms without the scaffold, weakest first
+// exhibit     → full table (only if conjugation untouched)
+// pick        → weak conjugations (paradigm distractors) + due verbs (similarity distractors), shuffled
+// match       → if weak conjugations
+// paradigm    → fill the table
+// shadow/write → sentences containing these forms
+// conjugation → due verbs + weak conjugations, shuffled
+// judge       → due verbs + all conjugation forms, shuffled
 
 export default async (ctx) => {
-  const modes = ctx.daemon.modes.game;
-  const buffers = [];
-
   const conjugations = await ctx.daemon.entities.literal.feed({
     limit: 1,
     blacklist: ctx.input.blacklist,
     where: { ontology: "conjugation", ...ctx.input.where },
-    populate: ["uses.memories", "symbols"],
+    populate: ["uses.memories", "symbols", "memories"],
   });
+
   if (!conjugations.length) return [];
 
   const conjugation = conjugations[0];
-  const conj = conjugation.trait.CONJUGATED;
-  const bySlug = new Map(conjugation.uses.getItems().map((f) => [f.slug, f]));
-
-  const infinitive = bySlug.get(conj.infinitive);
-  const forms = Object.values(conj.paradigm)
+  const bySlug = new Map(conjugation.uses.getItems().map((form) => [form.slug, form]));
+  const infinitive = bySlug.get(conjugation.trait.CONJUGATED.infinitive);
+  const forms = Object.values(conjugation.trait.CONJUGATED.paradigm)
     .map((slug) => bySlug.get(slug))
     .filter(Boolean);
   if (!forms.length) return [];
 
-  const untouched = forms.filter((f) => {
-    const m = f.memory;
-    return !m || m.status === "UNTOUCHED";
-  });
-  const weak = forms.filter((f) => {
-    const s = f.memory?.status;
-    return s === "UNKNOWN" || s === "LEARNING";
-  });
-  const strong = forms.filter((f) => {
-    const s = f.memory?.status;
-    return s === "KNOWN" || s === "GRADUATED";
-  });
+  const weak = forms.filter((form) => !form.memory || form.memory.is.weak);
 
   const symbols = conjugation.symbols.getItems();
-  const tenseSymbol = symbols.find((s) => s.slug.startsWith("word.tense."));
-  const moodSymbol = symbols.find((s) => s.slug.startsWith("word.mood."));
-  const lemmaSymbol = symbols.find((s) => s.slug.startsWith("word.lemma."));
+  const tenseSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.tense."));
+  const moodSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.mood."));
+  const lemmaSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.lemma."));
 
-  const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
-  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? "";
-  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? "";
-  const subtitle = [tenseLabel, moodLabel].filter(Boolean).join(" ");
+  const dueVerbs = await ctx.daemon.entities.literal.due({
+    limit: 4,
+    blacklist: { literals: [...forms.map((form) => form.id), infinitive?.id].filter(Boolean) },
+    where: { ontology: "word", ...ctx.input.where, symbol: { word: { "part-of-speech": "verb" } } },
+  });
 
-  // ── 1. SEE — exhibit the full table
-  buffers.push(
-    await modes.exhibit.emit.present({
-      layout: "table",
-      title: infinitiveText,
-      subtitle,
-      literals: forms,
-    }),
-  );
+  const distractorPool = [...forms, ...dueVerbs];
+  const buffers = [];
 
-  // ── 2. RECOGNIZE — pick with paradigm-internal distractors
-  for (const lit of array.shuffle([...untouched, ...weak])) {
-    const distractors = forms.filter((f) => f.id !== lit.id);
-    if (distractors.length) {
-      buffers.push(
-        await modes.pick.emit.literal({
-          literal: lit,
-          distractors,
-          recall: "LEARNING",
-        }),
-      );
-    }
+  // ── 1. EXHIBIT — full table (only if conjugation itself is untouched)
+  if (!conjugation.memory || conjugation.memory.is.virgin) {
+    buffers.push(
+      await ctx.daemon.modes.game.exhibit.emit.present({
+        layout: "table",
+        title: infinitive?.trait?.TRANSLATED?.learning ?? "",
+        subtitle: [tenseSymbol?.trait?.LABELED?.name, moodSymbol?.trait?.LABELED?.name]
+          .filter(Boolean)
+          .join(" "),
+        literals: forms,
+      }),
+    );
   }
 
-  // ── 3. CONNECT — match form ↔ translation
-  if (forms.length >= 2) {
+  // ── 2. PICK — weak + due verbs, shuffled. pick emitter handles dice ranking.
+  for (const literal of array.shuffle([...weak, ...dueVerbs])) {
     buffers.push(
-      await modes.match.emit.batch({
+      await ctx.daemon.modes.game.pick.emit.literal({
+        literal,
+        distractors: distractorPool,
+        recall: "LEARNING",
+      }),
+    );
+  }
+
+  // ── 3. MATCH — if weak conjugations exist
+  if (weak.length >= 2) {
+    buffers.push(
+      await ctx.daemon.modes.game.match.emit.batch({
         literals: forms,
         gameplay: "translate",
         recall: "LEARNING",
@@ -90,58 +80,61 @@ export default async (ctx) => {
     );
   }
 
-  // ── 4. BUILD — paradigm: fill the table yourself
+  // ── 4. PARADIGM — fill the table yourself
   buffers.push(
-    await modes.paradigm.emit.conjugation({
+    await ctx.daemon.modes.game.paradigm.emit.conjugation({
       conjugation,
+      // recall: !conjugation.memory?.status ? "KNOWN" : "LEARNING",
       recall: "LEARNING",
       feedback: "realtime",
       order: "ordered",
     }),
   );
 
-  // ── 5. CONTEXTUALIZE — sentences containing these forms
-  for (const form of forms) {
-    const sentences = await ctx.daemon.entities.literal.find(
-      { ontology: "sentence", uses: form.id },
-      { limit: 1 },
-    );
-    if (sentences.length) {
+  // ── 5. CONTEXTUALIZE — shadow untouched/unknown sentences, write learning+
+  for (const sentence of await ctx.daemon.entities.literal.find(
+    { ontology: "sentence", uses: { $in: forms.map((form) => form.id) } },
+    { limit: forms.length, populate: ["memories"] },
+  )) {
+    if (!sentence.memory || sentence.memory.is.weak) {
       buffers.push(
-        await modes.exhibit.emit.present({
-          layout: "pattern",
-          title: form.trait?.TRANSLATED?.learning ?? "",
-          literals: sentences,
+        await ctx.daemon.modes.game.shadow.emit.literals({
+          literal: sentence,
+          recall: "LEARNING",
+          speed: { rate: "SLOW" },
+        }),
+      );
+    } else if (sentence.memory.status === "LEARNING") {
+      buffers.push(
+        await ctx.daemon.modes.game.write.emit.literals({
+          literal: sentence,
+          recall: "LEARNING",
         }),
       );
     }
   }
 
-  // ── 6. SPEED — judge, paced by familiarity
-  for (const lit of array.shuffle(forms)) {
-    const isWeak = untouched.includes(lit) || weak.includes(lit);
+  // ── 6. CONJUGATION — due verbs + weak conjugations, shuffled
+  for (const literal of array.shuffle([...dueVerbs, ...weak])) {
     buffers.push(
-      await modes.judge.emit.literal({
-        literal: lit,
-        recall: "LEARNING",
-        distractors: forms.filter((f) => f.id !== lit.id),
-        speed: { rate: isWeak ? "NORMAL" : "FAST" },
-      }),
-    );
-  }
-
-  // ── 7. PRODUCE — conjugation cards, weakest first
-  const drillOrder = [...untouched, ...weak, ...strong];
-  for (const lit of array.shuffle(drillOrder)) {
-    buffers.push(
-      await modes.conjugation.emit.literal({
-        literal: lit,
-        conjugation,
+      await ctx.daemon.modes.game.conjugation.emit.literal({
+        literal,
         infinitive,
         tense: tenseSymbol,
         mood: moodSymbol,
         lemma: lemmaSymbol,
         recall: "LEARNING",
+      }),
+    );
+  }
+
+  // ── 7. JUDGE — due verbs + all conjugation forms, shuffled
+  for (const literal of array.shuffle([...dueVerbs, ...forms])) {
+    buffers.push(
+      await ctx.daemon.modes.game.judge.emit.literal({
+        literal,
+        recall: literal.memory?.failed ? "KNOWN" : "LEARNING",
+        distractors: distractorPool.filter((form) => form.id !== literal.id),
       }),
     );
   }

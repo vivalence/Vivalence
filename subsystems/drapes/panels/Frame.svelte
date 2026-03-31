@@ -16,6 +16,7 @@
           component?.destroy();
           component = null;
           component = module.default(dom, buffer.context);
+          buffer.mount();
         } catch (e) {
           console.error(`[Frame] failed loading module: ${buffer.view.url}`, e);
         }
@@ -24,6 +25,7 @@
   });
 
   onDestroy(() => {
+    $buffer?.destroy();
     component?.destroy();
   });
 </script>
