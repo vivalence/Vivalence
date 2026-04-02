@@ -24,25 +24,27 @@ export enum LiteralTraitsEnum {
 }
 
 export class LiteralRepository extends base.repository {
-  async feed({ limit, blacklist, where, populate }: any) {
-    const due = await this.due({ limit, blacklist, where, populate });
+  async feed(where: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
+    const due = await this.due(where, { limit, blacklist, populate });
     if (due.length >= limit) return due.slice(0, limit);
 
-    const novel = await this.novel({
+    const novel = await this.novel(where, {
       limit: limit - due.length,
       blacklist: { literals: [...(blacklist?.literals || []), ...due.map((d: any) => d.id)] },
-      where,
       populate,
     });
     return [...due, ...novel];
   }
 
-  async novel({ limit, blacklist, where, populate }: any) {
+  async novel(where: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
     const filter = object.merge({ memories: { $none: {} } }, { id: { $nin: blacklist?.literals || [] } }, where);
     return this.find(filter, { orderBy: { rank: "ASC" }, limit, populate });
   }
 
-  async due({ limit, blacklist, where, populate }: any) {
+  async due(where: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
     const filter = object.merge(
       { memories: { nextAt: { $lt: new Date() } } },
       { id: { $nin: blacklist?.literals || [] } },
@@ -54,7 +56,8 @@ export class LiteralRepository extends base.repository {
     });
   }
 
-  async byStrength({ limit, blacklist, where, populate }: any) {
+  async byStrength(where: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge({ memories: {} }, { id: { $nin: blacklist?.literals || [] } }, where),
       {
@@ -65,7 +68,8 @@ export class LiteralRepository extends base.repository {
     );
   }
 
-  async byLastSignal({ signals, limit, blacklist, where, populate }: any) {
+  async byLastSignal(signals: string[], where?: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
     return this.find(
       object.merge(
         { memories: { lastSignal: { $in: signals } } },

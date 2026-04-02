@@ -3,24 +3,15 @@ import { is } from "@vivalence/typology";
 
 export const aperture = new Aperture()
   .open("/pick/literal/feed", async (input, ctx) => {
-    const { blacklist, where } = input;
-    const limit = input.limit || 10;
-
-    return ctx.daemon.entities.literal.feed({ limit, blacklist, where });
+    return ctx.daemon.entities.literal.feed(input.where, { limit: input.limit || 10, blacklist: input.blacklist });
   })
 
   .open("/pick/literal/novel", async (input, ctx) => {
-    const { blacklist, where } = input;
-    const limit = input.limit || 10;
-
-    return ctx.daemon.entities.literal.novel({ limit, blacklist, where });
+    return ctx.daemon.entities.literal.novel(input.where, { limit: input.limit || 10, blacklist: input.blacklist });
   })
 
   .open("/pick/literal/due", async (input, ctx) => {
-    const { blacklist, where } = input;
-    const limit = input.limit || 10;
-
-    return ctx.daemon.entities.literal.due({ limit, blacklist, where });
+    return ctx.daemon.entities.literal.due(input.where, { limit: input.limit || 10, blacklist: input.blacklist });
   })
 
   .open("/pick/literal/byStatus", async (input, ctx) => {
@@ -42,10 +33,7 @@ export const aperture = new Aperture()
   })
 
   .open("/pick/literal/byStrength", async (input, ctx) => {
-    const { blacklist, where } = input;
-    const limit = input.limit || 10;
-
-    return ctx.daemon.entities.literal.byStrength({ limit, blacklist, where });
+    return ctx.daemon.entities.literal.byStrength(input.where, { limit: input.limit || 10, blacklist: input.blacklist });
   })
 
   .open("/review/literal", async (input, ctx) => {

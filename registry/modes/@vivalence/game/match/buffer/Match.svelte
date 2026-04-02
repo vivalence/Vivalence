@@ -3,7 +3,7 @@
 
   const data = buffer.data ?? {};
   const recall = data.recall ?? "LEARNING";
-  const gameplay = data.gameplay ?? "translate";
+  const gameplay = data.gameplay ?? "TRANSLATE";
   const descriptions = data.descriptions ?? [];
 
   let literals = $state(buffer.literals ?? []);
@@ -26,7 +26,7 @@
   }
 
   function leftText(lit, i) {
-    if (gameplay === "describe" && descriptions[i] !== undefined) {
+    if (gameplay === "DESCRIBE" && descriptions[i] !== undefined) {
       return descriptions[literals.indexOf(lit)];
     }
     return recall === "LEARNING"
@@ -46,7 +46,7 @@
     connections = [];
     failed = new Set();
     errored = new Set();
-    selectedLeft = null;
+    selectedLeft = leftItems[0];
   }
 
   if (!literals.length) {
@@ -87,7 +87,17 @@
 
     selectedLeft = null;
 
-    if (connections.length + (isCorrect ? 0 : 0) === literals.length - (isCorrect ? 0 : 0)) {
+    if (isCorrect && connections.length === literals.length - 1) {
+      const matched = new Set(connections.map(c => c.id));
+      const last = literals.find(l => !matched.has(l.id));
+      setTimeout(() => {
+        connections = [...connections, { id: last.id }];
+        setTimeout(() => checkComplete(), 800);
+      }, 300);
+      return;
+    }
+
+    if (connections.length === literals.length) {
       checkComplete();
     }
   }
@@ -112,7 +122,7 @@
     <div class="stage">
       {#if literals.length}
         <div class="meta">
-          <span class="meta-lang">{gameplay === "describe" ? "match" : (recall === "LEARNING" ? "English → Português" : "Português → English")}</span>
+          <span class="meta-lang">{gameplay === "DESCRIBE" ? "match" : (recall === "LEARNING" ? "English → Português" : "Português → English")}</span>
           <span class="meta-count">{connections.length}/{literals.length}</span>
         </div>
 

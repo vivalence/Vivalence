@@ -103,6 +103,12 @@
     "tinykeys": "npm:tinykeys@3.0.0",
     "ebisu-js": "npm:ebisu-js@2.1.3",
     "lowdb": "npm:lowdb@^7.0",
-    "lowdb/node": "npm:lowdb@^7.0/node"
+    "lowdb/node": "npm:lowdb@^7.0/node",
+
+    "echarts": "npm:echarts@6.0",
+    "echarts/core": "npm:echarts@6.0/core",
+    "echarts/charts": "npm:echarts@6.0/charts",
+    "echarts/components": "npm:echarts@6.0/components",
+    "echarts/renderers": "npm:echarts@6.0/renderers"
   }
 }

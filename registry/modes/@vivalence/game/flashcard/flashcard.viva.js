@@ -6,16 +6,18 @@ const manifest = {
   name: "Flashcard",
   description: "Classic flashcard recall for words and sentences, both directions.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const buffer = new BufferView(
   "buffer/Flashcard.svelte",
   v.buffer({
     data: {
-      recall: v.union([v.string(), v.array(v.string())], {
-        description: "LEARNING, KNOWN, per-literal array, or omit for random",
-      }).optional(),
+      recall: v
+        .union([v.string(), v.array(v.string())], {
+          description: "LEARNING, KNOWN, per-literal array, or omit for random",
+        })
+        .optional(),
     },
   }),
 );
@@ -29,11 +31,10 @@ const emitter = new Vector()
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 5;
-    const literals = await ctx.daemon.entities.literal.feed({
-      limit,
-      blacklist: ctx.input.blacklist,
-      where: ctx.input.where,
-    });
+    const literals = await ctx.daemon.entities.literal.feed(
+      ctx.input.where,
+      { limit, blacklist: ctx.input.blacklist },
+    );
     if (!literals.length) return [];
     return ctx.mode.buffer({
       data: { recall: ctx.input.recall },
@@ -42,19 +43,21 @@ const emitter = new Vector()
   });
 
 const dataset = {
-  intent: [{
-    slug: "feed",
-    name: "Flashcard",
-    type: "APPLICATIVE",
-    traits: ["FEEDING"],
-    trait: {
-      FEEDING: {
-        mount: "/emit/feed",
-        queue: 1,
-        mask: { limit: 5 },
+  intent: [
+    {
+      slug: "feed",
+      name: "Flashcard",
+      type: "APPLICATIVE",
+      traits: ["FEEDING"],
+      trait: {
+        FEEDING: {
+          mount: "/emit/feed",
+          queue: 1,
+          mask: { limit: 5 },
+        },
       },
     },
-  }],
+  ],
 };
 
 export { manifest, buffer, emitter, dataset };

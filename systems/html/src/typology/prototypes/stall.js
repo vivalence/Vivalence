@@ -25,8 +25,7 @@ export class Stall {
 
   next(promise) {
     const status = this.$status.get();
-    if (["CLOSED", "NAVIGATING"].includes(status)) return;
-    this.$status.set("NAVIGATING");
+    if (status === "CLOSED") return;
 
     const prev = { ...this.$active.get() };
     this.$active.set(null);
@@ -40,8 +39,7 @@ export class Stall {
 
     this.runHooks(prev, this.$active.get(), promise);
 
-    this.$status.set("IDLE");
-    this.pull();
+    if (status === "IDLE") this.pull();
   }
 
   async pull() {
@@ -53,6 +51,7 @@ export class Stall {
       return;
     }
 
+    this.inflight = true;
     this.$status.set("PULLING");
 
     try {

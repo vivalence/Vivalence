@@ -4,9 +4,10 @@ const manifest = {
   type: "game",
   slug: "judge",
   name: "Judge",
-  description: "True/false on translation pairs. Correct or distractor pairing. Visual, audio, or audio-only gameplay. Optional speed presets.",
+  description:
+    "True/false on translation pairs. Correct or distractor pairing. Visual, audio, or audio-only gameplay. Optional speed presets.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const dataset = {
@@ -35,15 +36,15 @@ const emitter = new Vector()
 
     const pool =
       ctx.input.distractors ??
-      (await ctx.daemon.entities.literal.feed({
-        limit: 3,
-        blacklist: { literals: [...(ctx.input.blacklist?.literals ?? []), target.id] },
-        where: { ontology: target.ontology },
-      }));
+      (await ctx.daemon.entities.literal.feed(
+        { ontology: target.ontology },
+        { limit: 3, blacklist: { literals: [...(ctx.input.blacklist?.literals ?? []), target.id] } },
+      ));
     const targetText = string.fold(target.trait?.TRANSLATED?.[field] ?? "");
     const targetLearning = string.fold(target.trait?.TRANSLATED?.learning ?? "");
     const scored = [];
     for (const d of pool) {
+      if (d.id === target.id) continue;
       const t = string.fold(d.trait?.TRANSLATED?.[field] ?? "");
       if (t === targetText) continue;
       const l = string.fold(d.trait?.TRANSLATED?.learning ?? "");
@@ -67,10 +68,10 @@ const emitter = new Vector()
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
-    const literals = await ctx.daemon.entities.literal.feed({
-      limit,
-      blacklist: ctx.input.blacklist,
-    });
+    const literals = await ctx.daemon.entities.literal.feed(
+      undefined,
+      { limit, blacklist: ctx.input.blacklist },
+    );
     if (!literals.length) return [];
 
     const buffers = [];

@@ -1,5 +1,5 @@
 import { specimen, shape, Aperture, Vector, Mode } from "@vivalence/typology";
-import { IntentEntity, BufferEntity } from "@vivalence/typology/entities";
+import { IntentEntity, BufferEntity, ThreadEntity } from "@vivalence/typology/entities";
 import { create } from "../scenarios/daemon.js";
 
 const EXPOSED = (mode) => {
@@ -142,20 +142,25 @@ specimen.describe("mode traits", () => {
       specimen.expect(typeof scenario.mode.emit.literal).toBe("function");
     });
 
-    specimen.it("mode.emit.literal returns unwrapped buffers", async () => {
-      const result = await scenario.mode.emit.literal({
-        literal: { id: scenario.fixtures.hello.id },
+    specimen.it("mode.emit.literal returns yield envelope", async () => {
+      await scenario.scoped(async () => {
+        const result = await scenario.mode.emit.literal({
+          literal: { id: scenario.fixtures.hello.id },
+        });
+        specimen.expect(result.condition).toBe("NOMINAL");
+        specimen.expect(result.buffers).toHaveLength(1);
+        specimen.expect(result.buffers[0].mode.id ?? result.buffers[0].mode).toBe(scenario.fixtures.mode.id);
+        specimen.expect(result.buffers[0].data.recall).toBe("LEARNING");
+        specimen.expect(result.buffers[0].literals).toBeTruthy();
       });
-      specimen.expect(Array.isArray(result)).toBe(true);
-      specimen.expect(result.length).toBe(1);
-      specimen.expect(result[0].mode.id ?? result[0].mode).toBe(scenario.fixtures.mode.id);
-      specimen.expect(result[0].data.recall).toBe("LEARNING");
-      specimen.expect(result[0].literals).toBeTruthy();
     });
 
-    specimen.it("normalizes single return to array", async () => {
-      const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
-      specimen.expect(Array.isArray(result)).toBe(true);
+    specimen.it("single return wrapped in yield envelope", async () => {
+      await scenario.scoped(async () => {
+        const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
+        specimen.expect(result.condition).toBe("NOMINAL");
+        specimen.expect(result.buffers).toHaveLength(1);
+      });
     });
 
     specimen.it("/emit/literal HTTP route responds with Yield", async () => {
@@ -169,46 +174,56 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("persists buffer to DB when thread provided", async () => {
-      const result = await scenario.mode.emit.literal({
-        literal: { id: scenario.fixtures.hello.id },
-        thread: scenario.fixtures.thread.id,
+      await scenario.scoped(async (em) => {
+        const result = await scenario.mode.emit.literal({
+          literal: { id: scenario.fixtures.hello.id },
+          thread: scenario.fixtures.thread.id,
+        });
+        specimen.expect(result.buffers[0].id).toBeTruthy();
+        const found = await em.findOne(BufferEntity, { id: result.buffers[0].id }, { populate: ["literals"] });
+        specimen.expect(found).toBeTruthy();
+        specimen.expect(found.data.recall).toBe("LEARNING");
+        specimen.expect(found.mode.id).toBe(scenario.fixtures.mode.id);
+        specimen.expect(found.literals.getItems()).toHaveLength(1);
       });
-      specimen.expect(result[0].id).toBeTruthy();
-      const found = await scenario.em.findOne(BufferEntity, { id: result[0].id }, { populate: ["literals"] });
-      specimen.expect(found).toBeTruthy();
-      specimen.expect(found.data.recall).toBe("LEARNING");
-      specimen.expect(found.mode.id).toBe(scenario.fixtures.mode.id);
-      specimen.expect(found.literals.getItems()).toHaveLength(1);
     });
 
     specimen.it("persisted buffer has correct index from thread counter", async () => {
-      const before = scenario.fixtures.thread.counter;
-      const result = await scenario.mode.emit.literal({
-        literal: { id: scenario.fixtures.hello.id },
-        thread: scenario.fixtures.thread.id,
+      await scenario.scoped(async (em) => {
+        const thread = await em.findOne(ThreadEntity, { id: scenario.fixtures.thread.id });
+        const before = thread.counter;
+        const result = await scenario.mode.emit.literal({
+          literal: { id: scenario.fixtures.hello.id },
+          thread: scenario.fixtures.thread.id,
+        });
+        specimen.expect(result.buffers[0].index).toBe(before);
+        await em.refresh(thread);
+        specimen.expect(thread.counter).toBe(before + 1);
       });
-      specimen.expect(result[0].index).toBe(before);
-      specimen.expect(scenario.fixtures.thread.counter).toBe(before + 1);
     });
 
     specimen.it("buffer without thread has null thread", async () => {
-      const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
-      const found = await scenario.em.findOne(BufferEntity, { id: result[0].id });
-      specimen.expect(found).toBeTruthy();
-      specimen.expect(found.thread).toBeNull();
+      await scenario.scoped(async (em) => {
+        const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
+        const found = await em.findOne(BufferEntity, { id: result.buffers[0].id }, { filters: false });
+        specimen.expect(found).toBeTruthy();
+        specimen.expect(found.thread).toBeNull();
+      });
     });
 
     specimen.it("empty return yields EXHAUSTED", async () => {
-      const emptyMode = new Mode({ manifest: { type: "game", slug: "empty", traits: ["EMITTER"] } });
-      emptyMode.aperture = new Aperture();
-      emptyMode.entity = scenario.fixtures.mode;
-      emptyMode.id = scenario.fixtures.mode.id;
-      emptyMode.cake.emitter = new Vector().open("/nothing", async () => []);
-      const { EMITTER: E } = await import("@vivalence/runtime/daemon/traits");
-      await E(emptyMode, scenario.daemon);
-      const result = await emptyMode.emit.nothing({});
-      specimen.expect(result.condition).toBe("EXHAUSTED");
-      specimen.expect(result.buffers).toEqual([]);
+      await scenario.scoped(async () => {
+        const emptyMode = new Mode({ manifest: { type: "game", slug: "empty", traits: ["EMITTER"] } });
+        emptyMode.aperture = new Aperture();
+        emptyMode.entity = scenario.fixtures.mode;
+        emptyMode.id = scenario.fixtures.mode.id;
+        emptyMode.cake.emitter = new Vector().open("/nothing", async () => []);
+        const { EMITTER: E } = await import("@vivalence/runtime/daemon/traits");
+        await E(emptyMode, scenario.daemon);
+        const result = await emptyMode.emit.nothing({});
+        specimen.expect(result.condition).toBe("EXHAUSTED");
+        specimen.expect(result.buffers).toEqual([]);
+      });
     });
   });
 });

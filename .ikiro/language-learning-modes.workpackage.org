@@ -584,3 +584,5 @@ Pick mode: FAILURE on target + distractor for wrong picks.
 - 2026-03-28: seek→where/limit refactor. MikroORM user filter. resolveTraits. UX polish
 - 2026-03-29: Mobile layout overhaul. Judge mode rewrite (items[]→single distractor). Ontology match fix
 - 2026-03-31: Yield protocol (NOMINAL/EXHAUSTED/ERROR). Integration test: 41 steps
+- 2026-04-03: LiteralRepository signature refactor: feed/novel/due/byStrength → (where, opts?), byLastSignal → (signals, where?, opts?). Blacklist stays in opts. ~30 call sites updated across all game emitters, tactic emitters, and domain aperture. Fixed emitters.test.js intents seeded guard (was missing INTENTED trait check)
+- 2026-04-03: Tactic cleanup. Exercise emitter rewritten: thesis is "sentence fluency" — virgin→exhibit+shadow, failed→shadow, else→write, trace-driven cloze (byLastSignal sentences with failed words), listen(type) if vocalized. 183→83 lines. Removed manual token→entity resolution (uses relation instead). Cooldown gameplay/recall bug fixed. Write game autoadvance removed (user controls progression). Dead code cleaned across cooldown and exercise.

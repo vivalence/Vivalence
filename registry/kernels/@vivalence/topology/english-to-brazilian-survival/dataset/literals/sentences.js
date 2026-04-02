@@ -5,7 +5,7 @@ export default [
     trait: {
       VOCALIZED: null,
       TRANSLATED: {
-        known: "Hi, how are you?",
+        known: "Hi, everything good?",
         learning: "Oi, tudo bem?",
       },
       ANNOTATED: {
@@ -75,7 +75,7 @@ export default [
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
-        known: "Fine, thank you.",
+        known: "All good, thanks.",
         learning: "Tudo bem, obrigado.",
       },
       ANNOTATED: {
@@ -474,12 +474,12 @@ export default [
     ],
   },
   {
-    slug: "boa-noite-ela-esta-cansada",
+    slug: "boa-noite-estamos-cansados",
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
-        known: "Good night, she is tired.",
-        learning: "Boa noite, ela está cansada.",
+        known: "Good night, we are tired.",
+        learning: "Boa noite, estamos cansados.",
       },
       ANNOTATED: {
         tokens: [
@@ -498,24 +498,17 @@ export default [
             literal: "noite.noun",
           },
           {
-            form: "ela",
-            gloss: "she",
-            deprel: "nsubj",
-            index: 2,
-            literal: "ela.pronoun",
-          },
-          {
-            form: "está",
-            gloss: "is",
+            form: "estamos",
+            gloss: "we are",
             deprel: "parataxis",
-            index: 3,
-            literal: "estar.verb.indicative.present.third.singular",
+            index: 2,
+            literal: "estar.verb.indicative.present.first.plural",
           },
           {
-            form: "cansada",
+            form: "cansados",
             gloss: "tired",
             deprel: "xcomp",
-            index: 4,
+            index: 3,
             literal: "cansado.adjective",
           },
         ],
@@ -559,7 +552,7 @@ export default [
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
-        known: "Bye, see you tomorrow.",
+        known: "Bye, until tomorrow.",
         learning: "Tchau, até amanhã.",
       },
       ANNOTATED: {
@@ -2319,55 +2312,48 @@ export default [
     ],
   },
   {
-    slug: "eu-preciso-de-um-taxi-agora",
+    slug: "preciso-de-um-taxi-agora",
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
         known: "I need a taxi now.",
-        learning: "Eu preciso de um táxi agora.",
+        learning: "Preciso de um táxi agora.",
       },
       ANNOTATED: {
         tokens: [
           {
-            form: "Eu",
-            gloss: "I",
-            deprel: "nsubj",
-            index: 0,
-            literal: "eu.pronoun",
-          },
-          {
-            form: "preciso",
+            form: "Preciso",
             gloss: "need",
             deprel: "root",
-            index: 1,
+            index: 0,
             literal: "precisar.verb.indicative.present.first.singular",
           },
           {
             form: "de",
             gloss: "of",
             deprel: "case",
-            index: 2,
+            index: 1,
             literal: "de.adposition",
           },
           {
             form: "um",
             gloss: "a",
             deprel: "det",
-            index: 3,
+            index: 2,
             literal: "um.determiner",
           },
           {
             form: "táxi",
             gloss: "taxi",
             deprel: "obl",
-            index: 4,
+            index: 3,
             literal: "táxi.noun",
           },
           {
             form: "agora",
             gloss: "now",
             deprel: "advmod",
-            index: 5,
+            index: 4,
             literal: "agora.adverb",
           },
         ],
@@ -3257,17 +3243,17 @@ export default [
     ],
   },
   {
-    slug: "vira-a-esquerda-depois-a-direita",
+    slug: "vire-a-esquerda-depois-a-direita",
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
         known: "Turn left, then right.",
-        learning: "Vira à esquerda, depois à direita.",
+        learning: "Vire à esquerda, depois à direita.",
       },
       ANNOTATED: {
         tokens: [
           {
-            form: "Vira",
+            form: "Vire",
             gloss: "turn",
             deprel: "root",
             index: 0,
@@ -3942,12 +3928,12 @@ export default [
     ],
   },
   {
-    slug: "socorro-chama-a-policia",
+    slug: "socorro-chame-a-policia",
     traits: ["TRANSLATED", "ANNOTATED", "RANKED"],
     trait: {
       TRANSLATED: {
         known: "Help! Call the police!",
-        learning: "Socorro! Chama a polícia!",
+        learning: "Socorro! Chame a polícia!",
       },
       ANNOTATED: {
         tokens: [
@@ -3959,7 +3945,7 @@ export default [
             literal: "socorro.noun",
           },
           {
-            form: "Chama",
+            form: "Chame",
             gloss: "call",
             deprel: "root",
             index: 1,
@@ -4552,7 +4538,7 @@ export default [
     traits: ["TRANSLATED", "ANNOTATED", "RANKED", "VOCALIZED"],
     trait: {
       TRANSLATED: {
-        known: "I don't want to eat.",
+        known: "I don't feel like eating.",
         learning: "Estou sem vontade de comer.",
       },
       VOCALIZED: {
@@ -6246,10 +6232,10 @@ export default [
         tokens: [
           {
             form: "Limpa",
-            gloss: "limpa",
+            gloss: "clean",
             deprel: "root",
             index: 0,
-            literal: "limpar.verb.imperative.present.second.singular",
+            literal: "limpar.verb.imperative.present.third.singular",
           },
           {
             form: "essa",
@@ -6318,24 +6304,22 @@ export default [
         tokens: [
           {
             form: "Para",
-            gloss: "for/to",
-            deprel: "case",
+            gloss: "stop",
+            deprel: "root",
             index: 0,
-            literal: "para.adposition",
           },
           {
             form: "de",
             gloss: "of",
-            deprel: "case",
+            deprel: "mark",
             index: 1,
             literal: "de.adposition",
           },
           {
             form: "mimimi",
             gloss: "whining",
-            deprel: "root",
+            deprel: "xcomp",
             index: 2,
-            literal: "mimimi.noun",
           },
         ],
       },
@@ -7276,18 +7260,11 @@ export default [
             literal: "preso.adjective",
           },
           {
-            form: "em",
-            gloss: "in",
+            form: "no",
+            gloss: "in the",
             deprel: "case",
             index: 2,
             literal: "em.adposition",
-          },
-          {
-            form: "o",
-            gloss: "the",
-            deprel: "det",
-            index: 3,
-            literal: "o.determiner",
           },
           {
             form: "trânsito",
@@ -8234,10 +8211,10 @@ export default [
           },
           {
             form: "havia",
-            gloss: "there is",
+            gloss: "had",
             deprel: "aux",
             index: 5,
-            literal: "haver.verb.indicative.past.third.singular",
+            literal: "haver.verb.indicative.imperfect.third.singular",
           },
           {
             form: "comprado",
@@ -8247,31 +8224,24 @@ export default [
             literal: "comprar.verb.participle.past",
           },
           {
-            form: "em",
-            gloss: "in",
+            form: "no",
+            gloss: "on the",
             deprel: "case",
             index: 7,
             literal: "em.adposition",
           },
           {
-            form: "o",
-            gloss: "the",
-            deprel: "det",
-            index: 8,
-            literal: "o.determiner",
-          },
-          {
             form: "dia",
             gloss: "day",
             deprel: "nmod",
-            index: 9,
+            index: 8,
             literal: "dia.noun",
           },
           {
             form: "anterior",
             gloss: "previous",
             deprel: "amod",
-            index: 10,
+            index: 9,
             literal: "anterior.adjective",
           },
         ],

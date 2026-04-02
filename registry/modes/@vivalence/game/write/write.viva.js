@@ -5,19 +5,25 @@ const manifest = {
   type: "game",
   slug: "write",
   name: "Write",
-  description: "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
+  description:
+    "Type the translation from memory. Per-token scoring for sentences. Forgiving mode normalizes diacritics.",
   version: "0.2.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
-const buffer = new BufferView("buffer/Write.svelte", v.buffer({
-  data: {
-    recall: v.union([v.string(), v.array(v.string())], {
-      description: "LEARNING, KNOWN, per-literal array, or omit for random",
-    }).optional(),
-    forgiving: v.boolean({ default: true }).desc("Normalize diacritics and case when evaluating"),
-  },
-}));
+const buffer = new BufferView(
+  "buffer/Write.svelte",
+  v.buffer({
+    data: {
+      recall: v
+        .union([v.string(), v.array(v.string())], {
+          description: "LEARNING, KNOWN, per-literal array, or omit for random",
+        })
+        .optional(),
+      forgiving: v.boolean({ default: true }).desc("Normalize diacritics and case when evaluating"),
+    },
+  }),
+);
 
 const emitter = new Vector()
   .open("/literals", async (ctx) => {
@@ -29,11 +35,10 @@ const emitter = new Vector()
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 3;
-    const literals = await ctx.daemon.entities.literal.feed({
-      limit,
-      blacklist: ctx.input.blacklist,
-      where: ctx.input.where,
-    });
+    const literals = await ctx.daemon.entities.literal.feed(
+      ctx.input.where,
+      { limit, blacklist: ctx.input.blacklist },
+    );
     if (!literals.length) return [];
     return ctx.mode.buffer({
       data: { recall: ctx.input.recall },

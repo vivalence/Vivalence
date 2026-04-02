@@ -959,7 +959,7 @@ export default [
         "learning": "embora"
       },
       "EXEMPLIFIED": {
-        "known": "I'm leaving tomorrow",
+        "known": "I'm going away tomorrow",
         "learning": "Eu vou embora amanhã"
       },
       "RANKED": {

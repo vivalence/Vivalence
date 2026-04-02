@@ -7,7 +7,7 @@ const manifest = {
   name: "Conjugation",
   description: "Type the conjugated form from infinitive + person + tense.",
   version: "0.2.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const buffer = new BufferView(
@@ -46,12 +46,10 @@ const emitter = new Vector()
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
 
-    const conjugations = await ctx.daemon.entities.literal.feed({
-      limit,
-      blacklist: ctx.input.blacklist,
-      where: { ontology: "conjugation", ...ctx.input.where },
-      populate: ["uses", "symbols"],
-    });
+    const conjugations = await ctx.daemon.entities.literal.feed(
+      { ontology: "conjugation", ...ctx.input.where },
+      { limit, blacklist: ctx.input.blacklist, populate: ["uses", "symbols"] },
+    );
     if (!conjugations.length) return [];
 
     const cards = [];
@@ -88,10 +86,7 @@ const dataset = {
         FEEDING: {
           mount: "/emit/feed",
           queue: 1,
-          mask: {
-            where: { ontology: "conjugation" },
-            limit: 4,
-          },
+          mask: { where: { ontology: "conjugation" }, limit: 4 },
         },
       },
     },

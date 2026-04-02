@@ -4,16 +4,19 @@ const manifest = {
   type: "game",
   slug: "pick",
   name: "Pick",
-  description: "Multiple choice from distractors. One tap. Wrong pick penalizes both target and distractor.",
+  description:
+    "Multiple choice from distractors. One tap. Wrong pick penalizes both target and distractor.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const buffer = new BufferView(
   "buffer/Pick.svelte",
   v.buffer({
     data: {
-      recall: v.string({ default: "LEARNING" }).desc("LEARNING: known→pick learning, KNOWN: learning→pick known"),
+      recall: v
+        .string({ default: "LEARNING" })
+        .desc("LEARNING: known→pick learning, KNOWN: learning→pick known"),
     },
   }),
 );
@@ -30,17 +33,17 @@ const emitter = new Vector()
 
     let pool = ctx.input.distractors ?? [];
     if (!pool.length) {
-      pool = await ctx.daemon.entities.literal.feed({
-        limit: 6,
-        blacklist: ctx.input.blacklist,
-        where: { ontology: lit.ontology },
-      });
+      pool = await ctx.daemon.entities.literal.feed(
+        { ontology: lit.ontology },
+        { limit: 6, blacklist: ctx.input.blacklist },
+      );
     }
 
     const seen = new Set([target]);
     const seenLearning = new Set([targetLearning]);
     const scored = [];
     for (const d of pool) {
+      if (d.id === lit.id) continue;
       const t = string.fold(textOf(d) ?? "");
       if (seen.has(t)) continue;
       const l = learningOf(d);
@@ -58,11 +61,10 @@ const emitter = new Vector()
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
-    const literals = await ctx.daemon.entities.literal.feed({
-            limit,
-      blacklist: ctx.input.blacklist,
-      where: ctx.input.where,
-    });
+    const literals = await ctx.daemon.entities.literal.feed(
+      ctx.input.where,
+      { limit, blacklist: ctx.input.blacklist },
+    );
     if (literals.length < 2) return [];
     return ctx.mode.buffer({
       data: { recall: ctx.input.recall ?? "LEARNING" },
@@ -71,19 +73,21 @@ const emitter = new Vector()
   });
 
 const dataset = {
-  intent: [{
-    slug: "feed",
-    name: "Pick",
-    type: "APPLICATIVE",
-    traits: ["FEEDING"],
-    trait: {
-      FEEDING: {
-        mount: "/emit/feed",
-        queue: 1,
-        mask: { limit: 4 },
+  intent: [
+    {
+      slug: "feed",
+      name: "Pick",
+      type: "APPLICATIVE",
+      traits: ["FEEDING"],
+      trait: {
+        FEEDING: {
+          mount: "/emit/feed",
+          queue: 1,
+          mask: { limit: 4 },
+        },
       },
     },
-  }],
+  ],
 };
 
 export { manifest, buffer, emitter, dataset };

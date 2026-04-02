@@ -4,7 +4,7 @@
   const { terminal, buffer } = $props();
 
   const data = buffer.data ?? {};
-  const layout = data.layout ?? "table";
+  const layout = data.layout ?? "TABLE";
   const title = data.title ?? "";
   const subtitle = data.subtitle;
   const template = data.template;
@@ -55,7 +55,7 @@
     return [lits.slice(0, mid), lits.slice(mid)];
   }
 
-  const groups = $derived(layout === "contrastive" ? contrastiveGroups(literals) : []);
+  const groups = $derived(layout === "CONTRASTIVE" ? contrastiveGroups(literals) : []);
 
   function advance() {
     buffer.release();
@@ -88,7 +88,7 @@
           <p class="subtitle">{subtitle}</p>
         {/if}
 
-        {#if layout === "table"}
+        {#if layout === "TABLE"}
           <div class="table">
             {#each literals as lit}
               {@const person = personLabel(lit)}
@@ -107,7 +107,7 @@
             {/each}
           </div>
 
-        {:else if layout === "pattern"}
+        {:else if layout === "PATTERN"}
           {#if templateParts.length}
             <div class="pattern-template">
               {#each templateParts as part}
@@ -129,7 +129,7 @@
             {/each}
           </div>
 
-        {:else if layout === "contrastive"}
+        {:else if layout === "CONTRASTIVE"}
           <div class="contrastive">
             {#each groups as group, gi}
               <div class="contrast-col">

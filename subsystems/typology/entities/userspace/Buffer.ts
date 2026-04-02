@@ -22,6 +22,12 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
   name: "Buffer",
   tableName: "Buffer",
   abstract: true,
+  filters: {
+    user: {
+      cond: (args: any) => ({ thread: { user: args.user } }),
+      default: true,
+    },
+  },
   properties: {
     data: { type: types.json, defaultRaw: `'{}'` },
     index: { type: types.integer, default: 0 },

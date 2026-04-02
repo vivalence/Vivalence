@@ -73,19 +73,22 @@ for (const [slug, viva] of Object.entries(modes)) {
     if (inputs[slug]) {
       for (const [route, inputFn] of Object.entries(inputs[slug])) {
         specimen.it(`emit.${route} returns buffer(s)`, async () => {
-          const result = await scenario.mode.emit[route](inputFn(scenario.fixtures));
-          const buffers = Array.isArray(result) ? result.flat() : [result];
-          specimen.expect(buffers.length).toBeGreaterThanOrEqual(0);
-          for (const buffer of buffers) {
-            if (buffer) {
-              specimen.expect(buffer.data).toBeTruthy();
+          await scenario.scoped(async () => {
+            const result = await scenario.mode.emit[route](inputFn(scenario.fixtures));
+            specimen.expect(result.condition).toBeTruthy();
+            const buffers = result.buffers ?? [];
+            specimen.expect(buffers.length).toBeGreaterThanOrEqual(0);
+            for (const buffer of buffers) {
+              if (buffer) {
+                specimen.expect(buffer.data).toBeTruthy();
+              }
             }
-          }
+          });
         });
       }
     }
 
-    if (viva.dataset?.intent) {
+    if (viva.dataset?.intent && viva.manifest.traits.includes("INTENTED")) {
       specimen.it("intents seeded", async () => {
         for (const intent of viva.dataset.intent) {
           const found = await scenario.daemon.entities.intent.findOne({ slug: intent.slug });

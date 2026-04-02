@@ -95,6 +95,7 @@ export async function create() {
   daemon.entities.thread = em.getRepository(ThreadEntity);
   daemon.entities.user = em.getRepository(UserEntity);
   daemon.entities.buffer = em.getRepository(BufferEntity);
+  daemon.entities.trace = null;
 
   // const sub = shape.subscriber(daemon.entities.twitch);
   const sub = shape.subscriber(daemon.twitch);
@@ -152,7 +153,13 @@ export async function create() {
     await next();
   });
 
-  return { daemon, die, handler, conn, authedConn, orm, em, fixtures, mode };
+  const scoped = (fn) => RequestContext.create(orm.em, async () => {
+    const scopedEm = RequestContext.getEntityManager();
+    scopedEm.setFilterParams("user", { user: fixtures.user.id });
+    return fn(scopedEm);
+  });
+
+  return { daemon, die, handler, conn, authedConn, orm, em, fixtures, mode, scoped };
 }
 
 // mode.view = { url: `/view/${mode.type}/${mode.slug}` };

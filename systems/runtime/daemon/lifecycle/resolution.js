@@ -1,12 +1,25 @@
 import { is, shard } from "@vivalence/typology";
 
 export async function kernel(daemonDie) {
-  daemonDie.kernel.domain.aperture // not needed anymore?
+  const { entities } = daemonDie.good;
+
+  daemonDie.kernel.domain.aperture
     .use(shard.context.attach("daemon", daemonDie.good));
+
+  const userspace = daemonDie.kernel.domain.aperture.branch("/userspace");
+
+  userspace
+    .branch("/entities/trace")
+    .slurp(shard.datamap.repository(entities.trace))
+    .slurp(shard.datamap.reactive(entities.trace, daemonDie.good.twitch));
+
+  userspace
+    .branch("/entities/memory")
+    .slurp(shard.datamap.repository(entities.memory))
+    .slurp(shard.datamap.reactive(entities.memory, daemonDie.good.twitch));
 
   daemonDie.good.aperture
     .use(shard.secure.authorize())
-    // .use(shard.ambient.store((ctx) => ({ user: ctx.user, entities: ctx.entities })))
     .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
     .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
     .slurp(daemonDie.kernel.domain.aperture);

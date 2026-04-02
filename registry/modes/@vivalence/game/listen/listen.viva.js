@@ -7,7 +7,7 @@ const manifest = {
   description:
     "Audio-first recall. Pick or type the meaning/transcription. Requires VOCALIZED literal.",
   version: "0.1.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const buffer = new BufferView(
@@ -21,8 +21,8 @@ const buffer = new BufferView(
         })
         .optional(),
       gameplay: v
-        .string({ default: "pick" })
-        .desc("pick: select from candidates, type: free text input"),
+        .string({ default: "PICK" })
+        .desc("PICK: select from candidates, TYPE: free text input"),
       forgiving: v
         .boolean({ default: true })
         .desc("Normalize diacritics and case when evaluating typed input"),
@@ -36,10 +36,10 @@ const emitter = new Vector()
     const vocalized = lit.traits?.includes("VOCALIZED") ?? "VOCALIZED" in (lit.trait ?? {});
     if (!vocalized) return [];
 
-    const gameplay = ctx.input.gameplay ?? "pick";
+    const gameplay = ctx.input.gameplay ?? "PICK";
     let literals = [lit];
 
-    if (gameplay === "pick") {
+    if (gameplay === "PICK") {
       const recall = ctx.input.recall ?? "LEARNING";
       const textOf = (l) =>
         recall === "KNOWN" ? l.trait?.TRANSLATED?.known : l.trait?.TRANSLATED?.learning;
@@ -49,16 +49,16 @@ const emitter = new Vector()
 
       const pool =
         ctx.input.distractors ??
-        (await ctx.daemon.entities.literal.feed({
-          limit: 6,
-          blacklist: ctx.input.blacklist,
-          where: { ontology: lit.ontology },
-        }));
+        (await ctx.daemon.entities.literal.feed(
+          { ontology: lit.ontology },
+          { limit: 6, blacklist: ctx.input.blacklist },
+        ));
 
       const seen = new Set([target]);
       const seenLearning = new Set([targetLearning]);
       const scored = [];
       for (const d of pool) {
+        if (d.id === lit.id) continue;
         const t = string.fold(textOf(d) ?? "");
         if (seen.has(t)) continue;
         const l = learningOf(d);
@@ -83,15 +83,14 @@ const emitter = new Vector()
   })
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 4;
-    const vocalized = await ctx.daemon.entities.literal.feed({
-      limit: limit,
-      blacklist: ctx.input.blacklist,
-      where: object.merge({ traits: ["VOCALIZED"] }, ctx.input.where),
-    });
+    const vocalized = await ctx.daemon.entities.literal.feed(
+      object.merge({ traits: ["VOCALIZED"] }, ctx.input.where),
+      { limit, blacklist: ctx.input.blacklist },
+    );
     return ctx.mode.buffer({
       data: {
         recall: ctx.input.recall ?? "KNOWN",
-        gameplay: "pick",
+        gameplay: "PICK",
       },
       literals: vocalized,
     });

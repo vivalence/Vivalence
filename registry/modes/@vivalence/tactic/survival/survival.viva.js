@@ -3,9 +3,9 @@ import { emitter } from "./emitter/index.js";
 
 export const manifest = {
   type: "tactic",
-  slug: "survival",
-  name: "Survival",
-  description: "Five-phase thread for conquering survival Brazilian Portuguese.",
+  slug: "five-fold-session",
+  name: "Five-Fold Session",
+  description: "Five-phase thread: warmup, buildup, exercise, drill, cooldown.",
   traits: ["INTENTED", "EMITTER"],
 };
 

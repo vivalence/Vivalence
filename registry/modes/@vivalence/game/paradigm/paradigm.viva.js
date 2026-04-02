@@ -6,7 +6,7 @@ const manifest = {
   name: "Paradigm",
   description: "Fill a conjugation table cell by cell. Type each form.",
   version: "0.2.0",
-  traits: ["BUFFERED", "INTENTED", "EMITTER"],
+  traits: ["BUFFERED", "EMITTER"],
 };
 
 const buffer = new BufferView(
@@ -82,12 +82,10 @@ const emitter = new Vector()
   .open("/feed", async (ctx) => {
     const limit = ctx.input.limit ?? 1;
 
-    const paradigms = await ctx.daemon.entities.literal.feed({
-      limit,
-      blacklist: ctx.input.blacklist,
-      where: { ontology: "conjugation", ...ctx.input.where },
-      populate: ["uses", "symbols"],
-    });
+    const paradigms = await ctx.daemon.entities.literal.feed(
+      { ontology: "conjugation", ...ctx.input.where },
+      { limit, blacklist: ctx.input.blacklist, populate: ["uses", "symbols"] },
+    );
     if (!paradigms.length) return [];
 
     const buffers = [];

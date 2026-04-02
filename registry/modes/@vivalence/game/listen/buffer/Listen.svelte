@@ -7,7 +7,7 @@
   let keyboard;
 
   const data = buffer.data ?? {};
-  const gameplay = data.gameplay ?? "pick";
+  const gameplay = data.gameplay ?? "PICK";
   const forgiving = data.forgiving ?? true;
 
   function recallFor(i) {
@@ -30,7 +30,7 @@
   const target = $derived(data.target ? literals.find((l) => l.id === data.target) : literals[0]);
   const isWord = $derived(target?.symbol?.word);
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
-  const total = $derived(gameplay === "type" ? literals.length : 1);
+  const total = $derived(gameplay === "TYPE" ? literals.length : 1);
   const position = $derived(currentIndex + 1);
 
   const answer = $derived(
@@ -98,6 +98,8 @@
       signal,
       scope: { literal: target.id },
     });
+
+    setTimeout(() => advance(), result === "correct" ? 800 : 1200);
   }
 
   function selectPick(lit) {
@@ -124,7 +126,7 @@
   }
 
   function advance() {
-    if (gameplay === "type" && currentIndex + 1 < literals.length) {
+    if (gameplay === "TYPE" && currentIndex + 1 < literals.length) {
       currentIndex++;
       activeRecall = recallFor(currentIndex);
       typed = "";
@@ -141,16 +143,16 @@
         selected?.id === target?.id ||
         answerText(selected) === answerText(target)),
   );
-  const typeResult = $derived(answered && gameplay === "type" ? evaluateTyped() : null);
+  const typeResult = $derived(answered && gameplay === "TYPE" ? evaluateTyped() : null);
 
   let inputEl = $state(null);
 
   $effect(() => {
-    if (gameplay === "type" && inputEl) inputEl.focus();
+    if (gameplay === "TYPE" && inputEl) inputEl.focus();
   });
 
   function handleKey(event) {
-    if (gameplay === "type") {
+    if (gameplay === "TYPE") {
       if (["Enter", "Space"].includes(event.key) && !answered) {
         event.preventDefault();
         submitType();
@@ -186,7 +188,7 @@
   }
 </script>
 
-{#if gameplay === "type"}<Keyboard bind:this={keyboard} />{/if}
+{#if gameplay === "TYPE"}<Keyboard bind:this={keyboard} />{/if}
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
@@ -214,7 +216,7 @@
           </button>
         </div>
 
-        {#if gameplay === "type"}
+        {#if gameplay === "TYPE"}
           <div class="type-area">
             <label class="input-label">{answerLabel}</label>
             <input
@@ -279,7 +281,7 @@
         <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Next
         </button>
-      {:else if gameplay === "type"}
+      {:else if gameplay === "TYPE"}
         <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submitType}>
           Check
         </button>

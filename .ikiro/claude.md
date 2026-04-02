@@ -50,7 +50,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, terminal, stall, lobby, door
 
-**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 52px mobile / 40px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count, counter button opens Inspector), inspector (routes/viva/Inspector.svelte — debug panel anchored to right of modeline, two tabs: buffers [queue visualization with skip/select/expand/DnD] and traces [polled review history with signal/status/literal/nextIn]. Reusable components in surface/inspector/), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation)
+**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 52px mobile / 40px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count, counter button opens Inspector), inspector (routes/viva/Inspector.svelte — debug panel anchored to right of modeline, two tabs: buffers [queue visualization with skip/select/expand/DnD] and traces [polled review history with signal/status/literal/nextIn]. Reusable components in surface/inspector/), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation), stage (rendering engine shim in drapes — sole consumer of echarts/three.js, re-exports as `stage.*`. `stage.chart(container)` → echarts instance, `stage.scene(container)` → Three.js scene kit. `stage.echarts`/`stage.THREE` escape hatches. Canvas component = managed container with init callback)
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
 
@@ -88,11 +88,11 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Schematics**: `v` — fluent Proxy over TypeBox. `v.string().default().desc().optional()`. `lib.js` is sole TypeBox consumer. `v.rel(schema)` for m:1 relations, `v.array(v.entity())` for collections. Entity factories: `v.buffer(spec)`, `v.literal(spec)`, etc.
 
-**Gameplay**: `data.gameplay` string enum per mode. `data.forgiving` boolean for typed input.
+**Gameplay**: `data.gameplay` UPPERCASE string enum per mode (PICK, TYPE, TRANSLATE, DESCRIBE, LISTEN). `data.layout` UPPERCASE string enum (TABLE, PATTERN). `data.forgiving` boolean for typed input.
 
 **Intent types**: SELFEVIDENT (fallback), APPLICATIVE (primary — feeds buffers via emitter).
 
-**Yield protocol**: `Yield.NOMINAL(buffers)`, `Yield.EXHAUSTED(meta)`, `Yield.ERROR(error)`. `condition` discriminant. `accumulator()` factory for `ctx.yield`. `mode.emit` unwraps NOMINAL for internal callers; HTTP returns full envelope.
+**Yield protocol**: `Yield.NOMINAL(buffers)`, `Yield.EXHAUSTED(meta)`, `Yield.ERROR(error)`. `condition` discriminant. `Pool` on `ctx.pool` collects buffers, `drain()` produces yield envelope. `mode.emit` returns yield envelope directly (no unwrap). `Pool.add()` absorbs anything (pojos, arrays, yields, promises, pools, falsy→drop). `pool.section(...).apply(array.shuffle)` for independent shuffling. `pool.of()` for detached sub-pools.
 
 **Memory signals**: MASTERY, SUCCESS, NEUTRAL, MISTAKE, FAILURE
 
@@ -121,6 +121,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 - **No shorthand alias variables.** Don't create `const modes = ctx.daemon.modes.game` or `const literal = ctx.daemon.entities.literal`. Read off the objects directly. Loop variables use full names: `literal` not `lit`, `form` not `f`, `sentence` not `s`, `word` not `w`, `token` not `t`.
 - **SQLite date functions need `unixepoch` modifier.** MikroORM stores dates as millisecond timestamps. SQLite's `julianday()` and `datetime()` can't parse raw milliseconds — use `julianday(column / 1000.0, 'unixepoch')`. Without the modifier, these functions silently return NULL.
 - **Check traits via `traits` array, not `trait` object.** `entity.traits.includes("VOCALIZED")` — not `entity.trait?.VOCALIZED`. Trait values can be `null` (e.g., `VOCALIZED: null` means "is vocalized" with no additional data), which is falsy. The `traits` array is the source of truth for trait presence.
+- **LiteralRepository custom methods follow MikroORM's `(where, opts?)` pattern.** `feed(where, opts?)`, `novel(where, opts?)`, `due(where, opts?)`, `byStrength(where, opts?)` where opts = `{ limit, blacklist, populate }`. Exception: `byLastSignal(signals, where?, opts?)` takes signals as first arg because it's the method's primary discriminant. Never use single-object `({ limit, blacklist, where })` style.
 
 ## Principles
 
@@ -196,7 +197,7 @@ runtime/scenarios/entities.ts
 
 runtime/scenarios/daemon.js
   └─ imports: seed from entities.ts
-  └─ provides: full daemon (aperture, routes, auth, conn, authedConn)
+  └─ provides: full daemon (aperture, routes, auth, conn, authedConn, scoped)
 ```
 
 Each scenario extends the previous. Never duplicate schema definitions — import and extend.
@@ -357,17 +358,18 @@ Still on disk — don't document, extend, or suggest using:
 | Archived topologies | registry/kernels/@vivalence/topology/bak/ | Spanish, Latin, etc. |
 | Game mode stubs | registry/modes/@vivalence/game/bak/todo/ | Superseded by proper modes |
 | SELFEVIDENT trait impl | runtime/daemon/traits/index.js | No-op — all modes use APPLICATIVE |
-| Old EMITTER commented code | runtime/daemon/traits/emitter.js lines 62-93 | Pre-Yield post-processor |
+| Old EMITTER commented code | REMOVED | Was runtime/daemon/traits/emitter.js lines 62-93. Deleted during Pool migration. |
 | Old BUFFERED commented code | runtime/daemon/traits/buffered.js lines 46-56 | Pre-ensure buffer factory |
 
 ## Active Work Areas
 
-As of 2026-03-31:
+As of 2026-04-03:
 
+- **Stage + Dashboard** — [stage-canvas-devtools.workpackage.org](stage-canvas-devtools.workpackage.org). `stage` rendering shim in drapes (sole echarts consumer). `Canvas` managed container component. ECharts v6 via import_map. `dashboard` mode type in learning domain. `dashboard/dataspace` mode: graph (practiced literals + symbol anchors), memory (status bars + scatter), traces (timeline scatter + live SSE). Phase 1 done, Phase 2 iterating (graph layout tuning). Three.js deferred.
 - **Literal hierarchy** — `uses`/`in` M:N self-relation. LiteralSubscriber afterFlush. Open: twitch migration question
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Yield protocol done. Distractor selection: emitters dedup on learning text via `string.fold`/`string.dice`, tactics pre-fetch shared pool (approach E). Warmup: 3-source scheduling (near-due mistakes/failures/neutral, due now, weak by strength ≤0.5, 48h horizon). Buildup: conditional exhibit, shadow/write by sentence status, due verbs mixed into judge/conjugation. Paradigm reviews conjugation entity (composite signal: 0 mistakes→MASTERY, all→FAILURE, ≥60%→MISTAKE, else→SUCCESS). All tactics use `memory.is.*` getters, no shorthand variables. Strength formula browser-verified working. Keyboard persistence: Conjugation + Paradigm import hidden Keyboard component to keep iOS keyboard open across steps. Trace-based blacklist: emitter middleware queries traces from last 3 minutes, merges into blacklist to prevent cross-pull repetition. Open: CompletableSymbol, Tier 2 (reorder, dictation)
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Pool emitter composition. All gameplay/layout enums UPPERCASE. Open: CompletableSymbol, Tier 2 (reorder, dictation)
 - **Cortex** — [cortex.workpackage.org](cortex.workpackage.org). Design done, not yet built
-- **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch DONE. RemoteRepository persistence rewritten — owns localStorage directly (no `persistentAtom`), all writes go through `merge()` to guarantee prototypes. Client daemon.entities expanded: trace + literal repos added. Server trace route mounted at `/userspace/entities/trace` with scope + repository + reactive. Open: persist test needs updating, identity map not yet formalized, SSE subscribe for traces (server endpoint exists via `datamap.reactive`, client `repo.subscribe()` ready)
+- **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch DONE. Memory + trace datamap shards now exposed in domain aperture. Open: persist test, identity map, SSE subscribe wiring
 - **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org). MCP as future phase
 - **Package manager** — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org). Design only
 - **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org). DONE (M1+M2). M3 game mode migration pending
@@ -404,8 +406,12 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 **Active work packages:**
 - [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex
 - [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics
+- [stage-canvas-devtools.workpackage.org](stage-canvas-devtools.workpackage.org) — Stage rendering primitives + dashboard mode
 - [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org) — Operator interface + MCP
 - [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org) — Registry as jj scopes
+
+**Completed:**
+- [pool-prototype.workpackage.org](pool-prototype.workpackage.org) — Pool emitter composition primitive (DONE 2026-04-02)
 
 **Key testing gaps:** Memory drivers untested in isolation. DATASET trait, process system untested. Paladin untested. No isolated mode-level tests (mountMode harness planned — phases 5+6). Agentic compiler untested.
 

@@ -1,4 +1,5 @@
 import { Url, Mode, Path, Aperture, Vector, BufferView, v, shape, shard } from "@vivalence/typology";
+import { RequestContext } from "@mikro-orm/core";
 import {
   LiteralEntity,
   SymbolEntity,
@@ -100,7 +101,12 @@ export async function mountMode(viva) {
   const { orm, em, fixtures } = await seed();
   const daemon = buildDaemon(em);
   const mode = await wireMode(viva, daemon, em);
-  return { mode, daemon, orm, em, fixtures };
+  const scoped = (fn) => RequestContext.create(orm.em, async () => {
+    const scopedEm = RequestContext.getEntityManager();
+    scopedEm.setFilterParams("user", { user: fixtures.user.id });
+    return fn(scopedEm);
+  });
+  return { mode, daemon, orm, em, fixtures, scoped };
 }
 
 export async function mountModes(vivas) {

@@ -41,7 +41,10 @@ export const daemons = [
       "@vivalence/game/cloze",
       "@vivalence/game/listen",
       "@vivalence/game/exhibit",
-      "@vivalence/tactic/survival",
+      "@vivalence/tactic/five-fold-session",
+
+      "@vivalence/tactic/verb-clinic",
+      "@vivalence/dashboard/dataspace",
     ],
 
     lighthouse: {

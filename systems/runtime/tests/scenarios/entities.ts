@@ -32,7 +32,8 @@ export enum LiteralTraits {
 // Extends base repo with a stub .feed() that the domain kernel normally provides.
 // Real .feed() does due/novel spaced-repetition split; this just returns literals.
 class TestLiteralRepository extends LiteralRepository {
-  async feed({ limit, blacklist, where, populate }: any) {
+  async feed(where: any, opts?: any) {
+    const { limit, blacklist, populate } = opts || {};
     const filters: any = { ...where };
     if (blacklist?.literals?.length) {
       filters.id = { $nin: blacklist.literals.map((literal: any) => literal?.id ?? literal) };

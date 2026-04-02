@@ -6,7 +6,7 @@
   let keyboard;
 
   const data = buffer.data ?? {};
-  const gameplay = data.gameplay ?? "type";
+  const gameplay = data.gameplay ?? "TYPE";
   const blankIndices = new Set(data.blankIndices ?? []);
   const forgiving = data.forgiving ?? true;
 
@@ -18,7 +18,7 @@
   const tokens = $derived(literal?.trait?.ANNOTATED?.tokens ?? []);
   const known = $derived(literal?.trait?.TRANSLATED?.known);
   const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
-  const isListenMode = $derived(gameplay === "listen");
+  const isListenMode = $derived(gameplay === "LISTEN");
 
   if (!literal) {
     terminal.daemon.call("/pick/literal/feed", { limit: 1, where: { traits: { $contains: "ANNOTATED" } } }).then(([lit]) => {
@@ -83,9 +83,9 @@
   }
 
   const options = $derived(
-    gameplay === "pick" && data.options?.length
+    gameplay === "PICK" && data.options?.length
       ? data.options
-      : gameplay === "pick"
+      : gameplay === "PICK"
         ? [...new Set([...blankIndices].map((i) => tokens[i]?.form).filter(Boolean))]
         : [],
   );
@@ -129,7 +129,7 @@
                   {#if !correct && answers[i]}
                     <span class="gap-yours">{answers[i]}</span>
                   {/if}
-                {:else if gameplay === "type" || gameplay === "listen"}
+                {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
                   <input
                     class="gap-input"
                     type="text"
@@ -148,7 +148,7 @@
           {/each}
         </div>
 
-        {#if gameplay === "pick" && !submitted}
+        {#if gameplay === "PICK" && !submitted}
           <div class="options">
             {#each options as opt}
               {@const selected = Object.values(answers).includes(opt)}
@@ -182,7 +182,7 @@
         <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
           Next
         </button>
-      {:else if gameplay === "type" || gameplay === "listen"}
+      {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
         <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submit}>
           Check
         </button>
@@ -232,7 +232,8 @@
   .tokens {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.375rem;
+    gap: 0.25rem 0.625rem;
+    line-height: 2.2;
     align-items: baseline;
     margin-bottom: 1.75rem;
   }

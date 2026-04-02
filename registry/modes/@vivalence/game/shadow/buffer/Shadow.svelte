@@ -250,33 +250,19 @@
             <div class="divider"></div>
 
             <div class="feedback">
-              <div class="signal">
-                <span
-                  class="signal-dot"
-                  class:ok={result.signal === "SUCCESS"}
-                  class:wrong={result.signal !== "SUCCESS"}></span>
-                <span
-                  class="signal-text"
-                  class:ok={result.signal === "SUCCESS"}
-                  class:wrong={result.signal !== "SUCCESS"}>
-                  {result.signal === "SUCCESS" ? "Correct" : "Incorrect"}
-                </span>
-              </div>
-
               <div class="fb-block">
-                <span class="fb-key">yours</span>
                 <span
                   class="fb-val"
                   class:ok={result.signal === "SUCCESS"}
                   class:wrong={result.signal !== "SUCCESS"}>
-                  {input}
+                  {result.signal === "SUCCESS" ? answer : input}
                 </span>
               </div>
 
               {#if result.signal !== "SUCCESS"}
                 <div class="fb-block">
                   <span class="fb-key">expected</span>
-                  <span class="fb-answer">{answer}</span>
+                  <span class="fb-val ok">{answer}</span>
                 </div>
               {/if}
 
@@ -326,7 +312,7 @@
 
 <style>
   .stage {
-    max-width: 480px;
+    max-width: 640px;
     width: 100%;
     margin: 0 auto;
     padding: 2rem 1.25rem;
@@ -406,31 +392,11 @@
     gap: 0.75rem;
   }
 
-  .signal {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.25rem;
-  }
-  .signal-dot { width: 8px; height: 8px; border-radius: 50%; }
-  .signal-dot.ok { background: var(--colors-system-success-contrast); }
-  .signal-dot.wrong { background: var(--colors-system-error-contrast); }
-  .signal-text {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-family: var(--font-family-sans-text);
-  }
-  .signal-text.ok { color: var(--colors-system-success-contrast); }
-  .signal-text.wrong { color: var(--colors-system-error-contrast); }
-
   .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
   .fb-key { font-family: var(--font-family-code); font-size: 0.6rem; color: var(--colors-skeleton-1-boundary); }
-  .fb-val { font-size: 1.125rem; font-family: var(--font-family-sans-text); }
+  .fb-val { font-size: 1.25rem; font-family: var(--font-family-serif-heading); }
   .fb-val.ok { color: var(--colors-system-success-contrast); }
   .fb-val.wrong { color: var(--colors-system-error-contrast); }
-  .fb-answer { font-family: var(--font-family-serif-heading); font-size: 1.25rem; color: var(--colors-theme-primary-contrast); }
 
   .tokens { display: flex; flex-wrap: wrap; gap: 0.125rem; margin-top: 0.25rem; }
   .tok { display: flex; flex-direction: column; align-items: center; padding: 0.375rem 0.5rem; border-radius: 0.25rem; }
@@ -450,7 +416,7 @@
     padding: 0.75rem 1.25rem;
   }
   .input-row {
-    max-width: 480px;
+    max-width: 640px;
     margin: 0 auto;
     display: flex;
     gap: 0.625rem;
@@ -506,7 +472,11 @@
   }
 
   @media (max-width: 640px) {
-    .prompt { font-size: var(--font-size-xl); }
-    .prompt-word { font-size: var(--font-size-2xl); }
+    .prompt { font-size: var(--font-size-base); }
+    .prompt-word { font-size: var(--font-size-lg); }
+    .recall-prompt { font-size: var(--font-size-base); }
+    .fb-val { font-size: 1rem; }
+    .tok { padding: 0.25rem 0.375rem; }
+    .tok-form { font-size: 0.85rem; }
   }
 </style>

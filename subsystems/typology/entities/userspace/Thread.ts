@@ -26,6 +26,12 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
   class: ThreadEntity,
   extends: DataSchema,
   tableName: "Thread",
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
   properties: {
     user: {
       kind: "m:1",
