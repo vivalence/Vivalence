@@ -19,7 +19,7 @@ const buffer = new BufferView(
       tense: v.string().desc("Symbol ID of the tense"),
       mood: v.string().desc("Symbol ID of the mood"),
       lemma: v.string().desc("Symbol ID of the lemma"),
-      recall: v.string({ default: "LEARNING" }).desc("LEARNING or KNOWN"),
+      recall: v.string({ default: "LEARNING" }).desc("always LEARNING"),
     },
   }),
 );
@@ -27,20 +27,36 @@ const buffer = new BufferView(
 const emitter = new Vector()
   .open("/literal", async (ctx) => {
     const target = ctx.input.literal;
-    const infinitive = ctx.input.infinitive;
-    const recall = ctx.input.recall ?? "LEARNING";
+
+    let { infinitive, tense, mood, lemma } = ctx.input;
+
+    if (!infinitive) {
+      const [conjugation] = await ctx.daemon.entities.literal.find(
+        { ontology: "conjugation", uses: target.id },
+        { limit: 1, populate: ["uses", "symbols"] },
+      );
+      if (!conjugation) return;
+
+      infinitive = conjugation.uses
+        .getItems()
+        .find((u) => u.slug === conjugation.trait.CONJUGATED.infinitive);
+
+      const symbols = conjugation.symbols.getItems();
+      tense = symbols.find((s) => s.slug.startsWith("word.tense."));
+      mood = symbols.find((s) => s.slug.startsWith("word.mood."));
+      lemma = symbols.find((s) => s.slug.startsWith("word.lemma."));
+    }
 
     return ctx.mode.buffer({
       data: {
         target: target.id,
         infinitive: infinitive?.id,
-        tense: ctx.input.tense?.id,
-        mood: ctx.input.mood?.id,
-        lemma: ctx.input.lemma?.id,
-        recall,
+        tense: tense?.id,
+        mood: mood?.id,
+        lemma: lemma?.id,
       },
       literals: [target, infinitive].filter(Boolean),
-      symbols: [ctx.input.tense, ctx.input.mood, ctx.input.lemma].filter(Boolean),
+      symbols: [tense, mood, lemma].filter(Boolean),
     });
   })
   .open("/feed", async (ctx) => {
@@ -70,7 +86,7 @@ const emitter = new Vector()
 
     const buffers = [];
     for (const card of array.shuffle(cards)) {
-      buffers.push(await ctx.mode.emit.literal({ ...card, recall: ctx.input.recall }));
+      buffers.push(await ctx.mode.emit.literal(card));
     }
     return buffers;
   });

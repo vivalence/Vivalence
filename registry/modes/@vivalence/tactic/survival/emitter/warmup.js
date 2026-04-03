@@ -27,19 +27,20 @@ export default async (ctx) => {
   );
   // ── source B: due right now ───────────────────────────────────────
   const due = collect(
-    await ctx.daemon.entities.literal.due(
-      ctx.input.where,
-      { limit: 4, blacklist: ctx.input.blacklist },
-    ),
+    await ctx.daemon.entities.literal.feed(ctx.input.where, {
+      limit: 4,
+      blacklist: ctx.input.blacklist,
+    }),
   );
   // ── source C: weakest by strength ─────────────────────────────────
   const weak = collect(
     await ctx.daemon.entities.literal.byStrength(
-      { ...ctx.input.where, memories: { strength: { $lte: 0.5 } } },
+      { ...ctx.input.where, memories: { strength: { $gte: 0.1, $lte: 0.5 } } },
       { limit: 4, blacklist: ctx.input.blacklist },
     ),
   );
   const words = array.shuffle([...failures, ...due, ...weak]);
+
   if (!words.length) return;
 
   // ── distractor pool: one fetch, shared across all game emits ──────
@@ -62,25 +63,27 @@ export default async (ctx) => {
     .section(
       ...words.map((literal) =>
         ctx.daemon.modes.game.flashcard.emit.literals({
-          recall: literal.memory?.is.succeeded ? "LEARNING" : "KNOWN",
+          recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
           literal,
         }),
       ),
 
-      ...words.map((literal) =>
-        ctx.daemon.modes.game.judge.emit.literal({
-          literal,
-          distractors,
-          speed: { rate: literal.memory?.is.succeeded ? "NORMAL" : "SLOW" },
-        }),
-      ),
+      ...words
+        .filter((l) => l.memory?.is.virgin || l.memory?.is.weak)
+        .map((literal) =>
+          ctx.daemon.modes.game.judge.emit.literal({
+            literal,
+            distractors,
+            speed: { rate: literal.memory?.is.succeeded ? "NORMAL" : "SLOW" },
+          }),
+        ),
       ...words
         .filter((word) => word.traits?.includes("VOCALIZED"))
         .map((literal) =>
           ctx.daemon.modes.game.listen.emit.literal({
             literal,
             distractors,
-            gameplay: "PICK",
+            gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
             recall: "KNOWN",
           }),
         ),

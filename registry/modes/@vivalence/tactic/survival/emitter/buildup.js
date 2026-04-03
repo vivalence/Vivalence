@@ -63,21 +63,27 @@ export default async (ctx) => {
   // ── 2. PICK — weak + due verbs, shuffled
   ctx.pool
     .section(
-      ...array.shuffle([...weak, ...dueVerbs]).map((literal) =>
-        ctx.daemon.modes.game.pick.emit.literal({
-          literal,
-          distractors: distractorPool,
-          recall: "LEARNING",
-        }),
-      ),
+      [...weak, ...dueVerbs]
+        .filter((l) => !l.memory?.is.failed)
+        .map((literal) =>
+          ctx.daemon.modes.game.pick.emit.literal({
+            literal,
+            distractors: distractorPool,
+            recall: "LEARNING",
+          }),
+        ),
     )
     .apply(array.shuffle);
 
-  // ── 3. MATCH — if weak conjugations exist
+  // ── 3. MATCH — 6 weakest from conjugation uses + due verbs
+  const matchPool = [...conjugation.uses.getItems(), ...dueVerbs]
+    .sort((a, b) => (a.memory?.strength ?? 0) - (b.memory?.strength ?? 0))
+    .slice(0, 6);
+
   ctx.pool.add(
-    weak.length >= 2 &&
+    matchPool.length >= 2 &&
       ctx.daemon.modes.game.match.emit.batch({
-        literals: forms,
+        literals: matchPool,
         gameplay: "TRANSLATE",
         recall: "LEARNING",
       }),
@@ -95,7 +101,11 @@ export default async (ctx) => {
 
   // ── 5. CONTEXTUALIZE — shadow untouched/unknown sentences, write learning+
   const sentences = await ctx.daemon.entities.literal.byStrength(
-    { ontology: "sentence", uses: { $in: [...forms, ...dueVerbs].map((form) => form.id) } },
+    {
+      ontology: "sentence",
+      uses: { $in: [...forms, ...dueVerbs].map((form) => form.id) },
+      memories: { strength: { $gte: 0.1 } },
+    },
     { limit: 4, populate: ["memories"] },
   );
   for (const sentence of sentences) {
@@ -120,29 +130,12 @@ export default async (ctx) => {
   // ── 6. CONJUGATION — due verbs + weak conjugations, shuffled
   ctx.pool
     .section(
-      ...array.shuffle([...dueVerbs, ...weak]).map((literal) =>
-        ctx.daemon.modes.game.conjugation.emit.literal({
-          literal,
-          infinitive,
-          tense: tenseSymbol,
-          mood: moodSymbol,
-          lemma: lemmaSymbol,
-          recall: "LEARNING",
-        }),
-      ),
+      ...array
+        .shuffle([...dueVerbs, ...weak])
+        .map((literal) => ctx.daemon.modes.game.conjugation.emit.literal({ literal })),
     )
     .apply(array.shuffle);
 
   // ── 7. JUDGE — due verbs + all conjugation forms, shuffled
-  ctx.pool
-    .section(
-      ...array.shuffle([...dueVerbs, ...forms]).map((literal) =>
-        ctx.daemon.modes.game.judge.emit.literal({
-          literal,
-          recall: literal.memory?.is.succeeded ? "LEARNING" : "KNOWN",
-          distractors: distractorPool,
-        }),
-      ),
-    )
-    .apply(array.shuffle);
+  // ctx.pool .section(...array.shuffle([...dueVerbs, ...forms]).map((literal) => ctx.daemon.modes.game.judge.emit.literal({literal, recall: literal.memory?.is.succeeded ? "LEARNING" : "KNOWN", distractors: distractorPool,}),),) .apply(array.shuffle);
 };

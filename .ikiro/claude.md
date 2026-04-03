@@ -132,7 +132,7 @@ Rules of engagement. Not guidelines — gates.
 Non-negotiable. If you catch yourself rationalizing past one, stop.
 
 - **NO IMPLEMENTATION WITHOUT DESIRED END STATE STATED IN PLAIN LANGUAGE.** If you can't say what's true after the work that isn't true now, you don't understand the task yet. Ask.
-- **NO DIFF APPLIED WITHOUT EXPLICIT APPROVAL.** Propose the complete diff. Wait. Never chain showing a diff with applying it.
+- **NO WRITE WITHOUT EXPLICIT APPROVAL.** Every file write — edits, new files, restores, overwrites — requires showing the content and waiting for approval. Never chain showing a diff with applying it. "It's just a restore" or "it's just one file" is not an exemption.
 - **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION.** Before saying "done," run the relevant tests and confirm output. Evidence before assertions.
 - **NO FIXES WITHOUT READING THE CODE FIRST.** Don't propose changes to code you haven't read. Don't assume entity fields exist — read the schema.
 - **NO VCS OPERATIONS WITHOUT EXPLICIT COMMAND.** Never run jj commands that modify the graph (new, commit, squash, rebase, abandon, bookmark) unless Finn explicitly asks. This includes "helpful" commits. Finn manages the entire version control graph.
@@ -255,6 +255,7 @@ If you catch yourself thinking any of these, stop — you're drifting.
 | "I'll use Type.String() for this schema" | Use v.string(). v is the sole schematics interface. Type is the escape hatch. |
 | "I'll use Ref for this relation" | Use v.rel(v.entity()) for single relations, v.array(v.entity()) for collections. Ref is legacy. |
 | "I'll just delete and recreate the DB" | NEVER. Explain the problem and options. Finn decides what happens to data. |
+| "I'll just restore this quickly" | No write without approval. Restores change the working copy too. |
 
 ## Routines
 

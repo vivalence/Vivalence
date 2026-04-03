@@ -9,9 +9,7 @@ export default async (ctx) => {
   );
   if (!sentences.length) return;
 
-  const virgin = sentences.filter(
-    (sentence) => !sentence.memory || sentence.memory.is.virgin,
-  );
+  const virgin = sentences.filter((sentence) => !sentence.memory || sentence.memory.is.virgin);
 
   if (virgin.length) {
     ctx.pool.add(
@@ -61,9 +59,7 @@ export default async (ctx) => {
   );
 
   for (const sentence of errorSentences) {
-    const failedWords = sentence.uses.getItems().filter(
-      (word) => word.memory?.is?.failed,
-    );
+    const failedWords = sentence.uses.getItems().filter((word) => word.memory?.is?.failed);
     if (!failedWords.length) continue;
 
     const tokens = sentence.trait?.ANNOTATED?.tokens ?? [];
@@ -71,10 +67,7 @@ export default async (ctx) => {
     const blankIndices = tokens
       .map((token, index) => ({ token, index }))
       .filter(
-        ({ token }) =>
-          token.deprel !== "punct" &&
-          token.literal &&
-          failedSlugs.has(token.literal),
+        ({ token }) => token.deprel !== "punct" && token.literal && failedSlugs.has(token.literal),
       )
       .map(({ index }) => index);
     if (blankIndices.length) {

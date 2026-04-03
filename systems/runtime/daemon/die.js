@@ -45,7 +45,7 @@ export class Die extends Wafer {
 
   async integrate() {
     await lifecycle.integration.call(this);
-    await lifecycle.integration.prune(this);
+    // await lifecycle.integration.prune(this);
     this.status.set("alive");
   }
 

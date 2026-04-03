@@ -4,10 +4,10 @@ import { array } from "@vivalence/typology";
 // exhibit untouched → flash (LEARNING) → write → judge (FAST)
 
 export default async (ctx) => {
-  const fed = await ctx.daemon.entities.literal.feed(
-    ctx.input.where,
-    { limit: ctx.input.limit ?? 12, blacklist: ctx.input.blacklist },
-  );
+  const fed = await ctx.daemon.entities.literal.feed(ctx.input.where, {
+    limit: ctx.input.limit ?? 12,
+    blacklist: ctx.input.blacklist,
+  });
 
   const errors = await ctx.daemon.entities.literal.byLastSignal(
     ["FAILURE", "MISTAKE"],
@@ -41,21 +41,22 @@ export default async (ctx) => {
     }),
   );
 
-  ctx.pool.add(
-    ctx.daemon.modes.game.write.emit.literals({
-      recall: "LEARNING",
-      literals: array.shuffle(forms),
-    }),
-  );
-
-  ctx.pool.section(
-    ...array.shuffle(forms).map((literal) =>
-      ctx.daemon.modes.game.judge.emit.literal({
-        literal,
-        distractors,
+  ctx.pool
+    .section(
+      ...forms.map((literal) =>
+        ctx.daemon.modes.game.judge.emit.literal({
+          literal,
+          distractors,
+          recall: "LEARNING",
+          speed: { rate: "FAST" },
+        }),
+      ),
+    )
+    .add(
+      ctx.daemon.modes.game.write.emit.literals({
         recall: "LEARNING",
-        speed: { rate: "FAST" },
+        literals: forms,
       }),
-    ),
-  ).apply(array.shuffle);
+    )
+    .apply(array.shuffle);
 };

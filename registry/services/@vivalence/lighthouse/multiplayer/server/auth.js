@@ -70,6 +70,8 @@ async function signup(input, ctx) {
     },
   });
 
+  await ctx.entities.em.flush();
+
   return respond.success({
     identity: { id: identity.id, slug: identity.slug },
     authority,
