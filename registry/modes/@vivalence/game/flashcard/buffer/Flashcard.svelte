@@ -1,5 +1,5 @@
 <script>
-  import { Asset } from "@vivalence/drapes";
+  import { Asset, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -85,91 +85,77 @@
 
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literal}
-        <div class="meta">
-          <span class="meta-lang">{promptLabel}</span>
-          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-          {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
-        </div>
+<Desk>
+  {#snippet surface()}
+    {#if literal}
+      <div class="meta">
+        <span class="meta-lang">{promptLabel}</span>
+        <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+        {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
+      </div>
 
-        <div class="prompt-row">
-          <div class="prompt-text">
-            <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
-            {#if isWord && promptEx}
-              <p class="example">{promptEx}</p>
-            {/if}
-          </div>
-          {#if asset && activeRecall === "KNOWN"}
-            <Asset autoplay={true} {asset} />
+      <div class="prompt-row">
+        <div class="prompt-text">
+          <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
+          {#if isWord && promptEx}
+            <p class="example">{promptEx}</p>
           {/if}
         </div>
+        {#if asset && activeRecall === "KNOWN"}
+          <Asset autoplay={true} {asset} />
+        {/if}
+      </div>
 
-        {#if revealed}
-          <div class="divider"></div>
+      {#if revealed}
+        <div class="divider"></div>
 
-          <div class="reveal-block">
-            <span class="reveal-label">{answerLabel}</span>
-            <div class="prompt-row">
-              <div class="prompt-text">
-                <p class="answer" class:answer-word={isWord}>{answer}</p>
-                {#if isWord && answerEx}
-                  <p class="example revealed">{answerEx}</p>
-                {/if}
-              </div>
-              {#if asset && activeRecall === "LEARNING"}
-                <Asset autoplay={true} {asset} />
+        <div class="reveal-block">
+          <span class="reveal-label">{answerLabel}</span>
+          <div class="prompt-row">
+            <div class="prompt-text">
+              <p class="answer" class:answer-word={isWord}>{answer}</p>
+              {#if isWord && answerEx}
+                <p class="example revealed">{answerEx}</p>
               {/if}
             </div>
+            {#if asset && activeRecall === "LEARNING"}
+              <Asset autoplay={true} {asset} />
+            {/if}
           </div>
-        {:else}
-          <button class="tap-zone" onmousedown={(e) => e.preventDefault()} onclick={reveal}
-            >tap to reveal</button>
-        {/if}
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
-
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading...</span>
-      {:else if revealed}
-        <button
-          class="btn btn-unknown"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={() => rate("MISTAKE")}>Unknown</button>
-        <button
-          class="btn btn-known"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={() => rate("SUCCESS")}>Known</button>
-        <button
-          class="btn btn-easy"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={() => rate("MASTERY")}>Easy</button>
+        </div>
       {:else}
-        <button class="btn btn-reveal" onmousedown={(e) => e.preventDefault()} onclick={reveal}
-          >Reveal</button>
+        <button class="tap-zone" onmousedown={(e) => e.preventDefault()} onclick={reveal}
+          >tap to reveal</button>
       {/if}
-    </div>
-  </div>
-</div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading...</span>
+    {:else if revealed}
+      <button
+        class="btn btn-unknown"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={() => rate("MISTAKE")}>Unknown</button>
+      <button
+        class="btn btn-known"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={() => rate("SUCCESS")}>Known</button>
+      <button
+        class="btn btn-easy"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={() => rate("MASTERY")}>Easy</button>
+    {:else}
+      <button class="btn btn-reveal" onmousedown={(e) => e.preventDefault()} onclick={reveal}
+        >Reveal</button>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -290,17 +276,6 @@
     50% { opacity: 1; }
   }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-  }
   .menu-hint {
     display: block;
     width: 100%;

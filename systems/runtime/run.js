@@ -1,6 +1,9 @@
 import paladin from "@vivalence/paladin";
 import { Die, Runtime } from "@vivalence/runtime";
 
+// import { Vector } from "@vivalence/typology";
+// console.log(new Vector() .branch() .branch() .open(null, () => {}),);
+
 const run = await (async function () {
   await paladin.ikiro;
   const die = new Die({ good: new Runtime() });

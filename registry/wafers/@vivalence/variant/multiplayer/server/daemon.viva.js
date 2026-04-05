@@ -42,9 +42,11 @@ export const daemons = [
       "@vivalence/game/listen",
       "@vivalence/game/exhibit",
       "@vivalence/tactic/five-fold-session",
+      "@vivalence/tactic/clinic",
 
-      "@vivalence/tactic/verb-clinic",
       "@vivalence/dashboard/dataspace",
+
+      "@vivalence/teacher/dewey",
     ],
 
     lighthouse: {
@@ -62,7 +64,7 @@ export const daemons = [
     },
 
     hallucinator: {
-      module: "@vivalence/hallucinator/hal257",
+      module: "@vivalence/hallucinator/anthropic",
       statics: {},
       secrets: {
         anthropic: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),

@@ -1,29 +1,13 @@
-import { Paladin } from "@vivalence/paladin/typology";
-import { populate, resolve, integrate } from "@vivalence/paladin/typology";
+import { steer } from "@vivalence/typology";
+import { paladin as wafer } from "./wafer.js";
+import * as resolve from "./lifecycle/resolve.js";
+import * as integrate from "./lifecycle/integrate.js";
 
-console.json = (obj) => console.log(JSON.stringify(obj, null, 2));
+const paladin = await steer.invoke(wafer(), "/construct/populate/base")();
 
-const paladin = await (async function incarne() {
-  const paladin = new Paladin();
-
-  await populate.env(paladin);
-  await populate.scopes(paladin);
-
-  await populate.environment(paladin);
-  await populate.veryimportantpackage(paladin);
-  await populate.questions(paladin);
-
-  return paladin;
-})();
-
-paladin.ikiro = (async function ikiro() {
+paladin.ikiro = (async () => {
   await resolve.circuitry(paladin);
   await resolve.variant(paladin);
-  // await resolve.consumables(paladin);
-  // await integrate.publish(paladin);
-  // await integrate.secure(paladin); // aspirational.
-  // await integrate.validate(paladin);
-  // await integrate.mountpoint(paladin);
   await integrate.statements(paladin);
   await integrate.publish(paladin);
   await integrate.questions(paladin);

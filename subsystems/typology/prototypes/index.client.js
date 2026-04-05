@@ -24,6 +24,7 @@ export * from "./buffer.js";
 export * from "./mask.js";
 export * from "./wafer.js";
 export * from "./repository.js";
+export * from "./entity-manager.js";
 
 // export * from "./feature.js";
 // export * from "./mode.js";

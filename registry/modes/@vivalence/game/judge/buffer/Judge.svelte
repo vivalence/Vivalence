@@ -1,5 +1,5 @@
 <script>
-  import { Asset } from "@vivalence/drapes";
+  import { Asset, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -130,93 +130,93 @@
 
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
+<Desk>
   <div class="timer-bar">
     <div class="timer-fill" class:timer-urgent={urgent} style="width: {Math.max(0, 1 - progress) * 100}%"></div>
   </div>
 
-  <div
-    class="viva-surface"
-    ontouchstart={handleTouchStart}
-    ontouchmove={handleTouchMove}
-    ontouchend={handleTouchEnd}
-  >
-    <div class="stage" style="transform: translateX({swipeX * 0.3}px)">
-      {#if target}
-        <div class="meta">
-          {#if isWord}
-            <span class="meta-type">word</span>
-          {:else}
-            <span class="meta-type">sentence</span>
-          {/if}
-        </div>
-
-        {#if sourceText || asset}
-          <div class="source-row">
-            {#if sourceText}
-              <p class="source" class:source-word={isWord}>{sourceText}</p>
-            {/if}
-            {#if asset}
-              <Asset autoplay={true} {asset} />
+  {#snippet surface()}
+    <div
+      class="touch-layer"
+      ontouchstart={handleTouchStart}
+      ontouchmove={handleTouchMove}
+      ontouchend={handleTouchEnd}
+    >
+      <div class="stage-inner" style="transform: translateX({swipeX * 0.3}px)">
+        {#if target}
+          <div class="meta">
+            {#if isWord}
+              <span class="meta-type">word</span>
+            {:else}
+              <span class="meta-type">sentence</span>
             {/if}
           </div>
-        {/if}
 
-        <div class="shown-row">
-          <p class="shown" class:shown-word={isWord}>
-            {shownText}
-          </p>
-        </div>
-
-        {#if result}
-          <div class="feedback">
-            <div class="fb-line" class:fb-ok={result.correct} class:fb-miss={!result.correct}>
-              <span class="fb-icon">{result.correct ? "✓" : "✗"}</span>
-              <span class="fb-text">
-                {#if result.timeout}
-                  time ran out
-                {:else if result.correct && isCorrect}
-                  that was right
-                {:else if result.correct && !isCorrect}
-                  that was wrong
-                {:else if !result.correct && isCorrect}
-                  that was right
-                {:else}
-                  that was actually correct
-                {/if}
-              </span>
+          {#if sourceText || asset}
+            <div class="source-row">
+              {#if sourceText}
+                <p class="source" class:source-word={isWord}>{sourceText}</p>
+              {/if}
+              {#if asset}
+                <Asset autoplay={true} {asset} />
+              {/if}
             </div>
-            {#if !isCorrect && correctText}
-              <div class="fb-answer">
-                <span class="fb-answer-label">correct</span>
-                <span class="fb-answer-text">{correctText}</span>
-              </div>
-            {/if}
-          </div>
-        {/if}
-      {/if}
-    </div>
-  </div>
+          {/if}
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if judged}
-        <span class="menu-hint">…</span>
-      {:else}
-        <button
-          class="btn btn-wrong"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={() => judge(false)}
-        >✗ Wrong</button>
-        <button
-          class="btn btn-correct"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={() => judge(true)}
-        >✓ Correct</button>
-      {/if}
+          <div class="shown-row">
+            <p class="shown" class:shown-word={isWord}>
+              {shownText}
+            </p>
+          </div>
+
+          {#if result}
+            <div class="feedback">
+              <div class="fb-line" class:fb-ok={result.correct} class:fb-miss={!result.correct}>
+                <span class="fb-icon">{result.correct ? "✓" : "✗"}</span>
+                <span class="fb-text">
+                  {#if result.timeout}
+                    time ran out
+                  {:else if result.correct && isCorrect}
+                    that was right
+                  {:else if result.correct && !isCorrect}
+                    that was wrong
+                  {:else if !result.correct && isCorrect}
+                    that was right
+                  {:else}
+                    that was actually correct
+                  {/if}
+                </span>
+              </div>
+              {#if !isCorrect && correctText}
+                <div class="fb-answer">
+                  <span class="fb-answer-label">correct</span>
+                  <span class="fb-answer-text">{correctText}</span>
+                </div>
+              {/if}
+            </div>
+          {/if}
+        {/if}
+      </div>
     </div>
-  </div>
-</div>
+  {/snippet}
+
+  {#snippet controls()}
+    {#if judged}
+      <span class="menu-hint">…</span>
+    {:else}
+      <button
+        class="btn btn-wrong"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={() => judge(false)}
+      >✗ Wrong</button>
+      <button
+        class="btn btn-correct"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={() => judge(true)}
+      >✓ Correct</button>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
   .timer-bar {
@@ -233,10 +233,11 @@
     background: var(--colors-system-error-contrast);
   }
 
-  .stage {
-    max-width: 480px;
+  .touch-layer {
     width: 100%;
-    margin: 0 auto;
+    height: 100%;
+  }
+  .stage-inner {
     padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
@@ -244,7 +245,6 @@
     text-align: center;
     transition: transform 0.05s;
     user-select: none;
-    box-sizing: border-box;
   }
 
   .meta {
@@ -339,16 +339,6 @@
     color: var(--colors-theme-primary-contrast);
   }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.75rem;
-  }
   .menu-hint {
     display: block;
     width: 100%;

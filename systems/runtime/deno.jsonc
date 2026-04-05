@@ -19,5 +19,7 @@
     "test/daemon": "deno test -A --no-check --watch tests/daemon/*.test.js",
     "test/mode": "deno test -A --no-check --watch tests/mode/*.test.js",
     "test/runtime": "deno test -A --no-check --watch tests/runtime/*.test.js",
+    "test/bench": "deno test -A --no-check --watch tests/bench/*.test.js",
+    "test/cortex": "deno test -A --no-check tests/cortex.integration.test.js",
   },
 }

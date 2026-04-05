@@ -1,4 +1,4 @@
-import { MikroORM, EntitySchema } from "@mikro-orm/core"
+import { MikroORM, EntitySchema, RequestContext } from "@mikro-orm/core"
 import { SqliteDriver } from "@mikro-orm/sqlite"
 import {
   LiteralEntity, LiteralSchema,
@@ -30,6 +30,46 @@ const BufferConcrete = new EntitySchema({
 })
 
 export { SymbolConcrete, BufferConcrete }
+
+// ── in-memory datamap provider ─────────────────────────────────────
+// Same contract as @vivalence/datamap/libsql provider() but sqlite :memory:.
+// Takes the variant array ({ type, schema, entity, repository, subscriber }[])
+// and returns the provider interface the runtime expects.
+export async function provider(variant) {
+  const orm = await MikroORM.init({
+    driver: SqliteDriver,
+    dbName: ":memory:",
+    entities: variant.map((v) => v.schema).filter(Boolean),
+    subscribers: variant
+      .map((v) => v.subscriber)
+      .filter(Boolean)
+      .map((Subscriber) => new Subscriber()),
+    allowGlobalContext: true,
+  })
+
+  await orm.schema.refreshDatabase()
+
+  const entities = { em: orm.em }
+  for (const { type, entity } of variant) {
+    if (!entity || !type) continue
+    entities[type] = orm.em.getRepository(entity)
+  }
+
+  return {
+    orm,
+    entities,
+    shard: {
+      context: (fn) => RequestContext.create(orm.em, fn),
+      bind: (name, resolve) => async (ctx, next) => {
+        RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx))
+        await next()
+      },
+    },
+    subscribe: (subscriber) => orm.em.getEventManager().registerSubscriber(subscriber),
+    introspect: () => orm.getMetadata(),
+    disintegrate: () => orm.close(),
+  }
+}
 
 export const schemas = [
   LiteralConcrete, SymbolConcrete, BufferConcrete,

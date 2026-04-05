@@ -18,6 +18,7 @@ export * from "./daemon/User.ts";
 
 export * from "./userspace/Buffer.ts";
 export * from "./userspace/Thread.ts";
+export * from "./userspace/Turn.ts";
 
 import literal from "./kernel/Literal.ts";
 import symbol from "./kernel/Symbol.ts";
@@ -32,16 +33,17 @@ import mode from "./daemon/Mode.ts";
 import user from "./daemon/User.ts";
 
 import thread from "./userspace/Thread.ts";
+import turn from "./userspace/Turn.ts";
 import buffer from "./userspace/Buffer.ts";
 
 export { literal, symbol, issue, constraint };
 export { identity, daemon };
 export { intent, mode, user };
-export { thread, buffer };
+export { thread, turn, buffer };
 
 export const sets = {
   network: [identity, daemon],
   daemon: [intent, user, mode],
   kernel: [literal, symbol],
-  userspace: [thread, buffer], //
+  userspace: [thread, turn, buffer], //
 };

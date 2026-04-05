@@ -1,5 +1,5 @@
 <script>
-  import { Asset, Keyboard, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Keyboard, ViewportLock, Desk } from "@vivalence/drapes";
   import { string } from "@vivalence/typology";
 
   const { terminal, buffer } = $props();
@@ -35,15 +35,15 @@
 
   const person = personLabel(target);
 
-  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
-  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
-  const headerLabel = [tenseLabel, moodLabel, person].filter(Boolean).join(" · ");
-
   const infinitiveText = infinitive?.trait?.TRANSLATED?.learning ?? "";
   const infinitiveKnown = infinitive?.trait?.TRANSLATED?.known ?? "";
   const infinitiveAsset = infinitive?.trait?.VOCALIZED?.asset
     ? terminal.daemon.getAsset(infinitive.trait.VOCALIZED.asset)
     : null;
+
+  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
+  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
+  const headerLabel = [infinitiveKnown, tenseLabel, moodLabel].filter(Boolean).join(" · ");
 
   const targetAsset = target?.trait?.VOCALIZED?.asset
     ? terminal.daemon.getAsset(target.trait.VOCALIZED.asset)
@@ -113,92 +113,74 @@
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      <div class="meta">
-        <span class="meta-lang">Conjugation</span>
-      </div>
+<Desk>
+  {#snippet surface()}
+    <div class="meta">
+      <span class="meta-lang">Conjugation</span>
+    </div>
 
-      <div class="header">
-        <div class="header-text">
-          <h2 class="infinitive">{infinitiveKnown}</h2>
-          {#if headerLabel}
-            <p class="tense-label">{headerLabel}</p>
-          {/if}
-        </div>
-        <div class="header-actions">
-          <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveText : "?"}</button>
-          {#if infinitiveAsset}
-            <Asset asset={infinitiveAsset} variant="dot" />
-          {/if}
-        </div>
-      </div>
-
-      <div class="card">
-        {#if person}
-          <span class="person">{person}</span>
+    <div class="header">
+      <div class="header-text">
+        <h2 class="infinitive">{prompt}</h2>
+        {#if headerLabel}
+          <p class="tense-label">{headerLabel}</p>
         {/if}
-
-        {#if recall === "LEARNING" && prompt}
-          <p class="prompt">{prompt}</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveText : "?"}</button>
+        {#if infinitiveAsset}
+          <Asset asset={infinitiveAsset} variant="dot" />
         {/if}
+      </div>
+    </div>
 
-        {#if submitted}
-          <div class="feedback">
-            <div class="fb-line" class:fb-ok={correct} class:fb-miss={!correct}>
-              <span class="fb-icon">{correct ? "✓" : "✗"}</span>
-              <span class="fb-input">{correct ? answer : string.clean(input)}</span>
-              {#if targetAsset}
-                <Asset asset={targetAsset} variant="dot" autoplay={true} onended={onAudioEnded} />
-              {/if}
-            </div>
-            {#if !correct}
-              <div class="fb-answer">
-                <span class="fb-answer-label">expected</span>
-                <span class="fb-answer-text">{answer}</span>
-              </div>
+    <div class="card">
+      {#if person}
+        <span class="person">{person}</span>
+      {/if}
+
+      {#if submitted}
+        <div class="feedback">
+          <div class="fb-line" class:fb-ok={correct} class:fb-miss={!correct}>
+            <span class="fb-icon">{correct ? "✓" : "✗"}</span>
+            <span class="fb-input">{correct ? answer : string.clean(input)}</span>
+            {#if targetAsset}
+              <Asset asset={targetAsset} variant="dot" autoplay={true} onended={onAudioEnded} />
             {/if}
           </div>
-        {/if}
-      </div>
-    </div>
-  </div>
-
-  <div class="viva-controls controls">
-    <div class="input-row">
-      <input
-        class="field"
-        class:field-locked={submitted}
-        bind:this={inputEl}
-        value={input}
-        oninput={(e) => { if (!submitted) input = e.target.value; else e.target.value = input; }}
-        placeholder="type the form…"
-      />
-      {#if !submitted}
-        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit}>
-          Check
-        </button>
-      {:else}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
+          {#if !correct}
+            <div class="fb-answer">
+              <span class="fb-answer-label">expected</span>
+              <span class="fb-answer-text">{answer}</span>
+            </div>
+          {/if}
+        </div>
       {/if}
     </div>
-  </div>
-</div>
+  {/snippet}
+
+  {#snippet controls()}
+    <input
+      class="field"
+      class:field-locked={submitted}
+      bind:this={inputEl}
+      value={input}
+      oninput={(e) => { if (!submitted) input = e.target.value; else e.target.value = input; }}
+      placeholder="type the form…"
+    />
+    {#if !submitted}
+      <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit}>
+        Check
+      </button>
+    {:else}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Next
+      </button>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -331,18 +313,6 @@
     color: var(--colors-theme-primary-contrast);
   }
 
-  /* ── controls ── */
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-  }
   .field {
     flex: 1;
     min-width: 0;

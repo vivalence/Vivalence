@@ -16,7 +16,10 @@ class Dashboard extends Mode {
   type = "dashboard";
 }
 
-// class Teacher extends Mode {type = "teacher";} class Strategy extends Mode {type = "strategy";}
+class Teacher extends Mode {
+  type = "teacher";
+}
+// class Strategy extends Mode {type = "strategy";}
 
 export const traits = {
   smurf: () => {},
@@ -34,7 +37,7 @@ export const modes = [
   // { type: "agent", prototype: Agent },
   { type: "tactic", prototype: Tactic },
   { type: "dashboard", prototype: Dashboard },
-  // { type: "teacher", prototype: Teacher },
+  { type: "teacher", prototype: Teacher },
   // strategy: { prototype: Strategy },
 ];
 

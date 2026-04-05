@@ -4,6 +4,7 @@ export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./buffered.js";
+export * from "./conversational.js";
 
 export const SELFEVIDENT = () => {};
 

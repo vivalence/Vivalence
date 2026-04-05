@@ -318,8 +318,8 @@
   });
 </script>
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
+<div class="dashboard">
+  <div class="dashboard-surface">
     <div class="tabs">
       <button class="tab" class:active={view === "graph"} onclick={() => view = "graph"}>
         graph
@@ -379,7 +379,14 @@
 </div>
 
 <style>
-  .viva-surface {
+  .dashboard {
+    display: grid;
+    grid-template-rows: 1fr;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .dashboard-surface {
     display: flex;
     flex-direction: column;
     height: 100%;

@@ -1,7 +1,7 @@
-import { specimen, shard, RemoteRepository } from "@vivalence/typology"
+import { specimen, shard, RemoteRepository, RemoteEntityManager } from "@vivalence/typology"
 import { daemon } from "@vivalence/runtime/scenarios"
-import { Mode } from "../../src/typology/entities/mode.js"
-import { Intent } from "../../src/typology/entities/intent.js"
+import { Mode } from "../../src/entities/mode.js"
+import { Intent } from "../../src/entities/intent.js"
 
 let scenario
 
@@ -13,10 +13,17 @@ specimen.afterAll(async () => {
   await scenario.orm.close()
 })
 
+function createManagedRepo(kind, endpoint) {
+  const entityManager = new RemoteEntityManager(scenario.conn, {})
+  const repo = new RemoteRepository(kind).connect(scenario.conn.branch(endpoint))
+  entityManager.register("entity", repo)
+  return repo
+}
+
 specimen.describe("daemon entities", () => {
   specimen.it("mode wrapped in prototype", async () => {
-    const mode = new RemoteRepository(Mode).connect(scenario.conn.branch("/entities/mode"))
-    const modes = await mode.find()
+    const modeRepo = createManagedRepo(Mode, "/entities/mode")
+    const modes = await modeRepo.find()
     specimen.expect(modes.length).toBeGreaterThan(0)
     specimen.expect(modes[0]).toBeInstanceOf(Mode)
     specimen.expect(modes[0].traits).toContain("BUFFERED")
@@ -32,22 +39,28 @@ specimen.describe("daemon entities", () => {
   })
 
   specimen.it("cross-repo identity through wired hydration", async () => {
-    const symbol = new RemoteRepository().connect(scenario.conn.branch("/entities/symbol"))
-    const literal = new RemoteRepository().connect(scenario.conn.branch("/entities/literal"))
     const schema = await scenario.conn.call("/datamap")
-    shard.datamap.wire({ symbol, literal }, schema)
+    const entityManager = new RemoteEntityManager(scenario.conn, schema)
+    const symbolRepo = new RemoteRepository().connect(scenario.conn.branch("/entities/symbol"))
+    const literalRepo = new RemoteRepository().connect(scenario.conn.branch("/entities/literal"))
+    entityManager.register("symbol", symbolRepo)
+    entityManager.register("literal", literalRepo)
 
-    await symbol.find()
-    const literals = await literal.find({}, { populate: ["symbols"] })
+    await symbolRepo.find()
+    const literals = await literalRepo.find({}, { populate: ["symbols"] })
     specimen.expect(literals[0].symbols.length).toBeGreaterThan(0)
-    specimen.expect(literals[0].symbols[0]).toBe(symbol.$entities.get()[0])
+    specimen.expect(literals[0].symbols[0]).toBe(symbolRepo.$entities.get()[0])
   })
 
   specimen.it("thread create through authed connection", async () => {
-    const mode = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"))
-    const thread = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"))
-    const modes = await mode.find()
-    const created = await thread.create({
+    const entityManager = new RemoteEntityManager(scenario.conn, {})
+    const modeRepo = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"))
+    const threadRepo = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"))
+    entityManager.register("mode", modeRepo)
+    entityManager.register("thread", threadRepo)
+
+    const modes = await modeRepo.find()
+    const created = await threadRepo.create({
       mode: modes[0].id, trait: {}, cursor: 0, counter: 0,
     })
     specimen.expect(created.id).toBeDefined()

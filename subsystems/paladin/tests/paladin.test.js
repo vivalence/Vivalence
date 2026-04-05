@@ -1,291 +1,229 @@
-import { specimen } from "@vivalence/typology";
-import {
-  Paladin,
-  lifecycle,
-  populate,
-  resolve,
-} from "@vivalence/paladin/typology";
+import { specimen, Env, Path, Mask } from "@vivalence/typology"
+import { Paladin, Vip, Pensieve } from "@vivalence/paladin/typology"
+import { populate, resolve, integrate } from "@vivalence/paladin/typology"
 
-let paladin;
+let paladin
 
-specimen.describe("Paladin", () => {
+specimen.describe("paladin", () => {
+
   specimen.describe("construction", () => {
-    specimen.it("cycles", () => {
-      paladin = new Paladin();
-    });
-
-    specimen.describe("gestalt", () => {
-      specimen.it("is", () => {
-        specimen.expect(paladin.env).toBeDefined();
-        specimen.expect(paladin.secret).toBeDefined();
-        specimen.expect(paladin.variant.daemons).toEqual([]);
-        specimen.expect(typeof paladin.read.json).toBe("function");
-      });
-    });
-  });
+    specimen.it("fresh Paladin has empty env, empty variant, belt attached", () => {
+      paladin = new Paladin()
+      specimen.expect(paladin.env).toBeInstanceOf(Env)
+      specimen.expect(paladin.secret).toBeInstanceOf(Env)
+      specimen.expect(paladin.variant.daemons).toEqual([])
+      specimen.expect(paladin.variant.services).toEqual([])
+      specimen.expect(paladin.variant.circuitry).toEqual([])
+      specimen.expect(typeof paladin.read.json).toBe("function")
+      specimen.expect(typeof paladin.read.viva).toBe("function")
+      specimen.expect(typeof paladin.find.viva).toBe("function")
+      specimen.expect(typeof paladin.find.json).toBe("function")
+      specimen.expect(typeof paladin.check.env).toBe("function")
+      specimen.expect(typeof paladin.state.dir).toBe("function")
+    })
+  })
 
   specimen.describe("population", () => {
-    specimen.describe("cycles", () => {
-      // await specimen.inspect.lifecycle(paladin, populate); // maybe
-      specimen.it("env", async () => {
-        await populate.env(paladin);
-      });
-      specimen.it("scopes", async () => {
-        await populate.scopes(paladin);
-      });
-      specimen.it("environment", async () => {
-        await populate.environment(paladin);
-      });
-      specimen.it("veryimportantpackage", async () => {
-        await populate.veryimportantpackage(paladin);
-      });
-      specimen.it("questions", async () => {
-        await populate.questions(paladin);
-      });
-    });
+    specimen.it("env loads VIVA_ vars from .env and process env", async () => {
+      await populate.env(paladin)
+      specimen.expect(paladin.env.has("VIVA_SYSTEM_MODE")).toBe(true)
+      specimen.expect(paladin.env.has("VIVA_SYSTEM_ROLE")).toBe(true)
+      specimen.expect(paladin.env.has("VIVA_SYSTEM_MOUNT")).toBe(true)
+      specimen.expect(paladin.env.has("VIVA_VARIANT_MOUNT")).toBe(true)
+    })
 
-    specimen.describe("gestalt", () => {
-      specimen.it("is", () => {
-        specimen.expect(paladin.mode).toBe("DEVELOPMENT");
-        specimen.expect(paladin.role).toBe("SUDO");
-        specimen.is.Path(paladin.scope.system);
-        specimen.expect(paladin.vip.pensieve).toBeDefined();
-      });
+    specimen.it("scopes register conditional Path accessors", async () => {
+      await populate.scopes(paladin)
+      specimen.expect(paladin.scope.system).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.registry).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.variant).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.circuitry).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.environment).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.mountpoint).toBeInstanceOf(Path)
+      specimen.expect(paladin.scope.nonexistent).toBeUndefined()
+    })
 
-      specimen.it("paladin.scope.tilde", async () => {
-        specimen.expect(paladin.scope.tilde.absolute).toContain("tests");
-        specimen.is.Path(paladin.scope.tilde);
-      });
-    });
+    specimen.it("scopes derive from env mounts", () => {
+      specimen.expect(paladin.scope.system.absolute).toBe(paladin.env.get("VIVA_SYSTEM_MOUNT"))
+      specimen.expect(paladin.scope.variant.absolute).toBe(paladin.env.get("VIVA_VARIANT_MOUNT"))
+      specimen.expect(paladin.scope.registry.absolute).toContain("registry")
+      specimen.expect(paladin.scope.circuitry.absolute).toContain("circuitry")
+    })
 
-    specimen.describe("valences", () => {
-      specimen.it("paladin.is", () => {
-        // test the tool.is values
-      });
-      specimen.it("paladin.read", () => {
-        // find, check, state, join
-        // run actual invocations and test the results specimen.expect(typeof paladin.read.json).toBe("function"); specimen.expect(typeof paladin.find.viva).toBe("function"); specimen.expect(typeof paladin.check.env).toBe("function"); specimen.expect(typeof paladin.join.tilde).toBe("function");
-      });
-      specimen.it("paladin.join", () => {
-        // test paladin join tool.
-      });
-      specimen.it("...paladin.tools", () => {
-        // test paladin join tool.
-      });
-    });
-  });
+    specimen.it("legacy aliases resolve to same paths", () => {
+      specimen.expect(paladin.scope.tilde.absolute).toBe(paladin.scope.variant.absolute)
+      specimen.expect(paladin.scope.circuits.absolute).toBe(paladin.scope.circuitry.absolute)
+    })
+
+    specimen.it("environment loads jsonc files into env, secrets into secret", async () => {
+      await populate.environment(paladin)
+      specimen.expect(paladin.env.has("VIVA_RUNTIME_SERVE")).toBe(true)
+      specimen.expect(paladin.env.has("PUBLIC_VIVA_RUNTIME_REMOTE")).toBe(true)
+      specimen.expect(paladin.env.has("SERVICE_NLP_PORT")).toBe(true)
+      specimen.expect(paladin.secret.has("SECRET_VIVA_JWT")).toBe(true)
+      specimen.expect(paladin.env.has("SECRET_VIVA_JWT")).toBe(false)
+    })
+
+    specimen.it("veryimportantpackage creates VIP when role is SUDO", async () => {
+      await populate.veryimportantpackage(paladin)
+      specimen.expect(paladin.vip).toBeInstanceOf(Vip)
+      specimen.expect(paladin.vip.pensieve).toBeInstanceOf(Pensieve)
+    })
+
+    specimen.it("questions validates required env vars", async () => {
+      await populate.questions(paladin)
+      specimen.expect(paladin.role).toBe("SUDO")
+      specimen.expect(paladin.mode).toBe("DEVELOPMENT")
+    })
+
+    specimen.it("is predicates reflect SUDO + DEVELOPMENT", () => {
+      specimen.expect(paladin.is.sudo).toBe(true)
+      specimen.expect(paladin.is.dev).toBe(true)
+      specimen.expect(paladin.is.citizen).toBe(true)
+      specimen.expect(paladin.is.veryimportant).toBe(true)
+      specimen.expect(paladin.is.prod).toBe(false)
+      specimen.expect(paladin.is.client).toBe(false)
+      specimen.expect(paladin.is.runtime).toBe(false)
+      specimen.expect(paladin.is.deployed).toBe(false)
+    })
+  })
 
   specimen.describe("resolution", () => {
-    specimen.describe("cycles", () => {
-      specimen.it("circuitry", async () => await resolve.circuitry(paladin));
-      specimen.it("variant", async () => await resolve.variant(paladin));
-      specimen.it("deps", async () => await resolve.consumables(paladin));
-    });
+    specimen.it("circuitry discovers .viva.js circuits from circuitry scope", async () => {
+      await resolve.circuitry(paladin)
+      specimen.expect(paladin.variant.circuitry.length).toBe(2)
+      for (const circuit of paladin.variant.circuitry) {
+        specimen.expect(circuit.manifest.type).toBe("circuit")
+        specimen.expect(circuit.source).toBeInstanceOf(Path)
+      }
+      const slugs = paladin.variant.circuitry.map(c => c.manifest.slug).sort()
+      specimen.expect(slugs).toEqual(["test-daemon", "test-system"])
+    })
 
-    specimen.describe("gestalt", () => {
-      specimen.it("circuitry structure", () => {
-        specimen.expect(paladin.variant.circuitry.length).toBe(2);
-        paladin.variant.circuitry.forEach((circuit) => {
-          specimen.expect(circuit.manifest.type).toBe("circuit");
-          specimen.is.Path(circuit.source);
-        });
-      });
-    });
+    specimen.it("variant compiles runtime, clients, daemons, services from circuitry", async () => {
+      await resolve.variant(paladin)
 
-    specimen.it("variant compilation", () => {
-      // specimen.expect(paladin.variant.lighthouse).toBeDefined();
-      // specimen.expect(paladin.variant.runtime).toBeDefined();
-      // specimen
-      //   .expect(paladin.variant.runtime.statics.serve.href)
-      //   .toBe("http://localhost:1729/");
+      specimen.expect(paladin.variant.runtime.slug).toBe("test-runtime")
+      specimen.expect(paladin.variant.runtime.traits).toContain("EMBEDDED")
+      specimen.expect(paladin.variant.runtime.datamap.module).toBe("@vivalence/datamap/libsql")
 
-      // specimen.expect(paladin.variant.clients.ghost).toBeDefined();
-      specimen.expect(paladin.variant.clients.html).toBeDefined();
+      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(["html", "shell"])
+      specimen.expect(paladin.variant.clients.html.slug).toBe("html")
 
-      specimen.expect(paladin.variant.daemons).toBeInstanceOf(Array);
-      specimen.expect(paladin.variant.daemons.length).toBe(1);
-      // specimen.expect(paladin.variant.daemons[0].slug).toBe("ger2esp");
-      specimen.is.Path(paladin.variant.daemons[0].mount);
+      specimen.expect(paladin.variant.daemons.length).toBe(1)
+      specimen.expect(paladin.variant.services.length).toBe(2)
+    })
 
-      specimen.expect(paladin.variant.services).toBeInstanceOf(Array);
-      // specimen.expect(paladin.variant.services.length).toBe(2);
-      // specimen
-      //   .expect(paladin.variant.services.map((s) => s.slug))
-      //   .toEqual(specimen.expect.arrayContaining(["lighthouse", "hal", "nlp-stanza"]),);
-    });
+    specimen.it("daemons are Masks with mount paths and full module references", () => {
+      const daemon = paladin.variant.daemons[0]
+      specimen.expect(daemon).toBeInstanceOf(Mask)
+      specimen.expect(daemon.slug).toBe("brazilian")
+      specimen.expect(daemon.mount).toBeInstanceOf(Path)
+      specimen.expect(daemon.mount.absolute).toContain("daemon_brazilian")
+      specimen.expect(daemon.kernel.length).toBe(5)
+      specimen.expect(daemon.modes.length).toBeGreaterThan(10)
+      specimen.expect(daemon.datamap.module).toBe("@vivalence/datamap/libsql")
+      specimen.expect(daemon.datamap.mount.absolute).toBe(daemon.mount.absolute)
+      specimen.expect(daemon.lighthouse.module).toBe("@vivalence/lighthouse/multiplayer")
+      specimen.expect(daemon.hallucinator.module).toBe("@vivalence/hallucinator/hal257")
+    })
 
-    // specimen.it("dependency resolution", () => {
-    //   const daemon = paladin.variant.daemons.find((d) => d.slug === "ger2esp");
-    //   specimen.expect(daemon.consume.nlp).toBeDefined();
-    //   specimen.expect(daemon.consume.nlp.provider).toBeDefined();
-    //   specimen.expect(daemon.consume.nlp.provider.slug).toBe("nlp-stanza");
-    // });
-
-    specimen.it("mount generation", () => {
-      // All services should have mount paths
-      paladin.variant.services.forEach((service) => {
-        specimen.is.Path(service.mount);
-        specimen.expect(service.mount.absolute).toContain("mountpoint");
-        specimen.expect(service.mount.absolute).toContain(service.slug);
-      });
-
-      // All daemons should have mount paths
-      paladin.variant.daemons.forEach((daemon) => {
-        specimen.is.Path(daemon.mount);
-        specimen.expect(daemon.mount.absolute).toContain("mountpoint");
-        specimen.expect(daemon.mount.absolute).toContain(daemon.slug);
-      });
-    });
-  });
+    specimen.it("services are Masks with mount paths", () => {
+      const slugs = paladin.variant.services.map(s => s.slug).sort()
+      specimen.expect(slugs).toEqual(["multiplayer", "nlp-stanza"])
+      for (const service of paladin.variant.services) {
+        specimen.expect(service).toBeInstanceOf(Mask)
+        specimen.expect(service.mount).toBeInstanceOf(Path)
+        specimen.expect(service.mount.absolute).toContain(`service_${service.slug}`)
+      }
+    })
+  })
 
   specimen.describe("integration", () => {
-    specimen.it("cycles", async () => {
-      await lifecycle.integrate.questions(paladin);
-      await lifecycle.integrate.statements(paladin);
-    });
+    specimen.it("statements creates mount directories on disk", async () => {
+      await integrate.statements(paladin)
+      for (const daemon of paladin.variant.daemons) {
+        const stat = await Deno.stat(daemon.mount.absolute)
+        specimen.expect(stat.isDirectory).toBe(true)
+      }
+      for (const service of paladin.variant.services) {
+        const stat = await Deno.stat(service.mount.absolute)
+        specimen.expect(stat.isDirectory).toBe(true)
+      }
+    })
 
-    specimen.describe("gestalt", () => {
-      specimen.it("is", () => {
-        //
-      });
-    });
+    specimen.it("publish writes PUBLIC_ vars to Deno.env", async () => {
+      await integrate.publish(paladin)
+      specimen.expect(Deno.env.get("PUBLIC_VIVA_RUNTIME_REMOTE")).toBeDefined()
+      specimen.expect(Deno.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")).toBeDefined()
+      specimen.expect(Deno.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE")).toBeDefined()
+    })
 
-    return;
-    specimen.describe("valences", () => {
-      // specimen.it("circuitry loading", async () => {
-      //   // Should find and load .viva.js files from variant directory
-      //   const circuitPaths = await paladin.find.viva(paladin.scope.variant);
-      //   specimen.expect(circuitPaths.length).toBeGreaterThan(0);
-      //   // Should filter for circuit manifests only
-      //   const allModules = await Promise.all(
+    specimen.it("questions completes without error", async () => {
+      await integrate.questions(paladin)
+    })
+  })
 
-      //     circuitPaths.map(async (f) => [f, await paladin.read.viva(f)]),
-      //   );
-      //   const nonCircuitry = allModules.filter(
-      //     ([, m]) => m?.manifest?.type !== "circuit",
-      //   );
-      //   specimen.expect(nonCircuitry.length).toBe(0);
-      // });
+  specimen.describe("belt", () => {
+    specimen.it("find.viva discovers .viva files, skips bak/", async () => {
+      const files = await paladin.find.viva(paladin.scope.circuitry)
+      specimen.expect(files.length).toBe(2)
+      for (const file of files) {
+        specimen.expect(file).toBeInstanceOf(Path)
+        specimen.expect(file.absolute).not.toContain("/bak/")
+      }
+    })
 
-      // specimen.it("variant defence", () => {const circuitry = [{ runtime: { test: 1 } }, { runtime: { test: 2 } }]; specimen .expect(() => {if (circuitry.filter((c) => c.runtime).length > 1) {throw new Error("Multiple runtime configurations found");}}) .toThrow("Multiple runtime configurations found");});
+    specimen.it("find.json discovers .json/.jsonc files", async () => {
+      const files = await paladin.find.json(paladin.scope.environment)
+      specimen.expect(files.length).toBe(3)
+    })
 
-      specimen.it("filesystem mount creation", async () => {
-        // All mount directories should exist after resolution
-        // console.log({ paladin });
-        const allMounts = [
-          ...paladin.variant.daemons.map((d) => d.mount.absolute),
-          ...paladin.variant.services.map((s) => s.mount.absolute),
-        ];
-        for (const mountPath of allMounts) {
-          try {
-            const stat = await Deno.stat(mountPath);
-            specimen.expect(stat.isDirectory).toBe(true);
-          } catch (error) {
-            specimen.expect(error).toBeNull(); // Should not throw
-          }
-        }
-      });
-    });
-  });
-});
+    specimen.it("read.viva imports and casts .viva.js modules", async () => {
+      const files = await paladin.find.viva(paladin.scope.circuitry)
+      const circuit = await paladin.read.viva(files[0])
+      specimen.expect(circuit.manifest).toBeDefined()
+      specimen.expect(circuit.manifest.type).toBe("circuit")
+    })
 
-// old
-//   specimen.describe("resolution", () => {
-//     specimen.describe("cycles", () => {
-//       specimen.it("circuitry", async () => await resolve.circuitry(paladin));
-//       specimen.it("variant", async () => await resolve.variant(paladin));
-//       specimen.it(
-//         "dependencies",
-//         async () => await resolve.dependencies(paladin),
-//       );
-//       specimen.it("mounts", async () => await resolve.mounts(paladin));
-//       // specimen.it("cross", async () => await resolve.cross(paladin));
-//     });
+    specimen.it("read.json parses JSONC files", async () => {
+      const files = await paladin.find.json(paladin.scope.environment)
+      const content = await paladin.read.json(files[0])
+      specimen.expect(typeof content).toBe("object")
+    })
 
-//     specimen.describe("gestalt", () => {
-//       // specimen.it("is", () => {specimen.is.Path(paladin.scope.system);});
-//       specimen.it("paladin.variant", () => {
-//         // expect a service mount to look a certain way.
-//         specimen.is.Path(paladin.scope.system);
-//         //
-//       });
-//     });
+    specimen.it("check.env passes for present vars, fails for missing", () => {
+      const present = paladin.check.env(["VIVA_SYSTEM_MODE", "VIVA_SYSTEM_ROLE"])
+      specimen.expect(present.fails).toBe(false)
 
-//     specimen.describe("valences", () => {
-//       specimen.it("paladin.mounts", () => {
-//         // test presence of expected paths in filesystem.
-//       });
-//     });
-//   });
-// });
+      const missing = paladin.check.env(["NONEXISTENT_VAR_THAT_DOES_NOT_EXIST"])
+      specimen.expect(missing.fails).toBe(true)
+    })
+  })
 
-// describe("resolution", () => {
-//   it("cycles", async () => {
-//     await resolve.variant(paladin);
-//     await resolve.runtimes(paladin);
-//   });
+  specimen.describe("singleton equivalence", () => {
+    let singleton
 
-//   describe("gestalt", () => {
-//     it("resolves variant configuration", () => {
-//       assert(is.string(paladin.variant));
-//       assert(is.array(paladin.traits));
-//     });
+    specimen.beforeAll(async () => {
+      singleton = (await import("@vivalence/paladin")).default
+      await singleton.ikiro
+    })
 
-//     it("populates runtime masks", () => {
-//       // @beef: test that runtime, lighthouse, datamap, services, are all masks.
-//     });
-//   });
+    specimen.it("fresh lifecycle produces same env keys as singleton", () => {
+      specimen.expect(Object.keys(paladin.env.vars).sort()).toEqual(Object.keys(singleton.env.vars).sort())
+    })
 
-//   specimen.describe("valences", () => {
-//     specimen.describe("bakes", () => {
-//       specimen.it("is", async () => {
-//         const runtime = paladin.runtimes[0];
-//         expect(runtime).toBeDefined();
-//         // console.log({ runtime });
-//         // test that
-//       });
+    specimen.it("fresh lifecycle produces same variant shape as singleton", () => {
+      specimen.expect(paladin.variant.daemons.length).toBe(singleton.variant.daemons.length)
+      specimen.expect(paladin.variant.services.length).toBe(singleton.variant.services.length)
+      specimen.expect(paladin.variant.runtime.slug).toBe(singleton.variant.runtime.slug)
+      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(Object.keys(singleton.variant.clients).sort())
+    })
 
-//       // specimen.it("runtime mask with mount and services", async () => {
-//       //   const config = {
-//       //     slug: "test-runtime",
-//       //     services: [{ slug: "lighthouse" }, { slug: "datamap" }],
-//       //   };
-
-//       //   runtimeMask = paladin.bake.runtime(new Mask(config));
-
-//       //   expect(runtimeMask.mount).toBeDefined();
-//       //   expect(runtimeMask.mount.absolute).toContain("runtime_test-runtime");
-//       //   expect(runtimeMask.services).toHaveLength(2);
-//       // });
-
-//       // specimen.it("autocompletes lighthouse service", async () => {
-//       //   const config = { slug: "test-runtime-2" };
-//       //   const mask = paladin.bake.runtime(new Mask(config));
-
-//       //   expect(mask.lighthouse).toBeDefined();
-//       //   expect(mask.lighthouse.runtime).toBe("test-runtime-2");
-//       // });
-
-//       // specimen.it("autocompletes datamap service", async () => {
-//       //   const config = { slug: "test-runtime-3" };
-//       //   const mask = paladin.bake.runtime(new Mask(config));
-//       //   // @beef: note here
-//       //   console.log({ paladin: { paladin }, mask });
-
-//       //   expect(mask.datamap).toBeDefined();
-//       //   expect(mask.datamap.runtime).toBe("test-runtime-3");
-//       // });
-//     });
-//   });
-//   //
-// });
-
-// describe("integration", () => {
-//   it("cycles", async () => {
-//     // await integrate.bake(paladin);
-//     await integrate.publish(paladin);
-//     await integrate.secure(paladin);
-//     await integrate.validate(paladin);
-//     // console.log({ paladin: { paladin } });
-//   });
-// });
+    specimen.it("fresh lifecycle produces same scope paths as singleton", () => {
+      specimen.expect(paladin.scope.system.absolute).toBe(singleton.scope.system.absolute)
+      specimen.expect(paladin.scope.variant.absolute).toBe(singleton.scope.variant.absolute)
+      specimen.expect(paladin.scope.circuitry.absolute).toBe(singleton.scope.circuitry.absolute)
+    })
+  })
+})

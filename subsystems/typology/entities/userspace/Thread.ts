@@ -14,12 +14,15 @@ export class ThreadEntity extends DataEntity {
   user!: Rel<UserEntity>;
   mode!: Rel<ModeEntity>;
   intent?: Rel<IntentEntity>;
+
   traits: ThreadTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
+
   cursor: number & Opt = 0;
   counter: number & Opt = 0;
 
   buffers = new Collection<BufferEntity>(this);
+  // turns = new Collection<TurnEntity>(this);
 }
 
 export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({

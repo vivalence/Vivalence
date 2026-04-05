@@ -2,30 +2,23 @@
 @tailwind components;
 @tailwind utilities;
 
-.viva-frame {
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-}
-.viva-surface {
-	flex: 1 1 0;
-	min-height: 0;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-}
-.viva-controls {
-	flex-shrink: 0;
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  background: var(--colors-skeleton-app-surface);
 }
 
+
 .debug {
-	border: 1px solid red;
-	* {
-		border: 1px solid red;
-	}
+  outline: 1px solid red;
+  > * {
+    outline: 1px solid red;
+  }
 }
-.debug* {
-	border: 1px solid red;
-	> * {
-		border: 1px solid red;
-	}
+.debug-deep {
+  outline: 1px solid red;
+  * {
+    outline: 1px solid red;
+  }
 }

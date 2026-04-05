@@ -1,6 +1,6 @@
 <script>
   import { string, array } from "@vivalence/typology";
-  import { Keyboard, Asset, ViewportLock } from "@vivalence/drapes";
+  import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -79,11 +79,25 @@
 
   function evaluateTyped() {
     if (!answer) return false;
-    const expected = normalize(answer);
+    const alts = answer.split("/").map((s) => s.trim()).filter(Boolean);
     const got = normalize(typed);
-    if (got === expected) return "correct";
-    const similarity = string.levenshtein(got, expected);
-    if (similarity <= 2 && got.length > 3) return "close";
+
+    // exact match on any single alt
+    if (alts.some((alt) => got === normalize(alt))) return "correct";
+
+    // all alts combined, word-order agnostic ("next nearby" for "next / nearby")
+    if (alts.length > 1) {
+      const inputWords = new Set(got.split(/\s+/));
+      const altWords = new Set(alts.flatMap((alt) => normalize(alt).split(/\s+/)));
+      if (inputWords.size === altWords.size && [...altWords].every((w) => inputWords.has(w))) return "correct";
+    }
+
+    // close match on any alt
+    if (alts.some((alt) => {
+      const similarity = string.levenshtein(got, normalize(alt));
+      return similarity <= 2 && got.length > 3;
+    })) return "close";
+
     return "wrong";
   }
 
@@ -98,8 +112,6 @@
       signal,
       scope: { literal: target.id },
     });
-
-    setTimeout(() => advance(), result === "correct" ? 800 : 1200);
   }
 
   function selectPick(lit) {
@@ -148,7 +160,8 @@
   let inputEl = $state(null);
 
   $effect(() => {
-    if (gameplay === "TYPE" && inputEl) inputEl.focus();
+    if (gameplay === "TYPE" && !answered && inputEl) inputEl.focus();
+    else if (gameplay === "TYPE" && answered && keyboard) keyboard.focus();
   });
 
   function handleKey(event) {
@@ -192,117 +205,103 @@
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if target}
-        <div class="meta">
-          <span class="meta-lang">Listen</span>
-          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-          {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
-        </div>
+<Desk>
+  {#snippet surface()}
+    {#if target}
+      <div class="meta">
+        <span class="meta-lang">Listen</span>
+        <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+        {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
+      </div>
 
-        <div class="audio-row">
-          <div class="audio-block">
-            {#if asset}
-              <Asset autoplay={true} {asset} />
+      <div class="audio-row">
+        <div class="audio-block">
+          {#if asset}
+            <Asset autoplay={true} {asset} />
+          {:else}
+            <span class="no-audio">no audio available</span>
+          {/if}
+        </div>
+        <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
+          {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span>{/if}
+        </button>
+      </div>
+
+      {#if gameplay === "TYPE"}
+        {#if answered}
+          <div class="type-feedback">
+            {#if typeResult === "correct"}
+              <span class="fb-correct">Correct</span>
+            {:else if typeResult === "close"}
+              <span class="fb-close">Close — {answer}</span>
             {:else}
-              <span class="no-audio">no audio available</span>
+              <span class="fb-wrong">{answer}</span>
             {/if}
-          </div>
-          <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
-            {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span
-              >{/if}
-          </button>
-        </div>
-
-        {#if gameplay === "TYPE"}
-          <div class="type-area">
-            <label class="input-label">{answerLabel}</label>
-            <input
-              class="type-input"
-              class:input-correct={typeResult === "correct"}
-              class:input-close={typeResult === "close"}
-              class:input-wrong={typeResult === "wrong"}
-              class:input-locked={answered}
-              type="text"
-              bind:this={inputEl}
-              value={typed}
-              oninput={(event) => { if (!answered) typed = event.target.value; else event.target.value = typed; }}
-              placeholder="type your answer…" />
-            {#if answered}
-              <div class="type-feedback">
-                {#if typeResult === "correct"}
-                  <span class="fb-correct">Correct</span>
-                {:else if typeResult === "close"}
-                  <span class="fb-close">Close — {answer}</span>
-                {:else}
-                  <span class="fb-wrong">{answer}</span>
-                {/if}
-              </div>
-            {/if}
-          </div>
-        {:else}
-          <div class="pick-area">
-            <p class="pick-hint">{answerLabel}</p>
-            <div class="options">
-              {#each shuffled as lit, i}
-                {@const isThis = selected === lit || selected?.id === lit?.id}
-                {@const isAnswer =
-                  lit === target ||
-                  lit?.id === target?.id ||
-                  answerText(lit) === answerText(target)}
-                <button
-                  class="option"
-                  class:option-correct={answered && isAnswer}
-                  class:option-wrong={answered && isThis && !isAnswer}
-                  class:option-dimmed={answered && !isThis && !isAnswer}
-                  ontouchstart={(e) => e.preventDefault()}
-                  onclick={() => selectPick(lit)}
-                  disabled={answered}>
-                  <span class="option-key">{i + 1}</span>
-                  <span class="option-text">{answerText(lit)}</span>
-                </button>
-              {/each}
-            </div>
           </div>
         {/if}
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
-
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading…</span>
-      {:else if answered}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else if gameplay === "TYPE"}
-        <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submitType}>
-          Check
-        </button>
       {:else}
-        <span class="menu-hint">pick the {answerLabel}</span>
+        <div class="pick-area">
+          <p class="pick-hint">{answerLabel}</p>
+          <div class="options">
+            {#each shuffled as lit, i}
+              {@const isThis = selected === lit || selected?.id === lit?.id}
+              {@const isAnswer =
+                lit === target ||
+                lit?.id === target?.id ||
+                answerText(lit) === answerText(target)}
+              <button
+                class="option"
+                class:option-correct={answered && isAnswer}
+                class:option-wrong={answered && isThis && !isAnswer}
+                class:option-dimmed={answered && !isThis && !isAnswer}
+                ontouchstart={(e) => e.preventDefault()}
+                onclick={() => selectPick(lit)}
+                disabled={answered}>
+                <span class="option-key">{i + 1}</span>
+                <span class="option-text">{answerText(lit)}</span>
+              </button>
+            {/each}
+          </div>
+        </div>
       {/if}
-    </div>
-  </div>
-</div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading…</span>
+    {:else if gameplay === "TYPE"}
+      <input
+        class="field"
+        class:field-locked={answered}
+        bind:this={inputEl}
+        value={typed}
+        oninput={(e) => { if (!answered) typed = e.target.value; else e.target.value = typed; }}
+        onkeydown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!answered) submitType();
+            else advance();
+          }
+        }}
+        placeholder="{answerLabel}…" />
+      {#if !answered}
+        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submitType}>Check</button>
+      {:else}
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>Next</button>
+      {/if}
+    {:else if answered}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>Next</button>
+    {:else}
+      <span class="menu-hint">pick the {answerLabel}</span>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -369,47 +368,6 @@
     font-size: 0.7rem;
     color: var(--colors-skeleton-1-boundary);
   }
-
-  .type-area {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .input-label {
-    font-family: var(--font-family-code);
-    font-size: 0.6rem;
-    color: var(--colors-skeleton-1-boundary);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .type-input {
-    font-family: var(--font-family-serif-heading);
-    font-size: var(--font-size-xl);
-    color: var(--colors-palette-gray-10);
-    background: none;
-    border: none;
-    min-width: 0;
-    border-bottom: 2px solid var(--colors-skeleton-1-boundary);
-    outline: none;
-    padding: 0.5rem 0;
-    width: 100%;
-  }
-  .type-input:focus {
-    border-color: var(--colors-theme-primary-contrast);
-  }
-  .input-correct {
-    border-color: var(--colors-system-success-contrast);
-    color: var(--colors-system-success-contrast);
-  }
-  .input-close {
-    border-color: var(--colors-system-warning-contrast, #c90);
-    color: var(--colors-system-warning-contrast, #c90);
-  }
-  .input-wrong {
-    border-color: var(--colors-system-error-contrast);
-    color: var(--colors-system-error-contrast);
-  }
-  .input-locked { opacity: 0.4; pointer-events: none; }
 
   .type-feedback {
     margin-top: 0.5rem;
@@ -521,13 +479,35 @@
     }
   }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
+  .field {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
+    color: var(--colors-palette-gray-10);
+    font-size: 1rem;
+    font-family: var(--font-family-serif-heading);
+    outline: none;
+    box-sizing: border-box;
   }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
+  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field-locked { opacity: 0.4; pointer-events: none; }
+  .btn-check {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    border: none;
+    background: var(--colors-theme-primary-surface);
+    color: var(--colors-theme-primary-contrast);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-family-sans-text);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .menu-hint {
     display: block;
@@ -548,10 +528,6 @@
     font-weight: 600;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
-  }
-  .btn-submit {
-    background: var(--colors-theme-primary-surface);
-    color: var(--colors-theme-primary-contrast);
   }
   .btn-next {
     background: transparent;

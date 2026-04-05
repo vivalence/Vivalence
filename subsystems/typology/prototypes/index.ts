@@ -27,7 +27,7 @@ export * from "./response.js";
 export * from "./context.js";
 export * from "./mode.js";
 
-export * from "./classifier.js";
+// export * from "./classifier.js";
 export * from "./blacklist.js";
 export * from "./yield.js";
 export * from "./pool.js";
@@ -36,4 +36,7 @@ export * from "./remedy/index.ts";
 export * from "./vector.js";
 export * from "./aperture.js";
 export * from "./repository.js";
+export * from "./entity-manager.js";
 export * from "./broadcaster.js";
+export * from "./cortex.js";
+export * from "./hallucinate.js";

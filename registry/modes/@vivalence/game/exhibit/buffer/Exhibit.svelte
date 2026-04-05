@@ -1,5 +1,5 @@
 <script>
-  import { Asset } from "@vivalence/drapes";
+  import { Asset, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -72,111 +72,97 @@
 
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literals.length}
-        <div class="meta">
-          <span class="meta-lang">Exhibit</span>
-          <span class="meta-type">{layout}</span>
+<Desk>
+  {#snippet surface()}
+    {#if literals.length}
+      <div class="meta">
+        <span class="meta-lang">Exhibit</span>
+        <span class="meta-type">{layout}</span>
+      </div>
+
+      {#if title}
+        <h2 class="title">{title}</h2>
+      {/if}
+      {#if subtitle}
+        <p class="subtitle">{subtitle}</p>
+      {/if}
+
+      {#if layout === "TABLE"}
+        <div class="table">
+          {#each literals as lit}
+            {@const person = personLabel(lit)}
+            <div class="table-row">
+              {#if person}
+                <span class="table-person">{person}</span>
+              {/if}
+              <span class="table-form">{learning(lit)}</span>
+              <span class="table-gloss">{known(lit)}</span>
+              {#if getAudio(lit)}
+                <span class="table-dot">
+                  <Asset asset={getAudio(lit)} variant="dot" />
+                </span>
+              {/if}
+            </div>
+          {/each}
         </div>
 
-        {#if title}
-          <h2 class="title">{title}</h2>
-        {/if}
-        {#if subtitle}
-          <p class="subtitle">{subtitle}</p>
-        {/if}
-
-        {#if layout === "TABLE"}
-          <div class="table">
-            {#each literals as lit}
-              {@const person = personLabel(lit)}
-              <div class="table-row">
-                {#if person}
-                  <span class="table-person">{person}</span>
-                {/if}
-                <span class="table-form">{learning(lit)}</span>
-                <span class="table-gloss">{known(lit)}</span>
-                {#if getAudio(lit)}
-                  <span class="table-dot">
-                    <Asset asset={getAudio(lit)} variant="dot" />
-                  </span>
-                {/if}
-              </div>
-            {/each}
-          </div>
-
-        {:else if layout === "PATTERN"}
-          {#if templateParts.length}
-            <div class="pattern-template">
-              {#each templateParts as part}
-                {#if part.type === "slot"}
-                  <span class="pattern-slot">{part.label}</span>
-                {:else}
-                  <span class="pattern-text">{part.value}</span>
-                {/if}
-              {/each}
-            </div>
-          {/if}
-
-          <div class="examples">
-            {#each literals as lit}
-              <div class="example-row">
-                <p class="example-learning">{learning(lit)}</p>
-                <p class="example-known">{known(lit)}</p>
-              </div>
-            {/each}
-          </div>
-
-        {:else if layout === "CONTRASTIVE"}
-          <div class="contrastive">
-            {#each groups as group, gi}
-              <div class="contrast-col">
-                {#each group as lit}
-                  <div class="contrast-row">
-                    <p class="contrast-learning">{learning(lit)}</p>
-                    <p class="contrast-known">{known(lit)}</p>
-                  </div>
-                {/each}
-              </div>
-              {#if gi === 0}
-                <div class="contrast-divider"></div>
+      {:else if layout === "PATTERN"}
+        {#if templateParts.length}
+          <div class="pattern-template">
+            {#each templateParts as part}
+              {#if part.type === "slot"}
+                <span class="pattern-slot">{part.label}</span>
+              {:else}
+                <span class="pattern-text">{part.value}</span>
               {/if}
             {/each}
           </div>
         {/if}
 
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
+        <div class="examples">
+          {#each literals as lit}
+            <div class="example-row">
+              <p class="example-learning">{learning(lit)}</p>
+              <p class="example-known">{known(lit)}</p>
+            </div>
+          {/each}
+        </div>
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading...</span>
-      {:else}
-        <button class="btn btn-got-it" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Got it
-        </button>
+      {:else if layout === "CONTRASTIVE"}
+        <div class="contrastive">
+          {#each groups as group, gi}
+            <div class="contrast-col">
+              {#each group as lit}
+                <div class="contrast-row">
+                  <p class="contrast-learning">{learning(lit)}</p>
+                  <p class="contrast-known">{known(lit)}</p>
+                </div>
+              {/each}
+            </div>
+            {#if gi === 0}
+              <div class="contrast-divider"></div>
+            {/if}
+          {/each}
+        </div>
       {/if}
-    </div>
-  </div>
-</div>
+
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading...</span>
+    {:else}
+      <button class="btn btn-got-it" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Got it
+      </button>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -352,14 +338,6 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-  }
   .menu-hint {
     display: block;
     text-align: center;

@@ -3985,5 +3985,879 @@ export default [
         "slug": "domain.social"
       }
     ]
+  },
+  {
+    "slug": "segunda-feira.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Monday",
+        "learning": "segunda-feira"
+      },
+      "EXEMPLIFIED": {
+        "known": "On Monday I work",
+        "learning": "Na segunda-feira eu trabalho"
+      },
+      "RANKED": {
+        "rank": 6918,
+        "zipf": 5.16,
+        "fpm": 145.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.segunda-feira"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "terça-feira.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Tuesday",
+        "learning": "terça-feira"
+      },
+      "EXEMPLIFIED": {
+        "known": "Tuesday is market day",
+        "learning": "Terça-feira é dia de mercado"
+      },
+      "RANKED": {
+        "rank": 19953,
+        "zipf": 4.7,
+        "fpm": 50.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.terça-feira"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "quarta-feira.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Wednesday",
+        "learning": "quarta-feira"
+      },
+      "EXEMPLIFIED": {
+        "known": "I arrive on Wednesday",
+        "learning": "Chego na quarta-feira"
+      },
+      "RANKED": {
+        "rank": 13490,
+        "zipf": 4.87,
+        "fpm": 73.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quarta-feira"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "quinta-feira.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Thursday",
+        "learning": "quinta-feira"
+      },
+      "EXEMPLIFIED": {
+        "known": "Thursday is a holiday",
+        "learning": "Quinta-feira é feriado"
+      },
+      "RANKED": {
+        "rank": 15136,
+        "zipf": 4.82,
+        "fpm": 66.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.quinta-feira"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sexta-feira.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Friday",
+        "learning": "sexta-feira"
+      },
+      "EXEMPLIFIED": {
+        "known": "Friday night",
+        "learning": "Sexta-feira à noite"
+      },
+      "RANKED": {
+        "rank": 12023,
+        "zipf": 4.92,
+        "fpm": 83.8
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sexta-feira"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.feminine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "sábado.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Saturday",
+        "learning": "sábado"
+      },
+      "EXEMPLIFIED": {
+        "known": "Saturday I go to the beach",
+        "learning": "Sábado vou à praia"
+      },
+      "RANKED": {
+        "rank": 8913,
+        "zipf": 5.05,
+        "fpm": 112.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.sábado"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "domingo.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "Sunday",
+        "learning": "domingo"
+      },
+      "EXEMPLIFIED": {
+        "known": "Sunday is a rest day",
+        "learning": "Domingo é dia de descanso"
+      },
+      "RANKED": {
+        "rank": 9120,
+        "zipf": 5.04,
+        "fpm": 110.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.domingo"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.weekday"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "janeiro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "January",
+        "learning": "janeiro"
+      },
+      "EXEMPLIFIED": {
+        "known": "January is very hot",
+        "learning": "Janeiro é muito quente"
+      },
+      "RANKED": {
+        "rank": 2818,
+        "zipf": 5.55,
+        "fpm": 355.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.janeiro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "fevereiro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "February",
+        "learning": "fevereiro"
+      },
+      "EXEMPLIFIED": {
+        "known": "February has carnival",
+        "learning": "Fevereiro tem carnaval"
+      },
+      "RANKED": {
+        "rank": 6310,
+        "zipf": 5.2,
+        "fpm": 158.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.fevereiro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "março.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "March",
+        "learning": "março"
+      },
+      "EXEMPLIFIED": {
+        "known": "March starts the autumn",
+        "learning": "Março começa o outono"
+      },
+      "RANKED": {
+        "rank": 5129,
+        "zipf": 5.29,
+        "fpm": 195.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.março"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "abril.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "April",
+        "learning": "abril"
+      },
+      "EXEMPLIFIED": {
+        "known": "April has a lot of rain",
+        "learning": "Abril tem muita chuva"
+      },
+      "RANKED": {
+        "rank": 5888,
+        "zipf": 5.23,
+        "fpm": 170.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.abril"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "maio.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "May",
+        "learning": "maio"
+      },
+      "EXEMPLIFIED": {
+        "known": "May is mothers' month",
+        "learning": "Maio é mês das mães"
+      },
+      "RANKED": {
+        "rank": 5495,
+        "zipf": 5.26,
+        "fpm": 182.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.maio"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "junho.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "June",
+        "learning": "junho"
+      },
+      "EXEMPLIFIED": {
+        "known": "June has the June festival",
+        "learning": "Junho tem festa junina"
+      },
+      "RANKED": {
+        "rank": 5248,
+        "zipf": 5.28,
+        "fpm": 191.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.junho"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "julho.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "July",
+        "learning": "julho"
+      },
+      "EXEMPLIFIED": {
+        "known": "July is very cold",
+        "learning": "Julho é muito frio"
+      },
+      "RANKED": {
+        "rank": 6166,
+        "zipf": 5.21,
+        "fpm": 162.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.julho"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "agosto.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "August",
+        "learning": "agosto"
+      },
+      "EXEMPLIFIED": {
+        "known": "August is a windy month",
+        "learning": "Agosto é mês de vento"
+      },
+      "RANKED": {
+        "rank": 5623,
+        "zipf": 5.25,
+        "fpm": 178.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.agosto"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "setembro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "September",
+        "learning": "setembro"
+      },
+      "EXEMPLIFIED": {
+        "known": "September starts the spring",
+        "learning": "Setembro começa a primavera"
+      },
+      "RANKED": {
+        "rank": 5370,
+        "zipf": 5.27,
+        "fpm": 186.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.setembro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "outubro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "October",
+        "learning": "outubro"
+      },
+      "EXEMPLIFIED": {
+        "known": "October is children's month",
+        "learning": "Outubro é mês das crianças"
+      },
+      "RANKED": {
+        "rank": 5012,
+        "zipf": 5.3,
+        "fpm": 200.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.outubro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "novembro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "November",
+        "learning": "novembro"
+      },
+      "EXEMPLIFIED": {
+        "known": "November has a holiday",
+        "learning": "Novembro tem feriado"
+      },
+      "RANKED": {
+        "rank": 5888,
+        "zipf": 5.23,
+        "fpm": 170.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.novembro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "dezembro.noun",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "December",
+        "learning": "dezembro"
+      },
+      "EXEMPLIFIED": {
+        "known": "December is Christmas",
+        "learning": "Dezembro é Natal"
+      },
+      "RANKED": {
+        "rank": 5754,
+        "zipf": 5.24,
+        "fpm": 174.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.dezembro"
+      },
+      {
+        "slug": "word.part-of-speech.noun"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.month"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
   }
 ]

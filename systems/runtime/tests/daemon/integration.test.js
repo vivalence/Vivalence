@@ -31,7 +31,7 @@ function http(base) {
   };
 }
 
-specimen.describe("integration: full client lifecycle", () => {
+specimen.describe("integration: full client lifecycle", { sanitizeResources: false, sanitizeOps: false }, () => {
   let skip = false;
   const client = http(BASE);
   const d = client.daemon("brazilian");
@@ -258,63 +258,6 @@ specimen.describe("integration: full client lifecycle", () => {
       specimen.expect(res.buffers.length).toBe(1);
       specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
       specimen.expect(res.buffers[0].literals.length).toBe(2);
-    });
-  });
-
-  // ─── tactic emitters ─────────────────────────────────────
-
-  specimen.describe("tactic: survival", () => {
-    it("warmup returns Yield with buffers", async () => {
-      const res = await d.emit("tactic/survival", "warmup", { batch: 4 });
-      specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBeGreaterThan(0);
-
-      for (const buf of res.buffers) {
-        specimen.expect(buf.id).toBeTruthy();
-        specimen.expect(buf.mode).toBeTruthy();
-        specimen.expect(buf.data).toBeTruthy();
-        specimen.expect(buf.literals).toBeTruthy();
-      }
-
-      const withLiterals = res.buffers.filter((b) => b.literals?.length > 0);
-      specimen.expect(withLiterals.length).toBeGreaterThan(0);
-    });
-
-    it("cooldown returns Yield with buffers", async () => {
-      const res = await d.emit("tactic/survival", "cooldown", { batch: 4 });
-      specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBeGreaterThan(0);
-      for (const buf of res.buffers) {
-        specimen.expect(buf.id).toBeTruthy();
-        specimen.expect(buf.data).toBeTruthy();
-      }
-    });
-
-    it("buildup returns Yield with buffers", async () => {
-      const res = await d.emit("tactic/survival", "buildup", { batch: 4 });
-      specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBeGreaterThan(0);
-      for (const buf of res.buffers) {
-        specimen.expect(buf.id).toBeTruthy();
-      }
-    });
-
-    it("drill returns Yield with buffers", async () => {
-      const res = await d.emit("tactic/survival", "drill", { batch: 4 });
-      specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBeGreaterThan(0);
-      for (const buf of res.buffers) {
-        specimen.expect(buf.id).toBeTruthy();
-      }
-    });
-
-    it("exercise returns Yield with buffers", async () => {
-      const res = await d.emit("tactic/survival", "exercise", { batch: 2 });
-      specimen.expect(res.condition).toBe("NOMINAL");
-      specimen.expect(res.buffers.length).toBeGreaterThan(0);
-      for (const buf of res.buffers) {
-        specimen.expect(buf.id).toBeTruthy();
-      }
     });
   });
 

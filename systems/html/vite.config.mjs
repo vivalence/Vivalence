@@ -47,6 +47,9 @@ async function serverConfig() {
 export default defineConfig(async ({ command }) => ({
   plugins: [sveltekit(), deno()],
   logLevel: "info",
+  build: {
+    target: "es2022",
+  },
   server: command === "serve" ? await serverConfig() : {},
   preview: command === "serve" ? await serverConfig() : {},
   ssr: {
@@ -57,7 +60,7 @@ export default defineConfig(async ({ command }) => ({
       // STABLE
       $client: join(__dirname, "./src/client.js"),
 
-      "@vivalence/html/typology": join(__dirname, "./src/typology/index.js"),
+      // "@vivalence/html/typology": removed — M5 migration
       "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
 
       "@vivalence/shared": join(__ss, "./shared/mod.client.js"),

@@ -1,0 +1,44 @@
+meta {
+  name: chat
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{TEACHER_DEWEY}}/dialogue/chat
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "thread": "019d5c7c-5f87-72d8-aec1-9c0985fd22be",
+    "message": "Oi Dewey! Como se diz 'house' em português?"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("response is SSE stream", function () {
+    expect(res.getHeader('content-type')).to.equal('text/event-stream');
+  });
+  
+  test("stream contains turn lifecycle", function () {
+    const text = res.getBody();
+    expect(text).to.contain('turn.open');
+    expect(text).to.contain('turn.close');
+    expect(text).to.contain('part.delta');
+  });
+}
+
+docs {
+  send a message to dewey. returns SSE stream with turn packets.
+  requires threadId from create-thread step.
+}

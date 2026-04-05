@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "exports": {
     // ".": "./mod.js",
-    "./typology": "./src/typology/index.js",
+    // "./typology": "./src/typology/index.js", // removed — M5 migration
     // "./control": "./client.viva.js",
   },
   "tasks": {

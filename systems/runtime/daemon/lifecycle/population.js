@@ -1,7 +1,7 @@
 import paladin from "@vivalence/paladin";
 import { wrap } from "@mikro-orm/core";
 
-import { Mode, Url, Path, Aperture, shard } from "@vivalence/typology";
+import { Mode, Url, Path, Aperture, Cortex, shard } from "@vivalence/typology";
 import { is, array, shape, steer } from "@vivalence/typology";
 import { sets } from "@vivalence/typology/entities";
 
@@ -78,6 +78,12 @@ export async function authority(daemonDie) {
 export async function acid(daemonDie) {
   daemonDie.good.hallucinator = await daemonDie.register.hallucinator //
     .provider(daemonDie.mask.hallucinator);
+
+  const faculties = daemonDie.good.hallucinator;
+
+  if (faculties?.[Symbol.iterator]) {
+    daemonDie.good.cortex = new Cortex().extend(faculties);
+  }
 }
 
 export async function services(daemonDie) {

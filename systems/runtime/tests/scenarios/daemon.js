@@ -8,7 +8,7 @@ import {
   LiteralEntity,
   SymbolEntity,
 } from "@vivalence/typology/entities";
-import { BufferEntity, seed } from "./entities.ts";
+import { BufferEntity, TurnEntity, seed } from "./entities.ts";
 
 import * as routes from "@vivalence/runtime/daemon/aperture";
 import { INTENTED, EMITTER } from "@vivalence/runtime/daemon/traits";
@@ -95,7 +95,10 @@ export async function create() {
   daemon.entities.thread = em.getRepository(ThreadEntity);
   daemon.entities.user = em.getRepository(UserEntity);
   daemon.entities.buffer = em.getRepository(BufferEntity);
+  daemon.entities.turn = em.getRepository(TurnEntity);
   daemon.entities.trace = null;
+
+  em.setFilterParams("user", { user: fixtures.user.id });
 
   // const sub = shape.subscriber(daemon.entities.twitch);
   const sub = shape.subscriber(daemon.twitch);

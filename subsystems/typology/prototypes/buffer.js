@@ -27,7 +27,7 @@ export class BufferView {
   }
   withBundler(bundler) {
     this.bundler = bundler;
-    if (is.empty(this.bundles)) (async () => await this.bundle())();
+    if (is.empty(this.bundles)) this.bundling = this.bundle();
     return this;
   }
   flush() {

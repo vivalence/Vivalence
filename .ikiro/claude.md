@@ -48,13 +48,15 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Signature hierarchy**: Signature → Pattern, Signal, Path, Url, Action. Url accepts full URLs (`is.url` — strings with `://` or objects with `.origin`), Signals (`is.Signal` — instanceof), or bare paths (strings without `://` — normalized, no origin). Signal→Url conversion via `u.pathname`.
 
-**System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, terminal, stall, lobby, door
+**System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, process, cast, terminal, stall, lobby, door
 
 **Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 52px mobile / 40px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count, counter button opens Inspector), inspector (routes/viva/Inspector.svelte — debug panel anchored to right of modeline, two tabs: buffers [queue visualization with skip/select/expand/DnD] and traces [polled review history with signal/status/literal/nextIn]. Reusable components in surface/inspector/), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation), stage (rendering engine shim in drapes — sole consumer of echarts/three.js, re-exports as `stage.*`. `stage.chart(container)` → echarts instance, `stage.scene(container)` → Three.js scene kit. `stage.echarts`/`stage.THREE` escape hatches. Canvas component = managed container with init callback)
 
-**Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream
+**Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream, soma (stream gestalt: pour/drain/attend/bridge), hallucinate (conditioned environment), spawn (cortex→hallucinate factory)
 
-**Context**: Execution envelope. `ctx.input` → `request.body`, `ctx.output` → `response.body`. Created by shape.http and steer strategies.
+**Context**: Execution envelope. `ctx.input` → `request.body`, `ctx.output` → `response.body`. Created by shape.http and steer direct/guarded strategies. Process strategy uses plain die object instead.
+
+**Die namespace** (process wafers): `die.good` (product), `die.variant` (cast-time config), `die.control` (host lifecycle: abort, release, ready), `die.output` (effect return, set by strategy).
 
 **Transport**: publish (SSE framing), subscribe (SSE consumption), websocket (bidirectional), stream (raw ReadableStream)
 
@@ -66,7 +68,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **Batch**: `shard.batch.route(aperture)` server multiplexer, `shard.connection.batch({url})` client DataLoader via queueMicrotask.
 
-**Steer** (4 modules): match (greedy/scope/resolve), navigate (traverse/walk), strategy (direct/guarded), apply (invoke/shotgun/rollup). Strategies pluggable: `shape.object(vector, steer.guarded)` opts into validation.
+**Steer** (4 modules): match (greedy/scope/resolve), navigate (traverse/walk), strategy (direct/guarded/process), apply (invoke/shotgun/rollup). Strategies pluggable: `shape.object(vector, steer.guarded)` opts into validation. Process strategy: die is a plain object (no Context wrapping), caller owns die, wafer enriches it. Cast = `steer.invoke(wafer, signal, strategy)` returns executor, executor(die) runs it. Inline for now, extract to typology when stable.
 
 **Pattern descriptors**: `vector.open({ nature, input, output, valence }, effect)`. Use `input`/`output`, never `schema`.
 
@@ -181,24 +183,36 @@ Structural testing. Specimen is king. Each layer tests what's novel to itself �
 |-------|---------|----------|---------------|
 | **Shard** | typology | `datamap.seed()` | Shard CRUD, routing primitives, schema ops, transport, repository identity |
 | **Daemon** | runtime | `daemon.create()` | Trait composition, auth gating, daemon route wiring, mode emission, lifecycle |
-| **Mode** | runtime | `mountMode(viva)` | Individual mode emitters, buffer shapes, intent seeding (planned) |
+| **Mode** | runtime | `mountMode(viva)` | Individual mode emitters, buffer shapes, intent seeding |
+| **Bench** | runtime | `bench({ kernel, modes })` | Full daemon from registry modules — domain repos, ontology data, real lifecycle |
 | **Client** | html | imports runtime scenario | Prototype wrapping, persistence round-trip, Buffer.from lifecycle, schema wiring |
 
 ### Scenario Hierarchy
 
 ```
-typology/scenarios/datamap.js
-  └─ exports: { schemas, seed, SymbolConcrete, BufferConcrete }
-  └─ provides: ORM + em + bare entities (user, symbol, 2 literals, mode)
+@vivalence/typology/scenarios
+  ├─ datamap.seed()          ORM + em + bare entities (user, symbol, literals, mode)
+  ├─ provider(variant)       In-memory sqlite datamap matching libsql provider contract
+  ├─ SymbolConcrete          Concrete entity schemas for test contexts
+  └─ BufferConcrete
 
-runtime/scenarios/entities.ts
-  └─ imports: SymbolConcrete, BufferConcrete from typology
-  └─ adds: LiteralDomain (LiteralRepository with feed/novel/due), richer fixtures (TRANSLATED traits, intent, thread)
-
-runtime/scenarios/daemon.js
-  └─ imports: seed from entities.ts
-  └─ provides: full daemon (aperture, routes, auth, conn, authedConn, scoped)
+@vivalence/runtime/scenarios
+  ├─ daemon.create()         Full handcrafted daemon (aperture, routes, auth, conn)
+  ├─ mountMode(viva)         Single .viva.js → minimal daemon, stub BUFFERED + feed
+  ├─ mountModes(vivas[])     N modes → shared daemon (for tactic cross-mode composition)
+  ├─ bench({ kernel, modes }) Full daemon factory from registry modules (raw or paladin specifiers)
+  └─ lighthouse.create()     Lighthouse service scenario
 ```
+
+**Three tiers of mode testing:**
+
+1. **mountMode** — lightest. Stub BUFFERED, TestLiteralRepository, real INTENTED + EMITTER. For iterating on a single mode's emitters without domain complexity.
+
+2. **bench (raw imports)** — medium. Real domain entities with `.feed()/.novel()/.due()`, real lifecycle functions (population.modes, resolution.modes), real trait application. No paladin needed. For testing mode behavior with production-grade repos.
+
+3. **bench (paladin specifiers)** — heaviest. Resolves `"@vivalence/game/flashcard"` through paladin VIP, seeds ontology data via DATASET trait, boots full daemon with domain + ontology + topology + modes. For integration testing with real registry data.
+
+Each tier builds on the same infrastructure. The bench imports `provider()` from typology/scenarios for its in-memory ORM. Any system in the ecosystem can `import { bench } from "@vivalence/runtime/scenarios"` to spin up a realistic daemon.
 
 Each scenario extends the previous. Never duplicate schema definitions — import and extend.
 
@@ -354,6 +368,7 @@ Still on disk — don't document, extend, or suggest using:
 | sheets subsystem | subsystems/sheets/ | Completely unused |
 | NLP service | registry/services/@vivalence/nlp/ | Uncertain activity |
 | lighthouse/localhost | registry/services/@vivalence/lighthouse/localhost/ | Not wired |
+| hallucinator hal257 | registry/services/@vivalence/hallucinator/bak/hal/ | Retired — replaced by anthropic faculty provider |
 | hallucinator archive | registry/services/@vivalence/hallucinator/hal/archive/ | Legacy providers |
 | Archived modes | registry/modes/@vivalence/bak/ | Abandoned approaches |
 | Archived topologies | registry/kernels/@vivalence/topology/bak/ | Spanish, Latin, etc. |
@@ -361,19 +376,30 @@ Still on disk — don't document, extend, or suggest using:
 | SELFEVIDENT trait impl | runtime/daemon/traits/index.js | No-op — all modes use APPLICATIVE |
 | Old EMITTER commented code | REMOVED | Was runtime/daemon/traits/emitter.js lines 62-93. Deleted during Pool migration. |
 | Old BUFFERED commented code | runtime/daemon/traits/buffered.js lines 46-56 | Pre-ensure buffer factory |
+| Old client.js | systems/html/src/bak/client.js | Replaced by wafer-driven client.js |
+| Old lighthouse lifecycle | systems/html/src/typology/entities/lighthouse/bak.lifecycle.js | lifecycle()+populate() replaced by lighthouse.wafer.js |
+| Old terminal populate | systems/html/src/routes/viva/[...terminal]/lib/bak/populate.js | Routing Vector replaced by terminal.wafer.js |
+| Old daemon lifecycle | systems/html/src/typology/entities/daemon.js (commented) | lifecycle() replaced by daemon.wafer.js |
+| Cortex workpackage typology | runtime/tests/workpackages/cortex/typology/{cortex,hallucinate,accumulate}.js | Graduated to typology prototypes + belt/soma.js |
+| Cortex workpackage v1 test | runtime/tests/workpackages/cortex/cortex.test.js | Tests old function-based architecture |
+| Cortex workpackage stale daemon | runtime/tests/workpackages/cortex/daemon/{traits,population}.js | Old applyHarness + populateCortex — superseded by CONVERSATIONAL trait |
+| Cortex workpackage stale mode | runtime/tests/workpackages/cortex/mode/mode.viva.js | Old dewey stub with harness pattern |
+| Cortex workpackage stale REPL | runtime/tests/workpackages/cortex/client/repl.js | Old REPL — superseded by boot.js inline |
 
 ## Active Work Areas
 
-As of 2026-04-03:
+As of 2026-04-04:
 
+- **Wafer lifecycle** — [wafer-lifecycle.workpackage.org](wafer-lifecycle.workpackage.org). Vector-based process composition replacing Wafer/Die class hierarchy. Pattern proven (27 typology tests). Paladin migrated (22 tests). Client migrated: 4 wafers (client, lighthouse, daemon, terminal) with process strategy + die.good/variant/control namespace. 11 daemon wafer tests. Next: extract process strategy to typology, runtime migration (Die class retirement).
 - **Stage + Dashboard** — [stage-canvas-devtools.workpackage.org](stage-canvas-devtools.workpackage.org). `stage` rendering shim in drapes (sole echarts consumer). `Canvas` managed container component. ECharts v6 via import_map. `dashboard` mode type in learning domain. `dashboard/dataspace` mode: graph (practiced literals + symbol anchors), memory (status bars + scatter), traces (timeline scatter + live SSE). Phase 1 done, Phase 2 iterating (graph layout tuning). Three.js deferred.
 - **Literal hierarchy** — `uses`/`in` M:N self-relation. LiteralSubscriber afterFlush. Open: twitch migration question
-- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + survival tactic operational. Three ontologies (word, sentence, conjugation). Pool emitter composition. All gameplay/layout enums UPPERCASE. Open: CompletableSymbol, Tier 2 (reorder, dictation)
-- **Cortex** — [cortex.workpackage.org](cortex.workpackage.org). Design done, not yet built
+- **Modes & tactics** — [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org). 9 game modes + 2 tactics operational. Three ontologies (word, sentence, conjugation). Pool emitter composition. All gameplay/layout enums UPPERCASE. Tactics: Five-Fold Session (5-phase: warmup→cooldown, renamed from survival), Clinic (12 adaptive scopes: class, regularity, questions, connectors, negation, pronouns, determiners, adverbs, numbers, degrees, prepositions, ser-vs-estar — with phase-aware sub-emitter composition: introduce/drill/reinforce/hunt). Clinic uses strength-based assess + weighted random selection + trace errorRate. PWA manifest for standalone mobile. Open: CompletableSymbol, Tier 2 (reorder, dictation), tense/mood clinic intents (need A1), colors scope (needs dataset)
+- **Cortex** — [cortex.workpackage.org](cortex.workpackage.org). All 4 milestones + daemon lifecycle wiring DONE. 27 integration test steps (21 inline + 6 HTTP/SSE). Dewey live as registry mode. Hal257 retired, anthropic provider active. Bruno test regime. Next: history windowing (MID PRIORITY), client consumption, workpackage cleanup
 - **Datamap client** — [datamap-client-migration.workpackage.org](../systems/html/.ikiro/datamap-client-migration.workpackage.org). Server-side DONE. Batch DONE. Memory + trace datamap shards now exposed in domain aperture. Open: persist test, identity map, SSE subscribe wiring
 - **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org). MCP as future phase
 - **Package manager** — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org). Design only
 - **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org). DONE (M1+M2). M3 game mode migration pending
+- **Client typology** — [client-typology.workpackage.org](client-typology.workpackage.org). Reorganizing client src/. Phase 1 done: RemoteEntityManager + RemoteRepository integrated as unit in typology (52 test steps). Entity classes + Dataspace on client. Next: M2 lighthouse + daemon wafer restructure, M3 terminal, M4 client wafer, M5 route migration.
 - Mobile readiness, progression system, DB migration (session→thread FK recreation) — deferred
 
 ## Divio Documentation + Testing Matrix
@@ -405,6 +431,7 @@ These docs are living scaffolds. After every task, ask: **"What would the next s
 Each subsystem doc has its own Work Packages section. This is the master view:
 
 **Active work packages:**
+- [wafer-lifecycle.workpackage.org](wafer-lifecycle.workpackage.org) — Vector-based process composition (wafer/die/cast)
 - [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex
 - [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics
 - [stage-canvas-devtools.workpackage.org](stage-canvas-devtools.workpackage.org) — Stage rendering primitives + dashboard mode
@@ -414,6 +441,6 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 **Completed:**
 - [pool-prototype.workpackage.org](pool-prototype.workpackage.org) — Pool emitter composition primitive (DONE 2026-04-02)
 
-**Key testing gaps:** Memory drivers untested in isolation. DATASET trait, process system untested. Paladin untested. No isolated mode-level tests (mountMode harness planned — phases 5+6). Agentic compiler untested.
+**Key testing gaps:** Memory drivers untested in isolation. Process system untested. Agentic compiler untested. Paladin has 22 baseline tests. Daemon client wafer has 11 tests. Client/lighthouse/terminal wafers build-tested only (no scenario tests yet). Pre-existing buffer.test.js failures (unrelated to wafer migration). Pre-existing repository.persist.test.js failures (nanostores/persistent test engine). Survival/clinic tactic orchestration tests (need mountModes + enriched fixtures for ANNOTATED/VOCALIZED). Conjugation/paradigm mode emitter tests (need CONJUGATED ontology fixtures). RemoteEntityManager flush() not tested against /batch endpoint. Managed repo persist() + subscribe() interaction with EM untested.
 
 **Cross-cutting:** @vivalence/shared migration, asset entity type, hallucinator contract update

@@ -49,3 +49,16 @@ export const closest = (target, candidates) =>
     },
     { value: null, distance: Infinity },
   );
+
+export const nearest = (items, target, accessor = (item) => item) =>
+  items.reduce(
+    (best, item) => {
+      const point = accessor(item);
+      let sum = 0;
+      for (let dimension = 0; dimension < target.length; dimension++) {
+        sum += (point[dimension] - target[dimension]) ** 2;
+      }
+      return sum < best.distance ? { value: item, distance: sum } : best;
+    },
+    { value: null, distance: Infinity },
+  ).value;

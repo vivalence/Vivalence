@@ -1,0 +1,52 @@
+meta {
+  name: verify turns
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/turn/find
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "thread": "019d5c7c-5f87-72d8-aec1-9c0985fd22be"
+    },
+    "options": {
+      "orderBy": { "createdAt": "ASC" }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}
+
+tests {
+  test("turns persisted for thread", function () {
+    const turns = res.getBody();
+    expect(turns).to.be.an('array');
+    expect(turns.length).to.be.greaterThan(1);
+  });
+  
+  test("turns alternate user/assistant", function () {
+    const turns = res.getBody();
+    if (turns && turns.length > 1) {
+      expect(turns[0].role).to.equal('user');
+      expect(turns[1].role).to.equal('assistant');
+    }
+  });
+}
+
+docs {
+  verify turn persistence — after the chat sequence, the thread
+  should have user + assistant turns saved in the database.
+}

@@ -1,5 +1,5 @@
 <script>
-  import { Asset, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Desk, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
 
@@ -75,8 +75,21 @@
   }
 
   function evaluateWord(input, expected) {
-    const match = parseAlts(expected).some((alt) => norm(input) === norm(alt));
-    return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
+    const alts = parseAlts(expected);
+    const n = norm(input);
+
+    // any single alt
+    if (alts.some((alt) => n === norm(alt))) return { signal: "SUCCESS", tokens: null };
+
+    // all alts combined, word-order agnostic ("next nearby" for "next / nearby")
+    if (alts.length > 1) {
+      const inputWords = new Set(n.split(/\s+/));
+      const altWords = new Set(alts.flatMap((alt) => norm(alt).split(/\s+/)));
+      if (inputWords.size === altWords.size && [...altWords].every((w) => inputWords.has(w)))
+        return { signal: "SUCCESS", tokens: null };
+    }
+
+    return { signal: "MISTAKE", tokens: null };
   }
 
   function evaluateSentence(input, expected, tokens, currentRecall) {
@@ -164,105 +177,95 @@
 
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literal}
-        <div class="meta">
-          <span class="meta-lang">{promptLabel}</span>
-          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-          {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
-          {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
-        </div>
+<Desk maxWidth="640px">
+  {#snippet surface()}
+    {#if literal}
+      <div class="meta">
+        <span class="meta-lang">{promptLabel}</span>
+        <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+        {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
+        {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+      </div>
 
-        <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
+      <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
 
-        {#if asset && activeRecall === "KNOWN"}
-          <Asset {asset} />
-        {/if}
+      {#if asset && activeRecall === "KNOWN"}
+        <Asset {asset} />
+      {/if}
 
-        {#if isWord && promptEx}
-          <p class="example">{promptEx}</p>
-        {/if}
+      {#if isWord && promptEx}
+        <p class="example">{promptEx}</p>
+      {/if}
 
-        {#if submitted && result}
-          <div class="divider"></div>
+      {#if submitted && result}
+        <div class="divider"></div>
 
-          <div class="feedback">
-            <div class="fb-block">
-              <span
-                class="fb-val"
-                class:ok={result.signal === "SUCCESS"}
-                class:wrong={result.signal !== "SUCCESS"}>
-                {result.signal === "SUCCESS" ? answer : input}
-              </span>
-            </div>
-
-            {#if result.signal !== "SUCCESS"}
+        <div class="feedback">
+          <div class="fb-row">
+            <div class="fb-left">
               <div class="fb-block">
-                <span class="fb-key">expected</span>
-                <span class="fb-val ok">{answer}</span>
+                <span
+                  class="fb-val"
+                  class:ok={result.signal === "SUCCESS"}
+                  class:wrong={result.signal !== "SUCCESS"}>
+                  {result.signal === "SUCCESS" ? answer : input}
+                </span>
               </div>
-            {/if}
 
-            {#if result.tokens}
-              <div class="tokens">
-                {#each result.tokens as tok}
-                  <div
-                    class="tok"
-                    class:tok-ok={tok.signal === "SUCCESS"}
-                    class:tok-miss={tok.signal !== "SUCCESS"}>
-                    <span class="tok-form">{tok.form}</span>
-                    <span class="tok-gloss">{tok.gloss}</span>
-                  </div>
-                {/each}
-              </div>
-            {/if}
+              {#if result.signal !== "SUCCESS"}
+                <div class="fb-block">
+                  <span class="fb-key">expected</span>
+                  <span class="fb-val ok">{answer}</span>
+                </div>
+              {/if}
+
+              {#if isWord && answerEx}
+                <p class="example revealed">{answerEx}</p>
+              {/if}
+            </div>
 
             {#if asset && activeRecall === "LEARNING"}
               <Asset {asset} autoplay={true} onended={onAudioEnded} />
             {/if}
-
-            {#if isWord && answerEx}
-              <p class="example revealed">{answerEx}</p>
-            {/if}
           </div>
-        {/if}
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      <input
-        class="field"
-        class:field-locked={submitted}
-        bind:this={inputEl}
-        value={input}
-        oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
-        placeholder="{answerLabel}…" />
-      {#if !submitted}
-        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
-      {:else}
-        <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
+          {#if result.tokens}
+            <div class="tokens">
+              {#each result.tokens as tok}
+                <div
+                  class="tok"
+                  class:tok-ok={tok.signal === "SUCCESS"}
+                  class:tok-miss={tok.signal !== "SUCCESS"}>
+                  <span class="tok-form">{tok.form}</span>
+                  <span class="tok-gloss">{tok.gloss}</span>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
       {/if}
-    </div>
-  </div>
-</div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    <input
+      class="field"
+      class:field-locked={submitted}
+      bind:this={inputEl}
+      value={input}
+      oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
+      placeholder="{answerLabel}…" />
+    {#if !submitted}
+      <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
+    {:else}
+      <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 640px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -321,6 +324,17 @@
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+  }
+  .fb-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .fb-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
   }
 
   .fb-block {
@@ -410,17 +424,6 @@
     }
   }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 640px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-  }
   .field {
     flex: 1;
     min-width: 0;
@@ -468,7 +471,6 @@
   .btn-next:disabled { opacity: 0.4; cursor: default; }
 
   @media (max-width: 640px) {
-    .stage { padding: 1rem 1rem; }
     .prompt { font-size: var(--font-size-base); }
     .prompt-word { font-size: var(--font-size-lg); }
     .divider { margin: 0.75rem 0; }
@@ -476,6 +478,5 @@
     .fb-val { font-size: 1rem; }
     .tok { padding: 0.25rem 0.375rem; }
     .tok-form { font-size: 0.85rem; }
-    .controls { padding: 0.5rem 1rem; }
   }
 </style>

@@ -1,0 +1,474 @@
+#+TITLE: Wafer Lifecycle — Vector-based Process Composition
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-04
+#+STATUS: ACTIVE
+
+* Intent
+
+Unify all bootable systems (paladin, runtime, daemon, client, terminal) under a single compositional pattern using Vector as the lifecycle backbone. Middleware = lifecycle phases. The effect = the thing the process produces or keeps alive. Teardown = middleware unwind. No new primitives — existing Vector + steer + shape already support this.
+
+** Desired End State
+
+Every system component is expressed as a *wafer* — a Vector with named lifecycle branches (/construct/populate/resolve/integrate). Casting a wafer produces a process. The Die class hierarchy (Wafer/Die/Good) is replaced by vector factories and steer.invoke.
+
+** Terminology
+
+| Term    | What                                                      |
+|---------+-----------------------------------------------------------|
+| Wafer   | The vector. Lifecycle blueprint. Named branches + middleware. |
+| Die     | The context inside middleware. (die, next) => { ... }     |
+| Process | The live wafer in action. Invoked wafer with state.       |
+| Cast    | The act: steer.invoke(wafer, signal) → exec(input) → result. |
+
+** Two process types
+
+- *Completing*: effect returns a product (paladin, daemon). exec() resolves.
+- *Alive*: effect returns a deferred promise (runtime, terminal). exec() blocks until kill.
+
+** Partial application
+
+Named branches enable partial lifecycle traversal. Effects at branch points serve as exits.
+
+#+begin_src
+/construct/populate/base     → paladin with env+scopes, no variant
+/construct/populate/resolve/integrate/full → complete paladin
+#+end_src
+
+** Host contract
+
+Alive wafers receive an AbortController from input. abort.abort() triggers release.resolve() → effect unblocks → middleware unwinds in reverse. The host provides the kill signal; the wafer responds.
+
+** No premature primitives
+
+No sugar, no convenience wrappers, no constants. Each system is different. If something isolatable emerges during migration, extract it then. The pattern is the primitive.
+
+* Architecture
+
+** Alive wafer pattern
+
+#+begin_src javascript
+wafer.use(async (die, next) => {
+  die.abort = die.input?.abort || new AbortController()
+  die.release = deferred()
+  die.abort.signal.addEventListener("abort", () => die.release.resolve())
+  await next()
+  await die.server?.shutdown()
+})
+#+end_src
+
+Host kills child: ~abort.abort()~ → release resolves → effect unblocks → middleware unwinds in reverse. One line to kill, deterministic teardown order for free.
+
+** Recursive cast — daemon inside runtime
+
+#+begin_src javascript
+resolve.use(async (die, next) => {
+  for (const [slug, entry] of die.daemons) {
+    entry.product = await steer.invoke(entry.wafer, LIFECYCLE)({
+      aperture: die.aperture, latch: die.latch, abort: die.abort,
+    })
+  }
+  await next()
+})
+#+end_src
+
+Daemon effect mounts into parent and returns:
+
+#+begin_src javascript
+resolve.open("/integrate", async (die) => {
+  die.input.aperture.branch(die.daemon.mount.nature).slurp(die.daemon.aperture)
+  return die.daemon
+})
+#+end_src
+
+** Terminal isolation — concurrent alive children
+
+#+begin_src javascript
+spawn: async (params) => {
+  const terminalAbort = new AbortController()
+  const ready = deferred()
+  const handle = steer.invoke(terminal(params), LIFECYCLE)({
+    dataspace: die.dataspace, abort: terminalAbort,
+    onReady: (api) => ready.resolve(api),
+  })
+  const api = await ready.promise
+  return { ...api, kill: () => terminalAbort.abort(), handle }
+}
+#+end_src
+
+Each terminal gets fresh entity Maps. Client shares dataspace (read-only environment), terminal creates isolated entities (write-local state). Kill one, others survive. Client teardown cascades via abort on all terminals.
+
+** onReady handshake (alive wafers)
+
+Alive wafers can't return state (they block forever). Effect publishes API before blocking:
+
+#+begin_src javascript
+resolve.open("/integrate", async (die) => {
+  die.input?.onReady?.({ id, buffer, entities, stall })
+  return die.release.promise
+})
+#+end_src
+
+** Paladin wafer (completing, first migration)
+
+#+begin_src javascript
+import { Vector } from "@vivalence/typology"
+import { Paladin } from "./prototypes/paladin.js"
+import * as populate from "./lifecycle/populate.js"
+import * as resolve from "./lifecycle/resolve.js"
+import * as integrate from "./lifecycle/integrate.js"
+
+export function paladin() {
+  const wafer = new Vector()
+
+  wafer.use(async (die, next) => {
+    die.paladin = new Paladin()
+    await next()
+  })
+
+  wafer.branch("/construct")
+    .use(async (die, next) => {
+      await populate.env(die.paladin)
+      await populate.scopes(die.paladin)
+      await next()
+    })
+    .branch("/populate")
+    .use(async (die, next) => {
+      await populate.environment(die.paladin)
+      await populate.veryimportantpackage(die.paladin)
+      await populate.questions(die.paladin)
+      await next()
+    })
+    .open("/base", async (die) => die.paladin)
+    .branch("/resolve")
+    .use(async (die, next) => {
+      await resolve.circuitry(die.paladin)
+      await resolve.variant(die.paladin)
+      await next()
+    })
+    .branch("/integrate")
+    .use(async (die, next) => {
+      await integrate.statements(die.paladin)
+      await integrate.publish(die.paladin)
+      await integrate.questions(die.paladin)
+      await next()
+    })
+    .open("/full", async (die) => die.paladin)
+
+  return wafer
+}
+#+end_src
+
+#+begin_src javascript
+// mod.js
+import { steer } from "@vivalence/typology"
+import { paladin } from "./wafer.js"
+
+export default await steer.invoke(paladin(), "/construct/populate/resolve/integrate/full")()
+#+end_src
+
+#+begin_src javascript
+// typology.js
+export * from "./prototypes/index.js"
+export * from "./lifecycle/index.js"
+export { paladin } from "./wafer.js"
+
+export * as prototypes from "./prototypes/index.js"
+export * as lifecycle from "./lifecycle/index.js"
+export * as belt from "./belt/index.js"
+#+end_src
+
+* Phases
+
+** Phase 1: Pattern Proof [DONE]
+Typology-level tests proving the wafer pattern works with existing Vector + steer.
+
+- [X] Completing wafer (lifecycle traversal, product return)
+- [X] Cast input accessible as die.input
+- [X] Teardown unwinds in reverse phase order
+- [X] Alive wafer (blocks until release, then unwinds)
+- [X] Partial application via alternative effects
+- [X] Recursive cast (parent casts child wafers)
+
+Tests: typology/tests/wafer.test.js (7 tests, all passing)
+
+** Phase 2: Advanced Scenarios [DONE]
+Integration tests proving real-world patterns with real HTTP, real Deno.serve, real Connection.
+
+- [X] Runtime wafer with real Deno.serve, two daemon wafers
+- [X] Daemon entity CRUD + store isolation via HTTP
+- [X] EMITTER trait conditional route application
+- [X] Teardown verification (reverse order + server shutdown confirmed dead)
+- [X] Client wafer connecting to runtime, daemon discovery via HTTP
+- [X] Terminal spawning with isolated entity state (separate Maps)
+- [X] Terminal kill (one dies, others survive, buffer still works)
+- [X] Client teardown cascades to remaining terminals
+- [X] Paladin /base vs /full (partial application)
+- [X] Same wafer, two signals, different depths
+
+Tests: typology/tests/wafer.advanced.test.js (10 tests, all passing)
+
+** Phase 3: Paladin Migration [DONE]
+Express paladin as a completing wafer. First real migration.
+
+*** Baseline tests [DONE]
+Rewrote paladin/tests/paladin.test.js — 22 tests covering the full lifecycle as-is.
+
+- [X] Construction: empty env/variant, belt attached
+- [X] Population: env loading, scope registration, scope derivation, legacy aliases, environment jsonc, secrets isolation, VIP creation, questions validation, is predicates
+- [X] Resolution: circuitry discovery, variant compilation (runtime/clients/daemons/services), daemon Mask contents (kernel/modes/datamap/lighthouse/hallucinator), service Masks
+- [X] Integration: mount directory creation, PUBLIC_ publish to Deno.env
+- [X] Belt: find.viva, find.json, read.viva, read.json, check.env
+- [X] Singleton equivalence: fresh lifecycle matches import singleton
+
+*** Migration [DONE]
+- [X] paladin/wafer.js — wafer factory, fluent chain, lifecycle functions as middleware
+- [X] paladin/mod.js — casts /construct/populate/base, ikiro runs resolve+integrate directly (circular import constraint: circuit files import @vivalence/paladin at module scope)
+- [X] paladin/typology.js — exports paladin wafer factory
+- [X] All 22 baseline tests pass (including singleton equivalence)
+
+** Phase 3.5: Process Strategy + Die Namespace [DESIGNED]
+New steer strategy for process wafers. Replaces direct (HTTP-oriented Context) with plain die object.
+
+*** Process strategy
+
+#+begin_src javascript
+const process = (carry, effect, steps, signal) => async (die = {}) => {
+  await carry(die, async () => {
+    const result = await effect(die)
+    if (result !== undefined) die.output = result
+  })
+  return die.output
+}
+#+end_src
+
+Key difference from direct: no Context wrapping. Die IS the context — whatever the caller puts on it, middleware sees. The caller owns the die. The wafer enriches it.
+
+*** Die namespace convention
+
+| Field        | What                                                    | Who creates             |
+|--------------+---------------------------------------------------------+-------------------------|
+| die.good     | The product being constructed                           | Caller or root middleware |
+| die.variant  | Cast-time configuration                                 | Caller                  |
+| die.control  | Host lifecycle controls                                 | Caller + root middleware |
+| die.output   | Effect return value (set by strategy)                   | Strategy                |
+| die.signal   | Signal path (set by strategy)                           | Strategy                |
+
+For alive wafers, die.control contains:
+- abort: AbortController (provided by host or defaulted)
+- release: deferred (wired to abort by root middleware)
+- ready: deferred (optional, host-provided, resolved by effect when construction complete)
+
+*** Cast = invoke + execute (separate steps)
+
+#+begin_src javascript
+// 1. Build the cast (binds wafer + path + strategy)
+const cast = steer.invoke(daemon, "/construct/populate/resolve/full",
+  (carry, effect) => async (die) => {
+    await carry(die, async () => { die.output = await effect(die) })
+    return die.output
+  },
+)
+
+// 2. Execute the cast (separate — call when/where applicable)
+const result = await cast({ good: new Daemon(connection), variant: { lighthouse } })
+#+end_src
+
+*** Two strategy shapes
+
+Completing (daemon, lighthouse, paladin, client to /idle):
+#+begin_src javascript
+(carry, effect) => async (die) => {
+  await carry(die, async () => { die.output = await effect(die) })
+  return die.output
+}
+#+end_src
+
+Alive (terminal, runtime, client to /full):
+#+begin_src javascript
+(carry, effect) => (die) => {
+  die.control.release = deferred()
+  die.control.abort.signal.addEventListener("abort", () => die.control.release.resolve())
+  const handle = carry(die, async () => {
+    die.control.ready?.resolve(die.good)
+    await effect(die)
+  })
+  return { ready: die.control.ready?.promise, handle, kill: () => die.control.abort.abort() }
+}
+#+end_src
+
+*** Plain vector export (no factory function)
+
+Wafers are plain exported vectors, not factory functions. Vectors are stateless — middleware is just functions, branch structure is immutable. Each cast traverses the same vector with a fresh die.
+
+#+begin_src javascript
+// NOT this:
+export function paladin() { const wafer = new Vector(); ...; return wafer }
+// steer.invoke(paladin(), signal)
+
+// THIS:
+export const paladin = new Vector()
+paladin.use(async (die, next) => { ... })
+// steer.invoke(paladin, signal)
+#+end_src
+
+** Phase 4: Client Migration [DONE]
+Express client-side system as wafers. Four wafers, all integrated and building.
+
+*** TLA unlocked
+vite.config.mjs build.target → es2022. Chrome 89+ (March 2021). Build passes.
+
+*** Files
+
+| Wafer | File | Type | Cast site | Tests |
+|-------+------+------+-----------+-------|
+| client | src/client.wafer.js | completing to /idle | src/client.js | build-only |
+| lighthouse | src/typology/entities/lighthouse/lighthouse.wafer.js | completing | src/routes/+layout.js | build-only |
+| daemon | src/typology/entities/daemon.wafer.js | completing | lighthouse wafer /populate | 11 tests (daemon.wafer.test.js) |
+| terminal | src/routes/viva/[...terminal]/terminal.wafer.js | completing | [...terminal]/lib/populate.js | build-only |
+
+*** Client wafer
+Phases: /construct (Connection, Lighthouse) → /hydrate (localStorage) → /idle exit → /populate (daemon discovery) → /full exit
+
+#+begin_src javascript
+// host: client.js
+const cast = steer.invoke(client, "/construct/hydrate/idle",
+  (carry, effect) => async (die) => {
+    await carry(die, async () => { die.output = await effect(die) })
+    return die.output
+  },
+)
+
+const { dataspace, lighthouse } = await cast({
+  variant: { lighthouseUrl: env["PUBLIC_VIVA_LIGHTHOUSE_REMOTE"] },
+})
+#+end_src
+
+*** Lighthouse wafer
+Phases: /verify (auth check) → /populate (manifest + daemon discovery via castDaemon) → /full exit
+
+#+begin_src javascript
+// host: +layout.js load — accessed via entities.lighthouse.lighthouse (namespace collision)
+const cast = steer.invoke(entities.lighthouse.lighthouse, "/verify/populate/full",
+  (carry, effect) => async (die) => {
+    await carry(die, async () => { die.output = await effect(die) })
+    return die.output
+  },
+)
+
+if (!lighthouse.$isAuthorized.get()) return
+if (dataspace.daemon.$entities.get().length) return
+await cast({ good: lighthouse, variant: { dataspace } })
+#+end_src
+
+*** Daemon client wafer
+Phases: /construct (parallel fetch manifest+schema+cargo) → /populate (6 entity repos, datamap wire) → /resolve (enrich modes+intents, resolve hooks) → /full exit
+
+#+begin_src javascript
+// host: lighthouse.wafer.js /populate middleware
+const castDaemon = steer.invoke(daemon, "/construct/populate/resolve/full",
+  (carry, effect) => async (die) => {
+    await carry(die, async () => { die.output = await effect(die) })
+    return die.output
+  },
+)
+
+const result = await castDaemon({ good: new Daemon(connection), variant: { lighthouse } })
+#+end_src
+
+*** Terminal wafer
+Phases: /construct (wire daemon/thread/mode/intent) → /populate (configure stall: APPLICATIVE pull or single buffer) → /resolve (initial pull) → /integrate exit
+
+#+begin_src javascript
+// host: [...terminal]/lib/populate.js
+const cast = steer.invoke(terminal, "/construct/populate/resolve/integrate",
+  (carry, effect) => async (die) => {
+    await carry(die, async () => { die.output = await effect(die) })
+    return die.output
+  },
+)
+
+const result = await cast({ good: terminal, variant: { daemon, thread } })
+#+end_src
+
+*** Cleanup
+- src/bak/client.js — old sync client
+- src/typology/entities/lighthouse/bak.lifecycle.js — old lifecycle+populate functions
+- src/routes/viva/[...terminal]/lib/bak/populate.js — old routing Vector populate
+- src/typology/entities/daemon.js — old lifecycle function removed, dead imports removed
+
+*** Known issues
+- lighthouse wafer export collides with entities.lighthouse namespace. Accessed as entities.lighthouse.lighthouse. Consider renaming export.
+- localStorage .persist() causes stale data in tests. daemon.wafer.test.js clears localStorage in beforeAll.
+- Terminal wafer currently completing, not alive. Alive pattern (abort/release/ready) designed but not yet applied. Svelte component still manages lifecycle (reset on navigate).
+- Process strategy inlined at each cast site. Not yet extracted to typology.
+
+- [X] Unlock TLA: vite build target → es2022
+- [X] client wafer (src/client.wafer.js) — plain vector, drives client.js
+- [X] lighthouse wafer (lighthouse.wafer.js) — plain vector, drives +layout.js
+- [X] daemon client wafer (daemon.wafer.js) — plain vector, 11 tests, cast inside lighthouse
+- [X] terminal wafer (terminal.wafer.js) — plain vector, replaces populate.js routing Vector
+- [ ] Update paladin wafer to plain vector export + die.good convention
+- [ ] Extract process strategy to typology/gestalten/steer/strategy.js
+- [ ] Resolve lighthouse namespace collision (rename export)
+- [ ] Eliminate ikiro pattern from circuit files (future: declarative env references)
+
+** Phase 5: Runtime Migration
+Express runtime + daemon as wafers. Drop Die class.
+
+- [ ] runtime wafer (alive) — plain vector
+- [ ] daemon server wafer (completing) — plain vector
+- [ ] run.js — build cast, execute with abort controller
+- [ ] Daemon lifecycle functions adapted to die.good shape
+- [ ] Trait application in daemon resolve middleware
+- [ ] Internal RPC (shape.http + inline transmitter) in daemon /full effect
+- [ ] Verify all existing runtime tests pass
+
+** Phase 6: Wafer Class Retirement
+Remove the old Wafer/Die class hierarchy from typology.
+
+- [ ] Audit all imports of Wafer
+- [ ] Remove prototypes/wafer.js from typology
+- [ ] Update typology exports
+- [ ] Update subsystem documentation
+
+* Decisions
+
+- Named paths over patternless vectors. Partial application for free.
+- AbortController as the host→process kill signal (standard, composable).
+- Daemons are completing vectors (effect returns product, not alive).
+- Terminals are alive vectors (effect blocks, host controls lifetime).
+- Paladin is a completing vector — simplest, uniform.
+- Integrate is middleware, not the effect. Effects (/base, /full) are pure returns.
+- No new steer/shape/shard primitives. No sugar. No constants. Each system is different enough that premature abstraction would create things to work around.
+- Fluent wafer construction — one chain, no stored sub-branches.
+- Paladin class stays as product container. Die enriches die.good, effect returns die.good.
+- Lifecycle functions keep their (paladin) => {} signature. Wafer composes them.
+- Process strategy over direct: die is a plain object, no Context/Request/Response wrapping. Caller owns the die, wafer enriches it.
+- die.good is the universal product field. External consumers name it (paladin, runtime, lighthouse), internally it's always die.good.
+- die.control for host lifecycle: { abort, release, ready }. release is part of control (other side of abort). ready is host-provided deferred resolved by effect.
+- die.variant for cast-time configuration. Domain-specific, not standardized.
+- Cast creation and cast execution are separate steps. steer.invoke builds the cast, caller executes when/where applicable.
+- Plain vector export, no factory functions. Vectors are stateless — reusable across casts.
+- Completing cast: caller awaits result directly. Alive cast: caller gets { ready, handle, kill }.
+- Circuit file circular import: paladin/mod.js must two-phase (cast /base, then ikiro directly) because circuit .viva.js files import @vivalence/paladin at module scope. Eliminating this requires changing the circuit file contract (future: declarative $env/$secret references).
+
+* Gaps
+
+- Process strategy not yet in typology — inline at each cast site for now. All four client wafers + paladin use identical completing strategy. Extract when stable.
+- direct strategy should be renamed to request (HTTP-oriented) once process is stable.
+- Lighthouse wafer export name collides with entities.lighthouse namespace. Currently accessed as entities.lighthouse.lighthouse. Rename export to resolve.
+- Paladin wafer still uses factory function + die.input convention (not die.good/die.variant). Needs updating to plain vector + process strategy.
+- Circuit file circular import prevents single-cast paladin mod.js. Three solutions designed: declarative env refs, circuit factory function, separate env module.
+- localStorage .persist() on RemoteRepositories causes stale data across test runs. Tests must clear localStorage.
+- Hot-reload: partial application enables it structurally. Middleware idempotency not yet addressed.
+- Process system (long-running agent processes within daemons) — how do they fit as wafers?
+- Alive strategy not yet used in production. Terminal wafer is completing. Alive pattern (abort/release/ready) designed and tested in typology but not applied to real wafers yet.
+
+* Changelog
+
+- 2026-04-04: Created workpackage. Phase 1 + 2 complete. 17 tests passing across wafer.test.js and wafer.advanced.test.js. Terminology settled: wafer/die/process/cast. Named paths chosen over patternless. Paladin approach A selected.
+- 2026-04-04: Phase 3 designed. Paladin wafer: fluent chain, /base and /full exits, integrate as middleware not effect. Three files change, everything else stays. No premature primitives — decision to skip root primitives entirely unless something emerges during migration.
+- 2026-04-04: Paladin baseline tests written. 22 tests, all passing. Covers full lifecycle (construction → population → resolution → integration), belt utilities, and singleton equivalence. Existing test suite was stale (6 failures, dead methods, broken imports) — replaced entirely.
+- 2026-04-04: Paladin migration implemented. wafer.js + mod.js + typology.js. 22 tests pass. Circular import constraint discovered — mod.js casts /base then runs ikiro directly.
+- 2026-04-04: Client system designed. Four wafers: client (completing/alive), lighthouse (completing), daemon client-side (completing), terminal (alive). Process strategy designed (5 lines, no Context wrapping). Die namespace: good/variant/control. Cast = invoke + execute separated. Plain vector export over factory functions. Alive strategy returns { ready, handle, kill }.
+- 2026-04-04: Client migration implemented. TLA unlocked (es2022). Four wafers created and integrated: client.wafer.js drives client.js, lighthouse.wafer.js drives +layout.js, daemon.wafer.js cast inside lighthouse (11 tests), terminal.wafer.js replaces populate.js routing Vector. Old code backed up to bak/ dirs. Dead code in daemon.js removed. Lighthouse namespace collision discovered (entities.lighthouse.lighthouse).

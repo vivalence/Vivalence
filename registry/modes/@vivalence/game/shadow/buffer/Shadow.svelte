@@ -1,5 +1,5 @@
 <script>
-  import { Keyboard, ViewportLock } from "@vivalence/drapes";
+  import { Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
 
@@ -214,113 +214,99 @@
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literal}
-        {#if phase === "show"}
-          <div class="progress">
-            <div class="progress-fill" style="width: {progress * 100}%"></div>
-          </div>
-
-          <div class="meta">
-            <span class="meta-phase meta-phase-show"
-              >memorize {activeRecall === "KNOWN" ? "known" : "learning"}</span>
-            <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-            {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
-            <span class="meta-time">{(timeMs / 1000).toFixed(1)}s</span>
-            <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
-            {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
-          </div>
-
-          <p class="prompt" class:prompt-word={isWord}>{answer}</p>
-          <p class="translation">{prompt}</p>
-        {:else}
-          <div class="meta">
-            <span class="meta-phase meta-phase-recall"
-              >recall {activeRecall === "KNOWN" ? "known" : "learning"}</span>
-            <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-            <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
-            {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
-          </div>
-
-          <p class="translation recall-prompt">{prompt}</p>
-
-          {#if submitted && result}
-            <div class="divider"></div>
-
-            <div class="feedback">
-              <div class="fb-block">
-                <span
-                  class="fb-val"
-                  class:ok={result.signal === "SUCCESS"}
-                  class:wrong={result.signal !== "SUCCESS"}>
-                  {result.signal === "SUCCESS" ? answer : input}
-                </span>
-              </div>
-
-              {#if result.signal !== "SUCCESS"}
-                <div class="fb-block">
-                  <span class="fb-key">expected</span>
-                  <span class="fb-val ok">{answer}</span>
-                </div>
-              {/if}
-
-              {#if result.tokens}
-                <div class="tokens">
-                  {#each result.tokens as tok}
-                    <div
-                      class="tok"
-                      class:tok-ok={tok.signal === "SUCCESS"}
-                      class:tok-miss={tok.signal !== "SUCCESS"}>
-                      <span class="tok-form">{tok.form}</span>
-                      <span class="tok-gloss">{tok.gloss}</span>
-                    </div>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-          {/if}
-        {/if}
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
-
-  <div class="viva-controls controls">
-    <div class="input-row">
+<Desk maxWidth="640px">
+  {#snippet surface()}
+    {#if literal}
       {#if phase === "show"}
-        <button class="btn btn-skip" onmousedown={(e) => e.preventDefault()} onclick={skipToRecall}>I'm ready</button>
+        <div class="progress">
+          <div class="progress-fill" style="width: {progress * 100}%"></div>
+        </div>
+
+        <div class="meta">
+          <span class="meta-phase meta-phase-show"
+            >memorize {activeRecall === "KNOWN" ? "known" : "learning"}</span>
+          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+          {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
+          <span class="meta-time">{(timeMs / 1000).toFixed(1)}s</span>
+          <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
+          {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+        </div>
+
+        <p class="prompt" class:prompt-word={isWord}>{answer}</p>
+        <p class="translation">{prompt}</p>
       {:else}
-        <input
-          class="field"
-          class:field-locked={submitted}
-          bind:this={inputEl}
-          value={input}
-          oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
-          placeholder="{answerLabel}…" />
-        {#if !submitted}
-          <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
-        {:else}
-          <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
+        <div class="meta">
+          <span class="meta-phase meta-phase-recall"
+            >recall {activeRecall === "KNOWN" ? "known" : "learning"}</span>
+          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+          <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
+          {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+        </div>
+
+        <p class="translation recall-prompt">{prompt}</p>
+
+        {#if submitted && result}
+          <div class="divider"></div>
+
+          <div class="feedback">
+            <div class="fb-block">
+              <span
+                class="fb-val"
+                class:ok={result.signal === "SUCCESS"}
+                class:wrong={result.signal !== "SUCCESS"}>
+                {result.signal === "SUCCESS" ? answer : input}
+              </span>
+            </div>
+
+            {#if result.signal !== "SUCCESS"}
+              <div class="fb-block">
+                <span class="fb-key">expected</span>
+                <span class="fb-val ok">{answer}</span>
+              </div>
+            {/if}
+
+            {#if result.tokens}
+              <div class="tokens">
+                {#each result.tokens as tok}
+                  <div
+                    class="tok"
+                    class:tok-ok={tok.signal === "SUCCESS"}
+                    class:tok-miss={tok.signal !== "SUCCESS"}>
+                    <span class="tok-form">{tok.form}</span>
+                    <span class="tok-gloss">{tok.gloss}</span>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
         {/if}
       {/if}
-    </div>
-  </div>
-</div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if phase === "show"}
+      <button class="btn btn-skip" onmousedown={(e) => e.preventDefault()} onclick={skipToRecall}>I'm ready</button>
+    {:else}
+      <input
+        class="field"
+        class:field-locked={submitted}
+        bind:this={inputEl}
+        value={input}
+        oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
+        placeholder="{answerLabel}…" />
+      {#if !submitted}
+        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
+      {:else}
+        <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
+      {/if}
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 640px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .progress {
     height: 3px;
     background: var(--colors-skeleton-1-boundary);
@@ -411,17 +397,6 @@
   .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--colors-skeleton-1-boundary); animation: pulse 1s ease-in-out infinite; }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 640px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-  }
   .field {
     flex: 1;
     min-width: 0;

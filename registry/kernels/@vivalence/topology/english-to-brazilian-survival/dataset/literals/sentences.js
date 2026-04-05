@@ -2424,6 +2424,13 @@ export default [
             literal: "para.adposition",
           },
           {
+            form: "pra",
+            gloss: "the",
+            deprel: "det",
+            index: 2,
+            literal: "a.determiner",
+          },
+          {
             form: "praia",
             gloss: "beach",
             deprel: "obl",

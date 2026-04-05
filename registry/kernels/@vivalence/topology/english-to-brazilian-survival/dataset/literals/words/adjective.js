@@ -51,6 +51,9 @@ export default [
       },
       {
         "slug": "proficiency.high-frequency"
+      },
+      {
+        "slug": "word.degree.absolute"
       }
     ]
   },
@@ -323,6 +326,9 @@ export default [
       },
       {
         "slug": "functional.degree"
+      },
+      {
+        "slug": "word.degree.comparative"
       }
     ]
   },
@@ -531,6 +537,9 @@ export default [
       },
       {
         "slug": "proficiency.survival"
+      },
+      {
+        "slug": "word.degree.absolute"
       }
     ]
   },
@@ -583,6 +592,9 @@ export default [
       },
       {
         "slug": "proficiency.survival"
+      },
+      {
+        "slug": "word.degree.absolute"
       }
     ]
   },
@@ -1027,6 +1039,9 @@ export default [
       },
       {
         "slug": "proficiency.survival"
+      },
+      {
+        "slug": "word.degree.comparative"
       }
     ]
   },
@@ -1364,6 +1379,9 @@ export default [
       },
       {
         "slug": "domain.social"
+      },
+      {
+        "slug": "word.degree.absolute"
       }
     ]
   },
@@ -1670,6 +1688,9 @@ export default [
       },
       {
         "slug": "proficiency.survival"
+      },
+      {
+        "slug": "word.degree.absolute"
       }
     ]
   },
@@ -1722,6 +1743,537 @@ export default [
       },
       {
         "slug": "domain.directions"
+      }
+    ]
+  },
+  {
+    "slug": "pior.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "worse / worst",
+        "learning": "pior"
+      },
+      "EXEMPLIFIED": {
+        "known": "This is worse",
+        "learning": "Isso é pior"
+      },
+      "RANKED": {
+        "rank": 7586,
+        "zipf": 5.12,
+        "fpm": 132.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.pior"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.degree.comparative"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "menor.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "smaller / smallest",
+        "learning": "menor"
+      },
+      "EXEMPLIFIED": {
+        "known": "The smaller room",
+        "learning": "O quarto menor"
+      },
+      "RANKED": {
+        "rank": 10471,
+        "zipf": 4.98,
+        "fpm": 95.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.menor"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.degree.comparative"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "vermelho.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "red",
+        "learning": "vermelho"
+      },
+      "EXEMPLIFIED": {
+        "known": "The car is red",
+        "learning": "O carro é vermelho"
+      },
+      "RANKED": {
+        "rank": 13804,
+        "zipf": 4.86,
+        "fpm": 72.4
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.vermelho"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "azul.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "blue",
+        "learning": "azul"
+      },
+      "EXEMPLIFIED": {
+        "known": "The sky is blue",
+        "learning": "O céu é azul"
+      },
+      "RANKED": {
+        "rank": 11749,
+        "zipf": 4.93,
+        "fpm": 85.1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.azul"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "verde.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "green",
+        "learning": "verde"
+      },
+      "EXEMPLIFIED": {
+        "known": "The grass is green",
+        "learning": "A grama é verde"
+      },
+      "RANKED": {
+        "rank": 8710,
+        "zipf": 5.06,
+        "fpm": 115.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.verde"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "amarelo.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "yellow",
+        "learning": "amarelo"
+      },
+      "EXEMPLIFIED": {
+        "known": "The sun is yellow",
+        "learning": "O sol é amarelo"
+      },
+      "RANKED": {
+        "rank": 36308,
+        "zipf": 4.44,
+        "fpm": 27.5
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.amarelo"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "branco.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "white",
+        "learning": "branco"
+      },
+      "EXEMPLIFIED": {
+        "known": "The wall is white",
+        "learning": "A parede é branca"
+      },
+      "RANKED": {
+        "rank": 8913,
+        "zipf": 5.05,
+        "fpm": 112.0
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.branco"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "preto.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "black",
+        "learning": "preto"
+      },
+      "EXEMPLIFIED": {
+        "known": "The cat is black",
+        "learning": "O gato é preto"
+      },
+      "RANKED": {
+        "rank": 12882,
+        "zipf": 4.89,
+        "fpm": 77.6
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.preto"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "marrom.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "brown",
+        "learning": "marrom"
+      },
+      "EXEMPLIFIED": {
+        "known": "The dog is brown",
+        "learning": "O cachorro é marrom"
+      },
+      "RANKED": {
+        "rank": 114815,
+        "zipf": 3.94,
+        "fpm": 8.7
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.marrom"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "rosa.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "pink",
+        "learning": "rosa"
+      },
+      "EXEMPLIFIED": {
+        "known": "The flower is pink",
+        "learning": "A flor é rosa"
+      },
+      "RANKED": {
+        "rank": 15849,
+        "zipf": 4.8,
+        "fpm": 63.1
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.rosa"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "laranja.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "orange",
+        "learning": "laranja"
+      },
+      "EXEMPLIFIED": {
+        "known": "The juice is orange",
+        "learning": "O suco é de laranja"
+      },
+      "RANKED": {
+        "rank": 45709,
+        "zipf": 4.34,
+        "fpm": 21.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.laranja"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
+      }
+    ]
+  },
+  {
+    "slug": "roxo.adjective",
+    "traits": [
+      "TRANSLATED",
+      "EXEMPLIFIED",
+      "RANKED"
+    ],
+    "trait": {
+      "TRANSLATED": {
+        "known": "purple",
+        "learning": "roxo"
+      },
+      "EXEMPLIFIED": {
+        "known": "The grape is purple",
+        "learning": "A uva é roxa"
+      },
+      "RANKED": {
+        "rank": 112202,
+        "zipf": 3.95,
+        "fpm": 8.9
+      }
+    },
+    "symbols": [
+      {
+        "slug": "word"
+      },
+      {
+        "slug": "word.lemma.roxo"
+      },
+      {
+        "slug": "word.part-of-speech.adjective"
+      },
+      {
+        "slug": "word.gender.masculine"
+      },
+      {
+        "slug": "domain.color"
+      },
+      {
+        "slug": "proficiency.cefr.a1"
+      },
+      {
+        "slug": "proficiency.survival"
       }
     ]
   }

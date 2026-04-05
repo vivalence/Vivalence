@@ -1,5 +1,5 @@
 <script>
-  import { Asset, Keyboard, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
   import { string } from "@vivalence/typology";
 
   const { terminal, buffer } = $props();
@@ -30,15 +30,20 @@
   const tenseSymbol = findSymbol(data.tense);
   const moodSymbol = findSymbol(data.mood);
 
-  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
-  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
-  const headerLabel = [tenseLabel, moodLabel].filter(Boolean).join(" · ");
-
   const infinitiveText = infinitive?.trait?.TRANSLATED?.known ?? "";
   const infinitiveHint = infinitive?.trait?.TRANSLATED?.learning ?? "";
   const infinitiveAsset = infinitive?.trait?.VOCALIZED?.asset
     ? terminal.daemon.getAsset(infinitive.trait.VOCALIZED.asset)
     : null;
+
+  const suffixSymbol = symbols.find((s) => s.slug?.includes("suffix"));
+  const regularitySymbol = symbols.find((s) => s.slug?.includes("regularity"));
+  const suffixLabel = suffixSymbol ? `-${suffixSymbol.slug.split(".").pop()}` : "";
+  const regularityLabel = regularitySymbol?.slug?.split(".")?.pop() ?? "";
+
+  const tenseLabel = tenseSymbol?.trait?.LABELED?.name ?? tenseSymbol?.slug?.split(".")?.pop() ?? "";
+  const moodLabel = moodSymbol?.trait?.LABELED?.name ?? moodSymbol?.slug?.split(".")?.pop() ?? "";
+  const headerLabel = [tenseLabel, moodLabel, suffixLabel, regularityLabel].filter(Boolean).join(" · ");
 
   // Build active slots from data
   const activeSlots = SLOTS.filter((s) => data[s.key])
@@ -105,9 +110,11 @@
   let inputEl = $state(null);
   let hintVisible = $state(false);
   let keyboard;
+  let rowEls = $state({});
 
   const conjugation = literals[0];
   const activeSlot = $derived(cursor < queue.length ? queue[cursor] : null);
+  const activePrompt = $derived(activeSlot ? promptFor(activeSlot) : infinitiveText);
   const allCommitted = $derived(activeSlots.every((s) => cells[s.key].committed));
   const progress = $derived(activeSlots.filter((s) => cells[s.key].committed).length);
   const mistakeCount = $derived(
@@ -117,6 +124,12 @@
   $effect(() => {
     if (inputEl && activeSlot && !reviewed) inputEl.focus();
     else if (keyboard && (reviewed || allCommitted)) keyboard.focus();
+  });
+
+  $effect(() => {
+    if (activeSlot && rowEls[activeSlot.key]) {
+      rowEls[activeSlot.key].scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
   });
 
   function evaluate(text, slot) {
@@ -151,7 +164,6 @@
 
     if (feedbackMode === "realtime" && activeSlots.every((s) => cells[s.key].committed)) {
       reviewConjugation();
-      setTimeout(() => advance(), mistakeCount > 0 ? 1500 : 800);
     }
   }
 
@@ -165,10 +177,9 @@
     if (!conjugation) return;
     const total = activeSlots.length;
     const mistakes = activeSlots.filter((s) => cells[s.key].signal === "MISTAKE").length;
-    const ratio = mistakes / total;
-    const signal = mistakes === 0 ? "MASTERY" : mistakes === total ? "FAILURE" : ratio >= 0.6 ? "MISTAKE" : "SUCCESS";
+    const signal = mistakes === 0 ? "SUCCESS" : mistakes === total ? "FAILURE" : "MISTAKE";
     terminal.daemon.call("/review/literal", {
-      signal: { enum: signal },
+      signal,
       scope: { literal: conjugation.id },
     });
   }
@@ -221,133 +232,123 @@
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      <div class="meta">
-        <span class="meta-lang">Paradigm</span>
-        <span class="meta-type">{progress}/{activeSlots.length}</span>
-      </div>
-
-      <div class="header">
-        <div class="header-text">
-          <h2 class="infinitive">{infinitiveText}</h2>
-          {#if headerLabel}
-            <p class="tense-label">{headerLabel}</p>
-          {/if}
-        </div>
-        <div class="header-actions">
-          <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveHint : "?"}</button>
-          {#if infinitiveAsset}
-            <Asset asset={infinitiveAsset} variant="dot" />
-          {/if}
-        </div>
-      </div>
-
-      <div class="table">
-        {#each activeSlots as slot}
-          {@const cell = cells[slot.key]}
-          {@const isActive = activeSlot?.key === slot.key && !reviewed}
-          {@const showAnswer = feedbackMode === "realtime" ? cell.committed : reviewed}
-          {@const showAudio = audioVisible(slot)}
-          <div
-            class="row"
-            class:row-active={isActive}
-            class:row-ok={showAnswer && cell.signal === "SUCCESS"}
-            class:row-miss={showAnswer && cell.signal === "MISTAKE"}>
-            <span class="person">{slot.person}</span>
-
-            <div class="cell">
-              {#if showAnswer && cell.committed}
-                <span
-                  class="cell-input"
-                  class:cell-ok={cell.signal === "SUCCESS"}
-                  class:cell-miss={cell.signal === "MISTAKE"}>
-                  {cell.input}
-                </span>
-                {#if cell.signal === "MISTAKE"}
-                  <span class="cell-correct">{answerFor(slot)}</span>
-                {/if}
-              {:else if cell.committed}
-                <span class="cell-pending">···</span>
-              {:else if isActive}
-                <span class="cell-prompt">{promptFor(slot)}</span>
-              {:else}
-                <span class="cell-empty">___</span>
-              {/if}
-            </div>
-
-            {#if showAudio && getAsset(slot)}
-              <Asset asset={getAsset(slot)} variant="dot" />
-            {:else}
-              <span class="dot-spacer"></span>
-            {/if}
-          </div>
-        {/each}
-      </div>
-    </div>
-  </div>
-
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if reviewed}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else if allCommitted && feedbackMode === "batch"}
-        <button
-          class="btn btn-review"
-          onmousedown={(e) => e.preventDefault()}
-          onclick={reviewBatch}>
-          Review
-        </button>
-      {:else if allCommitted && feedbackMode === "realtime"}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else if activeSlot}
-        <span class="input-person">{activeSlot.person}</span>
-        <input
-          class="field"
-          bind:this={inputEl}
-          value={input}
-          oninput={(e) => {
-            input = e.target.value;
-          }}
-          onkeydown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              e.stopPropagation();
-              commitCell();
-            }
-            if (e.key === "Tab") {
-              e.preventDefault();
-              e.stopPropagation();
-              skipCell();
-            }
-          }}
-          placeholder="type the form…" />
-        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={commitCell}>
-          Check
-        </button>
-      {:else}
-        <span class="menu-hint">…</span>
+<Desk>
+  {#snippet surface()}
+    <div class="meta">
+      <span class="meta-lang">Paradigm</span>
+      <span class="meta-type">{progress}/{activeSlots.length}</span>
+      {#if infinitiveText}
+        <span class="meta-infinitive">{infinitiveText}</span>
       {/if}
     </div>
-  </div>
-</div>
+
+    <div class="header">
+      <div class="header-text">
+        <h2 class="infinitive">{activePrompt}</h2>
+        {#if headerLabel}
+          <p class="tense-label">{headerLabel}</p>
+        {/if}
+      </div>
+      <div class="header-actions">
+        <button class="btn-hint" onclick={() => hintVisible = true}>{hintVisible ? infinitiveHint : "?"}</button>
+        {#if infinitiveAsset}
+          <Asset asset={infinitiveAsset} variant="dot" />
+        {/if}
+      </div>
+    </div>
+
+    <div class="table">
+      {#each activeSlots as slot}
+        {@const cell = cells[slot.key]}
+        {@const isActive = activeSlot?.key === slot.key && !reviewed}
+        {@const showAnswer = feedbackMode === "realtime" ? cell.committed : reviewed}
+        {@const showAudio = audioVisible(slot)}
+        <div
+          bind:this={rowEls[slot.key]}
+          class="row"
+          class:row-active={isActive}
+          class:row-ok={showAnswer && cell.signal === "SUCCESS"}
+          class:row-miss={showAnswer && cell.signal === "MISTAKE"}>
+          <span class="person">{slot.person}</span>
+
+          <div class="cell">
+            {#if showAnswer && cell.committed}
+              <span
+                class="cell-input"
+                class:cell-ok={cell.signal === "SUCCESS"}
+                class:cell-miss={cell.signal === "MISTAKE"}>
+                {cell.input}
+              </span>
+              {#if cell.signal === "MISTAKE"}
+                <span class="cell-correct">{answerFor(slot)}</span>
+              {/if}
+            {:else if cell.committed}
+              <span class="cell-pending">···</span>
+            {:else if isActive}
+              <span class="cell-prompt">{promptFor(slot)}</span>
+            {:else}
+              <span class="cell-empty">___</span>
+            {/if}
+          </div>
+
+          {#if showAudio && getAsset(slot)}
+            <Asset asset={getAsset(slot)} variant="dot" />
+          {:else}
+            <span class="dot-spacer"></span>
+          {/if}
+        </div>
+      {/each}
+    </div>
+  {/snippet}
+
+  {#snippet controls()}
+    {#if reviewed}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Next
+      </button>
+    {:else if allCommitted && feedbackMode === "batch"}
+      <button
+        class="btn btn-review"
+        onmousedown={(e) => e.preventDefault()}
+        onclick={reviewBatch}>
+        Review
+      </button>
+    {:else if allCommitted && feedbackMode === "realtime"}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Next
+      </button>
+    {:else if activeSlot}
+      <span class="input-person">{activeSlot.person}</span>
+      <input
+        class="field"
+        bind:this={inputEl}
+        value={input}
+        oninput={(e) => {
+          input = e.target.value;
+        }}
+        onkeydown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.stopPropagation();
+            commitCell();
+          }
+          if (e.key === "Tab") {
+            e.preventDefault();
+            e.stopPropagation();
+            skipCell();
+          }
+        }}
+        placeholder="type the form…" />
+      <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={commitCell}>
+        Check
+      </button>
+    {:else}
+      <span class="menu-hint">…</span>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 1.5rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -367,6 +368,13 @@
     font-size: 0.65rem;
     font-weight: 500;
     color: var(--colors-skeleton-1-boundary);
+  }
+  .meta-infinitive {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--colors-skeleton-2-contrast);
+    margin-left: auto;
   }
 
   .header {
@@ -503,18 +511,6 @@
     flex-shrink: 0;
   }
 
-  /* ── controls ── */
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.625rem;
-    align-items: center;
-  }
   .input-person {
     font-family: var(--font-family-code);
     font-size: 0.7rem;

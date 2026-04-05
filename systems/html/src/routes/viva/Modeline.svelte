@@ -1,84 +1,88 @@
 <script>
   import { goto } from "$app/navigation";
   import { Pictogram } from "@vivalence/drapes";
-  import { getContext } from "svelte";
-  import { dataspace } from "$client";
+  import { getContext, onMount } from "svelte";
   import Inspector from "./Inspector.svelte";
 
   const terminal = getContext("terminal");
-  const daemon = terminal.$daemon;
-  const mode = terminal.$mode;
-  const intent = terminal.$intent;
-  const thread = terminal.$thread;
-  const queue = terminal.stall.$queue;
-  const active = terminal.stall.$active;
-  const status = terminal.stall.$status;
+  const daemon = terminal?.$daemon;
+  const mode = terminal?.$mode;
+  const intent = terminal?.$intent;
+  const thread = terminal?.$thread;
+  const queue = terminal?.stall.$queue;
+  const active = terminal?.stall.$active;
+  const status = terminal?.stall.$status;
 
   let panelOpen = $state(false);
   let panelTab = $state("intents");
   let threads = $state([]);
   let inspectorOpen = $state(false);
+  let lighthouse = $state(null);
+  let daemons = $state([]);
 
-  const daemons = dataspace.daemon.$entities;
+  onMount(async () => {
+    const client = await import("$client");
+    lighthouse = client.lighthouse;
+    daemons = lighthouse.$daemons.get();
+    lighthouse.$daemons.subscribe((d) => (daemons = d));
+  });
 
-  function navigableByType(d) {
-    const modes = [...d.entities.mode.$entities.get()];
-    const intents = [...d.entities.intent.$entities.get()];
+  function navigableByType(daemon) {
+    const modes = [...daemon.entities.mode.$entities.get()];
+    const intents = [...daemon.entities.intent.$entities.get()];
     const groups = {};
-
-    for (const m of modes) {
-      const modeIntents = intents.filter((i) => i.mode?.id === m.id);
-      const selfevident = m.implements("SELFEVIDENT");
+    for (const mode of modes) {
+      const modeIntents = intents.filter((intent) => intent.mode?.id === mode.id);
+      const selfevident = mode.implements("SELFEVIDENT");
       if (!selfevident && modeIntents.length === 0) continue;
-
-      const type = m.type?.toLowerCase() ?? "other";
+      const type = mode.type?.toLowerCase() ?? "other";
       if (!groups[type]) groups[type] = [];
-      groups[type].push({ mode: m, intents: modeIntents, selfevident });
+      groups[type].push({ mode, intents: modeIntents, selfevident });
     }
-
     return Object.entries(groups);
   }
 
-  async function navMode(m) {
+  async function navMode(mode, daemon) {
     try {
-      const t = await m.daemon.entities.thread.create({ mode: m.id });
-      goto(m.link.branch(`/${t.id}`).absolute);
-    } catch (e) {
-      console.error("[modeline] navMode", e);
+      const thread = await daemon.entities.thread.create({ mode: mode.id });
+      goto(mode.link.branch(`/${thread.id}`).absolute);
+    } catch (error) {
+      console.error("[modeline] navMode", error);
     }
     panelOpen = false;
   }
 
-  async function navIntent(i) {
+  async function navIntent(intent, daemon) {
     try {
-      const t = await i.mode.daemon.entities.thread.create({
-        mode: i.mode.id,
-        intent: i.id,
+      const thread = await daemon.entities.thread.create({
+        mode: intent.mode?.id ?? intent.mode,
+        intent: intent.id,
       });
-      goto(i.link.branch(`/${t.id}`).absolute);
-    } catch (e) {
-      console.error("[modeline] navIntent", e);
+      goto(intent.link.branch(`/${thread.id}`).absolute);
+    } catch (error) {
+      console.error("[modeline] navIntent", error);
     }
     panelOpen = false;
   }
 
   async function loadThreads() {
+    if (!lighthouse) return;
     const all = [];
-    for (const d of dataspace.daemon.$entities.get()) {
+    for (const daemon of lighthouse.daemons.values()) {
       try {
-        const found = await d.entities.thread.find({}, { populate: ["mode", "intent"] });
+        const found = await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
         all.push(...found);
-      } catch (e) {
-        console.error(`[modeline] threads for ${d.slug}`, e);
+      } catch (error) {
+        console.error(`[modeline] threads for ${daemon.slug}`, error);
       }
     }
     threads = all.slice(0, 20);
   }
 
-  function resume(t) {
-    const link = t.intent?.link ?? t.mode?.link;
+  function resume(thread) {
+    const link = thread.intent?.link ?? thread.mode?.link;
     if (!link) return;
-    goto(link.branch(`/${t.id}`).absolute);
+    goto(link.branch(`/${thread.id}`).absolute);
     panelOpen = false;
   }
 
@@ -114,22 +118,22 @@
     </div>
     <div class="ml-panel-body">
       {#if panelTab === "intents"}
-        {#each $daemons as d (d.slug)}
-          <div class="pn-daemon">{d.manifest?.name ?? d.slug}</div>
-          {#each navigableByType(d) as [type, entries]}
+        {#each daemons as daemon (daemon.slug)}
+          <div class="pn-daemon">{daemon.manifest?.name ?? daemon.slug}</div>
+          {#each navigableByType(daemon) as [type, entries]}
             <div class="pn-type">{type}</div>
-            {#each entries as { mode: m, intents: mi, selfevident } (m.id)}
-              <div class="pn-mode">{m.manifest?.name ?? m.slug}</div>
+            {#each entries as { mode: entryMode, intents: entryIntents, selfevident } (entryMode.id)}
+              <div class="pn-mode">{entryMode.manifest?.name ?? entryMode.slug}</div>
               {#if selfevident}
-                <button class="pn-item" class:active={$mode?.id === m.id && !$intent} onclick={() => navMode(m)}>
-                  <span class="pn-dot" class:active={$mode?.id === m.id && !$intent}></span>
-                  {m.manifest?.name ?? m.slug}
+                <button class="pn-item" class:active={$mode?.id === entryMode.id && !$intent} onclick={() => navMode(entryMode, daemon)}>
+                  <span class="pn-dot" class:active={$mode?.id === entryMode.id && !$intent}></span>
+                  {entryMode.manifest?.name ?? entryMode.slug}
                 </button>
               {/if}
-              {#each mi as i (i.id)}
-                <button class="pn-item" class:active={$intent?.id === i.id} onclick={() => navIntent(i)}>
-                  <span class="pn-dot" class:active={$intent?.id === i.id}></span>
-                  {i.name ?? i.slug}
+              {#each entryIntents as entryIntent (entryIntent.id)}
+                <button class="pn-item" class:active={$intent?.id === entryIntent.id} onclick={() => navIntent(entryIntent, daemon)}>
+                  <span class="pn-dot" class:active={$intent?.id === entryIntent.id}></span>
+                  {entryIntent.name ?? entryIntent.slug}
                 </button>
               {/each}
             {/each}
@@ -139,13 +143,13 @@
         {#if threads.length === 0}
           <div class="pn-empty">no threads yet</div>
         {:else}
-          {#each threads as t (t.id)}
-            <button class="pn-item" class:active={$thread?.id === t.id} onclick={() => resume(t)}>
-              <span class="pn-dot" class:active={$thread?.id === t.id}></span>
+          {#each threads as entry (entry.id)}
+            <button class="pn-item" class:active={$thread?.id === entry.id} onclick={() => resume(entry)}>
+              <span class="pn-dot" class:active={$thread?.id === entry.id}></span>
               <span class="pn-thread-meta">
-                <span class="pn-thread-label">{t.mode?.manifest?.name ?? t.mode?.slug ?? "—"}</span>
-                {#if t.intent}
-                  <span class="pn-thread-sub">{t.intent?.name ?? t.intent?.slug}</span>
+                <span class="pn-thread-label">{entry.mode?.manifest?.name ?? entry.mode?.slug ?? "—"}</span>
+                {#if entry.intent}
+                  <span class="pn-thread-sub">{entry.intent?.name ?? entry.intent?.slug}</span>
                 {/if}
               </span>
             </button>
@@ -164,37 +168,42 @@
     <Pictogram src="/images/pictogram_viket/pic-vinca-viket_white.png" alt="menu" size="xl" />
   </button>
 
-  <span class="ml-seg hi">{$daemon?.slug ?? ""}</span>
-  {#if $mode}
-    <span class="ml-sep">›</span>
-    <span class="ml-seg">{$mode.manifest?.name ?? $mode.slug}</span>
-  {/if}
-  {#if $intent}
-    <span class="ml-sep">›</span>
-    <span class="ml-seg lo">{$intent.name ?? $intent.slug}</span>
+  {#if terminal}
+    <span class="ml-seg hi">{$daemon?.slug ?? ""}</span>
+    {#if $mode}
+      <span class="ml-sep">›</span>
+      <span class="ml-seg">{$mode.manifest?.name ?? $mode.slug}</span>
+    {/if}
+    {#if $intent}
+      <span class="ml-sep">›</span>
+      <span class="ml-seg lo">{$intent.name ?? $intent.slug}</span>
+    {/if}
   {/if}
 
   <span class="ml-spacer"></span>
 
-  <button
-    class="ml-counter"
-    onclick={(e) => { e.stopPropagation(); inspectorOpen = !inspectorOpen; panelOpen = false; }}>
-    <span class="ml-dot" class:pulling={$status === "PULLING"} class:error={$status === "ERROR"}></span>
-    {#if $active}
-      <span class="ml-seg lo">{($queue?.length ?? 0) + 1}</span>
-    {/if}
-  </button>
+  {#if terminal}
+    <button
+      class="ml-counter"
+      onclick={(e) => { e.stopPropagation(); inspectorOpen = !inspectorOpen; panelOpen = false; }}>
+      <span class="ml-dot" class:pulling={$status === "PULLING"} class:error={$status === "ERROR"}></span>
+      {#if $active}
+        <span class="ml-seg lo">{($queue?.length ?? 0) + 1}</span>
+      {/if}
+    </button>
+  {/if}
 </div>
 
-<Inspector bind:open={inspectorOpen} />
+{#if terminal}
+  <Inspector bind:open={inspectorOpen} />
+{/if}
 
 <style>
-  /* ── Bar ── */
   .ml {
     display: flex;
     align-items: center;
     gap: 8px;
-    height: 52px;
+    height: calc(52px + env(safe-area-inset-bottom, 0px));
     padding: 0 14px 0 0;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     border-top: 1px solid var(--colors-skeleton-1-boundary);
@@ -310,7 +319,6 @@
     50% { opacity: 0.3; }
   }
 
-  /* ── Backdrop + Panel ── */
   .ml-backdrop {
     position: fixed;
     inset: 0;
@@ -381,7 +389,6 @@
     flex: 1;
   }
 
-  /* ── Panel items ── */
   .pn-daemon {
     padding: 12px 16px 4px;
     font-size: 10px;

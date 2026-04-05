@@ -1,4 +1,4 @@
-import { specimen, shard, RemoteRepository } from "@vivalence/typology";
+import { specimen, shard, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
 import { create } from "../scenarios/daemon.js";
 
 specimen.describe("daemon routes", () => {
@@ -31,9 +31,13 @@ specimen.describe("daemon routes", () => {
 
   specimen.it("wire repos from schema enables cross-repo hydration", async () => {
     const schema = await scenario.conn.call("/datamap");
-    const mode = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"));
-    const intent = new RemoteRepository().connect(scenario.conn.branch("/entities/intent"));
-    const thread = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"));
+    const entityManager = new RemoteEntityManager(scenario.conn, schema);
+    const mode = entityManager.register("mode", new RemoteRepository());
+    mode.connect(scenario.conn.branch("/entities/mode"));
+    const intent = entityManager.register("intent", new RemoteRepository());
+    intent.connect(scenario.conn.branch("/entities/intent"));
+    const thread = entityManager.register("thread", new RemoteRepository());
+    thread.connect(scenario.authedConn.branch("/userspace/entities/thread"));
     shard.datamap.wire({ mode, intent, thread }, schema);
 
     specimen.expect(thread.schema.stores.mode).toBe(mode);

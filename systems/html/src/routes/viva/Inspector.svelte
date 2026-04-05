@@ -12,44 +12,41 @@
   let expanded = $state(null);
   let pollTimer = null;
 
-  // ── mode name ──
   function modeName(buffer) {
     if (!buffer || !$daemon) return "—";
     const modeId = typeof buffer.mode === "string" ? buffer.mode : buffer.mode?.id;
     if (!modeId) return "?";
-    const found = $daemon.entities.mode.$entities.get().find((m) => m.id === modeId);
+    const found = $daemon.entities.mode.$entities.get().find((mode) => mode.id === modeId);
     return found?.manifest?.name ?? found?.slug ?? modeId.slice(0, 8);
   }
 
-  // ── buffer ops ──
   function selectBuffer(index) {
-    const q = [...$queue];
-    const selected = q.splice(index, 1)[0];
+    const items = [...$queue];
+    const selected = items.splice(index, 1)[0];
     const current = terminal.stall.$active.get();
-    if (current) q.unshift(current);
+    if (current) items.unshift(current);
     terminal.stall.$active.set(selected);
-    terminal.stall.$queue.set(q);
+    terminal.stall.$queue.set(items);
   }
 
   function skipBuffer(index) {
-    const q = [...$queue];
-    q.splice(index, 1);
-    terminal.stall.$queue.set(q);
+    const items = [...$queue];
+    items.splice(index, 1);
+    terminal.stall.$queue.set(items);
   }
 
   function toggleExpand(id) {
     expanded = expanded === id ? null : id;
   }
 
-  // ── dnd reorder ──
   let drag = $state(null);
 
-  function reorder(fromIdx, toIdx) {
-    if (fromIdx === toIdx) return;
-    const q = [...$queue];
-    const [item] = q.splice(fromIdx, 1);
-    q.splice(toIdx, 0, item);
-    terminal.stall.$queue.set(q);
+  function reorder(fromIndex, toIndex) {
+    if (fromIndex === toIndex) return;
+    const items = [...$queue];
+    const [item] = items.splice(fromIndex, 1);
+    items.splice(toIndex, 0, item);
+    terminal.stall.$queue.set(items);
   }
 
   function onPointerDown(index, event) {
@@ -64,10 +61,10 @@
     const container = event.currentTarget.closest(".bi-queue");
     if (!container) return;
     const items = container.querySelectorAll(".bi-queue-item");
-    for (let i = 0; i < items.length; i++) {
-      const rect = items[i].getBoundingClientRect();
+    for (let index = 0; index < items.length; index++) {
+      const rect = items[index].getBoundingClientRect();
       if (event.clientY < rect.top + rect.height / 2) {
-        drag = { ...drag, overIndex: i };
+        drag = { ...drag, overIndex: index };
         return;
       }
     }
@@ -81,7 +78,6 @@
     }
   }
 
-  // ── traces ──
   let traces = $state([]);
 
   async function pollTraces() {
@@ -96,9 +92,9 @@
     }
   }
 
-  function switchTab(t) {
-    tab = t;
-    if (t === "traces") {
+  function switchTab(next) {
+    tab = next;
+    if (next === "traces") {
       pollTraces();
       if (!pollTimer) pollTimer = setInterval(pollTraces, 5000);
     } else if (pollTimer) {
@@ -148,7 +144,7 @@
                 class="bi-queue-item"
                 class:bi-drag-over={drag?.overIndex === index && drag?.index !== index}
                 data-queue-index={index}
-                onpointerdown={(e) => onPointerDown(index, e)}
+                onpointerdown={(event) => onPointerDown(index, event)}
                 onpointermove={onPointerMove}
                 onpointerup={onPointerUp}>
                 <span class="bi-handle" title="drag to reorder">⠿</span>
@@ -189,7 +185,6 @@
 {/if}
 
 <style>
-  /* ── backdrop + panel ── */
   .bi-backdrop {
     position: fixed;
     inset: 0;
@@ -223,7 +218,6 @@
     }
   }
 
-  /* ── tabs ── */
   .bi-tabs {
     display: flex;
     border-bottom: 1px solid var(--colors-skeleton-1-boundary);
@@ -255,7 +249,6 @@
     border-bottom-color: var(--colors-theme-primary-contrast);
   }
 
-  /* ── body ── */
   .bi-body {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -281,7 +274,6 @@
     text-align: center;
   }
 
-  /* ── active buffer ── */
   .bi-item {
     display: flex;
     align-items: center;
@@ -366,7 +358,6 @@
     color: var(--colors-system-error-contrast);
   }
 
-  /* ── queue items ── */
   .bi-queue-item {
     display: flex;
     align-items: center;
@@ -429,7 +420,6 @@
     .bi-item-select { font-size: var(--font-size-sm); }
   }
 
-  /* ── expanded literals ── */
   .bi-literals {
     padding: 4px 16px 10px 40px;
     display: flex;

@@ -1,0 +1,52 @@
+import { Vector, Connection, Url, shard, steer } from "@vivalence/typology";
+import { daemon as daemonWafer, Daemon } from "../daemon/index.js";
+
+export const lighthouse = new Vector();
+
+lighthouse
+  .branch("/verify")
+  .use(async (die, next) => {
+    const result = await die.good.verify();
+    if (result.status === "OK" || result.status === "NETWORK_ERROR") {
+      if (!die.good.$isAuthorized.get()) throw new Error("Lighthouse unauthorized");
+    }
+    await next();
+  })
+
+  .branch("/populate")
+  .use(async (die, next) => {
+    die.good.manifest = await die.good.connection.call("/manifest");
+
+    const daemons = await die.good.connection.call("/entities/daemon/find");
+    await Promise.all(
+      daemons.map(async (daemonPojo) => {
+        if (die.good.daemons.has(daemonPojo.slug)) return;
+
+        const daemonUrl = new Url(daemonPojo.url);
+        const connection = new Connection(daemonUrl)
+          .use(shard.connection.authorize(die.good.$authority))
+          .use(shard.connection.batch({ url: daemonUrl }));
+
+        const castDaemon = steer.invoke(
+          daemonWafer,
+          "/construct/populate/resolve/full",
+          (carry, effect) => async (die) => {
+            await carry(die, async () => (die.output = await effect(die)));
+            return die.output;
+          },
+        );
+
+        const result = await castDaemon({
+          good: new Daemon(connection),
+          variant: { lighthouse: die.good },
+        });
+
+        die.good.daemons.set(result.slug, result);
+      }),
+    );
+
+    die.good.$daemons.set([...die.good.daemons.values()]);
+    await next();
+  })
+
+  .open("/full", async (die) => die.good);

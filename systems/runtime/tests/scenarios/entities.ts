@@ -12,9 +12,11 @@ import {
   IntentSchema,
   UserSchema,
   ThreadSchema,
+  TurnSchema,
   IntentEntity,
   UserEntity,
   ThreadEntity,
+  TurnEntity,
   SymbolEntity,
 } from "@vivalence/typology/entities";
 
@@ -67,10 +69,11 @@ const schemas = [
   IntentSchema,
   UserSchema,
   ThreadSchema,
+  TurnSchema,
 ];
 
 export { SymbolConcrete as SymbolDomain, BufferConcrete as BufferDomain };
-export { LiteralEntity, SymbolEntity, BufferEntity };
+export { LiteralEntity, SymbolEntity, BufferEntity, TurnEntity };
 
 export async function seed() {
   const orm = await MikroORM.init({

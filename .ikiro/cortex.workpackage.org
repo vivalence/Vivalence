@@ -540,11 +540,16 @@ A thread is a head turn ID. Where is it stored? On the session?
 Client-only? Both? The client must send =parent= with each message,
 but long-lived conversations need a durable reference.
 
-** Context window management
+** Context window management — REQUIRED, MID PRIORITY
 
-The harness must prune or summarize turn history when it exceeds the
-faculty's context limit. Strategy: drop oldest turns? Summarize?
-Sliding window? TBD. This is middleware on the harness.
+The CONVERSATIONAL trait loads ALL turns for a thread with no limit.
+Long conversations will silently degrade (slow queries, context overflow
+at the provider). Needs a windowing/budgeting/tracing system:
+
+- History query must be bounded (sliding window or token budget)
+- Budget-aware truncation: faculty.context informs how many turns to load
+- Summarization strategy for dropped turns (or just drop oldest)
+- This is middleware on the harness — Layer 2 of CONVERSATIONAL
 
 ** Call faculty (realtime)
 
@@ -552,17 +557,23 @@ Bidirectional audio. WebSocket-based. How call fits into the turn/part
 ontology is unresolved. Requires investigation of existing realtime
 implementations. Architecture TBD.
 
-** Personality system
+** Personality system — PARTIALLY RESOLVED
 
-How LANGUAGED modes define personality. Static text in mode.cake?
-Templated from mode config + user context? Composed from multiple
-sources? TBD.
+Context is a Vector the mode composes. Effects return ={turns?, config?}=.
+The harness middleware traverses it and merges results into the faculty call.
+Effects receive ambient state: ={mode, daemon, thread, tune, input}=.
 
-** Stream history persistence
+Current implementation iterates =contextVector.effects= directly (not via
+=steer.rollup=, which wraps in Context and breaks the arity contract).
+When the context vector needs branches and middleware, a dedicated traversal
+strategy (=steer.gather=?) will be needed.
 
-When delivering via stream, the harness needs the final accumulated
-turn for history. Options: harness accumulates internally, consumer
-reports back, separate post-stream hook. TBD.
+** Stream history persistence — RESOLVED
+
+=observe(stream, onSealed)= wraps an async iterable. Consumer iterates
+normally. On drain, =onSealed= fires with the accumulated turn.
+Branch middleware uses this to persist the assistant turn after the
+consumer finishes reading the stream. One primitive, both paths.
 
 * Deferred Work
 
@@ -596,26 +607,211 @@ export enum ModeTraitsEnum {
 }
 #+end_src
 
-** Hallucinator service contract update
+** Hallucinator service contract update — DONE
 
-Existing hal257 returns ={object, action}=. New contract returns
-Faculty[]. Archive old provider shape.
+New service: =registry/services/@vivalence/hallucinator/anthropic/=.
+Returns =Faculty[]= (3 conversation tunes: opus/sonnet/haiku).
+Translation layer: =provider/translate.js= (turns/parts ↔ Anthropic messages).
+Models: claude-opus-4-6 (1M, thinking), claude-sonnet-4-6 (1M), claude-haiku-4-5 (200k).
 
-** Existing shape compilers
+Old hal257 retired to =bak/=. Circuitry switched to anthropic faculty provider.
+CHAOSMONKEY modes no longer have =mode.brain.object()= — use cortex instead.
 
-shape.http must handle stream effects by returning SSE responses
-(Response.publish). Verify shape.object, shape.proxy work with the
-harness pattern.
+** Existing shape compilers — VERIFIED
 
-* Test
+=shape.object= works with the harness pattern (tested). Middleware chains
+correctly across root + branch levels. Stream effects return async iterables
+which =shape.http= can serve via =Response.publish=.
 
-=runtime/tests/todo/cortex.test.js= — illustrates the current design
-with inline Cortex, accumulate, and mock faculties. Tests: faculty
-resolution (type, tune, via filtering, tier names), accumulator
-(single part, multi part, string append), harness vector (compilation,
-render, stream, tune×via interaction), trait decoration (root and
-branch middleware, pre/post wrapping), conversation flow (multi-turn
-with parent walking).
+* Implementation
+
+** Phase 1: Exploration (sessions 12-13, DONE)
+
+Self-contained test workpackage at =runtime/tests/workpackages/cortex/=.
+Mock services, inline cortex, applyHarness monolith, REPL client.
+18 tests, 31 steps. Real Anthropic service with translation layer.
+Live REPL verified. Identified architectural issues (applyHarness monolith,
+ad-hoc context vector, REPL parallel state, steer.rollup incompatibility).
+
+** Phase 2: Architecture redesign (session 13, DONE)
+
+Redesigned from mode's perspective. Key decisions:
+
+- CONVERSATIONAL trait replaces applyHarness monolith
+- Mode declares =dialogue= Vector with effects per modality (chat, speech)
+- Trait wraps with middleware: thread → history → hallucinate spawn → persistence
+- Hallucinate is a pure conditioned environment (Pool-shaped accumulator)
+- Cortex is a thin registry + factory (extend, resolve, spawn)
+- Tool loop uses generator protocol with render/stream interpreters (Free monad pattern)
+- Stream IS the visibility mechanism — each turn.close is a persistence point
+- Client receives real-time packets via direct SSE, durable turns via reactive datamap
+- =nearest= extracted to =belt/array.js= alongside =closest=
+
+** Current files in workpackage
+
+| File | Status | What |
+|------+--------+------|
+| =typology/cortex.js= | GRADUATED → =typology/prototypes/cortex.js= | Cortex class (extend, resolve, spawn), tiers, nearest |
+| =typology/hallucinate.js= | GRADUATED → =typology/prototypes/hallucinate.js= | Hallucinate class (add, tool, tune, configure, protocol, render, stream) |
+| =typology/accumulate.js= | SUPERSEDED by =belt/soma.js= | Old names: accumulate→pour, observe→attend, drain→bridge. New: soma.drain decomposes turns to stream packets |
+| =daemon/conversational.js= | GRADUATED → =runtime/daemon/traits/conversational.js= | CONVERSATIONAL trait (thread, history, spawn, persistence) |
+| =mode/mode.viva.js= | STALE | Dewey mode stub (old harness pattern) |
+| =services/anthropic.js= | v1/test helper | Mock Anthropic (3 conv + object). Duplicated in =scenarios/cortex.js= |
+| =services/openrouter.js= | v1/test helper | Mock OpenRouter (2 conv + 2 speech) |
+| =daemon/traits.js= | STALE | Old applyHarness (superseded by CONVERSATIONAL trait) |
+| =daemon/population.js= | STALE | Old populateCortex (superseded by Cortex class) |
+| =client/repl.js= | STALE | Old REPL (superseded by boot.js inline REPL) |
+| =boot.js= | v2 | Live Anthropic via graduated architecture. Throwaway. |
+| =cortex.test.js= | STALE | 18 tests against old function-based architecture |
+
+** Real service: =registry/services/@vivalence/hallucinator/anthropic/=
+
+| File | Lines | What |
+|------+-------+------|
+| =service.viva.js= | 13 | Manifest: type hallucinator, slug anthropic, traits [MONK] |
+| =provider/index.js= | 66 | Faculty[] from Anthropic SDK, 3 model tunes |
+| =provider/translate.js= | 100 | Bidirectional turn/part ↔ Anthropic messages translation + =translateTools= |
+
+** Typology additions
+
+| File | What |
+|------+------|
+| =belt/array.js= | =nearest(items, target, accessor)= — euclidean n-dimensional proximity search |
+| =belt/soma.js= | Stream gestalt: =pour= (packet→turn), =drain= (turn→packets with deltas), =attend= (stream tap), =bridge= (stream→turn) |
+| =prototypes/cortex.js= | Cortex class, tiers, nearest (tier wrapper). Exported from =@vivalence/typology= |
+| =prototypes/hallucinate.js= | Hallucinate class. Pool-shaped conditioned environment + protocol/interpreter |
+
+* Implementation Plan (Milestones)
+
+** M1: Typology primitives — DONE (session 14)
+
+Cortex + Hallucinate graduated from workpackage to =typology/prototypes/=.
+=belt/soma.js= (pour, drain, attend, bridge) stream gestalt.
+soma.drain upgraded: emits proper stream packets (shell→delta→close per part).
+4 test files, 48 steps, all green:
+- =tests/gestalten/soma.test.js= — pour (text, multi-channel, non-string replace), drain (decompose+roundtrip), attend (tap+passthrough), bridge (consume+multi-part)
+- =tests/gestalten/array.test.js= — nearest (exact, 3-space, empty, n-dim, default accessor)
+- =tests/cortex.test.js= — extend (table, additive), resolve (tune, via, default), nearest tier resolution, spawn
+- =tests/hallucinate.test.js= — conditioning (string/turn/array/falsy/chain/tool specs), render (single-shot, tool loop, tune, unknown tool error), stream (single-shot, 3-turn tool loop, final content), speech+object
+Also fixed: 3 pre-existing test failures in typology gestalten (bundle fixture path, batch+datamap MikroORM filter params).
+
+** M2: Provider tool translation — DONE (session 15)
+
+=translateTools()= added to =provider/translate.js=.
+Maps ={name: {valence, input, execute}}= → Anthropic =[{name, description, input_schema}]=.
+Function-only specs get empty description + generic schema.
+Provider =index.js= wired: =config.tools= passes through =translateTools()=
+before reaching the SDK. Both render + stream paths.
+
+** M3: CONVERSATIONAL trait — runtime integration — DONE (session 15)
+
+Graduated CONVERSATIONAL trait to =runtime/daemon/traits/conversational.js=.
+TurnEntity wired into entity graph (exports + ModeTraitsEnum).
+Cortex test scenario =runtime/tests/scenarios/cortex.js= with dewey mode,
+mock faculties (opus/sonnet/haiku), thread factory, inline transport.
+14 integration tests, 21 steps, all green (233ms):
+- Thread lifecycle (create, parent chain, multi-turn linear DAG)
+- Stream packet protocol (open→delta→close flow-through)
+- History reconstruction (faculty receives all prior turns from DB)
+- Dialogue vector effects (personality system turn injection)
+- Tune resolution (unleashed→opus, balanced→sonnet, frugal→sonnet-not-haiku)
+- Tool loops through streaming (tool_use→execute→tool_result→final, all persisted)
+- Turn entity shape (role, parts[], meta with stop+usage)
+- Rehydration (clear identity map, continue from DB)
+- Thread isolation (concurrent threads don't cross-contaminate)
+- Edge cases (empty message)
+Scribe error handling: try/catch with em.remove on stream failure.
+
+** M4: Dewey end-to-end — live API — DONE (session 15)
+
+Throwaway boot script =workpackages/cortex/boot.js= rewritten for graduated
+architecture. Loads paladin → real Anthropic provider → Cortex → SQLite ORM →
+CONVERSATIONAL trait → REPL. Verified: streaming with live Claude, turn
+persistence with parent chain, /turns inspector, /tune switching.
+
+Not wired into daemon lifecycle (boot script is standalone). See Remaining Work.
+
+* Architectural Issues
+
+** RESOLVED: =applyHarness= monolith
+
+Replaced by CONVERSATIONAL trait. Three focused middleware layers
+(context, setup, output) matching EMITTER pattern. Mode declares
+=dialogue= Vector, trait wraps with infrastructure.
+
+** RESOLVED: Context vector ad-hoc construction
+
+Mode conditions hallucinate via =ctx.hallucinate.add()= in its dialogue
+effect. No separate context vector — the Hallucinate accumulator IS
+the conditioning surface.
+
+** RESOLVED: Naming
+
+=mode.dialogue= is the compiled dialogue interface.
+=hallucinate= is the conditioned environment on ctx.
+Faculty types (conversation, speech, object) and delivery (render, stream)
+are the terminal vocabulary on Hallucinate.
+
+** RESOLVED: REPL parallel state
+
+boot.js rewritten with inline REPL for M4. Old repl.js is stale.
+
+** DEFERRED: =steer.rollup= incompatibility
+
+No longer relevant — context vector pattern replaced by Hallucinate.add().
+=steer.gather= no longer needed.
+
+* Test (Legacy)
+
+=runtime/tests/workpackages/cortex.test.js= (flat file) — original
+standalone test with inline Cortex, accumulate, mock faculties.
+Superseded by =runtime/tests/workpackages/cortex/cortex.test.js=
+(directory with decomposed modules). Both run.
+
+* Remaining Work (post-milestones)
+
+All four milestones + daemon lifecycle wiring complete. Cortex runs
+end-to-end from typology through daemon to live Anthropic over HTTP/SSE.
+
+** DONE (session 16)
+
+1. *Cortex population in daemon lifecycle.* — =acid()= in =population.js=
+   creates =daemon.cortex = new Cortex().extend(faculties)= from hallucinator.
+   Iterable guard for non-faculty providers.
+
+2. *CONVERSATIONAL trait in mode resolution.* — Already worked: trait is
+   exported from =traits/index.js=, resolution loop calls all traits via
+   =daemonDie.variant.traits[trait]?.(mode, daemon)=. No change needed.
+
+3. *Dewey as registry mode.* — =registry/modes/@vivalence/teacher/dewey/dewey.viva.js=.
+   EXPOSED + CONVERSATIONAL traits, dialogue Vector with =/chat= personality.
+   Teacher variant uncommented in domain kernel modes. Added to circuitry.
+
+4. *HTTP/SSE transport for dialogue.* — =Response.publish()= middleware on
+   aperture =/dialogue= branch in CONVERSATIONAL trait. Inline calls get raw
+   generators, HTTP gets SSE. Uses existing typology SSE infrastructure.
+
+5. *Turn entity on userspace aperture.* — =/userspace/entities/turn= endpoint
+   added with thread.user scope (same pattern as buffer).
+
+6. *Hallucinator swap.* — Circuitry (testament + wafers) updated from hal257
+   to anthropic. Hal moved to =bak/=. Anthropic faculty provider returns
+   faculties array compatible with Cortex.extend.
+
+7. *Infrastructure fixes.* — Dead Classifier import removed from =daemon.js=.
+   Buffer =withBundler= fire-and-forget → stored =this.bundling= promise,
+   awaited in BUFFERED trait. Esbuild binary re-signed (macOS code signature).
+
+** STILL OPEN
+
+1. *History windowing.* (MID PRIORITY) CONVERSATIONAL Layer 2 loads ALL turns
+   with no limit. Needs budget-aware truncation.
+
+2. *Workpackage cleanup.* Stale files: =mode/mode.viva.js=, =daemon/traits.js=,
+   =daemon/population.js=, =client/repl.js=, =cortex.test.js=.
+
+3. *Client consumption.* Dialogue needs a client-side consumer: connection.subscribe
+   for SSE packets, reactive datamap for durable turns, terminal UI for chat.
 
 * Changelog
 
@@ -630,3 +826,45 @@ with parent walking).
   concern, not structural. Conversation flow: client sends {parent, turn}, server walks chain.
   cortex.harness(types) builds mechanical wiring, traits decorate with middleware.
   Test file: runtime/tests/todo/cortex.test.js.
+- 2026-04-04: Implementation session (phase 1). Built self-contained test workpackage with
+  decomposed modules. Mock services, inline cortex, 18 tests green. Real Anthropic service
+  with translation layer. Live REPL verified. Identified architectural issues.
+- 2026-04-05: Architecture redesign (phase 2). Started from mode's perspective with dummy
+  dewey mode. Key decisions: CONVERSATIONAL trait replaces applyHarness monolith. Mode declares
+  =dialogue= Vector (effects per modality: chat, speech). Trait wraps with three middleware
+  layers (context, setup, output) matching EMITTER pattern. Hallucinate is a Pool-shaped
+  conditioned environment: =add()= smart intake, =tool()=, =tune()=, =configure()=.
+  Terminals =conversation.render/stream=, =speech.render/stream=, =object.render=. Cortex
+  simplified to registry + factory (=extend=, =resolve=, =spawn=). Tool loop uses generator
+  protocol with render/stream interpreters (Free monad pattern — protocol yields tagged effects,
+  interpreters dispatch differently). Stream is the visibility mechanism for tool loops — each
+  =turn.close= is a persistence point. Client delivery: direct SSE for packets, reactive
+  datamap for durable turns. =nearest= extracted to =belt/array.js=. Resolved all phase 1
+  architectural issues. 4-milestone implementation plan defined (M1: typology primitives,
+  M2: provider tool translation, M3: CONVERSATIONAL trait integration, M4: dewey end-to-end).
+- 2026-04-05: M1 complete (session 14). Cortex + Hallucinate graduated from workpackage to
+  =typology/prototypes/=. =belt/soma.js= stream gestalt (pour, drain, attend, bridge).
+  soma.drain upgraded to emit proper stream packets (shell→delta→close per part, not
+  snapshot-only). 4 test files (soma, array.nearest, Cortex, Hallucinate), 48 steps green.
+  Fixed 3 pre-existing typology test failures: bundle fixture path after gestalten move,
+  batch+datamap MikroORM filter params for ThreadSchema.user. deno.jsonc rewired for
+  gestalten test directory structure. Workpackage files now stale (old copies remain).
+- 2026-04-05: M2+M3+M4 complete (session 15). All four milestones done.
+  M2: =translateTools()= in Anthropic =provider/translate.js=. Maps our
+  ={name: {valence, input, execute}}= → Anthropic =[{name, description, input_schema}]=.
+  Provider wired both render + stream paths.
+  M3: CONVERSATIONAL trait graduated to =runtime/daemon/traits/conversational.js=.
+  TurnEntity wired into entity graph (exports, ModeTraitsEnum). Cortex test scenario
+  =runtime/tests/scenarios/cortex.js= with dewey mode, mock faculties, thread factory.
+  14 integration tests, 21 steps green. Scribe error handling (try/catch + em.remove).
+  Test faculty capture helper with try/finally restore.
+  M4: boot.js rewritten for graduated architecture. Live Anthropic conversation verified.
+  Turn persistence with parent chain, /turns inspector, /tune switching.
+  Also: history windowing marked REQUIRED MID PRIORITY in open questions.
+- 2026-04-05: Daemon lifecycle wiring complete (session 16). Cortex in =acid()=
+  (=population.js=). Teacher variant + dewey registry mode. SSE via
+  =Response.publish= on aperture =/dialogue= branch. Hallucinator swapped
+  hal257→anthropic in circuitry. Turn entity on userspace aperture. 27 test
+  steps (21 inline + 6 HTTP/SSE). Bruno test regime (6 requests). Infrastructure:
+  dead Classifier import, buffer bundling await, esbuild re-sign. Daemon boots,
+  dewey converses live with real Anthropic, turns persist and query over HTTP.

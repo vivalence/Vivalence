@@ -1,5 +1,5 @@
 <script>
-  import { Keyboard, Asset, ViewportLock } from "@vivalence/drapes";
+  import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -54,11 +54,6 @@
       });
     }
 
-    const allCorrect = [...blankIndices].every(evaluate);
-    terminal.daemon.call("/review/literal", {
-      signal: allCorrect ? "SUCCESS" : "NEUTRAL",
-      scope: { literal: literal.id },
-    });
   }
 
   function advance() {
@@ -82,6 +77,10 @@
     if (allFilled) submit();
   }
 
+  $effect(() => {
+    if (submitted && keyboard) keyboard.focus();
+  });
+
   const options = $derived(
     gameplay === "PICK" && data.options?.length
       ? data.options
@@ -95,115 +94,102 @@
 <ViewportLock />
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literal}
-        {#if !isListenMode}
-          <div class="meta">
-            <span class="meta-lang">Português</span>
-            {#if known}
-              <span class="meta-hint">{known}</span>
-            {/if}
-          </div>
-        {:else}
-          <div class="meta">
-            <span class="meta-lang">Listen</span>
-          </div>
-          {#if asset}
-            <div class="audio-row">
-              <Asset autoplay={true} {asset} />
-            </div>
+<Desk>
+  {#snippet surface()}
+    {#if literal}
+      {#if !isListenMode}
+        <div class="meta">
+          <span class="meta-lang">Português</span>
+          {#if known}
+            <span class="meta-hint">{known}</span>
           {/if}
+        </div>
+      {:else}
+        <div class="meta">
+          <span class="meta-lang">Listen</span>
+        </div>
+        {#if asset}
+          <div class="audio-row">
+            <Asset autoplay={true} {asset} />
+          </div>
         {/if}
+      {/if}
 
-        <div class="tokens">
-          {#each tokens as token, i}
-            {#if blankIndices.has(i)}
-              <span class="gap">
-                {#if submitted}
-                  {@const correct = evaluate(i)}
-                  <span class="gap-answer" class:gap-ok={correct} class:gap-wrong={!correct}>
-                    {token.form}
-                  </span>
-                  {#if !correct && answers[i]}
-                    <span class="gap-yours">{answers[i]}</span>
-                  {/if}
-                {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
-                  <input
-                    class="gap-input"
-                    type="text"
-                    placeholder={token.gloss ?? "…"}
-                    bind:value={answers[i]}
-                  />
-                {:else}
-                  <span class="gap-gloss">{token.gloss ?? "…"}</span>
+      <div class="tokens">
+        {#each tokens as token, i}
+          {#if blankIndices.has(i)}
+            <span class="gap">
+              {#if submitted}
+                {@const correct = evaluate(i)}
+                <span class="gap-answer" class:gap-ok={correct} class:gap-wrong={!correct}>
+                  {token.form}
+                </span>
+                {#if !correct && answers[i]}
+                  <span class="gap-yours">{answers[i]}</span>
                 {/if}
-              </span>
-            {:else if !isListenMode}
-              <span class="tok">{token.form}</span>
-            {:else}
-              <span class="tok tok-hidden">{'_'.repeat(token.form.length)}</span>
-            {/if}
+              {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
+                <input
+                  class="gap-input"
+                  type="text"
+                  placeholder={token.gloss ?? "…"}
+                  bind:value={answers[i]}
+                  autofocus={i === [...blankIndices][0]}
+                />
+              {:else}
+                <span class="gap-gloss">{token.gloss ?? "…"}</span>
+              {/if}
+            </span>
+          {:else if !isListenMode}
+            <span class="tok">{token.form}</span>
+          {:else}
+            <span class="tok tok-hidden">{'_'.repeat(token.form.length)}</span>
+          {/if}
+        {/each}
+      </div>
+
+      {#if gameplay === "PICK" && !submitted}
+        <div class="options">
+          {#each options as opt}
+            {@const selected = Object.values(answers).includes(opt)}
+            <button
+              class="opt"
+              class:opt-selected={selected}
+              ontouchstart={(e) => e.preventDefault()}
+              onclick={() => {
+                const nextBlank = [...blankIndices].find((i) => !answers[i]);
+                if (nextBlank !== undefined) selectOption(nextBlank, opt);
+              }}
+              disabled={submitted}
+            >
+              {opt}
+            </button>
           {/each}
         </div>
-
-        {#if gameplay === "PICK" && !submitted}
-          <div class="options">
-            {#each options as opt}
-              {@const selected = Object.values(answers).includes(opt)}
-              <button
-                class="opt"
-                class:opt-selected={selected}
-                ontouchstart={(e) => e.preventDefault()}
-                onclick={() => {
-                  const nextBlank = [...blankIndices].find((i) => !answers[i]);
-                  if (nextBlank !== undefined) selectOption(nextBlank, opt);
-                }}
-                disabled={submitted}
-              >
-                {opt}
-              </button>
-            {/each}
-          </div>
-        {/if}
-
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
       {/if}
-    </div>
-  </div>
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading…</span>
-      {:else if submitted}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
-        <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submit}>
-          Check
-        </button>
-      {:else}
-        <span class="menu-hint">fill the gap</span>
-      {/if}
-    </div>
-  </div>
-</div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading…</span>
+    {:else if submitted}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Next
+      </button>
+    {:else if gameplay === "TYPE" || gameplay === "LISTEN"}
+      <button class="btn btn-submit" onmousedown={(e) => e.preventDefault()} onclick={submit}>
+        Check
+      </button>
+    {:else}
+      <span class="menu-hint">fill the gap</span>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -329,16 +315,6 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-    display: flex;
-    gap: 0.75rem;
-  }
   .menu-hint {
     display: block;
     width: 100%;

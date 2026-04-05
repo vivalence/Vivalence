@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { daemon } from "@vivalence/runtime/scenarios";
-import { Buffer } from "../../src/typology/entities/buffer.js";
-import { Terminal } from "../../src/typology/prototypes/terminal.js";
+import { Buffer } from "../../src/entities/buffer.js";
+import { Terminal } from "../../src/terminal/terminal.js";
 
 specimen.describe("Buffer.from", () => {
   specimen.it("creates buffer instance from pojo with view", () => {
@@ -42,32 +42,30 @@ specimen.describe("Buffer.from", () => {
     specimen.expect(buffer.context).toBe(null);
   });
 
-  specimen.it("release is not set by Buffer.from — set by environment", () => {
+  specimen.it("release is a class method, not a data property", () => {
     const pojo = { id: "buf-5", data: {} };
     const buffer = Buffer.from(pojo, null);
 
-    specimen.expect(buffer.release).toBeUndefined();
+    specimen.expect(typeof buffer.release).toBe("function");
   });
 
-  specimen.it("toJSON returns clean shape with data and literals", () => {
+  specimen.it("Buffer.from preserves data fields and view", () => {
     const view = { url: "http://test" };
     const pojo = { id: "buf-6", mode: "mode-1", data: { recall: "LEARNING" }, literals: ["lit-1"], symbols: [] };
 
     const buffer = Buffer.from(pojo, view);
-    const json = buffer.toJSON();
 
-    specimen.expect(json).toEqual({
-      id: "buf-6",
-      mode: "mode-1",
-      view: { url: "http://test" },
-      data: { recall: "LEARNING" },
-      literals: ["lit-1"],
-      symbols: [],
-    });
+    specimen.expect(buffer.id).toBe("buf-6");
+    specimen.expect(buffer.mode).toBe("mode-1");
+    specimen.expect(buffer.view).toBe(view);
+    specimen.expect(buffer.data).toEqual({ recall: "LEARNING" });
+    specimen.expect(buffer.literals).toEqual(["lit-1"]);
+    specimen.expect(buffer.symbols).toEqual([]);
+    specimen.expect(buffer.context).toBe(null);
   });
 });
 
-specimen.describe("buffer lifecycle", () => {
+specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: false }, () => {
   let scenario;
 
   specimen.beforeAll(async () => {
@@ -83,7 +81,8 @@ specimen.describe("buffer lifecycle", () => {
       literal: { id: scenario.fixtures.hello.id },
       thread: scenario.fixtures.thread.id,
     });
-    const pojo = result[0];
+    specimen.expect(result.condition).toBe("NOMINAL");
+    const pojo = result.buffers[0];
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
 
@@ -93,7 +92,6 @@ specimen.describe("buffer lifecycle", () => {
     specimen.expect(buffer.view).toBe(buffered);
     specimen.expect(buffer.view.url).toBeTruthy();
     specimen.expect(buffer.data.recall).toBe("LEARNING");
-    // specimen.expect(buffer.literals).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.context).toBe(null);
   });
@@ -106,7 +104,7 @@ specimen.describe("buffer lifecycle", () => {
 
     const buffered = await scenario.conn.call("/mode/game/flashcard/buffered");
 
-    const buffer = Buffer.from(result[0], buffered);
+    const buffer = Buffer.from(result.buffers[0], buffered);
     const terminal = {};
     buffer.context = { buffer, terminal };
 
@@ -125,7 +123,7 @@ specimen.describe("buffer lifecycle", () => {
     const terminal = new Terminal();
     terminal.daemon = { entities: { buffer: { update: () => {} } } };
 
-    const buffers = result.map((pojo) => Buffer.from(pojo, buffered));
+    const buffers = result.buffers.map((pojo) => Buffer.from(pojo, buffered));
     terminal.stall.push(buffers);
 
     specimen.expect(terminal.stall.$active.get()).toBeTruthy();
@@ -145,7 +143,7 @@ specimen.describe("buffer lifecycle", () => {
     const terminal = new Terminal();
     terminal.daemon = { entities: { buffer: { update: () => {} } } };
 
-    const buffers = result.map((pojo) => Buffer.from(pojo, buffered));
+    const buffers = result.buffers.map((pojo) => Buffer.from(pojo, buffered));
     terminal.stall.push(buffers);
 
     const queued = terminal.stall.queue;

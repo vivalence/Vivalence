@@ -1,0 +1,28 @@
+meta {
+  name: manifest
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{TEACHER_DEWEY}}/manifest
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+assert {
+  res.body: isJson
+  res.body.slug: eq dewey
+  res.body.type: eq teacher
+}
+
+tests {
+  test("manifest has CONVERSATIONAL trait", function () {
+    const data = res.getBody();
+    expect(data.traits).to.include("CONVERSATIONAL");
+  });
+}

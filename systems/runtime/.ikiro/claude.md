@@ -206,15 +206,19 @@ The lighthouse multiplayer service is the primary process. Its aperture serves a
 
 ## Tests
 
-Self-contained scenario tests organized by scope. No paladin, no network, :memory: SQLite. Exported via `@vivalence/runtime/scenarios`.
+Self-contained scenario tests organized by scope. Exported via `@vivalence/runtime/scenarios`.
 
 ```
 tests/
 ├── scenarios/                    Shared fixtures (exported via deno.jsonc)
-│   ├── index.js                  Re-exports daemon, lighthouse
-│   ├── entities.ts               Domain schemas (LiteralDomain+TRANSLATED) + seed()
-│   ├── daemon.js                 create() → { conn, authedConn, orm, em, fixtures, mode }
+│   ├── index.js                  Re-exports daemon, lighthouse, mountMode, mountModes, bench
+│   ├── entities.ts               Domain schemas (LiteralDomain+TRANSLATED) + seed() + TestLiteralRepository
+│   ├── daemon.js                 create() → { conn, authedConn, orm, em, fixtures, mode, scoped }
+│   ├── mode.js                   mountMode(viva), mountModes(vivas) — lightweight mode testing
+│   ├── bench.js                  bench({ kernel, modes }) — full daemon from registry modules
 │   └── lighthouse.js             create() → { conn, orm, em, repos, fixtures }
+├── bench/                        Bench-scope tests
+│   └── smoke.test.js             Raw imports + paladin specifiers, domain repos, routes (7 steps)
 ├── daemon/                       Daemon-scope tests
 │   ├── datamap.test.js           Daemon-unique route tests: schema, hydration, modes, traits (6 steps)
 │   ├── userspace.test.js         Auth gating, handshake, thread lifecycle (3 steps)
@@ -222,16 +226,98 @@ tests/
 │   ├── batch.test.js             Batch shard operations (25 steps)
 │   └── integration.test.js       Live runtime via HTTP: auth, all 9 game emitters, 5 tactic phases, pick routes, review, thread (41 steps)
 ├── mode/                         Mode-scope tests
-│   └── traits.test.js            INTENTED upsert/resolve, BUFFERED, EXPOSED, EMITTER compile/normalize/HTTP/EXHAUSTED (19 steps)
+│   ├── traits.test.js            INTENTED upsert/resolve, BUFFERED, EXPOSED, EMITTER compile/normalize/HTTP/EXHAUSTED (19 steps)
+│   └── emitters.test.js          Parameterized across 7 game modes: wiring, per-route emit, intent seeding (28 steps)
 └── runtime/                      Runtime-scope tests
     └── composition.test.js       Daemon mounted under runtime aperture (6 steps)
 ```
 
-7 suites, 55 steps, ~2s. `deno task test` runs all.
+`deno task test` runs all. `deno task test/bench` for bench tests, `deno task test/mode` for mode tests.
+
+### Scenario Tiers
+
+Three tiers of test scenario, each building on the last:
+
+**mountMode(viva)** — `scenarios/mode.js`. Lightest. Wires a single `.viva.js` into a minimal daemon with test-only BUFFERED (no esbuild), stub `.feed()` via TestLiteralRepository, and real INTENTED + EMITTER traits. For testing individual mode emitter behavior without domain/ontology complexity. Returns `{ mode, daemon, orm, em, fixtures, scoped }`.
+
+**mountModes(vivas[])** — same file. Mounts N modes into one shared daemon. For cross-mode composition testing (tactics calling `ctx.daemon.modes.game.exhibit.emit.present()`). Same ORM, same entity manager.
+
+**bench({ kernel, modes, services })** — `scenarios/bench.js`. Full daemon factory. Accepts raw imported modules OR paladin specifier strings (mixed). Boots from real lifecycle functions: `population.modes`, `resolution.modes`, all aperture setup. In-memory sqlite via `provider()` from `@vivalence/typology/scenarios`. Domain kernel entities get real repositories (`.feed()`, `.novel()`, `.due()`). Ontology/topology data seeded via DATASET trait. BUFFERED stubbed (noop bundler). Returns `{ daemon, die, orm, em, connection, user, teardown() }`.
+
+```js
+// paladin specifiers — resolve via registry
+const scenario = await bench({
+  kernel: ["@vivalence/domain/language-learning", "@vivalence/ontology/word"],
+  modes:  ["@vivalence/game/flashcard", "@vivalence/game/judge"],
+});
+
+// raw imports — no paladin needed
+import * as flashcard from "registry/modes/.../flashcard.viva.js";
+const scenario = await bench({ modes: [flashcard] });
+
+// with services — lighthouse, hallucinator, external consume services
+const scenario = await bench({
+  kernel: ["@vivalence/domain/language-learning"],
+  modes:  ["@vivalence/game/flashcard"],
+  services: {
+    lighthouse: myLighthouseProvider,
+    hallucinator: { object: async () => ({}), action: async () => ({}) },
+    consume: { nlp: { analyze: async (text) => ({ tokens: [] }) } },
+  },
+});
+```
+
+**Service wiring:**
+
+| Service | Bench key | Sets on daemon | Effect |
+|---|---|---|---|
+| **lighthouse** | `services.lighthouse` | `daemon.lighthouse` | Wires `shard.secure.authority()` middleware, enables `aperture.userspace` routes |
+| **hallucinator** | `services.hallucinator` | `daemon.hallucinator` | Available to CHAOSMONKEY trait (`mode.brain`) |
+| **consume** | `services.consume.{slug}` | `daemon.services[slug]` | Available to modes via `ctx.daemon.services[slug]` |
+
+When no lighthouse is provided, bench installs a permissive default auth that accepts any token and returns the bench's test user. When lighthouse IS provided, real `shard.secure.authority()` + `shard.secure.authorize()` middleware runs, and the userspace aperture routes are mounted.
+
+### What bench reuses from runtime
+
+| Lifecycle function | Used | Notes |
+|---|---|---|
+| `population.core` | NO | Does paladin.vip.accioMap — bench resolves manually |
+| `population.wiring` | NO | Copies statics/docs from mask |
+| `population.datamap` | NO | Bench uses in-memory provider from typology/scenarios |
+| `population.authority` | NO | No lighthouse in bench |
+| `population.acid` | OPTIONAL | Hallucinator wired when `services.hallucinator` provided |
+| `population.services` | OPTIONAL | Consume services wired when `services.consume` provided |
+| `population.modes` | YES | Real mode construction — prototypes, mount paths, entity ensure |
+| `population.handlers` | YES | flatmodes() helper |
+| `resolution.kernel` | NO | Domain aperture wired manually (no auth chain) |
+| `resolution.modes` | YES | Real trait application + mode aperture mounting |
+| `resolution.freight` | NO | Freight not indexed in bench |
+| `aperture.datamap` | YES | Real entity CRUD routes |
+| `aperture.userspace` | OPTIONAL | Mounted when `services.lighthouse` provided (needs auth chain) |
+| `aperture.modes` | YES | Mode manifest/status routes |
+| `aperture.freight` | YES | Cargo endpoint |
+| All traits | YES | Real INTENTED, EMITTER, DATASET, EXPOSED, etc. |
+| BUFFERED trait | STUBBED | BENCH_BUFFERED: noop bundler, same mode.buffer() factory |
+
+### What bench stubs (unless overridden via services)
+
+- **BUFFERED**: noop bundler (`() => ({ code: "", url: "" })`), same `mode.buffer()` entity factory
+- **Datamap**: in-memory sqlite via `provider()` from `@vivalence/typology/scenarios`
+- **Auth**: permissive default (any token → test user). Override with `services.lighthouse` for real auth chain
+- **Hallucinator**: not wired unless `services.hallucinator` provided. CHAOSMONKEY trait no-ops gracefully
+- **Consume services**: not wired unless `services.consume` provided
+- **Raw module mount paths**: synthetic `Path("/bench/{type}/{slug}")` for modes imported without paladin (buffer path resolution is cosmetic in bench)
+
+### Emitters test (emitters.test.js)
+
+Parameterized across 7 game modes (flashcard, exhibit, shadow, write, match, judge, pick). Uses `mountMode()` — lightweight, no paladin. Each mode gets:
+- Wiring assertion: `mode.emit` exists with routes
+- Per-route emit test: calls each emitter route with representative input
+- Intent seeding test: verifies INTENTED trait created intent entities
+
+Input map at top of file defines representative inputs per mode per route. Uses `scoped()` wrapper for RequestContext. TestLiteralRepository provides stub `.feed()` matching domain's `(where, opts?)` signature.
 
 Scenarios are composable — the lighthouse scenario is also imported by `registry/services/@vivalence/lighthouse/multiplayer/tests/datamap.test.js` (11 steps) via `@vivalence/runtime/scenarios`.
-
-Scenarios import traits via `@vivalence/runtime/daemon/traits/intented` (not the barrel) to avoid paladin side effects in `buffered.js`.
 
 ## Where Used
 

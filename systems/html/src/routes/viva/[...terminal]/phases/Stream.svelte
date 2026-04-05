@@ -36,9 +36,9 @@
 
 <style>
   .yield-state {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    min-height: 0;
     height: 100%;
   }
   .yield-label {

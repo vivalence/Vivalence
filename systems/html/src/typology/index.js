@@ -1,6 +1,4 @@
-export * from "./prototypes/index.js";
-export * from "./belt/index.js";
-export * from "./entities/index.js";
-export * as entities from "./entities/index.js";
-export * as prototypes from "./prototypes/index.js";
-export * as belt from "./belt/index.js";
+export { Lighthouse, hydrate, lighthouse } from "./lighthouse/index.js";
+export { Daemon, Dataspace, daemon } from "./daemon/index.js";
+export { Terminal, Stall, terminal } from "./terminal/index.js";
+export { Entity, Mode, Intent, Thread, Buffer, registry } from "./entities/index.js";

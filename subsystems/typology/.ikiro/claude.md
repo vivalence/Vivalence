@@ -282,6 +282,17 @@ Re-exports from `@std/testing/bdd` (describe, it, beforeEach), `@std/assert` (as
 
 Current state: thin ergonomic wrapper. Future vision: lifecycle-driven BDD framework composed via Vector, with gestalt-valence duality as the testing paradigm.
 
+## Scenarios
+
+`tests/scenarios/` — exported via `@vivalence/typology/scenarios`.
+
+**datamap.js** — ORM test infrastructure:
+- `seed()` → `{ orm, em, repos, fixtures }` — in-memory sqlite with base entity schemas, seeded fixtures
+- `provider(variant)` → `{ orm, entities, shard, subscribe, introspect, disintegrate }` — in-memory datamap matching the libsql provider contract. Takes the `variant` array (`[{ type, schema, entity, repository, subscriber }, ...]`) that domain kernels export. Used by runtime's bench to boot a test ORM with domain entities (real `.feed()`, `.novel()`, `.due()` repos).
+- `SymbolConcrete`, `BufferConcrete` — concrete entity schemas for test contexts
+
+The `provider()` function is the ecosystem's in-memory ORM factory. Any subsystem testing against entity repositories imports it from `@vivalence/typology/scenarios`. The runtime's `bench()` composes on top of it to add daemon lifecycle, mode wiring, and trait application.
+
 ## Tests
 
 All tests use specimen's describe/it pattern with construction → gestalt → valences structure.

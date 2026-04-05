@@ -1,0 +1,45 @@
+meta {
+  name: chat with tune
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{TEACHER_DEWEY}}/dialogue/chat
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "thread": "019d5c7c-5f87-72d8-aec1-9c0985fd22be",
+    "message": "Explique a diferença entre ser e estar, com exemplos detalhados.",
+    "tune": "unleashed"
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("response is SSE stream", function () {
+    expect(res.getHeader('content-type')).to.equal('text/event-stream');
+  });
+  
+  test("unleashed tune returns longer response", function () {
+    const text = res.getBody();
+    expect(text).to.contain('turn.close');
+    // unleashed selects opus — expect more content
+    const deltas = text.split('part.delta').length - 1;
+    expect(deltas).to.be.greaterThan(5);
+  });
+}
+
+docs {
+  test tune override — "unleashed" selects opus for detailed responses.
+}

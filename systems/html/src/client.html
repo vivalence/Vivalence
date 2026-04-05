@@ -3,16 +3,16 @@
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, maximum-scale=1, interactive-widget=overlays-content, viewport-fit=cover" />
+		<meta name="theme-color" content="#000000" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<!-- <script src="https://cdn.jsdelivr.net/npm/eruda"></script> -->
+		<!-- <script>eruda.init();</script> -->
 		%sveltekit.head%
-		<style>
-			html, body {
-				margin: 0;
-				padding: 0;
-				overflow: hidden;
-				background-color: black;
-			}
-		</style>
 	</head>
 	<body>
 		%sveltekit.body%

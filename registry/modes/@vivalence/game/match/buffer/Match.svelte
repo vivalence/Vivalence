@@ -1,4 +1,6 @@
 <script>
+  import { Desk } from "@vivalence/drapes";
+
   const { terminal, buffer } = $props();
 
   const data = buffer.data ?? {};
@@ -117,84 +119,71 @@
 
 </script>
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if literals.length}
-        <div class="meta">
-          <span class="meta-lang">{gameplay === "DESCRIBE" ? "match" : (recall === "LEARNING" ? "English → Português" : "Português → English")}</span>
-          <span class="meta-count">{connections.length}/{literals.length}</span>
+<Desk maxWidth="560px">
+  {#snippet surface()}
+    {#if literals.length}
+      <div class="meta">
+        <span class="meta-lang">{gameplay === "DESCRIBE" ? "match" : (recall === "LEARNING" ? "English → Português" : "Português → English")}</span>
+        <span class="meta-count">{connections.length}/{literals.length}</span>
+      </div>
+
+      <div class="grid">
+        <div class="column">
+          {#each leftItems as lit}
+            {@const isConnected = connected.has(lit.id)}
+            {@const isSelected = selectedLeft?.id === lit.id}
+            {@const isFailed = failed.has(lit.id)}
+            <button
+              class="cell"
+              class:cell-connected={isConnected}
+              class:cell-selected={isSelected}
+              class:cell-failed={isFailed && !isConnected}
+              onmousedown={(e) => e.preventDefault()}
+              onclick={() => tapLeft(lit)}
+              disabled={isConnected}
+            >
+              {leftText(lit, leftItems.indexOf(lit))}
+            </button>
+          {/each}
         </div>
 
-        <div class="grid">
-          <div class="column">
-            {#each leftItems as lit}
-              {@const isConnected = connected.has(lit.id)}
-              {@const isSelected = selectedLeft?.id === lit.id}
-              {@const isFailed = failed.has(lit.id)}
-              <button
-                class="cell"
-                class:cell-connected={isConnected}
-                class:cell-selected={isSelected}
-                class:cell-failed={isFailed && !isConnected}
-                onmousedown={(e) => e.preventDefault()}
-                onclick={() => tapLeft(lit)}
-                disabled={isConnected}
-              >
-                {leftText(lit, leftItems.indexOf(lit))}
-              </button>
-            {/each}
-          </div>
-
-          <div class="column">
-            {#each rightItems as lit}
-              {@const isConnected = connected.has(lit.id)}
-              {@const isFailed = failed.has(lit.id)}
-              <button
-                class="cell"
-                class:cell-connected={isConnected}
-                class:cell-failed={isFailed && !isConnected}
-                onmousedown={(e) => e.preventDefault()}
-                onclick={() => tapRight(lit)}
-                disabled={isConnected}
-              >
-                {rightText(lit)}
-              </button>
-            {/each}
-          </div>
+        <div class="column">
+          {#each rightItems as lit}
+            {@const isConnected = connected.has(lit.id)}
+            {@const isFailed = failed.has(lit.id)}
+            <button
+              class="cell"
+              class:cell-connected={isConnected}
+              class:cell-failed={isFailed && !isConnected}
+              onmousedown={(e) => e.preventDefault()}
+              onclick={() => tapRight(lit)}
+              disabled={isConnected}
+            >
+              {rightText(lit)}
+            </button>
+          {/each}
         </div>
+      </div>
 
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading…</span>
-      {:else if allMatched}
-        <span class="menu-hint">complete</span>
-      {:else if selectedLeft}
-        <span class="menu-hint">now tap the match</span>
-      {:else}
-        <span class="menu-hint">tap a pair to connect</span>
-      {/if}
-    </div>
-  </div>
-</div>
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading…</span>
+    {:else if allMatched}
+      <span class="menu-hint">complete</span>
+    {:else if selectedLeft}
+      <span class="menu-hint">now tap the match</span>
+    {:else}
+      <span class="menu-hint">tap a pair to connect</span>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 560px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
 
   .meta {
     display: flex;
@@ -281,14 +270,6 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 560px;
-    margin: 0 auto;
-  }
   .menu-hint {
     display: block;
     text-align: center;

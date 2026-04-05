@@ -1,5 +1,5 @@
 <script>
-  import { Asset } from "@vivalence/drapes";
+  import { Asset, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
 
@@ -95,73 +95,59 @@
 
 <svelte:window onkeydown={handleKey} />
 
-<div class="viva-frame" style="height: 100%;">
-  <div class="viva-surface">
-    <div class="stage">
-      {#if target}
-        <div class="meta">
-          <span class="meta-lang">{promptLabel}</span>
-          <span class="meta-type">{isWord ? "word" : "sentence"}</span>
-        </div>
+<Desk>
+  {#snippet surface()}
+    {#if target}
+      <div class="meta">
+        <span class="meta-lang">{promptLabel}</span>
+        <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+      </div>
 
-        <div class="prompt-row">
-          <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
-          {#if asset && recall === "KNOWN"}
-            <Asset autoplay={true} {asset} />
-          {/if}
-        </div>
+      <div class="prompt-row">
+        <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
+        {#if asset && recall === "KNOWN"}
+          <Asset autoplay={true} {asset} />
+        {/if}
+      </div>
 
-        <div class="options">
-          {#each shuffled as lit, i}
-            {@const isThis = selected === lit || selected?.id === lit?.id}
-            {@const isAnswer = lit === target || lit?.id === target?.id}
-            <button
-              class="option"
-              class:option-correct={answered && isAnswer}
-              class:option-wrong={answered && isThis && !isAnswer}
-              class:option-dimmed={answered && !isThis && !isAnswer}
-              onmousedown={(e) => e.preventDefault()}
-              onclick={() => select(lit)}
-              disabled={answered}
-            >
-              <span class="option-key">{i + 1}</span>
-              <span class="option-text">{answerText(lit)}</span>
-            </button>
-          {/each}
-        </div>
+      <div class="options">
+        {#each shuffled as lit, i}
+          {@const isThis = selected === lit || selected?.id === lit?.id}
+          {@const isAnswer = lit === target || lit?.id === target?.id}
+          <button
+            class="option"
+            class:option-correct={answered && isAnswer}
+            class:option-wrong={answered && isThis && !isAnswer}
+            class:option-dimmed={answered && !isThis && !isAnswer}
+            onmousedown={(e) => e.preventDefault()}
+            onclick={() => select(lit)}
+            disabled={answered}
+          >
+            <span class="option-key">{i + 1}</span>
+            <span class="option-text">{answerText(lit)}</span>
+          </button>
+        {/each}
+      </div>
 
-      {:else if loading}
-        <div class="loading"><span class="dot"></span></div>
-      {/if}
-    </div>
-  </div>
+    {:else if loading}
+      <div class="loading"><span class="dot"></span></div>
+    {/if}
+  {/snippet}
 
-  <div class="viva-controls controls">
-    <div class="input-row">
-      {#if loading}
-        <span class="menu-hint">loading…</span>
-      {:else if answered}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
-          Next
-        </button>
-      {:else}
-        <span class="menu-hint">pick the {answerLabel} translation</span>
-      {/if}
-    </div>
-  </div>
-</div>
+  {#snippet controls()}
+    {#if loading}
+      <span class="menu-hint">loading…</span>
+    {:else if answered}
+      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
+        Next
+      </button>
+    {:else}
+      <span class="menu-hint">pick the {answerLabel} translation</span>
+    {/if}
+  {/snippet}
+</Desk>
 
 <style>
-  .stage {
-    max-width: 480px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 2rem 1.25rem;
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-  }
-
   .meta {
     display: flex;
     gap: 0.5rem;
@@ -265,14 +251,6 @@
   }
   @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-  .controls {
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    padding: 0.75rem 1.25rem;
-  }
-  .input-row {
-    max-width: 480px;
-    margin: 0 auto;
-  }
   .menu-hint {
     display: block;
     text-align: center;

@@ -1,12 +1,16 @@
 import {
   specimen, Aperture, Connection, Url,
-  shard, shape,
+  shard, shape, RemoteEntityManager,
 } from "@vivalence/typology"
 import { datamap } from "@vivalence/typology/scenarios"
 import { RemoteRepository } from "@vivalence/typology/prototypes"
-import { useTestStorageEngine, cleanTestStorage, getTestStorage, setTestStorageKey } from "@nanostores/persistent"
 
-useTestStorageEngine()
+function managed(connection, name, kind) {
+  const entityManager = new RemoteEntityManager(connection)
+  const repo = entityManager.register(name, new RemoteRepository(kind))
+  repo.connect(connection.branch(`/${name}`))
+  return repo
+}
 
 specimen.describe("persist", { sanitizeResources: false, sanitizeOps: false }, () => {
 let scenario, conn
@@ -32,42 +36,39 @@ specimen.afterAll(async () => {
 })
 
 specimen.describe("persist: basic lifecycle", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("persist() writes to storage on find", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     await repo.find()
-    const stored = getTestStorage()
     const key = conn.branch("/literal").url.absolute
-    specimen.expect(stored[key]).toBeDefined()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    specimen.expect(stored).toBeDefined()
+    const parsed = JSON.parse(stored)
     specimen.expect(parsed.length).toBeGreaterThan(0)
     specimen.expect(parsed[0].slug).toBeDefined()
   })
 
   specimen.it("persist() writes to storage on create", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     await repo.create({ slug: "persist-create", trait: {} })
-    const stored = getTestStorage()
     const key = conn.branch("/literal").url.absolute
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     specimen.expect(parsed.find((e) => e.slug === "persist-create")).toBeDefined()
   })
 
   specimen.it("persist() hydrates from storage on construction", () => {
     const key = conn.branch("/mode").url.absolute
-    setTestStorageKey(key, JSON.stringify([
+    localStorage.setItem(key, JSON.stringify([
       { id: "cached-1", slug: "from-cache", type: "game", traits: ["BUFFERED"] },
     ]))
 
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     const local = repo.$entities.get()
@@ -77,7 +78,7 @@ specimen.describe("persist: basic lifecycle", () => {
 })
 
 specimen.describe("persist: prototype wrapping survives storage", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("hydrated entities have prototype methods", () => {
     class Mode {
@@ -86,12 +87,11 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
     }
 
     const key = conn.branch("/mode").url.absolute
-    setTestStorageKey(key, JSON.stringify([
+    localStorage.setItem(key, JSON.stringify([
       { id: "p1", slug: "flashcard", type: "game", traits: ["BUFFERED", "SELFEVIDENT"] },
     ]))
 
-    const repo = new RemoteRepository(Mode)
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode", Mode)
     repo.persist()
 
     const entities = repo.$entities.get()
@@ -108,12 +108,11 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
     }
 
     const key = conn.branch("/mode").url.absolute
-    setTestStorageKey(key, JSON.stringify([
+    localStorage.setItem(key, JSON.stringify([
       { id: "p2", slug: "cached-mode", type: "game", traits: ["EMITTER"] },
     ]))
 
-    const repo = new RemoteRepository(Mode)
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode", Mode)
     repo.persist()
 
     const results = await repo.find()
@@ -123,15 +122,14 @@ specimen.describe("persist: prototype wrapping survives storage", () => {
 })
 
 specimen.describe("persist: identity guarantees", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("no duplicates: persist hydrate + network fetch returns same references", async () => {
     const key = conn.branch("/literal").url.absolute
     const existing = await conn.call("/literal/find", { where: { slug: "hello" } })
-    setTestStorageKey(key, JSON.stringify(existing))
+    localStorage.setItem(key, JSON.stringify(existing))
 
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     specimen.expect(repo.$entities.get().length).toBe(1)
@@ -148,12 +146,11 @@ specimen.describe("persist: identity guarantees", () => {
 
   specimen.it("no duplicates: merge after persist doesn't create copies", async () => {
     const key = conn.branch("/literal").url.absolute
-    setTestStorageKey(key, JSON.stringify([
+    localStorage.setItem(key, JSON.stringify([
       { id: "dup-1", slug: "original", trait: {} },
     ]))
 
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     repo.merge({ id: "dup-1", slug: "updated", trait: { X: 1 } })
@@ -163,8 +160,7 @@ specimen.describe("persist: identity guarantees", () => {
   })
 
   specimen.it("no duplicates: concurrent find + merge from subscription", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     const results = await repo.find({ slug: "hello" })
@@ -179,18 +175,17 @@ specimen.describe("persist: identity guarantees", () => {
 })
 
 specimen.describe("persist: cross-repo wiring", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("cast resolves string id refs from sibling store", () => {
-    const modes = new RemoteRepository()
-    const intents = new RemoteRepository()
-
-    const stores = { mode: modes, intent: intents }
-    modes.schema = { properties: {}, stores }
-    intents.schema = {
-      properties: { mode: { kind: "m:1", target: "mode" } },
-      stores,
+    const schema = {
+      mode: { properties: {} },
+      intent: { properties: { mode: { kind: "m:1", target: "mode" } } },
     }
+    const entityManager = new RemoteEntityManager(conn, schema)
+    const modes = entityManager.register("mode", new RemoteRepository())
+    const intents = entityManager.register("intent", new RemoteRepository())
+    shard.datamap.wire({ mode: modes, intent: intents }, schema)
 
     const mode = modes.merge({ id: "m1", slug: "flashcard" })
     const intent = intents.cast({ id: "i1", slug: "greet", mode: "m1" })
@@ -199,15 +194,14 @@ specimen.describe("persist: cross-repo wiring", () => {
   })
 
   specimen.it("cast resolves string id array refs (m:n) from sibling store", () => {
-    const literals = new RemoteRepository()
-    const symbols = new RemoteRepository()
-
-    const stores = { literal: literals, symbol: symbols }
-    literals.schema = {
-      properties: { symbols: { kind: "m:n", target: "symbol" } },
-      stores,
+    const schema = {
+      literal: { properties: { symbols: { kind: "m:n", target: "symbol" } } },
+      symbol: { properties: {} },
     }
-    symbols.schema = { properties: {}, stores }
+    const entityManager = new RemoteEntityManager(conn, schema)
+    const literals = entityManager.register("literal", new RemoteRepository())
+    const symbols = entityManager.register("symbol", new RemoteRepository())
+    shard.datamap.wire({ literal: literals, symbol: symbols }, schema)
 
     const s1 = symbols.merge({ id: "s1", slug: "greeting" })
     const s2 = symbols.merge({ id: "s2", slug: "farewell" })
@@ -218,15 +212,14 @@ specimen.describe("persist: cross-repo wiring", () => {
   })
 
   specimen.it("cast leaves unresolvable string ids as-is", () => {
-    const literals = new RemoteRepository()
-    const symbols = new RemoteRepository()
-
-    const stores = { literal: literals, symbol: symbols }
-    literals.schema = {
-      properties: { symbols: { kind: "m:n", target: "symbol" } },
-      stores,
+    const schema = {
+      literal: { properties: { symbols: { kind: "m:n", target: "symbol" } } },
+      symbol: { properties: {} },
     }
-    symbols.schema = { properties: {}, stores }
+    const entityManager = new RemoteEntityManager(conn, schema)
+    const literals = entityManager.register("literal", new RemoteRepository())
+    const symbols = entityManager.register("symbol", new RemoteRepository())
+    shard.datamap.wire({ literal: literals, symbol: symbols }, schema)
 
     const lit = literals.cast({ id: "l1", slug: "orphan", symbols: ["missing-id"] })
     specimen.expect(lit.symbols[0]).toBe("missing-id")
@@ -239,18 +232,18 @@ specimen.describe("persist: cross-repo wiring", () => {
     // pre-populate storage
     const modes = await conn.call("/mode/find", { where: {} })
     const intents = await conn.call("/intent/find", { where: {} })
-    setTestStorageKey(modeKey, JSON.stringify(modes))
-    setTestStorageKey(intentKey, JSON.stringify(intents.map((i) => ({
+    localStorage.setItem(modeKey, JSON.stringify(modes))
+    localStorage.setItem(intentKey, JSON.stringify(intents.map((i) => ({
       ...i,
       mode: typeof i.mode === "object" ? i.mode.id : i.mode,
     }))))
 
-    const modeRepo = new RemoteRepository()
-    const intentRepo = new RemoteRepository()
+    const schema = shard.datamap.strip(scenario.orm.getMetadata())
+    const entityManager = new RemoteEntityManager(conn, schema)
+    const modeRepo = entityManager.register("mode", new RemoteRepository())
+    const intentRepo = entityManager.register("intent", new RemoteRepository())
     modeRepo.connect(conn.branch("/mode")).persist()
     intentRepo.connect(conn.branch("/intent")).persist()
-
-    const schema = shard.datamap.strip(scenario.orm.getMetadata())
     shard.datamap.wire({ mode: modeRepo, intent: intentRepo }, schema)
 
     // mode store is populated from persistence
@@ -271,11 +264,10 @@ specimen.describe("persist: cross-repo wiring", () => {
 })
 
 specimen.describe("persist: stale-while-revalidate", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("returns cached data immediately, background updates store", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/literal"))
+    const repo = managed(conn, "literal")
     repo.persist()
 
     // cold fetch populates
@@ -292,13 +284,12 @@ specimen.describe("persist: stale-while-revalidate", () => {
 
   specimen.it("background revalidate removes deleted entities", async () => {
     const key = conn.branch("/mode").url.absolute
-    setTestStorageKey(key, JSON.stringify([
+    localStorage.setItem(key, JSON.stringify([
       { id: "stale-1", slug: "deleted-mode", type: "game", traits: [] },
       { id: "stale-2", slug: "also-deleted", type: "game", traits: [] },
     ]))
 
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     specimen.expect(repo.$entities.get().length).toBe(2)
@@ -319,8 +310,7 @@ specimen.describe("persist: stale-while-revalidate", () => {
   })
 
   specimen.it("enrichment survives background revalidate", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     // cold fetch
@@ -347,11 +337,10 @@ specimen.describe("persist: stale-while-revalidate", () => {
 })
 
 specimen.describe("persist: encode edge cases", () => {
-  specimen.beforeEach(() => cleanTestStorage())
+  specimen.beforeEach(() => localStorage.clear())
 
   specimen.it("encode strips functions from entities", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     const mode = repo.merge({ id: "fn-1", slug: "test", type: "game", traits: [] })
@@ -360,8 +349,8 @@ specimen.describe("persist: encode edge cases", () => {
     repo.$entities.set([...repo.$entities.get()])
 
     const key = conn.branch("/mode").url.absolute
-    const stored = getTestStorage()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     const found = parsed.find((e) => e.id === "fn-1")
     specimen.expect(found.call).toBeUndefined()
     specimen.expect(found.buffer).toBeUndefined()
@@ -369,8 +358,7 @@ specimen.describe("persist: encode edge cases", () => {
   })
 
   specimen.it("encode strips Sets and non-plain objects", async () => {
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     const mode = repo.merge({ id: "set-1", slug: "test", type: "game", traits: ["BUFFERED"] })
@@ -379,8 +367,8 @@ specimen.describe("persist: encode edge cases", () => {
     repo.$entities.set([...repo.$entities.get()])
 
     const key = conn.branch("/mode").url.absolute
-    const stored = getTestStorage()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     const found = parsed.find((e) => e.id === "set-1")
     specimen.expect(found.intents).toBeUndefined()
     specimen.expect(found.mount).toBeUndefined()
@@ -388,8 +376,7 @@ specimen.describe("persist: encode edge cases", () => {
   })
 
   specimen.it("encode collapses m:1 relations to {id}", async () => {
-    const intentRepo = new RemoteRepository()
-    intentRepo.connect(conn.branch("/intent"))
+    const intentRepo = managed(conn, "intent")
     intentRepo.schema = {
       properties: { mode: { kind: "m:1", target: "mode" } },
       stores: {},
@@ -403,15 +390,14 @@ specimen.describe("persist: encode edge cases", () => {
     })
 
     const key = conn.branch("/intent").url.absolute
-    const stored = getTestStorage()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     const found = parsed.find((e) => e.id === "enc-1")
     specimen.expect(found.mode).toEqual({ id: "m1" })
   })
 
   specimen.it("encode collapses m:n relations to [{id}]", async () => {
-    const literalRepo = new RemoteRepository()
-    literalRepo.connect(conn.branch("/literal"))
+    const literalRepo = managed(conn, "literal")
     literalRepo.schema = {
       properties: { symbols: { kind: "m:n", target: "symbol" } },
       stores: {},
@@ -428,8 +414,8 @@ specimen.describe("persist: encode edge cases", () => {
     })
 
     const key = conn.branch("/literal").url.absolute
-    const stored = getTestStorage()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     const found = parsed.find((e) => e.id === "enc-2")
     specimen.expect(found.symbols).toEqual([{ id: "s1" }, { id: "s2" }])
   })
@@ -437,8 +423,7 @@ specimen.describe("persist: encode edge cases", () => {
   specimen.it("encode handles circular-ish enrichment without throwing", async () => {
     class Daemon { constructor(s) { this.slug = s } }
 
-    const repo = new RemoteRepository()
-    repo.connect(conn.branch("/mode"))
+    const repo = managed(conn, "mode")
     repo.persist()
 
     const mode = repo.merge({ id: "circ-1", slug: "circular", type: "game", traits: [] })
@@ -452,8 +437,8 @@ specimen.describe("persist: encode edge cases", () => {
     repo.$entities.set([...repo.$entities.get()])
 
     const key = conn.branch("/mode").url.absolute
-    const stored = getTestStorage()
-    const parsed = JSON.parse(stored[key])
+    const stored = localStorage.getItem(key)
+    const parsed = JSON.parse(stored)
     const found = parsed.find((e) => e.id === "circ-1")
     specimen.expect(found.slug).toBe("circular")
     specimen.expect(found.daemon).toBeUndefined()

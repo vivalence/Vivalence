@@ -1,0 +1,12 @@
+{
+  "name": "@vivalence/viva",
+  "short_name": "viva",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00FFFB",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "1000x1000", "type": "image/png" },
+    { "src": "/favicon_aqua.png", "sizes": "1097x1097", "type": "image/png" }
+  ]
+}

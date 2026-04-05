@@ -1,34 +1,28 @@
 <script>
   import "@vivalence/dapper/font.css";
   import "../client.css";
-
-  import { dev } from "$app/environment";
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
-  import { lighthouse } from "$client";
-
-  // onMount(() => {if (!dev) return; const s = document.createElement("script"); s.src = "https://cdn.jsdelivr.net/npm/eruda"; s.onload = () => eruda.init(); document.head.appendChild(s);});
+  import { Loader } from "@vivalence/drapes";
 
   let { children } = $props();
-  let isIdentified = lighthouse.$isIdentified;
+  let ready = $state(false);
 
-  $effect(() => {
-    if (!$isIdentified && $page.url.pathname !== "/") goto("/");
+  onMount(async () => {
+    const client = await import("$client");
+    const lighthouse = client.lighthouse;
+
+    lighthouse.$isIdentified.subscribe((identified) => {
+      if (!identified && $page.url.pathname !== "/") goto("/");
+    });
+
+    ready = true;
   });
 </script>
 
-<div class="viva-root bg-skeleton-app-surface">
+{#if ready}
   {@render children()}
-</div>
-
-<style>
-  .viva-root {
-    position: fixed;
-    top: var(--viva-t, 0px);
-    left: 0;
-    width: 100%;
-    height: var(--viva-h, 100dvh);
-    overflow: hidden;
-  }
-</style>
+{:else}
+  <Loader />
+{/if}

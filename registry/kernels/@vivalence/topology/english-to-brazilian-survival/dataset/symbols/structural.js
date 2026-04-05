@@ -460,5 +460,47 @@ export default [
         "description": "Music, film, sport, leisure."
       }
     }
+  },
+  {
+    "slug": "domain.color",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Color",
+        "description": "Colors — vermelho, azul, verde."
+      }
+    }
+  },
+  {
+    "slug": "domain.weekday",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Weekday",
+        "description": "Days of the week — segunda, terça, quarta."
+      }
+    }
+  },
+  {
+    "slug": "domain.month",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Month",
+        "description": "Months of the year — janeiro, fevereiro, março."
+      }
+    }
   }
 ];
