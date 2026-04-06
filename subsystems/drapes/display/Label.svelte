@@ -1,4 +1,10 @@
+<!--
+  Label — skeleton-aware. Reads contrast from the current skeleton.
+  Required marker uses the danger role (no separate error contrast slot).
+-->
 <script>
+  import { useSkeleton } from "../context/useSkeleton.js";
+
   let {
     required = false,
     size = "md",
@@ -7,6 +13,9 @@
     ...rest
   } = $props();
 
+  const skeleton = useSkeleton();
+  const level = $derived(skeleton());
+
   const sizes = {
     sm: "text-xs",
     md: "text-sm",
@@ -14,7 +23,11 @@
   };
 </script>
 
-<label class="font-sans-text font-medium text-skeleton-1-contrast {sizes[size]} {className}" {...rest}>
+<label
+  class="font-sans-text font-medium text-skeleton-{level}-contrast {sizes[size]} {className}"
+  {...rest}>
   {@render children?.()}
-  {#if required}<span class="text-system-error-contrast ml-0.5">*</span>{/if}
+  {#if required}
+    <span class="ml-0.5 text-skeleton-{level}-danger-base">*</span>
+  {/if}
 </label>

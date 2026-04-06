@@ -42,7 +42,7 @@
     gap: 1.5rem;
     height: 100%;
     min-height: 100svh;
-    background: var(--colors-skeleton-app-surface);
+    background: var(--colors-skeleton-0-surface);
     opacity: 0;
     transition: opacity 0.6s ease;
   }
@@ -62,7 +62,7 @@
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      color-mix(in srgb, var(--colors-theme-primary-surface) 20%, transparent) 0%,
+      color-mix(in srgb, var(--colors-skeleton-0-primary-base) 20%, transparent) 0%,
       transparent 70%
     );
     animation: glow-pulse 4s ease-in-out infinite;
@@ -81,7 +81,7 @@
     font-size: var(--font-size-sm);
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--colors-skeleton-2-contrast);
+    color: var(--colors-skeleton-0-contrast);
     opacity: 0;
     animation: fade-in 1s ease 0.8s forwards;
   }

@@ -1,24 +1,11 @@
 import { Vector, Connection, Url, shard, steer } from "@vivalence/typology";
-import { Daemon } from "../daemon/daemon.js";
-import { daemon as daemonWafer } from "../daemon/daemon.wafer.js";
-
-const castDaemon = steer.invoke(
-  daemonWafer,
-  "/construct/populate/resolve/full",
-  (carry, effect) => async (die) => {
-    await carry(die, async () => {
-      die.output = await effect(die);
-    });
-    return die.output;
-  },
-);
+import { daemon as daemonWafer, Daemon } from "../daemon/index.js";
 
 export const lighthouse = new Vector();
 
 lighthouse
   .branch("/verify")
   .use(async (die, next) => {
-    console.log({ die });
     const result = await die.good.verify();
     if (result.status === "OK" || result.status === "NETWORK_ERROR") {
       if (!die.good.$isAuthorized.get()) throw new Error("Lighthouse unauthorized");
@@ -39,6 +26,12 @@ lighthouse
         const connection = new Connection(daemonUrl)
           .use(shard.connection.authorize(die.good.$authority))
           .use(shard.connection.batch({ url: daemonUrl }));
+
+        const castDaemon = steer.invoke(
+          daemonWafer,
+          "/construct/populate/resolve/full",
+          steer.direct,
+        );
 
         const result = await castDaemon({
           good: new Daemon(connection),

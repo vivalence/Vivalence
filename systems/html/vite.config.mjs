@@ -60,23 +60,24 @@ export default defineConfig(async ({ command }) => ({
       // STABLE
       $client: join(__dirname, "./src/client.js"),
 
-      // "@vivalence/html/typology": removed — M5 migration
-      "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
+      // "@vivalence/html/typology": join(__dirname, "./src/typology/index.js"),
+      // "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
 
-      "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
+      // "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
       "@vivalence/typology/schematics": join(__ss, "./typology/schematics/index.js"),
 
       "@vivalence/dapper/font.css": join(__repo, "./subsystems/dapper/primitives/font.css"),
       "@vivalence/dapper/bsp.css": join(__repo, "./subsystems/dapper/primitives/bsp.css"),
+
       "@vivalence/dapper": join(__repo, "./subsystems/dapper/mod.js"), // ? needed ?
       "@vivalence/drapes": join(__repo, "./subsystems/drapes/mod.js"), // ? needed ?
 
       // TBD
       // # "@client/shadcn/": join(__dirname, "./src/components/shadcn/"),
       // # "@assets/": env.get("VIVA_ASSETS_DIR") || join(env.get("VIVA_CONFIG_DIR"), "./assets/"), // i want to access to $viva_config_dir/assets present as @client/assets
-      "@static/icons/": join(__dirname, "./static/icons/"),
-      "$static/images/": join(__dirname, "./static/images/"),
+      // "@static/icons/": join(__dirname, "./static/icons/"),
+      // "$static/images/": join(__dirname, "./static/images/"),
     },
     extensions: [".ts", ".js", ".jsx", ".json", ".svelte", ".svg", ".mjs"],
   },

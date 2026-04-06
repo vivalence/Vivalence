@@ -222,8 +222,170 @@ const tint = {
   },
 };
 
+// ============================================================================
+// roots — 10 named color spaces, 12 stops each.
+// stops: 50, 100, 200, 300, 400, 500, 600, 700, 800, 850, 900, 950
+//
+// Source for the flat scoped skeletons. Skeletons pull anchors from these
+// (never from `palette` directly). Vibe: dark scandinavian, nordsee meets
+// concrete. See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
+// ============================================================================
+const roots = {
+  // backbone — cool blue-gray, nordsee concrete
+  iron: {
+    50:  "#F4F6F9",
+    100: "#E6EAEF",
+    200: "#CFD6DE",
+    300: "#B4BFCB",
+    400: "#8FA0B1",
+    500: "#6B7E91",
+    600: "#4F6175",
+    700: "#384A5E",
+    800: "#243544",
+    850: "#1A2A38",
+    900: "#0E1A25",
+    950: "#060D14",
+  },
+  // skeleton 0 surface — warm dark blue, nordic winter sky
+  deep: {
+    50:  "#EAECF5",
+    100: "#D1D5E6",
+    200: "#A9AFCD",
+    300: "#7882AD",
+    400: "#51608E",
+    500: "#35456F",
+    600: "#243454",
+    700: "#182743",
+    800: "#0F1C35",
+    850: "#0A1628",
+    900: "#06101D",
+    950: "#030812",
+  },
+  // skeleton 0 contrast — pale iron gold, antique brass patina
+  gold: {
+    50:  "#F7F5EC",
+    100: "#EBE6D2",
+    200: "#D7CFAE",
+    300: "#BCB086",
+    400: "#9E8F5E",
+    500: "#7F6F3E",
+    600: "#625425",
+    700: "#473B14",
+    800: "#30260A",
+    850: "#221A05",
+    900: "#150F02",
+    950: "#0A0701",
+  },
+  // brand — extended from existing palette.aqua, 300 anchor preserved
+  aqua: {
+    50:  "#C7FFFB",
+    100: "#8EF0EA",
+    200: "#51D8D0",
+    300: "#1EBCB5",
+    400: "#089791",
+    500: "#066F6D",
+    600: "#045554",
+    700: "#034342",
+    800: "#023434",
+    850: "#022828",
+    900: "#011D1E",
+    950: "#011213",
+  },
+  // secondary + info — quiet nordic blue (retuned, not the bright old indigo)
+  indigo: {
+    50:  "#EAEDF8",
+    100: "#C9D0EC",
+    200: "#A5B0DC",
+    300: "#7E8DC8",
+    400: "#566CAD",
+    500: "#3D528C",
+    600: "#2E406E",
+    700: "#213053",
+    800: "#17223D",
+    850: "#10182C",
+    900: "#091020",
+    950: "#040815",
+  },
+  // success — forest lichen, organic green (not neon lime)
+  moss: {
+    50:  "#EEF5EA",
+    100: "#D4E6C9",
+    200: "#B0D19A",
+    300: "#87B56A",
+    400: "#5E9442",
+    500: "#41732A",
+    600: "#2E561C",
+    700: "#203F14",
+    800: "#152D0D",
+    850: "#0F2108",
+    900: "#091604",
+    950: "#040B02",
+  },
+  // warning — warm honey
+  amber: {
+    50:  "#FBF1DB",
+    100: "#F3DFA9",
+    200: "#E7C271",
+    300: "#D4A054",
+    400: "#B07F36",
+    500: "#896022",
+    600: "#664716",
+    700: "#4A330E",
+    800: "#332307",
+    850: "#241904",
+    900: "#160F02",
+    950: "#0A0701",
+  },
+  // danger + error — iron oxide, earthy red
+  rust: {
+    50:  "#F8EEEA",
+    100: "#EBCDC0",
+    200: "#D9A18D",
+    300: "#BE7055",
+    400: "#9F502D",
+    500: "#7E3A1A",
+    600: "#5E2A11",
+    700: "#44200C",
+    800: "#2E1808",
+    850: "#201005",
+    900: "#140903",
+    950: "#0A0401",
+  },
+  // reserved — cold dead iron
+  slate: {
+    50:  "#EEF0F2",
+    100: "#D7DBE0",
+    200: "#B7BDC5",
+    300: "#8E95A0",
+    400: "#6D7380",
+    500: "#515864",
+    600: "#3C414B",
+    700: "#2C3038",
+    800: "#1E2127",
+    850: "#14161A",
+    900: "#0B0D10",
+    950: "#050608",
+  },
+  // accent — softened pop
+  pink: {
+    50:  "#FBECF6",
+    100: "#F0C8E3",
+    200: "#DA97C3",
+    300: "#BE639C",
+    400: "#96437B",
+    500: "#6F2C5D",
+    600: "#521F46",
+    700: "#3A1532",
+    800: "#260D22",
+    850: "#1A0818",
+    900: "#10040F",
+    950: "#070206",
+  },
+};
+
 export default async function colors(ds) {
   ds.colors.palette = palette;
   ds.colors.tint = tint;
+  ds.colors.roots = roots;
   return ds;
 }

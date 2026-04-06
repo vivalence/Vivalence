@@ -42,10 +42,10 @@ Route matching. Constructor splits "/" and applies patternmap probes to classify
 - **parameter** (`:name`) — extracts named parameter
 - **literal** (default) — exact match
 
-Key method: `apply(signal)` — calls filter function if exists, returns match or null.
+Key method: `apply(signal)` — calls filter function if exists, returns match or null. Patternmap uses `object.assign` (not `object.merge` — merge chokes on circular trace/gauges refs).
 
-**Signal** `prototypes/signal.js` (41 lines) `extends Signature`
-Concrete values matched against Patterns. Constructor splits "/" into segments. `hasher()` returns `[index, nature]`. Property: `pathname` → "/" + joined absolute.
+**Signal** `prototypes/signal.js` (115 lines) `extends Signature`
+Universal input parser — CLI-grade signal. Concrete values matched against Patterns. Coercion handles slash paths (`a/b/c`), space-separated (`a b c`), mixed (`a/b c`), long flags (`--key value`, `--key=value`, `--flag`), short flags (`-p 8080`, `-v`, `-p=8080`), grouped short flags (`-vfs`), quoted values (`--msg "hello world"`), flag terminator (`--` makes everything after positional), and bare dash (`-` as positional). Flags land on the last segment as `.flags: {}`. Flags-only signals (`--verbose --dry-run`) produce a single node with `nature: null` and `.flags`. Module-private `tokenize()` function handles quote-aware splitting and `=` expansion. `hasher()` returns `[index, nature]`. Properties: `pathname` → "/" + joined absolute.
 
 **Path** `prototypes/path.js` (63 lines) `extends Signature`
 Filesystem operations. Coercions normalize paths (collapse slashes, strip trailing). Properties: `absolute` (joined segments), `filename` (last segment if has "."), `dirname` (parent path), `segment` (alias for nature). Implements `Symbol.toPrimitive`.
@@ -203,9 +203,9 @@ Four families plus utilities and network primitives.
 
 Complements cast. Error throwing on failed type checks.
 
-### fromm/ — Conversions (48 lines)
+### fromm/ — Conversions (60 lines)
 
-Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.parameters` from traverse step array — used by http shape for route params), `params(params)` (reconstructs `.path` from numeric remainder params — used by view/freight serving).
+Conversion functions: `viva`, `runtime`, `lookup`, `match(steps)` (extracts `.parameters` from traverse step array — used by http shape for route params), `signal(signal)` (extracts `.flags` by reducing across `signal.array` — accumulates flags from all nodes), `params(params)` (reconstructs `.path` from numeric remainder params — used by view/freight serving).
 
 ### belt/ — Utility Collections (12 modules)
 
@@ -299,7 +299,8 @@ All tests use specimen's describe/it pattern with construction → gestalt → v
 
 | File | Tests |
 |------|-------|
-| signature.test.js | Signature construction, trace/gauges hierarchy, Pattern matching, Signal handling |
+| signature.test.js | Signature construction, trace/gauges hierarchy, Pattern matching, Pattern descriptor (object/function forms), Pattern+Signal integration |
+| signal.test.js | Signal slash/space/mixed parsing, long/short/grouped flags, key=value, quotes, flag terminator, bare dash, flags-only, Pattern matching, fromm.signal flags extraction |
 | production.test.js | ProductionRequest (batch, stock, demand, satisfiedBy), ProductionResult (conditions, status), recalls |
 | agent.test.js | Agent construction, context accumulation, input/output validation, generate/do |
 | path.test.js | Path normalization, branching, filename/dirname extraction |

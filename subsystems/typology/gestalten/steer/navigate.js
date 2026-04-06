@@ -39,6 +39,10 @@ export function traverse(vector, signals) {
   return [null, carry, steps, position];
 }
 
+export function survey(vector, visit) {
+  return vector.survey(visit)
+}
+
 export async function walk(vector, more) {
   let position = vector;
   let carry = middleware.forward;
@@ -58,4 +62,3 @@ export async function walk(vector, more) {
     position = trajectory;
   }
 }
-

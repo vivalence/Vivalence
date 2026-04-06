@@ -144,7 +144,7 @@
   }
 
   .audio-inline.audio-playing {
-    border-color: var(--colors-theme-primary-contrast);
+    border-color: var(--colors-skeleton-1-primary-base);
   }
 
   .audio-bars {
@@ -163,7 +163,7 @@
   }
 
   .audio-inline:hover .audio-play-icon path {
-    fill: var(--colors-theme-primary-contrast);
+    fill: var(--colors-skeleton-1-primary-base);
   }
 
   .audio-bar {
@@ -172,7 +172,7 @@
   }
 
   .audio-playing .audio-bar {
-    fill: var(--colors-theme-primary-contrast);
+    fill: var(--colors-skeleton-1-primary-base);
     animation: pulse 0.6s ease-in-out infinite alternate;
   }
 
@@ -196,7 +196,7 @@
     border-color: var(--colors-skeleton-2-contrast);
   }
   .audio-dot.audio-playing {
-    border-color: var(--colors-theme-primary-contrast);
+    border-color: var(--colors-skeleton-1-primary-base);
   }
   .audio-bars-dot { width: 22px; height: 22px; }
   .audio-play-dot { width: 18px; height: 18px; }
@@ -205,7 +205,7 @@
     transition: fill 0.15s;
   }
   .audio-dot:hover .audio-play-dot path {
-    fill: var(--colors-theme-primary-contrast);
+    fill: var(--colors-skeleton-1-primary-base);
   }
 
   @keyframes pulse {

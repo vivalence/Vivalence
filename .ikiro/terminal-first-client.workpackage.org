@@ -1,0 +1,172 @@
+#+TITLE: Terminal-First Client
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-06
+#+STATUS: ACTIVE
+
+* Intent
+
+The client is an incoherent mess. Lighthouse setup half-baked, client setup half-baked, fake multi-lighthouse pretense, scattered =await import("$client")= gymnastics, boot sequence leaked into SvelteKit routes. No design philosophy.
+
+Terminal-first: the terminal is the primary client entity. Like iTerm processes, emacs buffers, browser tabs. Everything is a terminal. Login is a command. The lobby is a command. Settings are a terminal. The REPL is the shell.
+
+** Desired End State
+
+User opens vivalence.com/. One URL. Sees a REPL prompt. Types commands. =login <url>= connects a lighthouse (inline form if no saved session, instant reconnect if hydrated). =list= shows available modes. =open flashcard vocabulary= spawns a game terminal. Switch between terminals via modeline or keyboard. The REPL is always terminal 0.
+
+No login page. No lobby page. No SvelteKit route tree. No loader gate. No discover gate. No TLA. =new Client()= is synchronous. All async work happens through REPL commands.
+
+** Key Design Decisions
+
+- *Terminal is the primary entity.* Not daemon, not lighthouse, not buffer. Terminal.
+- *Multiple lighthouses, for real.* =client.lighthouses= is a Map. You can connect to N lighthouses. No hardcoded single-lighthouse pretense.
+- *REPL is a terminal phase.* Terminal has phases: REPL (command line), STREAM (game buffers), etc. REPL is the default.
+- *Commands return strings or components.* The command vector's effects return plain strings (rendered as text) or ={component, props}= objects (rendered via =<svelte:component>=). Login returns an inline form component. List returns a daemon listing component.
+- *Command vector is assembled, not declared.* Base commands (help, clear) are always present. Client commands (login, list, switch) added at boot. Daemon commands (open) added when daemons load. Mode commands (submit, skip) added when a session starts. Same pattern as daemon aperture growing from mode traits.
+- *Everything at root.* =vivalence.com/=. No routing. SvelteKit routes moved out of src/.
+- *No TLA.* =export const client = new Client()=. Synchronous. The client exists immediately. Commands do the async work.
+- *Auto-exec from env.* If =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= exists, the REPL evaluates =login <url>= as its first command on mount.
+- *Invocation pattern.* Signal from input, steer.invoke, steer.minimal. Commands nest naturally because Vector branches.
+
+** Architecture
+
+*** Client
+
+Root singleton. Holds the collections.
+
+#+begin_src
+Client
+  .lighthouses     Map<url, Lighthouse>
+  .terminals       Map<id, Terminal>
+  .active          terminal id (null = repl / terminal 0)
+#+end_src
+
+*** Terminal
+
+The primary entity. Owns a command vector and phases.
+
+#+begin_src
+Terminal
+  .commands        Vector (the command tree)
+  .phase           "REPL" | "STREAM" | ...
+  .history         [{command, output}]  (REPL entries)
+  .stall           Stall (buffer queue, for STREAM phase)
+  .daemon          current daemon (when in session)
+  .mode            current mode
+  .thread          current thread
+  .intent          current intent
+#+end_src
+
+*** Command Vector
+
+Flat or nested. Resolved via Signal + steer.invoke.
+
+#+begin_src
+commands.open("/login", async (die) => { ... })
+commands.open("/list", async (die) => { ... })
+commands.open("/help", async (die) => { ... })
+commands.branch("/open").open("/:mode", async (die) => { ... })
+commands.branch("/open").open("/:mode/:intent", async (die) => { ... })
+#+end_src
+
+User types =open flashcard vocabulary=. Input becomes Signal. Vector matches =/open/flashcard/vocabulary=. Effect spawns terminal with that mode+intent.
+
+*** REPL Loop
+
+Read: input field at bottom of screen.
+Eval: =new Signal(input)= → =steer.invoke(commands, signal, steer.minimal)= → =cast({signal})=.
+Print: push ={command, output}= to history. Output is string or ={component, props}=.
+Loop: clear input, focus.
+
+*** File Layout
+
+#+begin_src
+src/
+  client.js              ← entry: export const client = new Client()
+  client/
+    client.js            ← Client prototype
+  lighthouse/
+    lighthouse.js        ← prototype (unchanged)
+    lighthouse.wafer.js  ← lifecycle vector (unchanged)
+    persistence.js       ← hydrate/persist (unchanged)
+    Login.svelte         ← inline login form (returned by login command)
+  terminal/
+    terminal.js          ← prototype (rethought: phases, history, commands)
+    Repl.svelte          ← REPL phase UI
+    Stream.svelte        ← stream phase UI (migrated from routes)
+    Modeline.svelte      ← modeline (migrated from routes)
+  entities/
+    ...unchanged
+  commands/
+    base.js              ← help, clear
+    client.js            ← login, list, switch
+    session.js           ← open, close (added when daemons load)
+#+end_src
+
+Concepts colocated: prototype + UI + vector contributions in the same directory.
+
+* Phases
+
+** Phase 1: REPL Skeleton [IN PROGRESS]
+
+Bare REPL loop at root. Command vector with steer.invoke dispatch. Echo commands working.
+
+*** Done
+- +page.svelte: REPL loop with input, history, submit
+- Command vector with two test commands (hello, time)
+- Signal-based dispatch via steer.invoke + steer.minimal
+
+*** Next
+- Wrap in Terminal prototype (commands, history, phase)
+- Error handling for unknown commands
+- Component output rendering (=<svelte:component>=)
+
+** Phase 2: Login Command
+
+Login command returns Login.svelte component. Form authenticates, discovers daemons. Hydrated sessions reconnect instantly.
+
+- [ ] Login.svelte inline form component
+- [ ] login command: create Lighthouse, hydrate, return component or text
+- [ ] Auto-exec from env var on mount
+- [ ] Client.lighthouses Map wiring
+
+** Phase 3: List + Open Commands
+
+Navigate available modes. Open spawns a game terminal.
+
+- [ ] list command: iterate lighthouses → daemons → modes
+- [ ] open command: find mode, create thread, spawn terminal, switch phase to STREAM
+- [ ] Terminal phase switching (REPL ↔ STREAM)
+- [ ] Stream.svelte migration
+
+** Phase 4: Terminal Management
+
+Multiple terminals. Switching. Modeline.
+
+- [ ] Terminal collection on Client
+- [ ] switch command
+- [ ] close command
+- [ ] Modeline with terminal tabs
+- [ ] Keyboard shortcuts for switching
+
+** Phase 5: Route Teardown
+
+Delete old routes. Everything at root.
+
+- [ ] Move routes/ out of src/ or collapse to single +page.svelte
+- [ ] Delete viva/ route tree
+- [ ] Delete old login page
+- [ ] Update svelte.config paths
+- [ ] Persistence (terminal list survives refresh)
+
+* Gaps
+
+- steer.minimal — confirmed working. Need to verify it's exported from typology.
+- Command vector nesting — does =/open/flashcard/vocabulary= resolve params from the Signal? Need to test.
+- Component output lifecycle — when a command returns {component, props}, who destroys it? Does Svelte handle it when the entry scrolls or gets cleared?
+- Terminal persistence — localStorage shape for terminal list + state.
+- Keyboard integration — keymap vector alongside command vector. Not designed yet.
+- Mobile — input focus, virtual keyboard, safe-area-inset. Later.
+
+* Changelog
+
+- 2026-04-06: Created workpackage. Phase 1 in progress. REPL loop working with command vector dispatch at +page.svelte. Two test commands (hello, time) confirmed via steer.invoke + steer.minimal.

@@ -3,7 +3,7 @@ import { Stall } from "./stall.js";
 
 export class Terminal {
   stall = new Stall();
-  $phase = atom("STREAM");
+  $phase = atom("REPL");
 
   $daemon = atom(null);
   $mode = atom(null);

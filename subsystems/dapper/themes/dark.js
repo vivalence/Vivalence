@@ -1,69 +1,119 @@
-const createColorType = (color) => ({
-  surface: color[500],
-  contrast: color[200],
-  boundary: color[300],
-  hover: {
-    surface: color[300],
-    contrast: color[700],
-    boundary: color[900],
-  },
-});
+// ============================================================================
+// Dark theme — flat scoped skeletons.
+//
+// Five skeletons (0..4), each a self-contained universe of {surface, contrast,
+// boundary, primary, secondary, accent, info, success, warning, danger, error,
+// font}. The old top-level `theme` and `system` groups are gone — those colors
+// now live inside each skeleton, scoped to its pane.
+//
+// Hierarchy:
+//   0  T-bone + H overlay        — warm dark blue + pale iron-gold
+//   1  Panel A (main work area)  — main canvas, modes render here
+//   2  Panels B + E              — slightly darker than 3
+//   3  Panels D + F + twigs      — slightly brighter than 2
+//   4  Overlay G + frame of 1    — variant of 1, renders on top
+//
+// See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
+// ============================================================================
+
+import { skeleton } from "../primitives/builders.js";
 
 export default async function (ds) {
-  const palette = ds.colors.palette;
+  const { iron, deep, gold, aqua, indigo, moss, amber, rust, pink } =
+    ds.colors.roots;
 
   ds.themes.dark = { ...ds.tokens };
 
+  // shared font tokenspace — every skeleton uses the same family map.
+  // Components pick by role (heading/body/code), not by skeleton.
+  const font = {
+    heading: "sans-heading", // Poppins
+    body:    "sans-text",    // Inter
+    code:    "code",         // Source Code Pro
+  };
+
+  // shared interactive role anchors. Skeletons override only what differs.
+  const standardRoles = {
+    primary:   { ramp: aqua,   anchor: 300 },
+    secondary: { ramp: indigo, anchor: 300 },
+    accent:    { ramp: pink,   anchor: 300 },
+    info:      { ramp: indigo, anchor: 300 },
+    success:   { ramp: moss,   anchor: 300 },
+    warning:   { ramp: amber,  anchor: 300 },
+    danger:    { ramp: rust,   anchor: 300 },
+  };
+
+  const standardError = { ramp: rust, anchors: [800, 100, 300] };
+
   ds.themes.dark.colors = {
-    palette: {
-      white: palette.white,
-      black: palette.black,
-      gray: palette.gray,
-    },
+    // keep palette + roots accessible for escape hatches and debugging
+    palette: ds.colors.palette,
+    roots:   ds.colors.roots,
 
-    theme: {
-      primary: createColorType(palette.aqua),
-      secondary: createColorType(palette.indigo),
-      accent: createColorType(palette.pink),
-    },
-
-    system: {
-      // different color?
-      info: createColorType(palette.indigo),
-      success: createColorType(palette.lime),
-      warning: createColorType(palette.amber),
-      danger: createColorType(palette.red),
-      error: createColorType(palette.red),
-      // new color?
-      disabled: createColorType(palette.gray),
-    },
-
+    // five skeletons — each a flat populated universe
+    // singular `skeleton` matches the old key name and produces clean CSS
+    // var names: --colors-skeleton-N-role[-state]
     skeleton: {
-      app: {
-        surface: palette.gray[900],
-        link: palette.aqua[300],
-      },
-      1: {
-        surface: palette.gray[800],
-        contrast: palette.gray[200],
-        boundary: palette.gray[300],
-      },
-      2: {
-        surface: palette.gray[900],
-        contrast: palette.gray[300],
-        boundary: palette.gray[300],
-      },
-      3: {
-        surface: palette.gray[400],
-        contrast: palette.gray[800],
-        boundary: palette.gray[500],
-      },
-      4: {
-        surface: palette.gray[100],
-        contrast: palette.gray[500],
-        boundary: palette.gray[400],
-      },
-      // surface: {1: palette.gray[800], 2: palette.gray[900], 3: palette.gray[400], 4: palette.gray[100],}, contrast: {1: palette.gray[200], 2: palette.gray[300], 3: palette.gray[800], 4: palette.gray[500],}, boundary: {1: palette.gray[300], 2: palette.gray[300], 3: palette.gray[500], 4: palette.gray[400],},
+      // skeleton 0 — T-bone + H overlay
+      // deep warm blue surface, pale iron-gold lettering, teal seam
+      0: skeleton({
+        surface:  deep[800],
+        contrast: gold[200],
+        boundary: aqua[400],
+        roles:    standardRoles,
+        error:    standardError,
+        font,
+      }),
+
+      // skeleton 1 — main work area (panel A, where modes render)
+      // deep wet concrete with pale iron text, teal accents
+      1: skeleton({
+        surface:  iron[850],
+        contrast: iron[100],
+        boundary: aqua[400],
+        roles:    standardRoles,
+        error:    standardError,
+        font,
+      }),
+
+      // skeleton 2 — panels B + E (slightly darker than 3)
+      2: skeleton({
+        surface:  iron[900],
+        contrast: iron[200],
+        boundary: iron[700],
+        roles:    standardRoles,
+        error:    standardError,
+        font,
+      }),
+
+      // skeleton 3 — panels D + F + twigs (slightly brighter than 2)
+      3: skeleton({
+        surface:  iron[800],
+        contrast: iron[100],
+        boundary: iron[600],
+        roles:    standardRoles,
+        error:    standardError,
+        font,
+      }),
+
+      // skeleton 4 — overlay G + frame contents of 1 (variant of 1, on top)
+      4: skeleton({
+        surface:  iron[700],
+        contrast: iron[100],
+        boundary: aqua[300],
+        roles: {
+          ...standardRoles,
+          // brighter anchors so overlays read above their host pane
+          primary:   { ramp: aqua,   anchor: 200 },
+          secondary: { ramp: indigo, anchor: 200 },
+          accent:    { ramp: pink,   anchor: 200 },
+          info:      { ramp: indigo, anchor: 200 },
+          success:   { ramp: moss,   anchor: 200 },
+          warning:   { ramp: amber,  anchor: 200 },
+        },
+        error: { ramp: rust, anchors: [700, 100, 300] },
+        font,
+      }),
     },
   };
 

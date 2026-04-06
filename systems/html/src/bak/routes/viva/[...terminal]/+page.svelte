@@ -1,7 +1,7 @@
 <script>
   import { page } from "$app/stores";
   import { setContext, onDestroy } from "svelte";
-  import { Terminal } from "../../../terminal/terminal.js";
+  import { Terminal } from "@vivalence/html/typology";
   import { populate } from "./lib/populate.js";
   import Stream from "./phases/Stream.svelte";
 

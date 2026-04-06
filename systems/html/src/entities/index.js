@@ -9,8 +9,6 @@ import { Intent } from "./intent.js";
 import { Thread } from "./thread.js";
 import { Buffer } from "./buffer.js";
 
-// Registry: maps entity names (as returned by strip()) to classes.
-// Dataspace uses this to construct typed repositories dynamically.
 export const registry = {
   mode: Mode,
   intent: Intent,

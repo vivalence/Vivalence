@@ -50,7 +50,7 @@ Use these terms precisely. Don't substitute generic alternatives.
 
 **System**: vector, aperture, paladin, daemon, mode, intent, buffer, wafer, die, process, cast, terminal, stall, lobby, door
 
-**Client shell**: lobby (home at /viva, aggregates doors from all daemons), terminal (window at /viva/:lighthouse/:daemon/:type/:mode[/:intent]/:thread), door (entry point — mode or intent, entity knows its own URL via .link Path), stall (internal buffer queue on terminal, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (unified command bar at routes/viva/Modeline.svelte — shared by lobby + terminal, 52px mobile / 40px desktop, menu button opens navigate/threads panel, breadcrumb + status dot + queue count, counter button opens Inspector), inspector (routes/viva/Inspector.svelte — debug panel anchored to right of modeline, two tabs: buffers [queue visualization with skip/select/expand/DnD] and traces [polled review history with signal/status/literal/nextIn]. Reusable components in surface/inspector/), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation), stage (rendering engine shim in drapes — sole consumer of echarts/three.js, re-exports as `stage.*`. `stage.chart(container)` → echarts instance, `stage.scene(container)` → Three.js scene kit. `stage.echarts`/`stage.THREE` escape hatches. Canvas component = managed container with init callback)
+**Client shell**: terminal (primary client entity — like iTerm processes, emacs buffers. Everything is a terminal. Has command vector, phases, history), client (root singleton: lighthouses Map, terminals Map, active terminal), repl (terminal phase — command line. Read: input. Eval: Signal + steer.invoke on command vector. Print: string or {component, props} via `<svelte:component>`. Loop.), stall (internal buffer queue on terminal for STREAM phase, not a UI primitive), mint (populate's buffer factory — resolves view from mode.buffered, sets context `{buffer, terminal}`, wires release, registers in daemon buffer repo), modeline (status bar — shows active terminal, tab switching), command vector (Vector on terminal — assembled from base commands + client commands + daemon commands + mode commands. Same pattern as daemon aperture growing from traits), inspector (debug panel — buffers [queue visualization] and traces [polled review history]), keymap (Vector per input mode — mode keymap for buffer interaction, space keymap for OS control), keymap shard (Vector factory for reusable key bindings — shards.audio, shards.rating, shards.navigation), stage (rendering engine shim in drapes — sole consumer of echarts/three.js, re-exports as `stage.*`. `stage.chart(container)` → echarts instance, `stage.scene(container)` → Three.js scene kit. `stage.echarts`/`stage.THREE` escape hatches. Canvas component = managed container with init callback)
 
 **Cortex**: cortex, faculty, channel, harness, turn, part, tune, tier, dialogue, render, whole, stream, soma (stream gestalt: pour/drain/attend/bridge), hallucinate (conditioned environment), spawn (cortex→hallucinate factory)
 
@@ -135,6 +135,7 @@ Non-negotiable. If you catch yourself rationalizing past one, stop.
 
 - **NO IMPLEMENTATION WITHOUT DESIRED END STATE STATED IN PLAIN LANGUAGE.** If you can't say what's true after the work that isn't true now, you don't understand the task yet. Ask.
 - **NO WRITE WITHOUT EXPLICIT APPROVAL.** Every file write — edits, new files, restores, overwrites — requires showing the content and waiting for approval. Never chain showing a diff with applying it. "It's just a restore" or "it's just one file" is not an exemption.
+- **STOP MEANS STOP.** When told to stop editing, stop immediately. No "cleanup" edits, no reverts, no deletions, no "just removing the file I created." Stop means zero further file operations of any kind. The instruction to stop is not qualified — it covers all writes, all deletes, all modifications. If something needs reverting, wait for explicit instruction to revert it.
 - **NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION.** Before saying "done," run the relevant tests and confirm output. Evidence before assertions.
 - **NO FIXES WITHOUT READING THE CODE FIRST.** Don't propose changes to code you haven't read. Don't assume entity fields exist — read the schema.
 - **NO VCS OPERATIONS WITHOUT EXPLICIT COMMAND.** Never run jj commands that modify the graph (new, commit, squash, rebase, abandon, bookmark) unless Finn explicitly asks. This includes "helpful" commits. Finn manages the entire version control graph.
@@ -376,10 +377,10 @@ Still on disk — don't document, extend, or suggest using:
 | SELFEVIDENT trait impl | runtime/daemon/traits/index.js | No-op — all modes use APPLICATIVE |
 | Old EMITTER commented code | REMOVED | Was runtime/daemon/traits/emitter.js lines 62-93. Deleted during Pool migration. |
 | Old BUFFERED commented code | runtime/daemon/traits/buffered.js lines 46-56 | Pre-ensure buffer factory |
-| Old client.js | systems/html/src/bak/client.js | Replaced by wafer-driven client.js |
-| Old lighthouse lifecycle | systems/html/src/typology/entities/lighthouse/bak.lifecycle.js | lifecycle()+populate() replaced by lighthouse.wafer.js |
-| Old terminal populate | systems/html/src/routes/viva/[...terminal]/lib/bak/populate.js | Routing Vector replaced by terminal.wafer.js |
-| Old daemon lifecycle | systems/html/src/typology/entities/daemon.js (commented) | lifecycle() replaced by daemon.wafer.js |
+| Old client.js + client.wafer.js | systems/html/src/bak/client.js, client.wafer.js | Replaced by terminal-first client |
+| Old typology (entire dir) | systems/html/src/bak/typology/ | Lighthouse, daemon, terminal, entities — being rebuilt in terminal-first architecture |
+| Old routes (entire tree) | systems/html/src/bak/routes/ | viva/, login, lobby, modeline, inspector — superseded by REPL at root |
+| Old surface dir | systems/html/src/bak/surface/ | Login component, inspector components |
 | Cortex workpackage typology | runtime/tests/workpackages/cortex/typology/{cortex,hallucinate,accumulate}.js | Graduated to typology prototypes + belt/soma.js |
 | Cortex workpackage v1 test | runtime/tests/workpackages/cortex/cortex.test.js | Tests old function-based architecture |
 | Cortex workpackage stale daemon | runtime/tests/workpackages/cortex/daemon/{traits,population}.js | Old applyHarness + populateCortex — superseded by CONVERSATIONAL trait |
@@ -399,7 +400,8 @@ As of 2026-04-04:
 - **Shell client** — [shell-client.workpackage.org](../systems/shell/.ikiro/shell-client.workpackage.org). MCP as future phase
 - **Package manager** — [very-important-packagemanager.workpackage.org](very-important-packagemanager.workpackage.org). Design only
 - **v schema builder** — [v-schema-builder.workpackage.org](../subsystems/typology/.ikiro/v-schema-builder.workpackage.org). DONE (M1+M2). M3 game mode migration pending
-- **Client typology** — [client-typology.workpackage.org](client-typology.workpackage.org). Reorganizing client src/. Phase 1 done: RemoteEntityManager + RemoteRepository integrated as unit in typology (52 test steps). Entity classes + Dataspace on client. Next: M2 lighthouse + daemon wafer restructure, M3 terminal, M4 client wafer, M5 route migration.
+- **Terminal-first client** — [terminal-first-client.workpackage.org](terminal-first-client.workpackage.org). Complete client redesign. Terminal as primary entity. REPL at root, no routes. Command vector assembled from base + client + daemon + mode commands. Phase 1 in progress: bare REPL loop with command vector dispatch working. Supersedes client-typology workpackage (Phases 1-4 of that work — EM, repos, wafers — are foundation, Phase 5 route migration is now obsolete).
+- **Client typology** — [client-typology.workpackage.org](client-typology.workpackage.org). Phases 1-4 DONE (EM, repos, wafers, 78 test steps). Phase 5 (route migration) SUPERSEDED by terminal-first-client workpackage.
 - Mobile readiness, progression system, DB migration (session→thread FK recreation) — deferred
 
 ## Divio Documentation + Testing Matrix
@@ -431,6 +433,7 @@ These docs are living scaffolds. After every task, ask: **"What would the next s
 Each subsystem doc has its own Work Packages section. This is the master view:
 
 **Active work packages:**
+- [terminal-first-client.workpackage.org](terminal-first-client.workpackage.org) — Terminal-first client redesign (REPL, command vector, no routes)
 - [wafer-lifecycle.workpackage.org](wafer-lifecycle.workpackage.org) — Vector-based process composition (wafer/die/cast)
 - [cortex.workpackage.org](cortex.workpackage.org) — Hallucinator cortex
 - [language-learning-modes.workpackage.org](language-learning-modes.workpackage.org) — Game modes & tactics
@@ -440,6 +443,7 @@ Each subsystem doc has its own Work Packages section. This is the master view:
 
 **Completed:**
 - [pool-prototype.workpackage.org](pool-prototype.workpackage.org) — Pool emitter composition primitive (DONE 2026-04-02)
+- [client-typology.workpackage.org](client-typology.workpackage.org) — Client typology reorganization (Phases 1-4 DONE, Phase 5 superseded)
 
 **Key testing gaps:** Memory drivers untested in isolation. Process system untested. Agentic compiler untested. Paladin has 22 baseline tests. Daemon client wafer has 11 tests. Client/lighthouse/terminal wafers build-tested only (no scenario tests yet). Pre-existing buffer.test.js failures (unrelated to wafer migration). Pre-existing repository.persist.test.js failures (nanostores/persistent test engine). Survival/clinic tactic orchestration tests (need mountModes + enriched fixtures for ANNOTATED/VOCALIZED). Conjugation/paradigm mode emitter tests (need CONJUGATED ontology fixtures). RemoteEntityManager flush() not tested against /batch endpoint. Managed repo persist() + subscribe() interaction with EM untested.
 

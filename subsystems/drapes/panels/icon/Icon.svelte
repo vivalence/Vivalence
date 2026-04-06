@@ -1,20 +1,35 @@
+<!--
+  Icon — skeleton-aware. variant maps to a fill color sourced from the
+  current skeleton level.
+
+  variants: nav | ui | success (and any role name from the skeleton)
+-->
 <script>
   import Carbon from "./carbon.svelte.js";
+  import { useSkeleton } from "../../context/useSkeleton.js";
 
   let {
     carbon = "",
     emoji = "",
     size = "md",
-    variant = "",
+    variant = "ui",
     class: className = "",
     ...rest
   } = $props();
 
-  const variants = {
-    nav: "fill-skeleton-1-contrast",
-    ui: "fill-skeleton-1-contrast",
-    success: "fill-system-success-contrast",
-  };
+  const skeleton = useSkeleton();
+  const level = $derived(skeleton());
+
+  const ROLE_VARIANTS = new Set([
+    "primary", "secondary", "accent",
+    "info", "success", "warning", "danger",
+  ]);
+
+  const variantClass = $derived.by(() => {
+    if (variant === "nav" || variant === "ui") return `fill-skeleton-${level}-contrast`;
+    if (ROLE_VARIANTS.has(variant)) return `fill-skeleton-${level}-${variant}-base`;
+    return "";
+  });
 
   const sizes = {
     xs: "w-4 h-4",
@@ -30,54 +45,6 @@
 {:else if carbon}
   {@const C = Carbon[carbon]}
   {#if C}
-    <C class="{variants[variant] || ''} {sizes[size]} {className}" {...rest} />
+    <C class="{variantClass} {sizes[size]} {className}" {...rest} />
   {/if}
 {/if}
-
-<!-- <script> -->
-<!--   import Carbon from "./carbon.svelte.js"; -->
-
-<!--   const { -->
-<!--     carbon = "", -->
-<!--     emoji = "", -->
-<!--     size = "md", -->
-<!--     variant = "", -->
-<!--     class: className = "", -->
-<!--     ...restProps -->
-<!--   } = $props(); -->
-
-<!--   const variants = { -->
-<!--     /* nav: "fill-theme-icon-2 hover:fill-interactive-hover-ui", */ -->
-<!--     nav: "fill-skeleton-contrast-1", -->
-<!--     ui: "fill-skeleton-contrast-1", -->
-<!--     success: "fill-system-success-contrast hover:fill-system-success-contrast/80", -->
-<!--   }; -->
-<!--   const sizes = { -->
-<!--     xs: "w-4 h-4", -->
-<!--     sm: "w-5 h-5", -->
-<!--     md: "w-6 h-6", -->
-<!--     lg: "w-8 h-8", -->
-<!--     xl: "w-12 h-12", -->
-<!--     "2xl": "w-16 h-16", -->
-<!--     "3xl": "w-20 h-20", -->
-<!--     "4xl": "w-24 h-24", -->
-<!--     "5xl": "w-32 h-32", -->
-<!--     "6xl": "w-40 h-40", -->
-<!--     "7xl": "w-48 h-48", -->
-<!--     "8xl": "w-56 h-56", -->
-<!--   }; -->
-<!-- </script> -->
-
-<!-- {#if !!emoji} -->
-<!--   <span role="img" class="{className} {sizes[size]}" {...restProps}> -->
-<!--     {emoji} -->
-<!--   </span> -->
-<!-- {:else if !!carbon} -->
-<!--   <svelte:component -->
-<!--     this={Carbon[carbon]} -->
-<!--     class="{className} {variants[variant]} {sizes[size]}" -->
-<!--     {...restProps} /> -->
-<!-- {/if} -->
-
-<!-- <\!-- aria-hidden={hidden} -\-> -->
-<!-- <\!-- aria-label={label} -\-> -->

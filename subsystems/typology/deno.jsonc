@@ -32,6 +32,7 @@
     "test/shape/http": "deno test -A --no-check --watch tests/gestalten/shape/http.test.js",
     "test/shape/object": "deno test -A --no-check --watch tests/gestalten/shape/object.test.js",
     "test/steer": "deno test -A --no-check --watch tests/gestalten/steer/*.test.js",
+    "test/steer/survey": "deno test -A --no-check --watch tests/gestalten/steer/survey.test.js",
     "test/steer/traverse": "deno test -A --no-check --watch tests/gestalten/steer/traverse.test.js",
     "test/steer/match": "deno test -A --no-check --watch tests/gestalten/steer/match.test.js",
     "test/steer/walk": "deno test -A --no-check --watch tests/gestalten/steer/walk.test.js",
@@ -40,5 +41,7 @@
     "test/shards/cors": "deno test -A --no-check --watch tests/gestalten/shards/cors.test.js",
     "test/shards/websocket": "deno test -A --no-check --watch tests/gestalten/shards/websocket.test.js",
     "test/shards/serve": "deno test -A --no-check --watch tests/gestalten/shards/serve.test.js",
+    "test/stamp": "deno test -A --no-check --watch tests/gestalten/stamp/*.test.js",
+    "test/stamp/press": "deno test -A --no-check --watch tests/gestalten/stamp/press.test.js",
   },
 }

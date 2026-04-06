@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: clip;
+  background: var(--colors-skeleton-app-surface);
+}
+
+
+.debug {
+  outline: 1px solid red;
+  > * {
+    outline: 1px solid red;
+  }
+}
+.debug-deep {
+  outline: 1px solid red;
+  * {
+    outline: 1px solid red;
+  }
+}

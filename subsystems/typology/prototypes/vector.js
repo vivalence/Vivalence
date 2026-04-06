@@ -78,6 +78,14 @@ export class Vector {
   get heir() {
     return this.descendants[0];
   }
+
+  survey(visit = (node) => node) {
+    const effects = [...this.effects.entries()]
+      .map(([signature, effect]) => visit({ signature, effect }))
+    const trajectories = [...this.trajectories.entries()]
+      .map(([signature, descendant]) => visit({ signature, ...descendant.survey(visit) }))
+    return { effects, trajectories }
+  }
 }
 
 // branch(signature) {

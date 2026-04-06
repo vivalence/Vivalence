@@ -1,9 +1,17 @@
+<!--
+  Paragraph — skeleton-aware. Inherits contrast color from current skeleton.
+-->
 <script>
+  import { useSkeleton } from "../context/useSkeleton.js";
+
   let {
     size = "md",
     class: className = "",
     children,
   } = $props();
+
+  const skeleton = useSkeleton();
+  const level = $derived(skeleton());
 
   const sizes = {
     sm: "text-sm",
@@ -12,6 +20,6 @@
   };
 </script>
 
-<p class="font-sans-text text-skeleton-1-contrast {sizes[size]} {className}">
+<p class="font-sans-text text-skeleton-{level}-contrast {sizes[size]} {className}">
   {@render children?.()}
 </p>

@@ -42,7 +42,7 @@ export async function create() {
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.cake.buffer = new BufferView("buffer/flashcard.svelte.js", v.buffer({
+  mode.cake.buffer = new BufferView("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
   }));
   mode.cake.buffer.withUrl(new Url(`http://test/view/${mode.type}/${mode.slug}`));

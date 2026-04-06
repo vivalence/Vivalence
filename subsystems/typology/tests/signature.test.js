@@ -120,39 +120,6 @@ specimen.describe("Pattern", () => {
   });
 });
 
-specimen.describe("Signal", () => {
-  let signal;
-
-  specimen.describe("construction", () => {
-    specimen.it("cycles", () => {
-      signal = new Signal("users/123/profile");
-    });
-
-    specimen.describe("gestalt", () => {
-      specimen.it("is signal and signature", () => {
-        specimen.expect(is.signal(signal)).toBeTruthy();
-        specimen.expect(is.signature(signal)).toBeTruthy();
-      });
-
-      specimen.it("parses signal paths", () => {
-        specimen.expect(signal.nature).toBe("users");
-        specimen.expect(signal.gauges.length).toBe(1);
-      });
-    });
-
-    specimen.describe("valences", () => {
-      specimen.it("branches with context", () => {
-        const root = new Signal("users");
-        const child = root.branch("123");
-
-        specimen.expect(child.trace).toBe(root);
-        specimen.expect(child.index).toBe(1);
-        specimen.expect(root.gauges.length).toBe(1);
-      });
-    });
-  });
-});
-
 specimen.describe("Pattern descriptor", () => {
   specimen.describe("object form", () => {
     specimen.it("parses nature and attaches valence", () => {

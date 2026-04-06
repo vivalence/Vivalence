@@ -8,4 +8,7 @@
     "./bsp.css": "./primitives/bsp.css",
     "./fonts.css": "./primitives/font.css",
   },
+  "tasks": {
+    "test": "deno test -A --no-check tests/**/*.test.js",
+  },
 }

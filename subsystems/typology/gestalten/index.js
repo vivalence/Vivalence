@@ -8,6 +8,7 @@ export * as belt from "./belt/index.js";
 export * from "./belt/index.js";
 export * as steer from "./steer/index.js";
 export * as shape from "./shape/index.js";
+export * as stamp from "./stamp/index.js";
 export * as bundle from "./bundle/index.js";
 
 // export * as check from "./belt/check/index.js"; // helpers for constraint testing schematic&relational; aka @shared/validators

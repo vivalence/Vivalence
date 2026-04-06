@@ -6,7 +6,12 @@ export function dispatch(effect, ctx) {
   return effect(ctx.input, ctx);
 }
 
-export const direct = (carry, effect, steps, signal) => async (input) => {
+export const direct = (carry, effect) => async (context) => {
+  await carry(context, async (ctx) => (ctx.output = await effect(ctx)));
+  return context.output;
+};
+
+export const request = (carry, effect, steps, signal) => async (input) => {
   const ctx = new Context({
     request: { body: input, url: signal },
     params: fromm.match(steps).parameters,

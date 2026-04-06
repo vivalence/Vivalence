@@ -3,7 +3,7 @@ import { registry } from "../entities/index.js";
 
 // Dataspace — one per daemon. Equivalent of MikroORM.init().
 //
-// Creates an RemoteEntityManager, then registers RemoteRepositories
+// Creates a RemoteEntityManager, then registers RemoteRepositories
 // that delegate identity to the EM. Repos are exposed as direct
 // properties: dataspace.mode, dataspace.thread, etc.
 

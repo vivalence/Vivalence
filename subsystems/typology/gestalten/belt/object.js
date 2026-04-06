@@ -46,6 +46,11 @@ export function pick(obj, keys) {
   return result;
 }
 
+export function pluck(obj, keys) {
+  const picked = pick(obj, keys);
+  return Object.fromEntries(Object.entries(picked).filter(([, v]) => v !== undefined));
+}
+
 export const match = (obj, pattern) =>
   Object.entries(pattern).every(([k, v]) =>
     is.object(v) && is.object(obj[k])

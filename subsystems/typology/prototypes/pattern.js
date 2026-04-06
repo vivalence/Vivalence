@@ -1,4 +1,5 @@
-import { is, hash } from "@vivalence/typology";
+import { object, is, hash } from "@vivalence/typology";
+
 import { Signature } from "./signature.js";
 
 export class Pattern extends Signature {
@@ -46,18 +47,25 @@ export class Pattern extends Signature {
 const probe = (signature) => patternmap.find(([, probe]) => probe(signature));
 
 const patternmap = [
-  ["wildcard", (signature) => signature === "*", (signal) => ({ ...signal, type: "wildcard" })],
-  ["remainder", (signature) => signature === "(.*)", (signal) => ({ ...signal, type: "remainder" })],
+  [
+    "wildcard",
+    (signature) => signature === "*",
+    (signal) => object.assign(signal, { type: "wildcard" }),
+  ],
+  [
+    "remainder",
+    (signature) => signature === "(.*)",
+    (signal) => object.assign(signal, { type: "remainder" }),
+  ],
   [
     "parameter",
     (signature) => signature.startsWith(":"),
     (signal, pattern) => {
       const parameter = pattern.nature.slice(1);
-      return {
-        ...signal,
+      return object.assign(signal, {
         parameter,
         parameters: { [parameter]: signal.nature },
-      };
+      });
     },
   ],
   [

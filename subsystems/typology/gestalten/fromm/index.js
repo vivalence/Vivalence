@@ -16,12 +16,23 @@ export const url = (thing) => {
   };
 };
 
-export const match = (match) => {
+export const match = (steps) => {
   return {
     get parameters() {
-      return match
+      return steps
         .filter((step) => !!step.parameter)
         .reduce((acc, step) => ({ ...acc, ...step.parameters }), {});
+    },
+  };
+};
+
+export const signal = (signal) => {
+  return {
+    get flags() {
+      return signal.array.reduce(
+        (acc, node) => (node.flags ? { ...acc, ...node.flags } : acc),
+        {},
+      );
     },
   };
 };

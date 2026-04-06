@@ -1,5 +1,5 @@
 import typography from "@tailwindcss/typography";
-import { tailwindClasses } from "@vivalence/dapper";
+import { tailwindClasses, safelist } from "@vivalence/dapper";
 
 const config = {
   purge: false,
@@ -12,7 +12,9 @@ const config = {
     "../../subsystems/typology/views/**/*.{html,svelte,css}", // aspirational
     "../../registry/**/*.{html,svelte,css}",
   ],
-  // safelist: [{pattern: /.*/, deep: false, variants: ["md"],},],
+  // dapper's full skeleton class enumeration — components build class names
+  // dynamically with template strings, so JIT can't see them statically.
+  safelist,
 };
 
 export default config;

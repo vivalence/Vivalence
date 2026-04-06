@@ -57,24 +57,20 @@ export async function svelte(entry, opts = {}) {
     ],
   };
 
-  if (entry.endsWith(".svelte")) {
-    config.stdin = {
-      contents: [
-        `import { mount, unmount } from "svelte";`,
-        `import Component from "./${basename(entry)}";`,
-        `export default (target, props) => {`,
-        `  const instance = mount(Component, { target, props });`,
-        `  return { instance, destroy: () => unmount(instance) };`,
-        `};`,
-      ].join("\n"),
-      resolveDir: dirname(entry),
-      loader: "js",
-    };
-    config.outfile = entry;
-    delete config.outdir;
-  } else {
-    config.entryPoints = [entry];
-  }
+  config.stdin = {
+    contents: [
+      `import { mount, unmount } from "svelte";`,
+      `import Component from "./${basename(entry)}";`,
+      `export default (target, props) => {`,
+      `  const instance = mount(Component, { target, props });`,
+      `  return { instance, destroy: () => unmount(instance) };`,
+      `};`,
+    ].join("\n"),
+    resolveDir: dirname(entry),
+    loader: "js",
+  };
+  config.outfile = entry;
+  delete config.outdir;
 
   const bundle = await esbuild.build(config);
   return bundle.outputFiles;

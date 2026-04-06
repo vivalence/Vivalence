@@ -1,13 +1,35 @@
-// const createNumberedType = (prefix, count = 4) => {return Array.from({ length: count }, (_, i) => i + 1).reduce((nums, num) => ({...nums, [num]: `var(--colors-${prefix}-${prefix})`,}), {},);};
+// Flat scoped skeleton: every skeleton level (0..4) carries its own copy of
+// the full role set. Tailwind classes shape: `bg-skeleton-N-role[-state]`.
+// See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
 
-const createSemanticVariant = (prefix) => ({
-  surface: `var(--colors-${prefix}-surface)`,
-  contrast: `var(--colors-${prefix}-contrast)`,
-  boundary: `var(--colors-${prefix}-boundary)`,
-  "hover-surface": `var(--colors-${prefix}-hover-surface)`,
-  "hover-contrast": `var(--colors-${prefix}-hover-contrast)`,
-  "hover-boundary": `var(--colors-${prefix}-hover-boundary)`,
-});
+const INTERACTIVE_ROLES = [
+  "primary",
+  "secondary",
+  "accent",
+  "info",
+  "success",
+  "warning",
+  "danger",
+];
+
+const createSkeletonVariant = (level) => {
+  const tokens = {
+    // structural
+    surface:  `var(--colors-skeleton-${level}-surface)`,
+    contrast: `var(--colors-skeleton-${level}-contrast)`,
+    boundary: `var(--colors-skeleton-${level}-boundary)`,
+    // error box (no states)
+    "error-surface":  `var(--colors-skeleton-${level}-error-surface)`,
+    "error-contrast": `var(--colors-skeleton-${level}-error-contrast)`,
+    "error-boundary": `var(--colors-skeleton-${level}-error-boundary)`,
+  };
+  for (const role of INTERACTIVE_ROLES) {
+    tokens[`${role}-base`]   = `var(--colors-skeleton-${level}-${role}-base)`;
+    tokens[`${role}-hover`]  = `var(--colors-skeleton-${level}-${role}-hover)`;
+    tokens[`${role}-active`] = `var(--colors-skeleton-${level}-${role}-active)`;
+  }
+  return tokens;
+};
 
 export const tailwindClasses = {
   colors: {
@@ -15,7 +37,6 @@ export const tailwindClasses = {
       white: "var(--colors-palette-white)",
       black: "var(--colors-palette-black)",
       gray: {
-        //suck a dick.
         0: "var(--colors-palette-gray-0)",
         10: "var(--colors-palette-gray-10)",
         20: "var(--colors-palette-gray-20)",
@@ -38,24 +59,14 @@ export const tailwindClasses = {
         1000: "var(--colors-palette-gray-1000)",
       },
     },
-    "skeleton-app-link": "var(--colors-skeleton-app-link)",
-    "skeleton-app-surface": "var(--colors-skeleton-app-surface)",
 
-    "skeleton-1": createSemanticVariant("skeleton-1"),
-    "skeleton-2": createSemanticVariant("skeleton-2"),
-    "skeleton-3": createSemanticVariant("skeleton-3"),
-    "skeleton-4": createSemanticVariant("skeleton-4"),
-
-    "system-info": createSemanticVariant("system-info"),
-    "system-success": createSemanticVariant("system-success"),
-    "system-warning": createSemanticVariant("system-warning"),
-    "system-error": createSemanticVariant("system-error"),
-    "system-danger": createSemanticVariant("system-danger"),
-    "system-disabled": createSemanticVariant("system-disabled"),
-
-    "theme-primary": createSemanticVariant("theme-primary"),
-    "theme-secondary": createSemanticVariant("theme-secondary"),
-    "theme-accent": createSemanticVariant("theme-accent"),
+    // five flat scoped skeletons — drop-in replacement for the old
+    // skeleton-* / theme-* / system-* groups.
+    "skeleton-0": createSkeletonVariant(0),
+    "skeleton-1": createSkeletonVariant(1),
+    "skeleton-2": createSkeletonVariant(2),
+    "skeleton-3": createSkeletonVariant(3),
+    "skeleton-4": createSkeletonVariant(4),
   },
 
   // For now only family and size, needs to be expanded
@@ -134,15 +145,17 @@ export const tailwindClasses = {
       xl: "1280px",
       "2xl": "1536px",
     },
+    // prose typography — bound to skeleton 1 (the main work area).
+    // brand color = AQUA[300] = primary-base on skeleton 1.
     typography: {
       DEFAULT: {
         css: {
           "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-bold": "var(--colors-skeleton-2-contrast)",
-          "--tw-prose-headings": "var(--colors-skeleton-2-contrast)",
-          "--tw-prose-bullets": "var(--colors-skeleton-2-contrast)",
+          "--tw-prose-bold": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-headings": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-bullets": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-lead": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-links": "var(--colors-skeleton-app-link)",
+          "--tw-prose-links": "var(--colors-skeleton-1-primary-base)",
           "--tw-prose-captions": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-code": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-pre-code": "var(--colors-skeleton-1-contrast)",
@@ -153,19 +166,18 @@ export const tailwindClasses = {
           "--tw-prose-pre-bg": "var(--colors-skeleton-1-surface)",
           "--tw-prose-th-borders": "var(--colors-skeleton-1-boundary)",
           "--tw-prose-td-borders": "var(--colors-skeleton-1-boundary)",
-          "--tw-prose-invert-body": "var(--colors-skeleton-2-contrast)",
+          "--tw-prose-invert-body": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-headings": "var(--colors-palette-white)",
           "--tw-prose-invert-lead": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-links": "var(--colors-theme-primary-solid)",
+          "--tw-prose-invert-links": "var(--colors-skeleton-1-primary-base)",
           "--tw-prose-invert-bold": "var(--colors-palette-white)",
           "--tw-prose-invert-counters": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-bullets": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-hr": "var(--colors-skeleton-3-boundary)",
           "--tw-prose-invert-quotes": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-quote-borders":
-            "var(--colors-skeleton-3-boundary)",
+          "--tw-prose-invert-quote-borders": "var(--colors-skeleton-3-boundary)",
           "--tw-prose-invert-captions": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-code": "var(--colors-theme-primary-solid)",
+          "--tw-prose-invert-code": "var(--colors-skeleton-1-primary-base)",
           "--tw-prose-invert-pre-code": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-pre-bg": "var(--colors-skeleton-3-surface)",
           "--tw-prose-invert-th-borders": "var(--colors-skeleton-3-boundary)",
@@ -177,6 +189,63 @@ export const tailwindClasses = {
 };
 
 export default tailwindClasses;
+
+// ============================================================================
+// safelist — full enumeration of every legal skeleton tailwind class.
+//
+// Components build class names with template strings (`bg-skeleton-${level}-
+// ${role}-base`); tailwind JIT can't see those. Including this list in
+// `tailwind.config.js → safelist` guarantees every combination is generated.
+//
+// Total: ~480 classes. Generated once, reused across all consumers.
+// ============================================================================
+const SKELETON_LEVELS = [0, 1, 2, 3, 4];
+const STRUCTURAL_ROLES = ["surface", "contrast", "boundary"];
+const INTERACTIVE_ROLE_NAMES = [
+  "primary",
+  "secondary",
+  "accent",
+  "info",
+  "success",
+  "warning",
+  "danger",
+];
+const INTERACTIVE_STATES = ["base", "hover", "active"];
+const ERROR_PARTS = ["surface", "contrast", "boundary"];
+const UTILITIES = ["bg", "text", "border", "fill", "stroke"];
+
+export const safelist = (() => {
+  const set = new Set();
+  for (const level of SKELETON_LEVELS) {
+    // structural roles — single value, no state
+    for (const role of STRUCTURAL_ROLES) {
+      for (const util of UTILITIES) {
+        set.add(`${util}-skeleton-${level}-${role}`);
+      }
+    }
+    // interactive roles — base/hover/active
+    for (const role of INTERACTIVE_ROLE_NAMES) {
+      for (const state of INTERACTIVE_STATES) {
+        for (const util of UTILITIES) {
+          set.add(`${util}-skeleton-${level}-${role}-${state}`);
+        }
+      }
+      // hover:/active: variants pointing at hover/active values
+      for (const util of UTILITIES) {
+        set.add(`hover:${util}-skeleton-${level}-${role}-hover`);
+        set.add(`active:${util}-skeleton-${level}-${role}-active`);
+        set.add(`focus:${util}-skeleton-${level}-${role}-hover`);
+      }
+    }
+    // error box — surface/contrast/boundary
+    for (const part of ERROR_PARTS) {
+      for (const util of UTILITIES) {
+        set.add(`${util}-skeleton-${level}-error-${part}`);
+      }
+    }
+  }
+  return [...set];
+})();
 // "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
 // "--tw-prose-bold": "var(--colors-skeleton-2-contrast)",
 // "--tw-prose-headings": "var(--colors-skeleton-2-contrast)",

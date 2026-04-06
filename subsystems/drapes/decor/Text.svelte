@@ -1,4 +1,15 @@
+<!--
+  Text — skeleton-aware. The `color` prop accepts:
+    - "contrast"  → skeleton.contrast (default)
+    - role names: primary | secondary | accent | info | success | warning | danger
+                  → skeleton.<role>.base
+    - any literal class string → passed through verbatim (escape hatch)
+
+  Variant + size + spacing + weight stay structural.
+-->
 <script>
+  import { useSkeleton } from "../context/useSkeleton.js";
+
   let {
     id = "",
     variant = "text",
@@ -6,29 +17,24 @@
     spacing,
     weight = "regular",
     mode = "default",
-    color = "1",
+    color = "contrast",
     as = "p",
     text = "",
     class: className = "",
     children,
   } = $props();
 
-  // todo: change paradigm to systemspace/userspace sans/serif structure/content
+  const skeleton = useSkeleton();
+  const level = $derived(skeleton());
+
   const variants = {
     heading: "font-sans-heading",
     text: "font-sans-text",
-    ["serif-heading"]: "font-serif-heading",
-    ["serif-text"]: "font-serif-text",
+    "serif-heading": "font-serif-heading",
+    "serif-text": "font-serif-text",
     brand: "font-brand",
     code: "font-code",
   };
-
-  // const variants = {
-  //   heading: family === "sans" ? "font-sans-heading" : "font-serif-heading", // Poppins or Sabon
-  //   text: family === "sans" ? "font-sans-text" : "font-serif-text", // Inter or Sabon
-  //   brand: "font-brand", // K2D
-  //   code: "font-code", // Source Code Pro
-  // };
 
   const sizes = {
     xs: "text-xs",
@@ -70,23 +76,19 @@
     bold: "font-bold",
   };
 
-  const colors = {
-    "1": "text-skeleton-1-contrast",
-    "2": "text-skeleton-2-contrast",
-    "3": "text-skeleton-3-contrast",
-    "system-info": "text-system-info-contrast",
-    "system-success": "text-system-success-contrast",
-    "system-warning": "text-system-warning-contrast",
-    "system-error": "text-system-error-contrast",
-    "system-disabled": "text-system-disabled-contrast",
-    "theme-primary": "text-theme-primary-contrast",
-    "theme-secondary": "text-theme-secondary-contrast",
-    "theme-accent": "text-theme-accent-contrast",
-  };
+  const ROLE_COLORS = new Set([
+    "primary", "secondary", "accent",
+    "info", "success", "warning", "danger",
+  ]);
 
-  const colorClass = colors[color] || color;
+  const colorClass = $derived.by(() => {
+    if (color === "contrast") return `text-skeleton-${level}-contrast`;
+    if (ROLE_COLORS.has(color)) return `text-skeleton-${level}-${color}-base`;
+    // escape hatch — pass literal class string through
+    return color;
+  });
+
   const spacingClass = spacings[spacing || size];
-  const base = "";
 
   const modes = {
     default: "",
@@ -97,8 +99,6 @@
 <svelte:element
   this={as}
   {id}
-  class="{base} {modes[mode]} {variants[variant]} {sizes[
-    size
-  ]} {spacingClass} {weights[weight]} {colorClass} {className}">
+  class="{modes[mode]} {variants[variant]} {sizes[size]} {spacingClass} {weights[weight]} {colorClass} {className}">
   {@render children()}
 </svelte:element>
