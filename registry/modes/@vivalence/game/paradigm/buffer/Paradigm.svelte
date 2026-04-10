@@ -427,6 +427,9 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
   }
   .row {
     display: grid;
@@ -437,6 +440,8 @@
     border-radius: 0.375rem;
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
     transition: background 0.15s;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   .row:nth-child(odd) {
     background: color-mix(in srgb, var(--colors-skeleton-1-surface) 65%, transparent);
@@ -468,6 +473,8 @@
     align-items: baseline;
     gap: 0.5rem;
     min-height: 1.5rem;
+    min-width: 0;
+    overflow: hidden;
   }
   .cell-input {
     font-family: var(--font-family-serif-heading);
@@ -593,7 +600,8 @@
       font-size: 0.6rem;
     }
     .row {
-      padding: 0.5rem 0.625rem;
+      grid-template-columns: 4rem 1fr auto;
+      padding: 0.5rem 0.5rem;
     }
     .cell-input,
     .cell-correct {

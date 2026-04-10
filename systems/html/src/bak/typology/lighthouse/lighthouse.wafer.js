@@ -30,12 +30,7 @@ lighthouse
         const castDaemon = steer.invoke(
           daemonWafer,
           "/construct/populate/resolve/full",
-          (carry, effect) => async (die) => {
-            await carry(die, async () => {
-              die.output = await effect(die);
-            });
-            return die.output;
-          },
+          steer.direct,
         );
 
         const result = await castDaemon({

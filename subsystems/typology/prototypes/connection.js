@@ -71,13 +71,15 @@ export class Connection {
     };
   }
 
-  async *subscribe(endpoint, options = {}) {
-    const url = this.url.branch(endpoint).absolute;
-    const res = await fetch(url, {
+  async *stream(endpoint, signal, options = {}) {
+    const response = await this.fetch(endpoint, {}, {
+      method: "GET",
       headers: { accept: "text/event-stream", ...options.headers },
-      signal: options.signal,
+      signal,
     });
-    const reader = res.body.getReader();
+    if (response.error) throw response.error;
+    if (!response.body?.getReader) throw new Error(`SSE stream expected ReadableStream, got ${typeof response.body}`);
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
     while (true) {
@@ -95,8 +97,28 @@ export class Connection {
     }
   }
 
+  observe(endpoint, options = {}) {
+    const controller = new AbortController();
+    const iterator = this.stream(endpoint, controller.signal, options);
+    iterator.unsubscribe = () => controller.abort();
+    return iterator;
+  }
+
+  subscribe(endpoint, callback, options = {}) {
+    const controller = new AbortController();
+    (async () => {
+      try {
+        for await (const event of this.stream(endpoint, controller.signal, options)) {
+          callback(event);
+        }
+      } catch (error) {
+        if (error.name !== "AbortError") throw error;
+      }
+    })();
+    return () => controller.abort();
+  }
+
   async publish(endpoint, source, options = {}) {
-    const url = this.url.branch(endpoint).absolute;
     const encoder = new TextEncoder();
     const iterator = source[Symbol.asyncIterator]();
     const body = new ReadableStream({
@@ -108,17 +130,12 @@ export class Connection {
       },
     });
 
-    const res = await fetch(url, {
+    const response = await this.fetch(endpoint, body, {
       method: "POST",
-      headers: { "content-type": "text/event-stream", ...options.headers },
-      body,
+      headers: { ...options.headers },
       signal: options.signal,
-      duplex: "half",
     });
-
-    const contentType = res.headers.get("content-type") || "";
-    if (contentType.includes("application/json")) return await res.json();
-    return await res.text();
+    return response.body;
   }
 
   websocket(endpoint) {

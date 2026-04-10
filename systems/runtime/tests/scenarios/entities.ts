@@ -142,7 +142,6 @@ export async function seed() {
 
   const intent = em.create(IntentEntity, {
     slug: "survival-flashcard",
-    type: "SELFEVIDENT",
     traits: ["FURNISHED"],
     name: "Survival Flashcard",
     trait: { FURNISHED: { recall: "LEARNING", where: { symbols: ["greeting"] } } },

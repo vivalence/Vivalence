@@ -52,7 +52,6 @@ export async function create() {
       {
         slug: "survival-flashcard",
         name: "Survival Flashcard",
-        type: "SELFEVIDENT",
         traits: ["FURNISHED"],
         trait: { FURNISHED: { recall: "LEARNING", where: { symbols: ["greeting"] } } },
       },

@@ -134,114 +134,118 @@ specimen.describe("RemoteRepository", () => {
   })
 
   specimen.describe("store identity", () => {
-    specimen.it("merge upserts by id", () => {
+    specimen.it("merge upserts by id", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
-      const a = remote.merge({ id: "1", slug: "a" })
-      const b = remote.merge({ id: "1", slug: "b" })
+      const a = await remote.merge({ id: "1", slug: "a" })
+      const b = await remote.merge({ id: "1", slug: "b" })
       specimen.expect(a).toBe(b)
       specimen.expect(a.slug).toBe("b")
       specimen.expect(remote.$entities.get().length).toBe(1)
     })
 
-    specimen.it("merge appends new entities", () => {
+    specimen.it("merge appends new entities", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
-      remote.merge({ id: "1", slug: "a" })
-      remote.merge({ id: "2", slug: "b" })
+      await remote.merge({ id: "1", slug: "a" })
+      await remote.merge({ id: "2", slug: "b" })
       specimen.expect(remote.$entities.get().length).toBe(2)
     })
 
-    specimen.it("merge returns null for null input", () => {
+    specimen.it("merge returns null for null input", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
-      specimen.expect(remote.merge(null)).toBeNull()
+      specimen.expect(await remote.merge(null)).toBeNull()
     })
 
-    specimen.it("drop removes by id", () => {
+    specimen.it("drop removes by id", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
-      remote.merge({ id: "1", slug: "a" })
-      remote.merge({ id: "2", slug: "b" })
+      await remote.merge({ id: "1", slug: "a" })
+      await remote.merge({ id: "2", slug: "b" })
       remote.drop("1")
       specimen.expect(remote.$entities.get().length).toBe(1)
       specimen.expect(remote.$entities.get()[0].id).toBe("2")
     })
 
-    specimen.it("upsert does not overwrite existing values with undefined", () => {
+    specimen.it("upsert does not overwrite existing values with undefined", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
-      const a = remote.merge({ id: "1", slug: "a", enriched: "yes" })
-      remote.merge({ id: "1", slug: "b" })
+      const a = await remote.merge({ id: "1", slug: "a", enriched: "yes" })
+      await remote.merge({ id: "1", slug: "b" })
       specimen.expect(a.slug).toBe("b")
       specimen.expect(a.enriched).toBe("yes")
     })
 
-    specimen.it("resolve runs after upsert on existing entity", () => {
+    specimen.it("hydrate runs after merge on entity", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
       const lookup = { m1: { id: "m1", slug: "flashcard", daemon: "brazilian" } }
-      remote.resolve = (entity) => {
+      remote.hydrate = async (raw) => {
+        const entity = remote.entityManager.merge(remote.managedName, raw, remote.kind)
         if (typeof entity.mode === "string") entity.mode = lookup[entity.mode]
+        return entity
       }
-      const a = remote.merge({ id: "1", mode: "m1" })
+      const a = await remote.merge({ id: "1", mode: "m1" })
       specimen.expect(a.mode).toBe(lookup.m1)
 
-      const b = remote.merge({ id: "1", mode: "m1", extra: true })
+      const b = await remote.merge({ id: "1", mode: "m1", extra: true })
       specimen.expect(b).toBe(a)
       specimen.expect(b.mode).toBe(lookup.m1)
       specimen.expect(b.extra).toBe(true)
     })
 
-    specimen.it("resolve preserves enriched references across merges", () => {
+    specimen.it("hydrate preserves enriched references across merges", async () => {
       const entityManager = createEntityManager([["test", null, "/literal"]])
       const remote = entityManager.repo("test")
       const enrichedMode = { id: "m1", slug: "test", daemon: { slug: "brazilian" } }
-      remote.resolve = (entity) => {
+      remote.hydrate = async (raw) => {
+        const entity = remote.entityManager.merge(remote.managedName, raw, remote.kind)
         if (entity.mode !== enrichedMode) entity.mode = enrichedMode
+        return entity
       }
-      const a = remote.merge({ id: "1", mode: "m1" })
+      const a = await remote.merge({ id: "1", mode: "m1" })
       specimen.expect(a.mode).toBe(enrichedMode)
 
-      remote.merge({ id: "1", mode: "m1" })
+      await remote.merge({ id: "1", mode: "m1" })
       specimen.expect(a.mode).toBe(enrichedMode)
     })
   })
 
   specimen.describe("hydration", () => {
-    specimen.it("hydrates m:1 relations via EM", () => {
+    specimen.it("hydrates m:1 relations via EM", async () => {
       const entityManager = new RemoteEntityManager(conn, schema)
       const modes = new RemoteRepository().connect(conn.branch("/mode"))
       const intents = new RemoteRepository().connect(conn.branch("/intent"))
       entityManager.register("mode", modes)
       entityManager.register("intent", intents)
 
-      const mode = modes.merge({ id: "m1", slug: "flashcard" })
-      const intent = intents.cast({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } })
+      const mode = await modes.merge({ id: "m1", slug: "flashcard" })
+      const intent = await intents.cast({ id: "i1", slug: "greet", mode: { id: "m1", slug: "flashcard" } })
 
       specimen.expect(intent.mode).toBe(mode)
     })
 
-    specimen.it("hydrates 1:m relations via EM", () => {
+    specimen.it("hydrates 1:m relations via EM", async () => {
       const entityManager = new RemoteEntityManager(conn, schema)
       const modes = new RemoteRepository().connect(conn.branch("/mode"))
       const intents = new RemoteRepository().connect(conn.branch("/intent"))
       entityManager.register("mode", modes)
       entityManager.register("intent", intents)
 
-      const i1 = intents.merge({ id: "i1", slug: "a" })
-      const mode = modes.cast({ id: "m1", intents: [{ id: "i1", slug: "a" }, { id: "i2", slug: "b" }] })
+      const i1 = await intents.merge({ id: "i1", slug: "a" })
+      const mode = await modes.cast({ id: "m1", intents: [{ id: "i1", slug: "a" }, { id: "i2", slug: "b" }] })
 
       specimen.expect(mode.intents[0]).toBe(i1)
       specimen.expect(mode.intents[1].id).toBe("i2")
     })
 
-    specimen.it("skips null relation values", () => {
+    specimen.it("skips null relation values", async () => {
       const entityManager = new RemoteEntityManager(conn, schema)
       const modes = new RemoteRepository().connect(conn.branch("/mode"))
       entityManager.register("mode", modes)
 
-      const entity = modes.cast({ id: "1", mode: null })
+      const entity = await modes.cast({ id: "1", mode: null })
       specimen.expect(entity.mode).toBeNull()
     })
   })

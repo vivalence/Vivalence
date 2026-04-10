@@ -35,7 +35,8 @@ export * from "./remedy/index.ts";
 
 export * from "./vector.js";
 export * from "./aperture.js";
-export * from "./repository.js";
+export * from "./remote-repository.js";
+export * from "./local-repository.js";
 export * from "./entity-manager.js";
 export * from "./broadcaster.js";
 export * from "./cortex.js";

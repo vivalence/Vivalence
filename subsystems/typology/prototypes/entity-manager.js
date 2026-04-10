@@ -81,7 +81,7 @@ export class RemoteEntityManager {
   }
 
   // Hydrate relationships via schema, then merge.
-  cast(name, raw, kind) {
+  async cast(name, raw, kind) {
     const props = this.schema[name]?.properties;
     if (props) {
       for (const [field, spec] of Object.entries(props)) {
@@ -90,16 +90,16 @@ export class RemoteEntityManager {
         if (!sibling) continue;
 
         if (spec.kind === "m:1") {
-          if (typeof raw[field] === "object" && raw[field].id) raw[field] = sibling.merge(raw[field]);
+          if (typeof raw[field] === "object" && raw[field].id) raw[field] = await sibling.merge(raw[field]);
           else if (typeof raw[field] === "string") raw[field] = this.identity(spec.target, raw[field]) ?? raw[field];
         }
 
         if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
-          raw[field] = raw[field].map((item) => {
-            if (typeof item === "object" && item.id) return sibling.merge(item);
+          raw[field] = await Promise.all(raw[field].map(async (item) => {
+            if (typeof item === "object" && item.id) return await sibling.merge(item);
             if (typeof item === "string") return this.identity(spec.target, item) ?? item;
             return item;
-          });
+          }));
         }
       }
     }

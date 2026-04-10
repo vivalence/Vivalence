@@ -8,7 +8,7 @@ import {
   interactive,
   box,
   skeleton,
-} from "../primitives/builders.js";
+} from "../lib/builders.js";
 
 const sampleRamp = {
   50:  "#fafafa",

@@ -1,22 +1,8 @@
-export * from "./primitives/colors.js";
-export * from "./primitives/tokens.js";
-export * from "./primitives/builders.js";
+export * from "./lib/colors.js";
+export * from "./lib/tokens.js";
+export * from "./lib/builders.js";
+export { generateCSS, generateZoneCSS, ZONE, ZONE_COUNT } from "./lib/flatten.js";
 export * from "./themes/index.js";
-export * from "./belt/index.js";
 
-export { plugin as postcssPlugin } from "./belt/postcss-plugin.js";
+export { plugin as postcssPlugin } from "./lifecycle/index.js";
 export { tailwindClasses, safelist } from "./belt/tailwind-theme.js";
-
-// import colors from "./primitives/colors.js";
-// import tokens from "./primitives/tokens.js";
-// import themes from "./themes/index.js";
-// import { generateCSS } from "./belt/index.js";
-
-// export const dapper = {
-//   colors,
-//   tokens,
-//   themes,
-//   generateCSS,
-// };
-
-// export default dapper;

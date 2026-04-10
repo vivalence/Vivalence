@@ -39,7 +39,6 @@ daemon
       literal: "/entities/literal",
     })
 
-    // Eagerly load modes and intents — they're needed for resolve
     await die.good.entities.populate(["mode", "intent"])
 
     await next()
@@ -50,7 +49,6 @@ daemon
     const modeRepo = die.good.entities.mode
     const intentRepo = die.good.entities.intent
 
-    // Enrich modes
     for (const mode of modeRepo.$entities.get()) {
       mode.daemon = die.good
       mode.mount = die.good.mount.branch(`/mode/${mode.type}/${mode.slug}`)
@@ -70,9 +68,7 @@ daemon
       }
     }
 
-    // Enrich intents, wire mode back-references
     for (const intent of intentRepo.$entities.get()) {
-      // intent.mode is already resolved by cast (EM identity map)
       const mode = typeof intent.mode === "object" ? intent.mode : modeRepo.findOneLocal({ id: intent.mode })
       if (!mode) throw new Error("Intent's mode not found")
       intent.mode = mode
@@ -101,7 +97,6 @@ daemon
       mode.intents.add(intent)
     }
 
-    // Resolve hooks for re-fetches
     modeRepo.resolve = (mode) => {
       const enriched = modeRepo.findOneLocal({ id: mode.id })
       if (enriched && enriched !== mode) Object.assign(mode, enriched)

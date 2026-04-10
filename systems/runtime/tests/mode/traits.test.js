@@ -30,9 +30,8 @@ specimen.describe("mode traits", () => {
       specimen.expect(traitIntent).toBeTruthy();
     });
 
-    specimen.it("intent has correct type and traits", async () => {
+    specimen.it("intent has correct traits", async () => {
       const intent = await scenario.em.findOne(IntentEntity, { slug: "survival-flashcard" });
-      specimen.expect(intent.type).toBe("SELFEVIDENT");
       specimen.expect(intent.traits).toEqual(["FURNISHED"]);
     });
 

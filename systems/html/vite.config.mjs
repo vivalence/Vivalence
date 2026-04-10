@@ -59,9 +59,8 @@ export default defineConfig(async ({ command }) => ({
     alias: {
       // STABLE
       $client: join(__dirname, "./src/client.js"),
-
-      // "@vivalence/html/typology": join(__dirname, "./src/typology/index.js"),
-      // "@vivalence/html/surface": join(__dirname, "./src/surface/index.js"),
+      "@vivalence/html/skins": join(__dirname, "./src/typology/skins"),
+      "@vivalence/html": join(__dirname, "./src/typology/mod.js"),
 
       // "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),

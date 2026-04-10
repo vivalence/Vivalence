@@ -1,0 +1,323 @@
+#+TITLE: Decorum — Zone-Based Theming Architecture
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-12
+#+STATUS: DESIGN
+
+* Intent
+
+The client has a theming gap. Dapper generates 5 skeleton color
+universes at build time as flat CSS custom properties under a single
+=:root[data-theme]= block. Drapes components consume them by
+templating skeleton level numbers into Tailwind class names via
+SkeletonProvider/useSkeleton. Pincer panels hardcode skeleton numbers
+in raw CSS variable references.
+
+Problems:
+- Skeleton numbers leak into every component.
+- No runtime theme switching. Single theme (dark).
+- Spatial concerns (density, padding, radius) unmanaged.
+- Dapper's internal structure (primitives/themes/belt) conflates
+  tools, theme definitions, and build pipeline.
+
+Decorum introduces zone-based theming. Dapper emits =.zone-N= scoped
+CSS classes with short =--zone-*= custom properties. A =<Zone>= Svelte
+component applies the class. Components write plain CSS against
+=--zone-*=. They never reference skeleton numbers or import theming JS.
+
+** Desired End State
+
+1. Dapper restructured: =lib/= (pure tools), =themes/= (theme
+   definitions), =lifecycle/= (build pipeline + PostCSS plugin).
+2. Dapper emits =.zone-N= CSS classes scoped under =:root[data-theme]=,
+   each setting the full =--zone-*= variable namespace.
+3. Zone IDs are an enum (0–5). Six slots. Slot 5 reserved/unused.
+   Enum-first design so we can map to semantic names later or extend.
+4. =<Zone>= Svelte wrapper applies =.zone-N= class. =display: contents=.
+5. All drapes components and pincer panels use =--zone-*= variables.
+6. Bridge sets spatial =--zone-*= variables (gap, padding, radius)
+   from density/role/direction variants.
+7. Two themes (dark + light) switchable at runtime via =data-theme=
+   attribute swap on =<html>=.
+8. =/zones-of-interest= demo page as visual catalogue.
+
+** Architecture
+
+*** Zone Enum
+
+Six zone IDs. Numeric for now. Semantic mapping deferred.
+
+#+BEGIN_SRC js
+const ZONE = { Z0: 0, Z1: 1, Z2: 2, Z3: 3, Z4: 4, Z5: 5 };
+#+END_SRC
+
+Current panel mapping (informational, not structural):
+#+BEGIN_SRC
+Z0  chrome     t-bone frame, bones, H overlay
+Z1  workspace  panel A (main content, buffer rendering)
+Z2  surface    panels B + E (sidebars)
+Z3  recess     panels D + F (navigation, inspectors)
+Z4  overlay    panel G (floating overlays)
+Z5  (reserved)
+#+END_SRC
+
+*** CSS Output Shape
+
+Dapper emits per-zone scoped classes. Theme-global tokens (fonts)
+live on =:root=. Each =.zone-N= block is self-contained.
+
+#+BEGIN_SRC css
+:root[data-theme="dark"] {
+  --zone-font-heading: "Poppins";
+  --zone-font-body: "Inter";
+  --zone-font-code: "Source Code Pro";
+}
+
+:root[data-theme="dark"] .zone-0 {
+  --zone-surface: #0F1C35;
+  --zone-contrast: #D7CFAE;
+  --zone-boundary: #00686a;
+  --zone-primary-base: #1EBCB5;
+  --zone-primary-hover: #5DD5CF;
+  --zone-primary-active: #00686a;
+  --zone-secondary-base: #6366F1;
+  --zone-secondary-hover: #818CF8;
+  --zone-secondary-active: #4338CA;
+  --zone-accent-base: #EC4899;
+  --zone-accent-hover: #F472B6;
+  --zone-accent-active: #DB2777;
+  --zone-info-base: #6366F1;
+  --zone-info-hover: #818CF8;
+  --zone-info-active: #4338CA;
+  --zone-success-base: #22C55E;
+  --zone-success-hover: #4ADE80;
+  --zone-success-active: #16A34A;
+  --zone-warning-base: #F59E0B;
+  --zone-warning-hover: #FBBF24;
+  --zone-warning-active: #D97706;
+  --zone-danger-base: #EF4444;
+  --zone-danger-hover: #F87171;
+  --zone-danger-active: #DC2626;
+  --zone-error-surface: #1C1917;
+  --zone-error-contrast: #E6EAEF;
+  --zone-error-boundary: #EF4444;
+}
+
+:root[data-theme="dark"] .zone-1 { /* ... same shape, different values */ }
+:root[data-theme="dark"] .zone-2 { /* ... */ }
+:root[data-theme="dark"] .zone-3 { /* ... */ }
+:root[data-theme="dark"] .zone-4 { /* ... */ }
+:root[data-theme="dark"] .zone-5 { /* ... */ }
+
+:root[data-theme="light"] .zone-0 { /* ... */ }
+/* ... */
+#+END_SRC
+
+*** Variable Namespace
+
+#+BEGIN_SRC
+DECORUM (color + typography)
+--zone-surface                  background
+--zone-contrast                 foreground text
+--zone-boundary                 borders, dividers
+--zone-primary-base/hover/active    7 interactive roles × 3 states
+--zone-secondary-base/hover/active
+--zone-accent-base/hover/active
+--zone-info-base/hover/active
+--zone-success-base/hover/active
+--zone-warning-base/hover/active
+--zone-danger-base/hover/active
+--zone-error-surface/contrast/boundary
+--zone-font-heading             typography (theme-global, not per-zone)
+--zone-font-body
+--zone-font-code
+
+BRIDGE (spatial)
+--zone-gap                      from density variant
+--zone-padding
+--zone-radius
+#+END_SRC
+
+*** Spatial Variants (Bridge)
+
+Density is the selector. Gap/padding/radius are resolved defaults,
+individually overridable.
+
+#+BEGIN_SRC
+compact   → gap: 2px,  padding: 4px 6px,   radius: 2px
+normal    → gap: 6px,  padding: 8px 12px,  radius: 4px
+spacious  → gap: 12px, padding: 16px 20px, radius: 6px
+#+END_SRC
+
+Role implies density + direction defaults:
+
+#+BEGIN_SRC
+bone     → compact, per-bone direction, no radius
+panel    → normal, vertical, radius from density
+overlay  → spacious, vertical, elevated shadow
+inset    → compact, inherits parent direction, border instead of gap
+#+END_SRC
+
+*** Two Contexts
+
+- *Mothership* (=DECORUM=) — one per app, set at root. Holds active
+  theme name as =$theme= atom. Drives =data-theme= attribute on
+  =<html>=. Never read by leaf components.
+
+- *Zone* (=ZONE=) — many per tree. =<Zone zone={2}>= applies
+  =.zone-2= class. CSS cascade does the rest. Also sets Svelte
+  context for any component that needs the zone ID programmatically.
+
+*** Component Pattern
+
+Components write plain CSS. No imports. No JS. No zone numbers.
+
+#+BEGIN_SRC css
+.button {
+  background: var(--zone-primary-base);
+  color: var(--zone-contrast);
+  border-radius: var(--zone-radius);
+  padding: var(--zone-padding);
+}
+.button:hover {
+  background: var(--zone-primary-hover);
+}
+#+END_SRC
+
+*** Dapper Restructure
+
+From:
+#+BEGIN_SRC
+dapper/
+  primitives/    colors.js, tokens.js, builders.js
+  themes/        index.js, dark.js
+  belt/          lib.js, postcss-plugin.js, tailwind-theme.js
+#+END_SRC
+
+To:
+#+BEGIN_SRC
+dapper/
+  lib/           colors.js, tokens.js, builders.js, flatten.js
+  themes/        dark.js, (light.js)
+  lifecycle/     index.js, postcss-plugin.js
+#+END_SRC
+
+- =lib/= — pure functions. Color ramps, token definitions, skeleton
+  builders, flatten/emit utilities. No pipeline knowledge.
+- =themes/= — each file takes a color space and token set, returns a
+  theme POJO with named zones. A theme doesn't know about CSS.
+- =lifecycle/= — pipeline orchestrator. Loads themes, emits CSS.
+  PostCSS plugin. Owns the DesignSystem accumulator.
+
+Pipeline:
+#+BEGIN_SRC
+1. colors(ds)     → ds.colors (palette, tints, roots)
+2. tokens(ds)     → ds.tokens (spacing, shadows, fonts)
+3. themes(ds)     → ds.themes.dark (6 zones as structured POJOs)
+4. generateCSS(ds) → ds.output.css (.zone-N scoped classes)
+#+END_SRC
+
+Theme POJO shape (output of step 3, input to step 4):
+#+BEGIN_SRC js
+ds.themes.dark = {
+  fonts: { heading: "Poppins", body: "Inter", code: "Source Code Pro" },
+  zones: [
+    { surface: "#0F1C35", contrast: "#D7CFAE", boundary: "#00686a",
+      primary: { base: "#1EBCB5", hover: "#5DD5CF", active: "#00686a" },
+      /* ... all roles */ },
+    { /* zone 1 */ },
+    { /* zone 2 */ },
+    { /* zone 3 */ },
+    { /* zone 4 */ },
+    { /* zone 5 */ },
+  ],
+};
+#+END_SRC
+
+* Milestones
+
+** DONE M1 — Dapper Restructure + Zone CSS Emission
+
+Restructure dapper into lib/themes/lifecycle. Modify =generateCSS= to
+emit =.zone-N= scoped classes with =--zone-*= variables. Theme POJO
+produces 6 zone objects (0–5). Existing =--colors-skeleton-N-*= output
+retained in parallel for backwards compatibility during migration.
+
+Deliverables:
+- =dapper/lib/= — colors, tokens, builders, flatten moved from primitives + belt
+- =dapper/lifecycle/= — postcss-plugin, generateCSS moved from belt
+- =dapper/themes/dark.js= — outputs 6 zones in new POJO shape
+- =generateCSS= emits =.zone-N= blocks alongside legacy flat output
+- Zone enum constant exported from dapper
+- 50 test steps across 4 files (17 new zone-emit tests), all green
+
+Implementation notes:
+- Old =primitives/= and =belt/= directories retained for now (imports
+  still work). Barrel =mod.js= re-exports from new paths.
+- =generateZoneCSS= is a standalone function called by =generateCSS=.
+  Zone blocks emitted after legacy flat block in same CSS output.
+- Zone 5: iron[950] surface, iron[100] contrast, iron[800] boundary.
+  Darkest zone — reserved for future use.
+- Theme POJO: =ds.themes.dark.zones[0..5]= (array) +
+  =ds.themes.dark.fonts= (shared). Legacy =ds.themes.dark.colors.skeleton=
+  preserved for backwards compat (zones 0–4 only).
+- HTML system postcss.config.js imports =postcssPlugin= from barrel
+  (=@vivalence/dapper=) — resolves through =mod.js= to
+  =lifecycle/index.js=. Dev server restart needed to pick up.
+
+** M2 — Zone Wrapper + Decorum Context
+
+Implement the two Svelte contexts. =<Zone>= applies =.zone-N= class.
+Decorum mothership holds =$theme= and drives =data-theme= attribute.
+
+Deliverables:
+- =drapes/context/decorum.js= — Decorum class, DECORUM/ZONE symbols
+- =drapes/context/Zone.svelte= — applies =.zone-N= class, sets ZONE context
+- Root =+layout.svelte= creates Decorum, sets DECORUM context
+- Bridge gains density/role/direction resolution, emits spatial =--zone-*=
+
+** M3 — Migrate Pincer Panels + Drapes Components
+
+Replace all =--colors-skeleton-N-*= and Tailwind skeleton utilities
+with =--zone-*= CSS variables. Wrap each panel in =<Zone>=.
+
+Deliverables:
+- All pincer panels wrapped in =<Zone zone={N}>=
+- All panel/bone CSS migrated to =--zone-*= variables
+- Drapes components (Button, Link, Header, Tag, Label, etc.) migrated
+- SkeletonProvider/useSkeleton retained but deprecated
+- No =--colors-skeleton-N-*= references in active component CSS
+
+** M4 — Demo Page: /zones-of-interest
+
+Visual catalogue exercising all 6 zones, density variants, roles,
+interactive states, and emphasis levels.
+
+Deliverables:
+- =/zones-of-interest= route
+- All 6 zones rendered side-by-side with zone ID labels
+- Every drapes component rendered per zone
+- Density variant comparison (compact/normal/spacious)
+- Interactive state demos (hover, active, focus)
+
+** M5 — Theme Switching: Dark + Light
+
+Second theme. Runtime switching.
+
+Deliverables:
+- =dapper/themes/light.js= — light theme with 6 zones
+- PostCSS emits =:root[data-theme="light"] .zone-N= blocks
+- Decorum =$theme= atom drives =document.documentElement.dataset.theme=
+- Panel B "theme" toggle button (dark ↔ light)
+- CSS cascade handles re-derivation — no JS re-render needed
+
+* Changelog
+
+- 2026-04-12 :: Initial design. 5 milestones. Dapper restructure as
+  M1. Zone enum 0–5 (6 slots, slot 5 reserved). Two-context
+  architecture (mothership + zone). =--zone-*= CSS variable namespace
+  split: decorum owns color/typography, bridge owns spatial.
+- 2026-04-12 :: M1 DONE. Dapper restructured: lib/, lifecycle/,
+  themes/. =generateZoneCSS= emits =.zone-0= through =.zone-5=
+  scoped under =:root[data-theme]=. 6-zone dark theme POJO. Zone
+  enum =ZONE= + =ZONE_COUNT= exported. 50 test steps green.
+  Legacy =--colors-skeleton-N-*= output preserved in parallel.

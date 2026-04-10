@@ -2,13 +2,13 @@ import { types, EntityRepositoryType, EntitySchema, type Opt, type Rel } from "@
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 
-export enum IntentTypeEnum {
-  SELFEVIDENT = "SELFEVIDENT",
-  APPLICATIVE = "APPLICATIVE",
-}
+// export enum IntentTypeEnum {SELFEVIDENT = "SELFEVIDENT", APPLICATIVE = "APPLICATIVE",}
 
 export enum IntentTraitsEnum {
+  QUEUEING = "QUEUEING",
+  SELFEVIDENT = "SELFEVIDENT",
   FURNISHED = "FURNISHED",
+  // archive
   FEEDING = "FEEDING",
 }
 
@@ -19,14 +19,17 @@ export class IntentRepository extends DataRepository {
 }
 
 export class IntentEntity extends DataEntity {
+  // ?? // type: IntentTypeEnum & Opt = IntentTypeEnum.SELFEVIDENT;
+
   slug: string & Opt = "";
-  type: IntentTypeEnum & Opt = IntentTypeEnum.SELFEVIDENT;
-  traits: IntentTraitsEnum[] & Opt = [];
+  mode!: Rel<ModeEntity>;
+
   name?: string;
   description?: string;
+
+  traits: IntentTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
 
-  mode!: Rel<ModeEntity>;
   [EntityRepositoryType]?: IntentRepository;
 }
 
@@ -38,19 +41,16 @@ export const IntentSchema = new EntitySchema({
   uniques: [{ properties: ["slug", "mode"] }],
   properties: {
     slug: { type: types.string },
-    type: {
-      enum: true,
-      items: () => IntentTypeEnum,
-      defaultRaw: `'${IntentTypeEnum.SELFEVIDENT}'`,
-    },
+    // type: {enum: true, items: () => IntentTypeEnum, defaultRaw: `'${IntentTypeEnum.SELFEVIDENT}'`,},
+    name: { type: types.string, nullable: true },
+    description: { type: types.string, nullable: true },
+
     traits: {
       items: () => IntentTraitsEnum,
       enum: true,
       array: true,
       defaultRaw: `'[]'`,
     },
-    name: { type: types.string, nullable: true },
-    description: { type: types.string, nullable: true },
     trait: { type: types.json, defaultRaw: `'{}'` },
 
     mode: {
@@ -61,7 +61,6 @@ export const IntentSchema = new EntitySchema({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
-
   },
 });
 

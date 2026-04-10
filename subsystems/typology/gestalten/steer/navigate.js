@@ -1,6 +1,6 @@
 import { Long, Short } from "@vivalence/typology";
 import { middleware } from "@vivalence/typology";
-import { scope, resolve } from "./match.js";
+import { scope, feed } from "./match.js";
 
 export function traverse(vector, signals) {
   let position = vector;
@@ -9,7 +9,7 @@ export function traverse(vector, signals) {
   let remainder = 0;
 
   for (const signal of signals.array) {
-    const [match, trajectory, effect] = resolve(scope(position, signal), signal);
+    const [match, trajectory, effect] = feed(scope(position, signal), signal);
 
     steps.push(match);
 
@@ -40,7 +40,7 @@ export function traverse(vector, signals) {
 }
 
 export function survey(vector, visit) {
-  return vector.survey(visit)
+  return vector.survey(visit);
 }
 
 export async function walk(vector, more) {

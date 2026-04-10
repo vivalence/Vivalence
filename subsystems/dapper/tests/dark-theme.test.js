@@ -2,8 +2,8 @@
 // flat scoped skeleton shape, plus spot-check a few key hexes.
 
 import { specimen } from "@vivalence/typology";
-import colors from "../primitives/colors.js";
-import tokens from "../primitives/tokens.js";
+import colors from "../lib/colors.js";
+import tokens from "../lib/tokens.js";
 import dark from "../themes/dark.js";
 
 async function buildDark() {
@@ -26,11 +26,13 @@ specimen.describe("dark theme — flat scoped skeletons", () => {
     specimen.expect(skeletons[4]).toBeDefined();
   });
 
-  specimen.it("kills the old top-level theme/system groups", async () => {
+  specimen.it("provides theme/system aliases derived from skeleton 1", async () => {
     const ds = await buildDark();
-    specimen.expect(ds.themes.dark.colors.theme).toBeUndefined();
-    specimen.expect(ds.themes.dark.colors.system).toBeUndefined();
-    // skeleton lives on, but as a flat scoped universe — not the old chrome layers shape
+    specimen.expect(ds.themes.dark.colors.theme).toBeDefined();
+    specimen.expect(ds.themes.dark.colors.theme.primary.surface).toBeDefined();
+    specimen.expect(ds.themes.dark.colors.system).toBeDefined();
+    specimen.expect(ds.themes.dark.colors.system.success.surface).toBeDefined();
+    specimen.expect(ds.themes.dark.colors.system.error.surface).toBeDefined();
     specimen.expect(ds.themes.dark.colors.skeleton[0].primary).toBeDefined();
     specimen.expect(ds.themes.dark.colors.skeleton[0].app).toBeUndefined();
   });

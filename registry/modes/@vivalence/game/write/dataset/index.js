@@ -2,10 +2,9 @@ export default {
   intent: [{
     slug: "feed",
     name: "Write",
-    type: "APPLICATIVE",
-    traits: ["FEEDING"],
+    traits: ["QUEUEING"],
     trait: {
-      FEEDING: {
+      QUEUEING: {
         mount: "/emit/feed",
         queue: 1,
         mask: { batch: 3 },

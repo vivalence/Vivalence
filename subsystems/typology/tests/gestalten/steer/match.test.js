@@ -2,7 +2,7 @@ import { specimen, steer } from "@vivalence/typology";
 import { Signal } from "@vivalence/typology";
 import { Vector } from "@vivalence/typology";
 
-const { scope, greedy, resolve } = steer;
+const { scope, greedy, feed } = steer;
 
 specimen.describe("match", () => {
   specimen.describe("scope", () => {
@@ -67,22 +67,22 @@ specimen.describe("match", () => {
     });
   });
 
-  specimen.describe("resolve", () => {
+  specimen.describe("feed", () => {
     specimen.it("returns single match", () => {
       const triple = [{ nature: "x" }, null, () => {}];
-      const [match] = resolve([triple], new Signal("x"));
+      const [match] = feed([triple], new Signal("x"));
       specimen.expect(match.nature).toBe("x");
     });
 
     specimen.it("throws on empty matches", () => {
-      specimen.expect(() => resolve([], new Signal("x"))).toThrow();
+      specimen.expect(() => feed([], new Signal("x"))).toThrow();
     });
 
     specimen.it("prefers trajectory when signal has heir", () => {
       const signal = new Signal("users/123");
       const traj = [signal, { trajectoryMarker: true }, null];
       const eff = [signal, null, () => {}];
-      const [, trajectory] = resolve([traj, eff], signal);
+      const [, trajectory] = feed([traj, eff], signal);
       specimen.expect(trajectory).toBeTruthy();
       specimen.expect(trajectory.trajectoryMarker).toBe(true);
     });
@@ -91,7 +91,7 @@ specimen.describe("match", () => {
       const signal = new Signal("users");
       const traj = [signal, { trajectoryMarker: true }, null];
       const eff = [signal, null, () => "result"];
-      const [, , effect] = resolve([traj, eff], signal);
+      const [, , effect] = feed([traj, eff], signal);
       specimen.expect(effect).toBeTruthy();
     });
   });

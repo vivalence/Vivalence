@@ -75,9 +75,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     const controller = new AbortController()
 
     const reader = (async () => {
-      for await (const event of conn.subscribe("/literal/subscribe", {
-        signal: controller.signal,
-      })) {
+      for await (const event of conn.stream("/literal/subscribe", controller.signal)) {
         events.push(event)
         if (events.length >= 1) break
       }
@@ -100,9 +98,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     const controller = new AbortController()
 
     const reader = (async () => {
-      for await (const event of conn.subscribe("/literal/subscribe", {
-        signal: controller.signal,
-      })) {
+      for await (const event of conn.stream("/literal/subscribe", controller.signal)) {
         events.push(event)
         if (events.length >= 1) break
       }
@@ -125,9 +121,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     const controller = new AbortController()
 
     const reader = (async () => {
-      for await (const event of conn.subscribe("/literal/subscribe", {
-        signal: controller.signal,
-      })) {
+      for await (const event of conn.stream("/literal/subscribe", controller.signal)) {
         events.push(event)
         if (events.length >= 1) break
       }
@@ -146,9 +140,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     const controller = new AbortController()
 
     const reader = (async () => {
-      for await (const event of conn.subscribe("/symbol/subscribe", {
-        signal: controller.signal,
-      })) {
+      for await (const event of conn.stream("/symbol/subscribe", controller.signal)) {
         events.push(event)
         if (events.length >= 1) break
       }

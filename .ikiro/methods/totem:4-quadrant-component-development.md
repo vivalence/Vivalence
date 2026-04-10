@@ -294,3 +294,29 @@ real work.
 Sister method candidate (not yet named): the same four facets applied to
 *buffers* rather than components — buffers are the runtime products of
 modes, and they have visible/dom/data/interaction faces too. TBD.
+
+## Reflections
+
+### Selective faceting (2026-04-10, pincer state isolation)
+
+The totem was designed for component development — all four facets, in
+order, before code. But during the pincer state primitive work, only
+facets c and d were useful. The task was "enumerate what state entities
+exist and which deserve their own store." Facets a (visible) and b (DOM)
+had nothing to contribute — we weren't designing components, we were
+carving the statespace those components would consume.
+
+**Learning: the totem is a lens, not a checklist.** The four facets are
+four ways of looking at a thing. When the thing is a UI component, all
+four matter. When the thing is a state primitive, c and d carry the
+weight — c identifies what exists and who owns it, d separates transient
+process state (gesture, flash) from durable identity-bearing state
+(layout, view, session). The classification falls out of asking "does
+this serialize?" (facet c, persistence) and "is this a noun or a verb?"
+(facet d, interaction model).
+
+**Implication: totem applies beyond components.** Any entity with
+multiple perspectives benefits from selective faceting. State primitives,
+transport protocols, daemon traits — each has a subset of facets that
+illuminate it. The discipline is knowing which facets to apply, not
+applying all four by rote.

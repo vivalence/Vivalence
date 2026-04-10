@@ -43,7 +43,9 @@ export const fetcher = async (ctx) => {
   };
 
   if (request.method !== "GET" && request.body !== undefined) {
-    options.body = JSON.stringify(request.body);
+    const streaming = request.body instanceof ReadableStream;
+    options.body = streaming ? request.body : JSON.stringify(request.body);
+    if (streaming) { options.duplex = "half"; options.headers["Content-Type"] = "text/event-stream"; }
   }
 
   try {
@@ -56,7 +58,11 @@ export const fetcher = async (ctx) => {
     });
 
     const contentType = res.headers.get("content-type") || "";
-    response.body = contentType.includes("application/json") ? await res.json() : await res.text();
+    if (contentType.includes("text/event-stream")) {
+      response.body = res.body;
+    } else {
+      response.body = contentType.includes("application/json") ? await res.json() : await res.text();
+    }
 
     if (!res.ok) {
       response.setError(ConnectionError.fromStatus(res.status, response));

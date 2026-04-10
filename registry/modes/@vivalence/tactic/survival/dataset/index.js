@@ -3,10 +3,9 @@ export default {
     {
       slug: "survival-warmup",
       name: "Warmup",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/warmup",
           queue: 2,
           mask: {
@@ -19,10 +18,9 @@ export default {
     {
       slug: "survival-buildup",
       name: "Build Up",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/buildup",
           queue: 3,
           mask: {
@@ -35,10 +33,9 @@ export default {
     {
       slug: "survival-exercise",
       name: "Exercise",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/exercise",
           queue: 3,
           mask: {
@@ -51,10 +48,9 @@ export default {
     {
       slug: "survival-drill",
       name: "Drill",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/drill",
           queue: 2,
           mask: {
@@ -70,10 +66,9 @@ export default {
     {
       slug: "survival-cooldown",
       name: "Cool Down",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/cooldown",
           queue: 2,
           mask: {

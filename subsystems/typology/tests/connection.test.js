@@ -201,13 +201,41 @@ specimen.describe("subscribe + publish + websocket", () => {
     abort.abort();
   });
 
-  specimen.describe("subscribe()", () => {
-    specimen.it("consumes SSE stream as async iterator", async () => {
+  specimen.describe("stream()", () => {
+    specimen.it("consumes SSE as async generator with signal", async () => {
       const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const controller = new AbortController();
       const events = [];
-      for await (const event of conn.subscribe("/events")) {
+      for await (const event of conn.stream("/events", controller.signal)) {
         events.push(event);
       }
+      specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
+    });
+  });
+
+  specimen.describe("observe()", () => {
+    specimen.it("returns async iterator with unsubscribe", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const iterator = conn.observe("/events");
+      specimen.expect(typeof iterator.unsubscribe).toBe("function");
+
+      const events = [];
+      for await (const event of iterator) {
+        events.push(event);
+      }
+      specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
+    });
+  });
+
+  specimen.describe("subscribe()", () => {
+    specimen.it("calls back on each event and returns unsubscribe", async () => {
+      const conn = new Connection(new Url(`http://localhost:${PORT}`));
+      const events = [];
+      const unsubscribe = conn.subscribe("/events", (event) => {
+        events.push(event);
+      });
+      specimen.expect(typeof unsubscribe).toBe("function");
+      await sleep.ms(200);
       specimen.expect(events).toEqual([{ seq: 1 }, { seq: 2 }, "fin"]);
     });
   });

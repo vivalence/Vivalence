@@ -34,7 +34,7 @@
   {#if $buffer?.view?.Component}
     <svelte:component this={$buffer.view.Component} {...$buffer.context} />
   {:else if $buffer?.view?.url}
-    <div style="height: 100%;" bind:this={dom}></div>
+    <div style="width: 100%;height: 100%;max-width: 100vw;" bind:this={dom}></div>
   {:else}
     <slot />
   {/if}

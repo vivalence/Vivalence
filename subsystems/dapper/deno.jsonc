@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
-    "./postcss": "./belt/postcss-plugin.js",
+    "./postcss": "./lifecycle/index.js",
     "./tailwind": "./belt/tailwind-theme.js",
     "./bsp.css": "./primitives/bsp.css",
     "./fonts.css": "./primitives/font.css",

@@ -821,6 +821,238 @@ Followups (out of phase scope):
   =new tab=, =close tab=, drag-to-reorder, or wiring to actual
   terminal mounts.
 
+* Skinner — Vector Skin Lab
+
+Skinner is the rendering counterpart to pincer. Pincer builds the layout
+bones; skinner renders vectors through interchangeable skins. A skin is
+a svelte component that takes a vector (live or pressed) and renders it
+as a particular UI paradigm — tree, palette, radial menu, table, etc.
+
+The work required three new primitives in typology before the skins
+could exist:
+
+1. =Vector.prototype.survey(visit)= — recursive tree walk on the
+   prototype itself, with an optional visitor/fold function
+2. =object.pluck(obj, keys)= — pick + strip-undefined, in belt
+3. =stamp.press(vector)= — lossy JSON serialization via survey + pluck
+
+** Typology: survey
+
+Survey lives on =Vector.prototype= (=prototypes/vector.js=). It walks
+=effects= and =trajectories=, returning ={ effects, trajectories }= at
+each level. An optional visitor folds during the walk.
+
+#+begin_src js
+// Vector.prototype
+survey(visit = (node) => node) {
+  const effects = [...this.effects.entries()]
+    .map(([signature, effect]) => visit({ signature, effect }))
+  const trajectories = [...this.trajectories.entries()]
+    .map(([signature, descendant]) => visit({ signature, ...descendant.survey(visit) }))
+  return { effects, trajectories }
+}
+#+end_src
+
+Without a visitor — pure introspection, lossless:
+
+#+begin_src js
+const { effects, trajectories } = vector.survey()
+effects[0].signature.nature   // "purr"
+effects[0].effect              // (ctx) => { ... } — live function
+trajectories[0].signature.nature  // "hunt"
+trajectories[0].effects.length    // 3 — recursed
+#+end_src
+
+With a visitor — fold in one pass:
+
+#+begin_src js
+vector.survey(({ signature, effect, effects, trajectories }) => ({
+  name: signature.nature,
+  ...(effects ? { effects, trajectories } : {}),
+}))
+// { effects: [{ name: "purr" }, ...], trajectories: [{ name: "hunt", effects: [...] }] }
+#+end_src
+
+Leaves receive ={ signature, effect }=. Branches receive
+={ signature, effects, trajectories }= — already folded by recursion.
+The visitor distinguishes by presence: =effect= means leaf, =effects=
+means branch. =steer.survey(vector, visit)= delegates to
+=vector.survey(visit)=.
+
+** Typology: object.pluck
+
+Added to =gestalten/belt/object.js=. Delegates to existing =pick= (which
+supports nested dot-paths), then strips =undefined= values:
+
+#+begin_src js
+export function pluck(obj, keys) {
+  const picked = pick(obj, keys);
+  return Object.fromEntries(Object.entries(picked).filter(([, v]) => v !== undefined));
+}
+#+end_src
+
+** Typology: stamp.press
+
+The lossy serialization. Takes a vector, returns dead JSON. Uses survey
+with a visitor that plucks signature keys and merges children:
+
+#+begin_src js
+import { steer, object } from "@vivalence/typology"
+
+const SIGNATURE_KEYS = ["keyed", "valence", "directed", "input", "output"]
+
+export const press = (vector) =>
+  steer.survey(vector, ({ signature, effect, effects, trajectories }) => ({
+    nature: signature.nature,
+    signature: object.pluck(signature, SIGNATURE_KEYS),
+    ...(effects ? { children: [...effects, ...trajectories] } : {}),
+  }))
+#+end_src
+
+Output shape — flat array at each level, branches carry =children=:
+
+#+begin_src js
+{
+  effects: [
+    { nature: "purr", signature: { keyed: { command: "p" }, valence: "emit purr sound", ... } },
+    { nature: "nap", signature: { keyed: { command: "n", modifier: "shift" }, ... } },
+  ],
+  trajectories: [
+    { nature: "hunt", signature: { ... }, children: [
+      { nature: "stalk", signature: { ... } },
+      { nature: "pounce", signature: { ... } },
+      { nature: "retreat", signature: { ... } },
+    ] },
+  ],
+}
+#+end_src
+
+Design decisions on the output format:
+- *Nature outside signature*: nature is the identity key, not metadata.
+  Signature carries the decorations (keyed, valence, directed,
+  input, output).
+- *Arrays not objects*: vectors allow duplicate pattern natures (by
+  design — multiple effects on the same path). Objects keyed by name
+  would lose duplicates. JSON arrays preserve them.
+- *=effects= / =trajectories= at the survey layer, =children= at the
+  stamp layer*: survey preserves the vector's own vocabulary (effects
+  vs trajectories are semantically distinct in steer). Stamp merges
+  them into =children= because the consumer (a skin renderer) doesn't
+  care about the distinction — a node is a node.
+- *TypeBox schemas pass through as-is*: =input= and =output= are
+  TypeBox proxies which serialize to standard JSON Schema objects. The
+  press function doesn't unwrap them. =JSON.parse(JSON.stringify(...))=
+  strips the proxy layer if dead JSON is needed.
+
+** Signatures on patterns
+
+The cat fixture vectors exercise five distinct signatures per pattern:
+
+| Signature | Shape | Purpose |
+|-----------+-------+---------|
+| =nature= | string | identity — the pattern's name, always present |
+| =keyed= | ={ command, modifier? }= | keyboard binding |
+| =valence= | string or ={ slug, name, prompt }= | human description, two forms |
+| =directed= | ={ variant, icon?, label?, collapsed?, ... }= | directory viewer rendering hints |
+| =input= | TypeBox/JSON Schema | input validation schema |
+| =output= | TypeBox/JSON Schema | output type declaration |
+
+Not every node carries every signature. =pluck= drops undefined keys so
+the output is sparse — only what's declared appears.
+
+** Test fixtures: cats
+
+Three cat vector factories of increasing complexity, used by all skins:
+
+#+begin_src js
+// house() — the standard. 5 effects, 1 trajectory, all signature types exercised.
+//   purr (keyed, valence:string, directed, input, output)
+//   nap (keyed+modifier, valence:object, input)
+//   hunt/ (keyed+modifier, valence:object, directed:collapsed)
+//     stalk (keyed, valence:string, input)
+//     pounce (keyed+modifier, valence:object, input, output)
+//     retreat (keyed, valence:string, input:empty)
+
+// alley() — scrappier. 4 effects, 1 trajectory, fewer signatures.
+//   hiss, sleep, scavenge/{dig, snatch}
+
+// kitten() — playful. 5 effects, 1 trajectory, directed on branch.
+//   mew, nuzzle, play/{chase, tumble, hide}
+#+end_src
+
+State space: two dimensions per cat — =energy= (continuous, every action
+drains or restores) and =alive= (binary, specific effects can kill).
+Orthogonal: you can be dead with energy left, or alive with none.
+
+** Phase 13: Skinner Demo Suite [DONE 2026-04-09]
+
+*Outcome*: =/skinner= route with sidebar nav, 3 cat fixture vectors,
+10 interactive skin demos. Each skin invokes live effects through
+=steer.invoke=, mutates state, renders results inline.
+
+Files created:
+
+- =routes/skinner/+layout.svelte= — sidebar nav (140px, all 10 skins)
+- =routes/skinner/+page.svelte= — index showing pressed JSON of all 3 cats
+- =routes/skinner/cat.js= — =house()=, =alley()=, =kitten()= factories
+- =routes/skinner/invoke.js= — shared =invoke(vector, path, input)= +
+  =defaults(schema)= (generates dummy values from JSON Schema types)
+- =routes/skinner/{tree,palette,radial,table,card,breadcrumb,dag,terminal,form,list}/+page.svelte=
+
+Skins:
+
+| Skin | Interaction | Key feature |
+|------+-------------+-------------|
+| *tree* | click effects to invoke, expand/collapse trajectories | collapsible file-tree with inline results |
+| *palette* | click any row, fuzzy filter | command palette with search input |
+| *radial* | hover highlights arcs, click invokes | SVG pie/ring menu, nested rings for children |
+| *table* | click rows to invoke | spreadsheet with path/keyed/valence/input/output/result columns |
+| *card* | click effect cards, click child buttons in trajectory cards | grid of cards, trajectories show child buttons |
+| *breadcrumb* | click into trajectories, click effects to invoke, tab between cats | breadcrumb trail navigation with back-tracking |
+| *dag* | click nodes to invoke, results float above | SVG directed graph, trajectories are highlighted nodes |
+| *terminal* | type =cat/path= to invoke, =state cat= to inspect, =help= for listing | REPL-style command line |
+| *form* | fill fields from input schema, submit invokes | auto-generated forms from TypeBox =input= schemas |
+| *list* | click items to invoke | minimal vertical stack, =nature · valence= per line |
+
+All skins show live state (=energy=, =alive=) per cat, updated after
+each invocation. State mutation is visible across repeated clicks.
+
+Typology additions:
+
+- =gestalten/stamp/press.js= (new) — =press(vector)= via survey + pluck
+- =gestalten/stamp/index.js= (new) — barrel
+- =gestalten/index.js= — added =stamp= export
+- =gestalten/index.client.js= — added =stamp= export (browser bundle)
+- =gestalten/steer/navigate.js= — added =survey(vector, visit)= (delegates to prototype)
+- =gestalten/belt/object.js= — added =pluck(obj, keys)=
+- =prototypes/vector.js= — added =Vector.prototype.survey(visit)=
+
+Tests:
+
+- =tests/gestalten/steer/survey.test.js= — 6 specs: identity visitor
+  (structure, pairs, nesting, signatures), custom visitor (leaf
+  transform, branch fold, leaf/branch discrimination)
+- =tests/gestalten/stamp/press.test.js= — 2 specs: full shape equality
+  against expected literal, JSON roundtrip survival
+- =tests/scenarios/cats/index.js= — shared fixture used by both test
+  suites and skinner demo
+
+Followups:
+- Skins are page-level demos, not reusable components yet. Extracting
+  them into =drapes/skins/= as ={SkinTree, SkinPalette, ...}= props-
+  driven components is the obvious next step once the shapes stabilize.
+- No keyboard navigation within skins. Palette has a filter input but
+  no arrow-key selection. Terminal has a prompt but no tab-completion.
+- Radial menu geometry is basic — uniform arc division, no weighted
+  sizing. A real radial skin would size slices by significance.
+- DAG layout is naive (horizontal spread). A force-directed or
+  Sugiyama layout would handle deeper/wider trees.
+- Form skin generates dummy defaults (=number→5=, =integer→3=). Real
+  forms need validation feedback via TypeBox =Value.Errors=.
+- No skin for the =directed= signature yet — the directory viewer
+  that consumes =variant/icon/label/collapsed= hints. That's the skin
+  that stamp was originally conceived to feed.
+
 * Decisions
 
 | Decision | Choice | Rationale |
@@ -841,6 +1073,10 @@ Followups (out of phase scope):
 | Layout state shape | Flat JSON blob | Serializable, JSON-patchable, transportable, easy to version. |
 | Token namespace | =--colors-...= raw form | User stated preference. No Tailwind utility classes for colors. |
 | Mobile-first | Pointer events + touch-action: none | One unified gesture handler set; works on touch + mouse + pen. |
+| Context count | 3 (LIGHTHOUSE, QUARTERS, BRIDGE) | Ship metaphor. Lighthouse = identity/daemons, Bridge = app shell (layout+view), Quarters = terminals. Daemons in lighthouse (crew manifest at the lighthouse, not quarters). |
+| Context internals | store() + domain commands | Every context is a store() instance with methods mixed in. Uniform internal model. |
+| Terminal state | Minimal {id, slug} | Thread holds daemon/mode/intent/phase. Terminal is an ephemeral client-side session pointer. |
+| Quarters backend | LocalRepository (Map-backed) | No EM needed — Map IS the identity map. Same CRUD surface as RemoteRepository. In-memory with optional localStorage persist. |
 | Color model | Flat scoped skeletons | Global =theme= + =system= groups produce accidentally-legible colors. Per-skeleton populated sets fix legibility and enable context-aware components. |
 | Skeleton shape | 27 scalars, flat, no disabled role | Role-by-role statespace analysis. Structural roles static (1). Emphasis + semantic interactive (3: base/hover/active). =error= as a box triplet. Disabled handled via opacity at component level. |
 | CSS var naming | Explicit, always | =--colors-skeleton-1-primary-base= never shorthand. Grep-able, predictable, every consumer identical in shape. |
@@ -960,3 +1196,485 @@ Followups (out of phase scope):
   not implemented for vertical crowns); viket menu needed to re-open
   H now that it defaults off; tabs are read-only mocks (no new/close/
   reorder, no terminal lifecycle wiring).
+- 2026-04-09: *Phase 13 — Skinner vector skin lab*. New typology
+  primitives: =Vector.prototype.survey(visit)= (recursive walk with
+  optional fold), =object.pluck= (pick + strip-undefined),
+  =stamp.press= (lossy JSON serialization via survey + pluck). Design
+  iterated through several output shapes: keyed objects → arrays with
+  effects/trajectories split → unified array with =children= on
+  branches. Survey evolved from standalone steer function → prototype
+  method with identity-default visitor (eliminating ternary branches).
+  Key design decisions: nature outside signature (identity vs metadata),
+  arrays not objects (duplicate natures are a feature), survey keeps
+  steer vocabulary (effects/trajectories) while stamp merges to
+  =children=. Three cat fixture vectors (house/alley/kitten) with
+  5 signature types (nature, keyed, valence, directed, input, output)
+  and 2-dimensional state (energy + alive). 10 interactive skin demos
+  at =/skinner= with sidebar nav. All skins invoke live effects through
+  =steer.invoke=, show state mutations, render results inline. Tests:
+  survey (6 specs) + press (2 specs) + shared cat scenario fixture.
+- 2026-04-09: *Phase 14 — panel & bone isolation*. Extracted all 12
+  layout entities into individual component files. =panels/= directory:
+  a (label), b (G/H toggles), c (gutter owner, imports d/e/f),
+  d (vector tree demo — absorbed old =d/PanelD.svelte=), e (label
+  placeholder), f (node graph), g (system tray overlay), h (HUD bar).
+  =bones/= directory: shoulder (session telemetry — phase, activity,
+  buffers), crown (terminal tab strip), pincer (junction square),
+  spine (lighthouse + daemon status dots). =SkeletonProvider= stripped
+  from all panels. Introduced =view.js= — =View= class with nanostore
+  atoms (=$g=, =$h=) for overlay visibility. Atoms bridged to Svelte 5
+  =$state= via =.subscribe()=. Panel B toggles G/H through
+  =view.toggle()=; H bar and G close button share the same store. Split
+  =bonesForOrientation= from 2-bone (crown + spine) to 4-bone model:
+  shoulder (left of viket), crown (right of viket), pincer (viket
+  square), spine (below viket). ~400 lines of dead CSS removed from
+  page. Viket gesture system remains inline — last piece to extract.
+  Page reduced from ~1700 line monolith to layout engine + gesture
+  system + session mock data.
+- 2026-04-10: *Phase 15 M2 + Phase 16 design + LocalRepository*.
+  Mock data extracted to =mock.js=. =view.js= retrofitted to =store()=
+  one-liner. Dead code purged. Prop drilling eliminated from all
+  panels/bones except crown. Composed =client= root in =$client=.
+  Designed context architecture: 3 symbols (LIGHTHOUSE, QUARTERS,
+  BRIDGE) — ship metaphor. Daemons stay in LIGHTHOUSE (the manifest
+  is at the lighthouse, not the quarters). Terminal stripped to
+  ={id, slug}= — thread holds daemon/mode/intent. Quarters backed by
+  =LocalRepository= — new typology primitive (115 lines, 25 test steps
+  green) next to =RemoteRepository=. Same CRUD surface, Map-backed
+  identity, no EM needed. Boot sequence designed: =setContext= at init,
+  gate controls render, contexts populate progressively.
+- 2026-04-10: *Phase 16 design — context architecture + functional
+  lifecycle*. Retired boot vectors (wafers) for client lifecycle —
+  replaced with standalone functions over data: =verify(lighthouse)=,
+  =populate(lighthouse)=, =boot(lighthouse)=; =construct(daemon)=,
+  =populate(daemon)=, =resolve(daemon)=. Classes stay pure state
+  containers. Root layout gate designed: create lighthouse → hydrate →
+  =setContext(LIGHTHOUSE)= → =onMount= calls =boot()= → gate
+  =ready=/=auth=. Login keeps props (layout has the ref). Pincer drops
+  CSS imports (root layout provides). Three milestones: M1 lifecycle
+  functions, M2 root layout gate, M3 spine wires real signals.
+- 2026-04-10: *Phase 17 design — quarters + thread contexts*. Client
+  expanded to 6 symbols: 3 structural (LIGHTHOUSE, QUARTERS, BRIDGE —
+  set once at boot) + 3 navigational (THREAD, DAEMON, MODE — reactive,
+  follow active terminal). Context store directory at
+  =typology/stores/=. Quarters backed by =LocalRepository=. Thread is
+  the pivot — daemon and mode are getters on it, set as separate
+  contexts for consumer convenience. Layout owns the full reactive
+  chain: active terminal → thread → daemon + mode. Page is pure state
+  representation. Blur overlay on zero terminals. Three milestones:
+  M1 quarters context + terminal repo, M2 blur gate, M3 thread/daemon/
+  mode contexts.
+- 2026-04-10: *Phases 16 + 17 landed*. All structural contexts
+  implemented. LIGHTHOUSE: functional lifecycle (=verify/populate/boot=
+  + daemon =construct/populate/resolve=), computed gate from
+  =$isAuthorized= + =$status=, login/error/offline views, logout in
+  panel B, spine wired to real =$status= + =$daemons=. QUARTERS:
+  =LocalRepository=-backed terminals with =Terminal= class, persisted
+  =$active=, blur overlay on zero, crown self-serves from context.
+  BRIDGE: layout + view stores + geometry engine migrated from pincer
+  locals to =typology/stores/bridge.js=, =store()= factory extracted to
+  =store.js=. All panels/bones pull contexts via =getContext=. Root
+  layout at =routes/+layout.svelte= sets all 3 structural contexts,
+  gate cascade controls render. =@vivalence/html= barrel exports all
+  context modules. Dead code deleted: =pincer/layout.js=,
+  =pincer/view.js=, =pincer/d/=. Panel D stubbed. Zero console errors.
+  Open: THREAD/DAEMON/MODE navigational contexts, =systemAlert= from
+  real context, session mock in shoulder, =client.bak.js= deletable.
+- 2026-04-10: *Phase 15 M1 — layout store*. Created =store()= factory
+  in =layout.js= — generic nanostore primitive generator from a defaults
+  spec (atom + getter/setter + toJSON per field, one-liner per entity).
+  Extracted all geometry constants, pure layout functions
+  (=rectsForOrientation=, =bonesForOrientation=, =clamp=, =snapToGrid=,
+  orientation helpers), and =layout= singleton store into =layout.js=.
+  Renamed position variable =viket= → =pincer= (the junction point IS
+  the pincer). =VIKET_SIZE= → =PINCER_SIZE=. =panels/h.svelte= prop
+  updated. Page lost ~150 lines. Gesture handlers write through
+  =layout.*= setters. Entity inventory via totem facets c+d documented
+  in Phase 15 section. Session/Telemetry/Terminals stores deferred —
+  need external wiring.
+
+** Phase 15: State Primitive Isolation [IN PROGRESS]
+
+*Outcome*: every distinct state entity in the pincer page becomes a
+nanostore primitive on par with =View=. The page becomes a thin shell —
+mount, wire stores to DOM, gesture handlers write into stores.
+
+*** Methodology
+
+Used totem facets c (data/state) and d (interaction model) to enumerate
+entities and classify them as durable state vs transient process. Facets
+a (visible) and b (DOM) deferred — we're carving statespace, not
+designing components.
+
+*** Entity inventory
+
+| Entity       | Nature          | Fields                                                    | Serializes? | Shared across components? |
+|--------------+-----------------+-----------------------------------------------------------+-------------+---------------------------|
+| *Layout*     | state           | pincer {x,y}, previous {x,y}, standard {x,y}, orientation, viewport {w,h} | yes (the layout blob) | yes — rects, bones, panels, H bar |
+| *View*       | state           | g, h (overlay visibility)                                 | yes         | yes — B, G, H panels      |
+| *Session*    | process (mock)  | phase, buffers, pulling, stalled                          | no          | yes — shoulder bone        |
+| *Telemetry*  | data (mock)     | lighthouses[], daemon {status, latencyMs}                 | no          | yes — spine bone, alert rail |
+| *Terminals*  | data (mock)     | terminal[], activeTerminal                                | no          | yes — crown bone           |
+| *Gesture*    | transient       | pointerId, downAt, downX/Y, startPincerX/Y, tapCount, timers, isDragging, isLongPress, fromSticky | no | no — page only |
+| *Radial*     | transient       | show, sticky, snap                                        | no          | no — page only             |
+| *Flash*      | transient       | kind (tap1/tap2/tap3/null)                                | no          | no — page only             |
+
+*** Classification
+
+Nanostore store candidates (shared, durable, or identity-bearing):
+- *Layout* — the layout blob from the workpackage spec. Core primitive. DONE.
+- *View* — done (=view.js=, Phase 14).
+- *Session* — mock now, will wire to real process signals later.
+- *Telemetry* — mock now, will wire to lighthouse/daemon atoms.
+- *Terminals* — mock now, will wire to terminal lifecycle.
+
+Stays inline (transient, page-only, no identity):
+- *Gesture* — only matters during a pointer interaction.
+- *Radial* — gesture-adjacent, only viket + radial template read it.
+- *Flash* — ephemeral scalar, 240ms lifetime.
+
+*** store() factory
+
+Replaced the verbose class-per-entity pattern (atom + getter + setter
+per field) with a generic =store(defaults, serialize)= factory. Takes a
+defaults spec, returns an object with =$key= atoms, =key= get/set via
+=Object.defineProperty=, and =toJSON()= scoped to the =serialize= keys.
+One-liner per entity:
+
+#+begin_src js
+export const layout = store(
+  { pincer: { x: 0, y: 0 }, previous: { x: 0, y: 0 }, ... },
+  ["pincer", "previous", "standard", "orientation"],
+);
+#+end_src
+
+=View= can retrofit to a one-liner via the same factory. =toggle()=
+would become a standalone helper or stay as a custom method.
+
+*** M1 — Layout store [DONE 2026-04-10]
+
+- [X] =layout.js= (new): =store()= factory, all geometry constants
+      (=BONE_THICKNESS=, =PINCER_SIZE=, =HALF=, =EDGE_PADDING=, snap
+      grid), all pure layout functions (=rectsForOrientation=,
+      =bonesForOrientation=, =clamp=, =snapToGrid=, orientation helpers),
+      =layout= singleton store instance.
+- [X] Renamed position variable =viket= → =pincer= throughout active
+      code. The junction point IS the pincer — the file is =pincer/=.
+      CSS class =.viket= and DOM element unchanged (that's the component
+      name, not the position). =VIKET_SIZE= → =PINCER_SIZE=.
+      =gesture.startViketX/Y= → =gesture.startPincerX/Y=.
+- [X] =panels/h.svelte=: prop =viket= → =pincer=, display label updated.
+- [X] Page: deleted ~150 lines (constants, pure functions, layout
+      functions, bare =$state= declarations). Imports =layout= +
+      functions from =./layout.js=. Bridges 5 atoms to =$state= via
+      =.subscribe()=. Gesture handlers write through =layout.*= setters.
+- [X] =viewport= excluded from =toJSON()= — window-derived, not user state.
+- [X] svelte-check: zero new errors in pincer files.
+
+Open:
+- Session, Telemetry, Terminals stores — deferred, these need external
+  wiring (lighthouse/daemon atoms, terminal lifecycle) which is a harder
+  problem.
+- =view.js= retrofit to =store()= factory — DONE (Phase 15 M2).
+- Dead code block — DONE (Phase 15 M2, deleted).
+
+** Phase 16: Context Architecture + Root Layout [DONE 2026-04-10]
+
+*Outcome*: the HTML client boots through a gated root layout. Three
+Svelte contexts (LIGHTHOUSE, QUARTERS, BRIDGE) provide all shared state.
+Components pull contexts instead of receiving props. Boot vectors
+(wafers) retired — lifecycle is standalone functions over data.
+
+*** Architecture decisions
+
+- 3 context symbols: =LIGHTHOUSE=, =QUARTERS=, =BRIDGE= (ship metaphor).
+- Daemons stay in LIGHTHOUSE — the manifest is at the lighthouse.
+  Terminals hold refs to their daemon. Consumers reach dataspaces
+  through the terminal's daemon reference.
+- Terminal stripped to ={id, slug}= — thread holds daemon/mode/intent.
+- Quarters backed by =LocalRepository= (typology primitive).
+- State is data. Lifecycle is functions over data. No boot vectors,
+  no wafer orchestration on the client.
+- =setContext= called unconditionally at component init. Gate controls
+  whether children render, not whether contexts exist.
+- Functional lifecycle: =verify(lighthouse)=, =populate(lighthouse)=,
+  =boot(lighthouse)=. Daemon: =construct(daemon)=, =populate(daemon)=,
+  =resolve(daemon)=. Each class stays a pure state container.
+
+*** M1 — Lighthouse lifecycle functions [DONE 2026-04-10]
+
+- [X] =lighthouse/lifecycle.js= (new): =verify(lighthouse)=,
+      =populate(lighthouse)=, =boot(lighthouse)=. =populate= fetches
+      manifest + daemon POJOs, constructs each daemon via daemon
+      lifecycle functions, stores in =lighthouse.daemons= Map.
+- [X] =daemon/lifecycle.js= (new): =construct(daemon)=, =populate(daemon)=,
+      =resolve(daemon)=. =construct= fetches manifest + schema + cargo.
+      =populate= creates Dataspace with 6 repos (mode, intent, thread,
+      buffer, trace, literal), populates mode + intent. =resolve= wires
+      mode mounts/connections/intents, intent emitters, repo resolve fns.
+- [X] =lighthouse/index.js= (new): barrel for Lighthouse class + hydrate +
+      lifecycle functions.
+- [X] =daemon/index.js= (updated): added lifecycle exports alongside
+      existing wafer export.
+- [X] =typology/mod.js= (new): =@vivalence/html= barrel. Exports
+      =lighthouse=, =daemon=, =quarters=, =bridge= namespaces.
+- [X] =vite.config.mjs=: added =@vivalence/html= alias →
+      =src/typology/mod.js=.
+- [X] Wafer files retained as reference, no longer invoked from boot.
+
+*** M2 — Root layout gate [DONE 2026-04-10]
+
+- [X] =routes/+layout.svelte= (new): creates lighthouse from env,
+      hydrates, sets LIGHTHOUSE context. Gate computed from
+      =$isAuthorized= + =$status= (OFFLINE, ERROR, SESSION_EXPIRED,
+      auth transitions). Separate views: auth → Login, error → retry,
+      offline → reconnect. =onMount= calls =boot()=, idempotent
+      =populate= subscription on =$isAuthorized=. Cleanup on unmount.
+- [X] =lighthouse/Login.svelte=: unchanged, keeps ={lighthouse,
+      onConnected}= props.
+- [X] Pincer =+page@.svelte= → =+page.svelte= (renamed, inherits root
+      layout). CSS imports removed (root layout provides).
+- [X] Panel B: logout button wired to =lighthouseInstance.logout()=,
+      gate reactively drops to =auth=.
+
+*** M3 — Spine wires real signals [DONE 2026-04-10]
+
+- [X] =bones/spine.svelte=: pulls =LIGHTHOUSE= context via =getContext=.
+      Subscribes to =$status= (derives lighthouse health: ok/lag/down)
+      and =$daemons= (derives aggregate daemon health from connection
+      states). Tooltip shows live status code.
+- [X] =mock.js=: lighthouse/daemon/worstStatus data removed. Session
+      mock + =systemAlert= (hardcoded false) retained.
+
+** Phase 17: Quarters + Bridge Contexts [DONE 2026-04-10]
+
+*Outcome*: terminals managed by a =LocalRepository= in the QUARTERS
+context. Bridge owns layout store + view store + geometry engine.
+All pincer-local singletons eliminated — everything flows through
+contexts. Blur overlay on zero terminals — the app never exists
+without a terminal.
+
+*** Symbol inventory
+
+=$client= exports 6 symbols. Three are set once at boot (structural).
+Three are reactive, following the active terminal (navigational).
+
+| Symbol       | Set by      | Lifecycle            | Provides                          |
+|--------------+-------------+----------------------+-----------------------------------|
+| =LIGHTHOUSE= | layout init | once (boot)          | auth, identity, daemons Map       |
+| =QUARTERS=   | layout init | once (boot)          | terminal LocalRepository, active  |
+| =BRIDGE=     | layout init | once (boot)          | layout store + view store         |
+| =THREAD=     | layout      | reactive (follows active terminal) | thread entity, buffers, turns |
+| =DAEMON=     | layout      | reactive (follows thread)          | thread.daemon                 |
+| =MODE=       | layout      | reactive (follows thread)          | thread.mode                   |
+
+*** Context store directory
+
+=systems/html/src/typology/stores/= — one file per context factory.
+
+| File             | Exports                              |
+|------------------+--------------------------------------|
+| =store.js=       | =store(defaults, serialize)= — generic nanostore primitive factory |
+| =quarters.js=    | =create()= → LocalRepository + =$active= + spawn/close/activate, =Terminal= class |
+| =bridge.js=      | =create()= → layout store + view store + toggle + geometry constants + layout functions |
+
+LIGHTHOUSE uses the existing =Lighthouse= class directly (no factory
+wrapper needed). THREAD, DAEMON, MODE are derived — set by layout from
+the active terminal, not factories.
+
+*** M1 — Quarters context + terminal repo [DONE 2026-04-10]
+
+- [X] =typology/stores/quarters.js= (new): =create()= factory.
+      Uses =LocalRepository= from typology with =Terminal= kind.
+      Terminal shape: ={id, slug}=, proper class with =toJSON()=.
+      Exposes =spawn(slug)=, =activate(id)=, =close(id)=. =$active=
+      atom ($ prefix for reactives). Persists =$active= to localStorage
+      separately (=viva.quarters.active=). Restores active on hydrate,
+      falls back to first terminal if stored ID missing.
+- [X] =typology/entities/terminal.js= (updated): proper class with
+      constructor, id, slug, toJSON.
+- [X] =LocalRepository= added to =prototypes/index.client.js= exports.
+- [X] =$client= (=client.js=): 6 symbols — LIGHTHOUSE, QUARTERS, BRIDGE,
+      THREAD, DAEMON, MODE.
+- [X] =routes/+layout.svelte=: creates barracks via =quarters.create()=,
+      =setContext(QUARTERS)=. Only spawns if no terminals survived
+      persistence.
+- [X] Crown bone: pulls =QUARTERS= context, subscribes to
+      =terminals.$entities= and =$active=. Renders tabs, spawn/activate.
+      Zero props from page.
+
+*** M2 — Blur gate on zero terminals [DONE 2026-04-10]
+
+- [X] Layout template: blur overlay renders ON TOP of children when
+      =terminalCount === 0=. Click spawns terminal, blur disappears
+      reactively. =backdrop-filter: blur(12px)=, skeleton-0 surface
+      at 70% opacity, centered "open terminal" prompt.
+- [X] Closing last terminal triggers blur (not error). App always
+      rendered underneath.
+
+*** M3 — Bridge context + geometry migration [DONE 2026-04-10]
+
+- [X] =typology/stores/bridge.js= (new): =create()= returns
+      ={ layout, view, toggle }=. Also exports all geometry constants
+      (=BONE_THICKNESS=, =PINCER_SIZE=, =HALF=, =EDGE_PADDING=, snap
+      grid) and pure layout functions (=clamp=, =snapToGrid=,
+      =rectsForOrientation=, =bonesForOrientation=, =snapToOrientation=,
+      =orientationToSnap=, =snapLabel=).
+- [X] =typology/stores/store.js= (new): =store()= factory extracted
+      from old =pincer/layout.js=. Shared by bridge and quarters.
+- [X] =routes/+layout.svelte=: creates bridge via =bridge.create()=,
+      =setContext(BRIDGE)=.
+- [X] Pincer page: pulls ={ layout }= from BRIDGE context. Imports
+      geometry from =@vivalence/html= (=bridge= namespace, destructured).
+- [X] Panels b, g, h: pull ={ view, toggle }= from BRIDGE context.
+- [X] =pincer/layout.js= deleted (constants + geometry moved to bridge).
+- [X] =pincer/view.js= deleted (state moved to bridge).
+- [X] =pincer/d/= directory deleted (dead vector demo).
+- [X] Panel D stubbed to placeholder (was importing deleted =d/=).
+- [X] =@vivalence/html/bridge= alias removed — all imports through
+      =@vivalence/html= barrel.
+
+*** M4 — Thread context + Panel D navigation [DONE 2026-04-11]
+
+Design decision 2026-04-11: consolidated DAEMON and MODE into THREAD.
+Single navigational context. =thread.mode= and =thread.mode.daemon=
+are accessors, not separate contexts. Simplifies from 6 to 4 symbols
+(LIGHTHOUSE, QUARTERS, BRIDGE, THREAD). DAEMON/MODE symbols in
+=$client= pending removal.
+
+- [X] Layout derives THREAD from active terminal's thread reference.
+      =stores/thread.js= — =create(quarters, lighthouse)= returns
+      =$current= atom, =.set(thread)=, =.clear()=. Resolves daemon+thread
+      markers on terminal via lighthouse. Reacts to =$active= and =$daemons=.
+      =setContext(THREAD, threadInstance)= in root layout.
+- [X] When terminal has no thread (empty/new), THREAD context is =null=.
+      Panels guard on =thread !== null= before reading daemon/mode.
+- [X] Panel D "outside" view: navigation Vector composed from
+      LIGHTHOUSE =$daemons=, rendered via =Tree= drape skin. Three top
+      branches: threads, modes (SELFEVIDENT), intents.
+- [X] =navigation.js=: =compose(quarters, lighthouse, threadContext)=
+      builds Vector with real effects. =openFromMode=, =openFromIntent=,
+      =resume= — all set thread context.
+- [X] Panel D "inside" (has thread): =composeThread(thread)= display
+      vector rendered as slim 2-3 column inline table.
+- [X] Panel F: =Dag= drape skin driven by thread buffers.
+- [X] B panel: "clear" button wired to delete all terminals.
+- [X] Crown: =quartersInstance.$terminal= computed for active terminal.
+      Close button on active tab.
+- [X] Terminals spawn with =null= slug. Display "unnamed" when no slug.
+- [X] Empty terminal overlay with blur, click to spawn.
+
+*** M5 — Typology consolidation [DONE 2026-04-11]
+
+Folded =src/lighthouse/=, =src/daemon/=, =src/entities/= into
+=src/typology/= with new structure:
+- =prototypes/= — raw classes (Lighthouse, Daemon, Dataspace, Entity,
+  Mode, Intent, Thread, Buffer, Terminal, registry)
+- =lifecycles/= — domain aggregates (class re-exports + lifecycle fns)
+- =stores/= — reactive state (quarters, bridge, thread, store factory)
+- =skins/= — UI components (=skins/lighthouse/Login.svelte=)
+- =entities/= — Terminal only (kept for quarters LocalRepository)
+
+Vite alias =@vivalence/html/skins= added. Barrel =mod.js= exports
+namespace aggregates (=lighthouse=, =daemon=, =quarters=, =bridge=,
+=thread=) + flat entity exports.
+
+*** Thread beforeCreate hook fix [DONE 2026-04-11]
+
+=ThreadSchema.beforeCreate= now uses =args.em.findOne(IntentEntity)=
+to populate the intent when it arrives as a foreign key ID. Previously
+the hook always exited early because =intent.traits= was undefined on
+an unpopulated reference. Trait + trait JSON merging now works
+server-side as designed.
+
+*** M2 — Mock extraction + prop drilling elimination [DONE 2026-04-10]
+
+- [X] =mock.js= (new): extracted all mock telemetry data — lighthouses[],
+      daemon, session, derived aggregates (=worstStatus=,
+      =lighthouseAggregate=, =lighthouseTooltip=, =sessionActivityStatus=,
+      =sessionActivityLabel=, =systemAlert=).
+- [X] =view.js= retrofitted to =store()= factory — one-liner.
+      =toggle()= as standalone helper.
+- [X] Dead code block deleted (~530 lines commented-out old version).
+- [X] Composed =client= root object in =$client= (=lighthouse + quarters=).
+- [X] Prop drilling eliminated from spine, shoulder, H, G, B panels —
+      each component imports its own dependencies from =mock.js=,
+      =view.js=, =layout.js= directly. Props reduced to =rect= only.
+- [X] Crown still prop-drilled (terminals, active, quarters) — last
+      remaining component not self-serving.
+
+** Phase 16: Context Architecture [DESIGN]
+
+*Outcome*: the client serves state via Svelte contexts instead of module
+singletons. A root =+layout.svelte= gates auth and populates contexts.
+Panels pull contexts by symbol. No prop drilling.
+
+*** Architecture decisions
+
+3 contexts, 3 symbols exported from =$client=:
+
+| Symbol       | Provides                                              | Gate     |
+|--------------+-------------------------------------------------------+----------|
+| =LIGHTHOUSE= | identity, auth, connection, daemons Map               | gate 1   |
+| =QUARTERS=   | terminal repository (LocalRepository), active id      | gate 2   |
+| =BRIDGE=     | layout store + view store (the app shell)              | gate 2   |
+
+Metaphor: a ship at sea. The lighthouse knows what's out there
+(identity, daemons). You cross the bridge (layout, view — the app
+shell). The quarters are where you work (terminals).
+
+*** Context internal model
+
+Every context is =store(defaults, serialize) + domain commands=:
+
+- State: nanostores atoms (=$key=), getters (=key=), =toJSON()=
+- Commands: domain methods that write atoms
+- Served: =setContext(SYMBOL)= in layout, =getContext(SYMBOL)= in consumers
+
+*** Terminal model
+
+Terminal no longer holds =$phase=, =$daemon=, =$mode=, =$thread=,
+=$intent= — those belong on the thread. Terminal is minimal:
+={ id, slug }=. Thread is the focal entity that connects a user to a
+mode's content.
+
+Quarters renamed to *barracks* internally. Backed by a =LocalRepository=
+— same CRUD surface as =RemoteRepository= but in-memory with optional
+localStorage persistence. No entity manager needed (the Map IS the
+identity map; no server to batch-flush to).
+
+*** Boot sequence
+
+1. =+layout.svelte= creates all 3 contexts unconditionally (=setContext=
+   must run at component init, not inside =$effect=).
+2. Gate 1: lighthouse auth check. If not authorized → login screen.
+3. Gate 2: daemons discovered. If not → loader.
+4. On ready: =barracks.spawn()= seeds one empty terminal.
+5. ={@render children()}= — page and panels can now =getContext()=.
+
+*** Gating constraint
+
+=setContext= runs at init time, gate controls whether =children()=
+renders. Contexts exist before the gate opens; their *content* populates
+progressively. Consumers only render after the gate, so they always see
+populated state.
+
+*** LocalRepository [DONE 2026-04-10]
+
+- [X] =typology/prototypes/local-repository.js= (new, 115 lines):
+      =LocalRepository= class — Map-backed identity, nanostores
+      =$entities= atom, =find/findOne/has/count/create/merge/update/
+      remove/drop/clear=, optional =persist(key)= for localStorage,
+      prototype wrapping via =kind=.
+- [X] =typology/tests/local-repository.test.js= (new, 25 steps green):
+      CRUD, identity (merge upsert, field preservation, null handling),
+      update (in-place patch, reactivity), prototype wrapping, clear.
+      Mirrors =RemoteRepository= test structure for interchangeability.
+
+Open:
+- Wire exports (=index.client.js=, =index.ts=) — not yet added.
+- Barracks context factory (=createBarracks()=) — designed, not implemented.
+- Root =+layout.svelte= with gate cascade — designed, not implemented.
+- Bridge context factory (=createBridge()=) — not yet designed.
+- Crown self-serve from =QUARTERS= context — diff proposed, not applied.
+- Persistence round-trip test for LocalRepository.

@@ -13,7 +13,7 @@ export class TurnEntity extends DataEntity {
   children = new Collection<TurnEntity>(this);
 
   thread!: Rel<ThreadEntity>;
-  mode!: Rel<ModeEntity>;
+  mode?: Rel<ModeEntity>;
 }
 
 export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
@@ -50,8 +50,8 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
       kind: "m:1",
       entity: () => ModeEntity,
       fieldName: "mode",
-      updateRule: "cascade",
-      deleteRule: "cascade",
+      nullable: true,
+      deleteRule: "set null",
     },
   },
 });

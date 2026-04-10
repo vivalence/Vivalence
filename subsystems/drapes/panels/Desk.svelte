@@ -20,14 +20,15 @@
 
 <style>
   .desk {
-    display: grid;
-    grid-template-rows: 1fr auto;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     min-height: 0;
     overflow: hidden;
   }
 
   .desk-surface {
+    flex: 1 1 0;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
@@ -36,14 +37,18 @@
 
   .desk-stage {
     width: 100%;
+    min-width: 0;
     margin: 0 auto;
     padding: 2rem 1.25rem;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
   .desk-controls {
+    flex-shrink: 0;
     border-top: 1px solid var(--colors-skeleton-1-boundary);
     padding: 0.75rem 1.25rem;
+    overflow: hidden;
   }
 
   .desk-tray {

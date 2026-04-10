@@ -47,10 +47,9 @@ const dataset = {
     {
       slug: "feed",
       name: "Flashcard",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/feed",
           queue: 1,
           mask: { limit: 5 },

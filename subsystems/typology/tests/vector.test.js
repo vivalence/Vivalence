@@ -110,4 +110,28 @@ specimen.describe("Vector", () => {
       specimen.expect(branch.carry.length).toBe(0);
     });
   });
+
+  specimen.describe("affect", () => {
+    specimen.it("registers a null-keyed effect", () => {
+      const vector = new Vector();
+      const f = (ctx) => ctx.input;
+      vector.affect(f);
+      specimen.expect(vector.effects.size).toBe(1);
+      specimen.expect(vector.effects.get(null)).toBe(f);
+    });
+
+    specimen.it("is chainable", () => {
+      const vector = new Vector();
+      specimen.expect(vector.affect(() => {})).toBe(vector);
+    });
+
+    specimen.it("sits alongside keyed effects without collision", () => {
+      const vector = new Vector();
+      const named = () => "named";
+      const anon = () => "anon";
+      vector.open("ping", named).affect(anon);
+      specimen.expect(vector.effects.size).toBe(2);
+      specimen.expect(vector.effects.get(null)).toBe(anon);
+    });
+  });
 });

@@ -23,7 +23,7 @@ export class Vector {
     const pattern = new this.signature(signature);
 
     let descendant = Array.from(this.trajectories.entries()) //
-      .find(([i]) => i.hash === pattern.hash)?.[1];
+      .find(([i]) => i.nature === pattern.nature || i.hash === pattern.hash)?.[1];
 
     if (!descendant) {
       descendant = new this.constructor(this, this.signature);
@@ -48,9 +48,14 @@ export class Vector {
 
     return this;
   }
+  affect(effect) {
+    if (this.effects.has(null)) return console.log("vector already affected");
+    this.effects.set(null, effect);
+    return this;
+  }
 
   set(vector) {
-    // depracated
+    console.log("vector.set() is depracated");
     return this.slurp(vector);
   }
 
@@ -80,11 +85,13 @@ export class Vector {
   }
 
   survey(visit = (node) => node) {
-    const effects = [...this.effects.entries()]
-      .map(([signature, effect]) => visit({ signature, effect }))
-    const trajectories = [...this.trajectories.entries()]
-      .map(([signature, descendant]) => visit({ signature, ...descendant.survey(visit) }))
-    return { effects, trajectories }
+    const effects = [...this.effects.entries()].map(([signature, effect]) =>
+      visit({ signature, effect }),
+    );
+    const trajectories = [...this.trajectories.entries()].map(([signature, descendant]) =>
+      visit({ signature, ...descendant.survey(visit) }),
+    );
+    return { effects, trajectories };
   }
 }
 

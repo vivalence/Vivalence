@@ -3,6 +3,7 @@ import { Cascade, types, EntitySchema, Collection, type Opt, type Rel } from "@m
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { IntentEntity } from "../index.ts";
 import { BufferEntity } from "../index.ts";
+import { TurnEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
   DATASET = "DATASET",
@@ -34,6 +35,7 @@ export class ModeEntity extends DataEntity {
 
   intents = new Collection<IntentEntity>(this);
   buffers = new Collection<BufferEntity>(this);
+  turns = new Collection<TurnEntity>(this);
 }
 
 export const ModeSchema = new EntitySchema({
@@ -72,6 +74,12 @@ export const ModeSchema = new EntitySchema({
       mappedBy: (buffer) => buffer.mode,
       cascade: [Cascade.REMOVE],
       orphanRemoval: true,
+    },
+
+    turns: {
+      kind: "1:m",
+      entity: () => TurnEntity,
+      mappedBy: (turn) => turn.mode,
     },
   },
 });

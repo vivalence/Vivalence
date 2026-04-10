@@ -165,34 +165,34 @@ specimen.describe("RemoteEntityManager", () => {
   });
 
   specimen.describe("cast (relationship hydration via EM)", () => {
-    specimen.it("resolves m:1 object references across types", () => {
+    specimen.it("resolves m:1 object references across types", async () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
       entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
 
       const mode = entityManager.merge("mode", { id: "m-1", slug: "flashcard" }, TestMode);
-      const intent = entityManager.cast("intent", { id: "i-1", slug: "survival", mode: { id: "m-1" } }, TestIntent);
+      const intent = await entityManager.cast("intent", { id: "i-1", slug: "survival", mode: { id: "m-1" } }, TestIntent);
 
       specimen.expect(intent.mode).toBe(mode);
     });
 
-    specimen.it("resolves m:1 string id references", () => {
+    specimen.it("resolves m:1 string id references", async () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
       entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
 
       const mode = entityManager.merge("mode", { id: "m-1", slug: "flashcard" }, TestMode);
-      const intent = entityManager.cast("intent", { id: "i-1", slug: "survival", mode: "m-1" }, TestIntent);
+      const intent = await entityManager.cast("intent", { id: "i-1", slug: "survival", mode: "m-1" }, TestIntent);
 
       specimen.expect(intent.mode).toBe(mode);
     });
 
-    specimen.it("leaves unresolvable references as-is", () => {
+    specimen.it("leaves unresolvable references as-is", async () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
       entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
 
-      const intent = entityManager.cast("intent", { id: "i-1", mode: "unknown-id" }, TestIntent);
+      const intent = await entityManager.cast("intent", { id: "i-1", mode: "unknown-id" }, TestIntent);
       specimen.expect(intent.mode).toBe("unknown-id");
     });
   });
@@ -272,7 +272,7 @@ specimen.describe("RemoteEntityManager", () => {
       specimen.expect(thread.counter).toBe(10);
     });
 
-    specimen.it("cast preserves hydrated relations over field initializer defaults", () => {
+    specimen.it("cast preserves hydrated relations over field initializer defaults", async () => {
       const entityManager = new RemoteEntityManager(conn, schema);
       entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
       entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
@@ -280,8 +280,7 @@ specimen.describe("RemoteEntityManager", () => {
 
       const mode = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
 
-      // Cast thread with mode as string ID — should resolve to Mode instance
-      const thread = entityManager.cast("thread", {
+      const thread = await entityManager.cast("thread", {
         id: "t-1", mode: "m-1", cursor: 3,
       }, TestThread);
 
@@ -381,7 +380,7 @@ specimen.describe("RemoteRepository + RemoteEntityManager", () => {
     const modeId = modes[0].id;
 
     // Cast an intent through the managed repo — should resolve mode via EM
-    const intent = intentRepo.cast({ id: "i-synthetic", slug: "test-intent", mode: { id: modeId } });
+    const intent = await intentRepo.cast({ id: "i-synthetic", slug: "test-intent", mode: { id: modeId } });
     specimen.expect(intent.mode).toBe(modes[0]);
   });
 

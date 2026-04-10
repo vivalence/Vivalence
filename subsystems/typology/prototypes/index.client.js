@@ -23,7 +23,8 @@ export * from "./signal.js";
 export * from "./buffer.js";
 export * from "./mask.js";
 export * from "./wafer.js";
-export * from "./repository.js";
+export * from "./remote-repository.js";
+export * from "./local-repository.js";
 export * from "./entity-manager.js";
 
 // export * from "./feature.js";

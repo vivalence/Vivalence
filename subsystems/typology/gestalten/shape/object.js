@@ -1,6 +1,6 @@
 import { middleware, steer, Signal } from "@vivalence/typology";
 
-export function object(vector, execute = steer.direct, signal = new Signal(), steps = []) {
+export function object(vector, execute = steer.request, signal = new Signal(), steps = []) {
   const output = {};
 
   for (const [pattern, descendant] of vector.trajectories) {
@@ -26,7 +26,7 @@ export function object(vector, execute = steer.direct, signal = new Signal(), st
   return output;
 }
 
-export function proxy(vector, execute = steer.direct) {
+export function proxy(vector, execute = steer.request) {
   return proxyNode(vector, execute, {}, new Signal(), []);
 }
 

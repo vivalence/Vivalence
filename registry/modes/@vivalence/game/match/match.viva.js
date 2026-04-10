@@ -59,10 +59,9 @@ const dataset = {
     {
       slug: "feed",
       name: "Match",
-      type: "APPLICATIVE",
-      traits: ["FEEDING"],
+      traits: ["QUEUEING"],
       trait: {
-        FEEDING: {
+        QUEUEING: {
           mount: "/emit/feed",
           queue: 1,
           mask: { limit: 6 },

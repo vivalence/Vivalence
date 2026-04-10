@@ -5,10 +5,10 @@
 //   colors → tokens → themes → generateCSS → CSS string
 
 import { specimen } from "@vivalence/typology";
-import colors from "../primitives/colors.js";
-import tokens from "../primitives/tokens.js";
+import colors from "../lib/colors.js";
+import tokens from "../lib/tokens.js";
 import dark from "../themes/dark.js";
-import { generateCSS } from "../belt/lib.js";
+import { generateCSS } from "../lib/flatten.js";
 
 async function emit() {
   const ds = { colors: {}, tokens: {}, themes: {} };
@@ -63,10 +63,11 @@ specimen.describe("css emit — flat scoped skeletons", () => {
     }
   });
 
-  specimen.it("does NOT emit any old --colors-theme-* or --colors-system-* vars", async () => {
+  specimen.it("emits --colors-theme-* and --colors-system-* compatibility aliases", async () => {
     const css = await emit();
-    specimen.expect(css.includes("--colors-theme-")).toBe(false);
-    specimen.expect(css.includes("--colors-system-")).toBe(false);
+    specimen.expect(css.includes("--colors-theme-primary-surface:")).toBe(true);
+    specimen.expect(css.includes("--colors-system-success-surface:")).toBe(true);
+    specimen.expect(css.includes("--colors-system-error-surface:")).toBe(true);
   });
 
   specimen.it("does NOT emit any --colors-skeleton-N-disabled vars", async () => {

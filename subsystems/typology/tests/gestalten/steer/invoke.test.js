@@ -24,8 +24,14 @@ specimen.describe("invoke", () => {
     const trace = [];
     const vector = new Vector();
 
-    vector.use(async (_, next) => { trace.push("mw"); await next(); });
-    vector.open("action", () => { trace.push("effect"); return "done"; });
+    vector.use(async (_, next) => {
+      trace.push("mw");
+      await next();
+    });
+    vector.open("action", () => {
+      trace.push("effect");
+      return "done";
+    });
 
     await invoke(vector, "action")();
     specimen.expect(trace).toEqual(["mw", "effect"]);
@@ -50,7 +56,9 @@ specimen.describe("invoke", () => {
 
     const custom = (carry, effect, steps, signal) => async () => {
       const ctx = { custom: true };
-      await carry(ctx, async (c) => { c.output = await effect(c); });
+      await carry(ctx, async (c) => {
+        c.output = await effect(c);
+      });
       return { value: ctx.output, custom: ctx.custom };
     };
 

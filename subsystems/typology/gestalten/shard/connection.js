@@ -56,9 +56,9 @@ export const retry =
   };
 
 export const batch = (options = {}) => {
-  const { url, endpoint = "/batch", filter } = options;
+  const { hatch, endpoint = "/batch", filter } = options;
   let queue = null;
-  const basePath = url?.pathname ?? "";
+  const basePath = hatch?.pathname ?? "";
 
   return async (ctx, next) => {
     if (filter && !filter(ctx)) return next();
@@ -85,8 +85,8 @@ export const batch = (options = {}) => {
 
         const lead = q[0];
         lead.ctx.request.body = q.map((e) => ({ path: e.path, body: e.body, method: e.method }));
-        lead.ctx.request.url = url
-          ? url.branch(endpoint)
+        lead.ctx.request.url = hatch
+          ? hatch.branch(endpoint)
           : new Url(`${lead.ctx.request.url.origin}${endpoint}`);
         lead.ctx.request.method = "POST";
 

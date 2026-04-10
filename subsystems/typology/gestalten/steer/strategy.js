@@ -1,13 +1,25 @@
 import { is, fromm, Value, Context, ValidationError } from "@vivalence/typology";
 
-export function dispatch(effect, ctx) {
+export function dispatch(effect, context) {
   if (effect.length === 0) return effect();
-  if (effect.length === 1) return effect(ctx);
-  return effect(ctx.input, ctx);
+  if (effect.length === 1) return effect(context);
+  return effect(context.input, context);
 }
 
+export const resolve = (effect) => async (context) => {
+  const result = await dispatch(effect, context);
+  if (!context.output && !is.undefined(result)) context.output = result;
+  return context.output;
+};
+
 export const direct = (carry, effect) => async (context) => {
-  await carry(context, async (ctx) => (ctx.output = await effect(ctx)));
+  await carry(context, resolve(effect));
+  return context.output;
+};
+
+export const bare = (carry, effect) => async (input) => {
+  const context = { input, output: undefined };
+  await carry(context, resolve(effect));
   return context.output;
 };
 
@@ -18,10 +30,7 @@ export const request = (carry, effect, steps, signal) => async (input) => {
     signal,
     steps,
   });
-  await carry(ctx, async (c) => {
-    const result = await dispatch(effect, c);
-    if (!is.undefined(result)) c.output = result;
-  });
+  await carry(ctx, resolve(effect));
   return ctx.output;
 };
 
@@ -39,9 +48,6 @@ export const guarded = (carry, effect, steps, signal) => async (input) => {
     signal,
     steps,
   });
-  await carry(ctx, async (c) => {
-    const result = await dispatch(effect, c);
-    if (!is.undefined(result)) c.output = result;
-  });
+  await carry(ctx, resolve(effect));
   return ctx.output;
 };

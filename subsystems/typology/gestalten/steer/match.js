@@ -1,5 +1,11 @@
 import { NotFound } from "@vivalence/typology";
 
+export function feed(matches, signal) {
+  if (!matches.length) throw new NotFound(signal);
+  if (matches.length === 1) return matches[0];
+  return matches.find(([, t, e]) => (signal.heir ? t : e));
+}
+
 export function greedy(vector, signal) {
   for (const [pattern, effect] of vector.effects.entries()) {
     const match = pattern.apply(signal);
@@ -28,10 +34,4 @@ export function scope(vector, signal) {
   }
 
   return scope;
-}
-
-export function resolve(matches, signal) {
-  if (!matches.length) throw new NotFound(signal);
-  if (matches.length === 1) return matches[0];
-  return matches.find(([, t, e]) => signal.heir ? t : e);
 }
