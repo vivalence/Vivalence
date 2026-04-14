@@ -5,6 +5,8 @@ import { ModeEntity } from "../index.ts";
 // export enum IntentTypeEnum {SELFEVIDENT = "SELFEVIDENT", APPLICATIVE = "APPLICATIVE",}
 
 export enum IntentTraitsEnum {
+  MASKED = "MASKED",
+  AIMED = "AIMED",
   QUEUEING = "QUEUEING",
   SELFEVIDENT = "SELFEVIDENT",
   FURNISHED = "FURNISHED",

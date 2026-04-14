@@ -58,6 +58,7 @@ export default defineConfig(async ({ command }) => ({
   resolve: {
     alias: {
       // STABLE
+      $telemetry: join(__dirname, "./src/telemetry.js"),
       $client: join(__dirname, "./src/client.js"),
       "@vivalence/html/skins": join(__dirname, "./src/typology/skins"),
       "@vivalence/html": join(__dirname, "./src/typology/mod.js"),

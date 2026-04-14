@@ -1,6 +1,6 @@
 import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
 
-import { DataEntity, DataSchema } from "../index.ts";
+import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 import { ThreadEntity } from "../index.ts";
 
@@ -20,6 +20,7 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
   class: TurnEntity,
   extends: DataSchema,
   tableName: "Turn",
+  repository: () => DataRepository,
   properties: {
     role: { type: types.string },
     parts: { type: types.json, defaultRaw: `'[]'` },

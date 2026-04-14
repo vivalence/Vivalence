@@ -15,6 +15,7 @@
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
     "test/scenario": "deno test -A --no-check --watch tests/scenario/*.test.js",
     "test/dataspace": "deno test -A --no-check --watch tests/lifecycle-vector.test.js",
+    "test/stall": "deno test -A --no-check --watch tests/stall.test.js",
   },
 }
 

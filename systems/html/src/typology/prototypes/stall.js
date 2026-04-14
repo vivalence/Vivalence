@@ -1,75 +1,125 @@
 import { atom } from "nanostores";
-
+export const StallStatusEnum = Object.freeze({
+  UNINITIALIZED: "<uninitialized>",
+  IDLE: "IDLE",
+  PULLING: "PULLING",
+  EXHAUSTED: "EXHAUSTED",
+  ERROR: "ERROR",
+  CLOSED: "CLOSED",
+})
 export class Stall {
-  $queue;
+  $source;
   $active;
   $error = atom(null);
-  $status = atom("<uninitialized>");
+  $status = atom(StallStatusEnum.UNINITIALIZED);
 
   threshold = 0;
+  suspended = false;
+  teardowns = [];
   handlers = { pull: null, hooks: [] };
 
-  constructor($queue, $active) {
-    this.$queue = $queue;
+  constructor($source, $active) {
+    this.$source = $source;
     this.$active = $active;
   }
 
   withPull(pull, threshold = 0) {
     this.handlers.pull = pull;
     this.threshold = threshold;
-    this.$status.set("IDLE");
     return this;
+  }
+
+  activate() {
+    if (this.activated) return this;
+    this.activated = true;
+
+    this.$status.set(StallStatusEnum.IDLE);
+    this.teardowns.push(this.$status.subscribe((status) => {
+      if (status !== StallStatusEnum.IDLE) return;
+      if (!this.$active.get() && this.$source.get().length) this.advance();
+      if (this.$source.get().length < this.threshold) this.pull();
+    }));
+
+    this.teardowns.push(this.$source.subscribe(() => {
+      if (this.$status.get() === StallStatusEnum.CLOSED) return;
+      if (this.suspended) return;
+      if (!this.$active.get() && this.$source.get().length) this.advance();
+    }));
+
+    return this;
+  }
+
+  deactivate() {
+    for (const teardown of this.teardowns) teardown();
+    this.teardowns = [];
+    this.activated = false;
+  }
+
+  suspend() { this.suspended = true; }
+
+  resume() {
+    this.suspended = false;
+    if (!this.$active.get() && this.$source.get().length) this.advance();
+  }
+
+  advance() {
+    const items = this.$source.get();
+    if (items.length > 0) {
+      this.$active.set(items[0]);
+    }
   }
 
   next(promise) {
     const status = this.$status.get();
-    if (status === "CLOSED") return;
+    if (status === StallStatusEnum.CLOSED) return;
 
     const prev = this.$active.get();
     this.$active.set(null);
-    const queue = this.$queue.get();
 
-    if (queue.length > 0) {
-      const [first, ...rest] = queue;
-      this.$queue.set(rest);
-      this.$active.set(first);
-    }
-
+    this.advance();
     this.runHooks(prev, this.$active.get(), promise);
 
-    if (status === "IDLE") this.pull();
+    if (this.$source.get().length < this.threshold) this.pull();
   }
 
   async pull() {
     const status = this.$status.get();
-    if (["CLOSED", "PULLING", "EXHAUSTED", "ERROR"].includes(status)) return;
-    if (this.$queue.get().length > this.threshold) return;
+    if ([StallStatusEnum.CLOSED, StallStatusEnum.PULLING, StallStatusEnum.EXHAUSTED, StallStatusEnum.ERROR].includes(status)) return;
+    if (this.$source.get().length > this.threshold) return;
     if (!this.handlers.pull) return;
 
-    this.$status.set("PULLING");
+    this.$status.set(StallStatusEnum.PULLING);
 
     try {
       const result = await this.handlers.pull(this);
+      if (!this.activated) return;
       const condition = result?.condition ?? (result?.buffers?.length ? "NOMINAL" : "EXHAUSTED");
 
-      if (condition === "NOMINAL") this.$status.set("IDLE");
-      else if (condition === "EXHAUSTED") this.$status.set("EXHAUSTED");
+      if (condition === "NOMINAL") this.$status.set(StallStatusEnum.IDLE);
+      else if (condition === "EXHAUSTED") this.$status.set(StallStatusEnum.EXHAUSTED);
       else if (condition === "ERROR") {
-        this.$status.set("ERROR");
+        console.error("[stall] pull returned ERROR:", result.error);
+        this.$status.set(StallStatusEnum.ERROR);
         this.$error.set(result.error);
       }
     } catch (error) {
-      this.$status.set("ERROR");
+      console.error("[stall] pull failed:", error);
+      this.$status.set(StallStatusEnum.ERROR);
       this.$error.set(error);
     }
+  }
+
+  close() {
+    this.$status.set(StallStatusEnum.CLOSED);
+    this.handlers.pull = null;
+    this.handlers.hooks = [];
   }
 
   reset() {
     this.handlers.pull = null;
     this.handlers.hooks = [];
     this.$active.set(null);
-    this.$queue.set([]);
-    this.$status.set("IDLE");
+    this.$status.set(StallStatusEnum.IDLE);
   }
 
   onNext(fn) {
@@ -85,7 +135,7 @@ export class Stall {
     return {
       status: this.$status.get(),
       active: active?.toJSON?.() ?? active?.id ?? null,
-      queue: this.$queue.get().map((b) => b?.toJSON?.() ?? b?.id ?? b),
+      queue: this.$source.get().map((b) => b?.toJSON?.() ?? b?.id ?? b),
       error: this.$error.get()?.message ?? null,
       hasPull: !!this.handlers.pull,
       hooks: this.handlers.hooks.length,

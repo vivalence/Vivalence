@@ -9,17 +9,25 @@
 
   let thread = $state(null);
   let bufferAtom = $state(null);
+  let buffer = $state(null);
   let status = $state(null);
+
+  let teardownBuffer = null;
+  let teardownStatus = null;
 
   threadInstance.$current.subscribe((current) => {
     thread = current;
+    if (teardownBuffer) { teardownBuffer(); teardownBuffer = null; }
+    if (teardownStatus) { teardownStatus(); teardownStatus = null; }
     if (!current?.queue) {
       bufferAtom = null;
+      buffer = null;
       status = null;
       return;
     }
     bufferAtom = current.$buffer;
-    current.queue.$status.subscribe((s) => { status = s; });
+    teardownBuffer = current.$buffer.subscribe((b) => { buffer = b; });
+    teardownStatus = current.queue.$status.subscribe((s) => { status = s; });
   });
 </script>
 
@@ -31,7 +39,7 @@
     style:width="{rect.width}px"
     style:height="{rect.height}px"
   >
-    {#if bufferAtom}
+    {#if buffer && bufferAtom}
       <Frame buffer={bufferAtom} />
     {:else if thread}
       <div class="yield-state">

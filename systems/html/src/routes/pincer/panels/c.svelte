@@ -10,7 +10,7 @@
   const bridgeInstance = getContext(BRIDGE);
   const stored = bridgeInstance.paneSize;
 
-  const PANE_MIN_PX = 80;
+  const PANE_MIN_PX = 0;
 
   let panes = $state(stored.$panes.get());
   let paneSize = $state({ d: stored.$d.get(), e: stored.$e.get(), f: stored.$f.get() });
@@ -75,6 +75,7 @@
     panes[key] = !panes[key];
     persistPanes();
   }
+
 
   function persistPanes() {
     stored.d = paneSize.d;

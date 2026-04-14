@@ -69,12 +69,12 @@ export default async (ctx) => {
       ),
 
       ...words
-        .filter((l) => l.memory?.is.virgin || l.memory?.is.weak)
+        .filter((l) => l.memory?.is.virgin)
         .map((literal) =>
           ctx.daemon.modes.game.judge.emit.literal({
             literal,
             distractors,
-            speed: { rate: literal.memory?.is.succeeded ? "NORMAL" : "SLOW" },
+            speed: { rate: "SLOW" },
           }),
         ),
       ...words
@@ -83,7 +83,7 @@ export default async (ctx) => {
           ctx.daemon.modes.game.listen.emit.literal({
             literal,
             distractors,
-            gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
+            gameplay: "TYPE",
             recall: "KNOWN",
           }),
         ),

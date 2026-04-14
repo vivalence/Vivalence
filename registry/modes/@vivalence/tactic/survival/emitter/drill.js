@@ -41,9 +41,10 @@ export default async (ctx) => {
     }),
   );
 
+  const weakForms = forms.filter((form) => !form.memory || form.memory.is.virgin || form.memory.is.weak);
   ctx.pool
     .section(
-      ...forms.map((literal) =>
+      ...weakForms.map((literal) =>
         ctx.daemon.modes.game.judge.emit.literal({
           literal,
           distractors,

@@ -96,13 +96,11 @@ const dataset = {
     {
       slug: "feed",
       name: "Conjugation",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/feed",
-          queue: 1,
-          mask: { where: { ontology: "conjugation" }, limit: 4 },
-        },
+        MASKED: { where: { ontology: "conjugation" }, limit: 4 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
       },
     },
   ],

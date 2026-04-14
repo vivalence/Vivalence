@@ -1,29 +1,41 @@
 <script>
   import { defaults } from "./defaults.js"
+  import Skin from "./Skin.svelte"
 
-  let { pojo } = $props()
+  let { nodes } = $props()
 
   let path = $state([])
   let results = $state({})
 
-  const current = $derived(() => {
-    let node = pojo
+  const currentItems = $derived(() => {
+    let items = nodes
     for (const segment of path) {
-      const trajectory = node.trajectories.find((t) => t.nature === segment)
-      if (!trajectory || !trajectory.children) break
-      node = trajectory.children
+      const branch = items.find((n) => n.nature === segment && n.children)
+      if (!branch) break
+      items = branch.children
     }
-    return node
+    return items
+  })
+
+  const currentVariant = $derived(() => {
+    let items = nodes
+    let branch = null
+    for (const segment of path) {
+      branch = items.find((n) => n.nature === segment && n.children)
+      if (!branch) break
+      items = branch.children
+    }
+    return branch?.signature?.directed?.variant
   })
 
   function enter(nature) { path = [...path, nature] }
   function goTo(index) { path = path.slice(0, index) }
 
-  async function fire(effect) {
-    const fullPath = [...path, effect.nature].join("/")
-    if (!effect.invoke) return
+  async function fire(node) {
+    const fullPath = [...path, node.nature].join("/")
+    if (!node.invoke) return
     try {
-      results[fullPath] = { ok: true, result: await effect.invoke(defaults(effect.signature?.input)) }
+      results[fullPath] = { ok: true, result: await node.invoke(defaults(node.signature?.input)) }
     } catch (error) {
       results[fullPath] = { ok: false, error: error.message }
     }
@@ -38,44 +50,64 @@
       <button class="crumb" onclick={() => goTo(i + 1)}>{segment}</button>
     {/each}
   </div>
-  <div class="items">
-    {#each current().effects as effect}
-      {@const fullPath = [...path, effect.nature].join("/")}
-      <div class="bc-item leaf" onclick={() => fire(effect)}>
-        <span class="bc-nature">{effect.nature}</span>
-        {#if effect.signature?.keyed}
-          <span class="bc-key">{effect.signature.keyed.modifier ? effect.signature.keyed.modifier + '+' : ''}{effect.signature.keyed.command}</span>
+
+  {#if currentVariant() && currentVariant() !== "breadcrumb"}
+    <Skin nodes={currentItems().filter((n) => !n.children)} variant={currentVariant()} />
+    <div class="items">
+      {#each currentItems().filter((n) => n.children) as node}
+        <div class="bc-item branch" onclick={() => enter(node.nature)}>
+          <span class="bc-nature">{node.nature}</span>
+          {#if typeof node.signature?.valence === "string"}
+            <span class="bc-valence">{node.signature.valence}</span>
+          {:else if node.signature?.valence?.name}
+            <span class="bc-valence">{node.signature.valence.name}</span>
+          {/if}
+          <span class="bc-arrow">→</span>
+        </div>
+      {/each}
+    </div>
+  {:else}
+    <div class="items">
+      {#each currentItems() as node}
+        {#if node.children}
+          <div class="bc-item branch" onclick={() => enter(node.nature)}>
+            <span class="bc-nature">{node.nature}</span>
+            {#if typeof node.signature?.valence === "string"}
+              <span class="bc-valence">{node.signature.valence}</span>
+            {:else if node.signature?.valence?.name}
+              <span class="bc-valence">{node.signature.valence.name}</span>
+            {/if}
+            <span class="bc-arrow">→</span>
+          </div>
+        {:else}
+          {@const fullPath = [...path, node.nature].join("/")}
+          <div class="bc-item leaf" onclick={() => fire(node)}>
+            <span class="bc-nature">{node.nature}</span>
+            {#if typeof node.signature?.valence === "string"}
+              <span class="bc-valence">{node.signature.valence}</span>
+            {:else if node.signature?.valence?.name}
+              <span class="bc-valence">{node.signature.valence.name}</span>
+            {/if}
+            {#if results[fullPath]}<span class="bc-result">{JSON.stringify(results[fullPath].result)}</span>{/if}
+          </div>
         {/if}
-        {#if effect.signature?.directed}
-          <span class="bc-directed">{effect.signature.directed.icon}</span>
-        {/if}
-        {#if results[fullPath]}<span class="bc-result">{JSON.stringify(results[fullPath].result)}</span>{/if}
-      </div>
-    {/each}
-    {#each current().trajectories as trajectory}
-      <div class="bc-item branch" onclick={() => enter(trajectory.nature)}>
-        <span class="bc-nature">{trajectory.nature}</span>
-        {#if trajectory.signature?.directed}
-          <span class="bc-directed">{trajectory.signature.directed.icon}{#if trajectory.signature.directed.label} {trajectory.signature.directed.label}{/if}</span>
-        {/if}
-        <span class="bc-arrow">→</span>
-      </div>
-    {/each}
-  </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 <style>
   .skin-breadcrumb { font-family: var(--font-family-code); font-size: 11px; }
-  .crumbs { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; }
+  .crumbs { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; padding: 0 4px; }
   .crumb { background: none; border: none; color: var(--colors-skeleton-0-primary-base); cursor: pointer; font-family: inherit; font-size: inherit; padding: 2px 4px; }
   .crumb:hover { text-decoration: underline; }
   .crumb-sep { opacity: 0.3; }
-  .items { display: flex; flex-direction: column; gap: 2px; }
-  .bc-item { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 2px; cursor: pointer; }
+  .items { display: flex; flex-direction: column; gap: 1px; }
+  .items { display: table; width: 100%; border-collapse: collapse; }
+  .bc-item { display: table-row; cursor: pointer; }
   .bc-item:hover { background: var(--colors-skeleton-1-surface); }
-  .bc-nature { color: var(--colors-skeleton-1-contrast); }
-  .bc-key { color: var(--colors-skeleton-0-primary-base); opacity: 0.5; font-size: 9px; }
-  .bc-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: 9px; }
-  .bc-arrow { opacity: 0.4; }
-  .bc-result { opacity: 0.4; font-size: 9px; margin-left: auto; }
+  .bc-nature { display: table-cell; color: var(--colors-skeleton-1-contrast); padding: 2px 8px; white-space: nowrap; width: 1%; }
+  .bc-valence { display: table-cell; color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; padding: 2px 8px; }
+  .bc-arrow { display: table-cell; opacity: 0.4; padding: 2px 8px; width: 1%; }
+  .bc-result { display: table-cell; opacity: 0.4; font-size: 9px; padding: 2px 8px; }
 </style>

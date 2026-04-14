@@ -1,7 +1,8 @@
 <script>
   import { defaults } from "./defaults.js"
+  import Skin from "./Skin.svelte"
 
-  let { pojo, depth = 0 } = $props()
+  let { nodes, depth = 0 } = $props()
 
   let expanded = $state({})
   let results = $state({})
@@ -11,7 +12,7 @@
   async function fire(node) {
     if (!node.invoke) return
     try {
-      results[node.nature] = { ok: true, result: await node.invoke(defaults(node.signature.input)) }
+      results[node.nature] = { ok: true, result: await node.invoke(defaults(node.signature?.input)) }
     } catch (error) {
       results[node.nature] = { ok: false, error: error.message }
     }
@@ -19,31 +20,42 @@
 </script>
 
 <div class="skin-tree" style="--depth: {depth}">
-  {#each pojo.effects as effect}
-    <div class="tree-leaf" onclick={() => fire(effect)}>
-      <span class="tree-nature">{effect.nature}</span>
-      {#if effect.signature.keyed}
-        <span class="tree-key">{effect.signature.keyed.modifier ? effect.signature.keyed.modifier + '+' : ''}{effect.signature.keyed.command}</span>
+  {#each nodes as node}
+    {#if node.children}
+      <div class="tree-branch" onclick={() => toggle(node.nature)}>
+        <span class="tree-arrow" class:open={expanded[node.nature]}>▸</span>
+        <span class="tree-nature">{node.nature}</span>
+        {#if typeof node.signature?.valence === "string"}
+          <span class="tree-valence">{node.signature.valence}</span>
+        {:else if node.signature?.valence?.name}
+          <span class="tree-valence">{node.signature.valence.name}</span>
+        {/if}
+        {#if node.signature?.keyed}
+          <span class="tree-key">{node.signature.keyed.modifier ? node.signature.keyed.modifier + '+' : ''}{node.signature.keyed.command}</span>
+        {/if}
+        {#if node.signature?.directed}
+          <span class="tree-directed">{node.signature.directed.icon}</span>
+        {/if}
+      </div>
+      {#if expanded[node.nature]}
+        <Skin nodes={node.children} variant={node.signature?.directed?.variant ?? "tree"} />
       {/if}
-      {#if effect.signature.directed}
-        <span class="tree-directed">{effect.signature.directed.icon}</span>
-      {/if}
-      {#if results[effect.nature]}<span class="tree-result">{JSON.stringify(results[effect.nature].result)}</span>{/if}
-    </div>
-  {/each}
-  {#each pojo.trajectories as trajectory}
-    <div class="tree-branch" onclick={() => toggle(trajectory.nature)}>
-      <span class="tree-arrow" class:open={expanded[trajectory.nature]}>▸</span>
-      <span class="tree-nature">{trajectory.nature}</span>
-      {#if trajectory.signature.keyed}
-        <span class="tree-key">{trajectory.signature.keyed.modifier ? trajectory.signature.keyed.modifier + '+' : ''}{trajectory.signature.keyed.command}</span>
-      {/if}
-      {#if trajectory.signature.directed}
-        <span class="tree-directed">{trajectory.signature.directed.icon}{#if trajectory.signature.directed.label} {trajectory.signature.directed.label}{/if}{#if trajectory.signature.directed.collapsed} (collapsed){/if}</span>
-      {/if}
-    </div>
-    {#if expanded[trajectory.nature] && trajectory.children}
-      <svelte:self pojo={trajectory.children} depth={depth + 1} />
+    {:else}
+      <div class="tree-leaf" onclick={() => fire(node)}>
+        <span class="tree-nature">{node.nature}</span>
+        {#if typeof node.signature?.valence === "string"}
+          <span class="tree-valence">{node.signature.valence}</span>
+        {:else if node.signature?.valence?.name}
+          <span class="tree-valence">{node.signature.valence.name}</span>
+        {/if}
+        {#if node.signature?.keyed}
+          <span class="tree-key">{node.signature.keyed.modifier ? node.signature.keyed.modifier + '+' : ''}{node.signature.keyed.command}</span>
+        {/if}
+        {#if node.signature?.directed}
+          <span class="tree-directed">{node.signature.directed.icon}</span>
+        {/if}
+        {#if results[node.nature]}<span class="tree-result">{JSON.stringify(results[node.nature].result)}</span>{/if}
+      </div>
     {/if}
   {/each}
 </div>
@@ -56,6 +68,7 @@
   .tree-arrow.open { transform: rotate(90deg); }
   .tree-nature { color: var(--colors-skeleton-1-contrast); }
   .tree-key { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; }
+  .tree-valence { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: 9px; margin-left: auto; }
   .tree-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: 9px; }
   .tree-result { opacity: 0.4; font-size: 9px; }
 </style>

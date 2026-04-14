@@ -24,8 +24,8 @@
 </script>
 
 <form class="login" onsubmit={submit}>
-  <input bind:value={username} placeholder="username" disabled={status === "busy" || status === "connected"} />
-  <input bind:value={password} type="password" placeholder="password" disabled={status === "busy" || status === "connected"} />
+  <input bind:value={username} placeholder="username" autocapitalize="off" autocorrect="off" autocomplete="username" disabled={status === "busy" || status === "connected"} />
+  <input bind:value={password} type="password" placeholder="password" autocapitalize="off" autocomplete="current-password" disabled={status === "busy" || status === "connected"} />
   <button disabled={status === "busy" || status === "connected"}>connect</button>
   {#if status === "error"}<span class="login-error">{error}</span>{/if}
   {#if status === "connected"}<span class="login-ok">connected as {username}</span>{/if}

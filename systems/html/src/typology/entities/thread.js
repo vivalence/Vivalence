@@ -1,14 +1,14 @@
-import { Entity } from "../prototypes/entity.js";
-import { Buffer } from "./buffer.js";
-import { Stall } from "../prototypes/stall.js";
 import { atom } from "nanostores";
+
+import { Entity } from "../prototypes/entity.js";
+import { traits as threadTraits } from "./thread/traits.js";
 
 export class Thread extends Entity {
   user = null;
   mode = null;
   intent = null;
   phase = "stream";
-  traits = [];
+  traits = ["LABELED"];
   trait = {};
   buffers = [];
   turns = [];
@@ -16,99 +16,48 @@ export class Thread extends Entity {
   cursor = 0;
   queue = null;
   $buffer = atom(null);
+  $label = atom({});
+
+  get label() {
+    return this.$label.get();
+  }
+
+  set label(value) {
+    if (typeof value === "string") value = { name: value };
+    this.$label.set({
+      name: value?.name
+        ?? (this.mode && `${this.mode.type}/${this.mode.name ?? this.mode.slug}`)
+        ?? ".unnamed",
+      description: value?.description ?? null,
+      flags: value?.flags ?? [],
+    });
+  }
 }
 
-export const ThreadSchema = {
+export const ThreadDossier = {
   name: "thread",
   kind: () => Thread,
   remote: { endpoint: "/userspace/entities/thread" },
 
+  // cast: async (ctx) => {ctx.entity = await ctx.em.cast(ctx.name, ctx.raw, ctx.schema.kind());},
+
   use: [
     async (ctx, next) => {
       await next();
-      for (const trait of ctx.entity.traits ?? []) {
-        threadTraits[trait]?.(ctx.entity, ctx);
+      const finalizers = [];
+      for (const trait of ctx.entity.traits) {
+        const result = await threadTraits[trait]?.(ctx.entity, ctx);
+        if (typeof result === "function") finalizers.push(result);
       }
-    },
-
-    async (ctx, next) => {
-      await next();
-      if (Array.isArray(ctx.entity.buffers)) {
-        ctx.entity.buffers = ctx.entity.buffers
-          .map((buffer) => {
-            if (typeof buffer === "object" && buffer.id)
-              return ctx.daemon.entities.buffer.merge(buffer) ?? buffer;
-            if (typeof buffer === "string")
-              return ctx.daemon.entities.buffer.findOneLocal({ id: buffer }) ?? buffer;
-            return buffer;
-          })
-          .filter(Boolean);
-      }
+      for (const finalize of finalizers) await finalize();
     },
 
     async (ctx, next) => {
       await next();
       ctx.entity.daemon = ctx.daemon;
-      if (ctx.entity.mode)
-        ctx.entity.mode =
-          ctx.daemon.entities.mode.findOneLocal({
-            id: ctx.entity.mode?.id ?? ctx.entity.mode,
-          }) ?? ctx.entity.mode;
-      if (ctx.entity.intent)
-        ctx.entity.intent =
-          ctx.daemon.entities.intent.findOneLocal({
-            id: ctx.entity.intent?.id ?? ctx.entity.intent,
-          }) ?? ctx.entity.intent;
+
+      if (!ctx.entity.traits.includes("LABELED"))
+        ctx.entity.traits = [...ctx.entity.traits, "LABELED"];
     },
   ],
-};
-
-function mint(pojo, thread) {
-  const modeRepo = thread.daemon.entities.mode;
-  const modeId = typeof pojo.mode === "object" ? pojo.mode.id : pojo.mode;
-  const mode = modeRepo.findOneLocal({ id: modeId }) ?? pojo.mode;
-  const view = mode?.buffered ?? null;
-  const buffer = Buffer.from(pojo, view);
-  buffer.context = { buffer, terminal: thread };
-  buffer.on.release(() => thread.queue.next());
-  if (buffer.id) thread.daemon.entities.buffer.merge(buffer);
-  return buffer;
-}
-
-const threadTraits = {
-  QUEUEING(thread, ctx) {
-    const config = thread.trait.QUEUEING;
-    thread.$buffers = atom(thread.buffers ?? []);
-    thread.queue = new Stall(thread.$buffers, thread.$buffer);
-
-    const emit = thread.mode.connection.aim(config.mount, {
-      thread: thread.id,
-      ...(config.mask ?? {}),
-    });
-
-    thread.queue.withPull(async () => {
-      const queued = thread.$buffers.get();
-      const active = thread.queue.$active.get();
-      const blacklist = { buffers: [active, ...queued].filter(Boolean).map((b) => b.id).filter(Boolean) };
-
-      const result = await emit({ blacklist });
-      const buffers = (result.buffers ?? []).map((pojo) => mint(pojo, thread));
-      buffers.sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
-      thread.$buffers.set([...thread.$buffers.get(), ...buffers]);
-
-      if (!thread.queue.$active.get() && thread.$buffers.get().length) {
-        const [first, ...rest] = thread.$buffers.get();
-        thread.$buffers.set(rest);
-        thread.queue.$active.set(first);
-      }
-
-      return { buffers, condition: buffers.length ? "NOMINAL" : "EXHAUSTED" };
-    }, config.queue ?? 1);
-
-    thread.queue.$status.subscribe((status) => {
-      if (status !== "IDLE") return;
-      if (!thread.queue.$active.get()) thread.queue.pull();
-      if (thread.$buffers.get().length < (config.queue ?? 1)) thread.queue.pull();
-    });
-  },
 };

@@ -1,4 +1,4 @@
-import { Long, Short } from "@vivalence/typology";
+import { Long, Short, Signal } from "@vivalence/typology";
 import { middleware } from "@vivalence/typology";
 import { scope, feed } from "./match.js";
 
@@ -39,8 +39,24 @@ export function traverse(vector, signals) {
   return [null, carry, steps, position];
 }
 
-export function survey(vector, visit) {
-  return vector.survey(visit);
+export function survey(vector, visit = (node) => node, execute) {
+  return (function step(position, carry, steps, signal) {
+    carry = middleware.chain(carry, middleware.compose(position.carry));
+
+    const effects = [...position.effects].map(([signature, effect]) => {
+      const path = [...steps, signature];
+      const invoke = execute ? execute(carry, effect, path, signal.branch(signature.nature)) : undefined;
+      return visit({ signature, effect, invoke, path });
+    });
+
+    const trajectories = [...position.trajectories].map(([signature, descendant]) => {
+      const path = [...steps, signature];
+      const children = step(descendant, carry, path, signal.branch(signature.nature));
+      return visit({ signature, ...children, path });
+    });
+
+    return { effects, trajectories };
+  })(vector, middleware.forward, [], new Signal());
 }
 
 export async function walk(vector, more) {

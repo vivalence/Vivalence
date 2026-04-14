@@ -1,14 +1,12 @@
 import { Entity } from "../prototypes/entity.js";
 
 export class Mode extends Entity {
-  intents = new Set();
-
   implements(trait) {
     return this.traits?.includes(trait.toUpperCase());
   }
 }
 
-export const ModeSchema = {
+export const ModeDossier = {
   name: "mode",
   kind: () => Mode,
   remote: { endpoint: "/entities/mode" },
@@ -34,7 +32,6 @@ export const ModeSchema = {
       ctx.entity.connection = ctx.connection.branch(ctx.entity.mount.nature);
       ctx.entity.call = ctx.entity.connection.call.bind(ctx.entity.connection);
       ctx.entity.link = ctx.link.branch(`/${ctx.entity.type}/${ctx.entity.slug}`);
-      ctx.entity.intents = new Set();
     },
   ],
 };

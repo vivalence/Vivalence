@@ -59,13 +59,11 @@ const dataset = {
     {
       slug: "feed",
       name: "Match",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/feed",
-          queue: 1,
-          mask: { limit: 6 },
-        },
+        MASKED: { limit: 6 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
       },
     },
   ],

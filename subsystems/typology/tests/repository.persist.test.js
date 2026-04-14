@@ -177,7 +177,7 @@ specimen.describe("persist: identity guarantees", () => {
 specimen.describe("persist: cross-repo wiring", () => {
   specimen.beforeEach(() => localStorage.clear())
 
-  specimen.it("cast resolves string id refs from sibling store", () => {
+  specimen.it("cast resolves string id refs from sibling store", async () => {
     const schema = {
       mode: { properties: {} },
       intent: { properties: { mode: { kind: "m:1", target: "mode" } } },
@@ -187,13 +187,13 @@ specimen.describe("persist: cross-repo wiring", () => {
     const intents = entityManager.register("intent", new RemoteRepository())
     shard.datamap.wire({ mode: modes, intent: intents }, schema)
 
-    const mode = modes.merge({ id: "m1", slug: "flashcard" })
-    const intent = intents.cast({ id: "i1", slug: "greet", mode: "m1" })
+    const mode = await modes.merge({ id: "m1", slug: "flashcard" })
+    const intent = await intents.cast({ id: "i1", slug: "greet", mode: "m1" })
 
     specimen.expect(intent.mode).toBe(mode)
   })
 
-  specimen.it("cast resolves string id array refs (m:n) from sibling store", () => {
+  specimen.it("cast resolves string id array refs (m:n) from sibling store", async () => {
     const schema = {
       literal: { properties: { symbols: { kind: "m:n", target: "symbol" } } },
       symbol: { properties: {} },
@@ -203,15 +203,15 @@ specimen.describe("persist: cross-repo wiring", () => {
     const symbols = entityManager.register("symbol", new RemoteRepository())
     shard.datamap.wire({ literal: literals, symbol: symbols }, schema)
 
-    const s1 = symbols.merge({ id: "s1", slug: "greeting" })
-    const s2 = symbols.merge({ id: "s2", slug: "farewell" })
-    const lit = literals.cast({ id: "l1", slug: "hello", symbols: ["s1", "s2"] })
+    const s1 = await symbols.merge({ id: "s1", slug: "greeting" })
+    const s2 = await symbols.merge({ id: "s2", slug: "farewell" })
+    const lit = await literals.cast({ id: "l1", slug: "hello", symbols: ["s1", "s2"] })
 
     specimen.expect(lit.symbols[0]).toBe(s1)
     specimen.expect(lit.symbols[1]).toBe(s2)
   })
 
-  specimen.it("cast leaves unresolvable string ids as-is", () => {
+  specimen.it("cast leaves unresolvable string ids as-is", async () => {
     const schema = {
       literal: { properties: { symbols: { kind: "m:n", target: "symbol" } } },
       symbol: { properties: {} },
@@ -221,7 +221,7 @@ specimen.describe("persist: cross-repo wiring", () => {
     const symbols = entityManager.register("symbol", new RemoteRepository())
     shard.datamap.wire({ literal: literals, symbol: symbols }, schema)
 
-    const lit = literals.cast({ id: "l1", slug: "orphan", symbols: ["missing-id"] })
+    const lit = await literals.cast({ id: "l1", slug: "orphan", symbols: ["missing-id"] })
     specimen.expect(lit.symbols[0]).toBe("missing-id")
   })
 

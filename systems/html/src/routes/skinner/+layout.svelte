@@ -1,7 +1,7 @@
 <script>
   import { page } from "$app/stores"
 
-  const skins = ["tree", "palette", "radial", "table", "card", "breadcrumb", "dag", "terminal", "form", "list"]
+  const skins = ["tree", "palette", "breadcrumb"]
 </script>
 
 <div class="skinner-shell">

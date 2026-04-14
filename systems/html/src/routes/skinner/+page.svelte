@@ -1,5 +1,5 @@
 <script>
-  import { stamp } from "@vivalence/typology"
+  import { shape } from "@vivalence/typology"
   import { familiar } from "./cat.js"
 
   const cats = [
@@ -12,7 +12,7 @@
   {#each cats as cat}
     <details>
       <summary>{cat.name}</summary>
-      <pre>{JSON.stringify(stamp.press(cat.vector), null, 2)}</pre>
+      <pre>{JSON.stringify(shape.tree(cat.vector), null, 2)}</pre>
     </details>
   {/each}
 </div>

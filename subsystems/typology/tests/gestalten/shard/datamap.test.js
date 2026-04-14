@@ -311,6 +311,25 @@ specimen.describe("shard.datamap.strip", () => {
       }
     }
   })
+
+  specimen.it("includes mappedBy on 1:m relations", () => {
+    const schema = shard.datamap.strip(scenario.orm.getMetadata())
+    specimen.expect(schema.mode.properties.intents.mappedBy).toBe("mode")
+    specimen.expect(schema.thread.properties.buffers.mappedBy).toBe("thread")
+    specimen.expect(schema.thread.properties.turns.mappedBy).toBe("thread")
+  })
+
+  specimen.it("includes owner on m:n relations", () => {
+    const schema = shard.datamap.strip(scenario.orm.getMetadata())
+    specimen.expect(schema.symbol.properties.literals.owner).toBe(true)
+    specimen.expect(schema.literal.properties.symbols.owner).toBeUndefined()
+  })
+
+  specimen.it("includes nullable on optional m:1 relations", () => {
+    const schema = shard.datamap.strip(scenario.orm.getMetadata())
+    specimen.expect(schema.thread.properties.intent.nullable).toBe(true)
+    specimen.expect(schema.thread.properties.mode.nullable).toBeUndefined()
+  })
 })
 
 specimen.describe("shard.datamap.wire", () => {

@@ -19,9 +19,11 @@ specimen.describe("Thread beforeCreate hook", () => {
     const intent = em.create(IntentEntity, {
       slug: "template-copy-traits",
       name: "Template Copy",
-      traits: ["QUEUEING", "FURNISHED"],
+      traits: ["MASKED", "AIMED", "QUEUEING", "FURNISHED"],
       trait: {
-        QUEUEING: { mount: "/emit/feed", queue: 1, mask: { limit: 4 } },
+        MASKED: { limit: 4 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
         FURNISHED: { recall: "LEARNING" },
       },
       mode: fixtures.mode,
@@ -35,10 +37,10 @@ specimen.describe("Thread beforeCreate hook", () => {
     });
     await em.flush();
 
-    specimen.expect(thread.traits).toEqual(["QUEUEING", "FURNISHED"]);
-    specimen.expect(thread.trait.QUEUEING.mount).toBe("/emit/feed");
-    specimen.expect(thread.trait.QUEUEING.queue).toBe(1);
-    specimen.expect(thread.trait.QUEUEING.mask.limit).toBe(4);
+    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "FURNISHED"]);
+    specimen.expect(thread.trait.AIMED.mount).toBe("/emit/feed");
+    specimen.expect(thread.trait.QUEUEING.depth).toBe(1);
+    specimen.expect(thread.trait.MASKED.limit).toBe(4);
     specimen.expect(thread.trait.FURNISHED.recall).toBe("LEARNING");
   });
 
@@ -46,9 +48,11 @@ specimen.describe("Thread beforeCreate hook", () => {
     const intent = em.create(IntentEntity, {
       slug: "template-deep-merge",
       name: "Template Override",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: { mount: "/emit/feed", queue: 1, mask: { limit: 4 } },
+        MASKED: { limit: 4 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
       },
       mode: fixtures.mode,
     });
@@ -58,14 +62,14 @@ specimen.describe("Thread beforeCreate hook", () => {
       user: fixtures.user,
       mode: fixtures.mode,
       intent,
-      trait: { QUEUEING: { mask: { limit: 10 } } },
+      trait: { MASKED: { limit: 10 } },
     });
     await em.flush();
 
-    specimen.expect(thread.traits).toEqual(["QUEUEING"]);
-    specimen.expect(thread.trait.QUEUEING.mount).toBe("/emit/feed");
-    specimen.expect(thread.trait.QUEUEING.queue).toBe(1);
-    specimen.expect(thread.trait.QUEUEING.mask.limit).toBe(10);
+    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
+    specimen.expect(thread.trait.AIMED.mount).toBe("/emit/feed");
+    specimen.expect(thread.trait.QUEUEING.depth).toBe(1);
+    specimen.expect(thread.trait.MASKED.limit).toBe(10);
   });
 
   specimen.it("is a no-op when intent is absent", async () => {
@@ -86,9 +90,11 @@ specimen.describe("Thread beforeCreate hook", () => {
     const intent = em.create(IntentEntity, {
       slug: "template-immutable",
       name: "Template Immutable",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: { mount: "/emit/feed", queue: 1, mask: { limit: 4 } },
+        MASKED: { limit: 4 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
       },
       mode: fixtures.mode,
     });
@@ -98,11 +104,11 @@ specimen.describe("Thread beforeCreate hook", () => {
       user: fixtures.user,
       mode: fixtures.mode,
       intent,
-      trait: { QUEUEING: { mask: { limit: 99 } } },
+      trait: { MASKED: { limit: 99 } },
     });
     await em.flush();
 
-    specimen.expect(intent.trait.QUEUEING.mask.limit).toBe(4);
-    specimen.expect(thread.trait.QUEUEING.mask.limit).toBe(99);
+    specimen.expect(intent.trait.MASKED.limit).toBe(4);
+    specimen.expect(thread.trait.MASKED.limit).toBe(99);
   });
 });

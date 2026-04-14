@@ -18,6 +18,8 @@ import introduce from "./introduce.js";
 import drill from "./drill.js";
 import reinforce from "./reinforce.js";
 import hunt from "./hunt.js";
+import audioWords from "./audio-words.js";
+import audioSentences from "./audio-sentences.js";
 
 export const emitter = new Vector()
   // ── middleware: survey helper ──────────────────────────────────────
@@ -58,4 +60,6 @@ export const emitter = new Vector()
   .open("/introduce", introduce)
   .open("/drill", drill)
   .open("/reinforce", reinforce)
-  .open("/hunt", hunt);
+  .open("/hunt", hunt)
+  .open("/audio-words", audioWords)
+  .open("/audio-sentences", audioSentences);

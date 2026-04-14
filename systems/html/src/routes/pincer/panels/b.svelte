@@ -13,6 +13,24 @@
   view.$g.subscribe(v => g = v);
   view.$h.subscribe(v => h = v);
   view.$snap.subscribe(v => snap = v);
+
+  let eruda = $state(false);
+  async function toggleEruda() {
+    if (!eruda) {
+      if (!window.eruda) {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/eruda";
+        script.onload = () => { window.eruda.init(); eruda = true; };
+        document.head.appendChild(script);
+      } else {
+        window.eruda.init();
+        eruda = true;
+      }
+    } else {
+      window.eruda.destroy();
+      eruda = false;
+    }
+  }
 </script>
 
 {#if rect.width > 0 && rect.height > 0}
@@ -30,6 +48,7 @@
       <button class="toggle" class:active={snap} onclick={() => toggle("snap")}>snap</button>
       <button class="toggle danger" onclick={() => { for (const terminal of quartersInstance.terminals.all()) quartersInstance.close(terminal.id); }}>clear</button>
       <button class="toggle danger" onclick={() => lighthouseInstance.logout()}>out</button>
+      <button class="toggle" class:active={eruda} onclick={toggleEruda}>eruda</button>
     </div>
   </div>
 {/if}

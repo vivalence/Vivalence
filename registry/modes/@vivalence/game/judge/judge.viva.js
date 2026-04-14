@@ -15,13 +15,11 @@ const dataset = {
     {
       slug: "feed",
       name: "Judge",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/feed",
-          queue: 1,
-          mask: { limit: 4 },
-        },
+        MASKED: { limit: 4 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
       },
     },
   ],

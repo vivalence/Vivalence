@@ -1,19 +1,3 @@
-<!--
-  pincer — t-bone layout prototype.
-
-  the viket is a square at the junction of crown and spine. dragging
-  moves the entire T. the t-bone is always visible. panels can collapse
-  to 0 when viket reaches an edge.
-
-  panels: A (across the cross), B (one side of stem), C (contains D/E/F).
-  bones:  crown (perpendicular to stem) + spine (the stem itself).
-  viket:  the junction square. always at (crown ∩ spine). draggable.
-  hud:    lives inside the H overlay (sticky open for now).
-
-  drag snaps to a Fibonacci/metric grid (3-5 dominant + secondary).
-  long-press opens a sticky radial menu for stem orientation.
-  root +layout.svelte provides the lighthouse gate and CSS imports.
--->
 <script>
   import { onMount } from "svelte";
   import { getContext } from "svelte";
@@ -23,37 +7,45 @@
   import PanelC from "./pincer/panels/c.svelte";
   import PanelG from "./pincer/panels/g.svelte";
   import PanelH from "./pincer/panels/h.svelte";
-  import InspectLighthouse from "./pincer/panels/inspectors/lighthouse.svelte";
-  import InspectQuarters from "./pincer/panels/inspectors/quarters.svelte";
-  import InspectBridge from "./pincer/panels/inspectors/bridge.svelte";
-  import InspectThread from "./pincer/panels/inspectors/thread.svelte";
   import BoneShoulder from "./pincer/bones/shoulder.svelte";
   import BoneCrown from "./pincer/bones/crown.svelte";
   import BonePincer from "./pincer/bones/pincer.svelte";
   import BoneSpine from "./pincer/bones/spine.svelte";
-  import { BRIDGE } from "$client";
+  import { THREAD, BRIDGE } from "$client";
   import { bridge } from "@vivalence/html";
   const {
-    clamp, snapToGrid, rectsForOrientation, bonesForOrientation,
-    snapToOrientation, orientationToSnap, snapLabel,
-    BONE_THICKNESS, PINCER_SIZE, HALF, EDGE_PADDING,
+    clamp,
+    snapToGrid,
+    rectsForOrientation,
+    bonesForOrientation,
+    snapToOrientation,
+    orientationToSnap,
+    snapLabel,
+    BONE_THICKNESS,
+    PINCER_SIZE,
+    HALF,
+    EDGE_PADDING,
   } = bridge;
   const systemAlert = false;
 
   const bridgeInstance = getContext(BRIDGE);
+  const threadInstance = getContext(THREAD);
   const { layout, view } = bridgeInstance;
+
+  let currentThread = $state(null);
+  threadInstance.$current.subscribe((v) => (currentThread = v));
+  let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence/viva");
 
   let pincer = $state(layout.$pincer.get());
   let previous = $state(layout.$previous.get());
   let standard = $state(layout.$standard.get());
   let orientation = $state(layout.$orientation.get());
   let viewport = $state(layout.$viewport.get());
-  layout.$pincer.subscribe(v => pincer = v);
-  layout.$previous.subscribe(v => previous = v);
-  layout.$standard.subscribe(v => standard = v);
-  layout.$orientation.subscribe(v => orientation = v);
-  layout.$viewport.subscribe(v => viewport = v);
-
+  layout.$pincer.subscribe((v) => (pincer = v));
+  layout.$previous.subscribe((v) => (previous = v));
+  layout.$standard.subscribe((v) => (standard = v));
+  layout.$orientation.subscribe((v) => (orientation = v));
+  layout.$viewport.subscribe((v) => (viewport = v));
 
   const TAP_MAX_MS = 250;
   const TAP_MAX_MOVE = 8;
@@ -85,10 +77,20 @@
   let radial = $state({ show: false, sticky: false, snap: 90 });
   let flash = $state(null);
 
+  function applyViewportOffset(obj) {
+    const result = {};
+    for (const [key, rect] of Object.entries(obj)) {
+      result[key] = { ...rect, top: rect.top + viewportOffsetTop };
+    }
+    return result;
+  }
 
-
-  let rects = $derived(rectsForOrientation(orientation, pincer, viewport.width, viewport.height));
-  let bones = $derived(bonesForOrientation(orientation, pincer, viewport.width, viewport.height));
+  let rects = $derived(
+    applyViewportOffset(rectsForOrientation(orientation, pincer, viewport.width, viewport.height)),
+  );
+  let bones = $derived(
+    applyViewportOffset(bonesForOrientation(orientation, pincer, viewport.width, viewport.height)),
+  );
 
   // -------- gesture handlers --------
   function onPointerDown(event) {
@@ -123,7 +125,9 @@
     const distance = Math.hypot(deltaX, deltaY);
 
     if (gesture.isLongPress) {
-      const angle = (Math.atan2(event.clientY - pincer.y, event.clientX - pincer.x) * 180 / Math.PI + 360) % 360;
+      const angle =
+        ((Math.atan2(event.clientY - pincer.y, event.clientX - pincer.x) * 180) / Math.PI + 360) %
+        360;
       radial.snap = (Math.round(angle / 90) * 90) % 360;
       return;
     }
@@ -239,27 +243,49 @@
     radial.sticky = false;
   }
 
+  let viewportOffsetTop = $state(0);
+  let safeAreaTop = $state(0);
+
+  function readSafeArea() {
+    const style = getComputedStyle(document.documentElement);
+    safeAreaTop = parseFloat(style.getPropertyValue("--safe-area-top")) || 0;
+  }
+
+  function viewportDimensions() {
+    const vv = window.visualViewport;
+    if (vv) {
+      viewportOffsetTop = vv.offsetTop + safeAreaTop;
+      return { width: vv.width, height: vv.height - safeAreaTop };
+    }
+    viewportOffsetTop = safeAreaTop;
+    return { width: window.innerWidth, height: window.innerHeight - safeAreaTop };
+  }
+
+  function isDeviceRotation() {
+    const layoutWidth = window.innerWidth;
+    const layoutHeight = window.innerHeight;
+    const current = layout.$viewport.get();
+    return layoutWidth !== current.width || layoutHeight !== current.height;
+  }
 
   function onResize() {
     const oldViewport = layout.$viewport.get();
-    layout.viewport = { width: window.innerWidth, height: window.innerHeight };
+    const rotation = isDeviceRotation();
+    layout.viewport = viewportDimensions();
 
-    if (oldViewport.width > 0 && oldViewport.height > 0) {
-      // // proportional scaling — drifts because it treats both axes identically
-      // const scaleX = layout.viewport.width / oldViewport.width;
-      // const scaleY = layout.viewport.height / oldViewport.height;
-      // layout.pincer = {
-      //   x: clamp(pincer.x * scaleX, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-      //   y: clamp(pincer.y * scaleY, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      // };
-
+    if (rotation && oldViewport.width > 0 && oldViewport.height > 0) {
       const deltaWidth = layout.viewport.width - oldViewport.width;
       const deltaHeight = layout.viewport.height - oldViewport.height;
 
-      let shiftX = 0, shiftY = 0;
-      if (orientation === 0)        { shiftY = deltaHeight; }
-      else if (orientation === 90)  { shiftX = deltaWidth; }
-      else if (orientation === 180) { shiftX = deltaWidth; }
+      let shiftX = 0,
+        shiftY = 0;
+      if (orientation === 0) {
+        shiftY = deltaHeight;
+      } else if (orientation === 90) {
+        shiftX = deltaWidth;
+      } else if (orientation === 180) {
+        shiftX = deltaWidth;
+      }
 
       const reanchor = (position) => ({
         x: clamp(position.x + shiftX, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
@@ -269,11 +295,18 @@
       layout.pincer = reanchor(pincer);
       layout.previous = reanchor(previous);
       layout.standard = reanchor(standard);
+    } else {
+      const clampPosition = (position) => ({
+        x: clamp(position.x, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
+        y: clamp(position.y, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
+      });
+      layout.pincer = clampPosition(pincer);
     }
   }
 
   onMount(() => {
-    layout.viewport = { width: window.innerWidth, height: window.innerHeight };
+    readSafeArea();
+    layout.viewport = viewportDimensions();
 
     const saved = layout.$pincer.get();
     const hasSaved = saved.x !== 0 || saved.y !== 0;
@@ -297,13 +330,29 @@
       const start = layout.$start.get();
       const home = layout.$home.get();
       layout.pincer = {
-        x: clamp(start.x * layout.viewport.width, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(start.y * layout.viewport.height, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
+        x: clamp(
+          start.x * layout.viewport.width,
+          EDGE_PADDING,
+          layout.viewport.width - EDGE_PADDING,
+        ),
+        y: clamp(
+          start.y * layout.viewport.height,
+          EDGE_PADDING,
+          layout.viewport.height - EDGE_PADDING,
+        ),
       };
       layout.previous = { ...layout.pincer };
       layout.standard = {
-        x: clamp(home.x * layout.viewport.width, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(home.y * layout.viewport.height, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
+        x: clamp(
+          home.x * layout.viewport.width,
+          EDGE_PADDING,
+          layout.viewport.width - EDGE_PADDING,
+        ),
+        y: clamp(
+          home.y * layout.viewport.height,
+          EDGE_PADDING,
+          layout.viewport.height - EDGE_PADDING,
+        ),
       };
     }
 
@@ -318,15 +367,26 @@
     radial.sticky = false;
 
     window.addEventListener("resize", onResize);
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener("resize", onResize);
+      vv.addEventListener("scroll", onResize);
+    }
     return () => {
       window.removeEventListener("resize", onResize);
+      if (vv) {
+        vv.removeEventListener("resize", onResize);
+        vv.removeEventListener("scroll", onResize);
+      }
     };
   });
 </script>
 
 <svelte:head>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
-  <title>pip · t-bone</title>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>{pageTitle}</title>
 </svelte:head>
 
 {#if viewport.width > 0 && viewport.height > 0}
@@ -350,10 +410,6 @@
 
   <PanelH />
 
-  <InspectLighthouse />
-  <InspectQuarters />
-  <InspectBridge />
-  <InspectThread />
 
   <!-- viket — square at the junction -->
   <div
@@ -365,24 +421,23 @@
     class:tap2={flash === "tap2"}
     class:tap3={flash === "tap3"}
     style:left="{pincer.x}px"
-    style:top="{pincer.y}px"
+    style:top="{pincer.y + viewportOffsetTop}px"
     style:width="{PINCER_SIZE}px"
     style:height="{PINCER_SIZE}px"
     onpointerdown={onPointerDown}
     onpointermove={onPointerMove}
     onpointerup={onPointerUp}
-    onpointercancel={onPointerUp}
-  >
-    <img class="viket-pictogram" src="/images/pictogram_viket/pic-vinca-viket_white.svg" alt="viket" draggable="false" />
+    onpointercancel={onPointerUp}>
+    <img
+      class="viket-pictogram"
+      src="/images/pictogram_viket/pic-vinca-viket_white.svg"
+      alt="viket"
+      draggable="false" />
   </div>
 
   <!-- radial menu -->
   {#if radial.show && radial.sticky}
-    <div
-      class="radial-backdrop"
-      onclick={onRadialBackdropClick}
-      role="presentation"
-    ></div>
+    <div class="radial-backdrop" onclick={onRadialBackdropClick} role="presentation"></div>
   {/if}
 
   {#if radial.show}
@@ -390,23 +445,20 @@
       class="radial"
       class:sticky={radial.sticky}
       style:left="{pincer.x}px"
-      style:top="{pincer.y}px"
-      style:--radius="{RADIAL_RADIUS}px"
-    >
+      style:top="{pincer.y + viewportOffsetTop}px"
+      style:--radius="{RADIAL_RADIUS}px">
       <div class="radial-ring"></div>
       {#each [0, 90, 180, 270] as angle}
         <div
           class="radial-target"
           class:active={radial.snap === angle}
           style:transform="rotate({angle}deg) translate(var(--radius)) rotate(-{angle}deg)"
-          onpointerdown={(event) => onSpokeClick(event, angle)}
-        >
+          onpointerdown={(event) => onSpokeClick(event, angle)}>
           {snapLabel(angle)}
         </div>
       {/each}
     </div>
   {/if}
-
 {/if}
 
 <style>
@@ -478,8 +530,13 @@
     animation: viket-sticky-pulse 1.6s ease-in-out infinite;
   }
   @keyframes viket-sticky-pulse {
-    0%, 100% { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
-    50% { box-shadow: 0 4px 24px var(--colors-skeleton-0-accent-base); }
+    0%,
+    100% {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+    50% {
+      box-shadow: 0 4px 24px var(--colors-skeleton-0-accent-base);
+    }
   }
   .viket.tap1 {
     background: var(--colors-skeleton-0-info-base);
@@ -505,13 +562,13 @@
     -webkit-user-drag: none;
     transform-origin: center center;
     transform: scaleY(1);
-    transition: transform 0.18s ease-out, filter 0.18s ease-out;
+    transition:
+      transform 0.18s ease-out,
+      filter 0.18s ease-out;
     /* tint the white svg toward primary aqua so it reads as the brand keystone.
        drop-shadow gives the cathode glow. */
-    filter:
-      brightness(0) saturate(100%)
-      invert(72%) sepia(45%) saturate(1156%) hue-rotate(133deg) brightness(94%) contrast(89%)
-      drop-shadow(0 0 4px var(--colors-skeleton-0-primary-base));
+    filter: brightness(0) saturate(100%) invert(72%) sepia(45%) saturate(1156%) hue-rotate(133deg)
+      brightness(94%) contrast(89%) drop-shadow(0 0 4px var(--colors-skeleton-0-primary-base));
   }
   /* drag closes the eye; release re-opens it */
   .viket.dragging .viket-pictogram {
@@ -519,7 +576,9 @@
     transition: transform 0.08s ease-in;
   }
   @media (prefers-reduced-motion: reduce) {
-    .viket-pictogram { transition: none !important; }
+    .viket-pictogram {
+      transition: none !important;
+    }
   }
 
   /* radial menu */
@@ -545,17 +604,16 @@
     height: calc(var(--radius) * 2);
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background:
-      conic-gradient(
-        from 0deg,
-        var(--colors-skeleton-0-danger-base),
-        var(--colors-skeleton-0-warning-base),
-        var(--colors-skeleton-0-success-base),
-        var(--colors-skeleton-0-info-base),
-        var(--colors-skeleton-0-primary-base),
-        var(--colors-skeleton-0-accent-base),
-        var(--colors-skeleton-0-danger-base)
-      );
+    background: conic-gradient(
+      from 0deg,
+      var(--colors-skeleton-0-danger-base),
+      var(--colors-skeleton-0-warning-base),
+      var(--colors-skeleton-0-success-base),
+      var(--colors-skeleton-0-info-base),
+      var(--colors-skeleton-0-primary-base),
+      var(--colors-skeleton-0-accent-base),
+      var(--colors-skeleton-0-danger-base)
+    );
     opacity: 0.55;
     box-shadow: 0 0 48px rgba(0, 0, 0, 0.7);
   }
@@ -564,8 +622,13 @@
     animation: radial-sticky-pulse 1.6s ease-in-out infinite;
   }
   @keyframes radial-sticky-pulse {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 0.85; }
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 0.85;
+    }
   }
   .radial-target {
     position: absolute;
@@ -597,5 +660,4 @@
     border-color: var(--colors-skeleton-0-accent-base);
     box-shadow: 0 0 20px var(--colors-skeleton-0-accent-base);
   }
-
 </style>

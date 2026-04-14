@@ -86,6 +86,7 @@ specimen.beforeAll(async () => {
 
 specimen.afterAll(async () => {
   await scenario.orm.close();
+  await new Promise((r) => setTimeout(r, 1100));
 });
 
 // ── RemoteEntityManager: identity map ────────────────────────────────────
@@ -164,6 +165,75 @@ specimen.describe("RemoteEntityManager", () => {
     });
   });
 
+  specimen.describe("resolve", () => {
+    specimen.it("returns null for null reference", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      specimen.expect(await entityManager.resolve("mode", null)).toBe(null);
+      specimen.expect(await entityManager.resolve("mode", undefined)).toBe(null);
+    });
+
+    specimen.it("resolves string id to canonical entity from identity map", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const mode = entityManager.merge("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      const resolved = await entityManager.resolve("mode", "m-1");
+
+      specimen.expect(resolved).toBe(mode);
+    });
+
+    specimen.it("returns original string when id not in identity map", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const resolved = await entityManager.resolve("mode", "unknown-id");
+      specimen.expect(resolved).toBe("unknown-id");
+    });
+
+    specimen.it("resolves object with id to canonical entity", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const mode = entityManager.merge("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      const resolved = await entityManager.resolve("mode", { id: "m-1" });
+
+      specimen.expect(resolved).toBe(mode);
+    });
+
+    specimen.it("merges full object and returns canonical entity", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const resolved = await entityManager.resolve("mode", { id: "m-new", slug: "immersion", traits: ["BUFFERED"] });
+
+      specimen.expect(resolved.id).toBe("m-new");
+      specimen.expect(resolved.slug).toBe("immersion");
+      specimen.expect(entityManager.identity("mode", "m-new")).toBe(resolved);
+    });
+
+    specimen.it("upserts new data onto existing identity-map entry", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const mode = entityManager.merge("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      const resolved = await entityManager.resolve("mode", { id: "m-1", slug: "updated", traits: ["EMITTER"] });
+
+      specimen.expect(resolved).toBe(mode);
+      specimen.expect(mode.slug).toBe("updated");
+      specimen.expect(mode.traits).toEqual(["EMITTER"]);
+    });
+
+    specimen.it("passes through non-entity values", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      specimen.expect(await entityManager.resolve("mode", 42)).toBe(42);
+      specimen.expect(await entityManager.resolve("mode", true)).toBe(true);
+    });
+  });
+
   specimen.describe("cast (relationship hydration via EM)", () => {
     specimen.it("resolves m:1 object references across types", async () => {
       const entityManager = new RemoteEntityManager(conn, schema);
@@ -194,6 +264,70 @@ specimen.describe("RemoteEntityManager", () => {
 
       const intent = await entityManager.cast("intent", { id: "i-1", mode: "unknown-id" }, TestIntent);
       specimen.expect(intent.mode).toBe("unknown-id");
+    });
+  });
+
+  specimen.describe("reactive collections (1:m via computed)", () => {
+    specimen.it("cast defines $collection for 1:m with mappedBy", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+      entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
+
+      const mode = await entityManager.cast("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      specimen.expect(mode.$intents).toBeDefined();
+      specimen.expect(typeof mode.$intents.get).toBe("function");
+      specimen.expect(typeof mode.$intents.subscribe).toBe("function");
+    });
+
+    specimen.it("$collection reflects children cast after parent", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+      entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
+
+      const mode = await entityManager.cast("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      specimen.expect(mode.$intents.get()).toEqual([]);
+
+      const intent = await entityManager.cast("intent", { id: "i-1", slug: "survival", mode: "m-1" }, TestIntent);
+      specimen.expect(mode.$intents.get()).toEqual([intent]);
+    });
+
+    specimen.it("$collection updates when child is dropped", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+      entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
+
+      const mode = await entityManager.cast("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      await entityManager.cast("intent", { id: "i-1", slug: "a", mode: "m-1" }, TestIntent);
+      await entityManager.cast("intent", { id: "i-2", slug: "b", mode: "m-1" }, TestIntent);
+      specimen.expect(mode.$intents.get().length).toBe(2);
+
+      entityManager.drop("intent", "i-1");
+      specimen.expect(mode.$intents.get().length).toBe(1);
+      specimen.expect(mode.$intents.get()[0].id).toBe("i-2");
+    });
+
+    specimen.it("$collection only includes children for this parent", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+      entityManager.register("intent", new RemoteRepository(TestIntent).connect(conn.branch("/entities/intent")));
+
+      const modeA = await entityManager.cast("mode", { id: "m-a", slug: "flash" }, TestMode);
+      const modeB = await entityManager.cast("mode", { id: "m-b", slug: "drill" }, TestMode);
+
+      await entityManager.cast("intent", { id: "i-1", slug: "a", mode: "m-a" }, TestIntent);
+      await entityManager.cast("intent", { id: "i-2", slug: "b", mode: "m-b" }, TestIntent);
+      await entityManager.cast("intent", { id: "i-3", slug: "c", mode: "m-a" }, TestIntent);
+
+      specimen.expect(modeA.$intents.get().length).toBe(2);
+      specimen.expect(modeB.$intents.get().length).toBe(1);
+    });
+
+    specimen.it("skips $collection when target repo not registered", async () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const mode = await entityManager.cast("mode", { id: "m-1", slug: "flashcard" }, TestMode);
+      specimen.expect(mode.$intents).toBeUndefined();
     });
   });
 
@@ -237,6 +371,87 @@ specimen.describe("RemoteEntityManager", () => {
       entityManager.remove(entity);
       specimen.expect(entityManager.dirty.has(entity)).toBe(false);
       specimen.expect(entityManager.removed.has(entity)).toBe(true);
+    });
+
+    specimen.it("persist clears entity from removed set", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
+
+      entityManager.remove(entity);
+      specimen.expect(entityManager.removed.has(entity)).toBe(true);
+
+      entityManager.persist(entity);
+      specimen.expect(entityManager.removed.has(entity)).toBe(false);
+      specimen.expect(entityManager.dirty.has(entity)).toBe(true);
+    });
+
+    specimen.it("persist triggers refreshStore and propagates to subscribers", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
+      const storeBefore = entityManager.stores.mode.get();
+
+      entity.slug = "mutated";
+      entityManager.persist(entity);
+
+      const storeAfter = entityManager.stores.mode.get();
+      specimen.expect(storeAfter).not.toBe(storeBefore);
+      specimen.expect(storeAfter[0]).toBe(entity);
+      specimen.expect(storeAfter[0].slug).toBe("mutated");
+    });
+
+    specimen.it("persist propagation reaches nanostore subscribers", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "original" }, TestMode);
+
+      let subscriberSlugs = [];
+      entityManager.stores.mode.subscribe((modes) => {
+        subscriberSlugs = modes.map((m) => m.slug);
+      });
+
+      entity.slug = "changed";
+      entityManager.persist(entity);
+
+      specimen.expect(subscriberSlugs).toEqual(["changed"]);
+    });
+
+    specimen.it("persist on unregistered entity does not throw", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      const orphan = { id: "orphan-1", slug: "rogue" };
+      entityManager.persist(orphan);
+      specimen.expect(entityManager.dirty.has(orphan)).toBe(true);
+    });
+
+    specimen.it("persist → remove → persist cycle restores dirty state", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
+
+      entityManager.persist(entity);
+      entityManager.remove(entity);
+      entityManager.persist(entity);
+
+      specimen.expect(entityManager.dirty.has(entity)).toBe(true);
+      specimen.expect(entityManager.removed.has(entity)).toBe(false);
+    });
+
+    specimen.it("multiple persists on same entity do not duplicate in dirty set", () => {
+      const entityManager = new RemoteEntityManager(conn, schema);
+      entityManager.register("mode", new RemoteRepository(TestMode).connect(conn.branch("/entities/mode")));
+
+      const entity = entityManager.merge("mode", { id: "m-1", slug: "test" }, TestMode);
+
+      entityManager.persist(entity);
+      entityManager.persist(entity);
+      entityManager.persist(entity);
+
+      specimen.expect(entityManager.dirty.size).toBe(1);
     });
   });
 

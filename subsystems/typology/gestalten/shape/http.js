@@ -40,7 +40,15 @@ function respond(ctx, status) {
   const type = ctx.response.type || "application/json";
   const headers = Object.fromEntries(ctx.response.headers);
   headers["content-type"] = type;
-  if (ctx.trace?.timing) headers["server-timing"] = ctx.trace.timing;
+  if (ctx.span?.complete) {
+    const flatten = (node) => {
+      const result = [];
+      if (node.duration != null) result.push(`${node.nature};dur=${node.duration.toFixed(1)}`);
+      for (const gauge of node.gauges ?? []) result.push(...flatten(gauge));
+      return result;
+    };
+    headers["server-timing"] = flatten(ctx.span).join(", ");
+  }
 
   if (body instanceof Uint8Array || body instanceof ReadableStream) {
     return new Response(body, { status: s, headers });

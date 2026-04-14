@@ -3,7 +3,7 @@ import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/
 // import * as object from "../../gestalten/belt/object.js";
 import { object } from "@vivalence/typology";
 
-import { DataEntity, DataSchema } from "../index.ts";
+import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { UserEntity } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 import { IntentEntity } from "../index.ts";
@@ -14,9 +14,12 @@ export enum ThreadPhaseEnum {
   STREAM = "stream",
 }
 export enum ThreadTraitsEnum {
+  MASKED = "MASKED",
+  AIMED = "AIMED",
   QUEUEING = "QUEUEING",
   FURNISHED = "FURNISHED",
   SELFEVIDENT = "SELFEVIDENT",
+  LABELED = "LABELED",
 }
 
 export class ThreadEntity extends DataEntity {
@@ -43,6 +46,7 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
   class: ThreadEntity,
   extends: DataSchema,
   tableName: "Thread",
+  repository: () => DataRepository,
   filters: {
     user: {
       cond: (args: any) => ({ user: args.user }),
@@ -61,6 +65,8 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
         if (!intent?.traits) return;
         thread.traits = [...intent.traits];
         thread.trait = object.merge(intent.trait, thread.trait);
+
+        // labeled trait
       },
     ],
   },

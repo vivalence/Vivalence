@@ -248,22 +248,23 @@ export class Bridge {
         previous: saved?.previous ?? { x: 0, y: 0 },
         standard: saved?.standard ?? { x: 0, y: 0 },
         orientation: saved?.orientation ?? 0,
+        inspectorHeight: saved?.inspectorHeight ?? 0,
         viewport: { width: 0, height: 0 },
         home: { x: 0, y: 1 },
         start: { x: 0.33, y: 0.4 },
       },
-      ["pincer", "previous", "standard", "orientation"],
+      ["pincer", "previous", "standard", "orientation", "inspectorHeight"],
     );
 
-    this.view = store({
-      g: false,
-      h: false,
-      snap: true,
-      inspectLighthouse: false,
-      inspectQuarters: false,
-      inspectBridge: false,
-      inspectThread: false,
-    });
+    this.view = store(
+      {
+        d: saved?.view?.d ?? "outside",
+        g: false,
+        h: false,
+        snap: true,
+      },
+      ["d"],
+    );
 
     this.paneSize = store(
       {
@@ -282,7 +283,7 @@ export class Bridge {
 
   save = () => {
     try {
-      const data = { ...this.layout.toJSON(), paneSize: this.paneSize.toJSON() };
+      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), paneSize: this.paneSize.toJSON() };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (_) {}
   };

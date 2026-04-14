@@ -1,11 +1,12 @@
 import { RemoteEntityManager, RemoteRepository, Vector, shape, steer } from "@vivalence/typology";
 
 function nameFrom(schema) {
-  return schema.name ?? schema.kind().name.toLowerCase();
+  return schema.name ?? (typeof schema.kind === "function" ? schema.kind().name.toLowerCase() : "unknown");
 }
 
-function defaultCast(ctx) {
-  ctx.entity = ctx.entityManager.merge(ctx.name, ctx.raw, ctx.schema.kind());
+async function defaultCast(ctx) {
+  const kind = typeof ctx.schema.kind === "function" ? ctx.schema.kind() : null;
+  ctx.entity = await ctx.em.cast(ctx.name, ctx.raw, kind);
 }
 
 function compileSchema(schema, dataspace, name, factory) {
@@ -14,7 +15,7 @@ function compileSchema(schema, dataspace, name, factory) {
   vector.use(async (ctx, next) => {
     ctx.schema = schema;
     ctx.name = name;
-    ctx.entityManager = dataspace.entityManager;
+    ctx.em = dataspace.em;
     ctx.dataspace = dataspace;
     await next();
   });
@@ -30,7 +31,7 @@ export class Dataspace {
 
   constructor({ entities, connection, factory }) {
     this.connection = connection;
-    this.entityManager = new RemoteEntityManager(connection, {});
+    this.em = new RemoteEntityManager(connection, {});
 
     for (const schema of entities) {
       const name = nameFrom(schema);
@@ -38,7 +39,7 @@ export class Dataspace {
       const repo = new Repository(schema.kind?.() ?? null);
       const repoConnection = schema.remote?.connection ?? connection;
       repo.connect(repoConnection.branch(schema.remote.endpoint));
-      this.entityManager.register(name, repo);
+      this.em.register(name, repo);
 
       repo.hydrate = compileSchema(schema, this, name, factory);
       repo.dataspace = this;
@@ -49,18 +50,18 @@ export class Dataspace {
 
   async init() {
     this.datamap = await this.connection.call("/datamap");
-    this.entityManager.schema = this.datamap;
+    this.em.schema = this.datamap;
   }
 
   async populate(names = []) {
     await Promise.all(
       names
-        .filter((name) => this.entityManager.repositoryMap[name])
-        .map((name) => this.entityManager.repositoryMap[name].find()),
+        .filter((name) => this.em.repositoryMap[name])
+        .map((name) => this.em.repositoryMap[name].find()),
     );
   }
 
   fork() {
-    return this.entityManager.fork();
+    return this.em.fork();
   }
 }

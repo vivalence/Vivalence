@@ -22,6 +22,11 @@ export * from "./signature.js";
 export * from "./signal.js";
 export * from "./buffer.js";
 export * from "./mask.js";
+
+export * from "./span.js";
+export * from "./pipe.js";
+export * as tracks from "./tracks.js";
+
 export * from "./wafer.js";
 export * from "./remote-repository.js";
 export * from "./local-repository.js";

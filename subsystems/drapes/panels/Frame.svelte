@@ -13,6 +13,7 @@
       (async (buffer) => {
         try {
           const module = await import(/* @vite-ignore */ buffer.view.url);
+          if (!dom) return;
           component?.destroy();
           component = null;
           component = module.default(dom, buffer.context);

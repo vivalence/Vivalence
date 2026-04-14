@@ -1,4 +1,4 @@
-import { atom } from "nanostores";
+import { atom, computed } from "nanostores";
 
 // RemoteEntityManager — sits below repositories.
 //
@@ -80,30 +80,49 @@ export class RemoteEntityManager {
     return entity;
   }
 
-  // Hydrate relationships via schema, then merge.
+  async resolve(name, reference) {
+    if (reference == null) return null;
+    if (typeof reference === "string") return this.identity(name, reference) ?? reference;
+    if (reference.id) {
+      const repository = this.repositoryMap[name];
+      if (!repository) return reference;
+      return await repository.merge(reference);
+    }
+    return reference;
+  }
+
   async cast(name, raw, kind) {
     const props = this.schema[name]?.properties;
     if (props) {
       for (const [field, spec] of Object.entries(props)) {
         if (!spec.target || raw[field] == null) continue;
-        const sibling = this.repositoryMap[spec.target];
-        if (!sibling) continue;
-
         if (spec.kind === "m:1") {
-          if (typeof raw[field] === "object" && raw[field].id) raw[field] = await sibling.merge(raw[field]);
-          else if (typeof raw[field] === "string") raw[field] = this.identity(spec.target, raw[field]) ?? raw[field];
+          raw[field] = await this.resolve(spec.target, raw[field]);
         }
-
         if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
-          raw[field] = await Promise.all(raw[field].map(async (item) => {
-            if (typeof item === "object" && item.id) return await sibling.merge(item);
-            if (typeof item === "string") return this.identity(spec.target, item) ?? item;
-            return item;
-          }));
+          raw[field] = await Promise.all(raw[field].map(item => this.resolve(spec.target, item)));
         }
       }
     }
-    return this.merge(name, raw, kind);
+    const entity = this.merge(name, raw, kind);
+    if (props) {
+      for (const [field, spec] of Object.entries(props)) {
+        if (spec.kind !== "1:m" || !spec.mappedBy) continue;
+        if (entity["$" + field]) continue;
+        const childRepo = this.repositoryMap[spec.target];
+        if (!childRepo) continue;
+        const mappedBy = spec.mappedBy;
+        entity["$" + field] = computed(childRepo.$entities, (entities) =>
+          entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
+        );
+        Object.defineProperty(entity, field, {
+          get() { return entity["$" + field].get(); },
+          set() {},
+          configurable: true,
+        });
+      }
+    }
+    return entity;
   }
 
   drop(name, id) {
@@ -119,6 +138,8 @@ export class RemoteEntityManager {
   persist(entity) {
     this.removed.delete(entity);
     this.dirty.add(entity);
+    const { name } = this.repositoryForEntity(entity);
+    if (name) this.refreshStore(name);
   }
 
   remove(entity) {

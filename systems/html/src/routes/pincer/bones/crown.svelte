@@ -1,16 +1,33 @@
 <script>
   import { getContext } from "svelte";
-  import { QUARTERS } from "$client";
+  import { QUARTERS, THREAD } from "$client";
 
   let { rect } = $props();
   const quartersInstance = getContext(QUARTERS);
+  const threadInstance = getContext(THREAD);
 
   let terminals = $state([...quartersInstance.terminals.all()]);
   let terminal = $state(quartersInstance.$terminal.get());
+  let currentThread = $state(threadInstance.$current.get());
   quartersInstance.terminals.$entities.subscribe((entities) => {
     terminals = [...entities.values()];
   });
-  quartersInstance.$terminal.subscribe((value) => terminal = value);
+  quartersInstance.$terminal.subscribe((value) => (terminal = value));
+  threadInstance.$current.subscribe((value) => (currentThread = value));
+
+  function tabLabel(t) {
+    if (t.id === terminal?.id && currentThread?.label?.name) return currentThread.label.name;
+    const thread = t.thread;
+    if (typeof thread === "string") return thread;
+    return thread?.label?.name ?? thread?.id ?? "+";
+  }
+
+  function tabDescription(t) {
+    if (t.id === terminal?.id && currentThread?.label?.description) return currentThread.label.description;
+    const thread = t.thread;
+    if (typeof thread === "string") return t.slug;
+    return thread?.label?.description ?? t.slug;
+  }
 </script>
 
 <div
@@ -18,21 +35,32 @@
   style:left="{rect.left}px"
   style:top="{rect.top}px"
   style:width="{rect.width}px"
-  style:height="{rect.height}px"
->
+  style:height="{rect.height}px">
   <div class="population">
     <div class="tabs">
-      <button class="tab add" onclick={() => quartersInstance.spawn()} title="new terminal">+</button>
+      <button class="tab add" onclick={() => quartersInstance.spawn()} title="new terminal"
+        >+</button>
       {#each terminals as t (t.id)}
         <button
           class="tab"
           class:active={t.id === terminal?.id}
-          title={t.slug}
-          onclick={() => quartersInstance.activate(t.id)}
-        >
-          <span class="tab-title" dir="rtl">{t.slug ?? ".unnamed"}</span>
+          title={tabDescription(t)}
+          onclick={() => quartersInstance.activate(t.id)}>
+          <span class="tab-title" dir="rtl">
+            {#if t.id === terminal?.id && currentThread?.label?.flags?.length}
+              <span class="tab-flags">{currentThread.label.flags.join(" ")}</span>
+            {:else if t.thread?.label?.flags?.length}
+              <span class="tab-flags">{t.thread.label.flags.join(" ")}</span>
+            {/if}
+            {tabLabel(t)}
+          </span>
           {#if t.id === terminal?.id}
-            <button class="tab-close" onclick={(e) => { e.stopPropagation(); quartersInstance.close(t.id); }}>×</button>
+            <button
+              class="tab-close"
+              onclick={(e) => {
+                e.stopPropagation();
+                quartersInstance.close(t.id);
+              }}>×</button>
           {/if}
         </button>
       {/each}
@@ -76,7 +104,9 @@
     -ms-overflow-style: none;
     padding: 0 2px;
   }
-  .tabs::-webkit-scrollbar { display: none; }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
   .tab {
     flex: 0 0 auto;
     max-width: 96px;
@@ -94,7 +124,10 @@
     text-transform: lowercase;
     cursor: pointer;
     opacity: 0.5;
-    transition: opacity 0.12s, background 0.12s, border-color 0.12s;
+    transition:
+      opacity 0.12s,
+      background 0.12s,
+      border-color 0.12s;
   }
   .tab:hover {
     opacity: 0.85;
@@ -143,5 +176,9 @@
   }
   .tab-title::before {
     content: "\200E";
+  }
+  .tab-flags {
+    margin-right: 3px;
+    opacity: 0.6;
   }
 </style>

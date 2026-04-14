@@ -11,6 +11,11 @@ export * from "./path.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
+
+export * from "./span.js";
+export * from "./pipe.js";
+export * as tracks from "./tracks.js";
+
 export * from "./buffer.js";
 export { BufferView as View } from "./buffer.js"; // temp
 

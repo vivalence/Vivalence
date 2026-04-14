@@ -1,14 +1,13 @@
 import { Vector, shape, Path } from "@vivalence/typology";
 import { Dataspace } from "./dataspace.js";
-import { ModeSchema } from "../entities/mode.js";
-import { IntentSchema } from "../entities/intent.js";
-import { ThreadSchema } from "../entities/thread.js";
-import { BufferSchema } from "../entities/buffer.js";
-import { TurnSchema } from "../entities/turn.js";
-import { TraceSchema } from "../entities/trace.js";
-import { LiteralSchema } from "../entities/literal.js";
+import { ModeDossier } from "../entities/mode.js";
+import { IntentDossier } from "../entities/intent.js";
+import { ThreadDossier } from "../entities/thread.js";
+import { BufferDossier } from "../entities/buffer.js";
+import { TurnDossier } from "../entities/turn.js";
+import { LiteralDossier } from "../entities/literal.js";
 
-const entities = [ModeSchema, IntentSchema, ThreadSchema, BufferSchema, TurnSchema, TraceSchema, LiteralSchema];
+const entities = [ModeDossier, IntentDossier, ThreadDossier, BufferDossier, TurnDossier, LiteralDossier];
 
 export class Daemon {
   manifest = null;

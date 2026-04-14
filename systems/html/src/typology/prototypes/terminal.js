@@ -8,8 +8,12 @@ export class Terminal {
     Object.assign(this, data);
   }
 
-  // TODO: derive serialized fields from schema — manual field lists lose data silently
   toJSON() {
-    return { id: this.id, slug: this.slug, daemon: this.daemon, thread: this.thread };
+    return {
+      id: this.id,
+      slug: this.slug,
+      daemon: this.daemon?.slug ?? this.daemon,
+      thread: this.thread?.id ?? this.thread,
+    };
   }
 }

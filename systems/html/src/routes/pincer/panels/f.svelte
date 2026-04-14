@@ -1,23 +1,21 @@
 <script>
   import { getContext } from "svelte";
   import { THREAD } from "$client";
-  import { Vector, stamp, shape } from "@vivalence/typology";
+  import { Vector, shape } from "@vivalence/typology";
   import { skins } from "@vivalence/drapes";
-  const { Dag } = skins;
+  const { Tree } = skins;
 
   const threadInstance = getContext(THREAD);
 
-  let vector = $state(null);
-  let pojo = $state({ effects: [], trajectories: [] });
+  let nodes = $state(null);
 
   threadInstance.$current.subscribe((thread) => {
     if (!thread) {
-      vector = null;
-      pojo = { effects: [], trajectories: [] };
+      nodes = null;
       return;
     }
-    vector = composeGraph(thread);
-    pojo = shape.pojo(vector);
+    const vector = composeGraph(thread);
+    nodes = shape.tree(vector);
   });
 
   function composeGraph(thread) {
@@ -35,8 +33,8 @@
 </script>
 
 <div class="panel">
-  {#if vector}
-    <Dag {pojo} />
+  {#if nodes}
+    <Tree {nodes} />
   {:else}
     <div class="empty">no active thread</div>
   {/if}

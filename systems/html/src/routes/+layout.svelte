@@ -43,7 +43,12 @@
       if (status.code === "OFFLINE") return "offline";
       if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") return "error";
       if (!authorized) return "auth";
-      if (status.code === "AUTHENTICATING" || status.code === "VERIFYING" || status.code === "REFRESHING") return "verifying";
+      if (
+        status.code === "AUTHENTICATING" ||
+        status.code === "VERIFYING" ||
+        status.code === "REFRESHING"
+      )
+        return "verifying";
       return "ready";
     },
   );
@@ -83,11 +88,7 @@
 {#if gate === "ready"}
   {@render children()}
   {#if terminalCount === 0}
-    <div
-      class="empty-overlay"
-      onclick={() => quartersInstance.spawn()}
-      role="presentation"
-    >
+    <div class="empty-overlay" onclick={() => quartersInstance.spawn()} role="presentation">
       <span class="empty-prompt">open terminal</span>
     </div>
   {/if}
@@ -99,8 +100,11 @@
   <div class="gate">
     <div class="gate-message">
       <span class="gate-status">error</span>
-      <span class="gate-detail">{lighthouseInstance.$status.get().message ?? "connection failed"}</span>
-      <button class="gate-action" onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>retry</button>
+      <span class="gate-detail"
+        >{lighthouseInstance.$status.get().message ?? "connection failed"}</span>
+      <button
+        class="gate-action"
+        onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>retry</button>
     </div>
   </div>
 {:else if gate === "offline"}
@@ -108,7 +112,9 @@
     <div class="gate-message">
       <span class="gate-status">offline</span>
       <span class="gate-detail">network unavailable</span>
-      <button class="gate-action" onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>reconnect</button>
+      <button
+        class="gate-action"
+        onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>reconnect</button>
     </div>
   </div>
 {:else}

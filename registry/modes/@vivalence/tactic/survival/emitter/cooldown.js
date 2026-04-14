@@ -42,7 +42,7 @@ export default async (ctx) => {
           ctx.daemon.modes.game.listen.emit.literal({
             literal,
             distractors,
-            gameplay: literal.memory?.is.weak ? "PICK" : "TYPE",
+            gameplay: "TYPE",
             recall: "KNOWN",
           }),
         ),

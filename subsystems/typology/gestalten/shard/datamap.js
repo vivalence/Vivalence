@@ -217,10 +217,14 @@ export function strip(metadata) {
     const properties = {};
     for (const prop of Object.values(meta.properties)) {
       if (prop.kind === "scalar" || prop.kind === "embedded") continue;
-      properties[prop.name] = {
+      const entry = {
         kind: prop.kind,
         target: prop.targetMeta?.name?.toLowerCase().replace("entity", ""),
       };
+      if (prop.mappedBy) entry.mappedBy = prop.mappedBy;
+      if (prop.owner) entry.owner = true;
+      if (prop.nullable) entry.nullable = true;
+      properties[prop.name] = entry;
     }
     schema[normalized] = { properties };
   }

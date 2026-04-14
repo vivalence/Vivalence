@@ -111,7 +111,7 @@ specimen.describe("lifecycle vector", () => {
 // ── dataspace + mode schema (integration) ──────────────────────────
 
 specimen.describe("dataspace mode lifecycle", () => {
-  const ModeSchema = {
+  const ModeDossier = {
     name: "mode",
     kind: () => Mode,
     remote: { endpoint: "/entities/mode" },
@@ -166,7 +166,7 @@ specimen.describe("dataspace mode lifecycle", () => {
 
   specimen.beforeAll(async () => {
     dataspace = new Dataspace({
-      entities: [ModeSchema],
+      entities: [ModeDossier],
       connection,
       factory,
     });
@@ -229,7 +229,7 @@ specimen.describe("dataspace mode lifecycle", () => {
         async (ctx, next) => {
           await next();
           trace.name = ctx.name;
-          trace.hasEntityManager = !!ctx.entityManager;
+          trace.hasEntityManager = !!ctx.em;
           trace.hasDataspace = !!ctx.dataspace;
           trace.schemaName = ctx.schema?.name;
         },

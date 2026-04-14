@@ -3,14 +3,14 @@
   import { skins } from "@vivalence/drapes"
   import { familiar } from "../cat.js"
 
-  const { Palette: Palette } = skins
+  const { Palette } = skins
   const { vector, state } = familiar()
-  const pojo = $derived(shape.pojo(vector, steer.direct))
+  const nodes = $derived(shape.flat(vector, steer.direct))
 </script>
 
 <h2>palette</h2>
 <div class="state">energy:{state.energy} mana:{state.mana} mood:{state.mood} awareness:{state.awareness} alive:{state.alive}</div>
-<Palette {pojo} />
+<Palette {nodes} />
 
 <style>
   h2 { font-size: 14px; margin: 0 0 16px; color: var(--colors-skeleton-0-primary-base); font-family: var(--font-family-code); }

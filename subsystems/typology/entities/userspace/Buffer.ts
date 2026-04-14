@@ -1,12 +1,21 @@
 import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
 
-import { DataEntity, DataSchema } from "../index.ts";
+import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
 import { ThreadEntity } from "../index.ts";
 import { LiteralEntity } from "../index.ts";
 import { SymbolEntity } from "../index.ts";
 
+export enum BufferStatusEnum {
+  PENDING = "PENDING",
+  ACTIVE = "ACTIVE",
+  DONE = "DONE",
+  ERROR = "ERROR",
+  STALE = "STALE",
+}
+
 export class BufferEntity extends DataEntity {
+  status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   data: any & Opt = {};
   index: number & Opt = 0;
 
@@ -21,6 +30,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
   extends: DataSchema,
   name: "Buffer",
   tableName: "Buffer",
+  repository: () => DataRepository,
   abstract: true,
   filters: {
     user: {
@@ -29,6 +39,11 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
     },
   },
   properties: {
+    status: {
+      enum: true,
+      items: () => BufferStatusEnum,
+      defaultRaw: `'${BufferStatusEnum.PENDING}'`,
+    },
     data: { type: types.json, defaultRaw: `'{}'` },
     index: { type: types.integer, default: 0 },
 
@@ -66,27 +81,3 @@ export default {
   schema: BufferSchema,
   entity: BufferEntity,
 };
-
-// export enum BufferStatusEnum {
-//   PENDING = "PENDING",
-//   ACTIVE = "ACTIVE",
-//   DONE = "DONE",
-//   ERROR = "ERROR",
-//   STALE = "STALE",
-// }
-//
-// export enum BufferTraitsEnum {
-//   FURNISHED = "FURNISHED",
-//   STATEFUL = "STATEFUL",
-//   DIALOGIC = "DIALOGIC",
-//   AGENTIC = "AGENTIC",
-// }
-//
-// export class BufferEntity extends BaseEntity {
-//   traits: BufferTraitsEnum[] & Opt = [];
-//   trait: any & Opt = {};
-//   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
-//   index: number & Opt = 0;
-//   mode!: Rel<ModeEntity>;
-//   thread!: Rel<ThreadEntity>;
-// }

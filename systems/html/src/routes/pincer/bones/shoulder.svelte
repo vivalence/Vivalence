@@ -11,7 +11,13 @@
   let queueDepth = $state(0);
   let thread = $state(null);
 
+  let teardownStatus = null;
+  let teardownBuffers = null;
+
   threadInstance.$current.subscribe((current) => {
+    if (teardownStatus) { teardownStatus(); teardownStatus = null; }
+    if (teardownBuffers) { teardownBuffers(); teardownBuffers = null; }
+
     thread = current;
     if (!current) {
       phase = null;
@@ -21,8 +27,11 @@
     }
     phase = current.phase ?? null;
     if (current.queue) {
-      current.queue.$status.subscribe((s) => { stallStatus = s; });
-      current.$buffers.subscribe((buffers) => { queueDepth = buffers.length; });
+      teardownStatus = current.queue.$status.subscribe((s) => { stallStatus = s; });
+      teardownBuffers = current.$buffers.subscribe((buffers) => {
+        queueDepth = buffers.length;
+        phase = current.phase ?? null;
+      });
     }
   });
 

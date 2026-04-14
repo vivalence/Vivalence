@@ -1,119 +1,176 @@
 <script>
   import { getContext } from "svelte";
-  import { BRIDGE } from "$client";
+  import { LIGHTHOUSE, QUARTERS, BRIDGE, THREAD } from "$client";
+  import { shape, steer } from "@vivalence/typology";
+  import { skins } from "@vivalence/drapes";
+  const { Skin } = skins;
+  import { composeInspector } from "./inspector.js";
 
-  const { layout, view, toggle } = getContext(BRIDGE);
+  const lighthouseInstance = getContext(LIGHTHOUSE);
+  const quartersInstance = getContext(QUARTERS);
+  const bridgeInstance = getContext(BRIDGE);
+  const threadInstance = getContext(THREAD);
+  const { layout, view, toggle } = bridgeInstance;
 
   let show = $state(view.$h.get());
   let gActive = $state(view.$g.get());
-  let inspectLighthouse = $state(view.$inspectLighthouse.get());
-  let inspectQuarters = $state(view.$inspectQuarters.get());
-  let inspectBridge = $state(view.$inspectBridge.get());
-  let inspectThread = $state(view.$inspectThread.get());
   view.$h.subscribe(v => show = v);
   view.$g.subscribe(v => gActive = v);
-  view.$inspectLighthouse.subscribe(v => inspectLighthouse = v);
-  view.$inspectQuarters.subscribe(v => inspectQuarters = v);
-  view.$inspectBridge.subscribe(v => inspectBridge = v);
-  view.$inspectThread.subscribe(v => inspectThread = v);
 
-  let orientation = $state(layout.$orientation.get());
-  let pincer = $state(layout.$pincer.get());
-  let previous = $state(layout.$previous.get());
-  let standard = $state(layout.$standard.get());
-  layout.$orientation.subscribe(v => orientation = v);
-  layout.$pincer.subscribe(v => pincer = v);
-  layout.$previous.subscribe(v => previous = v);
-  layout.$standard.subscribe(v => standard = v);
+  let inspectorHeight = $state(layout.$inspectorHeight.get());
+  layout.$inspectorHeight.subscribe(v => inspectorHeight = v);
+
+  let nodes = $state(null);
+
+  function rebuild() {
+    const vector = composeInspector(lighthouseInstance, quartersInstance, bridgeInstance, threadInstance);
+    nodes = shape.tree(vector, steer.direct);
+  }
+
+  lighthouseInstance.$status.subscribe(rebuild);
+  lighthouseInstance.$isAuthorized.subscribe(rebuild);
+  lighthouseInstance.$isIdentified.subscribe(rebuild);
+  lighthouseInstance.$identity.subscribe(rebuild);
+  lighthouseInstance.$daemons.subscribe(rebuild);
+  quartersInstance.$active.subscribe(rebuild);
+  quartersInstance.$terminal.subscribe(rebuild);
+  quartersInstance.terminals.$entities.subscribe(rebuild);
+  threadInstance.$current.subscribe(rebuild);
+  layout.$pincer.subscribe(rebuild);
+  layout.$orientation.subscribe(rebuild);
+
+  let dragging = $state(false);
+  let dragStartY = $state(0);
+  let dragStartHeight = $state(0);
+
+  function onHandlePointerDown(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragging = true;
+    dragStartY = event.clientY;
+    dragStartHeight = inspectorHeight;
+  }
+
+  function onHandlePointerMove(event) {
+    if (!dragging) return;
+    const delta = event.clientY - dragStartY;
+    const newHeight = Math.max(0, Math.min(window.innerHeight - 80, dragStartHeight + delta));
+    layout.inspectorHeight = newHeight;
+  }
+
+  function onHandlePointerUp(event) {
+    if (!dragging) return;
+    try { event.currentTarget.releasePointerCapture(event.pointerId); } catch (_) {}
+    dragging = false;
+    bridgeInstance.save();
+  }
+
+  const open = $derived(inspectorHeight > 20);
 </script>
 
 {#if show}
-  <div class="overlay">
-    <span class="seg hi">H</span>
-    <span class="sep">›</span>
-    <span class="seg hi">orient {orientation}°</span>
-    <span class="sep">›</span>
-    <span class="seg">pincer {Math.round(pincer.x)}·{Math.round(pincer.y)}</span>
-    <span class="sep">›</span>
-    <span class="seg lo">prev {Math.round(previous.x)}·{Math.round(previous.y)}</span>
-    <span class="sep">›</span>
-    <span class="seg lo">home {Math.round(standard.x)}·{Math.round(standard.y)}</span>
-    <span class="spacer"></span>
-    <span class="hint">1·home · 2·swap · 3·set · hold·rotate</span>
-    <span class="devgroup" title="context inspectors">
+  <div class="drawer" style:height="{50 + inspectorHeight}px">
+    <div class="modeline">
+      <span class="seg hi">H</span>
+      <span class="sep">›</span>
+      <span class="seg lo">inspector</span>
+      <span class="spacer"></span>
       <button
-        class="btn dev"
-        class:on={inspectLighthouse}
-        onclick={() => toggle("inspectLighthouse")}
-        title="inspect LIGHTHOUSE"
-      >L</button>
-      <button
-        class="btn dev"
-        class:on={inspectQuarters}
-        onclick={() => toggle("inspectQuarters")}
-        title="inspect QUARTERS"
-      >Q</button>
-      <button
-        class="btn dev"
-        class:on={inspectBridge}
-        onclick={() => toggle("inspectBridge")}
-        title="inspect BRIDGE"
-      >B</button>
-      <button
-        class="btn dev"
-        class:on={inspectThread}
-        onclick={() => toggle("inspectThread")}
-        title="inspect THREAD"
-      >T</button>
-    </span>
-    <button
-      class="btn"
-      class:on={gActive}
-      onclick={() => toggle("g")}
-      title="toggle G — system tray"
-    >G</button>
+        class="btn"
+        class:on={gActive}
+        onclick={() => toggle("g")}
+        title="toggle G — telemetry"
+      >G</button>
+      <button class="btn close" onclick={() => toggle("h")}>×</button>
+    </div>
+
+    {#if open && nodes}
+      <div class="inspector-body">
+        <Skin {nodes} variant="breadcrumb" />
+      </div>
+    {/if}
+
+    <div
+      class="drag-handle"
+      class:dragging
+      onpointerdown={onHandlePointerDown}
+      onpointermove={onHandlePointerMove}
+      onpointerup={onHandlePointerUp}
+      onpointercancel={onHandlePointerUp}
+    >
+      <div class="drag-pill"></div>
+    </div>
   </div>
 {/if}
 
 <style>
-  .overlay {
+  .drawer {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 50px;
+    min-height: 50px;
     background: var(--colors-skeleton-1-surface);
     color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-code);
     z-index: 80;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 8px;
-    padding: 0 14px;
+    flex-direction: column;
     border-bottom: 1px solid var(--colors-skeleton-0-boundary);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     overflow: hidden;
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
   }
+  .modeline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0 6px 0 14px;
+    border-bottom: 1px solid var(--colors-skeleton-0-boundary);
+    font-size: 11px;
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    flex-shrink: 0;
+  }
+  .inspector-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .drag-handle {
+    flex-shrink: 0;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: ns-resize;
+    touch-action: none;
+    user-select: none;
+    border-top: 1px solid var(--colors-skeleton-0-boundary);
+  }
+  .drag-handle:hover .drag-pill,
+  .drag-handle.dragging .drag-pill {
+    opacity: 0.7;
+    width: 48px;
+  }
+  .drag-pill {
+    width: 32px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--colors-skeleton-0-boundary);
+    opacity: 0.35;
+    transition: opacity 0.12s, width 0.12s;
+  }
+
   .seg { white-space: nowrap; font-size: 9px; letter-spacing: 0.08em; }
   .seg.hi { color: var(--colors-skeleton-1-contrast); font-weight: 600; }
   .seg.lo { color: var(--colors-skeleton-2-contrast); }
-  .sep {
-    color: var(--colors-skeleton-0-boundary);
-    font-size: 10px;
-    flex-shrink: 0;
-  }
+  .sep { color: var(--colors-skeleton-0-boundary); font-size: 10px; flex-shrink: 0; }
   .spacer { flex: 1; min-width: 0; }
-  .hint {
-    color: var(--colors-skeleton-2-contrast);
-    font-size: 9px;
-    letter-spacing: 0.08em;
-    opacity: 0.6;
-    white-space: nowrap;
-  }
   .btn {
     height: 20px;
     min-width: 24px;
@@ -138,25 +195,12 @@
     color: var(--colors-skeleton-0-contrast);
     border-color: var(--colors-skeleton-0-boundary);
   }
-  .devgroup {
-    display: inline-flex;
-    gap: 2px;
-    padding-right: 6px;
-    border-right: 1px solid var(--colors-skeleton-0-boundary);
-    margin-right: 2px;
+  .btn.close {
+    border: none;
+    font-size: 16px;
+    height: 24px;
   }
-  .btn.dev {
-    min-width: 20px;
-    padding: 0 5px;
-    border-color: var(--colors-skeleton-1-boundary);
-    color: var(--colors-skeleton-2-contrast);
-  }
-  .btn.dev.on {
-    background: var(--colors-skeleton-0-accent-base);
-    color: var(--colors-skeleton-0-contrast);
-    border-color: var(--colors-skeleton-0-accent-base);
-  }
-  @media (max-width: 600px) {
-    .hint { display: none; }
+  .btn.close:hover {
+    color: var(--colors-skeleton-0-danger-base);
   }
 </style>

@@ -524,7 +524,6 @@
     color: var(--colors-theme-primary-contrast);
     white-space: nowrap;
     flex-shrink: 0;
-    min-width: 4rem;
   }
   .field {
     flex: 1;

@@ -16,7 +16,9 @@ export const EMITTER = async (mode, daemon) => {
   });
 
   mode.cake.emitter.use(async (ctx, next) => {
+    // console.log("BLACKLIST pre parse", ctx.input.blacklist);
     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
+    // console.log("BLACKLIST post parse", ctx.input.blacklist);
     await next();
   });
 

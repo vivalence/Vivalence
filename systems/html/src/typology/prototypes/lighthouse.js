@@ -2,6 +2,7 @@ import { map, atom, computed } from "nanostores";
 import { Vector, shape, Connection, Url, shard } from "@vivalence/typology";
 import { hydrate } from "./persistence.js";
 import { boot as bootDaemon } from "./daemon.js";
+import { telemetry } from "$telemetry";
 
 export { hydrate } from "./persistence.js";
 
@@ -17,6 +18,9 @@ export class Lighthouse {
 
   constructor(connection) {
     this.connection = connection
+      .use(shard.track.span("lighthouse", telemetry))
+      .use(shard.track.request())
+      .use(shard.track.fault())
       .use(shard.connection.authorize(this.$authority))
       .use(shard.connection.retry({ maxRetries: 2 }))
       .use(shard.connection.timeout())
@@ -161,6 +165,9 @@ const lifecycle = new Vector()
     ctx.boot = async (pojo) => {
       const url = new Url(pojo.url);
       const connection = new Connection(url)
+        .use(shard.track.span("daemon", telemetry))
+        .use(shard.track.request())
+        .use(shard.track.fault())
         .use(shard.connection.authorize(ctx.entity.$authority))
         .use(shard.connection.batch({
           hatch: url,

@@ -3,79 +3,69 @@ export default {
     {
       slug: "survival-warmup",
       name: "Warmup",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/warmup",
-          queue: 2,
-          mask: {
-            where: { symbols: ["word", "proficiency.survival"] },
-            limit: 8,
-          },
+        MASKED: {
+          where: { symbols: ["word", "proficiency.survival"] },
+          limit: 8,
         },
+        AIMED: { mount: "/emit/warmup" },
+        QUEUEING: { depth: 2 },
       },
     },
     {
       slug: "survival-buildup",
       name: "Build Up",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/buildup",
-          queue: 3,
-          mask: {
-            where: { ontology: "conjugation" },
-            limit: 1,
-          },
+        MASKED: {
+          where: { ontology: "conjugation" },
+          limit: 1,
         },
+        AIMED: { mount: "/emit/buildup" },
+        QUEUEING: { depth: 3 },
       },
     },
     {
       slug: "survival-exercise",
       name: "Exercise",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/exercise",
-          queue: 3,
-          mask: {
-            where: { symbols: ["sentence", "proficiency.survival"] },
-            limit: 3,
-          },
+        MASKED: {
+          where: { symbols: ["sentence", "proficiency.survival"] },
+          limit: 3,
         },
+        AIMED: { mount: "/emit/exercise" },
+        QUEUEING: { depth: 3 },
       },
     },
     {
       slug: "survival-drill",
       name: "Drill",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/drill",
-          queue: 2,
-          mask: {
-            where: {
-              symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"],
-            },
-            limit: 6,
-            title: "Verb drill",
+        MASKED: {
+          where: {
+            symbols: ["word.part-of-speech.verb", "word.tense.present", "proficiency.survival"],
           },
+          limit: 6,
+          title: "Verb drill",
         },
+        AIMED: { mount: "/emit/drill" },
+        QUEUEING: { depth: 2 },
       },
     },
     {
       slug: "survival-cooldown",
       name: "Cool Down",
-      traits: ["QUEUEING"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        QUEUEING: {
-          mount: "/emit/cooldown",
-          queue: 2,
-          mask: {
-            where: { symbols: ["word", "proficiency.survival"] },
-            limit: 8,
-          },
+        MASKED: {
+          where: { symbols: ["word", "proficiency.survival"] },
+          limit: 8,
         },
+        AIMED: { mount: "/emit/cooldown" },
+        QUEUEING: { depth: 2 },
       },
     },
   ],

@@ -1,59 +1,65 @@
-import { Vector, stamp } from "@vivalence/typology";
+import { Vector, shape, steer } from "@vivalence/typology";
+import * as narrow from "../../../typology/belt/narrow.js";
 
-// history
-// modes
-// intents
-export async function compose(quarters, lighthouse, threadContext) {
+export { narrow };
+
+export async function compose(lighthouse, threadContext) {
   const daemons = lighthouse.$daemons.get();
-  const vector = new Vector();
 
-  const threadsBranch = vector.branch({
-    nature: "threads",
-    directed: { variant: "icon", icon: "history" },
-  });
+  const threadsVector = new Vector();
+  const modesVector = new Vector();
+  const intentsVector = new Vector();
 
   for (const daemon of daemons) {
-    if (!daemon.entities?.thread) continue;
-    const found = await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
-    for (const thread of found) {
-      daemon.entities.thread.resolve?.(thread);
-      threadsBranch.open({ nature: thread.mode?.slug ?? thread.id }, () =>
-        resume(threadContext, thread),
-      );
-    }
-  }
-
-  vector.branch({ nature: "modes", directed: { variant: "icon", icon: "compass" } });
-  for (const daemon of daemons) {
-    // vector.branch("daemons").branch(daemon.slug);
-    for (const mode of daemon.entities.mode.$entities.get()) {
-      // console.log({ mode });
-      if (mode.implements("selfevident")) {
-        // console.log({ selfevident: mode });
-        vector
-          .branch("modes")
-          .branch(daemon.slug)
-          .branch(mode.type)
-          .open(mode.slug, () => openFromMode(threadContext, daemon, mode));
+    if (daemon.entities?.thread) {
+      const found = await daemon.entities.thread.find({}, { populate: ["mode", "intent"] });
+      for (const thread of found) {
+        daemon.entities.thread.resolve?.(thread);
+        const label = thread.label ?? {};
+        threadsVector.open(
+          {
+            nature: label.name ?? thread.mode?.slug ?? thread.id,
+            valence: { name: label.description ?? "", prompt: thread.mode?.type ?? daemon.slug },
+          },
+          () => resume(threadContext, thread),
+        );
       }
+    }
 
-      // vector.branch({ nature: "daemons", directed: { variant: "icon", icon: "compass" } });
-      // if mode trait selfevident -> attach openfrommode() to
-      if (mode.intents?.size > 0) {
-        for (const intent of mode.intents) {
-          vector
-            .branch("intents")
-            .branch(daemon.slug)
-            .branch(mode.type)
-            .branch(mode.slug)
-            .open(intent.slug, () => openFromIntent(threadContext, daemon, mode, intent));
+    for (const mode of daemon.entities.mode.$entities.get()) {
+      const intents = mode.intents ?? [];
+      if (intents.length > 0) {
+        for (const intent of intents) {
+          intentsVector.open(
+            {
+              nature: intent.slug,
+              valence: {
+                name: intent.name ?? intent.slug,
+                prompt: mode.type + " · " + (mode.name ?? mode.slug),
+              },
+            },
+            () => openFromIntent(threadContext, daemon, mode, intent),
+          );
         }
       }
+
+      if (mode.implements("selfevident")) {
+        modesVector.open(
+          {
+            nature: mode.slug,
+            valence: { name: mode.name ?? mode.slug, prompt: mode.type },
+          },
+          () => openFromMode(threadContext, daemon, mode),
+        );
+      }
     }
   }
-  // console.log(JSON.stringify(stamp.press(vector), null, 2));
 
-  return vector;
+  return {
+    threads: shape.flat(threadsVector, steer.direct),
+    intents: shape.flat(intentsVector, steer.direct),
+    modes: shape.flat(modesVector, steer.direct),
+  };
 }
 
 function resume(threadContext, thread) {
@@ -70,26 +76,4 @@ async function openFromIntent(threadContext, daemon, mode, intent) {
   const thread = await daemon.entities.thread.create({ mode: mode.id, intent: intent.id });
   daemon.entities.thread.resolve?.(thread);
   threadContext.set(thread);
-}
-
-export function composeThread(thread) {
-  const vector = new Vector();
-
-  vector.open({ nature: "daemon", valence: { name: thread.daemon?.slug } });
-  vector.open({ nature: "mode", valence: { name: thread.mode?.slug, prompt: thread.mode?.type } });
-  if (thread.intent) {
-    vector.open({
-      nature: "intent",
-      valence: { name: thread.intent?.slug, prompt: thread.intent?.type },
-    });
-  }
-  if (thread.traits?.length) {
-    vector.open({ nature: "traits", valence: { name: thread.traits.join(", ") } });
-  }
-  vector.open({ nature: "counter", valence: { name: String(thread.counter) } });
-  vector.open({ nature: "cursor", valence: { name: String(thread.cursor) } });
-  vector.open({ nature: "buffers", valence: { name: String(thread.buffers?.length ?? 0) } });
-  vector.open({ nature: "turns", valence: { name: String(thread.turns?.length ?? 0) } });
-
-  return vector;
 }
