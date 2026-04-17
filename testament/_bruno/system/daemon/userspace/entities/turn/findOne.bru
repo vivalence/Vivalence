@@ -1,0 +1,38 @@
+meta {
+  name: findOne
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/turn/findOne
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "thread": "{{DEWEY_THREAD_ID}}"
+    },
+    "options": {
+      "orderBy": { "createdAt": "DESC" }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("returns most recent turn", function () {
+    const turn = res.getBody();
+    expect(turn.id).to.be.a('string');
+    console.log("turn:", JSON.stringify(turn, null, 2));
+  });
+}

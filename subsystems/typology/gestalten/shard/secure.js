@@ -10,20 +10,20 @@ export function authority(provider) {
 export function authorize(claims = []) {
   return async (ctx, next) => {
     const header = ctx.request.headers?.get("authorization");
+    const param = ctx.request.url.searchParams?.get("token");
+    const token = header?.startsWith("Bearer ") ? header.split(" ")[1] : param;
 
-    if (!header?.startsWith("Bearer ")) {
+    if (!token) {
       ctx.response.status = 401;
       ctx.response.body = {
         status: "ERROR",
         error: {
           code: "MISSING_TOKEN",
-          message: "Authorization header required",
+          message: "Authorization header or token param required",
         },
       };
       return;
     }
-
-    const token = header.split(" ")[1];
 
     try {
       ctx.identity = await ctx.authority.authenticate(token);

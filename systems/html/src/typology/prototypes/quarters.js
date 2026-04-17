@@ -1,18 +1,39 @@
-import { LocalRepository } from "@vivalence/typology";
 import { atom, computed } from "nanostores";
-import { Terminal } from "./terminal.js";
+import { Vector, shape, shard } from "@vivalence/typology";
+import { TerminalDossier } from "../entities/terminal.js";
 
 const ACTIVE_KEY = "viva.quarters.active";
 
+function strategy(carry) {
+  return async (entity, raw) => {
+    const ctx = { entity, raw };
+    await carry(ctx, async () => {});
+    return entity;
+  };
+}
+
 export class Quarters {
   constructor() {
-    this.terminals = new LocalRepository({ kind: Terminal, persist: "viva.quarters" });
+    const dossier = TerminalDossier;
+    const repository = dossier.repository(dossier, this);
+
+    const vector = new Vector()
+      .use(shard.context.attach("dossier", dossier))
+      .use(shard.context.attach("repository", repository))
+      .use(shard.context.attach("quarters", this));
+    for (const fn of dossier.use ?? []) vector.use(fn);
+    vector.affect(async () => {});
+    repository.integrate = shape.selbstbestimmt(vector, strategy);
+
+    this.terminals = repository;
+    this.terminals.restore().catch(console.error);
+
     this.$active = atom(restoreActive(this.terminals));
     this.$terminal = computed(this.$active, (id) => (id ? this.terminals.findOne({ id }) : null));
   }
 
-  spawn(slug = null) {
-    const terminal = this.terminals.create({ slug });
+  async spawn(slug = null) {
+    const terminal = await this.terminals.create({ slug });
     this.$active.set(terminal.id);
     persistActive(terminal.id);
     return terminal;

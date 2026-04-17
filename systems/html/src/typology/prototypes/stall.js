@@ -6,7 +6,7 @@ export const StallStatusEnum = Object.freeze({
   EXHAUSTED: "EXHAUSTED",
   ERROR: "ERROR",
   CLOSED: "CLOSED",
-})
+});
 export class Stall {
   $source;
   $active;
@@ -34,17 +34,23 @@ export class Stall {
     this.activated = true;
 
     this.$status.set(StallStatusEnum.IDLE);
-    this.teardowns.push(this.$status.subscribe((status) => {
-      if (status !== StallStatusEnum.IDLE) return;
-      if (!this.$active.get() && this.$source.get().length) this.advance();
-      if (this.$source.get().length < this.threshold) this.pull();
-    }));
+    //@beef i feel like these should be on the thread lifecycle!
+    // and no activated/suspended manual bypass.
+    this.teardowns.push(
+      this.$status.subscribe((status) => {
+        if (status !== StallStatusEnum.IDLE) return;
+        if (!this.$active.get() && this.$source.get().length) this.advance();
+        if (this.$source.get().length < this.threshold) this.pull();
+      }),
+    );
 
-    this.teardowns.push(this.$source.subscribe(() => {
-      if (this.$status.get() === StallStatusEnum.CLOSED) return;
-      if (this.suspended) return;
-      if (!this.$active.get() && this.$source.get().length) this.advance();
-    }));
+    this.teardowns.push(
+      this.$source.subscribe(() => {
+        if (this.$status.get() === StallStatusEnum.CLOSED) return;
+        if (this.suspended) return;
+        if (!this.$active.get() && this.$source.get().length) this.advance();
+      }),
+    );
 
     return this;
   }
@@ -52,10 +58,12 @@ export class Stall {
   deactivate() {
     for (const teardown of this.teardowns) teardown();
     this.teardowns = [];
-    this.activated = false;
+    this.activated = false; // ugly
   }
 
-  suspend() { this.suspended = true; }
+  suspend() {
+    this.suspended = true; // ugly
+  }
 
   resume() {
     this.suspended = false;
@@ -84,7 +92,15 @@ export class Stall {
 
   async pull() {
     const status = this.$status.get();
-    if ([StallStatusEnum.CLOSED, StallStatusEnum.PULLING, StallStatusEnum.EXHAUSTED, StallStatusEnum.ERROR].includes(status)) return;
+    if (
+      [
+        StallStatusEnum.CLOSED,
+        StallStatusEnum.PULLING,
+        StallStatusEnum.EXHAUSTED,
+        StallStatusEnum.ERROR,
+      ].includes(status)
+    )
+      return;
     if (this.$source.get().length > this.threshold) return;
     if (!this.handlers.pull) return;
 

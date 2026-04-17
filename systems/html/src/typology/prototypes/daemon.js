@@ -1,4 +1,4 @@
-import { Vector, shape, Path } from "@vivalence/typology";
+import { Vector, shape, Path, shard } from "@vivalence/typology";
 import { Dataspace } from "./dataspace.js";
 import { ModeDossier } from "../entities/mode.js";
 import { IntentDossier } from "../entities/intent.js";
@@ -45,19 +45,8 @@ export class Daemon {
   }
 }
 
-function createFactory(daemon) {
-  return (carry, effect) => async (raw) => {
-    const ctx = {
-      raw,
-      entity: raw,
-      daemon,
-      mount: daemon.mount,
-      link: daemon.link,
-      connection: daemon.connection,
-    };
-    await carry(ctx, async () => await effect(ctx));
-    return ctx.entity;
-  };
+function seedDaemon(daemon) {
+  return (vector) => vector.use(shard.context.attach("daemon", daemon));
 }
 
 const lifecycle = new Vector()
@@ -66,7 +55,7 @@ const lifecycle = new Vector()
     ctx.entity.entities = new Dataspace({
       entities,
       connection: ctx.entity.connection,
-      factory: createFactory(ctx.entity),
+      seed: seedDaemon(ctx.entity),
     });
     await ctx.entity.entities.init();
     await ctx.entity.entities.populate(["mode"]);

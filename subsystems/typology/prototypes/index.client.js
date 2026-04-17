@@ -12,6 +12,7 @@ export * from "./context.js";
 export * from "./status.js";
 export * from "./scope.js";
 export * from "./connection.js";
+export * from "./socket.js";
 export * from "./aperture.js";
 export * from "./broadcaster.js";
 export * from "./blacklist.js";
@@ -25,6 +26,9 @@ export * from "./mask.js";
 
 export * from "./span.js";
 export * from "./pipe.js";
+export * from "./queue.js";
+export * from "./session.js";
+export * from "./bell.js";
 export * as tracks from "./tracks.js";
 
 export * from "./wafer.js";

@@ -10,7 +10,7 @@ const manifest = {
 };
 
 const buffer = new BufferView(
-  "buffer/Paradigm.svelte",
+  "Paradigm.svelte",
   v.buffer({
     data: {
       infinitive: v.string().desc("Literal ID of the infinitive"),

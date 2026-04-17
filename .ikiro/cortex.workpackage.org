@@ -23,11 +23,14 @@ and client (harness consumption, trait-specific UI).
 
 | Term | Definition |
 |------+------------|
-| cortex | Daemon-level orchestrator. Resolves providers, holds tunes, constructs harnesses. |
+| cortex | Daemon-level orchestrator. Resolves providers, holds tunes, spawns hallucinations. |
 | faculty | What a hallucinator can do. A capability contract with type, channels, tune, and a via object. |
 | channels | I/O contract on a faculty: ={in, out}=. Maps 1:1 to Part types. |
 | via | Delivery object on a faculty: ={render?, stream?}=. Presence of method = support. Declares AND implements delivery. |
-| harness | A Vector instance constructed by the cortex. Branches per faculty type, effects per delivery avenue. |
+| hallucinate | Per-invocation envelope spawned by =cortex.spawn()=. Binds turns + tools + tune + config to faculty calls. Exposes dotted faculty getters (=.dialogue= / =.speech= / =.verbatim= / =.object=) with =render= / =stream= methods. |
+| dialogue | Faculty type (text in, turn packets out). Also the name of the mode-owned Vector declaring effects per modality (=/chat=, =/speech=), which the CONVERSATIONAL trait slurps into its own dialogue Vector and compiles via =shape.object= to =mode.dialogue=. Single word across all three layers (faculty / mode export / compiled callable) by the 2026-04-17 rename pass (=dialogue-verbatim-rename.workpackage.org=). |
+| verbatim | Faculty type (audio in, text turn out — STT). Additive slot landed in the rename pass; no live provider yet. |
+| harness | *Aspirational vocabulary from this workpackage* (see D-drift note below). Was the cortex-constructed Vector with branches per faculty type. *Not used in live code.* The Phase 2 redesign replaced the cortex-owns-harness model with mode-owns-dialogue + trait-slurps-into-its-own-dialogue. Word retained in this doc for historical continuity; treat =dialogue= as the operative noun when implementing. |
 | thread | A head turn and its parent chain. Not an entity — a pointer into the turn graph. |
 | turn | Persistence primitive. Has parent/children (DAG), role, parts, meta. |
 | part | Typed content atom within a turn. Discriminated by type string (= channel name). |
@@ -36,7 +39,48 @@ and client (harness consumption, trait-specific UI).
 | tier | Named preset tune. frugal, balanced, capable, unleashed. |
 | render | Delivery avenue. Returns sealed turn. |
 | stream | Delivery avenue. Returns async iterable of packets. |
-| accumulate | Stream→render bridge. Reduces packets into a sealed turn. |
+| accumulate | Stream→render bridge. Reduces packets into a sealed turn. (Live primitive: =soma.pour=.) |
+
+** Naming drift note (2026-04-18 audit, two passes)
+
+This workpackage's early sections describe a =cortex.harness(types)= factory
+that builds the mode's faculty Vector. Phase 2 redesign (2026-04-05 Changelog)
+pivoted to a simpler model, and two rename passes have since layered on top.
+When reading this doc, translate all three layers:
+
+- *harness (workpackage term)* → *conversation Vector inside the CONVERSATIONAL trait*
+  (post-2026-04-18 rename — see next bullet). Trait constructs the Vector,
+  installs root middlewares (thread resolve, history+hallucinate spawn, persistence),
+  slurps the mode's =cake.conversation= middleware, declares standard effects
+  per faculty family (=/dialogue/engage=, =/speech/render=, ...), and compiles
+  to =mode.conversation = shape.object(conversation)=. No =cortex.harness([...])=
+  call anywhere in live code. =Cortex= exposes =extend / resolve / spawn= only.
+- *mode-vector rename (2026-04-18)* — the Vector the mode exports AND the
+  trait's internal wrapping Vector were both called =dialogue=, colliding with
+  the =dialogue= faculty type. Renamed to =conversation= at the mode-vector
+  and trait-vector layers. Mode export: =export const conversation = new Vector()=.
+  Compiled surface: =mode.conversation=. Modes contribute via middleware
+  (=conversation.use(...)= inside the mode's export), NOT by authoring their
+  own entry effects like =/chat=; the trait owns standard effects.
+- *faculty rename (2026-04-17)* — faculty type string =conversation= → =dialogue=.
+  Landed via =.ikiro/dialogue-verbatim-rename.workpackage.org= (DONE).
+  FacultyType union now reads =dialogue | object | speech | verbatim | call=.
+- *hallucinate surface* — =hallucinate.dialogue.{render,stream}= on the
+  instance returned by =daemon.cortex.spawn()=. Bindings compiled at Hallucinate
+  construction (see =subsystems/typology/prototypes/hallucinate.js:11-28=).
+- *harness (live term, 2026-04-18)* — alias for =ctx.hallucinate= inside mode
+  middleware. Convention: modes read =ctx.harness= as the per-invocation
+  hallucinate envelope (=add / tool / tune / configure= + faculty getters).
+  Alias not yet wired; pending CONVERSATIONAL trait update that sets
+  =ctx.harness = ctx.hallucinate= at Layer 2.
+
+*Mental model, one sentence:* a conversation is the declaration of live
+session channels that harness the daemon's cortex faculties to hallucinate them.
+
+The code is the source of truth. Sections §Primitives through §Cortex
+Composition in this document still carry the =harness= / =conversation=
+vocabulary for historical continuity. Do not treat them as implementation
+spec.
 
 * Design Decisions (Settled)
 
@@ -868,3 +912,72 @@ end-to-end from typology through daemon to live Anthropic over HTTP/SSE.
   steps (21 inline + 6 HTTP/SSE). Bruno test regime (6 requests). Infrastructure:
   dead Classifier import, buffer bundling await, esbuild re-sign. Daemon boots,
   dewey converses live with real Anthropic, turns persist and query over HTTP.
+- 2026-04-17: Faculty / mode-Vector / Hallucinate-getter rename pass
+  (=conversation= → =dialogue=, new =verbatim= slot) applied in code. See
+  =.ikiro/dialogue-verbatim-rename.workpackage.org= — status DONE.
+- 2026-04-18: Vocabulary audit. Added *Naming drift note* section
+  flagging =harness= as aspirational workpackage vocab superseded by
+  the Phase 2 mode-owns-=dialogue= model. Updated Vocabulary table to
+  reflect live surface. Downstream readers should prefer code over the
+  pre-Phase-2 prose in §Primitives / §Cortex Composition / §Harness
+  Construction & Traits sections, which remain for historical continuity.
+- 2026-04-18: **Architecture redesign (session 42).** Third evolution.
+  =Hallucinate= class archived → =Hallucination= (lean conditioning envelope,
+  =subsystems/typology/prototypes/hallucination.js=). Protocol loop extracted
+  into =streamLeaf= / =renderLeaf= / =executeTools= inside =cortex.js= (not a
+  separate file). =cortex.shard= getter exposes:
+  #+begin_src js
+  cortex.shard.harness  // middleware: ctx.hallucination = new Hallucination(cortex, ctx.input)
+  cortex.shard.effects(vector)  // bolts stream/render per faculty
+  #+end_src
+  CHAOSMONKEY fully implemented: fail-fast + shard.harness + /dialogue branch
+  assembly (history load, user turn, ctx.turn) + root scribe (persists all
+  turns on turn.close, handles stream + render) + shard.effects + mode.harness
+  compilation + /harness aperture. CONVERSATIONAL is now thin ws session owner
+  only — invokes mode.harness.dialogue.stream, pushes packets, voyage signal.
+  Input schema canonical: ={ thread, parts: Part[], tune?, tools?, config? }=.
+  steer.echo fixed (plain object ctx, no Context class). Vector.slurp now
+  deep-merges trajectories by nature. shape.http auto-publishes async generators
+  as SSE. 23 integration test steps green. Bruno harness tests wired.
+
+- 2026-04-18: **CONVERSATIONAL fully wired and tested end-to-end (session 43).**
+  Bruno WS smoke test confirmed live: moin → anchor → SSE packets → voyage.
+  Key fixes and architecture decisions settled this session:
+
+  *Route*: =/conversation= (was =/connect=). Thread is message-level (anchor
+  input), not connection-level (URL query param). Connection carries only auth.
+
+  *Auth*: =/conversation?token={{accessToken}}= — browser WS can't set
+  Authorization headers; =shard.secure.authorize= already has the =?token=
+  hatch. Console.log gating confirms auth threshold reached per connect.
+
+  *Per-connection vector*: =new Vector().slurp(conversation)= per WS upgrade.
+  =Session= constructor adds =/herald/moin= to inbound — if shared, N
+  connections accumulate N handlers. Slurp isolates the mutation.
+
+  *RequestContext per WS message*: conversation middleware wraps every signal
+  dispatch in =daemon.datamap.shard.context(...)= + =shard.bind("user", ...)=.
+  Mirrors the HTTP pipeline: authorize → ambient.store({user}) → datamap.bind.
+  =daemon.good.datamap = daemonDie.datamap= added in =population.js= so traits
+  can reach the datamap without receiving =daemonDie= directly.
+
+  *=shard.context.attach= cleanup*: attaches key before =next()=, nulls+deletes
+  after. Lazy generators (CHAOSMONKEY scribe) that capture =ctx= by reference
+  lose =ctx.daemon= the moment the middleware chain unwinds. Fixed by using
+  =daemon= / =mode= from CHAOSMONKEY's closure instead of =ctx.daemon= /
+  =ctx.mode= inside the generator body. General rule: closures over trait args
+  always outlive ctx.
+
+  *CLIENT_SHAPE*: must use branches not flat leaves. Flat ={ nature: "/dialogue/packet" }=
+  produces =//dialogue/packet= (double slash) in messenger's joinSignal — correct
+  form: =branches.dialogue.leaves=[{ nature: "packet" }, { nature: "voyage" }]=.
+
+  *Tests*: =conversation.integration.test.js= — 5 steps all green:
+  moin handshake, anchor→packets→voyage, turns persisted, second anchor loads
+  history (parent chain proof), user filter isolation. =session.test.js= — green.
+  Multi-turn history verified: =user2.parent === assistant1= proves CHAOSMONKEY
+  loaded history correctly and the scribe chained the parent pointers.
+
+  *Bruno*: =conversation.bru= with 4 named messages (moin, anchor-house,
+  anchor-kitchen, anchor-sentence). =run-dewey.sh= shell script chains login →
+  mode findOne → thread create → harness chat via =--reporter-json= + =jq=.

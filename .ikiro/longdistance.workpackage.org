@@ -1,0 +1,2124 @@
+#+TITLE: Longdistance — voice call modes + hallucinator TTS/ASR
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-17
+#+STATUS: IMPLEMENTING — text DONE (s43+44). Audio scaffolding landed s45 dormant behind ModeTraitsEnum gate. Unblock = add VOCALIZED to ModeTraitsEnum.
+
+* Orb protocol
+
+~/Users/finn/vivalence/private/logs/2026.04.17.org~ (or current-day log) is the shared communication space (the *orb*). Assistant demos concepts under its owned header; Finn annotates inline with @beef tags; orb is wiped round-to-round with content backed up to this workpackage first. This workpackage is the assistant's workarea — source of truth for the current design.
+
+Three staggered steps, reviewed at each gate:
+1. *Ideation* — current. Grounded in existing codebase; no external research.
+2. *Research* — HN trawl for TTS/ASR/VAD; shuo repo studied (done 2026-04-17).
+3. *Milestones* — test-driven, file-level diffs.
+
+* Desired end state (plain language)
+
+A user clicks a longdistance entry in Panel D. Their existing terminal activates a thread whose dominant mode is ~brazilian-solo~. A =session= opens on the terminal: websockets up (one per engaged mode), mic and speaker claimed through BELL, Brazilian voice greets in pt-BR, transcript streams, user speaks, partial + final verbatim appear, AI replies in voice. User can barge-in mid-TTS and the AI stops immediately. Connection drops and resumes without losing context (session token). User hangs up; thread persists as a turn log; re-opens later and resumes or starts fresh.
+
+Trio (brazilian + mentor in one session) and mentored (mentor opens a brazilian sub-thread) variants run on the same primitives — no rearchitecture.
+
+Everything expresses through existing Vivalence vocabulary: modes, threads, traits, faculties, shards, connection middleware, packet/part/turn/channel parlance — plus the newly-named *session / feed / sink* triad and *BELL* device arbiter.
+
+* Intent
+
+A thread becomes a phone call. Expressed entirely through:
+- *Cortex* gains two faculty types: ~speech~ and ~verbatim~. Tune gains ~latency~ dim. Faculty declarations gain ~configSchema~.
+- *Modes* gain one umbrella capability trait: *CONVERSATIONAL* (universal). Its config carries all conversational capability declarations (chat, speech, verbatim, endpoint, resilience). CHAOSMONKEY remains the only other mode trait touched here (debug/middleware).
+- *Modes boot on the client* via their dossier (done — =wireDossier= + =compileSchema=). Client-side trait hooks run symmetrically with server-side.
+- *Threads* gain one trait: *INSITU*. Marks a thread as engaged. Added automatically when the thread's dominant mode has CONVERSATIONAL.
+- *Session* lives on the *terminal*, not the thread. Opens when the terminal's active thread has INSITU; holds live sockets, roster, feeds, sinks, BELL claim. A given terminal has at most one live =session= at a time.
+- *Feeds* carry outbound streams (mic → server) when mode config declares verbatim capability.
+- *Sinks* carry inbound streams (server → speaker) when mode config declares speech capability.
+- *BELL* is the singleton client audio context. Arbitrates physical device claims across terminals/sessions.
+- *Connection* gains three middlewares: heartbeat, reconnect, session.
+- *Socket* is a new Connection primitive (alongside Request/Response/Pipe): wrapped browser WebSocket with framing, heartbeat, reconnect, typed-packet routing.
+
+Three mode instances share the new type ~longdistance~: ~brazilian-solo~, ~bilingual-trio~ (roster of two modes), ~mentored~ (mentor mode opens a brazilian sub-thread via tool_use).
+
+* Vocabulary
+
+** Settled (unchanged)
+
+- *turn* — persistence primitive. Parts + role + parent chain.
+- *part* — typed atom inside a turn. Audio parts are a type.
+- *packet* — delta event in a stream. turn.open/part.open/part.delta/part.close/turn.close + transport (ping/pong, session.*, hangup). This workpackage adds audio.in / audio.out / verbatim.*.
+- *channel* — I/O contract on a faculty: ~{in, out}~.
+- *faculty* — capability contract: ~{type, channels, tune, context, configSchema, via}~.
+- *tune* — resolution vector. Gains ~latency~ dim.
+- *shard* — gestalten routing primitive. Speech / verbatim / conversation faculties wire through shards. Config lives on the mode trait; shard carries it into the faculty.
+- *thread* — head turn + parent chain. Client-side: data + getter/setter reactive atoms (e.g. ~$buffer~, ~$label~).
+- *trait* — plain object of hook-functions applied during resolution/hydrate. Mode traits declare capabilities; thread traits carry runtime markers.
+- *dossier* — the selbstbestimmte vector an entity boots itself with. ~wireDossier(schema, dataspace?)~ → repo with compiled hydrate. Server + client symmetric.
+- *terminal* — client shell. Pre-exists navigation. Threads mount into terminals. Terminal has ~$thread~ (getter/setter over atom). *Now the session owner.*
+- *quarters* — client context holding terminal dataspace. Shrunk to thin layer over ~wireDossier(TerminalDossier)~.
+
+** Introduced by this workpackage
+
+- *CONVERSATIONAL* — the universal mode capability trait. Config example:
+  #+begin_example
+  CONVERSATIONAL: {
+    chat:          { endpoint: "/chat" },                                  // text-only baseline
+    speech:        { language, speaker, tune, configSchema },              // TTS capability
+    verbatim: { language, tune, vad, configSchema },                  // ASR capability
+    endpoint:      "/call",                                                // realtime session endpoint
+    heartbeat:     { interval },
+    reconnect:     { backoff, maxAttempts },
+    session:       { ttlSeconds, bargein },
+  }
+  #+end_example
+  Every mode is conversational. Config absent → default shard resolves anonymous/user-configured baseline.
+- *INSITU* — single thread trait. Marker: "this thread is currently engaged." Auto-added in ThreadDossier middleware when ~thread.mode~ has CONVERSATIONAL and INSITU absent. No behavior in the trait function itself — the terminal reacts (see below).
+- *session* — live container on the terminal. Created by TerminalDossier middleware when ~terminal.$thread~ holds an INSITU thread. Holds: sockets Map (keyed by slot: chat / tts / asr / video / ...), roster, session token, ~$status~, teardowns. One per terminal.
+- *feed* — outbound audio stream prototype. Lives on session when mode config declares verbatim. Path: ~BELL.mic → audio.in packets → socket~.
+- *sink* — inbound audio stream prototype. Lives on session when mode config declares speech. Path: ~socket → audio.out packets → BELL.speaker~.
+- *BELL* — singleton client audio context. Device arbiter (one mic, one speaker). Sessions claim/release.
+- *socket* — new Connection primitive. Wraps browser WebSocket with typed packet framing, heartbeat, reconnect, middleware.
+- *roster* — modes engaged in a session. Solo = [dominant]. Trio = [dominant, contributing]. Live state on the session; not an entity.
+- *dominant mode* — ~thread.mode~ relation, now named. Drives UI (CallFrame when ~type === "longdistance"~). Contributing modes attach via roster without owning UI.
+- *contributing mode* — additional mode in a session roster. Has its own cortex session, its own CONVERSATIONAL config.
+- *Port* — Svelte component (and embeddable subject) that IS the UI envelope of a live ~terminal.session~. Joins ship metaphor alongside LIGHTHOUSE / QUARTERS / BRIDGE / DECORUM. Rendered standalone on ~/port~ route (dev harness); inlet on Panel A as a dock-side overlay; optional embedded subject in the Panel E control center. Reserves mic / voice / video slots for the audio upgrade path; text-only until BELL lands. Dock side (top / right / bottom / left) stored on ~terminal.port.dock~ via Bridge; visibility on ~terminal.port.visible~ toggled from the shoulder widget.
+
+** Banned
+
+- *"frame"* as audio terminology. Audio moves as ~part~ (type: audio) inside audio.* packets.
+- *Participant* as a new prototype. A participant IS a mode in a session roster.
+- *SPEAKING / LISTENING / DIALED* as separate mode traits. Superseded by CONVERSATIONAL umbrella (2026-04-17).
+- *DIALED* as a thread trait. Superseded by INSITU (2026-04-17).
+- *Session lives on thread.* Session lives on terminal (2026-04-17).
+- *CALLED / VOICED / EARED* as thread traits.
+
+* Directives
+
+Regrouped under the new ontology. Fewer than prior rounds — naming lock + terminal-ownership simplified several.
+
+** Ontology (D1-D6)
+
+*** D1. Ground everything in existing primitives
+
+Cortex / Connection / Shard / Mode / Trait / Thread / Turn / Part / Packet / Channel + Terminal / Quarters / Dossier. No new framework. Every design move cites an existing class or file.
+
+*** D2. Modes declare capabilities via CONVERSATIONAL umbrella; threads carry engagement marker
+
+Mode.traits = ["CONVERSATIONAL", ...]. Config under ~mode.trait.CONVERSATIONAL.*~ covers chat / speech / verbatim / endpoint / resilience. Thread.traits = [..., "INSITU"] when engaged. INSITU is a marker, not a behavior — the terminal owns session lifecycle.
+
+*** D3. Session is the terminal's live object
+
+Session exists when ~terminal.$thread~ holds an INSITU thread. Lives on ~terminal.session~ (not on thread). Holds websocket(s), roster, token, feeds[], sinks[], ~$status~. One per terminal. Not persisted; thread swap reuses / swaps; thread-cleared closes.
+
+*** D4. Feeds and sinks are session-scoped audio primitives
+
+Feeds are outbound (client → server, mic). Sinks are inbound (server → client, speaker). Composed from mode config presence (verbatim → 1 feed per LISTENING-ish mode, speech → 1 sink per SPEAKING-ish mode). No dedicated traits.
+
+*** D5. BELL is the client device arbiter (cross-terminal singleton)
+
+Singleton client context alongside LIGHTHOUSE / QUARTERS / BRIDGE. Claims/releases physical mic + speaker. Sessions negotiate claims through BELL — not directly through getUserMedia. Two terminals with live sessions: BELL gates; first-claim-wins.
+
+*** D6. Dominant mode = thread.mode (existing relation, now named)
+
+The mode whose presentation drives the thread's frame. Contributing modes in roster don't own UI.
+
+** Trait architecture (D7-D11)
+
+*** D7. Modes boot on the client via dossier (done — =wireDossier=)
+
+The =wireDossier= + =compileSchema= machinery in ~systems/html/src/typology/prototypes/dossier.js~ already runs schema.use middleware on client-side cast. CONVERSATIONAL trait middleware lands here for mode dossier.
+
+*** D8. CONVERSATIONAL is universal and umbrella
+
+Every mode has a conversation channel. Explicit CONVERSATIONAL config: wired per mode-supplied config. Implicit (absent): default shard resolves anonymous/user-configured baseline (text-only chat, no audio). No mode is non-conversational.
+
+*** D9. Capability sub-configs (speech / verbatim) live under CONVERSATIONAL
+
+~mode.trait.CONVERSATIONAL.speech~ declares voice + tune + configSchema; consumed by the session to instantiate sinks.
+~mode.trait.CONVERSATIONAL.verbatim~ declares language + tune + VAD + configSchema; consumed to instantiate feeds.
+Both optional. Presence drives session composition.
+
+*** D10. INSITU is a thread marker; *manually triggered* via E panel toggle
+
+*Orb 2026-04-17 override*: INSITU is user-triggered (E panel toggle) — NOT auto-installed
+by ThreadDossier middleware. When ON on the active thread, the client CONVERSATIONAL trait
+opens the session; the thread keeps it live. INSITU off / thread swap / mode swap → session
+closes. Explicit user control is intentional — the session is a deliberate engagement, not
+a passive side-effect of navigating to a thread.
+
+Prior D10 said "auto-installed by ThreadDossier if mode has CONVERSATIONAL." Superseded.
+ThreadDossier still wires the INSITU infrastructure (trait config object initialization)
+but does NOT add INSITU automatically.
+
+*** D11. Faculty configSchema beyond tune
+
+Tune selects provider. configSchema accepts per-invocation controls (voice ID, emotion, speed, domain bias, language hints, SSML, emphasis). Shards populate configSchema from CONVERSATIONAL sub-configs; per-turn overrides reach via tool_use.
+
+** Lifecycle (D12-D14)
+
+*** D12. Terminal owns session lifecycle via ~$thread~ subscription
+
+TerminalDossier middleware subscribes to ~terminal.$thread~. On change:
+- If new thread has INSITU and mode has CONVERSATIONAL → ensure session; reserve slots; open sockets.
+- If thread cleared → close session, release BELL.
+- If thread swap (both INSITU) → swap session slots; reuse socket if same endpoint; reopen otherwise.
+
+No reaching into thread lifecycle. No wrapped setters. Subscribe is the only seam.
+
+*** D13. Session is a Stall-style prototype
+
+Session prototype in ~systems/html/src/typology/prototypes/session.js~ (new). Owns: ~$status~ (UNINITIALIZED / OPEN / ACTIVE / ERROR / CLOSED), sockets Map, feeds[], sinks[], roster, token, teardowns. Methods: ~open(thread)~, ~close()~, ~attach(thread)~, ~suspend()/resume()~ (reconnect bracket).
+
+*** D14. Socket primitive on Connection
+
+New alongside Request/Response/Pipe. ~daemon.connection.socket(endpoint)~ → wrapped WebSocket with typed-packet framing, heartbeat, reconnect, middleware stack. Session composes N sockets (one per mode engagement).
+
+** Multi-participant composition (D15-D16)
+
+*** D15. Calls compose modes — roster is modes, not a new Participant
+
+Session holds roster = modes. Solo = [dominant]. Trio = [dominant, contributing]. Each mode in the roster has its own cortex session on the daemon; session multiplexes across them at client side via one socket per mode.
+
+*** D16. Mentored = thread branching via thread.parent
+
+Mentor's dialogue emits tool_use that opens a sub-thread with ~parent = mentorThread.id~, dominant = brazilian. Data-model change: add ~parent~ m:1 optional to Thread entity (M3). UI later.
+
+** Resilience + tracing (D17-D20)
+
+*** D17. Connection middleware: heartbeat / reconnect / session
+
+Three new middlewares under ~subsystems/typology/gestalten/shard/connection/~. Compose like existing retry/timeout/batch.
+- heartbeat: ping/pong, ~$heartbeat~ (HEALTHY / LAGGY / LOST).
+- reconnect: exponential backoff, ~$reconnect~ (IDLE / ATTEMPTING / FAILED_PERMANENTLY).
+- session: issues session.init / session.resume; persists token via accessor; ~$session~ (id | null).
+
+*** D18. VAD on both sides
+
+Client VAD thin (Silero-tiny WASM or energy-based). Cues ~turn.end~ fast. Server VAD robust; authoritative on disagreement.
+
+*** D19. Barge-in is a first-class architectural requirement
+
+CONVERSATIONAL.session.bargein = "required" for call-style modes. Cortex speech-faculty resolution filters on ~abortable: true~ capability. Provider without mid-stream abort = not usable for call modes. Client detects user speech during AI-SPEAKING → ~turn.end reason=bargein~ → server aborts speech, part.close interrupted → sink flushes BELL.speaker queue.
+
+*** D20. Span tracing per session / turn / faculty
+
+Root span = session (open → close). Child = turn (turn.open → turn.close). Grandchild = faculty invocation. Skip per-packet spans; aggregate as metrics. Drain to Pipe → Panel G.
+
+** Transport posture (D21)
+
+*** D21. Client ↔ Daemon proxied; data plane direct later
+
+Step 1 ships with client ↔ daemon proxy (API keys + coordinator on daemon). Validated by shuo reference (2026-04-17): ~600-line proxy works for 1:1 with token streaming pipelining (LLM → TTS → player). SFU / direct client ↔ TTS only pays off at scale. Design packet protocol so daemon is a forwarder (audio opaque) — enables later transition without rework.
+
+** Service attachment (D22)
+
+*** D22. Attached provider vs docker isolate + provider
+
+- *tts-cloud* — single-file provider at ~registry/services/@vivalence/hallucinator/tts-cloud/provider.js~. Wraps hosted APIs (ElevenLabs / Cartesia / Sesame / OpenAI-TTS). Wired through kernel.services. No separate process.
+- *tts-local* — docker container at ~registry/services/@vivalence/hallucinator/tts-local/service/~ plus provider at ~provider.js~. Daemon ↔ container via Connection (socket + session middleware). Same resolution at cortex layer; modes don't know which.
+
+** UX surfaces (D23-D25)
+
+*** D23. Panel B is the client-scope audio surface
+
+AudioControl component bound to BELL atoms: permission, mic/speaker dropdowns, test, level meters, master mute. No hardcoded domain entities.
+
+*** D24. Spine status dots are interactive entity focals
+
+Click → BRIDGE dispatches Panel G focus to the indicator's entity (daemon, thread, connection). General UX wiring; lands with M4.
+
+*** D25. CallFrame mounts off thread.mode.type
+
+~thread.mode.type === "longdistance"~ → Panel A renders CallFrame (orb + mic indicator + transcript + hangup) instead of Frame/BufferView.
+
+** Entity lifecycle + hazards (D26)
+
+*** D26. Explicit creation / persistence / hazard catalog
+
+Highlights — full walk in Design section:
+- Session is client-only state; not persisted.
+- Turns persisted on close (existing pipeline).
+- Audio parts as asset-path references (recording opt-in).
+- Session token = only live-state field persisted on thread (under ~thread.trait.INSITU.token~).
+- 8 effect hazards with guards: reactive loops, premature audio.in, stale reconnect, teardown order, double-activate, coordinator race, BELL contention across terminals, session-token expiry.
+
+* Design
+
+** First-principles sketch
+
+A session is a bundle of websockets (one per engaged mode) plus a roster of modes and the audio primitives (feeds + sinks) composed from their capabilities. A mode declares what it does via CONVERSATIONAL config (chat only, +speech, +verbatim, with realtime endpoint). The terminal subscribes to its ~$thread~ and owns session lifecycle. Thread swap → session swap. Thread cleared → session closed. BELL arbitrates physical devices. Everything else — trio, mentored, barge-in, resilience — composes over these primitives.
+
+** Cortex faculty extension
+
+~subsystems/typology/prototypes/cortex.js~ + ~hallucinate.js~:
+- Faculty types ~speech~ and ~verbatim~ registered alongside ~conversation~.
+- Tune vector 4-dim with ~latency~.
+- Faculty declaration extended with ~configSchema~.
+- ~hallucinate.spawn().speech.stream(turn, config)~ yields audio.out packets.
+- ~hallucinate.spawn().verbatim.stream(audioSource, config)~ consumes audio parts; yields verbatim packets.
+
+** Mode dossier — CONVERSATIONAL installer
+
+Added to ModeDossier use middleware. On hydrate, if mode.traits includes CONVERSATIONAL → register shards for chat (always), speech (if config.speech), verbatim (if config.verbatim). If absent: resolve default shard (anonymous text-only chat). Runs both server and client per D7.
+
+** Thread dossier — INSITU marker
+
+Already landed (thread.js middleware):
+#+begin_example
+async (ctx, next) => {
+  await next();
+  if (ctx.entity.mode?.traits?.includes("CONVERSATIONAL")) {
+    if (!ctx.entity.traits.includes("INSITU")) {
+      ctx.entity.traits = [...ctx.entity.traits, "INSITU"];
+    }
+    if (!is.object(ctx.entity.trait["INSITU"])) {
+      ctx.entity.trait.INSITU = {};
+    }
+  }
+},
+#+end_example
+
+Derived trait. INSITU carries session-level config overrides if any (mostly empty; server fills token on connect).
+
+** Terminal dossier — session installer
+
+TerminalDossier middleware subscribes to ~terminal.$thread~:
+
+#+begin_example
+async (ctx, next) => {
+  await next();
+  const terminal = ctx.terminal;
+  const teardown = terminal.$thread.subscribe((thread) => {
+    if (!thread?.traits?.includes("INSITU")) {
+      terminal.session?.close();
+      terminal.session = null;
+      return;
+    }
+    terminal.session ??= new Session(terminal);
+    terminal.session.attach(thread);
+  });
+  terminal._teardowns ??= [];
+  terminal._teardowns.push(teardown);
+},
+#+end_example
+
+(Caveat: ~terminal._teardowns~ name avoids the underscore convention — renaming pass pending.)
+
+Session lifecycle is entirely in terminal-scope reactivity. No hooks on thread beyond the INSITU marker.
+
+** Session prototype
+
+~systems/html/src/typology/prototypes/session.js~ (new). Modeled on =Stall= (activate/deactivate/suspend/resume/close + teardowns).
+
+Owns:
+- ~sockets~ Map — keyed by slot (chat / tts / asr / video). One per engaged mode capability.
+- ~$status~ atom (UNINITIALIZED / OPEN / ACTIVE / ERROR / CLOSED).
+- ~$token~ atom bridged to ~thread.trait.INSITU.token~ via EM.persist.
+- ~$roster~ atom of modes engaged.
+- Feeds: ~$feeds~ — one per roster mode with verbatim config.
+- Sinks: ~$sinks~ — one per roster mode with speech config.
+- Coordinator state (current SPEAKING mode, DAG snapshot).
+- Teardowns LIFO.
+
+Lifecycle:
+- ~open(thread)~ — claim BELL; build sockets Map from roster mode configs; open each via ~daemon.connection.socket(mode.trait.CONVERSATIONAL.endpoint)~; attach packet router last.
+- ~attach(thread)~ — swap slot; thread swap on same endpoint reuses socket; different endpoint reopens.
+- ~close()~ — send hangup on live sockets; flush speaker sinks; stop mic feeds; release BELL; close sockets; flush teardowns LIFO.
+- ~suspend()~ / ~resume()~ — reconnect bracket.
+
+** Socket primitive on Connection
+
+~subsystems/typology/prototypes/connection.js~ gains ~socket(endpoint, config)~ method. Returns wrapped browser WebSocket instance with:
+- Typed packet framing (codec per mode).
+- Heartbeat (ping/pong).
+- Reconnect (backoff).
+- Middleware stack (session token, auth, tracing).
+- ~send(packet)~ / ~onmessage(handler)~ / ~$state~ / ~close()~.
+
+Composable with existing Connection patterns. Base class pattern symmetric with Request/Response/Pipe.
+
+** Feed + Sink prototypes
+
+*** Feed (client-side, outbound)
+
+~systems/html/src/typology/prototypes/feed.js~ (new).
+Constructor: ~(session, mode)~.
+- Claim BELL.mic (negotiate with other feeds on same BELL).
+- Subscribe to BELL.mic.ondata → emit audio.in packets on session's socket for this mode with ~participantId = mode.id~.
+- Stop on teardown.
+
+*** Sink (client-side, inbound)
+
+~systems/html/src/typology/prototypes/sink.js~ (new).
+Constructor: ~(session, mode)~.
+- Subscribe to session's socket packet router for audio.out packets where ~participantId === mode.id~.
+- Route PCM → BELL.speaker.enqueue.
+- Flush on barge-in / teardown.
+
+** BELL client context
+
+~systems/html/src/typology/prototypes/bell.js~ (new). Singleton. Surface:
+
+#+begin_example
+bell.$state         atom(IDLE | PRIMING | CAPTURING | PLAYING | MUTED | ERROR | BUSY)
+bell.$permission    atom(prompt | granted | denied)
+bell.$inputLevel    atom(0..1)
+bell.$outputLevel   atom(0..1)
+bell.$devices       atom({ inputs, outputs, selected })
+bell.vad.$speaking  atom(bool)
+
+bell.claim(owner) / bell.release(owner)
+bell.mic.start() / .stop() / .mute() / .unmute()
+bell.speaker.enqueue(chunk) / .flush() / .stop()
+bell.ondata(callback)
+#+end_example
+
+Web Audio AudioContext-backed (per shuo-informed decision: not singleton-one-instance, but graph/context arbiter with N consumers via Web Audio mixing). Silero-tiny WASM or energy-based VAD.
+
+** Connection middleware
+
+Three new middlewares at ~subsystems/typology/gestalten/shard/connection/~:
+
+- *heartbeat({ interval })* — ping/pong on a timer; close after N missed pongs; expose ~$heartbeat~.
+- *reconnect({ backoff, maxAttempts })* — on close, reopen; present session token on ready; expose ~$reconnect~.
+- *session({ tokenAccessor })* — issue session.init / session.resume; persist token via accessor; expose ~$session~.
+
+Same composition pattern as retry/timeout/batch.
+
+** Packet framing
+
+Enumerable — table warranted.
+
+| kind | direction | payload |
+|------+-----------+---------|
+| session.init | s→c | { token } |
+| session.resume | c→s | { token } |
+| session.reject | s→c | { reason } |
+| ping / pong | both | { seq } |
+| audio.in | c→s | { participantId?, seq, pcm } |
+| audio.out | s→c | { participantId, seq, pcm } |
+| turn.open | s→c | { participantId, role, parent } |
+| turn.close | s→c | { participantId, turn, interrupted? } |
+| part.delta | s→c | { participantId, type, payload } |
+| part.close | s→c | { participantId, type, interrupted? } |
+| verbatim.partial | s→c | { participantId, text } |
+| verbatim.final | s→c | { participantId, turn } |
+| turn.end | c→s | { reason } |
+| hangup | c→s | {} |
+
+** Service attachment
+
+Per D22. Cloud = single-file provider. Local = docker service + provider with daemon↔service Socket.
+
+** Mode composition in a session
+
+Manifest fragment for ~brazilian-solo~:
+#+begin_example
+{
+  type: "longdistance",
+  slug: "brazilian-solo",
+  traits: ["CONVERSATIONAL"],
+  CONVERSATIONAL: {
+    chat:          { endpoint: "/chat" },
+    speech:        { language: "pt-BR", speaker: "luiza", tune: "capable" },
+    verbatim: { language: "pt-BR", tune: "capable", vad: true },
+    endpoint:      "/call",
+    heartbeat:     { interval: 15000 },
+    reconnect:     { maxAttempts: 3, backoff: [1000, 4000, 16000] },
+    session:       { ttlSeconds: 60, bargein: "required" },
+  },
+}
+#+end_example
+
+For ~bilingual-trio~: same CONVERSATIONAL, plus ~roster: ["brazilian", "mentor"]~ — session instantiates one feed + sink per roster mode.
+
+For ~mentored~: roster = [mentor]; mentor's dialogue emits tool_use opening a sub-thread whose dominant = brazilian.
+
+** Panel B (client-scope audio surface)
+
+~systems/html/src/routes/pincer/panels/b.svelte~ — add AudioControl component bound to BELL atoms. Permission widget, device dropdowns + test, level meters, master mute.
+
+** Spine interactivity
+
+~systems/html/src/routes/pincer/bones/spine.svelte~ — status dots clickable; dispatch via BRIDGE to focus Panel G on the indicator's entity.
+
+** Barge-in architecture
+
+Required by D19. Client VAD during AI-SPEAKING → ~turn.end reason=bargein~ → server aborts speech stream → marks ~part.close~ interrupted → opens user turn → client flushes speaker sink.
+
+Cortex speech faculty resolution filters on ~abortable: true~ when CONVERSATIONAL.session.bargein = "required". Providers without mid-stream abort are filtered out (documented in Step 2 research artifacts).
+
+** Throughput tracing
+
+Per D20. Span tree + metrics drained to Pipe; Panel G surfaces.
+
+** Entity lifecycle during a session
+
+*** Created / persisted
+
+- *Thread* — server-side at navigation. Persisted on creation. ~trait.INSITU.token~ field written on session.init.
+- *Turn* — server-side, one per roster-mode per exchange. Persisted on turn.close.
+- *Part* — inline for text; asset-path for audio (recording opt-in).
+- *Buffer* — contributing-mode BUFFERED writes; keyed to thread.
+- *Span* — persisted on drain.
+
+*** Client-only (never persisted)
+
+- =Session=, =Feed=, =Sink= prototypes on terminal.
+- BELL state.
+- Middleware atoms.
+
+Rehydrate on reconnect from thread data + session token; transcript re-fetches from turn log.
+
+*** Effect hazards (the "how we punch ourselves in the face" catalog)
+
+1. *Reactive loops* — atom A writes to B in B's subscribe → ping-pong. Discipline: atom sets only in packet handlers or user-input; subscribe callbacks produce one-way effects.
+2. *Premature audio.in* — mic capture before socket open drops frames. Guard: ~Session.open()~ sequences: claim BELL → open socket → wire router last.
+3. *Stale reconnect* — reconnect after user swapped terminals; session belongs to different terminal. Guard: check ~terminal.session === this~ after await in reconnect.
+4. *Teardown order* — socket-close before speaker-flush loses last TTS. Order: send hangup → flush speaker → stop mic → close socket → flush LIFO teardowns.
+5. *Double-activate* — rapid thread swap. Guard: Session ~$status~ rejects invalid transitions; hooks idempotent.
+6. *Coordinator race* — two roster modes emit turn.open same tick. Guard: server serializes — DAG arbitration is server-side.
+7. *BELL contention* — two terminals' sessions both want mic. Guard: BELL is singleton; first-claim-wins; contending session sees ~bell.$state === BUSY~.
+8. *Session-token staleness* — expired token reused. Guard: server sends ~session.reject~; client clears; falls through to fresh session.
+
+* Imagined demo (grounded)
+
+1. Terminal exists. User clicks longdistance/brazilian-solo/casual-chat in Panel D.
+2. Thread hydrates; ModeDossier + ThreadDossier middlewares run (CONVERSATIONAL → INSITU added). Quarters' dataspace casts the thread.
+3. ~terminal.thread = thread~ (via ~$thread~ setter). TerminalDossier subscriber fires.
+4. New thread has INSITU → Session born on terminal. ~Session.open(thread)~: claim BELL (permission prompt first-time; granted → BELL CAPTURING), build sockets from mode CONVERSATIONAL config (chat + call endpoint), wire packet router.
+5. Session.init arrives; token persists to ~thread.trait.INSITU.token~ via EM.persist.
+6. Roster = [brazilianSoloMode]. Mode has speech → Session constructs one Sink. Mode has verbatim → Session constructs one Feed. Both attached.
+7. Server greeting: turn.open → audio.out parts → Sink → BELL.speaker. Verbatim of AI speech updates session.$transcript.
+8. User speaks. BELL.mic → Feed → audio.in. Server/client VAD → turn.end.
+9. Partial + final verbatim arrive. Luiza replies.
+10. User barges in mid-TTS. VAD during AI-SPEAKING → turn.end reason=bargein → server aborts speech → part.close interrupted → Sink flushes BELL.speaker.
+11. WiFi cuts. Socket closes. reconnect middleware → ATTEMPTING. BELL.mic muted.
+12. WiFi back. Socket reopens. session.resume with token. Server resumes cortex. CONNECTED.
+13. User taps hangup. ~terminal.thread = null~ (or navigates away). TerminalDossier subscriber → Session.close.
+14. User navigates to a different terminal. Other terminal's thread active; BELL reallocates.
+15. User returns. Terminal's ~$thread~ reasserts → TerminalDossier subscriber re-creates session. TTL may have expired → fresh session; turns persist; new token.
+
+* Tech delta
+
+As a list (no prose tables per Communication principle):
+
+- *Mode type system* — no enum change. Add ~registry/modes/longdistance/~.
+- *Mode traits* — add CONVERSATIONAL (universal). Drop SPEAKING/LISTENING/DIALED from the design vocabulary.
+- *Mode dossier* — extend ModeDossier use middleware to wire CONVERSATIONAL shards (chat / speech / verbatim) based on config presence.
+- *Default shard* — add anonymous/configured conversation shard at ~registry/services/@vivalence/shard/conversation-default/~ (path tbd in step 2 per D8 default shard).
+- *Cortex faculty registry* — add speech, verbatim. Tune gains latency dim. Faculty gains configSchema.
+- *Hallucinator providers* — two new: tts-cloud (attached), tts-local (docker + provider).
+- *Thread traits (client)* — add INSITU as a marker. Auto-installed by ThreadDossier middleware (done).
+- *Thread entity* — add ~parent~ m:1 optional for branching (M3).
+- *Terminal* — getter/setter $thread atom (done). TerminalDossier middleware subscribes for session lifecycle (M4).
+- *Service manifests* — support CONVERSATIONAL/INSITU extension points for daemon↔service sockets (confirm in step 2).
+- *Connection middleware* — add heartbeat, reconnect, session.
+- *Connection primitive* — add ~socket()~ alongside Request/Response/Pipe.
+- *Transport* — production websocket usage.
+- *Packet schema* — audio.*, verbatim.*, session.*, hangup, ping/pong.
+- *Client prototypes* — add Session, Feed, Sink. Session mounts on terminal.
+- *Client audio surface* — BELL context + bell.js + Panel B widget. Singleton with claim/release.
+- *Buffer view pipeline* — unchanged. Longdistance mounts CallFrame off ~thread.mode.type~.
+- *Span tracing* — per-session, per-turn, per-faculty spans.
+- *Test infrastructure* — audio-stub faculty, fake websocket, VAD simulator, session harness.
+- *Persistence* — audio parts as asset-path references. Recording opt-in via dialogue Vector middleware.
+- *Spine bone* — status dots clickable; wire Panel G focal dispatch.
+
+* Test scenarios
+
+** Typology
+
+- ~cortex.faculty.speech.test.js~ — tune resolution, stream round-trip, configSchema validation, abortable capability filter.
+- ~cortex.faculty.verbatim.test.js~ — mirror.
+- ~connection.socket.test.js~ — socket primitive; packet framing round-trip.
+- ~connection.middleware.heartbeat.test.js~
+- ~connection.middleware.reconnect.test.js~
+- ~connection.middleware.session.test.js~
+
+** Runtime
+
+- ~daemon/traits/conversational.server.test.js~ — boot minimal longdistance mode server-side; WS endpoint exists; stub faculties respond; audio.in → verbatim partials → turn.end → dialogue advances → audio.out. Barge-in path. Kill WS → reconnect with token → resume.
+- ~daemon/socket.service.test.js~ — daemon↔service socket with stub tts-local.
+
+** Bench (env-gated)
+
+- ~bench/longdistance.test.js~ — tts-cloud real APIs. Smoke: "oi" in → real verbatim → real TTS.
+
+** Client
+
+- ~bell.test.js~ — getUserMedia + AudioContext mocked. Permission, mic, speaker (+ flush), VAD, device swap, claim/release contention.
+- ~session.test.js~ — Session prototype. $status transitions. Feed/Sink composition from mode CONVERSATIONAL config. Teardown invariants.
+- ~terminal.session.wiring.test.js~ — TerminalDossier subscribes to $thread; creates/attaches/closes session on INSITU thread swap; thread cleared → session null.
+- ~session.reconnect.test.js~ — socket drop → reconnect middleware → session.resume → continue.
+- ~session.bargein.test.js~ — dedicated barge-in path.
+
+* Phases / Milestones
+
+** First integration — Port (locked 2026-04-18, text-only)
+
+Walking skeleton wiring one mode (=dewey=) from runtime ws all the way to a Svelte chat component. Rides the Session primitive end-to-end; audio layer deferred to "Later audio vision" below.
+
+Component name: *Port*. Ship-metaphor family. Docks into Panel A; embeddable subject of Panel E control center; standalone harness route at =/port=.
+
+*** Naming locked for this integration
+
+To disambiguate a pile of words that were colliding:
+
+- *conversation* — the trait-owned Vector on the mode, compiled to =mode.conversation= via =shape.object=. Declares the standard channels of a live session (=/dialogue/engage=, =/speech/render=, =/verbatim/push=, ...). Modes patch personality/tools/behavior by contributing middleware via =mode.cake.conversation= (slurped into the trait's conversation Vector); modes do *NOT* author their own entry effects like =/chat=. Renamed from =dialogue= to stop colliding with the faculty name.
+- *dialogue* — a faculty type (text in, turn packets out). One of =dialogue | speech | verbatim | object | call=. Lives on =hallucinate.dialogue.{render,stream}= and on cortex's faculty table. Also the name of a session route family (=/dialogue/*=) — one-to-one with the faculty.
+- *harness* — per-invocation handle the mode reaches for inside conversation middleware. Today that's =ctx.hallucinate= (the =cortex.spawn()= envelope with =.add() / .tool() / .tune() / .configure()= + faculty getters). Terminology-unifying alias pending; inside mode middleware, read =ctx.harness= as equivalent to =ctx.hallucinate= during this integration.
+- *CHAOSMONKEY* — declarative trait marking "this mode participates in cortex-based hallucination." Currently an empty stub at =systems/runtime/daemon/traits/chaosmonkey.js= (the old =mode.brain = daemon.hallucinator= body was already extracted and zeroed). M1 optionally hardens it to a fail-fast assertion; the cortex workpackage's proposed =mode.cake.cortex = daemon.cortex= is a dead write (no reader in the codebase) and is NOT applied.
+
+A conversation is the declaration of live session channels that harness the daemon's cortex faculties to hallucinate them.
+
+*** M1 — Runtime: dewey becomes a live session endpoint
+
+- *M1.a* CHAOSMONKEY. Current body at =systems/runtime/daemon/traits/chaosmonkey.js= is an empty stub; the pre-Cortex =mode.brain = daemon.hallucinator= line is already gone (extraction happened; body zeroed). Option A: keep empty (purely declarative marker). Option B: harden to =if (!daemon.cortex) throw new Error(...)= fail-fast assertion. Option C (rejected): =mode.cake.cortex = daemon.cortex= per cortex workpackage line 537 — dead write, no reader anywhere in the repo. Locked: *B*, fail-fast assertion.
+- *M1.b* CONVERSATIONAL server trait. Builds the mode's =conversation= Vector:
+  1. =const conversation = new Vector()= — the trait-owned "harness" Vector.
+  2. Three root middlewares: thread resolution, history+userTurn+=daemon.cortex.spawn()= binding =ctx.harness= (alias for =ctx.hallucinate=) + tune, stream+persist via =soma.pour=.
+  3. =conversation.slurp(mode.cake.conversation)= — fold in mode's middleware contributions (personality prompts, tools) patched onto =ctx.harness=.
+  4. Standard effects per faculty family: =conversation.open("/dialogue/engage", ...)= that invokes =ctx.harness.dialogue.stream()=. (=/speech/render=, =/verbatim/push=, etc. land when those faculties ship.)
+  5. =mode.conversation = shape.object(conversation)= — compiled callable surface.
+  6. WS mount: =mode.aperture.open("/connect", shard.serve.websocket((ws) => { const socket = new Socket(ws, inbound); socket.state.session = new Session(inbound, socket); }))= where =inbound= is a thin Vector routing incoming frames into =mode.conversation.dialogue.engage(input)=, pushing packets back via =session.send.dialogue.packet(...)=, closing with =session.send.dialogue.terminate({})=.
+- Drops the HTTP =/dialogue= branch from the trait.
+- Dewey manifest: =traits: ["EXPOSED", "CHAOSMONKEY", "CONVERSATIONAL"]=.
+- Dewey exports =conversation= (was =dialogue=) — and contributes via =conversation.use(ctx => ctx.harness.add(personality-prompt))=, *not* =conversation.open("/chat", ...)=. The =/chat= effect disappears; the personality prompt becomes middleware on the harness.
+- *M1 outcome* — bruno scenario at =testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/session.bru= (next to =chat.bru=). Opens ws to =/mode/teacher/dewey/connect?token=...=, performs MOIN, sends =/dialogue/engage { thread, message }=, collects packets, asserts ≥1 assistant Turn persisted via =/entities/turn=.
+
+*** M2 — Client: session wiring + SessionDock component — *DONE 2026-04-18 session 44*
+
+- *M2.a* TerminalDossier =use[]= session-lifecycle middleware — SHIPPED.
+  - =terminal.$thread.subscribe= fires on change.
+  - INSITU in: =thread.mode.connection.socket("/conversation", clientInbound, { token })= → =new Session(inbound, socket)= → =session.moin()= → =terminal.$dock.set({...session:"live"})=.
+  - INSITU out / session close: sets =terminal.session = null=, dock "ended".
+  - Sends: =session.send.dialogue.anchor({ thread: thread.id, parts: [{ type: "text", text }] })=.
+  - *Key fixes*: =Socket.#ready= Promise (CONNECTING state); =Quarters= re-hydrates localStorage terminals post-=wireDossier=; default dock =session:"ended"= for Svelte =$effect= trigger; =thread.mode.connection= not =thread.daemon.connection=.
+- *M2.b* =systems/html/src/typology/components/dock/SessionDock.svelte= + harness route =systems/html/src/routes/port/+page.svelte= — SHIPPED.
+  - Header: session pip (pulses when live) + side buttons (▲▶▼◀) + collapse.
+  - Action bar: reset + end/open only. Mic/voice/video removed (not daemon features).
+  - Log: role-styled entries (sys / user / agent). =$effect= drain from =terminal.streams.dialogue=; =soma.pour= rebuilds turns; appends on =turn.close=.
+  - Composer: disabled when "ended". Routes to =session.send.dialogue.anchor()= when session live.
+  - Panel A: flex split Body + Twig (drag resize) + Chat. Dock state on =terminal.$dock= atom.
+
+*** M3 — Panel E + Dewey intent — *DONE 2026-04-18 session 44*
+
+- *M3.d Panel E rework* — SHIPPED. Replaced JSON dump with thread control panel: mode type line, mode trait pills row, TRAITS block with INSITU pill ("click to engage" when CONVERSATIONAL, pulsing pip when live). INSITU toggle fires =thread.daemon.entities.thread.updateOne({ id }, { traits: newTraits })= + re-triggers =terminal.$thread= for session lifecycle.
+- *Dewey intent seeded* — SHIPPED. =dewey.viva.js= gains INTENTED trait + =dataset.intent[0]= (slug "conversation"). =trait.INSITU = { dialogue: { enabled: true } }= + =trait.LABELED.name = "dewey · conversation"= on threads from this intent.
+- M3.a/b/c (Panel A overlay, crown highlight, shoulder widget) — deferred to next surface integration pass.
+
+*End-to-end verified*: dewey thread → INSITU → moin LIVE → anchor "Olá!" → dock log shows Dewey streaming "Em português, 'hello' se diz **olá**…". Queue depth 0 after reply.
+
+*** Deferred beyond first integration
+
+BELL context, Pipe/Queue wired as mic/speaker cells, speech + verbatim
+faculties + providers, barge-in supervisor, CallFrame variant on Panel A,
+thread.parent / mentored branching, roster composition, span tracing.
+Concrete audio-call sketch below.
+
+*** Key files (first integration)
+
+- ~systems/runtime/daemon/traits/conversational.js~ — M1.b extend with ws mount + Session wiring; drop HTTP ~/dialogue~ branch.
+- ~registry/modes/@vivalence/teacher/dewey/dewey.viva.js~ — M1.a manifest traits.
+- ~testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/session.bru~ (new) — M1 outcome.
+- ~systems/html/src/typology/entities/terminal.js~ — M2.a TerminalDossier session-lifecycle middleware.
+- ~systems/html/src/typology/components/port/Port.svelte~ (new) — M2.b.
+- ~systems/html/src/routes/port/+page.svelte~ (new) — M2.b standalone route.
+- ~systems/html/src/routes/pincer/panels/a.svelte~ — M3.a inlet.
+- ~systems/html/src/routes/pincer/panels/e.svelte~ — M3.d rework.
+- ~systems/html/src/routes/pincer/bones/crown.svelte~ — M3.b.
+- ~systems/html/src/routes/pincer/bones/shoulder.svelte~ — M3.c.
+
+** Audio calls — end-to-end (round 8, 2026-04-18)
+
+Walking skeleton complete for text. Audio layer sketched below as three
+parallel tracks (registry S / runtime R / client C) + one assembly milestone.
+Zero new framework machinery; composition only.
+
+*** Primitives reused (LIVE)
+
+=Pipe= (fan-out producer), =Queue= (single-consumer drain), =Session=,
+=Socket=, =Vector=, =Connection=, CHAOSMONKEY, CONVERSATIONAL, INSITU,
+TerminalDossier =use[]=, =mode.harness=, =cortex.shard.{harness,effects}=,
+=Hallucination=, =soma.pour=.
+
+*** Primitives added (minimum)
+
+- *BELL* singleton (typology, new) — the only new prototype. Wraps browser
+  =AudioContext=. Exposes existing =Pipe= (mic side) and =Queue= (speaker
+  side) as cells of the BELL box. *No Feed/Sink classes* — Pipe is the feed,
+  Queue is the sink; wiring lives in TerminalDossier middleware.
+- Cortex faculty types =speech= + =verbatim= — slots in the existing
+  faculty table. No structural change.
+- Mode trait *VOCALIZED* (runtime, new one-file trait) — declares mode wants
+  speech + verbatim socket families on its session.
+- Registry providers: =@vivalence/speech/elevenlabs= +
+  =@vivalence/verbatim/deepgram= — single provider file + manifest each,
+  following the =@vivalence/hallucinator/anthropic= pattern.
+
+*** Packet vocab (unified session socket families)
+
+- =/dialogue/*= — anchor / packet / voyage                                 (LIVE)
+- =/speech/*= — open / packet / abort / close                              (new)
+- =/verbatim/*= — open / packet (c→s audio) / partial / final / turn.{start,end} / close (new)
+- =/control/abort= — cross-faculty cancel                                  (new)
+
+*** S — Service Registry
+
+**** S1. ElevenLabs speech provider
+
+- File: =registry/services/@vivalence/speech/elevenlabs/provider/index.js=.
+- Contract: =default async function provider(service) → Faculty[]= (mirrors
+  =anthropic=).
+- Faculty: ={ type: "speech", tune, context, channels, config, via: { stream } }=.
+- =via.stream(turns, config)= opens
+  =wss://api.elevenlabs.io/v1/text-to-speech/:voice/stream-input=; yields
+  ={ nature: "packet", audio, pts }=. No =render= — speech is stream-only
+  for now (one-shot REST deferred).
+- =.viva.js= manifest declares the provider as a speech faculty producer.
+
+**** S2. Deepgram Flux verbatim provider
+
+- File: =registry/services/@vivalence/verbatim/deepgram/provider/index.js=.
+- Faculty: ={ type: "verbatim", tune, context, channels, config, via: { stream } }=.
+- =via.stream(audioSource, config)= opens =wss://api.deepgram.com/v1/listen=;
+  consumes =AsyncIterable<audio chunk>=; yields =partial | final | turn.start | turn.end=
+  events.
+- Always-on WS pattern per shuo — one stream for the whole call.
+
+*** R — Runtime
+
+**** R1. Cortex faculty expansion
+
+- File: =subsystems/typology/prototypes/cortex.js=.
+- Add =speech= + =verbatim= to the faculty table.
+- Tune becomes 4D: =[eager, capable, deep, latency]= — latency dim for
+  tts-first-audio / asr-turn-detection budgets.
+- Faculty gains optional =configSchema= (v-validated at resolve time).
+- =cortex.shard.effects= already walks the faculty list and mounts
+  =/{type}/{stream,render}= leaves — no change needed when new faculties
+  appear.
+
+**** R2. VOCALIZED mode trait
+
+- File: =systems/runtime/daemon/traits/vocalized.js= (new, one file).
+- Fail-fast body: =if (!daemon.cortex.speech || !daemon.cortex.verbatim)
+  throw=.
+- Declarative — CONVERSATIONAL reads =mode.traits= to decide whether to mount
+  speech + verbatim socket branches.
+
+**** R3. CONVERSATIONAL audio extension
+
+- File: =systems/runtime/daemon/traits/conversational.js=.
+- Current (LIVE): per-connection inbound =Vector= with =/dialogue/anchor= →
+  =mode.harness.dialogue.stream(...)=.
+- Extend when =mode.traits.includes("VOCALIZED")=:
+  - Per-connection verbatim stream: =audio = new Queue()= fed by
+    =/verbatim/packet= inbound handler; =transcriber =
+    cortex.verbatim.stream(audio.drain(), mode.config.verbatim)=.
+    Fanout transcriber events → =session.send.verbatim.{partial,final,turn.*}=.
+  - Dialogue pipeline forks LLM token stream: (a) =/dialogue/packet= text
+    (LIVE), (b) =speech.stream(tokens)= → audio → =session.send.speech.packet=.
+  - Barge-in: verbatim =turn.start= while =mode.harness= is in-flight →
+    =harness.abort(turnId)= + abort active speech stream +
+    =session.send.speech.abort=.
+  - Optional =autoVoice= config: on verbatim =final=, auto-invoke
+    =mode.harness.dialogue.stream({ thread, parts: [{ type:"text", text:
+    transcript }] })= — same entry point as explicit text anchor.
+
+*** C — Client
+
+**** C1. BELL singleton — the box
+
+- File: =subsystems/typology/prototypes/bell.js= (new, the one new prototype).
+- AudioContext-backed, cross-terminal singleton. Cells wrapped into the box:
+
+#+begin_example
+bell = {
+  mic:      new Pipe(),           // producer cell — frames broadcast to N consumers
+  speaker:  new Queue(),          // consumer cell — ordered playback drain
+  vad:      { $speaking: atom },  // detector cell
+
+  $state, $permission, $devices, $inputLevel, $outputLevel,
+
+  claim(owner) / release(owner),
+  mic.start() / stop() / mute() / unmute(),
+  speaker.flush() / stop(),
+}
+#+end_example
+
+- Frames: =MediaRecorder= opus 20ms → =bell.mic.send(audio)= (Pipe.send
+  fans out to all taps).
+- Speaker: =AudioWorkletNode= drains =bell.speaker= at rate; =speaker.flush()=
+  clears the queue for barge-in.
+- Permission prompt on first =claim()=; contention-wins-first across
+  terminals.
+
+**** C2. TerminalDossier audio wiring
+
+- File: =systems/html/src/typology/entities/terminal.js=.
+- Extends the LIVE session-lifecycle middleware. When opening session AND
+  =thread.mode.traits.includes("VOCALIZED")= AND
+  =thread.trait.INSITU.audio?.enabled=:
+
+#+begin_example
+bell.claim(terminal);                                    // mic perm prompt first use
+
+// outbound (Pipe → session)
+const untap = bell.mic.tap((audio) =>
+  session.send.verbatim.packet({ audio, participantId: thread.mode.id })
+);
+
+// inbound (session → Queue)
+clientInbound.open("/speech/packet", (ctx) =>
+  bell.speaker.enqueue(ctx.input.audio)
+);
+
+// verbatim events into terminal.streams
+clientInbound.open("/verbatim/partial", (ctx) =>
+  terminal.streams.verbatim.partial.enqueue(ctx.input)
+);
+// ... .final, /turn/start, /turn/end equivalents
+
+// teardown on INSITU-out / session close
+teardowns.push(() => { untap(); bell.speaker.flush(); bell.release(terminal); });
+#+end_example
+
+- No Feed/Sink classes — four one-liners above ARE the wiring. Pipe plays the
+  feed role; Queue plays the sink role.
+- =terminal.$audio= atom mirrors =bell.$inputLevel / $outputLevel / vad.$speaking=
+  for Dock UI binding.
+
+**** C3. Surface
+
+- =SessionDock.svelte=: mic toggle pip (calls =bell.claim= + =bell.mic.start=),
+  input VU meter (binds =bell.$inputLevel=), speaker state indicator,
+  automatic barge-in (subscribe =bell.vad.$speaking= → on true,
+  =bell.speaker.flush()= + =session.send.control.abort()=).
+- =routes/pincer/panels/e.svelte=: add AUDIO row under INSITU in TRAITS
+  block. Click writes =thread.trait.INSITU.audio.enabled= via =updateOne= +
+  re-triggers =terminal.$thread= to cycle session lifecycle (same pattern
+  as INSITU toggle).
+
+*** A — Assembly
+
+**** A1. Dewey voice call
+
+- =dewey.viva.js= manifest: add VOCALIZED trait.
+- Intent "conversation": seed =trait.INSITU.audio = { enabled: false }= (text
+  by default; user opts in via Panel E).
+- Intent "call": seed =trait.INSITU.audio = { enabled: true }= (pre-engaged
+  voice — Panel D quick-start entry).
+- End-to-end verification: open Dewey thread → click INSITU → click AUDIO →
+  mic permission grant → user says "oi" → Deepgram final transcript → Dewey
+  LLM streams "Olá! Como vai?" → ElevenLabs streams audio → speaker plays
+  → user interrupts mid-TTS → speech aborts → new user turn opens.
+
+*** Ordering
+
+- Parallel (no deps): S1, S2, R1, C1.
+- Sequential: R2 (after R1) → R3 (after R2+S1+S2) → C2 (after C1+R3) →
+  C3 (after C2) → A1 (after C3).
+
+*** Tests (new)
+
+- =subsystems/typology/tests/bell.test.js= — mic/speaker lifecycle, VAD,
+  claim/release contention, permission states.
+- =systems/runtime/tests/trait.vocalized.test.js= — faculty resolution
+  assertion, VOCALIZED on a mode without cortex faculties throws.
+- =systems/runtime/tests/conversational.audio.test.js= — per-connection
+  transcriber, dialogue ↔ speech fanout, barge-in path.
+- =subsystems/typology/tests/workpackage/voice.session.test.js= — full-audio
+  session scenario over real =Deno.serve= + =shard.serve.websocket= + stub
+  speech/verbatim providers.
+
+*** Delta count
+
+- New: 2 providers + 1 trait + 1 prototype (BELL) + 4 test files ≈ *8 files*.
+- Modified: =conversational.js=, =cortex.js=, =terminal.js=, =SessionDock.svelte=,
+  =panels/e.svelte=, =dewey.viva.js= = *6 files*.
+- Zero transport primitives added. Zero dossier pattern changes. Feed/Sink
+  collapse into Pipe/Queue wiring inside TerminalDossier middleware.
+
+*** Worked code stubs
+
+Concrete surfaces per track — grounded in actual current shapes
+(=cortex.js=, =conversational.js=, anthropic provider, TerminalDossier
+middleware). Any drift here from the real files is a bug in the sketch.
+
+**** S1 — ElevenLabs speech provider
+
+File: =registry/services/@vivalence/speech/elevenlabs/provider/index.js=.
+Matches the anthropic provider contract exactly — default async
+=provider(service) → Faculty[]=, each Faculty is
+={ type, tune, context, channels, config, via: { stream } }=.
+
+#+begin_src js
+export default async function provider(service) {
+  const apiKey = service.secrets.elevenlabs;
+
+  const voices = {
+    luiza:   { id: "21m00Tcm4TlvDq8ikWAM", tune: [0.3, 0.6, 0.4, 0.1] },  // pt-BR fem
+    leandro: { id: "EXAVITQu4vr4xnSDxMaL", tune: [0.5, 0.5, 0.5, 0.1] },  // pt-BR masc
+  };
+
+  function makeSpeech(voice) {
+    const stream = async function* (turns, config = {}) {
+      const url =
+        `wss://api.elevenlabs.io/v1/text-to-speech/${voice.id}/stream-input` +
+        `?model_id=eleven_turbo_v2_5&output_format=ulaw_8000`;
+      const ws = new WebSocket(url);
+      await new Promise((open, fail) => { ws.onopen = open; ws.onerror = fail; });
+      ws.send(JSON.stringify({
+        text: " ",
+        voice_settings: { stability: config.stability ?? 0.5, similarity_boost: 0.75 },
+        xi_api_key:     apiKey,
+      }));
+      for (const turn of turns) for (const part of turn.parts ?? []) {
+        if (part.type === "text") ws.send(JSON.stringify({ text: part.text, try_trigger_generation: true }));
+      }
+      ws.send(JSON.stringify({ text: "", flush: true }));
+      try {
+        while (ws.readyState === WebSocket.OPEN) {
+          const message = await new Promise((resolve) => {
+            ws.addEventListener("message", (event) => resolve(event.data), { once: true });
+          });
+          const data = JSON.parse(message);
+          if (data.audio)   yield { nature: "packet", audio: data.audio, pts: Date.now() };
+          if (data.isFinal) break;
+        }
+      } finally { ws.close(); }
+    };
+
+    return {
+      type:     "speech",
+      tune:     voice.tune,
+      context:  0,
+      channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "ulaw_8000" }] },
+      config:   { voice: voice.id },
+      via:      { stream },
+    };
+  }
+
+  return Object.values(voices).map(makeSpeech);
+}
+#+end_src
+
+Manifest at =registry/services/@vivalence/speech/elevenlabs/service.viva.js=:
+
+#+begin_src js
+import provider from "./provider/index.js";
+export { provider };
+export const manifest = { type: "speech", slug: "elevenlabs", traits: ["MONK"] };
+export const docs     = {
+  name: "ElevenLabs Speech",
+  description: "Streaming TTS via ElevenLabs turbo v2.5. Two pt-BR voices at capable tune; latency 0.1 (voice-first).",
+};
+#+end_src
+
+**** S2 — Deepgram verbatim provider
+
+File: =registry/services/@vivalence/verbatim/deepgram/provider/index.js=.
+Faculty ={ type: "verbatim", tune, channels, config, via: { stream } }=.
+Verbatim is stream-natured only — no =render= leaf.
+
+#+begin_src js
+export default async function provider(service) {
+  const apiKey = service.secrets.deepgram;
+
+  const profiles = {
+    "pt-BR": { tune: [0.4, 0.6, 0.5, 0.1], language: "pt" },
+    "en":    { tune: [0.4, 0.6, 0.5, 0.1], language: "en" },
+  };
+
+  function makeVerbatim(profile) {
+    const stream = async function* (audioSource, config = {}) {
+      const url =
+        `wss://api.deepgram.com/v1/listen?` +
+        `encoding=mulaw&sample_rate=8000&language=${profile.language}&` +
+        `vad_events=true&endpointing=300&interim_results=true`;
+      const ws = new WebSocket(url, ["token", apiKey]);
+      await new Promise((open, fail) => { ws.onopen = open; ws.onerror = fail; });
+
+      const events = [];
+      let wake = null;
+
+      ws.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "SpeechStarted") events.push({ nature: "turn.start" });
+        if (data.type === "UtteranceEnd")  events.push({ nature: "turn.end"   });
+        const transcript = data.channel?.alternatives?.[0]?.transcript;
+        if (transcript) events.push({
+          nature:     data.is_final ? "final" : "partial",
+          transcript,
+        });
+        if (wake) { wake(); wake = null; }
+      });
+
+      (async () => {
+        for await (const audio of audioSource) ws.send(audio);
+        ws.send(JSON.stringify({ type: "CloseStream" }));
+      })().catch(() => {});
+
+      try {
+        while (ws.readyState === WebSocket.OPEN || events.length) {
+          while (events.length) yield events.shift();
+          if (ws.readyState !== WebSocket.OPEN) break;
+          await new Promise((resolve) => { wake = resolve; });
+        }
+      } finally { ws.close(); }
+    };
+
+    return {
+      type:     "verbatim",
+      tune:     profile.tune,
+      context:  0,
+      channels: { in: [{ type: "audio", codec: "ulaw_8000" }], out: [{ type: "event" }] },
+      config:   { language: profile.language },
+      via:      { stream },
+    };
+  }
+
+  return Object.values(profiles).map(makeVerbatim);
+}
+#+end_src
+
+Manifest at =registry/services/@vivalence/verbatim/deepgram/service.viva.js=:
+
+#+begin_src js
+import provider from "./provider/index.js";
+export { provider };
+export const manifest = { type: "verbatim", slug: "deepgram", traits: ["MONK"] };
+export const docs     = {
+  name: "Deepgram Verbatim",
+  description: "Streaming ASR + Flux-style turn detection via Deepgram Nova. pt-BR + en.",
+};
+#+end_src
+
+**** Circuitry delta — test-daemon services block
+
+File: =testament/variant/circuitry/test-daemon.viva.js=. Anthropic block stays;
+add two siblings:
+
+#+begin_src js
+services: {
+  hallucinator: {
+    module:  "@vivalence/hallucinator/anthropic",
+    secrets: { anthropic:  paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY")  },
+  },
+  speech: {
+    module:  "@vivalence/speech/elevenlabs",
+    secrets: { elevenlabs: paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+  },
+  verbatim: {
+    module:  "@vivalence/verbatim/deepgram",
+    secrets: { deepgram:   paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY")   },
+  },
+}
+#+end_src
+
+Secrets declared in =testament/variant/environment/secrets.jsonc= (same file
+that already holds =SECRET_VIVA_ANTHROPIC_API_KEY=).
+
+**** R1 — cortex.js faculty expansion
+
+File: =subsystems/typology/prototypes/cortex.js=. Three one-line deltas:
+
+#+begin_src js
+// line 4 — tiers gain 4th "latency" dim (1.0 = don't care, 0.0 = lowest-latency wins)
+export const tiers = {
+  frugal:    [0.1, 0.3, 0.9, 1.0],
+  balanced:  [0.4, 0.6, 0.6, 0.6],
+  capable:   [0.6, 0.8, 0.4, 0.4],
+  unleashed: [0.9, 1.0, 0.2, 0.2],
+  eager:     [0.3, 0.5, 0.5, 0.1],   // voice-first — TTFT dominates
+};
+
+// line 12 — nearest() default is 4D
+if (typeof target === "string") target = tiers[target] ?? [0.5, 0.5, 0.5, 0.5];
+
+// line 17 — uncomment speech, add verbatim
+const FACULTY_TYPES = ["dialogue", "speech", "verbatim"];
+
+// extend() auto-pads legacy 3D tunes to 4D — zero-migration for existing dialogue faculties
+extend(faculties) {
+  for (const faculty of faculties) {
+    if (faculty.tune.length === 3) faculty.tune = [...faculty.tune, 0.5];
+    if (!this.table.has(faculty.type)) this.table.set(faculty.type, []);
+    this.table.get(faculty.type).push(faculty);
+  }
+  return this;
+}
+#+end_src
+
+=cortex.shard.effects(vector)= already iterates =FACULTY_TYPES= and mounts
+=/{type}/{stream,render}= for each faculty whose =via= has the surface.
+No change there — new faculty types auto-appear.
+
+**** R2 — VOCALIZED mode trait
+
+File: =systems/runtime/daemon/traits/vocalized.js= (new). Pure assertion,
+no side effects.
+
+#+begin_src js
+export const VOCALIZED = (mode, daemon) => {
+  if (!daemon.cortex) {
+    throw new Error(`VOCALIZED ${mode.slug}: no daemon.cortex (combine with CHAOSMONKEY)`);
+  }
+  if (!daemon.cortex.has("speech")) {
+    throw new Error(`VOCALIZED ${mode.slug}: cortex missing 'speech' — bind @vivalence/speech/*`);
+  }
+  if (!daemon.cortex.has("verbatim")) {
+    throw new Error(`VOCALIZED ${mode.slug}: cortex missing 'verbatim' — bind @vivalence/verbatim/*`);
+  }
+};
+#+end_src
+
+**** R3 — CONVERSATIONAL audio extension
+
+File: =systems/runtime/daemon/traits/conversational.js=. Current dialogue
+branches (anchor + voyage) unchanged. Append inside the trait body, before
+=mode.aperture.open("/conversation", ...)=:
+
+#+begin_src js
+if (mode.traits.includes("VOCALIZED")) {
+  // Dialogue anchor replaced: tee the token stream, fan out to /dialogue/packet
+  // AND /speech/packet. Speech faculty synthesizes packets from the token stream.
+  conversation.branch("dialogue").open("anchor", async (ctx) => {
+    const session = ctx.socket.state.session;
+    ctx.socket.state.thread = ctx.input.thread;
+    const stream = await mode.harness.dialogue.stream({
+      parts:  ctx.input.parts,
+      thread: ctx.input.thread,
+      tune:   ctx.input.tune ?? "eager",
+    });
+    const [text, audio] = soma.tee(stream);
+    (async () => {
+      for await (const packet of text) session.send.dialogue.packet(packet);
+      session.send.dialogue.voyage();
+    })().catch((error) => session.send.dialogue.voyage({ error: error.message }));
+    (async () => {
+      const speech = daemon.cortex.resolve("speech", { tune: "eager", via: "stream" });
+      for await (const packet of speech.via.stream(soma.packetsToTurns(audio), {})) {
+        session.send.speech.packet(packet);
+      }
+      session.send.speech.close();
+    })().catch((error) => session.send.speech.abort({ error: error.message }));
+  }, { replace: true });
+
+  // Per-connection verbatim stream — lazy, spun on first audio packet. One Queue feeds
+  // the always-on ASR stream; events fan out to the client session.
+  conversation.branch("verbatim").open("packet", (ctx) => {
+    const state = ctx.socket.state;
+    state.verbatim ??= (() => {
+      const audio = new Queue();
+      const asr   = daemon.cortex.resolve("verbatim", { tune: "eager", via: "stream" });
+      (async () => {
+        for await (const event of asr.via.stream(audio.drain(), {})) {
+          if (event.nature === "turn.start" && state.inflight?.size) {
+            for (const controller of state.inflight.values()) controller.abort();
+            state.session.send.speech.abort();
+          }
+          state.session.send.verbatim[event.nature]?.(event);
+          if (event.nature === "final" && state.thread && mode.config?.autoVoice !== false) {
+            conversation.branch("dialogue").effect("anchor", {
+              parts:  [{ type: "text", text: event.transcript }],
+              thread: state.thread,
+              tune:   "eager",
+            });
+          }
+        }
+      })();
+      return { audio, asr };
+    })();
+    state.verbatim.audio.enqueue(ctx.input.audio);
+  });
+
+  conversation.branch("verbatim").open("close", (ctx) => {
+    ctx.socket.state.verbatim?.audio.close();
+    ctx.socket.state.verbatim = null;
+  });
+
+  conversation.branch("control").open("abort", (ctx) => {
+    ctx.socket.state.inflight?.get(ctx.input.turn)?.abort();
+    ctx.socket.state.session.send.speech.abort();
+  });
+}
+#+end_src
+
+Helpers =soma.tee(stream)= and =soma.packetsToTurns(packets)= land next to
+=soma.pour=/=drain= in =subsystems/typology/gestalten/soma/=. =tee= is a
+stream splitter; =packetsToTurns= reconstructs a turn feed from the raw
+packets so the speech faculty can consume text as it arrives.
+
+**** C1 — BELL singleton
+
+File: =subsystems/typology/prototypes/bell.js= (new, the one new prototype).
+Cells wrapped into the BELL box: =mic= is =Pipe=, =speaker= is =Queue=,
+=vad= exposes =$speaking= atom.
+
+#+begin_src js
+import { atom } from "nanostores";
+import { Pipe  } from "./pipe.js";
+import { Queue } from "./queue.js";
+
+class Bell {
+  mic     = new Pipe();
+  speaker = new Queue();
+  vad     = { $speaking: atom(false) };
+
+  $state       = atom("IDLE");       // IDLE | PRIMING | CAPTURING | PLAYING | MUTED | ERROR
+  $permission  = atom("prompt");     // prompt | granted | denied
+  $devices     = atom({ inputs: [], outputs: [], selected: null });
+  $inputLevel  = atom(0);
+  $outputLevel = atom(0);
+
+  #owner     = null;
+  #context   = null;
+  #recorder  = null;
+  #playhead  = null;
+
+  claim(owner) {
+    if (this.#owner && this.#owner !== owner) return false;
+    this.#owner = owner;
+    return true;
+  }
+  release(owner) {
+    if (this.#owner !== owner) return;
+    this.micStop();
+    this.speakerStop();
+    this.#owner = null;
+    this.$state.set("IDLE");
+  }
+
+  async prime() {
+    if (this.#context) return;
+    this.#context = new AudioContext({ sampleRate: 8000 });
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    this.$devices.set({
+      inputs:   devices.filter((device) => device.kind === "audioinput"),
+      outputs:  devices.filter((device) => device.kind === "audiooutput"),
+      selected: null,
+    });
+  }
+
+  async micStart() {
+    await this.prime();
+    this.$state.set("PRIMING");
+    const source = await navigator.mediaDevices.getUserMedia({ audio: true });
+    this.$permission.set("granted");
+    this.#recorder = new MediaRecorder(source, { mimeType: "audio/webm;codecs=opus" });
+    this.#recorder.ondataavailable = async (event) => {
+      const buffer = await event.data.arrayBuffer();
+      this.mic.send(new Uint8Array(buffer));
+    };
+    this.#recorder.start(20);
+    this.#wireLevelMeter(source);
+    this.$state.set("CAPTURING");
+  }
+
+  micStop()   { this.#recorder?.stop(); this.#recorder = null; this.$state.set("IDLE"); }
+  micMute()   { this.$state.set("MUTED"); }
+  micUnmute() { this.$state.set(this.#recorder ? "CAPTURING" : "IDLE"); }
+
+  speakerStop() {
+    this.speaker.flush();
+    this.#playhead?.disconnect();
+    this.#playhead = null;
+    this.$state.set("IDLE");
+  }
+
+  #wireLevelMeter(source) {
+    const node     = this.#context.createMediaStreamSource(source);
+    const analyser = this.#context.createAnalyser();
+    analyser.fftSize = 256;
+    node.connect(analyser);
+    const window = new Uint8Array(analyser.frequencyBinCount);
+    const sample = () => {
+      if (this.$state.get() === "IDLE") return;
+      analyser.getByteTimeDomainData(window);
+      let sum = 0;
+      for (let i = 0; i < window.length; i++) {
+        const value = (window[i] - 128) / 128;
+        sum += value * value;
+      }
+      const rms = Math.sqrt(sum / window.length);
+      this.$inputLevel.set(rms);
+      this.vad.$speaking.set(rms > 0.03);
+      requestAnimationFrame(sample);
+    };
+    sample();
+  }
+}
+
+export const bell = new Bell();
+#+end_src
+
+**** C2 — TerminalDossier audio wiring
+
+File: =systems/html/src/typology/entities/terminal.js=. Current
+=$thread.subscribe= closure builds =clientInbound= with dialogue leaves and
+constructs Session. Extend inside the closure, immediately after =session.moin()=
+resolves:
+
+#+begin_src js
+const audioEnabled =
+  thread.mode.traits.includes("VOCALIZED") &&
+  thread.trait?.INSITU?.audio?.enabled;
+
+if (audioEnabled) {
+  bell.claim(terminal);
+  await bell.micStart();
+
+  const untapMic = bell.mic.tap((audio) =>
+    terminal.session.send.verbatim.packet({
+      audio,
+      participantId: thread.mode.id,
+    })
+  );
+
+  clientInbound.open("/speech/packet", (ctx) => bell.speaker.enqueue(ctx.input.audio));
+  clientInbound.open("/speech/abort",  () => bell.speakerStop());
+  clientInbound.open("/speech/close",  () => bell.speakerStop());
+
+  terminal.streams.verbatim = {
+    partial:      new Queue(),
+    final:        new Queue(),
+    "turn.start": new Queue(),
+    "turn.end":   new Queue(),
+  };
+  clientInbound.open("/verbatim/partial",    (ctx) => terminal.streams.verbatim.partial.enqueue(ctx.input));
+  clientInbound.open("/verbatim/final",      (ctx) => terminal.streams.verbatim.final.enqueue(ctx.input));
+  clientInbound.open("/verbatim/turn/start", (ctx) => terminal.streams.verbatim["turn.start"].enqueue(ctx.input));
+  clientInbound.open("/verbatim/turn/end",   (ctx) => terminal.streams.verbatim["turn.end"].enqueue(ctx.input));
+
+  // Automatic barge-in: VAD-true → flush speaker + tell server to abort speech.
+  const unsubVad = bell.vad.$speaking.subscribe((speaking) => {
+    if (!speaking || terminal.$audio.get().speaker !== "playing") return;
+    bell.speakerStop();
+    terminal.session.send.control.abort({});
+  });
+
+  terminal.$audio = atom({ mic: "capturing", speaker: "silent", vad: false });
+  bell.vad.$speaking.subscribe((vad) =>
+    terminal.$audio.set({ ...terminal.$audio.get(), vad })
+  );
+
+  teardowns.push(() => {
+    untapMic();
+    unsubVad();
+    bell.micStop();
+    bell.release(terminal);
+    terminal.$audio = null;
+  });
+}
+#+end_src
+
+*** Implementation order with verification gates
+
+Each step ends in a runnable artifact that demonstrates the increment. Skip
+nothing; don't start N+1 before N is green.
+
+**** Step 1 — cortex faculty expansion (R1)
+
+- Edit =subsystems/typology/prototypes/cortex.js= per R1 stub above.
+- Test: =subsystems/typology/tests/cortex.test.js= — add cases for
+  =resolve("speech")= returning null when no speech faculty registered,
+  and for 3D→4D auto-pad in =extend=.
+- Gate: all existing cortex tests green + new 4D cases green.
+
+**** Step 2 — speech provider (S1)
+
+- Create =registry/services/@vivalence/speech/elevenlabs/{provider/index.js,service.viva.js}=.
+- Test: =registry/services/@vivalence/speech/elevenlabs/tests/provider.test.js=
+  against a mock =WebSocket= that replays canned ElevenLabs frames. Assert
+  =provider(service).then(f => f[0].via.stream([{parts:[{type:"text",text:"oi"}]}]))=
+  yields ≥1 packet with =audio=.
+- Gate: unit test green. No network calls.
+
+**** Step 3 — verbatim provider (S2)
+
+- Create =registry/services/@vivalence/verbatim/deepgram/{provider/index.js,service.viva.js}=.
+- Test: mirror Step 2. Mock WS emits Deepgram frames; assert verbatim
+  yields =partial=, =final=, =turn.start=, =turn.end= in order.
+- Gate: unit test green.
+
+**** Step 4 — VOCALIZED trait (R2)
+
+- Create =systems/runtime/daemon/traits/vocalized.js=.
+- Test: =systems/runtime/tests/trait.vocalized.test.js= — mode with
+  VOCALIZED but daemon cortex missing faculties throws; with both faculties
+  resolved, no throw.
+- Gate: unit test green.
+
+**** Step 5 — CONVERSATIONAL audio extension (R3)
+
+- Edit =systems/runtime/daemon/traits/conversational.js= per R3 stub.
+- Add =soma.tee= + =soma.packetsToTurns= helpers to
+  =subsystems/typology/gestalten/soma/=.
+- Test: =systems/runtime/tests/conversational.audio.test.js= — boot a test
+  daemon with stub speech+verbatim faculties, open WS, send
+  =/dialogue/anchor= → assert =/dialogue/packet= AND =/speech/packet= both
+  arrive. Send =/verbatim/packet= fixture audio → assert
+  =verbatim.final= fires. Send =turn.start= while dialogue inflight
+  → assert speech aborts.
+- Gate: runtime test green.
+
+**** Step 6 — BELL prototype (C1)
+
+- Create =subsystems/typology/prototypes/bell.js=. Export from
+  =index.client.js= only (not server).
+- Test: =subsystems/typology/tests/bell.test.js= — =claim/release=
+  contention; =micStart()= with stubbed =navigator.mediaDevices= emits mic
+  frames into =bell.mic.tap(cb)=; =speaker.enqueue= drains to
+  =bell.$outputLevel=; VAD fires on simulated RMS > 0.03.
+- Gate: typology test green. Uses =globalThis.navigator= stub.
+
+**** Step 7 — TerminalDossier audio wiring (C2)
+
+- Edit =systems/html/src/typology/entities/terminal.js= per C2 stub.
+- Test: no dedicated unit test — covered by integration scenario (Step 8).
+  Run =deno task test:client= to confirm existing terminal tests still pass.
+- Gate: existing terminal suite green.
+
+**** Step 8 — voice session integration (A1)
+
+- Wire it all. Run =voice.session.test.js= end-to-end scenario.
+- Gate: scenario green. Barge-in path exercised.
+
+**** Step 9 — Dewey voice manifest + intent (part of A1)
+
+- Edit =dewey.viva.js=: add VOCALIZED; add =call= intent with
+  =trait.INSITU.audio.enabled = true=.
+- Dock + Panel E audio controls (C3).
+- Smoke: manual browser test — click call intent, speak, hear reply.
+- Gate: dev-server smoke green.
+
+**** Step 10 — Bruno integration (env-gated)
+
+- Create =testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/call.bru=.
+- Requires =SECRET_VIVA_ELEVENLABS_API_KEY= + =SECRET_VIVA_DEEPGRAM_API_KEY=
+  in =secrets.jsonc=.
+- Gate: bruno call against real services produces real audio round-trip.
+
+*** Edge cases + failure modes
+
+**** Mic permission denied
+
+BELL.micStart fails with =NotAllowedError=. =bell.$permission.set("denied")=.
+TerminalDossier middleware catches the rejection, rolls back INSITU.audio to
+false via =updateOne=, re-triggers $thread, session reverts to text mode.
+Panel E shows denied pip.
+
+**** Speech provider unavailable mid-call
+
+ElevenLabs WS drops. =speech.stream= iterator throws. R3 catches in the
+(async IIFE), emits =session.send.speech.abort({ error })=. Client sink
+flushes. Dialogue continues in text; speech faculty re-resolves on next
+anchor (may succeed if transient).
+
+**** Verbatim provider drops
+
+Deepgram WS closes. =asr.via.stream= generator returns. R3 verbatim state
+nulls. Next =/verbatim/packet= re-spins a fresh transcriber. No
+dialogue-layer impact — audio that arrived during the gap is dropped (at-most-once
+semantics for verbatim; the user restates).
+
+**** Connection drop mid-audio
+
+Socket closes. TerminalDossier session cleanup fires. BELL speaker flushes
+(mid-word TTS cuts); mic stops. Reconnect middleware (deferred — not in this
+sketch) would re-open session with same token and resume. For round 8:
+manual hangup + re-engage.
+
+**** Barge-in race — user speaks as TTS starts
+
+Common. VAD fires =$speaking=true= within 50-100ms of first speech packet.
+Client: =bell.speakerStop()= + =control.abort=. Server side also detects
+turn.start from the audio already flowing in; independently aborts LLM.
+Two aborts fire; both are idempotent. No state corruption.
+
+**** AutoVoice infinite loop
+
+Verbatim =final= triggers dialogue anchor; dialogue response plays via
+speaker; picked up by mic; transcribed; triggers another anchor. Mitigations:
+(a) =bell.mic.mute()= while speaker is playing — acoustic echo cancellation
+via AudioContext =createBiquadFilter= / =EchoCanceller= constraint on
+=getUserMedia=. (b) Server-side: short debounce on autoVoice — ignore
+=final= arriving within 200ms of previous anchor completion.
+
+**** Thread swap during live call
+
+User clicks a different thread. TerminalDossier old-thread teardown fires:
+speaker flush, mic stop, BELL release, session close. Audio cuts cleanly.
+New thread opens fresh session. No cross-thread audio leak possible because
+BELL is per-terminal-owned and ejected before reclaim.
+
+**** Codec mismatch
+
+Provider expects ulaw_8000. BELL emits opus 48k from MediaRecorder.
+Transcoder at TerminalDossier send boundary converts. If conversion fails,
+the audio packet is dropped silently (counter incremented on
+=terminal.$audio.micErrors=). If ≥3 consecutive drops, surface error toast.
+
+*** Open design questions
+
+1. *Tune dim migration* — legacy dialogue faculties declare 3D tune
+   =[thinking, context, speed]=. =cortex.extend()= auto-pads to 4D with
+   latency=0.5 (neutral). Voice providers declare 4D explicitly with
+   latency=0.1 (voice-first). Alternative: separate =faculty.latency= field
+   outside =tune=. Locked: *auto-pad* — zero-migration, latency lives in tune.
+
+2. *Verbatim faculty shape* — the =dialogue-verbatim-rename= workpackage
+   left the verbatim =via= contract open: push/flush (per earlier orb
+   sketches with =openTranscriber(...).push(audio) / .flush() → text=) vs
+   stream (=via.stream(audioSource, config) → AsyncIter<events>=). Locked:
+   *stream*. Reasons: (a) Flux-style always-on STT with partial + final +
+   turn events cannot be expressed as push+flush (flush-returns-text collapses
+   to one utterance); (b) caller-owned audioSource keeps the faculty
+   stateless across calls; (c) symmetric with dialogue/speech =via.stream=
+   shape — no schema widening needed. Verbatim declares no =render= surface
+   (stream-only). =cortex.shard.effects= already skips mount when
+   =faculty.via[via]= is falsy.
+
+3. *Audio codec* — ulaw_8000 end-to-end. Matches shuo, Deepgram,
+   ElevenLabs. BELL's =MediaRecorder= produces opus — transcode at
+   =session.send.verbatim.packet= boundary (simple JS mu-law encoder,
+   ~20 lines). Alternative: raw 16k PCM. Locked: *ulaw_8000* (smaller frames,
+   both providers native).
+
+4. *AutoVoice thread binding* — verbatim =final= triggers an internal
+   =dialogue.anchor= invocation; needs =thread=. First explicit anchor writes
+   =socket.state.thread=; auto-voice reads it. Thread swap clears it (server
+   has no equivalent of INSITU — thread is connection-local state). Locked.
+
+5. *BELL location* — =subsystems/typology/prototypes/bell.js=. Guarded use
+   of =navigator= / =AudioContext= (typeof checks). Browser-only; not imported
+   server-side (=index.client.js= adds it, =index.ts= does not).
+
+6. *Barge-in authority* — two aborts fire: client-side VAD flushes local
+   speaker + emits =control.abort=; server-side verbatim =turn.start=
+   aborts LLM + emits =speech.abort=. Client abort is local only (doesn't
+   pre-empt server); server abort is canonical. Locked.
+
+7. *soma.tee + soma.packetsToTurns* — new helpers in
+   =subsystems/typology/gestalten/soma/=. =tee= splits an async iterable to
+   two consumers with independent backpressure. =packetsToTurns= reassembles
+   a packet stream into a turn stream (inverse of =soma.drain=). Scope: yes,
+   this is a new gestalt delta — minor.
+
+8. *Bruno test entry* — =testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/call.bru=
+   (new) alongside =session.bru=. Opens WS, moins, sends
+   =/verbatim/packet= with a fixture audio clip, asserts
+   =session.send.verbatim.final= arrives, asserts =speech.packet= fires.
+   Env-gated (needs real secrets).
+
+*** Test sketch
+
+End-to-end scenario at =subsystems/typology/tests/workpackage/voice.session.test.js=.
+One scenario, real =Deno.serve= + =shard.serve.websocket=, stub TTS + ASR
+faculties returning canned streams.
+
+#+begin_src js
+specimen.describe("voice session — mic → verbatim → dialogue → speech → speaker", () => {
+  specimen.it("end-to-end with barge-in", async () => {
+    const stubTTS = {
+      type: "speech", tune: [0.3, 0.5, 0.5, 0.1], context: 0,
+      channels: { in: [{ type: "text" }], out: [{ type: "audio" }] },
+      via: { stream: async function* (turns) {
+        for (const turn of turns) for (const part of turn.parts ?? []) {
+          if (part.type === "text") for (const char of part.text) {
+            yield { nature: "packet", audio: new Uint8Array([char.charCodeAt(0)]) };
+          }
+        }
+      }},
+    };
+    const stubASR = {
+      type: "verbatim", tune: [0.4, 0.6, 0.5, 0.1], context: 0,
+      channels: { in: [{ type: "audio" }], out: [{ type: "event" }] },
+      via: { stream: async function* (audioSource) {
+        let payload = "";
+        for await (const chunk of audioSource) payload += new TextDecoder().decode(chunk);
+        yield { nature: "turn.start" };
+        yield { nature: "partial", transcript: payload.slice(0, 2) };
+        yield { nature: "final",   transcript: payload };
+        yield { nature: "turn.end" };
+      }},
+    };
+
+    const daemon = await bench({
+      kernel: "@vivalence/language",
+      modes:  [{ ...dewey, traits: [...dewey.traits, "VOCALIZED"] }],
+      cortex: { extend: [stubTTS, stubASR] },
+    });
+    const thread = await daemon.entities.thread.create({
+      mode:   "teacher/dewey",
+      traits: ["INSITU"],
+      trait:  { INSITU: { audio: { enabled: true } } },
+    });
+
+    const terminal = await clientHarness(daemon).terminal({ thread });
+    await terminal.session.ready;
+
+    terminal.streams.verbatim.final.drain().next().then((event) =>
+      expect(event.value.transcript).toBe("oi")
+    );
+    await terminal.pushAudio(new TextEncoder().encode("oi"));
+
+    const audio = [];
+    for await (const packet of terminal.streams.speech) {
+      audio.push(packet);
+      if (audio.length >= 3) break;
+    }
+    expect(audio.length).toBeGreaterThanOrEqual(3);
+  });
+});
+#+end_src
+
+* Provider landscape + dual-dialogue dispatch (synthesis 2026-04-22)
+
+External research synthesis. Records the provider/quality landscape at the
+time the audio scaffold was unblocked and introduces a *dual-dialogue dispatch*
+pattern (actor + worker) as a future extension to the single-faculty model
+currently in spec. Does NOT override the locked S1/S2 picks (ElevenLabs +
+Deepgram) — those remain the M-audio integration target. This section is
+the architectural seed for "what comes after the walking skeleton."
+
+** Provider landscape (snapshot 2026-04-22)
+
+*Dialogue (LLM) — pt-BR native quality ranking:*
+- Gemini 3.1 Pro / 3 Flash — deepest pt-BR corpus, idiomatic
+- Claude Sonnet 4.6 / Opus 4.7 — natively strong, warmer tone
+- GPT-5 / GPT-5 mini — solid, slightly less idiomatic
+- Mistral Large 3 — Romance-bias in training, surprisingly good
+- Llama 4 Maverick — good, Cerebras-hostable at ~2500 t/s
+
+Reasoning modes are disqualified for the actor role — TTFT kills turn-taking.
+
+*Speech (TTS) — open-weight candidates with pt-BR support:*
+- Chatterbox Multilingual (Resemble AI, MIT) — 23 langs incl. pt; sub-200ms;
+  =[laugh][cough][chuckle]= native paralinguistic tags
+- Qwen3-TTS (Alibaba, 1.7B) — 10 langs incl. pt; ~97ms TTFB; 3s voice clone;
+  natural-language style control ("fale devagar e calmo")
+- Kokoro (82M, Apache) — Portuguese voice, CPU-viable, no cloning
+- Fish Speech V1.5 — multilingual leader in OSS, DualAR architecture
+
+Commercial frontier: Fish Audio S2 Pro (#1 TTS-Arena2, 50+ emotion tags,
+pt-BR native), ElevenLabs Flash v2.5 (locked as S1), Hume TADA (MIT-style,
+zero hallucinations 1k+ samples).
+
+*Verbatim (STT):* Deepgram Flux remains S2 pick. No replacement candidate
+has emerged that beats its streaming latency + diarization combo.
+
+** Dual-dialogue dispatch (actor + worker)
+
+The current spec assumes one =dialogue= faculty per mode. Production voice
+agents converge on a different shape: two dialogue faculties at different
+latency tunes, with an explicit dispatch pattern between them.
+
+*Actor* — small, fast, voice-shaped. Talks. Holds rapport. Tune: =eager=.
+Never blocks on tools. Provider candidate: Gemini 3 Flash.
+
+*Worker* — large, slow, tool-calling. Real reasoning. Returns structured
+facts. Tune: =unleashed= or higher. Provider candidate: Claude Sonnet 4.6
+(via Bedrock for throughput) or Kimi K2.6 (agentic swarm, cheaper, weaker
+pt-BR — but worker doesn't talk, so pt-BR weakness is not exposed to user).
+
+*Three integration styles:*
+
+1. *Actor-dispatches-Worker* — actor fires =consult_worker(query)= as a
+   tool call, fills silence with backchannel from a pre-recorded library
+   ("hmm", "deixa eu pensar", "um segundo"), paraphrases the worker's
+   return into voice. Most common production shape.
+2. *Parallel race* — both faculties receive the user turn. Actor responds
+   from priors immediately. Worker's later, better answer triggers
+   mid-turn self-correction ("ah, na verdade..."). Feels smart, burns tokens.
+3. *Worker-plans-Actor-speaks* — worker emits a turn plan; actor reads it
+   aloud. Best for regulated/auditable domains. Loses conversational feel.
+
+*Mapping into existing primitives:* both actor and worker are =dialogue=
+faculty instances on the same cortex, distinguished by =tune.latency=.
+=mode.harness.dialogue.stream(...)= dispatches to the actor by default;
+worker is invoked as a tool registered on =ctx.hallucination.tool(...)=
+during =mode.cake.harness=. Backchannel is a =shard.audio= primitive on
+the client (BELL pulls from a static asset bundle; no TTS round-trip).
+
+*Interrupt budget* — if worker takes >2.5s, actor speaks something. If >8s,
+actor asks a clarifying question to buy time. Implemented as a timer on
+the tool-call promise, racing against a BELL backchannel emit.
+
+** TTS-priming for the actor
+
+The actor's system prompt constrains the token space to exactly what the
+TTS can perform. This block is the canonical pt-BR TTS-prime for any
+=dialogue= faculty whose downstream =speech= sink is a tag-aware TTS:
+
+#+begin_src
+Você é um assistente por voz. Siga estas regras SEMPRE:
+
+1. Saída em pt-BR falado, nunca escrito. Sem markdown,
+   bullets, código, URLs, ou símbolos (#, *, _, `).
+2. Frases curtas (máx 15 palavras). Uma ideia por frase.
+3. Expanda abreviações: "R$" → "reais", "km" → "quilômetros",
+   "Dr." → "doutor".
+4. Use SOMENTE estas tags: [laugh], [chuckle], [sigh], [pause].
+5. Números até 20 por extenso. Datas por extenso ("15 de março").
+6. Nunca diga "como modelo de linguagem".
+7. Máximo 3 frases, a menos que peçam detalhes.
+#+end_src
+
+Per-provider variant:
+- *ElevenLabs (S1):* keep the tag list as-is. Maps to Flash v2.5 audio tags.
+- *Qwen3-TTS:* drop tags from the prompt; emit
+  ={"voice_style": "animado e rápido", "text": "..."}= and pass
+  =voice_style= as the instruction param.
+- *Fish Audio S2 Pro:* replace the tag list with Fish's emotion vocabulary
+  (=[excited]=, =[whisper]=, =[serious]=).
+
+This prompt belongs as a config field on the speech-aware mode trait —
+provisionally =CONVERSATIONAL.speech.systemPrime= — read by the actor's
+=mode.cake.harness= middleware and prepended to =ctx.hallucination=.
+
+** Stack picks (forward-looking, not locked)
+
+- *Pair A — best quality (commercial TTS):* Gemini 3 Flash actor + Fish
+  Audio S2 Pro speech. 50+ emotion tags, pt-BR native, top TTS-Arena2.
+- *Pair B — best open (self-hostable):* Gemini 3 Flash actor +
+  Chatterbox Multilingual speech. MIT, pt-BR, paralinguistic tags,
+  sub-200ms.
+- *Pair C — lowest latency:* Llama 4 Maverick on Cerebras (~2500 t/s)
+  actor + Qwen3-TTS speech (~97ms TTFB). Loses some pt-BR idiomaticity.
+
+Worker pick across all three pairs: Claude Sonnet 4.6 via Bedrock
+(throughput-optimal for Anthropic models) or Kimi K2.6 (agentic swarm).
+
+** Open extensions (not in current scope)
+
+1. *Cortex faculty filter by tune* — =mode.harness.dialogue.stream= currently
+   resolves to the first registered =dialogue= provider. Multi-provider
+   per-faculty needs tune-aware resolution. Probably a =cortex.shard.harness=
+   extension: when =ctx.hallucination.tune("eager")= is set, prefer providers
+   whose =faculty.tune.latency=== "eager".
+2. *Backchannel asset shard* — a =shard.audio.backchannel(library)= primitive
+   that BELL pulls from. Library = pt-BR fillers as static assets.
+3. *Tool-call promise interrupt budget* — generic primitive, not voice-specific.
+   Belongs on =ctx.hallucination.tool= wrapper (timer + race vs side-emit).
+4. *Native speech-to-speech track* — Moshi / Qwen2.5-Omni / Kimi-Audio.
+   Faster + more natural than cascaded STT→LLM→TTS but production-dumber.
+   Watch list, not roadmap.
+
+** References
+
+- Framework codebases studied (shallow clones 2026-04-22): =livekit/agents=
+  (=SpeechHandle= authorization model, =RecognitionHooks=), =pipecat-ai/pipecat=
+  (=SentenceAggregator= 60-LOC bridge, =ParallelPipeline= for backchannel
+  branching), =TEN-framework/ten-framework= (graph-runtime polyglot, JSON
+  topology — informational only; vivalence rolls its own via Session/Socket).
+- Speed/quality landscape: Artificial Analysis Intelligence Index v4.0
+  (frontier tie at 57: Opus 4.7 max, Gemini 3.1 Pro, GPT-5.4 xhigh; Kimi
+  K2.6 at 54 — only OSS in that band).
+- Specialty silicon for open-weight worker: Cerebras (~2500 t/s on Maverick),
+  SambaNova (best TTFT 0.2s), Groq (consistent TTFT 0.6–0.9s, Nvidia
+  acquired late 2025).
+
+* Open questions (current — round 4)
+
+1. *Default shard home* — ~registry/services/@vivalence/shard/conversation-default/~ or elsewhere? What config does an anonymous default take?
+2. *Non-daemon Connection destinations* — in-scope this workpackage or parked? (Architectural note; data-plane-direct per D21 is the long-term path.)
+3. *Client dossier trait-boot hook point* — ~wireDossier~ handles this on hydrate. Confirm no additional seam needed for mode-level pre-thread work (e.g., pre-warm speech shard).
+4. *Session on terminal — underscore teardowns* — ~terminal._teardowns~ violates no-underscore convention. Rename to ~terminal.teardowns~ or nest under ~terminal.session.teardowns~.
+5. *Thread.parent M3 vs later* — confirm M3 scope or defer.
+6. *tts-local M5 vs follow-up* — confirm.
+
+Deferred per earlier rounds (unchanged):
+- BELL name confirm.
+- Trait naming locked for now (CONVERSATIONAL + CHAOSMONKEY + INSITU).
+
+* Gates before step 3 (implementation)
+
+Confirmation needed from Finn:
+
+1. *Ontology* — session lives on terminal (not thread); feeds/sinks session-scoped; BELL singleton device arbiter. Confirm.
+2. *Traits* — CONVERSATIONAL umbrella with sub-configs (chat/speech/verbatim) as the single mode capability trait. INSITU as thread marker. Confirm.
+3. *Terminal as session owner* — TerminalDossier subscribes to ~$thread~; creates/attaches/closes session. Confirm.
+4. *Socket as Connection primitive* — new primitive alongside Request/Response/Pipe. Confirm.
+5. *Default shard* — exists as an anonymous/configured fallback for modes without explicit CONVERSATIONAL config. Confirm.
+6. *Thread.parent at M3, tts-local at M5* — confirm scope.
+7. *Data-plane-direct deferred* — proxy through daemon for Step 1/2; SFU-like direct audio is later.
+8. *Non-daemon Connection destinations* — parked for now vs in-scope.
+
+* Principles audit
+
+Against project principles:
+
+- *YAGNI* — no Participant prototype. No SPEAKING/LISTENING traits. CONVERSATIONAL carries all configs as sub-keys. Session/Feed/Sink earn their place by holding real behavior.
+- *Modes are a general plugin system* — CONVERSATIONAL universal + default shard preserves this. Longdistance doesn't special-case anything at the framework level.
+- *Canonical vocabulary precisely* — no "frame"; audio = parts. "session" is acknowledged as shared with cortex-session but disambiguated by surface (client live vs server per-cortex).
+- *Functional lifecycle* — terminal subscribes to atom; creates/attaches/closes session; no OOP hooks.
+- *Desired end state first* — stated at top.
+- *Systems perspective* — device arbitration at BELL; mode boot at dossier layer; session wiring at terminal layer. No per-consumer hacks.
+- *No prose tables* — packet framing kept (enumerable); all descriptive tables converted to lists.
+- *Design and implementation separate* — still design; dossier refactor landed as foundational infra, not longdistance-specific.
+- *Architecture over expedience* — socket as a first-class Connection primitive (reusable beyond longdistance); TerminalDossier as the session seam (generic, not longdistance-only).
+
+* Key files
+
+** Cortex + shard + hallucinator
+- ~subsystems/typology/prototypes/cortex.js~
+- ~subsystems/typology/prototypes/hallucinate.js~
+- ~subsystems/typology/gestalten/shard/~ — middleware + transport patterns.
+- ~registry/services/@vivalence/hallucinator/anthropic/~ — provider reference.
+- ~/Users/finn/vivalence/code/shuo/~ — studied 2026-04-17; proxy + pipelining reference.
+
+** Connection + transport + tracing
+- ~subsystems/typology/prototypes/connection.js~ — add ~socket()~ primitive.
+- ~subsystems/typology/gestalten/shard/connection/~ — existing retry/timeout/authorize/track/batch; new heartbeat/reconnect/session.
+- ~subsystems/typology/gestalten/shard/transmitter.js~
+- ~subsystems/typology/gestalten/shard/websocket.js~
+- ~subsystems/typology/gestalten/shard/track/~
+
+** Mode / dossier / trait (server + client)
+- ~subsystems/typology/entities/daemon/Mode.ts~
+- ~systems/runtime/daemon/traits/**~ — read all traits + daemon lifecycle.
+- ~systems/runtime/daemon/traits/conversational.js~ — reference; extend for CONVERSATIONAL server path.
+- ~systems/runtime/daemon/traits/buffered.js~ — attachment-bypass reference.
+- ~systems/runtime/~ — runtime process + service attachment lifecycle.
+- ~registry/services/**~ — existing service manifest shapes.
+- ~registry/modes/**~ — modes consume and express this system.
+- ~testament/variant/circuitry/~ — daemon + compose wiring.
+
+** Thread + terminal + client
+- ~subsystems/typology/entities/userspace/Thread.ts~ — add ~parent~ in M3.
+- ~systems/html/src/typology/entities/thread.js~ — INSITU installer (done).
+- ~systems/html/src/typology/entities/thread/traits.js~ — pattern reference (LABELED/MASKED/AIMED/QUEUEING).
+- ~systems/html/src/typology/entities/terminal.js~ — Terminal class + TerminalDossier (done). Session wiring middleware lands in M4.
+- ~systems/html/src/typology/prototypes/thread-store.js~ — ThreadContext.
+- ~systems/html/src/typology/prototypes/quarters.js~ — thin; wireDossier pattern (done).
+- ~systems/html/src/typology/prototypes/dossier.js~ — wireDossier, compileSchema, defaultCast, localFactory (done).
+- ~systems/html/src/typology/prototypes/stall.js~ — template for Session prototype.
+- ~systems/html/src/typology/prototypes/session.js~ (new).
+- ~systems/html/src/typology/prototypes/feed.js~ (new).
+- ~systems/html/src/typology/prototypes/sink.js~ (new).
+- ~systems/html/src/typology/prototypes/bell.js~ (new).
+
+** Panels + bones
+- ~systems/html/src/routes/pincer/panels/a.svelte~ — CallFrame for longdistance dominant.
+- ~systems/html/src/routes/pincer/panels/b.svelte~ — AudioControl widget.
+- ~systems/html/src/routes/pincer/panels/g.svelte~ — telemetry + focal target.
+- ~systems/html/src/routes/pincer/bones/spine.svelte~ — clickable status dots.
+
+** Reference workpackages
+- ~.ikiro/cortex.workpackage.org~
+- ~.ikiro/terminal-first-client.workpackage.org~
+- ~.ikiro/pincer.workpackage.org~
+- ~.ikiro/language-learning-modes.workpackage.org~
+
+* Round 4 @beef koans (verbatim, current)
+
+** K8 — Naming lock
+
+#+begin_quote
+Mode traits: CHAOSMONKEY -- CONVERSATIONAL //whats insitu
+
+Thread traits: INSITU ! sets up session infrstrcuture ! root level primitive tho
+- might be lifecycled elsewhere too (like buffered is on runtime/modes)
+
+these are the names for now! remember that!
+#+end_quote
+
+Resolved: CONVERSATIONAL (universal umbrella, mode), INSITU (thread marker). SPEAKING/LISTENING/DIALED retired. See D2, D8, D10.
+
+** K9 — Session on terminal, not thread
+
+#+begin_quote
+your putting it again on the trhead!! session is on terminal!!
+#+end_quote
+
+Resolved: Session lives on terminal. Terminal owns session lifecycle via ~$thread~ subscription. See D3, D12.
+
+** K10 — Dossier thunk pattern
+
+#+begin_quote
+schema.remote vs schema.persist & remote=/=persists. two sides, same coin.
+#+end_quote
+
+Resolved: dossier provides ~repository(schema, dataspace)~ thunk. LocalRepository and RemoteRepository both supported. Dataspace unchanged in use; Quarters thin via ~wireDossier(TerminalDossier)~. See D7. Code landed 2026-04-17.
+
+** K11 — Proxy vs distributed (shuo study)
+
+#+begin_quote
+given the shuo repo, does it still makee sense to use the proxy setup? or should we maybe think this one more distributed?
+#+end_quote
+
+Resolved: proxy stays for Step 1/2. Shuo validates ~600-line proxy with pipelining. SFU / data-plane-direct is long-term. Protocol designed as opaque packet forwarding so later transition is mechanical. See D21.
+
+* Orb archive
+
+Previous orb content preserved here for continuity; orb itself is wiped each round.
+
+** Round 3 orb (ORB - Longdistance - 2)
+
+STATUS: Step 1 design — orb round 3 complete (2026-04-16). Session/feed/sink ontology recast. Mode trait split into four (SPEAKING/LISTENING/DIALED/CONVERSATIONAL) — later superseded in round 4 by single CONVERSATIONAL umbrella.
+
+(Round-3 koans K1-K7 and full body superseded by this workpackage; kept as git history.)
+
+** Round 2 orb (ORB - Longdistance - 1)
+
+STATUS: Step 1 design — orb round 2 complete (2026-04-16). Workpackage pointer. Round 2 absorbed D16-D22 + IKIRO table principle + frame-banned + functional-lifecycle. Gates 1-8 awaited.
+
+** Round 1 orb (ORB - Longdistance - 0)
+
+Original scope statement, "desired end state" variant, mode-type manifest with DIALED/VOICED/EARED sketch, cortex faculty sketch, two hallucinator services, trait triad discussion, transport/websocket sketch, multi-participant call metaphor, client-side architecture sketch, Panel B idea, tech delta prose-table (pre-IKIRO-principle), imagined demo, test sketch, 10 open questions, principles respected, entry points, 5 gates-before-step-2.
+
+25+ @beef annotations from round 1 all tagged into D1-D15 / D16-D22 / round-3 koans / round-4 koans; full verbatim text in git history on this file through commits before 2026-04-17 orb round 4 recast.
+
+* Changelog
+
+- 2026-04-16 :: *Round 1.* Created. D1-D15 absorbed.
+- 2026-04-16 :: *Round 2.* Deep pass. D16-D22 added. Parlance cleanup (frame banned). Functional lifecycle. IKIRO no-prose-tables principle registered. Desired end state stated at top.
+- 2026-04-16 :: *Round 3.* Session/feed/sink ontology recast. Directives restructured into themed groups. Four mode traits (SPEAKING/LISTENING/DIALED + CONVERSATIONAL). DIALED as single thread trait installing Session on thread. Non-daemon Connection destinations noted.
+- 2026-04-17 :: *Round 4.* Naming lock: CONVERSATIONAL umbrella (drops SPEAKING/LISTENING/DIALED as separate mode traits). INSITU as thread marker (replaces DIALED). Session relocated from thread to terminal. Terminal owns session lifecycle via ~$thread~ subscription. Dossier refactor landed (=wireDossier= + LocalRepo hydrate-aware). Shuo repo studied (validates proxy pattern). Socket added as Connection primitive. 29 directives compressed to 26.
+- 2026-04-17 :: *Rounds 5-7.* Queue primitive. Socket primitive rewrite (absorbs dispatch, symmetric constructor, flat ctx, per-connection scratch, ~push/call/close~). Url gains first-class query + scheme. Auth via URL-param token (ws mounts INSIDE =shard.secure.authorize=). Session prototype + ~shape.strip~ + ~shape.messenger~. MOIN handshake at ~/herald/moin~. Dialogue signal vocab ~engage / packet / terminate~ (superseded in session 43: anchor/voyage). One workpackage test scenario green over real Deno.serve + websocket. *Orb key decision*: INSITU is manually triggered (E panel toggle), NOT auto-installed. Gaps: ~shape.strip~ uninspired; gauge-aware send compile for ~:param~ routes.
+- 2026-04-18 :: *Round 8 — first integration locked.* Text-only walking skeleton designed. Component *Port* introduced (ship-metaphor family). Three-milestone breakdown: (M1) runtime CONVERSATIONAL ws + dewey + bruno test; (M2) client TerminalDossier session lifecycle + Port standalone; (M3) surface integration — Panel A inlet, crown highlight, shoulder widget, Panel E control-center rework. Deferred: audio / BELL / feeds / sinks / tts-cloud / tts-local / barge-in / mentored / CallFrame. Existing M1-M5 relabeled "Later audio vision."
+
+- 2026-04-18 :: *Session 43 — M1 DONE.* CONVERSATIONAL fully wired, live-tested, Bruno smoke confirmed.
+
+  *Vocabulary drift from M1 spec to implementation* — what the spec said vs what shipped:
+
+  | Spec | Implemented |
+  |------+-------------|
+  | ~/connect~ | ~/conversation~ |
+  | ~/dialogue/engage~ | ~/dialogue/anchor~ |
+  | ~terminate~ | ~voyage~ |
+  | ~mode.conversation~ | ~mode.harness~ |
+  | ~ctx.hallucinate~ / ~ctx.harness~ | ~ctx.hallucination~ |
+  | ~{ message }~ input | ~{ parts: Part[], thread }~ input |
+  | ~session.bru~ | ~conversation.bru~ |
+
+  Thread is *message-level* (on each anchor input), not connection-level. Route carries only auth.
+
+  *Architecture discoveries during M1*:
+  - *Per-connection vector*: =new Vector().slurp(conversation)= per WS upgrade. Session.constructor mutates inbound; shared vector accumulates N moin handlers across N connections — fatal bug at N>1.
+  - *Closure rule*: =shard.context.attach= nulls =ctx[key]= after =next()=. Lazy generators (CHAOSMONKEY scribe) must capture =daemon= / =mode= from trait closure, NOT from =ctx=.
+  - *=daemon.good.datamap=*: exposed in =population.js= so traits can reach =datamap.shard.context= + =shard.bind= without receiving =daemonDie= directly.
+  - *CLIENT_SHAPE branches form*: flat leaves ={ nature: "/dialogue/packet" }= produce =//dialogue/packet= double-slash via messenger's =joinSignal("", "/dialogue/packet")=. Must use ={ branches: { dialogue: { leaves: [{ nature: "packet" }, { nature: "voyage" }] } } }=.
+  - *Per-message RequestContext*: conversation middleware wraps every WS dispatch in =daemon.datamap.shard.context= + =shard.bind("user")= — mirrors HTTP pipeline (authorize → ambient.store → datamap.bind). =socket.state.user= captured at connect time.
+
+  *Tests shipped*:
+  - =subsystems/typology/tests/workpackage/session.test.js= — green (updated to =/conversation=, =branch("dialogue")= structure, thread on anchor input).
+  - =systems/runtime/tests/conversation.integration.test.js= — 5 steps green: moin handshake, anchor→packets→voyage, turns persisted, second anchor loads history (parent chain: =user2.parent === assistant1=), user filter isolation.
+
+  *Bruno*: =conversation.bru= (4 named messages: moin, anchor-house, anchor-kitchen, anchor-sentence). =run-dewey.sh= chains login→mode findOne→thread create→chat via =--reporter-json= + =jq=. Live confirmed.
+
+  *Orb 2026-04-17 design vs session 43 implementation — divergences*:
+
+  The orb Sketch 3 (client Session) had =connection.socket("/connect", inbound, { token,
+  thread: thread.id })= — thread on the socket URL. Session 43 instead put thread on the
+  *anchor input* (`{ thread, parts, tune? }`), keeping the connection URL token-only. This
+  is a cleaner separation: connection = auth concern, anchor = message concern. The orb
+  sketch is superseded on this point.
+
+  The orb Sketch 5 (client CONVERSATIONAL) subscribed to =mode.$threads= (all threads using
+  the mode). The workpackage D12 and session.test.js converged on =terminal.$thread=
+  subscription (terminal-scoped). Terminal-scoped is correct per D3/D12.
+
+  *INSITU manually triggered* (orb, overrides D10 auto-install): session is a deliberate
+  user engagement via E panel toggle — not auto-opened when navigating to a thread. D10
+  updated accordingly. M2 client wiring must reflect this: no auto-INSITU middleware in
+  ThreadDossier; E panel toggle fires the PATCH that adds INSITU to =thread.traits=;
+  TerminalDossier reacts to the trait change.
+
+- 2026-04-18 :: *Session 44 — M2+M3 DONE. First integration fully verified end-to-end.*
+
+  *M2 shipped*:
+  - =systems/html/src/routes/pincer/panels/e.svelte= — replaced JSON dump with thread control panel: thread title + ID, mode type line, mode trait pills (EXPOSED/CHAOSMONKEY/CONVERSATIONAL), TRAITS block with per-trait rows, INSITU pill as "click to engage" button when mode has CONVERSATIONAL.
+  - INSITU toggle fires =thread.daemon.entities.thread.updateOne({ id }, { traits: newTraits })= + optimistic update + re-triggers =terminal.$thread= to run session lifecycle.
+
+  *M3 shipped*:
+  - =systems/html/src/typology/entities/terminal.js= — Terminal gains =$dock= atom (DEFAULT: session "ended"), =session=, =streams= fields. TerminalDossier =use[]= session-lifecycle middleware: subscribes to =terminal.$thread=; on INSITU in → =thread.mode.connection.socket("/conversation", clientInbound, { token })= → =new Session(clientInbound, socket)= → =session.moin()= → dock set to "live"; on INSITU out → close + dock "ended".
+  - =systems/html/src/typology/components/dock/SessionDock.svelte= — new. Full dock UI (header + media bar + log + composer + collapsed rail). =$effect= drains =terminal.streams.dialogue= Queue when session live; =soma.pour= rebuilds turns; log updates on =turn.close=. =send()= routes to =session.send.dialogue.anchor(...)= when real session available, =ack()= placeholder otherwise.
+  - =systems/html/src/routes/pincer/panels/a.svelte= — Panel A refactored to flex split: Body + Twig (3px, drag to resize) + Chat (SessionDock). =terminal.dock= state via QUARTERS context + =$dock= nanostore subscription.
+  - =systems/html/src/routes/port/+page.svelte= — standalone harness at =/port= with fixture thread.
+  - =systems/html/src/typology/prototypes/quarters.js= — re-hydrate fix: =LocalRepository.restore()= runs in constructor before =repo.hydrate= is set; Quarters now calls =hydrate= on all restored terminals after =wireDossier= returns.
+
+  *Infrastructure bugs fixed*:
+  - =subsystems/typology/prototypes/socket.js= — =push()= / =call()= didn't wait for WS OPEN (browser starts CONNECTING). Added =this.#ready= Promise; =push= queues via =.then()=; =call= awaits before send. Server-side (already OPEN) resolves immediately.
+  - =subsystems/typology/prototypes/index.client.js= — =Session= was not exported from =mod.client.js=. Added =export * from "./session.js"=.
+  - Route path: CONVERSATIONAL trait mounts at =mode.aperture=, slurped into daemon at =mode.mount= (/mode/teacher/dewey). Client must use =thread.mode.connection= not =thread.daemon.connection=.
+  - Default dock =session: "ended"= (was "live") so Svelte =$effect= fires on "ended"→"live" transition when moin succeeds.
+
+  *Live verification*: navigated to dewey thread → triggered INSITU via JS → moin LIVE in 2s → sent anchor "Como se diz 'dog'?" → dock log showed *agent **Cachorro** 🐶*. Queue depth 0 after reply (drain consumed all packets). Turns persisted server-side (CHAOSMONKEY).
+
+  *Also shipped in this session*:
+  - Dewey intent seeded: =registry/modes/@vivalence/teacher/dewey/dewey.viva.js= gains INTENTED trait + =dataset.intent[0]= (slug "conversation", =trait.INSITU = { dialogue: { enabled: true } }=, =trait.LABELED.name = "dewey · conversation"=). New threads from this intent get INSITU config pre-populated. Verified: thread created from intent shows correct seed data in Panel D + Panel E.
+  - Note: =RemoteRepository.create(data)= wraps args in ={ data }= server-side — caller must NOT double-wrap (pass =create({ mode: id })= not =create({ data: { mode: id } })=).
+
+  *Also: Dock UI simplified.* Mic/voice/video toggles, video tile, and voice meter removed from =SessionDock.svelte= — those aren't daemon features. Dock state shape shrunk to ={ side, share, collapsed, session }=. Action bar has only =reset= + =end/open=. LABELED name now resolves correctly — dock sys line shows "session opened · dewey · conversation" on a properly-seeded thread.
+
+  *Remaining for surface integration (M4)*:
+  - INSITU pill click path verified only via JS (debugger blocks clicks in Chrome MCP). Code is correct — production verification trivial.
+  - Panel D "outside" navigation to dewey conversation intent (currently JS-triggered).
+  - Panel A inlet overlay, crown highlight on active-session tab, shoulder widget toggle (M3.a/b/c from original spec).
+
+  *Next branch — AUDIO LAYER* (M2 of "Later audio vision"):
+  - Goal: voice call between user and Dewey. Mic → WS → ASR → LLM → TTS → WS → speaker.
+  - Key primitives needed: BELL (singleton audio arbiter), Feed (mic→WS), Sink (WS→speaker), cortex faculties =speech= + =verbatim=, VAD/turn-detection.
+  - Reference: =/Users/finn/vivalence/code/shuo= — ~600-line Python voice agent. Validated pattern: Deepgram Flux (always-on STT + turn detection) → EndOfTurn fires agent response → barge-in cancels everything + clears buffer. Our architecture maps: Flux → server /verbatim faculty; Agent = CHAOSMONKEY harness; Twilio WS → browser WS + BELL.
+  - Research kickoff 2026-04-18 after first integration shipped.
+
+- 2026-04-18 :: *Round 8 — audio sketch holistic.* End-to-end audio-call
+  design across three parallel tracks (Service Registry / Runtime / Client)
+  with worked code stubs per track. Key resolutions:
+
+  - Feed / Sink collapse — *no new classes*. =Pipe= is the mic feed (fan-out
+    producer); =Queue= is the speaker sink (single-consumer drain). Wiring
+    lives as four one-liners in TerminalDossier middleware. Only new
+    prototype is *BELL* (the box that wraps =Pipe= + =Queue= + =vad= cells).
+  - Cortex faculty expansion — =FACULTY_TYPES= on =cortex.js:17= uncomments
+    to =["dialogue", "speech", "verbatim"]=. Tune gains 4th =latency=
+    dim. =extend()= auto-pads legacy 3D tunes to 4D (zero-migration).
+  - New mode trait =VOCALIZED= — fail-fast assertion that daemon.cortex has
+    speech + verbatim faculties resolved.
+  - CONVERSATIONAL extension — when =mode.traits.includes("VOCALIZED")=:
+    dialogue =anchor= replaced with a tee that fans token stream to both
+    =/dialogue/packet= (text) and =/speech/packet= (audio via speech
+    faculty). =/verbatim/packet= spins a per-connection lazy
+    transcriber (audio Queue → =cortex.verbatim.stream()=); fanout
+    =partial / final / turn.*= events to =session.send.verbatim.*=.
+    Barge-in: verbatim =turn.start= aborts inflight dialogue + speech.
+  - Two registry providers — =@vivalence/speech/elevenlabs= (ElevenLabs
+    Turbo v2.5, ulaw_8000) + =@vivalence/verbatim/deepgram= (Deepgram
+    Flux, ulaw_8000). Each mirrors the anthropic provider contract exactly.
+  - Codec locked: *ulaw_8000 end-to-end* (matches shuo, Deepgram, ElevenLabs
+    native). BELL transcodes from MediaRecorder opus at send boundary.
+  - =soma.tee= + =soma.packetsToTurns= — new gestalten helpers for the
+    dialogue/speech fanout.
+  - Delta count: *8 new files* (2 providers + 2 manifests + 1 trait + BELL +
+    4 tests) + *6 modified* (=conversational.js=, =cortex.js=, =terminal.js=,
+    =SessionDock.svelte=, =panels/e.svelte=, =dewey.viva.js=). Zero
+    transport primitives added; zero dossier pattern changes.
+  - 8 open design questions resolved inline (tune dim, verbatim render,
+    codec, autoVoice thread binding, BELL location, barge-in authority,
+    soma helpers, Bruno test entry). All locked.
+  - Test plan: =voice.session.test.js= end-to-end scenario with stub TTS/ASR
+    faculties; real =Deno.serve= + =shard.serve.websocket= + =Socket=;
+    verifies mic → verbatim → dialogue → speech → speaker + barge-in.
+
+  *Gate*: sketch grounded in verbatim current shapes (=cortex.js=,
+  =conversational.js=, anthropic provider, TerminalDossier middleware).
+  Ready for user review before implementation begins.
+
+- 2026-04-19 :: *Round 9 — audio implementation landed; dormant.* Implemented
+  all 10 steps across registry / runtime / client. 144 test steps green
+  across typology + runtime + new =voice.session.test.js=. Linter-rolled-back
+  subset at user request pending MikroORM enum update:
+
+  *Shipped (kept)*:
+  - =cortex.js= — 4D tune + =FACULTY_TYPES = ["dialogue", "speech", "verbatim"]=
+    + auto-pad legacy 3D + new =eager= tier
+  - =soma.tee= + =soma.textFromPackets= helpers in
+    =subsystems/typology/gestalten/belt/soma.js=
+  - =bell.js= prototype (=subsystems/typology/prototypes/bell.js=) + client
+    barrel export
+  - =VOCALIZED= trait file (=systems/runtime/daemon/traits/vocalized.js=)
+  - ElevenLabs speech provider + Deepgram verbatim provider at
+    =registry/services/@vivalence/{speech,verbatim}/.../{provider,service.viva.js}=
+  - CONVERSATIONAL audio extension (tee, speech fanout, verbatim spin,
+    barge-in)
+  - TerminalDossier audio wiring (mic tap → =session.send.verbatim.packet=,
+    speech packets → BELL speaker, verbatim streams, VAD barge-in)
+  - SessionDock audio strip (mic pip + VU meter + speaker indicator)
+  - Panel E AUDIO toggle row under INSITU
+  - Dewey =call= intent (pre-engaged audio)
+  - Bruno =conversation/call.bru= env-gated test
+  - =voice.session.test.js= end-to-end scenario (2 steps green: dialogue
+    fanout + verbatim pipeline)
+
+  *Rolled back (dormant)* pending =ModeTraitsEnum= expansion:
+  - =dewey.viva.js= manifest VOCALIZED trait (reverted)
+  - =dewey.viva.js= =call= intent (reverted; =conversation= intent retained)
+  - =systems/runtime/daemon/traits/index.js= VOCALIZED re-export (reverted)
+  - =testament/variant/circuitry/test-daemon.viva.js= speech + verbatim
+    service slots (commented out)
+  - =systems/runtime/daemon/lifecycle/population.js= speech + verbatim
+    loading in =core()= + =acid()= (commented out)
+  - =testament/variant/environment/secrets.jsonc= ELEVENLABS + DEEPGRAM keys
+    (kept, blank)
+
+  *Blocker root*: =ModeTraitsEnum= in
+  =subsystems/typology/schematics/entities/mode.js= does not include
+  =VOCALIZED=. MikroORM =EnumArrayType.convertToDatabaseValue= rejects any
+  mode with an unknown trait string at flush time. Adding =VOCALIZED= to the
+  enum + running a migration unblocks the whole audio path.
+
+  *Unblock sequence (next session)*:
+  1. Add =VOCALIZED = "VOCALIZED"= to =ModeTraitsEnum=.
+  2. Generate MikroORM migration for the enum addition. Audit for
+     concatenated =addSql()= per known gotcha.
+  3. Uncomment speech/verbatim in =population.js= and =test-daemon.viva.js=.
+  4. Re-add VOCALIZED to =dewey.viva.js= manifest traits.
+  5. Re-add the =call= intent to =dewey.viva.js= dataset.
+  6. Re-export VOCALIZED from =traits/index.js=.
+  7. Populate ELEVENLABS + DEEPGRAM keys (or run live only when set).
+  8. Smoke test via Panel E AUDIO toggle or Bruno =call.bru=.
+
+- 2026-04-19 :: *Dock refactor — panel-local + layout math extracted.*
+  =SessionDock.svelte= renamed to =Dock.svelte= and relocated from
+  =systems/html/src/typology/components/dock/= to
+  =systems/html/src/routes/pincer/panels/a/Dock.svelte= (panel fittings
+  live with their panel). =typology/components/= directory removed.
+  Layout math (side / share / flex-direction / chat-size / drag)
+  extracted to =systems/html/src/routes/pincer/panels/a/dock.geometry.js=
+  as pure functions (=resolve=, =clampShare=, =normalizeSide=,
+  =isVertical=, =flexDirection=, =dragSign=, =shareAfterDrag=,
+  =defaultDock=). =a.svelte= owns subscriptions + teardowns + buffer
+  wiring; =Dock.svelte= is the pure presentational strip — three-layer
+  split. Buffer-mount bug fixed in the same pass: =bufferAtom= was never
+  assigned in the WIP, so =Frame= never mounted; restored the
+  =bufferAtom = current.$buffer= line + teardown refs. Constraint tests:
+  =systems/html/tests/pincer/dock.geometry.test.js= (13 steps, all green).
+  Port harness at =routes/port/+page.svelte= moved to =routes/bak/port/=.
+
+- 2026-04-21 :: *Client trait module consolidation — design only (not yet
+  applied).* Reviewed longdistance state per user's 2026-04-19 log:
+  enum gate intact, audio scaffolding dormant. User flagged the INSITU
+  session/audio block being wired inside =TerminalDossier.use[]= as
+  architecturally wrong — trait behavior belongs with its trait module.
+
+  Full consolidation diff composed and written to
+  =/Users/finn/vivalence/private/logs/2026.04.19.org= under header
+  =* ORB LONGDISTANCE= (orb opened 2026-04-19, this entry logged on the
+  review session of 2026-04-21). New module layout fills the empty
+  scaffold at =systems/html/src/typology/traits/=:
+
+  - =traits/index.js= barrel: { thread, mode } namespaces
+  - =traits/thread/{labeled,masked,aimed,queueing,insitu}.js= — trait
+    bodies pulled out of =entities/thread/traits.js= (slated for delete)
+  - =traits/thread/insitu.js= marker body + =engage(terminal, thread)= /
+    =disengage(terminal)= — session + audio lifecycle from
+    TerminalDossier moves here.
+  - =traits/mode/buffered.js= — =buffer.view ← mode.buffered= from
+    BufferDossier (gate tightened: "mode has BUFFERED trait", not just
+    "mode is object").
+  - =traits/mode/conversational.js= — =thread.trait.INSITU= config seed
+    from ThreadDossier.
+
+  Consumers become thin: TerminalDossier.use[] just subscribes to
+  =$thread= and delegates to =threadTraits.insitu.{engage,disengage}=;
+  ThreadDossier dispatcher imports from the barrel; BufferDossier gates
+  on mode trait.
+
+  *Decisions pending user approval before applying*:
+  1. BUFFERED gate tightens from "mode is any object" to "mode has
+     BUFFERED trait". My read: no non-BUFFERED mode currently produces
+     buffers, so safe. User's call.
+  2. =systems/html/.ikiro/claude.md= lines 64 + 193 document the old
+     =entities/thread/traits.js= path — not updated in the proposed
+     diff. Follow-up for next ikiro/workpackage.
+
+  *Still blocked* on ModeTraitsEnum gate for audio; the trait refactor
+  is independent and can land before or after the enum fix.
+
+- 2026-04-22 — Folded external voice-stack research synthesis. Added
+  "Provider landscape + dual-dialogue dispatch" section before Open
+  questions. Records pt-BR LLM ranking, OSS TTS candidates, actor/worker
+  pattern, TTS-priming prompt, and three forward-looking stack picks. No
+  code changes; no override of locked S1 (ElevenLabs) / S2 (Deepgram)
+  picks for the M-audio integration.

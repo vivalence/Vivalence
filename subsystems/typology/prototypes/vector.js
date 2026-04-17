@@ -65,7 +65,13 @@ export class Vector {
     }
 
     for (const [pattern, trajectory] of vector.trajectories) {
-      this.trajectories.set(pattern, trajectory);
+      const existing = Array.from(this.trajectories.entries())
+        .find(([i]) => i.nature === pattern.nature)?.[1];
+      if (existing) {
+        existing.slurp(trajectory);
+      } else {
+        this.trajectories.set(pattern, trajectory);
+      }
     }
 
     this.carry.push(...vector.carry);

@@ -4,6 +4,7 @@ export * from "./dataset.js";
 export * from "./intented.js";
 export * from "./emitter.js";
 export * from "./buffered.js";
+export * from "./chaosmonkey.js";
 export * from "./conversational.js";
 
 export const SELFEVIDENT = () => {};
@@ -21,11 +22,4 @@ export const EXPOSED = (mode) => {
 export const FRAUGHT = async (mode, daemon) => {
   await mode.cake.freight.index();
   mode.aperture.open("/freight", () => mode.cake.freight.catalog);
-};
-
-export const CHAOSMONKEY = (mode, daemon) => {
-  mode.brain = daemon.hallucinator;
-  mode.aperture.use(async (ctx, next) => {
-    await next();
-  });
 };

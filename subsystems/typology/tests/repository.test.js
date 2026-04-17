@@ -32,9 +32,9 @@ specimen.afterAll(async () => {
 // Helper: create a fresh EM with repos registered
 function createEntityManager(repoConfigs) {
   const entityManager = new RemoteEntityManager(conn, schema)
-  for (const [name, kind, endpoint] of repoConfigs) {
+  for (const [name, kind, endpoint, integrate] of repoConfigs) {
     const repository = new RemoteRepository(kind).connect(conn.branch(endpoint))
-    entityManager.register(name, repository)
+    entityManager.register(name, repository, integrate ?? null)
   }
   return entityManager
 }
@@ -177,38 +177,24 @@ specimen.describe("RemoteRepository", () => {
       specimen.expect(a.enriched).toBe("yes")
     })
 
-    specimen.it("hydrate runs after merge on entity", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
+    specimen.it("integrate fires on first-sight entity with (entity, raw)", async () => {
+      const seen = []
+      const entityManager = createEntityManager([["test", null, "/literal", async (entity, raw) => seen.push({ entity, raw })]])
       const remote = entityManager.repo("test")
-      const lookup = { m1: { id: "m1", slug: "flashcard", daemon: "brazilian" } }
-      remote.hydrate = async (raw) => {
-        const entity = remote.entityManager.merge(remote.managedName, raw, remote.kind)
-        if (typeof entity.mode === "string") entity.mode = lookup[entity.mode]
-        return entity
-      }
-      const a = await remote.merge({ id: "1", mode: "m1" })
-      specimen.expect(a.mode).toBe(lookup.m1)
-
-      const b = await remote.merge({ id: "1", mode: "m1", extra: true })
-      specimen.expect(b).toBe(a)
-      specimen.expect(b.mode).toBe(lookup.m1)
-      specimen.expect(b.extra).toBe(true)
+      const a = await remote.merge({ id: "1", slug: "a" })
+      specimen.expect(seen.length).toBe(1)
+      specimen.expect(seen[0].entity).toBe(a)
+      specimen.expect(seen[0].raw.slug).toBe("a")
     })
 
-    specimen.it("hydrate preserves enriched references across merges", async () => {
-      const entityManager = createEntityManager([["test", null, "/literal"]])
+    specimen.it("integrate does not re-fire on re-merge of existing id", async () => {
+      let count = 0
+      const entityManager = createEntityManager([["test", null, "/literal", async () => { count++ }]])
       const remote = entityManager.repo("test")
-      const enrichedMode = { id: "m1", slug: "test", daemon: { slug: "brazilian" } }
-      remote.hydrate = async (raw) => {
-        const entity = remote.entityManager.merge(remote.managedName, raw, remote.kind)
-        if (entity.mode !== enrichedMode) entity.mode = enrichedMode
-        return entity
-      }
-      const a = await remote.merge({ id: "1", mode: "m1" })
-      specimen.expect(a.mode).toBe(enrichedMode)
-
-      await remote.merge({ id: "1", mode: "m1" })
-      specimen.expect(a.mode).toBe(enrichedMode)
+      await remote.merge({ id: "1", slug: "a" })
+      await remote.merge({ id: "1", slug: "b" })
+      await remote.merge({ id: "1", slug: "c" })
+      specimen.expect(count).toBe(1)
     })
   })
 

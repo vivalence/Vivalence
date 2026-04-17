@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import * as narrow from "../../src/typology/belt/narrow.js";
+import * as narrow from "../../src/typology/gestalten/belt/narrow.js";
 
 const nodes = [
   {

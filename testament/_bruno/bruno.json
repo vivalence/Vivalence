@@ -2,5 +2,5 @@
   "version": "1",
   "name": "vivalence/viva",
   "type": "collection",
-  "ignore": ["node_modules", ".git"]
+  "ignore": ["node_modules", ".git", "archive", "bak"]
 }

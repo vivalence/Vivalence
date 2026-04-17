@@ -13,9 +13,10 @@ export const Channel = v.union([
 ]);
 
 export const FacultyType = v.union([
-  v.const("conversation"),
+  v.const("dialogue"),
   v.const("object"),
   v.const("speech"),
+  v.const("verbatim"),
   v.const("call"),
 ]);
 

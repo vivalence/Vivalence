@@ -39,7 +39,11 @@ export class LiteralRepository extends base.repository {
 
   async novel(where: any, opts?: any) {
     const { limit, blacklist, populate } = opts || {};
-    const filter = object.merge({ memories: { $none: {} } }, { id: { $nin: blacklist?.literals || [] } }, where);
+    const filter = object.merge(
+      { memories: { $none: {} } },
+      { id: { $nin: blacklist?.literals || [] } },
+      where,
+    );
     return this.find(filter, { orderBy: { rank: "ASC" }, limit, populate });
   }
 
@@ -87,6 +91,7 @@ export class LiteralRepository extends base.repository {
 export class LiteralEntity extends base.entity {
   traits: LiteralTraitsEnum[] & Opt = [];
   rank: number & Opt = 999999;
+  // strength: ---
   memories = new Collection<MemoryEntity>(this);
   [EntityRepositoryType]?: LiteralRepository;
 
@@ -169,6 +174,28 @@ export const LiteralSchema = new EntitySchema({
     rank: {
       type: types.integer,
       default: 999999,
+      nullable: true,
+    },
+    // in LiteralSchema properties:
+    uses: {
+      kind: "m:n",
+      entity: () => LiteralEntity,
+      inversedBy: "in",
+      orderBy: { strength: "ASC" }, // ← NEW: redeclare base's uses with orderBy
+    },
+
+    strength: {
+      // ← NEW: Formula column on Literal
+      type: types.float,
+      formula: (alias) => {
+        const cases = Object.values(drivers)
+          .filter((d) => d.sql?.strength)
+          .map((d) => `WHEN '${d.type}' THEN ${d.sql.strength("m")}`)
+          .join(" ");
+        return `(SELECT CASE m.driver ${cases} ELSE 0.0 END FROM Memory m WHERE m.literal = ${alias}.id LIMIT 1)`;
+      },
+      persist: false,
+      lazy: true,
       nullable: true,
     },
 

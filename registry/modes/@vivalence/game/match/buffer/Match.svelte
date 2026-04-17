@@ -13,7 +13,8 @@
 
   let leftItems = $state([]);
   let rightItems = $state([]);
-  let selectedLeft = $state(null);
+  let selected = $state(null);
+  let selectedSide = $state(null);
   let connections = $state([]);
   let failed = $state(new Set());
   let errored = new Set();
@@ -42,13 +43,24 @@
       : lit?.trait?.TRANSLATED?.known;
   }
 
+  function exampleFor(lit, side) {
+    if (gameplay === "DESCRIBE") return null;
+    const example = lit?.trait?.EXEMPLIFIED;
+    if (!example) return null;
+    const field = side === "left"
+      ? (recall === "LEARNING" ? "known" : "learning")
+      : (recall === "LEARNING" ? "learning" : "known");
+    return example[field];
+  }
+
   function init(lits) {
     leftItems = shuffle([...lits]);
     rightItems = shuffle([...lits]);
     connections = [];
     failed = new Set();
     errored = new Set();
-    selectedLeft = leftItems[0];
+    selected = leftItems[0];
+    selectedSide = "left";
   }
 
   if (!literals.length) {
@@ -64,30 +76,31 @@
   const connected = $derived(new Set(connections.map((c) => c.id)));
   const allMatched = $derived(literals.length > 0 && connections.length === literals.length);
 
-  function tapLeft(lit) {
-    if (connected.has(lit.id)) return;
-    selectedLeft = lit;
-  }
-
-  function tapRight(lit) {
-    if (!selectedLeft) return;
+  function tap(lit, side) {
     if (connected.has(lit.id)) return;
 
-    const isCorrect = selectedLeft.id === lit.id;
+    if (!selected || selectedSide === side) {
+      selected = lit;
+      selectedSide = side;
+      return;
+    }
+
+    const isCorrect = selected.id === lit.id;
 
     if (isCorrect) {
       connections = [...connections, { id: lit.id }];
     } else {
-      errored.add(selectedLeft.id);
+      errored.add(selected.id);
       errored.add(lit.id);
-      failed = new Set([...failed, selectedLeft.id, lit.id]);
-      const a = selectedLeft.id, b = lit.id;
+      failed = new Set([...failed, selected.id, lit.id]);
+      const a = selected.id, b = lit.id;
       setTimeout(() => {
         failed = new Set([...failed].filter((id) => id !== a && id !== b));
       }, 400);
     }
 
-    selectedLeft = null;
+    selected = null;
+    selectedSide = null;
 
     if (isCorrect && connections.length === literals.length - 1) {
       const matched = new Set(connections.map(c => c.id));
@@ -131,18 +144,23 @@
         <div class="column">
           {#each leftItems as lit}
             {@const isConnected = connected.has(lit.id)}
-            {@const isSelected = selectedLeft?.id === lit.id}
+            {@const isSelected = selected?.id === lit.id && selectedSide === "left"}
             {@const isFailed = failed.has(lit.id)}
+            {@const revealExample = selected && !isConnected && (isSelected || selectedSide === "right")}
+            {@const example = revealExample ? exampleFor(lit, "left") : null}
             <button
               class="cell"
               class:cell-connected={isConnected}
               class:cell-selected={isSelected}
               class:cell-failed={isFailed && !isConnected}
               onmousedown={(e) => e.preventDefault()}
-              onclick={() => tapLeft(lit)}
+              onclick={() => tap(lit, "left")}
               disabled={isConnected}
             >
-              {leftText(lit, leftItems.indexOf(lit))}
+              <span class="cell-text">{leftText(lit, leftItems.indexOf(lit))}</span>
+              {#if example}
+                <span class="cell-example">{example}</span>
+              {/if}
             </button>
           {/each}
         </div>
@@ -150,16 +168,23 @@
         <div class="column">
           {#each rightItems as lit}
             {@const isConnected = connected.has(lit.id)}
+            {@const isSelected = selected?.id === lit.id && selectedSide === "right"}
             {@const isFailed = failed.has(lit.id)}
+            {@const revealExample = selected && !isConnected && (isSelected || selectedSide === "left")}
+            {@const example = revealExample ? exampleFor(lit, "right") : null}
             <button
               class="cell"
               class:cell-connected={isConnected}
+              class:cell-selected={isSelected}
               class:cell-failed={isFailed && !isConnected}
               onmousedown={(e) => e.preventDefault()}
-              onclick={() => tapRight(lit)}
+              onclick={() => tap(lit, "right")}
               disabled={isConnected}
             >
-              {rightText(lit)}
+              <span class="cell-text">{rightText(lit)}</span>
+              {#if example}
+                <span class="cell-example">{example}</span>
+              {/if}
             </button>
           {/each}
         </div>
@@ -175,7 +200,7 @@
       <span class="menu-hint">loading…</span>
     {:else if allMatched}
       <span class="menu-hint">complete</span>
-    {:else if selectedLeft}
+    {:else if selected}
       <span class="menu-hint">now tap the match</span>
     {:else}
       <span class="menu-hint">tap a pair to connect</span>
@@ -218,6 +243,9 @@
   }
 
   .cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
     min-height: 48px;
     padding: 0.75rem 0.875rem;
     border-radius: 0.5rem;
@@ -230,6 +258,17 @@
     text-align: left;
     transition: all 0.15s;
     line-height: 1.3;
+  }
+  .cell-text {
+    display: block;
+  }
+  .cell-example {
+    display: block;
+    font-family: var(--font-family-sans-text);
+    font-size: 0.7rem;
+    line-height: 1.35;
+    color: var(--colors-skeleton-1-boundary);
+    font-style: italic;
   }
   .cell:hover:not(:disabled) {
     border-color: var(--colors-skeleton-1-contrast);

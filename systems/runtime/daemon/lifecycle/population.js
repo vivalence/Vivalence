@@ -9,14 +9,18 @@ import * as kernel from "../kernel.js";
 import * as traits from "../traits/index.js";
 
 export async function core(die) {
-  die.register = await paladin.vip.accioMap({
+  const registry = {
     lighthouse: die.mask.lighthouse,
     hallucinator: die.mask.hallucinator,
     datamap: die.mask.datamap,
     kernel: die.mask.kernel,
     modes: die.mask.modes,
     consume: die.mask.consume,
-  });
+  };
+  // if (die.mask.speech)   registry.speech   = die.mask.speech;
+  // if (die.mask.verbatim) registry.verbatim = die.mask.verbatim;
+
+  die.register = await paladin.vip.accioMap(registry);
 
   die.kernel = {
     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
@@ -52,6 +56,7 @@ export async function datamap(daemonDie) {
   );
 
   daemonDie.good.entities = daemonDie.datamap.entities;
+  daemonDie.good.datamap = daemonDie.datamap;
 
   daemonDie.datamap.subscribe(shape.subscriber(daemonDie.good.twitch));
   daemonDie.good.aperture.use(shard.datamap.inject(daemonDie.datamap));
@@ -84,6 +89,22 @@ export async function acid(daemonDie) {
   if (faculties?.[Symbol.iterator]) {
     daemonDie.good.cortex = new Cortex().extend(faculties);
   }
+
+  // if (daemonDie.register.speech && daemonDie.mask.speech) {
+  //   const speechFaculties = await daemonDie.register.speech.provider(daemonDie.mask.speech);
+  //   if (speechFaculties?.[Symbol.iterator]) {
+  //     daemonDie.good.cortex ??= new Cortex();
+  //     daemonDie.good.cortex.extend(speechFaculties);
+  //   }
+  // }
+
+  // if (daemonDie.register.verbatim && daemonDie.mask.verbatim) {
+  //   const verbatimFaculties = await daemonDie.register.verbatim.provider(daemonDie.mask.verbatim);
+  //   if (verbatimFaculties?.[Symbol.iterator]) {
+  //     daemonDie.good.cortex ??= new Cortex();
+  //     daemonDie.good.cortex.extend(verbatimFaculties);
+  //   }
+  // }
 }
 
 export async function services(daemonDie) {

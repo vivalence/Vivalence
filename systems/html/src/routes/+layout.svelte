@@ -56,7 +56,7 @@
   let populated = false;
 
   onMount(() => {
-    lighthouse.boot(lighthouseInstance).catch(() => {});
+    lighthouse.boot(lighthouseInstance).catch(console.error);
 
     const unsubscribeGate = gateComputed.subscribe((value) => {
       gate = value;
@@ -65,7 +65,7 @@
     const unsubscribePopulate = lighthouseInstance.$isAuthorized.subscribe((authorized) => {
       if (authorized && !populated) {
         populated = true;
-        lighthouse.populate(lighthouseInstance).catch(() => {});
+        lighthouse.populate(lighthouseInstance).catch(console.error);
       }
     });
 

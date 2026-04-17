@@ -26,7 +26,7 @@
     "test/vector": "deno test -A --no-check --watch tests/vector.test.js",
     "test/aperture": "deno test -A --no-check --watch tests/aperture.test.js",
     "test/cortex": "deno test -A --no-check --watch tests/cortex.test.js",
-    "test/hallucinate": "deno test -A --no-check --watch tests/hallucinate.test.js",
+    "test/hallucination": "deno test -A --no-check --watch tests/hallucination.test.js",
     "test/soma": "deno test -A --no-check --watch tests/gestalten/soma.test.js",
     "test/shape": "deno test -A --no-check --watch tests/gestalten/shape/*.test.js",
     "test/shape/http": "deno test -A --no-check --watch tests/gestalten/shape/http.test.js",

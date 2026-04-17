@@ -25,8 +25,9 @@ export class RemoteEntityManager {
     this.dirty = new Set();
     this.removed = new Set();
 
-    // Registered repos.
+    // Registered repos + their compiled integrators.
     this.repositoryMap = {};
+    this.integrators = {};
   }
 
   // ── repository access ────────────────────────────────────────────
@@ -37,10 +38,12 @@ export class RemoteEntityManager {
   }
 
   // Register an existing RemoteRepository to be managed by this EM.
-  register(name, repository) {
+  // Optional integrate fn: runs once per (name, id) on first sight.
+  register(name, repository, integrate = null) {
     if (!this.stores[name]) this.stores[name] = atom([]);
     repository.manage(this, name);
     this.repositoryMap[name] = repository;
+    this.integrators[name] = integrate;
     return repository;
   }
 
@@ -80,6 +83,24 @@ export class RemoteEntityManager {
     return entity;
   }
 
+  // Identity-gated install. Install runs exactly once per (name, id):
+  // first-sight passes through cast (relation walk) then runs the registered
+  // integrator. Re-sight is just cast.
+  async integrate(name, raw, kind) {
+    if (!raw?.id) return raw;
+    const fresh = !this.identity(name, raw);
+    const entity = await this.cast(name, raw, kind);
+    if (fresh) {
+      const install = this.integrators[name];
+      if (install) await install(entity, raw);
+    }
+    return entity;
+  }
+
+  async disintegrate(name, id) {
+    this.drop(name, id);
+  }
+
   async resolve(name, reference) {
     if (reference == null) return null;
     if (typeof reference === "string") return this.identity(name, reference) ?? reference;
@@ -92,35 +113,32 @@ export class RemoteEntityManager {
   }
 
   async cast(name, raw, kind) {
+    const entity = this.merge(name, raw, kind);
     const props = this.schema[name]?.properties;
-    if (props) {
-      for (const [field, spec] of Object.entries(props)) {
-        if (!spec.target || raw[field] == null) continue;
-        if (spec.kind === "m:1") {
-          raw[field] = await this.resolve(spec.target, raw[field]);
-        }
-        if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
-          raw[field] = await Promise.all(raw[field].map(item => this.resolve(spec.target, item)));
-        }
+    if (!props) return entity;
+    for (const [field, spec] of Object.entries(props)) {
+      if (!spec.target || raw[field] == null) continue;
+      if (spec.kind === "m:1") {
+        entity[field] = await this.resolve(spec.target, raw[field]);
+      }
+      if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
+        entity[field] = await Promise.all(raw[field].map(item => this.resolve(spec.target, item)));
       }
     }
-    const entity = this.merge(name, raw, kind);
-    if (props) {
-      for (const [field, spec] of Object.entries(props)) {
-        if (spec.kind !== "1:m" || !spec.mappedBy) continue;
-        if (entity["$" + field]) continue;
-        const childRepo = this.repositoryMap[spec.target];
-        if (!childRepo) continue;
-        const mappedBy = spec.mappedBy;
-        entity["$" + field] = computed(childRepo.$entities, (entities) =>
-          entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
-        );
-        Object.defineProperty(entity, field, {
-          get() { return entity["$" + field].get(); },
-          set() {},
-          configurable: true,
-        });
-      }
+    for (const [field, spec] of Object.entries(props)) {
+      if (spec.kind !== "1:m" || !spec.mappedBy) continue;
+      if (entity["$" + field]) continue;
+      const childRepo = this.repositoryMap[spec.target];
+      if (!childRepo) continue;
+      const mappedBy = spec.mappedBy;
+      entity["$" + field] = computed(childRepo.$entities, (entities) =>
+        entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
+      );
+      Object.defineProperty(entity, field, {
+        get() { return entity["$" + field].get(); },
+        set() {},
+        configurable: true,
+      });
     }
     return entity;
   }

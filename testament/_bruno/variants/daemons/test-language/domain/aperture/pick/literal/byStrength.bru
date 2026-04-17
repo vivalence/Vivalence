@@ -1,0 +1,27 @@
+meta {
+  name: byStrength
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/pick/literal/byStrength
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "take": 3,
+    "seek": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    }
+  }
+}

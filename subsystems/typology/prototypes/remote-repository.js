@@ -162,26 +162,13 @@ export class RemoteRepository {
 
   async merge(raw) {
     if (!raw) return null;
-    if (this.hydrate) {
-      const result = await this.hydrate(raw);
-      this.store();
-      return result;
-    }
-    const result = this.entityManager.merge(this.managedName, raw, this.kind);
+    const result = await this.entityManager.integrate(this.managedName, raw, this.kind);
     this.store();
     return result;
   }
 
   async cast(raw) {
-    if (!raw) return null;
-    if (this.hydrate) {
-      const result = await this.hydrate(raw);
-      this.store();
-      return result;
-    }
-    const result = await this.entityManager.cast(this.managedName, raw, this.kind);
-    this.store();
-    return result;
+    return this.merge(raw);
   }
 
   drop(id) {

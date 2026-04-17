@@ -1,55 +1,50 @@
 import { object, array } from "@vivalence/typology";
-// ── buildup ─────────────────────────────────────────────────────────
-// conjugation paradigms. structured introduction → active recall → drill.
-//
-// exhibit     → full table (only if conjugation untouched)
-// pick        → weak conjugations (paradigm distractors) + due verbs (similarity distractors), shuffled
-// match       → if weak conjugations
-// paradigm    → fill the table
-// shadow/write → sentences containing these forms
-// conjugation → due verbs + weak conjugations, shuffled
-// judge       → due verbs + all conjugation forms, shuffled
 
-export default async (ctx) => {
-  const conjugations = await ctx.daemon.entities.literal.feed(
-    { ontology: "conjugation", ...ctx.input.where },
-    {
-      limit: 1,
-      blacklist: ctx.input.blacklist,
-      populate: ["uses.memories", "symbols", "memories"],
-    },
-  );
-
-  if (!conjugations.length) return;
-
-  const conjugation = conjugations[0];
+function extractParadigm(conjugation) {
   const bySlug = new Map(conjugation.uses.getItems().map((form) => [form.slug, form]));
-  const infinitive = bySlug.get(conjugation.trait.CONJUGATED.infinitive);
-  const forms = Object.values(conjugation.trait.CONJUGATED.paradigm)
-    .map((slug) => bySlug.get(slug))
-    .filter(Boolean);
-  if (!forms.length) return;
-
-  const weak = forms.filter((form) => !form.memory || form.memory.is.weak);
-
   const symbols = conjugation.symbols.getItems();
-  const tenseSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.tense."));
-  const moodSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.mood."));
-  const lemmaSymbol = symbols.find((symbol) => symbol.slug.startsWith("word.lemma."));
+  return {
+    infinitive: bySlug.get(conjugation.trait.CONJUGATED.infinitive),
+    forms: Object.values(conjugation.trait.CONJUGATED.paradigm)
+      .map((slug) => bySlug.get(slug))
+      .filter(Boolean),
+    tenseSymbol: symbols.find((symbol) => symbol.slug.startsWith("word.tense.")),
+    moodSymbol: symbols.find((symbol) => symbol.slug.startsWith("word.mood.")),
+  };
+}
 
-  const dueVerbs = await ctx.daemon.entities.literal.due(
+function pickWeakForms(conjugation, forms, count) {
+  const formIds = new Set(forms.map((form) => form.id));
+  return conjugation.uses
+    .getItems()
+    .filter((literal) => formIds.has(literal.id))
+    .slice(0, count);
+}
+
+async function fetchWeakVerbs(ctx, { forms, infinitive, count }) {
+  return ctx.daemon.entities.literal.byStrength(
     object.merge(ctx.input.where, { ontology: "word" }, { symbols: ["word.part-of-speech.verb"] }),
     {
-      limit: 4,
+      limit: count,
       blacklist: { literals: [...forms.map((form) => form.id), infinitive?.id].filter(Boolean) },
     },
   );
+}
 
-  const distractorPool = [...forms, ...dueVerbs];
+async function fetchContextSentences(ctx, { literals, count }) {
+  return ctx.daemon.entities.literal.byStrength(
+    {
+      ontology: "sentence",
+      uses: { $in: literals.map((literal) => literal.id) },
+      memories: { strength: { $gte: 0.1 } },
+    },
+    { limit: count, populate: ["memories"] },
+  );
+}
 
-  // ── 1. EXHIBIT — full table (only if conjugation itself is untouched)
+function emitExhibit(ctx, { conjugation, infinitive, forms, tenseSymbol, moodSymbol }) {
   ctx.pool.add(
-    (!conjugation.memory || conjugation.memory.is.virgin) &&
+    (conjugation.memory?.is?.virgin ?? true) &&
       ctx.daemon.modes.game.exhibit.emit.present({
         layout: "TABLE",
         title: infinitive?.trait?.TRANSLATED?.learning ?? "",
@@ -59,37 +54,35 @@ export default async (ctx) => {
         literals: forms,
       }),
   );
+}
 
-  // ── 2. PICK — weak + due verbs, shuffled
+function emitPick(ctx, { weakForms, weakVerbs, forms }) {
   ctx.pool
     .section(
-      [...weak, ...dueVerbs]
-        .filter((l) => !l.memory?.is.failed)
-        .map((literal) =>
-          ctx.daemon.modes.game.pick.emit.literal({
-            literal,
-            distractors: distractorPool,
-            recall: "LEARNING",
-          }),
-        ),
+      [...weakForms, ...weakVerbs].map((literal) =>
+        ctx.daemon.modes.game.pick.emit.literal({
+          literal,
+          distractors: [...forms, ...weakVerbs],
+          recall: "LEARNING",
+        }),
+      ),
     )
     .apply(array.shuffle);
+}
 
-  // ── 3. MATCH — 6 weakest from conjugation uses + due verbs
-  const matchPool = [...conjugation.uses.getItems(), ...dueVerbs]
-    .sort((a, b) => (a.memory?.strength ?? 0) - (b.memory?.strength ?? 0))
-    .slice(0, 6);
-
+function emitMatch(ctx, { weakForms, weakVerbs }) {
   ctx.pool.add(
-    matchPool.length >= 2 &&
-      ctx.daemon.modes.game.match.emit.batch({
-        literals: matchPool,
-        gameplay: "TRANSLATE",
-        recall: "LEARNING",
-      }),
+    ctx.daemon.modes.game.match.emit.batch({
+      literals: [...weakForms, ...weakVerbs],
+      gameplay: "TRANSLATE",
+      recall: "LEARNING",
+    }),
   );
+}
 
-  // ── 4. PARADIGM — fill the table yourself
+function emitParadigm(ctx, { conjugation }) {
+  // @beef only add if trace shows last paradigm with this conjugation was failure!
+  //       OR  memory strength is abysmal.
   ctx.pool.add(
     ctx.daemon.modes.game.paradigm.emit.conjugation({
       conjugation,
@@ -98,18 +91,11 @@ export default async (ctx) => {
       order: "ordered",
     }),
   );
+}
 
-  // ── 5. CONTEXTUALIZE — shadow untouched/unknown sentences, write learning+
-  const sentences = await ctx.daemon.entities.literal.byStrength(
-    {
-      ontology: "sentence",
-      uses: { $in: [...forms, ...dueVerbs].map((form) => form.id) },
-      memories: { strength: { $gte: 0.1 } },
-    },
-    { limit: 4, populate: ["memories"] },
-  );
+function emitContextualize(ctx, { sentences }) {
   for (const sentence of sentences) {
-    if (!sentence.memory || sentence.memory.is.virgin) {
+    if (sentence.memory?.is?.virgin ?? true) {
       ctx.pool.add(
         ctx.daemon.modes.game.shadow.emit.literals({
           literal: sentence,
@@ -126,16 +112,43 @@ export default async (ctx) => {
       );
     }
   }
+}
 
-  // ── 6. CONJUGATION — due verbs + weak conjugations, shuffled
+function emitConjugation(ctx, { weakVerbs, weakForms }) {
   ctx.pool
     .section(
       ...array
-        .shuffle([...dueVerbs, ...weak])
+        .shuffle([...weakVerbs, ...weakForms])
         .map((literal) => ctx.daemon.modes.game.conjugation.emit.literal({ literal })),
     )
     .apply(array.shuffle);
+}
 
-  // ── 7. JUDGE — due verbs + all conjugation forms, shuffled
-  // ctx.pool .section(...array.shuffle([...dueVerbs, ...forms]).map((literal) => ctx.daemon.modes.game.judge.emit.literal({literal, recall: literal.memory?.is.succeeded ? "LEARNING" : "KNOWN", distractors: distractorPool,}),),) .apply(array.shuffle);
+export default async (ctx) => {
+  const [conjugation] = await ctx.daemon.entities.literal.feed(
+    { ontology: "conjugation", ...ctx.input.where },
+    {
+      limit: 1,
+      blacklist: ctx.input.blacklist,
+      populate: ["uses.memories", "symbols", "memories"],
+    },
+  );
+  if (!conjugation) return;
+
+  const { infinitive, forms, tenseSymbol, moodSymbol } = extractParadigm(conjugation);
+  if (!forms.length) return;
+
+  const weakForms = pickWeakForms(conjugation, forms, 2);
+  const weakVerbs = await fetchWeakVerbs(ctx, { forms, infinitive, count: 4 });
+  const sentences = await fetchContextSentences(ctx, {
+    literals: [...forms, ...weakVerbs],
+    count: 2,
+  });
+
+  emitExhibit(ctx, { conjugation, infinitive, forms, tenseSymbol, moodSymbol });
+  emitPick(ctx, { weakForms, weakVerbs, forms });
+  emitMatch(ctx, { weakForms, weakVerbs });
+  emitParadigm(ctx, { conjugation });
+  emitContextualize(ctx, { sentences });
+  emitConjugation(ctx, { weakVerbs, weakForms });
 };

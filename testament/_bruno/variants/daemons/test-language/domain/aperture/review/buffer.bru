@@ -1,0 +1,28 @@
+meta {
+  name: buffer
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{DAEMON}}/review/buffer
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "signal": "SUCCESS",
+    "scope": {
+      "buffer": "019cec67-dfea-7071-a49d-8c6b0b81bfb4",
+      "producer": "019cec66-a7c4-7405-89cc-9ee648c0ac0e",
+      "commissioner": "019cec66-a7c6-737a-a935-6e0f17f1569e",
+      "literal": "019cec66-a82c-7329-a670-bd62ab836b31",
+      "user": "019af285-bcd6-70cc-97ca-8a1aa4193320"
+    }
+  }
+}

@@ -2,14 +2,14 @@ import { atom } from "nanostores";
 import { object } from "@vivalence/typology";
 
 export class LocalRepository {
+  integrate = null;
+
   constructor(options = {}) {
     this.kind = options.kind ?? null;
     this.storageKey = options.persist ?? null;
     this.identities = new Map();
     this.$entities = atom([]);
     this.counter = 0;
-
-    if (this.storageKey) this.hydrate();
   }
 
   // ── queries ──────────────────────────────────────────────────────
@@ -34,30 +34,38 @@ export class LocalRepository {
 
   // ── mutations ────────────────────────────────────────────────────
 
-  create(data = {}) {
-    const id = data.id ?? this.generateId();
-    const entity = this.kind
-      ? Object.assign(new this.kind(), { ...data, id })
-      : { ...data, id };
-    this.identities.set(id, entity);
-    this.$entities.set([...this.$entities.get(), entity]);
+  async cast(raw) {
+    if (!raw) return null;
+    const id = raw.id ?? this.generateId();
+    const existing = this.identities.get(id);
+    const entity = existing ?? (this.kind
+      ? Object.assign(new this.kind(), { ...raw, id })
+      : { ...raw, id });
+    if (!existing) {
+      this.identities.set(id, entity);
+      this.$entities.set([...this.$entities.get(), entity]);
+      if (this.integrate) await this.integrate(entity, raw);
+    }
+    this.refresh();
     this.store();
     return entity;
   }
 
-  merge(raw) {
-    if (!raw?.id) return raw;
+  async create(data = {}) {
+    return this.cast(data);
+  }
+
+  async merge(raw) {
+    if (!raw?.id) return this.cast(raw);
     const existing = this.identities.get(raw.id);
-    if (existing) {
-      for (const field of Object.keys(raw)) {
-        if (raw[field] === undefined) continue;
-        existing[field] = raw[field];
-      }
-      this.refresh();
-      this.store();
-      return existing;
+    if (!existing) return this.cast(raw);
+    for (const field of Object.keys(raw)) {
+      if (raw[field] === undefined) continue;
+      existing[field] = raw[field];
     }
-    return this.create(raw);
+    this.refresh();
+    this.store();
+    return existing;
   }
 
   update(id, patch) {
@@ -103,14 +111,30 @@ export class LocalRepository {
 
   // ── persistence ──────────────────────────────────────────────────
 
-  hydrate() {
-    if (!this.storageKey) return;
+  restore() {
+    if (!this.storageKey) return Promise.resolve();
+    let rawList = null;
     try {
       const stored = localStorage.getItem(this.storageKey);
-      if (stored) {
-        for (const raw of JSON.parse(stored)) this.create(raw);
-      }
+      if (stored) rawList = JSON.parse(stored);
     } catch {}
+    if (!rawList) return Promise.resolve();
+
+    const pending = [];
+    for (const raw of rawList) {
+      if (!raw?.id || this.identities.has(raw.id)) continue;
+      const entity = this.kind
+        ? Object.assign(new this.kind(), { ...raw })
+        : { ...raw };
+      this.identities.set(raw.id, entity);
+      this.$entities.set([...this.$entities.get(), entity]);
+      pending.push({ entity, raw });
+    }
+
+    if (!this.integrate) return Promise.resolve();
+    return (async () => {
+      for (const { entity, raw } of pending) await this.integrate(entity, raw);
+    })();
   }
 
   store() {

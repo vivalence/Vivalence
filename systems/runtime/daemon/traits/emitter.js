@@ -30,6 +30,8 @@ export const EMITTER = async (mode, daemon) => {
 
     const result = await ctx.pool.drain();
 
+    // console.log(result.buffers.map((b) => console.log(b.literals.map((l) => [l.id, l.slug]))));
+
     if (ctx.thread && result.condition === "NOMINAL") {
       for (const buffer of result.buffers) {
         buffer.thread = ctx.thread;

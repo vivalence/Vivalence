@@ -17,11 +17,21 @@ auth:bearer {
 body:json {
   {
     "where": {
-      "type": "game",
-      "slug": "flashcard"
-    },
-    "options": {
-      "populate": ["intents"]
+      "type": "teacher",
+      "slug": "dewey"
     }
   }
+}
+
+assert {
+  res.status: eq 200
+  res.body.id: isDefined
+}
+
+tests {
+  test("mode found — store ID", function () {
+    const mode = res.getBody();
+    expect(mode.id).to.be.a('string');
+    bru.setVar('DEWEY_MODE_ID', mode.id);
+  });
 }

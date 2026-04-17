@@ -1,0 +1,1214 @@
+#+TITLE: Longdistance — Port (first integration) implementation plan
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-18
+
+*STATUS: EXECUTED (2026-04-18 / 19).* All three milestones shipped. Live-verified end-to-end. See =longdistance.workpackage.org= Changelog for the as-built record. Key divergences from the plan below: route =/connect= → =/conversation=; signal =engage/terminate= → =anchor/voyage=; component =Port.svelte= materialized as =Dock.svelte= (renamed + relocated to =routes/pincer/panels/a/= on 2026-04-19); input =message= → =parts: Part[]=; dialogue flow lives on =mode.harness= (not =mode.conversation=). Plan retained as historical spec.
+
+* Header
+
+*Goal:* wire one mode (=dewey=) from runtime websocket through typology =Session= into a Svelte chat component (=Port=) embedded on Panel A, with a terminal/thread control center on Panel E, crown session-accent on the active tab, and a shoulder session widget — all text-only, no audio.
+
+*Architecture:* M1 replaces the HTTP =/dialogue= branch on dewey's mode aperture with a =/connect= websocket hosting the typology =Session= primitive; the existing history / user-turn / hallucinate / assistant-turn flow moves from an HTTP middleware chain onto the inbound vector's =/dialogue/engage= handler. M2 adds a TerminalDossier middleware that subscribes to =terminal.$thread= and constructs =terminal.session = new Session(inbound, socket)= when the active thread has =INSITU= + a =CONVERSATIONAL= mode; a =Port.svelte= component renders the chat UI. M3 wires Port as a dockable overlay on Panel A, highlights the active-session tab on the crown, adds a toggle widget on the shoulder, and reworks Panel E into a terminal/thread control center.
+
+*Tech Stack:* Deno + Svelte 5 + nanostores. Typology (=Vector=, =shape=, =shard=, =soma=, =Socket=, =Session=, =Queue=, =strip=, =messenger=). MikroORM server-side entities. =specimen= for tests. Bruno for API collections. jj for VCS.
+
+*Reference files:*
+- Spec: =.ikiro/longdistance.workpackage.org= § "First integration — Port (locked 2026-04-18, text-only)".
+- Session primitive: =subsystems/typology/prototypes/session.js=.
+- Socket primitive: =subsystems/typology/prototypes/socket.js=.
+- Existing CONVERSATIONAL trait (reference for dialogue flow): =systems/runtime/daemon/traits/conversational.js=.
+- Session workpackage test (reference): =subsystems/typology/tests/workpackage/session.test.js=.
+- Socket test (reference for ws mount pattern): =subsystems/typology/tests/socket.test.js=.
+- Dewey viva: =registry/modes/@vivalence/teacher/dewey/dewey.viva.js=.
+- TerminalDossier: =systems/html/src/typology/entities/terminal.js=.
+- ModeDossier: =systems/html/src/typology/entities/mode.js=.
+- Panels: =systems/html/src/routes/pincer/panels/{a,c,e}.svelte=.
+- Bones: =systems/html/src/routes/pincer/bones/{crown,shoulder}.svelte=.
+- Lighthouse authority: =systems/html/src/typology/prototypes/lighthouse.js= (holds =$authority= atom; =authority?.access= is the bearer).
+
+*Conventions (absolute):*
+- No comments in code (.ikiro/claude.md § Aesthetic).
+- No abbreviations (=memory/feedback_no_abbreviations.md=).
+- No underscore-prefixed fields (=feedback_no_underscore_private.md=).
+- No Svelte 5 prop names =state= / =derived= / =effect= (=feedback_svelte5_rune_props.md=).
+- Imports through =@vivalence/html= / =@vivalence/typology= barrels (=feedback_import_through_barrel.md=).
+- Transparent accessors: =entity.field= reads from =entity.$field.get()= (=feedback_transparent_accessors.md=).
+- Each commit green; never skip hooks.
+
+* Task 1.1 — Dewey manifest gains CHAOSMONKEY
+
+*Files:*
+- Modify: =registry/modes/@vivalence/teacher/dewey/dewey.viva.js= (line 8 — traits array).
+
+- [ ] *Step 1:* Open the file, change:
+
+#+begin_src javascript
+  traits: ["EXPOSED", "CONVERSATIONAL"],
+#+end_src
+
+to:
+
+#+begin_src javascript
+  traits: ["EXPOSED", "CHAOSMONKEY", "CONVERSATIONAL"],
+#+end_src
+
+(Order matters: CHAOSMONKEY assigns =mode.brain= before CONVERSATIONAL wires the dialogue flow.)
+
+- [ ] *Step 2:* Verify the existing daemon boot still succeeds.
+
+Run: =cd systems/runtime && deno test tests/cortex.integration.test.js=
+Expected: all steps pass (CHAOSMONKEY trait exists and is idempotent; no behavior change yet).
+
+- [ ] *Step 3:* Commit at end of M1 (see Task 1.5).
+
+* Task 1.2 — CONVERSATIONAL runtime trait: replace HTTP /dialogue with ws /connect + Session
+
+*Files:*
+- Modify (full rewrite of body): =systems/runtime/daemon/traits/conversational.js=.
+- Import surface: reuse =@vivalence/typology= — add =Socket, Session, shard=.
+
+This task replaces the entire trait body. The new shape: build an inbound Vector with =/dialogue/engage=; mount =/connect= via =shard.serve.websocket= wrapped around =new Socket(ws, inbound)= and =new Session(inbound, socket)=; drop the HTTP =/dialogue= branch.
+
+- [ ] *Step 1: Write the failing test.*
+
+Create =systems/runtime/tests/workpackages/longdistance/dewey.session.test.js= with the following body. The test scenario: boot a minimal daemon with dewey mounted, open a client ws, perform MOIN, send =engage=, collect packets, assert ≥1 assistant turn persisted.
+
+#+begin_src javascript
+import {
+  specimen, sleep, Socket, Session, Vector, Queue, shape, soma,
+} from "@vivalence/typology";
+import { mountMode } from "@vivalence/runtime/scenarios";
+import dewey from "@vivalence/teacher/dewey";
+
+specimen.describe("dewey — ws session round-trip", () => {
+  const PORT = 9901;
+  const abort = new AbortController();
+  let daemon;
+  let threadId;
+
+  specimen.beforeAll(async () => {
+    daemon = await mountMode(dewey);
+    Deno.serve({ port: PORT, signal: abort.signal, onListen() {} }, shape.http(daemon.aperture));
+    await sleep.ms(100);
+
+    const thread = daemon.entities.thread.create({
+      mode: daemon.modes.teacher.dewey.id,
+      user: "test-user",
+      traits: ["LABELED", "INSITU"],
+      trait: { LABELED: { name: "session-probe" }, INSITU: {} },
+    });
+    await daemon.entities.em.flush();
+    threadId = thread.id;
+  });
+  specimen.afterAll(() => abort.abort());
+
+  specimen.it("MOIN → engage → packets → assistant turn persisted", async () => {
+    const dialogueStream = new Queue();
+
+    const inbound = new Vector();
+    inbound.open("/dialogue/packet",    (ctx) => dialogueStream.enqueue(ctx.input));
+    inbound.open("/dialogue/terminate", () => dialogueStream.close());
+
+    const ws = new WebSocket(`ws://localhost:${PORT}/mode/teacher/dewey/connect`);
+    await new Promise((resolve) => (ws.onopen = resolve));
+    const socket = new Socket(ws, inbound);
+    await sleep.ms(20);
+
+    const session = new Session(inbound, socket);
+    await session.moin();
+    specimen.expect(session.$state.get()).toBe("LIVE");
+
+    session.send.dialogue.engage({ thread: threadId, message: "oi" });
+
+    let turn = null;
+    for await (const packet of dialogueStream) {
+      turn = soma.pour(turn, packet);
+      if (packet.event === "turn.close") break;
+    }
+    specimen.expect(turn.role).toBe("assistant");
+    specimen.expect(turn.parts[0].text).toMatch(/.+/);
+
+    const turns = await daemon.entities.turn.find({ thread: threadId });
+    const assistantTurns = turns.filter((t) => t.role === "assistant");
+    specimen.expect(assistantTurns.length).toBeGreaterThanOrEqual(1);
+
+    session.close();
+  });
+});
+#+end_src
+
+- [ ] *Step 2: Run it to confirm it fails.*
+
+Run: =cd systems/runtime && deno test tests/workpackages/longdistance/dewey.session.test.js=
+Expected: FAIL — either "no ws endpoint at /connect" or a timeout on =moin()= (since CONVERSATIONAL still exposes HTTP not ws).
+
+- [ ] *Step 3: Rewrite the trait body.*
+
+Replace the entire body of =systems/runtime/daemon/traits/conversational.js= with:
+
+#+begin_src javascript
+import { Vector, shape, shard, soma, Socket, Session } from "@vivalence/typology";
+
+export const CONVERSATIONAL = async (mode, daemon) => {
+  if (!mode.cake.dialogue) return;
+
+  const inbound = new Vector();
+
+  inbound.open("/dialogue/engage", async (ctx) => {
+    const session = ctx.socket.state.session;
+    const thread = await daemon.entities.thread.findOne(ctx.input.thread);
+
+    const history = await daemon.entities.turn.find(
+      { thread },
+      { orderBy: { createdAt: "ASC" } },
+    );
+
+    const userTurn = daemon.entities.turn.create({
+      role: "user",
+      parts: [{ type: "text", text: ctx.input.message }],
+      parent: history.at(-1) ?? null,
+      thread,
+      mode: mode.id,
+    });
+    await daemon.entities.em.flush();
+
+    const hallucinate = daemon.cortex.spawn()
+      .add(...history, userTurn)
+      .tune(ctx.input.tune ?? mode.cake.tune ?? "balanced");
+
+    const dialogue = new Vector();
+    dialogue.slurp(mode.cake.dialogue);
+    const context = { hallucinate, input: ctx.input };
+    await shape.object(dialogue)(context);
+    const stream = context.output ?? await hallucinate.conversation.stream();
+
+    let assistantTurn = null;
+    let parent = userTurn;
+    const created = [];
+
+    try {
+      for await (const packet of stream) {
+        assistantTurn = soma.pour(assistantTurn, packet);
+        session.send.dialogue.packet(packet);
+        if (packet.event === "turn.close") {
+          parent = daemon.entities.turn.create({
+            role: assistantTurn.role,
+            parts: assistantTurn.parts,
+            meta: assistantTurn.meta,
+            parent,
+            thread,
+            mode: mode.id,
+          });
+          created.push(parent);
+          assistantTurn = null;
+        }
+      }
+      await daemon.entities.em.flush();
+    } catch (error) {
+      for (const entity of created) daemon.entities.em.remove(entity);
+      throw error;
+    }
+
+    session.send.dialogue.terminate({});
+  });
+
+  mode.aperture.open("/connect", shard.serve.websocket((ws) => {
+    const socket = new Socket(ws, inbound);
+    socket.state.session = new Session(inbound, socket);
+  }));
+
+  mode.dialogue = { inbound };
+};
+#+end_src
+
+Notes for reviewer:
+- =mode.cake.dialogue= is the mode's own Vector (dewey's =/chat= handler injects personality prompt).
+- We wrap it in =shape.object(dialogue)= to evaluate the slurp; this mirrors what the existing HTTP path did.
+- =session.send.dialogue.packet(...)= is compiled at MOIN from the peer's stripped inbound — the client declares =/dialogue/packet= on its inbound, server's =session.send= auto-rehydrates the tree.
+- =mode.dialogue= is kept as an escape hatch (now exposing the inbound) in case other code paths probe for it; purely optional — can be removed once we confirm no callers.
+
+- [ ] *Step 4: Run the test again.*
+
+Run: =cd systems/runtime && deno test tests/workpackages/longdistance/dewey.session.test.js=
+Expected: PASS.
+
+- [ ] *Step 5: Run the broader runtime suite to confirm no regression.*
+
+Run: =cd systems/runtime && deno test=
+Expected: PASS (may show pre-existing failures — only check new failures).
+
+- [ ] *Step 6: Commit at end of M1.*
+
+* Task 1.3 — Bruno scenario for ws session
+
+*Files:*
+- Create: =testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/session.bru=.
+
+Bruno supports ws via type=ws (or via inline script, depending on Bruno version). Reference the existing =chat.bru= structure in the same folder for env / auth conventions.
+
+- [ ] *Step 1:* Determine Bruno ws support in this repo.
+
+Run: =cd testament/_bruno && rg -l '^\s*type:\s*ws' .=
+If any file matches, study it for the syntax template. If none match, proceed with a script-based =.bru= that uses a raw =WebSocket= in a =script:pre-request= block.
+
+- [ ] *Step 2:* Create =session.bru= with the following content (adjust to match any ws-native Bruno convention found in Step 1):
+
+#+begin_src text
+meta {
+  name: session
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{TEACHER_DEWEY}}/connect
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+script:pre-request {
+  const url = bru.getVar("TEACHER_DEWEY").replace(/^http/, "ws") + "/connect?token=" + bru.getVar("accessToken");
+  const result = await new Promise((resolve, reject) => {
+    const ws = new WebSocket(url);
+    const packets = [];
+    ws.onopen = () => {
+      const echo = crypto.randomUUID();
+      ws.send(JSON.stringify({ signal: "/herald/moin", input: { shape: { leaves: [], branches: {} } }, echo }));
+    };
+    ws.onmessage = (event) => {
+      const frame = JSON.parse(event.data);
+      if (frame.output?.shape) {
+        ws.send(JSON.stringify({
+          signal: "/dialogue/engage",
+          input: { thread: bru.getVar("threadId"), message: "oi" },
+        }));
+      } else if (frame.signal === "/dialogue/packet") {
+        packets.push(frame.input);
+      } else if (frame.signal === "/dialogue/terminate") {
+        ws.close();
+        resolve(packets);
+      }
+    };
+    ws.onerror = reject;
+    setTimeout(() => reject(new Error("timeout")), 15000);
+  });
+  bru.setVar("sessionPackets", JSON.stringify(result));
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("session produced turn.close", function () {
+    const packets = JSON.parse(bru.getVar("sessionPackets"));
+    const closes = packets.filter((p) => p.event === "turn.close");
+    expect(closes.length).to.be.at.least(1);
+  });
+}
+
+docs {
+  Opens a ws to dewey's /connect endpoint, performs MOIN handshake, sends /dialogue/engage,
+  collects packets, asserts ≥1 turn.close. Requires threadId from a prior create-thread step.
+}
+#+end_src
+
+- [ ] *Step 3:* Run the bruno collection.
+
+Run: =bruno run testament/_bruno/variants/daemons/test-language/modes/teacher/dewey/=
+Expected: all =.bru= files green, including the new =session.bru=.
+
+- [ ] *Step 4:* Commit at end of M1.
+
+* Task 1.4 — Commit M1
+
+- [ ] *Step 1: Stage and commit.*
+
+Run:
+#+begin_src shell
+cd /Users/finn/vivalence/code/vivalence
+jj describe -m "feat(longdistance): M1 — dewey speaks over ws session
+
+- dewey manifest gains CHAOSMONKEY alongside EXPOSED + CONVERSATIONAL
+- CONVERSATIONAL trait replaces HTTP /dialogue branch with ws /connect
+  hosting typology Session (MOIN handshake + /dialogue/engage handler
+  streaming packets via session.send.dialogue.packet + terminate)
+- runtime workpackage test: ws round-trip + turn persistence
+- bruno scenario session.bru"
+#+end_src
+
+Expected: working-copy snapshot updated. Do NOT run =jj new= — Finn owns the graph.
+
+* Task 2.1 — Terminal.port scaffold
+
+*Files:*
+- Modify: =systems/html/src/typology/entities/terminal.js=.
+
+Add a =$port= atom to Terminal with default =,{ dock: "bottom", visible: true }=, and transparent getter/setter =.port=. Also nullable =.session= field (starts null; TerminalDossier middleware populates it in Task 2.2).
+
+- [ ] *Step 1:* Replace the Terminal class body to add =$port= + =session=:
+
+#+begin_src javascript
+import { atom } from "nanostores";
+import { LocalRepository } from "@vivalence/typology";
+
+export class Terminal {
+  id = null;
+  slug = null;
+  daemon = null;
+  session = null;
+  $thread = atom(null);
+  $port = atom({ dock: "bottom", visible: true });
+
+  get thread() {
+    return this.$thread.get();
+  }
+
+  set thread(value) {
+    this.$thread.set(value);
+  }
+
+  get port() {
+    return this.$port.get();
+  }
+
+  set port(value) {
+    this.$port.set({ ...this.port, ...value });
+  }
+
+  constructor(data) {
+    Object.assign(this, data);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      slug: this.slug,
+      daemon: this.daemon?.slug ?? this.daemon,
+      thread: this.thread?.id ?? this.thread,
+      port: this.port,
+    };
+  }
+}
+
+export const TerminalDossier = {
+  name: "terminal",
+  kind: () => Terminal,
+  repository: (schema) => new LocalRepository({ kind: schema.kind(), persist: "viva.quarters" }),
+};
+#+end_src
+
+- [ ] *Step 2: Verify existing tests still pass.*
+
+Run: =cd systems/html && deno test tests/= (or the path to the terminal/quarters test suite).
+Expected: existing TerminalDossier and Quarters tests PASS (new =$port= atom is additive).
+
+- [ ] *Step 3: Commit at end of M2.*
+
+* Task 2.2 — TerminalDossier session-lifecycle middleware
+
+*Files:*
+- Modify: =systems/html/src/typology/entities/terminal.js= (extend TerminalDossier with =use= array).
+
+Middleware: subscribe to =terminal.$thread=; on INSITU + CONVERSATIONAL, open a socket through =mode.connection.socket()=, construct =Session=, call =moin()=. On teardown, close + null.
+
+- [ ] *Step 1: Write the failing test.*
+
+Create =systems/html/tests/terminal.session.wiring.test.js= (or extend existing terminal dossier test file if it exists). Test drives a fake daemon + mode with CONVERSATIONAL and verifies:
+1. Activating a thread with INSITU creates =terminal.session= and transitions to LIVE.
+2. Clearing the thread closes the session.
+
+#+begin_src javascript
+import { specimen, sleep } from "@vivalence/typology";
+import { wireDossier } from "@vivalence/html/prototypes";
+import { TerminalDossier } from "@vivalence/html/entities/terminal";
+
+specimen.describe("TerminalDossier — session lifecycle", () => {
+  specimen.it("opens session on INSITU + CONVERSATIONAL, closes on thread clear", async () => {
+    const fakeMode = {
+      traits: ["CONVERSATIONAL"],
+      connection: {
+        socket: () => ({
+          $state: { get: () => "OPEN", subscribe: () => () => {} },
+          call: async () => ({ shape: { leaves: [], branches: {} } }),
+          push: () => {},
+          close: () => {},
+          state: {},
+        }),
+      },
+    };
+    const fakeThread = { traits: ["INSITU"], mode: fakeMode, id: "t-1" };
+
+    const { em } = await wireDossier(TerminalDossier);
+    const terminal = await em.cast("terminal", { id: "term-1", slug: "t1" }, TerminalDossier.kind());
+
+    terminal.thread = fakeThread;
+    await sleep.ms(30);
+    specimen.expect(terminal.session).not.toBeNull();
+
+    terminal.thread = null;
+    await sleep.ms(10);
+    specimen.expect(terminal.session).toBeNull();
+  });
+});
+#+end_src
+
+- [ ] *Step 2: Run it to confirm it fails.*
+
+Run: =cd systems/html && deno test tests/terminal.session.wiring.test.js=
+Expected: FAIL — =terminal.session= stays null (no middleware yet).
+
+- [ ] *Step 3: Add the middleware.*
+
+Modify the TerminalDossier export in =systems/html/src/typology/entities/terminal.js= to include =use= array. Import =Session, Vector, Queue= from =@vivalence/typology=. Bring the lighthouse authority through =ctx.lighthouse.$authority=.
+
+#+begin_src javascript
+import { atom } from "nanostores";
+import { LocalRepository, Session, Vector, Queue } from "@vivalence/typology";
+
+// ...Terminal class unchanged from Task 2.1...
+
+export const TerminalDossier = {
+  name: "terminal",
+  kind: () => Terminal,
+  repository: (schema) => new LocalRepository({ kind: schema.kind(), persist: "viva.quarters" }),
+
+  use: [
+    async (ctx, next) => {
+      await next();
+      const terminal = ctx.entity;
+      terminal.streams = { dialogue: new Queue(), error: new Queue() };
+      terminal.teardowns = [];
+
+      const openSession = (thread) => {
+        const mode = thread.mode;
+        if (!mode?.traits?.includes("CONVERSATIONAL")) return;
+        if (!thread.traits?.includes("INSITU")) return;
+        if (terminal.session) return;
+
+        const inbound = new Vector();
+        inbound.open("/dialogue/packet",    (frame) => terminal.streams.dialogue.enqueue(frame.input));
+        inbound.open("/dialogue/terminate", () => terminal.streams.dialogue.enqueue({ event: "turn.close" }));
+
+        const token = ctx.lighthouse?.$authority?.get()?.access;
+        const socket = mode.connection.socket("/connect", inbound, { token });
+        terminal.session = new Session(inbound, socket);
+        terminal.session.moin().catch((error) => console.error("[terminal] moin failed", error));
+      };
+
+      const closeSession = () => {
+        terminal.session?.close();
+        terminal.session = null;
+      };
+
+      const teardown = terminal.$thread.subscribe((thread) => {
+        closeSession();
+        if (thread) openSession(thread);
+      });
+      terminal.teardowns.push(teardown);
+    },
+  ],
+};
+#+end_src
+
+Note: =ctx.lighthouse= must be wired into the dossier factory context. If it isn't, see =systems/html/src/typology/prototypes/dossier.js= (=localFactory=) and extend it to pass =lighthouse= through. If that's more than a two-line change, document the gap and hard-code =token= via =localStorage.getItem("viva.authority")= parse as a stopgap — call it out in the commit message as a follow-up.
+
+- [ ] *Step 4: Run the test again.*
+
+Run: =cd systems/html && deno test tests/terminal.session.wiring.test.js=
+Expected: PASS.
+
+- [ ] *Step 5: Commit at end of M2.*
+
+* Task 2.3 — Port.svelte component
+
+*Files:*
+- Create: =systems/html/src/typology/components/port/Port.svelte=.
+- Create: =systems/html/src/typology/components/port/index.js= (barrel re-export).
+
+Component props: =terminal= (required). Reads =terminal.session=, =terminal.$port= (for dock + visibility), thread + turns via =terminal.$thread=. Emits no events — end button closes session directly.
+
+- [ ] *Step 1: Write the component.*
+
+Create =systems/html/src/typology/components/port/Port.svelte=:
+
+#+begin_src svelte
+<script>
+  import { onDestroy } from "svelte";
+
+  let { terminal, embedded = false } = $props();
+
+  let sessionState = $state(terminal.session?.$state.get() ?? "IDLE");
+  let thread = $state(terminal.thread);
+  let port = $state(terminal.port);
+  let turns = $state([]);
+  let input = $state("");
+
+  const teardowns = [];
+
+  teardowns.push(terminal.$thread.subscribe((value) => { thread = value; }));
+  teardowns.push(terminal.$port.subscribe((value) => { port = value; }));
+
+  $effect(() => {
+    if (!terminal.session) { sessionState = "IDLE"; return; }
+    const teardown = terminal.session.$state.subscribe((state) => { sessionState = state; });
+    return teardown;
+  });
+
+  $effect(() => {
+    if (!thread?.$turns) { turns = []; return; }
+    const teardown = thread.$turns.subscribe((value) => { turns = [...value]; });
+    return teardown;
+  });
+
+  onDestroy(() => { for (const teardown of teardowns) teardown(); });
+
+  const docks = ["top", "right", "bottom", "left"];
+
+  function cycleDock(delta) {
+    const index = (docks.indexOf(port.dock) + delta + docks.length) % docks.length;
+    terminal.port = { dock: docks[index] };
+  }
+
+  function send() {
+    const message = input.trim();
+    if (!message) return;
+    terminal.session?.send?.dialogue?.engage?.({ thread: thread?.id, message });
+    input = "";
+  }
+
+  function endSession() {
+    terminal.session?.close();
+    terminal.session = null;
+    terminal.thread = null;
+  }
+
+  function resetSession() {
+    terminal.session?.close();
+    terminal.session = null;
+    if (thread) terminal.thread = thread;
+  }
+</script>
+
+<div class="port" class:live={sessionState === "LIVE"} class:embedded>
+  <header class="port-header">
+    <span class="dot" data-state={sessionState}></span>
+    <span class="label">session</span>
+    <span class="state">{sessionState.toLowerCase()}</span>
+    <span class="dock-arrows">
+      <button onclick={() => cycleDock(-1)}>◀</button>
+      <button onclick={() => cycleDock(-2)}>▲</button>
+      <button onclick={() => cycleDock(2)}>▼</button>
+      <button onclick={() => cycleDock(1)}>▶</button>
+    </span>
+    <span class="session-actions">
+      <button onclick={resetSession}>reset</button>
+      <button class="end" onclick={endSession}>end</button>
+    </span>
+  </header>
+
+  <div class="port-media">
+    <button class="channel" disabled>mic</button>
+    <button class="channel" disabled>voice</button>
+    <button class="channel" disabled>video</button>
+  </div>
+
+  <div class="port-log">
+    {#each turns as turn (turn.id)}
+      <div class="turn turn-{turn.role}">
+        <span class="turn-role">{turn.role}</span>
+        <span class="turn-text">
+          {#each turn.parts ?? [] as part}
+            {#if part.type === "text"}{part.text}{/if}
+          {/each}
+        </span>
+      </div>
+    {/each}
+  </div>
+
+  <form class="port-input" onsubmit={(event) => { event.preventDefault(); send(); }}>
+    <input type="text" bind:value={input} placeholder="message…" />
+    <button type="submit">↵</button>
+  </form>
+</div>
+
+<style>
+  .port {
+    display: flex;
+    flex-direction: column;
+    background: var(--colors-skeleton-0-surface);
+    color: var(--colors-skeleton-0-contrast);
+    border: 1px solid var(--colors-skeleton-0-boundary);
+    font-family: var(--font-family-code);
+    font-size: 11px;
+    height: 100%;
+    width: 100%;
+  }
+  .port-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--colors-skeleton-0-boundary);
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--colors-skeleton-0-boundary);
+  }
+  .port.live .dot { background: var(--colors-skeleton-0-primary-base); }
+  .label { opacity: 0.5; }
+  .state { color: var(--colors-skeleton-0-primary-base); }
+  .dock-arrows { display: flex; gap: 2px; margin-left: auto; }
+  .dock-arrows button,
+  .session-actions button,
+  .channel,
+  .port-input button {
+    background: none;
+    border: 1px solid var(--colors-skeleton-0-boundary);
+    border-radius: 2px;
+    padding: 2px 6px;
+    color: var(--colors-skeleton-0-contrast);
+    font: inherit;
+    cursor: pointer;
+  }
+  .session-actions .end { color: var(--colors-skeleton-0-danger-base); }
+  .port-media { display: flex; gap: 6px; padding: 6px 10px; border-bottom: 1px solid var(--colors-skeleton-0-boundary); }
+  .channel[disabled] { opacity: 0.35; cursor: not-allowed; }
+  .port-log { flex: 1; overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+  .turn-role { opacity: 0.5; margin-right: 6px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; }
+  .port-input { display: flex; gap: 6px; padding: 6px 10px; border-top: 1px solid var(--colors-skeleton-0-boundary); }
+  .port-input input { flex: 1; background: var(--colors-skeleton-1-surface); color: inherit; border: 1px solid var(--colors-skeleton-0-boundary); padding: 4px 6px; font: inherit; }
+</style>
+#+end_src
+
+- [ ] *Step 2:* Create =systems/html/src/typology/components/port/index.js=:
+
+#+begin_src javascript
+export { default as Port } from "./Port.svelte";
+#+end_src
+
+- [ ] *Step 3:* Ensure the barrel =@vivalence/html= re-exports =Port=. Locate =systems/html/src/typology/index.js= (or equivalent barrel entry) and add:
+
+#+begin_src javascript
+export * from "./components/port/index.js";
+#+end_src
+
+- [ ] *Step 4:* Commit at end of M2.
+
+* Task 2.4 — /port standalone harness route
+
+*Files:*
+- Create: =systems/html/src/routes/port/+page.svelte=.
+
+Harness: instantiate a fake =terminal= with a fake session exposing the Port shape; verify the UI renders, dock cycles, message input works.
+
+- [ ] *Step 1:* Create =systems/html/src/routes/port/+page.svelte=:
+
+#+begin_src svelte
+<script>
+  import { atom } from "nanostores";
+  import { Port } from "$client";
+
+  const $state = atom("LIVE");
+  const $turns = atom([
+    { id: "t-1", role: "user",      parts: [{ type: "text", text: "oi" }] },
+    { id: "t-2", role: "assistant", parts: [{ type: "text", text: "olá! como posso ajudar?" }] },
+  ]);
+
+  const fakeSession = {
+    $state,
+    send: {
+      dialogue: {
+        engage: ({ message }) => {
+          const nextTurns = [
+            ...$turns.get(),
+            { id: crypto.randomUUID(), role: "user", parts: [{ type: "text", text: message }] },
+          ];
+          $turns.set(nextTurns);
+          setTimeout(() => {
+            $turns.set([...$turns.get(), {
+              id: crypto.randomUUID(),
+              role: "assistant",
+              parts: [{ type: "text", text: `echo: ${message}` }],
+            }]);
+          }, 300);
+        },
+      },
+    },
+    close: () => $state.set("CLOSED"),
+  };
+
+  const fakeTerminal = {
+    session: fakeSession,
+    thread: { id: "fake-thread", $turns },
+    $thread: atom({ id: "fake-thread", $turns }),
+    $port: atom({ dock: "bottom", visible: true }),
+    get port() { return this.$port.get(); },
+    set port(value) { this.$port.set({ ...this.port, ...value }); },
+  };
+</script>
+
+<div class="harness">
+  <Port terminal={fakeTerminal} />
+</div>
+
+<style>
+  .harness { position: fixed; inset: 20px; display: grid; place-items: stretch; }
+</style>
+#+end_src
+
+- [ ] *Step 2: Run the dev server and navigate to /port.*
+
+Run: =cd systems/html && deno task dev=
+Open =http://localhost:5173/port=
+Expected: Port panel visible, two turns in log, typing + send appends user turn + echo turn, dock arrows cycle visible classes (no visible reposition yet — that lands in M3), reset/end update state.
+
+- [ ] *Step 3: Commit at end of M2.*
+
+* Task 2.5 — Commit M2
+
+- [ ] *Step 1: Commit.*
+
+Run:
+#+begin_src shell
+cd /Users/finn/vivalence/code/vivalence
+jj describe -m "feat(longdistance): M2 — client session + Port component
+
+- Terminal gains \$port atom + transparent accessor; session + streams
+  + teardowns fields
+- TerminalDossier session-lifecycle middleware: subscribes to \$thread,
+  opens Session via mode.connection.socket on INSITU + CONVERSATIONAL,
+  closes on thread clear
+- Port.svelte: session header (live dot + dock arrows + reset/end),
+  placeholder mic/voice/video, reactive turn log, message input →
+  session.send.dialogue.engage
+- /port harness route with fake session
+- terminal.session.wiring.test.js"
+#+end_src
+
+* Task 3.1 — Panel A: Port overlay inlet
+
+*Files:*
+- Modify: =systems/html/src/routes/pincer/panels/a.svelte=.
+
+Render Port as a fixed overlay at =terminal.port.dock= edge when =terminal.session= exists AND =terminal.port.visible= is true. Overlay does not reflow the existing Frame.
+
+- [ ] *Step 1:* Modify the Panel A script block to read =QUARTERS= + =terminal.$port= + =terminal.session=:
+
+Replace the =<script>= block in =systems/html/src/routes/pincer/panels/a.svelte= with:
+
+#+begin_src svelte
+<script>
+  import { getContext } from "svelte";
+  import { THREAD, QUARTERS, Port } from "$client";
+  import { Frame } from "@vivalence/drapes";
+
+  let { rect } = $props();
+
+  const threadInstance = getContext(THREAD);
+  const quartersInstance = getContext(QUARTERS);
+
+  let thread = $state(null);
+  let bufferAtom = $state(null);
+  let buffer = $state(null);
+  let status = $state(null);
+
+  let terminal = $state(quartersInstance.$terminal.get());
+  let portConfig = $state(terminal?.port ?? { dock: "bottom", visible: true });
+  let sessionState = $state(terminal?.session?.$state?.get() ?? "IDLE");
+
+  let teardownBuffer = null;
+  let teardownStatus = null;
+  let teardownPort = null;
+  let teardownSession = null;
+
+  threadInstance.$current.subscribe((current) => {
+    thread = current;
+    if (teardownBuffer) { teardownBuffer(); teardownBuffer = null; }
+    if (teardownStatus) { teardownStatus(); teardownStatus = null; }
+    if (!current?.queue) {
+      bufferAtom = null;
+      buffer = null;
+      status = null;
+      return;
+    }
+    bufferAtom = current.$buffer;
+    teardownBuffer = current.$buffer.subscribe((value) => { buffer = value; });
+    teardownStatus = current.queue.$status.subscribe((value) => { status = value; });
+  });
+
+  quartersInstance.$terminal.subscribe((value) => {
+    terminal = value;
+    if (teardownPort) { teardownPort(); teardownPort = null; }
+    if (teardownSession) { teardownSession(); teardownSession = null; }
+    if (!terminal) return;
+    teardownPort = terminal.$port.subscribe((v) => { portConfig = v; });
+    teardownSession = terminal.session?.$state?.subscribe((v) => { sessionState = v; }) ?? null;
+  });
+</script>
+#+end_src
+
+- [ ] *Step 2:* Replace the template block. Add the Port overlay after the existing =<div class="panel">...=:
+
+#+begin_src svelte
+{#if rect.width > 0 && rect.height > 0}
+  <div
+    class="panel"
+    style:left="{rect.left}px"
+    style:top="{rect.top}px"
+    style:width="{rect.width}px"
+    style:height="{rect.height}px"
+  >
+    {#if buffer && bufferAtom}
+      <Frame buffer={bufferAtom} />
+    {:else if thread}
+      <div class="yield-state">
+        {#if status === "EXHAUSTED"}
+          <p class="yield-label">session complete</p>
+        {:else if status === "ERROR"}
+          <p class="yield-label yield-error">{thread.queue?.$error.get()?.message ?? "error"}</p>
+        {:else}
+          <span class="yield-dot"></span>
+        {/if}
+      </div>
+    {:else}
+      <span class="label">A</span>
+    {/if}
+  </div>
+
+  {#if terminal?.session && portConfig?.visible && sessionState === "LIVE"}
+    <div
+      class="port-overlay port-dock-{portConfig.dock}"
+      style:left="{rect.left}px"
+      style:top="{rect.top}px"
+      style:width="{rect.width}px"
+      style:height="{rect.height}px"
+    >
+      <Port {terminal} embedded />
+    </div>
+  {/if}
+{/if}
+#+end_src
+
+- [ ] *Step 3:* Add overlay styles to the =<style>= block (append):
+
+#+begin_src css
+.port-overlay {
+  position: fixed;
+  pointer-events: none;
+  display: flex;
+  z-index: 40;
+}
+.port-overlay :global(.port) { pointer-events: auto; }
+.port-dock-bottom { align-items: flex-end; }
+.port-dock-top    { align-items: flex-start; }
+.port-dock-left   { justify-content: flex-start; }
+.port-dock-right  { justify-content: flex-end; }
+.port-dock-bottom :global(.port),
+.port-dock-top    :global(.port) { height: 40%; width: 100%; }
+.port-dock-left   :global(.port),
+.port-dock-right  :global(.port) { height: 100%; width: 40%; }
+#+end_src
+
+- [ ] *Step 4:* Run dev server, activate a CONVERSATIONAL mode (dewey) with INSITU, confirm Port overlays panel A at bottom; cycle dock arrows and confirm positions.
+
+Run: =cd systems/html && deno task dev=
+Expected: Port overlay visible; dock cycle works.
+
+- [ ] *Step 5:* Commit at end of M3.
+
+* Task 3.2 — Crown: session-accent on active-session tab
+
+*Files:*
+- Modify: =systems/html/src/routes/pincer/bones/crown.svelte=.
+
+Add a =.session-live= class applied to the active-session tab when =terminal.session?.$state= is LIVE.
+
+- [ ] *Step 1:* Extend the script block. After existing subscriptions, add:
+
+#+begin_src svelte
+<script>
+  // ...existing...
+
+  let liveSessionId = $state(null);
+
+  const resubscribeLiveSession = (list) => {
+    for (const t of list) {
+      if (!t.session) continue;
+      t.session.$state?.subscribe((state) => {
+        liveSessionId = state === "LIVE" ? t.id : (liveSessionId === t.id ? null : liveSessionId);
+      });
+    }
+  };
+
+  resubscribeLiveSession(terminals);
+  quartersInstance.terminals.$entities.subscribe((entities) => {
+    terminals = [...entities.values()];
+    resubscribeLiveSession(terminals);
+  });
+</script>
+#+end_src
+
+- [ ] *Step 2:* In the =<button class="tab">= in the template, add the conditional class:
+
+#+begin_src svelte
+<button
+  class="tab"
+  class:active={t.id === terminal?.id}
+  class:session-live={t.id === liveSessionId}
+  title={tabDescription(t)}
+  onclick={() => quartersInstance.activate(t.id)}>
+#+end_src
+
+- [ ] *Step 3:* Append to =<style>=:
+
+#+begin_src css
+.tab.session-live {
+  border-color: var(--colors-skeleton-0-success-base);
+  color: var(--colors-skeleton-0-success-base);
+}
+.tab.session-live.active {
+  background: var(--colors-skeleton-0-success-base);
+  color: var(--colors-skeleton-0-surface);
+}
+#+end_src
+
+- [ ] *Step 4:* Browser-verify: activate a dewey session → tab changes color.
+
+- [ ] *Step 5:* Commit at end of M3.
+
+* Task 3.3 — Shoulder: session widget toggles terminal.port.visible
+
+*Files:*
+- Modify: =systems/html/src/routes/pincer/bones/shoulder.svelte=.
+
+When the active terminal has a LIVE session, render a session widget that toggles =terminal.port.visible=. Place it after the existing phase + activity population.
+
+- [ ] *Step 1:* Extend the script block:
+
+#+begin_src svelte
+<script>
+  // ...existing imports + state...
+  import { QUARTERS } from "$client";
+
+  const quartersInstance = getContext(QUARTERS);
+
+  let terminal = $state(quartersInstance.$terminal.get());
+  let sessionState = $state(terminal?.session?.$state?.get() ?? "IDLE");
+  let portVisible = $state(terminal?.port?.visible ?? true);
+
+  let teardownSession = null;
+  let teardownPort = null;
+
+  quartersInstance.$terminal.subscribe((value) => {
+    if (teardownSession) { teardownSession(); teardownSession = null; }
+    if (teardownPort) { teardownPort(); teardownPort = null; }
+    terminal = value;
+    if (!terminal) { sessionState = "IDLE"; return; }
+    teardownSession = terminal.session?.$state?.subscribe((v) => { sessionState = v; }) ?? null;
+    teardownPort = terminal.$port.subscribe((v) => { portVisible = v.visible; });
+  });
+
+  function togglePort() {
+    if (!terminal) return;
+    terminal.port = { visible: !terminal.port.visible };
+  }
+</script>
+#+end_src
+
+- [ ] *Step 2:* Add the widget at the end of the =.population= div template, after the existing activity block:
+
+#+begin_src svelte
+{#if sessionState === "LIVE"}
+  <span class="sep">·</span>
+  <button
+    class="session-widget"
+    class:off={!portVisible}
+    title={portVisible ? "hide session panel" : "show session panel"}
+    onclick={togglePort}>
+    <span class="status-dot" data-status="ok"></span>
+    <span class="activity-label">live</span>
+  </button>
+{/if}
+#+end_src
+
+- [ ] *Step 3:* Append style:
+
+#+begin_src css
+.session-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 7px;
+  border: 1px solid var(--colors-skeleton-0-success-base);
+  border-radius: 3px;
+  background: none;
+  color: var(--colors-skeleton-0-success-base);
+  font-family: var(--font-family-code);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  cursor: pointer;
+}
+.session-widget.off { opacity: 0.4; }
+#+end_src
+
+- [ ] *Step 4:* Browser-verify: widget appears when session live; click toggles Port visibility on panel A.
+
+- [ ] *Step 5:* Commit at end of M3.
+
+* Task 3.4 — Panel E: terminal/thread control center rework
+
+*Files:*
+- Modify (full rewrite): =systems/html/src/routes/pincer/panels/e.svelte=.
+
+Replace the JSON dump with: mode label, traits pill row (read-only — clicking a pill is deferred), Port embedded as a subject block when session live.
+
+- [ ] *Step 1:* Replace panel E contents:
+
+#+begin_src svelte
+<script>
+  import { getContext } from "svelte";
+  import { THREAD, QUARTERS, Port } from "$client";
+
+  const threadInstance = getContext(THREAD);
+  const quartersInstance = getContext(QUARTERS);
+
+  let thread = $state(threadInstance.$current.get());
+  let terminal = $state(quartersInstance.$terminal.get());
+  let sessionState = $state(terminal?.session?.$state?.get() ?? "IDLE");
+
+  let teardownSession = null;
+
+  threadInstance.$current.subscribe((value) => { thread = value; });
+  quartersInstance.$terminal.subscribe((value) => {
+    terminal = value;
+    if (teardownSession) { teardownSession(); teardownSession = null; }
+    if (!terminal) { sessionState = "IDLE"; return; }
+    teardownSession = terminal.session?.$state?.subscribe((v) => { sessionState = v; }) ?? null;
+  });
+</script>
+
+<div class="panel">
+  {#if thread}
+    <section class="row">
+      <span class="key">mount</span>
+      <span class="value">{thread.mode?.type}/{thread.mode?.slug ?? "—"}</span>
+    </section>
+
+    <section class="row traits">
+      <span class="key">traits</span>
+      <span class="pills">
+        {#each (thread.traits ?? []) as trait}
+          <span class="pill" class:insitu={trait === "INSITU"}>{trait.toLowerCase()}</span>
+        {/each}
+      </span>
+    </section>
+
+    {#if terminal?.session && sessionState === "LIVE"}
+      <section class="row subject">
+        <span class="key">session</span>
+        <div class="subject-body">
+          <Port {terminal} embedded />
+        </div>
+      </section>
+    {/if}
+  {:else}
+    <span class="label">E</span>
+  {/if}
+</div>
+
+<style>
+  .panel {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: var(--colors-skeleton-2-surface);
+    color: var(--colors-skeleton-2-contrast);
+    font-family: var(--font-family-code);
+    font-size: 11px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .row { display: flex; gap: 10px; }
+  .row.traits .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .key { opacity: 0.5; min-width: 70px; text-transform: lowercase; letter-spacing: 0.06em; }
+  .value { color: var(--colors-skeleton-2-primary-base); }
+  .pill {
+    padding: 1px 6px;
+    border: 1px solid var(--colors-skeleton-2-boundary);
+    border-radius: 2px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: lowercase;
+  }
+  .pill.insitu { border-color: var(--colors-skeleton-2-success-base); color: var(--colors-skeleton-2-success-base); }
+  .row.subject { flex-direction: column; gap: 6px; }
+  .subject-body { height: 320px; }
+  .label {
+    display: block;
+    text-align: center;
+    margin-top: 40%;
+    font-size: 36px;
+    font-weight: 900;
+    opacity: 0.4;
+    user-select: none;
+  }
+</style>
+#+end_src
+
+- [ ] *Step 2:* Browser-verify: activate dewey thread; Panel E shows mount + traits + an INSITU pill + embedded Port when session live.
+
+- [ ] *Step 3:* Commit at end of M3.
+
+* Task 3.5 — Commit M3
+
+- [ ] *Step 1:* Commit.
+
+Run:
+#+begin_src shell
+cd /Users/finn/vivalence/code/vivalence
+jj describe -m "feat(longdistance): M3 — Port surface integration
+
+- Panel A: Port overlay docked at terminal.port.dock when session LIVE
+- Crown: active-session tab gets .session-live accent
+- Shoulder: session widget (toggles terminal.port.visible) visible when LIVE
+- Panel E: replaces JSON dump with terminal/thread control center —
+  mount + traits pills + embedded Port subject block"
+#+end_src
+
+* Self-review (inline)
+
+Against =.ikiro/longdistance.workpackage.org= § "First integration — Port":
+
+- *M1.a* dewey manifest gains CHAOSMONKEY → Task 1.1 ✓
+- *M1.b* CONVERSATIONAL mounts ws =/connect=, inbound vector, engage handler, terminate → Task 1.2 ✓
+- *Drop HTTP =/dialogue=* → Task 1.2 (trait body fully rewrites; no =mode.aperture.branch("/dialogue")=) ✓
+- *M1 outcome — bruno scenario* → Task 1.3 ✓
+- *M2.a TerminalDossier session-lifecycle middleware* → Task 2.1 + 2.2 ✓
+- *M2.b Port.svelte + /port route* → Task 2.3 + 2.4 ✓
+- *M3.a Panel A inlet* → Task 3.1 ✓
+- *M3.b Crown session-accent* → Task 3.2 ✓
+- *M3.c Shoulder widget* → Task 3.3 ✓
+- *M3.d Panel E rework* → Task 3.4 ✓
+
+*Gaps / watch items:*
+1. =ctx.lighthouse= in TerminalDossier middleware (Task 2.2) — verify the factory exposes it. If it doesn't, the plan instructs a =localStorage= stopgap with follow-up tag.
+2. =$turns= on Thread — the plan reads =thread.$turns= in Port + panel E. If it doesn't exist yet (no matches in current entities), Task 2.3 implicitly relies on TurnDossier providing one via =EM.cast='s 1:m computed collection. If that wiring isn't yet in place, Port will render an empty log until a turn-repo subscription is added. Acceptable for M2 (harness has its own =$turns=); production path may need a follow-up: define the Thread.$turns computed collection.
+3. =mode.connection.socket(endpoint, vector, query)= — verified present (round 6, =subsystems/typology/prototypes/connection.js=). If the ModeDossier middleware hasn't yet wired =connection.branch= for dewey ws, socket may 404. Verify with browser devtools after Task 2.2.
+4. Bruno ws support (Task 1.3) — if the local Bruno version can't run ws in a pre-request script, an alternative is to add a Deno one-off that pings the endpoint (keep the bruno file as placeholder with a docs section, wire the ws probe through =deno task test:session= instead). Decision deferred to implementation time.
+
+*Type consistency:*
+- =terminal.session= referenced consistently as nullable =Session= instance.
+- =terminal.port= consistently =,{ dock, visible }= read/write via getter/setter over =$port= atom.
+- =session.$state= is a nanostore atom everywhere.
+- =port.dock= values: "top" | "right" | "bottom" | "left" — used in Panel A CSS classes =port-dock-*= and Port dock cycle array.
+- Signal paths: server-side handler reads =ctx.input.thread= (matches Session-workpackage test + existing CONVERSATIONAL).

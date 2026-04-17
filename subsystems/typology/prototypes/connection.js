@@ -1,6 +1,7 @@
 import { atom, computed } from "nanostores";
 import { shard, Url, Request, Response } from "@vivalence/typology";
 import { object } from "@vivalence/typology";
+import { Socket } from "./socket.js";
 
 export class Connection {
   $state = atom("IDLE");
@@ -138,10 +139,10 @@ export class Connection {
     return response.body;
   }
 
-  websocket(endpoint) {
-    const url = this.url.branch(endpoint).absolute
-      .replace(/^http/, "ws");
-    return new WebSocket(url);
+  socket(endpoint, vector, query = {}) {
+    const base = this.url.branch(endpoint).with(query);
+    const ws = base.scheme(base.secure ? "wss" : "ws");
+    return new Socket(new WebSocket(ws.absolute), vector);
   }
 
   get $isConnected() {

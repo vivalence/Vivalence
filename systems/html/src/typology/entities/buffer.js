@@ -52,10 +52,16 @@ export class Buffer extends Entity {
   }
 }
 
+import { RemoteRepository } from "@vivalence/typology";
+
 export const BufferDossier = {
   name: "buffer",
   kind: () => Buffer,
-  remote: { endpoint: "/userspace/entities/buffer" },
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/buffer"));
+    return repo;
+  },
 
   use: [
     async (ctx, next) => {

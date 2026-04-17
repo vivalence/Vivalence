@@ -1,0 +1,50 @@
+meta {
+  name: conversation
+  type: ws
+  seq: 1
+}
+
+ws {
+  url: {{WS_TEACHER_DEWEY}}/conversation?token={{accessToken}}
+  body: ws
+  auth: none
+}
+
+body:ws {
+  name: 1 — moin
+  type: json
+  content: '''
+    {
+      "signal": "/herald/moin",
+      "input": {
+        "shape": {
+          "leaves": [],
+          "branches": {
+            "dialogue": {
+              "leaves": [
+                { "nature": "packet" },
+                { "nature": "voyage" }
+              ],
+              "branches": {}
+            }
+          }
+        }
+      },
+      "echo": "moin"
+    }
+  '''
+}
+
+body:ws {
+  name: 2 — anchor: house
+  type: json
+  content: '''
+    {
+      "signal": "/dialogue/anchor",
+      "input": {
+        "thread": "{{DEWEY_THREAD_ID}}",
+        "parts": [{ "type": "text", "text": "Oi Dewey! Como se diz 'house' em português?" }]
+      }
+    }
+  '''
+}

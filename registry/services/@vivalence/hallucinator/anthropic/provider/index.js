@@ -1,6 +1,6 @@
 // Anthropic faculty provider
 // Contract: provider(service) → Faculty[]
-// Exposes conversation faculties at three tune points + object faculty.
+// Exposes dialogue faculties at three tune points + object faculty.
 
 import Anthropic from "@anthropic-ai/sdk";
 import { translateTurns, translateTools, translateResponse, translateStreamEvent } from "./translate.js";
@@ -19,7 +19,7 @@ const models = {
 export default async function provider(service) {
   const client = new Anthropic({ apiKey: service.secrets.anthropic });
 
-  function makeConversation(model) {
+  function makeDialogue(model) {
     const render = async (turns, config) => {
       const { system, messages } = translateTurns(turns);
       const params = {
@@ -69,9 +69,9 @@ export default async function provider(service) {
   const faculties = [];
 
   for (const [, model] of Object.entries(models)) {
-    const { render, stream } = makeConversation(model);
+    const { render, stream } = makeDialogue(model);
     faculties.push({
-      type: "conversation",
+      type: "dialogue",
       tune: model.tune,
       context: model.context,
       channels: {

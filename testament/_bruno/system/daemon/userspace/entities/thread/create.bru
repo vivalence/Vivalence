@@ -16,14 +16,17 @@ auth:bearer {
 
 body:json {
   {
+    "data": {
+      "mode": "{{DEWEY_MODE_ID}}"
+    }
   }
 }
 
 tests {
-  test("should be able to login", function () {
-    const data = res.getBody();
-    console.log("data",data)
+  test("thread created successfully", function () {
+    const thread = res.getBody();
     expect(res.getStatus()).to.equal(200);
+    expect(thread.id).to.be.a('string');
+    bru.setVar('DEWEY_THREAD_ID', thread.id);
   });
-   
 }

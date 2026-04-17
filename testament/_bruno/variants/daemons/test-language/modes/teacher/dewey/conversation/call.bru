@@ -1,0 +1,126 @@
+meta {
+  name: call
+  type: ws
+  seq: 2
+}
+
+ws {
+  url: {{WS_TEACHER_DEWEY}}/conversation?token={{accessToken}}
+  body: ws
+  auth: none
+}
+
+body:ws {
+  name: 1 — moin
+  type: json
+  content: '''
+    {
+      "signal": "/herald/moin",
+      "input": {
+        "shape": {
+          "leaves": [],
+          "branches": {
+            "dialogue": {
+              "leaves": [
+                { "nature": "packet" },
+                { "nature": "voyage" }
+              ],
+              "branches": {}
+            },
+            "speech": {
+              "leaves": [
+                { "nature": "packet" },
+                { "nature": "abort" },
+                { "nature": "close" }
+              ],
+              "branches": {}
+            },
+            "verbatim": {
+              "leaves": [
+                { "nature": "partial" },
+                { "nature": "final" },
+                { "nature": "turnStart" },
+                { "nature": "turnEnd" }
+              ],
+              "branches": {}
+            }
+          }
+        }
+      },
+      "echo": "moin"
+    }
+  '''
+}
+
+body:ws {
+  name: 2 — anchor: oi
+  type: json
+  content: '''
+    {
+      "signal": "/dialogue/anchor",
+      "input": {
+        "thread": "{{DEWEY_THREAD_ID}}",
+        "parts": [{ "type": "text", "text": "Oi Dewey!" }]
+      }
+    }
+  '''
+}
+
+body:ws {
+  name: 3 — verbatim packet (fixture audio)
+  type: json
+  content: '''
+    {
+      "signal": "/verbatim/packet",
+      "input": {
+        "audio": "{{FIXTURE_AUDIO_ULAW_BASE64}}",
+        "participantId": "dewey"
+      }
+    }
+  '''
+}
+
+body:ws {
+  name: 4 — verbatim close
+  type: json
+  content: '''
+    {
+      "signal": "/verbatim/close",
+      "input": {}
+    }
+  '''
+}
+
+body:ws {
+  name: 5 — control abort (barge-in)
+  type: json
+  content: '''
+    {
+      "signal": "/control/abort",
+      "input": {}
+    }
+  '''
+}
+
+docs {
+  # Voice call (env-gated)
+
+  Requires real service bindings in circuitry:
+  - `SECRET_VIVA_ELEVENLABS_API_KEY`
+  - `SECRET_VIVA_DEEPGRAM_API_KEY`
+
+  Preconditions:
+  - Dewey manifest has VOCALIZED trait
+  - Daemon circuitry binds `speech: @vivalence/speech/elevenlabs`
+  - Daemon circuitry binds `verbatim: @vivalence/verbatim/deepgram`
+  - Thread seeded with `trait.INSITU.audio.enabled = true` (use `dewey · call` intent)
+  - `FIXTURE_AUDIO_ULAW_BASE64` env holds a base64-encoded ulaw_8000 clip saying "oi"
+
+  Expected flow:
+  1. MOIN negotiates audio-family routes.
+  2. Dialogue anchor triggers dual fanout: `/dialogue/packet` (text) AND `/speech/packet` (audio).
+  3. Verbatim packet spins per-connection Deepgram stream.
+  4. First partial + final arrive within ~600ms for a one-word utterance.
+  5. Final transcript triggers internal auto-voice → new dialogue.anchor → more speech packets.
+  6. `/control/abort` kills inflight speech stream cleanly.
+}

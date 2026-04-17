@@ -7,6 +7,8 @@ export class Die extends Wafer {
   register = {
     lighthouse: null,
     hallucinator: null,
+    speech: null,
+    verbatim: null,
     datamap: null,
     kernel: [],
     modes: [],
@@ -45,6 +47,7 @@ export class Die extends Wafer {
 
   async integrate() {
     await lifecycle.integration.call(this);
+    // await (async () => {await this.datamap.shard.context(async () => {const memories = await this.good.entities.memory.find({}, { limit: 3, populate: ["literal"], filters: false },); console.log({ memories });});})();
     // await lifecycle.integration.prune(this);
     this.status.set("alive");
   }

@@ -1,5 +1,5 @@
 <script>
-  import { string, array } from "@vivalence/typology";
+  import { array } from "@vivalence/typology";
   import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
@@ -46,6 +46,11 @@
         ? target.trait?.TRANSLATED?.learning
         : target.trait?.TRANSLATED?.known),
   );
+  const example = $derived(target?.trait?.EXEMPLIFIED);
+  const learningExample = $derived(example?.learning);
+  const knownExample = $derived(example?.known);
+  const learningValue = $derived(target?.trait?.TRANSLATED?.learning);
+  const knownValue = $derived(target?.trait?.TRANSLATED?.known);
 
   function answerText(lit) {
     return activeRecall === "KNOWN"
@@ -69,17 +74,25 @@
   }
 
   function normalize(text) {
-    if (!forgiving) return text.trim();
+    if (!forgiving) return text.toLowerCase().trim();
     return text
-      .trim()
+      .toLowerCase()
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
+      .replace(/[?.!,;:'"'´`~\-—]/g, "")
+      .trim();
+  }
+
+  function parseAlts(s) {
+    return s
+      .split("/")
+      .map((alt) => alt.replace(/\(.*?\)/g, "").trim())
+      .filter(Boolean);
   }
 
   function evaluateTyped() {
     if (!answer) return false;
-    const alts = answer.split("/").map((s) => s.trim()).filter(Boolean);
+    const alts = parseAlts(answer);
     const got = normalize(typed);
 
     // exact match on any single alt
@@ -92,12 +105,6 @@
       if (inputWords.size === altWords.size && [...altWords].every((w) => inputWords.has(w))) return "correct";
     }
 
-    // close match on any alt
-    if (alts.some((alt) => {
-      const similarity = string.levenshtein(got, normalize(alt));
-      return similarity <= 2 && got.length > 3;
-    })) return "close";
-
     return "wrong";
   }
 
@@ -106,7 +113,7 @@
     answered = true;
 
     const result = evaluateTyped();
-    const signal = result === "correct" ? "SUCCESS" : result === "close" ? "NEUTRAL" : "MISTAKE";
+    const signal = result === "correct" ? "SUCCESS" : "MISTAKE";
 
     terminal.daemon.call("/review/literal", {
       signal,
@@ -156,6 +163,26 @@
         answerText(selected) === answerText(target)),
   );
   const typeResult = $derived(answered && gameplay === "TYPE" ? evaluateTyped() : null);
+  const answerExample = $derived(activeRecall === "KNOWN" ? knownExample : learningExample);
+  const resultTokens = $derived.by(() => {
+    if (!answered || gameplay !== "TYPE" || isWord) return null;
+    const tokens = target?.trait?.ANNOTATED?.tokens;
+    if (!tokens) return null;
+    const key = activeRecall === "KNOWN" ? "gloss" : "form";
+    const remaining = normalize(typed).split(/\s+/);
+    return tokens.map((tok) => {
+      const text = tok[key];
+      if (!text) return { ...tok, signal: typeResult === "correct" ? "SUCCESS" : "MISTAKE" };
+      const parts = normalize(text).split(/\s+/);
+      const found = parts.every((part) => {
+        const index = remaining.indexOf(part);
+        if (index === -1) return false;
+        remaining.splice(index, 1);
+        return true;
+      });
+      return { ...tok, signal: found ? "SUCCESS" : "MISTAKE" };
+    });
+  });
 
   let inputEl = $state(null);
 
@@ -214,28 +241,65 @@
         {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
       </div>
 
-      <div class="audio-row">
-        <div class="audio-block">
-          {#if asset}
-            <Asset autoplay={true} {asset} />
-          {:else}
-            <span class="no-audio">no audio available</span>
-          {/if}
+      {#if !answered}
+        <div class="audio-row">
+          <div class="audio-block">
+            {#if asset}
+              <Asset autoplay={true} {asset} />
+            {:else}
+              <span class="no-audio">no audio available</span>
+            {/if}
+          </div>
+          <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
+            {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span>{/if}
+          </button>
         </div>
-        <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
-          {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span>{/if}
-        </button>
-      </div>
+      {/if}
 
       {#if gameplay === "TYPE"}
         {#if answered}
-          <div class="type-feedback">
-            {#if typeResult === "correct"}
-              <span class="fb-correct">Correct</span>
-            {:else if typeResult === "close"}
-              <span class="fb-close">Close — {answer}</span>
-            {:else}
-              <span class="fb-wrong">{answer}</span>
+          <div class="divider"></div>
+          <div class="feedback">
+            <div class="fb-row">
+              <div class="fb-left">
+                <div class="fb-block">
+                  <span
+                    class="fb-val"
+                    class:ok={typeResult === "correct"}
+                    class:wrong={typeResult === "wrong"}>
+                    {typeResult === "correct" ? answer : typed}
+                  </span>
+                </div>
+
+                {#if typeResult === "wrong"}
+                  <div class="fb-block">
+                    <span class="fb-key">expected</span>
+                    <span class="fb-val ok">{answer}</span>
+                  </div>
+                {/if}
+
+                {#if isWord && answerExample}
+                  <p class="example revealed">{answerExample}</p>
+                {/if}
+              </div>
+
+              {#if asset}
+                <Asset {asset} />
+              {/if}
+            </div>
+
+            {#if resultTokens}
+              <div class="tokens">
+                {#each resultTokens as tok}
+                  <div
+                    class="tok"
+                    class:tok-ok={tok.signal === "SUCCESS"}
+                    class:tok-miss={tok.signal !== "SUCCESS"}>
+                    <span class="tok-form">{tok.form}</span>
+                    <span class="tok-gloss">{tok.gloss}</span>
+                  </div>
+                {/each}
+              </div>
             {/if}
           </div>
         {/if}
@@ -369,23 +433,102 @@
     color: var(--colors-skeleton-1-boundary);
   }
 
-  .type-feedback {
-    margin-top: 0.5rem;
+  .divider {
+    height: 1px;
+    background: var(--colors-skeleton-1-boundary);
+    margin: 1.5rem 0;
   }
-  .fb-correct {
+  .feedback {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .fb-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .fb-left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .fb-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .fb-key {
     font-family: var(--font-family-code);
-    font-size: 0.75rem;
+    font-size: 0.6rem;
+    color: var(--colors-skeleton-1-boundary);
+  }
+  .fb-val {
+    font-size: 1.25rem;
+    font-family: var(--font-family-serif-heading);
+  }
+  .fb-val.ok {
     color: var(--colors-system-success-contrast);
   }
-  .fb-close {
-    font-family: var(--font-family-serif-heading);
-    font-size: 0.9rem;
-    color: var(--colors-system-warning-contrast, #c90);
+  .fb-val.wrong {
+    color: var(--colors-system-error-contrast);
   }
-  .fb-wrong {
+
+  .example {
     font-family: var(--font-family-serif-heading);
-    font-size: var(--font-size-lg);
-    color: var(--colors-theme-primary-contrast);
+    font-size: 0.95rem;
+    color: var(--colors-skeleton-1-boundary);
+    font-style: italic;
+    margin: 0;
+  }
+  .example.revealed {
+    margin: 0.05rem 0 0 0;
+  }
+
+  .tokens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+    margin-top: 0.25rem;
+  }
+  .tok {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+  }
+  .tok-ok {
+    background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent);
+  }
+  .tok-miss {
+    background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent);
+  }
+  .tok-form {
+    font-family: var(--font-family-serif-heading);
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+  .tok-ok .tok-form {
+    color: var(--colors-system-success-contrast);
+  }
+  .tok-miss .tok-form {
+    color: var(--colors-system-error-contrast);
+  }
+  .tok-gloss {
+    font-family: var(--font-family-code);
+    font-size: 0.55rem;
+    color: var(--colors-skeleton-1-boundary);
+    margin-top: 0.125rem;
+  }
+
+  @media (max-width: 640px) {
+    .feedback { gap: 0.375rem; }
+    .fb-val { font-size: 1rem; }
+    .tok { padding: 0.25rem 0.375rem; }
+    .tok-form { font-size: 0.85rem; }
   }
 
   .pick-area {

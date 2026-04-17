@@ -1,0 +1,38 @@
+meta {
+  name: find
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{DAEMON}}/userspace/entities/turn/find
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "where": {
+      "thread": "{{DEWEY_THREAD_ID}}"
+    },
+    "options": {
+      "orderBy": { "createdAt": "ASC" }
+    }
+  }
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  test("returns turns for thread", function () {
+    const turns = res.getBody();
+    expect(Array.isArray(turns)).to.be.true;
+    console.log(JSON.stringify(turns, null, 2));
+  });
+}

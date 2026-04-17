@@ -27,19 +27,30 @@ function join(...paths) {
 }
 
 export class Url extends Signature {
-  // nature = "/";
-  // origin = null;
+  constructor(...args) {
+    super(...args);
+    this.query ??= {};
+  }
+
   static coercions = [
     [
       (u) => is.url(u) && is.string(u),
       (u) => {
         const url = new URL(u);
-        return { nature: url.pathname, origin: url.origin };
+        return {
+          nature: url.pathname,
+          origin: url.origin,
+          query: Object.fromEntries(url.searchParams),
+        };
       },
     ],
     [
       (u) => is.url(u) && !is.string(u),
-      (u) => ({ nature: u.pathname || u.nature, origin: u.origin }),
+      (u) => ({
+        nature: u.pathname || u.nature,
+        origin: u.origin,
+        query: u.query ?? (u.searchParams ? Object.fromEntries(u.searchParams) : {}),
+      }),
     ],
     [(u) => is.Signal(u), (u) => ({ nature: u.pathname })],
     [(u) => is.string(u), (s) => ({ nature: normalize(s) })],
@@ -56,15 +67,55 @@ export class Url extends Signature {
     });
   }
 
+  with(params) {
+    const merged = { ...this.query };
+    for (const [key, value] of Object.entries(params)) {
+      if (value == null) continue;
+      merged[key] = value;
+    }
+    return new this.constructor({
+      nature: this.nature,
+      origin: this.origin,
+      query: merged,
+    });
+  }
+
+  scheme(proto) {
+    return new this.constructor({
+      nature: this.nature,
+      origin: this.origin?.replace(/^[a-z]+:/, `${proto}:`),
+      query: this.query,
+    });
+  }
+
+  get protocol() {
+    return this.origin?.match(/^([a-z]+):/)?.[1] ?? null;
+  }
+
+  get secure() {
+    return this.protocol === "https" || this.protocol === "wss";
+  }
+
+  get search() {
+    const entries = Object.entries(this.query ?? {});
+    if (!entries.length) return "";
+    return "?" + entries
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join("&");
+  }
+
+  get searchParams() {
+    return new URLSearchParams(this.query);
+  }
+
   get absolute() {
-    return this.origin + this.nature;
+    return this.origin + this.nature + this.search;
   }
 
   get json() {
     return {
       ...super.json,
       origin: this.origin,
-      // href: this.absolute, pathname: this.nature, port: this.port, hostname: this.hostname,
     };
   }
 

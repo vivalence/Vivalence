@@ -1,4 +1,4 @@
-import { specimen, Url, Connection, Response, sleep } from "@vivalence/typology";
+import { specimen, Url, Connection, Response, Vector, sleep } from "@vivalence/typology";
 
 const stubFetch = (body) => async (ctx) => {
   ctx.response = new Response({ body, status: 200 });
@@ -253,17 +253,17 @@ specimen.describe("subscribe + publish + websocket", () => {
     });
   });
 
-  specimen.describe("websocket()", () => {
+  specimen.describe("socket()", () => {
     specimen.it("connects and echoes", async () => {
       const conn = new Connection(new Url(`http://localhost:${PORT}`));
-      const ws = conn.websocket("/ws");
-      const opened = new Promise((r) => { ws.onopen = r; });
+      const socket = conn.socket("/ws", new Vector());
+      const opened = new Promise((r) => { socket.ws.onopen = r; });
       await opened;
 
-      const reply = new Promise((r) => { ws.onmessage = (e) => r(e.data); });
-      ws.send("hello");
+      const reply = new Promise((r) => { socket.ws.onmessage = (e) => r(e.data); });
+      socket.ws.send("hello");
       specimen.expect(await reply).toBe("echo:hello");
-      ws.close();
+      socket.close();
     });
   });
 });

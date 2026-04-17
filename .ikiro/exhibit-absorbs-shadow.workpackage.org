@@ -1,0 +1,1440 @@
+#+TITLE: Exhibit absorbs Shadow — recite as a style of present
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-22
+#+STATUS: DESIGN
+
+* Intent
+
+Collapse the ~shadow~ game mode into ~exhibit~ as a stylistic variant.
+
+Today these are two top-level modes with overlapping shape: ~exhibit~ /presents/
+literals (table / pattern / contrastive layouts, no input), ~shadow~ /presents
+then tests/ a literal (timed memorize phase, then typed recall, per-token
+scoring). Read pedagogically, ~shadow~ is "exhibit, then echo it back" — the
+presentation is the same; the only addition is a follow-up recall stage with
+optional timer.
+
+The two modes already share their ~Desk~ surface, the same TRANSLATED literal
+contract, and the same daemon-level ~/pick/literal/feed~ fallback. ~shadow~'s
+unique surface is ~75 lines of phase + timer state — not enough mode to
+justify standing alone.
+
+After this workpackage:
+
+- ~game/shadow~ no longer exists as a mode in the registry.
+- ~exhibit~ gains a ~data.style~ enum: ~BROWSE~ (default, current behavior) and
+  ~RECITE~ (new, absorbs shadow's two-phase machine).
+- ~exhibit~ gains an ~/emit/recite~ route + a ~recite~ intent.
+- All four shadow call sites in tactics (~clinic/routine.js~,
+  ~survival/buildup.js~, ~survival/exercise.js~, the ~clinic.api.shadow~
+  primitive) point at ~game.exhibit.emit.recite(...)~ instead.
+- The two daemon manifests that import ~"@vivalence/game/shadow"~
+  (~testament~ + ~multiplayer/server~) drop the line.
+- Tests at ~runtime/tests/mode/emitters.test.js~ and
+  ~runtime/tests/daemon/integration.test.js~ retarget the shadow case onto
+  ~exhibit/recite~.
+
+* Why
+
+| Today                                                               | After                                                       |
+|---------------------------------------------------------------------+-------------------------------------------------------------|
+| Two modes, same ~Desk~ surface, same TRANSLATED contract            | One mode (~exhibit~) with two styles                        |
+| ~shadow.svelte~ (458 lines) — only novelty is timer + 2-phase       | ~Exhibit.svelte~ branches on ~data.style~; novelty in one place |
+| Tactic call sites split between ~game.shadow~ and ~game.exhibit~    | All "present + maybe recite" routed through ~game.exhibit~  |
+| Two daemon registry entries for one pedagogical idea                | One                                                         |
+| Shadow's ~MASKED.batch~ key dead — handler reads ~ctx.input.limit~  | Recite intent uses canonical ~MASKED.limit~                 |
+| "Style" axis on a presentation mode does not yet exist anywhere     | ~data.style~ joins ~data.layout~ / ~data.gameplay~ as a discriminant |
+
+The compositional argument: ~exhibit~ is the *presentation primitive* of the
+mode set. Recite is the *presentation primitive followed by an active recall
+stage*. That is one mode with two styles, not two modes.
+
+* Vocabulary
+
+Settled (in use):
+
+- *exhibit* — game mode that presents structured knowledge.
+- *layout* — already on exhibit (~TABLE~ / ~PATTERN~ / ~CONTRASTIVE~). Controls
+  /how literals are arranged/ inside the presentation.
+- *recall* — direction of the question, established across modes:
+  ~LEARNING~ / ~KNOWN~ / per-literal array / omitted (random per literal).
+- *speed* — preset object ~{rate: FAST | NORMAL | SLOW}~ or custom
+  ~{base, multiplier}~. Established on shadow + judge.
+- *forgiving* — boolean toggle for diacritic + punctuation tolerance during
+  evaluation. Established on Write / Listen-TYPE / Shadow.
+- *gameplay* — discriminant axis on ~listen~ (~PICK~ / ~TYPE~), ~match~
+  (~TRANSLATE~), ~cloze~ (~PICK~ / ~TYPE~). Mode-internal interaction shape.
+
+Introduced:
+
+- *style* — new discriminant on ~exhibit~. Controls /what kind of
+  presentation/ this buffer is.
+  - ~BROWSE~ (default) — current exhibit behavior. Renders all literals in
+    one of the layouts. Single "Got it" advance.
+  - ~RECITE~ — absorbs shadow. Steps through literals one at a time, each as
+    a memorize → typed-recall → feedback card. Optional timer (~speed~).
+- ~/emit/recite~ — new route on exhibit. Accepts explicit ~literal~ or
+  ~literals~ input, OR (when neither given and ~where~ is present) auto-fetches
+  via ~daemon.entities.literal.feed~. Returns a buffer with ~data.style:
+  "RECITE"~.
+- *recite* (intent slug) — new dataset intent on exhibit, mounting
+  ~/emit/recite~. Supersedes shadow's ~feed~ intent.
+
+Deprecated:
+
+- ~game/shadow~ mode — deleted.
+- ~api.shadow~ on ~clinic/emitter/shards/routine.js~ — renamed ~api.recite~.
+
+* Architectural directives
+
+- *D1 — One mode, two styles.* Exhibit's data schema gains ~style~ as the
+  primary discriminant. ~layout~ stays a sub-discriminant scoped to
+  ~style: "BROWSE"~. ~recall~ + ~speed~ are sub-discriminants scoped to
+  ~style: "RECITE"~. Wrong-style fields are ignored, not defended against —
+  data shape encodes intent.
+
+- *D2 — Style is presentation-shape, not interaction.* The ~style~ axis is
+  about /what the buffer does/ (browse vs recite), parallel to how ~layout~
+  is /how items lay out/ within browse. It is *not* a synonym for
+  ~gameplay~ (PICK vs TYPE vs ...). Future styles can grow here without
+  collision: ~COVER~ (reveal-on-click), ~TIMED_BROWSE~ (auto-advancing
+  carousel), ~DICTATION~ (audio in, type out — when VOCALIZED matures).
+
+- *D3 — Single ~/emit/recite~ route, polymorphic on input.* Shadow shipped
+  two routes (~/literals~, ~/feed~). Exhibit's ~/recite~ collapses them: if
+  ~literal~ / ~literals~ is given, use it; else if ~where~ is given,
+  ~daemon.entities.literal.feed~ it. The intent mounts ~/emit/recite~ with
+  no literals → auto-fetch branch. Tactics pass ~literal~ → explicit branch.
+
+- *D4 — Tactic call sites change shape, not intent.* Every shadow call
+  becomes a recite call against ~exhibit~. The ~api.shadow~ helper in
+  ~clinic/emitter/shards/routine.js~ is renamed ~api.recite~ and the
+  pedagogical guard inside ~api.contextualizeSentence~ stays
+  (~needsShadow~ → ~needsRecite~ — local rename, same condition).
+
+- *D5 — No backwards-compatibility shim.* Per project convention, no
+  ~game/shadow~ stub re-exporting from exhibit. Delete the directory.
+  Callers are updated in the same diff.
+
+- *D6 — Manifest version bump records the merge.* ~exhibit.viva.js~ goes
+  ~0.1.0~ → ~0.2.0~. Description updates to reflect both styles.
+
+* Design
+
+** Data schema (new exhibit buffer)
+
+#+BEGIN_SRC js
+v.buffer({
+  data: {
+    style: v.string({ default: "BROWSE" }),
+
+    // BROWSE-only fields
+    layout: v.string({ default: "TABLE" }),
+    title: v.string({ default: "" }),
+    subtitle: v.string().optional(),
+    template: v.string().optional(),
+
+    // RECITE-only fields
+    recall: v
+      .union([v.string(), v.array(v.string())], {
+        description: "RECITE only — LEARNING, KNOWN, per-literal array, or omit for random",
+      })
+      .optional(),
+    speed: v
+      .object({})
+      .desc("RECITE only — {rate: FAST|NORMAL|SLOW} or custom {base, multiplier}")
+      .optional(),
+  },
+})
+#+END_SRC
+
+~forgiving~ stays implicit. Shadow currently exposes it as a Svelte prop
+defaulting ~true~ but no caller ever sets it. We do the same in the new
+component (default ~true~, no data field). If it ever needs to be tunable
+per-buffer, add it then.
+
+** Buffer view branching
+
+~Exhibit.svelte~ becomes a single component with a top-level branch on
+~data.style~. The ~BROWSE~ arm is the existing render tree verbatim. The
+~RECITE~ arm is shadow's two-phase machine, plumbed onto the same ~Desk~.
+
+#+BEGIN_SRC text
+Exhibit.svelte
+├─ {#if style === "BROWSE"}
+│   ├─ meta (lang label, layout)
+│   ├─ title / subtitle
+│   ├─ TABLE | PATTERN | CONTRASTIVE
+│   └─ controls: "Got it"
+│
+└─ {#if style === "RECITE"}
+    ├─ {#if phase === "show"}
+    │   ├─ progress bar (countdown)
+    │   ├─ meta (memorize, type, position, time, speed, forgiving)
+    │   ├─ answer (large)
+    │   └─ translation
+    │   controls: "I'm ready"
+    │
+    └─ {#if phase === "recall"}
+        ├─ meta (recall, type, speed, forgiving)
+        ├─ translation
+        └─ {#if submitted} feedback (signal, expected, per-token tokens)
+        controls: text input + Check / Next →
+#+END_SRC
+
+The two arms share nothing in the template — they only share ~Desk~ as the
+chrome. CSS is partitioned into a ~/* ── browse ── */~ section (existing)
+and a ~/* ── recite ── */~ section (lifted from shadow). The mobile
+breakpoints are merged.
+
+** Routes
+
+| Route        | Style  | Input                         | Notes                         |
+|--------------+--------+-------------------------------+-------------------------------|
+| ~/present~   | BROWSE | ~{layout?, title?, subtitle?, template?, literals}~ | Existing — unchanged          |
+| ~/feed~      | BROWSE | ~{layout?, title?, subtitle?, where?, limit?, blacklist?}~ | Existing — unchanged          |
+| ~/recite~    | RECITE | ~{literal? | literals?, where?, limit?, blacklist?, recall?, speed?}~ | New — polymorphic on input    |
+
+Removed (with shadow): ~/literals~, ~/feed~ on ~game/shadow~.
+
+** Intents
+
+| Slug      | Mount               | Mask           | Queue       | Notes        |
+|-----------+---------------------+----------------+-------------+--------------|
+| ~feed~    | ~/emit/feed~        | ~limit: 8~     | ~depth: 1~  | Existing     |
+| ~recite~  | ~/emit/recite~      | ~limit: 3~     | ~depth: 1~  | New (was shadow's ~feed~ intent, with ~MASKED.batch~ corrected to ~limit~) |
+
+Removed: shadow's ~feed~ intent.
+
+** Call site rewrites
+
+Five spots in the registry call ~game.shadow~. Each one becomes a
+~game.exhibit.emit.recite(...)~ call with the exact same payload shape.
+
+| File                                                                           | Before                                                                  | After                                                                    |
+|--------------------------------------------------------------------------------+-------------------------------------------------------------------------+--------------------------------------------------------------------------|
+| ~tactic/clinic/emitter/shards/routine.js:51-52~                                | ~api.shadow = (sentence, opts) => game.shadow.emit.literals({...})~     | ~api.recite = (sentence, opts) => game.exhibit.emit.recite({...})~       |
+| ~tactic/clinic/emitter/shards/routine.js:148-150~ (api.contextualizeSentence)  | ~if (needsShadow) api.shadow(sentence)~                                 | ~if (needsRecite) api.recite(sentence)~                                  |
+| ~tactic/survival/emitter/buildup.js:99-105~                                    | ~game.shadow.emit.literals({literal, recall, speed})~                   | ~game.exhibit.emit.recite({literal, recall, speed})~                     |
+| ~tactic/survival/emitter/exercise.js:34-40~                                    | ~needsShadow ? game.shadow.emit.literals(...) : game.write.emit...~     | ~needsShadow ? game.exhibit.emit.recite(...) : game.write.emit...~ (variable name kept) |
+
+The two daemon manifests:
+
+| File                                                                              | Change                                                |
+|-----------------------------------------------------------------------------------+-------------------------------------------------------|
+| ~testament/variant/circuitry/test-daemon.viva.js~                                 | Drop the ~"@vivalence/game/shadow"~ line             |
+| ~registry/wafers/@vivalence/variant/multiplayer/server/daemon.viva.js~            | Drop the ~"@vivalence/game/shadow"~ line             |
+
+(~registry/wafers/@vivalence/bak/circuitry/runtime/daemon.viva.js~ is an
+archive — leave it.)
+
+* Full diff
+
+** New file: ~registry/modes/@vivalence/game/exhibit/exhibit.viva.js~
+
+Replaces the existing 69 lines.
+
+#+BEGIN_SRC js
+import { cast, BufferView, Vector, v } from "@vivalence/typology";
+
+const manifest = {
+  type: "game",
+  slug: "exhibit",
+  name: "Exhibit",
+  description:
+    "Present structured knowledge. Browse layouts (table, pattern, contrastive), or recite (memorize then type back).",
+  version: "0.2.0",
+  traits: ["BUFFERED", "EMITTER"],
+};
+
+const buffer = new BufferView(
+  "buffer/Exhibit.svelte",
+  v.buffer({
+    data: {
+      style: v.string({ default: "BROWSE" }),
+      layout: v.string({ default: "TABLE" }),
+      title: v.string({ default: "" }),
+      subtitle: v.string().optional(),
+      template: v.string().optional(),
+      recall: v
+        .union([v.string(), v.array(v.string())], {
+          description: "RECITE only — LEARNING, KNOWN, per-literal array, or omit for random",
+        })
+        .optional(),
+      speed: v
+        .object({})
+        .desc("RECITE only — {rate: FAST|NORMAL|SLOW} or custom {base, multiplier}")
+        .optional(),
+    },
+  }),
+);
+
+const emitter = new Vector()
+  .open("/present", async (ctx) => {
+    return ctx.mode.buffer({
+      data: {
+        style: "BROWSE",
+        layout: ctx.input.layout ?? "TABLE",
+        title: ctx.input.title ?? "",
+        subtitle: ctx.input.subtitle,
+        template: ctx.input.template,
+      },
+      literals: ctx.input.literals,
+    });
+  })
+  .open("/feed", async (ctx) => {
+    const limit = ctx.input.limit ?? 8;
+    const literals = await ctx.daemon.entities.literal.feed(
+      ctx.input.where,
+      { limit, blacklist: ctx.input.blacklist },
+    );
+    if (!literals.length) return [];
+    return ctx.mode.buffer({
+      data: {
+        style: "BROWSE",
+        layout: ctx.input.layout ?? "TABLE",
+        title: ctx.input.title ?? "",
+        subtitle: ctx.input.subtitle,
+      },
+      literals,
+    });
+  })
+  .open("/recite", async (ctx) => {
+    let literals = ctx.input.literals ?? cast.array(ctx.input.literal);
+    if (!literals?.length && ctx.input.where) {
+      const limit = ctx.input.limit ?? 3;
+      literals = await ctx.daemon.entities.literal.feed(
+        ctx.input.where,
+        { limit, blacklist: ctx.input.blacklist },
+      );
+    }
+    if (!literals?.length) return [];
+    return ctx.mode.buffer({
+      data: {
+        style: "RECITE",
+        recall: ctx.input.recall,
+        speed: ctx.input.speed ?? null,
+      },
+      literals,
+    });
+  });
+
+const dataset = {
+  intent: [
+    {
+      slug: "feed",
+      name: "Exhibit",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: {
+        MASKED: { limit: 8 },
+        AIMED: { mount: "/emit/feed" },
+        QUEUEING: { depth: 1 },
+      },
+    },
+    {
+      slug: "recite",
+      name: "Recite",
+      traits: ["MASKED", "AIMED", "QUEUEING"],
+      trait: {
+        MASKED: { limit: 3 },
+        AIMED: { mount: "/emit/recite" },
+        QUEUEING: { depth: 1 },
+      },
+    },
+  ],
+};
+
+export { manifest, buffer, emitter, dataset };
+#+END_SRC
+
+** New file: ~registry/modes/@vivalence/game/exhibit/buffer/Exhibit.svelte~
+
+Replaces the existing 382 lines. Combines the BROWSE arm (existing) with
+the RECITE arm (lifted from ~shadow/buffer/Shadow.svelte~ verbatim, only
+the dispatch wrapper is new).
+
+#+BEGIN_SRC svelte
+<script>
+  import { Asset, Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
+
+  const { terminal, buffer, forgiving = true } = $props();
+
+  const data = buffer.data ?? {};
+  const style = data.style ?? "BROWSE";
+
+  // ─────────────────────────────── BROWSE state ─────────────────────────────
+  const layout = data.layout ?? "TABLE";
+  const title = data.title ?? "";
+  const subtitle = data.subtitle;
+  const template = data.template;
+
+  let literals = $state(buffer.literals ?? []);
+  let loading = $state(!literals.length);
+
+  if (style === "BROWSE" && !literals.length) {
+    terminal.daemon.call("/pick/literal/feed", { limit: 6 }).then((lits) => {
+      literals = lits ?? [];
+      loading = false;
+    });
+  }
+
+  function personLabel(literal) {
+    const symbols = literal?.symbol ?? {};
+    if (symbols["word.person.first"] && symbols["word.number.singular"]) return "eu";
+    if (symbols["word.person.second"] && symbols["word.number.singular"]) return "tu";
+    if (symbols["word.person.third"] && symbols["word.number.singular"]) return "ele/ela/você";
+    if (symbols["word.person.first"] && symbols["word.number.plural"]) return "nós";
+    if (symbols["word.person.second"] && symbols["word.number.plural"]) return "vós";
+    if (symbols["word.person.third"] && symbols["word.number.plural"]) return "eles/elas/vocês";
+    return null;
+  }
+
+  function known(literal) { return literal?.trait?.TRANSLATED?.known; }
+  function learning(literal) { return literal?.trait?.TRANSLATED?.learning; }
+
+  function getAudio(literal) {
+    const reference = literal?.trait?.VOCALIZED?.asset;
+    return reference ? terminal.daemon.getAsset(reference) : null;
+  }
+
+  function parseTemplate(templateString) {
+    if (!templateString) return [];
+    const parts = templateString.split(/(\{[^}]+\})/g);
+    return parts.map((part) => {
+      const match = part.match(/^\{(.+)\}$/);
+      if (match) return { type: "slot", label: match[1] };
+      return { type: "text", value: part };
+    });
+  }
+
+  const templateParts = $derived(template ? parseTemplate(template) : []);
+
+  function contrastiveGroups(items) {
+    const middle = Math.ceil(items.length / 2);
+    return [items.slice(0, middle), items.slice(middle)];
+  }
+
+  const groups = $derived(layout === "CONTRASTIVE" ? contrastiveGroups(literals) : []);
+
+  function browseAdvance() {
+    buffer.release();
+  }
+
+  // ─────────────────────────────── RECITE state ─────────────────────────────
+  let keyboard;
+  const speed = data.speed ?? {};
+  const queue = buffer.literals ?? [];
+
+  function recallFor(index) {
+    const direction = data.recall;
+    if (!direction) return Math.random() > 0.5 ? "KNOWN" : "LEARNING";
+    if (Array.isArray(direction)) return direction[index] ?? (Math.random() > 0.5 ? "KNOWN" : "LEARNING");
+    return direction;
+  }
+
+  let currentIndex = $state(0);
+  let activeRecall = $state(recallFor(0));
+  let literal = $state(queue[0] ?? null);
+  let reciteLoading = $state(style === "RECITE" && !literal);
+  let phase = $state("show");
+  let input = $state("");
+  let submitted = $state(false);
+  let result = $state(null);
+  let elapsed = $state(0);
+  let timerInterval = $state(null);
+
+  const total = $derived(queue.length);
+  const position = $derived(currentIndex + 1);
+
+  const isWord = $derived(literal?.symbol?.word);
+  const knownText = $derived(literal?.trait?.TRANSLATED?.known);
+  const learningText = $derived(literal?.trait?.TRANSLATED?.learning);
+  const prompt = $derived(activeRecall === "KNOWN" ? learningText : knownText);
+  const answer = $derived(activeRecall === "KNOWN" ? knownText : learningText);
+  const answerLabel = $derived(activeRecall === "KNOWN" ? "English" : "Português");
+
+  const SPEED_PRESETS = {
+    FAST: { base: 1200, multiplier: 80 },
+    NORMAL: { base: 2400, multiplier: 120 },
+    SLOW: { base: 3600, multiplier: 180 },
+  };
+
+  const resolvedSpeed = (() => {
+    const preset = SPEED_PRESETS[speed.rate] ?? SPEED_PRESETS.NORMAL;
+    return {
+      base: speed.base ?? preset.base,
+      multiplier: speed.multiplier ?? preset.multiplier,
+    };
+  })();
+
+  const timeMs = $derived.by(() => {
+    if (!answer) return resolvedSpeed.base;
+    return resolvedSpeed.base + answer.length * resolvedSpeed.multiplier;
+  });
+
+  const progress = $derived(Math.max(0, 1 - elapsed / timeMs));
+
+  const normalize = forgiving
+    ? (text) =>
+        text
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[̀-ͯ]/g, "")
+          .replace(/[?.!,;:'"'´`~\-—]/g, "")
+          .trim()
+    : (text) => text.toLowerCase().trim();
+
+  function evaluate(rawInput, currentLiteral, currentRecall, word) {
+    const expected =
+      currentRecall === "KNOWN"
+        ? currentLiteral.trait.TRANSLATED.known
+        : currentLiteral.trait.TRANSLATED.learning;
+    if (word) return evaluateWord(rawInput, expected);
+    return evaluateSentence(rawInput, expected, currentLiteral.trait.ANNOTATED?.tokens, currentRecall);
+  }
+
+  function evaluateWord(rawInput, expected) {
+    const alternatives = expected
+      .split("/")
+      .map((alternative) => alternative.replace(/\(.*?\)/g, "").trim())
+      .filter(Boolean);
+    const match = alternatives.some((alternative) => normalize(rawInput) === normalize(alternative));
+    return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
+  }
+
+  function evaluateSentence(rawInput, expected, tokens, currentRecall) {
+    const match = normalize(rawInput) === normalize(expected);
+    if (!tokens) {
+      return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
+    }
+    if (currentRecall === "KNOWN") {
+      const signal = match ? "SUCCESS" : "MISTAKE";
+      return { signal, tokens: tokens.map((token) => ({ ...token, signal })) };
+    }
+    const remaining = normalize(rawInput).split(/\s+/);
+    const results = tokens.map((token) => {
+      const parts = normalize(token.form).split(/\s+/);
+      const found = parts.every((part) => {
+        const index = remaining.indexOf(part);
+        if (index === -1) return false;
+        remaining.splice(index, 1);
+        return true;
+      });
+      return { ...token, signal: found ? "SUCCESS" : "MISTAKE" };
+    });
+    const correct = results.filter((token) => token.signal === "SUCCESS").length;
+    const total = results.length;
+    const signal = correct === total ? "SUCCESS" : "MISTAKE";
+    return { signal, tokens: results };
+  }
+
+  function review(outcome) {
+    terminal.daemon.call("/review/literal", {
+      signal: outcome.signal,
+      scope: { literal: literal.id },
+    });
+    if (outcome.tokens) {
+      for (const token of outcome.tokens) {
+        if (!token.literal) continue;
+        terminal.daemon.call("/review/literal", {
+          signal: token.signal,
+          scope: { literal: token.literal },
+        });
+      }
+    }
+  }
+
+  function skipToRecall() {
+    clearInterval(timerInterval);
+    phase = "recall";
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    elapsed = 0;
+    timerInterval = setInterval(() => {
+      elapsed += 50;
+      if (elapsed >= timeMs) {
+        clearInterval(timerInterval);
+        phase = "recall";
+      }
+    }, 50);
+  }
+
+  function begin(card) {
+    literal = card;
+    reciteLoading = false;
+    phase = "show";
+    startTimer();
+  }
+
+  if (style === "RECITE") {
+    if (literal) {
+      begin(literal);
+    } else {
+      terminal.daemon.call("/pick/literal/feed", { limit: 3 }).then((cards) => {
+        if (cards?.length) {
+          for (const card of cards) queue.push(card);
+          begin(queue[0]);
+        } else {
+          reciteLoading = false;
+        }
+      });
+    }
+  }
+
+  function submit() {
+    if (!input.trim() || submitted) return;
+    submitted = true;
+    result = evaluate(input, literal, activeRecall, isWord);
+    review(result);
+  }
+
+  async function next() {
+    clearInterval(timerInterval);
+    if (currentIndex + 1 < queue.length) {
+      currentIndex++;
+      activeRecall = recallFor(currentIndex);
+      input = "";
+      submitted = false;
+      result = null;
+      begin(queue[currentIndex]);
+    } else {
+      buffer.release();
+    }
+  }
+
+  let inputElement = $state(null);
+
+  $effect(() => {
+    if (style !== "RECITE") return;
+    if (phase === "recall" && inputElement) {
+      inputElement.focus();
+    } else if (phase === "show" && keyboard) {
+      keyboard.focus();
+    }
+  });
+
+  function handleKey(event) {
+    if (style === "BROWSE") {
+      if (event.target.closest("input,textarea")) return;
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        browseAdvance();
+      }
+      return;
+    }
+    if (event.key === "Enter") {
+      if (phase === "show") return skipToRecall();
+      if (!submitted) submit();
+      else next();
+    }
+  }
+</script>
+
+{#if style === "RECITE"}
+  <Keyboard bind:this={keyboard} />
+  <ViewportLock />
+{/if}
+<svelte:window onkeydown={handleKey} />
+
+<Desk maxWidth={style === "RECITE" ? "640px" : undefined}>
+  {#snippet surface()}
+    {#if style === "BROWSE"}
+      {#if literals.length}
+        <div class="meta">
+          <span class="meta-lang">Exhibit</span>
+          <span class="meta-type">{layout}</span>
+        </div>
+
+        {#if title}
+          <h2 class="title">{title}</h2>
+        {/if}
+        {#if subtitle}
+          <p class="subtitle">{subtitle}</p>
+        {/if}
+
+        {#if layout === "TABLE"}
+          <div class="table">
+            {#each literals as literal}
+              {@const person = personLabel(literal)}
+              <div class="table-row">
+                {#if person}
+                  <span class="table-person">{person}</span>
+                {/if}
+                <span class="table-form">{learning(literal)}</span>
+                <span class="table-gloss">{known(literal)}</span>
+                {#if getAudio(literal)}
+                  <span class="table-dot">
+                    <Asset asset={getAudio(literal)} variant="dot" />
+                  </span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+
+        {:else if layout === "PATTERN"}
+          {#if templateParts.length}
+            <div class="pattern-template">
+              {#each templateParts as part}
+                {#if part.type === "slot"}
+                  <span class="pattern-slot">{part.label}</span>
+                {:else}
+                  <span class="pattern-text">{part.value}</span>
+                {/if}
+              {/each}
+            </div>
+          {/if}
+
+          <div class="examples">
+            {#each literals as literal}
+              <div class="example-row">
+                <p class="example-learning">{learning(literal)}</p>
+                <p class="example-known">{known(literal)}</p>
+              </div>
+            {/each}
+          </div>
+
+        {:else if layout === "CONTRASTIVE"}
+          <div class="contrastive">
+            {#each groups as group, groupIndex}
+              <div class="contrast-col">
+                {#each group as literal}
+                  <div class="contrast-row">
+                    <p class="contrast-learning">{learning(literal)}</p>
+                    <p class="contrast-known">{known(literal)}</p>
+                  </div>
+                {/each}
+              </div>
+              {#if groupIndex === 0}
+                <div class="contrast-divider"></div>
+              {/if}
+            {/each}
+          </div>
+        {/if}
+      {:else if loading}
+        <div class="loading"><span class="dot"></span></div>
+      {/if}
+    {:else if style === "RECITE"}
+      {#if literal}
+        {#if phase === "show"}
+          <div class="progress">
+            <div class="progress-fill" style="width: {progress * 100}%"></div>
+          </div>
+
+          <div class="meta">
+            <span class="meta-phase meta-phase-show"
+              >memorize {activeRecall === "KNOWN" ? "known" : "learning"}</span>
+            <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+            {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
+            <span class="meta-time">{(timeMs / 1000).toFixed(1)}s</span>
+            <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
+            {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+          </div>
+
+          <p class="recite-prompt" class:recite-prompt-word={isWord}>{answer}</p>
+          <p class="translation">{prompt}</p>
+        {:else}
+          <div class="meta">
+            <span class="meta-phase meta-phase-recall"
+              >recall {activeRecall === "KNOWN" ? "known" : "learning"}</span>
+            <span class="meta-type">{isWord ? "word" : "sentence"}</span>
+            <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
+            {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+          </div>
+
+          <p class="translation recall-translation">{prompt}</p>
+
+          {#if submitted && result}
+            <div class="divider"></div>
+
+            <div class="feedback">
+              <div class="fb-block">
+                <span
+                  class="fb-val"
+                  class:ok={result.signal === "SUCCESS"}
+                  class:wrong={result.signal !== "SUCCESS"}>
+                  {result.signal === "SUCCESS" ? answer : input}
+                </span>
+              </div>
+
+              {#if result.signal !== "SUCCESS"}
+                <div class="fb-block">
+                  <span class="fb-key">expected</span>
+                  <span class="fb-val ok">{answer}</span>
+                </div>
+              {/if}
+
+              {#if result.tokens}
+                <div class="tokens">
+                  {#each result.tokens as token}
+                    <div
+                      class="tok"
+                      class:tok-ok={token.signal === "SUCCESS"}
+                      class:tok-miss={token.signal !== "SUCCESS"}>
+                      <span class="tok-form">{token.form}</span>
+                      <span class="tok-gloss">{token.gloss}</span>
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          {/if}
+        {/if}
+      {:else if reciteLoading}
+        <div class="loading"><span class="dot"></span></div>
+      {/if}
+    {/if}
+  {/snippet}
+
+  {#snippet controls()}
+    {#if style === "BROWSE"}
+      {#if loading}
+        <span class="menu-hint">loading...</span>
+      {:else}
+        <button class="btn btn-got-it" onmousedown={(event) => event.preventDefault()} onclick={browseAdvance}>
+          Got it
+        </button>
+      {/if}
+    {:else if style === "RECITE"}
+      {#if phase === "show"}
+        <button class="btn btn-skip" onmousedown={(event) => event.preventDefault()} onclick={skipToRecall}>
+          I'm ready
+        </button>
+      {:else}
+        <input
+          class="field"
+          class:field-locked={submitted}
+          bind:this={inputElement}
+          value={input}
+          oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
+          placeholder="{answerLabel}…" />
+        {#if !submitted}
+          <button class="btn btn-check" onmousedown={(event) => event.preventDefault()} onclick={submit} disabled={reciteLoading || !literal}>Check</button>
+        {:else}
+          <button class="btn btn-next" onmousedown={(event) => event.preventDefault()} onclick={next} disabled={reciteLoading}>Next →</button>
+        {/if}
+      {/if}
+    {/if}
+  {/snippet}
+</Desk>
+
+<style>
+  /* ── shared ── */
+  .meta {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    align-items: baseline;
+  }
+  .meta-lang {
+    font-family: var(--font-family-code);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--colors-theme-primary-contrast);
+  }
+  .meta-type {
+    font-family: var(--font-family-code);
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: var(--colors-skeleton-1-boundary);
+  }
+  .title {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--colors-palette-gray-10);
+    line-height: 1.2;
+    margin: 0 0 0.25rem 0;
+  }
+  .subtitle {
+    font-family: var(--font-family-code);
+    font-size: 0.7rem;
+    color: var(--colors-skeleton-1-boundary);
+    margin: 0 0 1.5rem 0;
+  }
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 2rem;
+  }
+  .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--colors-skeleton-1-boundary);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .menu-hint {
+    display: block;
+    text-align: center;
+    padding: 1rem;
+    color: var(--colors-skeleton-1-boundary);
+    font-size: 0.8rem;
+    font-family: var(--font-family-code);
+  }
+  .translation {
+    font-size: 0.95rem;
+    color: var(--colors-skeleton-1-contrast);
+    font-family: var(--font-family-sans-text);
+    margin: 0;
+  }
+
+  /* ── browse: table layout ── */
+  .table {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+  .table-row {
+    display: grid;
+    grid-template-columns: minmax(5rem, auto) 1fr auto;
+    gap: 0 1rem;
+    align-items: center;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
+  }
+  .table-row:nth-child(odd) {
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 70%, transparent);
+  }
+  .table-person {
+    font-family: var(--font-family-code);
+    font-size: 0.7rem;
+    color: var(--colors-skeleton-1-boundary);
+  }
+  .table-form {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-base);
+    color: var(--colors-theme-primary-contrast);
+    line-height: 1.35;
+  }
+  .table-gloss {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.8rem;
+    color: var(--colors-skeleton-1-boundary);
+    line-height: 1.35;
+  }
+  .table-dot { justify-self: end; }
+
+  /* ── browse: pattern layout ── */
+  .pattern-template {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    align-items: baseline;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, transparent);
+  }
+  .pattern-text {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-lg);
+    color: var(--colors-palette-gray-10);
+  }
+  .pattern-slot {
+    font-family: var(--font-family-code);
+    font-size: 0.8rem;
+    color: var(--colors-theme-primary-contrast);
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--colors-theme-primary-surface) 40%, transparent);
+    border: 1px dashed var(--colors-theme-primary-contrast);
+  }
+  .examples {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .example-row {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
+  }
+  .example-learning {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-lg);
+    color: var(--colors-palette-gray-10);
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+  }
+  .example-known {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.85rem;
+    color: var(--colors-skeleton-1-boundary);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ── browse: contrastive layout ── */
+  .contrastive { display: flex; gap: 0.75rem; }
+  .contrast-col { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+  .contrast-divider { width: 1px; background: var(--colors-skeleton-1-boundary); flex-shrink: 0; }
+  .contrast-row {
+    padding: 0.625rem;
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 40%, transparent);
+  }
+  .contrast-learning {
+    font-family: var(--font-family-serif-heading);
+    font-size: 1rem;
+    color: var(--colors-palette-gray-10);
+    margin: 0 0 0.125rem 0;
+    line-height: 1.3;
+  }
+  .contrast-known {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.75rem;
+    color: var(--colors-skeleton-1-boundary);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* ── recite: timer + phase ── */
+  .progress {
+    height: 3px;
+    background: var(--colors-skeleton-1-boundary);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--colors-system-warning-contrast);
+    transition: width 50ms linear;
+    border-radius: 2px;
+  }
+  .meta-phase, .meta-time {
+    font-family: var(--font-family-code);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .meta-phase-show { color: var(--colors-theme-accent-contrast); }
+  .meta-phase-recall { color: var(--colors-theme-primary-contrast); }
+  .meta-time { color: var(--colors-theme-primary-contrast); }
+  .meta-hint {
+    font-family: var(--font-family-code);
+    font-size: 0.55rem;
+    color: var(--colors-skeleton-1-boundary);
+    opacity: 0.6;
+  }
+  .recite-prompt {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-2xl);
+    color: var(--colors-palette-gray-10);
+    line-height: 1.2;
+    margin: 0 0 0.5rem 0;
+  }
+  .recite-prompt-word { font-size: var(--font-size-3xl); }
+  .recall-translation {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-lg);
+    color: var(--colors-palette-gray-10);
+    margin-bottom: 1.25rem;
+  }
+  .divider {
+    height: 1px;
+    background: var(--colors-skeleton-1-boundary);
+    margin: 1.5rem 0;
+  }
+  .feedback { display: flex; flex-direction: column; gap: 0.75rem; }
+  .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
+  .fb-key { font-family: var(--font-family-code); font-size: 0.6rem; color: var(--colors-skeleton-1-boundary); }
+  .fb-val { font-size: 1.25rem; font-family: var(--font-family-serif-heading); }
+  .fb-val.ok { color: var(--colors-system-success-contrast); }
+  .fb-val.wrong { color: var(--colors-system-error-contrast); }
+  .tokens { display: flex; flex-wrap: wrap; gap: 0.125rem; margin-top: 0.25rem; }
+  .tok { display: flex; flex-direction: column; align-items: center; padding: 0.375rem 0.5rem; border-radius: 0.25rem; }
+  .tok-ok { background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent); }
+  .tok-miss { background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent); }
+  .tok-form { font-family: var(--font-family-serif-heading); font-size: 1rem; line-height: 1.2; }
+  .tok-ok .tok-form { color: var(--colors-system-success-contrast); }
+  .tok-miss .tok-form { color: var(--colors-system-error-contrast); }
+  .tok-gloss { font-family: var(--font-family-code); font-size: 0.55rem; color: var(--colors-skeleton-1-boundary); margin-top: 0.125rem; }
+
+  /* ── recite: input + buttons ── */
+  .field {
+    flex: 1;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 50%, var(--colors-skeleton-app-surface));
+    color: var(--colors-palette-gray-10);
+    font-size: 1rem;
+    font-family: var(--font-family-serif-heading);
+    outline: none;
+    box-sizing: border-box;
+  }
+  .field::placeholder { color: var(--colors-skeleton-1-boundary); }
+  .field-locked { opacity: 0.4; pointer-events: none; }
+  .btn {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-family-sans-text);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-check {
+    background: var(--colors-theme-primary-surface);
+    color: var(--colors-theme-primary-contrast);
+  }
+  .btn-next {
+    flex: 1;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    color: var(--colors-palette-gray-200);
+    font-weight: 500;
+  }
+  .btn-skip {
+    flex: 1;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    color: var(--colors-skeleton-1-boundary);
+    font-weight: 500;
+  }
+  .btn-got-it {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    border-radius: 0.625rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    background: transparent;
+    color: var(--colors-palette-gray-200);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font-family-sans-text);
+  }
+  .btn-got-it:hover {
+    border-color: var(--colors-skeleton-1-contrast);
+  }
+
+  @media (max-width: 640px) {
+    .title { font-size: var(--font-size-xl); }
+    .table { gap: 0.375rem; }
+    .table-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+      padding: 0.75rem 0.875rem;
+    }
+    .table-person { font-size: 0.6rem; margin-bottom: 0.125rem; }
+    .table-form { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); font-weight: 600; }
+    .table-gloss { font-size: 0.8rem; font-family: var(--font-family-sans-text); }
+    .contrastive { flex-direction: column; }
+    .contrast-divider { width: 100%; height: 1px; }
+
+    .recite-prompt { font-size: var(--font-size-base); }
+    .recite-prompt-word { font-size: var(--font-size-lg); }
+    .recall-translation { font-size: var(--font-size-base); }
+    .fb-val { font-size: 1rem; }
+    .tok { padding: 0.25rem 0.375rem; }
+    .tok-form { font-size: 0.85rem; }
+  }
+</style>
+#+END_SRC
+
+** Edit: ~registry/modes/@vivalence/tactic/clinic/emitter/shards/routine.js~
+
+Lines 51-52 (the ~api.shadow~ primitive):
+
+#+BEGIN_SRC diff
+-    shadow: (sentence, { rate = "SLOW", recall = "LEARNING" } = {}) =>
+-      ctx.pool.add(game.shadow.emit.literals({ literal: sentence, recall, speed: { rate } })),
++    recite: (sentence, { rate = "SLOW", recall = "LEARNING" } = {}) =>
++      ctx.pool.add(game.exhibit.emit.recite({ literal: sentence, recall, speed: { rate } })),
+#+END_SRC
+
+Lines 148-150 (the ~api.contextualizeSentence~ compound routine):
+
+#+BEGIN_SRC diff
+   api.contextualizeSentence = (sentence) => {
+-    const needsShadow = (sentence.memory?.is?.virgin ?? true) || sentence.memory?.is?.failed;
+-    if (needsShadow) api.shadow(sentence);
++    const needsRecite = (sentence.memory?.is?.virgin ?? true) || sentence.memory?.is?.failed;
++    if (needsRecite) api.recite(sentence);
+     else api.write(sentence);
+     if (sentence.traits?.includes("VOCALIZED")) api.listen(sentence);
+   };
+#+END_SRC
+
+** Edit: ~registry/modes/@vivalence/tactic/survival/emitter/buildup.js~
+
+Lines 96-115 (the ~emitContextualize~ helper):
+
+#+BEGIN_SRC diff
+ function emitContextualize(ctx, { sentences }) {
+   for (const sentence of sentences) {
+     if (sentence.memory?.is?.virgin ?? true) {
+       ctx.pool.add(
+-        ctx.daemon.modes.game.shadow.emit.literals({
++        ctx.daemon.modes.game.exhibit.emit.recite({
+           literal: sentence,
+           recall: "LEARNING",
+           speed: { rate: "SLOW" },
+         }),
+       );
+     } else if (sentence.memory.is.weak) {
+#+END_SRC
+
+** Edit: ~registry/modes/@vivalence/tactic/survival/emitter/exercise.js~
+
+Lines 26-41 (the body-block branch). Variable name ~needsShadow~ stays —
+inside this file it is a local that names the pedagogical branch, not
+the mode; the value still reads "we want a recite-style buffer here."
+
+#+BEGIN_SRC diff
+       ...sentences.map((sentence) => {
+         const needsShadow = (sentence.memory?.is?.virgin ?? true) || sentence.memory?.is?.failed;
+         if (sentence.traits?.includes("VOCALIZED")) {
+           return game.listen.emit.literal({
+             literal: sentence,
+             gameplay: needsShadow ? "PICK" : "TYPE",
+             recall: "LEARNING",
+           });
+         }
+         return needsShadow
+-          ? game.shadow.emit.literals({
++          ? game.exhibit.emit.recite({
+               literal: sentence,
+               recall: "LEARNING",
+               speed: { rate: "SLOW" },
+             })
+           : game.write.emit.literals({ literal: sentence, recall: "LEARNING" });
+       }),
+#+END_SRC
+
+(If ~needsShadow~ feels misleading inside this file later, rename it then —
+not in this diff. Scope discipline.)
+
+** Edit: ~testament/variant/circuitry/test-daemon.viva.js~
+
+Drop the shadow line:
+
+#+BEGIN_SRC diff
+       "@vivalence/game/write",
+-      "@vivalence/game/shadow",
+       "@vivalence/game/judge",
+#+END_SRC
+
+** Edit: ~registry/wafers/@vivalence/variant/multiplayer/server/daemon.viva.js~
+
+Drop the shadow line:
+
+#+BEGIN_SRC diff
+       "@vivalence/game/write",
+-      "@vivalence/game/shadow",
+       "@vivalence/game/judge",
+#+END_SRC
+
+** Delete
+
+- ~registry/modes/@vivalence/game/shadow/shadow.viva.js~
+- ~registry/modes/@vivalence/game/shadow/buffer/Shadow.svelte~
+- ~registry/modes/@vivalence/game/shadow/dataset/index.js~
+- ~registry/modes/@vivalence/game/shadow/~ (the directory)
+
+* Tests
+
+** Edit: ~systems/runtime/tests/mode/emitters.test.js~
+
+Drop the shadow import + entry, add a ~recite~ route to the exhibit input
+map:
+
+#+BEGIN_SRC diff
+ import * as flashcard from "../../../../registry/modes/@vivalence/game/flashcard/flashcard.viva.js";
+ import * as exhibit from "../../../../registry/modes/@vivalence/game/exhibit/exhibit.viva.js";
+-import * as shadow from "../../../../registry/modes/@vivalence/game/shadow/shadow.viva.js";
+ import * as write from "../../../../registry/modes/@vivalence/game/write/write.viva.js";
+
+ ...
+   exhibit: {
+     present: (fixtures) => ({ layout: "table", title: "Test", literals: [fixtures.hello, fixtures.goodbye] }),
+     feed: (fixtures) => ({ limit: 2 }),
++    recite: (fixtures) => ({ literal: fixtures.hello, recall: "LEARNING" }),
+   },
+-  shadow: {
+-    literals: (fixtures) => ({ literal: fixtures.hello, recall: "LEARNING" }),
+-    feed: (fixtures) => ({ limit: 2 }),
+-  },
+
+ ...
+-const modes = { flashcard, exhibit, shadow, write, match, judge, pick };
++const modes = { flashcard, exhibit, write, match, judge, pick };
+#+END_SRC
+
+** Edit: ~systems/runtime/tests/daemon/integration.test.js~
+
+Replace the ~game: shadow~ describe (lines 251-262) with an ~exhibit/recite~
+case. The existing ~game: exhibit~ describe (lines 133-146) stays.
+
+#+BEGIN_SRC diff
+-  specimen.describe("game: shadow", () => {
+-    it("emit/literals returns Yield with speed data", async () => {
+-      const res = await d.emit("game/shadow", "literals", {
+-        recall: "KNOWN",
+-        literals: literals.slice(0, 2),
+-      });
+-      specimen.expect(res.condition).toBe("NOMINAL");
+-      specimen.expect(res.buffers.length).toBe(1);
+-      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
+-      specimen.expect(res.buffers[0].literals.length).toBe(2);
+-    });
+-  });
++  specimen.describe("game: exhibit (recite style)", () => {
++    it("emit/recite returns Yield with style=RECITE + recall + speed", async () => {
++      const res = await d.emit("game/exhibit", "recite", {
++        recall: "KNOWN",
++        speed: { rate: "SLOW" },
++        literals: literals.slice(0, 2),
++      });
++      specimen.expect(res.condition).toBe("NOMINAL");
++      specimen.expect(res.buffers.length).toBe(1);
++      specimen.expect(res.buffers[0].data.style).toBe("RECITE");
++      specimen.expect(res.buffers[0].data.recall).toBe("KNOWN");
++      specimen.expect(res.buffers[0].literals.length).toBe(2);
++    });
++  });
+#+END_SRC
+
+** No new test files
+
+The integration test covers the emit shape. The unit test in
+~emitters.test.js~ exercises the new ~recite~ route. Browser verification
+covers the two-style render branch (see "Verify" below).
+
+* What we considered pulling from shadow before deletion
+
+Catalog of shadow-only pieces, with disposition:
+
+- *Two-phase machine (show → recall)* — *PULLED* into RECITE arm.
+- *Timer + progress bar* — *PULLED* into RECITE arm. The
+  progress-bar component is local CSS, not yet a shared primitive — leave
+  it inline; promote later if a third site needs it.
+- *Speed presets (FAST/NORMAL/SLOW with base + multiplier)* — *PULLED*
+  inline. ~judge~ also has a ~speed~ field; if a third mode wants it,
+  factor a ~drapes/timing~ helper then. Two sites is not yet
+  duplication worth extracting.
+- *Forgiving normalization* — *PULLED* (already duplicated in Write +
+  Listen — three copies after this diff). Marked for follow-up
+  workpackage: lift ~normalize~ + ~evaluateWord~ + ~evaluateSentence~ to
+  ~drapes/grading~ or similar. Out of scope here — a refactor across
+  Write / Listen / new-Exhibit-RECITE that should not ride on a mode
+  collapse.
+- *Per-token sentence evaluation (~evaluateSentence~ with order-agnostic
+  matching)* — *PULLED* inline (same provenance as Write/Listen).
+- *~/review/literal~ call pattern* — already established daemon route;
+  *PULLED* inline (no change to call shape).
+- *~recallFor(i)~ random / array / fixed selector* — *PULLED* inline.
+  Same shape as Write's. Good extraction candidate later.
+- *~Keyboard~ + ~ViewportLock~ drapes* — *PULLED*; rendered only when
+  ~style === "RECITE"~ via ~{#if}~ guard so BROWSE keeps its lighter
+  surface.
+- *~MASKED.batch~ key* — *NOT PULLED*. Dead config (handler reads
+  ~ctx.input.limit~). The new recite intent uses ~MASKED.limit: 3~.
+
+Nothing else qualifies as a "feature" of shadow. The mode is small enough
+that everything in it is either pedagogical core (lifted) or already
+better-factored elsewhere (left).
+
+* Migration order
+
+Single PR. Order inside the diff doesn't matter for compilation —
+nothing imports anything else by file path — but for the reviewer:
+
+1. ~exhibit.viva.js~ + ~Exhibit.svelte~ (new shape exists)
+2. Three tactic edits (call sites point at exhibit)
+3. Two daemon manifest edits (drop shadow registration)
+4. Two test edits (drop shadow case, add recite case)
+5. Delete ~game/shadow/~ directory
+
+Step 5 last so any forgotten reference fails loudly during testing
+rather than silently.
+
+* Verify
+
+- ~deno test systems/runtime/tests/mode/emitters.test.js~ — emitter route
+  smoke
+- ~deno test systems/runtime/tests/daemon/integration.test.js~ — recite
+  buffer shape over a real daemon
+- ~deno test systems/runtime/tests/bench/smoke.test.js~ — daemon boots
+  without shadow in the registry
+- Browser: open a clinic-tactic thread that contextualizes a virgin
+  sentence; confirm RECITE buffer renders show → recall → feedback;
+  confirm timer ticks; confirm submit + per-token feedback for a
+  sentence; confirm "I'm ready" skip; confirm "Got it" still works on a
+  BROWSE buffer.
+
+* Open questions
+
+- *Recall direction for RECITE* — shadow always called with
+  ~recall: "LEARNING"~ in production. Should RECITE *enforce* LEARNING
+  (drop the union from the schema) or stay polymorphic for future use
+  (e.g. a /known-recall/ exercise mode)? Lean keep polymorphic — costs
+  nothing, and the union mirrors what shadow shipped.
+- *Single ~/recite~ vs split ~/recite~ + ~/recite-feed~* — proposal
+  collapses to one polymorphic route. ~/feed~ stays split for BROWSE
+  because it already exists and changing it is out of scope. Eventually
+  ~/present~ + ~/feed~ on BROWSE could collapse the same way; that is a
+  separate consistency pass.
+- *Enum vs emergence* — could omit ~data.style~ entirely and dispatch on
+  presence of ~data.recall~. Rejected: the established convention in
+  ~listen~ (~gameplay~) and ~exhibit~ (~layout~) is explicit enum
+  discriminants. ~style~ joins that family.
+- *Naming the new style ~RECITE~ vs ~SHADOW~* — chose RECITE to describe
+  the user action (they recite the answer back). SHADOW is the deleted
+  mode's name; carrying it forward as an enum value would conserve the
+  history at the cost of clarity. If the historical reference matters
+  more than I think, swap to ~SHADOW~ — it is a one-token change.
+
+* Gates before implementation
+
+1. *Style enum vs emergence* — confirm explicit ~data.style~ enum
+   approach (vs implicit on presence of ~recall~). Defaulted to enum.
+2. *Style value name* — ~RECITE~ vs ~SHADOW~. Defaulted to RECITE.
+3. *Single polymorphic ~/recite~ route* — vs split ~/recite~ +
+   ~/recite-feed~. Defaulted to single.
+4. *Tactic primitive name* — ~api.recite~ in clinic routine (vs keep
+   ~api.shadow~ as historical name pointing at exhibit). Defaulted to
+   ~api.recite~.
+5. *Exercise.js local variable* — leave ~needsShadow~ name in
+   ~survival/exercise.js~ or rename to ~needsRecite~. Defaulted to
+   leave (scope discipline — it is a local).
+6. *Drop the shadow ~MASKED.batch~ key* and replace with ~MASKED.limit~
+   on the new recite intent. Defaulted to drop (was dead config anyway).
+
+* Why:
+
+This is the smallest collapse the registry has on the table — two modes
+that already share their surface, with the dependent mode having one
+piece of novelty. Doing it cleanly establishes the pattern (style as a
+discriminant axis) for future collapses (e.g. dictation as a
+~LISTEN~-with-VOCALIZED style, dictation-vs-listen as gameplay variants
+inside listen, etc.).
+
+* How to apply:
+
+Land independently of any other in-flight work. Touches no shared
+primitives, no typology, no daemon traits. The ~tactic-analysis-routine~
+workpackage's M1+ migrations are unaffected — the only routine.js edit
+here is a 4-line rename inside an already-modified file.
+
+* Changelog
+
+- 2026-04-22 :: Workpackage drafted. Scope locked: collapse shadow into
+  exhibit as ~style: "RECITE"~. Full diff specified for one
+  ~exhibit.viva.js~ replacement, one ~Exhibit.svelte~ replacement, three
+  tactic edits, two daemon-manifest edits, two test edits, one directory
+  deletion. Six gates pending user confirmation.

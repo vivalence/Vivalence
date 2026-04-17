@@ -33,6 +33,7 @@ export function http(vector) {
 }
 
 function respond(ctx, status) {
+  if (ctx.response.body?.[Symbol.asyncIterator]) ctx.response.publish(ctx.response.body);
   const body = ctx.response.body;
   if (body instanceof Response) return body;
 

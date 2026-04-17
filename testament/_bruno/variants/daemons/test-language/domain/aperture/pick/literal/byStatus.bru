@@ -1,0 +1,28 @@
+meta {
+  name: byStatus
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{DAEMON}}/pick/literal/byStatus
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "take": 3,
+    "status": "LEARNING",
+    "seek": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    }
+  }
+}

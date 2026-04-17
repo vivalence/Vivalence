@@ -6,6 +6,8 @@ export * from "./scope.js";
 export * from "./seek.js";
 export * from "./status.js";
 export * from "./connection.js";
+export * from "./socket.js";
+export * from "./session.js";
 export * from "./url.js";
 export * from "./path.js";
 export * from "./pattern.js";
@@ -14,6 +16,8 @@ export * from "./signal.js";
 
 export * from "./span.js";
 export * from "./pipe.js";
+export * from "./queue.js";
+export * from "./bell.js";
 export * as tracks from "./tracks.js";
 
 export * from "./buffer.js";
@@ -45,4 +49,4 @@ export * from "./local-repository.js";
 export * from "./entity-manager.js";
 export * from "./broadcaster.js";
 export * from "./cortex.js";
-export * from "./hallucinate.js";
+export * from "./hallucination.js";

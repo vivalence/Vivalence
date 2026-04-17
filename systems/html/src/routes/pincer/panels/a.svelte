@@ -2,33 +2,98 @@
   import { getContext } from "svelte";
   import { THREAD } from "$client";
   import { Frame } from "@vivalence/drapes";
+  // longdistance dock — disabled for now
+  // import { QUARTERS } from "$client";
+  // import Dock from "./a/Dock.svelte";
+  // import { resolve, shareAfterDrag, defaultDock } from "./a/dock.geometry.js";
 
   let { rect } = $props();
 
   const threadInstance = getContext(THREAD);
+  // const quartersInstance = getContext(QUARTERS);
 
   let thread = $state(null);
   let bufferAtom = $state(null);
   let buffer = $state(null);
   let status = $state(null);
+  // let terminal = $state(null);
+  // let dock = $state(defaultDock());
 
   let teardownBuffer = null;
   let teardownStatus = null;
+  // let teardownDock = null;
+
+  // quartersInstance.$terminal.subscribe((value) => {
+  //   terminal = value;
+  //   if (teardownDock) {
+  //     teardownDock();
+  //     teardownDock = null;
+  //   }
+  //   if (value?.$dock) {
+  //     dock = value.$dock.get();
+  //     teardownDock = value.$dock.subscribe((next) => {
+  //       dock = next;
+  //     });
+  //   }
+  // });
 
   threadInstance.$current.subscribe((current) => {
     thread = current;
-    if (teardownBuffer) { teardownBuffer(); teardownBuffer = null; }
-    if (teardownStatus) { teardownStatus(); teardownStatus = null; }
-    if (!current?.queue) {
-      bufferAtom = null;
-      buffer = null;
-      status = null;
-      return;
+    if (teardownBuffer) {
+      teardownBuffer();
+      teardownBuffer = null;
     }
+    if (teardownStatus) {
+      teardownStatus();
+      teardownStatus = null;
+    }
+    bufferAtom = null;
+    buffer = null;
+    status = null;
+    if (!current?.queue) return;
     bufferAtom = current.$buffer;
-    teardownBuffer = current.$buffer.subscribe((b) => { buffer = b; });
-    teardownStatus = current.queue.$status.subscribe((s) => { status = s; });
+    teardownBuffer = current.$buffer.subscribe((value) => {
+      buffer = value;
+    });
+    teardownStatus = current.queue.$status.subscribe((value) => {
+      status = value;
+    });
   });
+
+  // const geometry = $derived(resolve(dock, rect));
+  //
+  // function ondock(patch) {
+  //   const next = { ...dock, ...patch };
+  //   if (terminal?.$dock) terminal.$dock.set(next);
+  //   else dock = next;
+  // }
+  //
+  // function onTwig(event) {
+  //   event.preventDefault();
+  //   const axis = geometry.vertical ? "clientX" : "clientY";
+  //   let lastPos = event[axis];
+  //
+  //   function onMove(e) {
+  //     const current = e[axis];
+  //     const deltaPx = current - lastPos;
+  //     lastPos = current;
+  //     const nextShare = shareAfterDrag({
+  //       side: geometry.side,
+  //       share: geometry.share,
+  //       rect,
+  //       deltaPx,
+  //     });
+  //     ondock({ share: nextShare, collapsed: false });
+  //   }
+  //
+  //   function onUp() {
+  //     window.removeEventListener("pointermove", onMove);
+  //     window.removeEventListener("pointerup", onUp);
+  //   }
+  //
+  //   window.addEventListener("pointermove", onMove);
+  //   window.addEventListener("pointerup", onUp);
+  // }
 </script>
 
 {#if rect.width > 0 && rect.height > 0}
@@ -37,34 +102,75 @@
     style:left="{rect.left}px"
     style:top="{rect.top}px"
     style:width="{rect.width}px"
-    style:height="{rect.height}px"
-  >
-    {#if buffer && bufferAtom}
-      <Frame buffer={bufferAtom} />
-    {:else if thread}
-      <div class="yield-state">
-        {#if status === "EXHAUSTED"}
-          <p class="yield-label">session complete</p>
-        {:else if status === "ERROR"}
-          <p class="yield-label yield-error">{thread.queue?.$error.get()?.message ?? "error"}</p>
-        {:else}
-          <span class="yield-dot"></span>
-        {/if}
+    style:height="{rect.height}px">
+    <div class="body">
+      {#if buffer && bufferAtom}
+        <Frame buffer={bufferAtom} />
+      {:else if thread}
+        <div class="yield-state">
+          {#if status === "EXHAUSTED"}
+            <p class="yield-label">session complete</p>
+          {:else if status === "ERROR"}
+            <p class="yield-label yield-error">{thread.queue?.$error.get()?.message ?? "error"}</p>
+          {:else}
+            <span class="yield-dot"></span>
+          {/if}
+        </div>
+      {:else}
+        <span class="label">A</span>
+      {/if}
+    </div>
+
+    <!-- longdistance dock — disabled for now
+    {#if !dock.collapsed}
+      <div
+        class="twig"
+        class:horizontal={!geometry.vertical}
+        role="separator"
+        aria-orientation={geometry.vertical ? "vertical" : "horizontal"}
+        onpointerdown={onTwig}>
       </div>
-    {:else}
-      <span class="label">A</span>
     {/if}
+
+    <div
+      class="chat"
+      style:width={geometry.vertical ? geometry.size + "px" : "100%"}
+      style:height={geometry.vertical ? "100%" : geometry.size + "px"}
+      style:flex={`0 0 ${geometry.size}px`}>
+      <Dock {thread} {dock} {ondock} side={geometry.side} {terminal} />
+    </div>
+    -->
   </div>
 {/if}
 
 <style>
   .panel {
     position: fixed;
-    display: grid;
-    place-items: center;
-    overflow: auto;
+    display: flex;
+    overflow: hidden;
     background: var(--colors-skeleton-0-surface);
     color: var(--colors-skeleton-0-contrast);
+  }
+  .body {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    display: grid;
+    place-items: center;
+  }
+  .twig {
+    flex: 0 0 3px;
+    background: var(--colors-skeleton-0-boundary);
+    cursor: col-resize;
+  }
+  .twig.horizontal {
+    cursor: row-resize;
+  }
+  .chat {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .label {
     font-size: 64px;
@@ -84,7 +190,7 @@
     color: var(--colors-skeleton-1-boundary);
   }
   .yield-error {
-    color: var(--colors-system-error-contrast);
+    color: var(--colors-skeleton-0-danger-base);
   }
   .yield-dot {
     width: 6px;
@@ -94,7 +200,12 @@
     animation: pulse 1s ease-in-out infinite;
   }
   @keyframes pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 </style>

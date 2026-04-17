@@ -1,0 +1,27 @@
+meta {
+  name: due
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{DAEMON}}/pick/literal/due
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "limit": 1,
+    "seek": {
+      "symbols": [
+        "sentence",
+        "proficiency.survival"
+      ]
+    }
+  }
+}

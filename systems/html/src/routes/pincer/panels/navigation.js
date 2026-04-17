@@ -1,5 +1,5 @@
 import { Vector, shape, steer } from "@vivalence/typology";
-import * as narrow from "../../../typology/belt/narrow.js";
+import * as narrow from "../../../typology/gestalten/belt/narrow.js";
 
 export { narrow };
 

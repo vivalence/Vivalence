@@ -5,6 +5,7 @@ import { array } from "@vivalence/typology";
 // 4 each, 12 total, deduped and shuffled.
 
 export default async (ctx) => {
+  // console.log({ input: ctx.input });
   const horizon = new Date(Date.now() + (ctx.input.horizon ?? 48) * 60 * 60 * 1000);
   const seen = new Set();
   const collect = (items) => {
@@ -58,15 +59,19 @@ export default async (ctx) => {
     );
   }
 
+  // console.log({ head: { untouched, distractors, words, weak, due } });
   // ── shuffled body: flashcard + judge + listen ─────────────────────
   ctx.pool
     .section(
-      ...words.map((literal) =>
-        ctx.daemon.modes.game.flashcard.emit.literals({
-          recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
-          literal,
-        }),
-      ),
+      ...words
+        // .filter((l) => !l.memory?.is.virgin)
+        // .filter((word) => !word.traits?.includes("VOCALIZED"))
+        .map((literal) =>
+          ctx.daemon.modes.game.flashcard.emit.literals({
+            recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
+            literal,
+          }),
+        ),
 
       ...words
         .filter((l) => l.memory?.is.virgin)
@@ -83,7 +88,8 @@ export default async (ctx) => {
           ctx.daemon.modes.game.listen.emit.literal({
             literal,
             distractors,
-            gameplay: "TYPE",
+            // gameplay: "TYPE",
+            gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
             recall: "KNOWN",
           }),
         ),

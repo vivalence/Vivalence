@@ -1,0 +1,27 @@
+meta {
+  name: feed
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{DAEMON}}/pick/literal/feed
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "limit": 1,
+    "where": {
+      "symbols": [
+        "word",
+        "proficiency.survival"
+      ]
+    }
+  }
+}

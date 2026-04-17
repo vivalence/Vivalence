@@ -12,7 +12,7 @@ export class Daemon {
   connection = null;
   call = null;
   authority = null; // lighthouse client
-  brain = null;
+  harness = null;
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
   statics = null;
   cargo = {};

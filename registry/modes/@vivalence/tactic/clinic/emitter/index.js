@@ -43,6 +43,11 @@ export const emitter = new Vector()
 
     await next();
   })
+
+  .use(async (ctx, next) => {
+    console.log("clinic", { thread: ctx.thread });
+    await next();
+  })
   // ── scope routes (user-facing intents) ────────────────────────────
   .open("/regular-conjugations", regularConjugations)
   .open("/irregular-conjugations", irregularConjugations)

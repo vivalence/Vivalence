@@ -17,10 +17,16 @@ export const direct = (carry, effect) => async (context) => {
   return context.output;
 };
 
-export const bare = (carry, effect) => async (input) => {
-  const context = { input, output: undefined };
+export const bare = (carry, effect, steps) => async (input) => {
+  const context = { input, output: undefined, steps };
   await carry(context, resolve(effect));
   return context.output;
+};
+
+export const echo = (carry, effect, steps, signal) => async (input) => {
+  const ctx = { input, output: undefined, signal, steps, params: {}, state: {} };
+  await carry(ctx, resolve(effect));
+  return ctx.output;
 };
 
 export const request = (carry, effect, steps, signal) => async (input) => {

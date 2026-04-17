@@ -228,6 +228,7 @@ export async function boot(lighthouse) {
 }
 
 export async function populate(lighthouse) {
+  if (lighthouse.$populating) return lighthouse.$populating;
   if (lighthouse.daemons.size) return;
 
   const bootOneDaemon = async (pojo) => {
@@ -241,14 +242,18 @@ export async function populate(lighthouse) {
     return bootDaemon({ connection, lighthouse });
   };
 
-  lighthouse.manifest = await lighthouse.connection.call("/manifest");
-  const daemons = await lighthouse.connection.call("/entities/daemon/find");
-  await Promise.all(
-    daemons.map(async (pojo) => {
-      if (lighthouse.daemons.has(pojo.slug)) return;
-      const daemon = await bootOneDaemon(pojo);
-      lighthouse.daemons.set(daemon.slug, daemon);
-    }),
-  );
-  lighthouse.$daemons.set([...lighthouse.daemons.values()]);
+  lighthouse.$populating = (async () => {
+    lighthouse.manifest = await lighthouse.connection.call("/manifest");
+    const daemons = await lighthouse.connection.call("/entities/daemon/find");
+    await Promise.all(
+      daemons.map(async (pojo) => {
+        if (lighthouse.daemons.has(pojo.slug)) return;
+        const daemon = await bootOneDaemon(pojo);
+        lighthouse.daemons.set(daemon.slug, daemon);
+      }),
+    );
+    lighthouse.$daemons.set([...lighthouse.daemons.values()]);
+  })();
+  try { await lighthouse.$populating; }
+  finally { lighthouse.$populating = null; }
 }

@@ -1,4 +1,4 @@
-import { specimen, Vector, shape, steer } from "@vivalence/typology";
+import { specimen, Vector, shape, steer, RemoteRepository } from "@vivalence/typology";
 import { Entity } from "../src/typology/prototypes/entity.js";
 import { Mode } from "../src/typology/entities/mode.js";
 import { Dataspace } from "../src/typology/prototypes/dataspace.js";
@@ -108,144 +108,69 @@ specimen.describe("lifecycle vector", () => {
   });
 });
 
-// ── dataspace + mode schema (integration) ──────────────────────────
+// ── dataspace + integrate (integration) ───────────────────────────
 
-specimen.describe("dataspace mode lifecycle", () => {
-  const ModeDossier = {
-    name: "mode",
-    kind: () => Mode,
-    remote: { endpoint: "/entities/mode" },
-    use: [
-      async (ctx, next) => {
-        await next();
-        if (ctx.entity.implements("BUFFERED")) {
-          ctx.entity.buffered = await ctx.entity.connection.call("/buffered");
-          ctx.entity.buffer = (desc = {}) => ({
-            mode: ctx.entity.id,
-            data: { ...(ctx.entity.buffered?.schema?.data ?? {}), ...(desc.data ?? {}) },
-          });
-        }
-      },
-      async (ctx, next) => {
-        await next();
-        ctx.entity.daemon = { slug: ctx.daemon };
-        ctx.entity.mount = ctx.mount.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
-        ctx.entity.connection = ctx.connection.branch(ctx.entity.mount.nature);
-        ctx.entity.call = ctx.entity.connection.call.bind(ctx.entity.connection);
-        ctx.entity.link = ctx.link.branch(`/${ctx.entity.type}/${ctx.entity.slug}`);
-        ctx.entity.intents = new Set();
-      },
-    ],
-  };
+specimen.describe("dataspace integrate", () => {
+  const connection = mockConnection({ "/datamap": () => ({}) });
 
-  const modeFixtures = [
-    { id: "m1", type: "conversational", slug: "practice", traits: ["BUFFERED"] },
-    { id: "m2", type: "applicative", slug: "review", traits: [] },
-  ];
-
-  const connection = mockConnection({
-    "/datamap": () => ({}),
-    "/entities/mode/find": () => modeFixtures,
-    "/buffered": () => ({ schema: { data: { language: "de" } } }),
-  });
-
-  const factory = (carry, effect) => async (raw) => {
-    const ctx = {
-      raw,
-      entity: raw,
-      daemon: "test-daemon",
-      mount: mockPath("/daemon/test-daemon"),
-      link: mockPath("/viva/finn/test-daemon"),
-      connection,
+  specimen.it("repo registered on dataspace, integrator stored on EM", async () => {
+    const dossier = {
+      name: "mode",
+      kind: () => Mode,
+      repository: (_, ds) => new RemoteRepository(Mode).connect(ds.connection),
+      use: [],
     };
-    await carry(ctx, async () => await effect(ctx));
-    return ctx.entity;
-  };
-
-  let dataspace;
-
-  specimen.beforeAll(async () => {
-    dataspace = new Dataspace({
-      entities: [ModeDossier],
-      connection,
-      factory,
-    });
+    const dataspace = new Dataspace({ entities: [dossier], connection });
     await dataspace.init();
-  });
-
-  specimen.it("repo registered on dataspace", () => {
     specimen.expect(dataspace.mode).toBeDefined();
-    specimen.expect(dataspace.schemas.has("mode")).toBe(true);
+    specimen.expect(typeof dataspace.em.integrators.mode).toBe("function");
   });
 
-  specimen.it("repo.hydrate is compiled lifecycle", () => {
-    specimen.expect(typeof dataspace.mode.hydrate).toBe("function");
-  });
-
-  specimen.it("lifecycle wires mode from raw pojo", async () => {
-    const raw = { id: "m1", type: "conversational", slug: "practice", traits: ["BUFFERED"] };
-    const entity = await dataspace.mode.hydrate(raw);
-
-    specimen.expect(entity).toBeInstanceOf(Mode);
-    specimen.expect(entity.slug).toBe("practice");
-    specimen.expect(entity.daemon.slug).toBe("test-daemon");
-    specimen.expect(entity.mount.nature).toBe("/daemon/test-daemon/mode/conversational/practice");
-    specimen.expect(entity.link.nature).toBe("/viva/finn/test-daemon/conversational/practice");
-    specimen.expect(entity.connection).toBeDefined();
-    specimen.expect(typeof entity.call).toBe("function");
-    specimen.expect(entity.intents).toBeInstanceOf(Set);
-  });
-
-  specimen.it("BUFFERED trait fetches config and creates factory", async () => {
-    const raw = { id: "m1", type: "conversational", slug: "practice", traits: ["BUFFERED"] };
-    const entity = await dataspace.mode.hydrate(raw);
-
-    specimen.expect(entity.buffered).toBeDefined();
-    specimen.expect(entity.buffered.schema.data.language).toBe("de");
-    specimen.expect(typeof entity.buffer).toBe("function");
-
-    const descriptor = entity.buffer({ data: { level: 3 } });
-    specimen.expect(descriptor.mode).toBe("m1");
-    specimen.expect(descriptor.data.language).toBe("de");
-    specimen.expect(descriptor.data.level).toBe(3);
-  });
-
-  specimen.it("non-BUFFERED mode skips config fetch", async () => {
-    const raw = { id: "m2", type: "applicative", slug: "review", traits: [] };
-    const entity = await dataspace.mode.hydrate(raw);
-
-    specimen.expect(entity.buffered).toBeUndefined();
-    specimen.expect(entity.buffer).toBeUndefined();
-    specimen.expect(entity.daemon.slug).toBe("test-daemon");
-  });
-
-  specimen.it("dataspace-injected middleware sets schema and name on ctx", async () => {
-    const trace = {};
-    const TracingSchema = {
+  specimen.it("use[] middleware runs on first-sight only", async () => {
+    let count = 0;
+    const dossier = {
       name: "traced",
       kind: () => Entity,
-      remote: { endpoint: "/entities/traced" },
+      repository: (_, ds) => new RemoteRepository(Entity).connect(ds.connection),
+      use: [async (ctx, next) => { count += 1; await next(); }],
+    };
+    const dataspace = new Dataspace({ entities: [dossier], connection });
+    await dataspace.init();
+
+    await dataspace.traced.merge({ id: "t1" });
+    await dataspace.traced.merge({ id: "t1" });
+    await dataspace.traced.merge({ id: "t1" });
+    specimen.expect(count).toBe(1);
+
+    await dataspace.traced.merge({ id: "t2" });
+    specimen.expect(count).toBe(2);
+  });
+
+  specimen.it("ctx carries entity, raw, dossier, repository, dataspace", async () => {
+    const trace = {};
+    const dossier = {
+      name: "traced",
+      kind: () => Entity,
+      repository: (_, ds) => new RemoteRepository(Entity).connect(ds.connection),
       use: [
         async (ctx, next) => {
           await next();
-          trace.name = ctx.name;
-          trace.hasEntityManager = !!ctx.em;
+          trace.hasDossier = !!ctx.dossier;
+          trace.hasRepository = !!ctx.repository;
           trace.hasDataspace = !!ctx.dataspace;
-          trace.schemaName = ctx.schema?.name;
+          trace.hasRaw = !!ctx.raw;
+          trace.entityIsInstance = ctx.entity instanceof Entity;
         },
       ],
     };
+    const dataspace = new Dataspace({ entities: [dossier], connection });
+    await dataspace.init();
+    await dataspace.traced.merge({ id: "t1" });
 
-    const tracedDataspace = new Dataspace({
-      entities: [TracingSchema],
-      connection,
-      factory,
-    });
-
-    await tracedDataspace.traced.hydrate({ id: "t1" });
-    specimen.expect(trace.name).toBe("traced");
-    specimen.expect(trace.hasEntityManager).toBe(true);
+    specimen.expect(trace.hasDossier).toBe(true);
+    specimen.expect(trace.hasRepository).toBe(true);
     specimen.expect(trace.hasDataspace).toBe(true);
-    specimen.expect(trace.schemaName).toBe("traced");
+    specimen.expect(trace.hasRaw).toBe(true);
+    specimen.expect(trace.entityIsInstance).toBe(true);
   });
 });

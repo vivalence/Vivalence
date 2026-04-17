@@ -14,30 +14,18 @@ async function collectStream(stream) {
   return { packets, turn };
 }
 
-function parseSSEFrames(text) {
-  return text
-    .split("\n\n")
-    .filter(Boolean)
-    .map((frame) => {
-      const data = frame.replace(/^data: /, "");
-      try { return JSON.parse(data); }
-      catch { return data; }
-    });
-}
-
-
 function captureSonnet(cortex) {
-  const faculties = cortex.table.get("conversation");
-  const sonnet = faculties.find((faculty) => faculty.tune[0] === 0.4);
+  const faculties    = cortex.table.get("dialogue");
+  const sonnet       = faculties.find((faculty) => faculty.tune[0] === 0.4);
   const originalStream = sonnet.via.stream;
-  let capturedTurns = null;
-  sonnet.via.stream = async (turns, config) => {
+  let capturedTurns  = null;
+  sonnet.via.stream  = async (turns, config) => {
     capturedTurns = turns;
     return originalStream(turns, config);
   };
   return {
     get turns() { return capturedTurns; },
-    restore() { sonnet.via.stream = originalStream; },
+    restore()   { sonnet.via.stream = originalStream; },
   };
 }
 
@@ -45,7 +33,7 @@ function captureSonnet(cortex) {
 
 let scenario;
 
-specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
+specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
 
   specimen.beforeAll(async () => {
     scenario = await create();
@@ -65,10 +53,7 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "hello dewey",
-      });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hello dewey" }], thread, tune: "balanced" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.role).toBe("assistant");
@@ -86,10 +71,7 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "stream test",
-      });
+      const stream  = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "stream test" }], thread });
       const { packets, turn } = await collectStream(stream);
 
       specimen.expect(packets[0].event).toBe("turn.open");
@@ -98,14 +80,26 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       specimen.expect(turn.meta.stop).toBe("end_turn");
     });
 
+    specimen.it("part deltas accumulate to correct text", async () => {
+      const { dewey, createThread } = scenario;
+      const thread = await createThread();
+
+      const stream  = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "delta test" }], thread });
+      const { packets, turn } = await collectStream(stream);
+
+      const deltas = packets.filter((packet) => packet.event === "part.delta");
+      specimen.expect(deltas.length).toBeGreaterThan(0);
+      specimen.expect(turn.parts[0].text).toContain("delta test");
+    });
+
     specimen.it("parent chain: user1 ← assistant1 ← user2 ← assistant2", async () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream1 = await dewey.dialogue.chat({ thread: thread.id, message: "first" });
+      const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "first" }], thread });
       await collectStream(stream1);
 
-      const stream2 = await dewey.dialogue.chat({ thread: thread.id, message: "second" });
+      const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "second" }], thread });
       await collectStream(stream2);
 
       const turns = await em.find(TurnEntity, { thread: thread.id }, { orderBy: { createdAt: "ASC" } });
@@ -128,8 +122,8 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      for (const message of ["one", "two", "three"]) {
-        const stream = await dewey.dialogue.chat({ thread: thread.id, message });
+      for (const text of ["one", "two", "three"]) {
+        const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text }], thread });
         await collectStream(stream);
       }
 
@@ -143,14 +137,14 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
 
     specimen.it("history grows: faculty receives all prior turns", async () => {
       const { dewey, createThread, cortex } = scenario;
-      const thread = await createThread();
+      const thread  = await createThread();
       const capture = captureSonnet(cortex);
 
       try {
-        const stream1 = await dewey.dialogue.chat({ thread: thread.id, message: "first" });
+        const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "first" }], thread });
         await collectStream(stream1);
 
-        const stream2 = await dewey.dialogue.chat({ thread: thread.id, message: "second" });
+        const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "second" }], thread });
         await collectStream(stream2);
 
         specimen.expect(capture.turns).toBeDefined();
@@ -167,18 +161,18 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
   });
 
   // ─────────────────────────────────────────────
-  // 3. Personality (dialogue vector effect)
+  // 3. Personality (harness middleware)
   // ─────────────────────────────────────────────
 
-  specimen.describe("dialogue vector", () => {
+  specimen.describe("personality", () => {
 
-    specimen.it("personality system turn is injected by dialogue effect", async () => {
+    specimen.it("system turn injected by mode harness middleware", async () => {
       const { dewey, createThread, cortex } = scenario;
-      const thread = await createThread();
+      const thread  = await createThread();
       const capture = captureSonnet(cortex);
 
       try {
-        const stream = await dewey.dialogue.chat({ thread: thread.id, message: "hi" });
+        const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "hi" }], thread });
         await collectStream(stream);
 
         specimen.expect(capture.turns).toBeDefined();
@@ -201,24 +195,17 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "test tune",
-        tune: "unleashed",
-      });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tune: "unleashed" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.parts[0].text).toMatch(/\[opus\]/);
     });
 
-    specimen.it("default mode tune balanced selects sonnet", async () => {
+    specimen.it("balanced selects sonnet", async () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "test tune",
-      });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "test tune" }], thread, tune: "balanced" });
       const { turn } = await collectStream(stream);
 
       specimen.expect(turn.parts[0].text).toMatch(/\[sonnet\]/);
@@ -228,21 +215,12 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread } = scenario;
       const thread = await createThread();
 
-      const stream1 = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "fast",
-        tune: "frugal",
-      });
+      const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "fast" }], thread, tune: "frugal" });
       const { turn: turn1 } = await collectStream(stream1);
 
-      const stream2 = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "powerful",
-        tune: "unleashed",
-      });
+      const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "powerful" }], thread, tune: "unleashed" });
       const { turn: turn2 } = await collectStream(stream2);
 
-      // frugal can't use haiku (render-only), picks sonnet as nearest streamable
       specimen.expect(turn1.parts[0].text).toMatch(/\[sonnet\]/);
       specimen.expect(turn2.parts[0].text).toMatch(/\[opus\]/);
     });
@@ -254,34 +232,59 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
 
   specimen.describe("tool loop", () => {
 
-    specimen.it("tool_use → tool_result → final turn, all persisted", async () => {
+    specimen.it("tool_use → tool_result → final turn: 3 turn cycles in stream", async () => {
+      const { dewey, createThread } = scenario;
+      const thread = await createThread();
+
+      const stream = await dewey.harness.dialogue.stream({
+        parts:   [{ type: "text", text: "what is casa" }],
+        thread,
+        tune:    "unleashed",
+        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+      });
+      const { packets } = await collectStream(stream);
+
+      const opens  = packets.filter((packet) => packet.event === "turn.open");
+      const closes = packets.filter((packet) => packet.event === "turn.close");
+      specimen.expect(opens.length).toBe(3);
+      specimen.expect(closes.length).toBe(3);
+    });
+
+    specimen.it("final turn of tool loop has correct content", async () => {
+      const { dewey, createThread } = scenario;
+      const thread = await createThread();
+
+      const stream = await dewey.harness.dialogue.stream({
+        parts:   [{ type: "text", text: "what is casa" }],
+        thread,
+        tune:    "unleashed",
+        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
+      });
+      let turn = null;
+      for await (const packet of stream) {
+        if (packet.event === "turn.open") turn = null;
+        turn = soma.pour(turn, packet);
+      }
+
+      specimen.expect(turn.parts[0].text).toContain("casa");
+      specimen.expect(turn.meta.stop).toBe("end_turn");
+    });
+
+    specimen.it("all tool loop turns persisted: user + tool_use + tool_result + final", async () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({
-        thread: thread.id,
-        message: "what is casa",
-        tune: "unleashed",
-        tools: {
-          lookup: {
-            execute: async (input) => ({ definition: `${input.query} means house` }),
-          },
-        },
+      const stream = await dewey.harness.dialogue.stream({
+        parts:   [{ type: "text", text: "what is casa" }],
+        thread,
+        tune:    "unleashed",
+        tools:   { lookup: { execute: async (input) => ({ definition: `${input.query} means house` }) } },
       });
-      const { packets, turn: finalTurn } = await collectStream(stream);
+      await collectStream(stream);
 
-      specimen.expect(finalTurn.meta.stop).toBe("end_turn");
-      specimen.expect(finalTurn.parts[0].text).toContain("casa");
-
-      // Multiple turn.open/turn.close cycles from tool loop
-      const turnOpens = packets.filter((packet) => packet.event === "turn.open");
-      const turnCloses = packets.filter((packet) => packet.event === "turn.close");
-      specimen.expect(turnOpens.length).toBeGreaterThanOrEqual(2);
-      specimen.expect(turnCloses.length).toBeGreaterThanOrEqual(2);
-
-      // Persistence: user + assistant(tool_use) + user(tool_result) + assistant(final)
       const turns = await em.find(TurnEntity, { thread: thread.id }, { orderBy: { createdAt: "ASC" } });
       specimen.expect(turns.length).toBeGreaterThanOrEqual(4);
+      specimen.expect(turns[0].role).toBe("user");
     });
   });
 
@@ -295,39 +298,34 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({ thread: thread.id, message: "shape test" });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "shape test" }], thread });
       await collectStream(stream);
 
       const assistantTurn = await em.findOne(TurnEntity, { thread: thread.id, role: "assistant" });
       specimen.expect(assistantTurn).toBeDefined();
-      specimen.expect(assistantTurn.role).toBe("assistant");
       specimen.expect(assistantTurn.parts).toBeInstanceOf(Array);
       specimen.expect(assistantTurn.parts[0].type).toBe("text");
-      specimen.expect(assistantTurn.meta).toBeDefined();
       specimen.expect(assistantTurn.meta.stop).toBe("end_turn");
       specimen.expect(assistantTurn.meta.usage).toBeDefined();
     });
 
-    specimen.it("rehydration: clear identity map, continue from DB", async () => {
+    specimen.it("rehydration: clear identity map, history still rebuilds", async () => {
       const { dewey, createThread, em, cortex } = scenario;
       const thread = await createThread();
 
-      for (const message of ["hello", "how are you"]) {
-        const stream = await dewey.dialogue.chat({ thread: thread.id, message });
+      for (const text of ["hello", "how are you"]) {
+        const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text }], thread });
         await collectStream(stream);
       }
-
       specimen.expect(await em.count(TurnEntity, { thread: thread.id })).toBe(4);
 
       em.clear();
 
       const capture = captureSonnet(cortex);
-
       try {
-        const stream3 = await dewey.dialogue.chat({ thread: thread.id, message: "third after reload" });
+        const stream3 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "third after reload" }], thread });
         await collectStream(stream3);
 
-        specimen.expect(capture.turns).toBeDefined();
         const userMessages = capture.turns
           .filter((turn) => turn.role === "user")
           .map((turn) => turn.parts[0].text);
@@ -346,10 +344,10 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
       const thread1 = await createThread();
       const thread2 = await createThread();
 
-      const stream1 = await dewey.dialogue.chat({ thread: thread1.id, message: "thread one" });
+      const stream1 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "thread one" }], thread: thread1 });
       await collectStream(stream1);
 
-      const stream2 = await dewey.dialogue.chat({ thread: thread2.id, message: "thread two" });
+      const stream2 = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "thread two" }], thread: thread2 });
       await collectStream(stream2);
 
       const turns1 = await em.find(TurnEntity, { thread: thread1.id });
@@ -357,110 +355,21 @@ specimen.describe("cortex integration — CONVERSATIONAL trait", () => {
 
       specimen.expect(turns1).toHaveLength(2);
       specimen.expect(turns2).toHaveLength(2);
-
       specimen.expect(turns1[0].parts[0].text).toBe("thread one");
       specimen.expect(turns2[0].parts[0].text).toBe("thread two");
     });
-  });
-
-  // ─────────────────────────────────────────────
-  // 7. Edge cases
-  // ─────────────────────────────────────────────
-
-  specimen.describe("edge cases", () => {
 
     specimen.it("empty message still creates user turn", async () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
 
-      const stream = await dewey.dialogue.chat({ thread: thread.id, message: "" });
+      const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "" }], thread });
       await collectStream(stream);
 
       const turns = await em.find(TurnEntity, { thread: thread.id });
       specimen.expect(turns).toHaveLength(2);
       specimen.expect(turns[0].role).toBe("user");
       specimen.expect(turns[0].parts[0].text).toBe("");
-    });
-  });
-
-  // ─────────────────────────────────────────────
-  // 8. HTTP/SSE transport
-  // ─────────────────────────────────────────────
-
-  specimen.describe("HTTP/SSE transport", () => {
-
-    const dialoguePath = "/mode/teacher/dewey/dialogue/chat";
-
-    specimen.it("POST /dialogue/chat returns text/event-stream", async () => {
-      const { connection, createThread } = scenario;
-      const thread = await createThread();
-
-      const response = await connection.fetch(dialoguePath, {
-        thread: thread.id, message: "oi dewey",
-      });
-
-      specimen.expect(response.status).toBe(200);
-      specimen.expect(response.headers.get("content-type")).toBe("text/event-stream");
-    });
-
-    specimen.it("SSE frames contain well-formed turn lifecycle", async () => {
-      const { connection, createThread } = scenario;
-      const thread = await createThread();
-
-      const text = await connection.call(dialoguePath, {
-        thread: thread.id, message: "como vai",
-      });
-      const frames = parseSSEFrames(text);
-
-      specimen.expect(frames[0].event).toBe("turn.open");
-      specimen.expect(frames.at(-1).event).toBe("turn.close");
-
-      const deltas = frames.filter((frame) => frame.event === "part.delta");
-      specimen.expect(deltas.length).toBeGreaterThan(0);
-    });
-
-    specimen.it("turns persisted after SSE stream consumed", async () => {
-      const { connection, createThread, em } = scenario;
-      const thread = await createThread();
-
-      await connection.call(dialoguePath, {
-        thread: thread.id, message: "tudo bem",
-      });
-
-      const turns = await em.find(TurnEntity, { thread: thread.id }, { orderBy: { createdAt: "ASC" } });
-      specimen.expect(turns).toHaveLength(2);
-      specimen.expect(turns[0].role).toBe("user");
-      specimen.expect(turns[1].role).toBe("assistant");
-    });
-
-    specimen.it("multi-turn over HTTP preserves history", async () => {
-      const { connection, createThread, em } = scenario;
-      const thread = await createThread();
-
-      await connection.call(dialoguePath, { thread: thread.id, message: "primeiro" });
-      await connection.call(dialoguePath, { thread: thread.id, message: "segundo" });
-
-      const turns = await em.find(TurnEntity, { thread: thread.id }, { orderBy: { createdAt: "ASC" } });
-      specimen.expect(turns).toHaveLength(4);
-      specimen.expect(turns[0].parts[0].text).toBe("primeiro");
-      specimen.expect(turns[2].parts[0].text).toBe("segundo");
-    });
-
-    specimen.it("tune override works over HTTP", async () => {
-      const { connection, createThread } = scenario;
-      const thread = await createThread();
-
-      const text = await connection.call(dialoguePath, {
-        thread: thread.id, message: "test tune", tune: "unleashed",
-      });
-      const frames = parseSSEFrames(text);
-
-      const textDeltas = frames
-        .filter((frame) => frame.event === "part.delta")
-        .map((frame) => frame.delta?.text ?? "")
-        .join("");
-
-      specimen.expect(textDeltas).toMatch(/\[opus\]/);
     });
   });
 });
