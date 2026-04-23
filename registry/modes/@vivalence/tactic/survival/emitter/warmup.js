@@ -7,6 +7,7 @@ import { array } from "@vivalence/typology";
 export default async (ctx) => {
   // console.log({ input: ctx.input });
   const horizon = new Date(Date.now() + (ctx.input.horizon ?? 48) * 60 * 60 * 1000);
+
   const seen = new Set();
   const collect = (items) => {
     const added = [];
@@ -18,7 +19,6 @@ export default async (ctx) => {
     return added;
   };
 
-  // ── source A: near-due successes (due within horizon) ─────────────
   const failures = collect(
     await ctx.daemon.entities.literal.byLastSignal(
       ["MISTAKE", "FAILURE", "NEUTRAL"],
@@ -26,14 +26,14 @@ export default async (ctx) => {
       { limit: 4, blacklist: ctx.input.blacklist },
     ),
   );
-  // ── source B: due right now ───────────────────────────────────────
+
   const due = collect(
     await ctx.daemon.entities.literal.feed(ctx.input.where, {
       limit: 4,
       blacklist: ctx.input.blacklist,
     }),
   );
-  // ── source C: weakest by strength ─────────────────────────────────
+
   const weak = collect(
     await ctx.daemon.entities.literal.byStrength(
       { ...ctx.input.where, memories: { strength: { $gte: 0.1, $lte: 0.5 } } },
@@ -44,10 +44,8 @@ export default async (ctx) => {
 
   if (!words.length) return;
 
-  // ── distractor pool: one fetch, shared across all game emits ──────
   const distractors = await ctx.daemon.entities.literal.find(ctx.input.where ?? {}, { limit: 30 });
 
-  // ── exhibit new words ─────────────────────────────────────────────
   const untouched = words.filter((word) => !word.memory || word.memory.is.virgin);
   if (untouched.length) {
     ctx.pool.add(
@@ -59,40 +57,73 @@ export default async (ctx) => {
     );
   }
 
-  // console.log({ head: { untouched, distractors, words, weak, due } });
-  // ── shuffled body: flashcard + judge + listen ─────────────────────
-  ctx.pool
-    .section(
-      ...words
-        // .filter((l) => !l.memory?.is.virgin)
-        // .filter((word) => !word.traits?.includes("VOCALIZED"))
-        .map((literal) =>
-          ctx.daemon.modes.game.flashcard.emit.literals({
-            recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
-            literal,
-          }),
-        ),
+  const practice = ctx.pool.section();
 
-      ...words
-        .filter((l) => l.memory?.is.virgin)
-        .map((literal) =>
-          ctx.daemon.modes.game.judge.emit.literal({
-            literal,
-            distractors,
-            speed: { rate: "SLOW" },
-          }),
-        ),
-      ...words
-        .filter((word) => word.traits?.includes("VOCALIZED"))
-        .map((literal) =>
+  for (const word of words) {
+    const vocalized = word.traits?.includes("VOCALIZED");
+
+    if (!word.memory || word.memory.is.virgin) {
+      // practice.add(ctx.daemon.modes.game.exhibit.emit.present({ literals: [word] }));
+      practice.add(
+        ctx.daemon.modes.game.judge.emit.literal({
+          literal: word,
+          distractors,
+          speed: { rate: "SLOW" },
+        }),
+      );
+    } else if (word.memory.is.succeeded) {
+      if (vocalized)
+        practice.add(
           ctx.daemon.modes.game.listen.emit.literal({
-            literal,
+            literal: word,
             distractors,
-            // gameplay: "TYPE",
-            gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
+            gameplay: "TYPE",
             recall: "KNOWN",
           }),
-        ),
-    )
-    .apply(array.shuffle);
+        );
+      else
+        practice.add(
+          ctx.daemon.modes.game.write.emit.literals({ recall: "LEARNING", literal: word }),
+        );
+    } else {
+      practice.add(ctx.daemon.modes.game.write.emit.literals({ recall: "KNOWN", literal: word }));
+    }
+  }
+
+  practice.apply(array.shuffle);
+
+  // ctx.pool
+  //   .section(
+  //     ...words
+  //       // .filter((l) => !l.memory?.is.virgin)
+  //       // .filter((word) => !word.traits?.includes("VOCALIZED"))
+  //       .map((literal) =>
+  //         ctx.daemon.modes.game.flashcard.emit.literals({
+  //           recall: !literal.memory?.is.succeeded ? "KNOWN" : "LEARNING",
+  //           literal,
+  //         }),
+  //       ),
+
+  //     ...words
+  //       .filter((l) => l.memory?.is.virgin)
+  //       .map((literal) =>
+  //         ctx.daemon.modes.game.judge.emit.literal({
+  //           literal,
+  //           distractors,
+  //           speed: { rate: "SLOW" },
+  //         }),
+  //       ),
+  //     ...words
+  //       .filter((word) => word.traits?.includes("VOCALIZED"))
+  //       .map((literal) =>
+  //         ctx.daemon.modes.game.listen.emit.literal({
+  //           literal,
+  //           distractors,
+  //           // gameplay: "TYPE",
+  //           gameplay: !literal.memory?.is.succeeded ? "PICK" : "TYPE",
+  //           recall: "KNOWN",
+  //         }),
+  //       ),
+  //   )
+  //   .apply(array.shuffle);
 };

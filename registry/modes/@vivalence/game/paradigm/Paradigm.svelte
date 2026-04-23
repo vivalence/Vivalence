@@ -7,7 +7,7 @@
   const data = buffer.data ?? {};
   const literals = buffer.literals ?? [];
   const symbols = buffer.symbols ?? [];
-  const feedbackMode = data.feedback ?? "realtime";
+  const feedbackMode = data.feedback ?? "REALTIME";
 
   const SLOTS = [
     { key: "firstSingular", person: "eu" },
@@ -79,14 +79,14 @@
   function audioVisible(slot) {
     const recall = recallFor(slot.key);
     if (recall === "KNOWN") return true;
-    if (feedbackMode === "batch") return reviewed;
+    if (feedbackMode === "BATCH") return reviewed;
     const cell = cells[slot.key];
     return cell?.signal === "SUCCESS" || reviewed;
   }
 
   // Order
   const orderedSlots = (() => {
-    if (data.order === "random") {
+    if (data.order === "RANDOM") {
       const arr = [...activeSlots];
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -146,7 +146,7 @@
 
     cells[slot.key] = { input: input.trim(), signal, committed: true };
 
-    if (feedbackMode === "realtime") {
+    if (feedbackMode === "REALTIME") {
       terminal.daemon.call("/review/literal", {
         signal,
         scope: { literal: slot.literal.id },
@@ -162,7 +162,7 @@
 
     cursor++;
 
-    if (feedbackMode === "realtime" && activeSlots.every((s) => cells[s.key].committed)) {
+    if (feedbackMode === "REALTIME" && activeSlots.every((s) => cells[s.key].committed)) {
       reviewConjugation();
     }
   }
@@ -214,7 +214,7 @@
     if (event.key === "Enter") {
       event.preventDefault();
       if (allCommitted) {
-        if (feedbackMode === "batch") reviewBatch();
+        if (feedbackMode === "BATCH") reviewBatch();
         else advance();
       } else {
         commitCell();
@@ -261,7 +261,7 @@
       {#each activeSlots as slot}
         {@const cell = cells[slot.key]}
         {@const isActive = activeSlot?.key === slot.key && !reviewed}
-        {@const showAnswer = feedbackMode === "realtime" ? cell.committed : reviewed}
+        {@const showAnswer = feedbackMode === "REALTIME" ? cell.committed : reviewed}
         {@const showAudio = audioVisible(slot)}
         <div
           bind:this={rowEls[slot.key]}
@@ -306,14 +306,14 @@
       <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
         Next
       </button>
-    {:else if allCommitted && feedbackMode === "batch"}
+    {:else if allCommitted && feedbackMode === "BATCH"}
       <button
         class="btn btn-review"
         onmousedown={(e) => e.preventDefault()}
         onclick={reviewBatch}>
         Review
       </button>
-    {:else if allCommitted && feedbackMode === "realtime"}
+    {:else if allCommitted && feedbackMode === "REALTIME"}
       <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>
         Next
       </button>

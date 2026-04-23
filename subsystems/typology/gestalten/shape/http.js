@@ -33,8 +33,21 @@ export function http(vector) {
 }
 
 function respond(ctx, status) {
-  if (ctx.response.body?.[Symbol.asyncIterator]) ctx.response.publish(ctx.response.body);
-  const body = ctx.response.body;
+  let body = ctx.response.body;
+
+  // Bare async generators (e.g. ctx.output from cortex stream leaves) get
+  // auto-framed as SSE. ReadableStream and Uint8Array are already-wrapped
+  // response bodies — leave them for the native Response path below.
+  if (
+    body != null
+    && typeof body[Symbol.asyncIterator] === "function"
+    && !(body instanceof ReadableStream)
+    && !(body instanceof Uint8Array)
+  ) {
+    ctx.response.publish(body);
+    body = ctx.response.body;
+  }
+
   if (body instanceof Response) return body;
 
   const s = status || ctx.response.status || (body != null ? 200 : 404);

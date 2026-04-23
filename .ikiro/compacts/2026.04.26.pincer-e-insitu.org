@@ -1,0 +1,171 @@
+#+TITLE: Panel-e trait controllers + INSITU un-gut
+#+DATE: 2026-04-26
+#+TOPIC: pincer · panel-e · INSITU · CONVERSATIONAL · trait-reactivity
+
+* Arc
+Started by extending panel e from a stub set of dummy boxes into a real trait controller surface. Six toggles → five (FURNISHED dropped: "there is no furnished trait!"). Each trait got its own card(s). MASKED collapsed to display-only via a recursive Json renderer hardened against arbitrary trait JSON. AIMED kept just the route-list selector after the trace card was scrapped. INSITU eventually became the focus.
+
+Mid-session a question crystallised the architecture: when you change `trait.AIMED.mount`, why doesn't the runtime switch endpoints? That dug into the trait-reactivity gap and produced a new workpackage at `.ikiro/trait-reactivity.workpackage.org`.
+
+Then the centre of gravity shifted to INSITU. Un-gutted `terminal/insitu.js`, kept the gutted body that was already there, restored the WS connection, exposed `terminal.socket` for introspection. Started the runtime, drove a chat through chrome with strategic logs. End-to-end working: user → /dialogue/anchor → CHAOSMONKEY harness → cortex hallucinator → /dialogue/packet stream → Dock log render. Turns persisted in SQLite.
+
+* Finn's voice (verbatim)
+
+#+BEGIN_QUOTE
+none of these components make any sense as to what the traits represent. do your research
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+go through the sqlite db inn testament, the entities and the datamap trait. look through the tyoplogy repository and how its used on the client. also check teh contexts in layout/page. then reason out whats in store here.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets make masked for now display only. we will want the system to be hardened against any kind of json strcutrue that might pop out of the trait. anything renders.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+can we make the order in which the traits were triggered the order they appear in the panel?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+aimed trace is not wired up?! actually, lets remove the trace. no point. just the mount selector. is that actual stripwired data or stup?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+whats this set of flags? whats that wired to?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+the thread aim update doesnt percolate
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+how is the update fired? whats updated?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+write thsi issue up into a workpackage.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+whats stubed vs real here?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ok. lets work with this component now. we stay on insitu. insitu is only displayed if the mounted mode has conversational trait. (implement go). i am in a mode that has a convresational trait. we can engange to start a session. where is session currently located? who owns it?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+port set as independent widget but colocated with insitu. where
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+where does the session live ?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets start wiring up insitu. first milestone: get chat with mode back up. turn taking, streaming, hallucinators, the whole shebang.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+start by ungutting, then confirm that dewey mode serves correctly and turns are created. you can use chrome, and you should start the runtime/watch internally and place some strategic logs and start tracing some jsons.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+actually, do 2-5 also in one go. you got this
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i confused dock with port. the dock controller,...not the port controller. i want to control the dock.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+message "received" no answer ever comes
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+remove P port — socket xyz. replace it with real session introspection.
+#+END_QUOTE
+
+* Built · changed
+
+** systems/html/src/routes/pincer/panels/e/
+Per-trait controller cards. Final set, in dispatch order:
+- =Row.svelte= shared shell (letter, name, status pill, body, footer snippet)
+- =Json.svelte= recursive renderer; handles string/number/bool/null/undefined/Date/array/object/function/BigInt/Symbol; depth limit; safe stringification
+- =Masked.svelte= display-only via Json
+- =AimedRoutes.svelte= scans local intent entities for unique =trait.AIMED.mount=, picker writes via =entities.thread.updateOne=
+- =QueueingConsole.svelte= status lamp + meter + verb buttons (next/pull/reset/suspend)
+- =QueueingRibbon.svelte= pending/active/done lanes + depth slider
+- =InsituDock.svelte= controls =terminal.$dock= (side / share / collapsed / session)
+- =InsituSession.svelte= state machine + socket lamp+url + error + inboundShape paths + outboundShape paths + subscriber map
+- =InsituStreams.svelte= dialogue queue depth
+- =LabeledEditor.svelte= name + description editor
+
+Dropped along the way: =MaskedEditor=, =MaskedProbe=, =AimedTrace=, =LabeledFlags=, =FurnishedStub=, =FurnishedSpec=, =InsituWire=, =InsituPort=.
+
+** Trait gating
+=e.svelte= now has =traitGate= map. INSITU only visible when =thread.mode.traits.includes("CONVERSATIONAL")=. Renders activated traits in toggle-click order via =renderOrder= derived from =activeOrder=.
+
+** Terminal entity gained engage/release
+=systems/html/src/typology/entities/terminal.js= — added =Terminal.engage(thread)= and =Terminal.release()=. Single source of truth for INSITU enrollment + dock state. Both =InsituSession.engage= and =Dock.toggleSession= now delegate.
+
+** terminal/insitu.js un-gutted
+Removed early =return=. Restored =terminal.streams.dialogue= Queue, =clientInbound= Vector with =/dialogue/packet= + =/dialogue/voyage=, opened socket, exposed =terminal.socket=, constructed Session, called =moin()=. Strategic =[INSITU]= console logs at trait install / thread emit / socket open / moin success / packet receive / voyage close.
+
+** Session prototype captures shapes
+=subsystems/typology/prototypes/session.js= — =moin()= now stores =this.inboundShape = strip(this.inbound)= and =this.outboundShape = reply.shape=. The server-leg of the constructor mirror also captures both. =InsituSession= reads these to render path lists.
+
+** Dock revival
+=routes/pincer/panels/a.svelte= — un-commented Dock + dock.geometry. Rendered only when =thread.mode.traits.includes("CONVERSATIONAL")=.
+=routes/pincer/panels/a/Dock.svelte= — =toggleSession= now hits =terminal.engage(thread)= / =terminal.release()=. =send= ack-fallback removed; instead logs "no live session — click open to engage" when send shape absent.
+
+** Workpackage: trait-reactivity
+=.ikiro/trait-reactivity.workpackage.org= — covers L1 (one-shot install, no re-bind on config edit) and L2 (atom granularity wrong; Thread is class, not plain object, so Svelte 5 deep-state proxy doesn't track field mutations). Three approaches: A patch per controller, B reactive trait atom, C re-integrate on change. Recommendation: B medium-term, A to unblock.
+
+* End-to-end verified
+- Dewey mode (=teacher/dewey=, traits ~["EXPOSED","INTENTED","CHAOSMONKEY","CONVERSATIONAL"]~) wired through brazilian daemon.
+- engage → INSITU added to =thread.traits= + persisted via =updateOne= → =$thread.set= re-emits → terminal trait subscriber opens =/conversation= WS → moin handshake → server sends shape → =session.send= rehydrated.
+- =olá dewey, tudo bem?= → 8 dialogue packets streamed → =/dialogue/voyage= closed turn → SQLite has user + assistant Turn rows → Dock renders agent text.
+- Server log: =[CONVERSATIONAL] /conversation reached — auth threshold passed=.
+
+* Learnings · future
+
+** Trait reactivity is a real gap, not a hand-wave
+The pattern of =trait config (durable JSON) → install-time finalizer → runtime artifact= captures state at install and never rebinds. AIMED's =thread.pull= is the canonical example. Today the fix is per-controller manual rebind. Long-term: per-trait atom subscription, with teardown contracts on finalizers. The workpackage is the contract for that work.
+
+** Class instances vs plain objects in Svelte 5 $state
+Svelte 5's =$state= deep-proxies plain objects + arrays but treats class instances as opaque. =Thread= and =Terminal= are classes, so any UI that reads =terminal.session= or =thread.trait.X= via =$state= won't re-render on field mutation. Workaround: use atoms (=$dock=, =$thread=, =$state=, =$entities=) for any field that needs UI reactivity. Anything assigned with =instance.field = newValue= is a black hole for the dashboard.
+
+** Hardening JSON renderers pays off immediately
+=Json.svelte= with depth/type guards meant MASKED-display worked the moment we threw arbitrary trait config at it. Same renderer becomes useful for other display panels (panel-d trait dump already uses raw JSON.stringify; could swap).
+
+** Dewey hallucinator says "I am Claude"
+The system prompt sent through =ctx.hallucination.add([...])= is not enough to override the model's identity. The agent introduced itself as Claude / Anthropic regardless of dewey's persona instruction. Worth investigating cortex faculty wiring + harness composition order — and whether the prompt is being eclipsed by API-level system messages.
+
+** Strategic logging is cheap; HMR noise is not
+=[INSITU]= logs at every state transition made the un-gutting a 5-minute verify (engage → opening → moin → packets). Worth keeping in. The cost was HMR's stale-module noise after deletes (vite tries to reload removed files); reload clears it but it briefly drowned the signal. Future: prefer rename over delete during HMR-sensitive iteration, or full reload sooner.
+
+** "Display only first, then editing" is a good cadence
+MASKED started as a malformed editor with invented chips. Stripped to display-only via Json. That single move forced the question: what's actually in the trait? Once we could see it, the editor's shape became obvious. Apply this pattern to other trait controllers when they start guessing.
+
+** Consolidate engage/release before the second consumer asks
+The Dock and the Session controller both wanted to start a session. The first cut wired engage logic only into the panel-e button; the Dock's "open" was a UI flag. The user's "message received no answer ever comes" exposed it. Lifting =engage(thread)= / =release()= onto =Terminal= unified the two paths in one short edit. Small refactor, big clarity.
+
+** Naming caused a misread
+Calling the WS layer "P · port" read as "the dock". Finn flagged it: "i confused dock with port". The fix was renaming + content clarification. The =port= card was eventually replaced by session introspection, which carries both the WS readyState and the rehydrated send/inbound shapes — better signal density than a single-purpose port card.
+
+** "do your research" → DB schema dive paid for itself
+The MASKED/AIMED/QUEUEING ontology research (sqlite schema → datamap shard → entity-manager → trait functions → sample data) became the entire foundation for everything that followed. Without that pass the controllers would still be guessing. Future controller work should start with the same dive.
+
+* Pointers
+- Workpackage: =.ikiro/trait-reactivity.workpackage.org=
+- Panel e: =systems/html/src/routes/pincer/panels/e/= + =e.svelte=
+- Trait body: =systems/html/src/typology/traits/terminal/insitu.js=
+- Terminal entity: =systems/html/src/typology/entities/terminal.js=
+- Session: =subsystems/typology/prototypes/session.js=
+- Dock: =systems/html/src/routes/pincer/panels/a/Dock.svelte=
+- Panel a: =systems/html/src/routes/pincer/panels/a.svelte=
+- Daemon CONVERSATIONAL: =systems/runtime/daemon/traits/conversational.js=
+- CHAOSMONKEY harness: =systems/runtime/daemon/traits/chaosmonkey.js=
+- Dewey persona: =registry/modes/@vivalence/teacher/dewey/dewey.viva.js=

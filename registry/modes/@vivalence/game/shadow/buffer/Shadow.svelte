@@ -1,5 +1,5 @@
 <script>
-  import { Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
+  import { Asset, Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
 
@@ -31,6 +31,7 @@
   const position = $derived(currentIndex + 1);
 
   const isWord = $derived(literal?.symbol?.word);
+  const asset = $derived(terminal.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
   const known = $derived(literal?.trait?.TRANSLATED?.known);
   const learning = $derived(literal?.trait?.TRANSLATED?.learning);
   const prompt = $derived(activeRecall === "KNOWN" ? learning : known);
@@ -241,6 +242,9 @@
           <span class="meta-type">{isWord ? "word" : "sentence"}</span>
           <span class="meta-hint">{speed.rate?.toLowerCase() ?? "normal"}</span>
           {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+          {#if asset}
+            <div class="audio-block"><Asset autoplay={true} {asset} /></div>
+          {/if}
         </div>
 
         <p class="translation recall-prompt">{prompt}</p>
@@ -290,16 +294,21 @@
     {#if phase === "show"}
       <button class="btn btn-skip" onmousedown={(e) => e.preventDefault()} onclick={skipToRecall}>I'm ready</button>
     {:else}
-      <input
-        class="field"
-        class:field-locked={submitted}
-        bind:this={inputEl}
-        value={input}
-        oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
-        placeholder="{answerLabel}…" />
       {#if !submitted}
+        <input
+          class="field"
+          bind:this={inputEl}
+          value={input}
+          oninput={(event) => { input = event.target.value; }}
+          placeholder="{answerLabel}…" />
         <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
       {:else}
+        <span
+          class="fb-glyph"
+          class:ok={result?.signal === "SUCCESS"}
+          class:wrong={result?.signal !== "SUCCESS"}>
+          {result?.signal === "SUCCESS" ? "✓" : "✗"}
+        </span>
         <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
       {/if}
     {/if}
@@ -344,6 +353,11 @@
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.6;
   }
+  .audio-block {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
 
   .prompt {
     font-family: var(--font-family-serif-heading);
@@ -380,6 +394,21 @@
 
   .fb-block { display: flex; flex-direction: column; gap: 0.125rem; }
   .fb-key { font-family: var(--font-family-code); font-size: 0.6rem; color: var(--colors-skeleton-1-boundary); }
+  .fb-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    font-size: 1.25rem;
+    font-family: var(--font-family-code);
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  .fb-glyph.ok { color: var(--colors-system-success-contrast); border-color: var(--colors-system-success-contrast); }
+  .fb-glyph.wrong { color: var(--colors-system-error-contrast); border-color: var(--colors-system-error-contrast); }
   .fb-val { font-size: 1.25rem; font-family: var(--font-family-serif-heading); }
   .fb-val.ok { color: var(--colors-system-success-contrast); }
   .fb-val.wrong { color: var(--colors-system-error-contrast); }
@@ -412,7 +441,6 @@
     box-sizing: border-box;
   }
   .field::placeholder { color: var(--colors-skeleton-1-boundary); }
-  .field-locked { opacity: 0.4; pointer-events: none; }
 
   .btn {
     min-height: 48px;

@@ -71,7 +71,7 @@
 
   function handleKey(event) {
     if (event.target.closest("input,textarea")) return;
-    if (event.key === " ") {
+    if (event.key === " " || event.key === "Enter") {
       event.preventDefault();
       if (!revealed) reveal();
     }

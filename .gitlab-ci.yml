@@ -4,12 +4,12 @@ workflow:
 
 stages:
   - build
-  - deploy
+  # - deploy
 
 variables:
   DOCKER_DRIVER: overlay2
   REGISTRY: registry.vivalence.org/beef/viva
-  COOLIFY_BASE: https://cool.vivalence.com/api/v1/deploy
+  # COOLIFY_BASE: https://cool.vivalence.com/api/v1/deploy
 
 build-and-push:
   stage: build
@@ -30,26 +30,25 @@ build-and-push:
     - docker push $REGISTRY/vivalence/viva:alpine
     - docker push $REGISTRY/vivalence/runtime:alpine
     - docker push $REGISTRY/vivalence/html:alpine
+# deploy-html:
+#   stage: deploy
+#   image: curlimages/curl:latest
+#   needs: [build-and-push]
+#   script:
+#     - curl --fail -H "Authorization:Bearer $COOLIFY_TOKEN" "$COOLIFY_BASE?uuid=xkgcgwck8k08cgs8okoo4sko"
 
-deploy-html:
-  stage: deploy
-  image: curlimages/curl:latest
-  needs: [build-and-push]
-  script:
-    - curl --fail -H "Authorization:Bearer $COOLIFY_TOKEN" "$COOLIFY_BASE?uuid=xkgcgwck8k08cgs8okoo4sko"
+# deploy-runtime:
+#   stage: deploy
+#   image: curlimages/curl:latest
+#   needs: [build-and-push]
+#   script:
+#     - curl --fail -H "Authorization:Bearer $COOLIFY_TOKEN" "$COOLIFY_BASE?uuid=egcwkgw0cwg0kkwko4owooco"
 
-deploy-runtime:
-  stage: deploy
-  image: curlimages/curl:latest
-  needs: [build-and-push]
-  script:
-    - curl --fail -H "Authorization:Bearer $COOLIFY_TOKEN" "$COOLIFY_BASE?uuid=egcwkgw0cwg0kkwko4owooco"
-
-  # TODO
-  # only:
-  #   - main
-  # before_script:
-  #   - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY
+# TODO
+# only:
+#   - main
+# before_script:
+#   - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $REGISTRY
 # debug:
 #   stage: .pre
 #   script:

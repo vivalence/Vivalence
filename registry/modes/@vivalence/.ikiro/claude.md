@@ -1,18 +1,14 @@
-> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
->
-> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+# IKIRO — registry/modes (container)
 
-# Modes
+Feature implementation. Game modes = player-facing experiences. Tactics = orchestrators (don't render directly). Each mode is a registry package; its manifest's `traits` array is the wiring contract — runtime trait functions read these and assemble the mode into a daemon during resolve. Read `.ikiro/CLAUDE.md` first.
 
-> Game modes and tactics. The application-level behaviors that run on the engine.
+## architecture
 
-## Role
+traits are the wiring contract.
 
-Feature implementation. Modes are the player-facing experiences — flashcards, writing practice, shadow reading. Each mode is a registry package with a manifest declaring its traits and a .viva.js exporting its components. The runtime's trait system wires them into the daemon during the resolve phase.
+Every mode's `.viva.js` exports the same anatomy: `manifest` (identity + traits) + `buffer` (BufferView pointing at a Svelte file + buffer schema) + `emitter` (Vector with routes) + `dataset` (intent rows, optionally symbols/literals). Each trait declared in the manifest maps to a runtime function in `systems/runtime/daemon/traits/`. During resolve, those functions read mode artifacts and wire them into the daemon — buffer compiles + serves `/view`; emitter mounts at `/emit/{route}`; dataset upserts via DATASET; intent dataset upserts + creates `/modes/:type/:method` routing.
 
-## Mode Anatomy
-
-Every mode exports from its .viva.js:
+mode anatomy:
 
 ```javascript
 import { BufferView, Vector, v } from "@vivalence/typology";
@@ -23,100 +19,83 @@ export const emitter = new Vector().open("/literal", async (ctx) => { ... });
 export const dataset = { intent: [...] };
 ```
 
-**Traits determine wiring:**
+trait → runtime wiring:
 
-| Trait | What it does | Applied by |
-|-------|-------------|------------|
-| BUFFERED | Bundles Svelte view, serves /view endpoint, wires mode.buffer() factory | traitmap.BUFFERED |
-| INTENTED | Upserts intents from dataset, creates per-intent routing | traits/intented.js |
-| EMITTER | Attaches emitter Vector as /emit endpoints, injects daemon/mode context | traits/emitter.js |
-| SELFEVIDENT | Legacy — no active modes use this. Was: mode can open without intent | traitmap.SELFEVIDENT |
-| DATASET | Upserts symbols/literals from dataset | traits/dataset.js |
-| CHAOSMONKEY | Attaches hallucinator brain | traitmap.CHAOSMONKEY |
-| FRAUGHT | Indexes freight catalog (audio, images), exposes /freight | traitmap.FRAUGHT |
-| TOPOGRAPHICAL | Carries topology-level data | traitmap.TOPOGRAPHICAL |
-| LANGUAGED | Conversation harness with personality (planned) | — |
-| AGENTIC | Action harness with auto-resolve (planned) | — |
+| trait | runtime action | trait file |
+|-------|---------------|------------|
+| BUFFERED | esbuild-bundle Svelte view, serve /view, wire `mode.buffer()` factory | `systems/runtime/daemon/traits/buffered.js` |
+| INTENTED | upsert intents from dataset, create per-intent routing | `systems/runtime/daemon/traits/intented.js` |
+| EMITTER | mount emitter Vector at /emit, inject daemon/mode/seek/blacklist into ctx | `systems/runtime/daemon/traits/emitter.js` |
+| DATASET | upsert symbols + literals (chunks of 100) | `systems/runtime/daemon/traits/dataset.js` |
+| CHAOSMONKEY | wire harness — fail-fast + cortex.shard.harness + dialogue assembly + scribe + /harness mount | `systems/runtime/daemon/traits/chaosmonkey.js` |
+| CONVERSATIONAL | thin ws session owner — /conversation route, per-connection vector | `systems/runtime/daemon/traits/conversational.js` |
+| FRAUGHT | index freight catalog (audio, images), expose /freight | `systems/runtime/daemon/traits/index.js` |
+| TOPOGRAPHICAL | carry topology-level data | `traits/index.js` |
+| VIEWABLE | (alias of BUFFERED — Svelte view bundler) | `traits/buffered.js` |
+| LANGUAGED / AGENTIC | planned, not yet implemented | — |
+| SELFEVIDENT | legacy no-op on Mode (still valid as Thread/Intent fallback) | — |
 
-**Intent dataset format (APPLICATIVE with FEEDING):**
+structure:
+
+```
+registry/modes/@vivalence/
+├── game/                          11 modes (player-facing)
+│   ├── pick/                      multiple choice — one tap
+│   ├── judge/                     timed true/false — visual / audio / audio-only
+│   ├── listen/                    audio-first recall — pick / type (needs VOCALIZED)
+│   ├── exhibit/                   present knowledge, no testing
+│   ├── flashcard/                 classic bidirectional recall
+│   ├── match/                     connect literal pairs — translate / describe
+│   ├── cloze/                     fill blanked tokens — type / pick / listen
+│   ├── shadow/                    shadow reading + speed control
+│   ├── write/                     free text production
+│   ├── conjugation/               conjugation paradigm practice
+│   └── paradigm/                  paradigm-specific drills
+└── tactic/
+    ├── survival/                  five-phase Brazilian session
+    └── clinic/                    12 adaptive scopes (analysis + routine middleware split)
+```
+
+intent dataset (APPLICATIVE with FEEDING):
 
 ```javascript
 {
   slug: "feed",
-  name: "Pick",
   type: "APPLICATIVE",
   traits: ["FEEDING"],
-  trait: {
-    FEEDING: {
-      mount: "/emit/feed",
-      queue: 1,
-      mask: { batch: 4 },
-    },
-  },
+  trait: { FEEDING: { mount: "/emit/feed", queue: 1, mask: { batch: 4 } } },
 }
 ```
 
-## Active Game Modes
+game emitter pattern — every game mode exports a Vector with two routes. The original route accepts pre-fetched content from tactic callers. The `/feed` route self-sources literals via `ctx.daemon.entities.literal.feed()` — used by the mode's APPLICATIVE intent for standalone play. Feed routes accept optional `seek`, `blacklist`, `where`, `batch` from the FEEDING mask.
 
-Nine game modes under `game/`. All share: BUFFERED, INTENTED, EMITTER traits. Each has a `feed` APPLICATIVE intent.
+| mode | original route | gameplay variants |
+|------|----------------|-------------------|
+| pick | /literal | — |
+| judge | /literal | visual / audio / audio-only |
+| listen | /literal | pick / type |
+| exhibit | /present | — |
+| flashcard | /literals | — |
+| match | /batch | translate / describe |
+| cloze | /literal | type / pick / listen |
+| shadow | /literals | — |
+| write | /literals | — |
+| conjugation | /literal | — |
+| paradigm | /literal | — |
 
-| Mode | Slug | Emitter routes | Gameplay variants | Description |
-|------|------|----------------|-------------------|-------------|
-| Pick | pick | /literal, /feed | — | Multiple choice from distractors. One tap. |
-| Judge | judge | /literal, /feed | visual, audio, audio-only | Timed true/false on translation pairs. |
-| Listen | listen | /literal, /feed | pick, type | Audio-first recall. Requires VOCALIZED. |
-| Exhibit | exhibit | /present, /feed | — | Present structured knowledge. No testing. |
-| Flashcard | flashcard | /literals, /feed | — | Classic bidirectional recall. |
-| Match | match | /batch, /feed | translate, describe | Connect literal pairs across two columns. |
-| Cloze | cloze | /literal, /feed | type, pick, listen | Fill blanked tokens in a sentence. |
-| Shadow | shadow | /literals, /feed | — | Shadow reading/listening with speed control. |
-| Write | write | /literals, /feed | — | Free text production. |
+invocation — server tactics: `ctx.daemon.modes.game.{slug}.emit.{route}(input)`. Client: `terminal.daemon.call` through aperture wire protocol.
 
-**Emitter pattern**: Each game mode exports an `emitter` Vector with two routes. The original route (`/literal`, `/literals`, `/batch`, `/present`) receives pre-fetched content from tactic callers. The `/feed` route self-sources literals via `ctx.daemon.entities.literal.feed()` — used by the mode's APPLICATIVE intent for standalone play. Feed routes accept optional `seek`, `blacklist`, `where`, `batch` from the FEEDING mask.
+distractor fetching — pick / judge / listen emitters auto-fetch via `feed()` when no distractors are provided in input.
 
-Server-side callers (tactics) invoke emitters as `ctx.daemon.modes.game.{slug}.emit.{route}(input)`.
-Client-side callers use `terminal.daemon.call` through the aperture wire protocol.
+EMITTER trait does three things (`systems/runtime/daemon/traits/emitter.js`):
 
-**Distractor fetching**: Pick, Judge, and Listen emitters auto-fetch distractors via `ctx.daemon.entities.literal.feed()` when none are provided in input.
+1. inject `ctx.daemon` + `ctx.mode`
+2. resolve `ctx.input.seek` via `Seek.fromMask()` + `ctx.input.blacklist` via `new Blacklist()`
+3. post-process — assign session + counter index to buffers, flush em, serialize response
 
-## Active Tactics
+Two surfaces: `mode.emit = shape.object(emitter)` (local callable) and `mode.aperture.branch("/emit").slurp(emitter)` (HTTP).
 
-Two tactics under `tactic/`. Tactics orchestrate game modes — they don't render directly.
-
-### Survival `tactic/survival/`
-
-Five-phase session for Brazilian Portuguese. Each phase is a separate file in `emitter/`:
-
-| Phase | File | Default batch | Strategy |
-|-------|------|---------------|----------|
-| warmup | warmup.js | 8 | Easy recall — exhibit new, flash KNOWN, judge SLOW, listen pick |
-| buildup | buildup.js | 6 | Conjugation paradigms — exhibit, pick with paradigm distractors, match, judge |
-| exercise | exercise.js | 3 | Deep sentence work — token resolution, shadow, cloze, judge, write, listen |
-| drill | drill.js | 12 | High volume verb reps — exhibit, flash LEARNING, write, judge FAST |
-| cooldown | cooldown.js | 8 | Relaxed listening — listen pick KNOWN, flash KNOWN |
-
-All phases call `ctx.daemon.entities.literal.feed()` directly (not through aperture).
-Exercise phase resolves sentence tokens via `ctx.daemon.entities.literal.findOne()` with user-scoped memory population.
-
-### Test `tactic/test/`
-
-Minimal tactic for development. One emitter route `/flashcards` that feeds literals through flashcard buffers.
-
-## Emitter Wiring
-
-The EMITTER trait (`runtime/daemon/mode/traits/emitter.js`) does three things:
-
-1. Injects `ctx.daemon` and `ctx.mode` into emitter middleware
-2. Resolves `ctx.input.seek` via `Seek.fromMask()` and `ctx.input.blacklist` via `new Blacklist()`
-3. Post-processes output: assigns session + counter index to buffers, flushes em, serializes response
-
-The emitter Vector is exposed two ways:
-- `mode.emit = shape.object(emitter)` — local callable object
-- `mode.aperture.branch("/emit").slurp(emitter)` — HTTP endpoint at `/emit/{route}`
-
-## Buffer Schema
-
-Game modes define their buffer data schema using `v.buffer()`:
+buffer schema (every game mode, via `v.buffer()`):
 
 ```javascript
 const buffer = new BufferView(
@@ -134,67 +113,51 @@ const buffer = new BufferView(
 
 `mode.buffer({ data, literals })` creates a real MikroORM BufferEntity with the data and literal relations.
 
-## Memory Integration
+tactics (orchestrators):
 
-Game mode Svelte components call review through the aperture:
+- survival (`tactic/survival/`) — five-phase Brazilian Portuguese session. Each phase its own file in `emitter/`:
+
+| phase | file | batch | strategy |
+|-------|------|-------|----------|
+| warmup | warmup.js | 8 | exhibit new, flash KNOWN, judge SLOW, listen pick |
+| buildup | buildup.js | 6 | conjugation paradigms — exhibit, pick with paradigm distractors, match, judge |
+| exercise | exercise.js | 3 | deep sentence work — token resolution, shadow, cloze, judge, write, listen |
+| drill | drill.js | 12 | high volume verb reps — exhibit, flash LEARNING, write, judge FAST |
+| cooldown | cooldown.js | 8 | relaxed listening — listen pick KNOWN, flash KNOWN |
+
+All phases call `feed()` directly (not through aperture). Exercise resolves sentence tokens via `findOne()` with user-scoped memory population.
+
+- clinic (`tactic/clinic/`) — 12 adaptive scopes (class, regularity, questions, connectors, negation, pronouns, determiners, adverbs, numbers, degrees, prepositions, ser-vs-estar). Phase-aware sub-emitter composition (introduce / drill / reinforce / hunt). Strength-based assess + weighted random selection + trace errorRate. M0 shipped: `clinic/emitter/shards/{analysis,routine}.js` factories. Pronouns is the first migrator. See `.ikiro/tactic-analysis-routine.workpackage.org`.
+
+memory integration — game mode Svelte components call review through aperture:
+
 ```javascript
 terminal.daemon.call("/review/literal", { signal: "SUCCESS", scope: { literal: lit.id } })
 ```
 
-The aperture resolves the literal and calls `literal.review(signal, ctx)` which:
-1. Finds or creates the user's Memory for this literal
-2. Calls `memory.apply(signal, driver)` — dispatches to the driver's `evolve()` or `encode()`
-3. Creates a Trace entity
-4. Flushes
+The aperture resolves the literal → `literal.review(signal, ctx)` → finds/creates user Memory → `memory.apply(signal, driver)` (drivers in `registry/kernels/@vivalence/domain/learning/memory/`) → creates Trace → flushes.
 
-Memory drivers: BAYESIAN (ebisu, default), BOOLEAN (binary), COUNTER (streak-based). See `domain/learning/memory/` and `.ikiro/memory-drivers.workpackage.org`.
+## context
 
-## Archived Modes
+consumers:
 
-In `game/bak/`: conjugations, flashcards (old), translations, todo stubs — abandoned approaches from before the kernel simplification.
-In `tactic/bak/`: old tactic format tests.
+- runtime daemon — modes instantiated during populate; traits applied during resolve
+- tactics — orchestrate game modes via `ctx.daemon.modes.game.{slug}.emit.{route}()`
+- client — loads Svelte views via BUFFERED `/view` URL; calls `/emit` and `/review` via `daemon.call`
 
-## Where Used
+testing:
 
-- **Runtime daemon**: Modes instantiated during populate, traits applied during resolve
-- **Tactics**: Orchestrate game modes via `ctx.daemon.modes.game.{slug}.emit.{route}()`
-- **Client**: Loads Svelte views via BUFFERED /view URL, calls /emit and /review via daemon.call
+- Bruno tests for all game emitters + tactic emitters at `testament/_bruno/variants/daemons/test-language/modes/`
+- Bayesian driver: 36-step suite at `registry/kernels/@vivalence/domain/learning/tests/memory/bayesian.test.js`
+- no Svelte component unit tests
+- no end-to-end mode lifecycle tests
 
-## Work Packages
+active work:
 
-### Testing
-- Bruno tests exist for all game emitters and tactic emitters (`testament/_bruno/variants/daemons/test-language/modes/`)
-- Bayesian driver: 36-step test suite (`domain/learning/tests/memory/bayesian.test.js`)
-- No mode-level unit tests (Svelte components untested)
-- No end-to-end mode lifecycle tests
+- M2+ of tactic-analysis-routine — wire analysis + routine middleware into EMITTER trait
+- Tier 2 game modes — reorder, dictation
+- Tier 3 — minimal-pair
+- conversational tactics (post-cortex)
+- Listen TYPE feedback redesign shipped 2026-04-20 — two-column lexicon + usage layout, see `registry/modes/@vivalence/game/listen/buffer/Listen.svelte`
 
-### Active Work
-- implements filter + method across all entities via trait.js
-- Wire exhibit + survival into daemon circuitry, end-to-end verify
-- Counter + Boolean driver tests
-- Tier 2 game modes (reorder, dictation)
-- Tier 3 game modes (minimal-pair)
-- Conversational tactics (post-cortex)
-
-### Human Documentation Needs (Divio)
-- **Tutorial**: "Build a new game mode" — manifest, BufferView, emitter, dataset, trait selection
-- **Reference**: Emitter context shape, buffer data schema patterns, gameplay enum conventions
-- **How-to**: "Add a new tactic" — emitter dir pattern, phase composition, literal feed integration
-
-## Maintenance
-
-When adding a new game mode:
-1. Create `registry/modes/@vivalence/game/{slug}/{slug}.viva.js`
-2. Export manifest with traits (at minimum: BUFFERED, INTENTED, EMITTER)
-3. Create `buffer/{Name}.svelte` — BufferView points at it
-4. Define emitter Vector with route(s)
-5. Export dataset with intent entities if INTENTED
-6. Wire into circuitry's daemon modes array
-7. Add Bruno test at `testament/_bruno/variants/daemons/test-language/modes/game/{slug}/`
-
-When adding a new tactic:
-1. Create `registry/modes/@vivalence/tactic/{slug}/`
-2. Create `emitter/` dir with one file per phase + `index.js` assembling the Vector
-3. Export manifest (INTENTED, EMITTER), emitter, dataset from `.viva.js`
-4. Phases call `ctx.daemon.entities.literal.feed()` directly and compose buffers via `ctx.daemon.modes.game.{slug}.emit.{route}()`
-5. Add Bruno tests for each emitter phase
+archived — `game/bak/`: conjugations (old), flashcards (old), translations, todo stubs (abandoned approaches before kernel simplification). `tactic/bak/`: old tactic format tests.

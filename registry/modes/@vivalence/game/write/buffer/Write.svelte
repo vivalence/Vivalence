@@ -58,6 +58,8 @@
           .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/[?.!,;:'"'´`~\-—]/g, "")
+          .replace(/\//g, " ")
+          .replace(/\s+/g, " ")
           .trim()
     : (s) => s.toLowerCase().trim();
 
@@ -185,13 +187,12 @@
         <span class="meta-type">{isWord ? "word" : "sentence"}</span>
         {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
         {#if forgiving}<span class="meta-hint">forgiving</span>{/if}
+        {#if asset && activeRecall === "KNOWN"}
+          <div class="audio-block"><Asset {asset} /></div>
+        {/if}
       </div>
 
       <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
-
-      {#if asset && activeRecall === "KNOWN"}
-        <Asset {asset} />
-      {/if}
 
       {#if isWord && promptEx}
         <p class="example">{promptEx}</p>
@@ -250,16 +251,21 @@
   {/snippet}
 
   {#snippet controls()}
-    <input
-      class="field"
-      class:field-locked={submitted}
-      bind:this={inputEl}
-      value={input}
-      oninput={(event) => { if (!submitted) input = event.target.value; else event.target.value = input; }}
-      placeholder="{answerLabel}…" />
     {#if !submitted}
+      <input
+        class="field"
+        bind:this={inputEl}
+        value={input}
+        oninput={(event) => { input = event.target.value; }}
+        placeholder="{answerLabel}…" />
       <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
     {:else}
+      <span
+        class="fb-glyph"
+        class:ok={result?.signal === "SUCCESS"}
+        class:wrong={result?.signal !== "SUCCESS"}>
+        {result?.signal === "SUCCESS" ? "✓" : "✗"}
+      </span>
       <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
     {/if}
   {/snippet}
@@ -291,6 +297,11 @@
     font-size: 0.55rem;
     color: var(--colors-skeleton-1-boundary);
     opacity: 0.6;
+  }
+  .audio-block {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
   }
 
   .prompt {
@@ -346,6 +357,27 @@
     font-family: var(--font-family-code);
     font-size: 0.6rem;
     color: var(--colors-skeleton-1-boundary);
+  }
+  .fb-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    font-size: 1.25rem;
+    font-family: var(--font-family-code);
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  .fb-glyph.ok {
+    color: var(--colors-system-success-contrast);
+    border-color: var(--colors-system-success-contrast);
+  }
+  .fb-glyph.wrong {
+    color: var(--colors-system-error-contrast);
+    border-color: var(--colors-system-error-contrast);
   }
   .fb-val {
     font-size: 1.25rem;
@@ -439,7 +471,6 @@
     box-sizing: border-box;
   }
   .field::placeholder { color: var(--colors-skeleton-1-boundary); }
-  .field-locked { opacity: 0.4; pointer-events: none; }
   .btn-check {
     min-height: 48px;
     padding: 0.75rem 1.25rem;

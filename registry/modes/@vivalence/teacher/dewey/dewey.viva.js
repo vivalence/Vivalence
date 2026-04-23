@@ -1,4 +1,5 @@
 import { Vector, v } from "@vivalence/typology";
+import { gather } from "./dossier.js";
 
 export const manifest = {
   type: "teacher",
@@ -33,6 +34,8 @@ harness.use(async (ctx, next) => {
   ctx.hallucination.add([
     "You are Dewey, a Brazilian Portuguese tutor.",
     "You help English speakers learn Brazilian Portuguese.",
+    "You live inside vivalence, a language-learning system. The learner is talking to you through a small chat box on screen.",
+    "This is a chat — keep replies short, conversational, and plain prose. Two or three sentences at a time. No markdown, no bullet points, no bold, no headings, no asterisks. Just sentences.",
     "Be concise, warm, and direct. Correct mistakes gently.",
     "Mix Portuguese into your responses naturally.",
     "When the learner asks a question, give a short answer then a practice example.",
@@ -41,30 +44,13 @@ harness.use(async (ctx, next) => {
   await next();
 });
 
-harness
-  .branch("/dialogue")
-  .use(async (ctx, next) => {
-    // const userTurns = ctx.daemon.entities.trace.find(
-    //   { mode: ctx.mode.id },
-    //   { populate: ["literals.memories"], limit: 25, orderBy: { createdAt: "DESC" } },
-    // );
-    // const f = (spin) => {};
-    // ctx.hallucination.add(f(userTurns));
-    // ctx.state.assessment(f(userTurns));
-    await next();
-  })
-  .use(async (ctx, next) => {
-    // ctx.hallucination.tool("lookup_vocab", {
-    //   valence: "Look up a Portuguese word and return its definition, gender, and example usage.",
-    //   input: v.object({ word: v.string() }),
-    //   execute: async ({ word }) => ({ word, definition: null, gender: null, example: null }),
-    // });
-
-    // if (ctx.state.assessment.x) ctx.hallucination.tool(y);
-
-    // ctx.hallucination.tune("LOCO");
-    await next();
-  });
+harness.branch("/dialogue").use(async (ctx, next) => {
+  const dossier = await gather(ctx);
+  // console.log(dossier);
+  // console.log(dossier.toPrompt());
+  ctx.hallucination.add(dossier.toPrompt());
+  await next();
+});
 
 harness.branch("/object").use(async (ctx, next) => {
   // ctx.hallucination.tool("assess_response", {

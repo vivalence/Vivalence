@@ -337,108 +337,88 @@ specimen.describe("persist: stale-while-revalidate", () => {
 })
 
 specimen.describe("persist: encode edge cases", () => {
-  specimen.beforeEach(() => localStorage.clear())
-
-  specimen.it("encode strips functions from entities", async () => {
+  specimen.it("encode strips functions from entities", () => {
     const repo = managed(conn, "mode")
     repo.persist()
 
-    const mode = repo.merge({ id: "fn-1", slug: "test", type: "game", traits: [] })
+    const mode = { id: "fn-1", slug: "test", type: "game", traits: [] }
     mode.call = () => {}
     mode.buffer = () => ({})
-    repo.$entities.set([...repo.$entities.get()])
 
-    const key = conn.branch("/mode").url.absolute
-    const stored = localStorage.getItem(key)
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(repo.encode([mode]))
     const found = parsed.find((e) => e.id === "fn-1")
     specimen.expect(found.call).toBeUndefined()
     specimen.expect(found.buffer).toBeUndefined()
     specimen.expect(found.slug).toBe("test")
   })
 
-  specimen.it("encode strips Sets and non-plain objects", async () => {
+  specimen.it("encode strips Sets and non-plain objects", () => {
     const repo = managed(conn, "mode")
     repo.persist()
 
-    const mode = repo.merge({ id: "set-1", slug: "test", type: "game", traits: ["BUFFERED"] })
+    const mode = { id: "set-1", slug: "test", type: "game", traits: ["BUFFERED"] }
     mode.intents = new Set(["a", "b"])
     mode.mount = { constructor: class Path {}, nature: "/mode/game/test" }
-    repo.$entities.set([...repo.$entities.get()])
 
-    const key = conn.branch("/mode").url.absolute
-    const stored = localStorage.getItem(key)
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(repo.encode([mode]))
     const found = parsed.find((e) => e.id === "set-1")
     specimen.expect(found.intents).toBeUndefined()
     specimen.expect(found.mount).toBeUndefined()
     specimen.expect(found.traits).toContain("BUFFERED")
   })
 
-  specimen.it("encode collapses m:1 relations to {id}", async () => {
+  specimen.it("encode collapses m:1 relations to {id}", () => {
     const intentRepo = managed(conn, "intent")
     intentRepo.schema = {
       properties: { mode: { kind: "m:1", target: "mode" } },
-      stores: {},
     }
     intentRepo.persist()
 
-    intentRepo.merge({
+    const intent = {
       id: "enc-1",
       slug: "test-intent",
       mode: { id: "m1", slug: "flashcard", type: "game", daemon: { slug: "brazilian" } },
-    })
+    }
 
-    const key = conn.branch("/intent").url.absolute
-    const stored = localStorage.getItem(key)
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(intentRepo.encode([intent]))
     const found = parsed.find((e) => e.id === "enc-1")
     specimen.expect(found.mode).toEqual({ id: "m1" })
   })
 
-  specimen.it("encode collapses m:n relations to [{id}]", async () => {
+  specimen.it("encode collapses m:n relations to [{id}]", () => {
     const literalRepo = managed(conn, "literal")
     literalRepo.schema = {
       properties: { symbols: { kind: "m:n", target: "symbol" } },
-      stores: {},
     }
     literalRepo.persist()
 
-    literalRepo.merge({
+    const literal = {
       id: "enc-2",
       slug: "test-literal",
       symbols: [
         { id: "s1", slug: "greeting", trait: {} },
         { id: "s2", slug: "farewell", trait: {} },
       ],
-    })
+    }
 
-    const key = conn.branch("/literal").url.absolute
-    const stored = localStorage.getItem(key)
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(literalRepo.encode([literal]))
     const found = parsed.find((e) => e.id === "enc-2")
     specimen.expect(found.symbols).toEqual([{ id: "s1" }, { id: "s2" }])
   })
 
-  specimen.it("encode handles circular-ish enrichment without throwing", async () => {
+  specimen.it("encode handles circular-ish enrichment without throwing", () => {
     class Daemon { constructor(s) { this.slug = s } }
 
     const repo = managed(conn, "mode")
     repo.persist()
 
-    const mode = repo.merge({ id: "circ-1", slug: "circular", type: "game", traits: [] })
-    // simulate daemon lifecycle enrichment — Daemon is a class, not plain object
+    const mode = { id: "circ-1", slug: "circular", type: "game", traits: [] }
     mode.daemon = new Daemon("brazilian")
     mode.daemon.entities = { mode: repo }
     mode.intents = new Set()
-    mode.connection = conn.branch("/mode") // real Connection instance
+    mode.connection = conn.branch("/mode")
 
-    // trigger persistence — should not throw
-    repo.$entities.set([...repo.$entities.get()])
-
-    const key = conn.branch("/mode").url.absolute
-    const stored = localStorage.getItem(key)
-    const parsed = JSON.parse(stored)
+    const parsed = JSON.parse(repo.encode([mode]))
     const found = parsed.find((e) => e.id === "circ-1")
     specimen.expect(found.slug).toBe("circular")
     specimen.expect(found.daemon).toBeUndefined()

@@ -77,7 +77,6 @@ export const CONVERSATIONAL = (mode, daemon) => {
   mode.aperture.open(
     "/conversation",
     shard.serve.websocket((ws, ctx) => {
-      console.log("[CONVERSATIONAL] /conversation reached — auth threshold passed, user:", ctx.user?.id ?? "no-auth-ctx");
       const connectionVector = new Vector().slurp(conversation);
       const socket = new Socket(ws, connectionVector);
       socket.state.user    = ctx.user;

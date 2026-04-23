@@ -131,10 +131,6 @@
 <svelte:window onkeydown={handleKey} />
 
 <Desk>
-  <div class="timer-bar">
-    <div class="timer-fill" class:timer-urgent={urgent} style="width: {Math.max(0, 1 - progress) * 100}%"></div>
-  </div>
-
   {#snippet surface()}
     <div
       class="touch-layer"
@@ -142,6 +138,9 @@
       ontouchmove={handleTouchMove}
       ontouchend={handleTouchEnd}
     >
+      <div class="timer-bar">
+        <div class="timer-fill" class:timer-urgent={urgent} style="width: {Math.max(0, 1 - progress) * 100}%"></div>
+      </div>
       <div class="stage-inner" style="transform: translateX({swipeX * 0.3}px)">
         {#if target}
           <div class="meta">
@@ -158,7 +157,7 @@
                 <p class="source" class:source-word={isWord}>{sourceText}</p>
               {/if}
               {#if asset}
-                <Asset autoplay={true} {asset} />
+                <div class="audio-block"><Asset autoplay={true} {asset} /></div>
               {/if}
             </div>
           {/if}
@@ -260,7 +259,7 @@
 
   .source-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
     margin: 0 0 1.5rem 0;
   }
@@ -273,6 +272,11 @@
     flex: 1;
   }
   .source-word { font-size: var(--font-size-3xl); }
+  .audio-block {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+  }
 
   .shown-row {
     display: flex;

@@ -11,7 +11,7 @@ const manifest = {
 };
 
 const buffer = new BufferView(
-  "buffer/Listen.svelte",
+  "Listen.svelte",
   v.buffer({
     data: {
       recall: v
@@ -90,7 +90,7 @@ const emitter = new Vector()
     return ctx.mode.buffer({
       data: {
         recall: ctx.input.recall ?? "KNOWN",
-        gameplay: "PICK",
+        gameplay: "TYPE",
       },
       literals: vocalized,
     });
@@ -103,7 +103,7 @@ const dataset = {
       name: "Listen",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { limit: 4 },
+        MASKED: { limit: 1 },
         AIMED: { mount: "/emit/feed" },
         QUEUEING: { depth: 1 },
       },

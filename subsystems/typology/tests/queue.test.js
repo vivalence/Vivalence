@@ -44,7 +44,7 @@ specimen.describe("Queue", () => {
     await Promise.resolve(); await Promise.resolve();
     specimen.expect(collected).toEqual([]);
     queue.enqueue("first");
-    await Promise.resolve(); await Promise.resolve();
+    await Promise.resolve(); await Promise.resolve(); await Promise.resolve();
     specimen.expect(collected).toEqual(["first"]);
     queue.enqueue("second");
     queue.close();

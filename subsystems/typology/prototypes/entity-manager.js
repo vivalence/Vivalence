@@ -28,6 +28,12 @@ export class RemoteEntityManager {
     // Registered repos + their compiled integrators.
     this.repositoryMap = {};
     this.integrators = {};
+
+    // (name:id) keys whose integrator has already run. Claimed synchronously
+    // at the top of integrate() so that nested/concurrent integrates on the
+    // same id dedupe the install even when cast() does awaited resolution
+    // of back-referencing children.
+    this.installed = new Set();
   }
 
   // ── repository access ────────────────────────────────────────────
@@ -85,16 +91,25 @@ export class RemoteEntityManager {
 
   // Identity-gated install. Install runs exactly once per (name, id):
   // first-sight passes through cast (relation walk) then runs the registered
-  // integrator. Re-sight is just cast.
+  // integrator. Re-sight is just cast. The claim is synchronous so a nested
+  // integrate on the same id (e.g. a child back-referencing its parent)
+  // observes the parent as already-installed and does not re-fire.
   async integrate(name, raw, kind) {
     if (!raw?.id) return raw;
-    const fresh = !this.identity(name, raw);
-    const entity = await this.cast(name, raw, kind);
-    if (fresh) {
-      const install = this.integrators[name];
-      if (install) await install(entity, raw);
+    const mapKey = this.key(name, raw.id);
+    const shouldInstall = !this.installed.has(mapKey);
+    if (shouldInstall) this.installed.add(mapKey);
+    try {
+      const entity = await this.cast(name, raw, kind);
+      if (shouldInstall) {
+        const install = this.integrators[name];
+        if (install) await install(entity, raw);
+      }
+      return entity;
+    } catch (error) {
+      if (shouldInstall) this.installed.delete(mapKey);
+      throw error;
     }
-    return entity;
   }
 
   async disintegrate(name, id) {
@@ -113,39 +128,71 @@ export class RemoteEntityManager {
   }
 
   async cast(name, raw, kind) {
-    const entity = this.merge(name, raw, kind);
     const props = this.schema[name]?.properties;
-    if (!props) return entity;
-    for (const [field, spec] of Object.entries(props)) {
-      if (!spec.target || raw[field] == null) continue;
-      if (spec.kind === "m:1") {
-        entity[field] = await this.resolve(spec.target, raw[field]);
-      }
-      if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
-        entity[field] = await Promise.all(raw[field].map(item => this.resolve(spec.target, item)));
+
+    // Resolve relation refs into a fresh payload BEFORE merging. The reactive
+    // store only ever sees fully-upgraded entity references, so any computed
+    // filters fire on the final shape — not on pre-resolution string ids.
+    const resolved = props ? { ...raw } : raw;
+    if (props) {
+      for (const [field, spec] of Object.entries(props)) {
+        if (!spec.target || raw[field] == null) continue;
+        if (spec.kind === "m:1") {
+          resolved[field] = await this.resolve(spec.target, raw[field]);
+        }
+        if ((spec.kind === "1:m" || spec.kind === "m:n") && Array.isArray(raw[field])) {
+          resolved[field] = await Promise.all(raw[field].map((item) => this.resolve(spec.target, item)));
+        }
       }
     }
+
+    const entity = this.merge(name, resolved, kind);
+    if (!props) return entity;
+
     for (const [field, spec] of Object.entries(props)) {
       if (spec.kind !== "1:m" || !spec.mappedBy) continue;
-      if (entity["$" + field]) continue;
       const childRepo = this.repositoryMap[spec.target];
       if (!childRepo) continue;
       const mappedBy = spec.mappedBy;
-      entity["$" + field] = computed(childRepo.$entities, (entities) =>
-        entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
-      );
-      Object.defineProperty(entity, field, {
-        get() { return entity["$" + field].get(); },
-        set() {},
-        configurable: true,
-      });
+      const hadExplicitArray = Array.isArray(resolved[field]);
+
+      // When the parent cast received an explicit children array, enforce
+      // the inverse on each child so the reactive collection agrees with
+      // the explicit intake.
+      if (hadExplicitArray) {
+        for (const child of resolved[field]) {
+          if (child && typeof child === "object" && child[mappedBy] !== entity) {
+            child[mappedBy] = entity;
+          }
+        }
+        this.refreshStore(spec.target);
+      }
+
+      if (!entity["$" + field]) {
+        entity["$" + field] = computed(childRepo.$entities, (entities) =>
+          entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
+        );
+      }
+
+      // Only route reads through the computed when the parent wasn't seeded
+      // with an explicit array — otherwise preserve the direct assignment
+      // merge() just made from `resolved[field]`.
+      if (!hadExplicitArray) {
+        Object.defineProperty(entity, field, {
+          get() { return entity["$" + field].get(); },
+          set() {},
+          configurable: true,
+        });
+      }
     }
     return entity;
   }
 
   drop(name, id) {
-    this.identities.delete(this.key(name, id));
-    this.snapshots.delete(this.key(name, id));
+    const mapKey = this.key(name, id);
+    this.identities.delete(mapKey);
+    this.snapshots.delete(mapKey);
+    this.installed.delete(mapKey);
     if (this.stores[name]) {
       this.stores[name].set(this.stores[name].get().filter((entity) => entity.id !== id));
     }

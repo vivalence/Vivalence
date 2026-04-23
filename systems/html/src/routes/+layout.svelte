@@ -37,6 +37,12 @@
     };
   }
 
+  // // console.log(JSON.stringify({ lighthouseInstance }, null, 2));
+  // console.log("lighthouse", lighthouseInstance); // dataspaces
+  // console.log("bridge", bridgeInstance); // layout
+  // console.log("quarters", quartersInstance); // terminals
+  // console.log("thread", threadInstance); // active
+
   const gateComputed = computed(
     [lighthouseInstance.$isAuthorized, lighthouseInstance.$status],
     (authorized, status) => {

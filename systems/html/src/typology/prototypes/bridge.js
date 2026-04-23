@@ -259,11 +259,15 @@ export class Bridge {
     this.view = store(
       {
         d: saved?.view?.d ?? "outside",
+        "d.threads": saved?.view?.["d.threads"] ?? true,
+        "d.intents": saved?.view?.["d.intents"] ?? true,
+        "d.modes": saved?.view?.["d.modes"] ?? true,
+        f: saved?.view?.f ?? "buffers",
         g: false,
         h: false,
         snap: true,
       },
-      ["d"],
+      ["d", "d.threads", "d.intents", "d.modes", "f"],
     );
 
     this.paneSize = store(

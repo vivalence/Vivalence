@@ -1,186 +1,103 @@
-> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
->
-> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+# IKIRO — registry/services (container)
 
-# Services
+Infrastructure. Standalone providers consumed by daemons via circuitry. Each service exports `manifest` (identity) + `provider(config)` (factory). Services with the ATTACHED trait also export an `aperture` and run as their own process. Read `.ikiro/CLAUDE.md` first.
 
-> Provider/consumer contracts. Infrastructure services consumed by daemons.
+## architecture
 
-## Role
+manifest declares; provider creates.
 
-Infrastructure. Services are standalone providers that daemons consume via their circuitry configuration. Each service exports a `manifest` (identity) and a `provider(config)` function (factory). Some services also expose an `aperture` (HTTP endpoints) and get attached as processes.
+Every service exports the same shape from `service.viva.js`: `manifest` + async `provider(config) → service_interface`. Circuitry references services as strings (`@vivalence/{type}/{slug}`). Paladin resolves them via VIP; the daemon's populate phases call each provider with its config block. Some providers return data structures (`datamap → { orm, entities }`), some return functions (`nlp → (text) → tokens`), some are async setup with side effects (lighthouse → authority + entity routes mounted on a process aperture).
 
-## Service Catalog
-
-### Datamap (libsql) — ACTIVE
-
-`datamap/libsql/service.viva.js` (102 lines)
-
-Database mapping service. Initializes MikroORM with SQLite backend.
-
-**Manifest**: `{ type: "datamap", slug: "libsql" }`
-
-**Provider contract**: `provider(datamap, variant) → { orm, entities }`
-- `datamap` — config with mount paths (database file, migrations)
-- `variant` — array of entity schema definitions with optional subscribers
-- Returns: ORM instance + entity repository map
-
-Handles automatic migration. Creates repositories for each entity type.
-
-Wired in: test-system (runtime), test-daemon (brazilian daemon).
-
-### Hallucinator (hal257) — ACTIVE (contract changing)
-
-`hallucinator/hal/` — 4 files
-
-AI/LLM reasoning service wrapping the Anthropic API.
-
-**Manifest**: `{ type: "hallucinator", slug: "hal257", traits: ["MONK"] }`
-
-**Current provider contract**: `provider(service) → { object, action }`
-- `object(options)` — structured output generation. Takes schema (TypeBox), system prompt, user prompt. Returns schema-validated object via Claude Sonnet.
-- `action(options)` — agent-based tool execution. Takes tools (Vector-derived), system prompt, user prompt. Runs ToolLoopAgent with max 10 steps.
-
-**Future provider contract** (per cortex workpackage): `provider(service) → Faculty[]`
-- Each channel declares: type, accepts, produces, delivery, tune, context, hallucinate(turns, config)
-- The `{object, action}` shape will be replaced by an array of faculties
-- Model identity becomes internal to the service — the cortex only sees faculties with tune vectors
-
-**Key files**:
-- `provider/index.js` (144 lines) — main implementation
-- `provider/providers.js` (10 lines) — Anthropic provider wrapper
-- `provider/profiles.js` (32 lines) — model profiles (DRONE, ACADEMIC)
-
-**Archive**: `hallucinator/hal/archive/` contains dormant providers (Groq, OpenAI, Perplexity, TogetherAI).
-
-Wired in: test-daemon (brazilian daemon) with Anthropic API key.
-
-### Lighthouse — two implementations
-
-#### Multiplayer — ACTIVE
-
-`lighthouse/multiplayer/` — 9 files
-
-Full identity and authentication service. ATTACHED trait means it runs as a process with its own aperture.
-
-**Manifest**: `{ type: "lighthouse", slug: "multiplayer", traits: ["ATTACHED", "SERVICE", "DATAMAP", "SYSTEMMAP"] }`
-
-**Provider contract**: `provider(service) → authority setup`
-
-**Aperture endpoints**:
-- `POST /auth/signup` — create identity with argon2 password hash
-- `POST /auth/login` — verify credentials, issue access + refresh JWT tokens
-- `POST /auth/logout` — invalidate refresh token
-- `POST /auth/verify` — check access token validity
-- `POST /auth/refresh` — issue new access token from refresh token
-- `/entities/identity/*` — full CRUD via `shard.datamap.repository()`
-- `/entities/daemon/*` — full CRUD via `shard.datamap.repository()`
-
-**Key files**:
-- `server/authority.js` (392 lines) — auth workflow
-- `server/identity.js` (78 lines) — credential verification (argon2)
-- `server/entities.js` (112 lines) — ORM integration (Identity, Daemon, AuthenticatorEmbed)
-- `server/lib/jwt.js` (149 lines) — token lifecycle (create, verify, revoke)
-- `provider/index.js` (127 lines) — provider factory
-
-Wired in: test-system (as system service), test-daemon (brazilian daemon).
-
-#### Localhost — DORMANT
-
-`lighthouse/localhost/` — 2 files (25 lines total)
-
-**Manifest**: `{ type: "lighthouse", slug: "localhost", traits: ["IDENTITY"] }`
-
-Hardcoded localhost identity with ADMIN role. Dev/test only. Not wired in current circuitry.
-
-### NLP (Stanza) — ACTIVE
-
-`nlp/` — manifest + provider + Docker server
-
-Tokenization service via Python Stanza NLP over HTTP.
-
-**Manifest**: `{ type: "service", slug: "nlp-stanza", traits: ["SERVER", "DOCKER", "COMPOSE"] }`
-
-**Provider contract**: `provider(service) → async (text) → tokens[]`
-- Takes text (max 1000 chars), returns sentence token arrays
-- Configurable processors: tokenize, mwt, pos, lemma, depparse
-- Language-specific (e.g., "es" for Spanish)
-
-**Control vector**: CLI operations for Docker management (status, build, start, up, down).
-
-**Key files**:
-- `service.viva.js` (84 lines) — manifest + control vector
-- `provider/index.js` (44 lines) — HTTP client to Stanza server
-- `server/` — Python/Docker infrastructure (Dockerfile, docker-compose, server.py)
-
-Wired in: test-daemon as consumed service.
-
-## Provider/Consumer Contract Pattern
-
-All services follow the same pattern:
+structure:
 
 ```
-service.viva.js exports:
-  manifest — { type, slug, name?, traits? }
-  provider — async (config) => service_interface
-
-Circuitry references:
-  { module: "@vivalence/{type}/{slug}", ...config }
-
-Resolution:
-  paladin.vip.accio(module) → cake
-  cake.provider(config) → usable service
+registry/services/@vivalence/
+├── datamap/libsql/                ORM + SQLite + auto-migration
+├── hallucinator/
+│   ├── anthropic/                 Claude — text/object/action (was hal257, renamed)
+│   ├── elevenlabs/                speech faculty (TTS) — longdistance
+│   ├── deepgram/                  verbatim faculty (ASR) — longdistance
+│   └── bak/                       hal257 retired + Groq/OpenAI/Perplexity/TogetherAI archive
+├── lighthouse/
+│   ├── multiplayer/               full identity + auth + datamap (ATTACHED)
+│   └── localhost/                 dormant — hardcoded localhost ADMIN
+└── nlp/                           Stanza tokenization via Docker
 ```
 
-The daemon's `populate.core()` resolves all service references via `paladin.vip.accioMap`, then `populate.datamap()`, `populate.authority()`, `populate.acid()`, and `populate.services()` call each provider.
+provider/consumer flow (daemon side):
 
-## Tests
+```
+daemon.populate.core         paladin.vip.accioMap(consume) — resolve all service modules
+daemon.populate.datamap      datamap.provider(config, variant) → { orm, entities }
+daemon.populate.authority    lighthouse.provider(config) → authority + entity routes
+daemon.populate.acid         initialize hallucinator/cortex
+daemon.populate.services     each consume.<slug>.provider(config) → daemon.services[slug]
+```
 
-| File | Lines | Coverage |
+datamap (`registry/services/@vivalence/datamap/libsql/service.viva.js`, 102 lines):
+
+- manifest `{ type: "datamap", slug: "libsql" }`
+- provider(`datamap, variant`) → `{ orm, entities }`. `datamap` carries mount paths (DB file, migrations). `variant` is an array of entity schemas + subscribers. Auto-migration. Repositories per entity type.
+- wired in test-system (runtime) + test-daemon (brazilian)
+
+hallucinator — provider contract migrating from `{ object, action }` to `Faculty[]` per cortex workpackage:
+
+- anthropic — `manifest { type: "hallucinator", slug: "anthropic" }`. Was hal257 (renamed). `provider/index.js` (~144 lines), `provider/profiles.js` (DRONE / ACADEMIC). Old contract: `object(options)` (structured output via TypeBox schema) + `action(options)` (ToolLoopAgent, max 10 steps). New contract: `Faculty[]` — each declares type, accepts, produces, delivery, tune, context, `hallucinate(turns, config)`. The cortex resolves providers by tune in 3-space.
+- elevenlabs — speech faculty (TTS). Part of longdistance audio pipeline.
+- deepgram — verbatim faculty (ASR / transcription). Part of longdistance audio pipeline.
+- bak — `hallucinator/bak/hal257/` (retired) + legacy archive (Groq, OpenAI, Perplexity, TogetherAI).
+
+lighthouse/multiplayer (`registry/services/@vivalence/lighthouse/multiplayer/`):
+
+- manifest `{ type: "lighthouse", slug: "multiplayer", traits: ["ATTACHED", "SERVICE", "DATAMAP", "SYSTEMMAP"] }` — ATTACHED runs as a process with own aperture
+- aperture endpoints — `POST /auth/{signup, login, logout, verify, refresh}`; `/entities/identity/*` + `/entities/daemon/*` via `shard.datamap.repository()`
+- key files:
+  - `server/authority.js` (392 lines) — auth workflow
+  - `server/identity.js` (78 lines) — credential verification (argon2)
+  - `server/entities.js` (112 lines) — ORM integration (Identity, Daemon, AuthenticatorEmbed)
+  - `server/lib/jwt.js` (149 lines) — token lifecycle (create, verify, revoke)
+  - `provider/index.js` (127 lines) — provider factory
+
+lighthouse/localhost (dormant, `lighthouse/localhost/`, ~25 lines): hardcoded ADMIN identity; dev/test only; not wired in current circuitry.
+
+nlp (`registry/services/@vivalence/nlp/`):
+
+- manifest `{ type: "service", slug: "nlp-stanza", traits: ["SERVER", "DOCKER", "COMPOSE"] }`
+- provider returns `async (text) → tokens[]` — max 1000 chars; processors tokenize / mwt / pos / lemma / depparse; language-specific (e.g., "es")
+- control vector — Docker CLI ops (status, build, start, up, down)
+- server: `nlp/server/` Python + Docker (Dockerfile, docker-compose, server.py)
+
+## context
+
+consumers:
+
+- runtime — services resolved during daemon populate; lighthouse attached as process; datamap provides ORM; hallucinator/cortex provides faculties
+- daemon modes — CHAOSMONKEY uses cortex/hallucinator; EMITTER produces buffers; auth middleware via `shard.secure.authority()` + `authorize()`
+- circuitry — `wafers/@vivalence/variant/multiplayer/server/{runtime,daemon}.viva.js` wire services into the system
+
+testing:
+
+| file | lines | coverage |
 |------|-------|----------|
-| hallucinator/hal/tests/hallucinator.test.js | 108 | Object generation, agent tool execution (uses Anthropic API) |
-| lighthouse/multiplayer/tests/auth.test.js | 85 | Login/signup flow, token validation (requires running server) |
-| lighthouse/multiplayer/tests/lighthouse.test.js | 176 | Complete auth workflow (requires running server) |
-| lighthouse/multiplayer/tests/datamap.test.js | 91 | Entity CRUD via scenario: daemon find/findOne/create/update/remove, identity find/findOne, 404 errors (self-contained, imports `@vivalence/runtime/scenarios`) |
+| hallucinator/anthropic/tests/hallucinator.test.js | 108 | object generation, agent tool execution (uses Anthropic API) |
+| lighthouse/multiplayer/tests/auth.test.js | 85 | login/signup, token validation |
+| lighthouse/multiplayer/tests/lighthouse.test.js | 176 | full auth workflow |
+| lighthouse/multiplayer/tests/datamap.test.js | 91 | entity CRUD via `@vivalence/runtime/scenarios` (lighthouse.js) |
 
-## Where Used
+testing gaps:
 
-- **Runtime**: Services resolved during daemon populate phase. Lighthouse attached as process. Datamap provides ORM. Hallucinator provides brain.
-- **Daemon modes**: CHAOSMONKEY trait uses hallucinator. EMITTER trait produces buffers. Auth middleware from lighthouse via `shards.secure.authority()` + `authorize()`.
-- **Circuitry**: test-system.viva.js and test-daemon.viva.js wire services into the system.
+- no unit tests for datamap service (ORM init, migration, repository creation)
+- hallucinator tests hit live API — no mock/stub
+- no tests for nlp service provider
+- no tests for lighthouse JWT expiry/revocation edge cases
+- no integration test for service → daemon consumption flow
 
-## Work Packages
+active work:
 
-### Testing Gaps
-- No unit tests for datamap service (ORM initialization, migration, repository creation)
-- Hallucinator tests hit live API — no mock/stub tests
-- No tests for NLP service provider
-- No tests for lighthouse JWT token expiry/revocation edge cases
-- No integration test for service → daemon consumption flow
+- cortex — hallucinator contract migration from `{ object, action }` to `Faculty[]` (see `.ikiro/cortex.workpackage.org`). Biggest upcoming change to services.
+- elevenlabs / deepgram audio faculties — longdistance pipeline (see `.ikiro/longdistance.workpackage.org`)
+- realtime call service (future — bidirectional WebSocket audio)
 
-### Human Documentation Needs (Divio)
-- **How-to**: "Add a new service" — manifest format, provider contract, circuitry wiring, ATTACHED trait for aperture services
-- **Reference**: Provider contract specification per service type
-- **Explanation**: "Why provider/consumer? Why not direct imports?" — the composition and deployment flexibility story
+dormant — nlp wired but may not be actively called by current modes; lighthouse/localhost not wired (dev fallback); hallucinator/bak legacy providers (Groq, OpenAI, Perplexity, TogetherAI).
 
-### Active Work
-- Hallucinator cortex — [cortex.workpackage.org](../../../.ikiro/cortex.workpackage.org) — the hallucinator service contract is changing from `{object, action}` to an array of faculties. Each faculty declares type (conversation/object/speech/call), channels (accepted/produced data types), delivery modes (whole/stream), tune vector ([cost, quality, speed]), context limit, and a stateless `hallucinate(turns, config)` function. The cortex resolves providers by tune in 3-space. This is the biggest upcoming change to services.
-- Voice/speech service (future — ElevenLabs or similar, provides speech faculty)
-- Call service (future — realtime bidirectional audio, WebSocket-based)
-
-### Completed
-- **Lighthouse datamap migration** — replaced parametric `/:entity/:method` handler with per-entity `shard.datamap.repository()` branches. Self-contained scenario test via `@vivalence/runtime/scenarios` (lighthouse.js). Old `expose()` preserved as comment in entities.js.
-
-### Dormant
-- NLP service: wired but may not be actively called in current modes
-- lighthouse/localhost: not wired, dev-only fallback
-- hallucinator/archive: legacy AI providers (Groq, OpenAI, etc.)
-
-## Maintenance
-
-When adding a new service:
-1. Create directory under registry/services/@vivalence/{type}/{slug}/
-2. Export manifest and provider from service.viva.js
-3. Wire in circuitry (.viva.js circuit file)
-4. If ATTACHED trait: also export aperture for HTTP endpoints
-5. Add to daemon's consume config if daemon-level service
+completed — lighthouse datamap migration: parametric `/:entity/:method` replaced by per-entity `shard.datamap.repository()` branches; old `expose()` preserved as comment in `server/entities.js`.

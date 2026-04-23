@@ -1,0 +1,163 @@
+#+TITLE: Re-mode-ilization — survival generator pattern + clinic sanitization + buildup as theme picker
+#+DATE: 2026-04-27
+#+TOPIC: tactic/survival · tactic/clinic · per-item generator · mode-to-mode delegation · review-fn fix
+
+* Arc
+Three movements over one long session.
+
+First — survival emitters were rewritten from a "build sets up front, loop over them N times" model to a "per-item generator" model. One pre-fetch → a single =for (const word of words)= → branch by memory state → emit the appropriate buffer shape. warmup pioneered the pattern with three sources collapsed into one for-loop; Finn iterated each emitter (buildup, exercise, drill, cooldown), tightening the branches (virgin / weak / failed → emit; succeeded → silent), splitting vocalized vs written into separate filtered for-loops where natural, and dropping catch-all elses. The shape became uniform across all five steps.
+
+Second — clinic was sanitized. Three layers (shards/{analysis,routine}.js, sub-emitters introduce/drill/reinforce/hunt, scope files) collapsed into one (scope files only). Each scope = self-contained: pre-fetch → optional batch exhibit → =ctx.pool.section()= → for-loop with state branching → =apply(shuffle)=. Mirror of the survival pattern. weightedPick + extractParadigm survived as bare helpers in tools.js. The three conjugation scopes (regular/irregular/ser-estar) folded into one =conjugations.js= with three thin route adapters in index.js. PICK was dropped as a verb across clinic; replaced with judge SLOW / judge FAST and a match TRANSLATE batch tail.
+
+Third — buildup re-emerged as a theme picker that delegates to clinic. Clinic stayed flat-pool (one POS per scope, no internal subgrouping). The subgrouping intelligence moved to survival/buildup.js, which holds a hardcoded list of themes (each theme = =(route, symbols, label)=), assesses each bucket via memory state, picks the three weakest by a multi-signal weakness function, and delegates each via =await ctx.daemon.modes.tactic.clinic.emit[theme.route]({ ...ctx.input, where: { symbols: [...existing, ...theme.symbols] } })=. One broad fetch per buildup cycle plus three narrow ones from the delegated emitters.
+
+Two tangents: a Listen.svelte audio-button layout looked weird in a screenshot, which became a sweep across six game components moving the audio asset into the meta/source/prompt row right-floated via =.audio-block { margin-left: auto }=. And a review function bug — typing "this / that" against expected "this / that" was flagged wrong because =norm= didn't treat =/= specially. Fixed at the typology =clean= source so all consumers inherit it; Write.svelte's local =norm= got the same treatment for symmetry.
+
+* Finn's voice (verbatim)
+
+#+BEGIN_QUOTE
+i want to affect the following change now: rewrite the warmup emitter to another operating model. instead of building sets adn then creating a pool by looping over that set a few times, i want to basically create teh equivalent of a generator to pull literals for specific exercise shapes into the pool. 5% answer. code first. we'd remove due wek failures etc. what might this look like?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+your proposal is way off. this is what i meant.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+look at the file now. spot
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i am done with that emitter too. look at it
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+STOP. ASKING. QUESTIONS!! ikiro!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+no. the tracks are implicit in the for loop, not in the pooling.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ok. take another assessment of the three weve done so far
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+now with our rebuild here done. what can we apply to the clinic. the clinic has gotten out of hand. its all over the place. i think we should ... sanitize.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i didnt say code. less text. less greed. less haste.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+hmmm. i dont watn any of the higher order structure anymore. can we settle everything back into either the emitters themselves or maybe 1 or 2 middlewares if they are really valuable?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+gone gone gone. cut cut cut. go
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+and while youre at it, apply our format and make them a bit more challanging and diverse. we overused the PICK game
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i feel like that should be one emitter with two intents. possible?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i said stop. stop means stop!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ikiro principle. when i say stop - stop. do nothing. no revert. no nothing
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+the layout of the audio button here is weird?!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+move audio button to float right in row
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+like everywhere...
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+the review function here is ... SHIT??!! wtf. reason this out
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+why am i in pronouns but reviewing que quem qual quanto??!!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+same issue here. inconsistent.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets remove all subgrouping in the clinic. thats not its job. but lets move the subgrouping mechanisms to survival/buildup. buildup should subgroup over the clinicss groups. possible?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+think through how buildup might work. remember, modes cna call other modes. whats a good way to do this?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+too expensive comutationally
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets always emit the 3 lowest sets not just one
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+with memory assessment!
+#+END_QUOTE
+
+* Built · changed
+
+** registry/modes/@vivalence/tactic/survival/emitter/
+Per-item generator pattern across all five steps. Pre-fetch → optional batch exhibit → =ctx.pool.section()= → for-loop with state branching → =apply(array.shuffle)=.
+- =warmup.js= — one set from 3 sources (failures/due/weak) merged → for-loop on virgin/succeeded/else → judge / listen+write / write
+- =buildup.js= — RE-CREATED as theme picker. Hardcoded themes list (10 entries: pronoun-types, adverb-functionals, adjective-degrees). =assess(words)= computes total/virgin/weak/failed/strong/avgStrength; =weakness({...})= combines them. Top 3 weakest delegated via =ctx.daemon.modes.tactic.clinic.emit[route]({ ...ctx.input, where: { symbols: [...existing, ...theme.symbols] } })=
+- =exercise.js= — virgins shadowed inline, then split into two filtered for-loops (vocalized/written) sharing one practice section, error-cloze tail
+- =drill.js= — Finn-edited to paradigm-shape (similar to original buildup; conjugation focus retained)
+- =cooldown.js= — fallback chain (errors → due → byStrength), vocalized/written split, listen / flashcard per state. Currently in =bak/=, not wired in index.js
+- =index.js= — opens /warmup, /buildup, /exercise, /drill (cooldown commented out)
+
+** registry/modes/@vivalence/tactic/clinic/emitter/
+Three layers collapsed to one. Sanitization complete.
+- DELETED: =shards/analysis.js=, =shards/routine.js=, =introduce.js=, =drill.js=, =reinforce.js=, =hunt.js=
+- =tools.js= — trimmed to 3 helpers: =weightedPick=, =extractParadigm=, =avgStrengthOfParadigms=
+- =conjugations.js= — NEW, unified for paradigm scopes. Takes =config = { symbols, groups, title }=. Index.js exposes 3 thin adapters: =/regular-conjugations= (groups=[ar/er/ir]), =/irregular-conjugations=, =/ser-estar= (groups=[ser/estar])
+- 12 word-scopes (=connectors=, =determiners=, =negation=, =numbers=, =prepositions=, =questions=, =adverbs=, =pronouns=, =degrees=) — flat pool, per-item judge SLOW / write / judge FAST, optional =match TRANSLATE= batch tail when ≥4 words. Subgrouping in pronouns/adverbs/degrees removed (moved to buildup)
+- 2 audio scopes (=audio-words=, =audio-sentences=) — left as-is, already minimal
+- =index.js= — dropped survey middleware, dropped 4 sub-emitter routes. 14 routes total
+
+** registry/modes/@vivalence/game/{listen,write,cloze,shadow,judge,pick}/...
+Audio button float-right pattern. Asset moved into the row (=.meta= for Listen/Write/Cloze/Shadow, =.source-row= for Judge, =.prompt-row= for Pick), wrapped in =<div class="audio-block">=, CSS =.audio-block { margin-left: auto; display: flex; align-items: center; }=. Flashcard untouched (already right-aligned via =flex: 1= on prompt-text). Inline =variant="dot"= Asset in Exhibit/Paradigm/Conjugation untouched.
+
+** subsystems/typology/gestalten/belt/string.js
+=clean()= now treats =/= as whitespace and collapses multi-spaces. Fixes review-eval bug where typed "this / that" against expected "this / that" was flagged wrong because =/= wasn't in the punctuation strip class. Fix is at the source so =fold=, =Listen= TYPE-eval, and any other consumer inherit it. Mirrored locally in =Write.svelte='s =norm=.
+
+* Decisions
+- Per-item generator over upfront-set-build: clearer state→verb mapping, no catch-all else, succeeded items skip
+- Subgrouping is buildup's job, not clinic's. Clinic = flat pool per POS. Buildup = thematic narrowing via where.symbols extension and mode-to-mode delegate
+- conjugations.js absorbed three routes via parameterized config — preserves per-route identity in index.js without three nearly-identical files
+- Audio button into row right-floated, not centered between meta and hint (orphan-floating fixed)
+- Slash-as-separator handled at typology =clean=, not at consumer norms — systemic over hotfix
+- buildup's weakness formula: =(1 - avgStrength) + failed/total + virgin/total - strong/total= — multi-signal, tunable
+- Themes hardcoded in buildup for v1; promotable to dataset/ later
+- Cooldown deferred to bak/ — survival is 4-step (warmup/buildup/exercise/drill) for now
+
+* Open · risks
+- =ctx.daemon.modes.tactic.clinic.emit[route]= delegation pattern unverified. Only place in repo using cross-tactic mode-to-mode. Slash-vs-no-slash route key, runtime exposure shape — needs browser test
+- Theme label dropped on delegation — clinic exhibit title hardcoded ("Pronouns" not "Personal pronouns"). Cosmetic
+- =conjugations.js= emits =paradigm.emit.conjugation= even when forms have no per-form practice. Wasted buffer
+- typology =clean= change is project-wide. Edge cases with =/= in non-evaluation contexts (URLs?) could surprise
+- drill.js (Finn-edited) is paradigm-shape — overlap with conjugations.js work? Verify pedagogical distinction

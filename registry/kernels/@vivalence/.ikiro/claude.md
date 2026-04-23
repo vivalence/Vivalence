@@ -1,70 +1,54 @@
-> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
->
-> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+# IKIRO — registry/kernels (container)
 
-# @vivalence Kernels
+Domain + Data. The what-is-being-learned. Three kernel types compose into a curriculum: one *domain* (the learning engine), N *ontologies* (what kinds of things exist), N *topologies* (what specific things, in what order). Read `.ikiro/CLAUDE.md` first.
 
-> Domain knowledge, ontologies, and curricula. The what-is-being-learned layer.
+## architecture
 
-## Role
+engine + symbols + instances, composed by daemon circuitry.
 
-Domain + Data. Kernels define what vivalence knows about — the learning domain logic, the symbolic ontologies, and the curriculum datasets. Everything under this @vivalence scope is authored by Finn and represents the first-party knowledge system.
+A daemon's `kernel: [...]` array names module references; paladin resolves them via VIP; the daemon's resolve phase calls each kernel's DATASET trait, upserting symbols + literals into the database. Domain kernels carry no DATASET payload — they bring entities, aperture endpoints, and mode prototypes (the runnable shape that operates over upserted data).
 
-Three kernel types compose together: one **domain** (the learning engine), multiple **ontologies** (what kinds of things exist), and multiple **topologies** (what specific things to teach, in what order).
+three types, three roles:
 
-## Package Map
+- domain — the engine. Entities (Literal, Symbol, Memory, Product), aperture (pick/review), mode prototypes (Game, Tactic). One per daemon.
+- ontology — symbol hierarchies. Word ontology = Universal Dependencies POS tags. Sentence ontology = force/mood/tense/aspect. Conjugation ontology is minimal (single TOPOGRAPHICAL `conjugation` symbol); dimensional symbols come from word.
+- topology — language pair curricula. Literals (vocabulary items) + symbol associations (POS, proficiency, etc.). Trait-keyed data: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED.
+
+structure:
 
 ```
-kernels/@vivalence/
-├── domain/learning/          The learning engine (entities, memory, pick/review API)
+registry/kernels/@vivalence/
+├── domain/learning/                      the learning engine
+│   ├── domain.viva.js                    type=domain, slug=language-learning, v0.0.5
+│   ├── entities/
+│   │   ├── kernel/Literal.ts             extends LiteralEntity + traits + repository methods
+│   │   ├── kernel/Symbol.ts              extends SymbolEntity + LEARNABLE/COMPLETABLE
+│   │   ├── userspace/Memory.ts           user × literal, status machine, history
+│   │   └── userspace/Product.ts          batch container
+│   ├── memory/
+│   │   ├── bayesian/index.js             ebisu spaced repetition (163 lines)
+│   │   ├── boolean/index.js              binary GRADUATED|UNKNOWN (39 lines)
+│   │   ├── schema.js                     signal validation (55 lines)
+│   │   └── index.js                      driver selection (100 lines)
+│   ├── aperture/                         pick/review HTTP routes
+│   └── modes/                            Game, Tactic prototypes (47 lines)
 ├── ontology/
-│   ├── word/                 Universal Dependencies POS hierarchy
-│   ├── sentence/             Grammatical structure hierarchy
-│   └── conjugation/          Conjugation paradigms (thin — uses word symbols)
+│   ├── word/                             UD POS hierarchy (~950 symbols)
+│   ├── sentence/                         force/mood/tense/aspect (464 lines)
+│   └── conjugation/                      thin — uses word symbols
 └── topology/
-    ├── english-to-brazilian-survival/   Main curriculum (~14k lines of data)
-    ├── english-to-brazilian-a1/         A1 proficiency subset
-    ├── english-to-brazilian-a2/         A2 proficiency subset
-    └── bak/                             Archived (Spanish, Latin, etc.)
+    ├── english-to-brazilian-survival/    main curriculum (~14k lines)
+    ├── english-to-brazilian-a1/          A1 subset
+    ├── english-to-brazilian-a2/          A2 subset
+    ├── english-to-brazilian-vocalized/   vocalized variant (audio assets)
+    └── bak/                              Spanish, Latin, others (archived)
 ```
 
-## Domain: Language Learning
+domain entities — Literal extends typology's LiteralEntity; traits TRANSLATED / EXEMPLIFIED / RANKED / ANNOTATED / VOCALIZED / CONJUGATED. Additional fields: `rank` (frequency, lower = higher priority), `memories` (1:many → Memory). Repository methods accept `(where, opts?)` where opts = `{ limit, blacklist, populate }`: `feed`, `novel`, `due`, `byStrength`, `byLastSignal`. Symbol extends SymbolEntity — `data.LEARNABLE.{driver, type}` and `data.COMPLETABLE` are mutually exclusive. Memory (`entities/userspace/Memory.ts`, 105 lines) is unique on `[user, literal]`; status flow UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED; `state` JSON is driver-specific; `history` JSON[] retains last 10 signals; `nextIn` (hours) + `nextAt` (Date). Product extends ProductEntity — batch container.
 
-`domain/learning/domain.viva.js` — type: "domain", slug: "language-learning", version: "0.0.5"
+LiteralSubscriber (afterFlush) — resolves ANNOTATED token slugs + CONJUGATED paradigm/infinitive slugs → `uses` junction rows via raw SQL.
 
-Exports: entities, modes (Game + Tactic prototypes), aperture (pick/review endpoints).
-
-### Entities
-
-Five entity schemas from `entities/index.js` (Conjugation virtual entity removed):
-
-**Literal** `entities/kernel/Literal.ts` — extends typology's LiteralEntity.
-Traits: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED.
-Additional: `rank` (frequency/order, lower = higher priority), `memories` (1:many → Memory).
-Repository: feed, novel, due, byStrength, byLastSignal — all accept `{ limit, blacklist, where, populate }`.
-
-Trait data contracts:
-- TRANSLATED: `{ known: "hello", learning: "olá" }`
-- EXEMPLIFIED: `{ known: "Hi!", learning: "Oi!" }`
-- RANKED: `{ rank: 100, zipf: 7.5, fpm: 50000 }` (words) or `{ rank: 1 }` (conjugations, self-referential)
-- ANNOTATED: `{ tokens: [...] }` — sentence tokens with literal slug refs
-- VOCALIZED: `{ asset: { path: "words/falo.mp3" } }`
-- CONJUGATED: `{ infinitive: "slug", paradigm: { firstSingular: "slug", thirdSingular: "slug", firstPlural: "slug", thirdPlural: "slug" } }`
-
-LiteralSubscriber (afterFlush): resolves ANNOTATED token slugs + CONJUGATED paradigm/infinitive slugs → `uses` junction rows via raw SQL.
-
-**Symbol** `entities/kernel/Symbol.ts` (36 lines) — extends typology's SymbolEntity.
-Symbol traits via `symbol.data`: LEARNABLE `{ driver: "BAYESIAN", type: "INDIVIDUAL" }`, COMPLETABLE (mutually exclusive with LEARNABLE).
-
-**Memory** `entities/userspace/Memory.ts` (105 lines) — new entity.
-Properties: user (m:1), literal (m:1), driver (BAYESIAN/BOOLEAN/AGENTIC), type (INDIVIDUAL/RELATIONAL), status (UNTOUCHED→UNKNOWN→LEARNING→KNOWN→GRADUATED), state (JSON, driver-specific), history (JSON[], last 10), nextIn (hours), nextAt (Date), lastAt (Date).
-Unique: `[user, literal]`.
-
-**Product** `entities/userspace/Product.ts` (32 lines) — extends typology's ProductEntity. Batch container for review.
-
-### Memory System
-
-`memory/` — pluggable drivers with a common contract:
+memory drivers (common contract):
 
 ```
 initiate(signal) → state
@@ -74,79 +58,26 @@ status(memory) → enum
 update(memory, signal) → state
 ```
 
-**Bayesian** `memory/bayesian/index.js` (163 lines) — ebisu-js spaced repetition.
-State: `[alpha, beta, tau]`. Signal → tau: MASTERY=24h, SUCCESS=3.4h, NEUTRAL=1h, MISTAKE=0.15h, FAILURE=0.08h.
-Status thresholds: UNKNOWN (<6h), LEARNING (>=6h), KNOWN (>7d), GRADUATED (>45d).
+- bayesian — ebisu-js. State `[alpha, beta, tau]`. Signal→tau: MASTERY=24h, SUCCESS=3.4h, NEUTRAL=1h, MISTAKE=0.15h, FAILURE=0.08h. Status thresholds: UNKNOWN <6h, LEARNING ≥6h, KNOWN >7d, GRADUATED >45d.
+- boolean — binary yes/no. GRADUATED or UNKNOWN. No spacing.
+- driver selection (`memory/index.js`) — literal-only → BAYESIAN. Symbol scope → reads `symbol.data.LEARNABLE.driver`.
 
-**Boolean** `memory/boolean/index.js` (39 lines) — binary yes/no. GRADUATED or UNKNOWN.
+trait data contracts (literal):
 
-**Driver selection** `memory/index.js` (100 lines) — literal-only → BAYESIAN. Symbol scope → reads `symbol.data.LEARNABLE.driver`.
+- TRANSLATED — `{ known: "hello", learning: "olá" }`
+- EXEMPLIFIED — `{ known: "Hi!", learning: "Oi!" }`
+- RANKED — `{ rank: 100, zipf: 7.5, fpm: 50000 }` (words) or `{ rank: 1 }` (conjugations, self-referential)
+- ANNOTATED — `{ tokens: [...] }` — sentence tokens with literal slug refs
+- VOCALIZED — `{ asset: { path: "words/falo.mp3" } }`
+- CONJUGATED — `{ infinitive: "slug", paradigm: { firstSingular, thirdSingular, firstPlural, thirdPlural: "slug" } }`
 
-**Signal schema** `memory/schema.js` (55 lines) — accepts enum string, enum object, or ratio `{ success, total }`.
+aperture — pick/review:
 
-### Aperture (Pick/Review API)
+- pick (query) — `GET /pick/literal/{feed, novel, due, byStatus, byStrength}`. `feed` (48 lines) balances due first then novel. `novel` (60 lines) unlearned, ordered by rank ASC. `due` (156 lines) past review date, JOIN with memories.
+- review (mutation) — `POST /review/{product, literal, symbol, memory}`. `/review/memory` (283 lines) is the core: create or update memory record with driver, schedule, history.
 
-**Pick** (query/selection):
-- `GET /pick/literal/feed` (48L) — balanced: due first, then novel
-- `GET /pick/literal/novel` (60L) — unlearned, ordered by rank ASC
-- `GET /pick/literal/due` (156L) — past review date, JOIN with memories
-- `GET /pick/literal/byStatus` — filter by memory status
-- `GET /pick/literal/byStrength` — sort by recall probability
+literal format (topology):
 
-**Review** (mutation):
-- `POST /review/product` (38L) — batch: reviews all literals+symbols in a product
-- `POST /review/literal` (64L) — single literal, delegates to /review/memory
-- `POST /review/symbol` (40L) — validates LEARNABLE, delegates to /review/memory
-- `POST /review/memory` (283L) — core: create or update memory record with driver, schedule, history
-
-### Mode Prototypes
-
-`modes/index.js` (47 lines) — Game and Tactic classes extending Mode. Traits map: `smurf: () => {}`. Agent/Teacher/Strategy commented out.
-
-## Ontologies
-
-Symbol hierarchies that define what kinds of things exist in the learning system.
-
-### Word Ontology
-
-`ontology/word/word.viva.js` — type: "ontology", slug: "word", version: "0.1.1", traits: ["DATASET"]
-
-Symbol hierarchy (950 lines): Universal Dependencies POS tags.
-Root: `word` (ONTOLOGICAL, LABELED).
-Children: `word.part-of-speech.{adjective, adposition, adverb, auxiliary, coordinating-conjunction, determiner, interjection, noun, particle, pronoun, proper-noun, punctuation, subordinating-conjunction, symbol, verb, x}` — 16 POS categories.
-
-### Sentence Ontology
-
-`ontology/sentence/sentence.viva.js` — type: "ontology", slug: "sentence", version: "0.1.1", traits: ["DATASET"]
-
-Symbol hierarchy (464 lines): grammatical structure.
-- `sentence.force.{declarative, interrogative, imperative, exclamative}`
-- `sentence.mood.{indicative, subjunctive}`
-- `sentence.tense.{present, past, future}`
-- `sentence.aspect.{perfective, imperfective}`
-
-### Conjugation Ontology
-
-`ontology/conjugation/conjugation.viva.js` — type: "ontology", slug: "conjugation", version: "0.1.0", traits: ["DATASET"]
-
-Minimal: single TOPOGRAPHICAL symbol `conjugation`. All dimensional symbols (lemma, tense, mood, suffix, regularity) come from the word ontology. Conjugation literals are groupings of word literals — they share the same symbol vocabulary.
-
-Conjugation literal shape: slug `lemma.tense.mood`, ontology "conjugation", CONJUGATED trait with `{ infinitive, paradigm: { slot: slug } }`. Connected to form literals via `uses`/`in` M:N self-relation. Learnable — has its own Memory.
-
-## Topologies
-
-Language pair curricula — the actual vocabulary and sentence datasets.
-
-### english-to-brazilian-survival (main)
-
-`topology/english-to-brazilian-survival/` — version: 0.2.0, traits: ["DATASET"]
-
-The bulk of the data:
-- `symbols/structural.js` (464L) — proficiency levels: survival, high-frequency, brazilianism, CEFR a1-c2
-- `literals/words/` — 12 POS files. verb.js (6,741L), noun.js (2,559L) dominate
-- `literals/sentences.js` (1,897L)
-
-Literal format:
 ```javascript
 {
   slug: "dia.noun",
@@ -154,28 +85,19 @@ Literal format:
   data: {
     TRANSLATED: { known: "day", learning: "dia" },
     EXEMPLIFIED: { known: "Good morning", learning: "Bom dia" },
-    RANKED: { rank: 588, zipf: 6.23, fpm: 1700.0 }
+    RANKED: { rank: 588, zipf: 6.23, fpm: 1700.0 },
   },
   symbols: [
     { slug: "word" },
     { slug: "word.gender.masculine" },
-    { slug: "proficiency.survival" }
-  ]
+    { slug: "proficiency.survival" },
+  ],
 }
 ```
 
-### english-to-brazilian-a1 / a2
+how kernels compose — daemon circuitry declares:
 
-Smaller subsets at A1 and A2 proficiency levels. Same structure.
-
-### Archived Topologies
-
-`topology/bak/` — Spanish, Latin, other languages. Not active.
-
-## How Kernels Compose
-
-A daemon's circuitry declares kernel references:
-```javascript
+```
 kernel: [
   "@vivalence/domain/language-learning",
   "@vivalence/ontology/word",
@@ -184,55 +106,38 @@ kernel: [
 ]
 ```
 
-During daemon populate, paladin resolves these via VIP. The domain provides the engine (entities, aperture, mode prototypes). Ontologies and topologies provide DATASET content — their symbols and literals get upserted into the database via the DATASET trait.
+Domain provides engine. Ontologies + topologies provide DATASET that gets upserted at daemon resolve via the DATASET trait (chunks of 100). The domain aperture then queries this data to serve study items and record reviews.
 
-The domain aperture (pick/review) then queries this data to serve study items and record reviews.
+## context
 
-## Where Used
+consumers:
 
-- **Runtime daemon**: Domain loaded as first kernel, aperture mounted with auth
-- **Game modes**: Call pick endpoints to get items, review endpoints to record responses
-- **Tactic modes**: Call pick/feed to get items for production pipeline
-- **DATASET trait**: Ontology and topology datasets are upserted during daemon resolve
+- runtime daemon — domain loaded as first kernel, aperture mounted with auth via lighthouse
+- game modes — call `/pick` endpoints (feed/novel/due) for items, `/review` to record signals
+- tactic modes — call pick.feed directly via `ctx.daemon.entities.literal.feed()` (skipping aperture)
+- DATASET trait — ontology + topology datasets upserted during daemon resolve
 
-## Work Packages
+testing gaps — **biggest test blind spot in the system**. Repo-wide test pyramid is inverted: 54 typology tests at the foundation, 1 kernel test (`bayesian.test.js`, 36 steps) at the product surface. The learning domain — the *product* — is the least verified layer. Specifics:
 
-### Testing Gaps
-- No tests for pick endpoints (feed algorithm, novel query, due query)
-- No tests for review/memory endpoint (create vs update flows, history capping)
-- No tests for memory drivers (Bayesian initiate/update/schedule, Boolean)
-- No tests for driver selection logic
-- No tests for signal schema validation
-- No tests for ontology symbol hierarchy correctness
-- No tests for topology literal format validation
+- no tests for pick endpoints (feed, novel, due, byStatus, byStrength — 5 routes, 0 coverage)
+- no tests for review endpoints (product, literal, symbol, memory — 4 routes, 0 coverage)
+- no tests for `/review/memory` (the 283-line core mutation: create vs update flows, history capping)
+- no tests for Boolean + COUNTER memory drivers in isolation — same 5-method contract as Bayesian, would benefit from a shared parity scenario
+- no tests for driver selection logic, signal schema validation
+- no tests for ontology symbol-hierarchy correctness or topology literal-format validation
+- no test for the DATASET trait — the bridge from kernels to DB; if it breaks, all topology data fails to load (also flagged in runtime IKIRO context)
 
-### Human Documentation Needs (Divio)
-- **Explanation**: "Why Bayesian memory? How ebisu works" — signal→tau, status thresholds
-- **Reference**: Pick/review API contracts, memory driver interface, signal schema
-- **Tutorial**: "Add a new topology" — dataset format, literal/symbol associations, proficiency symbols
-- **How-to**: "Add a new memory driver" — implement the 5-method interface
-- **How-to**: "Add a new ontology" — symbol hierarchy format, ONTOLOGICAL + LABELED traits
+active work:
 
-### Active Work
-- Asset entity type (VERBALIZED trait on literals, mp3 vocalization)
-- More topologies (vocabulary expansion, new languages)
-- Progression system (eventually)
+- VOCALIZED trait + asset entity type — pending typology enum expansion (see `.ikiro/longdistance.workpackage.org`)
+- more topologies (vocabulary expansion, additional language pairs)
+- progression system (eventually)
 
-### Planned Changes
+planned changes:
+
 - Note entity type (persistent cross-session state)
 - Classifier (eventual — automatic difficulty assessment)
-- Buffer/Intent migration — Product entity → Buffer entity, entity renames in aperture endpoints
-- Harness may introduce domain-specific part types (e.g. prosody, expression) — the part type discriminator is an open string per the harness workpackage
+- Buffer/Intent migration — entity renames in aperture endpoints
+- harness may introduce domain-specific part types (prosody, expression — open string per harness workpackage)
 
-## Quality Criteria
-
-See [topology-quality-criteria.md](topology-quality-criteria.md) for the complete data quality checklist. This covers TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED trait contracts, symbol requirements, verb conventions, the suffix encoding for diacritics, and the 14-item audit checklist. Read it before touching any topology literal data.
-
-## Maintenance
-
-When modifying kernels:
-1. Memory driver changes: verify signal→tau produces sensible intervals
-2. Pick endpoint changes: verify feed balances due vs novel
-3. Entity changes: update entities/index.js, run migrations
-4. New topology: follow literal format with trait-keyed data, associate symbols via slug
-5. New ontology: create symbol hierarchy with ONTOLOGICAL + LABELED traits, export as DATASET
+quality criteria — `registry/kernels/@vivalence/.ikiro/topology-quality-criteria.md` is the canonical data quality checklist (TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED contracts, symbol requirements, verb conventions, suffix encoding for diacritics, 14-item audit). Read before touching any topology literal.

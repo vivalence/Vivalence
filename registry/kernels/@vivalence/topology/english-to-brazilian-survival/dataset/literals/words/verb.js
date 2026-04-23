@@ -551,8 +551,8 @@ export default [
         "learning": "seja"
       },
       "EXEMPLIFIED": {
-        "known": "I hope it's good",
-        "learning": "Espero que seja bom"
+        "known": "It's important that I be honest",
+        "learning": "É importante que eu seja honesto"
       },
       "RANKED": {
         "rank": 1548,

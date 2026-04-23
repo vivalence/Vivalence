@@ -79,23 +79,24 @@
         parts: [{ type: "text", text: message }],
       });
     } else {
-      setTimeout(() => {
-        log = [...log, { who: "agent", text: ack(message) }];
-      }, 600);
+      log = [...log, { who: "sys", text: "no live session — click open to engage" }];
     }
-  }
-
-  function ack(text) {
-    if (/end|stop/i.test(text)) return "ending session…";
-    return "received · queued on /dialogue";
   }
 
   function reset() {
     log = [{ who: "sys", text: "session reset" }];
   }
 
-  function toggleSession() {
-    ondock({ session: sessionLive ? "ended" : "live" });
+  async function toggleSession() {
+    if (!terminal) {
+      ondock({ session: sessionLive ? "ended" : "live" });
+      return;
+    }
+    if (sessionLive) {
+      terminal.release();
+    } else {
+      await terminal.engage(thread);
+    }
   }
 </script>
 

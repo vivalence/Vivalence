@@ -106,7 +106,7 @@
       <div class="prompt-row">
         <p class="prompt" class:prompt-word={isWord}>{prompt}</p>
         {#if asset && recall === "KNOWN"}
-          <Asset autoplay={true} {asset} />
+          <div class="audio-block"><Asset autoplay={true} {asset} /></div>
         {/if}
       </div>
 
@@ -171,9 +171,14 @@
 
   .prompt-row {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
     margin-bottom: 1.75rem;
+  }
+  .audio-block {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
   }
 
   .prompt {

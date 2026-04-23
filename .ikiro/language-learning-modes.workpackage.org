@@ -6,575 +6,283 @@
 * Intent
 
 Build a complete language learning toolset from the existing symbol
-coordinate system. The ontology already defines the dimensions
-(morphology, function, domain, sentence force, etc.). The topology
-authors content into those dimensions as literals. Modes are
-interaction shapes. Tactics are seek patterns that select content by
-symbol coordinates and route to modes.
+coordinate system. The ontology defines dimensions (morphology,
+function, domain, sentence force). The topology authors literals into
+those dimensions. Modes are interaction shapes. Tactics are seek
+patterns that select content by symbol coordinates and route to modes.
 
 Two architectures:
 
-1. *Emitter tactics* — seek literals by symbol coordinates, emit buffers
-   to game modes. Content is pre-authored in the topology. No
-   hallucinator.
-
-2. *Conversational tactics* — LANGUAGED/AGENTIC traits. The hallucinator
-   generates the experience. Depends on cortex (separate workpackage).
-
-This workpackage covers architecture 1 fully and designs the surface
-for architecture 2. Cortex implementation is out of scope — see
-cortex.workpackage.org.
+1. *Emitter tactics* — seek literals by symbol coordinates, emit
+   buffers to game modes. No hallucinator.
+2. *Conversational tactics* — LANGUAGED/AGENTIC. Hallucinator
+   generates the experience. See cortex.workpackage.org.
 
 * Symbol Axes
 
-The ontology defines a linguistic coordinate system. Each axis is a
-query dimension for tactics.
-
 | Axis | Symbol Examples | What It Teaches | Literal Type |
 |------+-----------------+-----------------+--------------|
-| Proficiency | proficiency.survival, proficiency.cefr.a1 | *Which* content, in what order | word, sentence |
-| Part of speech | word.part-of-speech.verb, .noun, .adjective | Category awareness | word |
-| Verb morphology | word.tense.present × word.mood.indicative × word.person.first × word.number.singular | Conjugation paradigms | word (one literal per inflected form) |
+| Proficiency | proficiency.survival, .cefr.a1 | *Which* content, in what order | word, sentence |
+| Part of speech | word.part-of-speech.verb/.noun/.adjective | Category awareness | word |
+| Verb morphology | word.tense × word.mood × word.person × word.number | Conjugation paradigms | word per form |
 | Gender/number | word.gender.masculine × word.number.plural | Agreement patterns | word |
-| Functional role | functional.pronoun, .connector, .negation, .discourse | Grammar in context | word (as token within sentence) |
-| Semantic domain | domain.food, .family, .transport, .health | Thematic vocabulary | word, sentence |
-| Sentence force | sentence.force.interrogative, .imperative, .exclamative | Sentence construction types | sentence |
-| Sentence mood | sentence.mood.subjunctive, .conditional | Register/modality | sentence |
+| Functional role | functional.pronoun, .connector, .negation | Grammar in context | word (token in sentence) |
+| Semantic domain | domain.food, .family, .transport | Thematic vocabulary | word, sentence |
+| Sentence force | sentence.force.interrogative/.imperative | Sentence construction | sentence |
+| Sentence mood | sentence.mood.subjunctive/.conditional | Register/modality | sentence |
 
-Literal traits provide the content surface:
+Literal traits (content surface): TRANSLATED (known+learning text),
+EXEMPLIFIED (example pair), ANNOTATED (token decomposition), VOCALIZED
+(audio asset), RANKED (frequency rank).
 
-| Trait | What It Provides | Used By |
-|-------+------------------+---------|
-| TRANSLATED | known + learning text | All modes (prompt/answer pair) |
-| EXEMPLIFIED | Example sentence pair | Flashcard, write (context) |
-| ANNOTATED | Token-level decomposition (form, gloss, literal ref) | Cloze, reorder, write (per-token review) |
-| VOCALIZED | Audio asset reference | Listen, dictation, shadow, flashcard |
-| RANKED | Frequency rank | Pick ordering within a seek |
-
-Memory states drive progression:
-
-UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
+Memory states: UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED
 
 * Architecture 1: Emitter Tactics
 
-A tactic queries literals by symbol coordinates via LiteralRepository
-methods (feed, novel, due, byStrength, findBySymbols), then emits
-buffers to game modes. The intent's FEEDING trait defines the query
-parameters (symbols, batch). The emitter Vector routes content to the
-appropriate game mode based on literal type, memory state, or tactic
-logic. Memory.lastSignal (formula from Trace) enables error-aware
-content selection.
+Tactic queries literals via LiteralRepository
+(feed/novel/due/byStrength/findBySymbols), then emits buffers to game
+modes. Intent's FEEDING trait defines query params. Memory.lastSignal
+(from Trace) enables error-aware selection.
 
 ** Tactic: Vocabulary
 
-The current test tactic, expanded.
-
-Seeks: =word= + =proficiency.*=, optionally filtered by =domain.*=
-Routes to: flashcard, write, shadow, listen, pick, match
-
-Intent examples:
-- "survival flashcards" — seek =[word, proficiency.survival]=, emit → flashcard
-- "food vocabulary" — seek =[word, proficiency.survival, domain.food]=, emit → flashcard
-- "sentence shadow" — seek =[sentence, proficiency.survival]=, emit → shadow
-
-This is the baseline. Every game mode listed in Tier 1 and Tier 3
-below should be addressable by a vocabulary tactic intent.
+Baseline. Seeks =word= + =proficiency.*= ± =domain.*=. Routes to
+flashcard, write, shadow, listen, pick, match. Every Tier 1/3 mode
+addressable by a vocabulary intent.
 
 ** Tactic: Introduction
 
-The commented-out flow in test.viva.js, realized.
-
-Seeks: =sentence= + =proficiency.*= (one sentence per cycle)
-Logic: Fetch sentence → resolve ANNOTATED tokens → check each token's memory
-Routes to:
-- UNKNOWN tokens → shadow (hear+see the word)
-- LEARNING tokens → flashcard (drill recall)
-- UNKNOWN tokens → write (produce the word)
-- Full sentence → shadow if unknown, write if learning
-
-This tactic composes multiple game modes per sentence. The emitter
-returns a sequence of buffers — the client's stall presents them in
-order. One sentence generates 5-15 buffers covering its full
-vocabulary.
+Seeks =sentence= + =proficiency.*=. Resolves ANNOTATED tokens, checks
+memory: UNKNOWN→shadow, LEARNING→flashcard, UNKNOWN→write. One
+sentence generates 5-15 buffers. Composes multiple modes per sentence;
+client stall sequences them.
 
 ** Tactic: Decomposition
 
-Seeks: =sentence= whose ANNOTATED tokens match a target =functional.*= symbol
-Routes to: cloze (blank the target token), pick (choose the correct token)
+Seeks =sentence= whose ANNOTATED tokens match a target =functional.*=.
+Routes to cloze (blank target), pick (choose token). Examples:
+"pronoun practice", "connector drill", "negation".
 
-Intent examples:
-- "pronoun practice" — seek sentences with =functional.pronoun= tokens, blank them
-- "connector drill" — seek sentences with =functional.connector= tokens, blank them
-- "negation" — seek sentences with =functional.negation= tokens
-
-The emitter logic:
-1. Seek sentences by proficiency + structural symbols
-2. Filter: sentence must contain tokens whose literal carries the target functional symbol
-3. For each matching token: emit cloze buffer (sentence + blanked position + answer)
-
-This teaches grammar through sentences, not rules. The functional
-symbols are the query language. The ANNOTATED tokens are the exercise
-structure.
+Emitter logic: seek by proficiency + structural → filter to sentences
+containing target functional tokens → emit cloze per matching token.
+Grammar through sentences, not rules.
 
 ** Tactic: Morphology (Conjugation)
 
-Seeks: =word.part-of-speech.verb= + =word.verb-form.finite= + target
-tense/mood (e.g. =word.tense.present= + =word.mood.indicative=)
-Routes to: pick (choose correct form), write (produce the form), cloze (in sentence context)
+Seeks =word.part-of-speech.verb= + =word.verb-form.finite= + target
+tense/mood. Routes to pick/write/cloze. Each conjugated form is its
+own literal with full morphological symbols. Distractors: same-paradigm
+wrong forms or cross-paradigm confusions (-ar vs -er).
 
-Each conjugated form is a literal with full morphological symbols.
-"falo" carries [word, word.part-of-speech.verb, word.tense.present,
-word.mood.indicative, word.person.first, word.number.singular,
-word.conjugation.first]. The infinitive "falar" carries
-[word.verb-form.infinitive].
-
-A structural symbol (e.g. =conjugation-group.falar= or a relation
-mechanism) groups the paradigm. The tactic seeks one tense×mood
-combination at a time and presents the paradigm through pick/write.
-
-Distractors for pick mode come from same-paradigm wrong forms (e.g.
-"fala" when the target is 1st person) or cross-paradigm confusions
-(e.g. "-ar" vs "-er" verb endings). These are other literals in the
-same symbol space — no hallucinator needed.
-
-Depends on: conjugation data authored in the topology. This is a
-content authoring task, not a system task.
+Depends on conjugation data authored in topology (DONE — survival 359
++ a1 897 entities).
 
 ** Tactic: Comprehension
 
-Seeks: literals with =VOCALIZED= trait
-Routes to: listen (audio → meaning), dictation (audio → write), speed-judge (audio + text → correct?)
-
-Intent examples:
-- "word listening" — seek =[word, VOCALIZED, proficiency.survival]=, emit → listen
-- "sentence dictation" — seek =[sentence, VOCALIZED]=, emit → dictation
-
-The speech faculty (cortex) can fill gaps where pre-recorded audio
-doesn't exist, but the base tactic works with VOCALIZED literals only.
+Seeks literals with =VOCALIZED=. Routes to listen, dictation,
+speed-judge. Speech faculty (cortex) can fill audio gaps.
 
 * Architecture 2: Conversational Tactics (Design Only)
 
-Depends on cortex.workpackage.org. Designed here, built later.
+Depends on cortex.workpackage.org.
 
-** Tactic: Immersion
-
-LANGUAGED trait. The mode is a chat UI. The hallucinator is the content.
-
-System prompt scoped by =domain.*= symbols + learner's memory state +
-daemon language statics. The hallucinator uses tools to:
-- Look up literal memory (has the learner seen this word?)
-- Call /review/literal when the learner uses a word correctly/incorrectly
-- Access the topology's TRANSLATED data for vocabulary
-
-Example: personality "you are a waiter at a Brazilian restaurant",
-domain.food, learner level A1. The conversation IS the exercise.
-
-** Tactic: Remediation
-
-AGENTIC trait. Analyzes memory records for FAILURE/MISTAKE patterns.
-Autonomously constructs targeted drill sequences.
-
-The agent has tools to:
-- Query memory by status and signal history
-- Identify weak symbol areas (e.g. "user fails functional.pronoun 60% of the time")
-- Emit buffers to any Architecture 1 game mode
-- Compose a custom session from vocabulary + decomposition + morphology tactics
-
-This is the "smart tutor" — not a new game mode but an intelligent
-tactic composer.
+- *Immersion* — LANGUAGED. Chat UI scoped by =domain.*= + memory state
+  + daemon statics. Hallucinator tools: literal memory lookup,
+  /review/literal, TRANSLATED data. Example: waiter at Brazilian
+  restaurant, A1.
+- *Remediation* — AGENTIC. Analyzes memory FAILURE/MISTAKE patterns.
+  Identifies weak symbol areas. Composes custom sessions from
+  Architecture 1 modes. Smart tutor as tactic composer.
 
 * Game Modes
 
-** Tier 1 — Fill Gaps in Learning Loop (DONE)
+** Tier 1 — DONE
 
-All built and operational. Unlocks decomposition and morphology tactics.
+All built and operational. Self-loading buffers, survival tactic
+routes to all. =registry/modes/@vivalence/game/=.
 
-*** Cloze (stub exists: game/todo/cloze)
+- *cloze* — sentence with blank(s); type/pick/listen gameplay (see Implementation)
+- *pick* — multiple choice, distractor self-serve from same-band
+- *listen* — audio-first; pick/type gameplay
+- *speed-judge* — flash pair, correct/wrong, timed; visual/audio/audio-only
+- *match* — grid of pairs; translate (described future)
+- *flashcard*, *write*, *shadow* — pre-existing, migrated to v schematics
+- *exhibit* — pre-existing
 
-Fill the blank in a sentence.
+All 9 modes operational with manifest + BufferView + emitter Vector + Svelte.
 
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | cloze |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal (sentence), blank (token index or token), answer, recall } |
-| interaction | Show sentence with blank → learner types or picks answer → review |
-
-The emitter receives: literal (sentence) + blank (which token to remove).
-The Svelte view renders the sentence with a gap. Evaluation: compare
-input to the blanked token's form (forgiving normalization, same as write).
-
-Per-token review: the blanked token gets reviewed. The sentence
-literal also gets reviewed.
-
-*** Pick (stub exists: game/todo/pick)
-
-Multiple choice.
-
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | pick |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal, choices (array), answer (index), recall } |
-| interaction | Show prompt → tap one of N choices → review |
-
-The emitter receives: literal + distractors (or tactic generates them
-from same-symbol literals). The Svelte view renders the prompt + choice
-buttons. One tap. Fast.
-
-Distractors: other literals sharing the same proficiency/structural
-symbols but different translations. Tactic responsibility, not mode
-responsibility.
-
-*** Listen
-
-Audio-first recall. No text prompt.
-
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | listen |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal, asset (resolved from VOCALIZED), recall } |
-| interaction | Play audio → learner types meaning → review |
-
-Like write, but the prompt is audio only. Uses the Asset component
-from drapes. Autoplay on mount. Replay button. The answer is the
-TRANSLATED text in the opposite direction.
-
-** Tier 2 — Structural Interaction
-
-These modes require more view complexity but unlock richer learning
-experiences.
+** Tier 2 — In Flight
 
 *** Reorder
 
-Given shuffled tokens, arrange them into correct order.
+Shuffled tokens → arrange in correct order. ANNOTATED provides
+shuffled set + answer. View: draggable/tap-to-place chips. Per-token
+review for misplaced tokens.
 
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | reorder |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal (sentence), tokens (shuffled ANNOTATED array), recall } |
-| interaction | Drag/tap tokens into order → submit → review |
-
-Tests syntactic intuition. The ANNOTATED tokens provide the shuffled
-set and the answer (original order). View: draggable chips or tap-to-
-place chips. Per-token review for misplaced tokens.
+Schema: ={data: {recall}, literals: [sentence], tokens: shuffled ANNOTATED}=
 
 *** Dictation
 
-Like shadow but no memorize phase. Pure listening comprehension.
+Audio → transcribe (same-language). Differs from listen (which tests
+meaning). Both audio-first, different skills.
 
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | dictation |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal (sentence), asset, speed, recall } |
-| interaction | Play audio → write what you heard → review (per-token) |
+Schema: ={data: {recall, speed}, literals: [sentence], asset}=
 
-Differs from listen: listen tests meaning (audio → translation),
-dictation tests transcription (audio → same-language text). Both are
-audio-first but exercise different skills.
+*** Conversation
 
-*** Conversation (depends on cortex)
+Chat UI for LANGUAGED. Deferred to cortex.
 
-Chat UI for LANGUAGED modes. Deferred to cortex workpackage.
+** Tier 3 — Open
 
-** Tier 3 — Speed & Consolidation
-
-Fast-cycle modes for reviewing known material.
-
-*** Speed Judge (stub exists: game/todo/speed-judge)
-
-Flash translation pair. Is it correct? Yes/No.
-
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | speed-judge |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { literal, shown (text), correct (boolean), recall } |
-| interaction | See word + translation (50% wrong) → tap correct/wrong → timed |
-
-The emitter generates the pair: for "wrong" cases, swap in a distractor
-translation from a same-symbol literal. Timer pressure. Chain rapidly.
-
-*** Match (stub exists: game/todo/match)
-
-Grid of pairs. Connect word to translation.
-
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | match |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { pairs (array of {literal, known, learning}), recall } |
-| interaction | Tap pairs to connect → clear matched → time |
-
-Batch mode: 6-8 pairs per buffer. Tactic fetches batch of literals
-from same proficiency band. Good for consolidation — review 8 words in
-30 seconds.
-
-*** Minimal Pairs
-
-Two confusable words. Choose correct one for context.
-
-| Field | Value |
-|-------+-------|
-| type | game |
-| slug | minimal-pair |
-| traits | BUFFERED, INTENTED, EMITTER |
-| buffer schema | { context (sentence with blank), pair (two literals), answer (which one), recall } |
-| interaction | See context sentence + two choices → pick one → review |
-
-Targets confusion points: ser/estar, por/para, masculine/feminine
-articles. The tactic detects confusable pairs from memory (both LEARNING,
-similar symbols, frequent MISTAKE signals).
+- *minimal-pair* — two confusables in context (ser/estar, por/para,
+  m/f articles). Tactic detects from memory (both LEARNING, similar
+  symbols, frequent MISTAKE). Schema: ={data: {recall}, context, pair, answer}=
 
 * Dependencies
 
-** Topology Content Needed
+** Topology Content
 
-| Content | For | Authored Where |
-|---------+-----+----------------|
-| Conjugated verb forms as literals with morphology symbols | Morphology tactic | topology dataset — DONE (survival 359 + a1 897 entities, all conjugation paradigms covered) |
-| Structural symbols grouping conjugation paradigms | Morphology tactic (paradigm lookup) | topology symbols |
-| Functional symbols on word literals (pronoun, connector, etc.) | Decomposition tactic | topology literals (word files) — DONE (functional.* symbols on survival words) |
-| Sentence force/mood symbols on sentence literals | Sentence construction tactics | topology literals (sentence files) — already present |
-| VOCALIZED trait on more literals | Comprehension tactic | topology literals + freight audio — DONE (1050 mp3s, 1250 entities with VOCALIZED, 0 orphaned audio) |
-| RANKED trait on all word literals | Content ordering | topology literals — DONE (0 entities missing RANKED, wordfreq-sourced rank/zipf/fpm) |
+| Content | For | Status |
+|---------+-----+--------|
+| Conjugated forms with morphology symbols | Morphology | DONE (survival 359 + a1 897, all paradigms) |
+| Structural symbols grouping paradigms | Morphology lookup | open |
+| Functional symbols on word literals | Decomposition | DONE (survival) |
+| Sentence force/mood symbols | Sentence construction | present |
+| VOCALIZED on literals | Comprehension | DONE (1050 mp3s, 1250 entities, 0 orphaned) |
+| RANKED on word literals | Ordering | DONE (0 missing, wordfreq-sourced) |
 
-The game modes themselves don't depend on topology content — they
-render whatever buffer props the tactic provides. But the tactics
-can't seek without the symbols being authored.
+** System
 
-** System Dependencies
-
-| Dependency | For | Status |
-|------------+-----+--------|
-| LiteralRepository.findBySymbols (all/any/none) | All tactics | DONE |
-| LiteralRepository.feed/novel/due/byStrength | Content selection | DONE |
-| Memory.lastSignal formula (via Trace) | Error-aware selection | DONE |
-| Trace entity (immutable review log) | Audit + lastSignal | DONE |
-| Distractor generation (same-symbol different-literal lookup) | Pick, speed-judge, minimal-pair | Tactic logic (self-serve in emitters) |
-| Cortex (faculties, harnesses, LANGUAGED/AGENTIC traits) | Immersion, remediation, speech render | Separate workpackage |
-| Keymap shards | Mode keyboard interaction patterns | Designed in client.workpackage.org |
-
-* Sequencing
-
-** Phase 1: Tier 1 Game Modes — DONE
-
-All Tier 1 modes built and validated: cloze, pick, listen, judge, match,
-exhibit. Each has manifest + BufferView + emitter Vector + Svelte component.
-Self-loading in buffer components (fetch via /pick/literal/feed when
-emitter not called). Survival tactic routes to all of them.
-
-Additionally: flashcard, write, shadow (pre-existing) all migrated to v
-schematics. All 9 game modes operational.
-
-** Phase 2: Vocabulary Tactic Expansion
-
-Expand test tactic into a proper vocabulary tactic with multiple intents:
-- word flashcards (existing)
-- word writing
-- sentence shadow (existing-ish)
-- word listening (new, routes to listen mode)
-- batch match
-
-Each intent is a dataset entry with a different FEEDING mount + mask.
-
-Deliverable: one tactic, many intents, covering all vocabulary modes.
-
-** Phase 3: Decomposition Tactic
-
-New tactic: =tactic/decomposition=. Extend /pick/literal/feed to support
-seeking sentences by token-level symbols. Build the emitter that selects
-sentences, identifies target tokens, and emits cloze/pick buffers.
-
-Deliverable: grammar-through-sentences tactic.
-
-** Phase 4: Morphology Content + Tactic
-
-Author conjugation data in topology. Build =tactic/morphology=. Seek
-verb forms by tense/mood/person/number. Emit to pick/write modes.
-Distractor logic for pick.
-
-Deliverable: conjugation drill tactic.
-
-** Phase 5: Tier 2 Game Modes
-
-Build reorder, dictation. These have more complex views (drag
-interaction, audio playback + writing). Wire into decomposition and
-comprehension tactics.
-
-** Phase 6: Tier 3 Game Modes
-
-Build speed-judge, match, minimal-pair. These are consolidation modes
-for reviewing known material at speed.
-
-** Phase 7: Conversational Tactics (post-cortex)
-
-Depends on cortex.workpackage.org. Build immersion and remediation
-tactics with LANGUAGED/AGENTIC traits.
+| Dependency | Status |
+|------------+--------|
+| LiteralRepository.findBySymbols (all/any/none) | DONE |
+| feed/novel/due/byStrength | DONE |
+| Memory.lastSignal via Trace | DONE |
+| Trace entity (immutable review log) | DONE |
+| Distractor generation (same-symbol lookup) | self-serve in emitters |
+| Cortex (LANGUAGED/AGENTIC, speech) | separate workpackage |
+| Keymap shards | designed in client.workpackage.org |
 
 * Design Decisions
 
-1. *Symbols are the query language.* Tactics don't hardcode content —
-   they seek by symbol coordinates. A "conjugation tactic" is just a
-   seek for =word.tense.X × word.mood.Y × word.person.Z=.
-
-2. *Conjugated forms are literals.* "falo", "falas", "fala" are each
-   their own literal with full morphological symbols. No runtime
-   derivation. The topology authors the paradigm. The tactic seeks it.
-
-3. *Game modes are interaction shapes, not content types.* Flashcard
-   doesn't know it's doing "vocabulary" — it renders a prompt/answer
-   pair. Cloze doesn't know it's doing "grammar" — it renders a
-   sentence with a blank. The tactic decides what content goes where.
-
-4. *Distractors are same-symbol lookups.* Pick mode distractors come
-   from literals sharing structural symbols but different translations.
-   This is tactic logic or a new pick endpoint, not hallucinator work.
-
-5. *Two architectures, clean boundary.* Emitter tactics (seek + emit)
-   need no hallucinator. Conversational tactics (LANGUAGED/AGENTIC)
-   need the cortex. Don't mix — a tactic is one or the other.
-
-6. *Tactics compose modes, modes don't compose each other.* The
-   introduction tactic emits shadow + flashcard + write buffers for one
-   sentence. The modes don't know about each other. Composition happens
-   in the tactic's emitter Vector.
-
-7. *ANNOTATED is the grammar exercise substrate.* Token-level data
-   (form, gloss, literal ref, symbols) enables cloze, reorder, per-
-   token review, and decomposition tactics. Sentences without ANNOTATED
-   can still be used for whole-sentence modes (shadow, write, listen).
-
-8. *Per-token review propagates learning.* When a cloze blanks a
-   pronoun and the learner gets it right, both the token's literal AND
-   the sentence literal get /review/literal calls. Learning compounds
-   across modes.
+1. *Symbols are the query language.* Tactics seek by coordinates, no
+   hardcoded content. "Conjugation tactic" = seek =word.tense.X ×
+   word.mood.Y × word.person.Z=.
+2. *Conjugated forms are literals.* "falo", "falas", "fala" each their
+   own literal with morphological symbols. No runtime derivation.
+3. *Game modes are interaction shapes, not content types.* Mode renders
+   buffer; tactic decides content.
+4. *Distractors are same-symbol lookups.* Tactic logic, not hallucinator.
+5. *Two architectures, clean boundary.* Emitter or conversational,
+   never mixed.
+6. *Tactics compose modes; modes don't compose each other.*
+   Composition lives in tactic emitter Vector.
+7. *ANNOTATED is the grammar exercise substrate.* Token data enables
+   cloze, reorder, per-token review, decomposition.
+8. *Per-token review propagates learning.* Cloze blanks pronoun → both
+   token and sentence get /review/literal.
 
 * Implementation: Game Mode Contracts
 
-Scaffolded 2026-03-25. All five modes in =registry/modes/@vivalence/game/=.
+Scaffolded 2026-03-25. =registry/modes/@vivalence/game/=.
 
-** Gameplay Enum Pattern
+** Gameplay enum pattern
 
-Every mode with multiple interaction variants exposes =data.gameplay= — a
-string enum. Set by the tactic (from memory status, learner preference,
-or explicit input). The Svelte component switches behavior on gameplay.
-
-=data.forgiving= (boolean, default true) on any mode accepting typed input.
-Controls diacritical normalization.
+Modes with multiple variants expose =data.gameplay= (string enum). Set
+by tactic (memory status, preference, explicit). Component switches on
+gameplay. =data.forgiving= (default true) controls diacritical
+normalization for typed input.
 
 ** Cloze — =game/cloze/=
 
-Gameplay: ="type"= | ="pick"= | ="listen"=
+Gameplay: ="type"= | ="pick"= | ="listen"=. Multi-blank via
+=data.blankIndices: number[]=. Listen gameplay: hear "Espero que você
+______ bem", type "esteja".
 
-- =type= — see sentence with gap(s), type missing word(s)
-- =pick= — see sentence with gap(s), select from shuffled options
-- =listen= — hear vocalized sentence, fill in blanks (no text shown)
+Schema: ={data: {recall, gameplay, blankIndices, options?, forgiving}, literals: [sentence]}=
 
-Multiple blanks via =data.blankIndices: number[]=. Listen gameplay is
-the killer: hear "Espero que você ______ bem", type "esteja".
+Domain: MUST ANNOTATED + TRANSLATED. VOCALIZED for listen.
 
-Buffer schema: ={data: {recall, gameplay, blankIndices, options?, forgiving}, literals: [sentence]}=
+Review: per-blank-token + sentence. Correct = SUCCESS token; all
+correct = SUCCESS sentence; any wrong = NEUTRAL sentence.
 
-Domain: MUST ANNOTATED tokens. MUST TRANSLATED. VOCALIZED for listen gameplay.
-
-Review: per-blank-token + sentence. Correct blank = SUCCESS on token literal.
-All correct = SUCCESS on sentence. Any wrong = NEUTRAL on sentence.
-
-Emitter =/literal=: receives ={literal, blankIndices, gameplay, options?}=
+Emitter =/literal=: ={literal, blankIndices, gameplay, options?}=
 
 ** Pick — =game/pick/=
 
-No gameplay enum — pick IS the gameplay.
+No gameplay enum. Schema: ={data: {recall}, literals: [target, ...distractors]}=
 
-Buffer schema: ={data: {recall}, literals: [target, ...distractors]}=
+Self-serves distractors from =/pick/literal/feed= (3 same-band) when
+tactic doesn't provide. Review: correct = SUCCESS target; wrong =
+FAILURE target + FAILURE distractor.
 
-Emitter =/literal=: self-serves distractors from =/pick/literal/feed= when
-tactic doesn't provide them. Fetches 3 same-band literals.
-
-Review: correct = SUCCESS target. Wrong = FAILURE target + FAILURE distractor.
-Two negative signals.
-
-Keyboard: 1-4 number keys. Closed on mobile.
+Keyboard: 1-4. Closed on mobile.
 
 ** Match — =game/match/=
 
-Gameplay: ="translate"= | ="describe"= (describe is cortex-gated, future)
+Gameplay: ="translate"= | ="describe"= (cortex-gated, future).
 
-- =translate= — match known↔learning pairs
-- =describe= — match descriptor text (from =data.descriptions[]=) to literal
+Schema: ={data: {recall, gameplay, descriptions?}, literals: [batch]}=
 
-Buffer schema: ={data: {recall, gameplay, descriptions?}, literals: [batch]}=
+Failure is sticky: any wrong match = permanent FAILURE on both
+literals. Sentences allowed, cap 4-5 candidates (UX).
 
-Failure is sticky. Once a literal gets a wrong match attempt, FAILURE is
-permanent. Even correct selection afterward doesn't remedy it. On both
-literals in the wrong match.
-
-Emitter =/batch=: receives ={literals, gameplay, descriptions?}=
-
-Sentences: allowed. Cap at 4-5 candidates for sentence batches (UX concern).
+Emitter =/batch=: ={literals, gameplay, descriptions?}=
 
 ** Speed Judge — =game/speed-judge/=
 
-Gameplay: ="visual"= | ="audio"= | ="audio-only"=
+Gameplay: ="visual"= | ="audio"= | ="audio-only"=. Single-item
+buffers. =data.distractor= boolean — true means =literals[1]= is wrong
+translation. =literals[0]= always target. Component derives shown text
+from literals + recall direction.
 
-- =visual= — see word + translation, judge correct/wrong
-- =audio= — hear audio + see text, judge
-- =audio-only= — hear audio + see translation only (advanced)
+Schema: ={data: {recall, gameplay, speed, distractor}, literals: [target, distractor?]}=
 
-Single-item buffers. =data.distractor= boolean — true means =literals[1]=
-is the wrong translation source. =literals[0]= is always the target.
-Component derives shown text from literals + recall direction.
+Emitter =/literal=: single-literal entry. Distractors from seen items
+(={memories: {}}=, not feed). Coin-flips correct/wrong. Guards
+identical translations. =/feed= calls =ctx.mode.emit.literal()= in a
+loop — self-referential.
 
-Buffer schema: ={data: {recall, gameplay, speed, distractor}, literals: [target, distractor?]}=
-
-Emitter =/literal=: single-literal entry. Fetches distractor from seen items
-(={ memories: {} }=, not feed). Coin-flips correct/wrong. Guards for identical
-translations. =/feed= calls =ctx.mode.emit.literal()= in a loop — self-referential.
-
-Speed presets (base + multiplier per character):
+Speed presets (base + multiplier per char):
 - FAST: 1500ms + 80ms/char
 - NORMAL: 2500ms + 120ms/char (default)
 - SLOW: 3500ms + 180ms/char
 
-Override via =data.speed.base= and/or =data.speed.multiplier=. Absent
-multiplier falls through to preset. =multiplier: 0= means base is absolute.
+Override via =data.speed.{base,multiplier}=. =multiplier: 0= means
+base is absolute.
 
-Swipe: left = wrong, right = correct. 50px threshold.
-Keyboard: left/1 = wrong, right/2 = correct. Timer bar at top.
+Swipe: left=wrong, right=correct (50px threshold). Keys: left/1=wrong,
+right/2=correct. Timer bar at top.
 
-Review: Correct = SUCCESS target. Wrong = MISTAKE target.
-Timeout = MISTAKE target.
+Review: correct = SUCCESS; wrong/timeout = MISTAKE target.
 
 ** Listen — =game/listen/=
 
-Gameplay: ="pick"= | ="type"=
+Gameplay: ="pick"= | ="type"=. Set by memory (UNKNOWN/LEARNING→pick,
+KNOWN→type) or tactic.
 
-Set by memory status (UNKNOWN/LEARNING → pick, KNOWN → type) or by tactic.
+Schema: ={data: {recall, gameplay, forgiving}, literals: [target, ...distractors?]}=
 
-Buffer schema: ={data: {recall, gameplay, forgiving}, literals: [target, ...distractors?]}=
+Direction: LEARNING = hear PT → produce EN; KNOWN = hear PT → type PT
+(transcription).
 
-Recall direction:
-- LEARNING = hear Portuguese → produce English meaning
-- KNOWN = hear Portuguese → produce Portuguese text (transcription)
+Emitter =/literal=: self-serves distractors for pick (same-band + same
+POS + similar length).
 
-Emitter =/literal=: self-serves distractors for pick gameplay. Heuristic:
-same proficiency band + same POS + similar length.
+Audio REQUIRED. Autoplay on mount. =r= replay. FRAUGHT trait on manifest.
 
-Audio: REQUIRED. Autoplay on mount. =r= to replay. FRAUGHT trait on manifest.
+Type: MISTAKE for close answers (levenshtein ≤ 2). Pick: FAILURE on
+target + distractor for wrong picks.
 
-Type mode: MISTAKE signal for close answers (levenshtein ≤ 2).
-Pick mode: FAILURE on target + distractor for wrong picks.
+* Sequencing
+
+- Phase 1 — Tier 1 modes — DONE (9 operational)
+- Phase 2 — Vocabulary tactic expansion (multiple intents per dataset)
+- Phase 3 — Decomposition tactic + sentence-by-token-symbol seek
+- Phase 4 — Morphology tactic (paradigm seek + distractors)
+- Phase 5 — Tier 2 (reorder, dictation)
+- Phase 6 — Tier 3 (minimal-pair)
+- Phase 7 — Conversational tactics (post-cortex)
 
 * Changelog
 
@@ -584,5 +292,5 @@ Pick mode: FAILURE on target + distractor for wrong picks.
 - 2026-03-28: seek→where/limit refactor. MikroORM user filter. resolveTraits. UX polish
 - 2026-03-29: Mobile layout overhaul. Judge mode rewrite (items[]→single distractor). Ontology match fix
 - 2026-03-31: Yield protocol (NOMINAL/EXHAUSTED/ERROR). Integration test: 41 steps
-- 2026-04-03: LiteralRepository signature refactor: feed/novel/due/byStrength → (where, opts?), byLastSignal → (signals, where?, opts?). Blacklist stays in opts. ~30 call sites updated across all game emitters, tactic emitters, and domain aperture. Fixed emitters.test.js intents seeded guard (was missing INTENTED trait check)
-- 2026-04-03: Tactic cleanup. Exercise emitter rewritten: thesis is "sentence fluency" — virgin→exhibit+shadow, failed→shadow, else→write, trace-driven cloze (byLastSignal sentences with failed words), listen(type) if vocalized. 183→83 lines. Removed manual token→entity resolution (uses relation instead). Cooldown gameplay/recall bug fixed. Write game autoadvance removed (user controls progression). Dead code cleaned across cooldown and exercise.
+- 2026-04-03: LiteralRepository signature refactor: feed/novel/due/byStrength → (where, opts?), byLastSignal → (signals, where?, opts?). ~30 call sites updated. emitters.test.js intents seeded guard
+- 2026-04-03: Tactic cleanup. Exercise emitter rewritten (sentence fluency thesis): virgin→exhibit+shadow, failed→shadow, else→write, trace-driven cloze, listen(type) if vocalized. 183→83 lines. Removed manual token→entity resolution. Cooldown gameplay/recall bug fixed. Write autoadvance removed (user controls). Dead code cleaned

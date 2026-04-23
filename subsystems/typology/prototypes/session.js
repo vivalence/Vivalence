@@ -25,10 +25,12 @@ export class Session {
     });
 
     inbound.open("/herald/moin", (ctx) => {
+      this.outboundShape = ctx.input.shape;
       this.send = messenger(ctx.input.shape, { socket });
+      this.inboundShape = strip(this.inbound);
       this.$state.set(SessionStateEnum.LIVE);
       this._resolveLive();
-      return { shape: strip(this.inbound) };
+      return { shape: this.inboundShape };
     });
 
     inbound.use(async (ctx, next) => {
@@ -40,9 +42,11 @@ export class Session {
 
   async moin() {
     this.$state.set(SessionStateEnum.MOIN);
+    this.inboundShape = strip(this.inbound);
     const reply = await this.socket.call("/herald/moin", {
-      shape: strip(this.inbound),
+      shape: this.inboundShape,
     });
+    this.outboundShape = reply.shape;
     this.send = messenger(reply.shape, { socket: this.socket });
     this.$state.set(SessionStateEnum.LIVE);
     this._resolveLive();

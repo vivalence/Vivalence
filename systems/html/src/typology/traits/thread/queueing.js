@@ -33,6 +33,7 @@ export const QUEUEING = (thread, ctx) => {
         for (const buffer of buffers.filter(Boolean)) {
           buffer.context = { buffer, terminal: thread };
           buffer.on.release(() => {
+            buffer.status = "DONE";
             thread.daemon.entities.em.persist(buffer);
             thread.queue.next();
           });

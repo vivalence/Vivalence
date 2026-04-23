@@ -33,8 +33,8 @@ const buffer = new BufferView(
         ])
         .desc("LEARNING/KNOWN globally or per-slot")
         .optional(),
-      feedback: v.string({ default: "realtime" }).desc("realtime or batch"),
-      order: v.string({ default: "ordered" }).desc("ordered or random"),
+      feedback: v.string({ default: "REALTIME" }).desc("REALTIME or BATCH"),
+      order: v.string({ default: "ORDERED" }).desc("ORDERED or RANDOM"),
     },
   }),
 );
@@ -47,8 +47,8 @@ const emitter = new Vector()
 
     const data = {
       recall: ctx.input.recall ?? "LEARNING",
-      feedback: ctx.input.feedback ?? "realtime",
-      order: ctx.input.order ?? "ordered",
+      feedback: ctx.input.feedback ?? "REALTIME",
+      order: ctx.input.order ?? "ORDERED",
     };
 
     const literals = [];

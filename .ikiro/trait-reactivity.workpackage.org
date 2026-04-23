@@ -1,0 +1,138 @@
+* Intent
+Editing a thread's trait configuration via the panel-e controllers must percolate to (1) the persisted DB row, (2) the in-memory thread instance, (3) every Svelte consumer that reads the trait, and (4) the runtime artifacts that traits installed (=thread.pull=, =thread.queue=, =thread.mask=, =thread.label=). Today only (1) and (2) work. The remaining gaps make the controllers misleading: a click writes to disk but the runtime endpoint and the UI both stay stale.
+
+** Desired End State
+- Click =/emit/foo= in =AimedRoutes.svelte= → trait persisted, =thread.pull= rebound to the new endpoint, picker checkmark moves, downstream consumers (panel d JSON dump, queue's next pull) all observe the new mount.
+- Same shape for =MaskedEditor=, =LabeledEditor=, =QueueingRibbon= depth slider, etc.
+- No special handling per controller. Update path is uniform.
+
+* Symptom
+Observed in panel e on 2026-04-26:
+- =AimedRoutes= picker shows ✓ on =/emit/determiners= even though =thread.trait.AIMED.mount === "/emit/connectors"= per the d-panel JSON dump.
+- After =updateOne()= round-trip, the new mount is in SQLite but =thread.queue.pull= continues to hit the old endpoint because =thread.pull= was bound once at install.
+
+* Trace — current update flow
+#+BEGIN_SRC text
+click /emit/foo
+  AimedRoutes.pick(mount)
+    thread.daemon.entities.thread.updateOne({id}, {trait: {...trait, AIMED: {..., mount}}})
+      RemoteRepository.updateOne
+        connection.call("/updateOne", {where, data})
+        ── POST to daemon ──────────────────────────────────────
+        datamap.repository(threadRepo) /updateOne
+          mikro-orm repo.updateOne(where, data)
+          em.flush()                                       ← (1) DB row updated
+          return updated entity
+        ── response ───────────────────────────────────────────
+        repo.merge(row)
+          entityManager.integrate("thread", row, Thread)
+            cast — resolves m:1 / m:n refs to entity refs
+            merge — existing.trait = incomingTrait        ← (2) in-place field overwrite
+          refreshStore("thread")                          ← stores.thread fires [...sameArray]
+#+END_SRC
+
+* What updates · what does not
+** Updates
+- ~Thread~ row in SQLite (durable, full trait JSON replaced).
+- ~thread.trait~ field on the canonical in-memory =Thread= instance — overwritten with a new object reference.
+- ~daemon.entities.thread.$entities~ atom — emits =[...sameArray]= via =refreshStore=.
+- ~entityManager.snapshots[thread:id]~ — fresh =structuredClone= for dirty-tracking.
+
+** Does NOT update
+- ~thread.pull~ — bound at install by =AIMED= finalizer:
+  #+BEGIN_SRC javascript
+  // systems/html/src/typology/traits/thread/aimed.js
+  export const AIMED = (thread, ctx) => {
+    return () => {
+      thread.pull = thread.mode.connection.aim(thread.trait.AIMED.mount, thread.mask);
+    };
+  };
+  #+END_SRC
+  Mutating =trait.AIMED.mount= afterwards does not re-bind. =thread.queue= keeps pulling from the old endpoint.
+- ~thread.queue~ (Stall) — wired in =QUEUEING= install. Changing =trait.QUEUEING.depth= does not re-thread the threshold the existing Stall was constructed with.
+- ~thread.mask~ — set in =MASKED= install. Changing =trait.MASKED.where= or =limit= leaves the captured =thread.mask= object referenced by =thread.pull= = stale.
+- ~thread.label~ — recomputed only in =LABELED= install. Editing =trait.LABELED.name= does not re-derive.
+- ~threadContext.$current~ atom — not subscribed to =stores.thread=, so subscribers (e.svelte, d.svelte, f.svelte) never see a new emission.
+- Svelte components that hold ~let thread = $state(threadContext.$current.get())~ — =Thread= is a class instance, not a plain object, so Svelte 5's deep-state proxy does not track field-level mutations. No re-render.
+
+* Root cause
+Two compounded layers:
+
+** L1 — Trait install is one-shot
+=ThreadDossier.use= walks =traits[]= once during =EntityManager.integrate()= and runs each trait function. Returned finalizers run after the relation walk. There is no re-run hook. Trait config is read at install; the artifacts (=pull=, =queue=, =mask=, =label=) capture that snapshot.
+
+** L2 — Reactive surface is at the wrong granularity
+- =stores.thread= is an =atom([Thread])= — fires on add/remove/refresh, not on field-level mutation of an existing entity.
+- =threadContext.$current= holds the chosen Thread by id and never re-emits unless =$current.set= is called explicitly.
+- =Thread= class instances are opaque to Svelte 5's deep-state proxy (only plain objects/arrays get the proxy treatment).
+- =thread.trait= is a plain JS object replaced on merge, but no consumer reads it through a reactive store.
+
+* Approaches
+
+** A — Minimal patch per controller
+Each editor in panel e holds a local =$state= mirror of the field it edits and does the runtime re-bind by hand.
+- AimedRoutes after save: =thread.pull = thread.mode.connection.aim(mount, thread.mask)=.
+- MaskedEditor after save: =thread.mask = { thread: thread.id, ...trait.MASKED }=, then re-bind =thread.pull=.
+- LabeledEditor after save: =thread.label = trait.LABELED=.
+- QueueingRibbon depth: harder — Stall captured the old threshold. Either close+rebuild the queue or expose =queue.threshold= as mutable.
+
+Pros: small, no architectural change. Pattern is known.
+Cons: every new trait controller must remember to do the re-bind; the runtime is not a function of the durable config but a side-channel.
+
+** B — Reactive trait surface on Thread
+Replace =thread.trait= as a plain field with an atom (or a per-key map of atoms) that consumers subscribe to.
+- =thread.$trait= atom carrying the whole trait object.
+- merge() writes =thread.$trait.set(incomingTrait)= instead of =existing.trait = incomingTrait=.
+- A getter =thread.trait= reads from the atom for back-compat.
+- Trait finalizers re-subscribe their artifact to =$trait[key]= and rebuild on change. AIMED becomes:
+  #+BEGIN_SRC javascript
+  thread.$trait.subscribe((trait) => {
+    thread.pull = thread.mode.connection.aim(trait.AIMED.mount, thread.mask);
+  });
+  #+END_SRC
+
+Pros: one reactive truth, all consumers (UI + runtime) subscribe the same way.
+Cons: every trait function must opt-in to subscribe pattern; teardown bookkeeping; possible surprise if a trait artifact churns on every depth-slider tick.
+
+** C — Re-integrate on trait change
+Tear down current trait artifacts and re-run =ThreadDossier.use= when =trait= changes.
+- merge() on Thread detects =trait= changed → calls a re-integrate hook.
+- Re-integrate disposes existing finalizers (Stall.deactivate, etc.) then re-runs the install pipeline.
+
+Pros: keeps install-time semantics, traits don't need re-architecting.
+Cons: heavyweight (full lifecycle on every keystroke); finalizers need teardown contracts that don't exist today (e.g. AIMED has no teardown for =thread.pull=).
+
+* Decision needed
+Choose between:
+- **A — patch per controller** as a stopgap while we ship.
+- **B — reactive trait atom** as the permanent shape.
+- **C — re-integrate on change** if we accept the cost and add teardown contracts.
+
+Recommendation: **B** medium-term, **A** to unblock panel e today. C is interesting only if we expect heavy trait churn — current edits are sparse.
+
+* Open questions
+- Should =threadContext.$current= subscribe to =stores.thread= so panel-d/e/f reactively re-pick when the active thread's row changes server-side too (e.g. another tab edits)?
+- Per-trait atoms (=thread.$trait.MASKED=) or one =$trait= atom for the whole bag? Per-trait avoids over-firing but multiplies bookkeeping.
+- What's the teardown contract for trait finalizers? Today they return a =finalize()= but there's no =dispose()=. Approach C requires this.
+- Does =Stall= support live threshold updates, or do we always rebuild? (=withPull(fn, threshold)= reassigns =this.threshold=, so likely just a setter is enough.)
+
+* Phases
+
+** Phase 1 — patch panel-e controllers [PENDING]
+Local =$state= mirrors + manual rebinding for AIMED, MASKED, LABELED. QUEUEING depth needs Stall threshold setter or rebuild.
+Acceptance: clicking a route immediately moves the checkmark, =thread.pull= hits the new endpoint, durable update verified in SQLite.
+
+** Phase 2 — reactive trait atom on Thread [PENDING]
+Add =thread.$trait= atom. =RemoteEntityManager.merge= sets the atom for trait-typed fields. Add a getter so plain reads keep working.
+Acceptance: panel-d JSON dump auto-refreshes after panel-e edit; no controller-side mirror needed.
+
+** Phase 3 — re-subscribing trait finalizers [PENDING]
+Convert AIMED, MASKED, LABELED, QUEUEING to subscribe to =thread.$trait= and rebuild artifacts on emit. Each returns a teardown that =Thread= invokes on disintegrate.
+Acceptance: editing trait config in panel e mutates the runtime artifact (pull, queue, mask, label) within the same render frame.
+
+** Phase 4 — extend to mode/intent traits [PENDING]
+Mode traits (=BUFFERED=) and intent traits live in the same shape. Apply the same pattern so the upstream config edits also percolate.
+
+* Out of scope
+- Adding a new trait. This workpackage is purely about the update channel.
+- Multi-user collaborative editing of the same thread. Server-side =/subscribe= broadcaster is wired but unused; revisit alongside Phase 2 if needed.

@@ -29,7 +29,7 @@
     if (current.queue) {
       teardownStatus = current.queue.$status.subscribe((s) => { stallStatus = s; });
       teardownBuffers = current.$buffers.subscribe((buffers) => {
-        queueDepth = buffers.length;
+        queueDepth = buffers.filter((b) => b.status !== "DONE").length;
         phase = current.phase ?? null;
       });
     }

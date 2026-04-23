@@ -48,6 +48,23 @@ export class Terminal {
       thread: this.thread?.id ?? this.thread,
     };
   }
+
+  async engage(thread) {
+    if (!thread) return;
+    if (!thread.traits?.includes?.("INSITU")) {
+      const traits = [...(thread.traits ?? []), "INSITU"];
+      await thread.daemon.entities.thread.updateOne({ id: thread.id }, { traits });
+      thread.traits = traits;
+    }
+    this.$thread.set(null);
+    this.$thread.set(thread);
+    this.$dock.set({ ...this.$dock.get(), session: "live", collapsed: false });
+  }
+
+  release() {
+    this.session?.close?.();
+    this.$dock.set({ ...this.$dock.get(), session: "ended" });
+  }
 }
 
 export const TerminalDossier = {

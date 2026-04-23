@@ -30,8 +30,12 @@
     return null;
   }
 
-  function known(lit) { return lit?.trait?.TRANSLATED?.known; }
-  function learning(lit) { return lit?.trait?.TRANSLATED?.learning; }
+  function known(lit) {
+    return lit?.trait?.TRANSLATED?.known;
+  }
+  function learning(lit) {
+    return lit?.trait?.TRANSLATED?.learning;
+  }
 
   function getAudio(lit) {
     const ref = lit?.trait?.VOCALIZED?.asset;
@@ -105,7 +109,6 @@
             </div>
           {/each}
         </div>
-
       {:else if layout === "PATTERN"}
         {#if templateParts.length}
           <div class="pattern-template">
@@ -127,7 +130,6 @@
             </div>
           {/each}
         </div>
-
       {:else if layout === "CONTRASTIVE"}
         <div class="contrastive">
           {#each groups as group, gi}
@@ -145,7 +147,6 @@
           {/each}
         </div>
       {/if}
-
     {:else if loading}
       <div class="loading"><span class="dot"></span></div>
     {/if}
@@ -332,11 +333,21 @@
     padding-top: 2rem;
   }
   .dot {
-    width: 6px; height: 6px; border-radius: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
     background: var(--colors-skeleton-1-boundary);
     animation: pulse 1s ease-in-out infinite;
   }
-  @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 
   .menu-hint {
     display: block;
@@ -365,18 +376,37 @@
   }
 
   @media (max-width: 640px) {
-    .title { font-size: var(--font-size-xl); }
-    .table { gap: 0.375rem; }
+    .title {
+      font-size: var(--font-size-xl);
+    }
+    .table {
+      gap: 0.375rem;
+    }
     .table-row {
       display: flex;
       flex-direction: column;
       gap: 0.125rem;
       padding: 0.75rem 0.875rem;
     }
-    .table-person { font-size: 0.6rem; margin-bottom: 0.125rem; }
-    .table-form { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); font-weight: 600; }
-    .table-gloss { font-size: 0.8rem; font-family: var(--font-family-sans-text); }
-    .contrastive { flex-direction: column; }
-    .contrast-divider { width: 100%; height: 1px; }
+    .table-person {
+      font-size: 0.6rem;
+      margin-bottom: 0.125rem;
+    }
+    .table-form {
+      font-size: var(--font-size-base);
+      font-family: var(--font-family-sans-text);
+      font-weight: 600;
+    }
+    .table-gloss {
+      font-size: 0.8rem;
+      font-family: var(--font-family-sans-text);
+    }
+    .contrastive {
+      flex-direction: column;
+    }
+    .contrast-divider {
+      width: 100%;
+      height: 1px;
+    }
   }
 </style>

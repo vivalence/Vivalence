@@ -2,15 +2,29 @@ export const clean = (s) =>
   s
     .toLowerCase()
     .replace(/[?.!,;:'"'´`~\-—]/g, "")
+    .replace(/\//g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 
 export const fold = (s) => clean(s.normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
 
-export const separate = (s) =>
-  s
+export const separate = (s) => {
+  const raw = s
     .split("/")
     .map((a) => a.replace(/\(.*?\)/g, "").trim())
     .filter(Boolean);
+  const expanded = [...raw];
+  for (let i = 0; i < raw.length - 1; i++) {
+    const prev = raw[i].split(/\s+/);
+    const next = raw[i + 1].split(/\s+/);
+    if (prev.length > 1 && next.length === 1) {
+      expanded.push([...prev.slice(0, -1), next[0]].join(" "));
+    } else if (prev.length === 1 && next.length > 1) {
+      expanded.push([prev[0], ...next.slice(1)].join(" "));
+    }
+  }
+  return [...new Set(expanded)];
+};
 
 export function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);

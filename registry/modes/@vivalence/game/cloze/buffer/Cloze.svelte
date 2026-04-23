@@ -107,12 +107,10 @@
       {:else}
         <div class="meta">
           <span class="meta-lang">Listen</span>
+          {#if asset}
+            <div class="audio-block"><Asset autoplay={true} {asset} /></div>
+          {/if}
         </div>
-        {#if asset}
-          <div class="audio-row">
-            <Asset autoplay={true} {asset} />
-          </div>
-        {/if}
       {/if}
 
       <div class="tokens">
@@ -211,8 +209,10 @@
     font-style: italic;
   }
 
-  .audio-row {
-    margin-bottom: 1.5rem;
+  .audio-block {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
   }
 
   .tokens {

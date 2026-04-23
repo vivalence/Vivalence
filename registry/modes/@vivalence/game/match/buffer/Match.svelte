@@ -43,15 +43,6 @@
       : lit?.trait?.TRANSLATED?.known;
   }
 
-  function exampleFor(lit, side) {
-    if (gameplay === "DESCRIBE") return null;
-    const example = lit?.trait?.EXEMPLIFIED;
-    if (!example) return null;
-    const field = side === "left"
-      ? (recall === "LEARNING" ? "known" : "learning")
-      : (recall === "LEARNING" ? "learning" : "known");
-    return example[field];
-  }
 
   function init(lits) {
     leftItems = shuffle([...lits]);
@@ -146,8 +137,6 @@
             {@const isConnected = connected.has(lit.id)}
             {@const isSelected = selected?.id === lit.id && selectedSide === "left"}
             {@const isFailed = failed.has(lit.id)}
-            {@const revealExample = selected && !isConnected && (isSelected || selectedSide === "right")}
-            {@const example = revealExample ? exampleFor(lit, "left") : null}
             <button
               class="cell"
               class:cell-connected={isConnected}
@@ -158,9 +147,6 @@
               disabled={isConnected}
             >
               <span class="cell-text">{leftText(lit, leftItems.indexOf(lit))}</span>
-              {#if example}
-                <span class="cell-example">{example}</span>
-              {/if}
             </button>
           {/each}
         </div>
@@ -170,8 +156,6 @@
             {@const isConnected = connected.has(lit.id)}
             {@const isSelected = selected?.id === lit.id && selectedSide === "right"}
             {@const isFailed = failed.has(lit.id)}
-            {@const revealExample = selected && !isConnected && (isSelected || selectedSide === "left")}
-            {@const example = revealExample ? exampleFor(lit, "right") : null}
             <button
               class="cell"
               class:cell-connected={isConnected}
@@ -182,9 +166,6 @@
               disabled={isConnected}
             >
               <span class="cell-text">{rightText(lit)}</span>
-              {#if example}
-                <span class="cell-example">{example}</span>
-              {/if}
             </button>
           {/each}
         </div>
@@ -261,14 +242,6 @@
   }
   .cell-text {
     display: block;
-  }
-  .cell-example {
-    display: block;
-    font-family: var(--font-family-sans-text);
-    font-size: 0.7rem;
-    line-height: 1.35;
-    color: var(--colors-skeleton-1-boundary);
-    font-style: italic;
   }
   .cell:hover:not(:disabled) {
     border-color: var(--colors-skeleton-1-contrast);

@@ -1,193 +1,68 @@
 #+TITLE: Client Layout — T-Bone, Viket, and the Panel Engine
 #+AUTHOR: Vivalence
 #+DATE: 2026-04-07
-#+STATUS: ACTIVE
+#+STATUS: ACTIVE — phases 1-17 DONE; phase 18+ in flight (uncommitted changes)
 
 * Intent
 
-The HTML client today is a half-finished SvelteKit route tree with no
-shared layout language. Pages render whatever they want, the modeline is
-inconsistent, there's no concept of how panels relate to each other, and
-the only "layout" primitive is the BSP CSS skeleton from drapes which
-nothing in the new client uses.
+Define the html client's layout system from the ground up. Not a CSS
+framework — a set of named, addressable, composable *panels* arranged
+into a *T-bone* (structural skeleton) with a draggable controller — the
+*viket* — at the junction. Mobile-first; viket is the primary input
+device. All layout state is a serializable JSON blob (saveable, JSON-
+patchable, hot-swappable). Themed exclusively through dapper's per-
+skeleton color sets — never raw hex, never tailwind utility classes.
 
-This workpackage defines the client's layout system from the ground up.
-Not as a CSS framework. As a set of named, addressable, composable
-*panels* arranged into a *T-bone* — a structural skeleton — with a
-draggable controller called the *viket* at the junction. Panels are
-where content lives. Bones are the structural separators between panels.
-The viket is the user's grip on the whole thing.
+The terminal-first client plugs into this layout: terminals render in
+panel E, modeline in A or H, REPL is one phase of E.
 
-The system is designed mobile-first. The viket is the primary input
-device. All layout state (panel sizes, viket position, orientation,
-overlay visibility) is a serializable JSON blob that can be saved,
-restored, swapped, and patched.
-
-** Desired End State
-
-After this work:
-
-1. The HTML client uses a single shared layout primitive (the T-bone)
-   for all pages and modes. Pages declare which panels they fill;
-   layout is not their concern.
-2. The viket is a real component, available everywhere, draggable,
-   tap/double/triple-actionable, long-press-rotatable. Its position
-   determines panel sizes.
-3. Layout state is a JSON blob — viket position, orientation, panel
-   visibility, overlay flags — owned by a layout engine. Components
-   read it, the engine owns the writes.
-4. The panels A/B/C (and D/E/F inside C) and the overlays G/H have
-   fixed semantic roles documented in totems. Mode authors know which
-   panel their content belongs in.
-5. The terminal-first client (see =terminal-first-client.workpackage.org=)
-   plugs into this layout: terminals render inside panel E, modeline in
-   H or its own slot, REPL phase as one of E's render modes.
-6. The whole thing is themed exclusively through dapper's six color
-   sets — no raw hex values, no Tailwind utility classes for colors,
-   only =var(--colors-...)=.
-
-** Terminology
+* Terminology
 
 | Term         | Definition                                                                          |
 |--------------+-------------------------------------------------------------------------------------|
-| T-bone       | The structural skeleton: crown + spine + viket. Always visible.                     |
-| Crown        | Horizontal bone perpendicular to the stem direction. Passes through viket.          |
-| Spine        | The stem of the T. Extends from viket in the orientation direction.                 |
-| Viket        | The square at the junction of crown and spine. Draggable. Layout controller.        |
-| Junction     | Where crown and spine meet. Always equals (viket.x, viket.y).                       |
-| Panel        | A content region. A, B, C are the three primary panels of the T-bone.               |
-| D, E, F      | Sub-panels inside C. E is dominant. D and F are configurable rails.                 |
-| G            | Right-side overlay. System tray — operational alerts, above-the-hood errors.        |
-| H            | Top overlay. Dev console — logs, layout state, debug controls.                      |
-| Orientation  | The direction the stem points: 0/90/180/270. Selected via long-press radial.        |
-| Snap grid    | Fibonacci-ish percentages where viket position attracts during drag.                |
-| Sticky hold  | After long-press, the radial menu stays open without finger contact.                |
-| Layout blob  | The serializable JSON object holding all layout state.                              |
-| Bone         | A structural separator between panels. Crown and spine are the two bones today.     |
-| Totem        | The 4-facet documentation method (see =methods/totem:4-quadrant-component-development.md=). |
+| T-bone       | Structural skeleton: crown + spine + viket. Always visible.                         |
+| Crown        | Horizontal bone perpendicular to stem direction. Passes through viket.              |
+| Spine        | Stem of the T. Extends from viket in the orientation direction.                     |
+| Viket / pincer | Square at junction of crown and spine. Draggable. Layout controller. The *position* is =pincer=; the *component* is =viket=. |
+| Panel        | A content region. A, B, C are primary; D/E/F live inside C; G/H are overlays.       |
+| Bone         | Structural separator between panels. 4-bone model: shoulder, crown, pincer, spine.  |
+| Orientation  | Stem direction: 0/90/180/270. Selected via long-press radial.                       |
+| Snap grid    | Fibonacci-ish percentages =[0,13,21,34,50,66,79,87,100]=, 28px gravity.             |
+| Layout blob  | Serializable JSON object holding viket position, orientation, panel state.          |
+| Skeleton     | Self-contained color universe (5 of them, 0-4). 27 scalars, flat. Per-pane.         |
+
+Panel inventory: A=header/nav, B=left rail, C=stage (D=inspector, E=work
+surface, F=aux/preview), G=system tray (overlay), H=dev console (overlay).
 
 * Architecture
 
-** The T-bone
+** T-bone
 
-A T-bone has 3 visible parts and 1 movable controller:
-
-#+begin_src
-┌──────────────────────────────────────────────────────────────┐
-│                                                              │
-│                            A                                 │  panel A  (sk1)
-│                                                              │
-├────╳───────────────────────────────────────────────────────┤  ← crown          (sk1)
-│    │                                                         │
-│    │                                                         │
-│    │                                                         │
-│    │                                                         │
-│ B  │                          C                              │  panels B, C
-│    │                       (D | E | F)                       │  (sk2 / sk3)
-│    │                                                         │
-│ s  │                                                         │
-│ p  │                                                         │
-│ i  │                                                         │
-│ n  │                                                         │
-│ e  │                                                         │
-│    │                                                         │
-│ ★  │                                                         │  ← viket
-│    │                                                         │
-└────┴─────────────────────────────────────────────────────────┘
-#+end_src
-
-- *Crown* and *spine* are sk1-surface divs with theme-primary-boundary
-  borders. They pass through the viket position. They're always visible
-  even when all panels collapse to 0.
-- *Viket* is a square at the junction (size = bone thickness). Sk1 surface,
-  theme-primary border, contains the vinca-viket pictogram. Sharp corners
-  (no border-radius). Draggable.
-- *Panels A/B/C* fill the area around the bones. Each can collapse to 0
-  width or 0 height when viket reaches an edge.
-
-** Panel inventory
-
-| id | role family            | typical job                                                |
-|----+------------------------+------------------------------------------------------------|
-| A  | header / nav / status  | breadcrumbs, mode banner, lighthouse status, global controls |
-| B  | left rail              | persistent secondary nav / context list (when viket low)  |
-| D  | inspector / source     | tree, palette, list of things E acts on                    |
-| E  | stage                  | the actual work surface — REPL, form, viewer, game         |
-| F  | aux / preview          | map, preview, secondary visualisation, related             |
-| G  | system tray (overlay)  | runtime alerts user should see                             |
-| H  | dev console (overlay)  | logs, network, errors, layout state                        |
-| ★  | anchor (viket)         | constant home + layout-state controller                    |
-
-** Orientation
-
-The stem can point in 4 directions:
-
-- 0° — stem down (default T)
-- 90° — stem right (⊢)
-- 180° — stem up (⊥)
-- 270° — stem left (⊣)
-
-Orientation is selected via long-press on the viket, opening a radial
-menu. Drag finger toward direction OR release-near-center to enter
-sticky mode then click a target.
-
-When orientation rotates, the panel layout follows but the *semantic
-role* of each panel is preserved (A is always "across the cross", B is
-always one side of the stem, C is always the other, D/E/F always live
-inside C).
-
-** Snap grid
-
-During drag, viket position snaps to a Fibonacci-ish set of percentages
-on each axis: =[0, 13, 21, 34, 50, 66, 79, 87, 100]=. The 3 dominant
-points (0, 50, 100) are always present; the secondaries fall off to
-the sides at golden-ratio-ish intervals. Snap distance is 28px (2× the
-default — generous gravity).
-
-The snap is *attractive*: viket follows the finger but pulls toward
-nearest grid point when within range. No sticky lock — drag continues
-freely outside snap zones.
+Crown + spine = sk1-surface bones with theme-primary borders, always
+visible. Viket = square at junction (size = bone thickness), sk1
+surface, primary border, vinca-viket pictogram, sharp corners. Panels
+A/B/C fill area around bones; collapse to 0 when viket reaches edge.
 
 ** Layout blob
 
-The full layout state is a flat JSON object the engine reads/writes.
-Save it, ship it, JSON-patch it, hot-swap it.
-
 #+begin_src json
 {
-  "viket":  { "x": 540, "y": 320, "snap": null },
-  "previous": { "x": 200, "y": 240 },
-  "standard": { "x": 540, "y": 320 },
+  "viket": {"x": 540, "y": 320, "snap": null},
+  "previous": {"x": 200, "y": 240},
+  "standard": {"x": 540, "y": 320},
   "orientation": 0,
-  "panels": { "a": true, "b": true },
-  "stage":  {
-    "ratio": "1 3 1",
-    "d": { "show": true,  "orient": "tree" },
-    "e": { "phase": "repl" },
-    "f": { "show": false, "orient": "map" }
-  },
-  "overlays": { "g": false, "h": true },
-  "bones":  { "notch": true }
+  "panels": {"a": true, "b": true},
+  "stage": {"ratio": "1 3 1", "d": {"show": true, "orient": "tree"},
+            "e": {"phase": "repl"}, "f": {"show": false, "orient": "map"}},
+  "overlays": {"g": false, "h": true},
+  "bones": {"notch": true}
 }
 #+end_src
 
-The engine takes this blob and emits CSS variables on the document
-root. Components read those variables. There is one source of truth.
+Engine emits CSS variables on the document root from this blob. One
+source of truth.
 
-** Control-token clusters
-
-5 families. Already enumerated in earlier conversation; locking them
-in here.
-
-| Cluster   | Purpose                                | Examples                                           |
-|-----------+----------------------------------------+----------------------------------------------------|
-| *bone*    | structural frame (theme-level)         | =--bone-thickness=, =--bone-fill=, =--bone-edge=   |
-| *anatomy* | per-bone overrides + segment visibility | =--crown-fill=, =--spine-fill=, =--notch-show=    |
-| *panel*   | tenants A, B, G, H                     | =--a-height=, =--b-show=, =--g-width=, =--h-show= |
-| *stage*   | C and its D/E/F sub-split              | =--def-ratio=, =--d-orient=, =--e-phase=          |
-| *viket*   | controller's state machine             | =--viket-snap=, =--viket-y=, =--viket-state=      |
-
-** The viket gesture state machine
+** Viket gesture state machine
 
 #+begin_src
 idle ──hold──→ longpress ──release-far──→ idle (commit orientation)
@@ -198,1483 +73,323 @@ idle ──hold──→ longpress ──release-far──→ idle (commit orien
                                        └──drag-viket──→ idle (sticky cancelled)
 #+end_src
 
-Tap actions (idle state only):
-- 1 tap → jump to standard ($HOME)
-- 2 taps → swap with previous (toggle back)
-- 3+ taps → mark current as standard
+Tap actions (idle): 1=jump to standard, 2=swap with previous, 3+=mark
+current as standard. Pointer events unified, =setPointerCapture= on
+pointerdown, =touch-action: none= to suppress browser gestures.
 
-Sticky-mode tap on viket is a no-op — user must HOLD to re-enter
-drag-pick. Tap outside the radial closes it.
+** Dapper skeleton model
 
-** Animations
+5 skeletons (0-4), each a flat populated set of 27 scalars:
+- structural: surface, contrast, boundary (1 state)
+- emphasis: primary, secondary, accent (3 states each: base/hover/active)
+- semantic: info, success, warning, danger (3 states each)
+- error: box triplet (surface, contrast, boundary)
+- font: heading, body, code
 
-The viket pictogram is a base64 PNG wrapped in SVG (no real vector
-paths inside). Animation is therefore element-level CSS transforms only:
+10 root ramps (IRON, DEEP, GOLD, AQUA, INDIGO, MOSS, AMBER, RUST, SLATE,
+PINK), 12 stops each (=50,100,...,950=). Skeletons hand-pick ~12 anchors;
+=skeleton({...})= factory + =interactive= / =box= helpers fan out the
+rest. ~60 numbers parameterize the whole 5-skeleton system.
 
-- *Idle*: static
-- *Dragging*: =scaleX(1.2) scaleY(0.1)= — eye blinks closed
-- *Release*: transition back to =scaleY(1)= over 180ms
+CSS naming: explicit, always. =--colors-skeleton-1-primary-base=, never
+shorthand. Grep-able, predictable.
 
-A future task is to re-trace the pictogram into real vector paths so
-the eye can blink independently of the petals (see =Gaps= below).
+Skeleton → pincer region: 0=T-bone+H, 1=panel A, 2=B+E, 3=D+F, 4=G+frame.
 
-** Mobile-first
+** Context architecture (4 symbols)
 
-- Pointer events (unified mouse + touch + pen) — never separate
-  touch/mouse handlers.
-- =setPointerCapture= on pointerdown so drag continues even when finger
-  leaves the viket div.
-- =touch-action: none= on viket and =overflow: hidden= +
-  =overscroll-behavior: none= on body to suppress browser gestures.
-- =maximum-scale=1, user-scalable=no= viewport meta to prevent iOS
-  double-tap zoom.
-- Optional =navigator.vibrate()= on long-press start and commit.
+3 structural (set once at boot) + 1 navigational (reactive).
+
+| Symbol     | Set by      | Lifecycle                  | Provides                             |
+|------------+-------------+----------------------------+--------------------------------------|
+| LIGHTHOUSE | layout init | once                       | auth, identity, daemons Map          |
+| QUARTERS   | layout init | once                       | terminal LocalRepository, $active    |
+| BRIDGE     | layout init | once                       | layout store + view store + geometry |
+| THREAD     | layout      | reactive (follows active)  | thread entity, daemon/mode accessors |
+
+DAEMON and MODE consolidated into THREAD on 2026-04-11 (single
+navigational context; =thread.mode= and =thread.mode.daemon= are
+accessors). Old =$client= still exports DAEMON/MODE — pending removal.
+
+State is data; lifecycle is functions over data. No boot vectors
+(wafers) on the client. Lighthouse: =verify/populate/boot=. Daemon:
+=construct/populate/resolve=. Classes stay pure state containers.
+
+Context store directory at =systems/html/src/typology/stores/=:
+=store.js= (factory), =quarters.js=, =bridge.js=, =thread.js=.
 
 * Phases
 
-** Phase 1: Pip Prototype [DONE]
-
-A standalone proof-of-concept at =systems/html/src/routes/pip/+page@.svelte=
-(uses =@= filename to break out of the parent layout's lighthouse boot
-gate).
-
-- [X] T-bone shape with crown + spine + viket
-- [X] 4 orientations (0/90/180/270) via long-press radial
-- [X] Panels A/B/C with sk1/sk2/sk3 surfaces
-- [X] D/E/F sub-panels inside C with margin + border curl
-- [X] Panels collapse to 0 when viket hits an edge
-- [X] T-bone always visible regardless of panel sizes
-- [X] Snap grid (Fibonacci-ish percentages, 28px gravity)
-- [X] Tap semantics (1=home, 2=swap, 3=set-home)
-- [X] Sticky hold mode (release-near keeps radial open)
-- [X] H overlay as full-width 50px top bar (sticky open)
-- [X] G overlay as right-side slide-in (toggleable from H)
-- [X] Modeline aesthetic — sk1 surface, theme-primary-boundary borders
-- [X] Viket pictogram with drag-blink animation
-- [X] All colors via =var(--colors-...)= raw form (no Tailwind utilities)
-
-The prototype is the reference implementation. Read it before
-implementing anything in Phase 2.
+** Phase 1: Pip Prototype [DONE 2026-04-07]
+T-bone shape, 4 orientations, A/B/C + D/E/F, panel collapse, snap grid,
+tap semantics, sticky hold, G/H overlays, modeline aesthetic. Reference
+implementation at =systems/html/src/routes/pip/+page@.svelte=.
 
 ** Phase 2: Extract Layout Engine [PENDING]
-
-Lift the layout logic out of the prototype into a reusable Svelte
-component + a small layout-state store.
-
-- [ ] Create =systems/html/src/layout/= directory
-- [ ] =layout/Layout.svelte= — the wrapper that renders bones + viket +
-      panel slots from a layout blob
-- [ ] =layout/Viket.svelte= — the draggable controller (gesture state
-      machine, pictogram, blink animation)
-- [ ] =layout/Bones.svelte= — crown + spine derivation from viket +
-      orientation
-- [ ] =layout/store.js= — the layout blob as a Svelte 5 rune store, with
-      derive helpers (rects, bones) and gesture handlers
-- [ ] =layout/totems/= — write 4-facet totems for each component
-- [ ] Each panel slot is a named =<svelte:fragment slot="a">= or similar
-- [ ] Mode authors fill slots; never touch viket logic
+Lift layout logic from prototype into reusable =systems/html/src/layout/=
+(Layout.svelte, Viket.svelte, Bones.svelte, store.js). Not yet started;
+superseded in spirit by the BRIDGE context migration in Phase 17.
 
 ** Phase 3: Totem the Components [PENDING]
-
-Per the totem method (=methods/totem:4-quadrant-component-development.md=),
-write a totem for every layout component before any further changes.
-
-- [ ] =layout/totems/Layout.totem.org= — the wrapper
-- [ ] =layout/totems/Viket.totem.org= — the controller
-- [ ] =layout/totems/Bones.totem.org= — crown + spine
-- [ ] =layout/totems/Panel.totem.org= — generic panel + variant per slot
-- [ ] =layout/totems/H-overlay.totem.org= — the dev/hud bar
-- [ ] =layout/totems/G-overlay.totem.org= — the system tray
-- [ ] Retrofit pip prototype against these totems — surface gaps
+4-facet totems for every layout component before further changes.
 
 ** Phase 4: Persistence [PENDING]
-
-The layout blob survives reload.
-
-- [ ] localStorage key: =viva.layout.blob=
-- [ ] Save on every meaningful change (debounced, ~250ms)
-- [ ] Restore on mount before first paint (avoid layout flash)
-- [ ] Versioned schema — bump on breaking changes, migrate on load
-- [ ] Per-route layout? Or global? (Open question — start global.)
-- [ ] Reset action accessible via H overlay debug controls
+Layout blob survives reload. localStorage key =viva.layout.blob=,
+debounced save, restore before first paint, versioned schema, reset via
+H overlay.
 
 ** Phase 5: Wire into Terminal-First Client [PENDING]
-
-The layout system becomes the host for the terminal-first client (see
-=terminal-first-client.workpackage.org=). Terminals live inside panel E,
-modeline lives in panel A or H, REPL is one phase of E.
-
-- [ ] =systems/html/src/routes/+page.svelte= uses =<Layout>= wrapper
-- [ ] Active terminal renders into slot E
-- [ ] Modeline renders into slot A (or H? — open question)
-- [ ] Inspector / buffer queue lives in D (collapsible)
-- [ ] G overlay surfaces lighthouse / daemon errors
-- [ ] H overlay shows live state + reset controls
-- [ ] Multiple terminals → tab switcher in modeline; switching swaps
-      what renders in E
-- [ ] Verify mobile drag UX with the viket actually controlling layout
-      while the user is reading buffers
+Active terminal renders into slot E; modeline in A or H; inspector in D;
+G surfaces lighthouse/daemon errors; H shows live state. Multi-terminal
+tab switcher. Cross-link =terminal-first-client.workpackage.org=.
 
 ** Phase 6: Pictogram Vectorization [PENDING]
-
-Re-trace the viket pictogram so the eye can be animated independently.
-
-- [ ] Open =static/images/pictogram_viket/pic-vinca-viket_white.svg= in
-      Illustrator/Figma/Inkscape
-- [ ] Image-trace to real vector paths (or hand-trace if quality demands)
-- [ ] Group the eye into =<g id="eye">=, petals into =<g id="petals">=
-- [ ] Export as a true vector SVG, replace the existing file
-- [ ] Update Viket totem to describe the vector structure
-- [ ] Add CSS animations targeting =#eye= specifically
-- [ ] Eye blink during drag becomes eye-only (petals stay still)
+Re-trace =pic-vinca-viket_white.svg= so eye animates independently of
+petals. Group =<g id="eye">= / =<g id="petals">=.
 
 ** Phase 7: Convention and Documentation [PENDING]
-
-- [ ] Add layout system to =systems/html/.ikiro/claude.md=
-- [ ] Document the canonical panel slots in CLAUDE.md
-- [ ] Add to the principles section: "always use the layout system for
-      page structure; never reinvent layout per page"
-- [ ] Cross-link from =terminal-first-client.workpackage.org=
-- [ ] Add an entry to the Anti-Rationalization table:
-      "I'll just write a quick custom layout for this page" →
-      "Use the Layout component or write a totem for why you can't"
-
-* Dapper Skeleton Rebuild
-
-The pincer layout exposes a deficit in dapper's color system: a global
-=theme= group and a global =system= group, shared across every pane,
-produce colors that are only accidentally legible on any given surface.
-A red error message tuned to sit on skeleton-1 (dark) looks wrong on
-skeleton-3 (light). The pincer layout, which renders multiple surfaces
-simultaneously side-by-side, makes this obvious.
-
-The fix: flatten =theme= and =system= into each skeleton. Every skeleton
-becomes a self-contained universe with its own =primary/secondary/accent/
-info/success/warning/danger/error= tuned specifically for that pane. A
-button asks "give me my error", where "my" is the skeleton it's mounted on.
-
-This is a sister workpackage to the pincer layout, but lives here
-because the pincer prototype is the first real consumer. It blocks
-Phases 2–5 above: you cannot totem the components or wire the terminal-
-first client into the layout without the color system resolving how
-panels of different skeletons coexist.
-
-** Model
-
-One skeleton = a flat populated set of roles. Twelve roles, some static,
-some interactive. No nested =theme= or =system= wrappers — everything is
-a top-level key inside the skeleton.
-
-#+begin_src js
-skeleton[N] = {
-  // structural — 3 static values
-  surface,   // the pane fill
-  contrast,  // the ink on it
-  boundary,  // the edge around it
-
-  // emphasis — 3 interactive roles, 3 states each (base/hover/active)
-  primary:   { base, hover, active },
-  secondary: { base, hover, active },
-  accent:    { base, hover, active },
-
-  // semantic — 4 interactive roles, 3 states each (base/hover/active)
-  info:      { base, hover, active },
-  success:   { base, hover, active },
-  warning:   { base, hover, active },
-  danger:    { base, hover, active },
-
-  // error is a box — fill + ink + edge, static (no interaction)
-  error: {
-    surface,
-    contrast,
-    boundary,
-  },
-
-  // tokenspaces (not colors)
-  font: { heading, body, code },
-}
-#+end_src
-
-Counts:
-- Structural: 3 values
-- Emphasis: 3 × 3 = 9 values
-- Semantic (interactive): 4 × 3 = 12 values
-- Error (box): 3 values
-- *Total: 27 scalars per skeleton*
-- × 5 skeletons (0/1/2/3/4) = *135 values total*
-
-No =disabled= role at either level. Disabled states are rendered at the
-component level via opacity + =pointer-events: none=, not via a dedicated
-color.
-
-** Statespace derivation
-
-Each role's statespace was chosen by looking at actual usage, not by
-multiplying axes:
-
-| Role      | Why                                                                      | States |
-|-----------+--------------------------------------------------------------------------+--------|
-| surface   | Pane backgrounds are not clickable. They do not hover.                   | 1      |
-| contrast  | Plain text does not hover. Clickable text is =primary=, not =contrast=.  | 1      |
-| boundary  | Pane edges are structural, never change. Focused inputs use =primary=.   | 1      |
-| primary   | The most interactive color in the system. Buttons, links, active tabs.  | 3      |
-| secondary | Secondary buttons, secondary tabs, less-prominent links.                | 3      |
-| accent    | Rare but fully interactive when present.                                | 3      |
-| info      | Info banners/icons can be clickable drill-downs.                        | 3      |
-| success   | Success states may include retry/undo actions on the colored surface.   | 3      |
-| warning   | Warning badges with dismiss actions.                                    | 3      |
-| danger    | Delete/discard/force-push buttons. Fully interactive.                   | 3      |
-| error     | Error is aftermath, not trigger. A displayed box: surface + ink + edge. | 3 (box)|
-
-** Root color spaces
-
-Ten root palettes, each a 12-step ramp: =50, 100, 200, 300, 400, 500, 600,
-700, 800, 850, 900, 950=. Skeletons pull from these; they never define
-raw hex.
-
-| Root   | Role in the system                       | Identity                               |
-|--------+------------------------------------------+----------------------------------------|
-| IRON   | backbone — grays, surfaces, chrome        | cool blue-gray, nordsee concrete       |
-| DEEP   | skeleton 0 background                     | warm dark blue, nordic winter sky      |
-| GOLD   | skeleton 0 contrast (pale lettering)      | muted iron-gold, worn gilt / antique brass |
-| AQUA   | brand color, =primary= on most skeletons  | =#1EBCB5= anchor, teal, kept from current |
-| INDIGO | secondary emphasis + =info=               | pale nordic blue                       |
-| MOSS   | =success=                                 | forest lichen, not neon lime           |
-| AMBER  | =warning=                                 | warm honey                             |
-| RUST   | =danger= + =error=                        | iron oxide, earthy                     |
-| SLATE  | reserved (disabled-looking if needed)     | cold dead iron                         |
-| PINK   | =accent=                                  | loud celebratory pop                   |
-
-Vibe anchor: dark scandinavian, nordsee meets concrete. All five brand
-descriptors at once — terminal/scholarly/neon/clinical/organic. One
-shared color space; skeletons differ gradially and contrastively within it.
-
-** Skeleton hierarchy
-
-| # | Owns                               | Surface mood                                              |
-|---+------------------------------------+-----------------------------------------------------------|
-| 0 | T-bone + H overlay                 | deep warm blue backdrop, pale iron-gold letters           |
-| 1 | Main area above the T (panel A)    | main work surface — where all modes render                |
-| 2 | Panels B + E                       | slightly darker than 3                                    |
-| 3 | Panels D + F + twigs               | slightly brighter than 2                                  |
-| 4 | Overlay G + frame contents of 1    | variant of 1, renders on top of 1                         |
-
-Not a ramp. Each skeleton is its own internally coherent set that shares
-the root color space but picks independently.
-
-** Worked example — skeleton[1] (main work area)
-
-#+begin_src js
-skeleton[1] = {
-  // structural
-  surface:   IRON[850],    // #1A2A38  — deep wet concrete
-  contrast:  IRON[100],    // #E6EAEF  — pale lettering
-  boundary:  AQUA[400],    // #089791  — teal seam
-
-  // emphasis
-  primary: {
-    base:   AQUA[300],     // #1EBCB5
-    hover:  AQUA[200],     // #51D8D0
-    active: AQUA[400],     // #089791
-  },
-  secondary: {
-    base:   INDIGO[300],
-    hover:  INDIGO[200],
-    active: INDIGO[400],
-  },
-  accent: {
-    base:   PINK[300],
-    hover:  PINK[200],
-    active: PINK[400],
-  },
-
-  // semantic
-  info:    { base: INDIGO[300], hover: INDIGO[200], active: INDIGO[400] },
-  success: { base: MOSS[300],   hover: MOSS[200],   active: MOSS[400]   },
-  warning: { base: AMBER[300],  hover: AMBER[200],  active: AMBER[400]  },
-  danger:  { base: RUST[300],   hover: RUST[200],   active: RUST[400]   },
-
-  // error as a box
-  error: {
-    surface:  RUST[800],
-    contrast: RUST[100],
-    boundary: RUST[300],
-  },
-
-  // tokenspaces
-  font: {
-    heading: "sans-heading",  // Poppins
-    body:    "sans-text",     // Inter
-    code:    "code",          // Source Code Pro
-  },
-}
-#+end_src
-
-** CSS variable naming convention
-
-*Explicit, always.* No shorthand. Every scalar gets a fully-qualified name
-including the =base= state when it has one.
-
-#+begin_example
---colors-skeleton-1-surface
---colors-skeleton-1-contrast
---colors-skeleton-1-boundary
-
---colors-skeleton-1-primary-base
---colors-skeleton-1-primary-hover
---colors-skeleton-1-primary-active
-
---colors-skeleton-1-secondary-base
---colors-skeleton-1-secondary-hover
---colors-skeleton-1-secondary-active
-
---colors-skeleton-1-danger-base
---colors-skeleton-1-danger-hover
---colors-skeleton-1-danger-active
-
---colors-skeleton-1-error-surface
---colors-skeleton-1-error-contrast
---colors-skeleton-1-error-boundary
-#+end_example
-
-Rationale: grep-ability and predictability. =var(--colors-skeleton-1-primary)=
-is ambiguous — is it the base or is it the whole role? Always spelling
-=-base= removes the question and makes every consumer identical in shape.
-
-** Value pickup — factory / middleware architecture
-
-Skeletons do not hand-pick 27 hex values. They hand-pick ~12 anchors
-(one per role) and a small factory function fans out the rest via a
-middleware chain.
-
-#+begin_src js
-// primitive: pick a value from a ramp with optional transforms
-export const pick = (ramp, anchor, ...middlewares) =>
-  middlewares.reduce((value, mw) => mw(value, ramp, anchor), ramp[anchor]);
-
-// fan-out: one anchor → {base, hover, active}
-export const interactive = (ramp, anchor) => ({
-  base:   ramp[anchor],
-  hover:  ramp[anchor - 100],
-  active: ramp[anchor + 100],
-});
-
-// fan-out: one ramp → {surface, contrast, boundary}
-export const box = (ramp, anchors = [800, 100, 300]) => ({
-  surface:  ramp[anchors[0]],
-  contrast: ramp[anchors[1]],
-  boundary: ramp[anchors[2]],
-});
-
-// the skeleton factory — composable, middleware-friendly
-export const skeleton = (config) => {
-  const { surface, contrast, boundary, roles, error, font } = config;
-  const result = { surface, contrast, boundary, font };
-  for (const [name, { ramp, anchor }] of Object.entries(roles)) {
-    result[name] = interactive(ramp, anchor);
-  }
-  result.error = box(error.ramp, error.anchors);
-  return result;
-};
-#+end_src
-
-Each skeleton definition becomes a small config:
-
-#+begin_src js
-skeletons[1] = skeleton({
-  surface:  IRON[850],
-  contrast: IRON[100],
-  boundary: AQUA[400],
-  roles: {
-    primary:   { ramp: AQUA,   anchor: 300 },
-    secondary: { ramp: INDIGO, anchor: 300 },
-    accent:    { ramp: PINK,   anchor: 300 },
-    info:      { ramp: INDIGO, anchor: 300 },
-    success:   { ramp: MOSS,   anchor: 300 },
-    warning:   { ramp: AMBER,  anchor: 300 },
-    danger:    { ramp: RUST,   anchor: 300 },
-  },
-  error: { ramp: RUST, anchors: [800, 100, 300] },
-  font: { heading: "sans-heading", body: "sans-text", code: "code" },
-});
-#+end_src
-
-~60 hand-picked numbers total parameterize the whole 5-skeleton system.
-The middleware shape (=pick(...middlewares)=) leaves room for future
-transforms — gamma correction, contrast boosting, per-skeleton tint — without
-rewriting consumers.
-
-* Phases — Dapper Skeleton Rebuild
-
-Four sequential milestones. Each gates the next. M1/M2 can ship together
-if size is comfortable; M3 is the biggest; M4 is small but visually
-decisive.
+Document layout system in =systems/html/.ikiro/claude.md=; principle:
+"always use the layout system; never reinvent layout per page".
 
 ** Phase 8: M1 — Dapper Roots + Builder [DONE 2026-04-08]
-
-*Outcome*: =dapper/themes/dark.js= exports =ds.themes.dark.skeletons =
-{0..4}= fully populated with real hexes pulled from new root ramps.
-Pure in-memory shape. No CSS emitted yet.
-
-- [X] =primitives/colors.js=: 10 root ramps (IRON, DEEP, GOLD, AQUA,
-      INDIGO, MOSS, AMBER, RUST, SLATE, PINK), 12 stops each, exposed as
-      =ds.colors.roots=. Old =palette= preserved for escape hatches.
-- [X] =primitives/builders.js= (new): =pick=, =interactive=, =box=,
-      =skeleton= factory. =interactive= walks sorted ramp keys (robust
-      to non-uniform stop spacing). Middleware chain reserved on =pick=
-      for future transforms (gamma, tint, contrast boost).
-- [X] =themes/dark.js=: rewritten. Killed =theme= and =system= groups.
-      =colors.skeleton = {0..4}= populated via =skeleton({...})= calls.
-      Shared =standardRoles= keeps the 5 skeletons consistent; skeleton
-      4 overrides anchors to 200 to read above its host pane.
-- [X] =mod.js= exports the builders.
-- [X] Tests: =subsystems/dapper/tests/builders.test.js= (4 specs, 16
-      steps) + =tests/dark-theme.test.js= (12 steps). All green.
-
-Note: JS key is *singular* =skeleton=, not =skeletons=. This matches the
-existing belt =flattenObject= convention so =--colors-skeleton-N-*=
-falls out automatically without belt special-casing.
+=primitives/colors.js= 10 root ramps; =primitives/builders.js= (=pick=,
+=interactive=, =box=, =skeleton= factory); =themes/dark.js= rewritten
+with 5 skeletons. JS key is *singular* =skeleton= (matches belt
+=flattenObject=). 6 specs / 34 steps green.
 
 ** Phase 9: M2 — Dapper Belt + CSS Variables [DONE 2026-04-08]
-
-*Outcome*: build pipeline emits new =--colors-skeleton-N-*= CSS variables
-and tailwind utility classes for all of them. Old =theme-*= and =system-*=
-vars gone. Consumers compile (even if temporarily broken in content).
-
-- [X] =belt/lib.js=: unchanged. Existing recursive =flattenObject=
-      already produces correct names because the JS key is singular
-      =skeleton=.
-- [X] =belt/tailwind-theme.js=: =createSkeletonVariant(level)= factory
-      exposes =bg-skeleton-N-role-state= etc. Old =theme-*=, =system-*=,
-      =skeleton-app-*= groups deleted. Typography prose vars remapped to
-      skeleton-1.
-- [X] New =safelist= export — full enumeration of 5 levels × 11 roles ×
-      3 states × 5 utilities ≈ 480 tailwind classes. Components build
-      class names with template strings; safelist guarantees JIT picks
-      them up.
-- [X] =mod.js= re-exports =safelist=.
-- [X] =systems/html/tailwind.config.js= imports and applies =safelist=.
-- [X] Sweep: enumerated 17 active drapes files + 7 active html files
-      with old token references. Bak/* files left alone.
-- [X] CSS-emit smoke test =tests/css-emit.test.js= (8 specs): asserts
-      explicit naming, error-as-box (no states), no =disabled-*=, no
-      =theme-*= or =system-*= survived.
-- [X] Total dapper test suite: 6 passed, 34 steps, 0 failed.
+=belt/tailwind-theme.js= =createSkeletonVariant=. Old =theme-*= /
+=system-*= / =skeleton-app-*= deleted. =safelist= export ≈480 classes.
+=systems/html/tailwind.config.js= imports it.
 
 ** Phase 10: M3 — Drapes Context + Component Migration [DONE 2026-04-08]
-
-*Outcome*: every drapes component is skeleton-aware. Dropping the same
-=<Button variant="primary" />= into panel 1 vs panel 3 pulls the correct
-colors automatically via svelte context.
-
-- [X] =drapes/context/SkeletonProvider.svelte= (new): wraps children and
-      stores level via =setContext(SKELETON_CONTEXT_KEY, () => level)=.
-- [X] =drapes/context/useSkeleton.js= (new): =getContext(SKELETON_CONTEXT_KEY)=
-      with fallback =() => 1=. Symbol-keyed for collision safety.
-- [X] =drapes/context/index.js= barrel.
-- [X] =controls/Button.svelte=: rewritten. Deleted 9-variant object.
-      Templates classes against =useSkeleton()()=. Disabled rendered via
-      opacity + pointer-events, no color.
-- [X] Migrated: =controls/Link=, =display/Tag=, =display/Label=,
-      =display/Header=, =display/Paragraph=, =decor/Text=, =panels/icon/Icon=.
-      Each shrinks by ~15-20 lines.
-- [X] =display/ErrorBox.svelte= (new): consumes the error triplet.
-- [X] Fixed raw CSS-var refs in =panels/loader/Loader.svelte= and
-      =decor/Audio.svelte= (deleted last =theme-primary-*= consumers).
-- [X] =drapes/mod.js= exports the context.
-- [X] All =theme-*= / =system-*= references in active drapes files
-      eliminated (verified via grep).
-
-Open: form validation feedback patterns. Today a text input turns red
-on error. Need to confirm =ErrorBox= covers this, or add an input-level
-error state. Also: =Input/Textarea= not yet migrated (no current
-references in pincer prototype, but they exist in drapes).
+=drapes/context/SkeletonProvider.svelte= + =useSkeleton.js=. Migrated
+=controls/{Button,Link}=, =display/{Tag,Label,Header,Paragraph}=,
+=decor/Text=, =display/ErrorBox.svelte= (new), icon/Loader. All
+=theme-*= / =system-*= references in active drapes eliminated.
+Open: =Input/Textarea= not yet migrated.
 
 ** Phase 11: M4 — Pincer Panel Wrapping [DONE 2026-04-08]
-
-*Outcome*: =pincer/+page@.svelte= wraps each region in a =<SkeletonProvider>=
-with the correct level. Current prototype renders identical-or-better in
-the new color system. This merges the layout work with the color work
-and proves the whole stack.
-
-- [X] Imported =SkeletonProvider= from =@vivalence/drapes=.
-- [X] Wrapped panel A in level 1, panel B in level 2, panel C contents
-      split: D/F in level 3, E in level 2. Overlay G in level 4. H in
-      level 0.
-- [X] Bulk-replaced ~15 distinct old CSS-var names with new
-      skeleton-N equivalents. Bones/H/viket = skeleton 0; tap states
-      use =info-base=/=success-base=/=warning-base=.
-- [X] =TreeView.svelte=: reads context, drives row/caret/hover via
-      inline CSS custom properties bound to current skeleton level.
-- [X] =NodeGraph.svelte=: complete rewrite. Reads context, walks color
-      vars at runtime via =getComputedStyle= (theme changes propagate).
-      Trunk nodes use =primary-base=, bag members use =secondary-base=.
-- [X] *Bag demo bundled in*: 3-trunk + 14-bag-member dataset. Andrew's
-      monotone-chain convex hull (~25 LOC) + centroid-based 28px
-      inflation. Hull rendered as =graphic.polygon= at =z: -1= behind
-      nodes via =chart.setOption({graphic: [...]})=. Re-pulses on
-      layout =finished=, =graphroam=, resize, and 3 settle timers
-      (200/600/1200ms).
-- [X] All active pincer files clean of legacy color tokens (verified).
-
-Pending (out of M4 scope, flagged for later):
-- Visual smoke test in browser. Not run because it'd start a long-lived
-  server. Expected: skeleton 0 deep-blue/iron-gold bones, panels at
-  their levels, treeview in D, force graph + dashed convex hull around
-  14-node bag in F.
-- 5 remaining active html files still use old vars: =routes/+page.svelte=,
-  =routes/+layout.svelte=, =terminal/Modeline.svelte=,
-  =terminal/Stream.svelte=, =client.css=. Will break visually until
-  swept the same way pincer was. Small follow-up.
+=pincer/+page@.svelte= wraps regions in =SkeletonProvider= (A→1, B→2,
+D/F→3, E→2, G→4, H→0). =TreeView.svelte= context-aware. =NodeGraph.svelte=
+rewritten with Andrew monotone-chain convex-hull bag rendering for
+3-trunk + 14-bag-member dataset. Pending: 5 active html files outside
+pincer still use legacy vars (=routes/+page.svelte=, =+layout.svelte=,
+=terminal/Modeline.svelte=, =Stream.svelte=, =client.css=).
 
 ** Phase 12: Bone Population + Crown Tabs [DONE 2026-04-08]
+Spine carries lighthouse-cluster + daemon dots (worst-of-N), aqua
+endcap, 1Hz heartbeat scanline (honors =prefers-reduced-motion=). Viket
+promoted to keystone (2px primary border, inset glow, aqua-tinted
+pictogram, cathode drop-shadow). Crown bone melted into skeleton-1
+surface; H modeline default off. Crown left = phase meter + activity
+glyph; crown right = terminal tab strip with =direction: rtl= + LRM
+injection (keeps tail of breadcrumb visible). Twig drag handles wired
+with pixel pinning (24px centered, =setPointerCapture=, =def-e=
+flex switches to =1 1 ${px}=). Viket starts lower-left. NodeGraph hull
+update wrapped in rAF single-flight scheduler (kills =setOption= warning
+spam). =onMount= defensively resets gesture/radial state for HMR. Stale
+html files moved to =src/bak/sweep-2026-04-08/=.
 
-*Outcome*: The bones now carry meaningful runtime telemetry (mocked,
-ready to wire). The viket reads as the brand keystone. Crown carries
-terminal tabs + session telemetry. Twig handles do real pixel-pinned
-panel resize. Three slavic-brutalist + scandinavian-minimalist design
-iterations + several follow-up corrections.
-
-- [X] *Spine population* — aggregated lighthouse cluster + daemon
-      health, one slot each. Worst-of-N aggregation
-      (=worstStatus(lighthouses)=). Color-coded dots
-      (ok/lag/down → moss/amber/rust), micro =L=/=D= glyphs, tooltips
-      with full member list.
-- [X] *Spine heartbeat scanline* — slow 1Hz vertical aqua sweep,
-      ~6% opacity. Honors =prefers-reduced-motion=.
-- [X] *Spine endcap* — thin aqua structural mark just below the viket.
-- [X] *System alert rail* — 1px vermillion strip at viewport top,
-      fixed z:200, only visible when worst-of-everything is =down=.
-- [X] *Viket as keystone* — 2px =primary-base= aqua border, inset glow,
-      deep-blue interior, pictogram filtered to aqua with cathode
-      drop-shadow. Reads unambiguously as the brand anchor.
-- [X] *Crown bone melted* — =bone.crown= now uses =skeleton-1-surface=
-      so it dissolves into panel A. Stops competing with the H
-      modeline. Boundary is the only visual seam.
-- [X] *H modeline default off* — =overlays.h= initial state =false=.
-      User toggles via the (yet-to-be-built) viket menu. Letter
-      tracking + lowercase enabled when on.
-- [X] *Crown left — telemetry*: phase meter (=phase warmup=) + activity
-      glyph (=[● idle | 4]= — bordered cell carrying state + buffer
-      count, animated aqua sweep on the bottom border when =pulling=).
-- [X] *Crown right — terminal tabs*: row of buttons, newest sits next
-      to viket, older flow rightward, horizontal scroll when overflow.
-      Tab title = breadcrumbs joined by =/=, max-width 96px, height
-      18px, font 9px. Active tab gets =primary-base= border + text.
-      Stem-cutting ellipsis via =direction: rtl= + left-to-right mark
-      injection so the *tail* of the breadcrumb (most specific crumb)
-      stays visible.
-- [X] *Crown clipping* — both crown regions are
-      =position: absolute= inside the bone, sized off
-      =--viket-x=. =overflow: hidden= clips bleed when viket is dragged
-      near an edge. Container query (=@container crownleft=) hides the
-      meters entirely when crown-left < 190px so they don't render
-      garbage.
-- [X] *Twig drag handles* — 24px vertical centered (=margin: auto 0=),
-      cursor =ew-resize=. Real pointer drag wired
-      (=onpointerdown/move/up/cancel=), =setPointerCapture=, decoupled
-      via pixel pinning: first drag snapshots all three panel widths
-      to =paneSize= in pixels, subsequent drags only mutate the two
-      adjacent panes. =def-e= flex switches to =1 1 ${px}= so closing
-      a flank lets E expand into the freed space.
-- [X] *Viket starting position* → lower-left corner
-      (=EDGE_PADDING=, =viewport.height - EDGE_PADDING=). Panel A
-      fills 95% of the screen on first load; D/E/F revealed by
-      dragging viket up.
-- [X] *NodeGraph hull update fix* — =setOption= was being called from
-      inside =finished=/=graphroam=/=ResizeObserver= callbacks
-      ("ECharts =setOption= should not be called during main process").
-      Wrapped in =requestAnimationFrame= single-flight scheduler
-      (=hullFramePending=) + =lazyUpdate: true=.
-- [X] *HMR gesture state reset* — =onMount= now defensively clears
-      =gesture.{pointerId,isDragging,isLongPress,fromSticky}= and
-      =radial.{show,sticky}= so HMR-stuck drags don't survive an edit.
-- [X] *Stale html files moved* — =routes/+page.svelte=,
-      =routes/+layout.svelte=, =terminal/Modeline.svelte=,
-      =terminal/Stream.svelte=, =client.css= → =src/bak/sweep-2026-04-08/=.
-      Fresh =client.css= written at the original path with new skeleton
-      vars (still required as the postcss/tailwind pipeline entry point).
-- [X] *Mocked dataspace*: =lighthouses[3]=, =daemon=, =session=,
-      =terminals[7]= all =$state= literals. Hardcoded for now.
-
-Followups (out of phase scope):
-- *Viket drag broken under real mouse* — user reported. Code looks
-  correct (=z:100=, =pe:auto=, =setPointerCapture=, no overlap), no
-  console errors. Automation can't synthesize real pointerdown so
-  unreproducible from agent side. =onMount= reset is the most likely
-  fix; needs hardware verification.
-- *Real wiring*: 0% of bone telemetry is wired to live signals. Real
-  sources exist on =lighthouse.$status=, =lighthouse.$daemons= (atoms
-  in =systems/html/src/lighthouse/lighthouse.js=). =session.phase /
-  buffers / pulling / stalled= have no source — they belong to the
-  paladin/terminal-first phase machine. Adapter shapes drafted in chat
-  but not committed.
-- *Orient 90/270 crown layout*: crown-population uses =flex-row +
-  justify-end=. In vertical orientations the crown is 45px wide ×
-  full-height, so meters/tabs slide off-screen. User chose
-  *semantic-right* ("4 directions, users will learn"). Needs
-  conditional flex-direction per orientation.
-- *Input/Textarea drape components* still not migrated to skeleton vars.
-- *Viket menu* needed to re-open H modeline + toggle other overlays
-  (no permanent affordance since H defaults off now).
-- *Tab open/close, terminal lifecycle*: tabs are read-only mocks. No
-  =new tab=, =close tab=, drag-to-reorder, or wiring to actual
-  terminal mounts.
-
-* Skinner — Vector Skin Lab
-
-Skinner is the rendering counterpart to pincer. Pincer builds the layout
-bones; skinner renders vectors through interchangeable skins. A skin is
-a svelte component that takes a vector (live or pressed) and renders it
-as a particular UI paradigm — tree, palette, radial menu, table, etc.
-
-The work required three new primitives in typology before the skins
-could exist:
-
-1. =Vector.prototype.survey(visit)= — recursive tree walk on the
-   prototype itself, with an optional visitor/fold function
-2. =object.pluck(obj, keys)= — pick + strip-undefined, in belt
-3. =stamp.press(vector)= — lossy JSON serialization via survey + pluck
-
-** Typology: survey
-
-Survey lives on =Vector.prototype= (=prototypes/vector.js=). It walks
-=effects= and =trajectories=, returning ={ effects, trajectories }= at
-each level. An optional visitor folds during the walk.
-
-#+begin_src js
-// Vector.prototype
-survey(visit = (node) => node) {
-  const effects = [...this.effects.entries()]
-    .map(([signature, effect]) => visit({ signature, effect }))
-  const trajectories = [...this.trajectories.entries()]
-    .map(([signature, descendant]) => visit({ signature, ...descendant.survey(visit) }))
-  return { effects, trajectories }
-}
-#+end_src
-
-Without a visitor — pure introspection, lossless:
-
-#+begin_src js
-const { effects, trajectories } = vector.survey()
-effects[0].signature.nature   // "purr"
-effects[0].effect              // (ctx) => { ... } — live function
-trajectories[0].signature.nature  // "hunt"
-trajectories[0].effects.length    // 3 — recursed
-#+end_src
-
-With a visitor — fold in one pass:
-
-#+begin_src js
-vector.survey(({ signature, effect, effects, trajectories }) => ({
-  name: signature.nature,
-  ...(effects ? { effects, trajectories } : {}),
-}))
-// { effects: [{ name: "purr" }, ...], trajectories: [{ name: "hunt", effects: [...] }] }
-#+end_src
-
-Leaves receive ={ signature, effect }=. Branches receive
-={ signature, effects, trajectories }= — already folded by recursion.
-The visitor distinguishes by presence: =effect= means leaf, =effects=
-means branch. =steer.survey(vector, visit)= delegates to
-=vector.survey(visit)=.
-
-** Typology: object.pluck
-
-Added to =gestalten/belt/object.js=. Delegates to existing =pick= (which
-supports nested dot-paths), then strips =undefined= values:
-
-#+begin_src js
-export function pluck(obj, keys) {
-  const picked = pick(obj, keys);
-  return Object.fromEntries(Object.entries(picked).filter(([, v]) => v !== undefined));
-}
-#+end_src
-
-** Typology: stamp.press
-
-The lossy serialization. Takes a vector, returns dead JSON. Uses survey
-with a visitor that plucks signature keys and merges children:
-
-#+begin_src js
-import { steer, object } from "@vivalence/typology"
-
-const SIGNATURE_KEYS = ["keyed", "valence", "directed", "input", "output"]
-
-export const press = (vector) =>
-  steer.survey(vector, ({ signature, effect, effects, trajectories }) => ({
-    nature: signature.nature,
-    signature: object.pluck(signature, SIGNATURE_KEYS),
-    ...(effects ? { children: [...effects, ...trajectories] } : {}),
-  }))
-#+end_src
-
-Output shape — flat array at each level, branches carry =children=:
-
-#+begin_src js
-{
-  effects: [
-    { nature: "purr", signature: { keyed: { command: "p" }, valence: "emit purr sound", ... } },
-    { nature: "nap", signature: { keyed: { command: "n", modifier: "shift" }, ... } },
-  ],
-  trajectories: [
-    { nature: "hunt", signature: { ... }, children: [
-      { nature: "stalk", signature: { ... } },
-      { nature: "pounce", signature: { ... } },
-      { nature: "retreat", signature: { ... } },
-    ] },
-  ],
-}
-#+end_src
-
-Design decisions on the output format:
-- *Nature outside signature*: nature is the identity key, not metadata.
-  Signature carries the decorations (keyed, valence, directed,
-  input, output).
-- *Arrays not objects*: vectors allow duplicate pattern natures (by
-  design — multiple effects on the same path). Objects keyed by name
-  would lose duplicates. JSON arrays preserve them.
-- *=effects= / =trajectories= at the survey layer, =children= at the
-  stamp layer*: survey preserves the vector's own vocabulary (effects
-  vs trajectories are semantically distinct in steer). Stamp merges
-  them into =children= because the consumer (a skin renderer) doesn't
-  care about the distinction — a node is a node.
-- *TypeBox schemas pass through as-is*: =input= and =output= are
-  TypeBox proxies which serialize to standard JSON Schema objects. The
-  press function doesn't unwrap them. =JSON.parse(JSON.stringify(...))=
-  strips the proxy layer if dead JSON is needed.
-
-** Signatures on patterns
-
-The cat fixture vectors exercise five distinct signatures per pattern:
-
-| Signature | Shape | Purpose |
-|-----------+-------+---------|
-| =nature= | string | identity — the pattern's name, always present |
-| =keyed= | ={ command, modifier? }= | keyboard binding |
-| =valence= | string or ={ slug, name, prompt }= | human description, two forms |
-| =directed= | ={ variant, icon?, label?, collapsed?, ... }= | directory viewer rendering hints |
-| =input= | TypeBox/JSON Schema | input validation schema |
-| =output= | TypeBox/JSON Schema | output type declaration |
-
-Not every node carries every signature. =pluck= drops undefined keys so
-the output is sparse — only what's declared appears.
-
-** Test fixtures: cats
-
-Three cat vector factories of increasing complexity, used by all skins:
-
-#+begin_src js
-// house() — the standard. 5 effects, 1 trajectory, all signature types exercised.
-//   purr (keyed, valence:string, directed, input, output)
-//   nap (keyed+modifier, valence:object, input)
-//   hunt/ (keyed+modifier, valence:object, directed:collapsed)
-//     stalk (keyed, valence:string, input)
-//     pounce (keyed+modifier, valence:object, input, output)
-//     retreat (keyed, valence:string, input:empty)
-
-// alley() — scrappier. 4 effects, 1 trajectory, fewer signatures.
-//   hiss, sleep, scavenge/{dig, snatch}
-
-// kitten() — playful. 5 effects, 1 trajectory, directed on branch.
-//   mew, nuzzle, play/{chase, tumble, hide}
-#+end_src
-
-State space: two dimensions per cat — =energy= (continuous, every action
-drains or restores) and =alive= (binary, specific effects can kill).
-Orthogonal: you can be dead with energy left, or alive with none.
+Open: viket drag flagged broken under real mouse (unreproducible from
+agent — needs hardware verification); 0% bone telemetry wired to live
+signals (adapters drafted, not committed); orient 90/270 crown layout
+(semantic-right chosen, not implemented for vertical crowns); viket
+menu needed to re-open H; tabs are read-only mocks.
 
 ** Phase 13: Skinner Demo Suite [DONE 2026-04-09]
+=/skinner= route + 3 cat fixture vectors (house/alley/kitten) + 10
+interactive skin demos (tree, palette, radial, table, card, breadcrumb,
+dag, terminal, form, list). New typology primitives:
+=Vector.prototype.survey(visit)= (recursive walk + optional fold),
+=object.pluck= (pick + strip-undefined), =stamp.press(vector)= (lossy
+JSON serialization).
 
-*Outcome*: =/skinner= route with sidebar nav, 3 cat fixture vectors,
-10 interactive skin demos. Each skin invokes live effects through
-=steer.invoke=, mutates state, renders results inline.
+Survey leaves receive ={signature, effect}=; branches receive
+={signature, effects, trajectories}= — visitor distinguishes by presence.
+Stamp output: =nature= outside signature (identity vs metadata); arrays
+not objects (duplicate natures preserved); branches carry =children=.
+TypeBox schemas pass through as-is.
 
-Files created:
+Files: =gestalten/stamp/{press,index}.js=, =gestalten/steer/navigate.js=
+(=survey= delegate), =gestalten/belt/object.js= (=pluck=),
+=prototypes/vector.js= (=Vector.prototype.survey=). Tests:
+=tests/gestalten/steer/survey.test.js= (6 specs), =stamp/press.test.js=
+(2 specs), =tests/scenarios/cats/index.js= (shared fixture).
 
-- =routes/skinner/+layout.svelte= — sidebar nav (140px, all 10 skins)
-- =routes/skinner/+page.svelte= — index showing pressed JSON of all 3 cats
-- =routes/skinner/cat.js= — =house()=, =alley()=, =kitten()= factories
-- =routes/skinner/invoke.js= — shared =invoke(vector, path, input)= +
-  =defaults(schema)= (generates dummy values from JSON Schema types)
-- =routes/skinner/{tree,palette,radial,table,card,breadcrumb,dag,terminal,form,list}/+page.svelte=
+Followups: skins not yet extracted to =drapes/skins/=; no keyboard nav
+within skins; radial uniform arc (no weighted sizing); DAG layout naive;
+form skin lacks TypeBox =Value.Errors= validation; no =directed=-
+signature skin yet (the original target consumer of stamp).
 
-Skins:
+** Phase 14: Panel & Bone Isolation [DONE 2026-04-09]
+Extracted all 12 layout entities into individual files. =panels/= (a, b,
+c, d, e, f, g, h) and =bones/= (shoulder, crown, pincer, spine).
+=SkeletonProvider= stripped from all panels. Introduced =view.js= —
+=View= class with nanostore atoms (=$g=, =$h=). Split
+=bonesForOrientation= from 2-bone (crown+spine) to 4-bone model
+(shoulder+crown+pincer+spine). ~400 lines of dead CSS removed. Page
+reduced from ~1700-line monolith to layout engine + gesture system +
+mocks.
 
-| Skin | Interaction | Key feature |
-|------+-------------+-------------|
-| *tree* | click effects to invoke, expand/collapse trajectories | collapsible file-tree with inline results |
-| *palette* | click any row, fuzzy filter | command palette with search input |
-| *radial* | hover highlights arcs, click invokes | SVG pie/ring menu, nested rings for children |
-| *table* | click rows to invoke | spreadsheet with path/keyed/valence/input/output/result columns |
-| *card* | click effect cards, click child buttons in trajectory cards | grid of cards, trajectories show child buttons |
-| *breadcrumb* | click into trajectories, click effects to invoke, tab between cats | breadcrumb trail navigation with back-tracking |
-| *dag* | click nodes to invoke, results float above | SVG directed graph, trajectories are highlighted nodes |
-| *terminal* | type =cat/path= to invoke, =state cat= to inspect, =help= for listing | REPL-style command line |
-| *form* | fill fields from input schema, submit invokes | auto-generated forms from TypeBox =input= schemas |
-| *list* | click items to invoke | minimal vertical stack, =nature · valence= per line |
+** Phase 15: State Primitive Isolation [DONE 2026-04-10]
+=store(defaults, serialize)= factory — generic nanostore primitive (atom
++ getter/setter + toJSON per field, one-liner per entity). Replaces
+verbose class-per-entity pattern. =layout.js= holds geometry constants
+(=BONE_THICKNESS=, =PINCER_SIZE=, =HALF=, =EDGE_PADDING=, snap grid),
+pure layout functions (=rectsForOrientation=, =bonesForOrientation=,
+=clamp=, =snapToGrid=), and the singleton =layout= store.
 
-All skins show live state (=energy=, =alive=) per cat, updated after
-each invocation. State mutation is visible across repeated clicks.
+Position variable renamed =viket= → =pincer= throughout (the junction
+*is* the pincer). =VIKET_SIZE= → =PINCER_SIZE=. CSS class =.viket= and
+DOM element name unchanged (component, not position).
 
-Typology additions:
+M2 (mock extraction + prop drilling elimination, =mock.js=, =view.js=
+retrofit, ~530-line dead block deleted, composed =$client= root) ALSO
+DONE — completed alongside M1.
 
-- =gestalten/stamp/press.js= (new) — =press(vector)= via survey + pluck
-- =gestalten/stamp/index.js= (new) — barrel
-- =gestalten/index.js= — added =stamp= export
-- =gestalten/index.client.js= — added =stamp= export (browser bundle)
-- =gestalten/steer/navigate.js= — added =survey(vector, visit)= (delegates to prototype)
-- =gestalten/belt/object.js= — added =pluck(obj, keys)=
-- =prototypes/vector.js= — added =Vector.prototype.survey(visit)=
+Stays inline (transient, no identity): Gesture, Radial, Flash.
 
-Tests:
+** Phase 16: Context Architecture + Root Layout [DONE 2026-04-10]
+3 contexts: LIGHTHOUSE, QUARTERS, BRIDGE. =setContext= called
+unconditionally at component init; gate controls whether children
+render, not whether contexts exist. Boot vectors retired —
+=verify/populate/boot= (lighthouse), =construct/populate/resolve=
+(daemon).
 
-- =tests/gestalten/steer/survey.test.js= — 6 specs: identity visitor
-  (structure, pairs, nesting, signatures), custom visitor (leaf
-  transform, branch fold, leaf/branch discrimination)
-- =tests/gestalten/stamp/press.test.js= — 2 specs: full shape equality
-  against expected literal, JSON roundtrip survival
-- =tests/scenarios/cats/index.js= — shared fixture used by both test
-  suites and skinner demo
+Files: =lighthouse/lifecycle.js=, =daemon/lifecycle.js=,
+=lighthouse/index.js=, =daemon/index.js=, =typology/mod.js=
+(=@vivalence/html= barrel). =vite.config.mjs= alias =@vivalence/html=
+→ =src/typology/mod.js=.
 
-Followups:
-- Skins are page-level demos, not reusable components yet. Extracting
-  them into =drapes/skins/= as ={SkinTree, SkinPalette, ...}= props-
-  driven components is the obvious next step once the shapes stabilize.
-- No keyboard navigation within skins. Palette has a filter input but
-  no arrow-key selection. Terminal has a prompt but no tab-completion.
-- Radial menu geometry is basic — uniform arc division, no weighted
-  sizing. A real radial skin would size slices by significance.
-- DAG layout is naive (horizontal spread). A force-directed or
-  Sugiyama layout would handle deeper/wider trees.
-- Form skin generates dummy defaults (=number→5=, =integer→3=). Real
-  forms need validation feedback via TypeBox =Value.Errors=.
-- No skin for the =directed= signature yet — the directory viewer
-  that consumes =variant/icon/label/collapsed= hints. That's the skin
-  that stamp was originally conceived to feed.
+=routes/+layout.svelte= creates lighthouse from env, hydrates, sets
+LIGHTHOUSE context. Gate computed from =$isAuthorized= + =$status=
+(OFFLINE / ERROR / SESSION_EXPIRED / auth transitions). =onMount= calls
+=boot()=. Pincer =+page@.svelte= → =+page.svelte= (inherits root layout);
+CSS imports moved to root layout.
+
+Spine wires real signals (=$status= + =$daemons= via =getContext=).
+=mock.js= telemetry data removed; session mock + =systemAlert= retained.
+
+** Phase 17: Quarters + Bridge Contexts [DONE 2026-04-10 / M4 2026-04-11]
+
+QUARTERS: =LocalRepository=-backed terminals. =Terminal= class minimal
+={id, slug}= (thread holds daemon/mode/intent). =$active= persisted
+separately (=viva.quarters.active=); restores on hydrate, falls back to
+first terminal. Crown self-serves from QUARTERS context.
+
+BRIDGE: layout store + view store + geometry engine in
+=typology/stores/bridge.js=. =store()= factory extracted to
+=typology/stores/store.js=. Pincer =layout.js= / =view.js= / =d/= deleted.
+Panel D stubbed.
+
+Blur gate: blur overlay renders on top of children when
+=terminalCount === 0=. =backdrop-filter: blur(12px)=, skeleton-0 surface
+70%, click spawns terminal.
+
+THREAD (M4): single navigational context (consolidates DAEMON+MODE).
+=stores/thread.js= — =create(quarters, lighthouse)= → =$current= atom,
+=.set(thread)=, =.clear()=. Resolves daemon+mode markers via lighthouse.
+Reacts to =$active= and =$daemons=. When terminal has no thread,
+THREAD = =null=; panels guard before reading daemon/mode.
+
+Panel D "outside": navigation Vector composed from LIGHTHOUSE =$daemons=,
+rendered via =Tree= drape skin (3 branches: threads, modes, intents).
+=navigation.js= — =compose(quarters, lighthouse, threadContext)= builds
+Vector with =openFromMode=, =openFromIntent=, =resume= effects. Panel D
+"inside" (has thread): =composeThread(thread)= as 2-3 column inline
+table. Panel F: =Dag= drape skin driven by thread buffers. B panel:
+"clear" deletes all terminals.
+
+M5 — Typology consolidation: folded =src/lighthouse/=, =src/daemon/=,
+=src/entities/= into =src/typology/= with =prototypes/= (raw classes),
+=lifecycles/= (class re-exports + lifecycle fns), =stores/= (reactive
+state), =skins/= (UI components), =entities/= (Terminal only). Vite alias
+=@vivalence/html/skins= added.
+
+ThreadSchema.beforeCreate fix: now uses =args.em.findOne(IntentEntity)=
+to populate intent from FK ID. Previously exited early because
+=intent.traits= was undefined on unpopulated reference.
+
+LocalRepository: 115 lines, 25 test steps green.
+=typology/prototypes/local-repository.js= — Map-backed identity,
+nanostores =$entities= atom, =find/findOne/has/count/create/merge/update/
+remove/drop/clear=, optional =persist(key)= for localStorage, prototype
+wrapping via =kind=.
+
+* Open Questions (Finn decisions)
+
+- Per-route layout state vs global localStorage blob — currently global
+  by default; per-route is more natural for users (different layout per
+  mode) but more complex.
+- Panel A/B/C/D/E/F/G/H are placeholder letters; need real names
+  (mode-bar, left-rail, stage, inspector, etc.) before production.
+- Modeline location: panel A or H? (Phase 5 wiring decision pending.)
+- D/E/F orientation modes (tree, icons, list, map) not enumerated.
+- Notch behavior (crown notch above B collapse when viket left-aligns)
+  not implemented; may be deferred indefinitely.
+- Keyboard interface to viket — if layout is the OS shell, shortcuts
+  are eventually mandatory.
+- DAEMON / MODE symbols still exported from =$client= post-M4
+  consolidation; pending removal.
+- Old wafer files retained as reference but no longer invoked from boot;
+  delete?
+
+* Gaps
+
+- 0% of bone telemetry wired to live signals (Phase 12 followup;
+  =lighthouse.$status= + =$daemons= adapters drafted, not committed).
+- Viket drag broken under real mouse (Phase 12 followup; agent can't
+  synthesize real pointerdown — needs hardware verification).
+- Orient 90/270 crown layout (semantic-right chosen, not implemented).
+- Viket menu needed to re-open H now that it defaults off.
+- Tab open/close, terminal lifecycle (Phase 12 mocks): no new/close,
+  drag-to-reorder, or wiring to actual terminal mounts.
+- =Input/Textarea= drape components not yet migrated to skeleton vars.
+- 5 active html files outside pincer still use legacy vars (Phase 11
+  followup).
+- Visual browser smoke test not run (would require long-lived server).
+- Pictogram blink affects whole image — eye-only blink awaits Phase 6
+  vectorization.
+- H bar font size 9px unreadable on mobile; needs responsive sizing.
+- G overlay close affordance: if H closed, no way to re-open H without
+  viket menu (not yet built).
+- Animation on orientation change is snap; should tween smoothly.
+- Skins not extracted to reusable =drapes/skins/= components.
+- No skin for =directed= signature (the original stamp consumer).
 
 * Decisions
 
 | Decision | Choice | Rationale |
 |----------+--------+-----------|
-| Layout primitive name | T-bone | Visual metaphor matches the structure (crown + stem). "Layout" was too generic. |
-| Junction controller name | Viket | Already exists as a brand element. Reuses the pictogram. The viket has always been an anchor. |
-| Bones as DOM siblings | Yes | Addressable, animatable, themable independently. Borders-on-panels was rejected because you can't restyle a single bone segment. |
-| Bones color | sk1-surface + theme-primary-boundary | Modeline material from screenshot reference. Not sk4 (too dark, too distinct). |
-| Viket shape | Square (no radius) | User explicitly chose this. Modeline button feel. |
-| Viket size = bone thickness | Yes | The junction = the viket. Anything else creates a gap. |
-| Panel collapse to 0 | Yes | User explicitly required. Allows full-screen single-panel modes. |
-| Snap grid | Fibonacci-ish percentages | Discussed earlier. Combines dominant common positions (0/50/100) with golden-ratio-ish secondaries. |
-| Snap distance | 28px (2× default) | User explicitly doubled it. |
-| Sticky hold | Yes | User wanted post-release radial. Long-press → release → menu stays. |
-| H as panel not float | Yes | User explicitly moved it from a floating box to a 50px top bar. |
-| G as overlay not panel | Yes | G slides in from right, doesn't claim layout space permanently. Different from H. |
-| Pictogram format | SVG-wrapped PNG (for now) | Real vector vectorization is Phase 6. Element-level animation is sufficient for current needs. |
-| Layout state shape | Flat JSON blob | Serializable, JSON-patchable, transportable, easy to version. |
-| Token namespace | =--colors-...= raw form | User stated preference. No Tailwind utility classes for colors. |
-| Mobile-first | Pointer events + touch-action: none | One unified gesture handler set; works on touch + mouse + pen. |
-| Context count | 3 (LIGHTHOUSE, QUARTERS, BRIDGE) | Ship metaphor. Lighthouse = identity/daemons, Bridge = app shell (layout+view), Quarters = terminals. Daemons in lighthouse (crew manifest at the lighthouse, not quarters). |
-| Context internals | store() + domain commands | Every context is a store() instance with methods mixed in. Uniform internal model. |
-| Terminal state | Minimal {id, slug} | Thread holds daemon/mode/intent/phase. Terminal is an ephemeral client-side session pointer. |
-| Quarters backend | LocalRepository (Map-backed) | No EM needed — Map IS the identity map. Same CRUD surface as RemoteRepository. In-memory with optional localStorage persist. |
-| Color model | Flat scoped skeletons | Global =theme= + =system= groups produce accidentally-legible colors. Per-skeleton populated sets fix legibility and enable context-aware components. |
-| Skeleton shape | 27 scalars, flat, no disabled role | Role-by-role statespace analysis. Structural roles static (1). Emphasis + semantic interactive (3: base/hover/active). =error= as a box triplet. Disabled handled via opacity at component level. |
-| CSS var naming | Explicit, always | =--colors-skeleton-1-primary-base= never shorthand. Grep-able, predictable, every consumer identical in shape. |
-| Value pickup | Factory + middleware | Each skeleton hand-picks ~12 anchors; =skeleton({...})= factory + =interactive= / =box= helpers fan out the rest. ~60 numbers parameterize the whole 5-skeleton system. Middleware chain leaves room for future transforms. |
-| Root palette count | 10 (IRON/DEEP/GOLD/AQUA/INDIGO/MOSS/AMBER/RUST/SLATE/PINK) | 12-step ramps each. Shared color space; skeletons differ gradially and contrastively within it. Vibe: dark scandinavian, nordsee meets concrete. |
-
-* Gaps
-
-- Panel naming: A/B/C/D/E/F/G/H are placeholder letters. Need real
-  names eventually (mode-bar, left-rail, stage, inspector, etc.).
-  Letters are fine for prototyping, must be replaced before this is
-  used in production.
-- Per-route layout state vs global: localStorage one blob for the whole
-  app, or per-route? Per-route is more natural for users (different
-  layout for repl vs game vs settings) but more complex to implement
-  and confusing on first visit.
-- D/E/F orientation modes (tree, icons, list, map, etc.) are not yet
-  implemented or even fully enumerated. Currently D/E/F just render as
-  flex children of C with margin and border-radius.
-- Notch behavior: the original design said the crown notch above B
-  could collapse when viket left-aligns. This isn't implemented and
-  may be deferred indefinitely if it's not needed.
-- The viket pictogram blink affects the whole image (scaleX +
-  scaleY). To blink only the eye, the SVG needs to be re-traced
-  (Phase 6).
-- Keyboard controls: there's no keyboard interface to the viket yet.
-  Should there be? If the layout is the OS shell, keyboard shortcuts
-  are mandatory eventually.
-- Multi-touch: pinch to zoom panels, two-finger rotate orientation?
-  Not designed.
-- The fix that the viket shrinks proportionally with bone thickness:
-  if you change =BONE_THICKNESS=, the viket follows. But the pictogram
-  size is hard-coded at 36px. Should it be a fraction of viket size?
-  Probably yes.
-- The H bar font size (9px) is very small. Works on desktop, may be
-  unreadable on mobile. Needs responsive sizing.
-- G overlay close button is inside the G overlay header. If G is
-  closed, you re-open it from H. If H is closed (later when hide is
-  added), there's no way to re-open H. Need a permanent "show H"
-  affordance — perhaps part of the viket's tap menu.
-- The state dump in H is large and scrolls. Should it be in a
-  collapsible section, or moved to a separate dev panel?
-- Animation for orientation change: currently snapping. Should be a
-  smooth tween from old layout to new layout. Looks janky right now.
-
-* Changelog
-
-- 2026-04-07: Created. Phase 1 (pip prototype) marked DONE based on
-  the working file at =systems/html/src/routes/pip/+page@.svelte=.
-  Architecture, terminology, control-token clusters, viket gesture
-  state machine all documented. Phases 2-7 are pending. Decisions
-  table captures all the user-driven choices made during the
-  prototype iteration. Method file
-  =methods/totem:4-quadrant-component-development.md= written
-  alongside this workpackage.
-- 2026-04-08: Added *Dapper Skeleton Rebuild* section. Flat scoped
-  skeletons — global =theme= and =system= collapse into each skeleton.
-  27 scalars per skeleton, role-by-role statespace derivation, no
-  =disabled= role. =error= modeled as a box triplet (surface/contrast/
-  boundary). Factory + middleware value pickup. 10 root color spaces
-  (IRON/DEEP/GOLD/AQUA/INDIGO/MOSS/AMBER/RUST/SLATE/PINK). 5 skeletons
-  (0–4) mapped to pincer regions. Explicit CSS variable naming. Four
-  milestones added as Phases 8–11: M1 dapper roots + builder, M2 dapper
-  belt + CSS vars, M3 drapes context + component migration, M4 pincer
-  panel wrapping + bag demo. Skeleton[1] committed as worked example
-  (main work area). Decisions table extended with 5 new rows covering
-  color model, skeleton shape, CSS naming, value pickup, root palette.
-- 2026-04-08: *M1 → M4 landed*. All four phases marked DONE.
-  Dapper test suite green (6 specs, 34 steps). Files: dapper
-  =primitives/colors.js= (10 root ramps), =primitives/builders.js=
-  (factory), =themes/dark.js= (5 skeletons), =belt/tailwind-theme.js=
-  (createSkeletonVariant + safelist), =mod.js= (exports);
-  drapes =context/{SkeletonProvider.svelte,useSkeleton.js,index.js}=
-  (new), migrated =controls/{Button,Link}=, =display/{Tag,Label,Header,
-  Paragraph,ErrorBox}=, =decor/{Text,Audio}=, =panels/{loader/Loader,
-  icon/Icon}=; pincer =routes/pincer/+page@.svelte= (5 SkeletonProviders
-  + bulk var migration), =TreeView.svelte= (context-aware),
-  =NodeGraph.svelte= (rewritten with convex-hull bag rendering for
-  3-trunk + 14-bag-member demo). =systems/html/tailwind.config.js= now
-  imports dapper =safelist=. Followups: 5 active html files outside
-  pincer still use legacy vars; visual browser smoke test not yet run;
-  =Input/Textarea= drapes components not yet migrated.
-- 2026-04-08: *Phase 12 — bone population, crown tabs, twig drag*.
-  Three-iteration design path (slavic brutalist + scandinavian
-  minimalist personas, negotiated). Spine carries lighthouse-cluster +
-  daemon dots with worst-of-N aggregation, an aqua endcap, and a 1Hz
-  heartbeat scanline. Viket promoted to keystone (2px primary border,
-  inset glow, aqua-tinted pictogram with cathode drop-shadow). Crown
-  bone melted into skeleton-1 surface so the H modeline (now hidden by
-  default) is the only "bright" horizontal. System alert rail at
-  viewport top when worst-of-system is =down=. *Crown left*: phase
-  meter + activity glyph (state + buffer count, animated aqua
-  pull-sweep). *Crown right*: terminal tab strip — =row= flowing
-  rightward from viket, newest next to viket, horizontal scroll, 96px
-  max-width with stem-cutting ellipsis (=direction: rtl= + LRM
-  injection — keeps the *tail* of the breadcrumb visible). 7 mocked
-  =terminals[]=. Both crown regions absolutely positioned off
-  =--viket-x=, =overflow: hidden=, container query hides meters when
-  crown-left < 190px. Twig drag handles wired for real (24px centered,
-  pixel-pinning so adjacent panes don't drag each other; =def-e= flex
-  switches to =1 1 ${px}= so closing a flank lets E expand). Viket
-  start position → lower-left corner. NodeGraph hull update wrapped
-  in rAF single-flight scheduler (kills the
-  ="setOption should not be called during main process"= warning
-  spam). =onMount= defensively resets gesture/radial state to survive
-  HMR. Stale html files (=routes/+page.svelte=, =routes/+layout.svelte=,
-  =terminal/Modeline.svelte=, =terminal/Stream.svelte=, old
-  =client.css=) moved to =src/bak/sweep-2026-04-08/=. Fresh
-  =client.css= written at original path with new skeleton vars (still
-  needed as postcss/tailwind pipeline entry). Vite dev server
-  hot-restarted once mid-session because postcss plugin modules were
-  cached and serving stale CSS (palette.gray instead of roots.iron).
-  Open: viket drag flagged broken under real mouse (unreproducible
-  from agent side); 0% of bone telemetry wired to live signals
-  (=lighthouse.$status= + =lighthouse.$daemons= adapters drafted, not
-  committed); orient 90/270 crown layout (semantic-right chosen but
-  not implemented for vertical crowns); viket menu needed to re-open
-  H now that it defaults off; tabs are read-only mocks (no new/close/
-  reorder, no terminal lifecycle wiring).
-- 2026-04-09: *Phase 13 — Skinner vector skin lab*. New typology
-  primitives: =Vector.prototype.survey(visit)= (recursive walk with
-  optional fold), =object.pluck= (pick + strip-undefined),
-  =stamp.press= (lossy JSON serialization via survey + pluck). Design
-  iterated through several output shapes: keyed objects → arrays with
-  effects/trajectories split → unified array with =children= on
-  branches. Survey evolved from standalone steer function → prototype
-  method with identity-default visitor (eliminating ternary branches).
-  Key design decisions: nature outside signature (identity vs metadata),
-  arrays not objects (duplicate natures are a feature), survey keeps
-  steer vocabulary (effects/trajectories) while stamp merges to
-  =children=. Three cat fixture vectors (house/alley/kitten) with
-  5 signature types (nature, keyed, valence, directed, input, output)
-  and 2-dimensional state (energy + alive). 10 interactive skin demos
-  at =/skinner= with sidebar nav. All skins invoke live effects through
-  =steer.invoke=, show state mutations, render results inline. Tests:
-  survey (6 specs) + press (2 specs) + shared cat scenario fixture.
-- 2026-04-09: *Phase 14 — panel & bone isolation*. Extracted all 12
-  layout entities into individual component files. =panels/= directory:
-  a (label), b (G/H toggles), c (gutter owner, imports d/e/f),
-  d (vector tree demo — absorbed old =d/PanelD.svelte=), e (label
-  placeholder), f (node graph), g (system tray overlay), h (HUD bar).
-  =bones/= directory: shoulder (session telemetry — phase, activity,
-  buffers), crown (terminal tab strip), pincer (junction square),
-  spine (lighthouse + daemon status dots). =SkeletonProvider= stripped
-  from all panels. Introduced =view.js= — =View= class with nanostore
-  atoms (=$g=, =$h=) for overlay visibility. Atoms bridged to Svelte 5
-  =$state= via =.subscribe()=. Panel B toggles G/H through
-  =view.toggle()=; H bar and G close button share the same store. Split
-  =bonesForOrientation= from 2-bone (crown + spine) to 4-bone model:
-  shoulder (left of viket), crown (right of viket), pincer (viket
-  square), spine (below viket). ~400 lines of dead CSS removed from
-  page. Viket gesture system remains inline — last piece to extract.
-  Page reduced from ~1700 line monolith to layout engine + gesture
-  system + session mock data.
-- 2026-04-10: *Phase 15 M2 + Phase 16 design + LocalRepository*.
-  Mock data extracted to =mock.js=. =view.js= retrofitted to =store()=
-  one-liner. Dead code purged. Prop drilling eliminated from all
-  panels/bones except crown. Composed =client= root in =$client=.
-  Designed context architecture: 3 symbols (LIGHTHOUSE, QUARTERS,
-  BRIDGE) — ship metaphor. Daemons stay in LIGHTHOUSE (the manifest
-  is at the lighthouse, not the quarters). Terminal stripped to
-  ={id, slug}= — thread holds daemon/mode/intent. Quarters backed by
-  =LocalRepository= — new typology primitive (115 lines, 25 test steps
-  green) next to =RemoteRepository=. Same CRUD surface, Map-backed
-  identity, no EM needed. Boot sequence designed: =setContext= at init,
-  gate controls render, contexts populate progressively.
-- 2026-04-10: *Phase 16 design — context architecture + functional
-  lifecycle*. Retired boot vectors (wafers) for client lifecycle —
-  replaced with standalone functions over data: =verify(lighthouse)=,
-  =populate(lighthouse)=, =boot(lighthouse)=; =construct(daemon)=,
-  =populate(daemon)=, =resolve(daemon)=. Classes stay pure state
-  containers. Root layout gate designed: create lighthouse → hydrate →
-  =setContext(LIGHTHOUSE)= → =onMount= calls =boot()= → gate
-  =ready=/=auth=. Login keeps props (layout has the ref). Pincer drops
-  CSS imports (root layout provides). Three milestones: M1 lifecycle
-  functions, M2 root layout gate, M3 spine wires real signals.
-- 2026-04-10: *Phase 17 design — quarters + thread contexts*. Client
-  expanded to 6 symbols: 3 structural (LIGHTHOUSE, QUARTERS, BRIDGE —
-  set once at boot) + 3 navigational (THREAD, DAEMON, MODE — reactive,
-  follow active terminal). Context store directory at
-  =typology/stores/=. Quarters backed by =LocalRepository=. Thread is
-  the pivot — daemon and mode are getters on it, set as separate
-  contexts for consumer convenience. Layout owns the full reactive
-  chain: active terminal → thread → daemon + mode. Page is pure state
-  representation. Blur overlay on zero terminals. Three milestones:
-  M1 quarters context + terminal repo, M2 blur gate, M3 thread/daemon/
-  mode contexts.
-- 2026-04-10: *Phases 16 + 17 landed*. All structural contexts
-  implemented. LIGHTHOUSE: functional lifecycle (=verify/populate/boot=
-  + daemon =construct/populate/resolve=), computed gate from
-  =$isAuthorized= + =$status=, login/error/offline views, logout in
-  panel B, spine wired to real =$status= + =$daemons=. QUARTERS:
-  =LocalRepository=-backed terminals with =Terminal= class, persisted
-  =$active=, blur overlay on zero, crown self-serves from context.
-  BRIDGE: layout + view stores + geometry engine migrated from pincer
-  locals to =typology/stores/bridge.js=, =store()= factory extracted to
-  =store.js=. All panels/bones pull contexts via =getContext=. Root
-  layout at =routes/+layout.svelte= sets all 3 structural contexts,
-  gate cascade controls render. =@vivalence/html= barrel exports all
-  context modules. Dead code deleted: =pincer/layout.js=,
-  =pincer/view.js=, =pincer/d/=. Panel D stubbed. Zero console errors.
-  Open: THREAD/DAEMON/MODE navigational contexts, =systemAlert= from
-  real context, session mock in shoulder, =client.bak.js= deletable.
-- 2026-04-10: *Phase 15 M1 — layout store*. Created =store()= factory
-  in =layout.js= — generic nanostore primitive generator from a defaults
-  spec (atom + getter/setter + toJSON per field, one-liner per entity).
-  Extracted all geometry constants, pure layout functions
-  (=rectsForOrientation=, =bonesForOrientation=, =clamp=, =snapToGrid=,
-  orientation helpers), and =layout= singleton store into =layout.js=.
-  Renamed position variable =viket= → =pincer= (the junction point IS
-  the pincer). =VIKET_SIZE= → =PINCER_SIZE=. =panels/h.svelte= prop
-  updated. Page lost ~150 lines. Gesture handlers write through
-  =layout.*= setters. Entity inventory via totem facets c+d documented
-  in Phase 15 section. Session/Telemetry/Terminals stores deferred —
-  need external wiring.
-
-** Phase 15: State Primitive Isolation [IN PROGRESS]
-
-*Outcome*: every distinct state entity in the pincer page becomes a
-nanostore primitive on par with =View=. The page becomes a thin shell —
-mount, wire stores to DOM, gesture handlers write into stores.
-
-*** Methodology
-
-Used totem facets c (data/state) and d (interaction model) to enumerate
-entities and classify them as durable state vs transient process. Facets
-a (visible) and b (DOM) deferred — we're carving statespace, not
-designing components.
-
-*** Entity inventory
-
-| Entity       | Nature          | Fields                                                    | Serializes? | Shared across components? |
-|--------------+-----------------+-----------------------------------------------------------+-------------+---------------------------|
-| *Layout*     | state           | pincer {x,y}, previous {x,y}, standard {x,y}, orientation, viewport {w,h} | yes (the layout blob) | yes — rects, bones, panels, H bar |
-| *View*       | state           | g, h (overlay visibility)                                 | yes         | yes — B, G, H panels      |
-| *Session*    | process (mock)  | phase, buffers, pulling, stalled                          | no          | yes — shoulder bone        |
-| *Telemetry*  | data (mock)     | lighthouses[], daemon {status, latencyMs}                 | no          | yes — spine bone, alert rail |
-| *Terminals*  | data (mock)     | terminal[], activeTerminal                                | no          | yes — crown bone           |
-| *Gesture*    | transient       | pointerId, downAt, downX/Y, startPincerX/Y, tapCount, timers, isDragging, isLongPress, fromSticky | no | no — page only |
-| *Radial*     | transient       | show, sticky, snap                                        | no          | no — page only             |
-| *Flash*      | transient       | kind (tap1/tap2/tap3/null)                                | no          | no — page only             |
-
-*** Classification
-
-Nanostore store candidates (shared, durable, or identity-bearing):
-- *Layout* — the layout blob from the workpackage spec. Core primitive. DONE.
-- *View* — done (=view.js=, Phase 14).
-- *Session* — mock now, will wire to real process signals later.
-- *Telemetry* — mock now, will wire to lighthouse/daemon atoms.
-- *Terminals* — mock now, will wire to terminal lifecycle.
-
-Stays inline (transient, page-only, no identity):
-- *Gesture* — only matters during a pointer interaction.
-- *Radial* — gesture-adjacent, only viket + radial template read it.
-- *Flash* — ephemeral scalar, 240ms lifetime.
-
-*** store() factory
-
-Replaced the verbose class-per-entity pattern (atom + getter + setter
-per field) with a generic =store(defaults, serialize)= factory. Takes a
-defaults spec, returns an object with =$key= atoms, =key= get/set via
-=Object.defineProperty=, and =toJSON()= scoped to the =serialize= keys.
-One-liner per entity:
-
-#+begin_src js
-export const layout = store(
-  { pincer: { x: 0, y: 0 }, previous: { x: 0, y: 0 }, ... },
-  ["pincer", "previous", "standard", "orientation"],
-);
-#+end_src
-
-=View= can retrofit to a one-liner via the same factory. =toggle()=
-would become a standalone helper or stay as a custom method.
-
-*** M1 — Layout store [DONE 2026-04-10]
-
-- [X] =layout.js= (new): =store()= factory, all geometry constants
-      (=BONE_THICKNESS=, =PINCER_SIZE=, =HALF=, =EDGE_PADDING=, snap
-      grid), all pure layout functions (=rectsForOrientation=,
-      =bonesForOrientation=, =clamp=, =snapToGrid=, orientation helpers),
-      =layout= singleton store instance.
-- [X] Renamed position variable =viket= → =pincer= throughout active
-      code. The junction point IS the pincer — the file is =pincer/=.
-      CSS class =.viket= and DOM element unchanged (that's the component
-      name, not the position). =VIKET_SIZE= → =PINCER_SIZE=.
-      =gesture.startViketX/Y= → =gesture.startPincerX/Y=.
-- [X] =panels/h.svelte=: prop =viket= → =pincer=, display label updated.
-- [X] Page: deleted ~150 lines (constants, pure functions, layout
-      functions, bare =$state= declarations). Imports =layout= +
-      functions from =./layout.js=. Bridges 5 atoms to =$state= via
-      =.subscribe()=. Gesture handlers write through =layout.*= setters.
-- [X] =viewport= excluded from =toJSON()= — window-derived, not user state.
-- [X] svelte-check: zero new errors in pincer files.
-
-Open:
-- Session, Telemetry, Terminals stores — deferred, these need external
-  wiring (lighthouse/daemon atoms, terminal lifecycle) which is a harder
-  problem.
-- =view.js= retrofit to =store()= factory — DONE (Phase 15 M2).
-- Dead code block — DONE (Phase 15 M2, deleted).
-
-** Phase 16: Context Architecture + Root Layout [DONE 2026-04-10]
-
-*Outcome*: the HTML client boots through a gated root layout. Three
-Svelte contexts (LIGHTHOUSE, QUARTERS, BRIDGE) provide all shared state.
-Components pull contexts instead of receiving props. Boot vectors
-(wafers) retired — lifecycle is standalone functions over data.
-
-*** Architecture decisions
-
-- 3 context symbols: =LIGHTHOUSE=, =QUARTERS=, =BRIDGE= (ship metaphor).
-- Daemons stay in LIGHTHOUSE — the manifest is at the lighthouse.
-  Terminals hold refs to their daemon. Consumers reach dataspaces
-  through the terminal's daemon reference.
-- Terminal stripped to ={id, slug}= — thread holds daemon/mode/intent.
-- Quarters backed by =LocalRepository= (typology primitive).
-- State is data. Lifecycle is functions over data. No boot vectors,
-  no wafer orchestration on the client.
-- =setContext= called unconditionally at component init. Gate controls
-  whether children render, not whether contexts exist.
-- Functional lifecycle: =verify(lighthouse)=, =populate(lighthouse)=,
-  =boot(lighthouse)=. Daemon: =construct(daemon)=, =populate(daemon)=,
-  =resolve(daemon)=. Each class stays a pure state container.
-
-*** M1 — Lighthouse lifecycle functions [DONE 2026-04-10]
-
-- [X] =lighthouse/lifecycle.js= (new): =verify(lighthouse)=,
-      =populate(lighthouse)=, =boot(lighthouse)=. =populate= fetches
-      manifest + daemon POJOs, constructs each daemon via daemon
-      lifecycle functions, stores in =lighthouse.daemons= Map.
-- [X] =daemon/lifecycle.js= (new): =construct(daemon)=, =populate(daemon)=,
-      =resolve(daemon)=. =construct= fetches manifest + schema + cargo.
-      =populate= creates Dataspace with 6 repos (mode, intent, thread,
-      buffer, trace, literal), populates mode + intent. =resolve= wires
-      mode mounts/connections/intents, intent emitters, repo resolve fns.
-- [X] =lighthouse/index.js= (new): barrel for Lighthouse class + hydrate +
-      lifecycle functions.
-- [X] =daemon/index.js= (updated): added lifecycle exports alongside
-      existing wafer export.
-- [X] =typology/mod.js= (new): =@vivalence/html= barrel. Exports
-      =lighthouse=, =daemon=, =quarters=, =bridge= namespaces.
-- [X] =vite.config.mjs=: added =@vivalence/html= alias →
-      =src/typology/mod.js=.
-- [X] Wafer files retained as reference, no longer invoked from boot.
-
-*** M2 — Root layout gate [DONE 2026-04-10]
-
-- [X] =routes/+layout.svelte= (new): creates lighthouse from env,
-      hydrates, sets LIGHTHOUSE context. Gate computed from
-      =$isAuthorized= + =$status= (OFFLINE, ERROR, SESSION_EXPIRED,
-      auth transitions). Separate views: auth → Login, error → retry,
-      offline → reconnect. =onMount= calls =boot()=, idempotent
-      =populate= subscription on =$isAuthorized=. Cleanup on unmount.
-- [X] =lighthouse/Login.svelte=: unchanged, keeps ={lighthouse,
-      onConnected}= props.
-- [X] Pincer =+page@.svelte= → =+page.svelte= (renamed, inherits root
-      layout). CSS imports removed (root layout provides).
-- [X] Panel B: logout button wired to =lighthouseInstance.logout()=,
-      gate reactively drops to =auth=.
-
-*** M3 — Spine wires real signals [DONE 2026-04-10]
-
-- [X] =bones/spine.svelte=: pulls =LIGHTHOUSE= context via =getContext=.
-      Subscribes to =$status= (derives lighthouse health: ok/lag/down)
-      and =$daemons= (derives aggregate daemon health from connection
-      states). Tooltip shows live status code.
-- [X] =mock.js=: lighthouse/daemon/worstStatus data removed. Session
-      mock + =systemAlert= (hardcoded false) retained.
-
-** Phase 17: Quarters + Bridge Contexts [DONE 2026-04-10]
-
-*Outcome*: terminals managed by a =LocalRepository= in the QUARTERS
-context. Bridge owns layout store + view store + geometry engine.
-All pincer-local singletons eliminated — everything flows through
-contexts. Blur overlay on zero terminals — the app never exists
-without a terminal.
-
-*** Symbol inventory
-
-=$client= exports 6 symbols. Three are set once at boot (structural).
-Three are reactive, following the active terminal (navigational).
-
-| Symbol       | Set by      | Lifecycle            | Provides                          |
-|--------------+-------------+----------------------+-----------------------------------|
-| =LIGHTHOUSE= | layout init | once (boot)          | auth, identity, daemons Map       |
-| =QUARTERS=   | layout init | once (boot)          | terminal LocalRepository, active  |
-| =BRIDGE=     | layout init | once (boot)          | layout store + view store         |
-| =THREAD=     | layout      | reactive (follows active terminal) | thread entity, buffers, turns |
-| =DAEMON=     | layout      | reactive (follows thread)          | thread.daemon                 |
-| =MODE=       | layout      | reactive (follows thread)          | thread.mode                   |
-
-*** Context store directory
-
-=systems/html/src/typology/stores/= — one file per context factory.
-
-| File             | Exports                              |
-|------------------+--------------------------------------|
-| =store.js=       | =store(defaults, serialize)= — generic nanostore primitive factory |
-| =quarters.js=    | =create()= → LocalRepository + =$active= + spawn/close/activate, =Terminal= class |
-| =bridge.js=      | =create()= → layout store + view store + toggle + geometry constants + layout functions |
-
-LIGHTHOUSE uses the existing =Lighthouse= class directly (no factory
-wrapper needed). THREAD, DAEMON, MODE are derived — set by layout from
-the active terminal, not factories.
-
-*** M1 — Quarters context + terminal repo [DONE 2026-04-10]
-
-- [X] =typology/stores/quarters.js= (new): =create()= factory.
-      Uses =LocalRepository= from typology with =Terminal= kind.
-      Terminal shape: ={id, slug}=, proper class with =toJSON()=.
-      Exposes =spawn(slug)=, =activate(id)=, =close(id)=. =$active=
-      atom ($ prefix for reactives). Persists =$active= to localStorage
-      separately (=viva.quarters.active=). Restores active on hydrate,
-      falls back to first terminal if stored ID missing.
-- [X] =typology/entities/terminal.js= (updated): proper class with
-      constructor, id, slug, toJSON.
-- [X] =LocalRepository= added to =prototypes/index.client.js= exports.
-- [X] =$client= (=client.js=): 6 symbols — LIGHTHOUSE, QUARTERS, BRIDGE,
-      THREAD, DAEMON, MODE.
-- [X] =routes/+layout.svelte=: creates barracks via =quarters.create()=,
-      =setContext(QUARTERS)=. Only spawns if no terminals survived
-      persistence.
-- [X] Crown bone: pulls =QUARTERS= context, subscribes to
-      =terminals.$entities= and =$active=. Renders tabs, spawn/activate.
-      Zero props from page.
-
-*** M2 — Blur gate on zero terminals [DONE 2026-04-10]
-
-- [X] Layout template: blur overlay renders ON TOP of children when
-      =terminalCount === 0=. Click spawns terminal, blur disappears
-      reactively. =backdrop-filter: blur(12px)=, skeleton-0 surface
-      at 70% opacity, centered "open terminal" prompt.
-- [X] Closing last terminal triggers blur (not error). App always
-      rendered underneath.
-
-*** M3 — Bridge context + geometry migration [DONE 2026-04-10]
-
-- [X] =typology/stores/bridge.js= (new): =create()= returns
-      ={ layout, view, toggle }=. Also exports all geometry constants
-      (=BONE_THICKNESS=, =PINCER_SIZE=, =HALF=, =EDGE_PADDING=, snap
-      grid) and pure layout functions (=clamp=, =snapToGrid=,
-      =rectsForOrientation=, =bonesForOrientation=, =snapToOrientation=,
-      =orientationToSnap=, =snapLabel=).
-- [X] =typology/stores/store.js= (new): =store()= factory extracted
-      from old =pincer/layout.js=. Shared by bridge and quarters.
-- [X] =routes/+layout.svelte=: creates bridge via =bridge.create()=,
-      =setContext(BRIDGE)=.
-- [X] Pincer page: pulls ={ layout }= from BRIDGE context. Imports
-      geometry from =@vivalence/html= (=bridge= namespace, destructured).
-- [X] Panels b, g, h: pull ={ view, toggle }= from BRIDGE context.
-- [X] =pincer/layout.js= deleted (constants + geometry moved to bridge).
-- [X] =pincer/view.js= deleted (state moved to bridge).
-- [X] =pincer/d/= directory deleted (dead vector demo).
-- [X] Panel D stubbed to placeholder (was importing deleted =d/=).
-- [X] =@vivalence/html/bridge= alias removed — all imports through
-      =@vivalence/html= barrel.
-
-*** M4 — Thread context + Panel D navigation [DONE 2026-04-11]
-
-Design decision 2026-04-11: consolidated DAEMON and MODE into THREAD.
-Single navigational context. =thread.mode= and =thread.mode.daemon=
-are accessors, not separate contexts. Simplifies from 6 to 4 symbols
-(LIGHTHOUSE, QUARTERS, BRIDGE, THREAD). DAEMON/MODE symbols in
-=$client= pending removal.
-
-- [X] Layout derives THREAD from active terminal's thread reference.
-      =stores/thread.js= — =create(quarters, lighthouse)= returns
-      =$current= atom, =.set(thread)=, =.clear()=. Resolves daemon+thread
-      markers on terminal via lighthouse. Reacts to =$active= and =$daemons=.
-      =setContext(THREAD, threadInstance)= in root layout.
-- [X] When terminal has no thread (empty/new), THREAD context is =null=.
-      Panels guard on =thread !== null= before reading daemon/mode.
-- [X] Panel D "outside" view: navigation Vector composed from
-      LIGHTHOUSE =$daemons=, rendered via =Tree= drape skin. Three top
-      branches: threads, modes (SELFEVIDENT), intents.
-- [X] =navigation.js=: =compose(quarters, lighthouse, threadContext)=
-      builds Vector with real effects. =openFromMode=, =openFromIntent=,
-      =resume= — all set thread context.
-- [X] Panel D "inside" (has thread): =composeThread(thread)= display
-      vector rendered as slim 2-3 column inline table.
-- [X] Panel F: =Dag= drape skin driven by thread buffers.
-- [X] B panel: "clear" button wired to delete all terminals.
-- [X] Crown: =quartersInstance.$terminal= computed for active terminal.
-      Close button on active tab.
-- [X] Terminals spawn with =null= slug. Display "unnamed" when no slug.
-- [X] Empty terminal overlay with blur, click to spawn.
-
-*** M5 — Typology consolidation [DONE 2026-04-11]
-
-Folded =src/lighthouse/=, =src/daemon/=, =src/entities/= into
-=src/typology/= with new structure:
-- =prototypes/= — raw classes (Lighthouse, Daemon, Dataspace, Entity,
-  Mode, Intent, Thread, Buffer, Terminal, registry)
-- =lifecycles/= — domain aggregates (class re-exports + lifecycle fns)
-- =stores/= — reactive state (quarters, bridge, thread, store factory)
-- =skins/= — UI components (=skins/lighthouse/Login.svelte=)
-- =entities/= — Terminal only (kept for quarters LocalRepository)
-
-Vite alias =@vivalence/html/skins= added. Barrel =mod.js= exports
-namespace aggregates (=lighthouse=, =daemon=, =quarters=, =bridge=,
-=thread=) + flat entity exports.
-
-*** Thread beforeCreate hook fix [DONE 2026-04-11]
-
-=ThreadSchema.beforeCreate= now uses =args.em.findOne(IntentEntity)=
-to populate the intent when it arrives as a foreign key ID. Previously
-the hook always exited early because =intent.traits= was undefined on
-an unpopulated reference. Trait + trait JSON merging now works
-server-side as designed.
-
-*** M2 — Mock extraction + prop drilling elimination [DONE 2026-04-10]
-
-- [X] =mock.js= (new): extracted all mock telemetry data — lighthouses[],
-      daemon, session, derived aggregates (=worstStatus=,
-      =lighthouseAggregate=, =lighthouseTooltip=, =sessionActivityStatus=,
-      =sessionActivityLabel=, =systemAlert=).
-- [X] =view.js= retrofitted to =store()= factory — one-liner.
-      =toggle()= as standalone helper.
-- [X] Dead code block deleted (~530 lines commented-out old version).
-- [X] Composed =client= root object in =$client= (=lighthouse + quarters=).
-- [X] Prop drilling eliminated from spine, shoulder, H, G, B panels —
-      each component imports its own dependencies from =mock.js=,
-      =view.js=, =layout.js= directly. Props reduced to =rect= only.
-- [X] Crown still prop-drilled (terminals, active, quarters) — last
-      remaining component not self-serving.
-
-** Phase 16: Context Architecture [DESIGN]
-
-*Outcome*: the client serves state via Svelte contexts instead of module
-singletons. A root =+layout.svelte= gates auth and populates contexts.
-Panels pull contexts by symbol. No prop drilling.
-
-*** Architecture decisions
-
-3 contexts, 3 symbols exported from =$client=:
-
-| Symbol       | Provides                                              | Gate     |
-|--------------+-------------------------------------------------------+----------|
-| =LIGHTHOUSE= | identity, auth, connection, daemons Map               | gate 1   |
-| =QUARTERS=   | terminal repository (LocalRepository), active id      | gate 2   |
-| =BRIDGE=     | layout store + view store (the app shell)              | gate 2   |
-
-Metaphor: a ship at sea. The lighthouse knows what's out there
-(identity, daemons). You cross the bridge (layout, view — the app
-shell). The quarters are where you work (terminals).
-
-*** Context internal model
-
-Every context is =store(defaults, serialize) + domain commands=:
-
-- State: nanostores atoms (=$key=), getters (=key=), =toJSON()=
-- Commands: domain methods that write atoms
-- Served: =setContext(SYMBOL)= in layout, =getContext(SYMBOL)= in consumers
-
-*** Terminal model
-
-Terminal no longer holds =$phase=, =$daemon=, =$mode=, =$thread=,
-=$intent= — those belong on the thread. Terminal is minimal:
-={ id, slug }=. Thread is the focal entity that connects a user to a
-mode's content.
-
-Quarters renamed to *barracks* internally. Backed by a =LocalRepository=
-— same CRUD surface as =RemoteRepository= but in-memory with optional
-localStorage persistence. No entity manager needed (the Map IS the
-identity map; no server to batch-flush to).
-
-*** Boot sequence
-
-1. =+layout.svelte= creates all 3 contexts unconditionally (=setContext=
-   must run at component init, not inside =$effect=).
-2. Gate 1: lighthouse auth check. If not authorized → login screen.
-3. Gate 2: daemons discovered. If not → loader.
-4. On ready: =barracks.spawn()= seeds one empty terminal.
-5. ={@render children()}= — page and panels can now =getContext()=.
-
-*** Gating constraint
-
-=setContext= runs at init time, gate controls whether =children()=
-renders. Contexts exist before the gate opens; their *content* populates
-progressively. Consumers only render after the gate, so they always see
-populated state.
-
-*** LocalRepository [DONE 2026-04-10]
-
-- [X] =typology/prototypes/local-repository.js= (new, 115 lines):
-      =LocalRepository= class — Map-backed identity, nanostores
-      =$entities= atom, =find/findOne/has/count/create/merge/update/
-      remove/drop/clear=, optional =persist(key)= for localStorage,
-      prototype wrapping via =kind=.
-- [X] =typology/tests/local-repository.test.js= (new, 25 steps green):
-      CRUD, identity (merge upsert, field preservation, null handling),
-      update (in-place patch, reactivity), prototype wrapping, clear.
-      Mirrors =RemoteRepository= test structure for interchangeability.
-
-Open:
-- Wire exports (=index.client.js=, =index.ts=) — not yet added.
-- Barracks context factory (=createBarracks()=) — designed, not implemented.
-- Root =+layout.svelte= with gate cascade — designed, not implemented.
-- Bridge context factory (=createBridge()=) — not yet designed.
-- Crown self-serve from =QUARTERS= context — diff proposed, not applied.
-- Persistence round-trip test for LocalRepository.
+| Layout primitive name | T-bone | Crown + stem visual metaphor; "Layout" too generic. |
+| Junction controller | Viket (component) / pincer (position) | Brand element with existing pictogram. The junction IS the pincer. |
+| Bones as DOM siblings | Yes | Addressable, animatable, themable per-segment. Borders-on-panels rejected. |
+| Bones color | sk1-surface + theme-primary-boundary | Modeline material from screenshot ref. |
+| Viket shape | Square (no radius) | User explicit. Modeline button feel. |
+| Panel collapse to 0 | Yes | Allows full-screen single-panel modes. |
+| Snap grid | Fibonacci-ish percentages, 28px gravity | Combines dominant points (0/50/100) with golden-ratio secondaries. |
+| Sticky hold | Yes | Long-press → release → menu stays. |
+| H as panel, G as overlay | Yes | H is 50px top bar; G slides in from right. |
+| Layout state | Flat JSON blob | Serializable, JSON-patchable, transportable. |
+| Token namespace | =--colors-...= raw form | No tailwind utility classes for colors. |
+| Mobile-first | Pointer events + =touch-action: none= | Unified gesture handler set. |
+| Context count (M4) | 4 — LIGHTHOUSE, QUARTERS, BRIDGE, THREAD | Down from 6; DAEMON/MODE consolidated into THREAD. |
+| Context internals | =store() + domain commands= | Uniform internal model. |
+| Terminal state | Minimal ={id, slug}= | Thread holds daemon/mode/intent/phase. |
+| Quarters backend | =LocalRepository= (Map-backed) | Map IS identity map; same CRUD as RemoteRepository. |
+| Color model | Flat scoped skeletons (5×27 scalars) | Per-skeleton populated sets fix legibility across panes. |
+| CSS var naming | Explicit, always (=-base= included) | Grep-able, predictable. |
+| Value pickup | Factory + middleware (~60 anchors total) | =skeleton({...})= + =interactive=/=box= helpers. |
+| Root palettes | 10 (IRON/DEEP/GOLD/AQUA/INDIGO/MOSS/AMBER/RUST/SLATE/PINK) | 12-step ramps. Vibe: dark scandinavian, nordsee + concrete. |
+| Lifecycle on client | Functional — data + standalone fns | Boot vectors retired; classes stay pure state. |
+| Stamp output | =nature= outside signature; arrays; =children= on branches | Identity vs metadata; duplicate natures preserved; consumer doesn't care effects/trajectories distinction. |
+
+* Changelog (collapsed)
+
+- 2026-04-07: Created. Phase 1 prototype DONE.
+- 2026-04-08: Dapper Skeleton Rebuild section added; M1-M4 (Phases 8-11) landed.
+- 2026-04-08: Phase 12 — bone population, crown tabs, twig drag.
+- 2026-04-09: Phase 13 — Skinner vector skin lab; Phase 14 — panel/bone isolation.
+- 2026-04-10: Phase 15 (state primitive isolation, =store()= factory, =viket=→=pincer= rename) + Phase 16 (context architecture, root layout gate) + Phase 17 M1-M3 (QUARTERS + BRIDGE).
+- 2026-04-11: Phase 17 M4 — THREAD context consolidates DAEMON+MODE; Panel D navigation Vector; Panel F Dag skin. M5 — typology consolidation. ThreadSchema.beforeCreate FK populate fix.

@@ -1,38 +1,59 @@
-import { assess, weakest, shuffle } from "./tools.js";
-// ── adverbs ────────────────────────────────────────────────────────
-// grouped by subtype: time, degree, discourse. prefers time first.
+import { array } from "@vivalence/typology";
 
 export default async (ctx) => {
-  const time = await ctx.survey("word", ["word.part-of-speech.adverb", "functional.time"]);
-  const degree = await ctx.survey("word", ["word.part-of-speech.adverb", "functional.degree"]);
-  const discourse = await ctx.survey("word", ["word.part-of-speech.adverb", "functional.discourse"]);
-
-  const grouped = [time, degree, discourse].filter((g) => g.length);
-  const all = grouped.length
-    ? [...new Map(grouped.flat().map((f) => [f.id, f])).values()]
-    : await ctx.survey("word", ["word.part-of-speech.adverb"]);
-
+  const game = ctx.daemon.modes.game;
+  const all = await ctx.daemon.entities.literal.find(
+    {
+      ...ctx.input.where,
+      ontology: "word",
+      symbols: [...(ctx.input.where?.symbols ?? []), "word.part-of-speech.adverb"],
+    },
+    { populate: ["memories"] },
+  );
   if (!all.length) return;
 
-  const { phase } = assess(all);
-  const unseen = all.filter((f) => !f.memory);
-
-  if (phase === "FAMILIARIZE") {
-    const unseenTime = time.filter((f) => !f.memory);
-    const source = unseenTime.length ? unseenTime : unseen;
-    if (source.length) {
-      ctx.pool.add(ctx.mode.emit.introduce({ items: shuffle(source).slice(0, 4), title: "Adverbs" }));
-    } else {
-      ctx.pool.add(ctx.mode.emit.drill({ items: shuffle(weakest(all, 6)).slice(0, 3), distractors: all, phase }));
-    }
-  } else if (phase === "EXPAND") {
-    if (unseen.length) {
-      ctx.pool.add(ctx.mode.emit.introduce({ items: shuffle(unseen).slice(0, 3), title: "More adverbs" }));
-    } else {
-      ctx.pool.add(ctx.mode.emit.reinforce({ items: shuffle(weakest(all, 6)).slice(0, 3) }));
-    }
-  } else {
-    const bottom = weakest(all, 4);
-    ctx.pool.add(ctx.mode.emit.hunt({ items: bottom.length ? bottom : shuffle(all).slice(0, 3), distractors: all }));
+  const virgin = all.filter((word) => !word.memory);
+  if (virgin.length) {
+    ctx.pool.add(
+      game.exhibit.emit.present({ layout: "TABLE", title: "Adverbs", literals: virgin }),
+    );
   }
+
+  const distractors = all;
+  const practice = ctx.pool.section();
+
+  for (const word of all) {
+    if (!word.memory || word.memory.is.virgin) {
+      practice.add(
+        game.judge.emit.literal({
+          literal: word,
+          distractors,
+          recall: "LEARNING",
+          speed: { rate: "SLOW" },
+        }),
+      );
+    } else if (word.memory.is.failed) {
+      practice.add(
+        game.judge.emit.literal({
+          literal: word,
+          distractors,
+          recall: "LEARNING",
+          speed: { rate: "FAST" },
+        }),
+      );
+    } else if (word.memory.is.weak) {
+      practice.add(game.write.emit.literals({ literal: word, recall: "LEARNING" }));
+    }
+  }
+
+  if (all.length >= 4) {
+    practice.add(
+      game.match.emit.batch({
+        literals: all.slice(0, 6),
+        gameplay: "TRANSLATE",
+        recall: "LEARNING",
+      }),
+    );
+  }
+  practice.apply(array.shuffle);
 };

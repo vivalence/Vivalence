@@ -1,8 +1,10 @@
 <script>
-  import { array } from "@vivalence/typology";
+  import { array, string } from "@vivalence/typology";
   import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
+
+  // console.log("LISTEN", { terminal, buffer });
 
   let keyboard;
 
@@ -27,7 +29,11 @@
   let shuffled = $state([]);
   let hinted = $state(false);
 
-  const target = $derived(data.target ? literals.find((l) => l.id === data.target) : literals[0]);
+  const target = $derived(
+    data.target
+      ? literals.find((l) => l.id === data.target)
+      : literals[currentIndex] ?? literals[0],
+  );
   const isWord = $derived(target?.symbol?.word);
   const asset = $derived(terminal.daemon.getAsset(target?.trait?.VOCALIZED?.asset));
   const total = $derived(gameplay === "TYPE" ? literals.length : 1);
@@ -49,6 +55,7 @@
   const example = $derived(target?.trait?.EXEMPLIFIED);
   const learningExample = $derived(example?.learning);
   const knownExample = $derived(example?.known);
+  const hintExample = $derived(activeRecall === "KNOWN" ? learningExample : knownExample);
   const learningValue = $derived(target?.trait?.TRANSLATED?.learning);
   const knownValue = $derived(target?.trait?.TRANSLATED?.known);
 
@@ -73,37 +80,15 @@
     shuffled = array.shuffle(literals);
   }
 
-  function normalize(text) {
-    if (!forgiving) return text.toLowerCase().trim();
-    return text
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[?.!,;:'"'´`~\-—]/g, "")
-      .trim();
-  }
-
-  function parseAlts(s) {
-    return s
-      .split("/")
-      .map((alt) => alt.replace(/\(.*?\)/g, "").trim())
-      .filter(Boolean);
-  }
+  const normalize = (text) =>
+    forgiving ? string.fold(text) : text.toLowerCase().trim();
 
   function evaluateTyped() {
     if (!answer) return false;
-    const alts = parseAlts(answer);
+    const alts = string.separate(answer);
     const got = normalize(typed);
 
-    // exact match on any single alt
     if (alts.some((alt) => got === normalize(alt))) return "correct";
-
-    // all alts combined, word-order agnostic ("next nearby" for "next / nearby")
-    if (alts.length > 1) {
-      const inputWords = new Set(got.split(/\s+/));
-      const altWords = new Set(alts.flatMap((alt) => normalize(alt).split(/\s+/)));
-      if (inputWords.size === altWords.size && [...altWords].every((w) => inputWords.has(w))) return "correct";
-    }
 
     return "wrong";
   }
@@ -164,6 +149,7 @@
   );
   const typeResult = $derived(answered && gameplay === "TYPE" ? evaluateTyped() : null);
   const answerExample = $derived(activeRecall === "KNOWN" ? knownExample : learningExample);
+  const answerReveal = $derived(isWord ? answerExample : hint);
   const resultTokens = $derived.by(() => {
     if (!answered || gameplay !== "TYPE" || isWord) return null;
     const tokens = target?.trait?.ANNOTATED?.tokens;
@@ -239,10 +225,7 @@
         <span class="meta-lang">Listen</span>
         <span class="meta-type">{isWord ? "word" : "sentence"}</span>
         {#if total > 1}<span class="meta-type">{position}/{total}</span>{/if}
-      </div>
-
-      {#if !answered}
-        <div class="audio-row">
+        {#if !answered}
           <div class="audio-block">
             {#if asset}
               <Asset autoplay={true} {asset} />
@@ -250,10 +233,20 @@
               <span class="no-audio">no audio available</span>
             {/if}
           </div>
+        {/if}
+      </div>
+
+      {#if !answered}
+        {#if hint}
           <button class="hint-toggle" onclick={() => (hinted = !hinted)}>
-            {#if hinted}<span class="hint-text">{hint}</span>{:else}<span class="hint-label">?</span>{/if}
+            {#if hinted}
+              <span class="hint-term">{hint}</span>
+              {#if hintExample}<span class="hint-example">{hintExample}</span>{/if}
+            {:else}
+              <span class="hint-label">?</span>
+            {/if}
           </button>
-        </div>
+        {/if}
       {/if}
 
       {#if gameplay === "TYPE"}
@@ -278,8 +271,8 @@
                   </div>
                 {/if}
 
-                {#if isWord && answerExample}
-                  <p class="example revealed">{answerExample}</p>
+                {#if answerReveal}
+                  <p class="example revealed">{answerReveal}</p>
                 {/if}
               </div>
 
@@ -337,28 +330,44 @@
     {#if loading}
       <span class="menu-hint">loading…</span>
     {:else if gameplay === "TYPE"}
-      <input
-        class="field"
-        class:field-locked={answered}
-        bind:this={inputEl}
-        value={typed}
-        oninput={(e) => { if (!answered) typed = e.target.value; else e.target.value = typed; }}
-        onkeydown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!answered) submitType();
-            else advance();
-          }
-        }}
-        placeholder="{answerLabel}…" />
       {#if !answered}
-        <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submitType}>Check</button>
+        <input
+          class="field"
+          bind:this={inputEl}
+          value={typed}
+          oninput={(e) => { typed = e.target.value; }}
+          onkeydown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              e.stopPropagation();
+              submitType();
+            }
+          }}
+          placeholder="{answerLabel}…" />
+        <button
+          class="btn-check"
+          onmousedown={(e) => e.preventDefault()}
+          ontouchstart={(e) => e.preventDefault()}
+          onclick={submitType}>Check</button>
       {:else}
-        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>Next</button>
+        <span
+          class="fb-glyph"
+          class:ok={typeResult === "correct"}
+          class:wrong={typeResult === "wrong"}>
+          {typeResult === "correct" ? "✓" : "✗"}
+        </span>
+        <button
+          class="btn btn-next"
+          onmousedown={(e) => e.preventDefault()}
+          ontouchstart={(e) => e.preventDefault()}
+          onclick={advance}>Next</button>
       {/if}
     {:else if answered}
-      <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={advance}>Next</button>
+      <button
+        class="btn btn-next"
+        onmousedown={(e) => e.preventDefault()}
+        ontouchstart={(e) => e.preventDefault()}
+        onclick={advance}>Next</button>
     {:else}
       <span class="menu-hint">pick the {answerLabel}</span>
     {/if}
@@ -387,32 +396,29 @@
     color: var(--colors-skeleton-1-boundary);
   }
 
-  .audio-row {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
   .audio-block {
+    margin-left: auto;
     display: flex;
-    justify-content: center;
+    align-items: center;
   }
   .hint-toggle {
-    position: absolute;
-    right: 0;
+    align-self: flex-start;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.125rem;
     background: none;
     border: 1px solid var(--colors-skeleton-1-boundary);
     border-radius: 0.375rem;
     min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 1.5rem;
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: left;
+    color: inherit;
+    font-family: inherit;
   }
   .hint-toggle:hover {
     opacity: 1;
@@ -422,10 +428,18 @@
     font-size: 0.85rem;
     color: var(--colors-skeleton-1-boundary);
   }
-  .hint-text {
+  .hint-term {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.85rem;
+    font-size: 1.05rem;
+    line-height: 1.35;
     color: var(--colors-palette-gray-100);
+  }
+  .hint-example {
+    font-family: var(--font-family-serif-heading);
+    font-size: 0.9rem;
+    line-height: 1.35;
+    color: var(--colors-skeleton-1-boundary);
+    font-style: italic;
   }
   .no-audio {
     font-family: var(--font-family-code);
@@ -465,6 +479,27 @@
     font-size: 0.6rem;
     color: var(--colors-skeleton-1-boundary);
   }
+  .fb-glyph {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 0.5rem;
+    border: 1px solid var(--colors-skeleton-1-boundary);
+    font-size: 1.25rem;
+    font-family: var(--font-family-code);
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+  .fb-glyph.ok {
+    color: var(--colors-system-success-contrast);
+    border-color: var(--colors-system-success-contrast);
+  }
+  .fb-glyph.wrong {
+    color: var(--colors-system-error-contrast);
+    border-color: var(--colors-system-error-contrast);
+  }
   .fb-val {
     font-size: 1.25rem;
     font-family: var(--font-family-serif-heading);
@@ -478,8 +513,10 @@
 
   .example {
     font-family: var(--font-family-serif-heading);
-    font-size: 0.95rem;
-    color: var(--colors-skeleton-1-boundary);
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--colors-skeleton-1-contrast);
+    opacity: 0.7;
     font-style: italic;
     margin: 0;
   }
@@ -637,7 +674,6 @@
     box-sizing: border-box;
   }
   .field::placeholder { color: var(--colors-skeleton-1-boundary); }
-  .field-locked { opacity: 0.4; pointer-events: none; }
   .btn-check {
     min-height: 48px;
     padding: 0.75rem 1.25rem;

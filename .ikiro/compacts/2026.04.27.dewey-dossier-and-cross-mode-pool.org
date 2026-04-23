@@ -1,0 +1,138 @@
+#+TITLE: Dewey dossier · cross-mode pool delegation · dock geometry · mobile focus
+#+DATE: 2026-04-27
+#+TOPIC: teacher/dewey · tactic/survival/buildup · panels/a · game/listen · drapes preserveFocus
+
+* Arc
+Four threads over one session, after the morning's re-mode-ilization compact. Mostly infrastructure: making modes aware of state and surviving small mobile/desktop layout regressions.
+
+First — a dock geometry bug. =systems/html/src/routes/pincer/panels/a.svelte= had a =.panel= flex container that read =geometry.size=, =geometry.vertical=, and =geometry.side= but never applied =geometry.direction=, so flex-direction defaulted to =row= and only =side="right"= visually worked. =top=, =bottom=, =left= all dumped the dock to the right edge regardless. One-line fix: added =style:flex-direction={geometry.direction}= on the panel. The =flexDirection()= helper in =a/dock.geometry.js= already returned the correct row/row-reverse/column/column-reverse — it just wasn't read.
+
+Second — the survival/buildup tactic was emitting zero buffers at first activation despite 452 word literals matching =proficiency.survival=. Started runtime/watch, added 5 logs at junctions in =buildup.js= + 1 in =clinic/emitter/pronouns.js=, fired =pull= via the live UI through Chrome automation. Trace showed buildup found 452 literals, scored 8 valid theme buckets, picked 3 weakest, fired all 3 delegates with =hasTarget: true= — and ended with BUFFERS=0. Root cause: =await ctx.daemon.modes.tactic.clinic.emit[route](...)= runs through the EMITTER trait wrapper in =systems/runtime/daemon/traits/emitter.js=, which spins up a fresh =ctx.pool= per call, drains it, and returns =ctx.output = {condition: "NOMINAL", buffers: [...]}=. Buildup awaited the call but threw the return away, so the inner pool's buffers never reached buildup's outer pool. Fix: =ctx.pool.add(target({...}))=. =Pool.add= already understands promises and =condition/buffers= envelopes (=subsystems/typology/prototypes/pool.js:23=), so adding the unawaited promise also parallelizes the delegates as a bonus. Verified with a fresh pull through the UI — BUFFERS went 0 → 19 IDLE.
+
+Third — Dewey began as a thin =/dialogue= middleware that pulled 20 traces + 20 due literals and concatenated them into a learner-state prompt. Finn rejected the first cut ("no this is shit. i want the modes to know more than that") then redirected ("right idea, wrong bucket. for now we keep that in the mode. set it up such that we can use it as a toolcalling tool later and as a middleware now"). Lifted into =registry/modes/@vivalence/teacher/dewey/dossier.js=, colocated with the mode rather than the kernel, with =gather(ctx, where = {ontology: "word"})= returning ={histogram, weak, recent, due, mistakes, toPrompt(), toJSON()}=. Histogram showed UNTOUCHED=0 first because Memory entities only exist after first review — Finn flagged this ("untouched doesnt exist technically. its literals without memories given user"), fixed by adding =daemon.entities.literal.count(where)= and computing =UNTOUCHED = totalLiterals - memories.length=. Weak section showed UNTOUCHED items because =byStrength= orders NULL-strength literals first; fixed by pulling 20, filtering to memory-having, slicing 5. Then "cut this down to 50% but keep info" — dropped slug prefix (redundant with learning/known), English example sentence (gloss covers it), default UNKNOWN status, verbose section headers. Lines went from ~110 chars to ~52. Added chat etiquette to Dewey's persona ("you live inside vivalence, a language-learning system... small chat box on screen... no markdown, no bullets, no bold, no headings, no asterisks. Just sentences").
+
+Fourth — mobile keyboard regression in =Listen.svelte= TYPE mode. Between reviews, soft keyboard closed/reopened, jarring on phone. Cause: Check/Next buttons had =onmousedown preventDefault= but iOS Safari doesn't fire =mousedown= on touch (or fires it after =touchstart= resolves), so the focus-shift block never landed. Tap stole focus from the hidden =<Keyboard>= drape that parks focus, mobile keyboard closed, then advance() remounted the input and reopened it. Fix: added =ontouchstart preventDefault= to both buttons, mirroring the pattern already on the pick-option buttons (line 314). Then a theory thread: same root cause for the audio button, but Asset's inner button isn't ours to edit. Sketched =preserveFocus= as a Svelte action with capture-phase listeners on a wrapper, generalizable across all game modes — Finn confirmed scope ("this would apply generally to all modes") and proposed land it in drapes. Not applied yet.
+
+* Finn's voice (verbatim)
+
+#+BEGIN_QUOTE
+the dock isnt working as expected. the dockdoesnt dock to top right or bottom correctly.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+buildup shows session complete and exhausted even tho ive never done it and there are hundreds of literals ot be learned.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ikiro wakeup
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+use chrome
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+add some logs at key junctions
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+you must run the runtime / runtime/watch
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+you can also add the promise to the pool. go
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets start populating deweys reality. lets add some data first.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+no this is shit. i want the modes to know more than that.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+right idea, wrong bucket. for now we keep that in the mode. set it up such that we can use it as a toolcalling tool later and as a middleware now.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+harness.branch("/object").use(async (ctx, next) => { ctx.hallucination.tool("learner_state", tool(ctx)); await next(); });
+skip this
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+there are some issues. youre not covering the negative space. ie untouched doesnt exist technically. its literals without memories given user.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+also give dewey some chat etiquette. tell him where he is, and that hes chatting. no formatting or anything rn.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+last pass
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets cut this down to 50% but keep info
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+when you changed the feedback coms in the listen mode, you changed the way teh keyboard handles and now the keyboard on mobile triggers open/closed between reviews. find a way to keep the old behavior.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+is there a way to keep focus even when i hit the audio button? theory
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+this would apply generally to all modes
+#+END_QUOTE
+
+* Built · changed
+
+** systems/html/src/routes/pincer/panels/a.svelte
+Added =style:flex-direction={geometry.direction}= on the =.panel= container. =geometry.direction= was already computed in =a/dock.geometry.js= (returns =row= / =row-reverse= / =column= / =column-reverse= per side) but never read. With flex-direction now bound, top/right/bottom/left all dock to the correct edge.
+
+** registry/modes/@vivalence/tactic/survival/emitter/buildup.js
+Single-line behavioral fix wrapped in surface cleanup. Was =await ctx.daemon.modes.tactic.clinic.emit[theme.route]({...})= (return value discarded) — now =ctx.pool.add(ctx.daemon.modes.tactic.clinic.emit[theme.route]({...}))= (promise queued, drains into outer pool). =Pool.add= unwraps both the promise and the =Yield.NOMINAL/EXHAUSTED= envelope.
+
+** registry/modes/@vivalence/teacher/dewey/dossier.js — NEW
+Colocated with the mode (not the kernel — Finn redirected). =gather(ctx, where = {ontology: "word"})= returns:
+- =histogram= — counts by status; UNTOUCHED computed from negative space (=totalLiterals - memories.length=)
+- =weak= — pulls 20 from =byStrength=, filters to =l.memory= present, slices 5 (avoids the NULL-strength UNTOUCHED noise)
+- =recent= — last 20 traces with =learning/known/example/signal/status=
+- =due= — top 20 due literals with =overdueHours=
+- =mistakes= — last 5 traces filtered to MISTAKE/FAILURE
+- =toPrompt()= — compact line format =- learning (known) [meta] "ex_pt"=. Drops slug, drops English example sentence, drops default UNKNOWN status. ~52 chars/line vs ~110 before
+- =toJSON()= — same data without the prompt
+- =tool(ctx)= factory (also exported) for later LLM tool registration; not wired yet
+
+** registry/modes/@vivalence/teacher/dewey/dewey.viva.js
+Imports =gather= from =./dossier.js=. =/dialogue= middleware reduced to =const dossier = await gather(ctx); ctx.hallucination.add(dossier.toPrompt())=. Persona prompt extended with two lines: "you live inside vivalence, a language-learning system... small chat box on screen" and "this is a chat — keep replies short, conversational, and plain prose. Two or three sentences at a time. No markdown, no bullet points, no bold, no headings, no asterisks. Just sentences." =/object= branch left untouched per Finn's "skip this".
+
+** registry/modes/@vivalence/game/listen/Listen.svelte
+Added =ontouchstart={(e) => e.preventDefault()}= to the Check button (line ~347) and both Next buttons (TYPE and PICK paths, lines ~355 and ~358). Mirrors the pattern already on pick-option buttons. =onmousedown preventDefault= alone fails on iOS Safari for touch, so soft keyboard was closing/reopening between reviews.
+
+** memory: feedback_emitter_delegation_via_pool.md — NEW
+Logged the buildup bug pattern: when a tactic emitter delegates to another mode's emitter via =mode.emit.X(input)=, the call returns a fresh-pool drained envelope. Bare =await target(...)= drops it on the floor. Always wrap in =ctx.pool.add(target(...))=.
+
+* Decisions
+- Dossier lives in the mode (=teacher/dewey/dossier.js=), not the kernel. Finn: "right idea, wrong bucket. for now we keep that in the mode"
+- Dual-use shape: =gather()= returns ={...data, toPrompt, toJSON}=; =tool(ctx)= factory exported for later. Same assembler powers middleware now and LLM tool later
+- UNTOUCHED in histogram = literals-without-memory, computed via negative space — Memory rows only exist post-first-review, so the status enum's UNTOUCHED is structurally unreachable from memory queries alone
+- Default scope =gather(ctx, {ontology: "word"})= — covers words + conjugation forms; modes can narrow (e.g. ={symbols: ["proficiency.survival"]}=)
+- Prompt format ~50% shorter by dropping slug-prefix (redundant), English example (gloss covers), default UNKNOWN status, verbose headers
+- Pool.add(promise) over =await + add(result)= — promises collected and resolved at drain time, parallelizes the delegated emits
+- Dewey gets chat-channel context and explicit "no markdown" directive in persona — markdown was leaking through as literal asterisks in the chat box
+- =ontouchstart preventDefault= over =onmousedown preventDefault= for mobile-tap focus preservation; the latter doesn't fire reliably on iOS Safari
+- Theme labels in buildup remain hardcoded for v1 (still in the morning compact's open list); broken =functional.time/degree/discourse= symbols still silently drop their themes from bucket scoring — three of ten themes never select, but unrelated to the zero-buffer bug
+
+* Open · risks
+- =preserveFocus= Svelte action sketched (capture-phase mousedown+touchstart preventDefault wrapper) — generalizes the audio-button-focus-theft case across modes. Belongs in =subsystems/drapes/=. Pending Finn's go
+- After landing =preserveFocus=, ~6 lines per button across Listen/Judge/Write/Match/Cloze/Shadow can collapse to =use:preserveFocus=. Migration not started
+- Dossier =weak= section can still emit zero items if the user has <5 memories; "(none)" rendering may surprise. Acceptable for now
+- Dossier prompt is still ~3000 chars when fully populated (recent: 20 lines, due: 20 lines). Larger token budget than before; may want to log the actual injected size next session
+- =trace.createdAt= returns undefined in dossier records — the schema-level field isn't auto-loading on Trace entities. Worked around by dropping the =at= field from records. Probably needs explicit fields opt or schema property declaration
+- Cross-tactic =ctx.daemon.modes.tactic.clinic.emit[route]= delegation now verified on a real pull (was on this morning's open list). One concrete green case
+- =gather()= triggers four queries per dialogue turn (traces, due, byStrength×20, memory.find for histogram, literal.count). =memory.find({})= without limit could grow unbounded; revisit when the corpus exceeds a few thousand memories
+- Mobile keyboard fix verified at the spec level (= touch path now calls preventDefault), not yet on a real device by Finn

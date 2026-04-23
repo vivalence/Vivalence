@@ -1,46 +1,28 @@
-> This package is part of @vivalence/viva. Read the root orientation at $REPOSITORY/.ikiro/CLAUDE.md before working here — this subsystem does not stand alone.
->
-> These docs are **ikiro** — our shared development ontology. You are not just a consumer of ikiro. You are responsible for maintaining and improving it. When you learn something, fix something, or discover a gap, update these docs. This is not optional.
+# IKIRO — registry (container)
 
-# Registry
+Marketplace. Flat namespace of `.viva.js` manifests, indexed by paladin's VIP. Every kernel, mode, service, and circuit lives here. Read `.ikiro/CLAUDE.md` first.
 
-> Marketplace of composable packages. Kernels, modes, services, and wafers — discovered by manifest, loaded by VIP.
+## architecture
 
-## Role
+every entry exports `manifest`; paladin indexes by manifest coordinates.
 
-Feature + Domain + Infrastructure registry. Everything that makes the system do something specific lives here. The registry is a flat namespace of packages, each exporting a `.viva.js` manifest. Paladin's VIP system mounts directories, indexes manifests by owner/type/slug/version, and resolves them on demand via `accio()`.
+The registry has no runtime behavior — it is structure. Directories under `registry/{kind}/@vivalence/{type}/{slug}/{slug}.viva.js`. Each `.viva.js` exports `manifest` (the identity contract) plus type-specific content. Paladin's VIP mounts the registry, walks every `.viva.js`, parses each manifest, and registers in pensieve under owner → type → slug → version. Resolution is `paladin.vip.accio("@vivalence/{type}/{slug}@{version}")`.
 
-## Structure
+structure:
 
 ```
 registry/
-├── kernels/@vivalence/       Domain knowledge + data
-│   ├── domain/learning/      Language learning domain (entities, memory, aperture, modes)
-│   ├── ontology/word/        Word ontology (Universal Dependencies POS hierarchy)
-│   ├── ontology/sentence/    Sentence ontology (force, mood, tense, aspect)
-│   └── topology/             Language pair curricula
-│       ├── english-to-brazilian-survival/
-│       ├── english-to-brazilian-a1/
-│       └── english-to-brazilian-a2/
-├── modes/@vivalence/         Gameplay modes
-│   ├── game/flashcard/       Classic recall (VIEWABLE, BUFFERED, VALENTIC)
-│   ├── game/write/           Writing practice (VIEWABLE, VALENTIC)
-│   ├── game/shadow/          Shadow reading (VIEWABLE, VALENTIC, BUFFERED)
-│   └── tactic/test/          Production orchestrator (VALENTIC, PRODUCER)
-├── services/@vivalence/      Infrastructure (see services/.ikiro/claude.md)
-│   ├── datamap/libsql/
-│   ├── hallucinator/hal/
-│   ├── lighthouse/multiplayer/
-│   └── nlp/
-└── wafers/@vivalence/        Circuit definitions
-    ├── circuitry/runtime/    Runtime circuit
-    ├── circuitry/html/       Client circuit
-    └── variant/multiplayer/  Multiplayer variant
+├── kernels/@vivalence/    domain knowledge, ontologies, curricula  (see kernels/.ikiro/CLAUDE.md)
+├── modes/@vivalence/      game modes + tactics                      (see modes/.ikiro/CLAUDE.md)
+├── services/@vivalence/   provider/consumer infrastructure          (see services/.ikiro/CLAUDE.md)
+└── wafers/@vivalence/     circuits — system composition declarations
+    └── variant/multiplayer/   the active multiplayer variant
+        ├── server/runtime.viva.js
+        ├── server/daemon.viva.js
+        └── client/client.viva.js
 ```
 
-## .viva.js Manifest Pattern
-
-Every registry entry exports a `.viva.js` file as its entry point. The manifest is the identity contract:
+manifest contract:
 
 ```javascript
 export const manifest = {
@@ -49,42 +31,36 @@ export const manifest = {
   slug: "unique-identifier",
   name: "Human-readable name",
   version: "0.0.1",
-  traits: ["DATASET", "VIEWABLE", "BUFFERED", "VALENTIC", "PRODUCER", "FRAUGHT", ...],
+  traits: [...],
 };
 ```
 
-Beyond the manifest, entries export type-specific content:
+type-specific exports (beyond manifest):
 
-| Type | Additional Exports |
+| type | additional exports |
 |------|-------------------|
 | domain | entities, modes, traits, aperture |
 | ontology | dataset (symbol hierarchy) |
 | topology | dataset (literals + symbol associations) |
-| game | view, dataset (valences), optionally freight |
-| tactic | dataset (valences), production (Aperture pipeline) — migrating to emitter (Vector) |
+| game | buffer (BufferView), emitter (Vector), dataset (intent[]) |
+| tactic | emitter (composed Vector across phases), dataset (intent[]) |
 | service | provider(config), optionally aperture |
+| datamap / hallucinator / lighthouse | provider(config) (plus aperture for ATTACHED) |
 | circuit | runtime, clients, daemons[], services[] |
 
-## Discovery + Loading Flow
+discovery + loading:
 
-1. **Circuitry** declares module references as strings: `"@vivalence/domain/language-learning"`
-2. **Paladin** scans registry directories, imports all .viva.js files, registers in Pensieve (owner → type → slug → version)
-3. **VIP.accio(query)** resolves a string to the loaded module (with semver version matching)
-4. **Runtime** calls `accioMap` to bulk-resolve a daemon's entire dependency tree
+```
+1. circuitry declares module references as strings: "@vivalence/domain/language-learning"
+2. paladin scans registry directories on boot, imports every .viva.js, registers each in pensieve
+3. paladin.vip.accio(query) parses the string via cast.lookup() → fetches from pensieve
+   no version → highest via semver.compare; with version → semver.satisfies
+4. runtime calls accioMap(daemon.mask) to bulk-resolve a daemon's full dependency tree
+```
 
-## Kernel Types
+circuits (`wafers/`):
 
-Three types, each with a distinct role:
-
-**Domain** — the learning system itself. Exports entities (Literal, Symbol, Memory, Product), aperture (pick/review endpoints), mode prototypes (Game, Tactic), and traits. One domain per daemon.
-
-**Ontology** — symbol hierarchies. Word ontology follows Universal Dependencies (POS tags). Sentence ontology covers force/mood/tense/aspect. Ontologies export DATASET with symbols that get upserted into the database.
-
-**Topology** — language pair curricula. Each topology exports DATASET with literals (vocabulary items) and their symbol associations (POS, proficiency level, etc.). Literals carry data in trait-keyed structures: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED.
-
-## Circuit/Wafer Pattern
-
-Circuits (in wafers/) define system composition — which daemons run, which services they consume, which clients connect. A circuit's .viva.js exports:
+A circuit's `.viva.js` is the system declaration:
 
 ```javascript
 export const manifest = { type: "circuit", slug: "runtime" };
@@ -93,49 +69,43 @@ export const services = [...];
 export const daemons = [{
   slug, kernel: [...module refs], modes: [...module refs],
   lighthouse: {...}, datamap: {...}, hallucinator: {...},
-  consume: {...}
+  consume: {...},
 }];
 ```
 
-Paladin resolves circuits during `resolve.circuitry()` and compiles them into `paladin.variant`.
+Paladin's `resolve.circuitry()` finds these (filter `type=circuit`), then `resolve.variant()` compiles them into `paladin.variant` with mount points per daemon/service. Currently only `wafers/@vivalence/variant/multiplayer/` is active.
 
-## Where Used
+## context
 
-- **Paladin**: VIP mounts and indexes the entire registry
-- **Runtime**: Resolves all daemon dependencies from registry via accioMap
-- **Daemon lifecycle**: Modes, kernels, and services loaded from registry during populate phase
+consumers:
 
-## Work Packages
+- paladin — VIP mounts and indexes the entire registry on boot
+- runtime — resolves all daemon dependencies via `accioMap`
+- daemon lifecycle — modes, kernels, services loaded during populate phase
 
-### Testing Gaps
-- No registry-level integration tests for .viva.js loading
-- No tests for manifest validation (missing fields, version conflicts)
-- No tests for VIP resolution across registry entries
+testing gaps:
 
-### Human Documentation Needs (Divio)
-- **Tutorial**: "Create a new language learning daemon" — wire circuitry, add kernel references, pick modes
-- **How-to**: "Add a topology" — dataset format, literal/symbol contract, proficiency levels
-- **How-to**: "Add a new game mode" — manifest, view, dataset, traits
-- **Reference**: .viva.js contract specification per type
+- no registry-level integration tests for `.viva.js` loading
+- no manifest validation tests (missing fields, version conflicts)
+- no VIP cross-entry resolution tests
 
-### Active Work
-- New modes incoming ("shittons of games" — conjugation practice, more game types)
-- Asset entity type (VERBALIZED trait on literals, mp3 vocalization)
-- Note entity type (persistent cross-session state for modes)
-- Hallucinator service contract changing to faculty array — see [cortex.workpackage.org](../.ikiro/cortex.workpackage.org)
-- Buffer/Intent migration — mode trait renames, valence→intent dataset format change
-- Package manager — registry evolving into jj-driven discovery scopes — see [very-important-packagemanager.workpackage.org](../.ikiro/very-important-packagemanager.workpackage.org)
+active work:
 
-### Dead / Archived
-- `modes/bak/`: agent, strategy, tactic (old version), teacher — 11+ archived modes
-- `topology/bak/`: Spanish, Latin, and other language topologies
-- `services/hallucinator/hal/archive/`: Groq, OpenAI, Perplexity, TogetherAI providers
+- new modes incoming (Tier 2/3 — reorder, dictation, minimal-pair)
+- VOCALIZED / asset entity type — pending typology enum expansion (see `.ikiro/longdistance.workpackage.org`)
+- Note entity type (persistent cross-session state)
+- hallucinator → cortex contract migration (see `.ikiro/cortex.workpackage.org`)
+- VIP evolving toward jj-driven discovery scopes (see `.ikiro/very-important-packagemanager.workpackage.org`)
 
-## Maintenance
+archived:
 
-When adding a new registry entry:
-1. Create directory under the appropriate category: `registry/{type}/@vivalence/{slug}/`
-2. Export manifest + type-specific content from `{name}.viva.js`
-3. Wire into circuitry if needed (daemon kernel/modes, or system services)
-4. VIP will discover it automatically when the directory is mounted
-5. For modes: declare traits that match what the daemon's traitmap supports
+- `modes/@vivalence/game/bak/` — agent, strategy, tactic (old version), teacher, 11+ legacy modes
+- `kernels/@vivalence/topology/bak/` — Spanish, Latin, other languages
+- `services/@vivalence/hallucinator/bak/` — hal257 retired, plus Groq, OpenAI, Perplexity, TogetherAI legacy archive
+
+maintenance — adding a new entry:
+
+1. `registry/{kind}/@vivalence/{type}/{slug}/{slug}.viva.js`
+2. export manifest + type-specific content
+3. wire into circuitry (daemon's kernel/modes, or system-level service) if needed
+4. VIP discovers it automatically when its parent directory is mounted

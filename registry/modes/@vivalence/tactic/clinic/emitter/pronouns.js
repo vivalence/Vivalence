@@ -1,89 +1,59 @@
-import { analysis } from "./shards/analysis.js";
-import { routine } from "./shards/routine.js";
-
-// ── pronouns ───────────────────────────────────────────────────────
-// grouped by type: personal → demonstrative → interrogative → ...
-// weighted selection toward weakest group.
+import { array } from "@vivalence/typology";
 
 export default async (ctx) => {
-  const study = analysis(ctx);
-  const teach = routine(ctx);
-
-  const groups = new Map();
-  for (const type of ["personal", "demonstrative", "interrogative", "indefinite"]) {
-    const items = await study.find("word", {
-      where: { symbols: ["word.part-of-speech.pronoun", `word.pronoun-type.${type}`] },
-      populate: ["memories", "symbols"],
-    });
-    if (items.length) groups.set(type, items);
-  }
-  const reflexive = await study.find("word", {
-    where: { symbols: ["word.part-of-speech.pronoun", "word.reflexive.yes"] },
-    populate: ["memories", "symbols"],
-  });
-  if (reflexive.length) groups.set("reflexive", reflexive);
-  if (!groups.size) return;
-
-  const [type, data] = study.weightedPick(
-    [...groups.entries()],
-    ([, items]) => 1 - study.assess(items).avgStrength,
+  const game = ctx.daemon.modes.game;
+  const all = await ctx.daemon.entities.literal.find(
+    {
+      ...ctx.input.where,
+      ontology: "word",
+      symbols: [...(ctx.input.where?.symbols ?? []), "word.part-of-speech.pronoun"],
+    },
+    { populate: ["memories"] },
   );
+  if (!all.length) return;
 
-  const all = [...groups.values()].flat();
-  const unseen = data.filter((word) => !word.memory);
-  const label = `${type[0].toUpperCase() + type.slice(1)} pronouns`;
-  const phase = study.phase(data);
-
-  if (phase === "FAMILIARIZE") {
-    if (unseen.length) teach.familiarize(study.shuffle(unseen).slice(0, 4), { title: label });
-    else await teach.produce(study.shuffle(study.weakest(data, 6)).slice(0, 3), { distractors: all, withContext: false });
-  } else if (phase === "EXPAND") {
-    if (unseen.length) teach.familiarize(study.shuffle(unseen).slice(0, 3), { title: label });
-    else await teach.reinforce(study.shuffle(study.weakest(data, 6)).slice(0, 3));
-  } else {
-    const bottom = study.weakest(all, 4);
-    teach.stress(bottom.length ? bottom : study.shuffle(all).slice(0, 3), { distractors: all });
+  const virgin = all.filter((word) => !word.memory);
+  if (virgin.length) {
+    ctx.pool.add(
+      game.exhibit.emit.present({ layout: "TABLE", title: "Pronouns", literals: virgin }),
+    );
   }
-};
 
-// ── previous implementation — kept per code-history convention ─────
-// import { assess, weightedPick, weakest, shuffle } from "./tools.js";
-//
-// export default async (ctx) => {
-//   const types = ["personal", "demonstrative", "interrogative", "indefinite"];
-//   const groups = new Map();
-//   for (const type of types) {
-//     const data = await ctx.survey("word", ["word.part-of-speech.pronoun", `word.pronoun-type.${type}`]);
-//     if (data.length) groups.set(type, data);
-//   }
-//   const reflexive = await ctx.survey("word", ["word.part-of-speech.pronoun", "word.reflexive.yes"]);
-//   if (reflexive.length) groups.set("reflexive", reflexive);
-//   if (!groups.size) return;
-//
-//   const [type, data] = weightedPick(
-//     [...groups.entries()],
-//     ([, d]) => 1 - assess(d).avgStrength,
-//   );
-//
-//   const all = [...groups.values()].flat();
-//   const { phase } = assess(data);
-//   const unseen = data.filter((f) => !f.memory);
-//   const label = `${type.charAt(0).toUpperCase() + type.slice(1)} pronouns`;
-//
-//   if (phase === "FAMILIARIZE") {
-//     if (unseen.length) {
-//       ctx.pool.add(ctx.mode.emit.introduce({ items: shuffle(unseen).slice(0, 4), title: label }));
-//     } else {
-//       ctx.pool.add(ctx.mode.emit.drill({ items: shuffle(weakest(data, 6)).slice(0, 3), distractors: all, phase }));
-//     }
-//   } else if (phase === "EXPAND") {
-//     if (unseen.length) {
-//       ctx.pool.add(ctx.mode.emit.introduce({ items: shuffle(unseen).slice(0, 3), title: label }));
-//     } else {
-//       ctx.pool.add(ctx.mode.emit.reinforce({ items: shuffle(weakest(data, 6)).slice(0, 3) }));
-//     }
-//   } else {
-//     const bottom = weakest(all, 4);
-//     ctx.pool.add(ctx.mode.emit.hunt({ items: bottom.length ? bottom : shuffle(all).slice(0, 3), distractors: all }));
-//   }
-// };
+  const distractors = all;
+  const practice = ctx.pool.section();
+
+  for (const word of all) {
+    if (!word.memory || word.memory.is.virgin) {
+      practice.add(
+        game.judge.emit.literal({
+          literal: word,
+          distractors,
+          recall: "LEARNING",
+          speed: { rate: "SLOW" },
+        }),
+      );
+    } else if (word.memory.is.failed) {
+      practice.add(
+        game.judge.emit.literal({
+          literal: word,
+          distractors,
+          recall: "LEARNING",
+          speed: { rate: "FAST" },
+        }),
+      );
+    } else if (word.memory.is.weak) {
+      practice.add(game.write.emit.literals({ literal: word, recall: "LEARNING" }));
+    }
+  }
+
+  if (all.length >= 4) {
+    practice.add(
+      game.match.emit.batch({
+        literals: all.slice(0, 6),
+        gameplay: "TRANSLATE",
+        recall: "LEARNING",
+      }),
+    );
+  }
+  practice.apply(array.shuffle);
+};

@@ -1,8 +1,6 @@
 import { Vector } from "@vivalence/typology";
-import { extractParadigm } from "./tools.js";
 
-import regularConjugations from "./regular-conjugations.js";
-import irregularConjugations from "./irregular-conjugations.js";
+import conjugations from "./conjugations.js";
 import questions from "./questions.js";
 import connectors from "./connectors.js";
 import negation from "./negation.js";
@@ -12,45 +10,36 @@ import adverbs from "./adverbs.js";
 import numbers from "./numbers.js";
 import degrees from "./degrees.js";
 import prepositions from "./prepositions.js";
-import serEstar from "./ser-estar.js";
-
-import introduce from "./introduce.js";
-import drill from "./drill.js";
-import reinforce from "./reinforce.js";
-import hunt from "./hunt.js";
 import audioWords from "./audio-words.js";
 import audioSentences from "./audio-sentences.js";
 
+const regular = (ctx) =>
+  conjugations(ctx, {
+    symbols: ["word.regularity.regular"],
+    groups: ["ar", "er", "ir"].map((suffix) => ({
+      symbols: [`word.suffix.${suffix}`],
+      label: suffix,
+    })),
+  });
+
+const irregular = (ctx) =>
+  conjugations(ctx, {
+    symbols: ["word.regularity.irregular"],
+    title: "Irregular verbs",
+  });
+
+const serEstar = (ctx) =>
+  conjugations(ctx, {
+    groups: ["ser", "estar"].map((lemma) => ({
+      symbols: [`word.lemma.${lemma}`],
+      label: lemma,
+    })),
+  });
+
 export const emitter = new Vector()
-  // ── middleware: survey helper ──────────────────────────────────────
-  .use(async (ctx, next) => {
-    const baseSymbols = ctx.input.where?.symbols ?? [];
-
-    ctx.survey = async (ontology, extraSymbols = []) => {
-      const symbols = [...baseSymbols, ...extraSymbols];
-      if (ontology === "conjugation") {
-        const paradigms = await ctx.daemon.entities.literal.find(
-          { ontology: "conjugation", symbols },
-          { populate: ["uses.memories", "symbols", "memories"] },
-        );
-        return paradigms.map(extractParadigm);
-      }
-      return ctx.daemon.entities.literal.find(
-        { ontology, symbols },
-        { populate: ["memories", "symbols"] },
-      );
-    };
-
-    await next();
-  })
-
-  .use(async (ctx, next) => {
-    console.log("clinic", { thread: ctx.thread });
-    await next();
-  })
-  // ── scope routes (user-facing intents) ────────────────────────────
-  .open("/regular-conjugations", regularConjugations)
-  .open("/irregular-conjugations", irregularConjugations)
+  .open("/regular-conjugations", regular)
+  .open("/irregular-conjugations", irregular)
+  .open("/ser-estar", serEstar)
   .open("/questions", questions)
   .open("/connectors", connectors)
   .open("/negation", negation)
@@ -60,11 +49,5 @@ export const emitter = new Vector()
   .open("/numbers", numbers)
   .open("/degrees", degrees)
   .open("/prepositions", prepositions)
-  .open("/ser-estar", serEstar)
-  // ── sub-emitter routes (composition) ──────────────────────────────
-  .open("/introduce", introduce)
-  .open("/drill", drill)
-  .open("/reinforce", reinforce)
-  .open("/hunt", hunt)
   .open("/audio-words", audioWords)
   .open("/audio-sentences", audioSentences);

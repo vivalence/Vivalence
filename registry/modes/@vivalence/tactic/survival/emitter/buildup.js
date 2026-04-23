@@ -1,154 +1,80 @@
-import { object, array } from "@vivalence/typology";
+const themes = [
+  { route: "pronouns", symbols: ["word.pronoun-type.personal"],      label: "Personal pronouns" },
+  { route: "pronouns", symbols: ["word.pronoun-type.demonstrative"], label: "Demonstrative pronouns" },
+  { route: "pronouns", symbols: ["word.pronoun-type.interrogative"], label: "Interrogative pronouns" },
+  { route: "pronouns", symbols: ["word.pronoun-type.indefinite"],    label: "Indefinite pronouns" },
+  { route: "pronouns", symbols: ["word.reflexive.yes"],              label: "Reflexive pronouns" },
+  { route: "adverbs",  symbols: ["functional.time"],                 label: "Time adverbs" },
+  { route: "adverbs",  symbols: ["functional.degree"],               label: "Degree adverbs" },
+  { route: "adverbs",  symbols: ["functional.discourse"],            label: "Discourse adverbs" },
+  { route: "degrees",  symbols: ["word.degree.comparative"],         label: "Comparatives" },
+  { route: "degrees",  symbols: ["word.degree.superlative"],         label: "Superlatives" },
+];
 
-function extractParadigm(conjugation) {
-  const bySlug = new Map(conjugation.uses.getItems().map((form) => [form.slug, form]));
-  const symbols = conjugation.symbols.getItems();
-  return {
-    infinitive: bySlug.get(conjugation.trait.CONJUGATED.infinitive),
-    forms: Object.values(conjugation.trait.CONJUGATED.paradigm)
-      .map((slug) => bySlug.get(slug))
-      .filter(Boolean),
-    tenseSymbol: symbols.find((symbol) => symbol.slug.startsWith("word.tense.")),
-    moodSymbol: symbols.find((symbol) => symbol.slug.startsWith("word.mood.")),
-  };
-}
+const assess = (words) => {
+  const total = words.length;
+  const virgin = words.filter((word) => !word.memory || word.memory.is.virgin).length;
+  const weak = words.filter((word) => word.memory?.is.weak).length;
+  const failed = words.filter((word) => word.memory?.is.failed).length;
+  const strong = words.filter((word) => word.memory?.is.strong).length;
+  const avgStrength = total
+    ? words.reduce((sum, word) => sum + (word.memory?.strength ?? 0), 0) / total
+    : 0;
+  return { total, virgin, weak, failed, strong, avgStrength };
+};
 
-function pickWeakForms(conjugation, forms, count) {
-  const formIds = new Set(forms.map((form) => form.id));
-  return conjugation.uses
-    .getItems()
-    .filter((literal) => formIds.has(literal.id))
-    .slice(0, count);
-}
-
-async function fetchWeakVerbs(ctx, { forms, infinitive, count }) {
-  return ctx.daemon.entities.literal.byStrength(
-    object.merge(ctx.input.where, { ontology: "word" }, { symbols: ["word.part-of-speech.verb"] }),
-    {
-      limit: count,
-      blacklist: { literals: [...forms.map((form) => form.id), infinitive?.id].filter(Boolean) },
-    },
-  );
-}
-
-async function fetchContextSentences(ctx, { literals, count }) {
-  return ctx.daemon.entities.literal.byStrength(
-    {
-      ontology: "sentence",
-      uses: { $in: literals.map((literal) => literal.id) },
-      memories: { strength: { $gte: 0.1 } },
-    },
-    { limit: count, populate: ["memories"] },
-  );
-}
-
-function emitExhibit(ctx, { conjugation, infinitive, forms, tenseSymbol, moodSymbol }) {
-  ctx.pool.add(
-    (conjugation.memory?.is?.virgin ?? true) &&
-      ctx.daemon.modes.game.exhibit.emit.present({
-        layout: "TABLE",
-        title: infinitive?.trait?.TRANSLATED?.learning ?? "",
-        subtitle: [tenseSymbol?.trait?.LABELED?.name, moodSymbol?.trait?.LABELED?.name]
-          .filter(Boolean)
-          .join(" "),
-        literals: forms,
-      }),
-  );
-}
-
-function emitPick(ctx, { weakForms, weakVerbs, forms }) {
-  ctx.pool
-    .section(
-      [...weakForms, ...weakVerbs].map((literal) =>
-        ctx.daemon.modes.game.pick.emit.literal({
-          literal,
-          distractors: [...forms, ...weakVerbs],
-          recall: "LEARNING",
-        }),
-      ),
-    )
-    .apply(array.shuffle);
-}
-
-function emitMatch(ctx, { weakForms, weakVerbs }) {
-  ctx.pool.add(
-    ctx.daemon.modes.game.match.emit.batch({
-      literals: [...weakForms, ...weakVerbs],
-      gameplay: "TRANSLATE",
-      recall: "LEARNING",
-    }),
-  );
-}
-
-function emitParadigm(ctx, { conjugation }) {
-  // @beef only add if trace shows last paradigm with this conjugation was failure!
-  //       OR  memory strength is abysmal.
-  ctx.pool.add(
-    ctx.daemon.modes.game.paradigm.emit.conjugation({
-      conjugation,
-      recall: "LEARNING",
-      feedback: "realtime",
-      order: "ordered",
-    }),
-  );
-}
-
-function emitContextualize(ctx, { sentences }) {
-  for (const sentence of sentences) {
-    if (sentence.memory?.is?.virgin ?? true) {
-      ctx.pool.add(
-        ctx.daemon.modes.game.shadow.emit.literals({
-          literal: sentence,
-          recall: "LEARNING",
-          speed: { rate: "SLOW" },
-        }),
-      );
-    } else if (sentence.memory.is.weak) {
-      ctx.pool.add(
-        ctx.daemon.modes.game.write.emit.literals({
-          literal: sentence,
-          recall: "LEARNING",
-        }),
-      );
-    }
-  }
-}
-
-function emitConjugation(ctx, { weakVerbs, weakForms }) {
-  ctx.pool
-    .section(
-      ...array
-        .shuffle([...weakVerbs, ...weakForms])
-        .map((literal) => ctx.daemon.modes.game.conjugation.emit.literal({ literal })),
-    )
-    .apply(array.shuffle);
-}
+const weakness = ({ avgStrength, virgin, failed, strong, total }) =>
+  total * ((1 - avgStrength) + failed / total + virgin / total - strong / total);
 
 export default async (ctx) => {
-  const [conjugation] = await ctx.daemon.entities.literal.feed(
-    { ontology: "conjugation", ...ctx.input.where },
+  const all = await ctx.daemon.entities.literal.find(
     {
-      limit: 1,
-      blacklist: ctx.input.blacklist,
-      populate: ["uses.memories", "symbols", "memories"],
+      ...ctx.input.where,
+      ontology: "word",
+      symbols: [...(ctx.input.where?.symbols ?? [])],
     },
+    { populate: ["memories", "symbols"] },
   );
-  if (!conjugation) return;
+  if (!all.length) return;
 
-  const { infinitive, forms, tenseSymbol, moodSymbol } = extractParadigm(conjugation);
-  if (!forms.length) return;
+  const ranked = themes
+    .map((theme) => ({
+      ...theme,
+      words: all.filter((word) =>
+        theme.symbols.every((needed) =>
+          word.symbols.getItems().some((symbol) => symbol.slug === needed),
+        ),
+      ),
+    }))
+    .filter((bucket) => bucket.words.length)
+    .map((bucket) => {
+      const assessment = assess(bucket.words);
+      return { ...bucket, assessment, weakness: weakness(assessment) };
+    })
+    .sort((a, b) => (b.weakness - a.weakness) || (Math.random() - 0.5));
 
-  const weakForms = pickWeakForms(conjugation, forms, 2);
-  const weakVerbs = await fetchWeakVerbs(ctx, { forms, infinitive, count: 4 });
-  const sentences = await fetchContextSentences(ctx, {
-    literals: [...forms, ...weakVerbs],
-    count: 2,
-  });
+  const buckets = ranked.slice(0, 3);
 
-  emitExhibit(ctx, { conjugation, infinitive, forms, tenseSymbol, moodSymbol });
-  emitPick(ctx, { weakForms, weakVerbs, forms });
-  emitMatch(ctx, { weakForms, weakVerbs });
-  emitParadigm(ctx, { conjugation });
-  emitContextualize(ctx, { sentences });
-  emitConjugation(ctx, { weakVerbs, weakForms });
+  console.log(`[buildup] ranked ${ranked.length} themes from ${all.length} words`);
+  for (const bucket of ranked) {
+    const { total, virgin, weak, failed, strong, avgStrength } = bucket.assessment;
+    const chosen = buckets.includes(bucket) ? "✓" : " ";
+    console.log(
+      `[buildup] ${chosen} ${bucket.weakness.toFixed(2).padStart(7)}  ${bucket.label.padEnd(24)} ` +
+      `n=${total} virgin=${virgin} weak=${weak} failed=${failed} strong=${strong} avgS=${avgStrength.toFixed(2)}`,
+    );
+  }
+
+  for (const theme of buckets) {
+    const target = ctx.daemon.modes.tactic.clinic.emit[theme.route];
+    ctx.pool.add(
+      target({
+        ...ctx.input,
+        where: {
+          ...ctx.input.where,
+          symbols: [...(ctx.input.where?.symbols ?? []), ...theme.symbols],
+        },
+      }),
+    );
+  }
 };

@@ -1,41 +1,39 @@
 <script>
   import { getContext } from "svelte";
-  import { THREAD } from "$client";
+  import { THREAD, QUARTERS } from "$client";
   import { Frame } from "@vivalence/drapes";
-  // longdistance dock — disabled for now
-  // import { QUARTERS } from "$client";
-  // import Dock from "./a/Dock.svelte";
-  // import { resolve, shareAfterDrag, defaultDock } from "./a/dock.geometry.js";
+  import Dock from "./a/Dock.svelte";
+  import { resolve, shareAfterDrag, defaultDock } from "./a/dock.geometry.js";
 
   let { rect } = $props();
 
   const threadInstance = getContext(THREAD);
-  // const quartersInstance = getContext(QUARTERS);
+  const quartersInstance = getContext(QUARTERS);
 
   let thread = $state(null);
   let bufferAtom = $state(null);
   let buffer = $state(null);
   let status = $state(null);
-  // let terminal = $state(null);
-  // let dock = $state(defaultDock());
+  let terminal = $state(null);
+  let dock = $state(defaultDock());
 
   let teardownBuffer = null;
   let teardownStatus = null;
-  // let teardownDock = null;
+  let teardownDock = null;
 
-  // quartersInstance.$terminal.subscribe((value) => {
-  //   terminal = value;
-  //   if (teardownDock) {
-  //     teardownDock();
-  //     teardownDock = null;
-  //   }
-  //   if (value?.$dock) {
-  //     dock = value.$dock.get();
-  //     teardownDock = value.$dock.subscribe((next) => {
-  //       dock = next;
-  //     });
-  //   }
-  // });
+  quartersInstance.$terminal.subscribe((value) => {
+    terminal = value;
+    if (teardownDock) {
+      teardownDock();
+      teardownDock = null;
+    }
+    if (value?.$dock) {
+      dock = value.$dock.get();
+      teardownDock = value.$dock.subscribe((next) => {
+        dock = next;
+      });
+    }
+  });
 
   threadInstance.$current.subscribe((current) => {
     thread = current;
@@ -60,45 +58,47 @@
     });
   });
 
-  // const geometry = $derived(resolve(dock, rect));
-  //
-  // function ondock(patch) {
-  //   const next = { ...dock, ...patch };
-  //   if (terminal?.$dock) terminal.$dock.set(next);
-  //   else dock = next;
-  // }
-  //
-  // function onTwig(event) {
-  //   event.preventDefault();
-  //   const axis = geometry.vertical ? "clientX" : "clientY";
-  //   let lastPos = event[axis];
-  //
-  //   function onMove(e) {
-  //     const current = e[axis];
-  //     const deltaPx = current - lastPos;
-  //     lastPos = current;
-  //     const nextShare = shareAfterDrag({
-  //       side: geometry.side,
-  //       share: geometry.share,
-  //       rect,
-  //       deltaPx,
-  //     });
-  //     ondock({ share: nextShare, collapsed: false });
-  //   }
-  //
-  //   function onUp() {
-  //     window.removeEventListener("pointermove", onMove);
-  //     window.removeEventListener("pointerup", onUp);
-  //   }
-  //
-  //   window.addEventListener("pointermove", onMove);
-  //   window.addEventListener("pointerup", onUp);
-  // }
+  const dockEnabled = $derived(thread?.mode?.traits?.includes("CONVERSATIONAL") ?? false);
+  const geometry = $derived(resolve(dock, rect));
+
+  function ondock(patch) {
+    const next = { ...dock, ...patch };
+    if (terminal?.$dock) terminal.$dock.set(next);
+    else dock = next;
+  }
+
+  function onTwig(event) {
+    event.preventDefault();
+    const axis = geometry.vertical ? "clientX" : "clientY";
+    let lastPos = event[axis];
+
+    function onMove(e) {
+      const current = e[axis];
+      const deltaPx = current - lastPos;
+      lastPos = current;
+      const nextShare = shareAfterDrag({
+        side: geometry.side,
+        share: geometry.share,
+        rect,
+        deltaPx,
+      });
+      ondock({ share: nextShare, collapsed: false });
+    }
+
+    function onUp() {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }
 </script>
 
 {#if rect.width > 0 && rect.height > 0}
   <div
     class="panel"
+    style:flex-direction={geometry.direction}
     style:left="{rect.left}px"
     style:top="{rect.top}px"
     style:width="{rect.width}px"
@@ -121,25 +121,25 @@
       {/if}
     </div>
 
-    <!-- longdistance dock — disabled for now
-    {#if !dock.collapsed}
+    {#if dockEnabled}
+      {#if !dock.collapsed}
+        <div
+          class="twig"
+          class:horizontal={!geometry.vertical}
+          role="separator"
+          aria-orientation={geometry.vertical ? "vertical" : "horizontal"}
+          onpointerdown={onTwig}>
+        </div>
+      {/if}
+
       <div
-        class="twig"
-        class:horizontal={!geometry.vertical}
-        role="separator"
-        aria-orientation={geometry.vertical ? "vertical" : "horizontal"}
-        onpointerdown={onTwig}>
+        class="chat"
+        style:width={geometry.vertical ? geometry.size + "px" : "100%"}
+        style:height={geometry.vertical ? "100%" : geometry.size + "px"}
+        style:flex={`0 0 ${geometry.size}px`}>
+        <Dock {thread} {dock} {ondock} side={geometry.side} {terminal} />
       </div>
     {/if}
-
-    <div
-      class="chat"
-      style:width={geometry.vertical ? geometry.size + "px" : "100%"}
-      style:height={geometry.vertical ? "100%" : geometry.size + "px"}
-      style:flex={`0 0 ${geometry.size}px`}>
-      <Dock {thread} {dock} {ondock} side={geometry.side} {terminal} />
-    </div>
-    -->
   </div>
 {/if}
 
