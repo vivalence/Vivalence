@@ -1,4 +1,5 @@
 <script>
+  import { string } from "@vivalence/typology";
   import { Asset, Desk, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
@@ -21,6 +22,66 @@
   let submitted = $state(false);
   let result = $state(null);
   let audioFinished = $state(false);
+
+  let editingIndex = $state(null);
+  let editValue = $state("");
+  let corrections = $state(new Set());
+  let editInputEl = $state(null);
+
+  function startCorrection(i) {
+    if (i === -1) {
+      if (result?.signal === "SUCCESS" || corrections.has(-1)) return;
+      editingIndex = -1;
+      editValue = "";
+      return;
+    }
+    const tok = result?.tokens?.[i];
+    if (!tok) return;
+    if (tok.signal === "SUCCESS" || corrections.has(i)) return;
+    editingIndex = i;
+    editValue = "";
+  }
+
+  function commitCorrection(i) {
+    if (i === -1) {
+      if (string.matches(editValue, answer, { forgiving })) {
+        corrections.add(-1);
+        corrections = new Set(corrections);
+        editingIndex = null;
+        editValue = "";
+      } else {
+        editValue = "";
+      }
+      return;
+    }
+    const tok = result?.tokens?.[i];
+    if (!tok) {
+      editingIndex = null;
+      editValue = "";
+      return;
+    }
+    if (editValue.trim() === tok.form) {
+      corrections.add(i);
+      corrections = new Set(corrections);
+      editingIndex = null;
+      editValue = "";
+    } else {
+      editValue = "";
+    }
+  }
+
+  function handleCorrectionKey(event, i) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitCorrection(i);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      editingIndex = null;
+      editValue = "";
+    }
+  }
 
   const total = $derived(queue.length);
   const position = $derived(currentIndex + 1);
@@ -51,48 +112,20 @@
     });
   }
 
-  const norm = forgiving
-    ? (s) =>
-        s
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[?.!,;:'"'´`~\-—]/g, "")
-          .replace(/\//g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-    : (s) => s.toLowerCase().trim();
-
-  const parseAlts = (s) =>
-    s
-      .split("/")
-      .map((alt) => alt.replace(/\(.*?\)/g, "").trim())
-      .filter(Boolean);
+  const norm = forgiving ? string.fold : (s) => s.toLowerCase().trim();
 
   function evaluate(input, lit, currentRecall, word) {
     const expected =
       currentRecall === "KNOWN" ? lit.trait.TRANSLATED.known : lit.trait.TRANSLATED.learning;
-    if (word) return evaluateWord(input, expected);
+    if (word) {
+      return {
+        signal: string.matches(input, expected, { forgiving }) ? "SUCCESS" : "MISTAKE",
+        tokens: null,
+      };
+    }
     return evaluateSentence(input, expected, lit.trait.ANNOTATED?.tokens, currentRecall);
   }
 
-  function evaluateWord(input, expected) {
-    const alts = parseAlts(expected);
-    const n = norm(input);
-
-    // any single alt
-    if (alts.some((alt) => n === norm(alt))) return { signal: "SUCCESS", tokens: null };
-
-    // all alts combined, word-order agnostic ("next nearby" for "next / nearby")
-    if (alts.length > 1) {
-      const inputWords = new Set(n.split(/\s+/));
-      const altWords = new Set(alts.flatMap((alt) => norm(alt).split(/\s+/)));
-      if (inputWords.size === altWords.size && [...altWords].every((w) => inputWords.has(w)))
-        return { signal: "SUCCESS", tokens: null };
-    }
-
-    return { signal: "MISTAKE", tokens: null };
-  }
 
   function evaluateSentence(input, expected, tokens, currentRecall) {
     const match = norm(input) === norm(expected);
@@ -139,7 +172,7 @@
   }
 
   function submit() {
-    if (!input.trim() || submitted) return;
+    if (submitted) return;
     submitted = true;
     result = evaluate(input, literal, activeRecall, isWord);
     review(result);
@@ -158,6 +191,9 @@
       submitted = false;
       result = null;
       audioFinished = false;
+      corrections = new Set();
+      editingIndex = null;
+      editValue = "";
     } else {
       buffer.release();
     }
@@ -167,6 +203,10 @@
 
   $effect(() => {
     if (inputEl) inputEl.focus();
+  });
+
+  $effect(() => {
+    if (editingIndex !== null && editInputEl) editInputEl.focus();
   });
 
   function handleKey(event) {
@@ -205,15 +245,33 @@
           <div class="fb-row">
             <div class="fb-left">
               <div class="fb-block">
-                <span
-                  class="fb-val"
-                  class:ok={result.signal === "SUCCESS"}
-                  class:wrong={result.signal !== "SUCCESS"}>
-                  {result.signal === "SUCCESS" ? answer : input}
-                </span>
+                {#if isWord && editingIndex === -1}
+                  <input
+                    class="fb-input"
+                    bind:this={editInputEl}
+                    bind:value={editValue}
+                    onkeydown={(event) => handleCorrectionKey(event, -1)}
+                    onblur={() => commitCorrection(-1)}
+                    placeholder={answer} />
+                {:else if isWord && result.signal !== "SUCCESS" && !corrections.has(-1)}
+                  <button
+                    type="button"
+                    class="fb-val fb-button wrong"
+                    onmousedown={(event) => event.preventDefault()}
+                    onclick={() => startCorrection(-1)}>
+                    {input.trim() || "—"}
+                  </button>
+                {:else}
+                  <span
+                    class="fb-val"
+                    class:ok={result.signal === "SUCCESS" || (isWord && corrections.has(-1))}
+                    class:wrong={result.signal !== "SUCCESS" && !(isWord && corrections.has(-1))}>
+                    {result.signal === "SUCCESS" || (isWord && corrections.has(-1)) ? answer : input}
+                  </span>
+                {/if}
               </div>
 
-              {#if result.signal !== "SUCCESS"}
+              {#if result.signal !== "SUCCESS" && !(isWord && corrections.has(-1))}
                 <div class="fb-block">
                   <span class="fb-key">expected</span>
                   <span class="fb-val ok">{answer}</span>
@@ -232,14 +290,33 @@
 
           {#if result.tokens}
             <div class="tokens">
-              {#each result.tokens as tok}
-                <div
-                  class="tok"
-                  class:tok-ok={tok.signal === "SUCCESS"}
-                  class:tok-miss={tok.signal !== "SUCCESS"}>
-                  <span class="tok-form">{tok.form}</span>
-                  <span class="tok-gloss">{tok.gloss}</span>
-                </div>
+              {#each result.tokens as tok, i}
+                {@const isOk = tok.signal === "SUCCESS" || corrections.has(i)}
+                {#if editingIndex === i}
+                  <div class="tok tok-edit">
+                    <input
+                      class="tok-input"
+                      bind:this={editInputEl}
+                      bind:value={editValue}
+                      size={Math.max(4, (tok.form?.length ?? 4) + 1)}
+                      onkeydown={(event) => handleCorrectionKey(event, i)}
+                      onblur={() => commitCorrection(i)}
+                      placeholder={tok.form} />
+                    <span class="tok-gloss">{tok.gloss}</span>
+                  </div>
+                {:else}
+                  <button
+                    type="button"
+                    class="tok"
+                    class:tok-ok={isOk}
+                    class:tok-miss={!isOk}
+                    disabled={isOk}
+                    onmousedown={(event) => event.preventDefault()}
+                    onclick={() => startCorrection(i)}>
+                    <span class="tok-form">{tok.form}</span>
+                    <span class="tok-gloss">{tok.gloss}</span>
+                  </button>
+                {/if}
               {/each}
             </div>
           {/if}
@@ -251,21 +328,15 @@
   {/snippet}
 
   {#snippet controls()}
+    <input
+      class="field"
+      bind:this={inputEl}
+      value={input}
+      oninput={(event) => { input = event.target.value; }}
+      placeholder="{answerLabel}…" />
     {#if !submitted}
-      <input
-        class="field"
-        bind:this={inputEl}
-        value={input}
-        oninput={(event) => { input = event.target.value; }}
-        placeholder="{answerLabel}…" />
       <button class="btn-check" onmousedown={(e) => e.preventDefault()} onclick={submit} disabled={loading || !literal}>Check</button>
     {:else}
-      <span
-        class="fb-glyph"
-        class:ok={result?.signal === "SUCCESS"}
-        class:wrong={result?.signal !== "SUCCESS"}>
-        {result?.signal === "SUCCESS" ? "✓" : "✗"}
-      </span>
       <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
     {/if}
   {/snippet}
@@ -389,6 +460,23 @@
   .fb-val.wrong {
     color: var(--colors-system-error-contrast);
   }
+  .fb-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+  }
+  .fb-input {
+    font-size: 1.25rem;
+    font-family: var(--font-family-serif-heading);
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-system-error-contrast);
+    width: 100%;
+  }
 
   .tokens {
     display: flex;
@@ -403,6 +491,34 @@
     align-items: center;
     padding: 0.375rem 0.5rem;
     border-radius: 0.25rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    cursor: pointer;
+  }
+  .tok:disabled { cursor: default; }
+
+  .tok-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--colors-theme-primary-contrast) 12%, transparent);
+  }
+
+  .tok-input {
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-palette-gray-10);
+    font-family: var(--font-family-serif-heading);
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
   }
 
   .tok-ok {
@@ -487,9 +603,8 @@
   }
   .btn-check:disabled { opacity: 0.4; cursor: default; }
   .btn-next {
-    width: 100%;
     min-height: 48px;
-    padding: 0.75rem;
+    padding: 0.75rem 1.25rem;
     border-radius: 0.5rem;
     border: 1px solid var(--colors-skeleton-1-boundary);
     background: transparent;
@@ -498,6 +613,8 @@
     font-weight: 500;
     cursor: pointer;
     font-family: var(--font-family-sans-text);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .btn-next:disabled { opacity: 0.4; cursor: default; }
 

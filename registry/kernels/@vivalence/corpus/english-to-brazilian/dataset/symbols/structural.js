@@ -1,0 +1,716 @@
+export default [
+  {
+    "slug": "proficiency.survival",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Proficiency > Survival",
+        "description": "Bare minimum to operate in Brazil on day one."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.high-frequency",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Proficiency > High Frequency",
+        "description": "Top-150 frequency — appears in virtually every sentence."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.brazilianism",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Proficiency > Brazilianism",
+        "description": "Specific to Brazilian Portuguese."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.a1",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > A1",
+        "description": "Absolute beginner."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.a2",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > A2",
+        "description": "Elementary."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.b1",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > B1",
+        "description": "Intermediate."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.b2",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > B2",
+        "description": "Upper-intermediate."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.c1",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > C1",
+        "description": "Advanced."
+      }
+    }
+  },
+  {
+    "slug": "proficiency.cefr.c2",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "CEFR > C2",
+        "description": "Mastery."
+      }
+    }
+  },
+  {
+    "slug": "functional.grammar",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Grammar",
+        "description": "Structural glue — auxiliaries, articles, prepositions."
+      }
+    }
+  },
+  {
+    "slug": "functional.pronoun",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Pronoun",
+        "description": "Personal, demonstrative, and possessive pronouns."
+      }
+    }
+  },
+  {
+    "slug": "functional.modal",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Modal",
+        "description": "Modality — poder, precisar, querer."
+      }
+    }
+  },
+  {
+    "slug": "functional.auxiliary",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Auxiliary",
+        "description": "Auxiliary constructions — perfect, progressive, future."
+      }
+    }
+  },
+  {
+    "slug": "functional.connector",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Connector",
+        "description": "Conjunctions and discourse linkers."
+      }
+    }
+  },
+  {
+    "slug": "functional.negation",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Negation",
+        "description": "Negation — não, nunca, nada."
+      }
+    }
+  },
+  {
+    "slug": "functional.aspect",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Aspect",
+        "description": "Aspect markers — já, ainda, sempre."
+      }
+    }
+  },
+  {
+    "slug": "functional.degree",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Degree",
+        "description": "Degree and intensity — muito, pouco, mais, tão."
+      }
+    }
+  },
+  {
+    "slug": "functional.question",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Question",
+        "description": "Interrogative words."
+      }
+    }
+  },
+  {
+    "slug": "functional.number",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Number",
+        "description": "Numerals and quantity."
+      }
+    }
+  },
+  {
+    "slug": "functional.time",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Time",
+        "description": "Temporal adverbs — depois, agora, amanhã."
+      }
+    }
+  },
+  {
+    "slug": "functional.discourse",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Discourse",
+        "description": "Spoken structure — né, então, tá."
+      }
+    }
+  },
+  {
+    "slug": "functional.politeness",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Politeness",
+        "description": "Social — obrigado, por favor, desculpa."
+      }
+    }
+  },
+  {
+    "slug": "domain.state",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > State",
+        "description": "Physical states — fome, sede, cansado."
+      }
+    }
+  },
+  {
+    "slug": "domain.health",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Health",
+        "description": "Illness, medicine, emergency."
+      }
+    }
+  },
+  {
+    "slug": "domain.social",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Social",
+        "description": "Greetings, interaction, courtesy."
+      }
+    }
+  },
+  {
+    "slug": "domain.home",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Home",
+        "description": "Household and domestic life."
+      }
+    }
+  },
+  {
+    "slug": "domain.food",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Food",
+        "description": "Food, drink, and cooking."
+      }
+    }
+  },
+  {
+    "slug": "domain.education",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Education",
+        "description": "School, study, and learning."
+      }
+    }
+  },
+  {
+    "slug": "domain.money",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Money",
+        "description": "Commerce, prices, transactions."
+      }
+    }
+  },
+  {
+    "slug": "domain.space",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Space",
+        "description": "Static spatial positioning."
+      }
+    }
+  },
+  {
+    "slug": "domain.directions",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Directions",
+        "description": "Navigational vocabulary — left, right, turn."
+      }
+    }
+  },
+  {
+    "slug": "domain.transport",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Transport",
+        "description": "Vehicles and getting around."
+      }
+    }
+  },
+  {
+    "slug": "domain.entertainment",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Entertainment",
+        "description": "Music, film, sport, leisure."
+      }
+    }
+  },
+  {
+    "slug": "domain.color",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Color",
+        "description": "Colors — vermelho, azul, verde."
+      }
+    }
+  },
+  {
+    "slug": "domain.weekday",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Weekday",
+        "description": "Days of the week — segunda, terça, quarta."
+      }
+    }
+  },
+  {
+    "slug": "domain.month",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Month",
+        "description": "Months of the year — janeiro, fevereiro, março."
+      }
+    }
+  },
+  {
+    "slug": "functional.intensifier",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Intensifier",
+        "description": "Degree and intensity words — muito, bastante, demais, menos, mais."
+      }
+    }
+  },
+  {
+    "slug": "functional.filler",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Functional > Filler",
+        "description": "Hedges and hesitation markers — tipo, meio que."
+      }
+    }
+  },
+  {
+    "slug": "domain.body",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Body",
+        "description": "Body parts."
+      }
+    }
+  },
+  {
+    "slug": "domain.mind",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Mind",
+        "description": "Emotions, cognition, and mental states."
+      }
+    }
+  },
+  {
+    "slug": "domain.relationship",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Relationship",
+        "description": "Friend, love, trust, colleague — interpersonal bonds."
+      }
+    }
+  },
+  {
+    "slug": "domain.family",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Family",
+        "description": "Kinship terms."
+      }
+    }
+  },
+  {
+    "slug": "domain.clothing",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Clothing",
+        "description": "Garments and accessories."
+      }
+    }
+  },
+  {
+    "slug": "domain.work",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Work",
+        "description": "Jobs and professional life."
+      }
+    }
+  },
+  {
+    "slug": "domain.city",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > City",
+        "description": "Urban environment, buildings, and institutions."
+      }
+    }
+  },
+  {
+    "slug": "domain.travel",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Travel",
+        "description": "Trips, airports, hotels, and tourism."
+      }
+    }
+  },
+  {
+    "slug": "domain.weather",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Weather",
+        "description": "Rain, sun, temperature, and seasons."
+      }
+    }
+  },
+  {
+    "slug": "domain.animals",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Animals",
+        "description": "Fauna."
+      }
+    }
+  },
+  {
+    "slug": "domain.nature",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Nature",
+        "description": "Landscape, plants, and environment."
+      }
+    }
+  },
+  {
+    "slug": "domain.time",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Time",
+        "description": "Time nouns — dia, semana, mês, hora, noite, manhã."
+      }
+    }
+  },
+  {
+    "slug": "domain.shape",
+    "traits": [
+      "STRUCTURAL",
+      "LABELED"
+    ],
+    "trait": {
+      "STRUCTURAL": {},
+      "LABELED": {
+        "name": "Domain > Shape",
+        "description": "Shapes, sizes, and physical description."
+      }
+    }
+  }
+]

@@ -26,7 +26,7 @@ export const daemons = [
       "@vivalence/domain/language-learning",
       "@vivalence/ontology/word",
       "@vivalence/ontology/sentence",
-      "@vivalence/topology/english-to-brazilian:survival",
+      "@vivalence/corpus/english-to-brazilian:survival",
     ],
 
     modes: [

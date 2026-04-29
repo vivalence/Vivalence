@@ -97,10 +97,13 @@
     return activeSlots;
   })();
 
-  // Cell state: { input, signal, committed }
+  // Cell state: { input, signal, committed, corrected }
   let cells = $state(
     Object.fromEntries(
-      activeSlots.map((s) => [s.key, { input: "", signal: null, committed: false }]),
+      activeSlots.map((s) => [
+        s.key,
+        { input: "", signal: null, committed: false, corrected: false },
+      ]),
     ),
   );
   let queue = $state([...orderedSlots]);
@@ -111,6 +114,9 @@
   let hintVisible = $state(false);
   let keyboard;
   let rowEls = $state({});
+  let editingKey = $state(null);
+  let editValue = $state("");
+  let editEl = $state(null);
 
   const conjugation = literals[0];
   const activeSlot = $derived(cursor < queue.length ? queue[cursor] : null);
@@ -122,9 +128,46 @@
   );
 
   $effect(() => {
-    if (inputEl && activeSlot && !reviewed) inputEl.focus();
+    if (editingKey && editEl) editEl.focus();
+    else if (inputEl && activeSlot && !reviewed) inputEl.focus();
     else if (keyboard && (reviewed || allCommitted)) keyboard.focus();
   });
+
+  function startCorrection(key) {
+    const cell = cells[key];
+    if (!cell || cell.corrected || cell.signal !== "MISTAKE") return;
+    editingKey = key;
+    editValue = "";
+  }
+
+  function commitCorrection(key) {
+    const slot = activeSlots.find((s) => s.key === key);
+    if (!slot) {
+      editingKey = null;
+      editValue = "";
+      return;
+    }
+    if (string.matches(editValue, answerFor(slot))) {
+      cells[key] = { ...cells[key], corrected: true };
+      editingKey = null;
+      editValue = "";
+    } else {
+      editValue = "";
+    }
+  }
+
+  function handleCorrectionKey(event, key) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitCorrection(key);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      editingKey = null;
+      editValue = "";
+    }
+  }
 
   $effect(() => {
     if (activeSlot && rowEls[activeSlot.key]) {
@@ -133,9 +176,7 @@
   });
 
   function evaluate(text, slot) {
-    const expected = answerFor(slot);
-    const alts = string.separate(expected);
-    return alts.some((alt) => string.fold(text) === string.fold(alt));
+    return string.matches(text, answerFor(slot));
   }
 
   function commitCell() {
@@ -144,7 +185,7 @@
     const correct = evaluate(input, slot);
     const signal = correct ? "SUCCESS" : "MISTAKE";
 
-    cells[slot.key] = { input: input.trim(), signal, committed: true };
+    cells[slot.key] = { input: input.trim(), signal, committed: true, corrected: false };
 
     if (feedbackMode === "REALTIME") {
       terminal.daemon.call("/review/literal", {
@@ -267,20 +308,36 @@
           bind:this={rowEls[slot.key]}
           class="row"
           class:row-active={isActive}
-          class:row-ok={showAnswer && cell.signal === "SUCCESS"}
-          class:row-miss={showAnswer && cell.signal === "MISTAKE"}>
+          class:row-ok={showAnswer && (cell.signal === "SUCCESS" || cell.corrected)}
+          class:row-miss={showAnswer && cell.signal === "MISTAKE" && !cell.corrected}>
           <span class="person">{slot.person}</span>
 
           <div class="cell">
             {#if showAnswer && cell.committed}
-              <span
-                class="cell-input"
-                class:cell-ok={cell.signal === "SUCCESS"}
-                class:cell-miss={cell.signal === "MISTAKE"}>
-                {cell.input}
-              </span>
-              {#if cell.signal === "MISTAKE"}
+              {#if editingKey === slot.key}
+                <input
+                  class="cell-edit"
+                  bind:this={editEl}
+                  bind:value={editValue}
+                  onkeydown={(event) => handleCorrectionKey(event, slot.key)}
+                  onblur={() => commitCorrection(slot.key)}
+                  placeholder={answerFor(slot)} />
+              {:else if cell.signal === "MISTAKE" && !cell.corrected}
+                <button
+                  type="button"
+                  class="cell-input cell-miss cell-button"
+                  onmousedown={(e) => e.preventDefault()}
+                  onclick={() => startCorrection(slot.key)}>
+                  {cell.input}
+                </button>
                 <span class="cell-correct">{answerFor(slot)}</span>
+              {:else}
+                <span
+                  class="cell-input"
+                  class:cell-ok={cell.signal === "SUCCESS" || cell.corrected}
+                  class:cell-miss={cell.signal === "MISTAKE" && !cell.corrected}>
+                  {cell.corrected ? answerFor(slot) : cell.input}
+                </span>
               {/if}
             {:else if cell.committed}
               <span class="cell-pending">···</span>
@@ -494,6 +551,26 @@
     font-size: var(--font-size-base);
     color: var(--colors-theme-primary-contrast);
     line-height: 1.35;
+  }
+  .cell-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+  .cell-edit {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-base);
+    line-height: 1.35;
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-palette-gray-10);
+    flex: 1;
+    min-width: 0;
   }
   .cell-prompt {
     font-family: var(--font-family-serif-heading);

@@ -7,7 +7,7 @@ export default {
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
         MASKED: {
-          where: { symbols: ["word", "proficiency.survival"] },
+          where: { symbols: ["word"] },
           limit: 8,
         },
         AIMED: { mount: "/emit/warmup" },
@@ -34,7 +34,7 @@ export default {
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
         MASKED: {
-          where: { symbols: ["sentence", "proficiency.survival"] },
+          where: { symbols: ["sentence"] },
           limit: 3,
         },
         AIMED: { mount: "/emit/exercise" },

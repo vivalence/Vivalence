@@ -24,7 +24,7 @@ export async function core(die) {
 
   die.kernel = {
     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
-    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
+    corpus: die.register.kernel.filter((m) => m.manifest.type === "corpus"),
     ontology: die.register.kernel.filter((m) => m.manifest.type === "ontology"),
   };
 

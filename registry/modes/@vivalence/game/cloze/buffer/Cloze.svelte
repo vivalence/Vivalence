@@ -1,4 +1,5 @@
 <script>
+  import { string } from "@vivalence/typology";
   import { Keyboard, Asset, ViewportLock, Desk } from "@vivalence/drapes";
 
   const { terminal, buffer } = $props();
@@ -28,15 +29,10 @@
     });
   }
 
-  function normalize(text) {
-    if (!forgiving) return text.trim();
-    return text.trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
-
   function evaluate(index) {
     const token = tokens[index];
     if (!token) return false;
-    return normalize(answers[index] ?? "") === normalize(token.form);
+    return string.matches(answers[index] ?? "", token.form, { forgiving });
   }
 
   function submit() {
@@ -218,15 +214,16 @@
   .tokens {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 0.625rem;
-    line-height: 2.2;
+    gap: 0.35rem 0.4rem;
+    line-height: 1.5;
     align-items: baseline;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.5rem;
   }
 
   .tok {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
+    line-height: 1.5;
     color: var(--colors-palette-gray-10);
   }
   .tok-hidden {
@@ -237,24 +234,24 @@
   .gap {
     display: inline-flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     border-bottom: 2px solid var(--colors-theme-primary-contrast);
-    padding: 0.125rem 0.25rem;
-    min-width: 3rem;
+    padding: 0;
+    line-height: 1.5;
   }
 
   .gap-input {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
+    line-height: 1.5;
     color: var(--colors-palette-gray-10);
     background: none;
     border: none;
     outline: none;
-    width: 100%;
-    min-width: 4rem;
-    max-width: 10rem;
     text-align: center;
-    padding: 0;
+    padding: 0 0.25rem;
+    field-sizing: content;
+    min-width: 3rem;
   }
 
   .gap-gloss {
@@ -266,6 +263,9 @@
   .gap-answer {
     font-family: var(--font-family-serif-heading);
     font-size: var(--font-size-xl);
+    line-height: 1.5;
+    text-align: center;
+    padding: 0 0.25rem;
   }
   .gap-ok { color: var(--colors-system-success-contrast); }
   .gap-wrong { color: var(--colors-system-error-contrast); }
@@ -347,10 +347,9 @@
   }
 
   @media (max-width: 640px) {
-    .tokens { gap: 0.25rem; margin-bottom: 1.5rem; }
+    .tokens { gap: 0.3rem 0.35rem; margin-bottom: 1.25rem; }
     .tok, .gap-answer, .gap-input { font-size: var(--font-size-lg); font-family: var(--font-family-sans-text); }
-    .gap { min-width: 3.5rem; border-bottom-width: 2px; }
-    .gap-input { min-width: 3.5rem; }
+    .gap-input { min-width: 2.5rem; }
     .opt { font-size: var(--font-size-base); font-family: var(--font-family-sans-text); padding: 0.75rem 1rem; min-height: 48px; }
   }
 </style>

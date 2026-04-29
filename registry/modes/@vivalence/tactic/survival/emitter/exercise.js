@@ -1,4 +1,4 @@
-import { array } from "@vivalence/typology";
+import { array, random } from "@vivalence/typology";
 
 function failedTokenIndices(sentence) {
   const failedSlugs = new Set(
@@ -50,7 +50,7 @@ export default async (ctx) => {
       practice.add(
         game.listen.emit.literal({ literal: sentence, gameplay: "PICK", recall: "LEARNING" }),
       );
-    } else if (sentence.memory.is.weak) {
+    } else if (random.coinflip(0.7)) {
       practice.add(
         game.listen.emit.literal({ literal: sentence, gameplay: "TYPE", recall: "LEARNING" }),
       );
@@ -68,8 +68,6 @@ export default async (ctx) => {
           speed: { rate: "SLOW" },
         }),
       );
-    } else if (sentence.memory.is.weak) {
-      practice.add(game.write.emit.literals({ literal: sentence, recall: "LEARNING" }));
     } else {
       practice.add(game.write.emit.literals({ literal: sentence }));
     }

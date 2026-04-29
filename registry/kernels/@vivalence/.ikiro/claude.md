@@ -1,6 +1,6 @@
 # IKIRO — registry/kernels (container)
 
-Domain + Data. The what-is-being-learned. Three kernel types compose into a curriculum: one *domain* (the learning engine), N *ontologies* (what kinds of things exist), N *topologies* (what specific things, in what order). Read `.ikiro/CLAUDE.md` first.
+Domain + Data. The what-is-being-learned. Three kernel types compose into a curriculum: one *domain* (the learning engine), N *ontologies* (what kinds of things exist), N *corpora* (what specific things, in what order). Read `.ikiro/CLAUDE.md` first.
 
 ## architecture
 
@@ -12,7 +12,7 @@ three types, three roles:
 
 - domain — the engine. Entities (Literal, Symbol, Memory, Product), aperture (pick/review), mode prototypes (Game, Tactic). One per daemon.
 - ontology — symbol hierarchies. Word ontology = Universal Dependencies POS tags. Sentence ontology = force/mood/tense/aspect. Conjugation ontology is minimal (single TOPOGRAPHICAL `conjugation` symbol); dimensional symbols come from word.
-- topology — language pair curricula. Literals (vocabulary items) + symbol associations (POS, proficiency, etc.). Trait-keyed data: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED.
+- corpus — language pair curricula. Literals (vocabulary items) + symbol associations (POS, proficiency, etc.). Trait-keyed data: TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED.
 
 structure:
 
@@ -36,12 +36,10 @@ registry/kernels/@vivalence/
 │   ├── word/                             UD POS hierarchy (~950 symbols)
 │   ├── sentence/                         force/mood/tense/aspect (464 lines)
 │   └── conjugation/                      thin — uses word symbols
-└── topology/
-    ├── english-to-brazilian-survival/    main curriculum (~14k lines)
-    ├── english-to-brazilian-a1/          A1 subset
-    ├── english-to-brazilian-a2/          A2 subset
+└── corpus/
+    ├── english-to-brazilian/             merged curriculum (2086 literals, 51 symbols)
     ├── english-to-brazilian-vocalized/   vocalized variant (audio assets)
-    └── bak/                              Spanish, Latin, others (archived)
+    └── bak/                              survival/a1/a2 archived after merge; Spanish, Latin
 ```
 
 domain entities — Literal extends typology's LiteralEntity; traits TRANSLATED / EXEMPLIFIED / RANKED / ANNOTATED / VOCALIZED / CONJUGATED. Additional fields: `rank` (frequency, lower = higher priority), `memories` (1:many → Memory). Repository methods accept `(where, opts?)` where opts = `{ limit, blacklist, populate }`: `feed`, `novel`, `due`, `byStrength`, `byLastSignal`. Symbol extends SymbolEntity — `data.LEARNABLE.{driver, type}` and `data.COMPLETABLE` are mutually exclusive. Memory (`entities/userspace/Memory.ts`, 105 lines) is unique on `[user, literal]`; status flow UNTOUCHED → UNKNOWN → LEARNING → KNOWN → GRADUATED; `state` JSON is driver-specific; `history` JSON[] retains last 10 signals; `nextIn` (hours) + `nextAt` (Date). Product extends ProductEntity — batch container.
@@ -76,7 +74,7 @@ aperture — pick/review:
 - pick (query) — `GET /pick/literal/{feed, novel, due, byStatus, byStrength}`. `feed` (48 lines) balances due first then novel. `novel` (60 lines) unlearned, ordered by rank ASC. `due` (156 lines) past review date, JOIN with memories.
 - review (mutation) — `POST /review/{product, literal, symbol, memory}`. `/review/memory` (283 lines) is the core: create or update memory record with driver, schedule, history.
 
-literal format (topology):
+literal format (corpus):
 
 ```javascript
 {
@@ -102,11 +100,11 @@ kernel: [
   "@vivalence/domain/language-learning",
   "@vivalence/ontology/word",
   "@vivalence/ontology/sentence",
-  "@vivalence/topology/english-to-brazilian:survival",
+  "@vivalence/corpus/english-to-brazilian",
 ]
 ```
 
-Domain provides engine. Ontologies + topologies provide DATASET that gets upserted at daemon resolve via the DATASET trait (chunks of 100). The domain aperture then queries this data to serve study items and record reviews.
+Domain provides engine. Ontologies + corpora provide DATASET that gets upserted at daemon resolve via the DATASET trait (chunks of 100). The domain aperture then queries this data to serve study items and record reviews.
 
 ## context
 
@@ -115,7 +113,7 @@ consumers:
 - runtime daemon — domain loaded as first kernel, aperture mounted with auth via lighthouse
 - game modes — call `/pick` endpoints (feed/novel/due) for items, `/review` to record signals
 - tactic modes — call pick.feed directly via `ctx.daemon.entities.literal.feed()` (skipping aperture)
-- DATASET trait — ontology + topology datasets upserted during daemon resolve
+- DATASET trait — ontology + corpus datasets upserted during daemon resolve
 
 testing gaps — **biggest test blind spot in the system**. Repo-wide test pyramid is inverted: 54 typology tests at the foundation, 1 kernel test (`bayesian.test.js`, 36 steps) at the product surface. The learning domain — the *product* — is the least verified layer. Specifics:
 
@@ -124,13 +122,13 @@ testing gaps — **biggest test blind spot in the system**. Repo-wide test pyram
 - no tests for `/review/memory` (the 283-line core mutation: create vs update flows, history capping)
 - no tests for Boolean + COUNTER memory drivers in isolation — same 5-method contract as Bayesian, would benefit from a shared parity scenario
 - no tests for driver selection logic, signal schema validation
-- no tests for ontology symbol-hierarchy correctness or topology literal-format validation
-- no test for the DATASET trait — the bridge from kernels to DB; if it breaks, all topology data fails to load (also flagged in runtime IKIRO context)
+- no tests for ontology symbol-hierarchy correctness or corpus literal-format validation
+- no test for the DATASET trait — the bridge from kernels to DB; if it breaks, all corpus data fails to load (also flagged in runtime IKIRO context)
 
 active work:
 
 - VOCALIZED trait + asset entity type — pending typology enum expansion (see `.ikiro/longdistance.workpackage.org`)
-- more topologies (vocabulary expansion, additional language pairs)
+- more corpora (vocabulary expansion, additional language pairs)
 - progression system (eventually)
 
 planned changes:
@@ -140,4 +138,4 @@ planned changes:
 - Buffer/Intent migration — entity renames in aperture endpoints
 - harness may introduce domain-specific part types (prosody, expression — open string per harness workpackage)
 
-quality criteria — `registry/kernels/@vivalence/.ikiro/topology-quality-criteria.md` is the canonical data quality checklist (TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED contracts, symbol requirements, verb conventions, suffix encoding for diacritics, 14-item audit). Read before touching any topology literal.
+quality criteria — `registry/kernels/@vivalence/.ikiro/corpus-quality-criteria.md` is the canonical data quality checklist (TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED contracts, symbol requirements, verb conventions, suffix encoding for diacritics, 14-item audit). Read before touching any corpus literal.

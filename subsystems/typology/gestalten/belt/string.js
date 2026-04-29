@@ -26,6 +26,20 @@ export const separate = (s) => {
   return [...new Set(expanded)];
 };
 
+export const matches = (input, expected, { forgiving = true } = {}) => {
+  const normalize = forgiving ? fold : (s) => s.toLowerCase().trim();
+  const alts = separate(expected);
+  const got = normalize(input);
+  if (alts.some((alt) => got === normalize(alt))) return true;
+  if (alts.length > 1) {
+    const inputWords = new Set(got.split(/\s+/));
+    const altWords = new Set(alts.flatMap((alt) => normalize(alt).split(/\s+/)));
+    if (inputWords.size === altWords.size && [...altWords].every((word) => inputWords.has(word)))
+      return true;
+  }
+  return false;
+};
+
 export function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }

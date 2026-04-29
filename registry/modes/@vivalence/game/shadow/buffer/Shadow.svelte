@@ -1,4 +1,5 @@
 <script>
+  import { string } from "@vivalence/typology";
   import { Asset, Desk, Keyboard, ViewportLock } from "@vivalence/drapes";
 
   const { terminal, buffer, forgiving = true } = $props();
@@ -26,6 +27,49 @@
   let result = $state(null);
   let elapsed = $state(0);
   let timerInterval = $state(null);
+
+  let editingIndex = $state(null);
+  let editValue = $state("");
+  let corrections = $state(new Set());
+  let editInputEl = $state(null);
+
+  function startCorrection(i) {
+    const tok = result?.tokens?.[i];
+    if (!tok) return;
+    if (tok.signal === "SUCCESS" || corrections.has(i)) return;
+    editingIndex = i;
+    editValue = "";
+  }
+
+  function commitCorrection(i) {
+    const tok = result?.tokens?.[i];
+    if (!tok) {
+      editingIndex = null;
+      editValue = "";
+      return;
+    }
+    if (editValue.trim() === tok.form) {
+      corrections.add(i);
+      corrections = new Set(corrections);
+      editingIndex = null;
+      editValue = "";
+    } else {
+      editValue = "";
+    }
+  }
+
+  function handleCorrectionKey(event, i) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitCorrection(i);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      editingIndex = null;
+      editValue = "";
+    }
+  }
 
   const total = $derived(queue.length);
   const position = $derived(currentIndex + 1);
@@ -60,15 +104,7 @@
 
   const progress = $derived(Math.max(0, 1 - elapsed / timeMs));
 
-  const norm = forgiving
-    ? (s) =>
-        s
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[?.!,;:'"'´`~\-—]/g, "")
-          .trim()
-    : (s) => s.toLowerCase().trim();
+  const norm = forgiving ? string.fold : (s) => s.toLowerCase().trim();
 
   function evaluate(input, lit, currentRecall, word) {
     const expected =
@@ -78,12 +114,10 @@
   }
 
   function evaluateWord(input, expected) {
-    const alts = expected
-      .split("/")
-      .map((alt) => alt.replace(/\(.*?\)/g, "").trim())
-      .filter(Boolean);
-    const match = alts.some((alt) => norm(input) === norm(alt));
-    return { signal: match ? "SUCCESS" : "MISTAKE", tokens: null };
+    return {
+      signal: string.matches(input, expected, { forgiving }) ? "SUCCESS" : "MISTAKE",
+      tokens: null,
+    };
   }
 
   function evaluateSentence(input, expected, tokens, currentRecall) {
@@ -186,6 +220,9 @@
       input = "";
       submitted = false;
       result = null;
+      corrections = new Set();
+      editingIndex = null;
+      editValue = "";
       begin(queue[currentIndex]);
     } else {
       buffer.release();
@@ -202,7 +239,12 @@
     }
   });
 
+  $effect(() => {
+    if (editingIndex !== null && editInputEl) editInputEl.focus();
+  });
+
   function handleKey(event) {
+    if (editingIndex !== null) return;
     if (event.key === "Enter") {
       if (phase === "show") return skipToRecall();
       if (!submitted) submit();
@@ -271,14 +313,33 @@
 
             {#if result.tokens}
               <div class="tokens">
-                {#each result.tokens as tok}
-                  <div
-                    class="tok"
-                    class:tok-ok={tok.signal === "SUCCESS"}
-                    class:tok-miss={tok.signal !== "SUCCESS"}>
-                    <span class="tok-form">{tok.form}</span>
-                    <span class="tok-gloss">{tok.gloss}</span>
-                  </div>
+                {#each result.tokens as tok, i}
+                  {@const isOk = tok.signal === "SUCCESS" || corrections.has(i)}
+                  {#if editingIndex === i}
+                    <div class="tok tok-edit">
+                      <input
+                        class="tok-input"
+                        bind:this={editInputEl}
+                        bind:value={editValue}
+                        size={Math.max(4, (tok.form?.length ?? 4) + 1)}
+                        onkeydown={(event) => handleCorrectionKey(event, i)}
+                        onblur={() => commitCorrection(i)}
+                        placeholder={tok.form} />
+                      <span class="tok-gloss">{tok.gloss}</span>
+                    </div>
+                  {:else}
+                    <button
+                      type="button"
+                      class="tok"
+                      class:tok-ok={isOk}
+                      class:tok-miss={!isOk}
+                      disabled={isOk}
+                      onmousedown={(event) => event.preventDefault()}
+                      onclick={() => startCorrection(i)}>
+                      <span class="tok-form">{tok.form}</span>
+                      <span class="tok-gloss">{tok.gloss}</span>
+                    </button>
+                  {/if}
                 {/each}
               </div>
             {/if}
@@ -309,7 +370,7 @@
           class:wrong={result?.signal !== "SUCCESS"}>
           {result?.signal === "SUCCESS" ? "✓" : "✗"}
         </span>
-        <button class="btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
+        <button class="btn btn-next" onmousedown={(e) => e.preventDefault()} onclick={next} disabled={loading}>Next →</button>
       {/if}
     {/if}
   {/snippet}
@@ -414,7 +475,39 @@
   .fb-val.wrong { color: var(--colors-system-error-contrast); }
 
   .tokens { display: flex; flex-wrap: wrap; gap: 0.125rem; margin-top: 0.25rem; }
-  .tok { display: flex; flex-direction: column; align-items: center; padding: 0.375rem 0.5rem; border-radius: 0.25rem; }
+  .tok {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    cursor: pointer;
+  }
+  .tok:disabled { cursor: default; }
+  .tok-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--colors-theme-primary-contrast) 12%, transparent);
+  }
+  .tok-input {
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-palette-gray-10);
+    font-family: var(--font-family-serif-heading);
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
+  }
   .tok-ok { background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent); }
   .tok-miss { background: color-mix(in srgb, var(--colors-system-error-contrast) 12%, transparent); }
   .tok-form { font-family: var(--font-family-serif-heading); font-size: 1rem; line-height: 1.2; }
@@ -461,10 +554,13 @@
   }
   .btn-next {
     flex: 1;
-    border: 1px solid var(--colors-skeleton-1-boundary);
-    background: transparent;
-    color: var(--colors-palette-gray-200);
-    font-weight: 500;
+    border: 1px solid var(--colors-theme-primary-contrast);
+    background: color-mix(in srgb, var(--colors-theme-primary-surface) 35%, transparent);
+    color: var(--colors-theme-primary-contrast);
+    font-weight: 600;
+  }
+  .btn-next:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--colors-theme-primary-surface) 55%, transparent);
   }
   .btn-skip {
     flex: 1;

@@ -100,7 +100,7 @@ export async function bench(spec = {}) {
   // ── classify kernels ─────────────────────────────────────────────
   const domain = resolvedKernels.find((k) => k.manifest?.type === "domain");
   const ontologies = resolvedKernels.filter((k) => k.manifest?.type === "ontology");
-  const topologies = resolvedKernels.filter((k) => k.manifest?.type === "topology");
+  const corpora = resolvedKernels.filter((k) => k.manifest?.type === "corpus");
 
   // ── variant: traits + mode prototypes + entity schemas ───────────
   const variantTraits = {
@@ -144,7 +144,7 @@ export async function bench(spec = {}) {
     good: daemon,
     mask: { manifest: daemon.manifest },
     datamap: datamapInstance,
-    kernel: { domain, topology: topologies, ontology: ontologies },
+    kernel: { domain, corpus: corpora, ontology: ontologies },
     variant: {
       kernel: {},
       modes: variantModes,
@@ -216,7 +216,7 @@ export async function bench(spec = {}) {
   daemon.connection = connection;
   daemon.call = connection.call.bind(connection);
 
-  // ── DATASET trait: seed ontology/topology entities ───────────────
+  // ── DATASET trait: seed ontology/corpus entities ─────────────────
   for (const mode of daemon.flatmodes()) {
     if (mode.implements("DATASET") && mode.cake.dataset?.entities) {
       await seedDataset(mode.cake.dataset.entities, datamapInstance.entities);

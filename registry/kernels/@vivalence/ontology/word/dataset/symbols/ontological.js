@@ -899,13 +899,50 @@ export default [
     },
   },
   {
-    slug: "word.compound.yes",
+    slug: "word.compound.lexical",
     traits: ["ONTOLOGICAL", "LABELED"],
     data: {
       ONTOLOGICAL: {},
       LABELED: {
-        name: "Compound",
-        description: "Word formed by combining multiple morphemes or roots.",
+        name: "Lexical compound",
+        description:
+          "Lexicalized compound: a single dictionary entry composed of multiple morphemes or roots (e.g. bem-vindo, segunda-feira). One literal, no runtime expansion.",
+      },
+    },
+  },
+  {
+    slug: "word.compound.contraction",
+    traits: ["ONTOLOGICAL", "LABELED"],
+    data: {
+      ONTOLOGICAL: {},
+      LABELED: {
+        name: "Contraction",
+        description:
+          "Runtime fusion of distinct syntactic words into one orthographic token (e.g. ao = a + o, do = de + o, pra = para + a). One surface literal whose `uses` resolve to the constituent lemmas.",
+      },
+    },
+  },
+  {
+    slug: "word.compound.clitic",
+    traits: ["ONTOLOGICAL", "LABELED"],
+    data: {
+      ONTOLOGICAL: {},
+      LABELED: {
+        name: "Clitic fusion",
+        description:
+          "Hyphen-bound verb + clitic pronoun rendered as one orthographic token (e.g. vê-la, deixe-me, encontra-o). One surface literal; constituents are the verb form and the pronoun.",
+      },
+    },
+  },
+  {
+    slug: "word.compound.crasis",
+    traits: ["ONTOLOGICAL", "LABELED"],
+    data: {
+      ONTOLOGICAL: {},
+      LABELED: {
+        name: "Crasis",
+        description:
+          "Vowel merger of two adjacent same-vowel words into one (e.g. à = a + a, às = a + as). Portuguese-specific.",
       },
     },
   },

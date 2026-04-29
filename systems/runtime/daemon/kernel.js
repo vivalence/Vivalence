@@ -8,8 +8,8 @@ class Ontology extends Mode {
   type = "ontology";
 }
 
-class Topology extends Mode {
-  type = "topology";
+class Corpus extends Mode {
+  type = "corpus";
 }
 
 export const traits = {};
@@ -17,5 +17,5 @@ export const traits = {};
 export const modes = [
   { type: "domain", prototype: Domain },
   { type: "ontology", prototype: Ontology },
-  { type: "topology", prototype: Topology },
+  { type: "corpus", prototype: Corpus },
 ];

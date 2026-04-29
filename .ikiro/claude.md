@@ -160,7 +160,7 @@ append-only. compose freely: `<trait> <trait> ...` (e.g. `detective forensic 5%`
 - `totem` — 4-quadrant component design (visible, dom, data, interaction); flexibly applied
 - `divio` — 4-quadrant docs (tutorial, how-to, explanation, reference); gap-check, not all required at every level
 - `C4 × totem × divio` — synthesis at every subsystem ikiro: C4 sets abstraction level, totem fills facets per node, divio checks coverage
-- `self-improvement` — ask "what would the next session need to know" after every task
+- `self-improvement` — ask "what would the next session need to know" after every task; AND scan the conversation for the codeword **"retard"** (verbatim — not "stupid", not "wtf", not visible frustration). Each occurrence of "retard" is Finn telling me to self-improve. Log each one in `.ikiro/zettelkasten.md` under `## Callouts` (date, what I did, Finn verbatim, root cause, corrective rule). Same scan runs in `ikiro/compact` and `ikiro/review`. Mandatory.
 - `tests/workpackage/` — staging directory convention. Workpackage tests live in `<container>/tests/workpackage/<feature>.test.js` while feature is in flight; promoted to flat `<container>/tests/<feature>.test.js` when stable. Currently used in typology (`session.test.js`, `voice.session.test.js`).
 
 ## active
@@ -186,6 +186,11 @@ root .ikiro/:
 - very-important-packagemanager — registry as jj scopes (design only)
 - exhibit-absorbs-shadow — exhibit absorbs shadow as RECITE style (DESIGN, drafted 2026-04-22)
 - herald — unified self-description route family (DESIGN, lands with M4.0 /connect)
+- survival-conjugation-expansion — verb set 14→38, three new tenses for the 14, full nonfinites; APPLIED+QA² 2026-04-29; ⚠ 2026-05-03 RETRACTION on syncretic-collapse (see paradigm-cell-completion)
+- paradigm-cell-completion — restore thirdSingular cells across imperfect/conditional/pres.subj (40 bundles, 39 new word literals + 4 QA fixups); DONE 2026-05-03
+- flatten-corpora — survival/a1/a2 → english-to-brazilian; DONE 2026-04-29
+- survival-into-a1 — SUPERSEDED 2026-04-29 by flatten-corpora
+- tatoeba-harvest — BR sentence audio harvester (Tatoeba); tooling shipped 2026-04-29, first 500 in flight
 
 subsystem .ikiro/:
 - subsystems/typology/.ikiro/v-schema-builder — DONE M1+M2; M3 pending

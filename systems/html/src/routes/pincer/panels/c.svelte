@@ -156,8 +156,8 @@
     overflow: hidden;
   }
   .twig {
-    flex: 0 0 12px;
-    min-width: 12px;
+    flex: 0 0 13px;
+    min-width: 13px;
     background: var(--colors-skeleton-1-surface);
     border: none;
     border-radius: 0;
@@ -166,21 +166,29 @@
     align-items: center;
     padding: 4px 0;
     user-select: none;
+    position: relative;
+    z-index: 2;
   }
   .twig.closed {
     background: var(--colors-skeleton-1-surface);
   }
   .twig-toggle {
     width: 100%;
-    height: 14px;
+    height: 16px;
     background: transparent;
     border: none;
     color: var(--colors-skeleton-0-contrast);
     font-family: var(--font-family-code);
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1;
     padding: 0;
     cursor: pointer;
+    position: relative;
+  }
+  .twig-toggle::before {
+    content: "";
+    position: absolute;
+    inset: -6px -12px;
   }
   .twig-toggle:hover {
     color: var(--colors-skeleton-0-boundary);
@@ -196,6 +204,11 @@
     align-self: stretch;
     touch-action: none;
     position: relative;
+  }
+  .twig-handle::before {
+    content: "";
+    position: absolute;
+    inset: 0 -12px;
   }
   .twig-handle::after {
     content: "";

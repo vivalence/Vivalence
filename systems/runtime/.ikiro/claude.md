@@ -36,7 +36,7 @@ systems/runtime/
 ├── daemon/
 │   ├── daemon.js                 Daemon class (69 lines)
 │   ├── die.js                    DaemonDie extends Wafer (225 lines)
-│   ├── kernel.js                 Domain, Ontology, Topology classes (21 lines)
+│   ├── kernel.js                 Domain, Ontology, Corpus classes (21 lines)
 │   ├── aperture/                 datamap, userspace, modes, freight
 │   ├── traits/                   dataset, intented, emitter, fraught, chaosmonkey,
 │   │                             buffered (with view bundler) + index re-exports

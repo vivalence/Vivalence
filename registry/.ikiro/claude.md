@@ -26,7 +26,7 @@ manifest contract:
 
 ```javascript
 export const manifest = {
-  type: "domain" | "ontology" | "topology" | "game" | "tactic" |
+  type: "domain" | "ontology" | "corpus" | "game" | "tactic" |
         "service" | "datamap" | "hallucinator" | "lighthouse" | "circuit",
   slug: "unique-identifier",
   name: "Human-readable name",
@@ -41,7 +41,7 @@ type-specific exports (beyond manifest):
 |------|-------------------|
 | domain | entities, modes, traits, aperture |
 | ontology | dataset (symbol hierarchy) |
-| topology | dataset (literals + symbol associations) |
+| corpus | dataset (literals + symbol associations) |
 | game | buffer (BufferView), emitter (Vector), dataset (intent[]) |
 | tactic | emitter (composed Vector across phases), dataset (intent[]) |
 | service | provider(config), optionally aperture |
@@ -100,7 +100,7 @@ active work:
 archived:
 
 - `modes/@vivalence/game/bak/` — agent, strategy, tactic (old version), teacher, 11+ legacy modes
-- `kernels/@vivalence/topology/bak/` — Spanish, Latin, other languages
+- `kernels/@vivalence/corpus/bak/` — Spanish, Latin, other languages
 - `services/@vivalence/hallucinator/bak/` — hal257 retired, plus Groq, OpenAI, Perplexity, TogetherAI legacy archive
 
 maintenance — adding a new entry:

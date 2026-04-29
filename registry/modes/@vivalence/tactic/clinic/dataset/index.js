@@ -5,7 +5,7 @@ export default {
       name: "Regular Conjugations",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/regular-conjugations" },
         QUEUEING: { depth: 2 },
       },
@@ -15,7 +15,7 @@ export default {
       name: "Irregular Conjugations",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/irregular-conjugations" },
         QUEUEING: { depth: 2 },
       },
@@ -25,7 +25,7 @@ export default {
       name: "Question Words",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/questions" },
         QUEUEING: { depth: 2 },
       },
@@ -35,7 +35,7 @@ export default {
       name: "Connectors",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/connectors" },
         QUEUEING: { depth: 2 },
       },
@@ -45,7 +45,7 @@ export default {
       name: "Negation",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/negation" },
         QUEUEING: { depth: 2 },
       },
@@ -55,7 +55,7 @@ export default {
       name: "Pronouns",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/pronouns" },
         QUEUEING: { depth: 2 },
       },
@@ -65,7 +65,7 @@ export default {
       name: "Determiners",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/determiners" },
         QUEUEING: { depth: 2 },
       },
@@ -75,7 +75,7 @@ export default {
       name: "Adverbs",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/adverbs" },
         QUEUEING: { depth: 2 },
       },
@@ -85,7 +85,7 @@ export default {
       name: "Numbers",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/numbers" },
         QUEUEING: { depth: 2 },
       },
@@ -95,7 +95,7 @@ export default {
       name: "Adjective Degrees",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/degrees" },
         QUEUEING: { depth: 2 },
       },
@@ -105,7 +105,7 @@ export default {
       name: "Prepositions",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/prepositions" },
         QUEUEING: { depth: 2 },
       },
@@ -115,7 +115,7 @@ export default {
       name: "Ser vs Estar",
       traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
-        MASKED: { where: { symbols: ["proficiency.survival"] } },
+        MASKED: { where: { symbols: [] } },
         AIMED: { mount: "/emit/ser-estar" },
         QUEUEING: { depth: 2 },
       },

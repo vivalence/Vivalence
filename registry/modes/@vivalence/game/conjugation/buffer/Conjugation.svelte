@@ -61,18 +61,22 @@
   let input = $state("");
   let submitted = $state(false);
   let correct = $state(false);
+  let corrected = $state(false);
+  let editing = $state(false);
+  let editValue = $state("");
+  let editEl = $state(null);
   let inputEl = $state(null);
   let audioFinished = $state(!targetAsset);
   let keyboard;
 
   $effect(() => {
-    if (inputEl && !submitted) inputEl.focus();
+    if (editing && editEl) editEl.focus();
+    else if (inputEl && !submitted) inputEl.focus();
     else if (submitted && keyboard) keyboard.focus();
   });
 
   function evaluate(text) {
-    const alts = string.separate(answer);
-    return alts.some((alt) => string.fold(text) === string.fold(alt));
+    return string.matches(text, answer);
   }
 
   function submit() {
@@ -85,14 +89,43 @@
       scope: { literal: target.id },
     });
 
-    if (audioFinished) {
-      setTimeout(() => advance(), correct ? 800 : 1500);
+    if (audioFinished && correct) {
+      setTimeout(() => advance(), 800);
     }
   }
 
   function onAudioEnded() {
     audioFinished = true;
-    if (submitted) setTimeout(() => advance(), correct ? 400 : 800);
+    if (submitted && correct) setTimeout(() => advance(), 400);
+  }
+
+  function startCorrection() {
+    if (correct || corrected) return;
+    editing = true;
+    editValue = "";
+  }
+
+  function commitCorrection() {
+    if (string.matches(editValue, answer)) {
+      corrected = true;
+      editing = false;
+      editValue = "";
+    } else {
+      editValue = "";
+    }
+  }
+
+  function handleCorrectionKey(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitCorrection();
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      editing = false;
+      editValue = "";
+    }
   }
 
   function advance() {
@@ -141,14 +174,35 @@
 
       {#if submitted}
         <div class="feedback">
-          <div class="fb-line" class:fb-ok={correct} class:fb-miss={!correct}>
-            <span class="fb-icon">{correct ? "✓" : "✗"}</span>
-            <span class="fb-input">{correct ? answer : string.clean(input)}</span>
+          <div
+            class="fb-line"
+            class:fb-ok={correct || corrected}
+            class:fb-miss={!correct && !corrected}>
+            <span class="fb-icon">{correct || corrected ? "✓" : "✗"}</span>
+            {#if editing}
+              <input
+                class="fb-edit"
+                bind:this={editEl}
+                bind:value={editValue}
+                onkeydown={handleCorrectionKey}
+                onblur={commitCorrection}
+                placeholder={answer} />
+            {:else if !correct && !corrected}
+              <button
+                type="button"
+                class="fb-input fb-button"
+                onmousedown={(e) => e.preventDefault()}
+                onclick={startCorrection}>
+                {string.clean(input) || "—"}
+              </button>
+            {:else}
+              <span class="fb-input">{correct || corrected ? answer : string.clean(input)}</span>
+            {/if}
             {#if targetAsset}
               <Asset asset={targetAsset} variant="dot" autoplay={true} onended={onAudioEnded} />
             {/if}
           </div>
-          {#if !correct}
+          {#if !correct && !corrected}
             <div class="fb-answer">
               <span class="fb-answer-label">expected</span>
               <span class="fb-answer-text">{answer}</span>
@@ -294,6 +348,27 @@
   }
   .fb-ok .fb-icon, .fb-ok .fb-input { color: var(--colors-system-success-contrast); }
   .fb-miss .fb-icon, .fb-miss .fb-input { color: var(--colors-system-error-contrast); }
+  .fb-button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .fb-edit {
+    font-family: var(--font-family-serif-heading);
+    font-size: var(--font-size-lg);
+    line-height: 1.3;
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-system-error-contrast);
+    flex: 1;
+    min-width: 0;
+  }
 
   .fb-answer {
     display: flex;

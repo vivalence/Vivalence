@@ -1,4 +1,4 @@
-// todo reintegrate entities from topology
+// todo reintegrate entities from corpus
 import { DataEntity } from "./DataEntity.ts";
 import { defineEntity } from "@mikro-orm/core";
 

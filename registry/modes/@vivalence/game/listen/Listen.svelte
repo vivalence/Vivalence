@@ -29,6 +29,49 @@
   let shuffled = $state([]);
   let hinted = $state(false);
 
+  let editingIndex = $state(null);
+  let editValue = $state("");
+  let corrections = $state(new Set());
+  let editInputEl = $state(null);
+
+  function startCorrection(i) {
+    const tok = resultTokens?.[i];
+    if (!tok) return;
+    if (tok.signal === "SUCCESS" || corrections.has(i)) return;
+    editingIndex = i;
+    editValue = "";
+  }
+
+  function commitCorrection(i) {
+    const tok = resultTokens?.[i];
+    if (!tok) {
+      editingIndex = null;
+      editValue = "";
+      return;
+    }
+    if (editValue.trim() === tok.form) {
+      corrections.add(i);
+      corrections = new Set(corrections);
+      editingIndex = null;
+      editValue = "";
+    } else {
+      editValue = "";
+    }
+  }
+
+  function handleCorrectionKey(event, i) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      event.stopPropagation();
+      commitCorrection(i);
+    } else if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      editingIndex = null;
+      editValue = "";
+    }
+  }
+
   const target = $derived(
     data.target
       ? literals.find((l) => l.id === data.target)
@@ -85,12 +128,7 @@
 
   function evaluateTyped() {
     if (!answer) return false;
-    const alts = string.separate(answer);
-    const got = normalize(typed);
-
-    if (alts.some((alt) => got === normalize(alt))) return "correct";
-
-    return "wrong";
+    return string.matches(typed, answer, { forgiving }) ? "correct" : "wrong";
   }
 
   function submitType() {
@@ -136,6 +174,9 @@
       typed = "";
       answered = false;
       hinted = false;
+      corrections = new Set();
+      editingIndex = null;
+      editValue = "";
     } else {
       buffer.release();
     }
@@ -177,15 +218,20 @@
     else if (gameplay === "TYPE" && answered && keyboard) keyboard.focus();
   });
 
+  $effect(() => {
+    if (editingIndex !== null && editInputEl) editInputEl.focus();
+  });
+
   function handleKey(event) {
     if (gameplay === "TYPE") {
+      if (event.target === inputEl || event.target === editInputEl) return;
       if (["Enter", "Space"].includes(event.key) && !answered) {
         event.preventDefault();
         submitType();
       } else if (["Enter", "Space"].includes(event.key) && answered) {
         event.preventDefault();
         advance();
-      } else if (event.key === "h" && !event.target.closest("input")) {
+      } else if (event.key === "h") {
         event.preventDefault();
         hinted = !hinted;
       }
@@ -259,7 +305,8 @@
                   <span
                     class="fb-val"
                     class:ok={typeResult === "correct"}
-                    class:wrong={typeResult === "wrong"}>
+                    class:wrong={typeResult === "wrong"}
+                    class:word={isWord}>
                     {typeResult === "correct" ? answer : typed}
                   </span>
                 </div>
@@ -267,12 +314,21 @@
                 {#if typeResult === "wrong"}
                   <div class="fb-block">
                     <span class="fb-key">expected</span>
-                    <span class="fb-val ok">{answer}</span>
+                    <span class="fb-val ok" class:word={isWord}>{answer}</span>
                   </div>
                 {/if}
 
                 {#if answerReveal}
-                  <p class="example revealed">{answerReveal}</p>
+                  <p class="example revealed" class:word={isWord}>{answerReveal}</p>
+                {/if}
+
+                {#if isWord && hint}
+                  <div class="fb-block hint-block">
+                    <span class="fb-val hint">{hint}</span>
+                  </div>
+                  {#if hintExample}
+                    <p class="example revealed target">{hintExample}</p>
+                  {/if}
                 {/if}
               </div>
 
@@ -283,14 +339,33 @@
 
             {#if resultTokens}
               <div class="tokens">
-                {#each resultTokens as tok}
-                  <div
-                    class="tok"
-                    class:tok-ok={tok.signal === "SUCCESS"}
-                    class:tok-miss={tok.signal !== "SUCCESS"}>
-                    <span class="tok-form">{tok.form}</span>
-                    <span class="tok-gloss">{tok.gloss}</span>
-                  </div>
+                {#each resultTokens as tok, i}
+                  {@const isOk = tok.signal === "SUCCESS" || corrections.has(i)}
+                  {#if editingIndex === i}
+                    <div class="tok tok-edit">
+                      <input
+                        class="tok-input"
+                        bind:this={editInputEl}
+                        bind:value={editValue}
+                        size={Math.max(4, (tok.form?.length ?? 4) + 1)}
+                        onkeydown={(event) => handleCorrectionKey(event, i)}
+                        onblur={() => commitCorrection(i)}
+                        placeholder={tok.form} />
+                      <span class="tok-gloss">{tok.gloss}</span>
+                    </div>
+                  {:else}
+                    <button
+                      type="button"
+                      class="tok"
+                      class:tok-ok={isOk}
+                      class:tok-miss={!isOk}
+                      disabled={isOk}
+                      onmousedown={(event) => event.preventDefault()}
+                      onclick={() => startCorrection(i)}>
+                      <span class="tok-form">{tok.form}</span>
+                      <span class="tok-gloss">{tok.gloss}</span>
+                    </button>
+                  {/if}
                 {/each}
               </div>
             {/if}
@@ -510,6 +585,17 @@
   .fb-val.wrong {
     color: var(--colors-system-error-contrast);
   }
+  .fb-val.hint {
+    color: var(--colors-skeleton-1-contrast);
+    font-size: 1.5rem;
+    opacity: 1;
+  }
+  .fb-val.word {
+    font-size: 1.5rem;
+  }
+  .hint-block {
+    margin-top: 0.75rem;
+  }
 
   .example {
     font-family: var(--font-family-serif-heading);
@@ -522,6 +608,12 @@
   }
   .example.revealed {
     margin: 0.05rem 0 0 0;
+  }
+  .example.word {
+    font-size: 1.05rem;
+  }
+  .example.target {
+    font-size: 1.05rem;
   }
 
   .tokens {
@@ -536,6 +628,32 @@
     align-items: center;
     padding: 0.375rem 0.5rem;
     border-radius: 0.25rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: center;
+    cursor: pointer;
+  }
+  .tok:disabled { cursor: default; }
+  .tok-edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.25rem;
+    background: color-mix(in srgb, var(--colors-theme-primary-contrast) 12%, transparent);
+  }
+  .tok-input {
+    background: transparent;
+    border: 0;
+    outline: none;
+    padding: 0;
+    color: var(--colors-palette-gray-10);
+    font-family: var(--font-family-serif-heading);
+    font-size: 1rem;
+    line-height: 1.2;
+    text-align: center;
   }
   .tok-ok {
     background: color-mix(in srgb, var(--colors-system-success-contrast) 12%, transparent);
@@ -564,6 +682,8 @@
   @media (max-width: 640px) {
     .feedback { gap: 0.375rem; }
     .fb-val { font-size: 1rem; }
+    .fb-val.hint { font-size: 1.25rem; }
+    .fb-val.word { font-size: 1.25rem; }
     .tok { padding: 0.25rem 0.375rem; }
     .tok-form { font-size: 0.85rem; }
   }

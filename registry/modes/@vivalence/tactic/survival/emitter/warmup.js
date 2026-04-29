@@ -1,4 +1,4 @@
-import { array } from "@vivalence/typology";
+import { array, random } from "@vivalence/typology";
 // ── warmup ──────────────────────────────────────────────────────────
 // activate what you know. build confidence. no typing.
 // three sources: near-due successes, due now, weak by strength.
@@ -71,22 +71,17 @@ export default async (ctx) => {
           speed: { rate: "SLOW" },
         }),
       );
-    } else if (word.memory.is.succeeded) {
-      if (vocalized)
-        practice.add(
-          ctx.daemon.modes.game.listen.emit.literal({
-            literal: word,
-            distractors,
-            gameplay: "TYPE",
-            recall: "KNOWN",
-          }),
-        );
-      else
-        practice.add(
-          ctx.daemon.modes.game.write.emit.literals({ recall: "LEARNING", literal: word }),
-        );
+    } else if (vocalized && random.coinflip(0.7)) {
+      practice.add(
+        ctx.daemon.modes.game.listen.emit.literal({
+          literal: word,
+          distractors,
+          gameplay: "TYPE",
+          recall: "KNOWN",
+        }),
+      );
     } else {
-      practice.add(ctx.daemon.modes.game.write.emit.literals({ recall: "KNOWN", literal: word }));
+      practice.add(ctx.daemon.modes.game.write.emit.literals({ literal: word }));
     }
   }
 

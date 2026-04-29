@@ -30,7 +30,7 @@ trait → runtime wiring:
 | CHAOSMONKEY | wire harness — fail-fast + cortex.shard.harness + dialogue assembly + scribe + /harness mount | `systems/runtime/daemon/traits/chaosmonkey.js` |
 | CONVERSATIONAL | thin ws session owner — /conversation route, per-connection vector | `systems/runtime/daemon/traits/conversational.js` |
 | FRAUGHT | index freight catalog (audio, images), expose /freight | `systems/runtime/daemon/traits/index.js` |
-| TOPOGRAPHICAL | carry topology-level data | `traits/index.js` |
+| TOPOGRAPHICAL | carry corpus-level data | `traits/index.js` |
 | VIEWABLE | (alias of BUFFERED — Svelte view bundler) | `traits/buffered.js` |
 | LANGUAGED / AGENTIC | planned, not yet implemented | — |
 | SELFEVIDENT | legacy no-op on Mode (still valid as Thread/Intent fallback) | — |
