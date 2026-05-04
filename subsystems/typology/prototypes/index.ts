@@ -7,7 +7,7 @@ export * from "./seek.js";
 export * from "./status.js";
 export * from "./connection.js";
 export * from "./socket.js";
-export * from "./session.js";
+export * from "./conversation.js";
 export * from "./url.js";
 export * from "./path.js";
 export * from "./pattern.js";
@@ -17,7 +17,6 @@ export * from "./signal.js";
 export * from "./span.js";
 export * from "./pipe.js";
 export * from "./queue.js";
-export * from "./bell.js";
 export * as tracks from "./tracks.js";
 
 export * from "./buffer.js";
@@ -40,7 +39,7 @@ export * from "./mode.js";
 export * from "./blacklist.js";
 export * from "./yield.js";
 export * from "./pool.js";
-export * from "./remedy/index.ts";
+// export * from "./remedy/index.ts";
 
 export * from "./vector.js";
 export * from "./aperture.js";

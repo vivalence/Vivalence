@@ -5,7 +5,10 @@ export class Queue {
 
   enqueue(value) {
     this.buffer.push(value);
-    if (this.resolve) { this.resolve(); this.resolve = null; }
+    if (this.resolve) {
+      this.resolve();
+      this.resolve = null;
+    }
     return this;
   }
 
@@ -16,12 +19,18 @@ export class Queue {
 
   close() {
     this.closed = true;
-    if (this.resolve) { this.resolve(); this.resolve = null; }
+    if (this.resolve) {
+      this.resolve();
+      this.resolve = null;
+    }
   }
 
   async *drain(signal) {
     while (!signal?.aborted) {
-      if (this.buffer.length) { yield this.buffer.shift(); continue; }
+      if (this.buffer.length) {
+        yield this.buffer.shift();
+        continue;
+      }
       if (this.closed) return;
       await new Promise((r) => {
         this.resolve = r;
@@ -30,7 +39,11 @@ export class Queue {
     }
   }
 
-  get depth() { return this.buffer.length; }
+  get depth() {
+    return this.buffer.length;
+  }
 
-  [Symbol.asyncIterator]() { return this.drain(); }
+  [Symbol.asyncIterator]() {
+    return this.drain();
+  }
 }

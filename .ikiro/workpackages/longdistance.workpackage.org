@@ -1,7 +1,7 @@
 #+TITLE: Longdistance — voice call modes + hallucinator TTS/ASR
 #+AUTHOR: Vivalence
 #+DATE: 2026-04-17
-#+STATUS: IMPLEMENTING — text DONE (s43+44). Audio scaffolding landed s45 dormant behind ModeTraitsEnum gate. Unblock = add VOCALIZED to ModeTraitsEnum.
+#+STATUS: IMPLEMENTING — text DONE end-to-end (s43+44+s48+s49). M-trait-consolidation APPLIED 2026-05-05: INSITU dropped from voice ontology, CONVERSATIONAL on thread is the engagement marker, conversation lifecycle owned by thread dossier subscriber. s49 (2026-05-05): rich chat upgrade — live token streaming, cancel mid-stream, multi-line composer + Enter/Shift+Enter toggle, full markdown render (h1-h6/lists/code-blocks/links), smart auto-scroll, day dividers + relative timestamps, per-turn copy/retry, ↑-recall, thinking indicator, dormant tool-call + artifact rendering. Audio scaffolding landed s45 dormant behind ModeTraitsEnum gate. Unblock = add VOCALIZED to ModeTraitsEnum.
 
 * Desired end state
 
@@ -289,3 +289,173 @@ INSITU is user-triggered via E panel toggle, NOT auto-installed by ThreadDossier
 - 2026-04-19 — Dock refactor: =SessionDock= → =Dock=, panel-local; layout math extracted to =dock.geometry.js= (13 steps green); port harness moved to =bak/=.
 - 2026-04-21 — M-trait-consolidation designed; pending Finn approval. Independent of enum gate.
 - 2026-04-22 — Provider landscape + dual-dialogue dispatch synthesis folded; locked S1/S2 unchanged.
+- 2026-05-05 s48 — M-trait-consolidation APPLIED. Ontology rewrite: INSITU dropped from voice path (reserved for future tactic data); CONVERSATIONAL trait added to =ThreadTraitsEnum= and owns engagement. Conversation slot lives on terminal (=terminal.conversation= as accessor through =thread.conversation=); lifecycle managed by =systems/kajuit/src/typology/traits/thread/conversational.js= via =wire(thread)= subscriber on =thread.$traits=. =engage(thread)/release(thread)= flip the trait + persist server-side; subscriber reacts. Dewey is SELFEVIDENT (no INTENTED, no intent dataset). UI: Panel E pill (=Conversational.svelte=) + shoulder widget (=ConversationalWidget.svelte=) trigger engagement with one click — no separate "start/activate" affordance. Crown tabs gain live conversation pip + opening/live/idle states. Dock simplified: rail/collapse/reset/open buttons removed; visibility gated by =thread.traits.includes("CONVERSATIONAL")=; `Dock.svelte` rewritten kajuit-harmony (header pip + title + state, log, composer). Signal vocabulary locked to =dialogue.open / dialogue.abort / dialogue.packet / dialogue.close= (NOT anchor/voyage — runtime conversational.js confirms). Thread entity: full reactive accessors ($phase / $traits / $trait deepMap / $buffers / $turns / $buffer / $conversation / $label); LABELED trait owns label normalization (lifted out of setter). Terminal slimmed: drops $audio, engage/release methods, plain conversation/socket/streams fields, wireAudio commented blob; DEFAULT_DOCK reduced to {side, share}. Tests: 18 steps green (=tests/typology/thread.conversational.test.js= 6 + =tests/pincer/dock.geometry.test.js= 12). End-to-end browser-verified: engage → handshake LIVE → dock → message reaches runtime → cortex → anthropic. Anthropic API key was rotten (401), then rotated by Finn.
+
+** Files touched s48
+*** New
+- =systems/kajuit/src/typology/traits/thread/conversational.js= — wire/engage/release
+- =systems/kajuit/src/routes/pincer/panels/e/Conversational.svelte=
+- =systems/kajuit/src/routes/pincer/bones/ConversationalWidget.svelte=
+- =systems/kajuit/tests/typology/thread.conversational.test.js= (6 steps)
+
+*** Modified
+- =subsystems/typology/entities/userspace/Thread.ts= — added CONVERSATIONAL to ThreadTraitsEnum (Finn)
+- =systems/kajuit/src/typology/entities/thread.js= — full reactive accessors + dossier wireConversational middleware
+- =systems/kajuit/src/typology/entities/terminal.js= — drastic slim
+- =systems/kajuit/src/typology/traits/thread/labeled.js= — owns label shape() normalization
+- =systems/kajuit/src/typology/traits/thread/index.js= — namespace conversational export
+- =systems/kajuit/src/typology/traits/index.js= — drop terminal namespace
+- =systems/kajuit/src/routes/pincer/panels/e.svelte= — CONVERSATIONAL pill replaces INSITU
+- =systems/kajuit/src/routes/pincer/panels/a.svelte= — dock visibility on thread.traits
+- =systems/kajuit/src/routes/pincer/panels/a/Dock.svelte= — full rewrite, kajuit aesthetic
+- =systems/kajuit/src/routes/pincer/panels/a/dock.geometry.js= — drop RAIL_SIZE, drop collapsed/session from defaultDock
+- =systems/kajuit/src/routes/pincer/bones/shoulder.svelte= — embeds ConversationalWidget
+- =systems/kajuit/src/routes/pincer/bones/crown.svelte= — pretty pass + tab-pip indicators
+- =systems/kajuit/tests/pincer/dock.geometry.test.js= — drop RAIL_SIZE/collapsed assertions
+
+*** Deleted
+- =systems/kajuit/src/typology/traits/terminal/insitu.js= + =index.js= + dir
+- =systems/kajuit/src/routes/pincer/panels/e/InsituSession.svelte=
+- =systems/kajuit/src/routes/pincer/panels/e/InsituDock.svelte=
+- =systems/kajuit/src/routes/pincer/panels/e/InsituStreams.svelte=
+
+** Finn verbatim koans (s48 architectural intent)
+
+*** K12 — Conversation lives on terminal, lifecycled elsewhere
+#+begin_quote
+the conversation instance LIVES on the terminal but is lifecycled controlled and managed elsewhere.
+#+end_quote
+Resolved: =terminal.conversation= is a getter that reads =thread.conversation=. Storage on Thread (atom-backed, =$conversation=). Lifecycle by thread CONVERSATIONAL trait body via =wire(thread)= subscriber. Terminal stays a slot, no engage/release methods.
+
+*** K13 — Single click engages, no extras
+#+begin_quote
+no additional start/activate clicks. if conversational trait is set/activated and teh dock is open, then session is running
+#+end_quote
+Resolved: trait flip is the only trigger. Dock has no start/end button. Conversation auto-opens via subscriber; dock auto-shows when trait present.
+
+*** K14 — Dewey is SELFEVIDENT
+#+begin_quote
+dewey is now selfevident - aka no intent. ignore all that.
+#+end_quote
+Resolved: ignore intent flow for engagement; thread is the engagement target directly.
+
+*** K15 — UI harmony
+#+begin_quote
+fix the ui of chat. it doesnt feel in harmony with teh rest of kajuit
+#+end_quote
+Resolved: Dock rewritten with kajuit typography (10px code font, lowercase, sparse borders, var(--colors-skeleton-N-...) tokens). Crown tabs polished with subtle background tint, soft glow on active.
+
+*** K16 — Conversation prototype canonical method names
+Confirmed against =subsystems/typology/prototypes/conversation.js= and =systems/runtime/daemon/traits/conversational.js=:
+- Conversation prototype: =$state= atom (IDLE/OPENING/LIVE/CLOSING/CLOSED/ERROR), =open()= for handshake, =close()=, =subscribe(signal, cb)=
+- Server inbound: =/handshake/open=, =/dialogue/open=, =/dialogue/abort=, (vocalized) =/verbatim/packet=, =/verbatim/close=, =/control/abort=
+- Server outbound: =/dialogue/packet=, =/dialogue/close=, =/dialogue/error=, (vocalized) =/speech/packet=, =/speech/close=, =/speech/error=
+
+NOT =anchor/voyage/moin= — those vocab variants are stale workpackage notation; uncommitted.
+
+** s49 changelog — rich chat upgrade (2026-05-05)
+
+*** Files
+
+**** New
+- =systems/kajuit/src/routes/pincer/panels/a/Markdown.svelte= — block + inline render component
+- =systems/kajuit/src/routes/pincer/panels/a/markdown.js= — minimal MD parser (paragraph/heading/code-block/list/blockquote/hr + bold/italic/code/link)
+- =systems/kajuit/tests/pincer/markdown.test.js= — 11-step parser test
+
+**** Modified
+- =systems/kajuit/src/typology/entities/terminal.js= — added =$composer= atom + =DEFAULT_COMPOSER= + toJSON includes composer
+- =systems/kajuit/src/typology/traits/thread/conversational.js= — added =$streaming= / =$pending= / =$lastError= atoms; =_cancelStream= flag for instant client-side cancel; exported =send(thread, parts, {tune})= + =abort(thread, turnId?)= helpers; refetch + tmp-* drop on /dialogue/close
+- =systems/kajuit/src/routes/pincer/panels/a/Dock.svelte= — full rewrite: textarea (auto-grow ≤6 lines), Enter/Shift+Enter via terminal.composer.enterSends, ↑-recall last user, Esc cancels, smart auto-scroll (pin if at bottom), unread pill, day dividers, relative timestamps, hover copy/retry actions, streaming entry, thinking dots, error bar, tool_use/tool_result via <details>, artifact inline (img/audio/file), Markdown.svelte for body
+- =systems/kajuit/src/routes/pincer/panels/e/Conversational.svelte= — added =enter= row (send | newline toggle) wired to =setComposer({enterSends})=
+- =systems/kajuit/src/routes/pincer/panels/a/dock.geometry.js= — SHARE_MAX 0.6 → 1.0
+- =subsystems/typology/prototypes/entity-manager.js= — child→parent filter accepts string ref id (=child[mappedBy] === entity.id=) in addition to object refs
+
+** Finn verbatim koans (s49 chat-quality intent)
+
+*** K17 — Side controls belong in panel E
+#+begin_quote
+the left right toop bottom should be in the e panel
+#+end_quote
+Resolved: dock side + size controls moved out of Dock header into Conversational.svelte. Dock header now =pip / title / state= only.
+
+*** K18 — Max size 100%
+#+begin_quote
+max size should be 100% not 60.
+#+end_quote
+Resolved: SHARE_MAX = 1.0 in dock.geometry.js + Conversational slider max="1.0" + setShare clamp [0.18, 1.0]. Tests value-agnostic via SHARE_MAX symbol — stayed green.
+
+*** K19 — Rich chat checklist (verbatim)
+#+begin_quote
+whats missing for a rich chat experience? multiple messages, responses/quotes, multi-line messages aka shift+enter (id like in the future the option to toggle linebreaking/sending on enter/shift-enter so set that up already.... what else? like a GREAT chat? what do all great chats have in common? whats missing from shit chats?
+#+end_quote
+Resolved across s49: streaming + cancel + multi-line + toggle + extended markdown + smart scroll + new-msg pill + timestamps + day dividers + per-turn copy/retry + ↑-recall + Esc-cancel + thinking indicator + error bar.
+
+*** K20 — Agent-chat-specific UX
+#+begin_quote
+alos, this is ai agent chat. i will need status indicators while thinking is happening, ill need progress report on async tasks, ill need the ability to attach assets/artifacts both inline and as some sort of referenced aggregation. shit like that
+#+end_quote
+Resolved (rendering plumbed; server-side data-paths dormant): =isThinking= state + animated dots before first packet; tool_use / tool_result parts render as collapsible =<details>= per turn (progress on async tasks); image/audio/file/artifact parts render inline (img / audio controls / link). Server doesn't currently emit tool/artifact parts — UI ready when chaosmonkey + cortex emit them.
+
+*** K21 — Trust delegation
+#+begin_quote
+implement allthat
+#+end_quote
+#+begin_quote
+yeah all that looks good.
+#+end_quote
+#+begin_quote
+have fun. show me how great you are.
+#+end_quote
+Authorization to ship the full rich-chat list in one wave; subsequent green light on the design proposal; explicit trust-and-go.
+
+** s49 state diagram
+
+#+begin_src
+            user types
+                ↓
+       composer (enterSends?)
+                ↓
+   send() → optimistic tmp-user merge → conversation.send.dialogue.open
+                ↓
+            $pending=true (thinking dots)
+                ↓
+          /dialogue/packet (server)
+                ↓
+        $streaming = soma.pour(turn, packet)
+        $pending = false
+        live render via Markdown.svelte
+                ↓
+       /dialogue/close
+                ↓
+       repo.merge(real assistant turn)
+       turnRepo.find() → drop tmp-*
+       $streaming = null
+#+end_src
+
+Cancel path:
+#+begin_src
+       Stop click / Esc
+            ↓
+       abort(thread)
+            ↓
+       _cancelStream() — set cancelled flag
+       $streaming = null
+       $pending = false
+            ↓
+       conversation.send.dialogue.abort({})
+            ↓
+       further packets dropped at inbound (cancelled flag)
+       /dialogue/close eventually arrives → cancelled=false (reset)
+#+end_src
+
+** s49 dormant infrastructure (UI ready, server pending)
+
+| Feature | UI shape | Server prerequisite |
+|---------|----------|---------------------|
+| Tool-call progress | =<details>= per part where part.type === "tool_use" or "tool_result"; pretty-prints =part.input= or =part.output= | chaosmonkey/cortex must emit tool parts in stream |
+| Inline artifacts | =part.type ∈ {image, audio, file, artifact}= renders as <img>/<audio>/<a> | server emits matching parts (sources: data-uri or url) |
+| Aggregated artifact panel | not yet built (per-turn only) | needs UI layer + dataspace pull |
+| Reply-to / quote | no UI | server already supports turn.parent in chaosmonkey; needs client UI to set parent on send |
+| Edit + regenerate | no UI | server delete + re-send |
+| Reconnect on drop | not wired | client-side; conversation.$state ERROR/CLOSED → re-open w/ backoff |
+| Search history | no UI | client-side |

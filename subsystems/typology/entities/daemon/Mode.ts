@@ -25,13 +25,13 @@ export class ModeRepository extends DataRepository {
   }
 }
 export class ModeEntity extends DataEntity {
+  type: string;
   slug: string & Opt = "";
+  traits: ModeTraitsEnum[] & Opt = [];
   name?: string;
   description?: string;
-  traits: ModeTraitsEnum[] & Opt = [];
-  type?: string;
-  installed: Boolean = false;
   version?: string;
+  installed: Boolean = false;
 
   intents = new Collection<IntentEntity>(this);
   buffers = new Collection<BufferEntity>(this);

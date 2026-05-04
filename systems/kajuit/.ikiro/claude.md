@@ -43,7 +43,7 @@ systems/kajuit/src/
     │                             (each = class + dossier)
     ├── prototypes/               entity, dossier, dataspace, daemon, lighthouse,
     │                             persistence, quarters, bridge, thread-store, stall
-    └── traits/thread/            LABELED, MASKED, INSITU, AIMED, QUEUEING, FURNISHED, SELFEVIDENT
+    └── traits/thread/            LABELED, MASKED, INSITU, AIMED, QUEUEING, SELFEVIDENT
 ```
 
 boot sequence (`systems/kajuit/src/routes/+layout.svelte`):

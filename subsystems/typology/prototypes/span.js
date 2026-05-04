@@ -11,21 +11,39 @@ export class Span extends Signature {
   pipe = null;
 
   track = {
-    transport:  (options) => { if (!this.transport) this.transport = new Transported(options, this); return this.transport; },
-    transition: (options) => { if (!this.transition) this.transition = new Transitioned(options, this); return this.transition; },
-    subject:    (options) => { if (!this.subject) this.subject = new Subjected(options, this); return this.subject; },
-    fault:      (options) => { if (!this.fault) this.fault = new Faulted(options, this); return this.fault; },
+    transport: (options) => {
+      if (!this.transport) this.transport = new Transported(options, this);
+      return this.transport;
+    },
+    transition: (options) => {
+      if (!this.transition) this.transition = new Transitioned(options, this);
+      return this.transition;
+    },
+    subject: (options) => {
+      if (!this.subject) this.subject = new Subjected(options, this);
+      return this.subject;
+    },
+    fault: (options) => {
+      if (!this.fault) this.fault = new Faulted(options, this);
+      return this.fault;
+    },
   };
 
   _hash = null;
 
-  to(pipe) { this.pipe = pipe; return this; }
+  to(pipe) {
+    this.pipe = pipe;
+    return this;
+  }
   begin() {
     this.timing.begin();
     this._hash = hash.array([this.nature, this.trace?.hash ?? null, this.timing.begun]);
     return this;
   }
-  seal() { this.timing.seal(); return this; }
+  seal() {
+    this.timing.seal();
+    return this;
+  }
   drain(pipe) {
     this.seal();
     const target = pipe ?? this.pipe;
@@ -35,11 +53,19 @@ export class Span extends Signature {
     return this;
   }
 
-  get duration() { return this.timing.duration; }
-  get complete() { return this.timing.complete && this.gauges.every((gauge) => gauge.complete); }
+  get duration() {
+    return this.timing.duration;
+  }
+  get complete() {
+    return this.timing.complete && this.gauges.every((gauge) => gauge.complete);
+  }
 
-  get hash() { return this._hash; }
-  hasher() { return this._hash; }
+  get hash() {
+    return this._hash;
+  }
+  hasher() {
+    return this._hash;
+  }
 
   get json() {
     const result = { nature: this.nature, timing: this.timing.json };

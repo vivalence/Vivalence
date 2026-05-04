@@ -11,11 +11,11 @@ ws {
 }
 
 body:ws {
-  name: 1 — moin
+  name: 1 — handshake open
   type: json
   content: '''
     {
-      "signal": "/herald/moin",
+      "signal": "/handshake/open",
       "input": {
         "shape": {
           "leaves": [],
@@ -23,24 +23,24 @@ body:ws {
             "dialogue": {
               "leaves": [
                 { "nature": "packet" },
-                { "nature": "voyage" }
+                { "nature": "close" }
               ],
               "branches": {}
             }
           }
         }
       },
-      "echo": "moin"
+      "echo": "open"
     }
   '''
 }
 
 body:ws {
-  name: 2 — anchor: house
+  name: 2 — dialogue open: house
   type: json
   content: '''
     {
-      "signal": "/dialogue/anchor",
+      "signal": "/dialogue/open",
       "input": {
         "thread": "{{DEWEY_THREAD_ID}}",
         "parts": [{ "type": "text", "text": "Oi Dewey! Como se diz 'house' em português?" }]

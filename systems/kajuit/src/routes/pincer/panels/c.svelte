@@ -7,13 +7,12 @@
 
   let { rect } = $props();
 
-  const bridgeInstance = getContext(BRIDGE);
-  const stored = bridgeInstance.paneSize;
+  const bridge = getContext(BRIDGE);
 
   const PANE_MIN_PX = 0;
 
-  let panes = $state(stored.$panes.get());
-  let paneSize = $state({ d: stored.$d.get(), e: stored.$e.get(), f: stored.$f.get() });
+  let panes = $state(bridge.paneSize.panes);
+  let paneSize = $state({ d: bridge.paneSize.d, e: bridge.paneSize.e, f: bridge.paneSize.f });
   let twigDrag = $state({ which: null, startX: 0, startD: 0, startE: 0, startF: 0 });
 
   function clamp(value, low, high) {
@@ -78,11 +77,11 @@
 
 
   function persistPanes() {
-    stored.d = paneSize.d;
-    stored.e = paneSize.e;
-    stored.f = paneSize.f;
-    stored.panes = { ...panes };
-    bridgeInstance.save();
+    bridge.paneSize.d = paneSize.d;
+    bridge.paneSize.e = paneSize.e;
+    bridge.paneSize.f = paneSize.f;
+    bridge.paneSize.panes = { ...panes };
+    bridge.save();
   }
 </script>
 

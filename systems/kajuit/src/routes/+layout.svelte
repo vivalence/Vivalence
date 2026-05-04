@@ -7,75 +7,56 @@
   import { Connection, Url } from "@vivalence/typology";
   import { env } from "$env/dynamic/public";
   import { LIGHTHOUSE, QUARTERS, BRIDGE, THREAD } from "$client";
-  import { lighthouse, quarters, bridge, thread } from "@vivalence/kajuit";
+  import {
+    lighthouse as lighthouseDeck,
+    quarters as quartersDeck,
+    bridge as bridgeDeck,
+    thread as threadDeck,
+  } from "@vivalence/kajuit";
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
 
   let { children } = $props();
   let gate = $state("boot");
   let terminalCount = $state(0);
 
-  const lighthouseConnection = new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE));
-  const lighthouseInstance = new lighthouse.Lighthouse(lighthouseConnection);
-  lighthouse.hydrate(lighthouseInstance);
-  setContext(LIGHTHOUSE, lighthouseInstance);
+  const lighthouse = new lighthouseDeck.Lighthouse(
+    new Connection(new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE)),
+  );
+  lighthouseDeck.hydrate(lighthouse);
+  setContext(LIGHTHOUSE, lighthouse);
 
-  const quartersInstance = new quarters.Quarters();
-  setContext(QUARTERS, quartersInstance);
+  const quarters = new quartersDeck.Quarters();
+  setContext(QUARTERS, quarters);
 
-  const bridgeInstance = new bridge.Bridge();
-  setContext(BRIDGE, bridgeInstance);
+  const bridge = new bridgeDeck.Bridge();
+  setContext(BRIDGE, bridge);
 
-  const threadInstance = new thread.ThreadContext(quartersInstance, lighthouseInstance);
-  setContext(THREAD, threadInstance);
+  const thread = new threadDeck.ThreadContext(quarters, lighthouse);
+  setContext(THREAD, thread);
 
   if (typeof window !== "undefined") {
-    window.__viv = {
-      lighthouse: lighthouseInstance,
-      quarters: quartersInstance,
-      bridge: bridgeInstance,
-      thread: threadInstance,
-    };
+    window.__viv = { lighthouse, quarters, bridge, thread };
   }
 
-  // // console.log(JSON.stringify({ lighthouseInstance }, null, 2));
-  // console.log("lighthouse", lighthouseInstance); // dataspaces
-  // console.log("bridge", bridgeInstance); // layout
-  // console.log("quarters", quartersInstance); // terminals
-  // console.log("thread", threadInstance); // active
-
-  const gateComputed = computed(
-    [lighthouseInstance.$isAuthorized, lighthouseInstance.$status],
-    (authorized, status) => {
-      if (status.code === "OFFLINE") return "offline";
-      if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") return "error";
-      if (!authorized) return "auth";
-      if (
-        status.code === "AUTHENTICATING" ||
-        status.code === "VERIFYING" ||
-        status.code === "REFRESHING"
-      )
-        return "verifying";
-      return "ready";
-    },
-  );
-
-  let populated = false;
-
   onMount(() => {
-    lighthouse.boot(lighthouseInstance).catch(console.error);
+    lighthouseDeck.boot(lighthouse).catch(console.error);
 
-    const unsubscribeGate = gateComputed.subscribe((value) => {
-      gate = value;
+    const unsubscribeGate = computed(
+      [lighthouse.$isAuthorized, lighthouse.$status],
+      (authorized, status) => {
+        if (status.code === "OFFLINE") return "offline";
+        if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") return "error";
+        if (!authorized) return "auth";
+        if (["AUTHENTICATING", "VERIFYING", "REFRESHING"].includes(status.code)) return "verifying";
+        return "ready";
+      },
+    ).subscribe((value) => (gate = value));
+
+    const unsubscribePopulate = lighthouse.$isAuthorized.subscribe((authorized) => {
+      if (authorized) lighthouseDeck.populate(lighthouse).catch(console.error);
     });
 
-    const unsubscribePopulate = lighthouseInstance.$isAuthorized.subscribe((authorized) => {
-      if (authorized && !populated) {
-        populated = true;
-        lighthouse.populate(lighthouseInstance).catch(console.error);
-      }
-    });
-
-    const unsubscribeTerminals = quartersInstance.terminals.$entities.subscribe((entities) => {
+    const unsubscribeTerminals = quarters.terminals.$entities.subscribe((entities) => {
       terminalCount = entities.length;
     });
 
@@ -87,30 +68,29 @@
   });
 
   async function onLogin() {
-    await lighthouse.boot(lighthouseInstance);
+    await lighthouseDeck.boot(lighthouse);
   }
 </script>
 
 {#if gate === "ready"}
   {@render children()}
   {#if terminalCount === 0}
-    <div class="empty-overlay" onclick={() => quartersInstance.spawn()} role="presentation">
+    <div class="empty-overlay" onclick={() => quarters.spawn()} role="presentation">
       <span class="empty-prompt">open terminal</span>
     </div>
   {/if}
 {:else if gate === "auth"}
   <div class="gate">
-    <Login lighthouse={lighthouseInstance} onConnected={onLogin} />
+    <Login {lighthouse} onConnected={onLogin} />
   </div>
 {:else if gate === "error"}
   <div class="gate">
     <div class="gate-message">
       <span class="gate-status">error</span>
-      <span class="gate-detail"
-        >{lighthouseInstance.$status.get().message ?? "connection failed"}</span>
+      <span class="gate-detail">{lighthouse.status.message ?? "connection failed"}</span>
       <button
         class="gate-action"
-        onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>retry</button>
+        onclick={() => lighthouseDeck.boot(lighthouse).catch(() => {})}>retry</button>
     </div>
   </div>
 {:else if gate === "offline"}
@@ -120,7 +100,7 @@
       <span class="gate-detail">network unavailable</span>
       <button
         class="gate-action"
-        onclick={() => lighthouse.boot(lighthouseInstance).catch(() => {})}>reconnect</button>
+        onclick={() => lighthouseDeck.boot(lighthouse).catch(() => {})}>reconnect</button>
     </div>
   </div>
 {:else}

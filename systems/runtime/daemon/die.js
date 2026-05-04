@@ -3,6 +3,10 @@ import { is, object, Wafer, Blacklist } from "@vivalence/typology";
 import * as lifecycle from "./lifecycle/index.js";
 import * as aperture from "./aperture/index.js";
 
+// TODO migrate to dossier pattern.
+// TODO2 rename dossier pattern do die pattern.
+// aka keep name, change pattern.
+
 export class Die extends Wafer {
   register = {
     lighthouse: null,

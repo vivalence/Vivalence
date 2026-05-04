@@ -2,12 +2,12 @@
   import { getContext } from "svelte";
   import { THREAD, BRIDGE } from "$client";
 
-  const threadInstance = getContext(THREAD);
+  const thread = getContext(THREAD);
   const bridge = getContext(BRIDGE);
 
   let view = $state(bridge.view.f === "list" ? "buffers" : bridge.view.f);
 
-  let thread = $state(threadInstance.$current.get());
+  let currentThread = $state(thread.current);
   let buffers = $state([]);
   let activeBuffer = $state(null);
   let stallStatus = $state(null);
@@ -16,8 +16,8 @@
   let teardownActive = null;
   let teardownStatus = null;
 
-  threadInstance.$current.subscribe((value) => {
-    thread = value;
+  thread.$current.subscribe((value) => {
+    currentThread = value;
     if (teardownBuffers) {
       teardownBuffers();
       teardownBuffers = null;
@@ -45,23 +45,23 @@
   let expandedBuffer = $state(null);
 
   function onNext() {
-    thread?.queue?.next();
+    currentThread?.queue?.next();
   }
   function onPull() {
-    thread?.queue?.pull();
+    currentThread?.queue?.pull();
   }
   function toggleExpand(index) {
     expandedBuffer = expandedBuffer === index ? null : index;
   }
   function onActivate(buffer) {
-    thread?.$buffer?.set?.(buffer);
+    currentThread?.$buffer?.set?.(buffer);
   }
   function onClear() {
-    if (!thread) return;
-    thread.buffers = [];
-    thread.$buffers?.set?.([]);
-    thread.$buffer?.set?.(null);
-    thread.queue?.$status?.set?.("IDLE");
+    if (!currentThread) return;
+    currentThread.buffers = [];
+    currentThread.$buffers?.set?.([]);
+    currentThread.$buffer?.set?.(null);
+    currentThread.queue?.$status?.set?.("IDLE");
   }
 </script>
 
@@ -73,7 +73,7 @@
       >buffer</button>
   </div>
 
-  {#if !thread}
+  {#if !currentThread}
     <div class="empty">no active thread</div>
   {:else if view === "buffers"}
     <div class="section-header">

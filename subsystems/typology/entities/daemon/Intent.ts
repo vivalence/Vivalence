@@ -9,7 +9,6 @@ export enum IntentTraitsEnum {
   AIMED = "AIMED",
   QUEUEING = "QUEUEING",
   SELFEVIDENT = "SELFEVIDENT",
-  FURNISHED = "FURNISHED",
   // archive
   FEEDING = "FEEDING",
 }

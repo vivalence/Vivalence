@@ -32,6 +32,9 @@ export class Quarters {
     this.$terminal = computed(this.$active, (id) => (id ? this.terminals.findOne({ id }) : null));
   }
 
+  get active() { return this.$active.get(); }
+  get terminal() { return this.$terminal.get(); }
+
   async spawn(slug = null) {
     const terminal = await this.terminals.create({ slug });
     this.$active.set(terminal.id);

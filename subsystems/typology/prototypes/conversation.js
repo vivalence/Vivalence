@@ -2,17 +2,17 @@ import { atom } from "nanostores";
 import { strip } from "../gestalten/shape/strip.js";
 import { messenger } from "../gestalten/shape/messenger.js";
 
-export const SessionStateEnum = Object.freeze({
+export const ConversationStateEnum = Object.freeze({
   IDLE: "IDLE",
-  MOIN: "MOIN",
+  OPENING: "OPENING",
   LIVE: "LIVE",
   CLOSING: "CLOSING",
   CLOSED: "CLOSED",
   ERROR: "ERROR",
 });
 
-export class Session {
-  $state = atom(SessionStateEnum.IDLE);
+export class Conversation {
+  $state = atom(ConversationStateEnum.IDLE);
   $error = atom(null);
   subscribers = new Map();
   send = null;
@@ -24,11 +24,11 @@ export class Session {
       this._resolveLive = resolve;
     });
 
-    inbound.open("/herald/moin", (ctx) => {
+    inbound.open("/handshake/open", (ctx) => {
       this.outboundShape = ctx.input.shape;
       this.send = messenger(ctx.input.shape, { socket });
       this.inboundShape = strip(this.inbound);
-      this.$state.set(SessionStateEnum.LIVE);
+      this.$state.set(ConversationStateEnum.LIVE);
       this._resolveLive();
       return { shape: this.inboundShape };
     });
@@ -40,15 +40,15 @@ export class Session {
     });
   }
 
-  async moin() {
-    this.$state.set(SessionStateEnum.MOIN);
+  async open() {
+    this.$state.set(ConversationStateEnum.OPENING);
     this.inboundShape = strip(this.inbound);
-    const reply = await this.socket.call("/herald/moin", {
+    const reply = await this.socket.call("/handshake/open", {
       shape: this.inboundShape,
     });
     this.outboundShape = reply.shape;
     this.send = messenger(reply.shape, { socket: this.socket });
-    this.$state.set(SessionStateEnum.LIVE);
+    this.$state.set(ConversationStateEnum.LIVE);
     this._resolveLive();
     return this;
   }
@@ -61,8 +61,8 @@ export class Session {
   }
 
   close() {
-    this.$state.set(SessionStateEnum.CLOSING);
+    this.$state.set(ConversationStateEnum.CLOSING);
     this.socket?.close?.();
-    this.$state.set(SessionStateEnum.CLOSED);
+    this.$state.set(ConversationStateEnum.CLOSED);
   }
 }

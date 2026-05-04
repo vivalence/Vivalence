@@ -13,13 +13,14 @@ import { TurnEntity } from "../index.ts";
 export enum ThreadPhaseEnum {
   STREAM = "stream",
 }
+
 export enum ThreadTraitsEnum {
-  MASKED = "MASKED",
-  AIMED = "AIMED",
-  QUEUEING = "QUEUEING",
-  FURNISHED = "FURNISHED",
-  SELFEVIDENT = "SELFEVIDENT",
-  LABELED = "LABELED",
+  MASKED = "MASKED", // emitter input
+  AIMED = "AIMED", // pointing at emitter
+  QUEUEING = "QUEUEING", // pre-pulling buffers
+  SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
+  LABELED = "LABELED", // UI display name
+  CONVERSATIONAL = "CONVERSATIONAL", //
 }
 
 export class ThreadEntity extends DataEntity {

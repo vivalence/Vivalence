@@ -4,7 +4,7 @@ import {
   Vector,
   Aperture,
   Socket,
-  Session,
+  Conversation,
   Queue,
   shard,
   shape,
@@ -40,24 +40,24 @@ function makeMode() {
 function CONVERSATIONAL(mode) {
   const conversation = new Vector();
 
-  conversation.branch("dialogue").open("anchor", async (ctx) => {
-    const session = ctx.socket.state.session;
+  conversation.branch("dialogue").open("open", async (ctx) => {
+    const live = ctx.socket.state.conversation;
     const stream = await mode.harness.dialogue.stream({
       parts:  ctx.input.parts,
       thread: ctx.input.thread,
       tune:   ctx.input.tune,
     });
-    for await (const packet of stream) session.send.dialogue.packet(packet);
-    session.send.dialogue.voyage();
+    for await (const packet of stream) live.send.dialogue.packet(packet);
+    live.send.dialogue.close();
   });
 
-  conversation.branch("dialogue").open("voyage", () => {});
+  conversation.branch("dialogue").open("abort", () => {});
 
   mode.aperture.open(
     "/conversation",
     shard.serve.websocket((ws) => {
       const socket = new Socket(ws, conversation);
-      socket.state.session = new Session(conversation, socket);
+      socket.state.conversation = new Conversation(conversation, socket);
     }),
   );
 
@@ -65,14 +65,14 @@ function CONVERSATIONAL(mode) {
 }
 
 // ---------------------------------------------------------------------------
-// Client side — terminal, matching the client-side INSITU + Session pattern.
+// Client side — terminal, matching the client-side INSITU + Conversation pattern.
 // ---------------------------------------------------------------------------
 
 function makeTerminal(port) {
   const terminal = {
     port,
     traits: [],
-    session: null,
+    conversation: null,
     streams: {
       dialogue: new Queue(),
       error: new Queue(),
@@ -81,7 +81,7 @@ function makeTerminal(port) {
 
   terminal.inbound = new Vector();
   terminal.inbound.open("/dialogue/packet", (ctx) => terminal.streams.dialogue.enqueue(ctx.input));
-  terminal.inbound.open("/dialogue/voyage", () => { /* turn consumer breaks on turn.close */ });
+  terminal.inbound.open("/dialogue/close", () => { /* turn consumer breaks on turn.close */ });
   terminal.inbound.open("/error/:family", (ctx) =>
     terminal.streams.error.enqueue({ family: ctx.params.family, ...ctx.input }),
   );
@@ -95,20 +95,20 @@ async function activateInsitu(terminal) {
   const socket = new Socket(ws, terminal.inbound);
   await sleep.ms(20);
 
-  terminal.session = new Session(terminal.inbound, socket);
-  await terminal.session.moin();
+  terminal.conversation = new Conversation(terminal.inbound, socket);
+  await terminal.conversation.open();
   terminal.traits.push("INSITU");
 }
 
 function deactivateInsitu(terminal) {
-  terminal.session?.close();
-  terminal.session = null;
+  terminal.conversation?.close();
+  terminal.conversation = null;
   terminal.traits = terminal.traits.filter((trait) => trait !== "INSITU");
 }
 
 // ---------------------------------------------------------------------------
 
-specimen.describe("session — CONVERSATIONAL × INSITU", () => {
+specimen.describe("conversation — CONVERSATIONAL × INSITU", () => {
   const PORT = 9885;
   const abort = new AbortController();
   const mode = makeMode();
@@ -121,14 +121,14 @@ specimen.describe("session — CONVERSATIONAL × INSITU", () => {
   });
   specimen.afterAll(() => abort.abort());
 
-  specimen.it("INSITU on → session opens → dialogue turn streams → INSITU off", async () => {
+  specimen.it("INSITU on → conversation opens → dialogue turn streams → INSITU off", async () => {
     const terminal = makeTerminal(PORT);
 
     await activateInsitu(terminal);
     specimen.expect(terminal.traits).toContain("INSITU");
-    specimen.expect(terminal.session.$state.get()).toBe("LIVE");
+    specimen.expect(terminal.conversation.$state.get()).toBe("LIVE");
 
-    terminal.session.send.dialogue.anchor({
+    terminal.conversation.send.dialogue.open({
       parts: [{ type: "text", text: "olá" }],
     });
 
@@ -142,7 +142,7 @@ specimen.describe("session — CONVERSATIONAL × INSITU", () => {
     specimen.expect(turn.parts[0].text).toBe("echo: olá");
 
     deactivateInsitu(terminal);
-    specimen.expect(terminal.session).toBeNull();
+    specimen.expect(terminal.conversation).toBeNull();
     specimen.expect(terminal.traits).not.toContain("INSITU");
   });
 });

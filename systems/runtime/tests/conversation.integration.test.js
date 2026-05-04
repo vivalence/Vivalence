@@ -11,18 +11,18 @@ const CLIENT_SHAPE = {
   leaves: [],
   branches: {
     dialogue: {
-      leaves: [{ nature: "packet" }, { nature: "voyage" }],
+      leaves: [{ nature: "packet" }, { nature: "close" }],
       branches: {},
     },
   },
 };
 
-function moinFrame() {
-  return JSON.stringify({ signal: "/herald/moin", input: { shape: CLIENT_SHAPE }, echo: "moin" });
+function handshakeFrame() {
+  return JSON.stringify({ signal: "/handshake/open", input: { shape: CLIENT_SHAPE }, echo: "open" });
 }
-function anchorFrame(thread, parts, tune) {
+function dialogueOpenFrame(thread, parts, tune) {
   return JSON.stringify({
-    signal: "/dialogue/anchor",
+    signal: "/dialogue/open",
     input: { thread: thread.id, parts, ...(tune ? { tune } : {}) },
   });
 }
@@ -36,12 +36,12 @@ async function openSocket() {
   return ws;
 }
 
-async function moin(ws) {
+async function handshake(ws) {
   const reply = new Promise((resolve) => {
     const original = ws.onmessage;
     ws.onmessage = (e) => {
       const frame = JSON.parse(e.data);
-      if (frame.echo === "moin") {
+      if (frame.echo === "open") {
         ws.onmessage = original;
         resolve(frame.output);
         return;
@@ -49,20 +49,20 @@ async function moin(ws) {
       original?.(e);
     };
   });
-  ws.send(moinFrame());
+  ws.send(handshakeFrame());
   return reply;
 }
 
-async function anchorAndCollect(ws, thread, parts, tune) {
+async function dialogueAndCollect(ws, thread, parts, tune) {
   const packets = [];
   const done = new Promise((resolve) => {
     ws.onmessage = (e) => {
       const frame = JSON.parse(e.data);
       if (frame.signal === "/dialogue/packet") packets.push(frame.input);
-      if (frame.signal === "/dialogue/voyage") resolve();
+      if (frame.signal === "/dialogue/close") resolve();
     };
   });
-  ws.send(anchorFrame(thread, parts, tune));
+  ws.send(dialogueOpenFrame(thread, parts, tune));
   await done;
   let turn = null;
   for (const packet of packets) turn = soma.pour(turn, packet);
@@ -103,11 +103,11 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
       await scenario.orm.close();
     });
 
-    specimen.it("moin handshake returns server shape", async () => {
+    specimen.it("handshake open returns server shape", async () => {
       const thread = await scenario.createThread();
       const ws = await openSocket();
 
-      const serverReply = await moin(ws);
+      const serverReply = await handshake(ws);
 
       specimen.expect(serverReply).toBeDefined();
       specimen.expect(serverReply.shape).toBeDefined();
@@ -116,12 +116,12 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
       await sleep.ms(50);
     });
 
-    specimen.it("anchor → packet stream → voyage", async () => {
+    specimen.it("dialogue open → packet stream → close", async () => {
       const thread = await scenario.createThread();
       const ws = await openSocket();
-      await moin(ws);
+      await handshake(ws);
 
-      const { packets, turn } = await anchorAndCollect(ws, thread, [{ type: "text", text: "olá Dewey" }]);
+      const { packets, turn } = await dialogueAndCollect(ws, thread, [{ type: "text", text: "olá Dewey" }]);
 
       specimen.expect(packets.find((p) => p.event === "turn.open")).toBeDefined();
       specimen.expect(packets.find((p) => p.event === "part.delta")).toBeDefined();
@@ -134,13 +134,13 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
       await sleep.ms(50);
     });
 
-    specimen.it("turns are persisted after voyage", async () => {
+    specimen.it("turns are persisted after dialogue close", async () => {
       const { em } = scenario;
       const thread = await scenario.createThread();
       const ws = await openSocket();
-      await moin(ws);
+      await handshake(ws);
 
-      await anchorAndCollect(ws, thread, [{ type: "text", text: "como vai" }]);
+      await dialogueAndCollect(ws, thread, [{ type: "text", text: "como vai" }]);
       await sleep.ms(50); // scribe flush
 
       const turns = await em.find("TurnEntity", { thread });
@@ -154,21 +154,21 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
 
     // ─── multi-turn history ──────────────────────────────────────────────────
 
-    specimen.it("second anchor loads prior exchange as history", async () => {
+    specimen.it("second dialogue open loads prior exchange as history", async () => {
       const { em, dewey } = scenario;
       const thread = await scenario.createThread();
       const ws     = await openSocket();
-      await moin(ws);
+      await handshake(ws);
 
       // First exchange.
-      await anchorAndCollect(ws, thread, [{ type: "text", text: "Como se diz 'house'?" }]);
+      await dialogueAndCollect(ws, thread, [{ type: "text", text: "Como se diz 'house'?" }]);
       await sleep.ms(50);
 
       const afterFirst = await em.find("TurnEntity", { thread }, { orderBy: { createdAt: "ASC" } });
       specimen.expect(afterFirst.length).toBe(2); // user + assistant
 
       // Second exchange.
-      await anchorAndCollect(ws, thread, [{ type: "text", text: "E 'kitchen'?" }]);
+      await dialogueAndCollect(ws, thread, [{ type: "text", text: "E 'kitchen'?" }]);
       await sleep.ms(50);
 
       const afterSecond = await em.find("TurnEntity", { thread }, { orderBy: { createdAt: "ASC" } });
@@ -185,7 +185,7 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
 
     // ─── user filter isolation ───────────────────────────────────────────────
     // Explicitly tests that CHAOSMONKEY's turn.find() respects the MikroORM
-    // user filter across WS anchors. Without a RequestContext wrapper per anchor
+    // user filter across WS dialogue opens. Without a RequestContext wrapper per open
     // this can bleed across users — this test will catch that regression.
 
     specimen.it("user filter: history query is isolated to thread owner", async () => {

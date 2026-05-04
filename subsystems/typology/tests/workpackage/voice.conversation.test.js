@@ -4,7 +4,7 @@ import {
   Vector,
   Aperture,
   Socket,
-  Session,
+  Conversation,
   Queue,
   Cortex,
   shard,
@@ -84,8 +84,8 @@ function CONVERSATIONAL(mode) {
   const conversation = new Vector();
   const vocalized = mode.traits.includes("VOCALIZED");
 
-  conversation.branch("dialogue").open("anchor", async (ctx) => {
-    const session = ctx.socket.state.session;
+  conversation.branch("dialogue").open("open", async (ctx) => {
+    const live = ctx.socket.state.conversation;
     ctx.socket.state.thread = ctx.input.thread;
     const stream = await mode.harness.dialogue.stream({
       parts:  ctx.input.parts,
@@ -94,31 +94,31 @@ function CONVERSATIONAL(mode) {
     });
 
     if (!vocalized) {
-      for await (const packet of stream) session.send.dialogue.packet(packet);
-      session.send.dialogue.voyage();
+      for await (const packet of stream) live.send.dialogue.packet(packet);
+      live.send.dialogue.close();
       return;
     }
 
     const [textBranch, audioBranch] = soma.tee(stream);
 
     const dialoguePath = (async () => {
-      for await (const packet of textBranch) session.send.dialogue.packet(packet);
-      session.send.dialogue.voyage();
+      for await (const packet of textBranch) live.send.dialogue.packet(packet);
+      live.send.dialogue.close();
     })();
 
     const speechPath = (async () => {
       const speech = mode.cortex.resolve("speech", { tune: "eager", via: "stream" });
       if (!speech) return;
       for await (const packet of speech.via.stream(soma.textFromPackets(audioBranch), {})) {
-        session.send.speech.packet(packet);
+        live.send.speech.packet(packet);
       }
-      session.send.speech.close({});
+      live.send.speech.close({});
     })();
 
     await Promise.all([dialoguePath, speechPath]);
   });
 
-  conversation.branch("dialogue").open("voyage", () => {});
+  conversation.branch("dialogue").open("abort", () => {});
 
   if (vocalized) {
     conversation.branch("verbatim").open("packet", (ctx) => {
@@ -128,11 +128,7 @@ function CONVERSATIONAL(mode) {
         const asr   = mode.cortex.resolve("verbatim", { tune: "eager", via: "stream" });
         (async () => {
           for await (const event of asr.via.stream(audio.drain(), {})) {
-            const send = state.session.send;
-            if (event.nature === "turn.start") send.verbatim?.turnStart?.(event);
-            if (event.nature === "turn.end")   send.verbatim?.turnEnd?.(event);
-            if (event.nature === "partial")    send.verbatim?.partial?.(event);
-            if (event.nature === "final")      send.verbatim?.final?.(event);
+            state.conversation.send.verbatim?.packet?.(event);
           }
         })();
         return { audio, asr };
@@ -150,7 +146,7 @@ function CONVERSATIONAL(mode) {
     shard.serve.websocket((ws) => {
       const connectionVector = new Vector().slurp(conversation);
       const socket = new Socket(ws, connectionVector);
-      socket.state.session = new Session(connectionVector, socket);
+      socket.state.conversation = new Conversation(connectionVector, socket);
     }),
   );
 
@@ -160,29 +156,21 @@ function CONVERSATIONAL(mode) {
 function makeTerminal(port) {
   const terminal = {
     port,
-    session: null,
+    conversation: null,
     streams: {
       dialogue: new Queue(),
       speech:   new Queue(),
-      verbatim: {
-        partial:   new Queue(),
-        final:     new Queue(),
-        turnStart: new Queue(),
-        turnEnd:   new Queue(),
-      },
+      verbatim: new Queue(),
     },
   };
 
   terminal.inbound = new Vector();
-  terminal.inbound.open("/dialogue/packet",   (ctx) => terminal.streams.dialogue.enqueue(ctx.input));
-  terminal.inbound.open("/dialogue/voyage",   () => {});
-  terminal.inbound.open("/speech/packet",     (ctx) => terminal.streams.speech.enqueue(ctx.input));
-  terminal.inbound.open("/speech/abort",      () => {});
-  terminal.inbound.open("/speech/close",      () => {});
-  terminal.inbound.open("/verbatim/partial",  (ctx) => terminal.streams.verbatim.partial.enqueue(ctx.input));
-  terminal.inbound.open("/verbatim/final",    (ctx) => terminal.streams.verbatim.final.enqueue(ctx.input));
-  terminal.inbound.open("/verbatim/turnStart",(ctx) => terminal.streams.verbatim.turnStart.enqueue(ctx.input));
-  terminal.inbound.open("/verbatim/turnEnd",  (ctx) => terminal.streams.verbatim.turnEnd.enqueue(ctx.input));
+  terminal.inbound.open("/dialogue/packet", (ctx) => terminal.streams.dialogue.enqueue(ctx.input));
+  terminal.inbound.open("/dialogue/close",  () => {});
+  terminal.inbound.open("/speech/packet",   (ctx) => terminal.streams.speech.enqueue(ctx.input));
+  terminal.inbound.open("/speech/abort",    () => {});
+  terminal.inbound.open("/speech/close",    () => {});
+  terminal.inbound.open("/verbatim/packet", (ctx) => terminal.streams.verbatim.enqueue(ctx.input));
 
   return terminal;
 }
@@ -192,11 +180,11 @@ async function activate(terminal) {
   await new Promise((resolve) => (ws.onopen = resolve));
   const socket = new Socket(ws, terminal.inbound);
   await sleep.ms(20);
-  terminal.session = new Session(terminal.inbound, socket);
-  await terminal.session.moin();
+  terminal.conversation = new Conversation(terminal.inbound, socket);
+  await terminal.conversation.open();
 }
 
-specimen.describe("voice session — dialogue + speech + verbatim", () => {
+specimen.describe("voice conversation — dialogue + speech + verbatim", () => {
   const PORT  = 9887;
   const abort = new AbortController();
   const mode  = makeMode();
@@ -209,11 +197,11 @@ specimen.describe("voice session — dialogue + speech + verbatim", () => {
   });
   specimen.afterAll(() => abort.abort());
 
-  specimen.it("dialogue anchor fans to /dialogue/packet AND /speech/packet", async () => {
+  specimen.it("dialogue open fans to /dialogue/packet AND /speech/packet", async () => {
     const terminal = makeTerminal(PORT);
     await activate(terminal);
 
-    terminal.session.send.dialogue.anchor({
+    terminal.conversation.send.dialogue.open({
       parts: [{ type: "text", text: "oi" }],
     });
 
@@ -229,34 +217,33 @@ specimen.describe("voice session — dialogue + speech + verbatim", () => {
     specimen.expect(audioPacket.value.nature).toBe("packet");
     specimen.expect(audioPacket.value.audio).toContain("audio:");
 
-    terminal.session.close();
+    terminal.conversation.close();
   });
 
-  specimen.it("verbatim packet upstream → partial / final / turn events downstream", async () => {
+  specimen.it("verbatim packet upstream → discriminated packets downstream", async () => {
     const terminal = makeTerminal(PORT);
     await activate(terminal);
 
-    const turnStartP = terminal.streams.verbatim.turnStart.drain().next();
-    const partialP   = terminal.streams.verbatim.partial.drain().next();
+    const drain = terminal.streams.verbatim.drain();
 
-    terminal.session.send.verbatim.packet({ audio: "oi" });
+    terminal.conversation.send.verbatim.packet({ audio: "oi" });
 
-    const turnStart = await turnStartP;
+    const turnStart = await drain.next();
     specimen.expect(turnStart.value.nature).toBe("turn.start");
 
-    const partial = await partialP;
+    const partial = await drain.next();
+    specimen.expect(partial.value.nature).toBe("partial");
     specimen.expect(partial.value.transcript).toBe("oi");
 
-    const finalP  = terminal.streams.verbatim.final.drain().next();
-    const turnEndP = terminal.streams.verbatim.turnEnd.drain().next();
-    terminal.session.send.verbatim.close({});
+    terminal.conversation.send.verbatim.close({});
 
-    const final = await finalP;
+    const final = await drain.next();
+    specimen.expect(final.value.nature).toBe("final");
     specimen.expect(final.value.transcript).toBe("oi");
 
-    const turnEnd = await turnEndP;
+    const turnEnd = await drain.next();
     specimen.expect(turnEnd.value.nature).toBe("turn.end");
 
-    terminal.session.close();
+    terminal.conversation.close();
   });
 });

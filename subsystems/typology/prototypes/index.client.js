@@ -27,8 +27,7 @@ export * from "./mask.js";
 export * from "./span.js";
 export * from "./pipe.js";
 export * from "./queue.js";
-export * from "./session.js";
-export * from "./bell.js";
+export * from "./conversation.js";
 export * as tracks from "./tracks.js";
 
 export * from "./wafer.js";

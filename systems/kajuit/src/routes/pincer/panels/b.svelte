@@ -3,16 +3,16 @@
   import { LIGHTHOUSE, QUARTERS, BRIDGE } from "$client";
 
   let { rect } = $props();
-  const lighthouseInstance = getContext(LIGHTHOUSE);
-  const quartersInstance = getContext(QUARTERS);
-  const { view, toggle } = getContext(BRIDGE);
+  const lighthouse = getContext(LIGHTHOUSE);
+  const quarters = getContext(QUARTERS);
+  const bridge = getContext(BRIDGE);
 
-  let g = $state(view.$g.get());
-  let h = $state(view.$h.get());
-  let snap = $state(view.$snap.get());
-  view.$g.subscribe(v => g = v);
-  view.$h.subscribe(v => h = v);
-  view.$snap.subscribe(v => snap = v);
+  let g = $state(bridge.view.g);
+  let h = $state(bridge.view.h);
+  let snap = $state(bridge.view.snap);
+  bridge.view.$g.subscribe(v => g = v);
+  bridge.view.$h.subscribe(v => h = v);
+  bridge.view.$snap.subscribe(v => snap = v);
 
   let eruda = $state(false);
   async function toggleEruda() {
@@ -43,11 +43,11 @@
   >
     <span class="label">B</span>
     <div class="toggles">
-      <button class="toggle" class:active={g} onclick={() => toggle("g")}>G</button>
-      <button class="toggle" class:active={h} onclick={() => toggle("h")}>H</button>
-      <button class="toggle" class:active={snap} onclick={() => toggle("snap")}>snap</button>
-      <button class="toggle danger" onclick={() => { for (const terminal of quartersInstance.terminals.all()) quartersInstance.close(terminal.id); }}>clear</button>
-      <button class="toggle danger" onclick={() => lighthouseInstance.logout()}>out</button>
+      <button class="toggle" class:active={g} onclick={() => bridge.toggle("g")}>G</button>
+      <button class="toggle" class:active={h} onclick={() => bridge.toggle("h")}>H</button>
+      <button class="toggle" class:active={snap} onclick={() => bridge.toggle("snap")}>snap</button>
+      <button class="toggle danger" onclick={() => { for (const terminal of quarters.terminals.all()) quarters.close(terminal.id); }}>clear</button>
+      <button class="toggle danger" onclick={() => lighthouse.logout()}>out</button>
       <button class="toggle" class:active={eruda} onclick={toggleEruda}>eruda</button>
     </div>
   </div>

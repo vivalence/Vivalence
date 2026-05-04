@@ -3,10 +3,10 @@
   import { BRIDGE } from "$client";
   import { $telemetry as telemetryStore } from "$telemetry";
 
-  const { view, toggle } = getContext(BRIDGE);
+  const bridge = getContext(BRIDGE);
 
-  let show = $state(view.$g.get());
-  view.$g.subscribe(v => show = v);
+  let show = $state(bridge.view.g);
+  bridge.view.$g.subscribe(v => show = v);
 
   let spans = $state([]);
   telemetryStore.subscribe(v => spans = v);
@@ -48,7 +48,7 @@
         {/if}
         <span class="spacer"></span>
         <span class="span-ago">{timeAgo(selected.timing?.begun)}</span>
-        <button class="btn close" onclick={() => toggle("g")}>x</button>
+        <button class="btn close" onclick={() => bridge.toggle("g")}>x</button>
       </div>
 
       <div class="detail">
@@ -209,7 +209,7 @@
           <span class="seg fault-count">{faults.length}</span>
         {/if}
         <span class="seg count">{spans.length}</span>
-        <button class="btn close" onclick={() => toggle("g")}>x</button>
+        <button class="btn close" onclick={() => bridge.toggle("g")}>x</button>
       </div>
 
       <div class="stream">

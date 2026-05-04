@@ -87,7 +87,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
 
   mode.aperture.branch("/harness").slurp(harness);
 
-  mode.aperture.open("/herald/capabilities", () =>
+  mode.aperture.open("/capabilities", () =>
     ["dialogue"] // , "speech", "verbatim", "object"
       .filter((type) => daemon.cortex.has(type))
       .map((type) => ({
@@ -98,60 +98,6 @@ export const CHAOSMONKEY = (mode, daemon) => {
   );
 };
 
-// import { Hallucination } from "@vivalence/typology";
-// shard.harness.stream as streamLeaf
-// shard.harness.render as renderLeaf
-
-// const FACULTY_TYPES = ["dialogue", "speech", "verbatim", "object"];
-
-// export const CHAOSMONKEY = (mode, daemon) => {
-//   if (!daemon.cortex) throw new Error("CHAOSMONKEY: daemon has no cortex");
-
-//   const harness = new Vector();
-
-//   harness.use(shard.context.attach("daemon", daemon));
-//   harness.use(shard.context.attach("mode", mode));
-//   harness.use(daemon.cortex.shard.harness(() => {}));
-
-//   // harness.use(async (ctx, next) => {
-//   //   ctx.hallucination = new Hallucination(daemon.cortex, ctx.input);
-//   //   await next();
-//   // });
-
-//   if (mode.cake.harness) harness.slurp(mode.cake.harness);
-
-//   harness.use(daemon.cortex.shard.effects(() => {}));
-//   // for (const type of FACULTY_TYPES) { // daemon.cortex.shard handles this.
-//   //   if (!daemon.cortex.has(type)) continue;
-//   //   const branch = harness.branch(type);
-//   //   // if (daemon.cortex.resolve(type, { via: "stream" })) branch.open("stream", shard.harness.stream());
-//   //   // if (daemon.cortex.resolve(type, { via: "render" })) branch.open("render", shard.harness.render());
-//   //   if (daemon.cortex.resolve(type, { via: "stream" })) shard.harness.stream(branch);
-//   //   if (daemon.cortex.resolve(type, { via: "render" })) shard.harness.render(branch);
-//   // }
-
-//   mode.harness = shape.object(harness, steer.echo);
-
-//   mode.aperture
-//     .branch("/harness")
-//     // .use(async (ctx, next) => {
-//     //   await next(); if (ctx.output?.[Symbol.asyncIterator]) ctx.response.publish(ctx.output); // this should be gone1? why do we have this?
-//     // })
-//     .slurp(harness);
-
-//   // mode.aperture.open("/herald/capabilities", () => FACULTY_TYPES.filter((type) => daemon.cortex.has(type)).map((type) => ({type, stream: !!daemon.cortex.resolve(type, { via: "stream" }), render: !!daemon.cortex.resolve(type, { via: "render" }),})),); // ignore temporarily
-// };
-
-// const shard = {
-//   ...typology.shard,
-//   render: () => {}, // renderLeaf
-//   stream: () => {}, // streamLeaf ---- something along the lines of: function streamLeaf(type) {return (ctx) => {ctx.output = (async function* () {const faculty = ctx.cortex.resolve(type, { tune: ctx.tuning, via: "stream" }); const config = { ...ctx.config }; if (Object.keys(ctx.tools).length) config.tools = ctx.tools; let turns = ctx.turns; for (let round = 0; round < 10; round++) {let turn = null; for await (const packet of await faculty.via.stream(turns, config)) {turn = soma.pour(turn, packet); yield packet;} if (turn.meta?.stop !== "tool_use") return; const results = await executeTools(ctx.tools, turn.parts); yield* soma.drain({ role: "user", parts: results }); turns = [...turns, turn, { role: "user", parts: results }];}})();};}
-//   // ... hallucination (ephemeral) tooling.
-//   // ... turns integration.
-// };
-
-// chaosmonkey sets up the tooling and lifecycleing for the harness effect-bundle and aperture. takes care of thread integration,
-// conversational wraps these tools into a specific socket mediated session protocol.
 
 // export const CHAOSMONKEY = (mode, daemon) => {
 //   const harness = new Vector();

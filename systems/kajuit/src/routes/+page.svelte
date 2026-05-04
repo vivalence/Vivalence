@@ -12,373 +12,53 @@
   import BonePincer from "./pincer/bones/pincer.svelte";
   import BoneSpine from "./pincer/bones/spine.svelte";
   import { THREAD, BRIDGE } from "$client";
-  import { bridge } from "@vivalence/kajuit";
-  const {
-    clamp,
-    snapToGrid,
-    rectsForOrientation,
-    bonesForOrientation,
-    snapToOrientation,
-    orientationToSnap,
-    snapLabel,
-    BONE_THICKNESS,
-    PINCER_SIZE,
-    HALF,
-    EDGE_PADDING,
-  } = bridge;
+  import { bridge as bridgeDeck } from "@vivalence/kajuit";
   const systemAlert = false;
 
-  const bridgeInstance = getContext(BRIDGE);
-  const threadInstance = getContext(THREAD);
-  const { layout, view } = bridgeInstance;
+  const bridge = getContext(BRIDGE);
+  const thread = getContext(THREAD);
 
-  let currentThread = $state(null);
-  threadInstance.$current.subscribe((v) => (currentThread = v));
+  let currentThread = $state(thread.current);
+  thread.$current.subscribe((v) => (currentThread = v));
   let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence");
 
-  let pincer = $state(layout.$pincer.get());
-  let previous = $state(layout.$previous.get());
-  let standard = $state(layout.$standard.get());
-  let orientation = $state(layout.$orientation.get());
-  let viewport = $state(layout.$viewport.get());
-  layout.$pincer.subscribe((v) => (pincer = v));
-  layout.$previous.subscribe((v) => (previous = v));
-  layout.$standard.subscribe((v) => (standard = v));
-  layout.$orientation.subscribe((v) => (orientation = v));
-  layout.$viewport.subscribe((v) => (viewport = v));
+  let pincer = $state(bridge.layout.pincer);
+  let orientation = $state(bridge.layout.orientation);
+  let viewport = $state(bridge.layout.viewport);
+  bridge.layout.$pincer.subscribe((v) => (pincer = v));
+  bridge.layout.$orientation.subscribe((v) => (orientation = v));
+  bridge.layout.$viewport.subscribe((v) => (viewport = v));
 
-  const TAP_MAX_MS = 250;
-  const TAP_MAX_MOVE = 8;
-  const MULTI_TAP_WINDOW = 280;
-  const LONG_PRESS_MS = 420;
-  const RELEASE_COMMIT_DIST = 32;
+  const gesture = new bridgeDeck.Gesture(bridge);
+  let dragging = $state(gesture.dragging);
+  let longPress = $state(gesture.longPress);
+  let radial = $state(gesture.radial);
+  let flash = $state(gesture.flash);
+  gesture.$dragging.subscribe((v) => (dragging = v));
+  gesture.$longPress.subscribe((v) => (longPress = v));
+  gesture.$radial.subscribe((v) => (radial = v));
+  gesture.$flash.subscribe((v) => (flash = v));
 
-  const RADIAL_RADIUS = 108;
-
-  let gesture = $state({
-    pointerId: null,
-    downAt: 0,
-    downX: 0,
-    downY: 0,
-    startPincerX: 0,
-    startPincerY: 0,
-    tapCount: 0,
-    tapTimer: null,
-    longPressTimer: null,
-    isDragging: false,
-    isLongPress: false,
-    fromSticky: false,
-  });
-
-  // radial menu state machine:
-  //   show=false                       → idle
-  //   show=true,  sticky=false         → drag-pick mode (finger held)
-  //   show=true,  sticky=true          → sticky (finger off, click to commit)
-  let radial = $state({ show: false, sticky: false, snap: 90 });
-  let flash = $state(null);
-
-  function applyViewportOffset(obj) {
-    const result = {};
-    for (const [key, rect] of Object.entries(obj)) {
-      result[key] = { ...rect, top: rect.top + viewportOffsetTop };
-    }
-    return result;
-  }
+  let viewportOffsetTop = $state(bridge.viewportOffsetTop);
+  bridge.$viewportOffsetTop.subscribe((v) => (viewportOffsetTop = v));
 
   let rects = $derived(
-    applyViewportOffset(rectsForOrientation(orientation, pincer, viewport.width, viewport.height)),
+    bridgeDeck.applyViewportOffset(
+      bridgeDeck.rectsForOrientation(orientation, pincer, viewport.width, viewport.height),
+      viewportOffsetTop,
+    ),
   );
   let bones = $derived(
-    applyViewportOffset(bonesForOrientation(orientation, pincer, viewport.width, viewport.height)),
+    bridgeDeck.applyViewportOffset(
+      bridgeDeck.bonesForOrientation(orientation, pincer, viewport.width, viewport.height),
+      viewportOffsetTop,
+    ),
   );
 
-  // -------- gesture handlers --------
-  function onPointerDown(event) {
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    gesture.pointerId = event.pointerId;
-    gesture.downAt = Date.now();
-    gesture.downX = event.clientX;
-    gesture.downY = event.clientY;
-    gesture.startPincerX = pincer.x;
-    gesture.startPincerY = pincer.y;
-    gesture.isDragging = false;
-    gesture.isLongPress = false;
-    gesture.fromSticky = radial.sticky;
-
-    clearTimeout(gesture.longPressTimer);
-    gesture.longPressTimer = setTimeout(() => {
-      if (gesture.isDragging) return;
-      gesture.isLongPress = true;
-      radial.show = true;
-      radial.sticky = false; // entering active drag-pick
-      radial.snap = orientationToSnap(orientation);
-      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
-    }, LONG_PRESS_MS);
-  }
-
-  function onPointerMove(event) {
-    if (gesture.pointerId !== event.pointerId) return;
-
-    const deltaX = event.clientX - gesture.downX;
-    const deltaY = event.clientY - gesture.downY;
-    const distance = Math.hypot(deltaX, deltaY);
-
-    if (gesture.isLongPress) {
-      const angle =
-        ((Math.atan2(event.clientY - pincer.y, event.clientX - pincer.x) * 180) / Math.PI + 360) %
-        360;
-      radial.snap = (Math.round(angle / 90) * 90) % 360;
-      return;
-    }
-
-    if (!gesture.isDragging && distance > TAP_MAX_MOVE) {
-      clearTimeout(gesture.longPressTimer);
-      gesture.isDragging = true;
-      // dragging from sticky cancels sticky
-      if (gesture.fromSticky) {
-        radial.sticky = false;
-        radial.show = false;
-        gesture.fromSticky = false;
-      }
-    }
-
-    if (gesture.isDragging) {
-      const rawX = gesture.startPincerX + deltaX;
-      const rawY = gesture.startPincerY + deltaY;
-      const finalX = view.$snap.get() ? snapToGrid(rawX, viewport.width) : rawX;
-      const finalY = view.$snap.get() ? snapToGrid(rawY, viewport.height) : rawY;
-      layout.pincer = {
-        x: clamp(finalX, EDGE_PADDING, viewport.width - EDGE_PADDING),
-        y: clamp(finalY, EDGE_PADDING, viewport.height - EDGE_PADDING),
-      };
-    }
-  }
-
-  function onPointerUp(event) {
-    if (gesture.pointerId !== event.pointerId) return;
-    clearTimeout(gesture.longPressTimer);
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch (releaseError) {
-      // pointer already released
-    }
-    gesture.pointerId = null;
-
-    if (gesture.isLongPress) {
-      const finalDistance = Math.hypot(event.clientX - pincer.x, event.clientY - pincer.y);
-      if (finalDistance > RELEASE_COMMIT_DIST) {
-        layout.orientation = snapToOrientation(radial.snap);
-        radial.show = false;
-        radial.sticky = false;
-        bridgeInstance.save();
-        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
-      } else {
-        // released near viket center → sticky mode
-        radial.sticky = true;
-      }
-      gesture.isLongPress = false;
-      return;
-    }
-
-    if (gesture.isDragging) {
-      layout.previous = { x: gesture.startPincerX, y: gesture.startPincerY };
-      gesture.isDragging = false;
-      bridgeInstance.save();
-      return;
-    }
-
-    // tap (not drag, not long-press)
-    const elapsed = Date.now() - gesture.downAt;
-    if (elapsed < TAP_MAX_MS) {
-      if (gesture.fromSticky) {
-        // tap on viket from sticky = no-op. user must HOLD to re-enter.
-        gesture.fromSticky = false;
-        return;
-      }
-      gesture.tapCount++;
-      clearTimeout(gesture.tapTimer);
-      gesture.tapTimer = setTimeout(() => {
-        handleTaps(gesture.tapCount);
-        gesture.tapCount = 0;
-      }, MULTI_TAP_WINDOW);
-    }
-  }
-
-  function handleTaps(count) {
-    if (count === 1) {
-      layout.previous = { ...pincer };
-      layout.pincer = { ...standard };
-      pulse("tap1");
-    } else if (count === 2) {
-      const swap = { ...previous };
-      layout.previous = { ...pincer };
-      layout.pincer = swap;
-      pulse("tap2");
-    } else if (count >= 3) {
-      layout.standard = { ...pincer };
-      pulse("tap3");
-    }
-    bridgeInstance.save();
-  }
-
-  function pulse(kind) {
-    flash = kind;
-    setTimeout(() => {
-      flash = null;
-    }, 240);
-  }
-
-  function onSpokeClick(event, angle) {
-    event.stopPropagation();
-    if (!radial.sticky) return;
-    layout.orientation = snapToOrientation(angle);
-    radial.show = false;
-    bridgeInstance.save();
-    radial.sticky = false;
-  }
-
-  function onRadialBackdropClick() {
-    radial.show = false;
-    radial.sticky = false;
-  }
-
-  let viewportOffsetTop = $state(0);
-  let safeAreaTop = $state(0);
-
-  function readSafeArea() {
-    const style = getComputedStyle(document.documentElement);
-    safeAreaTop = parseFloat(style.getPropertyValue("--safe-area-top")) || 0;
-  }
-
-  function viewportDimensions() {
-    const vv = window.visualViewport;
-    if (vv) {
-      viewportOffsetTop = vv.offsetTop + safeAreaTop;
-      return { width: vv.width, height: vv.height - safeAreaTop };
-    }
-    viewportOffsetTop = safeAreaTop;
-    return { width: window.innerWidth, height: window.innerHeight - safeAreaTop };
-  }
-
-  function isDeviceRotation() {
-    const layoutWidth = window.innerWidth;
-    const layoutHeight = window.innerHeight;
-    const current = layout.$viewport.get();
-    return layoutWidth !== current.width || layoutHeight !== current.height;
-  }
-
-  function onResize() {
-    const oldViewport = layout.$viewport.get();
-    const rotation = isDeviceRotation();
-    layout.viewport = viewportDimensions();
-
-    if (rotation && oldViewport.width > 0 && oldViewport.height > 0) {
-      const deltaWidth = layout.viewport.width - oldViewport.width;
-      const deltaHeight = layout.viewport.height - oldViewport.height;
-
-      let shiftX = 0,
-        shiftY = 0;
-      if (orientation === 0) {
-        shiftY = deltaHeight;
-      } else if (orientation === 90) {
-        shiftX = deltaWidth;
-      } else if (orientation === 180) {
-        shiftX = deltaWidth;
-      }
-
-      const reanchor = (position) => ({
-        x: clamp(position.x + shiftX, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(position.y + shiftY, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      });
-
-      layout.pincer = reanchor(pincer);
-      layout.previous = reanchor(previous);
-      layout.standard = reanchor(standard);
-    } else {
-      const clampPosition = (position) => ({
-        x: clamp(position.x, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(position.y, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      });
-      layout.pincer = clampPosition(pincer);
-    }
-  }
-
   onMount(() => {
-    readSafeArea();
-    layout.viewport = viewportDimensions();
-
-    const saved = layout.$pincer.get();
-    const hasSaved = saved.x !== 0 || saved.y !== 0;
-
-    if (hasSaved) {
-      layout.pincer = {
-        x: clamp(saved.x, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(saved.y, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      };
-      const prev = layout.$previous.get();
-      layout.previous = {
-        x: clamp(prev.x, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(prev.y, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      };
-      const std = layout.$standard.get();
-      layout.standard = {
-        x: clamp(std.x, EDGE_PADDING, layout.viewport.width - EDGE_PADDING),
-        y: clamp(std.y, EDGE_PADDING, layout.viewport.height - EDGE_PADDING),
-      };
-    } else {
-      const start = layout.$start.get();
-      const home = layout.$home.get();
-      layout.pincer = {
-        x: clamp(
-          start.x * layout.viewport.width,
-          EDGE_PADDING,
-          layout.viewport.width - EDGE_PADDING,
-        ),
-        y: clamp(
-          start.y * layout.viewport.height,
-          EDGE_PADDING,
-          layout.viewport.height - EDGE_PADDING,
-        ),
-      };
-      layout.previous = { ...layout.pincer };
-      layout.standard = {
-        x: clamp(
-          home.x * layout.viewport.width,
-          EDGE_PADDING,
-          layout.viewport.width - EDGE_PADDING,
-        ),
-        y: clamp(
-          home.y * layout.viewport.height,
-          EDGE_PADDING,
-          layout.viewport.height - EDGE_PADDING,
-        ),
-      };
-    }
-
-    // defensive reset — HMR can leave gesture/radial state stuck across
-    // edits (isDragging=true, stale pointerId, lingering longPressTimer).
-    clearTimeout(gesture.longPressTimer);
-    gesture.pointerId = null;
-    gesture.isDragging = false;
-    gesture.isLongPress = false;
-    gesture.fromSticky = false;
-    radial.show = false;
-    radial.sticky = false;
-
-    window.addEventListener("resize", onResize);
-    const vv = window.visualViewport;
-    if (vv) {
-      vv.addEventListener("resize", onResize);
-      vv.addEventListener("scroll", onResize);
-    }
-    return () => {
-      window.removeEventListener("resize", onResize);
-      if (vv) {
-        vv.removeEventListener("resize", onResize);
-        vv.removeEventListener("scroll", onResize);
-      }
-    };
+    bridgeDeck.bootLayout(bridge);
+    gesture.reset();
+    return bridgeDeck.attachViewport(bridge);
   });
 </script>
 
@@ -414,20 +94,20 @@
   <!-- viket — square at the junction -->
   <div
     class="viket"
-    class:dragging={gesture.isDragging}
-    class:longpress={gesture.isLongPress}
+    class:dragging
+    class:longpress={longPress}
     class:sticky={radial.sticky}
     class:tap1={flash === "tap1"}
     class:tap2={flash === "tap2"}
     class:tap3={flash === "tap3"}
     style:left="{pincer.x}px"
     style:top="{pincer.y + viewportOffsetTop}px"
-    style:width="{PINCER_SIZE}px"
-    style:height="{PINCER_SIZE}px"
-    onpointerdown={onPointerDown}
-    onpointermove={onPointerMove}
-    onpointerup={onPointerUp}
-    onpointercancel={onPointerUp}>
+    style:width="{bridgeDeck.PINCER_SIZE}px"
+    style:height="{bridgeDeck.PINCER_SIZE}px"
+    onpointerdown={gesture.down}
+    onpointermove={gesture.move}
+    onpointerup={gesture.up}
+    onpointercancel={gesture.up}>
     <img
       class="viket-pictogram"
       src="/images/pictogram_viket/pic-vinca-viket_white.svg"
@@ -437,7 +117,7 @@
 
   <!-- radial menu -->
   {#if radial.show && radial.sticky}
-    <div class="radial-backdrop" onclick={onRadialBackdropClick} role="presentation"></div>
+    <div class="radial-backdrop" onclick={gesture.backdrop} role="presentation"></div>
   {/if}
 
   {#if radial.show}
@@ -446,15 +126,15 @@
       class:sticky={radial.sticky}
       style:left="{pincer.x}px"
       style:top="{pincer.y + viewportOffsetTop}px"
-      style:--radius="{RADIAL_RADIUS}px">
+      style:--radius="{bridgeDeck.RADIAL_RADIUS}px">
       <div class="radial-ring"></div>
       {#each [0, 90, 180, 270] as angle}
         <div
           class="radial-target"
           class:active={radial.snap === angle}
           style:transform="rotate({angle}deg) translate(var(--radius)) rotate(-{angle}deg)"
-          onpointerdown={(event) => onSpokeClick(event, angle)}>
-          {snapLabel(angle)}
+          onpointerdown={(event) => gesture.spoke(event, angle)}>
+          {bridgeDeck.snapLabel(angle)}
         </div>
       {/each}
     </div>

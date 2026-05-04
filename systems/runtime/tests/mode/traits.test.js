@@ -32,12 +32,12 @@ specimen.describe("mode traits", () => {
 
     specimen.it("intent has correct traits", async () => {
       const intent = await scenario.em.findOne(IntentEntity, { slug: "survival-flashcard" });
-      specimen.expect(intent.traits).toEqual(["FURNISHED"]);
+      specimen.expect(intent.traits).toEqual(["MASKED"]);
     });
 
     specimen.it("intent has where in trait data", async () => {
       const intent = await scenario.em.findOne(IntentEntity, { slug: "survival-flashcard" });
-      specimen.expect(intent.trait.FURNISHED.where.symbols).toEqual(["greeting"]);
+      specimen.expect(intent.trait.MASKED.where.symbols).toEqual(["greeting"]);
     });
 
     specimen.it("intent queryable via datamap", async () => {

@@ -482,11 +482,11 @@ specimen.describe("v", () => {
     specimen.it("narrowed schema validates trait shape", () => {
       const schema = v.intent({
         trait: {
-          FURNISHED: v.object({ recall: v.string() }),
+          MASKED: v.object({ limit: v.number() }),
         },
       });
       specimen.expect(schema.check({
-        trait: { FURNISHED: { recall: "LEARNING" } },
+        trait: { MASKED: { limit: 4 } },
         mode: "mode-id",
       })).toBe(true);
     });

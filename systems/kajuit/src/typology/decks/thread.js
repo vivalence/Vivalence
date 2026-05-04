@@ -17,6 +17,8 @@ export class ThreadContext {
     lighthouse.$daemons.subscribe(() => this.resolve());
   }
 
+  get current() { return this.$current.get(); }
+
   async resolve() {
     for (const terminal of this.quarters.terminals.all()) {
       if (!terminal.daemon || !terminal.thread) continue;

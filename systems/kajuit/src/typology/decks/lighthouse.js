@@ -1,10 +1,32 @@
-import { map, atom, computed } from "nanostores";
+import { map, atom, computed, effect } from "nanostores";
 import { Vector, shape, Connection, Url, shard } from "@vivalence/typology";
-import { hydrate } from "./persistence.js";
-import { boot as bootDaemon } from "./daemon.js";
+import { boot as bootDaemon } from "../prototypes/daemon.js";
 import { telemetry } from "$telemetry";
 
-export { hydrate } from "./persistence.js";
+const STORAGE_KEY = (url) => `lighthouse:${url}`;
+
+export function hydrate(lighthouse) {
+  const key = STORAGE_KEY(lighthouse.connection.url);
+  const stored = localStorage.getItem(key);
+
+  if (stored) {
+    try {
+      const { authority, identity } = JSON.parse(stored);
+      if (authority) lighthouse.$authority.set(authority);
+      if (identity) lighthouse.$identity.set(identity);
+    } catch {
+      localStorage.removeItem(key);
+    }
+  }
+
+  effect([lighthouse.$authority, lighthouse.$identity], (authority, identity) => {
+    if (authority || identity) {
+      localStorage.setItem(key, JSON.stringify({ authority, identity }));
+    } else {
+      localStorage.removeItem(key);
+    }
+  });
+}
 
 export class Lighthouse {
   daemons = new Map();
@@ -15,6 +37,12 @@ export class Lighthouse {
 
   $isAuthorized = computed(this.$authority, (a) => !!a?.access && !!a?.refresh);
   $isIdentified = computed(this.$identity, (i) => !!i?.id);
+
+  get authority() { return this.$authority.get(); }
+  get identity() { return this.$identity.get(); }
+  get status() { return this.$status.get(); }
+  get isAuthorized() { return this.$isAuthorized.get(); }
+  get isIdentified() { return this.$isIdentified.get(); }
 
   constructor(connection) {
     this.connection = connection

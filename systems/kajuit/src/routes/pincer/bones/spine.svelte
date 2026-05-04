@@ -4,33 +4,32 @@
 
   let { rect } = $props();
 
-  const lighthouseInstance = getContext(LIGHTHOUSE);
+  const lighthouse = getContext(LIGHTHOUSE);
 
-  let lighthouseStatus = $state(lighthouseInstance.$status.get().code === "IDLE" ? "ok" : "ok");
+  let lighthouseStatus = $state(lighthouse.status.code === "IDLE" ? "ok" : "ok");
   let daemonStatus = $state("ok");
   let daemonLatency = $state(0);
 
-  lighthouseInstance.$status.subscribe((status) => {
+  lighthouse.$status.subscribe((status) => {
     if (status.code === "OFFLINE") lighthouseStatus = "down";
     else if (status.code === "ERROR" || status.code === "SESSION_EXPIRED") lighthouseStatus = "down";
     else if (status.code === "VERIFYING" || status.code === "REFRESHING") lighthouseStatus = "lag";
     else lighthouseStatus = "ok";
   });
 
-  lighthouseInstance.$daemons.subscribe((daemons) => {
+  lighthouse.$daemons.subscribe((daemons) => {
     if (!daemons.length) { daemonStatus = "down"; return; }
-    const worstDaemon = daemons.reduce((worst, daemon) => {
+    daemonStatus = daemons.reduce((worst, daemon) => {
       const state = daemon.connection?.$state?.get?.() ?? "IDLE";
       if (state === "ERROR") return "down";
       if (state === "LOADING" && worst !== "down") return "lag";
       return worst;
     }, "ok");
-    daemonStatus = worstDaemon;
   });
 
   const lighthouseTooltip = $derived(
     `lighthouse: ${lighthouseStatus}\n` +
-    `status: ${lighthouseInstance.$status.get().code}`
+    `status: ${lighthouse.status.code}`
   );
 </script>
 

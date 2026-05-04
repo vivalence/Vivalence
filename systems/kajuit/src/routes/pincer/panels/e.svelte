@@ -6,12 +6,10 @@
   import AimedRoutes from "./e/AimedRoutes.svelte";
   import QueueingConsole from "./e/QueueingConsole.svelte";
   import QueueingRibbon from "./e/QueueingRibbon.svelte";
-  import InsituDock from "./e/InsituDock.svelte";
-  import InsituSession from "./e/InsituSession.svelte";
-  import InsituStreams from "./e/InsituStreams.svelte";
+  import Conversational from "./e/Conversational.svelte";
   import LabeledEditor from "./e/LabeledEditor.svelte";
 
-  const allTraits = ["MASKED", "AIMED", "QUEUEING", "INSITU", "LABELED"];
+  const allTraits = ["MASKED", "AIMED", "QUEUEING", "CONVERSATIONAL", "LABELED"];
   let activeOrder = $state(["MASKED"]);
   const isActive = (trait) => activeOrder.includes(trait);
   const toggle = (trait) => {
@@ -24,14 +22,14 @@
   const quarters = getContext(QUARTERS);
   const threadContext = getContext(THREAD);
 
-  let thread = $state(threadContext.$current.get());
+  let thread = $state(threadContext.current);
   threadContext.$current.subscribe((value) => (thread = value));
 
-  let terminal = $state(quarters.$terminal.get());
+  let terminal = $state(quarters.terminal);
   quarters.$terminal.subscribe((value) => (terminal = value));
 
   const traitGate = {
-    INSITU: (thread) => thread?.mode?.traits?.includes?.("CONVERSATIONAL") ?? false,
+    CONVERSATIONAL: (thread) => thread?.mode?.traits?.includes?.("CONVERSATIONAL") ?? false,
   };
   let availableTraits = $derived(
     allTraits.filter((trait) => (traitGate[trait] ? traitGate[trait](thread) : true)),
@@ -59,10 +57,8 @@
         {:else if trait === "QUEUEING"}
           <QueueingConsole {thread} />
           <QueueingRibbon {thread} />
-        {:else if trait === "INSITU"}
-          <InsituDock {thread} {terminal} />
-          <InsituSession {thread} {terminal} />
-          <InsituStreams {thread} {terminal} />
+        {:else if trait === "CONVERSATIONAL"}
+          <Conversational {thread} />
         {:else if trait === "LABELED"}
           <LabeledEditor {thread} />
         {/if}

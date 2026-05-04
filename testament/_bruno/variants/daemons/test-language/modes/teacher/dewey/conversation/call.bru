@@ -11,11 +11,11 @@ ws {
 }
 
 body:ws {
-  name: 1 — moin
+  name: 1 — handshake open
   type: json
   content: '''
     {
-      "signal": "/herald/moin",
+      "signal": "/handshake/open",
       "input": {
         "shape": {
           "leaves": [],
@@ -23,7 +23,7 @@ body:ws {
             "dialogue": {
               "leaves": [
                 { "nature": "packet" },
-                { "nature": "voyage" }
+                { "nature": "close" }
               ],
               "branches": {}
             },
@@ -37,27 +37,24 @@ body:ws {
             },
             "verbatim": {
               "leaves": [
-                { "nature": "partial" },
-                { "nature": "final" },
-                { "nature": "turnStart" },
-                { "nature": "turnEnd" }
+                { "nature": "packet" }
               ],
               "branches": {}
             }
           }
         }
       },
-      "echo": "moin"
+      "echo": "open"
     }
   '''
 }
 
 body:ws {
-  name: 2 — anchor: oi
+  name: 2 — dialogue open: oi
   type: json
   content: '''
     {
-      "signal": "/dialogue/anchor",
+      "signal": "/dialogue/open",
       "input": {
         "thread": "{{DEWEY_THREAD_ID}}",
         "parts": [{ "type": "text", "text": "Oi Dewey!" }]
@@ -92,11 +89,11 @@ body:ws {
 }
 
 body:ws {
-  name: 5 — control abort (barge-in)
+  name: 5 — dialogue abort (barge-in)
   type: json
   content: '''
     {
-      "signal": "/control/abort",
+      "signal": "/dialogue/abort",
       "input": {}
     }
   '''
@@ -117,10 +114,10 @@ docs {
   - `FIXTURE_AUDIO_ULAW_BASE64` env holds a base64-encoded ulaw_8000 clip saying "oi"
 
   Expected flow:
-  1. MOIN negotiates audio-family routes.
-  2. Dialogue anchor triggers dual fanout: `/dialogue/packet` (text) AND `/speech/packet` (audio).
+  1. Handshake open negotiates audio-family routes.
+  2. Dialogue open triggers dual fanout: `/dialogue/packet` (text) AND `/speech/packet` (audio).
   3. Verbatim packet spins per-connection Deepgram stream.
-  4. First partial + final arrive within ~600ms for a one-word utterance.
-  5. Final transcript triggers internal auto-voice → new dialogue.anchor → more speech packets.
-  6. `/control/abort` kills inflight speech stream cleanly.
+  4. First partial + final arrive within ~600ms for a one-word utterance (delivered as `/verbatim/packet` with `nature` discriminator).
+  5. Final transcript triggers internal auto-voice → new `/dialogue/open` → more speech packets.
+  6. `/dialogue/abort` kills inflight speech stream cleanly.
 }

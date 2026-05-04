@@ -26,17 +26,25 @@ export class Pipe {
     let resolve = null;
     const untap = this.tap((value) => {
       buffer.push(value);
-      if (resolve) { resolve(); resolve = null; }
+      if (resolve) {
+        resolve();
+        resolve = null;
+      }
     });
     try {
       while (!signal?.aborted) {
-        if (buffer.length) { yield buffer.shift(); continue; }
+        if (buffer.length) {
+          yield buffer.shift();
+          continue;
+        }
         await new Promise((r) => {
           resolve = r;
           signal?.addEventListener("abort", () => r(), { once: true });
         });
       }
-    } finally { untap(); }
+    } finally {
+      untap();
+    }
   }
 
   [Symbol.asyncIterator]() {

@@ -1,24 +1,25 @@
 <script>
   import { getContext } from "svelte";
   import { THREAD } from "$client";
+  import ConversationalWidget from "./ConversationalWidget.svelte";
 
   let { rect } = $props();
 
-  const threadInstance = getContext(THREAD);
+  const thread = getContext(THREAD);
 
   let phase = $state(null);
   let stallStatus = $state(null);
   let queueDepth = $state(0);
-  let thread = $state(null);
+  let currentThread = $state(null);
 
   let teardownStatus = null;
   let teardownBuffers = null;
 
-  threadInstance.$current.subscribe((current) => {
+  thread.$current.subscribe((current) => {
     if (teardownStatus) { teardownStatus(); teardownStatus = null; }
     if (teardownBuffers) { teardownBuffers(); teardownBuffers = null; }
 
-    thread = current;
+    currentThread = current;
     if (!current) {
       phase = null;
       stallStatus = null;
@@ -41,7 +42,7 @@
   const activityLabel = $derived(stallStatus?.toLowerCase() ?? "idle");
 
   function onPull() {
-    if (thread?.queue) thread.queue.pull();
+    if (currentThread?.queue) currentThread.queue.pull();
   }
 </script>
 
@@ -70,6 +71,10 @@
         <span class="activity-label">{activityLabel}</span>
         <span class="activity-buf">{queueDepth}</span>
       </button>
+    {/if}
+    {#if currentThread}
+      {#if phase}<span class="sep">·</span>{/if}
+      <ConversationalWidget thread={currentThread} />
     {/if}
   </div>
 </div>

@@ -1,7 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import {
   DOCK_SIDES,
-  RAIL_SIZE,
   SHARE_MIN,
   SHARE_MAX,
   SHARE_DEFAULT,
@@ -59,7 +58,7 @@ specimen.describe("dock.geometry — constraint invariants", () => {
 
   specimen.it("resolve yields consistent geometry for a live dock+rect", () => {
     const rect = { width: 1000, height: 800 };
-    const dock = { side: "right", share: 0.25, collapsed: false };
+    const dock = { side: "right", share: 0.25 };
     const out = resolve(dock, rect);
     specimen.expect(out.side).toBe("right");
     specimen.expect(out.vertical).toBe(true);
@@ -67,12 +66,6 @@ specimen.describe("dock.geometry — constraint invariants", () => {
     specimen.expect(out.direction).toBe("row");
     specimen.expect(out.dimension).toBe(1000);
     specimen.expect(out.size).toBe(250);
-  });
-
-  specimen.it("resolve collapses size to RAIL_SIZE regardless of share", () => {
-    const rect = { width: 1000, height: 800 };
-    const out = resolve({ side: "right", share: 0.5, collapsed: true }, rect);
-    specimen.expect(out.size).toBe(RAIL_SIZE);
   });
 
   specimen.it("resolve defends against invalid dock (undefined, bad side, NaN share)", () => {
@@ -85,7 +78,7 @@ specimen.describe("dock.geometry — constraint invariants", () => {
 
   specimen.it("resolve switches axis for horizontal sides", () => {
     const rect = { width: 1000, height: 800 };
-    const out = resolve({ side: "bottom", share: 0.5, collapsed: false }, rect);
+    const out = resolve({ side: "bottom", share: 0.5 }, rect);
     specimen.expect(out.vertical).toBe(false);
     specimen.expect(out.direction).toBe("column");
     specimen.expect(out.dimension).toBe(800);

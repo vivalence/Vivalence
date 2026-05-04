@@ -7,36 +7,38 @@
 
   let { rect } = $props();
 
-  const threadInstance = getContext(THREAD);
-  const quartersInstance = getContext(QUARTERS);
+  const thread = getContext(THREAD);
+  const quarters = getContext(QUARTERS);
 
-  let thread = $state(null);
+  let currentThread = $state(null);
   let bufferAtom = $state(null);
   let buffer = $state(null);
   let status = $state(null);
   let terminal = $state(null);
   let dock = $state(defaultDock());
+  let threadTraits = $state([]);
 
   let teardownBuffer = null;
   let teardownStatus = null;
   let teardownDock = null;
+  let teardownTraits = null;
 
-  quartersInstance.$terminal.subscribe((value) => {
+  quarters.$terminal.subscribe((value) => {
     terminal = value;
     if (teardownDock) {
       teardownDock();
       teardownDock = null;
     }
     if (value?.$dock) {
-      dock = value.$dock.get();
+      dock = value.dock;
       teardownDock = value.$dock.subscribe((next) => {
         dock = next;
       });
     }
   });
 
-  threadInstance.$current.subscribe((current) => {
-    thread = current;
+  thread.$current.subscribe((current) => {
+    currentThread = current;
     if (teardownBuffer) {
       teardownBuffer();
       teardownBuffer = null;
@@ -45,26 +47,41 @@
       teardownStatus();
       teardownStatus = null;
     }
+    if (teardownTraits) {
+      teardownTraits();
+      teardownTraits = null;
+    }
     bufferAtom = null;
     buffer = null;
     status = null;
-    if (!current?.queue) return;
+    threadTraits = current?.traits ?? [];
+    if (!current) return;
     bufferAtom = current.$buffer;
     teardownBuffer = current.$buffer.subscribe((value) => {
       buffer = value;
     });
-    teardownStatus = current.queue.$status.subscribe((value) => {
-      status = value;
+    if (current.queue) {
+      teardownStatus = current.queue.$status.subscribe((value) => {
+        status = value;
+      });
+    }
+    teardownTraits = current.$traits.subscribe((next) => {
+      threadTraits = next;
     });
   });
 
-  const dockEnabled = $derived(thread?.mode?.traits?.includes("CONVERSATIONAL") ?? false);
+  const dockEnabled = $derived(threadTraits.includes("CONVERSATIONAL"));
   const geometry = $derived(resolve(dock, rect));
 
   function ondock(patch) {
     const next = { ...dock, ...patch };
-    if (terminal?.$dock) terminal.$dock.set(next);
-    else dock = next;
+    if (terminal?.id && quarters?.terminals?.update) {
+      quarters.terminals.update(terminal.id, { dock: next });
+    } else if (terminal?.$dock) {
+      terminal.$dock.set(next);
+    } else {
+      dock = next;
+    }
   }
 
   function onTwig(event) {
@@ -82,7 +99,7 @@
         rect,
         deltaPx,
       });
-      ondock({ share: nextShare, collapsed: false });
+      ondock({ share: nextShare });
     }
 
     function onUp() {
@@ -106,12 +123,14 @@
     <div class="body">
       {#if buffer && bufferAtom}
         <Frame buffer={bufferAtom} />
-      {:else if thread}
+      {:else if currentThread}
         <div class="yield-state">
           {#if status === "EXHAUSTED"}
             <p class="yield-label">session complete</p>
           {:else if status === "ERROR"}
-            <p class="yield-label yield-error">{thread.queue?.$error.get()?.message ?? "error"}</p>
+            <p class="yield-label yield-error">
+              {currentThread.queue?.$error.get()?.message ?? "error"}
+            </p>
           {:else}
             <span class="yield-dot"></span>
           {/if}
@@ -122,22 +141,20 @@
     </div>
 
     {#if dockEnabled}
-      {#if !dock.collapsed}
-        <div
-          class="twig"
-          class:horizontal={!geometry.vertical}
-          role="separator"
-          aria-orientation={geometry.vertical ? "vertical" : "horizontal"}
-          onpointerdown={onTwig}>
-        </div>
-      {/if}
+      <div
+        class="twig"
+        class:horizontal={!geometry.vertical}
+        role="separator"
+        aria-orientation={geometry.vertical ? "vertical" : "horizontal"}
+        onpointerdown={onTwig}>
+      </div>
 
       <div
         class="chat"
         style:width={geometry.vertical ? geometry.size + "px" : "100%"}
         style:height={geometry.vertical ? "100%" : geometry.size + "px"}
         style:flex={`0 0 ${geometry.size}px`}>
-        <Dock {thread} {dock} {ondock} side={geometry.side} {terminal} />
+        <Dock thread={currentThread} />
       </div>
     {/if}
   </div>

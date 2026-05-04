@@ -170,7 +170,11 @@ export class RemoteEntityManager {
 
       if (!entity["$" + field]) {
         entity["$" + field] = computed(childRepo.$entities, (entities) =>
-          entities.filter((child) => child[mappedBy] === entity || child[mappedBy]?.id === entity.id),
+          entities.filter((child) =>
+            child[mappedBy] === entity ||
+            child[mappedBy]?.id === entity.id ||
+            child[mappedBy] === entity.id,
+          ),
         );
       }
 

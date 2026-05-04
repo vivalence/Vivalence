@@ -3,30 +3,50 @@
   import { QUARTERS, THREAD } from "$client";
 
   let { rect } = $props();
-  const quartersInstance = getContext(QUARTERS);
-  const threadInstance = getContext(THREAD);
+  const quarters = getContext(QUARTERS);
+  const thread = getContext(THREAD);
 
-  let terminals = $state([...quartersInstance.terminals.all()]);
-  let terminal = $state(quartersInstance.$terminal.get());
-  let currentThread = $state(threadInstance.$current.get());
-  quartersInstance.terminals.$entities.subscribe((entities) => {
+  let terminals = $state([...quarters.terminals.all()]);
+  let terminal = $state(quarters.terminal);
+  let currentThread = $state(thread.current);
+  let tick = $state(0);
+
+  quarters.terminals.$entities.subscribe((entities) => {
     terminals = [...entities.values()];
   });
-  quartersInstance.$terminal.subscribe((value) => (terminal = value));
-  threadInstance.$current.subscribe((value) => (currentThread = value));
+  quarters.$terminal.subscribe((value) => (terminal = value));
+  thread.$current.subscribe((value) => (currentThread = value));
+
+  $effect(() => {
+    const interval = setInterval(() => (tick += 1), 500);
+    return () => clearInterval(interval);
+  });
 
   function tabLabel(t) {
     if (t.id === terminal?.id && currentThread?.label?.name) return currentThread.label.name;
-    const thread = t.thread;
-    if (typeof thread === "string") return thread;
-    return thread?.label?.name ?? thread?.id ?? "+";
+    if (typeof t.thread === "string") return t.thread;
+    return t.thread?.label?.name ?? t.thread?.id ?? "+";
   }
 
   function tabDescription(t) {
     if (t.id === terminal?.id && currentThread?.label?.description) return currentThread.label.description;
-    const thread = t.thread;
-    if (typeof thread === "string") return t.slug;
-    return thread?.label?.description ?? t.slug;
+    if (typeof t.thread === "string") return t.slug;
+    return t.thread?.label?.description ?? t.slug;
+  }
+
+  function tabFlags(t) {
+    if (t.id === terminal?.id && currentThread?.label?.flags?.length) return currentThread.label.flags;
+    if (t.thread?.label?.flags?.length) return t.thread.label.flags;
+    return null;
+  }
+
+  function tabConversation(t) {
+    void tick;
+    const th = t.thread;
+    if (!th || typeof th === "string") return null;
+    const engaged = th.traits?.includes?.("CONVERSATIONAL") ?? false;
+    if (!engaged) return null;
+    return th.conversation?.$state?.get?.() ?? "IDLE";
   }
 </script>
 
@@ -38,19 +58,26 @@
   style:height="{rect.height}px">
   <div class="population">
     <div class="tabs">
-      <button class="tab add" onclick={() => quartersInstance.spawn()} title="new terminal"
-        >+</button>
+      <button class="tab add" onclick={() => quarters.spawn()} title="new terminal">+</button>
       {#each terminals as t (t.id)}
+        {@const conversationState = tabConversation(t)}
+        {@const flags = tabFlags(t)}
         <button
           class="tab"
           class:active={t.id === terminal?.id}
-          title={tabDescription(t)}
-          onclick={() => quartersInstance.activate(t.id)}>
+          class:engaged={!!conversationState}
+          class:live={conversationState === "LIVE"}
+          class:opening={conversationState === "OPENING"}
+          title={conversationState
+            ? `${tabDescription(t) ?? ""} · ${conversationState.toLowerCase()}`
+            : tabDescription(t)}
+          onclick={() => quarters.activate(t.id)}>
+          {#if conversationState}
+            <span class="tab-pip"></span>
+          {/if}
           <span class="tab-title" dir="rtl">
-            {#if t.id === terminal?.id && currentThread?.label?.flags?.length}
-              <span class="tab-flags">{currentThread.label.flags.join(" ")}</span>
-            {:else if t.thread?.label?.flags?.length}
-              <span class="tab-flags">{t.thread.label.flags.join(" ")}</span>
+            {#if flags}
+              <span class="tab-flags">{flags.join(" ")}</span>
             {/if}
             {tabLabel(t)}
           </span>
@@ -59,7 +86,7 @@
               class="tab-close"
               onclick={(e) => {
                 e.stopPropagation();
-                quartersInstance.close(t.id);
+                quarters.close(t.id);
               }}>×</button>
           {/if}
         </button>
@@ -83,7 +110,7 @@
     inset: 0;
     display: flex;
     align-items: center;
-    padding: 0 16px;
+    padding: 0 14px;
     justify-content: flex-end;
     pointer-events: none;
     overflow: hidden;
@@ -95,7 +122,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 3px;
+    gap: 4px;
     width: 100%;
     height: 100%;
     overflow-x: auto;
@@ -109,46 +136,78 @@
   }
   .tab {
     flex: 0 0 auto;
-    max-width: 96px;
-    height: 18px;
+    max-width: 120px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
-    padding: 0 5px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-0-boundary);
-    border-radius: 2px;
+    gap: 6px;
+    padding: 0 8px;
+    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 30%, transparent);
+    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 50%, transparent);
+    border-radius: 3px;
     color: var(--colors-skeleton-1-contrast);
     font-family: var(--font-family-code);
     font-size: 9px;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
     text-transform: lowercase;
     cursor: pointer;
-    opacity: 0.5;
-    transition:
-      opacity 0.12s,
-      background 0.12s,
-      border-color 0.12s;
+    opacity: 0.6;
+    transition: opacity 0.16s, background 0.16s, border-color 0.16s, color 0.16s;
   }
   .tab:hover {
-    opacity: 0.85;
-    background: var(--colors-skeleton-0-surface);
+    opacity: 0.92;
+    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 70%, transparent);
+    border-color: color-mix(in srgb, var(--colors-skeleton-0-boundary) 90%, transparent);
   }
   .tab.active {
     opacity: 1;
     border-color: var(--colors-skeleton-0-primary-base);
     color: var(--colors-skeleton-0-primary-base);
-    background: var(--colors-skeleton-0-surface);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 8%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+  }
+  .tab.engaged {
+    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
+    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 85%, var(--colors-skeleton-1-contrast));
+  }
+  .tab.engaged.active {
+    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-0-primary-base);
   }
   .tab.add {
-    opacity: 0.35;
-    font-size: 12px;
-    font-weight: bold;
-    min-width: 18px;
-    max-width: 18px;
+    opacity: 0.4;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 22px;
+    max-width: 22px;
     justify-content: center;
+    padding: 0;
+    line-height: 0;
   }
   .tab.add:hover {
-    opacity: 0.7;
+    opacity: 0.85;
+    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .tab-pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
+    flex-shrink: 0;
+    transition: background 0.16s, box-shadow 0.16s;
+  }
+  .tab.live .tab-pip {
+    background: var(--colors-skeleton-0-primary-base);
+    box-shadow: 0 0 4px var(--colors-skeleton-0-primary-base);
+  }
+  .tab.opening .tab-pip {
+    background: var(--colors-skeleton-0-warning-base);
+    animation: tab-pip-pulse 0.8s ease-in-out infinite;
+  }
+  @keyframes tab-pip-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
   }
   .tab-close {
     flex: 0 0 auto;
@@ -157,9 +216,9 @@
     color: inherit;
     font-size: 11px;
     line-height: 1;
-    padding: 0 0 0 4px;
+    padding: 0 0 0 3px;
     cursor: pointer;
-    opacity: 0.4;
+    opacity: 0.45;
   }
   .tab-close:hover {
     opacity: 1;
@@ -173,6 +232,7 @@
     white-space: nowrap;
     direction: rtl;
     text-align: right;
+    flex: 1;
   }
   .tab-title::before {
     content: "\200E";

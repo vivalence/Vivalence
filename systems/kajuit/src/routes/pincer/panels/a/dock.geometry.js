@@ -1,7 +1,6 @@
 export const DOCK_SIDES = ["top", "right", "bottom", "left"];
-export const RAIL_SIZE = 26;
 export const SHARE_MIN = 0.18;
-export const SHARE_MAX = 0.60;
+export const SHARE_MAX = 1.0;
 export const SHARE_DEFAULT = 0.32;
 
 export function clampShare(share) {
@@ -26,7 +25,7 @@ export function flexDirection(side) {
 }
 
 export function dragSign(side) {
-  return (side === "right" || side === "bottom") ? -1 : 1;
+  return side === "right" || side === "bottom" ? -1 : 1;
 }
 
 export function resolve(dock, rect) {
@@ -35,7 +34,7 @@ export function resolve(dock, rect) {
   const share = clampShare(dock?.share ?? SHARE_DEFAULT);
   const direction = flexDirection(side);
   const dimension = vertical ? rect.width : rect.height;
-  const size = dock?.collapsed ? RAIL_SIZE : Math.round(dimension * share);
+  const size = Math.round(dimension * share);
   return { side, vertical, share, direction, dimension, size };
 }
 
@@ -43,9 +42,9 @@ export function shareAfterDrag({ side, share, rect, deltaPx }) {
   const vertical = isVertical(side);
   const total = vertical ? rect.width : rect.height;
   if (!total) return share;
-  return clampShare(share + dragSign(side) * deltaPx / total);
+  return clampShare(share + (dragSign(side) * deltaPx) / total);
 }
 
 export function defaultDock() {
-  return { side: "right", share: SHARE_DEFAULT, collapsed: false, session: "ended" };
+  return { side: "right", share: SHARE_DEFAULT };
 }

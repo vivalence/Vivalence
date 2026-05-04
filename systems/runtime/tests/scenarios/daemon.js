@@ -52,8 +52,8 @@ export async function create() {
       {
         slug: "survival-flashcard",
         name: "Survival Flashcard",
-        traits: ["FURNISHED"],
-        trait: { FURNISHED: { recall: "LEARNING", where: { symbols: ["greeting"] } } },
+        traits: ["MASKED"],
+        trait: { MASKED: { where: { symbols: ["greeting"] } } },
       },
     ],
   };
@@ -163,10 +163,3 @@ export async function create() {
 
   return { daemon, die, handler, conn, authedConn, orm, em, fixtures, mode, scoped };
 }
-
-// mode.view = { url: `/view/${mode.type}/${mode.slug}` };
-// mode.cake.emitter = new Vector().open("/literal", async (ctx) => ({
-//   traits: ["FURNISHED"],
-//   trait: { FURNISHED: ctx.input.intent?.trait?.FURNISHED ?? ctx.input },
-//   literals: [ctx.input.literal?.id],
-// }));

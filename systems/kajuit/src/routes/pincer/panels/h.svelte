@@ -1,43 +1,26 @@
 <script>
   import { getContext } from "svelte";
   import { LIGHTHOUSE, QUARTERS, BRIDGE, THREAD } from "$client";
-  import { shape, steer } from "@vivalence/typology";
   import { skins } from "@vivalence/drapes";
+  import { inspector } from "@vivalence/kajuit";
   const { Skin } = skins;
-  import { composeInspector } from "./inspector.js";
 
-  const lighthouseInstance = getContext(LIGHTHOUSE);
-  const quartersInstance = getContext(QUARTERS);
-  const bridgeInstance = getContext(BRIDGE);
-  const threadInstance = getContext(THREAD);
-  const { layout, view, toggle } = bridgeInstance;
+  const lighthouse = getContext(LIGHTHOUSE);
+  const quarters = getContext(QUARTERS);
+  const bridge = getContext(BRIDGE);
+  const thread = getContext(THREAD);
 
-  let show = $state(view.$h.get());
-  let gActive = $state(view.$g.get());
-  view.$h.subscribe(v => show = v);
-  view.$g.subscribe(v => gActive = v);
+  let show = $state(bridge.view.h);
+  let gActive = $state(bridge.view.g);
+  bridge.view.$h.subscribe(v => show = v);
+  bridge.view.$g.subscribe(v => gActive = v);
 
-  let inspectorHeight = $state(layout.$inspectorHeight.get());
-  layout.$inspectorHeight.subscribe(v => inspectorHeight = v);
+  let inspectorHeight = $state(bridge.layout.inspectorHeight);
+  bridge.layout.$inspectorHeight.subscribe(v => inspectorHeight = v);
 
-  let nodes = $state(null);
-
-  function rebuild() {
-    const vector = composeInspector(lighthouseInstance, quartersInstance, bridgeInstance, threadInstance);
-    nodes = shape.tree(vector, steer.direct);
-  }
-
-  lighthouseInstance.$status.subscribe(rebuild);
-  lighthouseInstance.$isAuthorized.subscribe(rebuild);
-  lighthouseInstance.$isIdentified.subscribe(rebuild);
-  lighthouseInstance.$identity.subscribe(rebuild);
-  lighthouseInstance.$daemons.subscribe(rebuild);
-  quartersInstance.$active.subscribe(rebuild);
-  quartersInstance.$terminal.subscribe(rebuild);
-  quartersInstance.terminals.$entities.subscribe(rebuild);
-  threadInstance.$current.subscribe(rebuild);
-  layout.$pincer.subscribe(rebuild);
-  layout.$orientation.subscribe(rebuild);
+  const nodesAtom = inspector.inspectorAtom(lighthouse, quarters, bridge, thread);
+  let nodes = $state(nodesAtom.get());
+  nodesAtom.subscribe(v => nodes = v);
 
   let dragging = $state(false);
   let dragStartY = $state(0);
@@ -54,16 +37,14 @@
 
   function onHandlePointerMove(event) {
     if (!dragging) return;
-    const delta = event.clientY - dragStartY;
-    const newHeight = Math.max(0, Math.min(window.innerHeight - 80, dragStartHeight + delta));
-    layout.inspectorHeight = newHeight;
+    bridge.layout.inspectorHeight = Math.max(0, Math.min(window.innerHeight - 80, dragStartHeight + event.clientY - dragStartY));
   }
 
   function onHandlePointerUp(event) {
     if (!dragging) return;
     try { event.currentTarget.releasePointerCapture(event.pointerId); } catch (_) {}
     dragging = false;
-    bridgeInstance.save();
+    bridge.save();
   }
 
   const open = $derived(inspectorHeight > 20);
@@ -79,10 +60,10 @@
       <button
         class="btn"
         class:on={gActive}
-        onclick={() => toggle("g")}
+        onclick={() => bridge.toggle("g")}
         title="toggle G — telemetry"
       >G</button>
-      <button class="btn close" onclick={() => toggle("h")}>×</button>
+      <button class="btn close" onclick={() => bridge.toggle("h")}>×</button>
     </div>
 
     {#if open && nodes}

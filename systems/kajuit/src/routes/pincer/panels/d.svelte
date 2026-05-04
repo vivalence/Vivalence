@@ -5,8 +5,8 @@
   const { Filter, List } = skins;
   import { compose, narrow } from "./navigation.js";
 
-  const lighthouseInstance = getContext(LIGHTHOUSE);
-  const threadInstance = getContext(THREAD);
+  const lighthouse = getContext(LIGHTHOUSE);
+  const thread = getContext(THREAD);
   const bridge = getContext(BRIDGE);
 
   let view = $state(bridge.view.d);
@@ -19,10 +19,10 @@
   let query = $state("");
   let error = $state(null);
 
-  lighthouseInstance.$daemons.subscribe(async (list) => {
+  lighthouse.$daemons.subscribe(async (list) => {
     if (!list.length) return;
     try {
-      const result = await compose(lighthouseInstance, threadInstance);
+      const result = await compose(lighthouse, thread);
       threads = result.threads;
       modes = result.modes;
       intents = result.intents;
@@ -40,10 +40,10 @@
     filteredThreads.length + filteredModes.length + filteredIntents.length > 0,
   );
 
-  let thread = $state(threadInstance.$current.get());
+  let currentThread = $state(thread.current);
 
-  threadInstance.$current.subscribe((value) => {
-    thread = value;
+  thread.$current.subscribe((value) => {
+    currentThread = value;
   });
 </script>
 
@@ -110,12 +110,12 @@
         <div class="empty">no daemons</div>
       {/if}
     </div>
-  {:else if view === "inside" && thread}
+  {:else if view === "inside" && currentThread}
     <div class="inside">
       <div class="section-header">traits</div>
-      {#if thread.traits?.length}
+      {#if currentThread.traits?.length}
         <div class="trait-list">
-          {#each thread.traits as trait}
+          {#each currentThread.traits as trait}
             <span class="trait-tag">{trait}</span>
           {/each}
         </div>
@@ -123,8 +123,8 @@
         <div class="empty">none</div>
       {/if}
 
-      {#if thread.trait}
-        {#each Object.entries(thread.trait) as [key, value]}
+      {#if currentThread.trait}
+        {#each Object.entries(currentThread.trait) as [key, value]}
           <div class="trait-block">
             <div class="trait-key">{key}</div>
             <pre class="trait-value">{JSON.stringify(value, null, 2)}</pre>
@@ -135,9 +135,9 @@
       <div class="section-header">counters</div>
       <div class="counter-row">
         <span class="counter-key">counter</span>
-        <span class="counter-value">{thread.counter}</span>
+        <span class="counter-value">{currentThread.counter}</span>
         <span class="counter-key">cursor</span>
-        <span class="counter-value">{thread.cursor}</span>
+        <span class="counter-value">{currentThread.cursor}</span>
       </div>
     </div>
   {:else}

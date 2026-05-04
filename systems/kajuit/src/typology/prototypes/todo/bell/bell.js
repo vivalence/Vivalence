@@ -1,23 +1,22 @@
 import { atom } from "nanostores";
-import { Pipe  } from "./pipe.js";
-import { Queue } from "./queue.js";
+import { Pipe, Queue } from "@vivalence/typology";
 
 class Bell {
-  mic     = new Pipe();
+  mic = new Pipe();
   speaker = new Queue();
-  vad     = { $speaking: atom(false) };
+  vad = { $speaking: atom(false) };
 
-  $state       = atom("IDLE");
-  $permission  = atom("prompt");
-  $devices     = atom({ inputs: [], outputs: [], selected: null });
-  $inputLevel  = atom(0);
+  $state = atom("IDLE");
+  $permission = atom("prompt");
+  $devices = atom({ inputs: [], outputs: [], selected: null });
+  $inputLevel = atom(0);
   $outputLevel = atom(0);
 
-  #owner    = null;
-  #context  = null;
+  #owner = null;
+  #context = null;
   #recorder = null;
-  #source   = null;
-  #meter    = null;
+  #source = null;
+  #meter = null;
 
   claim(owner) {
     if (this.#owner && this.#owner !== owner) return false;
@@ -42,8 +41,8 @@ class Bell {
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       this.$devices.set({
-        inputs:   devices.filter((device) => device.kind === "audioinput"),
-        outputs:  devices.filter((device) => device.kind === "audiooutput"),
+        inputs: devices.filter((device) => device.kind === "audioinput"),
+        outputs: devices.filter((device) => device.kind === "audiooutput"),
         selected: null,
       });
     } catch {}
@@ -68,7 +67,9 @@ class Bell {
 
   micStop() {
     if (this.#recorder) {
-      try { this.#recorder.stop(); } catch {}
+      try {
+        this.#recorder.stop();
+      } catch {}
       this.#recorder = null;
     }
     if (this.#source) {
@@ -84,8 +85,12 @@ class Bell {
     if (this.$state.get() !== "MUTED") this.$state.set("IDLE");
   }
 
-  micMute()   { this.$state.set("MUTED"); }
-  micUnmute() { this.$state.set(this.#recorder ? "CAPTURING" : "IDLE"); }
+  micMute() {
+    this.$state.set("MUTED");
+  }
+  micUnmute() {
+    this.$state.set(this.#recorder ? "CAPTURING" : "IDLE");
+  }
 
   speakerStop() {
     this.speaker.flush();
@@ -93,13 +98,16 @@ class Bell {
   }
 
   #wireLevelMeter(source) {
-    const node     = this.#context.createMediaStreamSource(source);
+    const node = this.#context.createMediaStreamSource(source);
     const analyser = this.#context.createAnalyser();
     analyser.fftSize = 256;
     node.connect(analyser);
     const window = new Uint8Array(analyser.frequencyBinCount);
     const sample = () => {
-      if (this.$state.get() === "IDLE") { this.#meter = null; return; }
+      if (this.$state.get() === "IDLE") {
+        this.#meter = null;
+        return;
+      }
       analyser.getByteTimeDomainData(window);
       let sum = 0;
       for (let i = 0; i < window.length; i++) {

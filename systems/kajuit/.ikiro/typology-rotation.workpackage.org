@@ -1,0 +1,2855 @@
+#+TITLE: Typology Rotation — filesystem-organized
+#+AUTHOR: Vivalence
+#+DATE: 2026-05-04 (revised)
+#+STATUS: ACTIVE — INSITU→CONVERSATIONAL slice landed 2026-05-05 (see =Shipped 2026-05-05= section at bottom). Other rotation directives still pending.
+
+* Barrel preservation contract
+
+Consumers in =systems/kajuit/src/routes/= reference deck namespaces:
+=bridgeDeck.Bridge=, =bridgeDeck.bootLayout=, =bridgeDeck.PINCER_SIZE=,
+=lighthouseDeck.hydrate=, =lighthouseDeck.boot=, etc. The internal
+restructure must preserve the barrel surface. Each new
+=decks/<name>/index.js= re-exports the same named symbols the old
+flat files exported. The single intentional consumer-site change is
+=ThreadContext= → =ThreadStore=, applied in the same commit (no
+transitional alias).
+
+* =subsystems/typology/=
+
+** New: =subsystems/typology/gestalten/shape/strategy.js=
+@beef No. lol.
+
+Adapter between a selbstbestimmt vector and a per-entity hook with
+the shape =(entity, raw) => entity=. Lives next to
+=shape.selbstbestimmt= because the two are conventionally paired.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/subsystems/typology/gestalten/shape/strategy.js
+export function strategy(carry) {
+  return async (entity, raw) => {
+    const ctx = { entity, raw };
+    await carry(ctx, async () => {});
+    return entity;
+  };
+}
+#+end_src
+
+** New: =subsystems/typology/gestalten/belt/store.js=
+@beef maybe. if, then maybe as a more general schimmy around nanostores?! needs throught.
+
+Atom-backed reactive record. Each key gets a backing atom plus a
+=$key= alias and a transparent getter/setter. =toJSON= serializes the
+declared key set.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/subsystems/typology/gestalten/belt/store.js
+import { atom } from "nanostores";
+
+export function store(defaults, serialize) {
+  const instance = {};
+  const atoms = {};
+  for (const [key, initial] of Object.entries(defaults)) {
+    const a = atom(initial);
+    atoms[key] = a;
+    instance["$" + key] = a;
+    Object.defineProperty(instance, key, {
+      get() {
+        return a.get();
+      },
+      set(v) {
+        a.set(v);
+      },
+    });
+  }
+  const keys = serialize || Object.keys(defaults);
+  instance.toJSON = () => Object.fromEntries(keys.map((k) => [k, atoms[k].get()]));
+  return instance;
+}
+#+end_src
+
+** New: =subsystems/typology/prototypes/stall/status.js=
+@beef really more a a schematic than a prototype.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/subsystems/typology/prototypes/stall/status.js
+export const StallStatusEnum = Object.freeze({
+  UNINITIALIZED: "<uninitialized>",
+  IDLE: "IDLE",
+  PULLING: "PULLING",
+  EXHAUSTED: "EXHAUSTED",
+  ERROR: "ERROR",
+  CLOSED: "CLOSED",
+});
+#+end_src
+
+** New: =subsystems/typology/prototypes/stall/stall.js=
+@beef stall is only used by the client rn so lets keep it there.
+@beef also there are a bunch of extra flags (suspended and activated) that really have no business existing. those ought to be either handled by status or be implicit/emergent
+
+Per-instance behaviors (=pull=, =activate=, =deactivate=, =suspend=,
+=resume=, =next=, =close=, =reset=, =toJSON=) all live as class
+methods. No prototype-monkeypatch.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/subsystems/typology/prototypes/stall/stall.js
+  import { atom } from "nanostores";
+  import { StallStatusEnum } from "./status.js";
+
+  export class Stall {
+    $source;
+    $active;
+    $error = atom(null);
+    $status = atom(StallStatusEnum.UNINITIALIZED);
+
+    threshold = 0;
+    suspended = false;
+    activated = false;
+    teardowns = [];
+    handlers = { pull: null, hooks: [] };
+
+    constructor($source, $active) {
+      this.$source = $source;
+      this.$active = $active;
+    }
+
+    withPull(pull, threshold = 0) {
+      this.handlers.pull = pull;
+      this.threshold = threshold;
+      return this;
+    }
+
+    activate() {
+      if (this.activated) return this;
+      this.activated = true;
+
+      this.$status.set(StallStatusEnum.IDLE);
+
+      this.teardowns.push(
+        this.$status.subscribe((status) => {
+          if (status !== StallStatusEnum.IDLE) return;
+          if (!this.$active.get() && this.$source.get().length) this.advance();
+          if (this.$source.get().length < this.threshold) this.pull();
+        }),
+      );
+
+      this.teardowns.push(
+        this.$source.subscribe(() => {
+          if (this.$status.get() === StallStatusEnum.CLOSED) return;
+          if (this.suspended) return;
+          if (!this.$active.get() && this.$source.get().length) this.advance();
+        }),
+      );
+
+      return this;
+    }
+
+    deactivate() {
+      for (const teardown of this.teardowns) teardown();
+      this.teardowns = [];
+      this.activated = false;
+        @beef Why? 
+    }
+
+    suspend() {
+      this.suspended = true;
+        @beef Why? 
+    }
+
+    resume() {
+      this.suspended = false;
+      if (!this.$active.get() && this.$source.get().length) this.advance();
+    }
+
+    advance() {
+      const items = this.$source.get();
+      if (items.length > 0) this.$active.set(items[0]);
+    }
+
+    next(promise) {
+      const status = this.$status.get();
+      if (status === StallStatusEnum.CLOSED) return;
+
+      const prev = this.$active.get();
+      this.$active.set(null);
+
+      this.advance();
+      this.runHooks(prev, this.$active.get(), promise);
+
+      if (this.$source.get().length < this.threshold) this.pull();
+    }
+
+    async pull() {
+      const status = this.$status.get();
+      if (
+        [
+          StallStatusEnum.CLOSED,
+          StallStatusEnum.PULLING,
+          StallStatusEnum.EXHAUSTED,
+          StallStatusEnum.ERROR,
+        ].includes(status)
+      )
+        return;
+      if (this.$source.get().length > this.threshold) return;
+      if (!this.handlers.pull) return;
+
+      this.$status.set(StallStatusEnum.PULLING);
+
+      try {
+        const result = await this.handlers.pull(this);
+        if (!this.activated) return;
+        const condition = result?.condition ?? (result?.buffers?.length ? "NOMINAL" : "EXHAUSTED");
+
+        if (condition === "NOMINAL") this.$status.set(StallStatusEnum.IDLE);
+        else if (condition === "EXHAUSTED") this.$status.set(StallStatusEnum.EXHAUSTED);
+        else if (condition === "ERROR") {
+          console.error("[stall] pull returned ERROR:", result.error);
+          this.$status.set(StallStatusEnum.ERROR);
+          this.$error.set(result.error);
+        }
+      } catch (error) {
+        console.error("[stall] pull failed:", error);
+        this.$status.set(StallStatusEnum.ERROR);
+        this.$error.set(error);
+      }
+    }
+
+    close() {
+      this.$status.set(StallStatusEnum.CLOSED);
+      this.handlers.pull = null;
+      this.handlers.hooks = [];
+    }
+
+    reset() {
+      this.handlers.pull = null;
+      this.handlers.hooks = [];
+      this.$active.set(null);
+      this.$status.set(StallStatusEnum.IDLE);
+    }
+
+    onNext(fn) {
+      this.handlers.hooks.push(fn);
+    }
+
+    runHooks(prev, active, promise) {
+      this.handlers.hooks.forEach((f) => f(prev, active, promise));
+    }
+
+    toJSON() {
+      const active = this.$active.get();
+      return {
+        status: this.$status.get(),
+        active: active?.toJSON?.() ?? active?.id ?? null,
+        queue: this.$source.get().map((b) => b?.toJSON?.() ?? b?.id ?? b),
+        error: this.$error.get()?.message ?? null,
+        hasPull: !!this.handlers.pull,
+        hooks: this.handlers.hooks.length,
+      };
+    }
+  }
+#+end_src
+
+** New: =subsystems/typology/prototypes/stall/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/subsystems/typology/prototypes/stall/index.js
+export { Stall } from "./stall.js";
+export { StallStatusEnum } from "./status.js";
+#+end_src
+
+** Modify: =subsystems/typology/= barrel exports
+
+Wire =strategy=, =store=, and =Stall= into the existing
+=mod.client.js= / =mod.ts= surface so consumers see them on
+=@vivalence/typology=. Concrete edit depends on current shape of
+=gestalten/{shape,belt}/index.js= and
+=prototypes/index.client.js= — add:
+
+- =export { strategy } from "./gestalten/shape/strategy.js";=
+- =export { store } from "./gestalten/belt/store.js";=
+- =export { Stall, StallStatusEnum } from "./prototypes/stall/index.js";=
+
+(Adjust paths to match the existing folder layout in
+=subsystems/typology/=. The intent: every consumer imports from
+=@vivalence/typology=, never from a kajuit-local file.)
+
+* =systems/kajuit/src/typology/=
+
+** Modify: =mod.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/mod.js
+export * from "./gestalten/index.js";
+export * from "./prototypes/index.js";
+export * from "./decks/index.js";
+export * from "./entities/index.js";
+export * as traits from "./traits/index.js";
+#+end_src
+
+** =gestalten/=
+
+*** Unchanged: =gestalten/belt/narrow.js=
+
+Keep the existing single file. Section headers already separate
+matchers / narrow / rankers / presets. Export =dig= so other call
+sites can reuse the path-walker without duplicating it. (No
+=narrow/{matchers,rank,presets}.js= split; no =index.js= barrel for
+=narrow=.)
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/gestalten/belt/narrow.js
+// ─── matchers ────────────────────────────────────────────
+// each matcher constructor returns (term, node) => boolean
+
+export function dig(obj, path) {
+  if (!obj || !path) return undefined;
+  const keys = path.split(".");
+  let current = obj;
+  for (const key of keys) {
+    if (current == null) return undefined;
+    current = current[key];
+  }
+  return current;
+}
+
+export function text(...fields) {
+  return (term, node) => {
+    for (const field of fields) {
+      const value = dig(node, field);
+      if (typeof value === "string" && value.toLowerCase().includes(term)) return true;
+    }
+    return false;
+  };
+}
+
+export function keyed() {
+  return (term, node) => {
+    const k = node.signature?.keyed;
+    if (!k) return false;
+    const full = (k.modifier ? k.modifier + "+" + k.command : k.command).toLowerCase();
+    return full.includes(term);
+  };
+}
+
+export function exact(field) {
+  return (term, node) => {
+    const value = dig(node, field);
+    return typeof value === "string" && value.toLowerCase() === term;
+  };
+}
+
+// ─── narrow ──────────────────────────────────────────────
+
+export function narrow(query, nodes, matchers) {
+  const terms = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.length) return nodes;
+  return nodes.filter((node) =>
+    terms.every((term) => matchers.some((match) => match(term, node))),
+  );
+}
+
+// ─── rankers ─────────────────────────────────────────────
+
+export function byExact(query) {
+  const q = query.toLowerCase().trim();
+  return (a, b) => {
+    const exactA = a.nature.toLowerCase() === q ? 1 : 0;
+    const exactB = b.nature.toLowerCase() === q ? 1 : 0;
+    return exactB - exactA;
+  };
+}
+
+export function byPrefix(query) {
+  const q = query.toLowerCase().trim();
+  return (a, b) => {
+    const prefixA = a.nature.toLowerCase().startsWith(q) ? 1 : 0;
+    const prefixB = b.nature.toLowerCase().startsWith(q) ? 1 : 0;
+    return prefixB - prefixA;
+  };
+}
+
+export function byField(field, direction = 1) {
+  return (a, b) => {
+    const va = dig(a, field) ?? "";
+    const vb = dig(b, field) ?? "";
+    return (va < vb ? -1 : va > vb ? 1 : 0) * direction;
+  };
+}
+
+export function rank(nodes, ...rankers) {
+  if (!rankers.length) return nodes;
+  return [...nodes].sort((a, b) => {
+    for (const ranker of rankers) {
+      const result = ranker(a, b);
+      if (result !== 0) return result;
+    }
+    return 0;
+  });
+}
+
+// ─── presets ─────────────────────────────────────────────
+
+export const navigation = [
+  text("nature", "signature.valence.name", "signature.valence.prompt"),
+  keyed(),
+];
+
+export const inspector = [
+  text("nature", "signature.valence.name"),
+];
+#+end_src
+
+*** Modify: =gestalten/belt/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/gestalten/belt/index.js
+export * as narrow from "./narrow.js";
+#+end_src
+
+(=store=, =strategy=, =inspector-tree= intentionally absent: =store=
+and =strategy= are imported from =@vivalence/typology=;
+=composeInspector= lives in =decks/inspector.js=.)
+
+** =prototypes/=
+
+*** New: =prototypes/entity/entity.js=
+@beef doesnt need to be its own directory?!??!! forced & unessecary.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/entity/entity.js
+export class Entity {
+  constructor(data) {
+    // class field initializers run after super(); EM's merge() does Object.assign post-construction
+  }
+
+  toJSON() {
+    const props = this.constructor.schema?.properties ?? {};
+    const out = {};
+    for (const [key, value] of Object.entries(this)) {
+      if (typeof value === "function") continue;
+      if (value instanceof Set || value instanceof Map) continue;
+
+      const spec = props[key];
+      if (spec) {
+        if (spec.kind === "m:1") { out[key] = value?.id ? { id: value.id } : value; continue; }
+        if (spec.kind === "1:m" || spec.kind === "m:n") {
+          out[key] = Array.isArray(value) ? value.map((element) => (element?.id ? { id: element.id } : element)) : value;
+          continue;
+        }
+      }
+
+      if (value != null && typeof value === "object" && !Array.isArray(value) && value.constructor !== Object) continue;
+      out[key] = value;
+    }
+    return out;
+  }
+}
+#+end_src
+
+*** New: =prototypes/entity/index.js=
+@stupid
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/entity/index.js
+export { Entity } from "./entity.js";
+#+end_src
+
+*** New: =prototypes/dataspace/dataspace.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/dataspace/dataspace.js
+import { RemoteEntityManager } from "@vivalence/typology";
+import { register } from "./lifecycle/register.js";
+
+export class Dataspace {
+  schemas = new Map();
+
+  constructor({ entities, connection, seed }) {
+    this.connection = connection;
+    this.em = new RemoteEntityManager(connection, {});
+    register(this, { entities, seed });
+  }
+
+  async init() {
+    if (!this.connection) return;
+    this.datamap = await this.connection.call("/datamap");
+    this.em.schema = this.datamap;
+  }
+
+  async populate(names = []) {
+    await Promise.all(
+      names
+        .filter((name) => this.em.repositoryMap[name])
+        .map((name) => this.em.repositoryMap[name].find()),
+    );
+  }
+
+  fork() {
+    return this.em.fork();
+  }
+}
+#+end_src
+
+*** New: =prototypes/dataspace/lifecycle/register.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/dataspace/lifecycle/register.js
+import { Vector, shape, shard, strategy } from "@vivalence/typology";
+
+function nameFrom(schema) {
+  return (
+    schema.name ??
+    (typeof schema.kind === "function" ? schema.kind().name.toLowerCase() : "unknown")
+  );
+}
+
+export function register(dataspace, { entities, seed }) {
+  for (const dossier of entities) {
+    const name = nameFrom(dossier);
+    const repository = dossier.repository(dossier, dataspace);
+
+    const vector = new Vector()
+      .use(shard.context.attach("dossier", dossier))
+      .use(shard.context.attach("repository", repository))
+      .use(shard.context.attach("dataspace", dataspace));
+    seed?.(vector);
+    for (const fn of dossier.use ?? []) vector.use(fn);
+    vector.affect(async () => {});
+    const integrate = shape.selbstbestimmt(vector, strategy);
+
+    if (repository.manage) dataspace.em.register(name, repository, integrate);
+    else repository.integrate = integrate;
+    dataspace.schemas.set(name, dossier);
+    dataspace[name] = repository;
+  }
+}
+#+end_src
+
+*** New: =prototypes/dataspace/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/dataspace/index.js
+export { Dataspace } from "./dataspace.js";
+#+end_src
+
+*** New: =prototypes/daemon/daemon.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/daemon.js
+export class Daemon {
+  manifest = null;
+  mount = null;
+  connection = null;
+  entities = null;
+  cargo = {};
+  lighthouse = null;
+
+  constructor(connection) {
+    this.connection = connection;
+  }
+
+  get slug() {
+    return this.manifest?.slug ?? null;
+  }
+
+  getAsset(asset) {
+    if (!this.cargo || !asset) return null;
+    if (asset.path) return this.cargo[asset.path] ?? null;
+    if (asset.slug) {
+      const entry = Object.entries(this.cargo).find(
+        ([key]) => key.endsWith("/" + asset.slug) || key.startsWith(asset.slug),
+      );
+      return entry?.[1] ?? null;
+    }
+    return null;
+  }
+
+  toJSON() {
+    return {
+      slug: this.slug,
+      mount: this.mount?.nature ?? null,
+      manifest: this.manifest,
+    };
+  }
+}
+#+end_src
+
+*** New: =prototypes/daemon/manifest.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/manifest.js
+import {
+  ModeDossier,
+  IntentDossier,
+  ThreadDossier,
+  BufferDossier,
+  TurnDossier,
+  LiteralDossier,
+} from "../../entities/index.js";
+
+export const entities = [
+  ModeDossier,
+  IntentDossier,
+  ThreadDossier,
+  BufferDossier,
+  TurnDossier,
+  LiteralDossier,
+];
+#+end_src
+
+*** New: =prototypes/daemon/lifecycle/populate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/lifecycle/populate.js
+import { shard } from "@vivalence/typology";
+import { Dataspace } from "../../dataspace/index.js";
+import { entities } from "../manifest.js";
+
+function seedDaemon(daemon) {
+  return (vector) => vector.use(shard.context.attach("daemon", daemon));
+}
+
+export async function populate(daemon) {
+  daemon.entities = new Dataspace({
+    entities,
+    connection: daemon.connection,
+    seed: seedDaemon(daemon),
+  });
+  await daemon.entities.init();
+  await daemon.entities.populate(["mode"]);
+  await daemon.entities.populate(["intent"]);
+}
+#+end_src
+
+*** New: =prototypes/daemon/lifecycle/resolve.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/lifecycle/resolve.js
+import { Path } from "@vivalence/typology";
+
+export async function resolve(daemon) {
+  const [manifest, cargo] = await Promise.all([
+    daemon.connection.call("/manifest"),
+    daemon.connection.call("/cargo"),
+  ]);
+  daemon.manifest = manifest;
+  daemon.mount = new Path(`/daemon/${manifest.slug}`);
+  daemon.cargo = cargo;
+  daemon.call = daemon.connection.call.bind(daemon.connection);
+}
+#+end_src
+
+*** New: =prototypes/daemon/lifecycle/integrate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/lifecycle/integrate.js
+import { Path } from "@vivalence/typology";
+
+export function integrate(daemon) {
+  daemon.link = new Path(`/${daemon.lighthouse.manifest.slug}/${daemon.manifest.slug}`).rebase("/viva");
+}
+#+end_src
+
+*** New: =prototypes/daemon/die.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/die.js
+import { populate } from "./lifecycle/populate.js";
+import { resolve } from "./lifecycle/resolve.js";
+import { integrate } from "./lifecycle/integrate.js";
+
+export async function die(daemon) {
+  await resolve(daemon);
+  await populate(daemon);
+  integrate(daemon);
+}
+#+end_src
+
+*** New: =prototypes/daemon/boot.js=
+@beef IF we apply lifecycles anyways, then boot absolutely ought to be implemented as a F of lifecycle.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/boot.js
+import { Daemon } from "./daemon.js";
+import { die } from "./die.js";
+
+export async function boot({ connection, lighthouse }) {
+  const daemon = new Daemon(connection);
+  daemon.lighthouse = lighthouse;
+  await die(daemon);
+  return daemon;
+}
+#+end_src
+
+*** New: =prototypes/daemon/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/daemon/index.js
+export { Daemon } from "./daemon.js";
+export { boot } from "./boot.js";
+export { die } from "./die.js";
+export { entities } from "./manifest.js";
+#+end_src
+
+*** Modify: =prototypes/index.js=
+
+=Stall= is no longer kajuit-local — re-export it from
+=@vivalence/typology= for any kajuit consumer that imports off the
+typology barrel.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/prototypes/index.js
+export * as daemon from "./daemon/index.js";
+export * as dataspace from "./dataspace/index.js";
+
+export { Entity } from "./entity/index.js";
+export { Dataspace } from "./dataspace/index.js";
+export { Stall, StallStatusEnum } from "@vivalence/typology";
+#+end_src
+
+*** Delete
+
+- =systems/kajuit/src/typology/prototypes/daemon.js=
+- =systems/kajuit/src/typology/prototypes/dataspace.js=
+- =systems/kajuit/src/typology/prototypes/entity.js=
+- =systems/kajuit/src/typology/prototypes/stall.js= (moved to subsystems/typology)
+
+*** Touched (import path updates)
+
+- =entities/buffer.js= — change =from "../prototypes/entity.js"= to =from "../prototypes/entity/entity.js"=
+- =entities/mode.js= — same
+- =entities/intent.js= — same
+- =entities/turn.js= — same
+- =entities/literal.js= — same
+- =traits/thread/queueing/trait.js= — change =from "../../prototypes/stall.js"= to =from "@vivalence/typology"=
+
+** =decks/=
+
+*** Modify: =decks/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/index.js
+export * as lighthouse from "./lighthouse/index.js";
+export * as quarters from "./quarters/index.js";
+export * as bridge from "./bridge/index.js";
+export * as thread from "./thread/index.js";
+export * as inspector from "./inspector.js";
+#+end_src
+
+*** =decks/lighthouse/=
+
+Per-instance behaviors (=login=, =verify=, =refresh=, =logout=) stay
+on the class. =lifecycle/= holds only boot phases (=connection= wiring,
+=hydrate=, =populate=).
+
+**** New: =decks/lighthouse/lighthouse.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/lighthouse.js
+import { map, atom, computed } from "nanostores";
+import { connection as wireConnection } from "./lifecycle/connection.js";
+
+export class Lighthouse {
+  daemons = new Map();
+  $daemons = atom([]);
+  $authority = map({});
+  $identity = map({});
+  $status = atom({ code: "IDLE" });
+
+  $isAuthorized = computed(this.$authority, (a) => !!a?.access && !!a?.refresh);
+  $isIdentified = computed(this.$identity, (i) => !!i?.id);
+
+  manifest = null;
+  $populating = null;
+
+  get authority() { return this.$authority.get(); }
+  get identity() { return this.$identity.get(); }
+  get status() { return this.$status.get(); }
+  get isAuthorized() { return this.$isAuthorized.get(); }
+  get isIdentified() { return this.$isIdentified.get(); }
+
+  constructor(rawConnection) {
+    this.connection = wireConnection(rawConnection, this.$authority);
+  }
+
+  async login(username, password) {
+    this.$status.set({ code: "AUTHENTICATING" });
+
+    const response = await this.connection.fetch("/auth/login", { username, password });
+
+    if (response.error) {
+      this.$status.set({
+        code: "ERROR",
+        message: response.error.message,
+        type: response.error.type,
+      });
+      return { status: "ERROR", error: response.error };
+    }
+
+    const { authority, identity } = response.body;
+    if (authority) this.$authority.set(authority);
+    if (identity) this.$identity.set(identity);
+
+    this.$status.set({ code: "AUTHENTICATED" });
+    return { status: "OK", identity };
+  }
+
+  async verify() {
+    const auth = this.$authority.get();
+    if (!auth?.access) return { status: "NO_TOKEN" };
+
+    this.$status.set({ code: "VERIFYING" });
+
+    const response = await this.connection.fetch("/auth/verify", { access: auth.access });
+
+    if (response.isNetworkError) {
+      this.$status.set({ code: "OFFLINE", message: "Network unavailable", canRetry: true });
+      return { status: "NETWORK_ERROR", canRetry: true };
+    }
+    if (response.isAuthError) return this.refresh();
+    if (response.error) {
+      this.$status.set({ code: "ERROR", message: response.error.message });
+      return { status: "ERROR", error: response.error };
+    }
+
+    if (response.body.status === "SUCCESS") {
+      this.$status.set({ code: "VERIFIED" });
+      return { status: "OK" };
+    }
+    return { status: "INVALID" };
+  }
+
+  async refresh() {
+    const auth = this.$authority.get();
+    if (!auth?.refresh) return { status: "NO_REFRESH_TOKEN" };
+
+    this.$status.set({ code: "REFRESHING" });
+
+    const response = await this.connection.fetch("/auth/refresh", { refresh: auth.refresh });
+
+    if (response.isNetworkError) {
+      this.$status.set({ code: "OFFLINE", message: "Network unavailable", canRetry: true });
+      return { status: "NETWORK_ERROR", canRetry: true };
+    }
+
+    if (response.isAuthError) {
+      this.logout();
+      this.$status.set({ code: "SESSION_EXPIRED" });
+      return { status: "SESSION_EXPIRED" };
+    }
+
+    if (response.error) {
+      this.logout();
+      this.$status.set({ code: "ERROR", message: response.error.message });
+      return { status: "ERROR", error: response.error };
+    }
+
+    const { access } = response.body;
+    if (access) {
+      this.$authority.set({ ...auth, access });
+      this.$status.set({ code: "REFRESHED" });
+      return { status: "OK" };
+    }
+
+    this.logout();
+    return { status: "REFRESH_FAILED" };
+  }
+
+  logout() {
+    const auth = this.$authority.get();
+    this.$authority.set(null);
+    this.$identity.set(null);
+    this.$status.set({ code: "LOGGED_OUT" });
+
+    if (auth?.refresh) {
+      this.connection.fetch("/auth/logout", { refresh: auth.refresh }).catch(() => {});
+    }
+  }
+
+  get json() {
+    return {
+      status: this.$status.get(),
+      isIdentified: this.$isIdentified.get(),
+      isAuthorized: this.$isAuthorized.get(),
+      identity: this.$identity.get(),
+      authority: this.$authority.get(),
+    };
+  }
+
+  toJSON() {
+    return {
+      ...this.json,
+      daemons: [...this.daemons.keys()],
+    };
+  }
+}
+#+end_src
+
+**** New: =decks/lighthouse/lifecycle/connection.js=
+@beef unnessecary & forced separation again.
+
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/lifecycle/connection.js
+import { shard } from "@vivalence/typology";
+import { telemetry } from "$telemetry";
+
+export function connection(rawConnection, $authority) {
+  return rawConnection
+    .use(shard.track.span("lighthouse", telemetry))
+    .use(shard.track.request())
+    .use(shard.track.fault())
+    .use(shard.connection.authorize($authority))
+    .use(shard.connection.retry({ maxRetries: 2 }))
+    .use(shard.connection.timeout())
+    .use(shard.connection.track(rawConnection));
+}
+#+end_src
+
+**** New: =decks/lighthouse/lifecycle/hydrate.js=
+@beef isoltation ok here, but lifecycle stages are 4. not each lifecycle gets its own file. 
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/lifecycle/hydrate.js
+import { effect } from "nanostores";
+
+const STORAGE_KEY = (url) => `lighthouse:${url}`;
+
+export function hydrate(lighthouse) {
+  const key = STORAGE_KEY(lighthouse.connection.url);
+  const stored = typeof localStorage !== "undefined" ? localStorage.getItem(key) : null;
+
+  if (stored) {
+    try {
+      const { authority, identity } = JSON.parse(stored);
+      if (authority) lighthouse.$authority.set(authority);
+      if (identity) lighthouse.$identity.set(identity);
+    } catch {
+      try { localStorage.removeItem(key); } catch {}
+    }
+  }
+
+  effect([lighthouse.$authority, lighthouse.$identity], (authority, identity) => {
+    if (typeof localStorage === "undefined") return;
+    if (authority || identity) {
+      localStorage.setItem(key, JSON.stringify({ authority, identity }));
+    } else {
+      localStorage.removeItem(key);
+    }
+  });
+}
+#+end_src
+
+**** New: =decks/lighthouse/lifecycle/populate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/lifecycle/populate.js
+import { Connection, Url, shard } from "@vivalence/typology";
+import { boot as bootDaemon } from "../../../prototypes/daemon/index.js";
+
+async function bootOneDaemon(lighthouse, pojo) {
+  const url = new Url(pojo.url);
+  const connection = new Connection(url)
+    .use(shard.connection.authorize(lighthouse.$authority))
+    .use(shard.connection.batch({
+      hatch: url,
+      filter: (ctx) => ctx.request.headers.get("accept") !== "text/event-stream",
+    }));
+  return bootDaemon({ connection, lighthouse });
+}
+
+export async function populate(lighthouse) {
+  if (lighthouse.$populating) return lighthouse.$populating;
+  if (lighthouse.daemons.size) return;
+
+  lighthouse.$populating = (async () => {
+    lighthouse.manifest = await lighthouse.connection.call("/manifest");
+    const daemons = await lighthouse.connection.call("/entities/daemon/find");
+    await Promise.all(
+      daemons.map(async (pojo) => {
+        if (lighthouse.daemons.has(pojo.slug)) return;
+        const daemon = await bootOneDaemon(lighthouse, pojo);
+        lighthouse.daemons.set(daemon.slug, daemon);
+      }),
+    );
+    lighthouse.$daemons.set([...lighthouse.daemons.values()]);
+  })();
+  try { await lighthouse.$populating; }
+  finally { lighthouse.$populating = null; }
+}
+#+end_src
+
+**** New: =decks/lighthouse/die.js=
+@beef again weird hybrid of lifecycles and whatever this is. not clean.
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/die.js
+import { populate } from "./lifecycle/populate.js";
+
+export async function verifyAuth(lighthouse) {
+  const result = await lighthouse.verify();
+  if (result.status === "OK" || result.status === "NETWORK_ERROR") {
+    if (!lighthouse.$isAuthorized.get()) throw new Error("Lighthouse unauthorized");
+  }
+  return result;
+}
+
+export async function boot(lighthouse) {
+  await verifyAuth(lighthouse);
+  if (!lighthouse.$isAuthorized.get()) return false;
+  await populate(lighthouse);
+  return true;
+}
+#+end_src
+
+**** New: =decks/lighthouse/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/lighthouse/index.js
+export { Lighthouse } from "./lighthouse.js";
+export { hydrate } from "./lifecycle/hydrate.js";
+export { populate } from "./lifecycle/populate.js";
+export { boot, verifyAuth } from "./die.js";
+#+end_src
+
+**** Delete
+
+- =decks/lighthouse.js=
+
+*** =decks/quarters/=
+
+No =die.js= — =Quarters= populates synchronously in the constructor;
+there is no boot phase to recipe.
+
+**** New: =decks/quarters/quarters.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/quarters/quarters.js
+import { atom, computed } from "nanostores";
+import { populate } from "./lifecycle/populate.js";
+import { restoreActive, persistActive } from "./lifecycle/restore.js";
+
+export class Quarters {
+  constructor() {
+    populate(this);
+    this.terminals.restore().catch(console.error);
+
+    this.$active = atom(restoreActive(this.terminals));
+    this.$terminal = computed(this.$active, (id) => (id ? this.terminals.findOne({ id }) : null));
+  }
+
+  get active() { return this.$active.get(); }
+  get terminal() { return this.$terminal.get(); }
+
+  async spawn(slug = null) {
+    const terminal = await this.terminals.create({ slug });
+    this.$active.set(terminal.id);
+    persistActive(terminal.id);
+    return terminal;
+  }
+
+  activate(id) {
+    if (this.terminals.has(id)) {
+      this.$active.set(id);
+      persistActive(id);
+    }
+  }
+
+  close(id) {
+    this.terminals.remove(id);
+    if (this.$active.get() === id) {
+      const remaining = this.terminals.all();
+      this.$active.set(remaining.length ? remaining.at(-1).id : null);
+      persistActive(this.$active.get());
+    }
+  }
+}
+#+end_src
+
+**** New: =decks/quarters/lifecycle/populate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/quarters/lifecycle/populate.js
+import { Vector, shape, shard, strategy } from "@vivalence/typology";
+import { TerminalDossier } from "../../../entities/terminal/index.js";
+
+export function populate(quarters) {
+  const dossier = TerminalDossier;
+  const repository = dossier.repository(dossier, quarters);
+
+  const vector = new Vector()
+    .use(shard.context.attach("dossier", dossier))
+    .use(shard.context.attach("repository", repository))
+    .use(shard.context.attach("quarters", quarters));
+  for (const fn of dossier.use ?? []) vector.use(fn);
+  vector.affect(async () => {});
+  repository.integrate = shape.selbstbestimmt(vector, strategy);
+
+  quarters.terminals = repository;
+}
+#+end_src
+
+**** New: =decks/quarters/lifecycle/restore.js=
+@beef same lifecycle implementation dirty issue
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/quarters/lifecycle/restore.js
+const ACTIVE_KEY = "viva.quarters.active";
+
+export function restoreActive(terminals) {
+  try {
+    if (typeof localStorage === "undefined") return null;
+    const stored = localStorage.getItem(ACTIVE_KEY);
+    if (stored && terminals.has(stored)) return stored;
+  } catch {}
+  const all = terminals.all();
+  return all.length ? all[0].id : null;
+}
+
+export function persistActive(id) {
+  try {
+    if (typeof localStorage === "undefined") return;
+    if (id) localStorage.setItem(ACTIVE_KEY, id);
+    else localStorage.removeItem(ACTIVE_KEY);
+  } catch {}
+}
+#+end_src
+
+**** New: =decks/quarters/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/quarters/index.js
+export { Quarters } from "./quarters.js";
+#+end_src
+
+**** Delete
+
+- =decks/quarters.js=
+
+*** =decks/bridge/=
+
+Seven files. Geometry / viewport / gesture each one cohesive module.
+=lifecycle.js= holds =bootLayout= + =resize= + =attachViewport= +
+=loadFromStorage= / =saveToStorage= together — all are
+boot/persistence wiring; splitting per-function adds files without
+clarifying responsibility.
+
+**** New: =decks/bridge/geometry.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/geometry.js
+export const BONE_THICKNESS = 45;
+export const PINCER_SIZE = BONE_THICKNESS;
+export const HALF = BONE_THICKNESS / 2;
+export const EDGE_PADDING = HALF;
+
+const SNAP_DOMINANT = [0, 50, 100];
+const SNAP_SECONDARY = [13, 21, 34, 66, 79, 87];
+export const SNAP_PERCENTS = [...SNAP_DOMINANT, ...SNAP_SECONDARY].sort((a, b) => a - b);
+export const SNAP_DISTANCE = 28;
+
+export function clamp(value, low, high) {
+  return Math.max(low, Math.min(high, value));
+}
+
+export function snapToGrid(value, axisLength) {
+  let nearest = value;
+  let nearestDist = SNAP_DISTANCE;
+  for (const percent of SNAP_PERCENTS) {
+    const target = (percent / 100) * axisLength;
+    const distance = Math.abs(value - target);
+    if (distance < nearestDist) {
+      nearest = target;
+      nearestDist = distance;
+    }
+  }
+  return nearest;
+}
+
+export function snapToOrientation(snapAngle) {
+  return { 0: 90, 90: 0, 180: 270, 270: 180 }[snapAngle] ?? 0;
+}
+
+export function orientationToSnap(currentOrientation) {
+  return { 0: 90, 90: 0, 180: 270, 270: 180 }[currentOrientation] ?? 90;
+}
+
+export function snapLabel(angle) {
+  return { 0: "→", 90: "↓", 180: "←", 270: "↑" }[angle] ?? "";
+}
+
+export function rectsForOrientation(orientation, pincer, viewportWidth, viewportHeight) {
+  if (orientation === 0) {
+    return {
+      a: { left: 0, top: 0, width: viewportWidth, height: Math.max(0, pincer.y - HALF) },
+      b: {
+        left: 0,
+        top: pincer.y + HALF,
+        width: Math.max(0, pincer.x - HALF),
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+      c: {
+        left: pincer.x + HALF,
+        top: pincer.y + HALF,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+    };
+  }
+  if (orientation === 90) {
+    return {
+      a: { left: 0, top: 0, width: Math.max(0, pincer.x - HALF), height: viewportHeight },
+      b: {
+        left: pincer.x + HALF,
+        top: 0,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: Math.max(0, pincer.y - HALF),
+      },
+      c: {
+        left: pincer.x + HALF,
+        top: pincer.y + HALF,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+    };
+  }
+  if (orientation === 180) {
+    return {
+      a: {
+        left: 0,
+        top: pincer.y + HALF,
+        width: viewportWidth,
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+      b: {
+        left: pincer.x + HALF,
+        top: 0,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: Math.max(0, pincer.y - HALF),
+      },
+      c: {
+        left: 0,
+        top: 0,
+        width: Math.max(0, pincer.x - HALF),
+        height: Math.max(0, pincer.y - HALF),
+      },
+    };
+  }
+  if (orientation === 270) {
+    return {
+      a: {
+        left: pincer.x + HALF,
+        top: 0,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: viewportHeight,
+      },
+      b: {
+        left: 0,
+        top: 0,
+        width: Math.max(0, pincer.x - HALF),
+        height: Math.max(0, pincer.y - HALF),
+      },
+      c: {
+        left: 0,
+        top: pincer.y + HALF,
+        width: Math.max(0, pincer.x - HALF),
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+    };
+  }
+}
+
+export function bonesForOrientation(orientation, pincer, viewportWidth, viewportHeight) {
+  if (orientation === 0) {
+    return {
+      shoulder: {
+        left: 0,
+        top: pincer.y - HALF,
+        width: Math.max(0, pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+      crown: {
+        left: pincer.x + HALF,
+        top: pincer.y - HALF,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+      pincer: {
+        left: pincer.x - HALF,
+        top: pincer.y - HALF,
+        width: BONE_THICKNESS,
+        height: BONE_THICKNESS,
+      },
+      spine: {
+        left: pincer.x - HALF,
+        top: pincer.y + HALF,
+        width: BONE_THICKNESS,
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+    };
+  }
+  if (orientation === 90) {
+    return {
+      shoulder: {
+        left: pincer.x - HALF,
+        top: 0,
+        width: BONE_THICKNESS,
+        height: Math.max(0, pincer.y - HALF),
+      },
+      crown: {
+        left: pincer.x - HALF,
+        top: pincer.y + HALF,
+        width: BONE_THICKNESS,
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+      pincer: {
+        left: pincer.x - HALF,
+        top: pincer.y - HALF,
+        width: BONE_THICKNESS,
+        height: BONE_THICKNESS,
+      },
+      spine: {
+        left: pincer.x + HALF,
+        top: pincer.y - HALF,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+    };
+  }
+  if (orientation === 180) {
+    return {
+      shoulder: {
+        left: pincer.x + HALF,
+        top: pincer.y - HALF,
+        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+      crown: {
+        left: 0,
+        top: pincer.y - HALF,
+        width: Math.max(0, pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+      pincer: {
+        left: pincer.x - HALF,
+        top: pincer.y - HALF,
+        width: BONE_THICKNESS,
+        height: BONE_THICKNESS,
+      },
+      spine: {
+        left: pincer.x - HALF,
+        top: 0,
+        width: BONE_THICKNESS,
+        height: Math.max(0, pincer.y - HALF),
+      },
+    };
+  }
+  if (orientation === 270) {
+    return {
+      shoulder: {
+        left: pincer.x - HALF,
+        top: pincer.y + HALF,
+        width: BONE_THICKNESS,
+        height: Math.max(0, viewportHeight - pincer.y - HALF),
+      },
+      crown: {
+        left: pincer.x - HALF,
+        top: 0,
+        width: BONE_THICKNESS,
+        height: Math.max(0, pincer.y - HALF),
+      },
+      pincer: {
+        left: pincer.x - HALF,
+        top: pincer.y - HALF,
+        width: BONE_THICKNESS,
+        height: BONE_THICKNESS,
+      },
+      spine: {
+        left: 0,
+        top: pincer.y - HALF,
+        width: Math.max(0, pincer.x - HALF),
+        height: BONE_THICKNESS,
+      },
+    };
+  }
+}
+#+end_src
+
+**** New: =decks/bridge/viewport.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/viewport.js
+export function readSafeArea() {
+  if (typeof document === "undefined") return 0;
+  const style = getComputedStyle(document.documentElement);
+  return parseFloat(style.getPropertyValue("--safe-area-top")) || 0;
+}
+
+export function viewportDimensions(safeAreaTop) {
+  if (typeof window === "undefined") return { width: 0, height: 0, offsetTop: 0 };
+  if (window.visualViewport) return {
+    width: window.visualViewport.width,
+    height: window.visualViewport.height - safeAreaTop,
+    offsetTop: window.visualViewport.offsetTop + safeAreaTop,
+  };
+  return {
+    width: window.innerWidth,
+    height: window.innerHeight - safeAreaTop,
+    offsetTop: safeAreaTop,
+  };
+}
+
+export function applyViewportOffset(rectMap, offsetTop) {
+  const result = {};
+  for (const [key, rect] of Object.entries(rectMap)) {
+    result[key] = { ...rect, top: rect.top + offsetTop };
+  }
+  return result;
+}
+
+export function isDeviceRotation(bridge) {
+  if (typeof window === "undefined") return false;
+  const current = bridge.layout.$viewport.get();
+  return window.innerWidth !== current.width || window.innerHeight !== current.height;
+}
+#+end_src
+
+**** New: =decks/bridge/bridge.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/bridge.js
+import { atom } from "nanostores";
+import { store } from "@vivalence/typology";
+import { saveToStorage, loadFromStorage } from "./lifecycle.js";
+
+export class Bridge {
+  constructor() {
+    const saved = loadFromStorage();
+
+    this.layout = store(
+      {
+        pincer: saved?.pincer ?? { x: 0, y: 0 },
+        previous: saved?.previous ?? { x: 0, y: 0 },
+        standard: saved?.standard ?? { x: 0, y: 0 },
+        orientation: saved?.orientation ?? 0,
+        inspectorHeight: saved?.inspectorHeight ?? 0,
+        viewport: { width: 0, height: 0 },
+        home: { x: 0, y: 1 },
+        start: { x: 0.33, y: 0.4 },
+      },
+      ["pincer", "previous", "standard", "orientation", "inspectorHeight"],
+    );
+
+    this.view = store(
+      {
+        d: saved?.view?.d ?? "outside",
+        "d.threads": saved?.view?.["d.threads"] ?? true,
+        "d.intents": saved?.view?.["d.intents"] ?? true,
+        "d.modes": saved?.view?.["d.modes"] ?? true,
+        f: saved?.view?.f ?? "buffers",
+        g: false,
+        h: false,
+        snap: true,
+      },
+      ["d", "d.threads", "d.intents", "d.modes", "f"],
+    );
+
+    this.paneSize = store(
+      {
+        d: saved?.paneSize?.d ?? null,
+        e: saved?.paneSize?.e ?? null,
+        f: saved?.paneSize?.f ?? null,
+        panes: saved?.paneSize?.panes ?? { d: true, f: true },
+      },
+      ["d", "e", "f", "panes"],
+    );
+
+    this.$safeAreaTop = atom(0);
+    this.$viewportOffsetTop = atom(0);
+  }
+
+  get safeAreaTop() { return this.$safeAreaTop.get(); }
+  get viewportOffsetTop() { return this.$viewportOffsetTop.get(); }
+
+  toggle = (key) => {
+    this.view["$" + key].set(!this.view["$" + key].get());
+  };
+
+  save = () => {
+    saveToStorage(this);
+  };
+}
+#+end_src
+
+**** New: =decks/bridge/lifecycle.js=
+
+Boot phase + viewport listener wiring + persistence in one file.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/lifecycle.js
+import { clamp, EDGE_PADDING } from "./geometry.js";
+import { readSafeArea, viewportDimensions, isDeviceRotation } from "./viewport.js";
+
+const STORAGE_KEY = "vivalence:bridge";
+
+export function loadFromStorage() {
+  try {
+    const raw = typeof localStorage !== "undefined" && localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+export function saveToStorage(bridge) {
+  try {
+    if (typeof localStorage === "undefined") return;
+    const data = {
+      ...bridge.layout.toJSON(),
+      view: bridge.view.toJSON(),
+      paneSize: bridge.paneSize.toJSON(),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (_) {}
+}
+
+export function bootLayout(bridge) {
+  const { layout } = bridge;
+  bridge.$safeAreaTop.set(readSafeArea());
+  const next = viewportDimensions(bridge.$safeAreaTop.get());
+  layout.viewport = { width: next.width, height: next.height };
+  bridge.$viewportOffsetTop.set(next.offsetTop);
+
+  const saved = layout.$pincer.get();
+  const hasSaved = saved.x !== 0 || saved.y !== 0;
+
+  if (hasSaved) {
+    layout.pincer = {
+      x: clamp(saved.x, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(saved.y, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+    const prev = layout.$previous.get();
+    layout.previous = {
+      x: clamp(prev.x, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(prev.y, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+    const std = layout.$standard.get();
+    layout.standard = {
+      x: clamp(std.x, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(std.y, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+  } else {
+    const start = layout.$start.get();
+    const home = layout.$home.get();
+    layout.pincer = {
+      x: clamp(start.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(start.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+    layout.previous = { ...layout.pincer };
+    layout.standard = {
+      x: clamp(home.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(home.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+  }
+}
+
+export function resize(bridge) {
+  const { layout } = bridge;
+  const oldViewport = layout.$viewport.get();
+  const orientation = layout.$orientation.get();
+  const rotation = isDeviceRotation(bridge);
+  const next = viewportDimensions(bridge.$safeAreaTop.get());
+  layout.viewport = { width: next.width, height: next.height };
+  bridge.$viewportOffsetTop.set(next.offsetTop);
+
+  if (rotation && oldViewport.width > 0 && oldViewport.height > 0) {
+    const deltaWidth = next.width - oldViewport.width;
+    const deltaHeight = next.height - oldViewport.height;
+
+    let shiftX = 0;
+    let shiftY = 0;
+    if (orientation === 0) shiftY = deltaHeight;
+    else if (orientation === 90) shiftX = deltaWidth;
+    else if (orientation === 180) shiftX = deltaWidth;
+
+    const reanchor = (position) => ({
+      x: clamp(position.x + shiftX, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(position.y + shiftY, EDGE_PADDING, next.height - EDGE_PADDING),
+    });
+
+    layout.pincer = reanchor(layout.$pincer.get());
+    layout.previous = reanchor(layout.$previous.get());
+    layout.standard = reanchor(layout.$standard.get());
+  } else {
+    const current = layout.$pincer.get();
+    layout.pincer = {
+      x: clamp(current.x, EDGE_PADDING, next.width - EDGE_PADDING),
+      y: clamp(current.y, EDGE_PADDING, next.height - EDGE_PADDING),
+    };
+  }
+}
+
+export function attachViewport(bridge) {
+  if (typeof window === "undefined") return () => {};
+  const onResize = () => resize(bridge);
+  window.addEventListener("resize", onResize);
+  window.visualViewport?.addEventListener("resize", onResize);
+  window.visualViewport?.addEventListener("scroll", onResize);
+  return () => {
+    window.removeEventListener("resize", onResize);
+    window.visualViewport?.removeEventListener("resize", onResize);
+    window.visualViewport?.removeEventListener("scroll", onResize);
+  };
+}
+#+end_src
+
+**** New: =decks/bridge/gesture.js=
+
+Gesture state class + down/move/up + tap dispatch + radial menu in
+one file. All operate on shared =Gesture= instance state; splitting
+buys nothing.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/gesture.js
+import { atom } from "nanostores";
+import {
+  clamp,
+  snapToGrid,
+  snapToOrientation,
+  orientationToSnap,
+  EDGE_PADDING,
+} from "./geometry.js";
+
+export const TAP_MAX_MS = 250;
+export const TAP_MAX_MOVE = 8;
+export const MULTI_TAP_WINDOW = 280;
+export const LONG_PRESS_MS = 420;
+export const RELEASE_COMMIT_DIST = 32;
+export const RADIAL_RADIUS = 108;
+export const FLASH_DURATION_MS = 240;
+
+export class Gesture {
+  constructor(bridge) {
+    this.bridge = bridge;
+    this.layout = bridge.layout;
+    this.view = bridge.view;
+    this.state = {
+      pointerId: null,
+      downAt: 0,
+      downX: 0,
+      downY: 0,
+      startPincerX: 0,
+      startPincerY: 0,
+      tapCount: 0,
+      tapTimer: null,
+      longPressTimer: null,
+    };
+    this.$dragging = atom(false);
+    this.$longPress = atom(false);
+    this.$fromSticky = atom(false);
+    this.$radial = atom({ show: false, sticky: false, snap: 90 });
+    this.$flash = atom(null);
+  }
+
+  get dragging() { return this.$dragging.get(); }
+  get longPress() { return this.$longPress.get(); }
+  get radial() { return this.$radial.get(); }
+  get flash() { return this.$flash.get(); }
+
+  reset() {
+    clearTimeout(this.state.longPressTimer);
+    clearTimeout(this.state.tapTimer);
+    this.state.pointerId = null;
+    this.state.tapCount = 0;
+    this.$dragging.set(false);
+    this.$longPress.set(false);
+    this.$fromSticky.set(false);
+    this.$radial.set({ show: false, sticky: false, snap: 90 });
+  }
+
+  pulse(kind) {
+    this.$flash.set(kind);
+    setTimeout(() => this.$flash.set(null), FLASH_DURATION_MS);
+  }
+
+  handleTaps(count) {
+    const pincer = this.layout.$pincer.get();
+    if (count === 1) {
+      this.layout.previous = { ...pincer };
+      this.layout.pincer = { ...this.layout.$standard.get() };
+      this.pulse("tap1");
+    } else if (count === 2) {
+      const swap = { ...this.layout.$previous.get() };
+      this.layout.previous = { ...pincer };
+      this.layout.pincer = swap;
+      this.pulse("tap2");
+    } else if (count >= 3) {
+      this.layout.standard = { ...pincer };
+      this.pulse("tap3");
+    }
+    this.bridge.save();
+  }
+
+  down(event) {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    const pincer = this.layout.$pincer.get();
+    this.state.pointerId = event.pointerId;
+    this.state.downAt = Date.now();
+    this.state.downX = event.clientX;
+    this.state.downY = event.clientY;
+    this.state.startPincerX = pincer.x;
+    this.state.startPincerY = pincer.y;
+    this.$dragging.set(false);
+    this.$longPress.set(false);
+    this.$fromSticky.set(this.$radial.get().sticky);
+
+    clearTimeout(this.state.longPressTimer);
+    this.state.longPressTimer = setTimeout(() => {
+      if (this.$dragging.get()) return;
+      this.$longPress.set(true);
+      const orientation = this.layout.$orientation.get();
+      this.$radial.set({ show: true, sticky: false, snap: orientationToSnap(orientation) });
+      if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(8);
+    }, LONG_PRESS_MS);
+  }
+
+  move(event) {
+    if (this.state.pointerId !== event.pointerId) return;
+    const pincer = this.layout.$pincer.get();
+    const viewport = this.layout.$viewport.get();
+    const deltaX = event.clientX - this.state.downX;
+    const deltaY = event.clientY - this.state.downY;
+    const distance = Math.hypot(deltaX, deltaY);
+
+    if (this.$longPress.get()) {
+      const angle =
+        ((Math.atan2(event.clientY - pincer.y, event.clientX - pincer.x) * 180) / Math.PI + 360) %
+        360;
+      const snap = (Math.round(angle / 90) * 90) % 360;
+      this.$radial.set({ ...this.$radial.get(), snap });
+      return;
+    }
+
+    if (!this.$dragging.get() && distance > TAP_MAX_MOVE) {
+      clearTimeout(this.state.longPressTimer);
+      this.$dragging.set(true);
+      if (this.$fromSticky.get()) {
+        this.$radial.set({ ...this.$radial.get(), show: false, sticky: false });
+        this.$fromSticky.set(false);
+      }
+    }
+
+    if (this.$dragging.get()) {
+      const rawX = this.state.startPincerX + deltaX;
+      const rawY = this.state.startPincerY + deltaY;
+      const finalX = this.view.$snap.get() ? snapToGrid(rawX, viewport.width) : rawX;
+      const finalY = this.view.$snap.get() ? snapToGrid(rawY, viewport.height) : rawY;
+      this.layout.pincer = {
+        x: clamp(finalX, EDGE_PADDING, viewport.width - EDGE_PADDING),
+        y: clamp(finalY, EDGE_PADDING, viewport.height - EDGE_PADDING),
+      };
+    }
+  }
+
+  up(event) {
+    if (this.state.pointerId !== event.pointerId) return;
+    clearTimeout(this.state.longPressTimer);
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    } catch (_) {}
+    this.state.pointerId = null;
+
+    if (this.$longPress.get()) {
+      const pincer = this.layout.$pincer.get();
+      const finalDistance = Math.hypot(event.clientX - pincer.x, event.clientY - pincer.y);
+      const snap = this.$radial.get().snap;
+      if (finalDistance > RELEASE_COMMIT_DIST) {
+        this.layout.orientation = snapToOrientation(snap);
+        this.$radial.set({ show: false, sticky: false, snap });
+        this.bridge.save();
+        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
+      } else {
+        this.$radial.set({ ...this.$radial.get(), sticky: true });
+      }
+      this.$longPress.set(false);
+      return;
+    }
+
+    if (this.$dragging.get()) {
+      this.layout.previous = { x: this.state.startPincerX, y: this.state.startPincerY };
+      this.$dragging.set(false);
+      this.bridge.save();
+      return;
+    }
+
+    const elapsed = Date.now() - this.state.downAt;
+    if (elapsed < TAP_MAX_MS) {
+      if (this.$fromSticky.get()) {
+        this.$fromSticky.set(false);
+        return;
+      }
+      this.state.tapCount++;
+      clearTimeout(this.state.tapTimer);
+      this.state.tapTimer = setTimeout(() => {
+        this.handleTaps(this.state.tapCount);
+        this.state.tapCount = 0;
+      }, MULTI_TAP_WINDOW);
+    }
+  }
+
+  spoke(event, angle) {
+    event.stopPropagation();
+    if (!this.$radial.get().sticky) return;
+    this.layout.orientation = snapToOrientation(angle);
+    this.$radial.set({ ...this.$radial.get(), show: false, sticky: false });
+    this.bridge.save();
+  }
+
+  backdrop() {
+    this.$radial.set({ ...this.$radial.get(), show: false, sticky: false });
+  }
+}
+#+end_src
+
+**** New: =decks/bridge/die.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/die.js
+import { bootLayout, attachViewport } from "./lifecycle.js";
+
+export function die(bridge) {
+  bootLayout(bridge);
+  return attachViewport(bridge); // returns teardown
+}
+#+end_src
+
+**** New: =decks/bridge/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/bridge/index.js
+export { Bridge } from "./bridge.js";
+export { Gesture } from "./gesture.js";
+
+export {
+  BONE_THICKNESS,
+  PINCER_SIZE,
+  HALF,
+  EDGE_PADDING,
+  SNAP_PERCENTS,
+  SNAP_DISTANCE,
+  clamp,
+  snapToGrid,
+  snapToOrientation,
+  orientationToSnap,
+  snapLabel,
+  rectsForOrientation,
+  bonesForOrientation,
+} from "./geometry.js";
+
+export { readSafeArea, viewportDimensions, applyViewportOffset, isDeviceRotation } from "./viewport.js";
+
+export { bootLayout, resize, attachViewport } from "./lifecycle.js";
+
+export {
+  TAP_MAX_MS,
+  TAP_MAX_MOVE,
+  MULTI_TAP_WINDOW,
+  LONG_PRESS_MS,
+  RELEASE_COMMIT_DIST,
+  RADIAL_RADIUS,
+  FLASH_DURATION_MS,
+} from "./gesture.js";
+
+export { die } from "./die.js";
+#+end_src
+
+**** Delete
+
+- =decks/bridge.js= (also kills the mojibake glyph at line 236 of the original)
+
+*** =decks/thread/=
+
+No transitional alias. =+layout.svelte= renames in the same commit.
+
+**** New: =decks/thread/thread-store.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/thread-store.js
+import { atom } from "nanostores";
+
+export class ThreadStore {
+  constructor(quarters, lighthouse) {
+    this.quarters = quarters;
+    this.lighthouse = lighthouse;
+    this.$current = atom(null);
+  }
+
+  get current() { return this.$current.get(); }
+
+  set(thread) {
+    const terminal = this.quarters.$terminal.get();
+    if (terminal) {
+      this.quarters.terminals.update(terminal.id, {
+        daemon: thread?.daemon?.slug ?? null,
+        thread: thread?.id ?? null,
+      });
+    }
+    this.$current.set(thread);
+  }
+
+  clear() {
+    const terminal = this.quarters.$terminal.get();
+    if (terminal) {
+      this.quarters.terminals.update(terminal.id, {
+        daemon: null,
+        thread: null,
+      });
+    }
+    this.$current.set(null);
+  }
+}
+#+end_src
+
+**** New: =decks/thread/lifecycle/resolve.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/lifecycle/resolve.js
+export async function resolve(threadStore) {
+  for (const terminal of threadStore.quarters.terminals.all()) {
+    if (!terminal.daemon || !terminal.thread) continue;
+    const threadId = terminal.thread?.id ?? terminal.thread;
+    if (typeof threadId !== "string") continue;
+    const daemonSlug = terminal.daemon?.slug ?? terminal.daemon;
+    const daemon = threadStore.lighthouse.daemons.get(daemonSlug);
+    if (!daemon?.entities?.thread) continue;
+    const thread =
+      daemon.entities.thread.findOneLocal({ id: threadId }) ??
+      (await daemon.entities.thread.findOne({ id: threadId }));
+    if (thread) terminal.thread = thread;
+  }
+}
+#+end_src
+
+**** New: =decks/thread/lifecycle/propagate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/lifecycle/propagate.js
+export function propagate(threadStore) {
+  const active = threadStore.quarters.$terminal.get();
+  threadStore.$current.set(active?.thread?.id ? active.thread : null);
+}
+#+end_src
+
+**** New: =decks/thread/lifecycle/activation.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/lifecycle/activation.js
+export function activation(threadStore) {
+  let previous = null;
+  return threadStore.$current.subscribe((thread) => {
+    if (thread === previous) return;
+    if (previous?.queue) previous.queue.deactivate();
+    if (thread?.queue) thread.queue.activate();
+    previous = thread;
+  });
+}
+#+end_src
+
+**** New: =decks/thread/lifecycle/populate.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/lifecycle/populate.js
+import { resolve } from "./resolve.js";
+import { propagate } from "./propagate.js";
+import { activation } from "./activation.js";
+
+export function populate(threadStore) {
+  threadStore.quarters.$active.subscribe(async () => {
+    await resolve(threadStore);
+    propagate(threadStore);
+  });
+  threadStore.lighthouse.$daemons.subscribe(async () => {
+    await resolve(threadStore);
+    propagate(threadStore);
+  });
+  threadStore.unsubscribeActivation = activation(threadStore);
+}
+#+end_src
+
+**** New: =decks/thread/die.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/die.js
+import { populate } from "./lifecycle/populate.js";
+
+export function die(threadStore) {
+  populate(threadStore);
+}
+#+end_src
+
+**** New: =decks/thread/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/thread/index.js
+export { ThreadStore } from "./thread-store.js";
+export { die } from "./die.js";
+#+end_src
+
+**** Delete
+
+- =decks/thread.js=
+
+*** Modify: =decks/inspector.js=
+
+=composeInspector= and =composeDaemon= stay inline — they are
+hardwired to kajuit's four contexts (=lighthouse=, =quarters=,
+=bridge=, =thread=) and their atom shapes. Not a gestalten; not
+parametric.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/decks/inspector.js
+import { atom } from "nanostores";
+import { Vector, shape, steer } from "@vivalence/typology";
+
+export function inspectorAtom(lighthouse, quarters, bridge, thread) {
+  const $nodes = atom(null);
+  const rebuild = () => {
+    $nodes.set(shape.tree(composeInspector(lighthouse, quarters, bridge, thread), steer.direct));
+  };
+
+  for (const source of [
+    lighthouse.$status,
+    lighthouse.$isAuthorized,
+    lighthouse.$isIdentified,
+    lighthouse.$identity,
+    lighthouse.$daemons,
+    quarters.$active,
+    quarters.$terminal,
+    quarters.terminals.$entities,
+    thread.$current,
+    bridge.layout.$pincer,
+    bridge.layout.$orientation,
+  ]) source.subscribe(rebuild);
+
+  return $nodes;
+}
+
+export function composeInspector(lighthouse, quarters, bridge, thread) {
+  const vector = new Vector();
+
+  const lighthouseBranch = vector.branch({ nature: "lighthouse", directed: { variant: "table" } });
+  lighthouseBranch.open({ nature: "authorized", valence: { name: String(lighthouse.isAuthorized) } });
+  lighthouseBranch.open({ nature: "identified", valence: { name: String(lighthouse.isIdentified) } });
+  lighthouseBranch.open({ nature: "status", valence: { name: lighthouse.status?.code ?? "—" } });
+  lighthouseBranch.open({ nature: "identity", valence: { name: lighthouse.identity?.slug ?? "—" } });
+  lighthouseBranch.open({ nature: "connection", valence: { name: lighthouse.connection.$state.get() } });
+  lighthouseBranch.open({ nature: "logout", valence: "end session" }, () => lighthouse.logout());
+
+  const daemonsBranch = lighthouseBranch.branch({ nature: "daemons", valence: { name: String(lighthouse.$daemons.get()?.length ?? 0) } });
+  for (const daemon of lighthouse.$daemons.get() ?? []) {
+    composeDaemon(daemonsBranch, daemon);
+  }
+
+  const quartersBranch = vector.branch({ nature: "quarters", directed: { variant: "table" } });
+  quartersBranch.open({ nature: "active", valence: { name: quarters.active ?? "—" } });
+  quartersBranch.open({ nature: "terminal", valence: { name: quarters.terminal?.id ?? "—" } });
+  quartersBranch.open({ nature: "spawn", valence: "new terminal" }, () => quarters.spawn());
+
+  const terminalsBranch = quartersBranch.branch({ nature: "terminals", valence: { name: String((quarters.terminals?.$entities?.get?.() ?? []).length) } });
+  for (const terminal of quarters.terminals?.$entities?.get?.() ?? []) {
+    terminalsBranch.open(
+      { nature: terminal.slug ?? terminal.id, valence: { name: terminal.id } },
+      () => quarters.activate(terminal.id),
+    );
+  }
+
+  const bridgeBranch = vector.branch({ nature: "bridge", directed: { variant: "table" } });
+  bridgeBranch.open({ nature: "pincer", valence: { name: `${Math.round(bridge.layout.pincer.x)}·${Math.round(bridge.layout.pincer.y)}` } });
+  bridgeBranch.open({ nature: "orientation", valence: { name: `${bridge.layout.orientation}°` } });
+  bridgeBranch.open({ nature: "viewport", valence: { name: `${bridge.layout.viewport.width}×${bridge.layout.viewport.height}` } });
+  bridgeBranch.open({ nature: "standard", valence: { name: `${Math.round(bridge.layout.standard.x)}·${Math.round(bridge.layout.standard.y)}` } });
+  bridgeBranch.open({ nature: "previous", valence: { name: `${Math.round(bridge.layout.previous.x)}·${Math.round(bridge.layout.previous.y)}` } });
+
+  const threadBranch = vector.branch({ nature: "thread", directed: { variant: "table" } });
+  if (thread.current) {
+    threadBranch.open({ nature: "id", valence: { name: thread.current.id ?? "—" } });
+    threadBranch.open({ nature: "daemon", valence: { name: thread.current.daemon?.slug ?? String(thread.current.daemon ?? "—") } });
+    threadBranch.open({ nature: "mode", valence: { name: thread.current.mode?.slug ?? String(thread.current.mode ?? "—") } });
+    if (thread.current.intent) {
+      threadBranch.open({ nature: "intent", valence: { name: thread.current.intent?.slug ?? String(thread.current.intent) } });
+    }
+    threadBranch.open({ nature: "counter", valence: { name: String(thread.current.counter ?? 0) } });
+    threadBranch.open({ nature: "cursor", valence: { name: String(thread.current.cursor ?? 0) } });
+    threadBranch.open({ nature: "clear", valence: "clear thread" }, () => thread.clear());
+
+    if (thread.current.buffers?.length) {
+      const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(thread.current.buffers.length) } });
+      for (const buffer of thread.current.buffers) {
+        buffersBranch.open({ nature: buffer.view ?? buffer.id, valence: { name: buffer.id } });
+      }
+    }
+  } else {
+    threadBranch.open({ nature: "status", valence: { name: "no active thread" } });
+  }
+
+  return vector;
+}
+
+function composeDaemon(parent, daemon) {
+  const branch = parent.branch({ nature: daemon.slug, directed: { variant: "table" } });
+  branch.open({ nature: "connection", valence: { name: daemon.connection?.$state?.get?.() ?? "—" } });
+  branch.open({ nature: "slug", valence: { name: daemon.slug ?? "—" } });
+
+  if (daemon.manifest) {
+    branch.open({ nature: "traits", valence: { name: (daemon.manifest.traits ?? []).join(", ") || "—" } });
+  }
+
+  if (daemon.entities) {
+    const entitiesBranch = branch.branch({ nature: "entities", directed: { variant: "table" } });
+    const repoNames = ["mode", "intent", "thread", "buffer", "turn", "literal"];
+
+    for (const name of repoNames) {
+      const repo = daemon.entities[name];
+      if (!repo) continue;
+      const entities = repo.$entities?.get?.();
+      const count = Array.isArray(entities) ? entities.length : entities instanceof Map ? entities.size : 0;
+
+      if (count > 0) {
+        const repoBranch = entitiesBranch.branch({ nature: name, valence: { name: String(count) } });
+        for (const entity of Array.isArray(entities) ? entities : [...(entities?.values?.() ?? [])]) {
+          repoBranch.open({
+            nature: entity.slug ?? entity.id,
+            valence: { name: entity.name ?? entity.type ?? entity.view ?? entity.id },
+          });
+        }
+      } else {
+        entitiesBranch.open({ nature: name, valence: { name: String(count) } });
+      }
+    }
+  }
+}
+#+end_src
+
+** =entities/=
+
+*** New: =entities/foundation/trait-runner.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/foundation/trait-runner.js
+export async function runTraits(entity, ctx, traitNamespace) { // @beef can we implement this function as a middleware? 
+  const finalizers = [];
+  for (const trait of entity.traits ?? []) {
+    const result = await traitNamespace[trait]?.(entity, ctx);
+    if (typeof result === "function") finalizers.push(result);
+  }
+  for (const finalize of finalizers) await finalize();
+}
+#+end_src
+
+*** =entities/terminal/=
+
+**** New: =entities/terminal/defaults.js=
+@beef unnessecary & forced separation again.
+
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/terminal/defaults.js
+export const DEFAULT_DOCK = {
+  side: "right",
+  share: 0.32,
+  collapsed: true,
+  session: "ended",
+};
+#+end_src
+
+**** New: =entities/terminal/terminal.js=
+
+=engage= and =release= are per-instance behaviors — methods on the
+class, no prototype-monkeypatch.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/terminal/terminal.js
+import { atom } from "nanostores";
+import { Entity } from "../../prototypes/entity/entity.js";
+import { DEFAULT_DOCK } from "./defaults.js";
+
+export class Terminal extends Entity {
+  id = null;
+  slug = null;
+  daemon = null;
+  $thread = atom(null);
+  $dock = atom({ ...DEFAULT_DOCK });  // this also doesnt belong here. the terminal prototype should not be hardcoding session implementation details??!?!! this is direty as FUCK. this belongs into the traits.
+  $audio = atom({ mic: "idle", speaker: "silent", vad: false }); // @beef this doesnt belong here AT ALL!!  again, belongs to traits.
+  session = null;
+  streams = null; // NO.
+  audio = null; // NO.
+
+  get thread() { return this.$thread.get(); }
+  set thread(value) { this.$thread.set(value); }
+
+  get dock() { return this.$dock.get(); }
+  set dock(value) { this.$dock.set(value); }
+
+  async engage(thread) { // @beef NO!!! traits!!!!!! omg.!!!!!!!!! wtf???
+    if (!thread) return;
+    if (!thread.traits?.includes?.("INSITU")) {
+      const traits = [...(thread.traits ?? []), "INSITU"];
+      await thread.daemon.entities.thread.updateOne({ id: thread.id }, { traits });
+      thread.traits = traits;
+    }
+    this.$thread.set(null);
+    this.$thread.set(thread);
+    this.$dock.set({ ...this.$dock.get(), session: "live", collapsed: false });
+  }
+
+  release() { // @beef ???NOOOOOOOOOOOOOOOOOOOOOOOO
+    this.session?.close?.();
+    this.$dock.set({ ...this.$dock.get(), session: "ended" });
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      slug: this.slug,
+      daemon: this.daemon?.slug ?? this.daemon,
+      thread: this.thread?.id ?? this.thread,
+    };
+  }
+}
+#+end_src
+
+**** New: =entities/terminal/dossier.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/terminal/dossier.js
+import { LocalRepository } from "@vivalence/typology";
+import { Terminal } from "./terminal.js";
+import { traits } from "@vivalence/kajuit";
+
+export const TerminalDossier = {
+  name: "terminal",
+  kind: () => Terminal,
+  repository: (dossier, quarters) =>
+    new LocalRepository({ kind: dossier.kind(), persist: "viva.quarters" }),
+  use: [
+    async (ctx, next) => { //@beef what.
+      await next();
+    },
+    ...Object.values(traits.terminal), //@beef what? where ?? do we do this??!!!!!!!!!! bad.
+  ],
+};
+#+end_src
+
+**** New: =entities/terminal/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/terminal/index.js
+export { Terminal } from "./terminal.js";
+export { TerminalDossier } from "./dossier.js";
+#+end_src
+
+*** =entities/thread/=
+
+**** New: =entities/thread/thread.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/thread/thread.js
+import { atom } from "nanostores";
+import { Entity } from "../../prototypes/entity/entity.js";
+
+export class Thread extends Entity {
+  user = null;
+  mode = null;
+  intent = null;
+  phase = "stream";
+  traits = ["LABELED"];
+  trait = {};
+  buffers = [];
+  turns = [];
+  counter = 0;
+
+  $buffer = atom(null);
+  $label = atom({});
+
+  get label() { return this.$label.get(); }
+  set label(value) {
+    if (typeof value === "string") value = { name: value };
+    this.$label.set({
+      name:
+        value?.name ??
+        (this.mode && `${this.mode.type}/${this.mode.name ?? this.mode.slug}`) ??
+        ".unnamed",
+      description: value?.description ?? null,
+      flags: value?.flags ?? [],
+    });
+  }
+}
+#+end_src
+
+**** New: =entities/thread/dossier.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/thread/dossier.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Thread } from "./thread.js";
+import { traits } from "@vivalence/kajuit";
+import { runTraits } from "../foundation/trait-runner.js";
+
+export const ThreadDossier = {
+  name: "thread",
+  kind: () => Thread,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/thread"));
+    return repo;
+  },
+
+  use: [
+    async (ctx, next) => {
+      await next();
+      await runTraits(ctx.entity, ctx, traits.thread);
+    },
+
+    async (ctx, next) => {
+      await next();
+      if (!ctx.entity.traits.includes("LABELED"))
+        ctx.entity.traits = [...ctx.entity.traits, "LABELED"];
+    },
+
+    async (ctx, next) => {
+      await next();
+      ctx.entity.daemon = ctx.daemon;
+    },
+  ],
+};
+#+end_src
+
+**** New: =entities/thread/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/thread/index.js
+export { Thread } from "./thread.js";
+export { ThreadDossier } from "./dossier.js";
+#+end_src
+
+*** =entities/buffer/=
+
+**** New: =entities/buffer/buffer.js=
+
+Hook firing methods (=mount=, =render=, =tick=, =release=, =destroy=)
+are per-instance behaviors — class methods, not free functions
+patched on.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/buffer/buffer.js
+import { Entity } from "../../prototypes/entity/entity.js";
+import { fn } from "@vivalence/typology";
+
+const ONCE_STAGES = new Set(["mount", "render", "release", "destroy"]);
+
+export class Buffer extends Entity {
+  view = null;
+  context = null;
+  hooks = { mount: [], render: [], tick: [], release: [], destroy: [] };
+
+  on = {
+    mount: (callback) => this.register("mount", callback),
+    render: (callback) => this.register("render", callback),
+    tick: (callback) => this.register("tick", callback),
+    release: (callback) => this.register("release", callback),
+    destroy: (callback) => this.register("destroy", callback),
+  };
+
+  register(stage, callback) {
+    const wrapped = ONCE_STAGES.has(stage) ? fn.once(callback) : callback;
+    this.hooks[stage].push(wrapped);
+    return this;
+  }
+
+  mount() { for (const hook of this.hooks.mount) hook(this); }
+  render(...args) { for (const hook of this.hooks.render) hook(this, ...args); }
+  tick(...args) { for (const hook of this.hooks.tick) hook(this, ...args); }
+  release(...args) { for (const hook of this.hooks.release) hook(this, ...args); }
+  destroy() { for (const hook of this.hooks.destroy) hook(this); }
+
+  static from(pojo, view) {
+    const buffer = Object.assign(new Buffer(), pojo);
+    buffer.view = view;
+    return buffer;
+  }
+}
+#+end_src
+
+**** New: =entities/buffer/dossier.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/buffer/dossier.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Buffer } from "./buffer.js";
+
+export const BufferDossier = {
+  name: "buffer",
+  kind: () => Buffer,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/buffer"));
+    return repo;
+  },
+
+  use: [
+    async (ctx, next) => {
+      await next();
+      if (ctx.entity.mode && typeof ctx.entity.mode === "object") {
+        ctx.entity.view = ctx.entity.mode.buffered ?? null;
+      }
+    },
+  ],
+};
+#+end_src
+
+**** New: =entities/buffer/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/buffer/index.js
+export { Buffer } from "./buffer.js";
+export { BufferDossier } from "./dossier.js";
+#+end_src
+
+*** Modify: =entities/mode.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/mode.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity/entity.js";
+import * as traits from "../traits/index.js";
+import { runTraits } from "./foundation/trait-runner.js";
+
+export class Mode extends Entity {
+  implements(trait) {
+    return this.traits?.includes(trait.toUpperCase());
+  }
+}
+
+export const ModeDossier = {
+  name: "mode",
+  kind: () => Mode,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/entities/mode"));
+    return repo;
+  },
+
+  use: [
+    async (ctx, next) => {
+      await next();
+      await runTraits(ctx.entity, ctx, traits.mode); // @beef would be nicer as a middleware.
+    },
+
+    async (ctx, next) => {
+      await next();
+      ctx.entity.daemon = ctx.daemon;
+      ctx.entity.mount = ctx.daemon.mount.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+      ctx.entity.connection = ctx.daemon.connection.branch(ctx.entity.mount.nature);
+      ctx.entity.call = ctx.entity.connection.call.bind(ctx.entity.connection);
+      ctx.entity.link = ctx.daemon.link.branch(`/${ctx.entity.type}/${ctx.entity.slug}`);
+    },
+  ],
+};
+#+end_src
+
+*** Modify: =entities/intent.js=, =entities/turn.js=, =entities/literal.js=
+
+Update import path of =Entity= from =../prototypes/entity.js= to
+=../prototypes/entity/entity.js=.
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/intent.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity/entity.js";
+
+export class Intent extends Entity {
+  implements(trait) {
+    return this.traits?.includes(trait.toUpperCase());
+  }
+}
+
+export const IntentDossier = {
+  name: "intent",
+  kind: () => Intent,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/entities/intent"));
+    return repo;
+  },
+
+  use: [],
+};
+#+end_src
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/turn.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity/entity.js";
+
+export class Turn extends Entity {
+  role = null;
+  parts = [];
+  meta = null;
+  thread = null;
+  mode = null;
+  parent = null;
+}
+
+export const TurnDossier = {
+  name: "turn",
+  kind: () => Turn,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/userspace/entities/turn"));
+    return repo;
+  },
+
+  use: [],
+};
+#+end_src
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/literal.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity/entity.js";
+
+export class Literal extends Entity {}
+
+export const LiteralDossier = {
+  name: "literal",
+  kind: () => Literal,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/entities/literal"));
+    return repo;
+  },
+};
+#+end_src
+
+*** Modify: =entities/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/entities/index.js
+export { Terminal, TerminalDossier } from "./terminal/index.js";
+export { Mode, ModeDossier } from "./mode.js";
+export { Intent, IntentDossier } from "./intent.js";
+export { Thread, ThreadDossier } from "./thread/index.js";
+export { Buffer, BufferDossier } from "./buffer/index.js";
+export { Turn, TurnDossier } from "./turn.js";
+export { Literal, LiteralDossier } from "./literal.js";
+#+end_src
+
+*** Delete
+
+- =entities/terminal.js=
+- =entities/thread.js=
+- =entities/buffer.js=
+
+** =traits/=
+
+*** =traits/thread/queueing/=
+
+=Stall= imports from =@vivalence/typology= now (not from a kajuit
+prototype).
+
+**** New: =traits/thread/queueing/persist.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/queueing/persist.js
+export function persistActiveBuffer(thread) {
+  return thread.queue.$active.subscribe((buffer) => {
+    if (!buffer) return;
+    buffer.status = "ACTIVE";
+    thread.daemon.entities.em.persist(buffer);
+  });
+}
+#+end_src
+
+**** New: =traits/thread/queueing/telemetry.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/queueing/telemetry.js
+import { Span } from "@vivalence/typology";
+import { telemetry } from "$telemetry";
+
+export function pullSpan(thread) {
+  const span = new Span("pull").to(telemetry).begin();
+  span.track.transition().depart(thread.queue.$status.get());
+  span.track.subject().target("buffer", thread.id);
+  return span;
+}
+
+export function arriveSpan(span, condition) {
+  span.track.transition().arrive(condition);
+  span.drain();
+}
+
+export function faultSpan(span, error) {
+  span.track.fault().raise(error.message, error.code ?? "PULL_ERROR");
+  span.track.transition().arrive("ERROR");
+  span.drain();
+}
+
+export function watchStallErrors(thread) {
+  return thread.queue.$status.subscribe((status) => {
+    if (status !== "ERROR") return;
+    const error = thread.queue.$error.get();
+    const span = new Span("stall.error").to(telemetry).begin();
+    span.track.fault().raise(error?.message ?? "unknown", error?.code ?? "STALL_ERROR");
+    span.track.subject().target("thread", thread.id);
+    span.drain();
+  });
+}
+#+end_src
+
+**** New: =traits/thread/queueing/pull.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/queueing/pull.js
+import { Blacklist } from "@vivalence/typology";
+import { pullSpan, arriveSpan, faultSpan } from "./telemetry.js";
+
+export function pullHandler(thread) {
+  return async (queue) => {
+    const span = pullSpan(thread);
+
+    try {
+      const blacklist = new Blacklist().absorb(thread.$buffers?.get?.() ?? []);
+      const result = await thread.pull({ blacklist });
+      thread.queue.suspend();
+      const buffers = await Promise.all(
+        (result.buffers ?? []).map((pojo) => thread.daemon.entities.buffer.merge(pojo)),
+      );
+      for (const buffer of buffers.filter(Boolean)) {
+        buffer.context = { buffer, terminal: thread };
+        buffer.on.release(() => {
+          buffer.status = "DONE";
+          thread.daemon.entities.em.persist(buffer);
+          thread.queue.next();
+        });
+      }
+      thread.queue.resume();
+
+      const condition = buffers.length ? "NOMINAL" : "EXHAUSTED";
+      arriveSpan(span, condition);
+
+      return { buffers, condition };
+    } catch (error) {
+      faultSpan(span, error);
+      throw error;
+    }
+  };
+}
+#+end_src
+
+**** New: =traits/thread/queueing/trait.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/queueing/trait.js
+import { computed } from "nanostores";
+import { object, Stall } from "@vivalence/typology";
+import { persistActiveBuffer } from "./persist.js";
+import { pullHandler } from "./pull.js";
+import { watchStallErrors } from "./telemetry.js";
+
+export const QUEUEING = (thread, ctx) => {
+  if (thread.queue) thread.queue.close();
+  const config = object.merge({ depth: 1 }, thread.trait.QUEUEING);
+  const $pending = computed(thread.$buffers, (buffers) =>
+    buffers.filter((b) => !b.status || b.status === "PENDING"),
+  );
+  thread.queue = new Stall($pending, thread.$buffer);
+
+  return () => {
+    persistActiveBuffer(thread);
+    thread.queue.withPull(pullHandler(thread), config.depth);
+    watchStallErrors(thread);
+  };
+};
+#+end_src
+
+**** New: =traits/thread/queueing/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/queueing/index.js
+export { QUEUEING } from "./trait.js";
+#+end_src
+
+**** Delete
+
+- =traits/thread/queueing.js=
+
+*** Modify: =traits/thread/index.js=
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/thread/index.js
+export * from "./labeled.js";
+export * from "./masked.js";
+export * from "./insitu.js";
+export * from "./aimed.js";
+export * from "./queueing/index.js";
+export * from "./furnished.js";
+export * from "./selfevident.js";
+#+end_src
+
+*** Modify: =traits/terminal/insitu.js=
+
+@beef: nice shape. but this is off.
+ok. let me think about this.
+the problem here is that we set the insitu trait async, but dont reboot the terminal aka dont run the trait function again.
+so really, the traaitfunction is the wrong location/abstraction for this.
+hmmmm.
+thinking insitu from scratch....
+so.
+maybe were thinking this from the wrong end.
+hmmm
+so.
+the session instance should live on the terminal. that is correct. 
+but should it be amanged there?
+the mode has the conversational trait.
+the thread has the insitu trait.
+the insitu trait on the thread is the json/storage/serialized representation.
+
+so.
+the insitu trait i think belongs on the thread.
+its the correspondence to the modes conversational trait.
+
+so. if the mode implements conversational, then we can start a session.
+when we start a session, we put the thread insitu.
+does that mean that thread.trait.INSITU data is somehow used???
+hmmm.
+do we actually need a trait here???
+why is there a trait here????
+hmmm.
+insitu on the thread.
+so i sayd id use this for storing config for the converstation like audio shit.
+but honestly i think if i want the thread to store config for the modes conversational trait, i should have the conversational trait on the thread. not insitu.
+and then i keep insitu for the future as a nifty way for the thread to hold 'session' data like a tactic keeping track of time data or whatever.
+hmmm
+
+
+ok. so.
+plan now is:
+implement the conversational trait also on the thread.
+if the conversational trait is on the active mode, allow the ui to trigger the it. this starts a conversation.
+this is achieved by adding the conversational trait to the thread.
+on the client, thread.traits is thread.$traits. 
+
+what happens is that the terminal then has the conversation attached to it. which cruds the thread.turns and ios with the modes conversation trait api.
+
+no insitu for now.
+insitu ill use for other shit.
+
+ok.
+plan is: abandon insitu trait. move to thread.conversational trait.
+i think i made some conceptual progress.
+not sure.
+will finish tomorrow.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/beef
+
+
+
+Free-function shape (consistent with =mode/buffered=, =thread/queueing=).
+
+#+begin_src js :tangle /Users/finn/vivalence/code/vivalence/systems/kajuit/src/typology/traits/terminal/insitu.js
+import { Vector, Queue, Session } from "@vivalence/typology";
+
+export const INSITU = (terminal, ctx) => {
+  terminal.streams = terminal.streams ?? {};
+
+  const unsubscribe = terminal.$thread.subscribe(async (thread) => {
+    if (terminal.session) {
+      terminal.session.close();
+      terminal.session = null;
+      terminal.socket = null;
+    }
+
+    if (!thread?.traits?.includes?.("INSITU")) return;
+
+    const connection = thread.mode?.connection;
+    const authority = thread.daemon?.lighthouse?.$authority;
+    if (!connection || !authority) return;
+
+    terminal.streams.dialogue = new Queue(); 
+
+    const clientInbound = new Vector();
+    clientInbound.open("/dialogue/packet", (pctx) => {
+      terminal.streams.dialogue.enqueue(pctx.input);
+    });
+    clientInbound.open("/dialogue/voyage", () => {}); //@beef TODO also voyage. weird naming. should be technical!
+
+    terminal.socket = connection.socket("/conversation", clientInbound, {
+      token: authority.get()?.access,
+    });
+
+    terminal.session = new Session(clientInbound, terminal.socket);
+
+    try {
+      await terminal.session.moin(); // @beef moin is HORRIBLE lingo.
+    } catch (error) {
+      console.error("[INSITU] moin failed:", error);
+      terminal.session = null;
+      terminal.socket = null;
+    }
+  });
+
+  return () => unsubscribe();
+};
+#+end_src
+
+* Consumer-site updates
+
+Single non-trivial change at =systems/kajuit/src/routes/+layout.svelte=,
+applied in the same commit as the =decks/thread/= rotation:
+
+#+begin_example
+- const thread = new threadDeck.ThreadContext(quarters, lighthouse);
++ const thread = new threadDeck.ThreadStore(quarters, lighthouse);
++ threadDeck.die(thread);
+#+end_example
+
+All other consumer imports continue to work because every
+=decks/<name>/index.js= preserves the pre-rotation export surface,
+and =Stall=/=store=/=strategy= consumers go through =@vivalence/typology=.
+
+* Killed
+
+| What                                                | Where                            | Reason                                           |
+|-----------------------------------------------------+----------------------------------+--------------------------------------------------|
+| =$current.set= override                             | =decks/thread.js= lines 8-15     | replaced by =lifecycle/activation.js= subscriber |
+| Duplicate =populate(lighthouse)=                    | =decks/lighthouse.js= lines 258-287 | one canonical version at =lifecycle/populate.js= |
+| =Thread.cursor=, =Thread.queue= LEGACY fields       | =entities/thread.js= lines 16-18 | dead code                                        |
+| =let counter = 0= orphan, commented console.log     | =entities/thread.js= lines 40, 75 | dead code                                       |
+| Inline =CONVERSATIONAL= commented middleware        | =entities/thread.js= lines 62-65 | dead code                                       |
+| 670-char =wireAudio= one-liner comment              | =entities/terminal.js= line 84   | dead code                                        |
+| =Terminal.toJSON= ad-hoc field list                 | =entities/terminal.js= lines 43-50 | base Entity =toJSON= via schema props (still overridden in =Terminal= for relation flattening; promote to base when =Entity.toJSON= handles relations correctly) |
+| Inline =strategy(carry)= duplication                | =prototypes/dataspace.js=, =decks/quarters.js= | one canonical export from =@vivalence/typology= |
+| Inline =store(defaults, serialize)=                 | =decks/bridge.js= lines 311-330  | typology primitive at =subsystems/typology/gestalten/belt/store.js= |
+| Mojibake glyph =\"���\"=                              | =decks/bridge.js= line 236       | proper =\"←\"= in =bridge/geometry.js=           |
+| Middleware shape of =INSITU= terminal trait         | =traits/terminal/insitu.js=      | free-function shape                              |
+| Transitional =class ThreadContext extends ThreadStore= | not introduced                | rename consumer in same commit                   |
+| =quarters/die.js=                                   | not introduced                   | no-op shim; populate runs in constructor         |
+| Prototype-monkeypatch (=Stall.prototype.X = function= etc.) | not introduced           | per-instance behaviors live as class methods     |
+| =gestalten/belt/inspector-tree.js=                  | not introduced                   | =composeInspector= is kajuit-specific; stays in =decks/inspector.js= |
+| =gestalten/belt/narrow/{matchers,rank,presets,index}.js= | not introduced              | =narrow.js= already well-sectioned; export =dig= for reuse |
+
+* Shipped 2026-05-05
+
+Subset of @beef directives addressed in scope of the INSITU→CONVERSATIONAL move + thread reactives + dock simplification. Larger filesystem rotation (decks split, prototypes split, lifecycle-per-file refactor) still pending.
+
+** Done
+
+- Thread entity reactives: =$phase / $traits / $trait (deepMap) / $buffers / $turns / $buffer / $conversation / $label= with transparent getters/setters. Phantom =thread.$buffers= reference (used by QUEUEING + Panel F) is now real.
+- LABELED trait owns label normalization; setter on Thread is dumb pass-through.
+- New trait =traits/thread/conversational.js= with =wire(thread)= / =engage(thread)= / =release(thread)=. Lifecycle of =terminal.conversation= managed from thread dossier (subscriber on =$traits=).
+- Terminal slim per @beef directives: dropped =$audio=, =engage()=/=release()= methods, plain =conversation/socket/streams/audio= fields, =wireAudio= commented blob, empty middleware, =Object.values(traits.terminal)= spread. =DEFAULT_DOCK= reduced to =\{side, share\}=. =conversation= getter reads through to =thread.conversation=.
+- Deleted =traits/terminal/insitu.js= + dir; =panels/e/Insitu*.svelte= (3 files).
+- New =panels/e/Conversational.svelte= (engage/release pill + state diagram).
+- New =bones/ConversationalWidget.svelte= (shoulder-bone widget — engage/release + live pip).
+- Crown tabs: pretty pass + active-conversation pip indicator (live/opening/idle states).
+- Panel A: dock visibility on =thread.traits.includes("CONVERSATIONAL")=; rail/collapse logic dropped; passes =thread/terminal/side= to Dock.
+- =Dock.svelte= rewrite — kajuit-aesthetic: header (pip + title + state) + log + composer; no rail/reset/open/end buttons; signal vocab matches server (=send.dialogue.open=).
+- =dock.geometry.js= drops =RAIL_SIZE= + =collapsed= branch from =resolve()=, =defaultDock()= reduced.
+- Tests green: =tests/typology/thread.conversational.test.js= (6 steps), =tests/pincer/dock.geometry.test.js= updated (12 steps).
+- Schema: =ThreadTraitsEnum.CONVERSATIONAL= added (Finn).
+
+** Still pending (rotation directives not yet addressed)
+
+- Filesystem split: =decks/{lighthouse,quarters,bridge,thread}/= with lifecycle/ subdirs.
+- =prototypes/{entity,dataspace,daemon,stall}/= split.
+- =Stall= lift to =subsystems/typology= with =store= and =strategy=.
+- Trait runner refactor as middleware factory (@beef on =runTraits=).
+- =moin/voyage= naming pass (now confirmed irrelevant — actual vocab is =open/abort/packet/close=, not =anchor/voyage=).
+- =Stall= flag cleanup (=suspended= / =activated= → status-driven).
+- Lifecycle per-file vs. consolidation @beefs (multiple).
+
+* Shipped 2026-05-05 (s49) — rich chat upgrade
+
+Built on top of s48 CONVERSATIONAL pivot. Outside rotation scope but adjacent — touches Terminal/Thread/Conversational + introduces new Markdown component + extends Dock substantially.
+
+** Done
+
+- =Terminal= entity: =$composer= atom (=DEFAULT_COMPOSER= = ={enterSends:true, density:"comfortable"}=); toJSON includes composer; persistence via =quarters.terminals.update(id, {composer: next})=
+- Thread reactives: added =$streaming= / =$pending= / =$lastError= atoms (initialized in =wire()=)
+- =traits/thread/conversational.js= rewrite: =_cancelStream= flag for instant client cancel; exported =send(thread, parts, {tune})= + =abort(thread, turnId?)=; on /dialogue/close — refetch + drop tmp-* turns for thread
+- =panels/a/Markdown.svelte= (new) + =panels/a/markdown.js= (new) — block + inline parser: paragraph (newlines preserved), heading h1-h6, code-block with copy button + lang, ordered/unordered lists, blockquote, hr, bold, italic, inline code, link
+- =panels/a/Dock.svelte= rewrite — textarea (auto-grow ≤96px), Enter/Shift+Enter via terminal.composer.enterSends, ↑-recall last user, Esc cancels, smart auto-scroll (=pinned= + =isAtBottom()=), unread =↓ N new= pill, day dividers (today / yesterday / abs), relative timestamps (now / 2m / 1h / Nd), hover copy/retry actions, streaming entry (Markdown component renders accumulating text), thinking dots (3 animated), error bar, tool_use/tool_result via =<details>=, artifact inline (img/audio/file)
+- =panels/e/Conversational.svelte= — added =enter= row (send|newline toggle) + =setComposer({enterSends})=; previously moved dock side+size controls here in same session
+- =panels/a/dock.geometry.js= — SHARE_MAX 0.6 → 1.0 (test-symbol-stable)
+- =subsystems/typology/prototypes/entity-manager.js= — child→parent filter accepts string ref id (=child[mappedBy] === entity.id=) so server-side string-typed thread refs match. Required for thread.$turns computed to populate from turn repo on reload.
+- =systems/kajuit/tests/pincer/markdown.test.js= (new, 11 steps) — parser invariants
+
+** Tests
+
+- =tests/typology/thread.conversational.test.js= 6 steps — green
+- =tests/pincer/dock.geometry.test.js= 12 steps — green
+- =tests/pincer/markdown.test.js= 11 steps — green
+- Total: 29 steps green across 3 files
+
+** Dormant infrastructure (UI ready, waits for server)
+
+| Capability | UI shape | Server prerequisite |
+|------------|----------|---------------------|
+| Tool-call progress | =<details>= per part where part.type === "tool_use" or "tool_result" | chaosmonkey/cortex emits tool parts in dialogue/packet stream |
+| Inline artifacts | image/audio/file/artifact part types | server emits matching parts (data-uri or url source) |
+| Aggregated artifact panel | not built | client UI layer + dataspace pull |
+| Reply / quote | no UI yet | server already supports turn.parent in chaosmonkey; needs UI |
+| Edit + regenerate | no UI yet | server delete + re-send |
+| Reconnect on socket drop | not wired | client; conversation.$state ERROR/CLOSED → re-open w/ backoff |
+| Search history | no UI | client-side text search across thread.turns |
+| Density toggle | terminal.composer.density already persisted | UI controls + Dock CSS branches |
+

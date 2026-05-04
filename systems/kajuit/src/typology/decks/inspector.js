@@ -1,13 +1,37 @@
-import { Vector } from "@vivalence/typology";
+import { atom } from "nanostores";
+import { Vector, shape, steer } from "@vivalence/typology";
+
+export function inspectorAtom(lighthouse, quarters, bridge, thread) {
+  const $nodes = atom(null);
+  const rebuild = () => {
+    $nodes.set(shape.tree(composeInspector(lighthouse, quarters, bridge, thread), steer.direct));
+  };
+
+  for (const source of [
+    lighthouse.$status,
+    lighthouse.$isAuthorized,
+    lighthouse.$isIdentified,
+    lighthouse.$identity,
+    lighthouse.$daemons,
+    quarters.$active,
+    quarters.$terminal,
+    quarters.terminals.$entities,
+    thread.$current,
+    bridge.layout.$pincer,
+    bridge.layout.$orientation,
+  ]) source.subscribe(rebuild);
+
+  return $nodes;
+}
 
 export function composeInspector(lighthouse, quarters, bridge, thread) {
   const vector = new Vector();
 
   const lighthouseBranch = vector.branch({ nature: "lighthouse", directed: { variant: "table" } });
-  lighthouseBranch.open({ nature: "authorized", valence: { name: String(lighthouse.$isAuthorized.get()) } });
-  lighthouseBranch.open({ nature: "identified", valence: { name: String(lighthouse.$isIdentified.get()) } });
-  lighthouseBranch.open({ nature: "status", valence: { name: lighthouse.$status.get()?.code ?? "—" } });
-  lighthouseBranch.open({ nature: "identity", valence: { name: lighthouse.$identity.get()?.slug ?? "—" } });
+  lighthouseBranch.open({ nature: "authorized", valence: { name: String(lighthouse.isAuthorized) } });
+  lighthouseBranch.open({ nature: "identified", valence: { name: String(lighthouse.isIdentified) } });
+  lighthouseBranch.open({ nature: "status", valence: { name: lighthouse.status?.code ?? "—" } });
+  lighthouseBranch.open({ nature: "identity", valence: { name: lighthouse.identity?.slug ?? "—" } });
   lighthouseBranch.open({ nature: "connection", valence: { name: lighthouse.connection.$state.get() } });
   lighthouseBranch.open({ nature: "logout", valence: "end session" }, () => lighthouse.logout());
 
@@ -17,8 +41,8 @@ export function composeInspector(lighthouse, quarters, bridge, thread) {
   }
 
   const quartersBranch = vector.branch({ nature: "quarters", directed: { variant: "table" } });
-  quartersBranch.open({ nature: "active", valence: { name: quarters.$active.get() ?? "—" } });
-  quartersBranch.open({ nature: "terminal", valence: { name: quarters.$terminal.get()?.id ?? "—" } });
+  quartersBranch.open({ nature: "active", valence: { name: quarters.active ?? "—" } });
+  quartersBranch.open({ nature: "terminal", valence: { name: quarters.terminal?.id ?? "—" } });
   quartersBranch.open({ nature: "spawn", valence: "new terminal" }, () => quarters.spawn());
 
   const terminalsBranch = quartersBranch.branch({ nature: "terminals", valence: { name: String((quarters.terminals?.$entities?.get?.() ?? []).length) } });
@@ -30,33 +54,27 @@ export function composeInspector(lighthouse, quarters, bridge, thread) {
   }
 
   const bridgeBranch = vector.branch({ nature: "bridge", directed: { variant: "table" } });
-  const pincer = bridge.layout.$pincer.get();
-  const orientation = bridge.layout.$orientation.get();
-  const viewport = bridge.layout.$viewport.get();
-  const standard = bridge.layout.$standard.get();
-  const previous = bridge.layout.$previous.get();
-  bridgeBranch.open({ nature: "pincer", valence: { name: `${Math.round(pincer.x)}·${Math.round(pincer.y)}` } });
-  bridgeBranch.open({ nature: "orientation", valence: { name: `${orientation}°` } });
-  bridgeBranch.open({ nature: "viewport", valence: { name: `${viewport.width}×${viewport.height}` } });
-  bridgeBranch.open({ nature: "standard", valence: { name: `${Math.round(standard.x)}·${Math.round(standard.y)}` } });
-  bridgeBranch.open({ nature: "previous", valence: { name: `${Math.round(previous.x)}·${Math.round(previous.y)}` } });
+  bridgeBranch.open({ nature: "pincer", valence: { name: `${Math.round(bridge.layout.pincer.x)}·${Math.round(bridge.layout.pincer.y)}` } });
+  bridgeBranch.open({ nature: "orientation", valence: { name: `${bridge.layout.orientation}°` } });
+  bridgeBranch.open({ nature: "viewport", valence: { name: `${bridge.layout.viewport.width}×${bridge.layout.viewport.height}` } });
+  bridgeBranch.open({ nature: "standard", valence: { name: `${Math.round(bridge.layout.standard.x)}·${Math.round(bridge.layout.standard.y)}` } });
+  bridgeBranch.open({ nature: "previous", valence: { name: `${Math.round(bridge.layout.previous.x)}·${Math.round(bridge.layout.previous.y)}` } });
 
   const threadBranch = vector.branch({ nature: "thread", directed: { variant: "table" } });
-  const current = thread.$current.get();
-  if (current) {
-    threadBranch.open({ nature: "id", valence: { name: current.id ?? "—" } });
-    threadBranch.open({ nature: "daemon", valence: { name: current.daemon?.slug ?? String(current.daemon ?? "—") } });
-    threadBranch.open({ nature: "mode", valence: { name: current.mode?.slug ?? String(current.mode ?? "—") } });
-    if (current.intent) {
-      threadBranch.open({ nature: "intent", valence: { name: current.intent?.slug ?? String(current.intent) } });
+  if (thread.current) {
+    threadBranch.open({ nature: "id", valence: { name: thread.current.id ?? "—" } });
+    threadBranch.open({ nature: "daemon", valence: { name: thread.current.daemon?.slug ?? String(thread.current.daemon ?? "—") } });
+    threadBranch.open({ nature: "mode", valence: { name: thread.current.mode?.slug ?? String(thread.current.mode ?? "—") } });
+    if (thread.current.intent) {
+      threadBranch.open({ nature: "intent", valence: { name: thread.current.intent?.slug ?? String(thread.current.intent) } });
     }
-    threadBranch.open({ nature: "counter", valence: { name: String(current.counter ?? 0) } });
-    threadBranch.open({ nature: "cursor", valence: { name: String(current.cursor ?? 0) } });
+    threadBranch.open({ nature: "counter", valence: { name: String(thread.current.counter ?? 0) } });
+    threadBranch.open({ nature: "cursor", valence: { name: String(thread.current.cursor ?? 0) } });
     threadBranch.open({ nature: "clear", valence: "clear thread" }, () => thread.clear());
 
-    if (current.buffers?.length) {
-      const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(current.buffers.length) } });
-      for (const buffer of current.buffers) {
+    if (thread.current.buffers?.length) {
+      const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(thread.current.buffers.length) } });
+      for (const buffer of thread.current.buffers) {
         buffersBranch.open({ nature: buffer.view ?? buffer.id, valence: { name: buffer.id } });
       }
     }

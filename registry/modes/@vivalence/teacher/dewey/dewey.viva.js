@@ -6,26 +6,26 @@ export const manifest = {
   slug: "dewey",
   name: "Dewey",
   description: "Brazilian Portuguese conversation tutor.",
-  traits: ["EXPOSED", "INTENTED", "CHAOSMONKEY", "CONVERSATIONAL"],
+  traits: ["EXPOSED", "SELFEVIDENT", "CHAOSMONKEY", "CONVERSATIONAL"],
 };
 
 export const dataset = {
-  intent: [
-    {
-      slug: "conversation",
-      name: "dewey · conversation",
-      description: "Open conversation with Dewey in Brazilian Portuguese.",
-      traits: [],
-      trait: {
-        LABELED: { name: "dewey · conversation" },
-        INSITU: {
-          // port: {phase:"HIDDEN"},
-          // dialogue: { active: false },
-          // audio: activeenabled: false },
-        },
-      },
-    },
-  ],
+  // intent: [
+  //   {
+  //     slug: "conversation",
+  //     name: "dewey · conversation",
+  //     description: "Open conversation with Dewey in Brazilian Portuguese.",
+  //     traits: [],
+  //     trait: {
+  //       LABELED: { name: "dewey · conversation" },
+  //       INSITU: {
+  //         // port: {phase:"HIDDEN"},
+  //         // dialogue: { active: false },
+  //         // audio: activeenabled: false },
+  //       },
+  //     },
+  //   },
+  // ],
 };
 
 export const harness = new Vector();

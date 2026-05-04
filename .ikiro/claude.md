@@ -87,7 +87,7 @@ The same pattern recurs across every layer of vivalence: declarative metadata in
 
 **domain (kernels)** — entities carry trait arrays. Literal traits TRANSLATED, EXEMPLIFIED, RANKED, ANNOTATED, VOCALIZED, CONJUGATED — each with a typed data contract under `literal.data.{TRAIT}`. Symbol traits via `symbol.data`: LEARNABLE / COMPLETABLE (mutually exclusive). LiteralSubscriber walks trait data on flush to maintain `uses` junction rows.
 
-**intent + thread** — `IntentTraitsEnum` mirrors `ThreadTraitsEnum` exactly. ThreadSchema.beforeCreate copies `intent.traits` wholesale + deep-merges `intent.trait` (config) with thread winning per nested key. Thread traits: LABELED, MASKED, AIMED, QUEUEING, FURNISHED, SELFEVIDENT, INSITU. Two-pass application — first pass sets state, returned finalizers run after all traits register.
+**intent + thread** — `IntentTraitsEnum` mirrors `ThreadTraitsEnum` exactly. ThreadSchema.beforeCreate copies `intent.traits` wholesale + deep-merges `intent.trait` (config) with thread winning per nested key. Thread traits: LABELED, MASKED, AIMED, QUEUEING, SELFEVIDENT, INSITU. Two-pass application — first pass sets state, returned finalizers run after all traits register.
 
 **client (svelte)** — TerminalDossier subscribes to `terminal.$thread`; when trait set includes INSITU and mode has CONVERSATIONAL, opens `terminal.session` over WebSocket. Mode trait array drives view bundling, aperture wire format, session lifecycle. Trait check via `entity.traits.includes("VOCALIZED")` (array) — never `entity.trait?.VOCALIZED` (object), since trait values can be `null` ("present with no data") which is falsy.
 
@@ -225,6 +225,7 @@ subsystem .ikiro/:
 - systems/kajuit/.ikiro/datamap-client-migration — server done, client open
 - systems/kajuit/.ikiro/client-layout — viewport + viva-frame primitives
 - systems/kajuit/.ikiro/session-first-routing — URL scheme (complete)
+- systems/kajuit/.ikiro/typology-rotation — rotate kajuit typology to subsystems/typology grammar (decks/ + prototypes/ + entities/foundation/); ACTIVE
 - registry/modes/@vivalence/.ikiro/tactic-analysis-routine — emitter middleware split; M0 shipped
 - subsystems/shell/.ikiro/shell-client — operator interface (design only)
 

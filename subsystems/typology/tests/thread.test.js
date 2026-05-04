@@ -19,12 +19,11 @@ specimen.describe("Thread beforeCreate hook", () => {
     const intent = em.create(IntentEntity, {
       slug: "template-copy-traits",
       name: "Template Copy",
-      traits: ["MASKED", "AIMED", "QUEUEING", "FURNISHED"],
+      traits: ["MASKED", "AIMED", "QUEUEING"],
       trait: {
         MASKED: { limit: 4 },
         AIMED: { mount: "/emit/feed" },
         QUEUEING: { depth: 1 },
-        FURNISHED: { recall: "LEARNING" },
       },
       mode: fixtures.mode,
     });
@@ -37,11 +36,10 @@ specimen.describe("Thread beforeCreate hook", () => {
     });
     await em.flush();
 
-    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "FURNISHED"]);
+    specimen.expect(thread.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
     specimen.expect(thread.trait.AIMED.mount).toBe("/emit/feed");
     specimen.expect(thread.trait.QUEUEING.depth).toBe(1);
     specimen.expect(thread.trait.MASKED.limit).toBe(4);
-    specimen.expect(thread.trait.FURNISHED.recall).toBe("LEARNING");
   });
 
   specimen.it("deep-merges intent.trait with thread.trait, thread wins per nested key", async () => {
