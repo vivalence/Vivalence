@@ -1,16 +1,16 @@
-FROM vivalence/viva:alpine AS build
+FROM vivalence/vivalence:alpine AS build
 
 WORKDIR /viva/repository
 ENV VIVA_SYSTEM_MODE="BUILD"
 ENV VIVA_SYSTEM_ROLE="CLIENT"
 
 RUN deno install
-RUN deno task html/bundle
+RUN deno task kajuit/bundle
 
 FROM nginx:alpine
 
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=build /viva/repository/systems/html/build /usr/share/nginx/html
+COPY --from=build /viva/repository/systems/kajuit/build /usr/share/nginx/html
 
 COPY <<'NGINX' /etc/nginx/conf.d/default.conf
 server {

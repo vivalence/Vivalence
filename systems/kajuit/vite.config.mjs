@@ -11,13 +11,13 @@ const __ss = join(__repo, "./subsystems");
 async function serverConfig() {
   const paladin = (await import("@vivalence/paladin")).default;
   await paladin.ikiro;
-  const client = paladin.variant.clients.html;
-  // const client = {slug: "html", module: "@vivalence/html", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};
+  const client = paladin.variant.clients.kajuit;
+  // const client = {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};
   // console.log({ client });
 
   // let allowedHosts = paladin.is.dev;
   // if (client.statics.remote) allowedHosts = [client.statics.remote.hostname];
-  // if (paladin.env.has("VIVA_CLIENT_HTML_ALLOWEDHOSTS")) allowedHosts = [paladin.env.get("VIVA_CLIENT_HTML_ALLOWEDHOSTS")];
+  // if (paladin.env.has("VIVA_CLIENT_KAJUIT_ALLOWEDHOSTS")) allowedHosts = [paladin.env.get("VIVA_CLIENT_KAJUIT_ALLOWEDHOSTS")];
 
   return {
     cors: { origin: client.statics.remote?.absolute },
@@ -60,8 +60,8 @@ export default defineConfig(async ({ command }) => ({
       // STABLE
       $telemetry: join(__dirname, "./src/telemetry.js"),
       $client: join(__dirname, "./src/client.js"),
-      "@vivalence/html/skins": join(__dirname, "./src/typology/skins"),
-      "@vivalence/html": join(__dirname, "./src/typology/mod.js"),
+      "@vivalence/kajuit/skins": join(__dirname, "./src/typology/skins"),
+      "@vivalence/kajuit": join(__dirname, "./src/typology/mod.js"),
 
       // "@vivalence/shared": join(__ss, "./shared/mod.client.js"),
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),

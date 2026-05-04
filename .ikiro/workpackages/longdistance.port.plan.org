@@ -20,18 +20,18 @@
 - Session workpackage test (reference): =subsystems/typology/tests/workpackage/session.test.js=.
 - Socket test (reference for ws mount pattern): =subsystems/typology/tests/socket.test.js=.
 - Dewey viva: =registry/modes/@vivalence/teacher/dewey/dewey.viva.js=.
-- TerminalDossier: =systems/html/src/typology/entities/terminal.js=.
-- ModeDossier: =systems/html/src/typology/entities/mode.js=.
-- Panels: =systems/html/src/routes/pincer/panels/{a,c,e}.svelte=.
-- Bones: =systems/html/src/routes/pincer/bones/{crown,shoulder}.svelte=.
-- Lighthouse authority: =systems/html/src/typology/prototypes/lighthouse.js= (holds =$authority= atom; =authority?.access= is the bearer).
+- TerminalDossier: =systems/kajuit/src/typology/entities/terminal.js=.
+- ModeDossier: =systems/kajuit/src/typology/entities/mode.js=.
+- Panels: =systems/kajuit/src/routes/pincer/panels/{a,c,e}.svelte=.
+- Bones: =systems/kajuit/src/routes/pincer/bones/{crown,shoulder}.svelte=.
+- Lighthouse authority: =systems/kajuit/src/typology/prototypes/lighthouse.js= (holds =$authority= atom; =authority?.access= is the bearer).
 
 *Conventions (absolute):*
 - No comments in code (.ikiro/claude.md § Aesthetic).
 - No abbreviations (=memory/feedback_no_abbreviations.md=).
 - No underscore-prefixed fields (=feedback_no_underscore_private.md=).
 - No Svelte 5 prop names =state= / =derived= / =effect= (=feedback_svelte5_rune_props.md=).
-- Imports through =@vivalence/html= / =@vivalence/typology= barrels (=feedback_import_through_barrel.md=).
+- Imports through =@vivalence/kajuit= / =@vivalence/typology= barrels (=feedback_import_through_barrel.md=).
 - Transparent accessors: =entity.field= reads from =entity.$field.get()= (=feedback_transparent_accessors.md=).
 - Each commit green; never skip hooks.
 
@@ -346,7 +346,7 @@ Expected: working-copy snapshot updated. Do NOT run =jj new= — Finn owns the g
 * Task 2.1 — Terminal.port scaffold
 
 *Files:*
-- Modify: =systems/html/src/typology/entities/terminal.js=.
+- Modify: =systems/kajuit/src/typology/entities/terminal.js=.
 
 Add a =$port= atom to Terminal with default =,{ dock: "bottom", visible: true }=, and transparent getter/setter =.port=. Also nullable =.session= field (starts null; TerminalDossier middleware populates it in Task 2.2).
 
@@ -404,7 +404,7 @@ export const TerminalDossier = {
 
 - [ ] *Step 2: Verify existing tests still pass.*
 
-Run: =cd systems/html && deno test tests/= (or the path to the terminal/quarters test suite).
+Run: =cd systems/kajuit && deno test tests/= (or the path to the terminal/quarters test suite).
 Expected: existing TerminalDossier and Quarters tests PASS (new =$port= atom is additive).
 
 - [ ] *Step 3: Commit at end of M2.*
@@ -412,20 +412,20 @@ Expected: existing TerminalDossier and Quarters tests PASS (new =$port= atom is 
 * Task 2.2 — TerminalDossier session-lifecycle middleware
 
 *Files:*
-- Modify: =systems/html/src/typology/entities/terminal.js= (extend TerminalDossier with =use= array).
+- Modify: =systems/kajuit/src/typology/entities/terminal.js= (extend TerminalDossier with =use= array).
 
 Middleware: subscribe to =terminal.$thread=; on INSITU + CONVERSATIONAL, open a socket through =mode.connection.socket()=, construct =Session=, call =moin()=. On teardown, close + null.
 
 - [ ] *Step 1: Write the failing test.*
 
-Create =systems/html/tests/terminal.session.wiring.test.js= (or extend existing terminal dossier test file if it exists). Test drives a fake daemon + mode with CONVERSATIONAL and verifies:
+Create =systems/kajuit/tests/terminal.session.wiring.test.js= (or extend existing terminal dossier test file if it exists). Test drives a fake daemon + mode with CONVERSATIONAL and verifies:
 1. Activating a thread with INSITU creates =terminal.session= and transitions to LIVE.
 2. Clearing the thread closes the session.
 
 #+begin_src javascript
 import { specimen, sleep } from "@vivalence/typology";
-import { wireDossier } from "@vivalence/html/prototypes";
-import { TerminalDossier } from "@vivalence/html/entities/terminal";
+import { wireDossier } from "@vivalence/kajuit/prototypes";
+import { TerminalDossier } from "@vivalence/kajuit/entities/terminal";
 
 specimen.describe("TerminalDossier — session lifecycle", () => {
   specimen.it("opens session on INSITU + CONVERSATIONAL, closes on thread clear", async () => {
@@ -459,12 +459,12 @@ specimen.describe("TerminalDossier — session lifecycle", () => {
 
 - [ ] *Step 2: Run it to confirm it fails.*
 
-Run: =cd systems/html && deno test tests/terminal.session.wiring.test.js=
+Run: =cd systems/kajuit && deno test tests/terminal.session.wiring.test.js=
 Expected: FAIL — =terminal.session= stays null (no middleware yet).
 
 - [ ] *Step 3: Add the middleware.*
 
-Modify the TerminalDossier export in =systems/html/src/typology/entities/terminal.js= to include =use= array. Import =Session, Vector, Queue= from =@vivalence/typology=. Bring the lighthouse authority through =ctx.lighthouse.$authority=.
+Modify the TerminalDossier export in =systems/kajuit/src/typology/entities/terminal.js= to include =use= array. Import =Session, Vector, Queue= from =@vivalence/typology=. Bring the lighthouse authority through =ctx.lighthouse.$authority=.
 
 #+begin_src javascript
 import { atom } from "nanostores";
@@ -515,11 +515,11 @@ export const TerminalDossier = {
 };
 #+end_src
 
-Note: =ctx.lighthouse= must be wired into the dossier factory context. If it isn't, see =systems/html/src/typology/prototypes/dossier.js= (=localFactory=) and extend it to pass =lighthouse= through. If that's more than a two-line change, document the gap and hard-code =token= via =localStorage.getItem("viva.authority")= parse as a stopgap — call it out in the commit message as a follow-up.
+Note: =ctx.lighthouse= must be wired into the dossier factory context. If it isn't, see =systems/kajuit/src/typology/prototypes/dossier.js= (=localFactory=) and extend it to pass =lighthouse= through. If that's more than a two-line change, document the gap and hard-code =token= via =localStorage.getItem("viva.authority")= parse as a stopgap — call it out in the commit message as a follow-up.
 
 - [ ] *Step 4: Run the test again.*
 
-Run: =cd systems/html && deno test tests/terminal.session.wiring.test.js=
+Run: =cd systems/kajuit && deno test tests/terminal.session.wiring.test.js=
 Expected: PASS.
 
 - [ ] *Step 5: Commit at end of M2.*
@@ -527,14 +527,14 @@ Expected: PASS.
 * Task 2.3 — Port.svelte component
 
 *Files:*
-- Create: =systems/html/src/typology/components/port/Port.svelte=.
-- Create: =systems/html/src/typology/components/port/index.js= (barrel re-export).
+- Create: =systems/kajuit/src/typology/components/port/Port.svelte=.
+- Create: =systems/kajuit/src/typology/components/port/index.js= (barrel re-export).
 
 Component props: =terminal= (required). Reads =terminal.session=, =terminal.$port= (for dock + visibility), thread + turns via =terminal.$thread=. Emits no events — end button closes session directly.
 
 - [ ] *Step 1: Write the component.*
 
-Create =systems/html/src/typology/components/port/Port.svelte=:
+Create =systems/kajuit/src/typology/components/port/Port.svelte=:
 
 #+begin_src svelte
 <script>
@@ -687,13 +687,13 @@ Create =systems/html/src/typology/components/port/Port.svelte=:
 </style>
 #+end_src
 
-- [ ] *Step 2:* Create =systems/html/src/typology/components/port/index.js=:
+- [ ] *Step 2:* Create =systems/kajuit/src/typology/components/port/index.js=:
 
 #+begin_src javascript
 export { default as Port } from "./Port.svelte";
 #+end_src
 
-- [ ] *Step 3:* Ensure the barrel =@vivalence/html= re-exports =Port=. Locate =systems/html/src/typology/index.js= (or equivalent barrel entry) and add:
+- [ ] *Step 3:* Ensure the barrel =@vivalence/kajuit= re-exports =Port=. Locate =systems/kajuit/src/typology/index.js= (or equivalent barrel entry) and add:
 
 #+begin_src javascript
 export * from "./components/port/index.js";
@@ -704,11 +704,11 @@ export * from "./components/port/index.js";
 * Task 2.4 — /port standalone harness route
 
 *Files:*
-- Create: =systems/html/src/routes/port/+page.svelte=.
+- Create: =systems/kajuit/src/routes/port/+page.svelte=.
 
 Harness: instantiate a fake =terminal= with a fake session exposing the Port shape; verify the UI renders, dock cycles, message input works.
 
-- [ ] *Step 1:* Create =systems/html/src/routes/port/+page.svelte=:
+- [ ] *Step 1:* Create =systems/kajuit/src/routes/port/+page.svelte=:
 
 #+begin_src svelte
 <script>
@@ -765,7 +765,7 @@ Harness: instantiate a fake =terminal= with a fake session exposing the Port sha
 
 - [ ] *Step 2: Run the dev server and navigate to /port.*
 
-Run: =cd systems/html && deno task dev=
+Run: =cd systems/kajuit && deno task dev=
 Open =http://localhost:5173/port=
 Expected: Port panel visible, two turns in log, typing + send appends user turn + echo turn, dock arrows cycle visible classes (no visible reposition yet — that lands in M3), reset/end update state.
 
@@ -795,13 +795,13 @@ jj describe -m "feat(longdistance): M2 — client session + Port component
 * Task 3.1 — Panel A: Port overlay inlet
 
 *Files:*
-- Modify: =systems/html/src/routes/pincer/panels/a.svelte=.
+- Modify: =systems/kajuit/src/routes/pincer/panels/a.svelte=.
 
 Render Port as a fixed overlay at =terminal.port.dock= edge when =terminal.session= exists AND =terminal.port.visible= is true. Overlay does not reflow the existing Frame.
 
 - [ ] *Step 1:* Modify the Panel A script block to read =QUARTERS= + =terminal.$port= + =terminal.session=:
 
-Replace the =<script>= block in =systems/html/src/routes/pincer/panels/a.svelte= with:
+Replace the =<script>= block in =systems/kajuit/src/routes/pincer/panels/a.svelte= with:
 
 #+begin_src svelte
 <script>
@@ -918,7 +918,7 @@ Replace the =<script>= block in =systems/html/src/routes/pincer/panels/a.svelte=
 
 - [ ] *Step 4:* Run dev server, activate a CONVERSATIONAL mode (dewey) with INSITU, confirm Port overlays panel A at bottom; cycle dock arrows and confirm positions.
 
-Run: =cd systems/html && deno task dev=
+Run: =cd systems/kajuit && deno task dev=
 Expected: Port overlay visible; dock cycle works.
 
 - [ ] *Step 5:* Commit at end of M3.
@@ -926,7 +926,7 @@ Expected: Port overlay visible; dock cycle works.
 * Task 3.2 — Crown: session-accent on active-session tab
 
 *Files:*
-- Modify: =systems/html/src/routes/pincer/bones/crown.svelte=.
+- Modify: =systems/kajuit/src/routes/pincer/bones/crown.svelte=.
 
 Add a =.session-live= class applied to the active-session tab when =terminal.session?.$state= is LIVE.
 
@@ -986,7 +986,7 @@ Add a =.session-live= class applied to the active-session tab when =terminal.ses
 * Task 3.3 — Shoulder: session widget toggles terminal.port.visible
 
 *Files:*
-- Modify: =systems/html/src/routes/pincer/bones/shoulder.svelte=.
+- Modify: =systems/kajuit/src/routes/pincer/bones/shoulder.svelte=.
 
 When the active terminal has a LIVE session, render a session widget that toggles =terminal.port.visible=. Place it after the existing phase + activity population.
 
@@ -1066,7 +1066,7 @@ When the active terminal has a LIVE session, render a session widget that toggle
 * Task 3.4 — Panel E: terminal/thread control center rework
 
 *Files:*
-- Modify (full rewrite): =systems/html/src/routes/pincer/panels/e.svelte=.
+- Modify (full rewrite): =systems/kajuit/src/routes/pincer/panels/e.svelte=.
 
 Replace the JSON dump with: mode label, traits pill row (read-only — clicking a pill is deferred), Port embedded as a subject block when session live.
 

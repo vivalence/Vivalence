@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — registry/modes (container)
 
 Feature implementation. Game modes = player-facing experiences. Tactics = orchestrators (don't render directly). Each mode is a registry package; its manifest's `traits` array is the wiring contract — runtime trait functions read these and assemble the mode into a daemon during resolve. Read `.ikiro/CLAUDE.md` first.

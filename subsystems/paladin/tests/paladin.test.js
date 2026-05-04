@@ -107,8 +107,8 @@ specimen.describe("paladin", () => {
       specimen.expect(paladin.variant.runtime.traits).toContain("EMBEDDED")
       specimen.expect(paladin.variant.runtime.datamap.module).toBe("@vivalence/datamap/libsql")
 
-      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(["html", "shell"])
-      specimen.expect(paladin.variant.clients.html.slug).toBe("html")
+      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(["kajuit", "shell"])
+      specimen.expect(paladin.variant.clients.kajuit.slug).toBe("kajuit")
 
       specimen.expect(paladin.variant.daemons.length).toBe(1)
       specimen.expect(paladin.variant.services.length).toBe(2)
@@ -156,7 +156,7 @@ specimen.describe("paladin", () => {
       await integrate.publish(paladin)
       specimen.expect(Deno.env.get("PUBLIC_VIVA_RUNTIME_REMOTE")).toBeDefined()
       specimen.expect(Deno.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")).toBeDefined()
-      specimen.expect(Deno.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE")).toBeDefined()
+      specimen.expect(Deno.env.get("PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE")).toBeDefined()
     })
 
     specimen.it("questions completes without error", async () => {

@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — registry (container)
 
 Marketplace. Flat namespace of `.viva.js` manifests, indexed by paladin's VIP. Every kernel, mode, service, and circuit lives here. Read `.ikiro/CLAUDE.md` first.

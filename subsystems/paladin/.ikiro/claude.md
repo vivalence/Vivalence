@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — paladin (container)
 
 Composition. Reads circuitry, resolves manifests, compiles a runnable variant. The runtime consumes this variant; paladin itself never runs anything. Read `.ikiro/CLAUDE.md` first.

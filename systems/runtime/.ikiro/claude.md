@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — runtime (container)
 
 Process. Wraps everything in Die / Wafer. Boots daemons, applies traits, serves HTTP via shape.http + Deno.serve. Read `.ikiro/CLAUDE.md` first.

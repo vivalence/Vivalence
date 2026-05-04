@@ -1,6 +1,6 @@
 import { atom } from "nanostores";
 import { LocalRepository, Vector, Session, Queue, bell } from "@vivalence/typology";
-import { traits } from "@vivalence/html";
+import { traits } from "@vivalence/kajuit";
 
 const DEFAULT_DOCK = {
   side: "right",

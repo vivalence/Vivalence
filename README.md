@@ -72,7 +72,7 @@ the entire system is constructed from an extremely limited set of primitives and
 
 2.2 there is a `@runtime` which runs multiple daemons. 
 
-2.3 there is a rudimentary `web client` and an idea for a `shell client`. the html client can be installed as an ios webapp through safari. 
+2.3 there is a rudimentary `web client` and an idea for a `shell client`. the kajuit client can be installed as an ios webapp through safari. 
 
 2.4 there is a registry and an idea for a package manager.
 

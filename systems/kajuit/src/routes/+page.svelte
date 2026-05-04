@@ -12,7 +12,7 @@
   import BonePincer from "./pincer/bones/pincer.svelte";
   import BoneSpine from "./pincer/bones/spine.svelte";
   import { THREAD, BRIDGE } from "$client";
-  import { bridge } from "@vivalence/html";
+  import { bridge } from "@vivalence/kajuit";
   const {
     clamp,
     snapToGrid,
@@ -34,7 +34,7 @@
 
   let currentThread = $state(null);
   threadInstance.$current.subscribe((v) => (currentThread = v));
-  let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence/viva");
+  let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence");
 
   let pincer = $state(layout.$pincer.get());
   let previous = $state(layout.$previous.get());

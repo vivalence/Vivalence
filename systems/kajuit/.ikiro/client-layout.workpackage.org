@@ -147,14 +147,14 @@ Text-input modes keep the keyboard open across state transitions
 
 | File | Role |
 |------+------|
-| =systems/html/src/client.css= | viva-frame, viva-surface, viva-controls |
-| =systems/html/src/client.html= | html/body overflow:hidden, importmap |
-| =systems/html/src/routes/+layout.svelte= | .viva-root (position: fixed, viewport vars), eruda (dev only) |
-| =systems/html/src/routes/+page.svelte= | Login page |
-| =systems/html/src/routes/viva/+page.svelte= | Lobby (viva-frame, height: 100%) |
-| =systems/html/src/routes/viva/[...terminal]/+page.svelte= | Session (viva-frame, surface overflow:hidden, modeline) |
-| =systems/html/src/routes/viva/[...terminal]/phases/Stream.svelte= | Frame mount |
-| =systems/html/src/routes/viva/Modeline.svelte= | Modeline (lobby/intents/threads tabs) |
+| =systems/kajuit/src/client.css= | viva-frame, viva-surface, viva-controls |
+| =systems/kajuit/src/client.html= | html/body overflow:hidden, importmap |
+| =systems/kajuit/src/routes/+layout.svelte= | .viva-root (position: fixed, viewport vars), eruda (dev only) |
+| =systems/kajuit/src/routes/+page.svelte= | Login page |
+| =systems/kajuit/src/routes/viva/+page.svelte= | Lobby (viva-frame, height: 100%) |
+| =systems/kajuit/src/routes/viva/[...terminal]/+page.svelte= | Session (viva-frame, surface overflow:hidden, modeline) |
+| =systems/kajuit/src/routes/viva/[...terminal]/phases/Stream.svelte= | Frame mount |
+| =systems/kajuit/src/routes/viva/Modeline.svelte= | Modeline (lobby/intents/threads tabs) |
 | =subsystems/drapes/controls/ViewportLock.svelte= | visualViewport lifecycle component |
 | =subsystems/drapes/controls/Keyboard.svelte= | Hidden input for keyboard persistence |
 | =subsystems/drapes/panels/Frame.svelte= | Dynamic buffer mount (height: 100%) |

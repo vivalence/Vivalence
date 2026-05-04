@@ -57,10 +57,10 @@ Files: ~systems/runtime/daemon/traits/conversational.js~, ~registry/modes/@vival
 - Default dock =session: "ended"= so Svelte =$effect= triggers on transition.
 - Use =thread.mode.connection= (not =thread.daemon.connection=).
 
-Files: ~systems/html/src/typology/entities/terminal.js~, ~systems/html/src/routes/pincer/panels/a/Dock.svelte~ (renamed s45 from =SessionDock=, relocated panel-local), ~systems/html/src/routes/port/+page.svelte~ (later moved to =routes/bak/port/=).
+Files: ~systems/kajuit/src/typology/entities/terminal.js~, ~systems/kajuit/src/routes/pincer/panels/a/Dock.svelte~ (renamed s45 from =SessionDock=, relocated panel-local), ~systems/kajuit/src/routes/port/+page.svelte~ (later moved to =routes/bak/port/=).
 
 ** M3 — Panel E control panel + dewey intent [DONE 2026-04-18 s44]
-- ~systems/html/src/routes/pincer/panels/e.svelte~ — replaced JSON dump: mode type + trait pills + TRAITS block with INSITU pill ("click to engage" when CONVERSATIONAL).
+- ~systems/kajuit/src/routes/pincer/panels/e.svelte~ — replaced JSON dump: mode type + trait pills + TRAITS block with INSITU pill ("click to engage" when CONVERSATIONAL).
 - INSITU toggle fires =thread.daemon.entities.thread.updateOne({ id }, { traits })= + optimistic + re-trigger =$thread=.
 - ~dewey.viva.js~ INTENTED + =dataset.intent[0]= (slug "conversation", =trait.INSITU={ dialogue:{ enabled:true } }=, =trait.LABELED.name="dewey · conversation"=).
 - ~RemoteRepository.create(data)~ wraps args server-side — caller MUST NOT double-wrap.
@@ -104,7 +104,7 @@ Deferred to surface integration (M4): Panel A inlet overlay, crown highlight on 
 
 Finn flagged INSITU session/audio block in =TerminalDossier.use[]= as architecturally wrong — trait behavior belongs in trait module (per `feedback_trait_colocation`). Diff written to log =/Users/finn/vivalence/private/logs/2026.04.19.org= under =* ORB LONGDISTANCE=.
 
-New layout fills =systems/html/src/typology/traits/=:
+New layout fills =systems/kajuit/src/typology/traits/=:
 - =traits/index.js= barrel: { thread, mode } namespaces
 - =traits/thread/{labeled,masked,aimed,queueing,insitu}.js= — bodies pulled from =entities/thread/traits.js= (slated for delete)
 - =traits/thread/insitu.js= — =engage(terminal, thread)= / =disengage(terminal)= — session + audio lifecycle moves here
@@ -115,7 +115,7 @@ Consumers become thin: TerminalDossier delegates to =threadTraits.insitu.{engage
 
 Pending decisions:
 1. BUFFERED gate "mode is any object" → "mode has BUFFERED trait". Read: safe (no non-BUFFERED mode produces buffers).
-2. =systems/html/.ikiro/claude.md:64,193= document old path — follow-up.
+2. =systems/kajuit/.ikiro/claude.md:64,193= document old path — follow-up.
 
 Independent of audio enum gate; can land either order.
 
@@ -226,15 +226,15 @@ Belongs as =CONVERSATIONAL.speech.systemPrime= read by actor's =mode.cake.harnes
 - ~systems/runtime/daemon/lifecycle/population.js~ — =core()= + =acid()= (audio-load commented)
 
 ** Client
-- ~systems/html/src/typology/entities/terminal.js~ — TerminalDossier session lifecycle + audio wiring
-- ~systems/html/src/typology/entities/thread.js~ — INSITU installer
-- ~systems/html/src/typology/prototypes/quarters.js~ — =wireDossier(TerminalDossier)= + re-hydrate
-- ~systems/html/src/typology/traits/~ — empty scaffold; M-trait-consolidation target
-- ~systems/html/src/routes/pincer/panels/a.svelte~ — Body + Twig + Chat split
-- ~systems/html/src/routes/pincer/panels/a/Dock.svelte~ — pure presentational strip
-- ~systems/html/src/routes/pincer/panels/a/dock.geometry.js~ — pure layout fns + 13-step constraint test at =systems/html/tests/pincer/dock.geometry.test.js=
-- ~systems/html/src/routes/pincer/panels/e.svelte~ — thread control panel + INSITU/AUDIO toggles
-- ~systems/html/src/routes/bak/port/+page.svelte~ — standalone harness (relocated from =/port=)
+- ~systems/kajuit/src/typology/entities/terminal.js~ — TerminalDossier session lifecycle + audio wiring
+- ~systems/kajuit/src/typology/entities/thread.js~ — INSITU installer
+- ~systems/kajuit/src/typology/prototypes/quarters.js~ — =wireDossier(TerminalDossier)= + re-hydrate
+- ~systems/kajuit/src/typology/traits/~ — empty scaffold; M-trait-consolidation target
+- ~systems/kajuit/src/routes/pincer/panels/a.svelte~ — Body + Twig + Chat split
+- ~systems/kajuit/src/routes/pincer/panels/a/Dock.svelte~ — pure presentational strip
+- ~systems/kajuit/src/routes/pincer/panels/a/dock.geometry.js~ — pure layout fns + 13-step constraint test at =systems/kajuit/tests/pincer/dock.geometry.test.js=
+- ~systems/kajuit/src/routes/pincer/panels/e.svelte~ — thread control panel + INSITU/AUDIO toggles
+- ~systems/kajuit/src/routes/bak/port/+page.svelte~ — standalone harness (relocated from =/port=)
 
 ** Tests
 - ~subsystems/typology/tests/workpackage/session.test.js~ — text e2e, green

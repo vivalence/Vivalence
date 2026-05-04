@@ -146,11 +146,11 @@ export async function questions(paladin) {
 
       // "VIVA_RUNTIME_SERVE", // conditional
       // "VIVA_LIGHTHOUSE_SERVE", // conditional
-      // "VIVA_CLIENT_HTML_SERVE", // conditional
+      // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
 
       // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
       // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
-      // "PUBLIC_VIVA_CLIENT_HTML_REMOTE", // conditional
+      // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
     ])
     .throw();
 }

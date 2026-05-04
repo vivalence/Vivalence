@@ -4,7 +4,7 @@
   "exclude": ["./testament", "./docs"],
   "workspace": [
     "./systems/runtime",
-    "./systems/html",
+    "./systems/kajuit",
     "./systems/shell",
     "./subsystems/typology",
     "./subsystems/paladin",
@@ -16,7 +16,7 @@
   "tasks": {
     "tree": "tree -I 'node_modules|static' --prune",
 
-    "gource": "gource --output-custom-log /tmp/vivalence.gource.log . && awk -F'|' '$4 ~ /\\.(svelte|tsx|ts|jsx|js|cjs|mjs|sql|prisma|css|pcss|postcss)$/' /tmp/vivalence.gource.log > /tmp/vivalence.loadbearing.log && awk -F'|' 'BEGIN{OFS=\"|\"} {if ($2 ~ /^(crackedbeefcake|finn|Finn Luca Frotscher|LazerJesus)$/) $2=\"beef\"; print}' /tmp/vivalence.loadbearing.log > /tmp/vivalence.normalized.log && gource /tmp/vivalence.normalized.log -1920x1080 -s 0.0490 --auto-skip-seconds 0.1 --stop-at-end --key --title @vivalence/viva --hide mouse,progress,filenames --file-idle-time 0 --max-files 0 --bloom-multiplier 0.5 --font-size 22 --dir-font-size 12 --dir-name-depth 4 --dir-name-position 1.0 --user-scale 2.5 --colour-images --disable-auto-rotate --elasticity 0.03 --user-friction 1.0 --padding 1.4 --user-filter '^Ivan Matcuka$' --font-file /System/Library/Fonts/SFNSMono.ttf --date-format '%Y.%m.%d [%a]' --output-ppm-stream - --output-framerate 60 | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset medium -pix_fmt yuv420p -crf 23 -threads 0 -bf 0 gource.mp4",
+    "gource": "gource --output-custom-log /tmp/vivalence.gource.log . && awk -F'|' '$4 ~ /\\.(svelte|tsx|ts|jsx|js|cjs|mjs|sql|prisma|css|pcss|postcss)$/' /tmp/vivalence.gource.log > /tmp/vivalence.loadbearing.log && awk -F'|' 'BEGIN{OFS=\"|\"} {if ($2 ~ /^(crackedbeefcake|finn|Finn Luca Frotscher|LazerJesus)$/) $2=\"beef\"; print}' /tmp/vivalence.loadbearing.log > /tmp/vivalence.normalized.log && gource /tmp/vivalence.normalized.log -1920x1080 -s 0.0490 --auto-skip-seconds 0.1 --stop-at-end --key --title @vivalence --hide mouse,progress,filenames --file-idle-time 0 --max-files 0 --bloom-multiplier 0.5 --font-size 22 --dir-font-size 12 --dir-name-depth 4 --dir-name-position 1.0 --user-scale 2.5 --colour-images --disable-auto-rotate --elasticity 0.03 --user-friction 1.0 --padding 1.4 --user-filter '^Ivan Matcuka$' --font-file /System/Library/Fonts/SFNSMono.ttf --date-format '%Y.%m.%d [%a]' --output-ppm-stream - --output-framerate 60 | ffmpeg -y -r 60 -f image2pipe -vcodec ppm -i - -vcodec libx264 -preset medium -pix_fmt yuv420p -crf 23 -threads 0 -bf 0 gource.mp4",
 
     // "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
     "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
@@ -29,28 +29,28 @@
     "runtime/run": "deno run -A ./systems/runtime/run.js",
     "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
-    "html/test": "deno test -A --no-check --watch ./systems/html/tests/**/*.test.js",
+    "kajuit/test": "deno test -A --no-check --watch ./systems/kajuit/tests/**/*.test.js",
 
     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
     "shell/do": "deno run -A ./systems/shell/mod.js",
 
-    "html/watch": "deno task --cwd ./systems/html watch",
-    "html/bundle": "deno task --cwd ./systems/html bundle",
+    "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
+    "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",
 
-    "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
+    "vivalence/build": "docker build -f ./Dockerfile -t vivalence/vivalence:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
-    "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",
-    "build": "DOCKER_BUILDKIT=1 deno task viva/build && deno task runtime/build && deno task html/build",
+    "kajuit/build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
+    "build": "DOCKER_BUILDKIT=1 deno task vivalence/build && deno task runtime/build && deno task kajuit/build",
 
-    "viva/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
+    "vivalence/tag": "docker tag vivalence/vivalence:alpine registry.vivalence.org/vivalence/vivalence:alpine",
     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
-    "html/tag": "docker tag vivalence/html:alpine registry.vivalence.org/vivalence/html:alpine",
-    "tag": "deno task viva/tag && deno task runtime/tag && deno task html/tag",
+    "kajuit/tag": "docker tag vivalence/kajuit:alpine registry.vivalence.org/vivalence/kajuit:alpine",
+    "tag": "deno task vivalence/tag && deno task runtime/tag && deno task kajuit/tag",
 
-    "viva/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
+    "vivalence/push": "docker push registry.vivalence.org/vivalence/vivalence:alpine",
     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
-    "html/push": "docker push registry.vivalence.org/vivalence/html:alpine",
-    "push": "deno task viva/push && deno task runtime/push && deno task html/push",
+    "kajuit/push": "docker push registry.vivalence.org/vivalence/kajuit:alpine",
+    "push": "deno task vivalence/push && deno task runtime/push && deno task kajuit/push",
 
     "publish": "deno task build && deno task tag && deno task push",
   },
@@ -70,7 +70,7 @@
 //   ],
 //   "workspace": [
 //     "./systems/runtime",
-//     "./systems/html",
+//     "./systems/kajuit",
 //     "./systems/shell",
 //     "./subsystems/typology",
 //     "./subsystems/vector",
@@ -96,24 +96,24 @@
 //     "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
 //     "shell/watch": "deno run --watch -A ./systems/shell/mod.js",
 //     "shell/do": "deno run -A ./systems/shell/mod.js",
-//     "html/watch": "deno task --cwd ./systems/html watch",
+//     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
 
-//     "html/bundle": "deno task --cwd ./systems/html bundle", // maybe ought be universal??
+//     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle", // maybe ought be universal??
 
-//     "viva/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
+//     "vivalence/build": "docker build -f ./Dockerfile -t vivalence/vivalence:alpine .",
 //     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
-//     "html/build": "docker build -f ./systems/html/Dockerfile -t vivalence/html:alpine .",
-//     "build": "DOCKER_BUILDKIT=1 deno run viva/build && deno run runtime/build && deno run html/build",
+//     "kajuit/build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
+//     "build": "DOCKER_BUILDKIT=1 deno run vivalence/build && deno run runtime/build && deno run kajuit/build",
 
-//     "viva/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
+//     "vivalence/tag": "docker tag vivalence/vivalence:alpine registry.vivalence.org/vivalence/vivalence:alpine",
 //     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
-//     "html/tag": "docker tag vivalence/html:alpine registry.vivalence.org/vivalence/html:alpine",
-//     "tag": "deno run viva/tag && deno run runtime/tag && deno run html/tag",
+//     "kajuit/tag": "docker tag vivalence/kajuit:alpine registry.vivalence.org/vivalence/kajuit:alpine",
+//     "tag": "deno run vivalence/tag && deno run runtime/tag && deno run kajuit/tag",
 
-//     "viva/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
+//     "vivalence/push": "docker push registry.vivalence.org/vivalence/vivalence:alpine",
 //     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
-//     "html/push": "docker push registry.vivalence.org/vivalence/html:alpine",
-//     "push": "deno run viva/push && deno run runtime/push && deno run html/push",
+//     "kajuit/push": "docker push registry.vivalence.org/vivalence/kajuit:alpine",
+//     "push": "deno run vivalence/push && deno run runtime/push && deno run kajuit/push",
 
 //     "publish": "deno run build && deno run tag && deno run push",
 //   },

@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — registry/kernels (container)
 
 Domain + Data. The what-is-being-learned. Three kernel types compose into a curriculum: one *domain* (the learning engine), N *ontologies* (what kinds of things exist), N *corpora* (what specific things, in what order). Read `.ikiro/CLAUDE.md` first.

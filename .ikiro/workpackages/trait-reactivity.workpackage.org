@@ -41,7 +41,7 @@ click /emit/foo
 ** Does NOT update
 - ~thread.pull~ — bound at install by =AIMED= finalizer:
   #+BEGIN_SRC javascript
-  // systems/html/src/typology/traits/thread/aimed.js
+  // systems/kajuit/src/typology/traits/thread/aimed.js
   export const AIMED = (thread, ctx) => {
     return () => {
       thread.pull = thread.mode.connection.aim(thread.trait.AIMED.mount, thread.mask);

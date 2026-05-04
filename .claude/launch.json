@@ -8,9 +8,9 @@
       "port": 2501
     },
     {
-      "name": "html",
+      "name": "kajuit",
       "runtimeExecutable": "deno",
-      "runtimeArgs": ["task", "html/watch"],
+      "runtimeArgs": ["task", "kajuit/watch"],
       "port": 1794
     },
     {

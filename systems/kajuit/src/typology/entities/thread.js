@@ -1,7 +1,7 @@
 import { atom } from "nanostores";
 import { RemoteRepository } from "@vivalence/typology";
 
-import { traits, Entity } from "@vivalence/html";
+import { traits, Entity } from "@vivalence/kajuit";
 
 export class Thread extends Entity {
   user = null;

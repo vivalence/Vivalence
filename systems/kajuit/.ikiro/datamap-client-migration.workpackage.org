@@ -270,7 +270,7 @@ to =shard.datamap.repository()=.
 
 * Phase B — Client Entity Migration — DONE (2026-03-23)
 
-Replace =systems/html/src/typology/prototypes/repository.js= with
+Replace =systems/kajuit/src/typology/prototypes/repository.js= with
 =RemoteRepository= from =@vivalence/typology=. Refactor =daemon.js=
 lifecycle to use RemoteRepository. Client imports typology directly.
 
@@ -296,7 +296,7 @@ class with =$entities= atom, =find/findOne/add/create/update/remove=.
 ** Target
 
 #+begin_src javascript
-// systems/html/src/typology/entities/daemon.js
+// systems/kajuit/src/typology/entities/daemon.js
 import { Connection, Path, RemoteRepository } from "@vivalence/typology";
 import { Mode } from "./mode.js";
 import { Intent } from "./intent.js";
@@ -388,11 +388,11 @@ Key changes from current:
 
 ** Files Modified
 
-- =systems/html/src/typology/prototypes/repository.js= — delete entirely
-- =systems/html/src/typology/prototypes/index.js= — remove repository export
-- =systems/html/src/typology/entities/daemon.js= — rewrite lifecycle
-- =systems/html/src/typology/entities/index.js= — verify exports
-- =systems/html/src/routes/[...viva]/lib/populate.js= — update =create=
+- =systems/kajuit/src/typology/prototypes/repository.js= — delete entirely
+- =systems/kajuit/src/typology/prototypes/index.js= — remove repository export
+- =systems/kajuit/src/typology/entities/daemon.js= — rewrite lifecycle
+- =systems/kajuit/src/typology/entities/index.js= — verify exports
+- =systems/kajuit/src/routes/[...viva]/lib/populate.js= — update =create=
   calls from =create({where})= to =create({data})=, update
   =stall.withPull= buffer hydration to work with RemoteRepository
 
@@ -513,7 +513,7 @@ the client what entities exist and where they're served.
 ** Files Modified
 
 - =systems/runtime/daemon/aperture/= — add =/schema= endpoint
-- =systems/html/src/typology/entities/daemon.js= — use EntityStore
+- =systems/kajuit/src/typology/entities/daemon.js= — use EntityStore
 
 * Phase D — Lighthouse as EntityStore — DONE (2026-03-23)
 
@@ -707,9 +707,9 @@ the "ludicrous" path — schema-driven dynamic entity discovery.
 
 - =systems/runtime/daemon/aperture/userspace.js= — rewritten (Phase A)
 - =systems/runtime/daemon/aperture/datamap.js= — rewritten (Phase A)
-- =systems/html/src/typology/prototypes/repository.js= — replaced by
+- =systems/kajuit/src/typology/prototypes/repository.js= — replaced by
   =@vivalence/typology= RemoteRepository (Phase B)
-- =systems/html/src/typology/entities/valence.js= — dead (replaced by intent.js)
-- =systems/html/src/typology/entities/product.js= — dead (replaced by buffer)
+- =systems/kajuit/src/typology/entities/valence.js= — dead (replaced by intent.js)
+- =systems/kajuit/src/typology/entities/product.js= — dead (replaced by buffer)
 - =population.js twitch()= — simplified to 2 lines (Phase A)
 - Old =shape.Subscriber= class — replaced by =shape.subscriber= function

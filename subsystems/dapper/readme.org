@@ -1,5 +1,5 @@
 #+title: dapper
-#+subtitle: design system for @vivalence/viva
+#+subtitle: design system for @vivalence
 
 * Philosophy
 

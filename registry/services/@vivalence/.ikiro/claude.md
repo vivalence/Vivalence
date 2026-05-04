@@ -1,3 +1,5 @@
+> ⚠️ **VCS READ-ONLY.** Never run mutating `git`/`jj`. ALL graph mods (rebase, describe, new, edit, restore, op restore, push, fetch, import, abandon, squash, split) require explicit per-op `go` from Finn. Propose → wait → Finn runs via `!`. See root `.ikiro/claude.md` banner. **VIOLATED 2026-05-04 — NEVER AGAIN.**
+
 # IKIRO — registry/services (container)
 
 Infrastructure. Standalone providers consumed by daemons via circuitry. Each service exports `manifest` (identity) + `provider(config)` (factory). Services with the ATTACHED trait also export an `aperture` and run as their own process. Read `.ikiro/CLAUDE.md` first.

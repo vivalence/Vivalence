@@ -5,7 +5,7 @@ import { dirname, fromFileUrl } from "@std/path";
 const __dirname = dirname(fromFileUrl(import.meta.url));
 
 export const manifest = {
-  slug: "html",
+  slug: "kajuit",
   type: "client",
   description: "sveltekit client for browser and bundled.",
   // traits: ["SERVER", "DOCKER", "COMPOSE"],

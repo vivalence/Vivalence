@@ -8,11 +8,11 @@ export const manifest = {
 };
 
 export const clients = {
-  html: {
-    slug: "html",
-    module: "@vivalence/html",
+  kajuit: {
+    slug: "kajuit",
+    module: "@vivalence/kajuit",
     statics: {
-      serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")),
+      serve: new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
       //
       lighthouse: {
         remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
@@ -21,7 +21,7 @@ export const clients = {
   },
 };
 
-// export const clients = {html: {slug: "html", module: "@vivalence/html", statics: {serve: new Url(paladin.env.get("VIVA_CLIENT_HTML_SERVE")), remote: new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_HTML_REMOTE")), lighthouse: {remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),},},},};
+// export const clients = {kajuit: {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")), remote: new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE")), lighthouse: {remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),},},},};
 
 // export const services = [
 //   {

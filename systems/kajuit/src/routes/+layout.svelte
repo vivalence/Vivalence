@@ -7,8 +7,8 @@
   import { Connection, Url } from "@vivalence/typology";
   import { env } from "$env/dynamic/public";
   import { LIGHTHOUSE, QUARTERS, BRIDGE, THREAD } from "$client";
-  import { lighthouse, quarters, bridge, thread } from "@vivalence/html";
-  import Login from "@vivalence/html/skins/lighthouse/Login.svelte";
+  import { lighthouse, quarters, bridge, thread } from "@vivalence/kajuit";
+  import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
 
   let { children } = $props();
   let gate = $state("boot");

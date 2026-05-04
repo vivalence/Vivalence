@@ -115,7 +115,7 @@ State is data; lifecycle is functions over data. No boot vectors
 (wafers) on the client. Lighthouse: =verify/populate/boot=. Daemon:
 =construct/populate/resolve=. Classes stay pure state containers.
 
-Context store directory at =systems/html/src/typology/stores/=:
+Context store directory at =systems/kajuit/src/typology/stores/=:
 =store.js= (factory), =quarters.js=, =bridge.js=, =thread.js=.
 
 * Phases
@@ -123,10 +123,10 @@ Context store directory at =systems/html/src/typology/stores/=:
 ** Phase 1: Pip Prototype [DONE 2026-04-07]
 T-bone shape, 4 orientations, A/B/C + D/E/F, panel collapse, snap grid,
 tap semantics, sticky hold, G/H overlays, modeline aesthetic. Reference
-implementation at =systems/html/src/routes/pip/+page@.svelte=.
+implementation at =systems/kajuit/src/routes/pip/+page@.svelte=.
 
 ** Phase 2: Extract Layout Engine [PENDING]
-Lift layout logic from prototype into reusable =systems/html/src/layout/=
+Lift layout logic from prototype into reusable =systems/kajuit/src/layout/=
 (Layout.svelte, Viket.svelte, Bones.svelte, store.js). Not yet started;
 superseded in spirit by the BRIDGE context migration in Phase 17.
 
@@ -148,7 +148,7 @@ Re-trace =pic-vinca-viket_white.svg= so eye animates independently of
 petals. Group =<g id="eye">= / =<g id="petals">=.
 
 ** Phase 7: Convention and Documentation [PENDING]
-Document layout system in =systems/html/.ikiro/claude.md=; principle:
+Document layout system in =systems/kajuit/.ikiro/claude.md=; principle:
 "always use the layout system; never reinvent layout per page".
 
 ** Phase 8: M1 — Dapper Roots + Builder [DONE 2026-04-08]
@@ -160,7 +160,7 @@ with 5 skeletons. JS key is *singular* =skeleton= (matches belt
 ** Phase 9: M2 — Dapper Belt + CSS Variables [DONE 2026-04-08]
 =belt/tailwind-theme.js= =createSkeletonVariant=. Old =theme-*= /
 =system-*= / =skeleton-app-*= deleted. =safelist= export ≈480 classes.
-=systems/html/tailwind.config.js= imports it.
+=systems/kajuit/tailwind.config.js= imports it.
 
 ** Phase 10: M3 — Drapes Context + Component Migration [DONE 2026-04-08]
 =drapes/context/SkeletonProvider.svelte= + =useSkeleton.js=. Migrated
@@ -259,7 +259,7 @@ render, not whether contexts exist. Boot vectors retired —
 
 Files: =lighthouse/lifecycle.js=, =daemon/lifecycle.js=,
 =lighthouse/index.js=, =daemon/index.js=, =typology/mod.js=
-(=@vivalence/html= barrel). =vite.config.mjs= alias =@vivalence/html=
+(=@vivalence/kajuit= barrel). =vite.config.mjs= alias =@vivalence/kajuit=
 → =src/typology/mod.js=.
 
 =routes/+layout.svelte= creates lighthouse from env, hydrates, sets
@@ -305,7 +305,7 @@ M5 — Typology consolidation: folded =src/lighthouse/=, =src/daemon/=,
 =src/entities/= into =src/typology/= with =prototypes/= (raw classes),
 =lifecycles/= (class re-exports + lifecycle fns), =stores/= (reactive
 state), =skins/= (UI components), =entities/= (Terminal only). Vite alias
-=@vivalence/html/skins= added.
+=@vivalence/kajuit/skins= added.
 
 ThreadSchema.beforeCreate fix: now uses =args.em.findOne(IntentEntity)=
 to populate intent from FK ID. Previously exited early because

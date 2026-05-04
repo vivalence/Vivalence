@@ -31,12 +31,12 @@ services:
       # - ~/vivalence/code/vivalence/registry:/viva/repository/registry
       # - ~/vivalence/code/vivalence/systems:/viva/repository/systems
 
-  html:
-    image: vivalence/html:alpine
-    container_name: html
+  kajuit:
+    image: vivalence/kajuit:alpine
+    container_name: kajuit
     restart: unless-stopped
     ports:
       - "1794:1794"
     environment:
       - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=https://runtime.s4y.vivalence.com/attached/process/lighthouse/multiplayer
-      - PUBLIC_VIVA_CLIENT_HTML_REMOTE=https://vivalence.com
+      - PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=https://vivalence.com
