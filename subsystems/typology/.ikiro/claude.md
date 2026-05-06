@@ -54,6 +54,31 @@ Mode → Intent → Thread → Buffer → Turn
 
 Mode is a manifest with traits. Intent is a thread template (slug + traits + trait config + mode). Thread is the live navigational session. Buffer is the queued/active unit. Turn is the dialogue contribution.
 
+## channel grammar
+
+Socket conversations use uniform verbs across per-content-type channels. Schema: `subsystems/typology/schematics/primitives/conversation.js`.
+
+```
+signal  = "/" channel "/" verb
+channel = handshake | dialogue | speech | verbatim
+verb    = open | packet | close | abort | error
+```
+
+| channel | content |
+|---------|---------|
+| handshake | connection meta + shape exchange |
+| dialogue | text turns |
+| speech | audio bytes |
+| verbatim | transcript events |
+
+| verb | meaning |
+|------|---------|
+| open | start of logical unit |
+| packet | payload unit during the unit |
+| close | clean end |
+| abort | kill — cancel inflight |
+| error | failure end with payload |
+
 ## context
 
 dependencies (external): `@mikro-orm/core` (entities), `@sinclair/typebox` (schematics), `nanostores` (Connection, Status), `@std/testing/*` (specimen).

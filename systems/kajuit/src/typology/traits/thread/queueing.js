@@ -26,7 +26,6 @@ export const QUEUEING = (thread, ctx) => {
       try {
         const blacklist = new Blacklist().absorb(thread.$buffers?.get?.() ?? []);
         const result = await thread.pull({ blacklist });
-        thread.queue.suspend();
         const buffers = await Promise.all(
           (result.buffers ?? []).map((pojo) => thread.daemon.entities.buffer.merge(pojo)),
         );
@@ -38,7 +37,6 @@ export const QUEUEING = (thread, ctx) => {
             thread.queue.next();
           });
         }
-        thread.queue.resume();
 
         const condition = buffers.length ? "NOMINAL" : "EXHAUSTED";
         span.track.transition().arrive(condition);

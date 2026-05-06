@@ -1,4 +1,5 @@
 import { atom } from "nanostores";
+
 export const StallStatusEnum = Object.freeze({
   UNINITIALIZED: "<uninitialized>",
   IDLE: "IDLE",
@@ -7,6 +8,15 @@ export const StallStatusEnum = Object.freeze({
   ERROR: "ERROR",
   CLOSED: "CLOSED",
 });
+
+const TERMINAL_STATUSES = [
+  StallStatusEnum.UNINITIALIZED,
+  StallStatusEnum.CLOSED,
+  StallStatusEnum.PULLING,
+  StallStatusEnum.EXHAUSTED,
+  StallStatusEnum.ERROR,
+];
+
 export class Stall {
   $source;
   $active;
@@ -14,7 +24,6 @@ export class Stall {
   $status = atom(StallStatusEnum.UNINITIALIZED);
 
   threshold = 0;
-  suspended = false;
   teardowns = [];
   handlers = { pull: null, hooks: [] };
 
@@ -26,16 +35,14 @@ export class Stall {
   withPull(pull, threshold = 0) {
     this.handlers.pull = pull;
     this.threshold = threshold;
+    this.$status.set(StallStatusEnum.IDLE);
     return this;
   }
 
   activate() {
-    if (this.activated) return this;
-    this.activated = true;
-
+    if (this.teardowns.length) return this;
     this.$status.set(StallStatusEnum.IDLE);
-    //@beef i feel like these should be on the thread lifecycle!
-    // and no activated/suspended manual bypass.
+
     this.teardowns.push(
       this.$status.subscribe((status) => {
         if (status !== StallStatusEnum.IDLE) return;
@@ -46,8 +53,7 @@ export class Stall {
 
     this.teardowns.push(
       this.$source.subscribe(() => {
-        if (this.$status.get() === StallStatusEnum.CLOSED) return;
-        if (this.suspended) return;
+        if (this.$status.get() !== StallStatusEnum.IDLE) return;
         if (!this.$active.get() && this.$source.get().length) this.advance();
       }),
     );
@@ -58,23 +64,11 @@ export class Stall {
   deactivate() {
     for (const teardown of this.teardowns) teardown();
     this.teardowns = [];
-    this.activated = false; // ugly
-  }
-
-  suspend() {
-    this.suspended = true; // ugly
-  }
-
-  resume() {
-    this.suspended = false;
-    if (!this.$active.get() && this.$source.get().length) this.advance();
   }
 
   advance() {
     const items = this.$source.get();
-    if (items.length > 0) {
-      this.$active.set(items[0]);
-    }
+    if (items.length > 0) this.$active.set(items[0]);
   }
 
   next(promise) {
@@ -92,15 +86,7 @@ export class Stall {
 
   async pull() {
     const status = this.$status.get();
-    if (
-      [
-        StallStatusEnum.CLOSED,
-        StallStatusEnum.PULLING,
-        StallStatusEnum.EXHAUSTED,
-        StallStatusEnum.ERROR,
-      ].includes(status)
-    )
-      return;
+    if (TERMINAL_STATUSES.includes(status)) return;
     if (this.$source.get().length > this.threshold) return;
     if (!this.handlers.pull) return;
 
@@ -108,7 +94,7 @@ export class Stall {
 
     try {
       const result = await this.handlers.pull(this);
-      if (!this.activated) return;
+      if (this.$status.get() === StallStatusEnum.CLOSED) return;
       const condition = result?.condition ?? (result?.buffers?.length ? "NOMINAL" : "EXHAUSTED");
 
       if (condition === "NOMINAL") this.$status.set(StallStatusEnum.IDLE);

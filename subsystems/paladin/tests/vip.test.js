@@ -25,6 +25,63 @@ Deno.test("Vip: mounts", async () => {
   await Deno.remove(path.segment, { recursive: true });
 });
 
+Deno.test("Vip: accioMany pairs object queries with mask, leaves strings bare", async () => {
+  const vip = new Vip(paladin);
+  const tempDir = await Deno.makeTempDir();
+
+  await Deno.writeTextFile(
+    `${tempDir}/foo.viva.js`,
+    `export const manifest = {
+        owner: "@vivalence",
+        type: "hallucinator",
+        slug: "foo",
+    };
+    export const provider = (mask) => [{ type: "dialogue", config: mask.config }];`,
+  );
+  await Deno.writeTextFile(
+    `${tempDir}/bar.viva.js`,
+    `export const manifest = {
+        owner: "@vivalence",
+        type: "hallucinator",
+        slug: "bar",
+    };
+    export const provider = (mask) => [{ type: "speech", config: mask.config }];`,
+  );
+
+  await vip.mount(tempDir);
+
+  // object queries → wrapped { service, mask }
+  const paired = await vip.accioMany([
+    { module: "@vivalence/hallucinator/foo", config: 1 },
+    { module: "@vivalence/hallucinator/bar", config: 2 },
+  ]);
+  assert.assertEquals(paired.length, 2);
+  assert.assertEquals(paired[0].service.manifest.slug, "foo");
+  assert.assertEquals(paired[0].mask.config, 1);
+  assert.assertEquals(paired[1].service.manifest.slug, "bar");
+  assert.assertEquals(paired[1].mask.config, 2);
+
+  // string queries → bare module (backward compat)
+  const bare = await vip.accioMany(["@vivalence/hallucinator/foo"]);
+  assert.assertEquals(bare.length, 1);
+  assert.assertEquals(bare[0].manifest.slug, "foo");
+  assert.assertEquals(bare[0].mask, undefined);
+  assert.assertEquals(bare[0].service, undefined);
+
+  // accioMap routes arrays through accioMany
+  const mapped = await vip.accioMap({
+    hallucinators: [
+      { module: "@vivalence/hallucinator/foo", config: 10 },
+      { module: "@vivalence/hallucinator/bar", config: 20 },
+    ],
+  });
+  assert.assertEquals(mapped.hallucinators.length, 2);
+  assert.assertEquals(mapped.hallucinators[0].mask.config, 10);
+  assert.assertEquals(mapped.hallucinators[1].service.manifest.slug, "bar");
+
+  await Deno.remove(tempDir, { recursive: true });
+});
+
 Deno.test("Vip: complete lifecycle with multiple modules", async () => {
   const vip = new Vip(paladin);
   const tempDir = await Deno.makeTempDir();

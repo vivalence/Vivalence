@@ -6,12 +6,14 @@
   import { computed } from "nanostores";
   import { Connection, Url } from "@vivalence/typology";
   import { env } from "$env/dynamic/public";
-  import { LIGHTHOUSE, QUARTERS, BRIDGE, THREAD } from "$client";
+  import { LIGHTHOUSE, QUARTERS, BRIDGE, TOP, BOX } from "$client";
   import {
     lighthouse as lighthouseDeck,
     quarters as quartersDeck,
     bridge as bridgeDeck,
-    thread as threadDeck,
+    top as topDeck,
+    box as boxDeck,
+    traits,
   } from "@vivalence/kajuit";
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
 
@@ -31,11 +33,16 @@
   const bridge = new bridgeDeck.Bridge();
   setContext(BRIDGE, bridge);
 
-  const thread = new threadDeck.ThreadContext(quarters, lighthouse);
-  setContext(THREAD, thread);
+  const top = new topDeck.Top(quarters, lighthouse);
+  setContext(TOP, top);
+
+  const box = new boxDeck.Box();
+  setContext(BOX, box);
+
+  traits.thread.conversational.provide({ box, top });
 
   if (typeof window !== "undefined") {
-    window.__viv = { lighthouse, quarters, bridge, thread };
+    window.__viv = { lighthouse, quarters, bridge, top, box };
   }
 
   onMount(() => {
@@ -75,7 +82,7 @@
 {#if gate === "ready"}
   {@render children()}
   {#if terminalCount === 0}
-    <div class="empty-overlay" onclick={() => quarters.spawn()} role="presentation">
+    <div class="empty-overlay" onclick={() => top.spawn()} role="presentation">
       <span class="empty-prompt">open terminal</span>
     </div>
   {/if}

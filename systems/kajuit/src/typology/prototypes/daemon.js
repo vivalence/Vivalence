@@ -2,7 +2,7 @@ import { Vector, shape, Path, shard } from "@vivalence/typology";
 import { Dataspace } from "./dataspace.js";
 import { ModeDossier } from "../entities/mode.js";
 import { IntentDossier } from "../entities/intent.js";
-import { ThreadDossier } from "../entities/thread.js";
+import { ThreadDossier } from "../entities/thread/index.js";
 import { BufferDossier } from "../entities/buffer.js";
 import { TurnDossier } from "../entities/turn.js";
 import { LiteralDossier } from "../entities/literal.js";

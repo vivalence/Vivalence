@@ -17,7 +17,7 @@ const models = {
 };
 
 export default async function provider(service) {
-  const client = new Anthropic({ apiKey: service.secrets.anthropic });
+  const client = new Anthropic({ apiKey: service.secrets.key });
 
   function makeDialogue(model) {
     const render = async (turns, config) => {

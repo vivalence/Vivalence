@@ -177,7 +177,7 @@ Intentionally NOT renamed:
 
 1. *Triple-coupled identity*: package name + runtime registry key + docker image often share a single string. Rename one, must rename all three atomically. Codebase grep alone misses this — must trace the resolution path (=vite.config.mjs= → =paladin.variant.clients.X= → wafer manifest). Pensieve-like reasoning: index by content/role, not by filesystem position.
 
-2. *Two-pass scope*: agent first-pass surfaces obvious surfaces (imports, configs); second pass needed for runtime-key reads, comment blocks, nested .ikiro, env-var consumers across wafers. Same pattern as topology→corpus rename (2026-04-29c). Don't claim "complete inventory" after one pass.
+2. *Two-pass scope*: agent first-pass surfaces obvious surfaces (imports, configs); second pass needed for runtime-key reads, comment blocks, nested .ikiro, env-var consumers across wafers. Same pattern as the topology→corpus rename compact. Don't claim "complete inventory" after one pass.
 
 3. *jj working-copy semantics*: filesystem =mv= works — jj snapshot detects rename via similarity. =jj mv= explicit not needed. But mid-flight rg sweeps over a moved tree can return stale snapshot output; verify state by reading specific canonical files when in doubt.
 

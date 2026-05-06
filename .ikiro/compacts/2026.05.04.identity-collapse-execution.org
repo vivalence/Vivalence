@@ -6,7 +6,7 @@
 
 ** Throwness
 
-Orb 2026-05-04 opens hard:
+Orb opens hard:
 
 #+BEGIN_QUOTE
 got robbed. lost everything but my laptop. panic published in fear of suicide. ... keeping my options on the suicide - i can always lick that powerplug - but keeping vivalence online now.
@@ -23,7 +23,7 @@ Stated plan: README → fix client contexts → finish traits. Session pivoted o
 
 ** Workpackage discovery
 
-Finn: "there should be a wokrpackage detailing a jj/git op to merge multiple git users." — already exists at =.ikiro/workpackages/identity-collapse.workpackage.org= (PROPOSAL since 2026-04-25). Scope: 7 Finn-variant identities → canonical via =git filter-repo --mailmap=.
+Finn: "there should be a wokrpackage detailing a jj/git op to merge multiple git users." — already exists at =.ikiro/workpackages/identity-collapse.workpackage.org= (status PROPOSAL). Scope: 7 Finn-variant identities → canonical via =git filter-repo --mailmap=.
 
 Finn: "mailmap was a temp solution. whats the substantive solution?" — substantive = rewrite commit bytes, not display veneer. Same mapping data, different application moment: mailmap-as-runtime-alias vs mailmap-as-input-to-filter-repo.
 
@@ -282,7 +282,7 @@ ikiro compact
 - =push-*= and dead =feature/*= branches landed on github (never refused there). If desired clean-up: same =for-each-ref refs/heads/push-/ ... | xargs -n1 git push github --delete= recipe.
 - WC commit ( =73c8b46e= ) and =trunk= ( =a8d43d2b= ) diverge from =df791714 wip=. =jj rebase -s @ -d trunk= collapses divergence. Not run yet — Finn ended on "done" before rebase.
 - 2755 untracked files under =registry/kernels/@vivalence/corpus/english-to-brazilian-vocalized/= survive on disk. Pre-existing per =flatten-corpora.workpackage.org= open follow-up "Vocalized merger". Not new state from this session, but visible now since session-end =jj st= isn't truncated.
-- =identity-collapse.workpackage.org= status still says =PROPOSAL — awaiting Finn approval; no execution=. Should flip to =DONE 2026-05-04= with execution changelog (pre-flight skipped, mailmap canonical flipped, single-zip backup, jj rebuild via colocate, trunk-only origin push, =claude/*= cleanup). Pending Finn's =go=.
+- =identity-collapse.workpackage.org= status still says =PROPOSAL — awaiting Finn approval; no execution=. Should flip to =DONE= with execution changelog (pre-flight skipped, mailmap canonical flipped, single-zip backup, jj rebuild via colocate, trunk-only origin push, =claude/*= cleanup). Pending Finn's =go=.
 - GitLab account binding for =beef@vivalence.org=: confirm verified secondary email on Finn's user; otherwise GitLab UI shows commits as "unknown crackedbeefcake" without avatar.
 - =.git/worktrees/= metadata: Finn ran =git worktree prune= mid-session; should be empty. Verify if any zombie metadata persists.
 
@@ -295,7 +295,7 @@ ikiro compact
 
 ** Modified
 
-- =.ikiro/zettelkasten.md= — appended =Callouts= entry for 2026-05-04 unsolicited-expansion
+- =.ikiro/zettelkasten.md= — appended =Callouts= entry for unsolicited-expansion
 - =~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/MEMORY.md= — index entry for new feedback memory
 - =~/.gitconfig= — global =user.name= → =crackedbeefcake=, =user.email= → =beef@vivalence.org=
 - =~/.jjconfig.toml= (via =jj config set --user user.name=) — =user.name= → =crackedbeefcake=
@@ -313,7 +313,7 @@ ikiro compact
 
 * Callouts
 
-** 2026-05-04 — unsolicited "even broader" backup expansion after user accepted narrow answer
+** Unsolicited "even broader" backup expansion after user accepted narrow answer
 
 Logged in =.ikiro/zettelkasten.md= ## Callouts. Memory: =feedback_no_unsolicited_expansion.md=. Triggered by Finn: "why this??!!! i never asked for this??? learn from this. ikiro reflect" — not the verbatim "retard" codeword, but the same family of self-improve directive. Rule: focused question → answer that question only; no "even broader / narrower / if you want X" branches; wider scope is a NEW question, wait for it to be asked.
 

@@ -16,6 +16,7 @@ export enum ModeTraitsEnum {
   FRAUGHT = "FRAUGHT",
   BUFFERED = "BUFFERED",
   CONVERSATIONAL = "CONVERSATIONAL",
+  TOOLED = "TOOLED",
 }
 
 export class ModeRepository extends DataRepository {

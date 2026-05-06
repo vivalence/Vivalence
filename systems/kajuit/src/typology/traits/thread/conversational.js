@@ -1,6 +1,15 @@
 import { atom } from "nanostores";
 import { Vector, Queue, Conversation, soma } from "@vivalence/typology";
 
+let boxRef = null;
+let topRef = null;
+const audioTeardowns = new WeakMap();
+
+export function provide({ box, top }) {
+  boxRef = box;
+  topRef = top;
+}
+
 async function open(thread) {
   if (thread.conversation) return;
 
@@ -89,6 +98,12 @@ async function open(thread) {
     thread.$lastError.set(pctx.input?.message ?? "stream error");
   });
 
+  inbound.open("/speech/packet", () => {});
+  inbound.open("/speech/abort", () => {});
+  inbound.open("/speech/close", () => {});
+  inbound.open("/verbatim/packet", () => {});
+  inbound.open("/verbatim/close", () => {});
+
   thread.socket = connection.socket("/conversation", inbound, {
     token: authority.get()?.access,
   });
@@ -96,6 +111,7 @@ async function open(thread) {
 
   try {
     await thread.conversation.open();
+    attachAudio(thread);
   } catch (error) {
     console.error("[CONVERSATIONAL] handshake failed:", error);
     thread.conversation = null;
@@ -105,12 +121,43 @@ async function open(thread) {
 }
 
 function close(thread) {
+  detachAudio(thread);
   thread.conversation?.close?.();
   thread.conversation = null;
   thread.socket = null;
   if (thread.streams) thread.streams.dialogue = null;
   thread.$streaming?.set?.(null);
   thread.$pending?.set?.(false);
+}
+
+function attachAudio(thread) {
+  if (!boxRef || !topRef || !thread.conversation?.$state) return;
+
+  let engagement = null;
+  const reconcile = () => {
+    const isActive = topRef.$current.get() === thread;
+    const isLive = thread.conversation?.$state.get() === "LIVE";
+    if (isActive && isLive) {
+      if (!engagement) engagement = engageBox(boxRef, thread, thread.conversation);
+    } else if (engagement) {
+      engagement();
+      engagement = null;
+    }
+  };
+
+  const stateUnsub = thread.conversation.$state.subscribe(reconcile);
+  const topUnsub = topRef.$current.subscribe(reconcile);
+
+  audioTeardowns.set(thread, () => {
+    engagement?.();
+    stateUnsub();
+    topUnsub();
+  });
+}
+
+function detachAudio(thread) {
+  audioTeardowns.get(thread)?.();
+  audioTeardowns.delete(thread);
 }
 
 export function wire(thread) {
@@ -157,4 +204,86 @@ export function abort(thread, turnId = undefined) {
     thread.conversation.send.dialogue.abort(turnId ? { turn: turnId } : {});
   }
   return true;
+}
+
+function engageBox(box, thread, conversation) {
+  const microphone = box.device.microphone;
+  const speaker = box.device.speaker;
+
+  microphone.claim().catch(() => {});
+  speaker.claim().catch(() => {});
+
+  const micTap = microphone.in.tap((frame) => {
+    if (!conversation.send?.verbatim?.packet) return;
+    conversation.send.verbatim.packet({
+      audio: int16ToBase64(float32ToInt16(frame)),
+    });
+  });
+
+  const speechSub = conversation.subscribe("/speech/packet", (packet) => {
+    if (!packet?.audio) return;
+    speaker.out.enqueue(int16ToFloat32(base64ToInt16(packet.audio)));
+  });
+
+  const abortSub = conversation.subscribe("/speech/abort", () => {
+    speaker.flush();
+  });
+
+  const verbatimSub = conversation.subscribe("/verbatim/packet", (event) => {
+    if (!event) return;
+    if (event.nature === "partial" || event.nature === "final") {
+      thread.$liveTranscript?.set(event.transcript ?? null);
+    }
+    if (event.nature === "final") {
+      setTimeout(() => {
+        if (thread.$liveTranscript?.get() === event.transcript) {
+          thread.$liveTranscript.set(null);
+        }
+      }, 800);
+    }
+    if (event.nature === "turn.end") {
+      thread.$liveTranscript?.set(null);
+    }
+  });
+
+  return () => {
+    micTap();
+    speechSub();
+    abortSub();
+    verbatimSub();
+    thread.$liveTranscript?.set(null);
+    speaker.flush();
+    speaker.release();
+    microphone.release();
+  };
+}
+
+function float32ToInt16(float32) {
+  const int16 = new Int16Array(float32.length);
+  for (let i = 0; i < float32.length; i++) {
+    const s = Math.max(-1, Math.min(1, float32[i]));
+    int16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+  }
+  return int16;
+}
+
+function int16ToFloat32(int16) {
+  const float32 = new Float32Array(int16.length);
+  for (let i = 0; i < int16.length; i++) float32[i] = int16[i] / 0x8000;
+  return float32;
+}
+
+function int16ToBase64(int16) {
+  const bytes = new Uint8Array(int16.buffer, int16.byteOffset, int16.byteLength);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function base64ToInt16(b64) {
+  const binary = atob(b64);
+  const buffer = new ArrayBuffer(binary.length);
+  const bytes = new Uint8Array(buffer);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Int16Array(buffer);
 }

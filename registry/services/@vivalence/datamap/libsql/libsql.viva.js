@@ -47,7 +47,8 @@ async function provider(datamap, variant) {
   return {
     entities,
     shard: {
-      context: (fn) => RequestContext.create(orm.em, fn),
+      context: (fn) => RequestContext.create(orm.em, fn), // to be depracated
+      scope: (fn) => RequestContext.create(orm.em, fn),
       bind: (name, resolve) => async (ctx, next) => {
         RequestContext.getEntityManager()?.setFilterParams(name, resolve(ctx));
         await next();

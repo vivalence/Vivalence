@@ -5,19 +5,11 @@ export const CHAOSMONKEY = (mode, daemon) => {
 
   const harness = new Vector();
 
-  // does this maybe need its own dataspace.shard.context()?
-  harness.use(shard.context.attach("daemon", daemon));
-  harness.use(shard.context.attach("mode", mode));
-  harness.use(async (ctx, next) => {
-    // ctx.thread = ctx.daemon.entities.thread.findOne(ctx.input.thread)
-    // if ! thread, throw.
-    await next();
-  });
+  harness.use(shard.context.bind("daemon", daemon));
+  harness.use(shard.context.bind("mode", mode));
 
   harness.use(daemon.cortex.shard.harness);
 
-  // shard.context.attach cleans up ctx[key] after next() returns, so the lazy
-  // scribe generator cannot use ctx.daemon — use daemon/mode from closure instead.
   harness.use(async (ctx, next) => {
     await next();
 
@@ -31,73 +23,74 @@ export const CHAOSMONKEY = (mode, daemon) => {
           for await (const packet of source) {
             turn = soma.pour(turn, packet);
             if (packet.event === "turn.close") {
-              parent = daemon.entities.turn.create({
+              parent = ctx.daemon.entities.turn.create({
                 role: turn.role,
                 parts: turn.parts,
                 meta: turn.meta,
                 parent,
                 thread: ctx.input.thread,
-                mode: mode.id,
+                mode: ctx.mode.id,
               });
               created.push(parent);
               turn = null;
             }
             yield packet;
           }
-          await daemon.entities.em.flush();
+          await ctx.daemon.entities.em.flush();
         } catch (error) {
-          for (const entity of created) daemon.entities.em.remove(entity);
+          for (const entity of created) ctx.daemon.entities.em.remove(entity);
           throw error;
         }
       })();
     } else if (ctx.output?.role) {
-      daemon.entities.turn.create({
+      ctx.daemon.entities.turn.create({
         role: ctx.output.role,
         parts: ctx.output.parts,
         meta: ctx.output.meta,
         parent: ctx.turn,
         thread: ctx.input.thread,
-        mode: mode.id,
+        mode: ctx.mode.id,
       });
-      await daemon.entities.em.flush();
+      await ctx.daemon.entities.em.flush();
     }
   });
 
   harness.branch("/dialogue").use(async (ctx, next) => {
-    const history = await daemon.entities.turn.find(
+    const history = await ctx.daemon.entities.turn.find(
       { thread: ctx.input.thread },
       { orderBy: { createdAt: "ASC" } },
     );
-    ctx.turn = daemon.entities.turn.create({
+    ctx.turn = ctx.daemon.entities.turn.create({
       role: "user",
       parts: ctx.input.parts,
       parent: history.at(-1) ?? null,
       thread: ctx.input.thread,
-      mode: mode.id,
+      mode: ctx.mode.id,
     });
-    await daemon.entities.em.flush();
+    await ctx.daemon.entities.em.flush();
     ctx.hallucination.turns = [...history, ctx.turn];
     await next();
   });
 
-  if (mode.cake.harness) harness.slurp(mode.cake.harness);
-  daemon.cortex.shard.effects(harness);
+  return () => {
+    if (mode.cake.harness) harness.slurp(mode.cake.harness);
+    daemon.cortex.shard.effects(harness);
 
-  mode.harness = shape.object(harness, steer.echo);
+    mode.harness = shape.object(harness, steer.echo);
 
-  mode.aperture.branch("/harness").slurp(harness);
+    mode.aperture.branch("/harness").slurp(harness);
 
-  mode.aperture.open("/capabilities", () =>
-    ["dialogue"] // , "speech", "verbatim", "object"
-      .filter((type) => daemon.cortex.has(type))
-      .map((type) => ({
-        type,
-        stream: !!daemon.cortex.resolve(type, { via: "stream" }),
-        render: !!daemon.cortex.resolve(type, { via: "render" }),
-      })),
-  );
+    mode.aperture.open("/capabilities", (ctx) =>
+      ["dialogue", "speech", "verbatim", "object"] //
+        .filter((type) => ctx.daemon.cortex.has(type))
+        .map((type) => ({
+          type,
+          stream: !!ctx.daemon.cortex.resolve(type, { via: "stream" }),
+          render: !!ctx.daemon.cortex.resolve(type, { via: "render" }),
+        })),
+    );
+  };
 };
-
 
 // export const CHAOSMONKEY = (mode, daemon) => {
 //   const harness = new Vector();

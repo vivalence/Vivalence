@@ -3,7 +3,7 @@ import provider from "./provider/index.js";
 export { provider };
 
 export const manifest = {
-  type:   "speech",
+  type:   "hallucinator",
   slug:   "elevenlabs",
   traits: ["MONK"],
 };

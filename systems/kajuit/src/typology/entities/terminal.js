@@ -1,15 +1,6 @@
 import { atom } from "nanostores";
 import { LocalRepository } from "@vivalence/typology";
-
-const DEFAULT_DOCK = {
-  side: "right",
-  share: 0.32,
-};
-
-const DEFAULT_COMPOSER = {
-  enterSends: true,
-  density: "comfortable",
-};
+import { DEFAULT_DOCK, DEFAULT_COMPOSER } from "../decks/bridge/index.js";
 
 export class Terminal {
   id = null;
@@ -52,8 +43,8 @@ export class Terminal {
     return {
       id: this.id,
       slug: this.slug,
-      daemon: this.daemon?.slug ?? this.daemon,
-      thread: this.thread?.id ?? this.thread,
+      daemon: this.daemon,
+      thread: this.thread?.id ?? this.thread ?? null,
       dock: this.dock,
       composer: this.composer,
     };

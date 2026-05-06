@@ -24,7 +24,12 @@ export class Vip {
   }
 
   async accioMany(many) {
-    return await Promise.all(many.map((query) => this.accio(query)));
+    return await Promise.all(many.map(async (query) => {
+      if (typeof query === "object" && query !== null && typeof query.module === "string") {
+        return { service: await this.accio(query.module), mask: query };
+      }
+      return await this.accio(query);
+    }));
   }
 
   async accioMap(many) {

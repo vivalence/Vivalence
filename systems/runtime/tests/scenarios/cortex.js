@@ -187,7 +187,8 @@ export async function create() {
   const subscriber = shape.subscriber(daemon.twitch);
   em.getEventManager().registerSubscriber(subscriber);
 
-  CHAOSMONKEY(dewey, daemon);
+  const finalizer = CHAOSMONKEY(dewey, daemon);
+  if (typeof finalizer === "function") await finalizer();
 
   daemon.aperture.branch(dewey.mount.absolute).slurp(dewey.aperture);
 

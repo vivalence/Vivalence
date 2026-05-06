@@ -1,6 +1,7 @@
 import { RemoteRepository } from "@vivalence/typology";
 import { Entity } from "../prototypes/entity.js";
 import * as traits from "../traits/index.js";
+import { applyTraits } from "../traits/runner.js";
 
 export class Mode extends Entity {
   implements(trait) {
@@ -18,15 +19,7 @@ export const ModeDossier = {
   },
 
   use: [
-    async (ctx, next) => {
-      await next();
-      const finalizers = [];
-      for (const trait of ctx.entity.traits ?? []) {
-        const result = await traits.mode[trait]?.(ctx.entity, ctx);
-        if (typeof result === "function") finalizers.push(result);
-      }
-      for (const finalize of finalizers) await finalize();
-    },
+    applyTraits(traits.mode),
 
     async (ctx, next) => {
       await next();

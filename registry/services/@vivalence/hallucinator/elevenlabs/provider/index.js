@@ -1,5 +1,5 @@
 export default async function provider(service) {
-  const apiKey = service.secrets.elevenlabs;
+  const apiKey = service.secrets.key;
 
   const voices = {
     luiza:   { id: "21m00Tcm4TlvDq8ikWAM", tune: [0.3, 0.6, 0.4, 0.1] },
@@ -10,7 +10,7 @@ export default async function provider(service) {
     const stream = async function* (textChunks, config = {}) {
       const url =
         `wss://api.elevenlabs.io/v1/text-to-speech/${voice.id}/stream-input` +
-        `?model_id=eleven_turbo_v2_5&output_format=ulaw_8000`;
+        `?model_id=eleven_turbo_v2_5&output_format=pcm_16000`;
       const ws = new WebSocket(url);
       await new Promise((open, fail) => {
         ws.onopen  = open;
@@ -69,7 +69,7 @@ export default async function provider(service) {
       type:     "speech",
       tune:     voice.tune,
       context:  0,
-      channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "ulaw_8000" }] },
+      channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
       config:   { voice: voice.id },
       via:      { stream },
     };

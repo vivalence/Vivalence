@@ -2,24 +2,24 @@
   import { onMount } from "svelte";
   import { getContext } from "svelte";
 
-  import PanelA from "./pincer/panels/a.svelte";
-  import PanelB from "./pincer/panels/b.svelte";
-  import PanelC from "./pincer/panels/c.svelte";
-  import PanelG from "./pincer/panels/g.svelte";
-  import PanelH from "./pincer/panels/h.svelte";
-  import BoneShoulder from "./pincer/bones/shoulder.svelte";
-  import BoneCrown from "./pincer/bones/crown.svelte";
-  import BonePincer from "./pincer/bones/pincer.svelte";
-  import BoneSpine from "./pincer/bones/spine.svelte";
-  import { THREAD, BRIDGE } from "$client";
+  import PanelA from "./pincer/panels/a/a.svelte";
+  import PanelB from "./pincer/panels/b/b.svelte";
+  import PanelC from "./pincer/panels/c/c.svelte";
+  import PanelG from "./pincer/panels/g/g.svelte";
+  import PanelH from "./pincer/panels/h/h.svelte";
+  import BoneShoulder from "./pincer/bones/shoulder/shoulder.svelte";
+  import BoneCrown from "./pincer/bones/crown/crown.svelte";
+  import BonePincer from "./pincer/bones/pincer/pincer.svelte";
+  import BoneSpine from "./pincer/bones/spine/spine.svelte";
+  import { TOP, BRIDGE } from "$client";
   import { bridge as bridgeDeck } from "@vivalence/kajuit";
   const systemAlert = false;
 
   const bridge = getContext(BRIDGE);
-  const thread = getContext(THREAD);
+  const top = getContext(TOP);
 
-  let currentThread = $state(thread.current);
-  thread.$current.subscribe((v) => (currentThread = v));
+  let currentThread = $state(top.current);
+  top.$current.subscribe((v) => (currentThread = v));
   let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence");
 
   let pincer = $state(bridge.layout.pincer);

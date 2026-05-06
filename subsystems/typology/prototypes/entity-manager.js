@@ -97,17 +97,15 @@ export class RemoteEntityManager {
   async integrate(name, raw, kind) {
     if (!raw?.id) return raw;
     const mapKey = this.key(name, raw.id);
-    const shouldInstall = !this.installed.has(mapKey);
-    if (shouldInstall) this.installed.add(mapKey);
+    if (this.installed.has(mapKey)) return this.merge(name, raw, kind);
+    this.installed.add(mapKey);
     try {
       const entity = await this.cast(name, raw, kind);
-      if (shouldInstall) {
-        const install = this.integrators[name];
-        if (install) await install(entity, raw);
-      }
+      const install = this.integrators[name];
+      if (install) await install(entity, raw);
       return entity;
     } catch (error) {
-      if (shouldInstall) this.installed.delete(mapKey);
+      this.installed.delete(mapKey);
       throw error;
     }
   }

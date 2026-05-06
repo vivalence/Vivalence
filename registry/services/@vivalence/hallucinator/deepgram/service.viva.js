@@ -3,7 +3,7 @@ import provider from "./provider/index.js";
 export { provider };
 
 export const manifest = {
-  type:   "verbatim",
+  type:   "hallucinator",
   slug:   "deepgram",
   traits: ["MONK"],
 };

@@ -6,26 +6,7 @@ export const manifest = {
   slug: "dewey",
   name: "Dewey",
   description: "Brazilian Portuguese conversation tutor.",
-  traits: ["EXPOSED", "SELFEVIDENT", "CHAOSMONKEY", "CONVERSATIONAL"],
-};
-
-export const dataset = {
-  // intent: [
-  //   {
-  //     slug: "conversation",
-  //     name: "dewey · conversation",
-  //     description: "Open conversation with Dewey in Brazilian Portuguese.",
-  //     traits: [],
-  //     trait: {
-  //       LABELED: { name: "dewey · conversation" },
-  //       INSITU: {
-  //         // port: {phase:"HIDDEN"},
-  //         // dialogue: { active: false },
-  //         // audio: activeenabled: false },
-  //       },
-  //     },
-  //   },
-  // ],
+  traits: ["EXPOSED", "SELFEVIDENT", "TOOLED", "CHAOSMONKEY", "CONVERSATIONAL"],
 };
 
 export const harness = new Vector();
@@ -46,22 +27,32 @@ harness.use(async (ctx, next) => {
 
 harness.branch("/dialogue").use(async (ctx, next) => {
   const dossier = await gather(ctx);
-  // console.log(dossier);
-  // console.log(dossier.toPrompt());
   ctx.hallucination.add(dossier.toPrompt());
   await next();
 });
 
-harness.branch("/object").use(async (ctx, next) => {
-  // ctx.hallucination.tool("assess_response", {
-  //   valence: "Assess the learner's Portuguese for accuracy, fluency, and vocabulary range.",
-  //   input: v.object({ text: v.string(), context: v.string().optional() }),
-  //   execute: async ({ text }) => ({
-  //     errors: [],
-  //     suggestions: [],
-  //     score: 0.8,
-  //   }),
-  // });
-
+harness.branch("/voice").use(async (ctx, next) => {
+  // DO SOME SHIT TO
+  // ctx.hallucination
+  // to customize voice generation....
   await next();
 });
+
+export const tools = new Vector();
+
+tools.open(
+  {
+    nature: "/learner/state",
+    valence:
+      "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.",
+    input: v.object({}),
+    output: v.object({
+      histogram: v.record(v.string(), v.integer()),
+      weak: v.array(v.unknown()),
+      recent: v.array(v.unknown()),
+      due: v.array(v.unknown()),
+      mistakes: v.array(v.unknown()),
+    }),
+  },
+  async (ctx) => (await gather(ctx)).toJSON(),
+);

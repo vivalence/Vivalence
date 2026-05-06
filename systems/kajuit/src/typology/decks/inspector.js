@@ -1,10 +1,10 @@
 import { atom } from "nanostores";
 import { Vector, shape, steer } from "@vivalence/typology";
 
-export function inspectorAtom(lighthouse, quarters, bridge, thread) {
+export function inspectorAtom(lighthouse, quarters, bridge, top) {
   const $nodes = atom(null);
   const rebuild = () => {
-    $nodes.set(shape.tree(composeInspector(lighthouse, quarters, bridge, thread), steer.direct));
+    $nodes.set(shape.tree(composeInspector(lighthouse, quarters, bridge, top), steer.direct));
   };
 
   for (const source of [
@@ -13,10 +13,10 @@ export function inspectorAtom(lighthouse, quarters, bridge, thread) {
     lighthouse.$isIdentified,
     lighthouse.$identity,
     lighthouse.$daemons,
-    quarters.$active,
-    quarters.$terminal,
+    top.$active,
+    top.$terminal,
+    top.$current,
     quarters.terminals.$entities,
-    thread.$current,
     bridge.layout.$pincer,
     bridge.layout.$orientation,
   ]) source.subscribe(rebuild);
@@ -24,7 +24,7 @@ export function inspectorAtom(lighthouse, quarters, bridge, thread) {
   return $nodes;
 }
 
-export function composeInspector(lighthouse, quarters, bridge, thread) {
+export function composeInspector(lighthouse, quarters, bridge, top) {
   const vector = new Vector();
 
   const lighthouseBranch = vector.branch({ nature: "lighthouse", directed: { variant: "table" } });
@@ -40,16 +40,22 @@ export function composeInspector(lighthouse, quarters, bridge, thread) {
     composeDaemon(daemonsBranch, daemon);
   }
 
-  const quartersBranch = vector.branch({ nature: "quarters", directed: { variant: "table" } });
-  quartersBranch.open({ nature: "active", valence: { name: quarters.active ?? "—" } });
-  quartersBranch.open({ nature: "terminal", valence: { name: quarters.terminal?.id ?? "—" } });
-  quartersBranch.open({ nature: "spawn", valence: "new terminal" }, () => quarters.spawn());
+  const topBranch = vector.branch({ nature: "top", directed: { variant: "table" } });
+  topBranch.open({ nature: "terminal", valence: { name: top.terminal?.id ?? "—" } });
+  topBranch.open({ nature: "thread", valence: { name: top.current?.id ?? "—" } });
+  topBranch.open({ nature: "daemon", valence: { name: top.daemon?.slug ?? String(top.daemon ?? "—") } });
+  topBranch.open({ nature: "mode", valence: { name: top.mode?.slug ?? String(top.mode ?? "—") } });
+  topBranch.open({ nature: "spawn", valence: "new terminal" }, () => top.spawn());
+  if (top.current) {
+    topBranch.open({ nature: "clear", valence: "clear thread" }, () => top.clear());
+  }
 
+  const quartersBranch = vector.branch({ nature: "quarters", directed: { variant: "table" } });
   const terminalsBranch = quartersBranch.branch({ nature: "terminals", valence: { name: String((quarters.terminals?.$entities?.get?.() ?? []).length) } });
   for (const terminal of quarters.terminals?.$entities?.get?.() ?? []) {
     terminalsBranch.open(
       { nature: terminal.slug ?? terminal.id, valence: { name: terminal.id } },
-      () => quarters.activate(terminal.id),
+      () => top.activate(terminal.id),
     );
   }
 
@@ -60,26 +66,21 @@ export function composeInspector(lighthouse, quarters, bridge, thread) {
   bridgeBranch.open({ nature: "standard", valence: { name: `${Math.round(bridge.layout.standard.x)}·${Math.round(bridge.layout.standard.y)}` } });
   bridgeBranch.open({ nature: "previous", valence: { name: `${Math.round(bridge.layout.previous.x)}·${Math.round(bridge.layout.previous.y)}` } });
 
-  const threadBranch = vector.branch({ nature: "thread", directed: { variant: "table" } });
-  if (thread.current) {
-    threadBranch.open({ nature: "id", valence: { name: thread.current.id ?? "—" } });
-    threadBranch.open({ nature: "daemon", valence: { name: thread.current.daemon?.slug ?? String(thread.current.daemon ?? "—") } });
-    threadBranch.open({ nature: "mode", valence: { name: thread.current.mode?.slug ?? String(thread.current.mode ?? "—") } });
-    if (thread.current.intent) {
-      threadBranch.open({ nature: "intent", valence: { name: thread.current.intent?.slug ?? String(thread.current.intent) } });
+  if (top.current) {
+    const threadBranch = vector.branch({ nature: "thread", directed: { variant: "table" } });
+    threadBranch.open({ nature: "id", valence: { name: top.current.id ?? "—" } });
+    if (top.current.intent) {
+      threadBranch.open({ nature: "intent", valence: { name: top.current.intent?.slug ?? String(top.current.intent) } });
     }
-    threadBranch.open({ nature: "counter", valence: { name: String(thread.current.counter ?? 0) } });
-    threadBranch.open({ nature: "cursor", valence: { name: String(thread.current.cursor ?? 0) } });
-    threadBranch.open({ nature: "clear", valence: "clear thread" }, () => thread.clear());
+    threadBranch.open({ nature: "counter", valence: { name: String(top.current.counter ?? 0) } });
+    threadBranch.open({ nature: "cursor", valence: { name: String(top.current.cursor ?? 0) } });
 
-    if (thread.current.buffers?.length) {
-      const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(thread.current.buffers.length) } });
-      for (const buffer of thread.current.buffers) {
+    if (top.current.buffers?.length) {
+      const buffersBranch = threadBranch.branch({ nature: "buffers", valence: { name: String(top.current.buffers.length) } });
+      for (const buffer of top.current.buffers) {
         buffersBranch.open({ nature: buffer.view ?? buffer.id, valence: { name: buffer.id } });
       }
     }
-  } else {
-    threadBranch.open({ nature: "status", valence: { name: "no active thread" } });
   }
 
   return vector;

@@ -6,6 +6,7 @@ export * from "./emitter.js";
 export * from "./buffered.js";
 export * from "./chaosmonkey.js";
 export * from "./conversational.js";
+export * from "./tooled.js";
 
 export const SELFEVIDENT = () => {};
 

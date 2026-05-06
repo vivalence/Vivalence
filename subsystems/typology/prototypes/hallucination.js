@@ -31,6 +31,12 @@ export class Hallucination {
     return this;
   }
 
+  absorb({ llmstxt, tools } = {}) {
+    if (llmstxt) this.add(llmstxt);
+    if (tools)   Object.assign(this.tools, tools);
+    return this;
+  }
+
   tune(tier) {
     this.tuning = tier;
     return this;

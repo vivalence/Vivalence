@@ -12,7 +12,8 @@ export const CONVERSATIONAL = (mode, daemon) => {
       });
     });
 
-  const vocalized = mode.traits.includes("VOCALIZED");
+  const hasSpeech = daemon.cortex.has("speech");
+  const hasVerbatim = daemon.cortex.has("verbatim");
 
   conversation.branch("dialogue").open("open", async (ctx) => {
     const live = ctx.socket.state.conversation;
@@ -23,7 +24,7 @@ export const CONVERSATIONAL = (mode, daemon) => {
       tune: ctx.input.tune,
     });
 
-    if (!vocalized) {
+    if (!hasSpeech) {
       for await (const packet of stream) live.send.dialogue.packet(packet);
       live.send.dialogue.close();
       return;
@@ -60,7 +61,7 @@ export const CONVERSATIONAL = (mode, daemon) => {
     ctx.socket.state.conversation.send.speech?.abort?.({});
   });
 
-  if (vocalized) {
+  if (hasVerbatim) {
     conversation.branch("verbatim").open("packet", (ctx) => {
       const state = ctx.socket.state;
       state.verbatim ??= spinVerbatim(daemon, state, mode);

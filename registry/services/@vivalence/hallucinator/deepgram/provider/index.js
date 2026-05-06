@@ -1,5 +1,5 @@
 export default async function provider(service) {
-  const apiKey = service.secrets.deepgram;
+  const apiKey = service.secrets.key;
 
   const profiles = {
     "pt-BR": { tune: [0.4, 0.6, 0.5, 0.1], language: "pt" },
@@ -10,7 +10,7 @@ export default async function provider(service) {
     const stream = async function* (audioSource, config = {}) {
       const url =
         `wss://api.deepgram.com/v1/listen?` +
-        `encoding=mulaw&sample_rate=8000&language=${profile.language}&` +
+        `encoding=linear16&sample_rate=16000&language=${profile.language}&` +
         `vad_events=true&endpointing=${config.endpointing ?? 300}&interim_results=true`;
       const ws = new WebSocket(url, ["token", apiKey]);
       await new Promise((open, fail) => {
@@ -44,7 +44,10 @@ export default async function provider(service) {
         try {
           for await (const audio of audioSource) {
             if (ws.readyState !== WebSocket.OPEN) break;
-            ws.send(audio);
+            const bytes = typeof audio === "string"
+              ? Uint8Array.from(atob(audio), (c) => c.charCodeAt(0))
+              : audio;
+            ws.send(bytes);
           }
         } finally {
           if (ws.readyState === WebSocket.OPEN) {
@@ -69,7 +72,7 @@ export default async function provider(service) {
       type:     "verbatim",
       tune:     profile.tune,
       context:  0,
-      channels: { in: [{ type: "audio", codec: "ulaw_8000" }], out: [{ type: "event" }] },
+      channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
       config:   { language: profile.language },
       via:      { stream },
     };

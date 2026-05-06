@@ -16,7 +16,7 @@ Pulled from =longdistance.workpackage.org= + =cortex.workpackage.org=:
 
 - *INSITU* (thread, marker): user-triggered via E panel toggle (NOT auto-installed). When ON + mode has CONVERSATIONAL → terminal opens session. INSITU off / thread swap / mode swap → session closes.
 - *thread.trait.INSITU* = JSON config seed on the thread row. Schema: =trait.INSITU = { dialogue: { enabled: true } }= (live), =trait.INSITU.audio.enabled= (dormant). ThreadDossier seeds the config object, does NOT auto-add the trait.
-- *2026-04-19 reflection* (longdistance) — Finn flagged INSITU session/audio block in =TerminalDossier.use[]= as architecturally wrong. Trait behavior moves to =systems/kajuit/src/typology/traits/thread/insitu.js= as =engage(terminal, thread)= / =disengage(terminal)= free fns. TerminalDossier delegates.
+- *INSITU reflection* (longdistance) — Finn flagged INSITU session/audio block in =TerminalDossier.use[]= as architecturally wrong. Trait behavior moves to =systems/kajuit/src/typology/traits/thread/insitu.js= as =engage(terminal, thread)= / =disengage(terminal)= free fns. TerminalDossier delegates.
 - *cortex* — CHAOSMONKEY = harness construction (mode-level). CONVERSATIONAL = WS session owner (server). Client-side mirror: terminal owns session instance, INSITU lifecycle = free fns triggered by =$thread= subscription.
 
 ** Word salad → retard callout
@@ -138,7 +138,7 @@ Files touched:
 
 * Lessons
 
-1. *Trait function vs trait file*: a trait NAME (=INSITU=) is data on the entity (=traits[]= + =trait.INSITU= config). The =(entity, ctx) => finalizer= "trait function" mechanism in =systems/kajuit/src/typology/traits/= fires once at populate/resolve. For traits that toggle async post-populate (INSITU is user-triggered via Panel E), the trait-function abstraction is wrong — body must be free fns invoked from a subscriber on the renamed concept's container (terminal =$thread= subscriber → calls =engage/disengage=). Codified in 2026-04-19 reflection of longdistance workpackage; this session ratified by acting on it during the rename.
+1. *Trait function vs trait file*: a trait NAME (=INSITU=) is data on the entity (=traits[]= + =trait.INSITU= config). The =(entity, ctx) => finalizer= "trait function" mechanism in =systems/kajuit/src/typology/traits/= fires once at populate/resolve. For traits that toggle async post-populate (INSITU is user-triggered via Panel E), the trait-function abstraction is wrong — body must be free fns invoked from a subscriber on the renamed concept's container (terminal =$thread= subscriber → calls =engage/disengage=). Codified in the longdistance workpackage's INSITU reflection; this session ratified by acting on it during the rename.
 
 2. *Channel grammar pattern*: per-content-type stream pairs (handshake, dialogue, speech, verbatim) × uniform verbs (open, packet, close, abort, error). Domain variation discriminated in payload (=packet({ nature })=), not in verb names. Symmetric server-receive / server-send. Connection-meta (=handshake=) is its own thing, not a content channel — keeps the grammar orthogonal.
 
@@ -146,7 +146,7 @@ Files touched:
 
 4. *Test-driven rename*: writing test expectations to new grammar first → seeing red on the precise mismatch (=open is not a function=, =/herald/moin= → handler missing) confirms the test exercises the rename surface. Then prototype-only edit makes both suites green. Outer source files (real runtime trait, Svelte panel) get parallel rename for consistency — no test exercises them directly, manual sweep + integration test catches frame-on-the-wire mismatches.
 
-5. *Word salad detection*: when explanation gets called out as imprecise, retreating into MORE abstraction (=trait = data=, =file = colocation=) makes it worse. Drop ALL abstraction — name the file path, name the function, name the field. Concrete shapes only. Logged as 2026-05-05 callout in zettelkasten.
+5. *Word salad detection*: when explanation gets called out as imprecise, retreating into MORE abstraction (=trait = data=, =file = colocation=) makes it worse. Drop ALL abstraction — name the file path, name the function, name the field. Concrete shapes only. Logged as callout in zettelkasten.
 
 6. *Dock state vs prototype instance*: =dock.session = "live"\|"ended"= is dock UI display state, NOT the renamed prototype. Same word, different concept. Renaming on lexical match would have collapsed two distinct concepts. User's "ignore dock" was the right scope cut.
 
@@ -158,7 +158,7 @@ Files touched:
 
 * Self-improve scan
 
-One "retard" callout this session — logged in =.ikiro/zettelkasten.md ## Callouts= under 2026-05-05 (word-salad on trait abstractions; corrective rule: when corrected on imprecise terminology, drop all abstraction layers and describe concrete files/functions/data, never =X = Y= tautologies).
+One "retard" callout this session — logged in =.ikiro/zettelkasten.md ## Callouts= (word-salad on trait abstractions; corrective rule: when corrected on imprecise terminology, drop all abstraction layers and describe concrete files/functions/data, never =X = Y= tautologies).
 
 * Preserved verbatim (per feedback_compact_verbatim_user_voice.md)
 

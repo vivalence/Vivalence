@@ -63,16 +63,23 @@ export const daemons = [
       },
     },
 
-    hallucinator: {
-      module: "@vivalence/hallucinator/anthropic",
-      statics: {},
-      secrets: {
-        anthropic: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+    hallucinators: [
+      {
+        module: "@vivalence/hallucinator/anthropic",
+        statics: {},
+        secrets: { key: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
       },
-      profiles: {
-        // DRONE: {provider: "anthropic", model: "claude-3-5-haiku-latest", dimensions: { speed: 0.6, cost: 0.2, intelligence: 0.4 }, params: { temperature: 0.7, maxTokens: 4000 },}, ACADEMIC: {provider: "anthropic", model: "claude-3-7-sonnet-latest", dimensions: { speed: 0.3, cost: 0.9, intelligence: 0.8 }, params: {thinking: { type: "enabled", budgetTokens: 12000 }, temperature: 0.7, maxTokens: 20000,},},
+      {
+        module: "@vivalence/hallucinator/elevenlabs",
+        statics: {},
+        secrets: { key: paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
       },
-    },
+      {
+        module: "@vivalence/hallucinator/deepgram",
+        statics: {},
+        secrets: { key: paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+      },
+    ],
 
     consume: {
       // nlp: {module: "@vivalence/service/nlp-stanza", secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") }, statics: {remote: new Url(paladin.env.get("SERVICE_NLP_REMOTE")), language: "es", processors: "tokenize,mwt,pos,lemma,depparse",},},

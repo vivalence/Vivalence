@@ -1,5 +1,3 @@
-import { v } from "@vivalence/typology";
-
 const TRANSLATED = (literal) => literal.trait?.TRANSLATED;
 const EXEMPLIFIED = (literal) => literal.trait?.EXEMPLIFIED;
 
@@ -98,11 +96,3 @@ function prompt({ histogram, weak, recent, due, mistakes }) {
   ].join("\n");
 }
 
-export function tool(ctx) {
-  return {
-    valence:
-      "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.",
-    input: v.object({}),
-    execute: async () => (await gather(ctx)).toJSON(),
-  };
-}
