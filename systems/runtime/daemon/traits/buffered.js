@@ -6,8 +6,10 @@ import { BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/typology/e
 let _svelte;
 async function svelte() {
   if (_svelte) return _svelte;
+  if (!paladin.scope.repository) throw new Error("!paladin.scope.repository");
+
   const paladin = (await import("@vivalence/paladin")).default;
-  const reporoot = paladin.scope.system.absolute;
+  const reporoot = paladin.scope.repository.absolute;
   const imports = {
     "@vivalence/typology": join(reporoot, "subsystems/typology/mod.client.js"),
     "@vivalence/typology/schematics": join(reporoot, "subsystems/typology/schematics/index.js"),

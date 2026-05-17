@@ -1,5 +1,5 @@
 <script>
-  import { LIGHTHOUSE, QUARTERS, BRIDGE, TOP } from "$client";
+  import { LIGHTHOUSE, QUARTERS, BRIDGE, MAIN } from "$client";
   import { getContext } from "svelte";
 
   import Masked from "./widgets/Masked.svelte";
@@ -20,13 +20,13 @@
 
   const lighthouse = getContext(LIGHTHOUSE);
   const quarters = getContext(QUARTERS);
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
 
-  let thread = $state(top.current);
-  top.$current.subscribe((value) => (thread = value));
+  let thread = $state(main.current);
+  main.$current.subscribe((value) => (thread = value));
 
-  let terminal = $state(top.terminal);
-  top.$terminal.subscribe((value) => (terminal = value));
+  let terminal = $state(main.terminal);
+  main.$terminal.subscribe((value) => (terminal = value));
 
   const traitGate = {
     CONVERSATIONAL: (thread) => thread?.mode?.traits?.includes?.("CONVERSATIONAL") ?? false,

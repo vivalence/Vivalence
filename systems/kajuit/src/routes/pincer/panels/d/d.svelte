@@ -1,12 +1,12 @@
 <script>
   import { getContext } from "svelte";
-  import { LIGHTHOUSE, TOP, BRIDGE } from "$client";
+  import { LIGHTHOUSE, MAIN, BRIDGE } from "$client";
   import { skins } from "@vivalence/drapes";
   const { Filter, List } = skins;
   import { compose, narrow } from "./navigation.js";
 
   const lighthouse = getContext(LIGHTHOUSE);
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
   const bridge = getContext(BRIDGE);
 
   let view = $state(bridge.view.d);
@@ -22,7 +22,7 @@
   lighthouse.$daemons.subscribe(async (list) => {
     if (!list.length) return;
     try {
-      const result = await compose(lighthouse, top);
+      const result = await compose(lighthouse, main);
       threads = result.threads;
       modes = result.modes;
       intents = result.intents;
@@ -40,9 +40,9 @@
     filteredThreads.length + filteredModes.length + filteredIntents.length > 0,
   );
 
-  let currentThread = $state(top.current);
+  let currentThread = $state(main.current);
 
-  top.$current.subscribe((value) => {
+  main.$current.subscribe((value) => {
     currentThread = value;
   });
 </script>

@@ -30,14 +30,14 @@ assert {
 tests {
   test("SSE stream contains full turn lifecycle", function () {
     const body = res.getBody();
-    expect(body).to.contain('"event":"turn.open"');
-    expect(body).to.contain('"event":"part.close"');
-    expect(body).to.contain('"event":"turn.close"');
+    expect(body).to.contain('"event":"/turn/open"');
+    expect(body).to.contain('"event":"/part/close"');
+    expect(body).to.contain('"event":"/turn/close"');
   });
 
   test("unleashed tune returns rich content — many deltas", function () {
     const body = res.getBody();
-    const deltaCount = (body.match(/"event":"part\.delta"/g) || []).length;
+    const deltaCount = (body.match(/"event":"\/part\/delta"/g) || []).length;
     expect(deltaCount).to.be.greaterThan(20);
   });
 

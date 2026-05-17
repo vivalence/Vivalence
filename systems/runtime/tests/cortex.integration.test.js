@@ -74,8 +74,8 @@ specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
       const stream  = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "stream test" }], thread });
       const { packets, turn } = await collectStream(stream);
 
-      specimen.expect(packets[0].event).toBe("turn.open");
-      specimen.expect(packets.at(-1).event).toBe("turn.close");
+      specimen.expect(packets[0].event).toBe("/turn/open");
+      specimen.expect(packets.at(-1).event).toBe("/turn/close");
       specimen.expect(turn.role).toBe("assistant");
       specimen.expect(turn.meta.stop).toBe("end_turn");
     });
@@ -87,7 +87,7 @@ specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
       const stream  = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "delta test" }], thread });
       const { packets, turn } = await collectStream(stream);
 
-      const deltas = packets.filter((packet) => packet.event === "part.delta");
+      const deltas = packets.filter((packet) => packet.event === "/part/delta");
       specimen.expect(deltas.length).toBeGreaterThan(0);
       specimen.expect(turn.parts[0].text).toContain("delta test");
     });
@@ -244,8 +244,8 @@ specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
       });
       const { packets } = await collectStream(stream);
 
-      const opens  = packets.filter((packet) => packet.event === "turn.open");
-      const closes = packets.filter((packet) => packet.event === "turn.close");
+      const opens  = packets.filter((packet) => packet.event === "/turn/open");
+      const closes = packets.filter((packet) => packet.event === "/turn/close");
       specimen.expect(opens.length).toBe(3);
       specimen.expect(closes.length).toBe(3);
     });
@@ -262,7 +262,7 @@ specimen.describe("cortex integration — CHAOSMONKEY harness", () => {
       });
       let turn = null;
       for await (const packet of stream) {
-        if (packet.event === "turn.open") turn = null;
+        if (packet.event === "/turn/open") turn = null;
         turn = soma.pour(turn, packet);
       }
 

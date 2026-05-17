@@ -29,9 +29,9 @@ assert {
 tests {
   test("SSE stream contains full turn lifecycle", function () {
     const body = res.getBody();
-    expect(body).to.contain('"event":"turn.open"');
-    expect(body).to.contain('"event":"part.delta"');
-    expect(body).to.contain('"event":"turn.close"');
+    expect(body).to.contain('"event":"/turn/open"');
+    expect(body).to.contain('"event":"/part/delta"');
+    expect(body).to.contain('"event":"/turn/close"');
   });
   
   test("response contains vocabulary answer", function () {

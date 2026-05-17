@@ -3,7 +3,7 @@ import * as narrow from "../../../../typology/gestalten/belt/narrow.js";
 
 export { narrow };
 
-export async function compose(lighthouse, top) {
+export async function compose(lighthouse, main) {
   const daemons = lighthouse.$daemons.get();
 
   const threadsVector = new Vector();
@@ -21,7 +21,7 @@ export async function compose(lighthouse, top) {
             nature: label.name ?? thread.mode?.slug ?? thread.id,
             valence: { name: label.description ?? "", prompt: thread.mode?.type ?? daemon.slug },
           },
-          () => resume(top, thread),
+          () => resume(main, thread),
         );
       }
     }
@@ -38,7 +38,7 @@ export async function compose(lighthouse, top) {
                 prompt: mode.type + " · " + (mode.name ?? mode.slug),
               },
             },
-            () => openFromIntent(top, daemon, mode, intent),
+            () => openFromIntent(main, daemon, mode, intent),
           );
         }
       }
@@ -49,7 +49,7 @@ export async function compose(lighthouse, top) {
             nature: mode.slug,
             valence: { name: mode.name ?? mode.slug, prompt: mode.type },
           },
-          () => openFromMode(top, daemon, mode),
+          () => openFromMode(main, daemon, mode),
         );
       }
     }
@@ -62,18 +62,18 @@ export async function compose(lighthouse, top) {
   };
 }
 
-function resume(top, thread) {
-  top.set(thread);
+function resume(main, thread) {
+  main.set(thread);
 }
 
-async function openFromMode(top, daemon, mode) {
+async function openFromMode(main, daemon, mode) {
   const thread = await daemon.entities.thread.create({ mode: mode.id });
   daemon.entities.thread.resolve?.(thread);
-  top.set(thread);
+  main.set(thread);
 }
 
-async function openFromIntent(top, daemon, mode, intent) {
+async function openFromIntent(main, daemon, mode, intent) {
   const thread = await daemon.entities.thread.create({ mode: mode.id, intent: intent.id });
   daemon.entities.thread.resolve?.(thread);
-  top.set(thread);
+  main.set(thread);
 }

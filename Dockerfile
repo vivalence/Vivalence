@@ -57,7 +57,7 @@ RUN mkdir -p /root/.deno/bin && \
     chmod +x /root/.deno/bin/viva
 
 ENV PATH="/root/.deno/bin:$PATH"
-ENV VIVA_SYSTEM_MOUNT=/viva/repository
+ENV VIVA_REPOSITORY_MOUNT=/viva/repository
 ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry
 
 CMD ["bash"]
@@ -153,7 +153,7 @@ CMD ["bash"]
 # RUN deno cache --import-map=import_map.json deps.js
 # RUN deno task install
 
-# ENV VIVA_SYSTEM_MOUNT=/viva/repository
+# ENV VIVA_REPOSITORY_MOUNT=/viva/repository
 # ENV VIVA_REGISTRY_MOUNT=/viva/repository/registry
 
 # # CMD ["tail", "-f", "/dev/null"]
@@ -256,7 +256,7 @@ CMD ["bash"]
 # # RUN mkdir /viva/mountpoint
 # # RUN mkdir /viva/registry
 
-# # ENV VIVA_SYSTEM_MOUNT=/viva/repository
+# # ENV VIVA_REPOSITORY_MOUNT=/viva/repository
 
 # # # CMD ["tail", "-f", "/dev/null"]
 

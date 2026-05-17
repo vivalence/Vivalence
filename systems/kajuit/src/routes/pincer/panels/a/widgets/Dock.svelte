@@ -1,24 +1,24 @@
 <script>
   import { getContext, tick } from "svelte";
   import { traits } from "@vivalence/kajuit";
-  import { TOP, BOX } from "$client";
+  import { MAIN /*, BOX */ } from "$client";
   import Markdown from "./Markdown.svelte";
 
   let { thread } = $props();
 
-  const top = getContext(TOP);
-  const box = getContext(BOX);
-  const microphone = box.device.microphone;
-  const speaker = box.device.speaker;
+  const main = getContext(MAIN);
+  // const box = getContext(BOX);
+  // const microphone = box.device.microphone;
+  // const speaker = box.device.speaker;
 
-  let micClaimed = $state(microphone.claimed);
-  let micPaused = $state(microphone.paused);
-  let micSpeaking = $state(microphone.speaking);
-  let spkPlaying = $state(speaker.playing);
-  microphone.$claimed.subscribe((v) => (micClaimed = v));
-  microphone.$paused.subscribe((v) => (micPaused = v));
-  microphone.$speaking.subscribe((v) => (micSpeaking = v));
-  speaker.$playing.subscribe((v) => (spkPlaying = v));
+  // let micClaimed = $state(microphone.claimed);
+  // let micPaused = $state(microphone.paused);
+  // let micSpeaking = $state(microphone.speaking);
+  // let spkPlaying = $state(speaker.playing);
+  // microphone.$claimed.subscribe((v) => (micClaimed = v));
+  // microphone.$paused.subscribe((v) => (micPaused = v));
+  // microphone.$speaking.subscribe((v) => (micSpeaking = v));
+  // speaker.$playing.subscribe((v) => (spkPlaying = v));
 
   let conversationState = $state("—");
   let conversation = $state(null);
@@ -26,7 +26,7 @@
   let streaming = $state(null);
   let pending = $state(false);
   let lastError = $state(null);
-  let liveTranscript = $state(null);
+  // let liveTranscript = $state(null);
 
   let terminal = $state(null);
   let composer = $state({ enterSends: true, density: "comfortable" });
@@ -38,9 +38,9 @@
   let unread = $state(0);
 
   $effect(() => {
-    if (!top?.$terminal) return;
+    if (!main?.$terminal) return;
     let composerSub = null;
-    const sub = top.$terminal.subscribe((next) => {
+    const sub = main.$terminal.subscribe((next) => {
       terminal = next;
       composerSub?.();
       composerSub = null;
@@ -115,6 +115,7 @@
     return thread.$lastError.subscribe((value) => (lastError = value ?? null));
   });
 
+  /*
   $effect(() => {
     if (!thread?.$liveTranscript) {
       liveTranscript = null;
@@ -123,6 +124,7 @@
     liveTranscript = thread.$liveTranscript.get() ?? null;
     return thread.$liveTranscript.subscribe((value) => (liveTranscript = value ?? null));
   });
+  */
 
   const live = $derived(conversationState === "LIVE");
   const isStreaming = $derived(!!streaming);
@@ -436,9 +438,12 @@
     </button>
   {/if}
 
+  <!--
   {#if liveTranscript}
     <div class="live-transcript">{liveTranscript}</div>
   {/if}
+  -->
+
 
   {#if lastError}
     <div class="error-bar" title={lastError}>error: {lastError}</div>
@@ -453,6 +458,7 @@
       placeholder={live ? (composer?.enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)") : "—"}
       disabled={!live}
       rows="1"></textarea>
+    <!--
     {#if micClaimed}
       <button
         class="send mic"
@@ -463,6 +469,8 @@
         {micPaused ? "○" : "●"}
       </button>
     {/if}
+    -->
+
     {#if isStreaming || pending}
       <button class="send stop" onclick={stop} title="stop (esc)">■</button>
     {:else}

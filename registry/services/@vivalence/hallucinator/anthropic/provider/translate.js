@@ -108,11 +108,11 @@ function blockToPart(block) {
 export function translateStreamEvent(event) {
   switch (event.type) {
     case "message_start":
-      return { event: "turn.open", turn: { role: event.message.role } };
+      return { event: "/turn/open", turn: { role: event.message.role } };
 
     case "content_block_start": {
       const part = blockToPart(event.content_block);
-      return { event: "part.open", index: event.index, part };
+      return { event: "/part/open", index: event.index, part };
     }
 
     case "content_block_delta": {
@@ -121,15 +121,15 @@ export function translateStreamEvent(event) {
       else if (event.delta.type === "thinking_delta") delta.text = event.delta.thinking;
       else if (event.delta.type === "input_json_delta") delta.input = event.delta.partial_json;
       else if (event.delta.type === "signature_delta") delta.signature = event.delta.signature;
-      return { event: "part.delta", index: event.index, delta };
+      return { event: "/part/delta", index: event.index, delta };
     }
 
     case "content_block_stop":
-      return { event: "part.close", index: event.index };
+      return { event: "/part/close", index: event.index };
 
     case "message_delta":
       return {
-        event: "turn.close",
+        event: "/turn/close",
         meta: {
           stop: event.delta.stop_reason,
           usage: event.usage,
@@ -137,7 +137,7 @@ export function translateStreamEvent(event) {
       };
 
     case "message_stop":
-      return null; // turn.close already emitted on message_delta
+      return null; // /turn/close already emitted on message_delta
 
     default:
       return null; // ping, etc — skip

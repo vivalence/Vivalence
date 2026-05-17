@@ -29,9 +29,9 @@ assert {
 tests {
   test("SSE stream contains full turn lifecycle", function () {
     const body = res.getBody();
-    expect(body).to.contain('"event":"turn.open"');
-    expect(body).to.contain('"event":"part.delta"');
-    expect(body).to.contain('"event":"turn.close"');
+    expect(body).to.contain('"event":"/turn/open"');
+    expect(body).to.contain('"event":"/part/delta"');
+    expect(body).to.contain('"event":"/turn/close"');
   });
 
   test("response contains Portuguese content", function () {
@@ -39,11 +39,11 @@ tests {
     expect(body).to.contain('casa');
   });
 
-  test("turn.close carries meta with stop reason", function () {
+  test("/turn/close carries meta with stop reason", function () {
     const frames = body.split('\n\n').filter(Boolean).map(f => {
       try { return JSON.parse(f.replace(/^data: /, '')); } catch { return null; }
     }).filter(Boolean);
-    const close = frames.find(f => f.event === 'turn.close');
+    const close = frames.find(f => f.event === '/turn/close');
     expect(close).to.not.be.undefined;
     expect(close.meta.stop).to.equal('end_turn');
   });

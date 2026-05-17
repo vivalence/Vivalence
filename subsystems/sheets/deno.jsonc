@@ -1,8 +1,13 @@
 {
   "name": "@vivalence/sheets",
-  "version": "0.0.1",
-  "exports": {
-    ".": "./mod.js",
-    // "./shell": "./mod.js",
+  "version": "0.1.0",
+  "exports": "./mod.jsx",
+  "tasks": {
+    "demo": "deno run -A --node-modules-dir=auto demo.jsx"
   },
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxFragmentFactory": "React.Fragment"
+  }
 }

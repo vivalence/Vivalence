@@ -2,7 +2,7 @@
 // Skeleton builders.
 //
 // Pure, composable factories for assembling a flat scoped skeleton from a few
-// hand-picked anchors. See .ikiro/pincer.workpackage.org § Dapper Skeleton
+// hand-picked anchors. See .ikiro/pincer.quest.org § Dapper Skeleton
 // Rebuild for the model.
 //
 // The contract:

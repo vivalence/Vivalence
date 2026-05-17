@@ -119,7 +119,7 @@ export class LiteralSubscriber implements EventSubscriber<LiteralEntity> {
     const topographical = entity.symbols
       .getItems()
       .filter((s) => s.traits.includes("TOPOGRAPHICAL" as any));
-    if (topographical.length === 0) return;
+    if (topographical.length === 0) return entity.ontology;
     if (topographical.length > 1)
       throw new Error(
         `Literal "${entity.slug}" must have exactly one TOPOGRAPHICAL symbol, found ${topographical.length}`,

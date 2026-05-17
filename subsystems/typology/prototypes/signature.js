@@ -52,6 +52,10 @@ export class Signature {
     return json;
   }
 
+  toJSON() {
+    return this.json;
+  }
+
   clone() {
     return new this.constructor(this); // recursive? maybe implement as new this.constructor().withJson(this.json)
   }

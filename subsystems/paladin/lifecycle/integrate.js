@@ -1,4 +1,4 @@
-import { is, cast, fromm, Path } from "@vivalence/typology";
+import { is, cast, fromm, Path, v } from "@vivalence/typology";
 
 export async function publish(paladin) {
   const publish = Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("PUBLIC_"));
@@ -9,17 +9,15 @@ export async function publish(paladin) {
 }
 
 export async function statements(paladin) {
-  // console.log(paladin, JSON.stringify({ ...paladin.is }, null, 2));
-
   const mounts = [];
 
   if (paladin.is.citizen) {
     mounts.push([
       paladin.scope.mountpoint,
-      paladin.scope.system,
+      paladin.scope.repository,
       paladin.scope.registry,
       paladin.scope.variant,
-      paladin.scope.circuitry,
+      // paladin.scope.circuitry, // backup: pre-M1 variant quest
       paladin.scope.environment,
       ...paladin.variant.services.map((s) => s.mount),
       ...paladin.variant.daemons.map((d) => d.mount),
@@ -46,13 +44,25 @@ export async function secure(paladin) {
 }
 
 export async function validate(paladin) {
-  // const requiredEnvVars = [
-  //   //
-  // ];
-  // paladin.check.env(requiredEnvVars)?.throw();
-  // for (const service of paladin.services) {
-  //   if (service.data) await paladin.state.path(service.data);
-  // }
+  // console.log({ ...paladin.variant });
+  const errors = [];
+  const collect = (label, value, schema) => {
+    for (const e of schema.errors(value)) {
+      errors.push(`${label}${e.instancePath || ""}: ${e.message}`);
+    }
+  };
+
+  if (Object.keys(paladin.variant.runtime).length)
+    collect("runtime", paladin.variant.runtime, v.primitives.variant.Runtime);
+  for (const [slug, client] of Object.entries(paladin.variant.clients))
+    collect(`client[${slug}]`, client, v.primitives.variant.Client);
+  for (const daemon of paladin.variant.daemons)
+    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
+  for (const service of paladin.variant.services)
+    collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
+
+  if (errors.length) throw new Error(`[paladin.validate]\n  ${errors.join("\n  ")}`);
+  // console.log(JSON.stringify({ errors }, null, 2));
 }
 
 // export async function mount(paladin) {
@@ -72,7 +82,7 @@ export async function questions(paladin) {
   if (paladin.is.citizen)
     paladin.check
       .path([
-        paladin.env.get("VIVA_SYSTEM_MOUNT"),
+        paladin.env.get("VIVA_REPOSITORY_MOUNT"),
         paladin.env.get("VIVA_VARIANT_MOUNT"),
         paladin.env.get("VIVA_REGISTRY_MOUNT"),
       ])

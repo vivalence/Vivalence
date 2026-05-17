@@ -25,17 +25,21 @@ trait → runtime wiring:
 
 | trait | runtime action | trait file |
 |-------|---------------|------------|
-| BUFFERED | esbuild-bundle Svelte view, serve /view, wire `mode.buffer()` factory | `systems/runtime/daemon/traits/buffered.js` |
+| BUFFERED | esbuild-bundle Svelte view, serve /view, wire `mode.buffer()` factory. **Canonical name.** | `systems/runtime/daemon/traits/buffered.js` |
 | INTENTED | upsert intents from dataset, create per-intent routing | `systems/runtime/daemon/traits/intented.js` |
 | EMITTER | mount emitter Vector at /emit, inject daemon/mode/seek/blacklist into ctx | `systems/runtime/daemon/traits/emitter.js` |
 | DATASET | upsert symbols + literals (chunks of 100) | `systems/runtime/daemon/traits/dataset.js` |
 | CHAOSMONKEY | wire harness — fail-fast + cortex.shard.harness + dialogue assembly + scribe + /harness mount | `systems/runtime/daemon/traits/chaosmonkey.js` |
-| CONVERSATIONAL | thin ws session owner — /conversation route, per-connection vector | `systems/runtime/daemon/traits/conversational.js` |
+| CONVERSATIONAL | thin ws session owner — /conversation route, per-connection vector, audio engagement when mode declares VOCALIZED | `systems/runtime/daemon/traits/conversational.js` |
+| TOOLED | compile `mode.cake.tools` Vector via `shape.agentic()` → `{tools, llmstxt}`; harness absorbs the tool catalog | `systems/runtime/daemon/traits/tooled.js` |
 | FRAUGHT | index freight catalog (audio, images), expose /freight | `systems/runtime/daemon/traits/index.js` |
 | TOPOGRAPHICAL | carry corpus-level data | `traits/index.js` |
-| VIEWABLE | (alias of BUFFERED — Svelte view bundler) | `traits/buffered.js` |
-| LANGUAGED / AGENTIC | planned, not yet implemented | — |
 | SELFEVIDENT | legacy no-op on Mode (still valid as Thread/Intent fallback) | — |
+| EXPOSED | aperture-binding marker | `traits/index.js` |
+
+retired trait names:
+- **VIEWABLE** — was colloquial for BUFFERED; use BUFFERED.
+- **LANGUAGED / AGENTIC** — never implemented. Drop from any new manifest.
 
 structure:
 
@@ -129,7 +133,7 @@ tactics (orchestrators):
 
 All phases call `feed()` directly (not through aperture). Exercise resolves sentence tokens via `findOne()` with user-scoped memory population.
 
-- clinic (`tactic/clinic/`) — 12 adaptive scopes (class, regularity, questions, connectors, negation, pronouns, determiners, adverbs, numbers, degrees, prepositions, ser-vs-estar). Phase-aware sub-emitter composition (introduce / drill / reinforce / hunt). Strength-based assess + weighted random selection + trace errorRate. M0 shipped: `clinic/emitter/shards/{analysis,routine}.js` factories. Pronouns is the first migrator. See `.ikiro/tactic-analysis-routine.workpackage.org`.
+- clinic (`tactic/clinic/`) — 12 adaptive scopes (class, regularity, questions, connectors, negation, pronouns, determiners, adverbs, numbers, degrees, prepositions, ser-vs-estar). Phase-aware sub-emitter composition (introduce / drill / reinforce / hunt). Strength-based assess + weighted random selection + trace errorRate. M0 shipped: `clinic/emitter/shards/{analysis,routine}.js` factories. Pronouns is the first migrator. See `.ikiro/tactic-analysis-routine.quest.org`.
 
 memory integration — game mode Svelte components call review through aperture:
 

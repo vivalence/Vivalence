@@ -1,13 +1,13 @@
 <script>
   import { getContext } from "svelte";
-  import { TOP, QUARTERS } from "$client";
+  import { MAIN, QUARTERS } from "$client";
   import { Frame } from "@vivalence/drapes";
   import Dock from "./widgets/Dock.svelte";
   import { resolve, shareAfterDrag, defaultDock } from "./dock.geometry.js";
 
   let { rect } = $props();
 
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
   const quarters = getContext(QUARTERS);
 
   let currentThread = $state(null);
@@ -23,7 +23,7 @@
   let teardownDock = null;
   let teardownTraits = null;
 
-  top.$terminal.subscribe((value) => {
+  main.$terminal.subscribe((value) => {
     terminal = value;
     if (teardownDock) {
       teardownDock();
@@ -37,7 +37,7 @@
     }
   });
 
-  top.$current.subscribe((current) => {
+  main.$current.subscribe((current) => {
     currentThread = current;
     if (teardownBuffer) {
       teardownBuffer();

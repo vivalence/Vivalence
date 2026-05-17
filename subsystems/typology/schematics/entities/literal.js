@@ -1,4 +1,4 @@
-import { v } from "../lib.js";
+import { v } from "../v.js";
 
 export const LiteralDescriptor = {
   $id: "Literal",

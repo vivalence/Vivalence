@@ -2,8 +2,8 @@
   import LighthouseSection from "./widgets/LighthouseSection.svelte";
   import QuartersSection from "./widgets/QuartersSection.svelte";
   import BridgeSection from "./widgets/BridgeSection.svelte";
-  import TopSection from "./widgets/TopSection.svelte";
-  import BoxSection from "./widgets/BoxSection.svelte";
+  import MainSection from "./widgets/MainSection.svelte";
+  // import BoxSection from "./widgets/BoxSection.svelte";
 
   let { rect } = $props();
 </script>
@@ -19,8 +19,8 @@
       <LighthouseSection />
       <QuartersSection />
       <BridgeSection />
-      <TopSection />
-      <BoxSection />
+      <MainSection />
+      <!-- <BoxSection /> -->
     </div>
   </div>
 {/if}

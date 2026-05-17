@@ -1,0 +1,96 @@
+#+TITLE: ikiro/paradigm-cell-completion — restore thirdSingular cells across imperfect/conditional/pres.subj
+#+METHOD: ikiro/quest
+#+DATE: 2026-05-03
+#+STATUS: DONE 2026-05-03 — 39 new 3sg word literals + 1 ter orphan wired + 1 querer.cond.1sg modify (quereria→queria colloquial) + 40 bundle patches + 4 QA fixups (querer.cond.3sg RANKED stale → 1sg homonym stats; ter.imperfect.3sg + ter.subj.3sg + poder.subj.3sg symbol drift aligned with 1sg sibling; querer.cond.3sg example polish — different scene from 1sg). 3 parallel QA agents passed: 0 BLOCKERS, all linguistic forms correct, all paradigm refs resolve, no orphans, no duplicate slugs, no cross-lemma collisions. All 6 indicative/subjunctive/conditional tenses now uniformly 4-cell across 14 survival lemmas.
+
+* Intent
+
+Correct unauthorized syncretic-collapse error from survival-conjugation-expansion (2026-04-29). Restore the `thirdSingular` cell to every paradigm bundle that currently has only 3 cells. Wire orphan word literals. Bring corpus into compliance with `corpus-quality-criteria.md` Paradigm Shape + Rules 15/16.
+
+Non-goal: re-litigate the present.subjunctive irregular forms (2 of 14 already have 4 cells — those are correct).
+
+* Provenance
+
+- `paradigm-cell-completion.quest.org` exists because of a self-improvement callout, not a Finn directive originally — Finn rejected the false convention on 2026-05-03 with: "i never greenlit this. this is false!!! fix this and prevent this".
+- Retraction stamped on `survival-conjugation-expansion.quest.org`.
+- Zettelkasten callout `2026-05-03 — fabricated "A1 syncretic convention" without authorization`.
+
+* Scope
+
+| paradigm | bundles affected | cells missing | word literals to add |
+|---|---|---|---|
+| `imperfect.indicative` | 14 | thirdSingular | ~13 (ter has orphan) |
+| `conditional` | 14 | thirdSingular | ~14 (need scan) |
+| `present.subjunctive` | 12 | thirdSingular | ~12 (need scan; 2 of 14 already 4-cell) |
+
+Total bundles to repair: **40**. Total new word literals: **~39** (one orphan to wire).
+
+* Linguistic notes
+
+BR Portuguese 1sg=3sg homonymy in these tenses:
+
+- imperfect indicative: regular -ar `falava/falava`, regular -er/-ir `entendia/entendia`, irregular `era/era` (ser), `ia/ia` (ir), `tinha/tinha` (ter), `podia/podia` (poder), `queria/queria` (querer), `sabia/sabia` (saber), `fazia/fazia` (fazer), `estava/estava` (estar)
+- conditional: regular `falaria/falaria`, irregular `seria/seria`, `iria/iria`, `teria/teria`, `poderia/poderia`, `quereria/quereria` (or `queria` in colloquial), `saberia/saberia`, `faria/faria`, `estaria/estaria`
+- present subjunctive: regular -ar `fale/fale`, -er/-ir `entenda/entenda` `abra/abra`. Irregular distinguish: `seja/seja` (ser — same), `vá/vá` (ir — same), `tenha/tenha` (ter — same), `possa/possa` (poder — same), `queira/queira` (querer — same), `saiba/saiba` (saber — same), `faça/faça` (fazer — same), `esteja/esteja` (estar — same), `dê/dê` (dar — same; existing). Pres.subj is uniformly homonymous in BR for both regulars and the survival irregular set, so the "12 of 14 collapsed" pattern fits.
+
+In every case the surface form is identical between 1sg and 3sg, but the `known` (English) and `EXEMPLIFIED` example differ:
+
+| field | firstSingular | thirdSingular |
+|---|---|---|
+| `learning` | falava | falava (same) |
+| `known` | "I used to speak" | "he/she used to speak" |
+| EXEMPLIFIED.known | "I used to speak with my grandma every day" | "He used to speak loudly at the market" |
+| EXEMPLIFIED.learning | "Eu falava com a minha avó todo dia" | "Ele falava alto no mercado" |
+
+* Plan
+
+** S1 — enumerate
+
+`paradigm_audit.py` over `conjugation.js` + `verb.js`:
+- list every bundle with cell count <4 (sanity-check: matches the 14+14+12 = 40 expected)
+- for each, list which cell key is missing (expect always `thirdSingular`)
+- for each, check if `<lemma>.verb.<mood>.<tense>.third.singular` already exists in verb.js (orphan); flag
+
+** S2 — hand-compose 3sg word literals
+
+Per criteria.md Entity Shape — full entry with:
+- slug `<lemma>.verb.<mood>.<tense>.third.singular`
+- traits `[TRANSLATED, EXEMPLIFIED, RANKED]` (no VOCALIZED — audio not yet generated)
+- TRANSLATED: `learning` = surface form (homonym with 1sg in syncretic case), `known` = "he/she <conjugated>" or "(that) he/she <verb>" for subjunctive
+- EXEMPLIFIED: novel sentence using ele/ela/você as subject (NEVER copy 1sg example)
+- RANKED: per surface form via wordfreq (homonyms share the lookup; rank/zipf/fpm identical to 1sg by definition)
+- symbols: copy from 1sg entry, swap `word.person.first` → `word.person.third`
+
+For ter's existing orphan: verify shape conforms to criteria; touch up if needed.
+
+** S3 — wire bundles
+
+For each of the 40 bundles, add `thirdSingular: "<lemma>.verb.<mood>.<tense>.third.singular"` to the paradigm. Order in object: firstSingular → thirdSingular → firstPlural → thirdPlural.
+
+** S4 — apply
+
+Same `apply.py` pattern from survival-conjugation-expansion (read existing, append/patch, write pretty-printed).
+
+** S5 — QA
+
+- mechanical: verify all 40 bundles now have 4 cells; verify all new 3sg literals resolve from bundles
+- linguistic: parallel agent — confirm 3sg surface form matches 1sg in syncretic cases, differs in non-syncretic
+- example QA: parallel agent — confirm EXEMPLIFIED uses ele/ela/você framing and is unique (no copy from 1sg)
+
+* Method
+
+- Phase 1 (regulars): falar, precisar, entender, comer, abrir, partir — 6 lemmas × 3 tenses = 18 entries to compose
+- Phase 2 (irregulars): ser, estar, ir, ter, poder, querer, saber, fazer — 8 lemmas × 3 tenses = 24 entries (minus 2 pres.subj already 4-cell + 1 orphan = ~21)
+
+Hand-compose all examples per `feedback_no_content_codegen.md`. No content codegen.
+
+* Followups (out-of-scope here, captured)
+
+- `paradigm_audit.py` permanent: add to repo as a corpus integrity check; criteria Rule 15/16 should fail loudly
+- VOCALIZED for new 3sg entries: defer to next vocalization run; existing audio is per surface form, so 1sg mp3s are reusable for 3sg homonyms — verify path conventions in vocalized kernel
+- present.subjunctive 2-of-14 anomaly: verify the 2 already-4-cell bundles aren't malformed in some other way
+
+* Open questions
+
+- For conditional's `querer` — colloquial BR collapses `quereria` → `queria` (homonym with imperfect indicative `queria`). Which form goes in the cell? Default to formal `quereria` per pedagogical clarity unless Finn directs otherwise.
+- For irregular present.subjunctive cases where 1sg ≠ 3sg in some other Romance language (BR has uniform 1sg=3sg here — confirm with grammar source before composing).

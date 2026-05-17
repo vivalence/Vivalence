@@ -1,0 +1,72 @@
+meta {
+  name: chat tool
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{TEACHER_DEWEY}}/harness/dialogue/stream
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+body:json {
+  {
+    "thread": "{{DEWEY_THREAD_ID}}",
+    "parts": [{ "type": "text", "text": "Olha o meu progresso — quais palavras estou mais fraco e o que tenho para revisar agora? Use a ferramenta de estado do aluno para me dizer." }],
+    "tune": "unleashed"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.headers['content-type']: contains text/event-stream
+}
+
+tests {
+  function parseFrames(body) {
+    return body.split('\n\n').filter(Boolean).map(f => {
+      try { return JSON.parse(f.replace(/^data: /, '')); } catch { return null; }
+    }).filter(Boolean);
+  }
+
+  test("tool loop emits three turn cycles (assistant tool_use, user tool_result, final assistant)", function () {
+    const body = res.getBody();
+    const opens  = (body.match(/"event":"\/turn\/open"/g)  || []).length;
+    const closes = (body.match(/"event":"\/turn\/close"/g) || []).length;
+    expect(opens).to.equal(3);
+    expect(closes).to.equal(3);
+  });
+
+  test("first turn closes with stop=tool_use", function () {
+    const frames = parseFrames(res.getBody());
+    const closes = frames.filter(f => f.event === '/turn/close');
+    expect(closes.length).to.equal(3);
+    expect(closes[0].meta.stop).to.equal('tool_use');
+  });
+
+  test("final turn closes with stop=end_turn", function () {
+    const frames = parseFrames(res.getBody());
+    const closes = frames.filter(f => f.event === '/turn/close');
+    expect(closes[closes.length - 1].meta.stop).to.equal('end_turn');
+  });
+
+  test("stream contains tool_use part with input", function () {
+    const body = res.getBody();
+    expect(body).to.contain('"type":"tool_use"');
+  });
+
+  test("stream contains tool_result part", function () {
+    const body = res.getBody();
+    expect(body).to.contain('"type":"tool_result"');
+  });
+
+  test("tool_result payload carries learner_state histogram field", function () {
+    const body = res.getBody();
+    expect(body).to.contain('histogram');
+  });
+}

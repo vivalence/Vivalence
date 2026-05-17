@@ -40,8 +40,9 @@ systems/runtime/
 │   ├── die.js                    DaemonDie extends Wafer (225 lines)
 │   ├── kernel.js                 Domain, Ontology, Corpus classes (21 lines)
 │   ├── aperture/                 datamap, userspace, modes, freight
-│   ├── traits/                   dataset, intented, emitter, fraught, chaosmonkey,
-│   │                             buffered (with view bundler) + index re-exports
+│   ├── traits/                   dataset, intented, emitter, buffered (view bundler),
+│   │                             chaosmonkey, conversational (ws+harness), tooled (MCP+agentic),
+│   │                             + fraught (in index.js) + SELFEVIDENT/EXPOSED markers
 │   └── lifecycle/                daemon-level phases
 │                                 population.{core, wiring, datamap, authority,
 │                                              acid, modes, handlers, services}
@@ -72,12 +73,15 @@ lifecycle phases at `systems/runtime/daemon/lifecycle/`:
 
 mode traits at `systems/runtime/daemon/traits/`:
 
-- VIEWABLE at `systems/runtime/daemon/traits/buffered.js` — compiles Svelte views via esbuild, exposes `/view` endpoint
-- DATASET at `systems/runtime/daemon/traits/dataset.js` (76 lines) — upserts symbols and literals from `mode.cake.dataset.entities`, batches in chunks of 100
-- INTENTED at `systems/runtime/daemon/traits/intented.js` — upserts IntentEntity rows from `mode.cake.dataset.intent[]`
-- EMITTER at `systems/runtime/daemon/traits/emitter.js` — compiles `mode.cake.emitter` Vector with ambient inheritance, thread lookup, blacklist conversion, Yield post-processor
-- CHAOSMONKEY at `systems/runtime/daemon/traits/index.js` — attaches hallucinator brain to mode (cortex workpackage updates this)
-- FRAUGHT at `systems/runtime/daemon/traits/index.js` — indexes freight catalog from `mode.cake.freight`, exposes `/freight` endpoint
+- **BUFFERED** at `traits/buffered.js` — compiles Svelte views via esbuild, exposes `/view` endpoint. (Note: was previously called "VIEWABLE" — canonical name is BUFFERED.)
+- **DATASET** at `traits/dataset.js` — upserts symbols and literals from `mode.cake.dataset.entities` in chunks of 100 via `orm.em.upsertMany()`
+- **INTENTED** at `traits/intented.js` — upserts IntentEntity rows from `mode.cake.dataset.intent[]`
+- **EMITTER** at `traits/emitter.js` — compiles `mode.cake.emitter` Vector with ambient inheritance, thread lookup, blacklist conversion, Yield post-processor
+- **CHAOSMONKEY** at `traits/chaosmonkey.js` — wires harness via slurp + shape.object + aperture mounts (returned finalizer; refactored 2026-05-06)
+- **CONVERSATIONAL** at `traits/conversational.js` — owns websocket dialogue session, ambient user binding, harness stream consumption, audio engagement (BOX deck) when mode declares VOCALIZED
+- **TOOLED** at `traits/tooled.js` — integrates `mode.cake.tools` (a Vector of tool descriptors) into hallucinator via `shape.agentic()`; harness absorbs the tool catalog
+- **FRAUGHT** (in `traits/index.js`) — indexes freight catalog from `mode.cake.freight`, exposes `/freight` endpoint
+- **SELFEVIDENT / EXPOSED** (markers in `traits/index.js`) — no-op + aperture binding markers
 
 route registration at `systems/runtime/daemon/aperture/`:
 
@@ -107,6 +111,7 @@ testing gaps:
 
 active work:
 
-- cortex — see `.ikiro/cortex.workpackage.org`. CHAOSMONKEY trait body and Hallucination harness wiring.
-- LANGUAGED / AGENTIC trait implementations — post-cortex
-- VOCALIZED trait + asset entity type — pending typology enum expansion (see `.ikiro/longdistance.workpackage.org`)
+- cortex — DONE 2026-04-18 (`.ikiro/quests/cortex.quest.org`). CHAOSMONKEY + CONVERSATIONAL traits live.
+- toolcalling — IMPLEMENTING (`.ikiro/quests/toolcalling.quest.org`). TOOLED trait shipped M1+M2; M3 bruno-surface landed, anthropic-stream-bug-blocked.
+- voice / longdistance — Box deck + CONVERSATIONAL audio engagement shipped (`.ikiro/quests/voice.quest.org` IMPLEMENTED, awaiting live handshake verify); VOCALIZED literal-trait + asset entity-type pending typology enum expansion (`.ikiro/quests/longdistance.quest.org`).
+- wafer-lifecycle — vector-based process composition; typology + paladin migrated, runtime pending (`.ikiro/quests/wafer-lifecycle.quest.org`).

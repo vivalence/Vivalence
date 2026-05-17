@@ -55,7 +55,7 @@ export default async function (paladin) {
 //   },
 //   //
 //   get system() {
-//     return new Path(paladin.env.get("VIVA_SYSTEM_MOUNT"));
+//     return new Path(paladin.env.get("VIVA_REPOSITORY_MOUNT"));
 //   },
 //   get variant() {
 //     const env = paladin.env.get("VIVA_VARIANT_MOUNT");

@@ -228,7 +228,7 @@ const tint = {
 //
 // Source for the flat scoped skeletons. Skeletons pull anchors from these
 // (never from `palette` directly). Vibe: dark scandinavian, nordsee meets
-// concrete. See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
+// concrete. See .ikiro/pincer.quest.org § Dapper Skeleton Rebuild.
 // ============================================================================
 const roots = {
   // backbone — cool blue-gray, nordsee concrete

@@ -14,7 +14,7 @@ services:
     environment:
       - VIVA_SYSTEM_MODE=PRODUCTION
       - VIVA_SYSTEM_ROLE=RUNTIME
-      - VIVA_CIRCUITRY_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer/server
+      - VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer/server
       - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
       - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
       - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer

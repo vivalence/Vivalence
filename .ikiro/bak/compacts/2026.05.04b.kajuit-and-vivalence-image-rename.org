@@ -1,0 +1,192 @@
+#+TITLE: kajuit · @vivalence/html → @vivalence/kajuit + image vivalence/viva → vivalence/vivalence + cosmetic @vivalence/viva → @vivalence
+#+DATE: 2026-05-04
+#+TOPIC: systems/{html→kajuit}/ · paladin.variant.clients.{html→kajuit} · vivalence/vivalence:alpine · 4-milestone split (M1 code · M2 image · M3 Claude tests · M4 Finn deploy) · jj working-copy similarity detection · triple-coupled identity surface (package/runtime-slug/docker)
+
+* Arc
+
+** Scoping
+
+Finn: "i wnat to rename the html client. assess the scope of this. repo/wafer/client"
+
+First pass surfaced 6 surfaces (wafer self-config, root deno.jsonc workspace, 6 live import sites, CI, env vars, docs) — but missed vite alias =@vivalence/html/skins=, the runtime registry key =paladin.variant.clients.html=, and =systems/kajuit/.ikiro/= nested quests. Finn caught it: "we run jj, not git." + "do another pass and spend more time reading and exploring the system. you obviously missed some stuff".
+
+Second pass found:
+- =vite.config.mjs:14= reads =paladin.variant.clients.html= at boot (runtime slug = registry key)
+- =vite.config.mjs:63,64= two aliases (=@vivalence/html=, =@vivalence/html/skins=)
+- =subsystems/paladin/tests/paladin.test.js:110,111,159= live assertions on =["html", "shell"]=
+- =testament/variant/environment/variant.jsonc= env var defaults
+- =registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml= service+container_name+image+env
+- =.claude/launch.json= debug config
+- nested =systems/html/.ikiro/= (49 internal refs) + 5 live root quests
+
+Lesson: triple-coupled identity — package name (=@vivalence/html=), runtime slug (=paladin.variant.clients.html=), Docker artifact (=vivalence/html:alpine=) — all keyed by same string. Atomic-or-broken. Dir name is incidental, NOT load-bearing in resolution.
+
+** Naming + scope decisions
+
+Finn: "kajuit"
+
+Dutch for "ship's cabin" — fits existing ship metaphor (LIGHTHOUSE auth tower, QUARTERS workspace, BRIDGE helm, THREAD pivot).
+
+Finn: "1. rename. 2. hard 3. rename vivalence/kajuit. hard. another rename: rename root image to: vivalence/vivalence plan execution step by step."
+
+Three orthogonal renames:
+- =@vivalence/html= → =@vivalence/kajuit= (package + runtime slug + ALL its env vars =VIVA_CLIENT_HTML_*= → =VIVA_CLIENT_KAJUIT_*=)
+- =vivalence/html:alpine= → =vivalence/kajuit:alpine= (docker image)
+- =vivalence/viva:alpine= → =vivalence/vivalence:alpine= (root docker image)
+
+Hard cutover, no dual-key, no commits during execution.
+
+Finn: "Recommend kajuit/build for consistency."
+
+Confirmed task-name policy: rename =viva/{build,tag,push}= → =vivalence/{build,tag,push}=. Keep =viva/install= (CLI binary at =~/.deno/bin/viva= — separate identity).
+
+** 4-milestone split
+
+Finn: "aggregate this into 4 milestones. 4th milestone is me running eveyrthing - locally and remote. 3rd is you testing."
+
+| # | scope | doer |
+|---|-------|------|
+| M1 | kajuit rename — 23 files across wafer/registry/CI/.ikiro/memory paths | Claude |
+| M2 | image rename — root Dockerfile children + deno.jsonc + .gitlab-ci.yml | Claude |
+| M3 | testing — kajuit/test, paladin/test, full subsystem suites, bundle | Claude |
+| M4 | local + remote — image rebuild chain, compose up, prod .env cutover, smoke | Finn |
+
+Memory updates explicitly deferred to post-M4 ("memory. after.").
+
+** Execution
+
+Finn: "go. m1 - m3"
+
+Started =mv systems/html systems/kajuit= (filesystem rename). jj similarity-detection picks up renamed file as rename-of-original on next snapshot. Then surgical edits to:
+
+M1 hits applied:
+- =systems/kajuit/{deno.jsonc, client.viva.js, vite.config.mjs (4 sites), Dockerfile (2 sites)}=
+- 5 internal src imports (=thread.js=, =terminal.js=, =+page.svelte=, =+layout.svelte= ×2)
+- root =deno.jsonc= — 5 live tasks + 5 commented-comment-block twins (Finn: "rename comments")
+- =registry/wafers/@vivalence/variant/multiplayer/client/client.viva.js= (key + slug + module + env)
+- =testament/variant/circuitry/test-system.viva.js= (slug + module + env)
+- =subsystems/paladin/tests/paladin.test.js= (3 assertions)
+- =testament/variant/environment/variant.jsonc= (3 env defaults)
+- =registry/wafers/.../docker-compose.yml= (service+container_name+image+env)
+- =.gitlab-ci.yml= 3 live + 3 commented
+- =.claude/launch.json= debug config
+- =subsystems/paladin/lifecycle/{populate.js, resolve.js}= comments
+- =systems/kajuit/.claude/settings.local.json= 3 permission lines
+- =.ikiro/claude.md= (System Map row + ship-metaphor description + 3 quest path lines)
+- 5 live quests via sed (=longdistance.port.plan=, =pincer=, =longdistance=, =redact=, =trait-reactivity=)
+- =systems/kajuit/.ikiro/{claude.md, client-layout.quest.org, datamap-client-migration.quest.org}= via sed
+- =README.md:75=
+
+M2 hits:
+- =systems/runtime/Dockerfile:1= FROM
+- =systems/kajuit/Dockerfile:1= FROM
+- root =deno.jsonc= 6 image-tag lines (live + commented twins) via =replace_all=
+- =.gitlab-ci.yml= 6 live + 6 commented + 4 historical SHA-build-block lines via =replace_all=
+
+** Mid-flight regression scare
+
+After M2 a wide rg sweep returned hits at =systems/html/src/...=. Stopped immediately ("State reverted... Stopping. Don't want to redo blindly").
+
+Finn: "do an assessment. where are we at?"
+
+Re-checked filesystem: =systems/html= absent, =systems/kajuit= full, =deno.jsonc= contained =@vivalence/kajuit=, =paladin.test.js= contained =["kajuit", "shell"]=. State was actually clean. The earlier rg output was stale snapshot or prior cache — false alarm. Lesson: =rg --files-without-match= behavior under a moved tree has surprising-snapshot semantics; verify by reading individual canonical files (deno.jsonc, vite.config.mjs, paladin.test.js) before declaring regression.
+
+** Testing (M3)
+
+Finn: "browser works. very good. whats incomplete about m3?"
+
+After Finn confirmed browser, listed gaps: docker build chain not exercised, full test suites only spot-checked, runtime boot not actually run, sweep was narrow.
+
+Finn: "runtime boots. run full test."
+
+Full subsystem runs:
+
+| suite | result | rename verdict |
+|---|---|---|
+| typology | 71/71 (974 steps) | ✓ clean |
+| runtime | 19/19 (149 steps) | ✓ clean |
+| paladin/paladin.test | 27/28 — 1 fail (=hallucinator.module anthropic≠hal257=) | ✓ pre-existing per redact stage 6 |
+| paladin/{pensieve, vip, tools, scopes} | various failures (=pensieve.lookup is not a function=, =cake.manifest undefined=, missing =./prototype= export, empty file) | pre-existing — unrelated symbols |
+| kajuit/{dock.geometry, belt.narrow} | 13+13 ✓ | clean |
+| kajuit/stall | 7/10 (Stall state machine assertion drift) | pre-existing |
+| kajuit/lifecycle-vector | error (=$telemetry= vite alias not deno-resolvable) | pre-existing |
+| kajuit/typology/quarters | error (=Unknown export '.' for '@vivalence/kajuit'=) | pre-existing condition (deno.jsonc =exports= empty; vite alias only at build-time); error message reframed under new name |
+| kajuit/{scenario/×3, daemon/×2} | various module-not-found | pre-existing — refer to absent files |
+
+No regression caused by rename. All failures pre-existing — confirmed by error messages naming unrelated symbols.
+
+** Deploy + final cosmetics
+
+Finn: "ok. build complete. deploy validated. any other steps / verifications missing?"
+
+Listed: registry-tag cleanup (deferred), memory updates (deferred per plan), cosmetic =@vivalence/viva= refs (manifest.json PWA name, dapper readme subtitle, gource title), bruno collection name, optional broader sweeps.
+
+Finn: "cleanup scheduled. update memory. do the cosmetic renames. from @vivalence/viva to @vivalence and then do an exhaustive sanity sweep"
+
+Memory updates:
+- =feedback_import_through_barrel.md= — name + description + body =@vivalence/html= → =@vivalence/kajuit= (added skins exception note)
+- =project_button_drift.md= — description + body html/pincer → kajuit/pincer
+- =project_context_architecture.md= — body "HTML client" → "Kajuit client" + barrel ref
+- =project_longdistance_audio_sketch.md= — sed paths
+- =MEMORY.md= index entry for barrel rule
+
+Cosmetic =@vivalence/viva= → =@vivalence=:
+- =systems/kajuit/static/manifest.json:2= — PWA name
+- =subsystems/dapper/readme.org:2= — subtitle
+- =deno.jsonc:19= — gource =--title=
+- =systems/kajuit/src/routes/+page.svelte:37= — pageTitle fallback (caught by sweep, was missed in initial scope)
+
+Sweep clean: zero live =@vivalence/html=, zero =systems/html=, zero =VIVA_CLIENT_HTML=, zero =vivalence/{viva,html}:alpine=, zero =@vivalence/viva=. All remaining hits in =bak/=.
+
+** Decisions locked
+
+| # | choice | rationale |
+|---|--------|-----------|
+| 1 | name "kajuit" (Dutch: ship's cabin) | extends LIGHTHOUSE/QUARTERS/BRIDGE/THREAD ship metaphor |
+| 2 | task-name policy: rename =viva/{build,tag,push}= → =vivalence/{build,tag,push}=; keep =viva/install= | image-tasks follow image identity; CLI binary stays =viva= (separate concern) |
+| 3 | hard cutover env vars =VIVA_CLIENT_HTML_*= → =VIVA_CLIENT_KAJUIT_*= (no dual-key) | accept short prod downtime over rollback complexity |
+| 4 | rename comments + commented-out historical lines too | one consistent string in repo; no zombie =html/= mentions in dead-comment-blocks |
+| 5 | live quests rewrite paths; =compacts/= + =zettelkasten.md= frozen | compacts/zettelkasten = historical record; quests = live design surface |
+| 6 | no commits during execution | Finn handles jj graph |
+| 7 | memory updates after Finn validates M4 | memory should reflect post-deploy state, not in-flight |
+| 8 | =@vivalence/viva= → =@vivalence= (bare scope) | literal interpretation of Finn's directive |
+
+** Preserved verbatim (per feedback_compact_verbatim_user_voice.md)
+
+Finn quotes left intact in their original locations:
+- =.ikiro/zettelkasten.md= 3 historical entries mentioning "html" (marked =[x]= done)
+- =.ikiro/compacts/*= entirely frozen
+- =.ikiro/quests/redact.quest.org:60,77,81= narrative ("typology / runtime / html / paladin tests" — describes past state at time of writing)
+- =.ikiro/quests/pincer.quest.org:8,176,349= narrative
+- =.ikiro/quests/stage-canvas-devtools.quest.org:338-340= narrative
+- =.ikiro/quests/decorum.quest.org:40,164= — =<html>= = DOM root tag (NOT our system)
+
+Intentionally NOT renamed:
+- =subsystems/typology/gestalten/shard/serve.js:2= — =html: "text/html"= MIME map
+- =subsystems/typology/tests/.../serve.test.js= — "HTML → text/html" MIME test
+- =subsystems/drapes/readme.org= — "semantic HTML" (markup language)
+- =systems/kajuit/Dockerfile:12,18,20,36= — =/usr/share/nginx/html= nginx default
+- =tailwind.config.js= globs =*.{html,svelte,css}= — file extension
+- =200.html=, =client.html=, =appTemplate= — file names
+- =systems/kajuit/static/manifest.json:3= — =short_name: "viva"= (PWA short name; only =name= renamed)
+- CLI binary =viva= + =/viva/repository= Docker mount + =readme.org= "viva: your home" prose + =license.org= narrative
+- =bruno.json:3= =vivalence/viva= (no =@= — outside =@vivalence/viva= directive)
+- =subsystems/drapes/deno.jsonc:6= dead export key =html= (no consumers, pre-existing)
+
+** Lessons
+
+1. *Triple-coupled identity*: package name + runtime registry key + docker image often share a single string. Rename one, must rename all three atomically. Codebase grep alone misses this — must trace the resolution path (=vite.config.mjs= → =paladin.variant.clients.X= → wafer manifest). Pensieve-like reasoning: index by content/role, not by filesystem position.
+
+2. *Two-pass scope*: agent first-pass surfaces obvious surfaces (imports, configs); second pass needed for runtime-key reads, comment blocks, nested .ikiro, env-var consumers across wafers. Same pattern as the topology→corpus rename compact. Don't claim "complete inventory" after one pass.
+
+3. *jj working-copy semantics*: filesystem =mv= works — jj snapshot detects rename via similarity. =jj mv= explicit not needed. But mid-flight rg sweeps over a moved tree can return stale snapshot output; verify state by reading specific canonical files when in doubt.
+
+4. *Hard cutover policy*: Finn picks short downtime over dual-key complexity. Implication for future renames: accept the brief breakage window; don't engineer compatibility shims unless asked. Cleaner state long-term.
+
+5. *Concrete sweep patterns*: rg patterns to run for any string-rename: bare, with package prefix, with path prefix (=systems/X=, =vivalence/X:=), uppercase, snake-case, env var prefix, image-tag standalone, taskname like (=X/build=). Run them all, glob-exclude bak/, .svelte-kit/, .vite/, build/, node_modules/, .claude/worktrees/, compacts/, zettelkasten.md.
+
+6. *Identity vs MIME / DOM ambiguity*: bare "html" in code can mean (a) our system, (b) MIME text/html, (c) =<html>= DOM tag, (d) file extension =.html=. Context-sensitive distinction — sweep must inspect each hit. Lesson holds for any common-word identity (will surface again if other systems get common-word names).
+
+** Self-improve scan
+
+No "retard" codeword in session. No callout entries needed in =zettelkasten.md=.

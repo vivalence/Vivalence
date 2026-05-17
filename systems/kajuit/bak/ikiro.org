@@ -27,7 +27,7 @@ also, i am missing a feature in my testing toolbox.
 i want to do something resembling snapshot testing. doesnt have to be dedicated files. i like the idea of in file json. they serve as examples to be read. testing is documentation. so we want a json demo of whatever subject in the file. types and typebox are cool, but json wins and is required to get a feeling for the system. 
 
 
-compile the workpackage, develop the concepts, and scaffold the implementation.
+compile the quest, develop the concepts, and scaffold the implementation.
 
 i dont want to read much text. at least 5050 code. short snippets and pseudocode over completion. this is about insight and collection..
 
@@ -471,7 +471,7 @@ those two questions are our zero point. the point of reference. orientation and 
 
 were recasting the html client.
 
-i want you to do two things. come up with the mod.js file implementation. and compile a workpackage for complete testing of the systems in scope of the generator.
+i want you to do two things. come up with the mod.js file implementation. and compile a quest for complete testing of the systems in scope of the generator.
 
 both under the leadership of the perspective of > what do we want? why do we want it?
 
@@ -483,7 +483,7 @@ take your time thinking this through.
 Let me analyze what the user is asking for:
 
 1. A mod.js file implementation for the HTML client
-2. A workpackage for complete testing of the systems in scope of the generator
+2. A quest for complete testing of the systems in scope of the generator
 
 Both guided by: "what do we want? why do we want it?"
 
@@ -680,7 +680,7 @@ export const $Daemon = {
 
 ---
 
-* Testing Workpackage
+* Testing Quest
 
 *** Structure
 

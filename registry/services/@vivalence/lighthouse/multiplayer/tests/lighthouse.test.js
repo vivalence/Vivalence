@@ -1,6 +1,5 @@
-import { specimen, Url, Connection, Value } from "@vivalence/typology";
+import { specimen, Url, Connection, v } from "@vivalence/typology";
 import { shard } from "@vivalence/typology";
-import { scalars, primitives, bodies, types } from "@vivalence/typology";
 
 const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
 const lighthouse = new Connection(new Url(BASE));
@@ -35,10 +34,8 @@ specimen.describe("Lighthouse", () => {
         username: "beef",
         password: "biggusdickus",
       });
-      specimen.expect(Value.Check(bodies.AuthResponse, result)).toBe(true);
-      specimen
-        .expect(Value.Check(scalars.JWTToken, result.authority?.access))
-        .toBe(true);
+      specimen.expect(result).matches(v.primitives.auth.AuthResponse);
+      specimen.expect(result.authority?.access).matches(v.scalars.JWTToken);
       auth = result.authority;
     });
 
@@ -46,7 +43,7 @@ specimen.describe("Lighthouse", () => {
       const result = await lighthouse.call("/auth/verify", {
         access: auth.access,
       });
-      specimen.expect(Value.Check(bodies.VerifyResponse, result)).toBe(true);
+      specimen.expect(result).matches(v.primitives.auth.VerifyResponse);
       specimen.expect(result.success).toBe(true);
     });
 
@@ -54,14 +51,14 @@ specimen.describe("Lighthouse", () => {
       const result = await lighthouse.call("/auth/refresh", {
         refresh: auth.refresh,
       });
-      specimen.expect(Value.Check(bodies.RefreshResponse, result)).toBe(true);
+      specimen.expect(result).matches(v.primitives.auth.RefreshResponse);
     });
 
     specimen.it("logout", async () => {
       const result = await lighthouse.call("/auth/logout", {
         refresh: auth.refresh,
       });
-      specimen.expect(Value.Check(bodies.LogoutResponse, result)).toBe(true);
+      specimen.expect(result).matches(v.primitives.auth.LogoutResponse);
       specimen.expect(result.success).toBe(true);
     });
   });

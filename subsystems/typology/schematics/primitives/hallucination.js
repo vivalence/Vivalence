@@ -116,29 +116,29 @@ export const Faculty = v.object({
 export const Packet = {};
 
 Packet.TurnOpen = v.object({
-  event: v.const("turn.open"),
+  event: v.const("/turn/open"),
   turn: v.object({ role: v.string() }),
 });
 
 Packet.PartOpen = v.object({
-  event: v.const("part.open"),
+  event: v.const("/part/open"),
   index: v.integer(),
   part: Part.Any,
 });
 
 Packet.PartDelta = v.object({
-  event: v.const("part.delta"),
+  event: v.const("/part/delta"),
   index: v.integer(),
   delta: v.record(v.string(), v.unknown()),
 });
 
 Packet.PartClose = v.object({
-  event: v.const("part.close"),
+  event: v.const("/part/close"),
   index: v.integer(),
 });
 
 Packet.TurnClose = v.object({
-  event: v.const("turn.close"),
+  event: v.const("/turn/close"),
   meta: v.record(v.string(), v.unknown()).optional(),
 });
 

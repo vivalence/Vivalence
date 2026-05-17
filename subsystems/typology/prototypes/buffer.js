@@ -1,4 +1,4 @@
-import { Value, is, Url, Path } from "@vivalence/typology";
+import { is, Url, Path } from "@vivalence/typology";
 
 export class BufferView {
   bundles = [];
@@ -14,7 +14,7 @@ export class BufferView {
   }
   cast(desc = {}) {
     if (!desc.data) desc.data = {};
-    Value.Default(this.schema, desc);
+    this.schema.defaults(desc);
     return desc.data;
   }
   withPath(path) {

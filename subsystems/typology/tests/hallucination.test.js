@@ -16,21 +16,21 @@ function hasToolResult(turns) {
 
 function textPackets(text, meta = { stop: "end_turn" }) {
   return [
-    { event: "turn.open", turn: { role: "assistant" } },
-    { event: "part.open", index: 0, part: { type: "text", text: "" } },
-    ...Array.from(text).map((character) => ({ event: "part.delta", index: 0, delta: { text: character } })),
-    { event: "part.close", index: 0 },
-    { event: "turn.close", meta },
+    { event: "/turn/open", turn: { role: "assistant" } },
+    { event: "/part/open", index: 0, part: { type: "text", text: "" } },
+    ...Array.from(text).map((character) => ({ event: "/part/delta", index: 0, delta: { text: character } })),
+    { event: "/part/close", index: 0 },
+    { event: "/turn/close", meta },
   ];
 }
 
 function toolUsePackets(id, name, input) {
   return [
-    { event: "turn.open", turn: { role: "assistant" } },
-    { event: "part.open", index: 0, part: { type: "tool_use", id, name, input: "" } },
-    { event: "part.delta", index: 0, delta: { input: JSON.stringify(input) } },
-    { event: "part.close", index: 0 },
-    { event: "turn.close", meta: { stop: "tool_use" } },
+    { event: "/turn/open", turn: { role: "assistant" } },
+    { event: "/part/open", index: 0, part: { type: "tool_use", id, name, input: "" } },
+    { event: "/part/delta", index: 0, delta: { input: JSON.stringify(input) } },
+    { event: "/part/close", index: 0 },
+    { event: "/turn/close", meta: { stop: "tool_use" } },
   ];
 }
 
@@ -79,11 +79,11 @@ function populatedCortex() {
         stream: async (turns) => {
           const data = btoa(lastUserText(turns));
           return (async function* () {
-            yield { event: "turn.open", turn: { role: "assistant" } };
-            yield { event: "part.open", index: 0, part: { type: "audio", data: "", media: "audio/mp3" } };
-            yield { event: "part.delta", index: 0, delta: { data } };
-            yield { event: "part.close", index: 0 };
-            yield { event: "turn.close", meta: { stop: "end_turn" } };
+            yield { event: "/turn/open", turn: { role: "assistant" } };
+            yield { event: "/part/open", index: 0, part: { type: "audio", data: "", media: "audio/mp3" } };
+            yield { event: "/part/delta", index: 0, delta: { data } };
+            yield { event: "/part/close", index: 0 };
+            yield { event: "/turn/close", meta: { stop: "end_turn" } };
           })();
         },
       },
@@ -239,8 +239,8 @@ specimen.describe("Hallucination", () => {
         collected.push(packet);
       }
 
-      specimen.expect(collected[0].event).toBe("turn.open");
-      specimen.expect(collected.at(-1).event).toBe("turn.close");
+      specimen.expect(collected[0].event).toBe("/turn/open");
+      specimen.expect(collected.at(-1).event).toBe("/turn/close");
       specimen.expect(turn.parts[0].text).toBe("[sonnet] hello");
     });
 
@@ -254,8 +254,8 @@ specimen.describe("Hallucination", () => {
         "unleashed",
         { lookup: async (i) => ({ definition: `${i.query} means house` }) },
       ))) {
-        if (packet.event === "turn.open")  turnOpenCount++;
-        if (packet.event === "turn.close") turnCloseCount++;
+        if (packet.event === "/turn/open")  turnOpenCount++;
+        if (packet.event === "/turn/close") turnCloseCount++;
       }
 
       specimen.expect(turnOpenCount).toBe(3);
@@ -271,7 +271,7 @@ specimen.describe("Hallucination", () => {
         "unleashed",
         { lookup: async (i) => ({ definition: `${i.query} means house` }) },
       ))) {
-        if (packet.event === "turn.open") turn = null;
+        if (packet.event === "/turn/open") turn = null;
         turn = soma.pour(turn, packet);
       }
 

@@ -11,15 +11,15 @@
   import BoneCrown from "./pincer/bones/crown/crown.svelte";
   import BonePincer from "./pincer/bones/pincer/pincer.svelte";
   import BoneSpine from "./pincer/bones/spine/spine.svelte";
-  import { TOP, BRIDGE } from "$client";
+  import { MAIN, BRIDGE } from "$client";
   import { bridge as bridgeDeck } from "@vivalence/kajuit";
   const systemAlert = false;
 
   const bridge = getContext(BRIDGE);
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
 
-  let currentThread = $state(top.current);
-  top.$current.subscribe((v) => (currentThread = v));
+  let currentThread = $state(main.current);
+  main.$current.subscribe((v) => (currentThread = v));
   let pageTitle = $derived(currentThread?.mode?.name ?? currentThread?.mode?.slug ?? "@vivalence");
 
   let pincer = $state(bridge.layout.pincer);

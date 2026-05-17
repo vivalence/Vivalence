@@ -1,0 +1,120 @@
+#+TITLE: Ghost — Vivalence Shell Client
+#+AUTHOR: Vivalence
+
+Ghost is the shell-side viva client. Operator at console; the terminal as control surface.
+
+Renamed from "Viva CLI" / "shell client" 2026-05-18 to match the system map (~systems/ghost/~).
+
+* Concepts
+
+** Trajectory
+
+Routing primitive. Commands form a trajectory tree:
+
+#+begin_src js
+const instance = trajectory.branch("/instance");
+instance.open("/init", async (ctx) => { /* handler */ });
+#+end_src
+
+Same mechanic as typology Vector, applied to operator commands.
+
+** Signal
+
+Parsed argv. A command invocation ~viva instance init ./my-variant --force~ becomes:
+
+#+begin_src
+{ path: "/instance/init", positional: ["./my-variant"], flags: { force: true } }
+#+end_src
+
+** Handler
+
+~async (ctx) => result~. Receives ~ctx~ with ~.argv~, ~.flags~, plus per-trajectory injected fields. Returns a JSON-shaped result printed by ~lib/output.js~.
+
+** Context
+
+Each signal execution carries:
+- argv + parsed flags
+- paladin scope (variant, environment, mountpoint)
+- per-command extras (e.g. ~ctx.source~, ~ctx.destination~ set by middleware)
+
+* Project Structure
+
+- ~entry.js~ — shell entry; spawns ~deno task ghost/do~ with forwarded args
+- ~mod.js~ — barrel
+- ~typology.js~ — re-exports trajectory + Signal + cast
+- ~trajectories/~ — one file per command. ~instance/~ subdir groups instance management (init, start, stop, status, uninstall); top-level: list, show, auth, daemon, services, web
+- ~lib/~ — variant resolution, env passthrough, output printers, process state, session, connection
+- ~lifecycle/~ — parse / resolve / run
+- ~tests/~ — init, parse, processes, resolve, start, wafer
+
+* Getting Started
+
+Run ghost from the repo root:
+
+#+begin_src sh
+deno task viva
+#+end_src
+
+Interactive mode (no args) presents available commands.
+
+* Commands
+
+** instance init
+
+Copy a variant manifest + its tree to a mountpoint:
+
+#+begin_src sh
+deno task viva instance init <slug-or-path> [destination]
+#+end_src
+
+Defaults to ~VIVA_VARIANT_MOUNT~ if destination not given. Refuses if an existing variant marker is present unless ~--force~ is passed (which wipes the destination first).
+
+** instance start / stop / status / remove
+
+#+begin_src sh
+deno task viva instance start <slug>
+deno task viva instance stop <slug>
+deno task viva instance status
+deno task viva instance remove <name>
+#+end_src
+
+Start boots a runtime + client processes. Stop terminates. Status lists running processes. Remove deletes a ~.viva.js~ marker from the variant mount.
+
+** auth
+
+#+begin_src sh
+deno task viva auth login
+deno task viva auth logout
+#+end_src
+
+* Creating Commands
+
+Add a new trajectory:
+
+#+begin_src javascript
+// trajectories/my-command.js
+export function myCommand(trajectory) {
+  const branch = trajectory.branch("/my-command");
+
+  branch.use(async (ctx, next) => {
+    // shared middleware for this branch
+    await next();
+  });
+
+  branch.open("/action", async (ctx) => {
+    return { status: "ok", message: "..." };
+  });
+}
+#+end_src
+
+Then wire it in ~trajectories/index.js~.
+
+* See Also
+
+- ~systems/ghost/.ikiro/CLAUDE.md~ — full architecture
+- ~.ikiro/quests/variant.quest.org~ — variant marker contract (M1+M2 done)
+- ~.ikiro/methods/orb.md~ — how design work flows from orb → quest
+
+* License
+
+Copyright (c) 2025-2026 Vivalence.

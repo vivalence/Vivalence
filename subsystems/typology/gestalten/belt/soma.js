@@ -1,11 +1,11 @@
 export function pour(turn, packet) {
   switch (packet.event) {
-    case "turn.open":
+    case "/turn/open":
       return { ...packet.turn, parts: [] };
-    case "part.open":
+    case "/part/open":
       turn.parts[packet.index] = { ...packet.part };
       break;
-    case "part.delta": {
+    case "/part/delta": {
       const part = turn.parts[packet.index];
       for (const [key, value] of Object.entries(packet.delta)) {
         part[key] = typeof value === "string" && typeof part[key] === "string"
@@ -14,9 +14,9 @@ export function pour(turn, packet) {
       }
       break;
     }
-    case "part.close":
+    case "/part/close":
       break;
-    case "turn.close":
+    case "/turn/close":
       turn.meta = packet.meta;
       break;
   }
@@ -24,7 +24,7 @@ export function pour(turn, packet) {
 }
 
 export function* drain(turn) {
-  yield { event: "turn.open", turn: { role: turn.role } };
+  yield { event: "/turn/open", turn: { role: turn.role } };
   for (let index = 0; index < turn.parts.length; index++) {
     const part = turn.parts[index];
     const shell = {};
@@ -38,11 +38,11 @@ export function* drain(turn) {
         delta[key] = value;
       }
     }
-    yield { event: "part.open", index, part: shell };
-    if (Object.keys(delta).length) yield { event: "part.delta", index, delta };
-    yield { event: "part.close", index };
+    yield { event: "/part/open", index, part: shell };
+    if (Object.keys(delta).length) yield { event: "/part/delta", index, delta };
+    yield { event: "/part/close", index };
   }
-  yield { event: "turn.close", meta: turn.meta ?? {} };
+  yield { event: "/turn/close", meta: turn.meta ?? {} };
 }
 
 export function attend(stream, onSealed) {
@@ -105,7 +105,7 @@ export function tee(source) {
 
 export async function* textFromPackets(packets) {
   for await (const packet of packets) {
-    if (packet.event === "part.delta" && typeof packet.delta?.text === "string") {
+    if (packet.event === "/part/delta" && typeof packet.delta?.text === "string") {
       yield packet.delta.text;
     }
   }

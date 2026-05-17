@@ -1,0 +1,242 @@
+#+TITLE: Dialogue / Verbatim — cortex faculty rename pass
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-17
+#+STATUS: DONE — rename landed in code 2026-04-17; quest retained for historical context.
+
+* Intent
+
+Collapse two naming fault lines in the cortex before more code lands:
+
+1. Faculty type *=conversation=* is wordy and bleeds into the already-taken
+   *CONVERSATIONAL* mode trait. Rename the faculty to *=dialogue=*, matching
+   =mode.dialogue= / =mode.cake.dialogue= which already exist. One word, one
+   meaning, wherever it shows up in the cortex stack.
+2. The planned STT faculty was going to be *=transcription=* — too long, and
+   Finn prefers *=verbatim=*. Since no live code registers a =transcription=
+   faculty yet, this lands as a fresh slot in the FacultyType union plus orb
+   sketch alignment.
+
+Apply both in a single, coherent rename pass. Routes, faculty type strings,
+client-side getters, server-side resolver calls, tests, and the orb Sketch 2
+all move together.
+
+** Desired end state
+
+- =cortex.resolve("dialogue", ...)= returns what =cortex.resolve("conversation", ...)=
+  returned yesterday. Same for =.stream= / =.render= via
+  =hallucinate.dialogue.*=.
+- =cortex.resolve("verbatim", ...)= is a valid call shape — resolves to empty
+  faculty list today, waits for a provider to populate.
+- FacultyType union reads: =dialogue | object | speech | verbatim | call=.
+- No remaining live reference to =conversation= as a faculty type anywhere in
+  =subsystems/typology= or =systems/runtime=. (Trait name =CONVERSATIONAL=
+  stays intact.)
+- No remaining live reference to =transcription= as a faculty type. Only the
+  one surviving mention is in =registry/modes/@vivalence/game/listen/listen.viva.js=
+  description string, which is pedagogical — kept.
+- Orb Sketch 2 routes use =/dialogue/*= / =/speech/*= / =/verbatim/*=. Socket
+  state slots mirror: =socket.state.{dialogue,speech,verbatim}=.
+- All existing cortex + hallucinate + trait tests pass unchanged in behavior;
+  only strings updated.
+
+* Vocabulary
+
+** Settled (existing, respected)
+
+- *cortex* — faculty table. =resolve(type, {tune, via})= lookup.
+- *faculty* — a capability slot: ={type, tune, context, channels, via}=.
+- *hallucinate* — the cortex spawn — per-invocation envelope binding turns,
+  tools, config to faculty calls.
+- *CONVERSATIONAL* — mode trait. Name stays. Wires =mode.dialogue=,
+  =mode.aperture.branch("/dialogue")=, and (pending M4.0) the session vector.
+- *tune* — 3-vector for tier selection across faculties; gains a latency dim
+  in longdistance work (orthogonal to this rename).
+
+** Introduced / renamed
+
+- *dialogue* (faculty type) — text in, turn packets out. Was =conversation=.
+  Chosen because =mode.dialogue= already exists and means the same thing;
+  unifying collapses a distinction that was never meaningful.
+- *verbatim* (faculty type) — audio in, text turn out (STT). New slot. Replaces
+  the planned =transcription= name.
+- =/verbatim/*= (socket route family) — audio soma packets in, =/verbatim/close=
+  finalizes the buffered audio and routes the transcribed text into dialogue.
+
+* Architectural directives
+
+** D1. Faculty type = one word, matches the capability
+
+=conversation= was a sentence; =dialogue= is the thing. =transcription= was a
+noun-form of a verb; =verbatim= names what you get back (text exactly as
+spoken). Faculty types become canonical keys exposed to the client via
+=/herald/cortex=; short, distinctive words keep the herald table legible.
+
+** D2. Route family slot matches faculty type, one-for-one
+
+The socket route family slot is the faculty type exactly. =/dialogue/*= ⇔
+=dialogue= faculty. =/speech/*= ⇔ =speech= faculty. =/verbatim/*= ⇔ =verbatim=
+faculty. One vocabulary, three layers (cortex table / route / socket state).
+
+** D3. Trait name stays CONVERSATIONAL
+
+The trait composes many capabilities (dialogue + speech + verbatim + session
+lifecycle); its name is intentionally broader than any one faculty. Don't
+conflate. Explicit user directive.
+
+** D4. Verbatim faculty lands additive
+
+No live provider ships =verbatim= today. The rename adds the type string to
+the =FacultyType= union and the hallucinate constructor getter so calls
+resolve cleanly to an empty list until a provider registers. Enables orb /
+herald / INSITU UI to reason about the slot before an implementation lands.
+
+** D5. Pedagogical use of "transcription" in learning modes is unrelated
+
+=registry/modes/@vivalence/game/listen/listen.viva.js= uses the word
+"transcription" in a human-facing description ("Pick or type the
+meaning/transcription"). That's linguistic vocabulary, not a cortex faculty
+reference. Out of scope.
+
+* Design
+
+Mechanical rename of four live source files plus four test files, plus an
+orb sketch update. No behavior changes. No API shape changes outside the type
+literals.
+
+** Files touched (source)
+
+1. =subsystems/typology/schematics/primitives/hallucination.js=
+   - =FacultyType= union: replace =v.const("conversation")= with
+     =v.const("dialogue")=; add =v.const("verbatim")=.
+
+2. =subsystems/typology/prototypes/hallucinate.js=
+   - Constructor: rename =this.conversation = {...}= → =this.dialogue = {...}=.
+     Both string arguments to =this.render/stream= swap too.
+   - Add =this.verbatim = { render, stream }= getter, symmetric with =speech=.
+
+3. =registry/services/@vivalence/hallucinator/anthropic/provider/index.js=
+   - Header comment: "Exposes conversation faculties" → "Exposes dialogue
+     faculties".
+   - Rename =makeConversation= → =makeDialogue=.
+   - Faculty type string =type: "conversation"= → =type: "dialogue"=.
+
+4. =systems/runtime/daemon/traits/conversational.js=
+   - Line 44: =ctx.hallucinate.conversation.stream()= →
+     =ctx.hallucinate.dialogue.stream()=.
+
+** Files touched (tests)
+
+Pure string swap of =conversation= → =dialogue= in fixture and assertion text:
+
+- =subsystems/typology/tests/hallucinate.test.js= — lines 43, 70, 163, 175,
+  188, 194, 202, 221, 238, 255, 270.
+- =subsystems/typology/tests/cortex.test.js= — lines 12, 20, 28, 58, 68, 77,
+  80, 86, 93, 101.
+- =systems/runtime/tests/cortex.integration.test.js= — line 30.
+- =systems/runtime/tests/scenarios/cortex.js= — lines 81, 110, 125.
+
+** Orb Sketch 2 (/Users/finn/vivalence/private/logs/2026.04.17.org)
+
+- Routes: =/transcription/packet= → =/verbatim/packet=; =/transcription/close=
+  → =/verbatim/close=.
+- State slot: =socket.state.transcription= → =socket.state.verbatim=.
+- Helper name: =openTranscriber(daemon, socket)= → =openVerbatim(daemon, socket)=.
+- Naming-pass preamble bullet: "(dialogue / speech / transcription)" →
+  "(dialogue / speech / verbatim)".
+
+** Docs (deferred to ikiro/compact)
+
+- =.ikiro/claude.md= — canonical vocabulary (Cortex + longdistance work area
+  descriptions reference =conversation= / =transcription= faculty names).
+- =.ikiro/cortex.quest.org=, =.ikiro/longdistance.quest.org=,
+  =.ikiro/herald.quest.org= — all carry the old names. Let the next
+  compact pass sweep; don't tangle the rename diff with doc edits.
+
+* Open questions
+
+- *Helper naming ripple?* =openTranscriber= renamed to =openVerbatim= on the
+  orb. If a real STT handle lands, keep =openVerbatim= or split into
+  =verbatim.open({daemon, socket})=? Defer to provider-landing PR.
+- *Provider contract for verbatim?* Faculty shape ={type, tune, context,
+  channels, via}= — =via= needs =push= + =flush= (not =render= + =stream=
+  like dialogue/speech). Schema mismatch. Either widen FacultyType schema
+  to allow faculty-specific =via= maps, or define a verbatim-specific
+  sub-contract. Open. Not blocking this rename.
+
+* Key files
+
+- =subsystems/typology/schematics/primitives/hallucination.js= — FacultyType
+  union (authoritative type list).
+- =subsystems/typology/prototypes/hallucinate.js= — cortex spawn; the
+  dotted-getter DSL consumers use.
+- =subsystems/typology/prototypes/cortex.js= — faculty table + resolve()
+  (not touched; reads the union via faculty registrations).
+- =registry/services/@vivalence/hallucinator/anthropic/provider/index.js= —
+  sole live faculty-registering provider.
+- =systems/runtime/daemon/traits/conversational.js= — trait that consumes
+  =hallucinate.dialogue.stream=.
+- =/Users/finn/vivalence/private/logs/2026.04.17.org= — Sketch 2 orb; source
+  of truth for M4.0 session wiring design.
+
+* Phases / Milestones
+
+Single phase. Apply diff → run tests → green. No staggering.
+
+** Gates before apply
+
+1. Green-light on the rename scope as proposed. (Pending.)
+2. Confirmation that =verbatim= faculty addition is wanted now (not deferred
+   to when a provider ships).
+3. Orb Sketch 2 update OK to apply as part of this pass.
+
+** Verify
+
+- =deno test subsystems/typology/tests/hallucinate.test.js=
+- =deno test subsystems/typology/tests/cortex.test.js=
+- =deno test systems/runtime/tests/cortex.integration.test.js=
+- Full suite sanity: =deno task test= at root if a task exists, otherwise the
+  two package test dirs above.
+
+* User input persisted
+
+*** D-name-1
+Verbatim user note (2026-04-17):
+
+#+BEGIN_QUOTE
+i think i prefer dialogue. and i think i want dialogue to ripple through the
+cortex implementation. wherever conversation is used, use dialogue. excluding
+conversational trait - that stays.
+#+END_QUOTE
+
+*** D-name-2
+Verbatim user note (2026-04-17):
+
+#+BEGIN_QUOTE
+some for renaming the transcription to verbatim. propose one diff for both.
+#+END_QUOTE
+
+*** D-name-3
+Verbatim user note (2026-04-17), on the /control/trait route removed upstream
+in the same session:
+
+#+BEGIN_QUOTE
+no control trait. repo handles that.
+#+END_QUOTE
+
+Included here because route slot cleanup is adjacent to the naming pass —
+/control/trait was dropped from orb Sketch 2 in the same edit.
+
+* Changelog
+
+- 2026-04-17 — Quest created. Design locked pending green-light on
+  diff. No code applied yet.
+- 2026-04-18 — *Verified landed.* Diff applied prior to this audit; status
+  updated to DONE. Evidence: =subsystems/typology/prototypes/hallucinate.js:11=
+  exposes =this.dialogue= + =this.verbatim=; =systems/runtime/daemon/traits/conversational.js:44=
+  calls =ctx.hallucinate.dialogue.stream()=;
+  =registry/services/@vivalence/hallucinator/anthropic/provider/index.js=
+  registers =type: "dialogue"= faculties. Tests referenced in the
+  Files-touched section use the new strings. FacultyType union in
+  =schematics/primitives/hallucination.js= still to be spot-checked on
+  next touch. Quest retained as the historical diff record; not an
+  open work item.

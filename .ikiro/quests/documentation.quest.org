@@ -1,0 +1,121 @@
+#+TITLE: documentation
+#+STATUS: DESIGN
+#+CREATED: 2026-05-10
+#+AUTHOR: finn + beef
+
+* arc
+
+Make vivalence legible to a second reader. Six artifacts, hybrid C4-backbone + Divio-umbrella, single-sourced against ikiro.
+
+* deliverables
+
+| # | M | artifact | divio | location | gating |
+|---|---|---|---|---|---|
+| 1 | M1 | README | nav | =/README.md= (preserved; refactor-later) | DONE |
+| 2 | M2 | explanation (system + spatial) | explanation | =/docs/01-context.md=, =/docs/02-containers.md=, =/docs/03-containers/*=, =/docs/explanation/*= | none |
+| 3 | M3 | code tour | explanation/tutorial hybrid | =/docs/tour.md= | M2 vocabulary lockdown |
+| 4 | M4 | how-to: run locally | how-to | =/docs/how-to/run-locally.md= (scaffold) | precursor: bootable-locally quest |
+| 5 | M5 | how-to: create a new mode | how-to | =/docs/how-to/create-a-mode.md= | M2 trait-arc explanation |
+| 6 | M6 | roadmap | meta | =/docs/roadmap.md= | finn input + ikiro quest index |
+
+* /docs outline (hybrid)
+
+C4-zoom backbone (numbered files + per-container split). Divio umbrellas (=explanation/=, =how-to/=, =tour.md=, =roadmap.md=) graft at top tier for cross-cutting + task + walk + time axes.
+
+#+begin_src
+/README.md                              preserved — root entry
+/docs/
+├── README.md                           front door for /docs — directs by reader-type
+// @beff lets scope our c4 into a propper c4 dir like this:
+// ├── c4/                        c4
+├── 01-context.md                       C4 L1 — what vivalence is, what's outside it
+├── 02-containers.md                    C4 L2 — narrative + diagram, links → 03-containers/*
+├── 03-containers/                      C4 L3 — one md per container, opens with canonical aphorism
+│   ├── typology.md                     "one constructor, many shapes"
+│   ├── paladin.md                      "declarative manifests, compiled product"
+│   ├── runtime.md                      "cascade lifecycle"
+│   ├── registry/                       sub-tree — registry has 4 internal kinds
+│   │   ├── README.md                   "every entry exports manifest"
+│   │   ├── kernels.md                  "engine + symbols + instances"
+│   │   ├── modes.md                    "traits are the wiring contract"
+│   │   ├── services.md                 "manifest declares; provider creates"
+│   │   └── wafers.md                   circuit format — system declaration
+│   ├── dapper.md                       theming pipeline + drapes (consumer)
+│   ├── kajuit.md                       "DOM is a consumer of the dataspace"
+│   └── shell.md                        operator interface — design-only stub
+├── explanation/                        cross-cutting concepts (no single container owns)
+│   ├── trait-arc.md                    declarative metadata + functional dispatch → emergent wiring
+│   ├── lifecycle.md                    construct → populate → resolve → integrate → disintegrate
+│   ├── manifest-contract.md            shared shape across kinds; paladin indexing
+│   ├── channel-grammar.md              signal = /channel/verb across handshake/dialogue/speech/verbatim
+│   └── language-map.md                 ubiquitous-language reference; canonical glossary
+├── how-to/
+│   ├── run-locally.md                  GATED — scaffold acknowledging precursor missing
+│   └── create-a-mode.md                walks dewey reference; manifest → traits → buffer → emitter → wiring
+├── tour.md                             single guided code walk, end-to-end
+└── roadmap.md                          now / next / later / out-of-scope
+#+end_src
+
+Total: 1 root README (preserved) + 1 docs README + 2 numbered C4 files + 7 container files (5 inside =registry/=) + 5 explanation files + 2 how-to files + 1 tour + 1 roadmap = *19 markdown files*.
+
+* per-file specs (brief)
+
+** /docs/README.md
+Front door. Reader-type decision tree (newcomer → 01; structural reader → 03; doer → how-to; orienter → tour; planner → roadmap).
+
+** /docs/01-context.md
+C4 L1. What vivalence IS (paraphrase from =/readme.org= vision excerpts). What's OUTSIDE: Deno, browser/iOS Safari, Anthropic, Deepgram, ElevenLabs, jj, the learner. Names primitives once canonically (daemon, mode, literal, symbol, trait).
+
+** /docs/02-containers.md
+C4 L2. Narrative + diagram listing 7 containers with one-line role + link to each =03-containers/<name>.md=. Same shape as root =.ikiro/CLAUDE.md `system map`= but framed for first-time reader.
+
+** /docs/03-containers/<name>.md
+C4 L3. Each opens with the container's canonical aphorism (lifted from its ikiro). Paraphrases ikiro's architecture section for outsiders. Ends with =deeper:= link to the ikiro itself.
+
+Container-specific cross-links:
+- =typology.md= → =explanation/channel-grammar.md=
+- =paladin.md= → =explanation/manifest-contract.md=
+- =runtime.md= → =explanation/lifecycle.md= + =explanation/trait-arc.md=
+- =kajuit.md= → ship metaphor in =explanation/language-map.md=
+- =ghost.md= → states "design-only, see =systems/ghost/README.org="
+
+** /docs/03-containers/registry/*.md
+Five files because registry has 4 internal kinds (kernels/modes/services/wafers) + a README index. Each kind has its own grammar; flat single file would conflate.
+
+** /docs/explanation/*.md
+Cross-cutting concepts — no single container owns these. Five files, each paraphrases the ikiro section it canonicalizes:
+- =trait-arc.md= ← root ikiro =trait arc=
+- =lifecycle.md= ← root ikiro =lifecycle= + runtime ikiro =cascade lifecycle=
+- =manifest-contract.md= ← registry ikiro =manifest contract=
+- =channel-grammar.md= ← typology ikiro =channel grammar=
+- =language-map.md= ← root ikiro =language and image map= (canonical glossary; nothing else duplicates vocab)
+
+** /docs/how-to/run-locally.md
+GATED. Scaffold ships now with three sections:
+1. what's missing (env vars, secrets, daemon wiring, kajuit dev-server invocation, dataset hydration)
+2. link to bootable-locally precursor quest (to be created if not extant)
+3. eventual command sequence as draft
+
+Honest about "doesn't work yet."
+
+** /docs/how-to/create-a-mode.md
+Concrete walk through =registry/modes/@vivalence/teacher/dewey/= as reference (or pick a game mode if dewey too WIP). Anatomy steps: manifest → traits chosen → buffer → emitter → dataset → wiring into circuitry → daemon picks up → "your mode appears at <route>". Cites parallel files at every step.
+
+** /docs/tour.md
+Single guided walk. Bold group headers per =feedback_tour_format.md=. End-to-end path:
+
+#+begin_src
+typology entity:        subsystems/typology/entities/kernel/Literal.ts
+corpus literal:         registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/words/noun.js
+domain wrapper:         registry/kernels/@vivalence/domain/learning/domain.viva.js
+mode:                   registry/modes/@vivalence/game/pick/pick.viva.js
+wafer wiring:           registry/wafers/@vivalence/variant/multiplayer/server/daemon.viva.js
+runtime boot:           systems/runtime/run.js
+client mount:           systems/kajuit/src/routes/+layout.svelte
+#+end_src
+
+Each stop = full path + paragraph explaining what happens there + what reads it next.
+
+** /docs/roadmap.md
+Now / next / later / out-of-scope. Pulled from root =.ikiro/CLAUDE.md `quests master index`=. Finn authors the prose; this file is the structured view of in-flight + committed-but-not-started + intent + non-goals.
+

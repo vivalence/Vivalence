@@ -7,7 +7,7 @@ export class Paladin {
   secret = new Env();
 
   variant = {
-    circuitry: [], // finished masks; compiled from circuitry
+    // circuitry: [], // backup: pre-M1 variant quest
     runtime: {},
     clients: {},
     daemons: [],

@@ -1,0 +1,521 @@
+#+TITLE: ikiro/topology-to-corpus — kernel type rename: topology → corpus, topologies → corpora
+#+METHOD: ikiro/quest
+#+DATE: 2026-04-29
+#+STATUS: DESIGN
+
+* Intent
+
+Rename the third kernel type. =topology= (geometric/structural) never described what the kernel actually carries: a vocabulary corpus. Rename throughout.
+
+| current      | new      |
+|--------------|----------|
+| topology     | corpus   |
+| topologies   | corpora  |
+| Topology     | Corpus   |
+| .topology    | .corpus  |
+
+Symbol semantics, file shapes, dataset contracts, and trait set unchanged. Pure identifier rename + directory move.
+
+* Boundary
+
+In scope:
+- 1 runtime class + 2 dispatch sites (kernel.js, population.js, bench.js)
+- 1 typology comment (=properties.js:1=)
+- 8 =.viva.js= manifests (1 active, 1 vocalized variant, 6 archived under =bak/=)
+- 1 directory move: =registry/kernels/@vivalence/topology/= → =corpus/=
+- 2 circuitry kernel-array import strings (active + bak daemon.viva.js)
+- ~145 doc occurrences across 13 =.ikiro/= files + 5 =claude.md= files
+- 1 quality-criteria filename rename: =topology-quality-criteria.md= → =corpus-quality-criteria.md=
+
+Out of scope:
+- =subsystems/typology/= — different word; do not touch
+- =topography= references in archived =bak/= code — different word
+- 8 ambiguous bak/ paths flagged by scout (commented-out structural fields, unrelated stubs)
+- Quest filename =flatten-topologies.quest.org= — historical, leave (decision under Open Questions)
+- Compact filenames — historical, leave
+- =.ikiro/identity-collapse.quest.org= — uses "ref topology" (git refs sense), not kernel-type
+- "Literal topology" prose description (=dataspace.viva.js= + =stage-canvas-devtools=) — graph-sense metaphor; flagged separately under Open Questions
+
+* Risk model
+
+Pensieve indexes by =manifest.type=, not by filesystem path. This decouples M1 (manifest semantics) from M2 (cosmetic dir name).
+
+| change | breaks if alone? | reason |
+|--------|------------------|--------|
+| manifest =type: "topology"= → =type: "corpus"= without updating circuitry imports | YES | accio query =@vivalence/topology/english-to-brazilian= no longer resolves; pensieve has it under =corpus= |
+| circuitry import strings without updating manifests | YES | accio finds nothing under =@vivalence/corpus/=; daemon boot fails |
+| runtime class rename without manifest rename | YES | =find((v) => register.manifest.type === v.type)= finds no match; modes orphaned |
+| dir rename without anything else | NO | paladin walks recursively, ingests by content |
+| docs sweep alone | NO | docs are descriptive |
+
+→ M1 is atomic. M2 + M3 are independent and reorderable.
+
+* Decision: filter vs find
+
+Current: =die.kernel.topology= is a =filter()= returning array. Daemons with multiple corpora exist conceptually but not in active circuitry — every active =daemon.viva.js= references exactly one corpus.
+
+Two options for the new key:
+
+| option | shape | impact |
+|--------|-------|--------|
+| =corpus= as filter (array) | =die.kernel.corpus = [...]= | preserves current shape; downstream consumers index =[0]= |
+| =corpus= as find (single)  | =die.kernel.corpus = {...}= | matches singular noun; aligns with =domain=; one-shot break |
+
+Recommendation: keep filter (array) for M1. Change shape in a separate quest if desired. Lower blast radius.
+
+* Milestone 1 — Runtime contract (atomic)
+
+End state: dispatch and manifest agree on =corpus=. Filesystem still says =topology/=. Tree green; daemon boots; =die.kernel.corpus.length === 1= for the active circuit.
+
+** File 1 — systems/runtime/daemon/kernel.js
+
+Full file rewrite (22 lines):
+
+#+begin_src diff
+- import { Mode } from "@vivalence/typology";
+-
+- class Domain extends Mode {
+-   type = "domain";
+- }
+-
+- class Ontology extends Mode {
+-   type = "ontology";
+- }
+-
+- class Topology extends Mode {
+-   type = "topology";
+- }
+-
+- export const traits = {};
+-
+- export const modes = [
+-   { type: "domain", prototype: Domain },
+-   { type: "ontology", prototype: Ontology },
+-   { type: "topology", prototype: Topology },
+- ];
++ import { Mode } from "@vivalence/typology";
++
++ class Domain extends Mode {
++   type = "domain";
++ }
++
++ class Ontology extends Mode {
++   type = "ontology";
++ }
++
++ class Corpus extends Mode {
++   type = "corpus";
++ }
++
++ export const traits = {};
++
++ export const modes = [
++   { type: "domain", prototype: Domain },
++   { type: "ontology", prototype: Ontology },
++   { type: "corpus", prototype: Corpus },
++ ];
+#+end_src
+
+** File 2 — systems/runtime/daemon/lifecycle/population.js
+
+Hunk at lines 25-29:
+
+#+begin_src diff
+   die.kernel = {
+     domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
+-    topology: die.register.kernel.filter((m) => m.manifest.type === "topology"),
++    corpus: die.register.kernel.filter((m) => m.manifest.type === "corpus"),
+     ontology: die.register.kernel.filter((m) => m.manifest.type === "ontology"),
+   };
+#+end_src
+
+** File 3 — systems/runtime/tests/scenarios/bench.js
+
+Two hunks. Line 103:
+
+#+begin_src diff
+-  const topologies = resolvedKernels.filter((k) => k.manifest?.type === "topology");
++  const corpora = resolvedKernels.filter((k) => k.manifest?.type === "corpus");
+#+end_src
+
+Line 147:
+
+#+begin_src diff
+-    kernel: { domain, topology: topologies, ontology: ontologies },
++    kernel: { domain, corpus: corpora, ontology: ontologies },
+#+end_src
+
+Verify scope of variable =topologies= — grep showed only these 2 lines. No other references in bench.js.
+
+** File 4 — registry/.ikiro/CLAUDE.md
+
+Two hunks. Line 29 (manifest type union):
+
+#+begin_src diff
+   type: "domain" | "ontology" | "topology" | "game" | "tactic" |
++        ↓
+   type: "domain" | "ontology" | "corpus" | "game" | "tactic" |
+         "service" | "datamap" | "hallucinator" | "lighthouse" | "circuit",
+#+end_src
+
+Line 44 (type-specific exports table):
+
+#+begin_src diff
+- | topology | dataset (literals + symbol associations) |
++ | corpus | dataset (literals + symbol associations) |
+#+end_src
+
+Line 103 (archived list mention) — leave as historical or update; defer to M3.
+
+** File 5 — registry/kernels/@vivalence/topology/english-to-brazilian/brazilian.viva.js
+
+Line 5:
+
+#+begin_src diff
+-  type: "topology",
++  type: "corpus",
+#+end_src
+
+** File 6 — registry/kernels/@vivalence/topology/english-to-brazilian-vocalized/vocalized.viva.js
+
+Line 5: same one-line diff.
+
+** File 7-12 — bak/ manifests (6 files, identical hunk)
+
+Same =type: "topology"= → =type: "corpus"= one-liner each:
+- =registry/kernels/@vivalence/topology/bak/english-to-brazilian-survival/brazilian.viva.js= line 6
+- =registry/kernels/@vivalence/topology/bak/english-to-brazilian-a1/brazilian.viva.js= line 6
+- =registry/kernels/@vivalence/topology/bak/english-to-brazilian-a2/brazilian.viva.js= line 6
+- =registry/kernels/@vivalence/topology/bak/vocabulary-brazilian/brazilian.viva.js= line 6
+- =registry/kernels/@vivalence/topology/bak/language-spanish/spanish.viva.js= line 6
+- =registry/kernels/@vivalence/topology/bak/language-latin/latin.viva.js= line 4
+
+Question: rename bak/? Yes — they're still =topology= type and would break the type-vs-path invariant after M2. Same one-liner.
+
+** File 13 — registry/wafers/@vivalence/variant/multiplayer/server/daemon.viva.js
+
+Line 29:
+
+#+begin_src diff
+   kernel: [
+     "@vivalence/domain/language-learning",
+     "@vivalence/ontology/word",
+     "@vivalence/ontology/sentence",
+     "@vivalence/ontology/conjugation",
+-    "@vivalence/topology/english-to-brazilian",
++    "@vivalence/corpus/english-to-brazilian",
+   ],
+#+end_src
+
+** File 14 — registry/wafers/@vivalence/bak/circuitry/runtime/daemon.viva.js
+
+Line 29:
+
+#+begin_src diff
+-    "@vivalence/topology/english-to-brazilian:survival",
++    "@vivalence/corpus/english-to-brazilian:survival",
+#+end_src
+
+** File 15 — subsystems/typology/entities/base/properties.js
+
+Line 1 (comment):
+
+#+begin_src diff
+- // todo reintegrate entities from topology
++ // todo reintegrate entities from corpus
+#+end_src
+
+Trivial; kernel-type sense.
+
+** Order of operations within M1 (atomic — apply all together, no partial state)
+
+1. Edit kernel.js
+2. Edit population.js
+3. Edit bench.js (both hunks)
+4. Edit registry/.ikiro/CLAUDE.md (lines 29 + 44)
+5. Edit all 8 .viva.js manifests
+6. Edit both daemon.viva.js circuitry files
+7. Edit subsystems/typology/entities/base/properties.js (comment)
+8. Run runtime + API verification ritual (see below)
+
+** Verify M1 — runtime + API ritual
+
+Stage 1: static checks
+
+| check | command |
+|-------|---------|
+| no =type: "topology"= in code | =rg 'type: "topology"' --type js --type ts -g '!*bak*'= → 0 hits |
+| no =@vivalence/topology= imports | =rg '@vivalence/topology' registry/wafers/ -g '!*bak*'= → 0 hits |
+| no =\.topology\b= access patterns | =rg '\.topology\b' systems/ subsystems/ -g '!*bak*'= → only ambiguous |
+| no =Topology= class name | =rg '\bTopology\b' systems/ subsystems/ -g '!*bak*'= → 0 hits |
+
+Stage 2: paladin resolution test
+
+Test file: =systems/runtime/tests/quest/topology-rename-baseline.test.js= (staged for this quest; already green at pre-rename baseline 5/5).
+
+After rename, copy → =corpus-rename-postrename.test.js= and flip every =topology= → =corpus= in expectations. Should stay 5/5.
+
+#+begin_src bash
+cd systems/runtime && deno test -A --no-check tests/quest/topology-rename-baseline.test.js
+#+end_src
+
+Verifies:
+- =paladin.vip.accio("@vivalence/corpus/english-to-brazilian")= resolves
+- =resolved.manifest.type === "corpus"=
+- vocalized variant also resolves under =corpus=
+- daemon circuitry kernel array (5 entries) all resolve, types match =[domain, ontology, ontology, ontology, corpus]=
+- =kernel.js= declares =class Corpus= with type =corpus=
+
+Stage 3: bench smoke scenario
+
+#+begin_src bash
+cd systems/runtime && deno test -A --no-check tests/bench/smoke.test.js
+#+end_src
+
+Existing test, 7 steps. Boots daemon in-process via bench, exercises =connection.call("/entities/literal/find")= — the in-memory API surface. Pre-rename: 7/7 green (verified). Post-rename: must stay 7/7.
+
+Note: full topology DATASET seeding via bench is currently broken by an unrelated pre-existing schema bug (NOT NULL on =Literal.ontology= during update of pre-existing literals like =qualquer.determiner=). This is NOT a rename concern; the rename does not touch DATASET seeding. The bench smoke test sidesteps this by not loading the topology kernel.
+
+Stage 4: live runtime + HTTP API (optional, environment-dependent)
+
+#+begin_src bash
+cd systems/runtime && deno task run
+#+end_src
+
+Requires env: =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=, =SECRET_VIVA_ANTHROPIC_API_KEY=, sqlite file. If env present:
+
+| endpoint | method | expected |
+|----------|--------|----------|
+| =/pick/literal/feed= | GET (auth) | 200, literal array from corpus |
+| =/pick/literal/novel= | GET (auth) | 200, unlearned literals by rank |
+| =/pick/literal/due= | GET (auth) | 200, past-review literals (may be empty) |
+| =/review/memory= | POST | 200, memory created/updated |
+
+If env missing: skip this stage; stages 1-3 are sufficient.
+
+Stage 5: gate
+
+- Stages 1-3 green → M1 done (Stage 4 if env permits)
+- Any red → diagnose, do not advance to M2
+
+* Milestone 2 — Filesystem rename
+
+End state: directory naming aligns with manifest.type. Cosmetic only — paladin walks by content.
+
+** Operations (in order)
+
+1. =mv registry/kernels/@vivalence/topology registry/kernels/@vivalence/corpus=
+   Single move. Includes all subdirs: =english-to-brazilian/=, =english-to-brazilian-vocalized/=, and =bak/= subtree.
+
+2. Edit =registry/kernels/@vivalence/.ikiro/claude.md= — structure diagram block:
+
+#+begin_src diff
+  └── topology/
++     ↓
+  └── corpus/
+      ├── english-to-brazilian/             merged curriculum (2086 literals, 51 symbols)
+      ├── english-to-brazilian-vocalized/   vocalized variant (audio assets)
+      └── bak/                              survival/a1/a2 archived after merge; Spanish, Latin
+#+end_src
+
+3. Edit =registry/.ikiro/CLAUDE.md= line 103 (archived list):
+
+#+begin_src diff
+- - `kernels/@vivalence/topology/bak/` — Spanish, Latin, other languages
++ - `kernels/@vivalence/corpus/bak/` — Spanish, Latin, other languages
+#+end_src
+
+4. Re-run runtime + API ritual (same 5 stages as M1).
+
+** Verify M2
+
+| check | command |
+|-------|---------|
+| topology dir gone | =test ! -d registry/kernels/@vivalence/topology= |
+| corpus dir present | =test -d registry/kernels/@vivalence/corpus= |
+| 8 manifests resolvable | runtime boot + paladin scan logs show all 8 ingested |
+| API still green | =/pick/literal/feed= returns 200 with corpus literals |
+
+* Milestone 3 — Documentation sweep
+
+Largest volume, lowest risk. All terminology updates + 1 file rename. Split per file for atomic commits.
+
+** Files (~17 total)
+
+claude.md surface (5 files):
+
+| # | path | scope | action |
+|---|------|-------|--------|
+| 1 | registry/kernels/@vivalence/.ikiro/claude.md | 7 mentions across architecture, traits, composition, testing-gaps, quality-criteria reference | rewrite all =topology= (kernel-type) → =corpus= |
+| 2 | registry/.ikiro/claude.md | line 103 archived list path | edit |
+| 3 | systems/runtime/.ikiro/claude.md | =Domain, Ontology, Topology classes (21 lines)= → =Domain, Ontology, Corpus classes= | edit |
+| 4 | registry/modes/@vivalence/.ikiro/claude.md | =TOPOGRAPHICAL ... carry topology-level data= → =carry corpus-level data= | edit |
+| 5 | .ikiro/claude.md | 1 mention (system map / domain entity description line 71) | edit |
+
+quality-criteria rename (1 file):
+
+| # | path | scope | action |
+|---|------|-------|--------|
+| 6 | registry/kernels/@vivalence/.ikiro/topology-quality-criteria.md | RENAME file + 5 inline mentions | =mv= + edit |
+
+zettelkasten + active quests (8 files):
+
+| # | path | scope | action |
+|---|------|-------|--------|
+| 7 | .ikiro/zettelkasten.md | 4 occurrences | edit |
+| 8 | .ikiro/closed-class-completion.quest.org | 1 mention | edit |
+| 9 | .ikiro/survival-conjugation-expansion.quest.org | 1 mention | edit |
+|10 | .ikiro/tatoeba-harvest.quest.org | 1 mention | edit |
+|11 | .ikiro/very-important-packagemanager.quest.org | 1 mention ("topology data") | edit |
+|12 | .ikiro/language-learning-modes.quest.org | 2 mentions ("topology authors literals", "data authored in topology") | edit |
+|13 | .ikiro/stage-canvas-devtools.quest.org | 4 mentions; all rewrite — "circuit/topology" → "circuit/corpus"; "literal topology" → "literal corpus map" (2×); description string mirror | full edit |
+|14 | .ikiro/identity-collapse.quest.org | "ref topology" — git refs sense, NOT kernel-type | leave |
+
+compacts (2 files):
+
+| # | path | scope | action |
+|---|------|-------|--------|
+|15 | .ikiro/compacts/2026.04.29.pra-double-and-the-compound-axis.org | 1 mention | edit (locked) |
+|16 | .ikiro/compacts/2026.04.29b.string-matches-and-closed-class-completion.org | 2 mentions | edit (locked) |
+
+dataspace prose (1 file):
+
+| # | path | scope | action |
+|---|------|-------|--------|
+|17 | registry/modes/@vivalence/dashboard/dataspace/dataspace.viva.js | =description: "Live dataspace viewer. Literal topology, memory landscape, trace timeline."= → =Literal corpus map= | edit (locked) |
+
+** Heaviest hunk — registry/kernels/@vivalence/.ikiro/claude.md
+
+Replace at:
+- Line 3 (header description): =three kernel types= sentence — change =topologies= → =corpora=, mentions of =topology=
+- Line 15 (architecture bullet): =topology — language pair curricula= → =corpus — language pair curricula=
+- Line 39 (structure block): =└── topology/= → =└── corpus/=
+- Line 77 (literal format heading): =literal format (topology):= → =literal format (corpus):=
+- Line 103 (kernel composition example): =@vivalence/topology/english-to-brazilian= → =@vivalence/corpus/english-to-brazilian=
+- Line 116: =ontology + topology datasets= → =ontology + corpus datasets=
+- Line 125: =topology literal-format validation= → =corpus literal-format validation=
+- Line 126: =all topology data fails to load= → =all corpus data fails to load=
+- Line 141: =topology-quality-criteria.md= → =corpus-quality-criteria.md=; =any topology literal= → =any corpus literal=
+
+** topology-quality-criteria.md rename
+
+#+begin_src bash
+mv registry/kernels/@vivalence/.ikiro/topology-quality-criteria.md \
+   registry/kernels/@vivalence/.ikiro/corpus-quality-criteria.md
+#+end_src
+
+Inline edits at lines 3, 212, 328 (per scout) — replace =topology= (kernel-type sense) with =corpus=. The Python comment at line 212 (=Parse a topology literal JS file=) → =Parse a corpus literal JS file=.
+
+** Compact + quest filenames — open question
+
+Three filenames currently bear =topologies= or =topology= in their name:
+- =.ikiro/flatten-topologies.quest.org= (DONE state, archeology)
+- (compact filenames are date+topic-tagged; the topic tags are historical)
+
+Recommendation: leave filenames untouched. The names date the discussion; renaming destroys that signal. Inside-content references update freely.
+
+** Order of ops within M3
+
+Per-file edit; no interdependencies. Recommended grouping:
+
+1. claude.md surface (5 files) + topology-quality-criteria.md rename
+2. .ikiro/zettelkasten.md
+3. Active quests (#8-13; #14 left as-is)
+4. =mv .ikiro/flatten-topologies.quest.org .ikiro/flatten-corpora.quest.org= (filename rename)
+5. Compacts (#15-16)
+6. dataspace.viva.js prose (#17)
+
+** Verify M3
+
+| check | command |
+|-------|---------|
+| no =topology= (kernel-type sense) in active quests | =rg '\btopology\b' .ikiro/*.quest.org= |
+| ambiguous matches only | review matches to confirm geometric/network/typology/topography/git-refs sense |
+| topology-quality-criteria.md is gone | =test ! -f registry/kernels/@vivalence/.ikiro/topology-quality-criteria.md= |
+| corpus-quality-criteria.md present | =test -f registry/kernels/@vivalence/.ikiro/corpus-quality-criteria.md= |
+| no broken links to renamed file | =rg 'topology-quality-criteria' --type md --type org= → 0 hits |
+
+* Disambiguation — do NOT touch
+
+These contain =topology= but in unrelated senses. Confirmed by scout:
+- =subsystems/typology/= — typology ≠ topology
+- =subsystems/typology/bak/entities/ontology/Topography.ts= — different word ("topography")
+- =registry/kernels/@vivalence/ontology/sentence/topography.bak/= — different word
+- =systems/runtime/daemon/bak/ontology.js= — variable =const topologies= refers to ontology data structures, not kernel type
+- =subsystems/typology/entities/kernel/Constraint.ts:134= — commented-out bak field
+- Any mention of =graph topology=, =network topology=, =mathematical topology= in unrelated docs
+
+Plus archived quest filenames: =flatten-topologies.quest.org= (historical artifact).
+
+* QA per milestone
+
+| milestone | green test |
+|-----------|------------|
+| M1 | =bun test scenarios/bench.js= passes; daemon boots; =die.kernel.corpus.length === 1= for active circuit; =rg 'type: "topology"' --type js= returns zero |
+| M2 | daemon boots; paladin scan logs show 8 manifests under =@vivalence/corpus/=; no broken accio queries |
+| M3 | =rg '\btopology\b' .ikiro/ registry/=  returns only ambiguous (typology/topography) hits |
+
+* Decisions (locked 2026-04-29)
+
+1. =die.kernel.corpus= = filter (array). Preserves current shape; consumers index =[0]=. Singular-shape change deferred to separate quest.
+2. =mv .ikiro/flatten-topologies.quest.org .ikiro/flatten-corpora.quest.org=. Rename for consistency.
+3. Compact filenames: rename if any contain =topology= in name. Verified neither =2026.04.29.pra-double-and-the-compound-axis.org= nor =2026.04.29b.string-matches-and-closed-class-completion.org= has =topology= in filename → decision applies to compact CONTENT only (already in M3 #15-16).
+4. =bak/= manifests: rename =type: "topology"= → =type: "corpus"=. Already in M1 #7-12.
+5. =registry/wafers/@vivalence/bak/circuitry/runtime/daemon.viva.js:29= path string: update. Already in M1 #14.
+6. =Literal topology= prose: rephrase to =Literal corpus map= in =dataspace.viva.js= and 2× in =stage-canvas-devtools.quest.org=. Now mandatory M3 #17 + part of #13.
+
+* Build sequence (cross-milestone)
+
+#+begin_src
+M1 (atomic — apply all together)
+   ├── kernel.js
+   ├── population.js
+   ├── bench.js (2 hunks)
+   ├── registry/.ikiro/CLAUDE.md (2 hunks)
+   ├── 8 × .viva.js manifests
+   ├── 2 × daemon.viva.js circuitry imports
+   └── subsystems/typology/entities/base/properties.js (comment)
+   ↓ verify: 5-stage runtime + API ritual (static / bench / boot / API / gate)
+M2 (single dir mv + 2 doc edits)
+   ├── mv topology/ → corpus/
+   ├── registry/kernels/@vivalence/.ikiro/claude.md (structure block)
+   └── registry/.ikiro/CLAUDE.md (line 103)
+   ↓ verify: re-run ritual, paladin scan finds 8 manifests under new path
+M3 (per-file edits, no interdependencies)
+   ├── 5 claude.md files (kernels + registry + runtime + modes + root)
+   ├── topology-quality-criteria.md rename + inline edits
+   ├── zettelkasten + 6 active quests
+   ├── flatten-topologies → flatten-corpora quest filename
+   ├── 2 compacts (#15-16)
+   └── dataspace.viva.js prose (Literal corpus map)
+   ↓ verify: rg '\btopology\b' returns ambiguous-only
+#+end_src
+
+* Total footprint
+
+| category | count |
+|----------|-------|
+| runtime code files edited | 4 (kernel.js, population.js, bench.js, properties.js) |
+| manifest files edited | 8 (.viva.js) |
+| circuitry files edited | 2 (daemon.viva.js × 2) |
+| claude.md files edited | 5 |
+| quest files edited | 6 (zettelkasten + 5 active) |
+| compact files edited | 2 |
+| dataspace.viva.js prose | 1 |
+| quest files renamed | 1 (flatten-topologies → flatten-corpora) |
+| files renamed | 1 (topology-quality-criteria.md) |
+| dirs renamed | 1 (topology/ → corpus/) |
+| total files touched | ~28-30 |
+| total line changes | ~75 |
+
+* Second-pass findings (additions vs initial scout)
+
+| category | added by re-grep |
+|----------|------------------|
+| code files | +1 (properties.js comment) |
+| claude.md surfaces | +2 (systems/runtime, registry/modes) |
+| active quests | +3 (very-important-packagemanager, language-learning-modes, stage-canvas-devtools) |
+| identity-collapse quest | confirmed out-of-scope (git refs sense) |
+| dataspace.viva.js prose | flagged as Open Q (graph-sense vs kernel-sense ambiguity) |
+
+Total occurrences in =.ikiro/= alone: 145 lines across 13 files (quest's own self-reference excluded).

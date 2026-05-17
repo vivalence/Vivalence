@@ -1,19 +1,19 @@
 <script>
   import { getContext } from "svelte";
-  import { QUARTERS, TOP } from "$client";
+  import { QUARTERS, MAIN } from "$client";
   import Tab from "./widgets/Tab.svelte";
 
   let { rect } = $props();
   const quarters = getContext(QUARTERS);
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
 
   let terminals = $state([...quarters.terminals.all()]);
-  let activeId = $state(top.active);
+  let activeId = $state(main.active);
 
   quarters.terminals.$entities.subscribe((entities) => {
     terminals = [...entities.values()];
   });
-  top.$active.subscribe((value) => (activeId = value));
+  main.$active.subscribe((value) => (activeId = value));
 </script>
 
 <div
@@ -24,13 +24,13 @@
   style:height="{rect.height}px">
   <div class="population">
     <div class="tabs">
-      <button class="tab add" onclick={() => top.spawn()} title="new terminal">+</button>
+      <button class="tab add" onclick={() => main.spawn()} title="new terminal">+</button>
       {#each terminals as t (t.id)}
         <Tab
           terminal={t}
           isActive={t.id === activeId}
-          onactivate={() => top.activate(t.id)}
-          onclose={() => top.close(t.id)} />
+          onactivate={() => main.activate(t.id)}
+          onclose={() => main.close(t.id)} />
       {/each}
     </div>
   </div>

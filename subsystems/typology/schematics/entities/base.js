@@ -1,4 +1,4 @@
-import { v } from "../lib.js";
+import { v } from "../v.js";
 import { ID, Timestamp } from "../scalars/index.js";
 
 export const DataEntitySchema = v.object({

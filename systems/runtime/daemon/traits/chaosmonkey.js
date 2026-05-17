@@ -22,7 +22,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
         try {
           for await (const packet of source) {
             turn = soma.pour(turn, packet);
-            if (packet.event === "turn.close") {
+            if (packet.event === "/turn/close") {
               parent = ctx.daemon.entities.turn.create({
                 role: turn.role,
                 parts: turn.parts,
@@ -81,7 +81,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
     mode.aperture.branch("/harness").slurp(harness);
 
     mode.aperture.open("/capabilities", (ctx) =>
-      ["dialogue", "speech", "verbatim", "object"] //
+      ["dialogue", /* "speech", "verbatim", */ "object"] //
         .filter((type) => ctx.daemon.cortex.has(type))
         .map((type) => ({
           type,
@@ -166,7 +166,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
 //         try {
 //           for await (const packet of stream) {
 //             turn = soma.pour(turn, packet);
-//             if (packet.event === "turn.close") {
+//             if (packet.event === "/turn/close") {
 //               parent = daemon.entities.turn.create({
 //                 role: turn.role,
 //                 parts: turn.parts,
@@ -394,7 +394,7 @@ export const CHAOSMONKEY = (mode, daemon) => {
 //         try {
 //           for await (const packet of stream) {
 //             turn = soma.pour(turn, packet);
-//             if (packet.event === "turn.close") {
+//             if (packet.event === "/turn/close") {
 //               parent = daemon.entities.turn.create({
 //                 role: turn.role,
 //                 parts: turn.parts,

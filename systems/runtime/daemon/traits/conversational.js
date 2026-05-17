@@ -12,8 +12,8 @@ export const CONVERSATIONAL = (mode, daemon) => {
       });
     });
 
-  const hasSpeech = daemon.cortex.has("speech");
-  const hasVerbatim = daemon.cortex.has("verbatim");
+  // const hasSpeech = daemon.cortex.has("speech");
+  // const hasVerbatim = daemon.cortex.has("verbatim");
 
   conversation.branch("dialogue").open("open", async (ctx) => {
     const live = ctx.socket.state.conversation;
@@ -24,12 +24,10 @@ export const CONVERSATIONAL = (mode, daemon) => {
       tune: ctx.input.tune,
     });
 
-    if (!hasSpeech) {
-      for await (const packet of stream) live.send.dialogue.packet(packet);
-      live.send.dialogue.close();
-      return;
-    }
+    for await (const packet of stream) live.send.dialogue.packet(packet);
+    live.send.dialogue.close();
 
+    /*
     const [textBranch, audioBranch] = soma.tee(stream);
 
     const dialoguePath = (async () => {
@@ -54,13 +52,15 @@ export const CONVERSATIONAL = (mode, daemon) => {
       dialoguePath.catch((error) => live.send.dialogue.error({ message: error.message })),
       speechPath.catch((error) => live.send.speech.error({ message: error.message })),
     ]);
+    */
   });
 
   conversation.branch("dialogue").open("abort", (ctx) => {
     ctx.socket.state.inflight?.get(ctx.input.turn)?.abort();
-    ctx.socket.state.conversation.send.speech?.abort?.({});
+    // ctx.socket.state.conversation.send.speech?.abort?.({});
   });
 
+  /*
   if (hasVerbatim) {
     conversation.branch("verbatim").open("packet", (ctx) => {
       const state = ctx.socket.state;
@@ -73,6 +73,7 @@ export const CONVERSATIONAL = (mode, daemon) => {
       ctx.socket.state.verbatim = null;
     });
   }
+  */
 
   mode.aperture.open(
     "/conversation",
@@ -85,6 +86,7 @@ export const CONVERSATIONAL = (mode, daemon) => {
   );
 };
 
+/*
 function spinVerbatim(daemon, state, mode) {
   const audio = new Queue();
   const asr = daemon.cortex.resolve("verbatim", { tune: "eager", via: "stream" });
@@ -112,3 +114,4 @@ function spinVerbatim(daemon, state, mode) {
 
   return { audio, asr };
 }
+*/

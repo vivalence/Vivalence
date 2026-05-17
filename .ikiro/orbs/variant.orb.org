@@ -1,0 +1,521 @@
+* ORB variant manifest — testament/variant once quest lands
+
+Target end state for =testament/variant/=. Multiple expressions of the
+same deployment shown — pick by ergonomics, paladin resolves to identical
+=paladin.variant= regardless.
+
+** Conventions
+
+- Env lives EXCLUSIVELY in =<variant>/environment/*.jsonc=. Paladin loads
+  it (=populate.environment=) BEFORE importing the variant marker.
+- Variant file uses =paladin.env.get("X")= / =paladin.secret.get("X")= for
+  all env-sourced values. Cast to typed prototypes at the read site:
+  =new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE"))=.
+- Hardcoded internal constants (db filenames, mode slugs, trait arrays)
+  stay as literals — they're variant-internal identifiers, not config.
+- *No =environment= export from the variant file.* Bootstrap-order: a
+  variant cannot declare env it would then consume.
+
+** A — fully inline (single file, self-contained)
+
+Everything in one variant marker. No =circuitry/= subdir needed. Self-
+referential URLs inlined; only system-env values use =paladin.env.get=.
+
+*** testament/variant/test.viva.js
+#+BEGIN_SRC javascript
+import paladin from "@vivalence/paladin";
+import { Url } from "@vivalence/typology";
+
+export const manifest = {
+  owner: "@vivalence",
+  type: "variant",
+  slug: "test",
+  version: "0.0.1",
+  traits: ["EMBEDDED"],
+};
+
+export const runtime = {
+  slug: "runtime",
+  traits: ["EMBEDDED"],
+  statics: { serve: new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  datamap: {
+    module: "@vivalence/datamap/libsql",
+    statics: { db: { file: "runtime.viva.db" } },        // hardcoded: variant-internal
+  },
+};
+
+// clients keyed by slug — key IS the slug.
+// (Multi-variant binary naming, e.g. "jigglypuff" scoping, is parked future work.)
+export const clients = {
+  ghost: {
+    statics: {
+      lighthouse: { remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+  },
+  kajuit: {
+    statics: {
+      serve: new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      lighthouse: { remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+  },
+};
+
+export const services = [
+  {
+    slug: "multiplayer",
+    module: "@vivalence/lighthouse/multiplayer",
+    secrets: { jwt: paladin.secret.get("SECRET_VIVA_JWT") },
+    statics: { serve: new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")) },
+    datamap: {
+      module: "@vivalence/datamap/libsql",
+      statics: { db: { file: "lighthouse.viva.db" } },   // hardcoded: variant-internal
+    },
+  },
+  {
+    slug: "nlp-stanza",
+    module: "@vivalence/service/nlp-stanza",
+    secrets: { key: paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+    statics: {
+      serve: new Url(paladin.env.get("SERVICE_NLP_SERVE")),
+      processors: "tokenize,mwt,pos,lemma,depparse",     // hardcoded: pipeline spec
+    },
+  },
+];
+
+export const daemons = [
+  {
+    manifest: { type: "daemon", slug: "brazilian", version: "0.0.1", traits: ["ACTIVE"] },
+    statics: { language: { known: "english", learning: "brazilian" } },
+    kernel: [                                            // hardcoded slugs: registry refs
+      "@vivalence/domain/language-learning",
+      "@vivalence/ontology/word",
+      "@vivalence/ontology/sentence",
+      "@vivalence/ontology/conjugation",
+      "@vivalence/corpus/english-to-brazilian",
+    ],
+    modes: [                                             // hardcoded slugs: registry refs
+      "@vivalence/game/flashcard",
+      "@vivalence/game/write",
+      "@vivalence/game/shadow",
+      "@vivalence/game/conjugation",
+      "@vivalence/game/judge",
+      "@vivalence/game/match",
+      "@vivalence/game/pick",
+      "@vivalence/game/cloze",
+      "@vivalence/game/listen",
+      "@vivalence/game/paradigm",
+      "@vivalence/game/exhibit",
+      "@vivalence/tactic/five-fold-session",
+      "@vivalence/tactic/clinic",
+      "@vivalence/dashboard/dataspace",
+      "@vivalence/teacher/dewey",
+    ],
+    lighthouse: {
+      module: "@vivalence/lighthouse/multiplayer",
+      statics: { remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
+    },
+    datamap: {
+      module: "@vivalence/datamap/libsql",
+      statics: { db: { file: "test-language.viva.db" } },
+    },
+    hallucinators: [
+      { module: "@vivalence/hallucinator/anthropic",   statics: {}, secrets: { key: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") } },
+      { module: "@vivalence/hallucinator/elevenlabs",  statics: {}, secrets: { key: paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") } },
+      { module: "@vivalence/hallucinator/deepgram",    statics: {}, secrets: { key: paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") } },
+    ],
+    consume: {
+      nlp: {
+        module: "@vivalence/service/nlp-stanza",
+        secrets: { key: paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+        statics: {
+          remote: new Url(paladin.env.get("SERVICE_NLP_REMOTE")),
+          language: "en",
+          processors: "tokenize,mwt,pos,lemma,depparse",
+        },
+      },
+    },
+  },
+];
+#+END_SRC
+
+** B — hybrid (variant root + referenced daemons via path OR registry slug)
+
+Variant declares orchestration inline; daemons referenced.
+
+Reference forms:
+- =Path string= (e.g. ="./brazilian.viva.js"=) — local file relative to variant root
+- =Slug string= (e.g. ="@vivalence/daemon/brazilian"=) — vip.accio against registry
+
+Both produce identical daemon entries in =paladin.variant.daemons[]=.
+
+*** testament/variant/test.viva.js
+#+BEGIN_SRC javascript
+import paladin from "@vivalence/paladin";
+import { Url } from "@vivalence/typology";
+
+export const manifest = {
+  owner: "@vivalence",
+  type: "variant",
+  slug: "test",
+  version: "0.0.1",
+};
+
+export const runtime = {
+  slug: "runtime",
+  statics: { serve: new Url(paladin.env.get("VIVA_RUNTIME_SERVE")) },
+  datamap: { module: "@vivalence/datamap/libsql", statics: { db: { file: "runtime.viva.db" } } },
+};
+
+export const clients = {
+  ghost:  "@vivalence/client/ghost",            // registry slug → vip.accio
+  kajuit: "@vivalence/client/kajuit",
+};
+
+export const services = [
+  "@vivalence/service/multiplayer",             // bare slug strings
+  "@vivalence/service/nlp-stanza",
+];
+
+export const daemons = [
+  "./brazilian.viva.js",                        // local file path
+  // "@vivalence/daemon/brazilian",             // OR registry slug — both work
+];
+#+END_SRC
+
+*** testament/variant/brazilian.viva.js
+#+BEGIN_SRC javascript
+import paladin from "@vivalence/paladin";
+import { Url } from "@vivalence/typology";
+
+export const manifest = {
+  owner: "@vivalence",
+  type: "daemon",
+  slug: "brazilian",
+  version: "0.0.1",
+  traits: ["ACTIVE"],
+};
+
+export const statics = { language: { known: "english", learning: "brazilian" } };
+export const kernel = [ /* ... */ ];
+export const modes  = [ /* ... */ ];
+export const lighthouse = { /* ... */ };
+export const datamap    = { /* ... */ };
+export const hallucinators = [ /* ... */ ];
+export const consume = { nlp: { /* ... */ } };
+#+END_SRC
+
+After resolution, paladin folds the exports into one daemon entry indistinguishable
+from the inline form (A).
+
+** C — environment + mountpoint (NOT variant-file exports)
+
+Environment and mountpoint are NOT declared in the variant file. Bootstrap
+order rules it out: =paladin.env.get(...)= calls inside the variant body
+resolve against env loaded BEFORE the variant is imported — so a variant
+cannot declare env it would then consume.
+
+They live as sibling subdirs of the variant marker:
+
+#+BEGIN_SRC
+<variant root>/
+  test.viva.js                 the variant marker
+  environment/
+    variant.jsonc              non-secret env vars
+    services.jsonc             service-specific env
+    secrets.jsonc              SECRET_VIVA_* values (template in registry source)
+  mountpoint/
+    (whatever data the variant mounts)
+#+END_SRC
+
+Paladin's =populate.environment= reads =<variant>/environment/*.jsonc=
+into =paladin.env= / =paladin.secret= BEFORE =resolve.variantManifest=
+imports the marker. Mountpoint is a paladin scope, resolved as today.
+
+Install copies the whole tree verbatim (=cp -r source dest=) — registry
+source is responsible for shipping the right environment templates.
+
+** D — mixed (each field chooses its form independently)
+
+#+BEGIN_SRC javascript
+export const manifest = { owner: "@vivalence", type: "variant", slug: "test" };
+
+export const runtime   = { /* inline */ };
+export const clients   = { ghost: "@vivalence/client/ghost", kajuit: { /* inline */ } };
+export const services  = ["@vivalence/service/multiplayer", { slug: "nlp-stanza", module, statics }];
+export const daemons   = ["./brazilian.viva.js", "@vivalence/daemon/dutch"];
+// no environment, no mountpoint — they're filesystem-only
+#+END_SRC
+
+Paladin =resolve.compose= walks each field, type-tests:
+
+#+BEGIN_SRC javascript
+const normalize = async (entry, type) => {
+  if (typeof entry === "string") {
+    if (entry.startsWith("./") || entry.startsWith("/") || entry.startsWith("../")) {
+      const mod = await import("file://" + resolve(variantPath, entry));
+      return mod;
+    }
+    const cake = await paladin.vip.accio({ owner: "@vivalence", type, slug: parseSlug(entry) });
+    return cake;
+  }
+  if (typeof entry === "object") return entry;
+  return null;
+};
+#+END_SRC
+
+** E — installed directory shape
+
+After =viva install variant test [destination]=, the destination tree
+mirrors the registry source verbatim:
+
+#+BEGIN_SRC
+<destination>/
+  test.viva.js                  variant marker (copied)
+  brazilian.viva.js             colocated daemon file (if hybrid form B)
+  environment/
+    variant.jsonc               copied from registry source
+    services.jsonc              copied from registry source
+    secrets.jsonc               copied — template; user fills post-install
+  mountpoint/
+    (copied — usually empty / .gitkeep)
+#+END_SRC
+
+Registry source =registry/wafers/@vivalence/variant/<slug>/= has the same
+shape. Install is a tree copy, nothing more.
+
+** F — paladin.variant after resolution (compiled shape)
+
+Output of paladin. Every form yields this shape. Every value is cast to
+its typed prototype. =environment= + =mountpoint= are NOT fields on
+=paladin.variant=: environment values live in =paladin.env= /
+=paladin.secret= (populated BEFORE the variant marker imports);
+mountpoint is =paladin.scope.mountpoint=.
+
+#+BEGIN_SRC javascript
+paladin.variant = {
+  manifest: {
+    owner: "@vivalence",
+    type: "variant",
+    slug: "test",
+    version: "0.0.1",
+    traits: ["EMBEDDED"],
+  },
+  runtime: {
+    slug: "runtime",
+    traits: ["EMBEDDED"],
+    statics: { serve: Url(/*…*/) },                    // typed
+    datamap: { module, statics: { db: { file } } },
+  },
+  clients: {
+    ghost:  { statics: { lighthouse: { remote: Url(/*…*/) } } },
+    kajuit: { statics: { serve: Url(/*…*/), lighthouse: { remote: Url(/*…*/) } } },
+  },
+  services: [
+    { slug: "multiplayer", module, secrets: { jwt: "..." }, statics: { serve: Url(/*…*/) }, datamap },
+    { slug: "nlp-stanza",  module, secrets: { key: "..." }, statics: { serve: Url(/*…*/), processors } },
+  ],
+  daemons: [
+    {
+      manifest: { type: "daemon", slug: "brazilian", version, traits },
+      statics, kernel, modes,
+      lighthouse: { module, statics: { remote: Url(/*…*/) } },
+      datamap, hallucinators, consume,
+    },
+  ],
+};
+
+// environment side effects:
+paladin.env.get("VIVA_RUNTIME_SERVE")      === "http://localhost:2501/"
+paladin.secret.get("SECRET_VIVA_JWT")      === <materialized secret>
+
+// mountpoint side effect:
+paladin.scope.mountpoint                    === Path(/*resolved*/)
+#+END_SRC
+
+All =paladin.variant= consumers (=systems/runtime/lifecycle/populate.js= reads
+=paladin.variant.daemons=, etc.) keep working unchanged — the compiled shape
+matches today's, just produced by a different declaration grammar.
+
+** Differences in mechanics — summary
+
+Variant file exports only: =manifest=, =path=, =runtime=, =clients=,
+=services=, =daemons=.
+
+| field | inline form | reference form (string) | omitted |
+|-------+-------------+-------------------------+---------|
+| =runtime= | =Object= literal | slug → =vip.accio= | =paladin.variant.runtime = {}= |
+| =clients= | =Object<slug,Object>= | =Object<slug,String>= per entry → =vip.accio= | =paladin.variant.clients = {}= |
+| =services= | =Array<Object>= | =Array<String>= (slug or path) or mixed | =paladin.variant.services = []= |
+| =daemons= | =Array<Object>= | path string (=./x.viva.js=) OR slug string, or mixed | =paladin.variant.daemons = []= |
+| =path= | n/a | string with =~/= expansion | =$VIVA_VARIANTS_ROOT/<slug>= |
+
+NOT in variant file:
+| field | source |
+|-------+--------|
+| environment | =<variant>/environment/*.jsonc= (populate.environment) |
+| mountpoint | =<variant>/mountpoint/= (paladin scope) |
+
+** Reference-form resolution rules
+
+String references in =services=, =daemons=, =clients= are dispatched by prefix:
+
+| prefix | meaning | resolver |
+|--------+---------+----------|
+| =./= , =../= , =/= | path | dynamic import from filesystem |
+| =@scope/...= | registry slug | =paladin.vip.accio({owner, type, slug})= |
+| (other) | error or implicit @vivalence/* (TBD) | TBD |
+
+** Implementation plan — three milestones, each testable
+
+Scope: collapse =resolve.circuitry= → =resolve.variant= into a single marker
+resolver. =paladin.scope.variant= stays a directory; the variant FILE is
+discovered inside it. References (slug/path strings) parked to M3.
+
+What changes vs today:
+- =paladin.scope.circuitry= scope: GONE.
+- =VIVA_CIRCUITRY_MOUNT= env handling: GONE.
+- =resolve.circuitry=: GONE.
+- =resolve.variant=: REWRITTEN — reads single variant-typed cake's exports.
+- =paladin.scope.{variant,environment,mountpoint}=: UNCHANGED (env + mountpoint
+  branch off =paladin.scope.variant=).
+- =paladin.variant.{runtime,clients,services,daemons}= compiled shape: UNCHANGED
+  (downstream consumers in systems/runtime keep working).
+
+*** M1 — single-marker resolver (inline form only)
+
+Goal: =deno task runtime/run= boots against a single root variant file in
+=testament/variant/test.viva.js= with the same end-state =paladin.variant=
+shape it has today.
+
+Changes:
+- =subsystems/paladin/lifecycle/populate.js=: drop the =circuitry= entry from
+  the second =paladin.scopes([...])= block. Leave =variant=, =environment=,
+  =mountpoint= untouched.
+- =subsystems/paladin/lifecycle/resolve.js=:
+  - DELETE =export async function circuitry=.
+  - REPLACE =export async function variant= with:
+    1. =const cakes = await paladin.find.viva(paladin.scope.variant)=
+       then read each via =paladin.read.viva=.
+    2. Filter to root-only (=dirname(cake.source.absolute) === paladin.scope.variant.absolute=)
+       — exclude any nested subdir hits.
+    3. Filter to =manifest.type === "variant"=.
+    4. Length === 1 invariant — throw on 0 or >1 with the variant root
+       absolute in the error message.
+    5. Read =marker.runtime= / =.clients= / =.services= / =.daemons=
+       from that cake's exports.
+    6. Build =paladin.variant.{runtime, clients, services, daemons}= via
+       the SAME Mask + mount-branching logic that exists in the current
+       =variant= function (lines 50-66 of =resolve.js=).
+- =subsystems/paladin/lifecycle/integrate.js=: remove =paladin.scope.circuitry=
+  from the =statements= mounts array.
+- =testament/variant/test.viva.js=: AUTHOR as Form A (orb section =A=) —
+  fully inline. Single file declaring manifest + runtime + clients +
+  services + daemons. Use =paladin.env.get= / =paladin.secret.get= for
+  env-sourced values, inline literals for variant-internal constants
+  (db filenames, mode slugs, trait arrays).
+- =testament/variant/circuitry/=: DELETE the directory and its two files
+  (=test-system.viva.js=, =test-daemon.viva.js=) once the runtime boots
+  against the new marker.
+
+Test:
+- =deno task runtime/run= must start and serve =VIVA_RUNTIME_SERVE=.
+- Pre/post snapshot of =paladin.variant.{runtime, clients, services, daemons}=
+  via the existing =console.log= sites — shape and contents must match.
+- Existing runtime smoke tests (whatever currently asserts daemon-bootup)
+  continue to pass.
+
+Guardrails:
+- No changes to =populate.environment=, =populate.veryimportantpackage=,
+  =integrate.publish=, =integrate.secure= — those are downstream of the
+  variant scope, not the variant FILE, and are unchanged.
+
+*** M2 — paladin lifecycle test against synthetic variants
+
+Goal: lock the resolver behavior with a hermetic test suite. No reliance
+on =testament/variant/= or =deno task runtime/run= for correctness
+verification.
+
+New file: =subsystems/paladin/tests/variant.test.js=.
+
+Cases (each owns a temp dir, hand-written =<slug>.viva.js=):
+1. *happy path* — one inline form-A marker → all four fields populated,
+   Mask-wrapped, mounts branched correctly.
+2. *omitted fields* — marker exports only =manifest= + =runtime= →
+   =paladin.variant.clients = {}=, =services = []=, =daemons = []=.
+3. *no marker* — variant dir contains only non-variant-typed files →
+   throws with the variant root path in the message.
+4. *multiple markers* — two files at root with =manifest.type === "variant"=
+   → throws with both paths in the message.
+5. *wrong-typed file* — variant dir contains one =.viva.js= with
+   =manifest.type === "daemon"= → treated as case 3 (no marker), throws.
+6. *nested marker ignored* — a =manifest.type === "variant"= file inside
+   a subdir (e.g. =./brazilian/brazilian.viva.js=) MUST be ignored —
+   root-only invariant.
+
+Each case constructs a minimal =paladin= harness (or uses the existing
+test harness in =subsystems/paladin/tests/=) pointed at the temp dir.
+
+Test:
+- =deno task paladin/test= passes all 6 cases.
+- Failure cases assert on the thrown error message containing the offending
+  path(s).
+
+Guardrails:
+- No mocks of typology primitives (=cast.lookup=, =paladin.read.viva=) —
+  the test exercises the real resolver against real filesystem.
+
+*** M3 — reference-form resolution (slug + path strings)
+
+Goal: a variant field may carry a string ref in place of an inline object.
+Compiled =paladin.variant= shape is identical regardless of declaration.
+
+Dispatch (orb section =Reference-form resolution rules=):
+| prefix | meaning | resolver |
+|--------+---------+----------|
+| =./= , =../= , =/= | path | =paladin.read.viva(new Path(resolved))= |
+| =@scope/...= | registry slug | =paladin.vip.accio(cast.lookup(string))= |
+
+Changes:
+- =subsystems/paladin/lifecycle/resolve.js= — in the new =variant=
+  function, walk each field BEFORE Mask-wrapping:
+  - =runtime=: if string → resolve to inline. Else inline.
+  - =clients=: iterate keys; per value: if string → resolve; else inline.
+    Key stays the slug.
+  - =services=, =daemons=: =paladin.vip.accioMany(arr)= for slug-or-object
+    mixed arrays. For path-form strings, branch into a separate filesystem
+    resolver first (because =accioMany= expects slug/object, not path).
+- All four field walkers funnel through a single =normalize(entry, type)=
+  helper at the top of =resolve.js= that returns the resolved inline
+  config. Mask + mount logic stays unchanged after normalization.
+
+Test:
+- Extend =variant.test.js= with:
+  - form B (variant + colocated daemon file via =./brazilian.viva.js=) →
+    compiled =paladin.variant.daemons[0]= matches the inline form-A
+    counterpart exactly (deep-equal).
+  - form D (mixed: one inline daemon, one path-ref daemon, one slug-ref
+    service) → compiled shape identical to all-inline counterpart.
+  - bad-ref cases: nonexistent path → throws with the path in message;
+    unknown slug → throws via =vip.accio= error pass-through.
+- vip.accio path tests need either (a) a real registry fixture or (b) a
+  test-scoped =paladin.vip= stub. Prefer (a) — registry fixture in
+  =subsystems/paladin/tests/fixtures/=.
+
+Guardrails:
+- No bare-slug normalization in M3 (=flashcard= → =@vivalence/game/flashcard=).
+  Stays parked.
+- =runtime= single-config invariant kept — if =runtime= is a slug, the
+  resolved cake must export a =runtime= field that becomes the marker's
+  =runtime=; if a slug ref ALSO exports its own =runtime= field that
+  conflicts, error.
+
+** Parked / future
+
+- *Multi-variant binary scoping*: variant declares its own ghost-client binary
+  name (e.g. =clients.ghost = { binary: "jigglypuff" }= → installs ghost as
+  =jigglypuff= alongside global =viva=). Enables multiple isolated variants
+  on one machine, each with its own operator handle. Out of scope this quest.
+- *mountpoint inline seeds*: shape TBD. Probably =Object<relPath, Content>=
+  or =Object<relPath, sourcePath>=. Defer until a real use case appears.
+- *Bare-slug normalization*: do we accept =flashcard= as shorthand for
+  =@vivalence/game/flashcard=? Probably no — explicit fully qualified slugs.

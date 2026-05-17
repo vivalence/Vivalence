@@ -1,0 +1,100 @@
+#+TITLE: 52.01 Getting Started — Day One
+#+AUTHOR: Vivalence
+
+Bare machine to running instance. Repo → CLI → home → clone → lifecycle.
+
+* Precap
+
+| Step  | Command                          | Touches            |
+|-------+----------------------------------+--------------------|
+| repo  | =git clone= + =cd=               | filesystem         |
+| env   | edit =.env=                      | paladin boot       |
+| cli   | =deno task install=              | =~/.deno/bin/viva= |
+| home  | first =viva= run                 | =~/.viva/=         |
+| clone | =instance/clone <slug> <target>= | target + instances |
+| run   | =instance/run <slug>=            | attached children  |
+| start | =instance/start <slug>=          | detached + locks   |
+| stop  | =instance/stop <slug>=           | SIGTERM + locks    |
+
+* Prerequisites
+
+=git=, =deno= (v2+), a POSIX shell.
+
+* 1. Repo
+
+#+begin_src sh
+git clone <repo-url> vivalence
+cd vivalence/code/vivalence
+#+end_src
+
+* 2. Environment
+
+#+begin_src sh
+  VIVA_SYSTEM_MODE=DEVELOPMENT
+  VIVA_SYSTEM_ROLE=SUDO
+
+  VIVA_SYSTEM_MOUNT=~/.viva
+  VIVA_REPOSITORY_MOUNT=/abs/path/to/code/vivalence
+  # VIVA_VARIANT_MOUNT=/abs/path/.../testament/variant
+
+  # VIVA_ENVIRONMENT_MOUNT=/abs/path/.../variant/environment
+  # VIVA_MOUNTPOINT_MOUNT=/abs/path/.../variant/mountpoint
+#+end_src
+
+* 3. Install CLI
+
+#+begin_src sh
+deno task install
+#+end_src
+
+Writes =~/.deno/bin/viva=. No =cd= in the wrapper — runs from your shell cwd, so relative paths resolve where you stand. Put =~/.deno/bin= on =PATH=.
+
+#+begin_src sh
+viva
+# usage: viva <command> [args...] [--flags]
+#   instance/clone <slug> <target>
+#   instance/run   <slug|path>   (attached)
+#   instance/start <slug|path>   (detached)
+#   instance/stop  <slug|path>
+#+end_src
+
+* 4. System Home
+
+First run bootstraps =$VIVA_SYSTEM_MOUNT= (default =~/.viva=). One per machine.
+
+#+begin_src
+~/.viva/
+├── instances.json   # slug → { createdAt, updatedAt, mount }
+├── locks/           # <slug>/<process>.lock
+└── logs/
+    ├── ghost/spans.jsonl
+    └── <slug>/<process>.{out,err}.log
+#+end_src
+
+* 5. Clone
+
+#+begin_src sh
+mkdir ~/myinstance && cd ~/myinstance
+viva instance/clone @vivalence/variant/localhost .
+#+end_src
+
+Registry indexed, variant copied to cwd, =instances.json= gets the slug → =mount= entry. =.= = current dir.
+
+* 6. Lifecycle
+
+Each instance runs two children: =runtime= and =kajuit=. Target = slug (instances.json) or path (cwd-relative).
+
+#+begin_src sh
+viva instance/run localhost     # foreground; Ctrl+C stops both
+viva instance/start localhost   # background; refuses if already up
+viva instance/stop localhost    # SIGTERM both, clear locks
+#+end_src
+
+Observe:
+
+#+begin_src sh
+tail -f ~/.viva/logs/localhost/runtime.out.log
+cat  ~/.viva/logs/ghost/spans.jsonl | jq
+ls   ~/.viva/locks/localhost/
+#+end_src
+

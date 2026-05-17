@@ -16,7 +16,7 @@ Deno.test("Pensieve: registers and looks up modules", async () => {
 
   pensieve.register(testModule);
 
-  const found = await pensieve.lookup({
+  const found = await pensieve.revelio({
     owner: "@test",
     type: "component",
     slug: "test-module",
@@ -39,7 +39,7 @@ Deno.test("Pensieve: handles version resolution", async () => {
   pensieve.register(v1);
   pensieve.register(v2);
 
-  const latest = await pensieve.lookup({
+  const latest = await pensieve.revelio({
     owner: "@test",
     type: "lib",
     slug: "utils",

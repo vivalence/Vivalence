@@ -1,13 +1,14 @@
-import { specimen, DataEntitySchema, Value, v } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
+const { DataEntitySchema } = v.entities;
 
 specimen.describe("schematics", () => {
   specimen.describe("DataEntitySchema", () => {
     specimen.it("all fields optional", () => {
-      specimen.expect(Value.Check(DataEntitySchema, {})).toBe(true);
+      specimen.expect(DataEntitySchema.check({})).toBe(true);
     });
 
     specimen.it("accepts full shape", () => {
-      specimen.expect(Value.Check(DataEntitySchema, {
+      specimen.expect(DataEntitySchema.check({
         id: "abc-123",
         createdAt: "2026-03-25T00:00:00Z",
         updatedAt: "2026-03-25T00:00:00Z",
@@ -15,7 +16,7 @@ specimen.describe("schematics", () => {
     });
 
     specimen.it("allows additional properties", () => {
-      specimen.expect(Value.Check(DataEntitySchema, { slug: "test" })).toBe(true);
+      specimen.expect(DataEntitySchema.check({ slug: "test" })).toBe(true);
     });
   });
 

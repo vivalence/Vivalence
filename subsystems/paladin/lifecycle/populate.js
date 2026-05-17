@@ -1,4 +1,5 @@
 import * as dotenv from "@std/dotenv";
+import { join } from "@std/path";
 import { Env, Path } from "@vivalence/typology";
 
 export async function env(paladin) {
@@ -15,21 +16,34 @@ export async function env(paladin) {
     paladin.env.assign(await dotenv.load({ envPath }));
   }
 
+  // VIVA_SYSTEM_MOUNT ?
+
   // fallback to repo .env
-  if (
-    paladin.check.env(["VIVA_SYSTEM_MOUNT", "VIVA_VARIANT_MOUNT"]).fails &&
-    (paladin.is.citizen || paladin.is.dev)
-  ) {
-    const ROOT_OFFSET = "../../../.env";
-    const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname;
-    const env = await dotenv.load({ envPath });
-    paladin.env.assign(env);
-  }
+  // if (paladin.check.env(["VIVA_REPOSITORY_MOUNT", "VIVA_VARIANT_MOUNT"]).fails && (paladin.is.citizen || paladin.is.dev)) {const ROOT_OFFSET = "../../../.env"; const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname; const env = await dotenv.load({ envPath }); paladin.env.assign(env);}
+  // fallback removed for configurable paladin.
 }
 
 export async function scopes(paladin) {
   paladin.scopes([
-    ["system", () => true, () => new Path(paladin.env.get("VIVA_SYSTEM_MOUNT"))],
+    [
+      "system",
+      () => true,
+      () => {
+        const explicit = paladin.env.get("VIVA_SYSTEM_MOUNT");
+        return new Path(explicit ?? join(Deno.env.get("HOME"), ".viva"));
+      },
+    ],
+  ]);
+  paladin.scopes([
+    [
+      "repository",
+      () => true,
+      () =>
+        new Path(
+          paladin.env.get("VIVA_REPOSITORY_MOUNT") ??
+            new URL("../../../", import.meta.url).pathname, // lifecycle → paladin → subsystems → repo
+        ),
+    ],
     [
       "registry",
       () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
@@ -38,7 +52,7 @@ export async function scopes(paladin) {
         if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
           envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
         } else {
-          envpath = paladin.scope.system.branch("registry").absolute;
+          envpath = paladin.scope.repository.branch("registry").absolute;
         }
         return envpath ? new Path(envpath) : undefined;
       },
@@ -51,20 +65,7 @@ export async function scopes(paladin) {
       () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
     ],
 
-    [
-      "circuitry",
-      () =>
-        paladin.env.has("VIVA_CIRCUITRY_MOUNT") || (paladin.scope.variant && paladin.is.citizen),
-      () => {
-        let envpath;
-        if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {
-          envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");
-        } else {
-          envpath = paladin.scope.variant.branch("circuitry").absolute;
-        }
-        return envpath ? new Path(envpath) : undefined;
-      },
-    ],
+    // ["circuitry", () => paladin.env.has("VIVA_CIRCUITRY_MOUNT") || (paladin.scope.variant && paladin.is.citizen), () => {let envpath; if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");} else {envpath = paladin.scope.variant.branch("circuitry").absolute;} return envpath ? new Path(envpath) : undefined;},],
     [
       "environment",
       () =>
@@ -98,12 +99,12 @@ export async function scopes(paladin) {
   // console.log(`system`, paladin.scope.system); console.log(`regist`, paladin.scope.registry); console.log(`varian`, paladin.scope.variant); console.log(`circui`, paladin.scope.circuitry); console.log(`enviro`, paladin.scope.environment); console.log(`mountp`, paladin.scope.mountpoint);
   // console.log({ paladin });
 
-  paladin.scopes([
-    // Legacy aliases
-    ["circuits", () => paladin.scope.circuitry !== undefined, () => paladin.scope.circuitry],
+  // paladin.scopes([
+  //   // Legacy aliases
+  //   ["circuits", () => paladin.scope.circuitry !== undefined, () => paladin.scope.circuitry],
 
-    ["tilde", () => paladin.scope.variant !== undefined, () => paladin.scope.variant],
-  ]);
+  //   ["tilde", () => paladin.scope.variant !== undefined, () => paladin.scope.variant],
+  // ]);
 }
 
 export async function environment(paladin) {
@@ -134,23 +135,25 @@ export async function veryimportantpackage(paladin) {
   }
 }
 
+export async function system(paladin) {
+  const { default: install } = await import("../belt/system.js");
+  await install(paladin);
+}
+
 export async function questions(paladin) {
-  paladin.check
-    .env([
-      "VIVA_SYSTEM_MODE",
-      "VIVA_SYSTEM_ROLE",
-
-      // "VIVA_SYSTEM_MOUNT", // conditional
-      // "VIVA_VARIANT_MOUNT", // conditional
-      // "VIVA_REGISTRY_MOUNT", // conditional
-
-      // "VIVA_RUNTIME_SERVE", // conditional
-      // "VIVA_LIGHTHOUSE_SERVE", // conditional
-      // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
-
-      // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
-      // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
-      // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
-    ])
-    .throw();
+  //   paladin.check
+  //     .env([
+  //       // "VIVA_SYSTEM_MODE",
+  //       // "VIVA_SYSTEM_ROLE",
+  //       // "VIVA_REPOSITORY_MOUNT", // conditional
+  //       // "VIVA_VARIANT_MOUNT", // conditional
+  //       // "VIVA_REGISTRY_MOUNT", // conditional
+  //       // "VIVA_RUNTIME_SERVE", // conditional
+  //       // "VIVA_LIGHTHOUSE_SERVE", // conditional
+  //       // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
+  //       // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
+  //       // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
+  //       // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
+  //     ])
+  //     .throw();
 }

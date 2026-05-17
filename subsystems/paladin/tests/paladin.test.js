@@ -28,7 +28,7 @@ specimen.describe("paladin", () => {
       await populate.env(paladin)
       specimen.expect(paladin.env.has("VIVA_SYSTEM_MODE")).toBe(true)
       specimen.expect(paladin.env.has("VIVA_SYSTEM_ROLE")).toBe(true)
-      specimen.expect(paladin.env.has("VIVA_SYSTEM_MOUNT")).toBe(true)
+      specimen.expect(paladin.env.has("VIVA_REPOSITORY_MOUNT")).toBe(true)
       specimen.expect(paladin.env.has("VIVA_VARIANT_MOUNT")).toBe(true)
     })
 
@@ -44,7 +44,7 @@ specimen.describe("paladin", () => {
     })
 
     specimen.it("scopes derive from env mounts", () => {
-      specimen.expect(paladin.scope.system.absolute).toBe(paladin.env.get("VIVA_SYSTEM_MOUNT"))
+      specimen.expect(paladin.scope.system.absolute).toBe(paladin.env.get("VIVA_REPOSITORY_MOUNT"))
       specimen.expect(paladin.scope.variant.absolute).toBe(paladin.env.get("VIVA_VARIANT_MOUNT"))
       specimen.expect(paladin.scope.registry.absolute).toContain("registry")
       specimen.expect(paladin.scope.circuitry.absolute).toContain("circuitry")
@@ -107,7 +107,7 @@ specimen.describe("paladin", () => {
       specimen.expect(paladin.variant.runtime.traits).toContain("EMBEDDED")
       specimen.expect(paladin.variant.runtime.datamap.module).toBe("@vivalence/datamap/libsql")
 
-      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(["kajuit", "shell"])
+      specimen.expect(Object.keys(paladin.variant.clients).sort()).toEqual(["ghost", "kajuit"])
       specimen.expect(paladin.variant.clients.kajuit.slug).toBe("kajuit")
 
       specimen.expect(paladin.variant.daemons.length).toBe(1)
@@ -125,7 +125,14 @@ specimen.describe("paladin", () => {
       specimen.expect(daemon.datamap.module).toBe("@vivalence/datamap/libsql")
       specimen.expect(daemon.datamap.mount.absolute).toBe(daemon.mount.absolute)
       specimen.expect(daemon.lighthouse.module).toBe("@vivalence/lighthouse/multiplayer")
-      specimen.expect(daemon.hallucinator.module).toBe("@vivalence/hallucinator/hal257")
+      specimen.expect(Array.isArray(daemon.hallucinators)).toBe(true)
+      specimen.expect(daemon.hallucinators.length).toBe(3)
+      specimen.expect(daemon.hallucinators[0].module).toBe("@vivalence/hallucinator/anthropic")
+      specimen.expect(daemon.hallucinators.map(h => h.module).sort()).toEqual([
+        "@vivalence/hallucinator/anthropic",
+        "@vivalence/hallucinator/deepgram",
+        "@vivalence/hallucinator/elevenlabs",
+      ])
     })
 
     specimen.it("services are Masks with mount paths", () => {

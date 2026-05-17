@@ -1,4 +1,4 @@
-import { specimen, v, Type, Value } from "@vivalence/typology";
+import { specimen, v } from "@vivalence/typology";
 
 specimen.describe("v", () => {
   specimen.describe("primitives", () => {
@@ -263,11 +263,11 @@ specimen.describe("v", () => {
   });
 
   specimen.describe("interop", () => {
-    specimen.it("mixed v and Type props", () => {
+    specimen.it("mixed primitive props", () => {
       const s = v.object({
-        name: Type.String({ minLength: 1 }),
+        name: v.string({ minLength: 1 }),
         age: v.number().desc("years"),
-        tags: Type.Array(v.string()),
+        tags: v.array(v.string()),
       });
       specimen.expect(s.check({ name: "finn", age: 30, tags: ["a"] })).toBe(true);
       specimen.expect(s.check({ name: "", age: 30, tags: ["a"] })).toBe(false);

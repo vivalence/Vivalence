@@ -123,9 +123,9 @@ specimen.describe("conversation integration — CONVERSATIONAL × CHAOSMONKEY", 
 
       const { packets, turn } = await dialogueAndCollect(ws, thread, [{ type: "text", text: "olá Dewey" }]);
 
-      specimen.expect(packets.find((p) => p.event === "turn.open")).toBeDefined();
-      specimen.expect(packets.find((p) => p.event === "part.delta")).toBeDefined();
-      const close = packets.find((p) => p.event === "turn.close");
+      specimen.expect(packets.find((p) => p.event === "/turn/open")).toBeDefined();
+      specimen.expect(packets.find((p) => p.event === "/part/delta")).toBeDefined();
+      const close = packets.find((p) => p.event === "/turn/close");
       specimen.expect(close).toBeDefined();
       specimen.expect(close.meta.stop).toBe("end_turn");
       specimen.expect(turn.role).toBe("assistant");

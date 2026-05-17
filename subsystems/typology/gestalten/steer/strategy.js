@@ -1,4 +1,4 @@
-import { is, fromm, Value, Context, ValidationError } from "@vivalence/typology";
+import { is, fromm, Context, ValidationError } from "@vivalence/typology";
 
 export function dispatch(effect, context) {
   if (effect.length === 0) return effect();
@@ -43,8 +43,8 @@ export const request = (carry, effect, steps, signal) => async (input) => {
 export const guarded = (carry, effect, steps, signal) => async (input) => {
   for (const step of steps) {
     if (step.input) {
-      Value.Default(step.input, input);
-      const errors = [...Value.Errors(step.input, input)];
+      step.input.defaults(input);
+      const errors = [...step.input.errors(input)];
       if (errors.length) throw new ValidationError(errors, signal);
     }
   }

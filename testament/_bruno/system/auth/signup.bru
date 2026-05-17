@@ -1,0 +1,18 @@
+meta {
+  name: signup
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/auth/signup
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "demoflinn",
+    "password": "demopass123"
+  }
+}

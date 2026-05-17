@@ -28,10 +28,11 @@ registry/kernels/@vivalence/
 │   │   ├── userspace/Memory.ts           user × literal, status machine, history
 │   │   └── userspace/Product.ts          batch container
 │   ├── memory/
-│   │   ├── bayesian/index.js             ebisu spaced repetition (163 lines)
-│   │   ├── boolean/index.js              binary GRADUATED|UNKNOWN (39 lines)
-│   │   ├── schema.js                     signal validation (55 lines)
-│   │   └── index.js                      driver selection (100 lines)
+│   │   ├── bayesian.js                   ebisu spaced repetition
+│   │   ├── boolean.js                    binary GRADUATED|UNKNOWN
+│   │   ├── counter.js                    integer-count driver (NEW; per root claude.md drivers triple)
+│   │   ├── index.js                      driver selection
+│   │   └── bak/                          old per-driver subdirs (pre-flatten)
 │   ├── aperture/                         pick/review HTTP routes
 │   └── modes/                            Game, Tactic prototypes (47 lines)
 ├── ontology/
@@ -58,9 +59,10 @@ status(memory) → enum
 update(memory, signal) → state
 ```
 
-- bayesian — ebisu-js. State `[alpha, beta, tau]`. Signal→tau: MASTERY=24h, SUCCESS=3.4h, NEUTRAL=1h, MISTAKE=0.15h, FAILURE=0.08h. Status thresholds: UNKNOWN <6h, LEARNING ≥6h, KNOWN >7d, GRADUATED >45d.
-- boolean — binary yes/no. GRADUATED or UNKNOWN. No spacing.
-- driver selection (`memory/index.js`) — literal-only → BAYESIAN. Symbol scope → reads `symbol.data.LEARNABLE.driver`.
+- **bayesian** — ebisu-js. State `[alpha, beta, tau]`. Signal→tau: MASTERY=24h, SUCCESS=3.4h, NEUTRAL=1h, MISTAKE=0.15h, FAILURE=0.08h. Status thresholds: UNKNOWN <6h, LEARNING ≥6h, KNOWN >7d, GRADUATED >45d.
+- **boolean** — binary yes/no. GRADUATED or UNKNOWN. No spacing.
+- **counter** — integer count toward graduation threshold. Reps-to-known semantics.
+- driver selection (`memory/index.js`) — literal-only → BAYESIAN. Symbol scope → reads `symbol.data.LEARNABLE.driver` (one of BAYESIAN / BOOLEAN / COUNTER).
 
 trait data contracts (literal):
 
@@ -129,7 +131,7 @@ testing gaps — **biggest test blind spot in the system**. Repo-wide test pyram
 
 active work:
 
-- VOCALIZED trait + asset entity type — pending typology enum expansion (see `.ikiro/longdistance.workpackage.org`)
+- VOCALIZED trait + asset entity type — pending typology enum expansion (see `.ikiro/longdistance.quest.org`)
 - more corpora (vocabulary expansion, additional language pairs)
 - progression system (eventually)
 
@@ -138,6 +140,6 @@ planned changes:
 - Note entity type (persistent cross-session state)
 - Classifier (eventual — automatic difficulty assessment)
 - Buffer/Intent migration — entity renames in aperture endpoints
-- harness may introduce domain-specific part types (prosody, expression — open string per harness workpackage)
+- harness may introduce domain-specific part types (prosody, expression — open string per harness quest)
 
 quality criteria — `registry/kernels/@vivalence/.ikiro/corpus-quality-criteria.md` is the canonical data quality checklist (TRANSLATED/EXEMPLIFIED/VOCALIZED/RANKED contracts, symbol requirements, verb conventions, suffix encoding for diacritics, 14-item audit). Read before touching any corpus literal.

@@ -12,18 +12,22 @@ The root prototype is `subsystems/typology/prototypes/signature.js` (211 lines).
 
 The pattern recurs:
 
-- shape compilers in `subsystems/typology/gestalten/shape/` transform a Vector into different surfaces — `http.js` produces an HTTP handler, `object.js` produces a nested object, `agentic.js` produces LLM tools, `subscriber.js` produces an ORM POJO
-- steer in `subsystems/typology/gestalten/steer/` transforms traversal into different dispatch strategies — `match.js` greedy/scope/resolve, `shotgun.js` shotgun/shine/spray, plus `traverse.js`, `walk.js`, `invoke.js`, `spread.js`
-- cast in `subsystems/typology/gestalten/cast/primitives.js` transforms anything into the right type
+- shape compilers in `subsystems/typology/gestalten/shape/` transform a Vector into different surfaces. Each compiler walks the Vector and emits a consumer-shaped artifact.
+- steer in `subsystems/typology/gestalten/steer/` transforms traversal into different dispatch strategies — single Vector, multiple traversal grammars.
+- cast in `subsystems/typology/gestalten/cast/primitives.js` transforms anything into the right type (lookup, viva, manifest, cake).
 
 structure:
 
 ```
 subsystems/typology/
-├── prototypes/         signature, pattern, signal, path, url, action
-│                       + agent, connection, request, response, context, status,
-│                         wafer, seek, vector, aperture, repository (RemoteRepository),
-│                         broadcaster, blacklist, freight
+├── prototypes/         signature, pattern, signal, path, url, action          (root)
+│                       + connection, request, response, context, status        (transport)
+│                       + wafer, seek, vector, aperture                          (composition)
+│                       + remote-repository, local-repository, entity-manager    (storage)
+│                       + broadcaster, blacklist, freight, socket                (network)
+│                       + conversation, cortex, hallucination                    (AI/conversation)
+│                       + pipe, pool, queue, span, tracks, yield                 (flow)
+│                       + buffer, env, mask, mode, scope                         (sundries)
 ├── entities/
 │   ├── base/           BaseEntity, DataEntity, VirtualEntity
 │   ├── kernel/         Literal, Symbol, Issue, Constraint
@@ -31,10 +35,10 @@ subsystems/typology/
 │   ├── daemon/         User, Mode, Intent
 │   └── userspace/      Buffer, Session
 ├── gestalten/          is, cast, not, fromm
-│   ├── belt/           12 utility modules (object, array, fn, hash, middleware, ...)
-│   ├── shard/          12 network primitives (connection, ambient, secure, datamap, ...)
-│   ├── steer/          6 routing operations (traverse, walk, invoke, match, shotgun, spread)
-│   └── shape/          4 compilers (http, object, agentic, subscriber)
+│   ├── belt/           15 utility modules: array, crypto, fn, hash, id, middleware, object, promise, random, sleep, soma, sort, string, time
+│   ├── shard/          16 network primitives: ambient, batch, caching, connection, context, cors, datamap, patterns, receiver, secure, serve, track, transmitter (+ index, index.client)
+│   ├── steer/          4 routing strategies: apply, match, navigate, strategy
+│   └── shape/          11 compilers: agentic (LLM tools), flat, http (handler), mcp (MCP tools), messenger (cross-host shape), object (nested obj), selbstbestimmt, strip (tree shape), subscriber (ORM POJO), tree
 ├── schematics/         TypeBox validation (7 files, 346 lines)
 └── specimen/           BDD wrapper (@std/testing/bdd + @std/expect + custom is)
 ```
@@ -42,8 +46,8 @@ subsystems/typology/
 key verbs:
 
 - Vector at `subsystems/typology/prototypes/vector.js`: `use(mw)` push middleware, `branch(sig)` create child, `open(sig, fn)` register effect, `slurp(other)` deep-merge
-- steer at `subsystems/typology/gestalten/steer/`: traverse, walk, invoke, scope, greedy, resolve, shotgun, shine, spray, spread
-- shape at `subsystems/typology/gestalten/shape/`: `http(v) → handler`, `object(v) → nested obj`, `agentic(v) → llm tools`, `subscriber(v) → orm POJO`
+- steer at `subsystems/typology/gestalten/steer/`: `apply`, `match`, `navigate`, `strategy` (rollup, invoke, guarded, traverse exported from these via index.js)
+- shape at `subsystems/typology/gestalten/shape/`: `http(v) → handler`, `object(v) → nested obj`, `agentic(v) → {tools, llmstxt}`, `mcp(v) → MCP tool catalog`, `subscriber(v) → ORM POJO`, `messenger(v) → cross-host shape descriptor`, `strip(v) → tree spec`
 - Wafer at `subsystems/typology/prototypes/wafer.js` hooks: populate, resolve, integrate, disintegrate (empty here, filled by Die in `systems/runtime/die.js`)
 
 entity flow:
@@ -85,20 +89,24 @@ dependencies (external): `@mikro-orm/core` (entities), `@sinclair/typebox` (sche
 
 `@vivalence/shared` — still referenced in 7 prototype files for `hash`, `validators`, `obj`. Removal in progress.
 
-dead code:
+dead code (current; classifier moved to `prototypes/bak/`):
 
-- `subsystems/typology/prototypes/classifier.js` (143 lines) + `subsystems/typology/tests/classifier.test.js` (134 lines) — Classifier and Feature only referenced in bak/; move or delete
+- `subsystems/typology/prototypes/bak/classifier.js` — Classifier + Feature only referenced from bak; live test file gone
 - `subsystems/typology/prototypes/mask.js` (33 lines) — exported but never imported externally; likely dead
-- `subsystems/typology/prototypes/scope.js`, `subsystems/typology/prototypes/mode.js`, `subsystems/typology/prototypes/view.js` — placeholders with minimal content
+- `subsystems/typology/prototypes/scope.js`, `mode.js` — placeholder stubs
 
-testing gaps: belt (12 modules in `subsystems/typology/gestalten/belt/`), agentic shape, schematics validation, steer shotgun/shine/spray (covered indirectly via `subsystems/typology/tests/shards/datamap.test.js` and `datamap.integration.test.js`). New prototypes added 2 days ago without dedicated tests: BELL (`prototypes/bell.js` — singleton client audio context, longdistance round 5).
+testing gaps:
+- **belt** (15 modules) — no dedicated test files
+- **agentic / mcp shapes** — covered indirectly via mode integration tests; no unit suite
+- **schematics validation** — no dedicated suite for `v.*` chain methods
+- **steer.strategy** (rollup, guarded, invoke) — covered indirectly via shape tests; no unit suite
+- **DATASET trait** — `runtime/tests/mode/dataset-trait.test.js` proposed; not yet authored
 
-open regression: `subsystems/typology/tests/repository.persist.test.js:348` — `JSON.parse(storedrepo.encode([mode]))` is a typo from effect-saturation cleanup. `stored` (was `localStorage.getItem(key)`) was deleted but its name was concatenated with `repo.encode([mode])` instead of replaced. Throws ReferenceError. Effect-saturation marked DONE while this regression sat untriaged. `const key` two lines above is dead. Fix: either restore `localStorage.getItem(key)` round-trip or change to `JSON.parse(repo.encode([mode]))` (direct encode test — matches intent of three sibling `repo.$entities.set([...])` removals).
-
-`tests/workpackage/` convention: `subsystems/typology/tests/workpackage/{session, voice.session}.test.js` are workpackage-staging tests. They live in `workpackage/` while feature is in flight; promoted to flat structure when stable. Currently both should be promoted (Session + voice.session shipped 2 days ago).
+`tests/workpackage/` convention (renamed from `tests/quest/`): live in `workpackage/` while feature is in flight; promoted to flat `tests/<feature>.test.js` when stable. Currently empty — `conversation.test.js`, `cortex.hallucinators.test.js`, `voice.conversation.test.js` promoted to flat 2026-05-18.
 
 active work:
 
-- cortex primitives (Turn, Part shapes) may land in typology — see `.ikiro/cortex.workpackage.org`
+- **cortex** (prototypes/cortex.js, hallucination.js, conversation.js) — LANDED. See root `.ikiro/quests/cortex.quest.org` DONE.
+- **variant marker contract** — paladin compiles single `type: "variant"` marker (see paladin ikiro). Typology surface unchanged; downstream consumers should grep paladin.find.viva / paladin.read.viva / paladin.vip.accio* before hand-rolling.
 - `@vivalence/shared` removal — belt re-exports need migration (hash used in 7 prototype files)
-- VOCALIZED trait + asset entity type — see `.ikiro/longdistance.workpackage.org`
+- **VOCALIZED trait + asset entity type** — see root `.ikiro/quests/longdistance.quest.org`. Audio prototypes landed: pipe, pool, queue, span, tracks, yield.

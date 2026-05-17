@@ -1,0 +1,257 @@
+#+TITLE: PRA double · word.compound.{lexical,contraction,clitic,crasis} · corpus-wide MWT pass · live ↘ 374→270
+#+DATE: 2026-04-29
+#+TOPIC: ontology/word · corpus/english-to-brazilian · contraction/crasis literals · LiteralSubscriber.uses · MWE design (open)
+
+* Arc
+
+One screenshot — Finn writing "Ela vai pra praia hoje" in WRITE mode, with the lexicon strip showing six tokens for a five-word sentence: =Ela | vai | pra | praia | hoje | pra=, the trailing =pra= circled in red and labeled "DOUBLE". From there the day went deep into the data layer, then down a taxonomy hole, then back up with an axis.
+
+First — diagnosis. The duplicate was hand-authored in the dataset: =trait.ANNOTATED.tokens= had two entries for the contraction =pra=, one mapping to =para.adposition= ("to"), one to =a.determiner= ("the"). UD-correct (a Stanza-style multi-word-token decomposition) but vivalence-wrong (the sentence's annotation was supposed to mirror its surface tokens). I misread the issue twice — first calling it a render-order bug, then merging it into form-position assumptions — Finn's "JUST THIS ONE FUCKING SENTENCE STOP ESCALATING" pulled the scope back. Then I fixed the wrong token (kept the prep, dropped the determiner), Finn called that out too ("you retard >..... really?? deleted the wrong fucking token???"), and we swapped: surviving token is the determiner half. Single sentence, 5 tokens, done.
+
+Second — taxonomy. Finn pivoted to symbol level: "how do we express this mechanic on symbol level? what do we annotate the literal with?" — and noticed =word.compound.yes= already existed as a binary marker for lexicalized compounds. We worked through it: I argued for a separate =word.fusion.<kind>= namespace; Finn pushed back on "fusion" then "synthetic"; settled on extending compound itself with siblings — ={lexical, contraction, clitic, crasis}=. =compound.yes= renamed to =compound.lexical= (zero attachments in DB, clean rename). The discriminator that wins: each kind tells consumers what to do with =literal.uses= — atomic vs. one literal vs. multi-literal expansion. Symbol becomes load-bearing.
+
+Third — the schema scare. I claimed =LiteralDescriptor= had no =uses= field (only =symbols=) and proposed deferring the part-whole infrastructure. Finn: "yes it does. check typology/entities/literal??!!" — because the schematic file in =subsystems/typology/schematics/entities/literal.js= only declares =symbols=, but the *MikroORM* schema in =registry/kernels/@vivalence/domain/learning/entities/kernel/Literal.ts:180-185= adds =uses: {kind: "m:n", entity: () => LiteralEntity, inversedBy: "in", orderBy: {strength: "ASC"}}=. And =LiteralSubscriber.afterFlush= already walks =trait.ANNOTATED.tokens[].literal= (and =CONJUGATED.paradigm=) to populate =literal_uses= rows on every flush. The infrastructure was alive, I just hadn't read deep enough.
+
+Fourth — execution at scope. Finn's "go!!" and "go!" lit up four threads in parallel:
+- =ontological.js=: 3 sibling symbols (=contraction=, =clitic=, =crasis=) added next to =lexical=
+- =contraction.js= NEW (in =words/=): 13 literals — =pra, ao, do, da, no, na, dele, dela, aos, dos, das, à, às= — each with TRANSLATED, EXEMPLIFIED, ANNOTATED (constituents → triggers =literal_uses= via subscriber), RANKED, VOCALIZED, rich symbols including =word.compound.<kind>=, gender, number, POS-pair, brazilianism (for =pra=)
+- =determiner.js=: =os.determiner= and =as.determiner= (constituents needed for plural contractions)
+- =adposition.js=: =a.adposition= EXEMPLIFIED swapped from "Vamos ao parque" (where =a= is hidden inside =ao=) to "Eu vou a Lisboa" (bare =a= preserved)
+- =sentences.js=: a deno fold script ran in three rounds — first matching by literal pair (25 folds), then by form pair to catch wrong-literal-pointer cases (16 more), then with plurals/crasis added (6 more) = 47 mismatched sentences fixed; followed by a retarget pass on already-correctly-counted-but-wrong-pointer tokens (15 more); then a removal pass — 104 sentences carried broken pointers to never-declared lemmas (=eva.proper-noun=, =saudade.noun=, =Tom.proper-noun=, plus UD-short-tag mismatches like =verb.inf=, =propn=, =verb.ger=). 78 had presence in =bak/english-to-brazilian-a1/=, 18 in =bak/english-to-brazilian-a2/=, 8 true orphans → appended to a1 bak before deletion. Live sentences: 374 → 270, broken-pointer count: 121 → 0.
+
+Fifth — finish. Finn caught a stale "121 broken pointers we deferred" line in my status and called it out; corrected (the cleanup already zeroed them). Real wordfreq numbers replaced my guessed RANKED estimates on all 13 contractions (my fpm overshoots ranged from 5× on the very common ones to 25× on =dele/dela/pra=). The =amarr= typo in =nao-me-podes-obrigar-a-amar-te= got fixed in bak (form/gloss/literal all wrong; now points at =amar.verb.infinitive=).
+
+Sixth — MWE pivot. Finn opened a new design thread at the end: "lets think about multi word phrases like com licenca, por favor (multi-word), de nada, com prazer. is that smoething that compound should handle?" — UD distinguishes MWT (one orthographic token, multiple syntactic words; what =word.compound.*= covers) from MWE (multiple orthographic tokens, one lexical unit; =por favor=, =de nada=). Recommendation parked: separate axis =word.expression.<kind>= with =fixed=, =flat=, =idiom= as kinds. Not implemented — open for next session.
+
+* Finn's voice (verbatim)
+
+#+BEGIN_QUOTE
+wakeup. read client
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+also read ikiro
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+well do a bunch of one-off game mode improvements. read the registry/modes.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+first a topology check. why is the trailing PRA from the data entity? also read the database in testament/mountpoinnt
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+no. wrong issue. the sentence has a TRAILING pra in the screenshot. thats the issue.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+the annotatino should match the fucking sentence. if there is trailing shit thats not in the sentence then it must go
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+JUST THIS ONE FUCKING SENTENCE STOP ESCALATING!!!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+you retard >..... really?? deleted the wrong fucking token??? why would you do that?? holy shit. fucking STUPID
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+yessss obviously. now the fucking ... indexes and order and everything is out of whack. stupid
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+does Universal Dependencies have a formalization for these conjunctions/syntetics?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i am thinking on symbol level. look up what symbols we have.
+
+how do we express this mechanic on symbol level? what do we annotate the literal with?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+1%
+why synthetic, not compound?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+might it make sense or not to model contraction / clitic / crasis. as alternative compounds with compound.yes matching lexicalized? or no
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+i dont like the term fusion. what else?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+why not synthetic?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+word.compound.yes
+why not give compound.yes some siblings?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+yes. ok. lets do that.
+- word.compound.lexical (was .yes — bem-vindo, segunda-feira)
+- word.compound.contraction (ao, do, na, pra)
+- word.compound.clitic (vê-la, deixe-me)
+- word.compound.crasis (à)
+ship it. hit it. run.
+first step. migrate compound yes to lexical
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ontology AND dataset
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ok. lets think about this. how do we implement this. does this mean we create some new literals with this symbol attached? and probably some other symbols too as per literal.
+
+and then we want to populate literal.uses and literal.in??
+is this the way
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+- direct: sentence USES pra.contraction; parts reachable transitively (one-step join)
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+ok. 2 things. we also want examples for these. and i think the symbols are a bit thiin on the example.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+survival/a1 dichotomy is dated. update yourself.
+and then go
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+is this example fixed?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+1. swap the example — give a.adposition an EXEMPLIFIED whose learning sentence actually contains a bare a (e.g., Eu vou a Lisboa — uncontracted a + Lisboa). cheapest, scoped to this literal.
+go
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+yes it does.
+
+check typology/entities/literal??!!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+2. other 50 mismatched sentences in the corpus — untouched
+3. other ~20 closed-class contractions (ao, do, da, na, no, dele, dela, …) — not yet created
+Go!!
+
+5. pra.contraction missing RANKED + VOCALIZED — rank data not sourced; no words/pra.mp3 asset
+go!
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+(80 distinct missing slugs)
+this is news to me?! where from?! where there sentences in a1/a2 that we copied???
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+remove the a1 sentences from the dataset.
+
+if they are still in bak, delete them. otherwise move to bak.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+where are we at?
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+fix those two.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+- whether to do a corpus-wide pass on the other 121 broken pointers we deferred (might need its own quest)
+
+what???
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+lets think about multi word phrases like com licenca, por favor (multi-word), de nada, com prazer.
+
+is that smoething that compound should handle?
+#+END_QUOTE
+
+* Built · changed
+
+** registry/kernels/@vivalence/ontology/word/dataset/symbols/ontological.js
+- =word.compound.yes= renamed → =word.compound.lexical=. Description sharpened: "Lexicalized compound: a single dictionary entry composed of multiple morphemes or roots (e.g. bem-vindo, segunda-feira). One literal, no runtime expansion."
+- 3 siblings added: =word.compound.contraction=, =.clitic=, =.crasis=. Each with full LABELED name + description noting structural shape ("Runtime fusion of distinct syntactic words into one orthographic token"; "Hyphen-bound verb + clitic pronoun"; "Vowel merger of two adjacent same-vowel words").
+
+** registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/words/contraction.js — NEW
+13 entries, all with TRANSLATED/EXEMPLIFIED/ANNOTATED/RANKED/VOCALIZED traits and rich symbols:
+- =pra.contraction= (para+a, fem.) — also gets =proficiency.brazilianism= since =pra= is BP-colloquial vs. EP-formal =para=
+- =ao.contraction= (a+o, masc.)
+- =do.contraction=, =da.contraction=, =dos.contraction=, =das.contraction= (de + det)
+- =no.contraction=, =na.contraction= (em + det singular)
+- =dele.contraction=, =dela.contraction= (de + pronoun, masc/fem) — POS pair is adposition+pronoun, not adposition+determiner
+- =aos.contraction= (a+os, masc.pl)
+- =à.crasis=, =às.crasis= (a + a / a + as — vowel merger; carries =word.compound.crasis= not =.contraction=)
+
+ANNOTATED.tokens point at the constituent literals; LiteralSubscriber walks this on every flush and writes =literal_uses= rows automatically.
+
+Skipped this round: =à.crasis= variants beyond =às=, =pelo/pela/pelos/pelas= (por + det), =num/numa/dum/duma= (em/de + indefinite), =pro/pros/pras= (para + det masc/pl).
+
+** registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/words/index.js
+Added =import contraction from "./contraction.js"= and threaded through the export array (alphabetic position between =adverb= and =coordinatingConjunction=).
+
+** registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/words/determiner.js
+Added =os.determiner= and =as.determiner= (=word.lemma.o= / =word.lemma.a=, plural). Needed as constituents for =dos/das/aos/às=. Both get the standard determiner symbol set + =word.number.plural=.
+
+** registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/words/adposition.js
+=a.adposition= EXEMPLIFIED swapped from =Vamos ao parque= → =Eu vou a Lisboa=. The old example showed =a= the lemma but rendered =ao= the contraction in the sentence — surface mismatch with the lemma being taught.
+
+** registry/kernels/@vivalence/corpus/english-to-brazilian/dataset/literals/sentences.js
+Three transformations applied via deno scripts, all writing back via =JSON.stringify(arr, null, 2)=:
+1. *Round 1* — match consecutive token pairs by =literal=, fold into single contraction token (25 folds)
+2. *Round 2* — match by =form= (catches wrong-literal-pointer cases like =em + a→o.determiner=), fold (16 more = 41 total)
+3. *Round 3* — extended pair set with plurals + crasis (6 more = 47 total)
+4. *Retarget pass* — for tokens whose surface =form= IS a contraction (ao, do, na, etc.) but =literal= still pointed at the prep base (e.g., =para.adposition= for surface =pra=), retarget to =<form>.contraction= (15 retargets)
+5. *Removal pass* — 104 sentences carried token pointers to never-declared lemmas (orphan pre-existing data quality, not from today's work). 78 already in =bak/english-to-brazilian-a1/=, 18 in =bak/english-to-brazilian-a2/= → deleted from live. 8 true orphans appended to a1 bak first, then deleted from live.
+
+Net: 374 → 270 sentences. Broken-pointer count: 121 → 0.
+
+** registry/kernels/@vivalence/corpus/bak/english-to-brazilian-a1/dataset/literals/sentences.js
+Two writes:
+- 8 orphan sentences appended (255 → 263 entries) before deletion from live
+- typo fix in =nao-me-podes-obrigar-a-amar-te= at line 10223: =form: "amarr"= → =form: "amar"=, =gloss: "amarr"= → =gloss: "love"=, =literal: "amarrer.verb.indicative.present.third.singular"= (broken slug) → =literal: "amar.verb.infinitive"= (resolves)
+
+** RANKED on all 13 contraction/crasis literals — wordfreq replacement
+Real =python3 -c "from wordfreq import zipf_frequency; ..."= numbers via =top_n_list('pt', 1000)= for rank. My estimates were 5–25× too high on fpm. Worst overshoots: =pra= (est 16000, real 600), =dele= (est 10000, real 300), =dela= (est 8000, real 300). Most accurate: =às=, =dos=, =das=, =à= (all within 10%).
+
+* Decisions
+
+- *Symbol axis is =word.compound.<kind>= unified, not =word.compound.yes= + =word.fusion.*= split.* Finn's siblings instinct won. The kind value is mutually exclusive and load-bearing for consumers (lexical → one literal, no expansion; contraction/clitic/crasis → multi-literal, expansion via =literal_uses=). Earlier objection ("consumers still have to inspect expansion length") was wrong — the symbol value itself answers the question.
+- *=word.compound.yes= → =word.compound.lexical= (rename, not deprecate).* Mixed value-shape (=yes/no= alongside named kinds) was the wart that tipped me toward separation; renaming to =lexical= homogenizes. Zero literal attachments in the live DB at rename time, so safe. DB still has the stale =word.compound.yes= Symbol row though — DATASET trait is upsert-only, won't delete.
+- *Slug convention is leaf-only:* =pra.contraction=, =vê-la.clitic=, =praia.noun= — never =pra.word.compound.contraction=. Same shape as =praia.noun= vs. its symbol =word.part-of-speech.noun=. The full taxonomic path lives in symbols, not slugs.
+- *Sentence's =literal_uses= is direct, not flattened.* =ela-vai-pra-praia-hoje= USES =pra.contraction= (5 rows total = surface tokens), not =pra.contraction= + =para.adposition= + =a.determiner= (which would be 7). Memory fan-out per review: 5 Traces, one per surface token's literal. Lemma-level memory only fires when the lemma appears bare. Reachability via one-hop join.
+- *Constituents linked via =trait.ANNOTATED.tokens=, not a new schema field.* Reused the existing mechanism that already drives sentence → word =literal_uses= rows. =LiteralSubscriber.afterFlush= walks =annotated()= and =conjugated()= helpers; adding ANNOTATED to a contraction literal is enough — no schema change, no new subscriber.
+- *Gender/number on contractions are inherent, not inherited.* =pra= only exists in fem form (the masc analog is =pro=); =da= only fem (masc is =do=); etc. So the contraction's =word.gender.<gender>= symbol describes the locked-in property of the surface form, not a runtime borrow from a constituent.
+- *Dual POS symbols on contractions* (=word.part-of-speech.adposition= + =.determiner=, or +=.pronoun= for =dele/dela=). Schema allows multiple; cleaner than inventing =word.part-of-speech.fused=. Filterable via =word.compound.contraction= when needed.
+- *=proficiency.brazilianism= flags =pra= specifically.* =para= stays preferred in EP and formal BP; survival mode should prefer =pra=, formal modes can prefer =para=.
+- *RANKED uses real wordfreq, not estimates.* =python3 -c "from wordfreq import zipf_frequency; ..."= is the source. =fpm = round(10**(zipf-3) / 100) * 100=. =rank= is the position in =top_n_list('pt', 1000)=.
+- *Removal-not-fix for orphan-pointer sentences.* 104 conversational-A1 sentences pointed at lemmas that were never declared as word literals (Stanza-pipeline output that didn't get its lemma layer seeded). Cheapest cure: remove from live, archive in bak. Reviving them later means doing the lemma-seeding work first.
+- *MWE design = parallel axis, not sub-kind of compound.* Recommendation: =word.expression.<fixed|flat|idiom>=. UD's MWT/MWE distinction is real and structural (range line vs. dependency), and consumer behavior diverges (cloze masking, layout). Not implemented.
+
+* Open · risks
+
+- *Hyphen-clitics still mismatched.* 7 sentences carry verb+clitic pairs split into two tokens (=Deixe-me=, =vê-la=, =vê-los=, =carregá-la=, =encontra-o=, =rachar-se= — also =amar-te= but its sentence got removed today). Need =<form>.clitic= (or POS-suffixed =vê-la.verb.indicative.present.third.singular=) literals each, open-class lazy. Slug shape decision pending: kind-leaf vs. POS-mirror (parallels =bem-vindo.adjective=).
+- *DB still has stale =word.compound.yes= Symbol row* (zero attachments). DATASET trait is upsert-only. Either run =DELETE FROM Symbol WHERE slug='word.compound.yes'= against the live DB or wait for re-seed. New seed will create =word.compound.lexical= without removing the old slug.
+- *VOCALIZED audio assets don't exist for the 13 new contractions.* Placeholder paths declared (=words/pra.mp3=, =words/ao.mp3=, etc.). Freight pipeline TODO; same stub-path-now-record-later pattern as elsewhere.
+- *No clitic literals shipped this session.* 7 mismatched sentences carry the clitic disease. Adding clitics is open-class — needs corpus-driven enumeration, not closed-class one-pass.
+- *Closed-class contractions still incomplete.* Shipped: =pra, ao, do, da, no, na, dele, dela, aos, dos, das, à, às= (13). Skipped: =pelo, pela, pelos, pelas= (por + det), =num, numa, dum, duma= (indefinite article fusion), =pro, pros, pras= (=para= + det masc/pl), the dozen-ish demonstrative contractions (=neste, nesta, daquele, ...=). Add as the corpus needs them.
+- *MWE infrastructure not started.* =word.expression.<kind>= proposal sits open. =por favor=, =de nada=, =com prazer=, =com licença= aren't yet first-class learnables; sentences that contain them treat the parts as separate atomic words.
+- *=corpus-orphan-pointers= as separate cleanup.* Today's removal pass cleared the live count to zero, but 80 distinct never-declared lemma slugs still exist as orphan references in archived bak files (=eva.proper-noun=, =Tom.proper-noun=, =saudade.noun=, =legal.adjective=, etc., plus UD-short-tag names like =verb.inf=, =propn=, =verb.ger=). If the bak sentences are ever revived, those need either lemma seeding or canonical-form rewriting first.
+- *RANKED numbers are wordfreq-pt totals*, not BP-specific. =pra= is much more BP-colloquial than the global pt frequency suggests; rank 137 is lower than its BP usage warrants. Not corrected.
+- *EXEMPLIFIED reuses corpus sentences for some, fresh for others.* =pra.contraction= → =Ela vai pra praia= (corpus); =do.contraction= → =A função do freio é parar o carro= (corpus); =à.crasis= → =Vou à praia= (synthetic); =às.crasis= → =Tom geralmente trabalha das nove às cinco e meia= (corpus). Not consistent — Finn earlier left this open. Fine for now.
+- *The original ask was "a bunch of one-off game mode improvements"* — never returned to it. The screenshot pulled the whole session into the data layer. Game-mode improvement queue still open.

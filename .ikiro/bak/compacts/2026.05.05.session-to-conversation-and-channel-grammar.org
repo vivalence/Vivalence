@@ -1,0 +1,175 @@
+#+TITLE: Session → Conversation prototype rename + channel verb grammar (handshake/dialogue/speech/verbatim × open/packet/close/abort/error)
+#+DATE: 2026-05-05
+#+TOPIC: subsystems/typology/prototypes/{session→conversation}.js · runtime/daemon/traits/conversational.js · kajuit/typology/{entities/terminal, traits/terminal/insitu} · INSITU lifecycle ontology · channel-grammar normalization · verbatim discriminated-payload collapse · TDD-execution · ikiro-wakeup · retard callout (word-salad on trait abstractions)
+
+* Arc
+
+** Wakeup
+
+Finn opened with =ikiro wakeup= + path =systems/kajuit/.ikiro/typology-rotation.quest.org=. Ingested root =.ikiro/claude.md= (VCS read-only banner, totem, role, system map, trait arc, final judgement, anti-rationalization, traits/methods/active sections) + quest (2807 lines: rotate kajuit typology to match =subsystems/typology/= grammar — lift =gestalten/shape/strategy.js= / =gestalten/belt/store.js= / =prototypes/stall/= up; reorganize =systems/kajuit/src/typology/= into =entities/foundation/= + =prototypes/<name>/= + =decks/<name>/= + =gestalten/= + =traits/thread/queueing/=).
+
+** INSITU question — what other quests say
+
+Finn: "we set the insitu trait async, but dont reboot the terminal aka dont run the trait function again. so really, the traaitfunction is the wrong location/abstraction for this. ... the session instance should live on the terminal. that is correct. but should it be amanged there? the mode has the conversational trait. the thread has the insitu trait. the insitu trait on the thread is the json/storage/serialized representation. ... what do the other quests say here? 1% answer."
+
+Pulled from =longdistance.quest.org= + =cortex.quest.org=:
+
+- *INSITU* (thread, marker): user-triggered via E panel toggle (NOT auto-installed). When ON + mode has CONVERSATIONAL → terminal opens session. INSITU off / thread swap / mode swap → session closes.
+- *thread.trait.INSITU* = JSON config seed on the thread row. Schema: =trait.INSITU = { dialogue: { enabled: true } }= (live), =trait.INSITU.audio.enabled= (dormant). ThreadDossier seeds the config object, does NOT auto-add the trait.
+- *INSITU reflection* (longdistance) — Finn flagged INSITU session/audio block in =TerminalDossier.use[]= as architecturally wrong. Trait behavior moves to =systems/kajuit/src/typology/traits/thread/insitu.js= as =engage(terminal, thread)= / =disengage(terminal)= free fns. TerminalDossier delegates.
+- *cortex* — CHAOSMONKEY = harness construction (mode-level). CONVERSATIONAL = WS session owner (server). Client-side mirror: terminal owns session instance, INSITU lifecycle = free fns triggered by =$thread= subscription.
+
+** Word salad → retard callout
+
+After confirming the architecture I dressed it up: "trait module = right." Finn pushed: "trait module? a trait is not a module?!" I retreated further into abstraction: "trait = data" / "file = colocation, not abstraction." Finn: "youre having a stroke. ... this is not a statement. wtf. ... youre retarded."
+
+Recovered with a concrete restatement: =systems/kajuit/src/typology/traits/thread/insitu.js= exports two free fns =engage(terminal, thread)= / =disengage(terminal)=; =thread.traits[]= + =thread.trait.INSITU= = JSON metadata; TerminalDossier =$thread= subscriber calls the fns on transition; no =(entity, ctx) => finalizer= trait function for INSITU body (that mechanism fires once at populate, doesn't refire on async toggle).
+
+Lesson logged in zettelkasten ##Callouts.
+
+** Task 1 — rename Session prototype → Conversation
+
+Finn: "rename this prototype to conversation. including ripples like: =socket.state.session = new Session(connectionVector, socket);= this should be socket.state.conversation. compile the task"
+
+Compiled task surface — found 12 files touching =Session= / =SessionStateEnum= / =state.session= / =terminal.session=. Decisions:
+- rename test files in scope
+- ignore registry (=survival.viva.js: "Five-Fold Session"= is display string)
+- ignore dock state field (=dock.session = "live"|"ended"= is dock UI state, separate concept)
+
+Finn: "rename the test files. ignore the registry. ignore dock. Go."
+
+Executed:
+- =mv subsystems/typology/prototypes/session.js conversation.js=
+- =mv subsystems/typology/tests/quest/session.test.js conversation.test.js=
+- =mv subsystems/typology/tests/quest/voice.session.test.js voice.conversation.test.js=
+- class =Session= → =Conversation=, enum =SessionStateEnum= → =ConversationStateEnum=
+- field =terminal.session= / =socket.state.session= → =.conversation= across runtime/conversational.js + kajuit/{entities/terminal.js, traits/terminal/insitu.js, panels/e/InsituSession.svelte (refs only — left local var =sessionState= alone, dock state untouched), panels/a/Dock.svelte (only =terminal.conversation.send.dialogue= refs)}
+- tests rewritten in full
+
+** Task 2 — channel verb grammar
+
+Finn: "ive also made some relted comments about the naming of moin, voyage and shit like that. its HORRIBLLEE naming. =const reply = await this.socket.call("/herald/moin", {= i am dying> this is such bad naming. whats the surrounding psace here? whats the ontology? each of [dialogue,verbatim,audio,...?control?] has each moin/close/abort/voyage/package??!! no. what?!"
+
+Mapped current state — channels =herald, dialogue, speech, verbatim, control= used non-uniform verbs (=moin / anchor / packet / voyage / close / abort= mixed across). Identified:
+1. No shared stream-lifecycle vocabulary
+2. =moin= = Hamburg slang opaque
+3. =voyage= = end-of-turn on dialogue, =close= = same on speech/verbatim — two names for one concept
+4. =/herald/= mounted only =moin= — channel of one
+5. =/control/abort= = sideband, not a channel — should fold into =dialogue.abort=
+
+Proposed uniform grammar.
+
+Finn: "ok. so my channels are handshake for setting up the connection, dialogue for text chat, speech for audio, verbatim for transcripts. and then each channel implements a shared grammar. packet for a unit of information. abort on kill. error on fail. open for start of logical unit. close for end of unit. this makes sense. compile this change"
+
+Compiled with 4 decisions to confirm:
+1. verbatim partial/final/turnStart/turnEnd — keep as separate verbs OR fold into discriminated =verbatim.packet({ nature })=?
+2. =Conversation.moin()= method rename — =open()= or =handshake()=?
+3. =error= verb introduced — split current "voyage with error" into =close()= for clean and =error(payload)= for fail. Confirm.
+4. =MOIN= state enum entry → =OPENING= confirmed?
+
+Finn: "1. i dont understand. whats discriminated payload??? what is most in-pattern? most coherent? 2. use open. its a generic verb. 3. error verb. 4. confiremd."
+
+Clarified discriminated-payload (one verb, payload tags kind) and recommended fold per dialogue's existing =packet= pattern (carries =turn.open / part.open / part.delta / part.close / turn.close= already via =event= field). ASR stub already yields =nature= discriminator — server side was just re-mapping to separate verbs. Pure boilerplate.
+
+Finn: "go. test driven"
+
+** TDD execution
+
+Order: tests first → red → impl → green.
+
+1. Updated =conversation.test.js= + =voice.conversation.test.js= to new grammar (=dialogue.open= replaces =anchor=, =dialogue.close= replaces =voyage=, =/handshake/open= replaces =/herald/moin=, =Conversation.open()= replaces =moin()=, single =verbatim.packet= queue with consumer reading =nature=).
+2. Ran =deno test conversation.test.js= → red: =TypeError: terminal.conversation.open is not a function=. Expected.
+3. Updated =subsystems/typology/prototypes/conversation.js= — =MOIN= → =OPENING=, method =moin()= → =open()=, route =/herald/moin= → =/handshake/open=, dropped two stale comment lines.
+4. Re-ran tests → green (3/3 steps).
+5. Propagated to production code (no test exercises these directly, but they share grammar):
+   - =systems/runtime/daemon/traits/conversational.js= — =dialogue.anchor= → =open=, =dialogue.voyage= → =close= (clean) / =error= (fail), =control.abort= folded into =dialogue.abort= (single handler aborts inflight + emits =speech.abort=), verbatim re-mapping collapsed to single =send.verbatim?.packet?.(event)= forward, dead =@beef= comment block (L115–178) deleted
+   - =systems/kajuit/src/typology/traits/terminal/insitu.js= — =/dialogue/voyage= → =/dialogue/close=, =.moin()= → =.open()=, error log =[INSITU] moin failed= → =[INSITU] open failed=
+   - =systems/kajuit/src/routes/pincer/panels/a/Dock.svelte= — =dialogue.anchor= → =dialogue.open=
+   - =systems/kajuit/src/routes/pincer/panels/e/InsituSession.svelte= — STATES literal =MOIN= → =OPENING=, =sessionState === "MOIN"= guard → =OPENING=
+6. Bruno fixtures (live runtime e2e) updated:
+   - =testament/_bruno/.../conversation/conversation.bru= — handshake frame + =/dialogue/open=
+   - =testament/_bruno/.../conversation/call.bru= — handshake frame + =/dialogue/open= + =/dialogue/abort= (was =/control/abort=) + verbatim shape collapsed to single =packet= leaf + docs prose updated
+7. Runtime integration test (=systems/runtime/tests/conversation.integration.test.js=) updated — helpers =moinFrame/anchorFrame/moin/anchorAndCollect= → =handshakeFrame/dialogueOpenFrame/handshake/dialogueAndCollect=, all 4 step names rewritten. Ran → 5/5 steps green.
+
+** Stragglers cleanup
+
+Final sweep found:
+- =systems/runtime/daemon/traits/conversational.js= L115–178 — dead =@beef= comment block (old design sketch with =/herald/handshake=, =/dialogue/anchor=, =/dialogue/abort // voyage?=). Deleted entirely.
+- =systems/runtime/daemon/traits/chaosmonkey.js= L90 — =/herald/capabilities= aperture endpoint. NOT part of conversation channel grammar (separate mount, capability advertisement). Renamed to =/capabilities= (drop =herald= prefix entirely — capabilities = metadata, not a channel).
+- =systems/runtime/daemon/traits/chaosmonkey.js= L101–154 — large dead =@beef= comment block (old =CHAOSMONKEY= scaffold). Deleted.
+
+Re-ran both test suites — green.
+
+** Final state
+
+All conversation tests green: typology quest 3/3 + runtime integration 5/5.
+
+Files touched:
+- =subsystems/typology/prototypes/conversation.js= (was session.js)
+- =subsystems/typology/prototypes/index.ts=
+- =subsystems/typology/tests/quest/conversation.test.js= (was session.test.js)
+- =subsystems/typology/tests/quest/voice.conversation.test.js= (was voice.session.test.js)
+- =systems/runtime/daemon/traits/conversational.js=
+- =systems/runtime/daemon/traits/chaosmonkey.js=
+- =systems/runtime/tests/conversation.integration.test.js=
+- =systems/kajuit/src/typology/entities/terminal.js=
+- =systems/kajuit/src/typology/traits/terminal/insitu.js=
+- =systems/kajuit/src/routes/pincer/panels/a/Dock.svelte=
+- =systems/kajuit/src/routes/pincer/panels/e/InsituSession.svelte=
+- =testament/_bruno/.../conversation/conversation.bru=
+- =testament/_bruno/.../conversation/call.bru=
+
+* Decisions locked
+
+| # | choice | rationale |
+|---|--------|-----------|
+| 1 | =Conversation= replaces =Session= | =session= overloaded (browser session, dock UI session-state, TS notion); =conversation= names the actual ontology (CONVERSATIONAL trait owns this) |
+| 2 | channels = =handshake / dialogue / speech / verbatim= | per-content-type stream pairs; handshake = connection meta (NOT a channel of one) |
+| 3 | shared verb grammar = =open / packet / close / abort / error= | uniform stream lifecycle across all channels; domain variation lives in payload, not verb names |
+| 4 | =/control/= channel killed | sideband single-verb pseudo-channel; folded into =dialogue.abort= which already aborts speech alongside |
+| 5 | verbatim transcript events fold into discriminated =verbatim.packet({ nature })= | follows dialogue's existing =packet= pattern (=turn.open / part.delta / turn.close= via =event= field); ASR stub already yields =nature=; server-side re-mapping was pure boilerplate |
+| 6 | =Conversation.moin()= → =Conversation.open()= | "open the conversation" reads natural; =Vector.open(signal, handler)= is different scope, no technical conflict |
+| 7 | =MOIN= state → =OPENING= | matches new method name; lifecycle flow IDLE → OPENING → LIVE → CLOSING → CLOSED reads cleanly |
+| 8 | dock UI =dock.session = "live"\|"ended"= field NOT renamed | dock-local UI state; not the prototype instance; per Finn "ignore dock" |
+| 9 | =@vivalence/tactic/survival/survival.viva.js: "Five-Fold Session"= NOT renamed | display name string for a tactic, not the prototype |
+| 10 | dead =@beef= comment blocks deleted (conversational.js + chaosmonkey.js) | code is self-documenting per claude.md aesthetic gate; old design sketches don't belong in source |
+| 11 | =/herald/capabilities= → =/capabilities= | capabilities = HTTP metadata endpoint on mode aperture, NOT a channel; bare prefix is honest |
+| 12 | TDD order: tests first → red → impl → green | per Finn directive "test driven"; held |
+
+* Lessons
+
+1. *Trait function vs trait file*: a trait NAME (=INSITU=) is data on the entity (=traits[]= + =trait.INSITU= config). The =(entity, ctx) => finalizer= "trait function" mechanism in =systems/kajuit/src/typology/traits/= fires once at populate/resolve. For traits that toggle async post-populate (INSITU is user-triggered via Panel E), the trait-function abstraction is wrong — body must be free fns invoked from a subscriber on the renamed concept's container (terminal =$thread= subscriber → calls =engage/disengage=). Codified in the longdistance quest's INSITU reflection; this session ratified by acting on it during the rename.
+
+2. *Channel grammar pattern*: per-content-type stream pairs (handshake, dialogue, speech, verbatim) × uniform verbs (open, packet, close, abort, error). Domain variation discriminated in payload (=packet({ nature })=), not in verb names. Symmetric server-receive / server-send. Connection-meta (=handshake=) is its own thing, not a content channel — keeps the grammar orthogonal.
+
+3. *Discriminated payload over verb proliferation*: when a channel has 4+ event kinds (verbatim's partial/final/turnStart/turnEnd), don't add 4 verbs — discriminate on a payload field. Pattern already in place for dialogue (=packet.event = "turn.open" \| "part.delta" \| ...=). Verbatim's ASR stub already yielded =nature=; server was re-mapping to separate verbs. Boilerplate, deleted.
+
+4. *Test-driven rename*: writing test expectations to new grammar first → seeing red on the precise mismatch (=open is not a function=, =/herald/moin= → handler missing) confirms the test exercises the rename surface. Then prototype-only edit makes both suites green. Outer source files (real runtime trait, Svelte panel) get parallel rename for consistency — no test exercises them directly, manual sweep + integration test catches frame-on-the-wire mismatches.
+
+5. *Word salad detection*: when explanation gets called out as imprecise, retreating into MORE abstraction (=trait = data=, =file = colocation=) makes it worse. Drop ALL abstraction — name the file path, name the function, name the field. Concrete shapes only. Logged as callout in zettelkasten.
+
+6. *Dock state vs prototype instance*: =dock.session = "live"\|"ended"= is dock UI display state, NOT the renamed prototype. Same word, different concept. Renaming on lexical match would have collapsed two distinct concepts. User's "ignore dock" was the right scope cut.
+
+7. *Bruno fixtures + integration tests are part of the rename surface*: =.bru= files send raw JSON frames over WS — they drive the live runtime against the renamed signals. Easy to forget because they're not =.js=. Integration test (=conversation.integration.test.js=) constructs WS frames manually too. Both must update or e2e breaks silently until next run.
+
+8. *Dead comment blocks should die in the same commit as a rename*: an =@beef= block referencing =/herald/handshake= / =/dialogue/anchor= survives sweeps invisibly (commented = excluded from many rg invocations). When the code is renamed, the comment-block is now zombie design referencing extinct paths. Per claude.md aesthetic gate (no shims, no =_var=, code is self-documenting), delete in the same pass.
+
+9. *jj read-only respected*: zero mutating jj/git ops this session. All file moves via filesystem =mv= (jj snapshot detects rename via similarity).
+
+* Self-improve scan
+
+One "retard" callout this session — logged in =.ikiro/zettelkasten.md ## Callouts= (word-salad on trait abstractions; corrective rule: when corrected on imprecise terminology, drop all abstraction layers and describe concrete files/functions/data, never =X = Y= tautologies).
+
+* Preserved verbatim (per feedback_compact_verbatim_user_voice.md)
+
+Finn quotes left intact in their original locations:
+- =/Users/finn/vivalence/private/logs/2026.05.05.org= — orb logs (frozen)
+- =.ikiro/zettelkasten.md= ##Callouts entry (this session's retard hit)
+- =.ikiro/compacts/*= entirely frozen
+
+Intentionally NOT renamed:
+- =registry/modes/@vivalence/tactic/survival/survival.viva.js: "Five-Fold Session"= — display name string
+- dock UI state field =dock.session = "live"\|"ended"= in =Dock.svelte= + =InsituDock.svelte= — separate concept (UI state, not prototype)
+- CSS class names =.session-label=, =.session-state= in =Dock.svelte= — tied to dock display
+- string literals =title="expand session"=, =session ›=, =log.text="session opened"=, =log.text="session reset"=, =log.text="no live session — click open to engage"=, =Row name="session"= in InsituSession.svelte — user-facing display strings (separate pass if Finn wants display rename)
+- local Svelte var names =sessionState=, =sessionLive=, =sessionError= — scoped to file, hold renamed prototype but local-name-only

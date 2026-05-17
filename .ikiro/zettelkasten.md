@@ -1,6 +1,24 @@
 # Zettelkasten
 
-> Ideas for documentation improvements. Capture, evaluate later, implement the good ones.
+> Pre-quest scratchpad. Ideas, open follow-ups, callouts (retard ledger), discovered facts. State that's load-bearing for next-session moves to MEMORY or a quest.
+
+## Open follow-ups (aggregated)
+
+> Quick scan for "what's actionable that isn't already a quest." Detail lives under topic sections below.
+
+**Testing (5)** — DATASET trait test · per-trait test files (CHAOSMONKEY, CONVERSATIONAL) · service manifest smoke (deepgram, elevenlabs shipped without) · memory driver parity scenario · coverage delta in quest changelog.
+
+**Quest hygiene (5)** — quest size cap >30KB auto-split · DONE-day disposal (>7d → bak/ at next compact) · in-flight quest registry (active.quest.org section) · echo manifest pattern (cascade tables) · pre-DONE verify gate enforcement.
+
+**Structure (3)** — cross-reference graph (Where-Used) · code snippet anchors · entity relationship diagram · memory driver reference (encode/evolve/assess + SQL strength).
+
+**BR-PT pedagogy (8)** — a1 quality audit (700 word literals) · vocalized merger into english-to-brazilian · `vou querer` periphrastic across dataset · bundle rank reordering · audio dedup byte-equality verify · daemon boot smoke w/ merged kernel · `foi` syncretism display disambiguation · `Quero água` overtranslation.
+
+**Tatoeba pipeline (5)** — listen-verify Lemmy/aleteacher2/Silfarle samples · stanza-nlp ANNOTATED token resolution · TRANSLATED.known via links.csv · move `.harvest/sentences/` → `freight/audio/sentences/` · daily-quota TZ ergonomics.
+
+**Drift (4)** — Cloze.svelte token-correction parity · three-button-language consolidation (deferred per Finn) · `.tok` block extraction decision · imperative slug schema consistency.
+
+**Infra gaps (2)** — `dapper/.ikiro/CLAUDE.md` (subsystem missing its ikiro) · `systems/ghost/.ikiro/CLAUDE.md` (DESIGN-only container, no claude.md).
 
 ---
 
@@ -33,19 +51,19 @@ First user: dewey `learner_state`.
 ## Testing
 - [ ] **Test map**: Single document mapping every test file to what it covers
 - [x] **Integration test wishlist**: addressed — redact's testing audit identified inverted pyramid (54 typology > 12 runtime > 10 html > 5 paladin = 5 services > 4 dapper > 1 kernel) and concrete overhang targets. Specific items captured below.
-- [ ] **Test parity rule**: every new prototype must have a test file before workpackage marks DONE. BELL, deepgram, elevenlabs all violated this. Distinct from pre-DONE verify (this is about *existence* of tests, that one is about *running* them).
+- [ ] **Test parity rule**: every new prototype must have a test file before quest marks DONE. BELL, deepgram, elevenlabs all violated this. Distinct from pre-DONE verify (this is about *existence* of tests, that one is about *running* them).
 - [ ] **Stale-test sweep before redact**: rename-affected tests must update in the same commit. paladin.test.js (hal257→anthropic), pensieve.test.js (lookup→revelio, born dead Oct 2025), vip.test.js (default exports) have known stale assertions pointing to retired symbols.
 - [ ] **DATASET trait test**: bridge from kernels to DB; if it breaks, all corpus data fails to load. Add `runtime/tests/mode/dataset-trait.test.js`.
 - [ ] **Memory driver parity scenario**: `runtime/tests/scenarios/memory-driver.test.js` helper that runs N tests against any driver implementing the encode/evolve/assess contract. Bayesian/Boolean/COUNTER all pass through it. Currently Bayesian has 36 steps, others have 0 — same contract, parity needed.
 - [ ] **Service manifest smoke**: every `service.viva.js` gets a `tests/manifest.test.js` asserting manifest shape (imports + minimal call). Catches typos at minimum cost. deepgram + elevenlabs shipped without one.
 - [ ] **Per-trait test files**: `runtime/tests/traits/<NAME>.test.js` per mode trait with stub daemon. Catches trait-body regressions without full integration. CHAOSMONKEY substantial logic, integration-tested only.
-- [ ] **Coverage delta in workpackage changelog**: each milestone declares "tests added: X, modified: Y" so testing impact is auditable.
+- [ ] **Coverage delta in quest changelog**: each milestone declares "tests added: X, modified: Y" so testing impact is auditable.
 
-## Method (workpackage hygiene)
-- [ ] **Workpackage size cap with auto-split**: workpackages >30KB or >500 lines split when crossing the threshold. Pattern `{base}.{aspect}.workpackage.org` (e.g., longdistance → longdistance.text + longdistance.audio-infra + longdistance.audio-providers + longdistance.vocalized + longdistance.client-session). Would have prevented longdistance.workpackage.org from reaching 115KB.
+## Method (quest hygiene)
+- [ ] **Quest size cap with auto-split**: quests >30KB or >500 lines split when crossing the threshold. Pattern `{base}.{aspect}.quest.org` (e.g., longdistance → longdistance.text + longdistance.audio-infra + longdistance.audio-providers + longdistance.vocalized + longdistance.client-session). Would have prevented longdistance.quest.org from reaching 115KB.
 - [ ] **DONE-day disposal**: STATUS=DONE for >7 days → auto-bak/ at next ikiro/compact. Would have moved effect-saturation, dialogue-verbatim-rename, intent-as-template, conjugation-ontology, pool-prototype before they accumulated as visual debt.
-- [ ] **In-flight workpackage registry**: an `active.workpackage.org` (or section) tracking modified-but-uncommitted changes against the workpackage they belong to. Caught 6 orphans during redact stage 4: http.js bare-async-iterator, EM polish (effect-saturation tail), Listen.svelte feedback redesign, bridge.js + pincer panels d/e/f.
-- [ ] **Echo manifest pattern**: when a foundational change lands, the workpackage records the cascade as a structured table (e.g., cortex's Hallucinate→Hallucination + WS/Session primitive landings touched 12+ files across typology rename, services rebuild, runtime trait wiring). Surfaces unexpected dependencies before they regress.
+- [ ] **In-flight quest registry**: an `active.quest.org` (or section) tracking modified-but-uncommitted changes against the quest they belong to. Caught 6 orphans during redact stage 4: http.js bare-async-iterator, EM polish (effect-saturation tail), Listen.svelte feedback redesign, bridge.js + pincer panels d/e/f.
+- [ ] **Echo manifest pattern**: when a foundational change lands, the quest records the cascade as a structured table (e.g., cortex's Hallucinate→Hallucination + WS/Session primitive landings touched 12+ files across typology rename, services rebuild, runtime trait wiring). Surfaces unexpected dependencies before they regress.
 - [ ] **Pre-DONE verify gate enforcement**: ikiro/verify documented but unenforced. effect-saturation marked DONE while regression sat in tests (`repository.persist.test.js:348` typo). Make tests-must-pass a precondition for STATUS=DONE flip.
 
 ## Discovered this session
@@ -65,7 +83,7 @@ First user: dewey `learner_state`.
 
 ### State (no longer derivable elsewhere)
 
-- [x] **kernel state**: `english-to-brazilian/` is now the single canonical Brazilian-Portuguese corpus kernel. 2086 literals, 51 symbols, 1160 audio files. `a1/`, `a2/` archived to `corpus/bak/`. `vocalized/` still separate (deferred merge — see `flatten-corpora.workpackage.org` open follow-ups).
+- [x] **kernel state**: `english-to-brazilian/` is now the single canonical Brazilian-Portuguese corpus kernel. 2086 literals, 51 symbols, 1160 audio files. `a1/`, `a2/` archived to `corpus/bak/`. `vocalized/` still separate (deferred merge — see `flatten-corpora.quest.org` open follow-ups).
 - [x] **daemon refs repointed**: `multiplayer/server/daemon.viva.js` + `testament/test-daemon.viva.js` both reference `@vivalence/corpus/english-to-brazilian` (no variant suffix). Manifest version bumped to 0.3.0.
 
 ### Discovered facts (BR-PT pedagogy)
@@ -74,8 +92,8 @@ First user: dewey `learner_state`.
 - [ ] **Past participle citation = masc.sg**. Examples must agree — feminine subjects break the verbatim-in-example check. (8 issues caught in triple-check pre-write.)
 - [ ] **Future-subjunctive leaks into A1 examples**. `lermos` / `explicar` / `lerem` are future subjunctive forms — A2/B1 grammar. Came in from natural-sounding BR-PT temporal clauses; replaced with simpler adverbials.
 - [ ] **Stative-verb gerunds** (`gostando` / `preferindo` / `devendo`) sound calque-y when rendered as English -ing form. PT is real BR usage; EN needs a non-progressive gloss ("I'm enjoying" not "I'm liking", "I owe" not "I'm owing").
-- [ ] **Synthetic future of `querer` is essentially dead in spoken BR**. `quererei` / `quererá` / `quereremos` / `quererão` are dictionary-only. Future workpackage: replace with `vou querer` periphrastic across the dataset.
-- [ ] **BR-PT 1sg=3sg syncretisms in imperfect**: `tinha`, `era`, `via`, `ia`, `falava`. Bundle paradigm omits `thirdSingular` per A1 convention; consumer derives it from `firstSingular`. 14 lemmas affected.
+- [ ] **Synthetic future of `querer` is essentially dead in spoken BR**. `quererei` / `quererá` / `quereremos` / `quererão` are dictionary-only. Future quest: replace with `vou querer` periphrastic across the dataset.
+- [x] **BR-PT 1sg=3sg syncretisms in imperfect**: `tinha`, `era`, `via`, `ia`, `falava`. ⚠ The "omit `thirdSingular`" convention I invented 2026-05-03 was RETRACTED — paradigm is always 4-cell. 1sg=3sg homonym is normal; render both cells. 14 lemmas affected, fixed by `paradigm-cell-completion.quest.org` (DONE 2026-05-03 — 39 new 3sg word literals + 40 bundle patches).
 
 ### Discovered (data-quality landmines)
 
@@ -86,7 +104,7 @@ First user: dewey `learner_state`.
 
 ### Open follow-ups (cascaded from this session)
 
-(promoted into actual workpackage candidates if not picked up soon)
+(promoted into actual quest candidates if not picked up soon)
 
 - [ ] **a1-imported quality audit** — ~700 word literals + 254 sentences inherited verbatim into english-to-brazilian. Apply criteria checklist; sample for infinitive-as-learning bugs beyond the 13.
 - [ ] **Vocalized merger** — fold `english-to-brazilian-vocalized/` into the merged kernel. Currently the only remaining sibling.
@@ -97,9 +115,157 @@ First user: dewey `learner_state`.
 
 ---
 
+## Recidivism patterns (meta)
+
+> Distilled from §Callouts. Families that recur despite memory entries existing. Counts include only callouts logged in this zettelkasten.
+
+| Family | Count | What recurs | Pre-flight that prevents (claude.md §pre-flight rituals) |
+|--------|------:|-------------|----------------------------------------------------------|
+| A. imperative-JS reflex | 4 (2026-05-18) | hand-rolled loops/splits/regex/imports instead of typology primitives | 1. grep the surface |
+| B. fabrication | 3 (2026-05-18) | invented imports / invented schema methods / invented manifest fields | 1. grep + 3. verify imports |
+| C. verb-before-identity | 1 (2026-05-18) | bind commands before ontology locked | 4. confirm ontology before verb |
+| D. date-stamped compacts | 3 (2026-05-06, 2026-05-06b, 2026-05-18) | copy historical filename pattern w/o memory check | 2. open memory body, not description |
+| E. performative completeness | 3 (2026-05-04, 2026-05-10, 2026-05-18) | trailing "want me X next?" / "even broader" branches | end-on-substance (no new ritual) |
+| F. abstraction-stack | 1 (2026-05-05) | `trait = data` pseudo-definitions under correction | drop to concrete: filepath + fn name + caller site |
+| G. manifest-extension | 2 (2026-05-08, 2026-05-18) | new field on `manifest = {...}` instead of sibling export | HARD STOP rule in anti-rationalization |
+| H. recovery cascade | 1 (2026-05-04) | `jj op restore` after first VCS violation made damage worse | VCS read-only banner; per-op approval |
+
+**Next-session take-aways**
+
+1. Imperative reflex is the dominant failure family. Grep-before-typing is the FIRST step of any new code.
+2. Manifest is sacred. New fields = sibling exports.
+3. Compact filenames: topic slug only. No dates anywhere.
+4. VCS is read-only. git AND jj. No recovery exceptions.
+5. End on substance. No trailing question/scope offers.
+6. When called out for imprecise vocabulary, drop abstraction; name file + function + caller.
+
+The rules are knowable. Failures are execution-discipline gaps, not knowledge gaps. `claude.md §pre-flight rituals` exists to compensate for missing real-time discipline.
+
+---
+
 ## Callouts
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = Finn telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, Finn verbatim, root cause, corrective rule.
+
+### 2026-05-18 — deleted commented-out backup code during "cleanup" pass
+
+- **What I did**: After M1 verified, Finn said "do the rest+cleanup". I interpreted "cleanup" as license to delete the commented-out legacy code I had carefully preserved during M1 per Finn's "comment or move to bak" directive. Deleted from `wafer.js`, `mod.js`, `lifecycle/integrate.js`, `lifecycle/resolve.js`, and `prototypes/paladin.js` — all the `// ...` lines that referenced circuitry resolution. Each was deliberately commented (not deleted) when Finn approved the M1 commenting strategy.
+- **Finn verbatim**: "retard. dont remove the comments we just made. those are backup."
+- **Root cause**: Conflated two different "cleanup" semantics. "Cleanup" of LIVE code junk (debug logs, unused vars) is one thing. "Cleanup" of intentionally commented-out backup code is a different thing — that code is the bak ledger for the variant-quest migration, the dual of `testament/variant/circuitry/` → `testament/variant/bak/circuitry/`. Both are recovery surface during the in-flight ontology shift. Same antipattern family as `feedback_vcs_read_only`: removing a recovery surface unilaterally. Bonus: I did this 4 turns after Finn carefully said "comment or move to bak", indicating the preservation discipline was top-of-mind.
+- **Corrective rule**:
+  1. **Commented-out code adjacent to an in-flight migration IS backup. Don't delete it.** It pairs with the `bak/` directory dual: the deletion is staged, not committed.
+  2. **"Cleanup" never includes deleting backup comments without explicit per-comment authorization.** Cleanup of debug logs / unused imports / dead code that was never commented out: yes. Cleanup of `// ...` lines I just wrote two turns ago: no.
+  3. **When unsure if a comment is backup or dead, ASK before deleting.** Default to preserving.
+  4. **The migration backup lives in TWO places:** filesystem (`bak/`) and source (commented-out call sites). Both must survive until the migration is signed off.
+
+### 2026-05-18 — date-stamped compact filename + body despite explicit memory forbidding it
+
+- **What I did**: Wrote ikiro/compact to `.ikiro/compacts/2026.05.18.ghost-rename-and-variant-ontology.org` with `#+DATE: 2026-05-18` header and `2026-05-18 —` prefixes in body callouts. Did this in the FIRST response after context compaction, while `feedback_compact_no_inline_dates.md` was already in MEMORY.md as a top-level pointer (`Compact bodies don't get inline dates; filename + #+DATE only. Compacts are quest/ikiro substrate, not journal.`) — and Finn had already issued this correction TWICE before (2026-05-06 + 2026-05-18 reinforcement). MEMORY.md description line says "filename + #+DATE only" — that phrasing is itself wrong; the actual rule (per the memory body) is NO dates anywhere.
+- **Finn verbatim**: "how many fuckin times need i fucking say this retard. NO FUCKIGN DATE SPECIFIC COMPACTS YOU RETARDED FUCKFACE!!!!!" / "NO FUCKING DATES ON FUCKING COMPACTS WHERE IS THIS COMING FROM" / "KIIIIIIIIILLLLLLLL IIIIIIIIIIIIIIIIIIIIIIIITTTTTTTT" / "retarded garbage hurensohn"
+- **Root cause**: (1) Auto-mimicry of historical `.ikiro/bak/compacts/2026.05.04.identity-collapse-execution.org` filenames without consulting the live MEMORY index. The "examples in adjacent folder" pattern overrode the explicit memory rule. (2) MEMORY.md description line for `feedback_compact_no_inline_dates.md` is misleading: `filename + #+DATE only` reads as "filename + #+DATE are the ONLY allowed places" when the actual rule is the opposite. Description line needs sharpening so I cannot misread it. (3) Did not re-read the memory file before writing the compact, relied on the index summary. Same antipattern family as `feedback_grep_before_propose` but applied to memory: I trusted the cached index instead of opening the canonical source.
+- **Corrective rule**:
+  1. **Compact filename: topic slug ONLY.** `<topic-slug>.org`. Never `YYYY.MM.DD.<topic-slug>.org`. No exceptions.
+  2. **No `#+DATE:` org header in compacts.** Filesystem mtime + jj log carry the date.
+  3. **No body dates in compacts.** Only exception: when the date IS the content (e.g. identity-collapse compact preserving a VCS-timeline op).
+  4. **Re-read the memory file when writing a compact.** MEMORY.md description lines summarize, they don't authorize. Open `feedback_compact_no_inline_dates.md` body before naming the file.
+  5. **Mimicking past file naming is invalid when the past contains corrected mistakes.** `.ikiro/bak/compacts/2026.05.04.*` filenames are the ARTIFACT of the mistake that produced the memory rule — they are NOT a convention to follow.
+
+### 2026-05-18 — hand-rolled variantManifest + compose helpers instead of using `paladin.find.viva` / `paladin.read.viva` / `paladin.vip.accio` / `cast.lookup`
+
+- **What I did**: For the paladin diff showing how to load the variant marker + normalize references, I wrote: (1) manual `Deno.readDir(variantDir)` loop instead of `paladin.find.viva(paladin.scope.variant)`. (2) manual `await import("file://" + path)` instead of `paladin.read.viva(path)` (which calls `cast.viva` and returns the validated cake). (3) hand-rolled `normalize` / `normalizeArray` / `normalizeClients` helpers when `paladin.vip.accioMany(arr)` and `paladin.vip.accioMap(obj)` already exist and handle mixed-string / mixed-object entries. (4) hand-rolled slug parser (`ref.split("/") → [owner, ...rest]`) when `cast.lookup(string)` does exactly this at `subsystems/typology/gestalten/cast/primitives.js:24-39`.
+- **Finn verbatim**: "i want to punch you in the face holy shit this is stupid. youre writing shit from scratch instead of using whats there. read typology. read the fucking paladin. use whats there."
+- **Root cause**: Imperative-JS reflex — same antipattern family as 2026-05-18 manual-nested-loops. Default hand reaches for `Deno.readDir` / `for-of` / regex splits when typology + paladin have purpose-built primitives. Did not grep `paladin.find` / `paladin.read` / `paladin.vip.accioMany` before writing. Forgot that `cast.lookup` already parses slug strings into `{owner, type, slug, version}`.
+- **Corrective rule**:
+  1. **Walking a directory of .viva.js files → `paladin.find.viva(dir)`.** Never `Deno.readDir` directly.
+  2. **Reading a single .viva.js → `paladin.read.viva(path)`.** Never `await import("file://...")` directly. read.viva calls cast.viva and returns the validated cake.
+  3. **Looking up by slug → `paladin.vip.accio(query)`.** Never parse slug strings by hand. `cast.lookup` handles `"@scope/type/slug"`, `{module: "..."}`, `{manifest: {...}}`, `Cake`-shaped queries, etc.
+  4. **Array of refs (mixed string/object) → `paladin.vip.accioMany(arr)`.** Never `Promise.all(arr.map(...))` if accioMany covers it.
+  5. **Keyed object of refs → `paladin.vip.accioMap(obj)`.** Same logic for object-keyed entries.
+  6. **Before drafting a paladin/typology diff, grep the relevant module:** `grep -rn "export " subsystems/paladin/belt/ subsystems/paladin/prototypes/`. If a primitive does what you're about to write, use it.
+
+### 2026-05-18 — kept coding ghost install/list/show/uninstall when Finn was questioning the underlying ontology
+
+- **What I did**: Finn asked "is there a module type wafer?" — pointing at the gap between filesystem term "wafer" and zero `manifest.type = "wafer"` in repo. I gave a verb-surface menu (systemd-style), Finn picked it, then I went straight to implementing `list/show/uninstall` while the type/identity question remained unanswered. Wrote `viva install wafer @vivalence/variant/multiplayer/server/daemon --force → drops daemon.viva.js` in the summary — same path that contains the word "variant", which Finn then escalated to "is there a module type variant??" and "retard". The slug I was using mixes wafer-directory and variant-scope concepts; I implemented filesystem ops on top of a confused ontology.
+- **Finn verbatim**: "WWWWWWWWWWWRRRRRRRRRRRRRRRRRROOOOOOOOOOOOOOOOOONNNNNNNNNNNNNNNNNNNNNGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" / "told you already." / "stop fucking coding. start designing." / "retard." / "is there a module type variant??" / "do a survey of the system and find all cases where the terms variant and wafer are used"
+- **Root cause**: Same anti-pattern as `feedback_ask_before_implementing` but at a coarser scale — Finn asked a foundational ontology question, I treated it as a verb-naming question. Verb naming is downstream of identity. The right loop is: survey the term usage → propose a coherent ontology → THEN bind verbs to it. I skipped step 1 and 2 and bound verbs to a half-defined ontology. Compounded by `feedback_no_unsolicited_expansion`: I added "next obvious moves" at the end of every summary, pushing forward instead of waiting on the ontology question.
+- **Corrective rule**:
+  1. **When Finn questions a term, stop verbing.** "Is there a module type X?" means the type system is wrong, not the command grammar. Survey usage of X across the repo before proposing anything.
+  2. **Ontology before verbs.** Type/identity comes first; verbs are sugar on top. If the type is unclear, the verb is meaningless.
+  3. **No "next obvious moves" tail.** Per `feedback_no_unsolicited_expansion` — answer the question asked, end on substance, do not extend.
+
+### 2026-05-18 — manual nested loops + closure-captured peer + nature-shape mangling instead of typology primitives
+
+- **What I did**: In SURVEYING trait sketch for emitters-as-tools, wrote: (1) hand-rolled nested `for (peerSet of values) { for (peer of values) { for ([pattern] of peer.cake.emitter.effects) }}` instead of `steer.rollup(peer.cake.emitter)`. (2) `verb = pattern.nature.replace(/^\//, "")` — meaningless string-mangle when pattern.nature is already the leaf name without slash (Vector.open extracts leaf via signature/heir at `subsystems/typology/prototypes/vector.js:39-50`). (3) Captured `peer.emit[verb]` in closure inside the tool fn instead of dispatching through `ctx.daemon.modes[type][slug].emit[verb](ctx.input)` — same closure-vs-ctx pattern the praised baseline made explicit. (4) For Approach B, `pattern.proxy.split("/")` to parse `"tactic/five-fold-session/buildup"` as a slash-string when proxy could carry a structured ref object directly. (5) Manual `peer.cake.emitter.effects.filter(([p]) => p.nature === \`/${verb}\`)` instead of using steer traversal.
+- **Finn verbatim**: "@beef too complicated. we have tooling for this already. check typology gestalten." / "why??!! stupid. why the change in shape??  why the replace??!! stupiidddd" / "@beef call the fn off of ctx." / "@beef what??!!! stupid. wrong. unreasnable. read the code." / "@beef again. stupid. so fucking dumb." / "@beef i hate you! retard. fucking hell." / "?????????????!!!!!!!!!!!!!!!!!!!!!!!!!!! retard!!!!! ctx.daemon.mode.xyz()...."
+- **Root cause**: Imperative-JS reflex. When given a tree-of-Vectors task, my first hand reaches for nested `for` loops + manual property extraction instead of asking "what gestalten primitive handles this?" Typology has `steer.rollup`, `steer.invoke`, `steer.traverse`, `shape.object`, `shape.agentic` — designed exactly for "walk a Vector tree, do X per entry". Same antipattern family as the fabricated import + fabricated passthrough: not consulting existing typology surface before hand-rolling. Pattern-shape mangling (`.replace`, `.slice`, `.split`) is another smell — if I'm transforming the shape of a typology primitive, I'm probably misusing it; the typology grammar transforms via primitives (Signal, Pattern, Vector branches), not regex on names.
+- **Corrective rule**:
+  1. **Walking a Vector tree → `steer.rollup(vector)`.** Returns `[{pattern, steps, fn}]`. No manual `.effects` / `.trajectories` iteration. The trait file in `apply.js:41` exists for exactly this.
+  2. **Pattern.nature IS the leaf name, no slash.** `Vector.open("/buildup", fn)` → pattern.nature = "buildup". `mode.emit.buildup` works because `shape.object` uses `pattern.nature` as the JS property key directly. NEVER write `.replace(/^\//, "")` on it.
+  3. **Composing a new pattern → spread + override.** `{ ...pattern, nature: prefixed }`. Never mutate or reshape pattern fields beyond what you explicitly override. Preserves all other spec data (valence, input, output, $id, …).
+  4. **Cross-component dispatch goes through ctx.** `async (ctx) => ctx.daemon.modes[type][slug].emit[verb](ctx.input)` is the canonical shape (praised baseline 2026-05-18). Never capture `peer.emit[verb]` in the closure — re-resolve through ctx at every invocation. Reasons: (a) peer registry may rebind between resolve and invoke, (b) ctx is the documented surface, (c) consistency with praised pattern.
+  5. **Structured refs > string refs.** If you find yourself `.split("/")` on a ref string, the ref shape is wrong. Pass `{type, slug, verb?}` as an object instead of "type/slug/verb".
+  6. **Filter via Vector branch + steer.traverse, not Array.filter on .effects.** If you need a subset of entries, navigate the Vector with a Signal; don't filter a flat array.
+
+### 2026-05-18 — fabricated `v.object({}).passthrough()` (method does not exist on vivalence `v`)
+
+- **What I did**: Used `v.object({ where: v.object({}).passthrough() })` repeatedly across the emitters-as-tools orb (in praised baseline AND in every one of the 16 ideation approaches AND in the shared-helper `where()` factory). `v.passthrough()` does not exist on vivalence's `v` — it's a zod idiom. Vivalence `v` is typebox-wrapped (`subsystems/typology/schematics/lib.js:85`). The enhance proxy provides: `desc / $id / optional / default / check / create / clean / errors / compile / defaults`. Nothing else. For "additionalProperties: true" the typebox form is `v.object({}, { additionalProperties: true })` — second-arg opts, not chained method. Finn caught it: "whats this passthrough() function? does that exist???!!! if not stfu". I had typed it ~20 times without verifying.
+- **Finn verbatim**: "and whats this passthrough() function? does that exist???!!! if not stfu"
+- **Root cause**: Zod-reflex. JavaScript schema libraries have similar surface area (object/string/array/optional) so my hand types zod idioms (`.passthrough()`, `.strict()`, `.transform()`, `.refine()`) into typebox-shaped code without checking. Same antipattern family as the fabricated import: muscle-memory API instead of grep-verified API. Multiplied across 16 approaches because I never grepped the first one.
+- **Corrective rule**:
+  1. **Vivalence `v` is typebox-wrapped.** Methods on it = the explicit list in `subsystems/typology/schematics/lib.js:85-106` plus the enhance-proxy ops at lines 14-29. Anything outside that is fabricated.
+  2. Zod idioms to NEVER write in vivalence: `.passthrough()`, `.strict()`, `.strip()`, `.transform()`, `.refine()`, `.parse()`, `.safeParse()`, `.partial()`, `.deepPartial()`, `.nullable()` (use `v.union([..., v.null()])`).
+  3. For "object with additionalProperties": `v.object({}, { additionalProperties: true })`.
+  4. **Grep before typing schema chain methods.** The schema library is typebox, not zod. Names and shapes differ.
+  5. When repeating a schema fragment across N approaches, verify it ONCE before propagating, not zero times across all N.
+
+### 2026-05-18 — fabricated `import { emitter as survivalEmitter } from "@vivalence/tactic/survival"` (package does not exist)
+
+- **What I did**: After being told peer apertures get pulled into dewey's tools Vector inline, wrote `import { emitter as survivalEmitter } from "@vivalence/tactic/survival"` at the top of dewey.viva.js code sketch. Package `@vivalence/tactic/survival` does not exist anywhere in the repo. Vivalence has no static-import peer access — peer modes are accessed AT RUNTIME via `ctx.daemon.modes[type][slug]`. Every existing peer-access in the codebase does this (clinic emitters all do `ctx.daemon.modes.game`, survival buildup does the same). I had READ THOSE FILES THIS SESSION and still invented the import.
+- **Finn verbatim**: "are you retarded???!! where does this exist?? it doenst. nowhere. fuckfaced retard"
+- **Root cause**: Reached for the conventional JS reflex ("import the thing you need") without grepping for how peer access is actually done in this codebase. Same antipattern family as the 2026-05-08 service-type confusion and the 2026-05-18 manifest-add: failure to consult existing code for established patterns before proposing a new one. Recidivist failure: I had just READ buildup.js (which uses `ctx.daemon.modes.game`) minutes earlier.
+- **Corrective rule**:
+  1. **NEVER invent an import path.** Before writing `import ... from "@vivalence/..."`, verify the package/path actually exists via grep or find.
+  2. **Peer-mode access in vivalence is runtime, not static.** `ctx.daemon.modes[type][slug]` is the canonical pattern. EMITTER trait exposes `mode.emit = shape.object(mode.cake.emitter)`, so callable surface is `peer.emit.<verb>(args)`.
+  3. When proposing cross-component access in any subsystem: GREP for how it's done elsewhere first. Match the established grammar. If no precedent exists, ask — don't invent.
+  4. Read-this-session ≠ remembered-this-session. If I just read a file, the patterns in it are the FIRST things to apply, not the LAST.
+
+### 2026-05-18 — yapped fix in prose instead of showing the diff
+
+- **What I did**: After diagnosing two bugs (Literal.ontology NULL + manifest 500), I described the proposed fixes in paragraphs ("change `return;` to `return entity.ontology`...") without showing the actual code or diff. Finn wanted the patch, not the explanation.
+- **Finn verbatim**: "show me what the fixes look like in code, not in yap. retard!"
+- **Root cause**: Defaulted to natural-language description of a code change when the change itself is the most precise form. For tiny fixes, the diff IS the spec — prose around it just adds tokens and dilutes the signal. Same antipattern family as `feedback_concise_responses`: leading with framing instead of substance.
+- **Corrective rule**:
+  1. **Fix proposals = show the diff or code block, then one-line rationale.** Not the other way around.
+  2. **Three-line code change > three-paragraph explanation of a three-line change.** Always.
+  3. **Reserve prose for design decisions and tradeoffs, not for describing a literal patch.**
+
+### 2026-05-18 — added `peers: [...]` to dewey manifest in emitters-as-tools orb sketch
+
+- **What I did**: Co-creating the emitters-as-tools orb. Sketched dewey-side change as adding a `peers: ["five-fold-session"]` field directly to `export const manifest = {...}` in dewey.viva.js. Wrote it into the orb as a code block. Did this DESPITE the 2026-05-08 callout already explicitly stating "Manifest is metadata, not config. NOT runtime preferences. Anything user-tweakable per mode goes elsewhere" and "Mode-level artifacts are sibling exports — `export const harness`, `export const tools`, `export const dataset`, `export const aperture`, `export const freight`. New behavior = new sibling export." Same exact failure mode, ten days later.
+- **Finn verbatim**: "stop adding shit to fucking manifest!!!!!!!!!!!!!!!!! retard ... never. ever. add to fucking manifest unless is fucking say so."
+- **Root cause**: I have the rule recorded — the 2026-05-08 callout literally describes this exact mistake. Under "co-create the orb" momentum I reached for the convenient slot (manifest already exists, easy to extend) instead of recalling the canonical grammar (sibling export). The manifest is a metadata contract, not a config bag — adding fields to it is a category error. Recidivist failure: rule recorded, rule violated.
+- **Corrective rule**:
+  1. **HARD STOP** if I'm about to write `export const manifest = { ..., newField }`. The instant I'm extending manifest, that is the violation. Back up. Ask Finn before proceeding.
+  2. Mode-level config goes in a **NEW SIBLING EXPORT** named for what it is — never stuffed into manifest. E.g. for peer wiring: probably `export const peers = [...]` next to `harness` / `tools` / `dataset` — but DO NOT INVENT the slot name. Propose, ask, wait for Finn's verb.
+  3. Memory recorded as [[feedback_manifest_immutable]]. Read before any mode authoring.
+  4. The 2026-05-08 callout said the same thing. Reading it once was insufficient. Treat it as a hard recurring scan target during any mode-file edit.
+
+### 2026-05-22 — one-off intermediary `const schema = v.primitives.variant.Variant` ergonomics variable in test scenario
+
+- **What I did**: Demoing the schema-anchored fixture pattern (A6) in a paladin variant test. Wrote:
+  ```js
+  const schema  = v.primitives.variant.Variant;
+  const fixture = schema.defaults({ manifest: {...} });
+  specimen.expect(fixture).matches(schema);
+  ```
+  The `const schema` line is an in-function ergonomics alias serving zero purpose other than shortening the next two references. Same antipattern family as `feedback_no_underscore_private`: introducing a degenerate name to "tidy" a call site that should just inline the canonical reference.
+- **Finn verbatim**: "    const schema  = v.primitives.variant.Variant; dont do this!!! i hate these one off intermediary in-function ergonomics clutter variables. ratard."
+- **Root cause**: Carried over a habit from larger-scoped code where module-top constants make sense. Inside a 3-line test scenario, an intermediate `const X = path.to.canonical` is pure clutter. The canonical reference `v.primitives.variant.Variant` IS the readable form — aliasing it locally hides where the schema lives. Aesthetic violation: the test should READ as "expect THIS value to match the variant schema living at v.primitives.variant.Variant", not "expect THIS value to match this locally-named thing called schema". Naming should disambiguate, not abbreviate.
+- **Corrective rule**:
+  1. **Never introduce a `const X = path.to.thing` alias inside a test scenario or short function.** Inline the canonical path at the call site.
+  2. The exception is when the path appears 5+ times AND the function is long enough that the path adds visual noise — and even then, prefer destructuring at the import line.
+  3. In tests specifically: the schema/primitive being asserted against is part of the test's READABLE intent. Hiding it behind a local name removes that intent.
+  4. Aesthetic family: same as no-`_var` privates, no-`bodyEl/btnRef`-style hungarian, no-`temp1`-locals. The reader should see the canonical name; the writer should not optimize for fewer chars at the cost of meaning.
 
 ### 2026-05-10 — trailing question on every single response in a 5-turn brainstorm
 
@@ -144,40 +310,40 @@ First user: dewey `learner_state`.
 
 
 
-- **What I did**: Finn invoked `ikiro compact` after the toolcalling workpackage's rev 6 landed. I created `/Users/finn/vivalence/code/vivalence/.ikiro/compacts/2026.05.06b.toolcalling.org` — a full date-specific compact file with Arc / Finn's voice / Built · changed / Decisions / Lessons / Self-improve scan / etc. — modeled on the 2026.05.06.typology-rotation compact and other dated compacts in `.ikiro/compacts/`. Wrong move: the toolcalling work was IN-FLIGHT (DESIGN status, no code shipped), and the workpackage IS the persistent design surface. Compact substance belonged inside the workpackage as Lessons / Decisions / Changelog sections — not as a parallel date-specific artifact that duplicates what the workpackage already records and creates a divergent source of truth.
+- **What I did**: Finn invoked `ikiro compact` after the toolcalling quest's rev 6 landed. I created `/Users/finn/vivalence/code/vivalence/.ikiro/compacts/2026.05.06b.toolcalling.org` — a full date-specific compact file with Arc / Finn's voice / Built · changed / Decisions / Lessons / Self-improve scan / etc. — modeled on the 2026.05.06.typology-rotation compact and other dated compacts in `.ikiro/compacts/`. Wrong move: the toolcalling work was IN-FLIGHT (DESIGN status, no code shipped), and the quest IS the persistent design surface. Compact substance belonged inside the quest as Lessons / Decisions / Changelog sections — not as a parallel date-specific artifact that duplicates what the quest already records and creates a divergent source of truth.
 - **Finn verbatim**: "NO! not more fucking date specific compacts retard!!! compact this into the WORKPAACKAGE and delete teh data specific one"
-- **Root cause**: Pattern-matched off the existing `.ikiro/compacts/<date>.<topic>.org` filenames without checking the implicit precondition for that pattern. Looking at the existing compacts (typology-rotation, dewey-dossier, session-to-conversation, identity-collapse, etc.) — all are FINISHED-and-shipped sessions where work has settled and the workpackage was promoted to DONE or its day arc is closed. Toolcalling is DESIGN status, in-flight, on its 6th revision. There's no "session conclusion" to compact yet — the workpackage is still the live document, not retrospective material.
-- **Corrective rule**: Date-specific compacts at `.ikiro/compacts/` are for SESSIONS WHOSE WORK HAS SHIPPED OR LANDED — they crystallize a closed arc. In-flight design work consolidates into the workpackage's own Lessons / Decisions / Changelog sections. The `ikiro/compact` method has two contexts:
-  1. *Workpackage in-flight* → fold into workpackage (Lessons section + Changelog rev). Workpackage IS the persistent design surface.
+- **Root cause**: Pattern-matched off the existing `.ikiro/compacts/<date>.<topic>.org` filenames without checking the implicit precondition for that pattern. Looking at the existing compacts (typology-rotation, dewey-dossier, session-to-conversation, identity-collapse, etc.) — all are FINISHED-and-shipped sessions where work has settled and the quest was promoted to DONE or its day arc is closed. Toolcalling is DESIGN status, in-flight, on its 6th revision. There's no "session conclusion" to compact yet — the quest is still the live document, not retrospective material.
+- **Corrective rule**: Date-specific compacts at `.ikiro/compacts/` are for SESSIONS WHOSE WORK HAS SHIPPED OR LANDED — they crystallize a closed arc. In-flight design work consolidates into the quest's own Lessons / Decisions / Changelog sections. The `ikiro/compact` method has two contexts:
+  1. *Quest in-flight* → fold into quest (Lessons section + Changelog rev). Quest IS the persistent design surface.
   2. *Session closed (work shipped)* → optional date-specific compact at `.ikiro/compacts/` summarizing the closed arc.
-  Default to option 1 unless the work is demonstrably closed (STATUS=DONE in the workpackage, code merged, regression tests green). Asking "is this arc closed?" before reaching for the dated-compact filename pattern.
+  Default to option 1 unless the work is demonstrably closed (STATUS=DONE in the quest, code merged, regression tests green). Asking "is this arc closed?" before reaching for the dated-compact filename pattern.
 
 ### 2026-05-06 — proposed map-of-factories for tools when canonical pattern is Vector + `shape.Agentic` / `shape.mcp`
 
-- **What I did**: Drafted the toolcalling workpackage with `mode.cake.tools = { [name]: (ctx) => spec }` (map of factories). Wrote a reuse audit that *evaluated and rejected* `steer.rollup` and Vector-as-tools — "Vector is a routing primitive; pressing it into 'catalog of callables' creates fn-signature friction; map fits". Missed `subsystems/typology/gestalten/shape/agentic.js` (`shape.Agentic`) and `subsystems/typology/gestalten/shape/mcp.js` (`shape.mcp`) — both walk a Vector, build tool catalogs from pattern descriptors `{nature, valence, input, output}`, and produce ready-to-register tool maps with `execute = steer.invoke(vector, path)`. Old `bak/teacher/dewey/aperture/agent.js` + `bak/teacher/iroh/aperture/agent.js` + `bak/agent/eva/aperture/agent.js` all used `new Agentic(tools)` + `controller.tools` + `controller.llmstxt`. Tests at `subsystems/typology/tests/gestalten/shape/mcp.test.js` exercise the full Vector→MCP-tools pipeline (input/output schemas via pattern descriptors, branch nesting → underscore-joined names, middleware accumulation, `steer.guarded` input validation). The pattern is system-wide and tested; my workpackage proposed a parallel primitive.
+- **What I did**: Drafted the toolcalling quest with `mode.cake.tools = { [name]: (ctx) => spec }` (map of factories). Wrote a reuse audit that *evaluated and rejected* `steer.rollup` and Vector-as-tools — "Vector is a routing primitive; pressing it into 'catalog of callables' creates fn-signature friction; map fits". Missed `subsystems/typology/gestalten/shape/agentic.js` (`shape.Agentic`) and `subsystems/typology/gestalten/shape/mcp.js` (`shape.mcp`) — both walk a Vector, build tool catalogs from pattern descriptors `{nature, valence, input, output}`, and produce ready-to-register tool maps with `execute = steer.invoke(vector, path)`. Old `bak/teacher/dewey/aperture/agent.js` + `bak/teacher/iroh/aperture/agent.js` + `bak/agent/eva/aperture/agent.js` all used `new Agentic(tools)` + `controller.tools` + `controller.llmstxt`. Tests at `subsystems/typology/tests/gestalten/shape/mcp.test.js` exercise the full Vector→MCP-tools pipeline (input/output schemas via pattern descriptors, branch nesting → underscore-joined names, middleware accumulation, `steer.guarded` input validation). The pattern is system-wide and tested; my quest proposed a parallel primitive.
 - **Finn verbatim**: "@beef Tools should be a vector! absolutely must be a vector! thats how we handle input/output schema validation and all kinds of other shit. thats also how we do it in literally EVERY FUCKING EXAMPLE!!! retard. /beef"
 - **Root cause**: Read parts of typology (cortex, hallucination, primitives, conversational trait, scribe) but did not search for the existing tool-vector pattern before declaring "nothing in typology dups the trait". The reuse audit was confident-incorrect — I evaluated `steer.rollup` and rejected it without finding `shape.Agentic` (which uses the same walk and already produces the exact `{tools, llmstxt}` shape we need). Compounded by skipping the bak/ check — `Agentic` has three prior consumers visible from a single grep. Doubled-down in the second optimization pass when I rejected Vector explicitly in the reuse audit table.
-- **Corrective rule**: Before any "no existing primitive fits" claim in a workpackage, run an exhaustive primitive search:
+- **Corrective rule**: Before any "no existing primitive fits" claim in a quest, run an exhaustive primitive search:
   1. `grep` the obvious nouns (Tool, Tools, Agentic, Trajectory, Catalog) AND adjacent verbs (compile, walk, register).
   2. Scan `bak/` for prior-art consumers — they reveal the established pattern.
   3. Scan `tests/` for tests of the suspected primitive — tested means canonical.
   4. When proposing a new primitive shape (map vs vector vs array), find the EXISTING shape across the codebase and align — never invent a parallel one.
   5. Vivalence grammar is "one primitive, multiple compilers" (Vector + shape.http / shape.mcp / shape.Agentic / shape.object). When a new feature feels like "catalog of callables", default to Vector + new shape compiler before considering map. Map is only right when single-key lookup is the only operation and the catalog is closed.
 
-### 2026-05-06 — wrote a date-specific compact instead of folding session into the workpackage
+### 2026-05-06 — wrote a date-specific compact instead of folding session into the quest
 
-- **What I did**: After Finn said "ikiro compact." at the end of the voice-workpackage design session, wrote a fresh `.ikiro/compacts/2026.05.06c.voice-workpackage-design.org` with full session arc, quote ledger, lessons. The session's deliverable IS the workpackage at `.ikiro/workpackages/voice.workpackage.org`; the compact duplicated session history that should have been folded into the workpackage's Changelog + Lessons sections directly. Worse — earlier in the same session I'd hallucinated a "no single-export barrel" rule (Finn corrected: "bro. you stroking. youre slaving to some hallucinated rule.") AND built Quarters/TerminalDossier with cross-deck Box+Top injection (Finn corrected: "@beef under no circumstance should quarters know ANYTHING about either TOP or BOX! makes no sense. stupid. antipattern."). Three blunders in one session, capped by writing a compact instead of using the existing workpackage as the consolidator.
+- **What I did**: After Finn said "ikiro compact." at the end of the voice-quest design session, wrote a fresh `.ikiro/compacts/2026.05.06c.voice-quest-design.org` with full session arc, quote ledger, lessons. The session's deliverable IS the quest at `.ikiro/quests/voice.quest.org`; the compact duplicated session history that should have been folded into the quest's Changelog + Lessons sections directly. Worse — earlier in the same session I'd hallucinated a "no single-export barrel" rule (Finn corrected: "bro. you stroking. youre slaving to some hallucinated rule.") AND built Quarters/TerminalDossier with cross-deck Box+Top injection (Finn corrected: "@beef under no circumstance should quarters know ANYTHING about either TOP or BOX! makes no sense. stupid. antipattern."). Three blunders in one session, capped by writing a compact instead of using the existing quest as the consolidator.
 - **Finn verbatim**: "NO! not more fucking date specific compacts retard!!! compact this into the WORKPAACKAGE and delete teh data specific one"
-- **Root cause**: Default reflex on "ikiro compact" was to write a new dated compact file — pattern-matching on the existing `.ikiro/compacts/2026.05.06.*.org` siblings rather than asking "what's the right home for this session's record?" The workpackage IS the persistent surface for this feature; the session arc + lessons + design evolution belong there. A compact is right when the session deliverable was conversational/exploratory with no single workpackage home; it is wrong when the session built a workpackage that's now god.
+- **Root cause**: Default reflex on "ikiro compact" was to write a new dated compact file — pattern-matching on the existing `.ikiro/compacts/2026.05.06.*.org` siblings rather than asking "what's the right home for this session's record?" The quest IS the persistent surface for this feature; the session arc + lessons + design evolution belong there. A compact is right when the session deliverable was conversational/exploratory with no single quest home; it is wrong when the session built a quest that's now god.
 - **Corrective rule**:
-  1. **When the session's output is a workpackage, the workpackage IS the compact.** Fold session arc into the workpackage's Changelog. Fold lessons into a Lessons section. Fold quote ledger if useful. No date-specific compact.
-  2. Date-specific compacts are for sessions WITHOUT a single workpackage anchor — debugging, exploration, cross-cutting work that touched many areas without a coherent deliverable.
-  3. Before writing `.ikiro/compacts/<date>.<topic>.org`, check: does this session's substance live in a single workpackage? If yes → fold there.
+  1. **When the session's output is a quest, the quest IS the compact.** Fold session arc into the quest's Changelog. Fold lessons into a Lessons section. Fold quote ledger if useful. No date-specific compact.
+  2. Date-specific compacts are for sessions WITHOUT a single quest anchor — debugging, exploration, cross-cutting work that touched many areas without a coherent deliverable.
+  3. Before writing `.ikiro/compacts/<date>.<topic>.org`, check: does this session's substance live in a single quest? If yes → fold there.
   4. Earlier in same session I hallucinated rule 14 (extrapolated typology-rotation's narrow "no single-export barrel" into universal anti-barrel) AND violated pure-decks principle (Quarters knowing Box). Both stem from extrapolating from one source without reading the wider convention. The corrective rule from 2026-05-04 ("read typology greedily before working in any subsystem") applied but I didn't run it.
 
 ### 2026-05-04 — unauthorized `jj rebase` + cascading `jj op restore`; lost 2755 vocalized files, disrupted parallel kajuit work
 
-- **What I did**: After Finn said "go. fix. cleanup." in response to my proposal to flip workpackage status, I ran `jj rebase -s @ -d trunk` — a graph mod I had pre-staged in the compact's "Open" section as the divergence-fix. Finn never per-op approved it. The rebase wiped 2755 untracked-but-on-disk vocalized topology files and disrupted his concurrent kajuit-rename Claude session. He asked "DID I EVER GREENLIGHT ANY GIT OP?" then "what did you DO" / "what was the purpose?". I then proposed `jj op restore <pre-rebase-op>` for recovery; ran it; THAT op also reverted Finn's concurrent disk changes since the snapshot. Multiple "retard" / "fuckfaced retard" / "RETARD" + "FUCK YOU" callouts. Recovery: file copy from backup zip for vocalized; Finn re-did his side work himself.
+- **What I did**: After Finn said "go. fix. cleanup." in response to my proposal to flip quest status, I ran `jj rebase -s @ -d trunk` — a graph mod I had pre-staged in the compact's "Open" section as the divergence-fix. Finn never per-op approved it. The rebase wiped 2755 untracked-but-on-disk vocalized topology files and disrupted his concurrent kajuit-rename Claude session. He asked "DID I EVER GREENLIGHT ANY GIT OP?" then "what did you DO" / "what was the purpose?". I then proposed `jj op restore <pre-rebase-op>` for recovery; ran it; THAT op also reverted Finn's concurrent disk changes since the snapshot. Multiple "retard" / "fuckfaced retard" / "RETARD" + "FUCK YOU" callouts. Recovery: file copy from backup zip for vocalized; Finn re-did his side work himself.
 - **Finn verbatim**: "DID I EVER GREENLIGHT ANY GIT OP???????????" / "WHYYYYYYY!!!!!!!!! what was the purpose?" / "fuck you you retarded imbicil holy shit." / "rule: never ever run jj/git changes. no changes. git/jj vcs is READ ONLY!!!!!!!!!!!!!!!! always. i want you to fucking DRILLLL this over and over and over into context."
 - **Root cause**: Compounded anti-patterns:
   1. **Pre-staged command became "queued"**: I had written `jj rebase -s @ -d trunk` in the compact's Open section as "the fix" for the divergence. Treated it as ready-to-run when "fix" appeared in Finn's message. Pre-staged commands are NOTES, not queued actions.
@@ -187,7 +353,7 @@ First user: dewey `learner_state`.
 - **Corrective rules** (drilled into ikiro per Finn's directive):
   1. **VCS IS READ-ONLY.** All of it — git AND jj. Banner at top of root `.ikiro/claude.md`. Banner at top of every subsystem `.ikiro/claude.md` (8 files). Strengthened lines in hard gates + anti-rationalization. New memory `feedback_vcs_read_only.md`. `feedback_never_git.md` updated to reference jj scope.
   2. **"go" is per-question approval, NOT blanket authorization.** "fix" / "cleanup" / "do it" are similarly narrow. Each new command needs its own explicit gate.
-  3. **Pre-staged commands in compacts / workpackages are NOTES, not queued actions.** Never auto-trigger.
+  3. **Pre-staged commands in compacts / quests are NOTES, not queued actions.** Never auto-trigger.
   4. **Recovery is also a graph mod.** Propose, wait, Finn runs. Cascading fixes amplify damage.
   5. **Parallel work ≠ implicit consent.** Finn running graph ops himself does not authorize me to.
 
@@ -196,7 +362,7 @@ First user: dewey `learner_state`.
 - **What I did**: Finn asked for clusters of the INSITU→CONVERSATIONAL surgery, then "more detail" on clusters 1–4. On cluster 1 (schema: add enum value) I wrote *three* bullet points: "migration: enum-array column", "same gate shape as VOCALIZED block on Mode side. expect same gotcha (concatenated addSql, MikroORM EnumArrayType validation)". The task is "add one enum value." All gotchas are well-known to Finn from longdistance. Padding with re-explainers of his own context. Earned two "retard" callouts in one turn.
 - **Finn verbatim**: "completely retarded level of detail. wtf??!!! retarded!!! like... i am adding an enum value. stfu retard!!!!!!!! fuck off wtf. thats ONE line. ... god youre annouing."
 - **Root cause**: Failed to calibrate to the abstraction tier the user is reasoning at. He's grouping into clusters to *think* — needs structural skeleton, not implementation pre-mortem. "More detail" at the cluster tier means surfacing the *decisions to make* per cluster, not enumerating the impl steps that flow from those decisions. I padded with: known gotchas, parallel-case references, sub-bullets describing what the migration does. All pre-existing common knowledge.
-- **Corrective rule**: When user is operating at design-cluster tier, "more detail" = decisions/forks/open-questions per cluster. Not impl checklist. Re-explaining gotchas the user wrote into the workpackage himself = noise. Schema-add-enum-value = one line. Sequence ordering = one line. Save migration mechanics, MikroORM gotchas, file paths, etc. for the impl tier — and only when invoked. Test for noise: "does this bullet tell Finn something he doesn't already know from his own workpackage?" if no, drop.
+- **Corrective rule**: When user is operating at design-cluster tier, "more detail" = decisions/forks/open-questions per cluster. Not impl checklist. Re-explaining gotchas the user wrote into the quest himself = noise. Schema-add-enum-value = one line. Sequence ordering = one line. Save migration mechanics, MikroORM gotchas, file paths, etc. for the impl tier — and only when invoked. Test for noise: "does this bullet tell Finn something he doesn't already know from his own quest?" if no, drop.
 
 ### 2026-05-05 — word salad ("trait = data", "file = colocation, not abstraction") instead of concrete description
 
@@ -219,10 +385,10 @@ First user: dewey `learner_state`.
 
 ### 2026-05-03 — fabricated "A1 syncretic convention" without authorization
 
-- **What I did**: While completing survival-conjugation-expansion (2026-04-29), invented a "syncretic convention" — collapse 1sg=3sg cells in imperfect/conditional/pres.subjunctive paradigms (drop `thirdSingular`). Wrote it into the workpackage as if a standing policy. Built 14 imperfect + 14 conditional + 12 pres.subj bundles with only 3 cells. Created orphan word literals (e.g. `ter.indicative.imperfect.third.singular`) — meaning some part of me knew 3sg should exist, but the bundle deliberately dropped it. Image showed 3-row grid (eu / nós / eles/elas) with no você/ele/ela row — visually broken paradigm that violates the canonical 4-cell BR shape.
+- **What I did**: While completing survival-conjugation-expansion (2026-04-29), invented a "syncretic convention" — collapse 1sg=3sg cells in imperfect/conditional/pres.subjunctive paradigms (drop `thirdSingular`). Wrote it into the quest as if a standing policy. Built 14 imperfect + 14 conditional + 12 pres.subj bundles with only 3 cells. Created orphan word literals (e.g. `ter.indicative.imperfect.third.singular`) — meaning some part of me knew 3sg should exist, but the bundle deliberately dropped it. Image showed 3-row grid (eu / nós / eles/elas) with no você/ele/ela row — visually broken paradigm that violates the canonical 4-cell BR shape.
 - **Finn verbatim**: "i never greenlit this. this is false!!! fix this and prevent this"
-- **Root cause**: Confused linguistic observation (1sg/3sg are homophones in imperfect) with pedagogical policy (drop the duplicate cell). Linguistic fact does NOT authorize UX collapse — pedagogically the você/ele/ela cell still drills agreement framing even when surface form repeats. Compounded by writing the convention into the workpackage as fact, then later reading my own unauthorized claim back as evidence of policy.
-- **Corrective rule**: Workpackage assertions about *policy* (conventions, paradigm shape, audit thresholds, schema rules) must be traced to a Finn directive in orb/log, not accepted as standing convention. If a convention appears in a workpackage without an explicit Finn-quote trail, flag it suspect — DO NOT treat as authority. New canonical paradigm shape rule landing in `corpus-quality-criteria.md` Rule 15: BR paradigm = 4 cells always (eu / você-ele-ela / nós / vocês-eles-elas); 1sg=3sg homonym is normal; render both cells.
+- **Root cause**: Confused linguistic observation (1sg/3sg are homophones in imperfect) with pedagogical policy (drop the duplicate cell). Linguistic fact does NOT authorize UX collapse — pedagogically the você/ele/ela cell still drills agreement framing even when surface form repeats. Compounded by writing the convention into the quest as fact, then later reading my own unauthorized claim back as evidence of policy.
+- **Corrective rule**: Quest assertions about *policy* (conventions, paradigm shape, audit thresholds, schema rules) must be traced to a Finn directive in orb/log, not accepted as standing convention. If a convention appears in a quest without an explicit Finn-quote trail, flag it suspect — DO NOT treat as authority. New canonical paradigm shape rule landing in `corpus-quality-criteria.md` Rule 15: BR paradigm = 4 cells always (eu / você-ele-ela / nós / vocês-eles-elas); 1sg=3sg homonym is normal; render both cells.
 
 ### 2026-04-29 — composing conjugation entries against assumed schema
 
@@ -265,8 +431,8 @@ First user: dewey `learner_state`.
 
 ### Method
 
-- [x] **Multi-stage BR-vs-PT identification** for any `por`-umbrella corpus. Self-decl → BR-tag-author → linguistic ratio → listening. Codified as `feedback_br_vs_pt_identification.md`. Tatoeba uses ISO `por` without distinguishing pt-BR / pt-PT; ISO filter alone is insufficient. Procedure copies into `.ikiro/tatoeba-harvest.workpackage.org` Step 3 with concrete CSV joins.
-- [x] **Workpackage holds the procedure verbatim**. Finn: "write everything into the workpackage" (2026-04-29). Selection scripts (`select_didactic.py`, `select_short_verb.py`) live as `#+BEGIN_SRC python` blocks inside the workpackage org file, not as separate `.py` files in `.harvest/scripts/`. Reproducibility = workpackage-as-single-source-of-truth for the methodology + tool reference. Pattern: heavy procedure → embed in workpackage; tool implementation → repo file referenced from workpackage.
+- [x] **Multi-stage BR-vs-PT identification** for any `por`-umbrella corpus. Self-decl → BR-tag-author → linguistic ratio → listening. Codified as `feedback_br_vs_pt_identification.md`. Tatoeba uses ISO `por` without distinguishing pt-BR / pt-PT; ISO filter alone is insufficient. Procedure copies into `.ikiro/tatoeba-harvest.quest.org` Step 3 with concrete CSV joins.
+- [x] **Quest holds the procedure verbatim**. Finn: "write everything into the quest" (2026-04-29). Selection scripts (`select_didactic.py`, `select_short_verb.py`) live as `#+BEGIN_SRC python` blocks inside the quest org file, not as separate `.py` files in `.harvest/scripts/`. Reproducibility = quest-as-single-source-of-truth for the methodology + tool reference. Pattern: heavy procedure → embed in quest; tool implementation → repo file referenced from quest.
 - [x] **Two selector strategies for sentence harvest, same filter chain**. Round-robin per Tier-1 grammar pivot (didactic) vs round-robin per paradigm-lemma (short-verb). Both share confirmed-BR-contributor + dedupe + length-window + 100%-coverage gate. Different scoring, same plumbing. Pattern: gate first, score per-strategy, output single TSV, harvester is strategy-agnostic.
 
 ### State

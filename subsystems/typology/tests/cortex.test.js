@@ -13,7 +13,7 @@ function mockFaculties() {
       channels: { in: ["text", "tool_result"], out: ["text", "tool_use"] },
       via: {
         render: async () => text("[opus]"),
-        stream: async function* () { yield { event: "turn.open", turn: { role: "assistant" } }; yield { event: "turn.close", meta: {} }; },
+        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
       },
     },
     {
@@ -21,7 +21,7 @@ function mockFaculties() {
       channels: { in: ["text"], out: ["text"] },
       via: {
         render: async () => text("[sonnet]"),
-        stream: async function* () { yield { event: "turn.open", turn: { role: "assistant" } }; yield { event: "turn.close", meta: {} }; },
+        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
       },
     },
     {
@@ -34,7 +34,7 @@ function mockFaculties() {
       channels: { in: ["text"], out: ["audio"] },
       via: {
         render: async () => ({ role: "assistant", parts: [{ type: "audio", data: "abc", media: "audio/mp3" }], meta: {} }),
-        stream: async function* () { yield { event: "turn.open", turn: { role: "assistant" } }; yield { event: "turn.close", meta: {} }; },
+        stream: async function* () { yield { event: "/turn/open", turn: { role: "assistant" } }; yield { event: "/turn/close", meta: {} }; },
       },
     },
     {

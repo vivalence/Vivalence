@@ -42,7 +42,7 @@ datamap (`registry/services/@vivalence/datamap/libsql/service.viva.js`, 102 line
 - provider(`datamap, variant`) → `{ orm, entities }`. `datamap` carries mount paths (DB file, migrations). `variant` is an array of entity schemas + subscribers. Auto-migration. Repositories per entity type.
 - wired in test-system (runtime) + test-daemon (brazilian)
 
-hallucinator — provider contract migrating from `{ object, action }` to `Faculty[]` per cortex workpackage:
+hallucinator — provider contract migrating from `{ object, action }` to `Faculty[]` per cortex quest:
 
 - anthropic — `manifest { type: "hallucinator", slug: "anthropic" }`. Was hal257 (renamed). `provider/index.js` (~144 lines), `provider/profiles.js` (DRONE / ACADEMIC). Old contract: `object(options)` (structured output via TypeBox schema) + `action(options)` (ToolLoopAgent, max 10 steps). New contract: `Faculty[]` — each declares type, accepts, produces, delivery, tune, context, `hallucinate(turns, config)`. The cortex resolves providers by tune in 3-space.
 - elevenlabs — speech faculty (TTS). Part of longdistance audio pipeline.
@@ -96,8 +96,8 @@ testing gaps:
 
 active work:
 
-- cortex — hallucinator contract migration from `{ object, action }` to `Faculty[]` (see `.ikiro/cortex.workpackage.org`). Biggest upcoming change to services.
-- elevenlabs / deepgram audio faculties — longdistance pipeline (see `.ikiro/longdistance.workpackage.org`)
+- cortex — hallucinator contract migration from `{ object, action }` to `Faculty[]` (see `.ikiro/cortex.quest.org`). Biggest upcoming change to services.
+- elevenlabs / deepgram audio faculties — longdistance pipeline (see `.ikiro/longdistance.quest.org`)
 - realtime call service (future — bidirectional WebSocket audio)
 
 dormant — nlp wired but may not be actively called by current modes; lighthouse/localhost not wired (dev fallback); hallucinator/bak legacy providers (Groq, OpenAI, Perplexity, TogetherAI).

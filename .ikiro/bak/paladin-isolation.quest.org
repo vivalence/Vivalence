@@ -1,0 +1,304 @@
+#+TITLE: Paladin Isolation — Process Boundary Defense and Client-Side Modes
+#+AUTHOR: Vivalence
+#+DATE: 2026-04-06
+#+STATUS: ACTIVE
+
+* Intent
+
+Paladin is the composition layer. It resolves the registry, compiles the variant, and produces the runtime's configuration surface. Today it is a shared singleton with no access controls — any module that does =import paladin from "@vivalence/paladin"= gets the complete object: secrets, filesystem belt, scopes, VIP, everything. Modes run in the same V8 process as the runtime and can import paladin at module scope, capturing references before any defense can engage.
+
+The client has the opposite problem: modes need paladin-like configuration (PUBLIC_ env, trait flags, mode metadata) but must never have secrets, filesystem access, or Deno APIs. Today the client has no paladin at all — it gets nothing.
+
+This quest closes both gaps. Runtime paladin becomes phase-aware and self-sealing. Client paladin becomes a build-time artifact from PUBLIC_ env only. Modes on both sides receive exactly what they need through their lifecycle context, never through a global import.
+
+** Desired End State
+
+After this work:
+
+1. Mode code that touches =paladin.secret=, =paladin.read=, =paladin.find=, or =paladin.scope= during VIP loading explodes immediately with a clear error.
+2. After VIP mounting completes, the paladin singleton is bricked — secrets deleted, belt stripped, object frozen. Any reference held by any module is inert.
+3. Modes receive configuration exclusively through their daemon lifecycle context: =ctx.daemon=, =ctx.mode=, =ctx.connection=. No global paladin import needed or useful.
+4. The client has a =paladin-lite= surface built from =PUBLIC_VIVA_*= env vars injected by Vite. Synchronous. No secrets ever existed.
+5. Deno-specific APIs (=Deno.env=, =Deno.readTextFile=, =Deno.open=, =Deno.Command=, =Deno.serve=) are confined to the subsystems that own them. Modes never call Deno APIs directly.
+
+** Terminology
+
+| Term           | Definition                                                              |
+|----------------+-------------------------------------------------------------------------|
+| brick          | Strip a paladin instance of secrets, belt, and scopes. Freeze it.       |
+| phase trap     | Proxy that throws on access during a lifecycle phase (e.g., LOADING).   |
+| paladin-lite   | Client-side config surface. PUBLIC_ only. No secrets. No Deno.          |
+| secure()       | The integrate function that bricks paladin. Already exists, not wired.  |
+| ambient scope  | What a mode can access through its normal lifecycle (ctx.*, not global). |
+
+** The Core Tension
+
+JS modules share an address space. True sandboxing requires separate processes (Workers, Deno.Command). Everything within a single V8 isolate is deterrence — making unauthorized access hard and detectable, not impossible. This quest implements defense in depth: phase traps during loading, bricking after loading, static analysis for CI, and architectural elimination of the need to import paladin from mode code.
+
+* Architecture
+
+** Defense Layers
+
+Three layers, each catching what the previous one can't.
+
+*** Layer 1: Phase Trap (Proxy during VIP loading)
+
+Wrap =paladin.secret=, =paladin.read=, =paladin.find=, and =paladin.scope= in Proxies that are phase-aware. During VIP mount, any access throws.
+
+#+begin_src javascript
+let phase = "BOOT"
+
+function trap(target, label) {
+  return new Proxy(target, {
+    get(object, property) {
+      if (phase === "LOADING") {
+        throw new Error(`[paladin] ${label}.${String(property)} accessed during mode loading`)
+      }
+      return object[property]
+    }
+  })
+}
+
+paladin.secret = trap(paladin.secret, "secret")
+paladin.read   = trap(paladin.read, "read")
+paladin.find   = trap(paladin.find, "find")
+paladin.scope  = trap(paladin.scope, "scope")
+#+end_src
+
+VIP.mount sets =phase = "LOADING"= before walking the registry. Any =.viva.js= file that touches protected properties at import time — even synchronous copies — explodes.
+
+*** Layer 2: Brick (integrate.secure)
+
+After VIP loading and variant resolution complete, =integrate.secure()= runs. Already defined in =paladin/lifecycle/integrate.js= (line 41):
+
+#+begin_src javascript
+export async function secure(paladin) {
+  delete paladin.secret
+  delete paladin.read
+  delete paladin.find
+  delete paladin.scope
+  delete paladin.state
+  delete paladin.scopes
+  delete paladin.vip
+  Object.freeze(paladin.env)
+  Object.freeze(paladin)
+}
+#+end_src
+
+V8's module cache returns the same object reference to every importer. When we delete properties and freeze, every held reference sees the mutation. A mode that captured =const p = paladin= at import time now finds =p.secret === undefined=, =p.read === undefined=, =p.scope === undefined=.
+
+Residual after bricking: =paladin.env= (frozen, read-only), =paladin.is= (predicates), =paladin.role=, =paladin.mode=, =paladin.variant= (frozen). Enough to read configuration. Not enough to do damage.
+
+*** Layer 3: Static Analysis (CI gate)
+
+Lint rule for =registry/modes/**/*.js= and =registry/kernels/**/*.js=:
+
+- Flag =import paladin= or =import { ... } from "@vivalence/paladin"=
+- Flag =Deno.env=, =Deno.readTextFile=, =Deno.readFile=, =Deno.open=, =Deno.Command=, =Deno.serve=
+- Flag =Deno.exit=, =Deno.addSignalListener=
+
+This is the cheapest, earliest check. Catches the easy cases before they even run.
+
+** Paladin Wafer Integration
+
+The wafer gains a =/secure= branch after =/integrate=:
+
+#+begin_src javascript
+wafer.branch("/construct")
+  .use(async (die, next) => {
+    await populate.env(die.paladin)
+    await populate.scopes(die.paladin)
+    await next()
+  })
+  .branch("/populate")
+  .use(async (die, next) => {
+    await populate.environment(die.paladin)
+    await populate.veryimportantpackage(die.paladin)
+    await populate.questions(die.paladin)
+    await next()
+  })
+  .open("/base", async (die) => die.paladin)
+  .branch("/resolve")
+  .use(async (die, next) => {
+    phase = "LOADING"
+    await resolve.circuitry(die.paladin)
+    phase = "RESOLVING"
+    await resolve.variant(die.paladin)
+    await next()
+  })
+  .branch("/integrate")
+  .use(async (die, next) => {
+    await integrate.statements(die.paladin)
+    await integrate.publish(die.paladin)
+    await integrate.questions(die.paladin)
+    await next()
+  })
+  .branch("/secure")
+  .use(async (die, next) => {
+    await integrate.secure(die.paladin)
+    await next()
+  })
+  .open("/full", async (die) => die.paladin)
+#+end_src
+
+The =/base= exit stays where it is — needed for two-phase init (mod.js circular import workaround). The =/full= exit now runs through =/secure=. Runtime code that needs full paladin uses the =/integrate/full= signal (before bricking) during its own setup, then the paladin it holds is bricked by reference.
+
+** Paladin-Lite (Client Surface)
+
+The client needs paladin-like config without any of the runtime machinery. No Deno. No secrets. No belt. No dynamic imports.
+
+#+begin_src javascript
+// systems/html/src/paladin.js
+const paladin = {
+  env: {
+    get(key) { return this.vars[key] },
+    has(key) { return key in this.vars },
+    vars: {
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: import.meta.env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE,
+      PUBLIC_VIVA_RUNTIME_REMOTE: import.meta.env.PUBLIC_VIVA_RUNTIME_REMOTE,
+      PUBLIC_VIVA_CLIENT_HTML_REMOTE: import.meta.env.PUBLIC_VIVA_CLIENT_HTML_REMOTE,
+    }
+  },
+  is: {
+    get dev() { return import.meta.env.DEV },
+    get production() { return import.meta.env.PROD },
+  },
+  role: "client",
+  mode: import.meta.env.DEV ? "development" : "production",
+}
+
+Object.freeze(paladin.env.vars)
+Object.freeze(paladin.env)
+Object.freeze(paladin.is)
+Object.freeze(paladin)
+
+export default paladin
+#+end_src
+
+No Env class. No Proxy. No belt. No lifecycle. Built at compile time from Vite's =import.meta.env=. Frozen at module scope. The client never imports =@vivalence/paladin= — it imports this local module.
+
+** Deno API Confinement
+
+Deno APIs are already concentrated in specific subsystems. This is the ownership map:
+
+| API                       | Owner                         | Mode access |
+|---------------------------+-------------------------------+-------------|
+| =Deno.env.*=             | paladin/lifecycle/populate.js | Never       |
+| =Deno.readTextFile=      | paladin/belt/read.js          | Never       |
+| =Deno.statSync=          | paladin/belt/check.js         | Never       |
+| =Deno.readDir=           | typology/prototypes/freight.js| Never       |
+| =Deno.open=              | typology/gestalten/shard/serve.js | Never   |
+| =Deno.upgradeWebSocket=  | typology/gestalten/shard/serve.js | Never   |
+| =Deno.serve=             | runtime/lifecycle/integrate.js| Never       |
+| =Deno.readFile=          | runtime/lifecycle/resolve.js  | Never       |
+| =Deno.Command=           | shell/lifecycle/boot.js       | Never       |
+| =Deno.args=              | shell/mod.js, entry.js        | Never       |
+| =Deno.addSignalListener= | shell/lifecycle/boot.js       | Never       |
+| =Deno.exit=              | shell/mod.js, boot.js         | Never       |
+| =Deno.stdin/stdout=      | typology/gestalten/shard/receiver.js | Never |
+| =Deno.readTextFileSync=  | shell/lib/session.js          | Never       |
+| =Deno.mkdirSync=         | shell/lib/session.js          | Never       |
+| =Deno.writeTextFileSync= | shell/lib/session.js          | Never       |
+
+Modes access everything they need through their daemon lifecycle context:
+- HTTP routes via =mode.aperture= (wired during daemon resolution)
+- Static files via BUFFERED/FRAUGHT traits (runtime serves them)
+- Database via =ctx.daemon.entities= repositories
+- Environment via =ctx.daemon= (which reads from paladin during daemon population, before bricking)
+
+No mode needs Deno APIs. The architecture already prevents it by design. The static analysis gate (Layer 3) ensures it stays that way.
+
+** Client-Side Mode Loading
+
+Modes on the client are not dynamically imported. They arrive through two channels:
+
+1. *BUFFERED views*: Svelte components served at =/attached/view/{mount}/= as pre-bundled JavaScript. The runtime bundles them (esbuild) and serves them as static assets. The client fetches the bundle URL. No =import()= of arbitrary paths — it's a fetch of a known URL.
+
+2. *Aperture data*: Mode manifests, status, buffer contents — all fetched via HTTP from the daemon's aperture routes. The client never evaluates mode logic. It renders mode views and displays mode data.
+
+The client's security surface is the browser sandbox. No secrets to steal. No filesystem to walk. No processes to spawn. =paladin-lite= is frozen at build time.
+
+* Phases
+
+** Phase 1: Activate integrate.secure [PENDING]
+
+Wire the existing =integrate.secure()= into the paladin wafer lifecycle. Extend it to cover the full belt surface.
+
+- [ ] Extend =integrate.secure()= to delete read, find, state, scopes, vip (currently only deletes secret and tilde)
+- [ ] Freeze =paladin.env= and =paladin.variant= before freezing paladin itself
+- [ ] Add =/secure= branch to paladin wafer between =/integrate= and =/full= exit
+- [ ] Wire =integrate.secure= into =paladin/mod.js= ikiro promise (after integrate.questions, before export resolves)
+- [ ] Verify runtime still boots — daemons capture what they need from paladin before secure runs
+- [ ] Verify modes still function — they receive config through ctx.daemon, not paladin
+- [ ] Test: access paladin.secret after ikiro resolves → undefined
+- [ ] Test: access paladin.read after ikiro resolves → undefined
+- [ ] Test: Object.isFrozen(paladin) after ikiro → true
+
+** Phase 2: Phase Trap Proxy [PENDING]
+
+Add phase-aware Proxy wrappers to paladin's sensitive surfaces. Detects access during VIP mode loading.
+
+- [ ] Implement phase trap utility in paladin (trap function wrapping Proxy)
+- [ ] Wrap paladin.secret, paladin.read, paladin.find, paladin.scope after construction, before VIP loading
+- [ ] Set phase = "LOADING" in resolve.circuitry before VIP mount
+- [ ] Set phase = "RESOLVED" after resolve.variant completes
+- [ ] Test: mode .viva.js that reads paladin.secret at import time → throws with descriptive error
+- [ ] Test: mode .viva.js that reads paladin.read at import time → throws
+- [ ] Test: mode .viva.js that stores paladin reference but doesn't access protected surfaces → succeeds
+- [ ] Test: runtime code accessing paladin.secret before LOADING phase → succeeds (normal boot)
+
+** Phase 3: Paladin-Lite for Client [PENDING]
+
+Create the client-side paladin surface. PUBLIC_ env only. No secrets. No Deno.
+
+- [ ] Create =systems/html/src/paladin.js= — static config object from =import.meta.env=
+- [ ] Frozen at module scope
+- [ ] =.env.get()=, =.env.has()=, =.env.vars= matching runtime Env interface subset
+- [ ] =.is.dev=, =.is.production= from Vite env
+- [ ] =.role= = "client", =.mode= from Vite env
+- [ ] Wire into client.js or wherever terminal-first client needs config
+- [ ] Test: paladin-lite has no =.secret=, =.read=, =.find=, =.scope= properties
+- [ ] Test: paladin-lite.env.vars contains only PUBLIC_ keys
+- [ ] Test: Object.isFrozen(paladin-lite) → true
+
+** Phase 4: Static Analysis Gate [PENDING]
+
+CI-level lint for mode and kernel code that should never import paladin or use Deno APIs.
+
+- [ ] Grep-based script: scan =registry/modes/**/*.js= and =registry/kernels/**/*.js=
+- [ ] Flag: =import.*from.*@vivalence/paladin=
+- [ ] Flag: =Deno\.(env|readTextFile|readFile|open|Command|serve|exit|addSignalListener|stdin|stdout)=
+- [ ] Integrate into test runner or pre-commit hook
+- [ ] Document allowed exceptions (if any — currently none expected)
+
+** Phase 5: Documentation and Convention [PENDING]
+
+Establish the convention. Update orientation docs. Make it impossible to accidentally regress.
+
+- [ ] Add "Mode Isolation" convention to =.ikiro/claude.md= conventions section
+- [ ] Update paladin subsystem doc with security model
+- [ ] Add to anti-rationalization table: "I'll just import paladin from this mode" → "Modes use ctx.daemon. Paladin is bricked."
+
+* Decisions
+
+| Decision | Choice | Rationale |
+|----------+--------+-----------|
+| Defense depth | 3 layers (proxy + brick + lint) | No single layer is complete. Proxy catches import-time. Brick catches post-load. Lint catches at CI. |
+| Not using Workers | Correct | Modes need synchronous access to daemon context, entity repos, aperture routing. Worker isolation breaks the Vector composition model. |
+| Not using Revocable Proxy | Correct | Revocable Proxy bricks ALL holders including runtime code. We need runtime to keep working — just modes should lose access. |
+| Freeze after delete | Correct | Delete removes properties. Freeze prevents re-adding them. Both needed. |
+| Client paladin is a separate module | Correct | Not the same code path as runtime paladin. Different construction, different surface, different guarantees. Sharing would be forced abstraction. |
+| Phase trap on VIP only | Correct | Circuitry .viva.js files import paladin for env — that's legitimate (they run at resolve time, not mode loading time). Only mode loading needs the trap. |
+
+* Gaps
+
+- =paladin/mod.js= uses two-phase init (=/base= then ikiro promise). The ikiro promise currently calls resolve + integrate directly, not through the wafer. Wiring =/secure= through the wafer means either changing mod.js to use =/full= (which would block on TLA) or calling =integrate.secure= manually in the ikiro promise.
+- Phase state (="LOADING"= / ="RESOLVED"=) is module-level in a singleton. If paladin is ever instantiated twice (tests?), the phase state would leak. Likely fine — paladin is a singleton by design.
+- Existing paladin tests (22 baseline) need review to confirm they don't depend on post-ikiro access to paladin.secret or paladin.read.
+- Some circuitry .viva.js files may import paladin to read env at module scope. Phase trap must distinguish circuitry loading (legitimate, before LOADING phase) from mode loading (trapped).
+- The VIP mount path for modes vs. circuitry needs auditing — does =resolve.circuitry= and =resolve.variant= use different VIP calls? If circuitry loading triggers VIP.mount, it runs before the LOADING phase and is safe.
+- =integrate.secure= currently uses bare =delete= — if paladin properties are defined via =Object.defineProperty= with =configurable: false=, delete silently fails. Need to verify belt attaches via simple assignment (it does — =config.read = {...}=).
+
+* Changelog
+
+- 2026-04-06: Created quest. Architecture designed from Deno API audit and codebase exploration. Three defense layers: phase trap, brick, static analysis. Five phases. Existing integrate.secure() identified as foundation.

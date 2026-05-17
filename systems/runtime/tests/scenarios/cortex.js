@@ -18,14 +18,14 @@ import { CHAOSMONKEY } from "@vivalence/runtime/daemon/traits";
 
 function textStream(text, role = "assistant") {
   return async function* () {
-    yield { event: "turn.open", turn: { role } };
-    yield { event: "part.open", index: 0, part: { type: "text", text: "" } };
+    yield { event: "/turn/open", turn: { role } };
+    yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
     for (const character of text) {
-      yield { event: "part.delta", index: 0, delta: { text: character } };
+      yield { event: "/part/delta", index: 0, delta: { text: character } };
     }
-    yield { event: "part.close", index: 0 };
+    yield { event: "/part/close", index: 0 };
     yield {
-      event: "turn.close",
+      event: "/turn/close",
       meta: { usage: { input: 10, output: text.length }, stop: "end_turn" },
     };
   };
@@ -54,16 +54,16 @@ function toolUseStream(id, name, input) {
   const inputString = JSON.stringify(input);
   const thinkingText = `thinking about ${name}...`;
   return async function* () {
-    yield { event: "turn.open", turn: { role: "assistant" } };
-    yield { event: "part.open", index: 0, part: { type: "text", text: "" } };
+    yield { event: "/turn/open", turn: { role: "assistant" } };
+    yield { event: "/part/open", index: 0, part: { type: "text", text: "" } };
     for (const character of thinkingText) {
-      yield { event: "part.delta", index: 0, delta: { text: character } };
+      yield { event: "/part/delta", index: 0, delta: { text: character } };
     }
-    yield { event: "part.close", index: 0 };
-    yield { event: "part.open", index: 1, part: { type: "tool_use", id: "", name: "", input: "" } };
-    yield { event: "part.delta", index: 1, delta: { id, name, input: inputString } };
-    yield { event: "part.close", index: 1 };
-    yield { event: "turn.close", meta: { usage: { input: 10, output: 20 }, stop: "tool_use" } };
+    yield { event: "/part/close", index: 0 };
+    yield { event: "/part/open", index: 1, part: { type: "tool_use", id: "", name: "", input: "" } };
+    yield { event: "/part/delta", index: 1, delta: { id, name, input: inputString } };
+    yield { event: "/part/close", index: 1 };
+    yield { event: "/turn/close", meta: { usage: { input: 10, output: 20 }, stop: "tool_use" } };
   };
 }
 

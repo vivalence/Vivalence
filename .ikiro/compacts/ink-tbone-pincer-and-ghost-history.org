@@ -1,0 +1,141 @@
+#+TITLE: Ink tbone pincer scratch + ghost (shell) history walk
+
+* Arc
+
+Two threads, one session.
+
+(1) Researched Ink (React for terminals) and the kajuit client's pincer/T-bone layout. Compared kajuit decks/skins/traits + bridge geometry to what would be needed to reimplement in Ink. Designed a minimum viable component set and answered drag-n-drop feasibility (xterm SGR mouse tracking).
+
+(2) Walked the client repo backward in 3-month intervals to find the stable steer.walk REPL period: 2025-11 = `systems/shell/lifecycle/run.js` had a 25-iter `controller.walk(trajectory, signal, choose)` loop driving a Cliffy `Prompt.Select` at each ambiguous fork. 2026-02 byte-identical. Renamed to ghost in 2026-05; the interactive walk got removed during the rename — `steer.invoke(trajectory, signal, steer.direct)` is commented out in `systems/ghost/mod.js`. Recovery seed: `5ca1fa13:systems/shell/lifecycle/{run,call,boot}.js`.
+
+(3) Built a scratch tbone in `systems/shell/tbone/` (Ink + React via npm: specifiers, added to root `deno.jsonc` workspace). Iterated: keystone box → mouse drag → clock React context → T-junction bones → spine-as-box → manual grid rewrite. Final attempt ("worse") prompted this compact.
+
+* Ink (research)
+
+Components: =Box=, =Text=, =Newline=, =Spacer=, =Static=, =Transform=. Hooks: =useInput=, =useApp=, =useStdin=, =useStdout=, =useFocus=, =useFocusManager=. Yoga flexbox; =position="absolute"= supported via marginLeft/marginTop offsets. =Static= for log-streams that should not redraw with interactive UI updates.
+
+Drag-n-drop: terminals support mouse via xterm tracking (=\x1b[?1006h\x1b[?1003h= for SGR + any-event). Parse =CSI < btn ; x ; y M|m=. Works in iTerm2, kitty, alacritty, modern Terminal.app; tmux passthrough needs =set -g mouse on=. Keyboard-grab pseudo-drag (Space-to-grab + arrows + Space-to-drop) is the safer fallback.
+
+* Kajuit pincer/T-bone (reference architecture)
+
+Owned by `bridge` deck in `systems/kajuit/src/typology/decks/bridge/`:
+- =geometry.js= — pure =rectsForOrientation(orient, pincer, w, h)= → {a,b,c} and =bonesForOrientation= → {shoulder, crown, spine, pincer}. Constants =BONE_THICKNESS=45=, =SNAP_PERCENTS=[0,13,21,34,50,66,79,87,100]=, =SNAP_DISTANCE=28=. Rotation swap-table `{0↔90, 180↔270}`.
+- =bridge.js= — nanostore-backed =layout=, =view=, =paneSize= stores. =bootLayout/resize/attachViewport=. Persists to localStorage =vivalence:bridge=.
+- =gesture.js= — pointer FSM. Stores =$dragging=, =$longPress=, =$radial=, =$flash=. Radial menu emits =snapToOrientation=.
+
+Panels are geometry-clipped (=width:0=) not conditionally rendered → state machines never reset on layout change. Bones are decorative borders (=pointer-events:none=, =z-index:49=); panels do the work. Viket = keystone glyph at junction, drag target.
+
+* Ghost client history (4 quarters)
+
+| Date         | SHA      | Path                          | Walk?                         |
+|--------------+----------+-------------------------------+-------------------------------|
+| 2025-08-18   | 9ffdb23e | subsystems/interfaces/shell   | No — cliffy re-export only    |
+| 2025-11-18   | 5ca1fa13 | systems/shell                 | YES — controller.walk REPL     |
+| 2026-02-14   | 5537a3de | systems/shell                 | YES — byte-identical to 11/18 |
+| 2026-05-17   | a61e32d9 | systems/ghost (+ kajuit split)| No — steer.invoke commented    |
+
+Stable 2025-11 shell loop:
+
+#+begin_src js
+// systems/shell/mod.js
+while (true && i++ < 25) await run(client);
+
+// systems/shell/lifecycle/run.js
+const [effect, apply, steps, destination] =
+  await controller.walk(client.trajectory, signal, async (patterns) => {
+    const options = patterns.map(p => ({ value: p.signature }));
+    const selection = await Prompt.Select.prompt({ message: "", options });
+    return new Signal(selection);
+  });
+await apply(context, async (ctx) => (ctx.effect = await effect(ctx)));
+#+end_src
+
+=controller.walk= became =steer.walk= during the @vivalence/vector → @vivalence/typology consolidation. Ghost's commented =steer.invoke(trajectory, signal, steer.direct)= shows intent to use direct resolution; a real CLI needs both =walk= (ambiguous → prompt) and =direct= (fully-qualified → run).
+
+Finn (verbatim) framed the walk:
+
+#+begin_quote
+until recently the ghost client was called shell client.
+look at the client in 3 month interval 12 months backwards. there was a stable period where the steer.walk algorithm was used interactively on signal. find that state.
+#+end_quote
+
+* tbone scratch — what got built
+
+Path: =systems/shell/tbone/= (added to root workspace).
+
+Files:
+- =deno.jsonc= — workspace member, JSX react factory, =start= task = `deno run -A --node-modules-dir=auto tbone.jsx`
+- =geometry.js= — =rects=, =bones=, =clampPincer=, =hit=. =PINCER_W=5, PINCER_H=3, PINCER_LEFT=2, PINCER_RIGHT=2=.
+- =tbone.jsx= — App + clock context + frame builder + mouse driver.
+
+Run: =cd systems/shell/tbone && deno task start= or =deno task -f @vivalence/tbone start=.
+
+Feature lineage:
+
+1. Three colored Panel boxes (cyan/magenta/yellow) via Ink Box =position="absolute"=. Arrow-key keyboard drag.
+2. Bordered 4×3 keystone Box with `<<` content. xterm SGR mouse parser via =useStdin.stdin.on("data", …)= + regex on =\x1b[<…M|m=. Three drag modes: keystone (both axes, sticky offset), shoulder/crown (row only), spine (col only).
+3. Clock React context: =createContext(new Date())= + =setInterval(1s)=. Each panel mounts =<Clock/>= via =useContext=. Demonstrated context propagation through absolute-positioned subtrees.
+4. Square keystone with T-junctions drawn in: =┬───┬= / =┤<< ├= / =┴─┬─┴=.
+5. Padding eliminated — panel borders touch keystone flush.
+6. Spine as 5-wide box, not a line. Keystone bottom changed to =┤   ├= (open downward into spine), spine `│   │` body + `└───┘` closure.
+7. **Manual grid rewrite** — Ink Box-border overlap proved unreliable; spaces in overlay Text didn't always overwrite cells beneath. Switched to building a 2D ={ch,color}= cell grid in =buildFrame(pincer, cols, rows, clockStr, grabbed)=, then rendering row-by-row as `<Text>` with same-color spans consolidated. =@vivalence= on shoulder, =terminal= on crown, inlined into the bar.
+
+State: rewrite shipped but Finn judged it "worse" — session compacted at that point.
+
+* Finn's iteration calls (verbatim)
+
+#+begin_quote
+smaller. drop some features. lets just get the barebones work. create a temporary direcory in systems/shell and create a temporary submodule there where you create the tbone in ink react.
+#+end_quote
+
+#+begin_quote
+very good. it works. make the pincer a perfect square, and draw in the bones.
+#+end_quote
+
+#+begin_quote
+also add a context. as example use a time display.
+#+end_quote
+
+#+begin_quote
+the spine is not spining.
+is: there is one set of lines too much.
+expected: each shoulder, crown and spine have their borders flush with the pincer square.
+is: there is too much badding
+#+end_quote
+
+#+begin_quote
+the whole top of the t has a line going through it instead of just at the outer edges.
+the spine is missing the spine segment. there is no spine box. spine has no body. spine is a line. we want spine to be a box where width is flush with pincer
+#+end_quote
+
+#+begin_quote
+see the parts i highlighted red? the line breaks above and below the pincer are bad.
+the line breaks on the left and right of the t line are bad.
+and teh t line still has a line through it. replace that line with some inline text "@vivalence" on shoulder and "terminal" in the crown
+#+end_quote
+
+#+begin_quote
+worse.
+#+end_quote
+
+* What "worse" tells us (open question)
+
+Manual grid rewrite was supposed to fix all three line-break complaints (gap above/below keystone, gap left/right at bar, line-through-bar) by giving cell-precise control. "Worse" suggests it introduced new issues — possibly:
+- =@vivalence=/=terminal= text on the bar now reads as decoration not as a bar (loss of horizontal line affordance)
+- Panel B/C tops at row =pincer.row= no longer align with keystone walls (=┐┤= adjacency instead of merged join)
+- =stemColor= painting the keystone top corners on the bar row created visible color discontinuity with the green bar
+
+Recovery options:
+- Re-add a continuous horizontal line ON THE BAR with the names overlaid (line + text co-located)
+- Use =┬= joins at panel B/C top corners adjacent to stem so the panel border continues into the keystone instead of butting against it
+- Keep stem color = green (no magenta-on-grabbed for corners on the bar row) so the bar reads as one structure
+
+No code changes after the "worse" verdict. Pick up here.
+
+* Memory invariants honored
+
+- =feedback_vcs_read_only= — git/jj used read-only (=git log=, =git ls-tree=, =git show=) for history walk. Authorized by Finn's explicit "look at the client in 3 month interval 12 months backwards" request.
+- =feedback_compact_no_inline_dates= — this compact has no =#+DATE=, slug-only filename, no dated body lines (the table is git committer dates from history reads, not session dates).
+- =feedback_compact_verbatim_user_voice= — Finn quotes preserved verbatim above; context paraphrased.
+- =feedback_no_abbreviations= — full names throughout (=pincer=, =keystone=, =shoulder=, =crown=, =spine= — no short forms invented).
+- =feedback_concise_responses= — caveman mode active full session; compact preserves substance not style.

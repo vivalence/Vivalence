@@ -1,8 +1,18 @@
 import { Wafer } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
 import { sleep } from "@vivalence/shared";
 import * as lifecycle from "./lifecycle/index.js";
 
 export class Die extends Wafer {
+  get manifest() {
+    const runtime = paladin.variant.runtime ?? {};
+    return {
+      type: "runtime",
+      slug: runtime.slug ?? "runtime",
+      traits: runtime.traits ?? [],
+    };
+  }
+
   async populate() {
     await lifecycle.population.wiring(this);
     await lifecycle.population.registry(this);

@@ -1,6 +1,6 @@
 // Flat scoped skeleton: every skeleton level (0..4) carries its own copy of
 // the full role set. Tailwind classes shape: `bg-skeleton-N-role[-state]`.
-// See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
+// See .ikiro/pincer.quest.org § Dapper Skeleton Rebuild.
 
 const INTERACTIVE_ROLES = [
   "primary",

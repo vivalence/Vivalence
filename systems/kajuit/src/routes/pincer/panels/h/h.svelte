@@ -1,6 +1,6 @@
 <script>
   import { getContext } from "svelte";
-  import { LIGHTHOUSE, QUARTERS, BRIDGE, TOP } from "$client";
+  import { LIGHTHOUSE, QUARTERS, BRIDGE, MAIN } from "$client";
   import { skins } from "@vivalence/drapes";
   import { inspector } from "@vivalence/kajuit";
   const { Skin } = skins;
@@ -8,7 +8,7 @@
   const lighthouse = getContext(LIGHTHOUSE);
   const quarters = getContext(QUARTERS);
   const bridge = getContext(BRIDGE);
-  const top = getContext(TOP);
+  const main = getContext(MAIN);
 
   let show = $state(bridge.view.h);
   let gActive = $state(bridge.view.g);
@@ -18,7 +18,7 @@
   let inspectorHeight = $state(bridge.layout.inspectorHeight);
   bridge.layout.$inspectorHeight.subscribe(v => inspectorHeight = v);
 
-  const nodesAtom = inspector.inspectorAtom(lighthouse, quarters, bridge, top);
+  const nodesAtom = inspector.inspectorAtom(lighthouse, quarters, bridge, main);
   let nodes = $state(nodesAtom.get());
   nodesAtom.subscribe(v => nodes = v);
 

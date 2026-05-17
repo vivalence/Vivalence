@@ -1,13 +1,13 @@
 import { atom } from "nanostores";
 import { Vector, Queue, Conversation, soma } from "@vivalence/typology";
 
-let boxRef = null;
-let topRef = null;
-const audioTeardowns = new WeakMap();
+// let boxRef = null;
+let mainRef = null;
+// const audioTeardowns = new WeakMap();
 
-export function provide({ box, top }) {
-  boxRef = box;
-  topRef = top;
+export function provide({ /* box, */ main }) {
+  // boxRef = box;
+  mainRef = main;
 }
 
 async function open(thread) {
@@ -53,7 +53,7 @@ async function open(thread) {
       meta: assistantTurn?.meta ?? null,
     });
 
-    if (pctx.input.event === "turn.close" && assistantTurn && turnRepo) {
+    if (pctx.input.event === "/turn/close" && assistantTurn && turnRepo) {
       turnRepo.merge({
         id: assistantTurn.id ?? `tmp-asst-${Date.now()}`,
         role: assistantTurn.role ?? "assistant",
@@ -98,11 +98,11 @@ async function open(thread) {
     thread.$lastError.set(pctx.input?.message ?? "stream error");
   });
 
-  inbound.open("/speech/packet", () => {});
-  inbound.open("/speech/abort", () => {});
-  inbound.open("/speech/close", () => {});
-  inbound.open("/verbatim/packet", () => {});
-  inbound.open("/verbatim/close", () => {});
+  // inbound.open("/speech/packet", () => {});
+  // inbound.open("/speech/abort", () => {});
+  // inbound.open("/speech/close", () => {});
+  // inbound.open("/verbatim/packet", () => {});
+  // inbound.open("/verbatim/close", () => {});
 
   thread.socket = connection.socket("/conversation", inbound, {
     token: authority.get()?.access,
@@ -111,7 +111,7 @@ async function open(thread) {
 
   try {
     await thread.conversation.open();
-    attachAudio(thread);
+    // attachAudio(thread);
   } catch (error) {
     console.error("[CONVERSATIONAL] handshake failed:", error);
     thread.conversation = null;
@@ -121,7 +121,7 @@ async function open(thread) {
 }
 
 function close(thread) {
-  detachAudio(thread);
+  // detachAudio(thread);
   thread.conversation?.close?.();
   thread.conversation = null;
   thread.socket = null;
@@ -130,12 +130,13 @@ function close(thread) {
   thread.$pending?.set?.(false);
 }
 
+/*
 function attachAudio(thread) {
-  if (!boxRef || !topRef || !thread.conversation?.$state) return;
+  if (!boxRef || !mainRef || !thread.conversation?.$state) return;
 
   let engagement = null;
   const reconcile = () => {
-    const isActive = topRef.$current.get() === thread;
+    const isActive = mainRef.$current.get() === thread;
     const isLive = thread.conversation?.$state.get() === "LIVE";
     if (isActive && isLive) {
       if (!engagement) engagement = engageBox(boxRef, thread, thread.conversation);
@@ -146,12 +147,12 @@ function attachAudio(thread) {
   };
 
   const stateUnsub = thread.conversation.$state.subscribe(reconcile);
-  const topUnsub = topRef.$current.subscribe(reconcile);
+  const mainUnsub = mainRef.$current.subscribe(reconcile);
 
   audioTeardowns.set(thread, () => {
     engagement?.();
     stateUnsub();
-    topUnsub();
+    mainUnsub();
   });
 }
 
@@ -159,6 +160,7 @@ function detachAudio(thread) {
   audioTeardowns.get(thread)?.();
   audioTeardowns.delete(thread);
 }
+*/
 
 export function wire(thread) {
   thread.$streaming ??= atom(null);
@@ -206,6 +208,7 @@ export function abort(thread, turnId = undefined) {
   return true;
 }
 
+/*
 function engageBox(box, thread, conversation) {
   const microphone = box.device.microphone;
   const speaker = box.device.speaker;
@@ -287,3 +290,4 @@ function base64ToInt16(b64) {
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return new Int16Array(buffer);
 }
+*/

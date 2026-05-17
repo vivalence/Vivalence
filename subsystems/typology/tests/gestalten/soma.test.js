@@ -1,26 +1,26 @@
 import { specimen, soma } from "@vivalence/typology";
 
 function packets(role, parts, meta = { stop: "end_turn" }) {
-  const out = [{ event: "turn.open", turn: { role } }];
+  const out = [{ event: "/turn/open", turn: { role } }];
   for (let index = 0; index < parts.length; index++) {
     const part = parts[index];
     const shell = { ...part };
     if (part.type === "text" || part.type === "thinking") shell.text = "";
     if (part.type === "tool_use") shell.input = "";
     if (part.type === "audio") shell.data = "";
-    out.push({ event: "part.open", index, part: shell });
+    out.push({ event: "/part/open", index, part: shell });
     if (part.type === "text" || part.type === "thinking") {
       for (const character of part.text) {
-        out.push({ event: "part.delta", index, delta: { text: character } });
+        out.push({ event: "/part/delta", index, delta: { text: character } });
       }
     } else if (part.type === "tool_use") {
-      out.push({ event: "part.delta", index, delta: { input: part.input } });
+      out.push({ event: "/part/delta", index, delta: { input: part.input } });
     } else if (part.type === "audio") {
-      out.push({ event: "part.delta", index, delta: { data: part.data } });
+      out.push({ event: "/part/delta", index, delta: { data: part.data } });
     }
-    out.push({ event: "part.close", index });
+    out.push({ event: "/part/close", index });
   }
-  out.push({ event: "turn.close", meta });
+  out.push({ event: "/turn/close", meta });
   return out;
 }
 
@@ -70,12 +70,12 @@ specimen.describe("soma", () => {
 
     specimen.it("non-string delta replaces instead of concatenating", () => {
       const source = [
-        { event: "turn.open", turn: { role: "assistant" } },
-        { event: "part.open", index: 0, part: { type: "object", data: null } },
-        { event: "part.delta", index: 0, delta: { data: { first: true } } },
-        { event: "part.delta", index: 0, delta: { data: { second: true } } },
-        { event: "part.close", index: 0 },
-        { event: "turn.close", meta: {} },
+        { event: "/turn/open", turn: { role: "assistant" } },
+        { event: "/part/open", index: 0, part: { type: "object", data: null } },
+        { event: "/part/delta", index: 0, delta: { data: { first: true } } },
+        { event: "/part/delta", index: 0, delta: { data: { second: true } } },
+        { event: "/part/close", index: 0 },
+        { event: "/turn/close", meta: {} },
       ];
 
       let turn = null;
@@ -99,21 +99,21 @@ specimen.describe("soma", () => {
 
       const drained = [...soma.drain(turn)];
 
-      specimen.expect(drained[0]).toEqual({ event: "turn.open", turn: { role: "assistant" } });
+      specimen.expect(drained[0]).toEqual({ event: "/turn/open", turn: { role: "assistant" } });
 
-      specimen.expect(drained[1].event).toBe("part.open");
+      specimen.expect(drained[1].event).toBe("/part/open");
       specimen.expect(drained[1].part).toEqual({ type: "text", text: "" });
-      specimen.expect(drained[2].event).toBe("part.delta");
+      specimen.expect(drained[2].event).toBe("/part/delta");
       specimen.expect(drained[2].delta).toEqual({ text: "hello" });
-      specimen.expect(drained[3].event).toBe("part.close");
+      specimen.expect(drained[3].event).toBe("/part/close");
 
-      specimen.expect(drained[4].event).toBe("part.open");
+      specimen.expect(drained[4].event).toBe("/part/open");
       specimen.expect(drained[4].part).toEqual({ type: "tool_use", id: "", name: "", input: "" });
-      specimen.expect(drained[5].event).toBe("part.delta");
+      specimen.expect(drained[5].event).toBe("/part/delta");
       specimen.expect(drained[5].delta).toEqual({ id: "t1", name: "lookup", input: '{"q":"test"}' });
-      specimen.expect(drained[6].event).toBe("part.close");
+      specimen.expect(drained[6].event).toBe("/part/close");
 
-      specimen.expect(drained[7]).toEqual({ event: "turn.close", meta: { stop: "tool_use" } });
+      specimen.expect(drained[7]).toEqual({ event: "/turn/close", meta: { stop: "tool_use" } });
     });
 
     specimen.it("roundtrip: drain → pour reconstructs the turn", () => {
@@ -150,8 +150,8 @@ specimen.describe("soma", () => {
       const collected = [];
       for await (const packet of tapped) collected.push(packet);
 
-      specimen.expect(collected[0].event).toBe("turn.open");
-      specimen.expect(collected.at(-1).event).toBe("turn.close");
+      specimen.expect(collected[0].event).toBe("/turn/open");
+      specimen.expect(collected.at(-1).event).toBe("/turn/close");
       specimen.expect(sealed).toBeDefined();
       specimen.expect(sealed.parts[0].text).toBe("tap me");
     });

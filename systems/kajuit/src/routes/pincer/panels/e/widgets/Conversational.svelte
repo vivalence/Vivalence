@@ -2,39 +2,36 @@
   import { getContext } from "svelte";
   import Row from "./Row.svelte";
   import { traits } from "@vivalence/kajuit";
-  import { QUARTERS, TOP, BOX } from "$client";
+  import { QUARTERS, MAIN /*, BOX */ } from "$client";
 
   let { thread } = $props();
 
   const STATES = ["IDLE", "OPENING", "LIVE", "CLOSING", "CLOSED", "ERROR"];
-  const SIDES = ["top", "right", "bottom", "left"];
-  const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
 
   const quarters = getContext(QUARTERS);
-  const top = getContext(TOP);
-  const box = getContext(BOX);
-  const microphone = box.device.microphone;
-  const speaker = box.device.speaker;
+  const main = getContext(MAIN);
+  // const box = getContext(BOX);
+  // const microphone = box.device.microphone;
+  // const speaker = box.device.speaker;
 
-  let micClaimed = $state(microphone.claimed);
-  let micPaused = $state(microphone.paused);
-  let micSpeaking = $state(microphone.speaking);
-  let micPermission = $state(microphone.permission);
-  let spkClaimed = $state(speaker.claimed);
-  let spkPlaying = $state(speaker.playing);
-  microphone.$claimed.subscribe((v) => (micClaimed = v));
-  microphone.$paused.subscribe((v) => (micPaused = v));
-  microphone.$speaking.subscribe((v) => (micSpeaking = v));
-  microphone.$permission.subscribe((v) => (micPermission = v));
-  speaker.$claimed.subscribe((v) => (spkClaimed = v));
-  speaker.$playing.subscribe((v) => (spkPlaying = v));
+  // let micClaimed = $state(microphone.claimed);
+  // let micPaused = $state(microphone.paused);
+  // let micSpeaking = $state(microphone.speaking);
+  // let micPermission = $state(microphone.permission);
+  // let spkClaimed = $state(speaker.claimed);
+  // let spkPlaying = $state(speaker.playing);
+  // microphone.$claimed.subscribe((v) => (micClaimed = v));
+  // microphone.$paused.subscribe((v) => (micPaused = v));
+  // microphone.$speaking.subscribe((v) => (micSpeaking = v));
+  // microphone.$permission.subscribe((v) => (micPermission = v));
+  // speaker.$claimed.subscribe((v) => (spkClaimed = v));
+  // speaker.$playing.subscribe((v) => (spkPlaying = v));
 
   let conversationState = $state("—");
   let busy = $state(false);
   let threadTraits = $state([]);
   let conversation = $state(null);
   let terminal = $state(null);
-  let dock = $state({ side: "right", share: 0.32 });
   let composer = $state({ enterSends: true, density: "comfortable" });
 
   $effect(() => {
@@ -68,20 +65,13 @@
     return () => stateTeardown?.();
   });
 
-  let dockTeardown = null;
   let composerTeardown = null;
   $effect(() => {
-    if (!top?.$terminal) return;
-    const sub = top.$terminal.subscribe((next) => {
+    if (!main?.$terminal) return;
+    const sub = main.$terminal.subscribe((next) => {
       terminal = next;
-      dockTeardown?.();
       composerTeardown?.();
-      dockTeardown = null;
       composerTeardown = null;
-      if (next?.$dock) {
-        dock = next.dock ?? { side: "right", share: 0.32 };
-        dockTeardown = next.$dock.subscribe((value) => (dock = value ?? dock));
-      }
       if (next?.$composer) {
         composer = next.composer ?? composer;
         composerTeardown = next.$composer.subscribe((value) => (composer = value ?? composer));
@@ -89,7 +79,6 @@
     });
     return () => {
       sub();
-      dockTeardown?.();
       composerTeardown?.();
     };
   });
@@ -114,21 +103,6 @@
     }
   }
 
-  function setSide(next) {
-    if (!terminal?.id || !quarters?.terminals?.update) return;
-    const patch = { ...(terminal.dock ?? dock), side: next };
-    quarters.terminals.update(terminal.id, { dock: patch });
-  }
-
-  function setShare(value) {
-    if (!terminal?.id || !quarters?.terminals?.update) return;
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) return;
-    const clamped = Math.max(0.18, Math.min(1.0, numeric));
-    const patch = { ...(terminal.dock ?? dock), share: clamped };
-    quarters.terminals.update(terminal.id, { dock: patch });
-  }
-
   function setComposer(patch) {
     if (!terminal?.id || !quarters?.terminals?.update) return;
     const next = { ...(terminal.composer ?? composer), ...patch };
@@ -151,37 +125,7 @@
     </span>
   </div>
 
-  <div class="kv">
-    <span class="k">dock</span>
-    <span class="sides">
-      {#each SIDES as s (s)}
-        <button
-          type="button"
-          class="side"
-          class:on={s === dock.side}
-          title="dock {s}"
-          disabled={!terminal}
-          onclick={() => setSide(s)}>{SIDE_LABELS[s]}</button>
-      {/each}
-    </span>
-  </div>
-
-  <div class="kv">
-    <span class="k">size</span>
-    <span class="size-row">
-      <input
-        class="slider"
-        type="range"
-        min="0.18"
-        max="1.0"
-        step="0.01"
-        value={dock.share ?? 0.32}
-        disabled={!terminal}
-        oninput={(e) => setShare(e.currentTarget.value)} />
-      <span class="size-readout">{Math.round((dock.share ?? 0.32) * 100)}%</span>
-    </span>
-  </div>
-
+  <!--
   <div class="kv">
     <span class="k">voice</span>
     <span class="v">
@@ -191,6 +135,8 @@
       · spk: {spkClaimed ? (spkPlaying ? "playing" : "ready") : "—"}
     </span>
   </div>
+  -->
+
 
   <div class="kv">
     <span class="k">enter</span>
@@ -249,79 +195,6 @@
   .arrow {
     opacity: 0.25;
     font-size: 8px;
-  }
-  .sides {
-    display: inline-flex;
-    gap: 3px;
-  }
-  .side {
-    width: 18px;
-    height: 18px;
-    line-height: 1;
-    padding: 0;
-    background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
-    border-radius: 2px;
-    color: var(--colors-skeleton-2-contrast);
-    font-family: var(--font-family-code);
-    font-size: 11px;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.16s, color 0.16s, border-color 0.16s;
-  }
-  .side:hover:not(:disabled) {
-    opacity: 0.9;
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .side.on {
-    opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .side:disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
-  }
-  .size-row {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-  }
-  .slider {
-    flex: 1;
-    height: 4px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
-    border-radius: 2px;
-    cursor: pointer;
-  }
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--colors-skeleton-0-primary-base);
-    cursor: pointer;
-  }
-  .slider::-moz-range-thumb {
-    width: 10px;
-    height: 10px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--colors-skeleton-0-primary-base);
-    cursor: pointer;
-  }
-  .slider:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .size-readout {
-    min-width: 28px;
-    text-align: right;
-    opacity: 0.6;
-    font-size: 9px;
   }
   .enter-row {
     display: inline-flex;

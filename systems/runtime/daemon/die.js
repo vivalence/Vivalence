@@ -11,8 +11,6 @@ export class Die extends Wafer {
   register = {
     lighthouse: null,
     hallucinator: null,
-    speech: null,
-    verbatim: null,
     datamap: null,
     kernel: [],
     modes: [],

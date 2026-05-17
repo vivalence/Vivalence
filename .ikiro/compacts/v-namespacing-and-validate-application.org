@@ -1,0 +1,260 @@
+#+TITLE: schematics v collapsed to pure structure + specimen.matches + paladin.validate
+
+* Arc
+
+Continued from prior schematics work. =schematics/index.js= was kitchen-sink: re-exported v, typebox passthroughs (Type/Value/Compile/System/Validator/IsValidationError/Infer/enhance/entityFactory), all scalars (ID/Slug/JWTToken/...), all entity descriptors, primitives.Manifest + auth namespace, plus mirror named namespaces. mod.ts wildcard propagated everything flat at =@vivalence/typology= root.
+
+This session: collapsed flat re-exports to =v= only, made v itself purely structural (constructors + static value ops + namespace handles), built a single matcher backed by schema =.errors()=, demonstrated scenario-anchored fixture, applied =v.primitives.circuitry.{Daemon,Service}= in =paladin.integrate.validate=. Fixed a regression: =resolve.variant= was harvesting daemons/services only from flat marker keys, dropping the =circuitry= namespaced entries.
+
+* Phase 1 — schematics/index.js to v-only
+
+Two scout passes. First found that flat schematics symbols downstream of the wildcard re-export were used by: =prototypes/buffer.js= (Value), =gestalten/steer/strategy.js= (Value), =tests/schematics.test.js= (Value, DataEntitySchema), =tests/v.test.js= (Type, Value), =schematics/primitives/{auth,manifest,circuitry,variant}.js= (ID, Slug, JWT*, v — self-circular), =registry/services/.../lighthouse.test.js= (Value via dead =bodies.X= namespace).
+
+User: =i want to limit the output of /Users/finn/vivalence/code/vivalence/subsystems/typology/schematics/index.js only one semantic space - v and the rest behind export * as schematics from schematics/index.=
+
+First attempt attached scalars/primitives/entities flat onto =v= via =Object.assign=. Worked on tests but exposed kitchen-sink on =v= itself (v.Value, v.Type, v.ID, v.Manifest, v.DataEntitySchema, v.auth, ...).
+
+* Phase 2 — v as pure structure
+
+User pushed harder:
+
+#+begin_quote
+i feel like v is all over the place.
+
+no lib. lib must be separated into our system level semantic space. typological.
+read the subsystem typology and grok the naming pattern.
+
+propose a simplified v export/import
+#+end_quote
+
+Read =subsystems/typology/readme.org= + =schematics/readme.org=. Grokked the naming game:
+
+- =schematics= — json shapes (what things ARE); subdirs =scalars/primitives/entities=
+- =prototypes= — instantiable classes (what things DO)
+- =gestalten= — helper functions (operations ON things)
+- =entities= — mikro DB entities
+- =specimen= — testing
+
+"lib" is external typebox machinery, not a typology semantic space — it doesn't belong. Proposed: drop =lib= namespace entirely; v becomes:
+
+- constructors at root: =string, number, boolean, integer, object, array, union, intersect, const, enum, record, any, unknown, null, $ref, rel, literal, symbol, buffer, mode, intent, thread, user=
+- static value ops at root: =diff, patch, equal, clone, check, defaults, errors, create, clean, compile=
+- namespaces: =v.scalars / v.primitives / v.entities=
+
+Typebox passthroughs (Type/Value/...) hidden internal. Callers use schema proxy methods (=schema.check(val)=, =schema.defaults(val)=, =schema.errors(val)=) instead.
+
+User asked for the on-disk vs import shape, single segment. Then asked for the diff. Then for execution with live runtime watching.
+
+** Execution
+
+=schematics/lib.js= → renamed to =schematics/v.js=. Stripped typebox passthroughs. Added static value ops to v: =check, defaults, errors, create, clean, compile=.
+
+=schematics/index.js= rewritten to pure structural:
+
+#+begin_src javascript
+import { v, entityFactory } from "./v.js";
+import * as scalars from "./scalars/index.js";
+import * as primitives from "./primitives/index.js";
+import * as entities from "./entities/index.js";
+
+v.scalars    = scalars;
+v.primitives = primitives;
+v.entities   = entities;
+
+v.rel     = (schema) => v.union([scalars.ID, schema]);
+v.literal = entityFactory(entities.LiteralDescriptor, entities.DataEntitySchema);
+v.symbol  = entityFactory(entities.SymbolDescriptor,  entities.DataEntitySchema);
+v.buffer  = entityFactory(entities.BufferDescriptor,  entities.DataEntitySchema);
+v.mode    = entityFactory(entities.ModeDescriptor,    entities.DataEntitySchema);
+v.intent  = entityFactory(entities.IntentDescriptor,  entities.DataEntitySchema);
+v.thread  = entityFactory(entities.ThreadDescriptor,  entities.DataEntitySchema);
+v.user    = entityFactory(entities.UserDescriptor,    entities.DataEntitySchema);
+
+export { v };
+#+end_src
+
+17 internal imports of =../lib.js= → =../v.js= via sed.
+
+External callers migrated to proxy methods + namespace access:
+- =prototypes/buffer.js= → =this.schema.defaults(desc)=
+- =gestalten/steer/strategy.js= → =step.input.defaults(input)= + =[...step.input.errors(input)]=
+- =tests/schematics.test.js= → =const { DataEntitySchema } = v.entities;= + =DataEntitySchema.check(val)=
+- =tests/v.test.js= → dropped =Type, Value= import; interop test uses =v.string/v.array=
+- =registry/.../lighthouse.test.js= → dropped dead =Value= import + replaced =Value.Check(bodies.X, ...)= sites with new =.matches()= matcher
+
+** TDZ bug + fix
+
+First pass had =const { Value } = v= at top-level in =prototypes/buffer.js= and =gestalten/steer/strategy.js=. mod.ts load order is prototypes(1) → gestalten(2) → schematics(4). At top-level eval of prototypes/buffer.js, v was still in TDZ. Error: =Cannot access 'v' before initialization=.
+
+Fix: drop the top-level destructure, use =v.Value.X(...)= at call sites. Live binding works fine at call time (runtime, after all modules eval). Then in Phase 2 the call sites moved to =schema.defaults/errors= (proxy methods).
+
+** Verification
+
+43/44 typology tests pass (1 unrelated: =connection.test.js= needs network). 102/102 v + schematics steps green. Live runtime PID 83844 hot-reloaded; =curl /manifest= returned lighthouse manifest, =curl /status= returned =ALIVE=.
+
+* Phase 3 — testing ontology + paladin.validate
+
+User asked for testing-ontology derivations from the refactor. Proposed six. User triaged:
+
+#+begin_quote
+1 and 4 are both testing related and feature additive. they are both concerned with single source of truthing and ergonomics. there is an elegance here. nice. propose.
+
+2 is substractive. go on that.
+
+6 is interesting. but your angle is wrong. we would attach those fixtures to the the test/scenario ! demo me a single case here.
+#+end_quote
+
+PRAISED moment: A1+A4 fusion (schema-as-contract + custom matcher). The elegance Finn named: single source of truthing AND ergonomics, same surface. =v.primitives.X= is BOTH the production schema AND the test assertion source.
+
+** A1+A4 — specimen.matches(schema)
+
+=subsystems/typology/specimen/index.js= — extended =@std/expect= with a =matches= matcher:
+
+#+begin_src javascript
+expect.extend({
+  matches(ctx, schema) {
+    const errors = [...schema.errors(ctx.value)];
+    const id = typeof schema.$id === "string" ? schema.$id : "";
+    return {
+      pass: errors.length === 0,
+      message: () =>
+        errors.length === 0
+          ? `expected value NOT to match schema ${id}`
+          : `expected value to match schema ${id}:\n` +
+            errors.map((e) => `  ${e.instancePath || "<root>"}: ${e.message}`).join("\n"),
+    };
+  },
+});
+#+end_src
+
+Subtle: =@std/expect= passes matcher a CONTEXT object =({value, isNot, customTesters})= not the raw value. Took a debug round to find — first attempt did =schema.errors(received)= which validated the wrapper object instead of the actual value, producing nonsense "must have required properties type, slug" errors on perfectly-shaped manifests. Documented inline.
+
+Usage: =expect(value).matches(v.primitives.Manifest)=. Failure message lists each error's path. Boolean =.check= remains as escape hatch.
+
+** A2 — subtractive cleanup
+
+Migrated lighthouse.test.js: =Value.Check(bodies.AuthResponse, result)= → =expect(result).matches(v.primitives.auth.AuthResponse)=. JWT scalar same. Imports of nonexistent =Value=, =bodies=, =scalars= dropped.
+
+** A6 — scenario-anchored fixture demo
+
+User correction (RATARD logged):
+
+#+begin_quote
+    const schema  = v.primitives.variant.Variant;
+dont do this!!! i hate these one off intermediary in-function ergonomics clutter variables. ratard.
+#+end_quote
+
+Schema must be referenced inline at the call site, never via a one-off =const=. Rewrote demo accordingly. New describe block in =subsystems/paladin/tests/variant.test.js= ("manifest schema enforced"). Later superseded by validate-driven demo (below).
+
+* Phase 4 — paladin validate via circuitry schemas
+
+User: =lets now think through broader validation. whats a slim application? subsystems/paladin/lifecycle/integrate.js=
+
+=integrate.js= had empty =validate(paladin)= stub. Filled with iteration over =paladin.variant.daemons= and =paladin.variant.services= against =v.primitives.circuitry.Daemon= / =v.primitives.circuitry.Service=. Context-safe because each collection is empty in contexts where it doesn't apply (no flag needed). Mask wrapper compatible — both schemas have =additionalProperties: true= so paladin's added =mount= field doesn't reject.
+
+Final shape:
+
+#+begin_src javascript
+export async function validate(paladin) {
+  const errors = [];
+  const collect = (label, value, schema) => {
+    for (const e of schema.errors(value)) {
+      errors.push(`${label}${e.instancePath || ""}: ${e.message}`);
+    }
+  };
+
+  for (const daemon of paladin.variant.daemons)
+    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
+  for (const service of paladin.variant.services)
+    collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
+
+  if (errors.length) throw new Error(`[paladin.validate]\n  ${errors.join("\n  ")}`);
+}
+#+end_src
+
+Tests added to =tests/variant.test.js= ("integrate.validate enforces circuitry schemas"): happy path passes; daemon missing manifest → throws =/daemon.*manifest/=; service missing module → throws =/service.*module/=.
+
+User had removed an earlier resolve-level Manifest.errors check from =resolve.variant=, so the test suite's manifest-rejection case was rewritten to drive through =integrate.validate=.
+
+* Phase 5 — variant circuitry merge regression
+
+User caught a regression: =paladin.variant.daemons= came back empty in the live runtime.
+
+#+begin_quote
+for some reason the variant isnt loaded properly anymore.
+  "daemons": [],
+this is the canary in the colemine.
+the daemon cake isnt processed properly.
+
+its service (nlp) and daemons themselves arent processed.
+#+end_quote
+
+Diagnosis: =testament/variant/test.viva.js= exports daemons + nlp-stanza service via =export * as circuitry from "./circuitry.js"=. They land at =marker.circuitry.daemons= / =marker.circuitry.services=. =resolve.variant= was reading only flat =marker.daemons || []= and =marker.services || []=, dropping circuitry-namespaced entries. Pre-existing gap surfaced now that the cake printout was being inspected closely.
+
+First proposal: schema-aware =Circuitry= primitive + =circuitry?= field on Variant + merge in resolve. User rejected:
+
+#+begin_quote
+this is the desired outcome.
+but not the method.
+we want our services and daemons to be completely populated.
+#+end_quote
+
+Second proposal: flatten at variant source — re-export daemons + services from circuitry.js so the variant module surface is flat per the Variant schema. User rejected harder:
+
+#+begin_quote
+no fuckface. this is about this function!
+
+export async function variant(paladin) {
+  ...
+}
+#+end_quote
+
+Resolution: inline merge in same =.map= pipeline. No raw intermediate vars. Done in =resolve.variant=:
+
+#+begin_src javascript
+paladin.variant.daemons = [
+  ...(marker.daemons || []),
+  ...(marker.circuitry?.daemons || []),
+].map((daemon) => {
+  const mask = new Mask(daemon);
+  mask.mount = paladin.scope.mountpoint.branch(`/daemon_${mask.slug}`);
+  if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
+  return mask;
+});
+
+paladin.variant.services = [
+  ...(marker.services || []),
+  ...(marker.circuitry?.services || []),
+].map((service) => {
+  const mask = new Mask(service);
+  mask.mount = paladin.scope.mountpoint.branch(`/service_${mask.slug}`);
+  if (mask.datamap && !mask.datamap.mount) mask.datamap.mount = mask.mount;
+  return mask;
+});
+#+end_src
+
+23/23 variant tests green. Live runtime ALIVE. Daemons + services now harvested from both sources.
+
+* Final state
+
+- =subsystems/typology/schematics/lib.js= → =v.js=. v is purely structural.
+- =schematics/index.js= attaches =v.scalars / v.primitives / v.entities= namespaces; flat re-export is just =v=.
+- 17 internal imports rewritten to =../v.js=.
+- Typebox (Type, Value, Compile, System, Validator, IsValidationError, enhance, entityFactory, Infer) never crosses the subsystem boundary.
+- =specimen.matches(schema)= matcher lives in =subsystems/typology/specimen/index.js=.
+- =paladin/lifecycle/integrate.js= =validate(paladin)= implemented, iterates daemons/services against circuitry schemas, aggregates errors, throws once.
+- =paladin/lifecycle/resolve.js= merges =marker.daemons || []= ∪ =marker.circuitry?.daemons || []= (same for services) inline at the =.map= site.
+- Tests: =subsystems/typology/tests/{v,schematics}.test.js= 102/102; =subsystems/paladin/tests/variant.test.js= 23/23; live runtime endpoints =ALIVE=.
+
+* Open follow-ups
+
+- The two orphan schematics files =primitives/{hallucination,conversation}.js= still =import { v } from "@vivalence/typology"= (not in the barrel, not loaded). If/when added to =primitives/index.js= they'll need relative imports to avoid circular load issues — same fix as auth/manifest/circuitry/variant.
+- =Manifest= schema has no =$id=. =specimen.matches= falls back to empty string. Could add =$id= via =.desc=-style chain.
+- =integrate.validate= can extend to context-strict variants later (DaemonStrict / RuntimeStrict per boot mode); not needed yet.
+- variant.test.js still has the broken =paladin.test.js= peer with pre-existing scope failures (unrelated to this session).
+
+* Praised section
+
+The fusion of A1 (schema-as-assertion) + A4 (custom matcher) — Finn explicitly named the elegance: single-source-of-truthing AND ergonomics in one move. =v.primitives.X= is both the production schema and the test assertion source. The matcher is one function, all schemas. No proliferation of per-type assertion helpers. The pattern naturally extends: any cross-cutting conformance test on a system surface (manifest, variant, response body, circuitry entry) is a one-liner against the canonical =v.*= schema.
+
+This is the load-bearing insight to carry forward: when a subsystem owns a schematic, downstream tests speak that schematic directly. No restated field lists. No drift. The schema IS the contract IS the assertion.

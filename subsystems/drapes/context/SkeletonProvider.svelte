@@ -8,7 +8,7 @@
       <Button variant="primary">ok</Button>
     </SkeletonProvider>
 
-  See .ikiro/pincer.workpackage.org § Dapper Skeleton Rebuild.
+  See .ikiro/pincer.quest.org § Dapper Skeleton Rebuild.
 -->
 <script>
   import { setContext } from "svelte";

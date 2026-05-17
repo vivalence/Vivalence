@@ -10,9 +10,7 @@ export async function registry(runtimeDie) {
 }
 
 export async function wiring(runtimeDie) {
-  runtimeDie.good.latch = new Url(
-    paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE"),
-  );
+  runtimeDie.good.latch = new Url(paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE"));
 }
 
 export async function aperture(runtimeDie) {
@@ -22,6 +20,8 @@ export async function aperture(runtimeDie) {
 }
 
 export async function terrans(runtimeDie) {
+  // console.log(paladin);
+  // console.log(paladin.variant);
   for (const mask of paladin.variant.daemons) {
     const daemonDie = new DaemonDie({
       mask,

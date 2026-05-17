@@ -8,20 +8,23 @@ Composition. Reads circuitry, resolves manifests, compiles a runnable variant. T
 
 declarative manifests, compiled product.
 
-Paladin is a singleton compiler. Circuitry files (`.viva.js` with `type: "circuit"`) declare what the system is — runtime, clients, daemons[], services[]. Paladin scans the registry, indexes every `.viva.js` manifest in pensieve (owner → type → slug → version), then compiles each circuit into `paladin.variant` with mount points. The runtime later resolves module references through `paladin.vip.accioMap()` to wire concrete modules into daemons.
+Paladin is a singleton compiler. A **variant marker** (a `.viva.js` with `type: "variant"`, single per scope, located via `paladin.find.viva(paladin.scope.variant)`) declares what the system is — runtime, clients, daemons{}, services{}. Paladin scans the registry, indexes every `.viva.js` manifest in pensieve (owner → type → slug → version), then resolves the variant marker into `paladin.variant` with mount points. The runtime later resolves module references through `paladin.vip.accioMap()` to wire concrete modules into daemons.
+
+(Pre-M1 model: multiple `type: "circuit"` files under `<variant>/circuitry/`. Migrated 2026-05-18 to single-marker pattern. See `.ikiro/variant.quest.org`.)
 
 boot sequence (`subsystems/paladin/mod.js`):
 
 ```
 incarnation (sync, awaited)
 ├── populate.env             VIVA_*, PUBLIC_VIVA_*, SECRET_VIVA_*; .env file
-├── populate.scopes          system / registry / variant / circuitry / environment / mountpoint
+├── populate.scopes          system / registry / variant / environment / mountpoint
 ├── populate.environment     JSON config (secret.json → paladin.secret; rest → paladin.env)
 ├── populate.veryimportantpackage  VIP if role ∈ {SUDO, RUNTIME}
 └── populate.questions       validate VIVA_SYSTEM_MODE + VIVA_SYSTEM_ROLE present
 ikiro (async, paladin.ikiro promise)
-├── resolve.circuitry        find .viva files in scope.circuitry, filter type=circuit
-├── resolve.variant          extract runtime, merge clients, wrap daemons/services in Mask + mount
+├── resolve.variant          paladin.find.viva(scope.variant) → filter type=variant
+│                            → extract runtime, merge clients, wrap daemons/services
+│                            in Mask + mount at scope.mountpoint/{daemon,service}_{slug}
 ├── integrate.statements     mkdir mount points
 ├── integrate.publish        publish PUBLIC_ vars to Deno.env
 └── integrate.questions      stub
@@ -75,7 +78,7 @@ consumers:
 
 - runtime — imports the singleton, awaits `paladin.ikiro`, reads `paladin.variant.{daemons, services, runtime, clients}`, resolves all module references via `accioMap`. Checks `paladin.is.*` for role decisions.
 - html — `vite.config.mjs` awaits `paladin.ikiro`, reads `paladin.variant.clients.html` for host/port/cors. `svelte.config.js` imports paladin (currently unused beyond import).
-- circuitry input — local: `testament/variant/circuitry/`; deployment: `registry/wafers/@vivalence/variant/multiplayer/` (currently the only active variant)
+- variant input — local: `testament/variant/test.viva.js` (single marker, post-M1); deployment: `registry/wafers/@vivalence/variant/multiplayer/test.viva.js` or `localhost/`. Pre-M1 `testament/variant/circuitry/` archived to `testament/variant/bak/circuitry/`.
 - registry — every `.viva.js` is indexed by VIP via pensieve
 
 testing:
@@ -98,10 +101,22 @@ testing gaps:
 - `vip.test.js` default exports return strings but `cast.viva()` expects object with manifest
 - no integration test for full paladin → runtime consumption flow
 
+**primitives for downstream consumers** — grep these BEFORE hand-rolling any import/load/walk loop:
+
+- `paladin.find.viva(dir)` — walk a directory of `.viva.js` files (never `Deno.readDir` directly)
+- `paladin.read.viva(path)` — load + validate a single `.viva.js` via `cast.viva` (never `await import("file://" + path)` directly)
+- `paladin.vip.accio(query)` — resolve `@scope/type/slug@version` string → cake (uses `cast.lookup` to parse)
+- `paladin.vip.accioMany(arr)` — batch resolve mixed string/object refs
+- `paladin.vip.accioMap(obj)` — recursive resolve preserving object structure
+
+Imperative-JS reflex (`Deno.readDir` + `await import` + `for-of`) is the dominant recidivism family in this codebase. Pre-flight grep before authoring.
+
 active work:
 
-- circuitry format may evolve as more daemons land
+- variant — M1+M2 DONE (`.ikiro/quests/variant.quest.org`). Single-marker resolver shipped, hermetic test suite green. M3 (reference-form slug/path normalization) deferred.
 - `@vivalence/shared` removal affects belt imports
-- VIP evolving toward jj-driven discovery scopes — see `.ikiro/very-important-packagemanager.workpackage.org`
+- VIP evolving toward jj-driven discovery scopes — see `.ikiro/quests/very-important-packagemanager.quest.org` (DESIGN only)
 
 retired — `resolve.consumables` and `resolve.cross` commented out (cross-service validation planned). Aperture migration done: mount points resolve through Vector/shape compilation, not Oak.
+
+test debt — `pensieve.test.js` calls `.lookup()` but Pensieve method is `.revelio()` (born-dead test); `paladin.test.js:128` expects `hal257`, current circuit has `anthropic`; fix in next cleanup.

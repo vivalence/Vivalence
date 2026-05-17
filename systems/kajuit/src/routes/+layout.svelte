@@ -6,13 +6,13 @@
   import { computed } from "nanostores";
   import { Connection, Url } from "@vivalence/typology";
   import { env } from "$env/dynamic/public";
-  import { LIGHTHOUSE, QUARTERS, BRIDGE, TOP, BOX } from "$client";
+  import { LIGHTHOUSE, QUARTERS, BRIDGE, MAIN /*, BOX */ } from "$client";
   import {
     lighthouse as lighthouseDeck,
     quarters as quartersDeck,
     bridge as bridgeDeck,
-    top as topDeck,
-    box as boxDeck,
+    main as mainDeck,
+    // box as boxDeck,
     traits,
   } from "@vivalence/kajuit";
   import Login from "@vivalence/kajuit/skins/lighthouse/Login.svelte";
@@ -33,16 +33,16 @@
   const bridge = new bridgeDeck.Bridge();
   setContext(BRIDGE, bridge);
 
-  const top = new topDeck.Top(quarters, lighthouse);
-  setContext(TOP, top);
+  const main = new mainDeck.Main(quarters, lighthouse);
+  setContext(MAIN, main);
 
-  const box = new boxDeck.Box();
-  setContext(BOX, box);
+  // const box = new boxDeck.Box();
+  // setContext(BOX, box);
 
-  traits.thread.conversational.provide({ box, top });
+  traits.thread.conversational.provide({ /* box, */ main });
 
   if (typeof window !== "undefined") {
-    window.__viv = { lighthouse, quarters, bridge, top, box };
+    window.__viv = { lighthouse, quarters, bridge, main /*, box */ };
   }
 
   onMount(() => {
@@ -82,7 +82,7 @@
 {#if gate === "ready"}
   {@render children()}
   {#if terminalCount === 0}
-    <div class="empty-overlay" onclick={() => top.spawn()} role="presentation">
+    <div class="empty-overlay" onclick={() => main.spawn()} role="presentation">
       <span class="empty-prompt">open terminal</span>
     </div>
   {/if}

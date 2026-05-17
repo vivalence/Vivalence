@@ -1,0 +1,1651 @@
+#+TITLE: Toolcalling — TOOLED trait + MCP exposure + standard tool library
+#+AUTHOR: Vivalence
+#+STATUS: IMPLEMENTING (M1+M2 DONE · M3 bruno-surface-landed, anthropic-stream-bug-blocked · M4–M8 DESIGN)
+#+DATE: 2026-05-06
+
+* Intent
+
+Lift LLM tool calling from typology-only plumbing to a system-level mode
+concern. Trait-arc instance: declarative metadata (=tools= Vector export) →
+functional dispatch (=TOOLED= trait via =shape.Agentic=) → emergent wiring
+(cortex loop drives execution). Same shape as DATASET / INTENTED / EMITTER /
+BUFFERED / FRAUGHT.
+
+The plumbing is finished and waiting:
+
+- =Cortex.executeTools= loop — typology, s42
+- =Hallucination.tool= API — typology, s42
+- Anthropic =translateTools= + tool stream events — s42
+- =shape.Agentic= class (Vector → ={tools, llmstxt}=) — typology, =gestalten/shape/agentic.js=
+- =shape.mcp= function (Vector → MCP server) — typology, s + 86 LoC, s48-era
+- =steer.rollup= / =steer.invoke= / =steer.guarded= — typology
+- Dewey's =dossier.tool(ctx)= factory — s24, 2026-04-27, INERT (will be deleted; replaced by Vector branch)
+- Client tool_use/tool_result =<details>= rendering — longdistance K20, s49, dormant
+
+Dewey =learner_state= is the first user. One trait closes the gap.
+
+* Vocabulary
+
+| Term | Definition |
+|------+------------|
+| TOOLED | Mode trait that compiles =mode.cake.tools= (Vector) via =shape.Agentic= and registers each compiled spec on =ctx.hallucination= per call. |
+| tools Vector | =mode.cake.tools= — a =new Vector()= of pattern-descriptor branches/leaves. Same primitive consumed by =shape.Agentic= (LLM tools), =shape.mcp= (MCP server), future MCP trait. One primitive, multiple compilers. |
+| pattern descriptor | =vector.open({nature, valence, input, output}, effect)= — declares a tool. =nature= → tool name segment; =valence= → description; =input/output= → JSON schemas via =v.X=. |
+| valence | Tool description (Vivalence vocab). =shape.Agentic= maps to tool spec =description=; =translateTools= → Anthropic =description=; =shape.mcp= → MCP =description=. |
+| =learner_state= | First live tool. Wraps =gather(ctx)=. Returns histogram + weak + recent + due + mistakes. |
+
+* Settled architecture
+
+** Mode export — Vector with pattern descriptors
+
+#+begin_src javascript
+// dewey.viva.js
+import { Vector, v } from "@vivalence/typology";
+import { gather } from "./dossier.js";
+
+export const tools = new Vector();
+
+tools.open(
+  {
+    nature: "learner_state",
+    valence: "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.",
+    input: v.object({}),
+    output: v.object({
+      histogram: v.record(v.string(), v.integer()),
+      weak:      v.array(v.unknown()),
+      recent:    v.array(v.unknown()),
+      due:       v.array(v.unknown()),
+      mistakes:  v.array(v.unknown()),
+    }),
+  },
+  async (ctx) => (await gather(ctx)).toJSON(),
+);
+#+end_src
+
+Effects take =(ctx)=, with =ctx.input= = tool arguments and =ctx.daemon= /
+=ctx.mode= bound by middleware (TOOLED installs them on the tools Vector
+before compilation). Same signature as every other Vector effect.
+
+Branch nesting joins via =_= per shape.Agentic / shape.mcp convention:
+=tools.branch("query").open("recent", ...)= → tool name =query_recent=.
+
+** =shape.agentic= refactor (rev 6, addresses @beef on class form + consumer alignment)
+
+*** Audit: every other shape is a function
+
+#+begin_src
+shape.http(v)            → request handler                  function → callable
+shape.mcp(v, info)       → {handle, tools[], handlers}      function → data + callable
+shape.object(v, exec)    → nested method bag                 function → method bag
+shape.strip(v)           → {leaves, branches}               function → data
+shape.tree(v, exec)      → array of {nature, signature, …}  function → data
+shape.flat(v, exec)      → array of {nature, signature, …}  function → data
+shape.messenger(s,{sock})→ method bag of socket-pushers     function → method bag
+shape.selbstbestimmt(v)  → callable                          function → callable
+shape.subscriber(v)      → MikroORM subscriber              function → method bag
+shape.Agentic(v)         → CLASS instance with leaked internals  ← outlier
+#+end_src
+
+Class leaks =stack=, =separator=, =compile=, =onBranch=, =onEffect=,
+=registerTool=, =normalize=, =denormalize=, =vector= as instance fields.
+None consumed externally. Live consumers: zero (=bak/= only). Origin: lifted
+from =bak/agent= mutation-during-walk pattern, never refactored.
+
+*** Walker primitive: align with =shape.mcp=
+
+=shape.mcp= already does Vector → tool-catalog. Uses
+=steer.rollup(vector, steer.guarded)= — single canonical walker that returns
+=[{pattern, steps, fn}]= with =fn= pre-wrapped by =steer.guarded= (validates
+=ctx.input= against =pattern.input= before dispatch). Free schema validation.
+
+=shape.agentic= should use the same walker. Different downstream shape, same
+walker.
+
+*** Function form
+
+#+begin_src javascript
+// subsystems/typology/gestalten/shape/agentic.js
+import { steer } from "@vivalence/typology";
+
+export function agentic(vector, separator = "_") {
+  const entries = steer.rollup(vector, steer.guarded);
+
+  const tools = {};
+  const lines = ["### Tools"];
+
+  for (const { pattern, steps, fn } of entries) {
+    const name = steps.map((s) => s.nature).join(separator);
+
+    lines.push(`"${name}":`);
+    if (pattern.valence) lines.push(`  ${pattern.valence}`);
+    if (pattern.input)   lines.push(`  - input: ${JSON.stringify(pattern.input)}`);
+    if (pattern.output)  lines.push(`  - output: ${JSON.stringify(pattern.output)}`);
+
+    tools[name] = {
+      valence: pattern.valence ?? "",
+      input:   pattern.input,
+      output:  pattern.output,
+      execute: fn,
+    };
+  }
+
+  return { tools, llmstxt: "\n" + lines.join("\n") + "\n" };
+}
+#+end_src
+
+22 LoC. No state, no class, no methods. Symmetric with shape.mcp:
+
+| | =shape.mcp= | =shape.agentic= |
+|---+-------------+-----------------|
+| Walker | =steer.rollup(v, steer.guarded)= | =steer.rollup(v, steer.guarded)= |
+| Tool catalog shape | array of ={name, description, inputSchema, outputSchema}= (MCP wire) | map of name → ={valence, input, output, execute}= (Hallucination native) |
+| Executor | =handlers.get(name)(args)= | =tools[name].execute(input)= |
+| Extra | JSON-RPC =handle()= | =llmstxt= prompt block |
+| Consumer | MCP stdio bridge | =ctx.hallucination= |
+
+Two compilers, one Vector, no shared adapter — each speaks its consumer's
+idiom.
+
+*** Hallucination consumer alignment: =absorb({llmstxt, tools})=
+
+shape.agentic's bundle output ={tools, llmstxt}= is the consumable.
+Hallucination absorbs the bundle in one call:
+
+#+begin_src diff
+ export class Hallucination {
+   // ... existing add / tool / tune / configure ...
+
++  absorb({ llmstxt, tools } = {}) {
++    if (llmstxt) this.add(llmstxt);
++    if (tools)   Object.assign(this.tools, tools);
++    return this;
++  }
+ }
+#+end_src
+
+Naming: =absorb= reads "soak in the bundle" — semantic match for
+"compiler-output → consumer". Doesn't collide with field names. Doesn't
+overload =add()= (which is for turn content). Alternatives considered and
+rejected: =equip= (single-purpose, doesn't carry llmstxt), =consume=
+(active voice; absorb is passive — the consumer doesn't alter the bundle),
+=load= (generic), =ingest= (works, slightly more clinical).
+
+*** TOOLED trait (post-refactor)
+
+#+begin_src javascript
+// systems/runtime/daemon/traits/tooled.js
+import { Vector, shard, shape } from "@vivalence/typology";
+
+export const TOOLED = (mode, daemon) => {
+  if (!mode.cake.tools) return;
+
+  const tools = new Vector();
+  tools.use(shard.context.attach("daemon", daemon));
+  tools.use(shard.context.attach("mode", mode));
+  tools.slurp(mode.cake.tools);
+
+  const compiled = shape.agentic(tools);
+
+  mode.cake.harness.branch("/dialogue").use(async (ctx, next) => {
+    ctx.hallucination.absorb(compiled);
+    await next();
+  });
+};
+#+end_src
+
+11 LoC. =shape.agentic= compiles once at trait-resolve time. Per call,
+=ctx.hallucination.absorb(compiled)= prepends the llmstxt to system prompt
+and merges all tools into =ctx.hallucination.tools=. Single method call,
+no =Object.entries=, no loop, no iteration boilerplate.
+
+*** Symmetric example: future =shape.openai= or other-provider shape
+
+If we ever ship a different LLM provider that wants tools shaped differently
+(say, OpenAI's tools array with =function.parameters=), the pattern
+extends: =shape.openai(vector)= compiles the same Vector to OpenAI's wire
+format. One Vector, N compilers, each emitting consumer-native data.
+
+This IS the recurring vivalence grammar: declarative metadata in a single
+Vector primitive, multiple shape compilers, each emitting the format its
+consumer speaks. Agentic, MCP, OpenAI, future MCP-trait — same input, four
+outputs.
+
+What it does:
+1. Wraps user's =mode.cake.tools= Vector with daemon + mode context middleware.
+2. Compiles via =shape.Agentic=, producing ={[name]: {valence, input, output, execute}}= and =llmstxt= (=### Tools= block listing each tool's name + valence + input/output schema).
+3. Mounts a /dialogue middleware on =mode.cake.harness= that, per call:
+   - prepends =agentic.llmstxt= to the system prompt (matches bak prior art =bak/teacher/iroh/aperture/agent.js:34=: =agent.enhance(controller.llmstxt)=);
+   - registers all compiled tools onto =ctx.hallucination=.
+
+=execute(input)= internally calls =steer.invoke(tools, path)(input)= — runs
+the wrapped tools Vector with =ctx.input= = input + middleware-injected
+=ctx.daemon= / =ctx.mode=. Per-call invocation = fresh ctx attach + cleanup
+(=shard.context.attach= cleans =ctx[key]= on chain unwind).
+
+Effect signature matches bak prior art (=bak/teacher/dewey/aperture/conversation.js:19-25=):
+=async (ctx) => result= with =ctx.input= for arguments. =steer/strategy.js=
+=dispatch= calls 1-arg effects with the full Context object.
+
+** Trait order — independent (CHAOSMONKEY refactor)
+
+CHAOSMONKEY currently slurps =mode.cake.harness= eagerly in its body, which
+forces TOOLED to mutate =mode.cake.harness= *before* CHAOSMONKEY runs.
+Brittle.
+
+Refactor: move CHAOSMONKEY's slurp + shape compile + aperture mounts into
+a returned finalizer. Finalizers run after all trait bodies (per
+=resolution.js:51-56=). TOOLED can then mutate =mode.cake.harness= in any
+order — CHAOSMONKEY's finalizer slurps after.
+
+#+begin_src
+trait body phase             trait finalizer phase
+─────────────────────        ────────────────────
+EXPOSED      (body)           EXPOSED.finalizer  (mounts shape.object on aperture)
+SELFEVIDENT  (body, no-op)
+TOOLED       (body)           ← mutates mode.cake.harness   (any order)
+CHAOSMONKEY  (body)           CHAOSMONKEY.finalizer
+                                ├─ harness.slurp(mode.cake.harness)   ← picks up TOOLED's branch
+                                ├─ daemon.cortex.shard.effects(harness)
+                                ├─ mode.harness = shape.object(harness, steer.echo)
+                                ├─ mode.aperture.branch("/harness").slurp(harness)
+                                └─ mode.aperture.open("/capabilities", ...)
+CONVERSATIONAL (body)         (no finalizer needed)
+#+end_src
+
+Verifications required during M1:
+- Nothing reads =mode.harness= during another trait's body (only at request time). Verified — CONVERSATIONAL accesses =mode.harness= inside a WS handler closure that fires post-resolve.
+- Nothing reads =mode.cake.harness= externally. Verified — only CHAOSMONKEY consumes it.
+- No async timing issues: trait bodies run sequentially in a =for= loop;
+  finalizers also sequential. No parallel race.
+
+Open: should TOOLED also live as a finalizer? No — its mutation of
+=mode.cake.harness= must happen before CHAOSMONKEY's finalizer slurp.
+TOOLED stays body-only.
+
+** Faculty scope
+
+No new faculties needed. Faculty types are cortex I/O channels —
+tool_use is a model-emitted part type that only =dialogue= produces.
+
+#+begin_src
+dialogue    text in,  text out    (LLM chat)        ← tool_use lives here
+speech      text in,  audio out   (TTS)             ← provider→audio, no tool_use
+verbatim    audio in, text out    (STT)             ← provider→text, no tool_use
+#+end_src
+
+Anthropic's API: tool_use is a content block returned by chat completion.
+TTS providers (ElevenLabs, Fish Audio) speak text, they don't decide to
+call tools. STT providers (Deepgram) transcribe audio, same. =/dialogue
+only= is where tool_use semantics natively live, not a constraint TOOLED
+chose to impose.
+
+Future: if an =object= faculty (structured JSON output) lands in
+=FACULTY_TYPES=, it would support tools too — Anthropic API allows tools
+in any completion. TOOLED extends by adding =/object= branch alongside
+=/dialogue=. Parked until cortex wires =object= via =shard.effects=.
+
+** Spec shape (canonical across consumers)
+
+#+begin_src javascript
+{ valence: string, input: JSONSchema, output?: JSONSchema, execute: async (input) => result }
+#+end_src
+
+=Hallucination.tool=, =translateTools=, =shape.mcp=, =shape.Agentic= all
+read these field names. =v.object({...})= produces JSON Schema natively.
+=output= is informational at the LLM layer (Anthropic doesn't validate)
+but consumed by =shape.mcp= as =outputSchema= and by =shape.Agentic.llmstxt=
+for prompt context. Pattern descriptor on the Vector branch is the
+single source.
+
+** Persistence + client (no work needed)
+
+CHAOSMONKEY scribe (=traits/chaosmonkey.js:21-64=) persists every
+=/turn/close= as a Turn entity. =tool_use= and =tool_result= parts ride
+along. Dock.svelte (longdistance K20, s49) renders them as collapsible
+=<details>=. Both layers already done.
+
+** Two grammars in play
+
+Toolcalling sits at the intersection of two stream protocols. Cortex
+packets are the typology-internal protocol (turn/part lifecycle).
+Conversation channels are the boundary protocol (server↔client WS).
+Both load-bearing, neither modified by this work.
+
+#+begin_src
+cortex packet protocol (typology, internal)
+  faculty.stream:
+    /turn/open
+    ├─ /part/open  { type: "tool_use",    id, name, input: "" }
+    ├─ /part/delta { input: <json chunk> }   (streamed)
+    └─ /part/close
+    /turn/close { meta.stop: "tool_use" }
+                  ↓
+                  executeTools(parts)         ← cortex loop
+                  ↓
+                  soma.drain({role: "user", parts: [{type: "tool_result", id, output}]})
+                  ↓
+    /turn/open
+    ├─ /part/open  { type: "text" }
+    └─ /part/close
+    /turn/close { meta.stop: "end_turn" }
+
+conversation channel grammar (boundary, server→client send)
+  /dialogue/{packet, close, error, abort}    ← packet carries cortex events
+  /speech/{packet, close, error, abort}
+  /verbatim/{packet, close, error, abort}
+  /handshake (initiation only — client→server)
+
+  packet payload discriminator: nature (verbatim) | event (dialogue)
+#+end_src
+
+Tool use rides =/dialogue/packet= as regular cortex events. Client renders
+=part.type:"tool_use"=/=part.type:"tool_result"= as collapsible =<details>=.
+No new channel for v1.
+
+Source: =2026.05.05.session-to-conversation-and-channel-grammar.org= s48
+(channel grammar pass; killed =/herald/*=).
+
+* Finn's verbatim
+
+Compact 2026-04-27 (=dewey-dossier-and-cross-mode-pool=), original directive:
+
+#+BEGIN_QUOTE
+right idea, wrong bucket. for now we keep that in the mode. set it up such
+that we can use it as a toolcalling tool later and as a middleware now.
+#+END_QUOTE
+
+Same compact, on the wrong /object branch attempt:
+
+#+BEGIN_QUOTE
+harness.branch("/object").use(async (ctx, next) => { ctx.hallucination.tool("learner_state", tool(ctx)); await next(); });
+skip this
+#+END_QUOTE
+
+Session 2026-05-06, on the channel grammar:
+
+#+BEGIN_QUOTE
+herald was superseeded
+we have a different grammar here
+what was it. start/stop/abort/error/packet.
+something like that.
+with packaet carrying a nature key and transporting the content
+same pattern probably applies here
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+/speech/{packet,abort,close,error}
+yes
+thats the grammar
+#+END_QUOTE
+
+Session 2026-05-06, on tool primitive shape:
+
+#+BEGIN_QUOTE
+@beef Tools should be a vector!
+absolutely must be a vector!
+thats how we handle input/output schema validation and all kinds of other shit.
+thats also how we do it in literally EVERY FUCKING EXAMPLE!!!
+retard.
+/beef
+#+END_QUOTE
+
+Logged in =.ikiro/zettelkasten.md ## Callouts= 2026-05-06.
+
+Session 2026-05-06, on slurp ordering:
+
+#+BEGIN_QUOTE
+either we move the slurping into the finalizers or handle the tooled trait
+within the chaosmonkey trait. finalizers would be more elegant but must be
+critically checked for other voulnerabilities / issues / race conditaions /
+async issues / timing issues.
+#+END_QUOTE
+
+Resolved: slurp into CHAOSMONKEY's returned finalizer (Trait order section).
+
+* Reuse audit (typology)
+
+| Primitive | Used by TOOLED | How |
+|-----------+---------------+------|
+| =Vector= | YES | =mode.cake.tools= is a Vector. TOOLED also wraps it with a daemon-context Vector. |
+| =shape.Agentic= | YES | Compiles the wrapped tools Vector to ={[name]: {valence, input, output, execute}}=. Same compiler old =bak/teacher/dewey/aperture/agent.js= used. |
+| =steer.invoke= | YES (via Agentic) | Inside Agentic's execute. Walks the Vector chain with input. |
+| =shard.context.attach= | YES | Injects =ctx.daemon= / =ctx.mode= into the tools Vector chain. |
+| =shape.mcp= | DEFER | Same =mode.cake.tools= Vector compiles to MCP server. Future shell-client Phase 6 consumes. No daemon-side work in this WP. |
+| =steer.rollup= | NO | =shape.Agentic= already wraps it internally. |
+| =Hallucination.tool= | YES | Registration sink. =ctx.hallucination.tool(name, agenticSpec)= per call. |
+| =translateTools= | YES (existing, unchanged) | Anthropic provider already translates =Hallucination.tools= to its API shape. |
+
+Net: typology already has every primitive. TOOLED is a 13-line composer of
+existing parts. Zero typology-side changes.
+
+CHAOSMONKEY refactor (slurp → finalizer) is a behavior-preserving move,
+not a typology change.
+
+* Live files
+
+| Path | Status | Change |
+|------+--------+--------|
+| =systems/runtime/daemon/traits/tooled.js= | NEW | trait body (~13 LoC) |
+| =systems/runtime/daemon/traits/index.js= | EDIT | re-export tooled |
+| =systems/runtime/daemon/traits/chaosmonkey.js= | EDIT | move slurp + shape.object + aperture mounts into returned finalizer |
+| =subsystems/typology/entities/daemon/Mode.ts= | EDIT | =TOOLED= in =ModeTraitsEnum= |
+| =registry/modes/@vivalence/teacher/dewey/dewey.viva.js= | EDIT | =tools= as Vector with =learner_state= branch, =TOOLED= in =manifest.traits= (any order), drop /object stub |
+| =registry/modes/@vivalence/teacher/dewey/dossier.js= | EDIT | drop unused =tool(ctx)= factory (replaced by Vector branch in dewey.viva.js); =gather= unchanged |
+| =systems/runtime/tests/mode/tooled.test.js= | NEW | unit + integration |
+| =systems/runtime/tests/daemon/integration.test.js= or similar | EDIT | regression: dewey still boots after CHAOSMONKEY finalizer refactor |
+| =.ikiro/zettelkasten.md= | EDIT | append TOOLED note |
+
+Untouched: typology (cortex, hallucination, primitives, =shape.Agentic=,
+=shape.mcp=, =steer=), hallucinator/anthropic, conversation grammar,
+Dock.svelte, bruno regime.
+
+* Diffs
+
+** =systems/runtime/daemon/traits/tooled.js= (NEW)
+
+#+begin_src javascript
+import { Vector, shard, shape } from "@vivalence/typology";
+
+export const TOOLED = (mode, daemon) => {
+  if (!mode.cake.tools) return;
+
+  const tools = new Vector();
+  tools.use(shard.context.attach("daemon", daemon));
+  tools.use(shard.context.attach("mode", mode));
+  tools.slurp(mode.cake.tools);
+
+  const compiled = shape.agentic(tools);
+
+  mode.cake.harness.branch("/dialogue").use(async (ctx, next) => {
+    ctx.hallucination.absorb(compiled);
+    await next();
+  });
+};
+#+end_src
+
+** =systems/runtime/daemon/traits/index.js=
+
+#+begin_src diff
++export * from "./tooled.js";
+#+end_src
+
+** =systems/runtime/daemon/traits/chaosmonkey.js= (slurp into finalizer)
+
+#+begin_src diff
+ export const CHAOSMONKEY = (mode, daemon) => {
+   if (!daemon.cortex) throw new Error("CHAOSMONKEY: daemon has no cortex");
+
+   const harness = new Vector();
+   harness.use(shard.context.attach("daemon", daemon));
+   harness.use(shard.context.attach("mode", mode));
+   harness.use(async (ctx, next) => { await next(); });
+   harness.use(daemon.cortex.shard.harness);
+   harness.use(async (ctx, next) => { /* scribe */ });
+   harness.branch("/dialogue").use(async (ctx, next) => { /* history load */ });
+
+-  if (mode.cake.harness) harness.slurp(mode.cake.harness);
+-  daemon.cortex.shard.effects(harness);
+-
+-  mode.harness = shape.object(harness, steer.echo);
+-  mode.aperture.branch("/harness").slurp(harness);
+-
+-  mode.aperture.open("/capabilities", () =>
+-    ["dialogue"].filter((type) => daemon.cortex.has(type)).map(...));
++  return () => {
++    if (mode.cake.harness) harness.slurp(mode.cake.harness);
++    daemon.cortex.shard.effects(harness);
++
++    mode.harness = shape.object(harness, steer.echo);
++    mode.aperture.branch("/harness").slurp(harness);
++
++    mode.aperture.open("/capabilities", () =>
++      ["dialogue"].filter((type) => daemon.cortex.has(type)).map(...));
++  };
+ };
+#+end_src
+
+** =subsystems/typology/entities/daemon/Mode.ts=
+
+#+begin_src diff
+   CONVERSATIONAL = "CONVERSATIONAL",
++  TOOLED = "TOOLED",
+ }
+#+end_src
+
+** =registry/modes/@vivalence/teacher/dewey/dewey.viva.js=
+
+#+begin_src diff
+-import { Vector, v } from "@vivalence/typology";
+-import { gather } from "./dossier.js";
++import { Vector, v } from "@vivalence/typology";
++import { gather } from "./dossier.js";
+
+-  traits: ["EXPOSED", "SELFEVIDENT", "CHAOSMONKEY", "CONVERSATIONAL"],
++  traits: ["EXPOSED", "SELFEVIDENT", "TOOLED", "CHAOSMONKEY", "CONVERSATIONAL"],
+
++export const tools = new Vector();
++
++tools.open(
++  {
++    nature: "learner_state",
++    valence: "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.",
++    input: v.object({}),
++    output: v.object({
++      histogram: v.record(v.string(), v.integer()),
++      weak:      v.array(v.unknown()),
++      recent:    v.array(v.unknown()),
++      due:       v.array(v.unknown()),
++      mistakes:  v.array(v.unknown()),
++    }),
++  },
++  async (ctx) => (await gather(ctx)).toJSON(),
++);
+
+-harness.branch("/object").use(async (ctx, next) => {
+-  // ...assess_response stub...
+-  await next();
+-});
+#+end_src
+
+(Trait order in =manifest.traits= is now flexible thanks to CHAOSMONKEY's
+finalizer-based slurp. =TOOLED= placed before =CHAOSMONKEY= for readability;
+not required.)
+
+** =registry/modes/@vivalence/teacher/dewey/dossier.js=
+
+#+begin_src diff
+ import { v } from "@vivalence/typology";
+
+ // ... gather() unchanged ...
+
+-export function tool(ctx) {
+-  return {
+-    valence: "Read the learner's overall progress histogram, weakest items, recent reviews, due items, and recent mistakes. Use to ground responses in what the learner is actually working on.",
+-    input: v.object({}),
+-    execute: async () => (await gather(ctx)).toJSON(),
+-  };
+-}
+#+end_src
+
+The =tool(ctx)= factory is replaced by the Vector branch in
+=dewey.viva.js= — pattern descriptor + effect, not a separate factory.
+
+** =.ikiro/zettelkasten.md= (append)
+
+#+begin_src org
+* TOOLED trait
+
+Mode declares =export const tools = new Vector()= with pattern-descriptor
+branches: =tools.open({nature, valence, input, output}, (ctx) => result)=.
+Trait wraps this Vector with daemon+mode context middleware, compiles via
+=shape.Agentic=, and registers each compiled spec on =ctx.hallucination=
+in a /dialogue middleware (per call).
+
+CHAOSMONKEY refactored 2026-05-06: slurp + shape.object + aperture mounts
+moved into a returned finalizer. Trait bodies can now mutate
+=mode.cake.harness= in any order; finalizer slurps after all bodies.
+
+Tool spec shape ={valence, input, output, execute}= — same Vector consumed
+by =shape.Agentic=, =shape.mcp=, future MCP trait. One primitive, multiple
+compilers.
+
+Tools ride =/dialogue/packet= via cortex =part.type:"tool_use"= /
+=part.type:"tool_result"=. Future: dedicated =/tools/{packet,close,error,abort}=
+channel for execution-progress visibility (parked).
+
+First user: dewey =learner_state=.
+#+end_src
+
+* Tests
+
+** Unit (=systems/runtime/tests/mode/tooled.test.js=)
+
+| Step | Asserts |
+|------+---------|
+| compiles tools Vector via shape.Agentic | each tool gets valence + input + output + execute |
+| ctx.daemon / ctx.mode injected | tool execute can call =ctx.daemon.entities= |
+| empty/missing tools | trait no-ops silently |
+| /dialogue branch only | tools NOT on /speech, /verbatim |
+| trait order independence | =["TOOLED", "CHAOSMONKEY"]= and =["CHAOSMONKEY", "TOOLED"]= both produce a working harness |
+
+** Integration (=systems/runtime/tests/scenarios/cortex.js= or =conversation.integration.test.js=)
+
+Mock cortex emits =tool_use= → assert =executeTools= dispatches with parsed
+input → real tool effect runs through tools Vector with daemon context →
+=tool_result= threaded into follow-up render → final assistant turn
+persists. Mirror =hallucination.test.js:177-225= shape.
+
+** Regression (CHAOSMONKEY finalizer refactor)
+
+- existing =systems/runtime/tests/conversation.integration.test.js= still green
+- existing =subsystems/typology/tests/hallucination.test.js= still green (no typology change)
+- bruno regime still green (no wire changes)
+
+** Live (M3, chrome)
+
+Dewey terminal, prompts likely to trigger =learner_state= ("what should I
+work on next?"). Verify =<details>= renders, Turn entities persist with
+tool parts, model uses the result in follow-up turn.
+
+* Load-bearing decisions
+
+1. Tools live as a *Vector* on =mode.cake.tools=, not a map. Vector =
+   one primitive with multiple compilers (=shape.Agentic= for LLM,
+   =shape.mcp= for MCP, future MCP trait). Map would be a parallel
+   primitive — anti-vivalence.
+2. Pattern descriptor =({nature, valence, input, output})= is the tool
+   declaration. =v.object({...})= produces JSON Schema natively. =output=
+   informational for LLM, validating for MCP.
+3. Tool effect signature is the standard Vector =(ctx) => result= with
+   =ctx.input= = arguments. =ctx.daemon=/=ctx.mode= injected by TOOLED's
+   middleware on the tools Vector before compilation.
+4. =shape.Agentic= is the canonical compiler for Vector → LLM tools
+   (=tools= map + =llmstxt=). Used by old =bak/teacher/dewey/aperture/agent.js=,
+   =bak/teacher/iroh/aperture/agent.js=, =bak/agent/eva/aperture/agent.js=.
+   Reuse, don't re-implement.
+5. /dialogue only. Speech/verbatim don't emit tool_use.
+6. CHAOSMONKEY's slurp moves into a returned finalizer. Trait bodies run
+   first, finalizers run after all bodies — TOOLED can mutate
+   =mode.cake.harness= in any order. Trait order constraint dissolves.
+7. No new shard, no new cortex method. TOOLED is 13 LoC of existing-primitive
+   composition.
+8. =shape.Agentic.llmstxt= prepended to system prompt per call —
+   matches bak prior art (=bak/teacher/iroh/aperture/agent.js:34=
+   =agent.enhance(controller.llmstxt)=). Generated =### Tools= block
+   with name + valence + input/output JSON schemas.
+9. Keep dossier always-prepend AND tool for v1. Drop prepend after
+   observing call rate post-M3.
+10. Tools ride =/dialogue/packet= via cortex events. Dedicated
+    =/tools/{packet,close,error,abort}= channel parked for
+    execution-progress visibility (open question).
+
+* Cross-references
+
+| Quest | Relationship |
+|-------------+--------------|
+| =cortex= (DONE s43) | Parent — tool loop, hallucination envelope, faculty contract. |
+| =longdistance= (IMPLEMENTING) | Consumer — K20 dormant client UI lights up; dual-dialogue worker dispatches via =ctx.hallucination.tool=. |
+| Compact =2026.05.05.session-to-conversation-and-channel-grammar= (DONE s48) | Grammar source — =/<channel>/{packet,close,error,abort}=. Killed =/herald/*=. |
+| Compact =2026.04.27.dewey-dossier-and-cross-mode-pool= | Provenance — =dossier.tool(ctx)= built; "set it up such that we can use it as a toolcalling tool later". Tool factory in dossier deleted by this WP. |
+| =systems/ghost/.ikiro/ghost-client= Phase 6 | Future — MCP-trait-for-modes compiles =mode.cake.tools= via =shape.mcp=. Same Vector, different compiler. |
+| =herald= | SUPERSEDED by s48. Dead reference. |
+| =subsystems/typology/tests/gestalten/shape/mcp.test.js= | Pattern proof — Vector tools with input/output schemas, branch nesting, middleware, =steer.guarded= validation. Canonical and tested. |
+| =registry/modes/@vivalence/bak/teacher/dewey/aperture/conversation.js= | bak prior art — Vector with =vector.open({nature, valence, input}, async (toolCtx) => result)= + =new Agent("dewey").withBrain(...).withTools(vector)=. Effect signature =(toolCtx) => result= confirmed. |
+| =registry/modes/@vivalence/bak/teacher/iroh/aperture/agent.js= | bak prior art — =new Agentic(tools)= + =controller.tools= + =controller.llmstxt= + =agent.enhance(controller.llmstxt)=. The llmstxt-into-system-prompt pattern adopted in rev 5. |
+| =registry/modes/@vivalence/bak/teacher/iroh/aperture/tools/play.js= | bak prior art — branch-shaped tool catalog (=trajectory.branch(p => p.sig({path, valence}))=) + per-effect pattern descriptor with input schema. |
+
+* Open questions
+
+- *Drop dossier always-prepend?* Currently always-prepended in dewey
+  /dialogue middleware. With =learner_state= live, model can pull on
+  demand. Keep both for v1, prune prepend after M3 if model uses the
+  tool reliably.
+- *Tool input parameters for =learner_state=?* Currently =v.object({})=.
+  =gather(ctx, where)= already accepts a where clause; surface ={where,
+  scope}= when call patterns reveal the need. Vector pattern descriptor
+  makes this trivial — extend =input: v.object({where: ..., scope: ...})=
+  in the open() call.
+- *Mode =/tools= aperture route?* Pre-engagement catalog discovery via
+  =strip(mode.cake.tools)= — same machinery as CLIENT_SHAPE handshake.
+  Direct route style aligned with post-s48. Defer until a client
+  surface needs it.
+- *Dedicated =/tools/{packet,close,error,abort}= conversation channel?*
+  For long-running tool execution-progress visibility. Cost: split
+  =executeTools= into start/complete emit phases. Re-evaluate after
+  first non-trivial-execution-time tool lands.
+- *=/object= harness branch globally dead?* Faculty exists in =FacultyType=
+  but =cortex.shard.effects= only wires three. Dewey's stub removed in
+  M1. No other modes affected. Flag in cortex open questions.
+(=shape.Agentic.llmstxt= injection moved into the trait body in rev 5 —
+bak prior art (=bak/teacher/iroh/aperture/agent.js:34=) does this canonically.)
+
+* Lessons crystallized
+
+1. *Reuse audit risk: rejected primitives* — the line "I considered and rejected X" is where missed prior art hides. List SEARCHES PERFORMED, not VERDICTS RENDERED. Rev 4 of this WP rejected Vector in a confident reuse audit; missed =shape.Agentic= class + =shape.mcp= function + three =bak/= consumers + the full =mcp.test.js= test suite. Retard callout logged.
+
+2. *"One primitive, N compilers" is the recurring vivalence grammar* — same Vector consumed by =shape.agentic= (LLM tools), =shape.mcp= (MCP server), future MCP-trait, future =shape.openai=. Each compiler emits in its consumer's idiom; no shared adapter. When a feature feels like catalog of callables / branchable namespace / declarative metadata surface — primitive = Vector; implementation = new shape compiler.
+
+3. *Class form is a smell across gestalten* — every other =shape.X= is a function. =shape.Agentic= class form was a lift-without-refactor from old =bak/agent= mutation-during-walk pattern, never refactored. Rule: when adopting an existing primitive, audit form against siblings; outliers are usually unrefactored.
+
+4. *Compilers should produce consumable bundles, not iteration boilerplate* — =shape.agentic= now returns ={tools, llmstxt}=; =Hallucination.absorb()= consumes in one call. If consumer iterates =Object.entries=, shape isn't done.
+
+5. *Trait order constraints are smells* — "TOOLED before CHAOSMONKEY" was brittle. Fix: push the consuming step (=harness.slurp=) into a finalizer. Trait bodies = parallel mutations; finalizers = sequential consolidation.
+
+6. *bak/ is prior-art reference, not dead-archive* — three =bak/teacher/*= files held the canonical Agentic-with-Vector pattern. Greppable, two-line-summarizable. Gate: before any "no existing pattern" claim, =grep -r= bak/.
+
+7. *Channel grammar separates server-send from client-initiate* — =/X/{packet,close,error,abort}= server-send (4 verbs); =/X/open= client→server initiation (asymmetric). Tools have no analog of "client opens a tool execution" — execution is server-side, model-driven. Future tools channel = 4-verb server-send only; "start" becomes a =packet.nature= rather than its own verb.
+
+8. *@beef inline annotations are corrections, not commentary* — embedded mid-document with rationale, requiring absorption into named architectural decisions. Each @beef became a quest rev. Routine: scan quests for unabsorbed @beef before claiming convergence.
+
+9. *"this goes both ways" = paired alignment cue* — Finn's phrasing for "producer and consumer should fit each other without adapter code". When a refactor cleans up the producer side but leaves boilerplate at the consumer, the consumer is also out of alignment. =shape.agentic= refactor + =Hallucination.absorb= addition are paired — neither alone is the full answer.
+
+10. *Compact discipline: substance lands in the quest, not date-specific files* — quest IS the persistent design surface. Compacts at =.ikiro/compacts/<date>.org= are for FINISHED-and-shipped sessions where the substance has settled. In-flight design work consolidates into the quest's own Lessons / Decisions / Changelog sections. Date-specific compact created and deleted this session per Finn's correction.
+
+11. *Existing infrastructure beats greenfield design* — =Span= prototype + =shard.track= middlewares already exist in typology. M8 telemetry was almost designed as new infrastructure before the existing primitives surfaced. Routine: before any "we need observability/telemetry/logging/tracing", =grep= =typology/prototypes/= and =gestalten/shard/=. Same applies to any cross-cutting concern — odds are typology already has a primitive.
+
+12. *Watches verify boot, not edit-by-edit correctness* — runtime watch heartbeats =Status:ALIVE= indefinitely; reload events are sparse line items easily lost in the noise. =deno --watch= DOES reload on subsystem edits (verified: =Watcher Restarting! File change detected= line appears on save). To verify a specific edit landed cleanly, run tests directly. Watches signal "process alive across edits", not "this edit works".
+
+13. *Helpers stay at point of use until third use case* — =compileToolsVector(mode, daemon)= factored into =systems/runtime/daemon/traits/_compile-tools.js= when M4 introduced a second consumer (MCPEXPOSED). Don't pre-lift to typology. =_= prefix signals internal-to-module.
+
+14. *world-facing vs inward-facing tools — keep the distinction explicit* — vivalence's distinctive offering is the inward-facing category (introspect daemon entities, modes, cortex, memory, ikiro). World-facing tools (filesystem, shell, web) are plumbing every agentic system needs. The standard library design (M6) calls this out explicitly so future iteration doesn't accidentally lump them.
+
+15. *"b-line" = parallel concern, own section header* — Finn's vocabulary for additional design branches that aren't deltas to the M1→M3 spine. M7 (kajuit) and M8 (telemetry) are b-lines off M1's TOOLED trait. Each gets its own top-level quest section, not appended phases to the original.
+
+16. *Shell-client trajectory tree = canonical daemon-control surface* — when planning daemon-internal tools, the shell-client trajectory tree is already the answer. =@vivalence/tools/daemon/*= re-exports those trajectories as Vectors compiled via =shape.agentic= or =shape.mcp=. Single source of truth, two compilers.
+
+17. *M3 chrome verify is "parked-needs-human"* — chrome MCP exists but exercising dewey requires Anthropic-API tokens + Finn driving prompts. Document as parked, not failed. Distinct from "tested" or "blocked".
+
+18. *Quest size threshold approached* — this WP now exceeds the zettelkasten 500-line / 30 KB hint after M4–M8 design. Plan: when work resumes on M4/M5/M6 implementation, split as =toolcalling.quest.org= (M1–M3 core) + =toolcalling.mcp.quest.org= (M4–M5) + =toolcalling.kajuit.quest.org= (M7) + =toolcalling.telemetry.quest.org= (M8). Defer split until next active work pass on those branches.
+
+* Phases
+
+** M1 — landing (atomic) DONE
+
+- [X] =systems/runtime/daemon/traits/tooled.js= (new, 16 LoC)
+- [X] re-export from =traits/index.js=
+- [X] CHAOSMONKEY refactor: slurp + shape.object + aperture mounts into returned finalizer
+- [X] =TOOLED= in =ModeTraitsEnum=
+- [X] dewey.viva.js: =tools= Vector with =learner_state= branch, =TOOLED= in =manifest.traits=, drop /object stub
+- [X] dossier.js: drop =tool(ctx)= factory + unused =v= import
+- [X] zettelkasten append
+- [X] runtime watch + kajuit watch confirmed green; daemon listening :2501, vite ready :1794
+
+Optimization pass (rev 7):
+- [X] =mode.cake.harness ??= new Vector()= guard in TOOLED — robustness for tools-without-explicit-harness modes; CHAOSMONKEY's finalizer slurps post-resolve so trait order remains independent.
+- [X] =scenarios/cortex.js= updated to invoke CHAOSMONKEY's returned finalizer (post-refactor, body alone no longer wires =mode.harness=).
+
+** M2 — tests DONE
+
+- [X] unit: =subsystems/typology/tests/gestalten/shape/agentic.test.js= (17 steps — tool collection, llmstxt block, execute dispatch, custom separator)
+- [X] unit: =systems/runtime/tests/mode/tooled.test.js= (10 steps — compilation, absorb, ctx injection, trait order independence)
+- [X] regression: =cortex.integration.test.js= (16 steps green incl. tool loop), =conversation.integration.test.js= (5 steps), =mode/traits.test.js= (22 steps) — CHAOSMONKEY finalizer refactor non-breaking
+- Total: 53 steps green across regression + new tests.
+
+** M3 — live (PARKED — bruno surfaces real-Anthropic-stream bug)
+
+- [ ] chrome exercise of dewey with tool-triggering prompts
+- [ ] verify =<details>= renders, Turn entities persist, follow-up turn uses result
+- [ ] decide on dossier-prepend retention
+- [X] bruno setup landed: =testament/_bruno/run-dewey-tools.sh= + =chat-tool.bru= (6 asserts: 3 opens, 3 closes, stop reasons, tool_use+tool_result+histogram)
+- [X] SSE wire validated via test: =systems/runtime/tests/sse.integration.test.js= (3 steps green; mock cortex over real HTTP fetch)
+- [ ] real-stream bug: live SSE truncates before =/turn/close=. Suspect =registry/services/@vivalence/hallucinator/anthropic/provider/translate.js:142= =default: return null= swallows unknown SDK event types. Next: instrument =provider/index.js:58= raw iterator with =console.log(event.type)=.
+
+Status: daemon ready (:2501) + kajuit ready (:1794). Wire verified clean. Anthropic-side stream truncation blocks live tool-loop. Fix translate.js event coverage before resuming chrome M3.
+
+Bruno hygiene side-effects this session:
+- =testament/_bruno-attic/= NEW (holds legacy =archive=/=bak=/WS trees — see [[project_bruno_hygiene]] memory).
+- 4 broken =.bru= bodies de-crufted ("COMPLETABLE":{} trail) in legacy trees before move.
+- =run-dewey.sh= patched: jq selectors for v1.38+ reporter shape, stale =entities/= path segments dropped, SSE step pivoted from bru→curl (axios buffering incompatible).
+
+** M4 — MCP exposure (DESIGN)
+
+- [ ] M4.1: =MCPEXPOSED= trait — compiles =mode.cake.tools= via =shape.mcp=, mounts =handle= on =mode.aperture.branch("/mcp")=
+- [ ] M4.2: factor =compileToolsVector(mode, daemon)= helper to share daemon/mode context-attach setup between TOOLED and MCPEXPOSED
+- [ ] M4.3: =shell-client= subcommand =viva mcp <type> <slug>= — stdio↔HTTP pipe (auth via session, POST JSON-RPC frames to mode's =/mcp/handle=)
+- [ ] M4.4 (optional): daemon-aggregating bridge =viva mcp daemon <slug>= — namespaced tool catalog across all modes' tools
+
+** M5 — MCP testing (DESIGN)
+
+- [ ] M5.1: trait test =systems/runtime/tests/mode/mcp-exposed.test.js= (5 steps — mounts /mcp/handle, dispatches tools/list, dispatches tools/call, ctx.daemon/mode injected, no-op when missing tools)
+- [ ] M5.2: ghost-client test =systems/ghost/tests/mcp-bridge.test.js= (3 steps — stdin→HTTP pipe, error frames, multi-call session)
+- [ ] M5.3: live verify with claude desktop / cursor — externally connect, exercise dewey =learner_state=
+
+** M6 — Standard tool library (DESIGN)
+
+- [ ] M6.1: scaffold =registry/tools/@vivalence/= namespace with manifest convention (=<category>.viva.js= exports =tools= Vector)
+- [ ] M6.2: =@vivalence/tools/filesystem= — read_file, write_file, list_dir, glob, mkdir (workspace-scoped via =ctx.daemon.workspace=)
+- [ ] M6.3: =@vivalence/tools/shell= — bash (allow-list, opt-in per mode; default deny)
+- [ ] M6.4: =@vivalence/tools/web= — websearch, fetch, browse (headless chrome)
+- [ ] M6.5: =@vivalence/tools/daemon/entities= — entity queries (literal/symbol/thread/turn/mode/intent/buffer/memory/trace) READ-ONLY
+- [ ] M6.6: =@vivalence/tools/daemon/cortex= — faculty/provider inspection, tune resolution probe READ-ONLY
+- [ ] M6.7: =@vivalence/tools/daemon/memory= — driver state queries, due items, histogram, traces READ-ONLY
+- [ ] M6.8: =@vivalence/tools/ikiro= — quest / zettelkasten / claude.md read (READ-ONLY; respects =.ikiro= as canonical)
+- [ ] M6.9: align with shell-client trajectories — single source of truth for daemon-control surface (defer concrete merge plan)
+
+** Deferred
+
+- mode =/tools/strip= aperture route — handshake-style catalog discovery (deferred until a client surface needs it)
+- dedicated =/tools/{packet,close,error,abort}= conversation channel — for long-running tool execution-progress visibility (re-evaluate after first slow tool)
+- write/control daemon tools (emit literal, record review, create thread) — gated v2 after read-only surface stabilizes
+- =@vivalence/tools/git= READ-ONLY — git_log/git_show/git_blame/git_status/git_diff. Excluded from v1 standard set per VCS-read-only rule + bash already covers ad-hoc git use under user supervision.
+
+* M4–M6 design — MCP exposure + standard tool library
+
+The M1 design crystallized the in-vivalence tooling primitive: a Vector of
+pattern descriptors per mode, compiled by =shape.agentic= for LLM hallucination.
+M4 extends the same Vector to MCP wire so external clients (claude desktop,
+cursor, the shell) can drive the same tools. M5 tests that surface. M6 builds
+the standard tool catalog — both world-facing tools (filesystem, shell, web)
+AND a uniquely-vivalence category: tools that operate ON the daemon itself.
+
+** Brainstorm (the unconstrained pass)
+
+*** What makes vivalence tooling distinctive
+
+Two halves:
+
+1. /World-facing/ — read/write files, run bash, fetch URLs, browse pages. Same
+   surface every agentic system needs. Reuse, don't innovate.
+2. /Inward-facing/ — tools that introspect and operate on the daemon: query
+   entities, inspect modes, walk symbol graphs, read memory states, surface
+   telemetry. Pedagogically rich: a tutor that can examine its own state and
+   the learner's progress; a Finn-driven Claude that can explore the running
+   system without leaving the conversation.
+
+The world-facing half is plumbing. The inward-facing half is where vivalence
+earns its identity: a self-introspecting language-learning OS exposed to LLMs.
+
+*** Where do tools live in the registry
+
+Existing registry layout:
+
+#+begin_src
+registry/
+  kernels/   — domain-specific entities (corpus, ontology, domain)
+  services/  — provider integrations (lighthouse, hallucinator, datamap, nlp)
+  modes/     — user-facing experiences (game, tactic, teacher, ...)
+  wafers/    — composition variants (multiplayer/server, multiplayer/client, ...)
+  circuits/  — runnable assemblies
+#+end_src
+
+Tools are domain-agnostic Vectors. Not modes (no user-facing surface).
+Not services (no provider integration). Not kernels (no domain entities).
+Not wafers (no composition). New top-level namespace: =registry/tools/@vivalence/=.
+
+Manifest pattern mirrors kernels/services: =<category>.viva.js= exports a
+=tools= Vector. Imports:
+
+#+begin_src javascript
+// in mode.viva.js
+import { tools as fs }     from "@vivalence/tools/filesystem";
+import { tools as web }    from "@vivalence/tools/web";
+import { tools as daemon } from "@vivalence/tools/daemon/entities";
+
+export const tools = new Vector();
+tools.slurp(fs);
+tools.slurp(web);
+tools.slurp(daemon);
+tools.open({ nature: "mode_specific" }, ...);
+#+end_src
+
+Composition over inheritance. =Vector.slurp= is the primitive.
+
+*** MCP exposure shape
+
+shape.mcp already produces a Vector→MCP-server bundle: =({handle, tools, handlers})=
+where =handle= is a JSON-RPC dispatcher. The question is who owns the handle and
+how external clients reach it.
+
+Options considered:
+
+| approach | install point | client | trade-off |
+|----------+--------------+--------+----------|
+| HTTP/WS aperture route | =mode.aperture.branch("/mcp")= | HTTP-capable MCP client | non-standard; needs custom client |
+| Per-mode stdio bridge  | shell-client subcommand | claude desktop, cursor | standard; one bridge per mode |
+| Daemon-aggregating bridge | shell-client subcommand | claude desktop, cursor | namespaced tools (=dewey_learner_state=); convenience |
+| In-process compile | =mode.cake.tools= → =shape.mcp= local | HTTP via aperture | works but couples daemon to MCP wire |
+
+Hybrid commit: HTTP aperture route as the daemon-side primitive (one route per
+mode); shell-client subcommand spawns stdio bridge that pipes stdin↔HTTP.
+Aggregator becomes a shell-client convenience over the same primitives.
+
+Rationale: shape.mcp's =handle(message)= is already wire-shape-agnostic — accepts
+a JSON-RPC envelope, returns one. Mounting on aperture is a 1-line affect. The
+shell bridge is a thin pipe, not a re-implementation. Aggregation is namespace
+prefixing on the bridge side, not duplication of dispatch logic.
+
+** Hypothesis (what would this look like done)
+
+*** Trait wiring
+
+Two traits, both compiling =mode.cake.tools=:
+
+#+begin_src
+TOOLED       — wires tools to LLM via Hallucination.absorb on /dialogue (M1, DONE)
+MCPEXPOSED   — wires tools to JSON-RPC handler on aperture.branch("/mcp")  (M4)
+#+end_src
+
+Both share the daemon/mode context-attach + slurp setup. Factor into helper:
+
+#+begin_src javascript
+// systems/runtime/daemon/traits/_compile-tools.js (or inline twice)
+export function compileToolsVector(mode, daemon) {
+  const tools = new Vector();
+  tools.use(shard.context.attach("daemon", daemon));
+  tools.use(shard.context.attach("mode", mode));
+  tools.slurp(mode.cake.tools);
+  return tools;
+}
+#+end_src
+
+Then:
+
+#+begin_src javascript
+// MCPEXPOSED — proposed
+import { Vector, shard, shape } from "@vivalence/typology";
+import { compileToolsVector } from "./_compile-tools.js";
+
+export const MCPEXPOSED = (mode, daemon) => {
+  if (!mode.cake.tools) return;
+
+  const tools = compileToolsVector(mode, daemon);
+  const server = shape.mcp(tools, {
+    name:    `${mode.type}/${mode.slug}`,
+    version: mode.manifest.version ?? "0.1.0",
+  });
+
+  mode.aperture.branch("/mcp").open("handle", (ctx) => server.handle(ctx.input));
+};
+#+end_src
+
+8 LoC body, parallel to TOOLED. Same primitive (mode.cake.tools), different
+downstream (aperture.branch("/mcp/handle") instead of hallucination.absorb on
+/dialogue).
+
+*** shell-client mcp subcommand
+
+shell-client trajectory:
+
+#+begin_src
+viva mcp <type> <slug>
+#+end_src
+
+Behavior: read MCP JSON-RPC frames from stdin, POST each to
+=/mode/<type>/<slug>/mcp/handle= via authenticated Connection, write responses
+to stdout. Pure pipe. No per-tool logic on the shell side.
+
+#+begin_src javascript
+// systems/shell/trajectories/mcp.js (proposed)
+import { Connection } from "@vivalence/typology";
+import { authority }   from "../lib/session.js";
+
+export default async ({ type, slug }) => {
+  const connection = new Connection(authority.lighthouse, authority.access);
+  const path = `/mode/${type}/${slug}/mcp/handle`;
+
+  for await (const line of Deno.stdin.readable.pipeThrough(new TextDecoderStream()).pipeThrough(splitLines())) {
+    const message  = JSON.parse(line);
+    const response = await connection.call(path, message);
+    if (response !== null) Deno.stdout.writeSync(new TextEncoder().encode(JSON.stringify(response) + "\n"));
+  }
+};
+#+end_src
+
+Aggregator (M4.4 optional): =viva mcp daemon <slug>= — discover modes via
+=/manifest=, namespace each mode's tools as =<slug>_<tool>=, fan-out tools/call
+to the appropriate mode's /mcp/handle.
+
+*** Standard tool library shape
+
+Per-category Vector module, manifest-style:
+
+#+begin_src javascript
+// registry/tools/@vivalence/filesystem/filesystem.viva.js (proposed)
+import { Vector, v } from "@vivalence/typology";
+import { resolve, scope } from "./_scope.js";  // workspace path safety
+
+export const manifest = {
+  type: "tools",
+  slug: "filesystem",
+  name: "Filesystem",
+  description: "Workspace-scoped filesystem operations.",
+  version: "0.1.0",
+};
+
+export const tools = new Vector();
+
+tools.open(
+  {
+    nature:  "read_file",
+    valence: "Read a file's text content from the workspace.",
+    input:   v.object({ path: v.string() }),
+    output:  v.object({ content: v.string() }),
+  },
+  async (ctx) => {
+    const path = scope(ctx.daemon.workspace, ctx.input.path);
+    return { content: await Deno.readTextFile(path) };
+  },
+);
+
+tools.open(
+  {
+    nature:  "list_dir",
+    valence: "List entries in a workspace directory.",
+    input:   v.object({ path: v.string().default(".") }),
+    output:  v.object({ entries: v.array(v.object({ name: v.string(), type: v.string() })) }),
+  },
+  async (ctx) => {
+    const path = scope(ctx.daemon.workspace, ctx.input.path);
+    const entries = [];
+    for await (const entry of Deno.readDir(path)) {
+      entries.push({ name: entry.name, type: entry.isDirectory ? "dir" : "file" });
+    }
+    return { entries };
+  },
+);
+
+// ... write_file, glob, mkdir
+#+end_src
+
+Daemon-internal tools follow same pattern but resolve through =ctx.daemon.entities=:
+
+#+begin_src javascript
+// registry/tools/@vivalence/daemon/entities/entities.viva.js (proposed)
+import { Vector, v } from "@vivalence/typology";
+
+export const tools = new Vector();
+
+tools.branch("entities").open(
+  {
+    nature:  "literal_find",
+    valence: "Find literals matching a where clause; populated with translations and examples.",
+    input:   v.object({ where: v.unknown(), limit: v.integer().default(20) }),
+    output:  v.object({ literals: v.array(v.unknown()) }),
+  },
+  async (ctx) => {
+    const literals = await ctx.daemon.entities.literal.find(
+      ctx.input.where,
+      { limit: ctx.input.limit, populate: ["memories"] },
+    );
+    return { literals: literals.map((l) => l.toJSON()) };
+  },
+);
+
+tools.branch("entities").open(
+  {
+    nature:  "memory_histogram",
+    valence: "Return the learner's progress histogram across memory states (UNTOUCHED → GRADUATED).",
+    input:   v.object({}),
+    output:  v.object({ histogram: v.record(v.string(), v.integer()) }),
+  },
+  async (ctx) => {
+    const memories = await ctx.daemon.entities.memory.find({}, { fields: ["status"] });
+    const histogram = { UNTOUCHED: 0, UNKNOWN: 0, LEARNING: 0, KNOWN: 0, GRADUATED: 0 };
+    for (const m of memories) histogram[m.status] = (histogram[m.status] ?? 0) + 1;
+    return { histogram };
+  },
+);
+// ... mode_list, cortex_faculties, etc.
+#+end_src
+
+Tools exported as branches join with =_= per shape.agentic / shape.mcp
+convention: =entities.literal_find=, =entities.memory_histogram=. Branch nesting
+maps tool family → catalog category in MCP discovery.
+
+** Critique pass
+
+*** Permissioning
+
+Currently every tool placed on =mode.cake.tools= is dispatchable by anyone with
+access — the LLM via TOOLED, an external MCP client via MCPEXPOSED. Three
+attack surfaces:
+
+1. /Untrusted LLM prompts in dialogue/ — model can call any tool. Today's risk:
+   read-only tools fine; write tools can corrupt state if prompt-injected.
+   Mitigation: separate Vector for write-tools, gate via different trait
+   (e.g. =MUTABLE-TOOLED=). v1: read-only standard library only.
+2. /Untrusted MCP clients/ — shell-client requires daemon auth (existing
+   shard.secure.authorize). Same boundary as HTTP aperture. Acceptable.
+3. /Tool-side abuse/ — bash arbitrary commands, fs read /etc/passwd, web
+   fetch internal URLs. Mitigation: workspace-scoping for fs, allow-list for
+   bash (default deny), URL-allowlist for web (default deny intranet).
+
+The =shard.secure.authorize()= middleware exists at aperture-edge. Re-applying
+per-tool needs design — currently shard.secure runs at aperture branch, not
+within a Vector's carry. Needs investigation.
+
+*** VCS read-only constraint
+
+Vivalence's CLAUDE.md is explicit: VCS (git AND jj) is READ-ONLY for me. Any
+git tool MUST be read-only OR excluded entirely. Decision: exclude
+=@vivalence/tools/git= from v1 standard library. Bash already covers ad-hoc git
+under user supervision. Re-evaluate later.
+
+*** Bash sandboxing
+
+Arbitrary bash is dangerous. Options:
+
+| approach | enforcement | tradeoff |
+|----------+-------------+---------|
+| Deno permissions | =--allow-run=ls,cat,...= | per-process; can't change at runtime |
+| Allow-list per mode | =mode.cake.bash.allow=[...]= check in handler | runtime; mode-controlled |
+| Container/jail | external | overkill |
+| Trust user | none | matches Claude Code; works under supervision |
+
+For Finn-driven-via-Claude-Code use, full bash matches Claude Code's existing
+pattern. For tutor modes (dewey), bash is rarely needed. Decision: bash
+defaults to =allow=[]= (deny-all); modes opt in by overriding =cake.bash.allow=.
+
+*** Filesystem scoping
+
+read_file/write_file scoped to project workspace, not arbitrary disk. Pass
+workspace root via =ctx.daemon.workspace= (new daemon field, populated at boot
+from runtime config). Path resolution helper =scope(root, requested)= rejects
+=..= traversal.
+
+*** mode.cake.tools — single Vector for all consumers?
+
+Currently TOOLED reads =mode.cake.tools= for LLM. MCPEXPOSED reads same. What
+if a mode wants tool X for LLM but NOT for external MCP clients?
+
+Two options:
+
+1. /Branch-prefixed visibility/: =mode.cake.tools.branch("private")= → LLM only;
+   default branch → both. Both traits filter accordingly.
+2. /Two separate Vectors/: =mode.cake.tools= (LLM) + =mode.cake.exposed_tools=
+   (LLM + MCP). Explicit declaration of intent.
+
+Defer to v2. v1: single Vector, both traits expose everything.
+
+*** Aggregator namespacing
+
+=viva mcp daemon <slug>= aggregates tools from N modes. Naming collision:
+=dewey_learner_state= vs =survival_learner_state=. Aggregator prefixes with mode
+slug: =teacher_dewey_learner_state=. Reverse-routing on tools/call: split
+prefix off, dispatch to the right mode's /mcp/handle.
+
+*** Standard library version pinning
+
+Tools live in registry workspace. Pin via deno workspace import map. Each
+=registry/tools/@vivalence/<category>/= = own subpackage with =<slug>=
+manifest. Modes reference by name, not path.
+
+*** shell-client overlap with daemon-internal tools
+
+shell-client trajectories already expose entity find/count, mode/status,
+pick/feed, review/literal — exactly the daemon-internal tool surface. M6.9
+addresses this: pick a single canonical home. Recommendation: shell-client
+trajectories ARE the daemon-control surface; =@vivalence/tools/daemon/*=
+re-exports them as Vectors compiled via =shape.agentic= (or =shape.mcp= for
+MCP exposure). Single source of truth, two compilers.
+
+Concrete plan deferred until shell-client trajectory tree solidifies.
+
+*** Discovery — how does an LLM know what tools are available?
+
+Already handled:
+
+- Hallucination.tools is passed to provider as the function-calling spec
+- =shape.agentic.llmstxt= prepends a =### Tools= block to the system prompt
+- For MCP: =tools/list= JSON-RPC method enumerates the catalog
+
+No new discovery primitive needed.
+
+*** Effect signature consistency
+
+Every tool effect: =async (ctx) => result= with =ctx.input= = arguments. Same
+for in-LLM dispatch (TOOLED's compiled.tools.execute) and MCP dispatch
+(shape.mcp's handlers). =steer.guarded= validates =ctx.input= against
+=pattern.input= before dispatch in BOTH paths. Symmetric.
+
+** Optimization + typology integration
+
+*** Reuse audit (zero new typology primitives needed)
+
+| primitive | role in M4–M6 | source |
+|-----------+---------------+-------|
+| =Vector= | tool catalog + composition (slurp) | typology |
+| =shape.mcp= | Vector → JSON-RPC server | typology, gestalten/shape/mcp.js |
+| =shape.agentic= | Vector → Hallucination tools (M1) | typology, gestalten/shape/agentic.js |
+| =shape.strip= | Vector → catalog tree (deferred) | typology, gestalten/shape/strip.js |
+| =shard.context.attach= | daemon/mode binding on tool dispatch | typology, gestalten/shard/context.js |
+| =shard.secure.authorize= | aperture-edge auth (existing) | typology, gestalten/shard/secure.js |
+| =steer.rollup + steer.guarded= | input validation walker | typology, gestalten/steer/{apply,strategy}.js |
+| Aperture | mode HTTP surface (mounts /mcp/handle) | typology |
+| Connection | shell-client → daemon HTTP | typology |
+
+Net: M4 = 1 trait + 1 shell subcommand. M6 = N tool packages, each a Vector.
+Everything composes existing typology primitives.
+
+*** Where the helpers go
+
+Two duplications worth factoring:
+
+1. =compileToolsVector(mode, daemon)= — used by TOOLED + MCPEXPOSED. Internal
+   helper at =systems/runtime/daemon/traits/_compile-tools.js=. Don't lift to
+   typology — it's mode-trait-specific (mode + daemon binding). Helper file
+   prefix =_= signals internal.
+2. =scope(workspace, path)= — fs path safety. Lives at
+   =registry/tools/@vivalence/filesystem/_scope.js=. Per-package internal.
+
+Neither is typology-worthy. Keep at point of use.
+
+*** Trait order
+
+MCPEXPOSED only mutates =mode.aperture= (adds /mcp/handle route). It does NOT
+touch =mode.cake.harness= or =mode.harness=. Independent of TOOLED and
+CHAOSMONKEY. Trait order: free.
+
+TOOLED and MCPEXPOSED can both run before CHAOSMONKEY's finalizer. Pre-finalizer
+mutations to mode.aperture are picked up by EXPOSED (which compiles
+mode.aperture into mode.call in its finalizer).
+
+*** Standard library: Vector composition pattern
+
+The pedagogy of "one Vector, N compilers" plays out in M6:
+
+#+begin_src
+mode.cake.tools (= one Vector, slurped from N tool packages)
+       │
+       ├── shape.agentic ──→ {tools, llmstxt}    ──→ Hallucination (LLM)
+       └── shape.mcp     ──→ {handle, tools[], handlers}
+                                  │
+                                  └── MCP client (claude desktop / cursor / shell-bridge)
+#+end_src
+
+Same primitive, two consumers, no shared adapter. Each shape compiler emits in
+its consumer's idiom (Hallucination map vs MCP wire array).
+
+** Final design
+
+*** Minimal commitment for M4
+
+Three files added, one trait registered, one shell subcommand.
+
+| path | role | LoC |
+|------+------+-----|
+| =systems/runtime/daemon/traits/mcp-exposed.js= | MCPEXPOSED trait body | ~12 |
+| =systems/runtime/daemon/traits/_compile-tools.js= | shared context-attach helper | ~8 |
+| =systems/runtime/daemon/traits/index.js= | re-export mcp-exposed | +1 |
+| =subsystems/typology/entities/daemon/Mode.ts= | =MCPEXPOSED= in =ModeTraitsEnum= | +1 |
+| =systems/runtime/daemon/traits/tooled.js= | refactor to use =compileToolsVector= helper | -3 net |
+| =systems/ghost/trajectories/mcp.js= | =viva mcp <type> <slug>= subcommand | ~15 |
+
+TOOLED refactor:
+
+#+begin_src diff
++import { compileToolsVector } from "./_compile-tools.js";
+
+ export const TOOLED = (mode, daemon) => {
+   if (!mode.cake.tools) return;
+
+-  const tools = new Vector();
+-  tools.use(shard.context.attach("daemon", daemon));
+-  tools.use(shard.context.attach("mode", mode));
+-  tools.slurp(mode.cake.tools);
++  const tools    = compileToolsVector(mode, daemon);
+   const compiled = shape.agentic(tools);
+
+   mode.cake.harness ??= new Vector();
+   mode.cake.harness.branch("/dialogue").use(async (ctx, next) => {
+     ctx.hallucination.absorb(compiled);
+     await next();
+   });
+ };
+#+end_src
+
+*** Standard library scaffold for M6
+
+#+begin_src
+registry/tools/@vivalence/
+├── filesystem/
+│   ├── manifest.json or filesystem.viva.js
+│   ├── filesystem.viva.js          (exports `tools` Vector)
+│   └── _scope.js                   (path safety helper)
+├── shell/
+│   ├── shell.viva.js
+│   └── _allow.js                   (allow-list helper)
+├── web/
+│   ├── web.viva.js
+│   └── _provider.js                (websearch backend resolution)
+├── daemon/
+│   ├── entities/
+│   │   └── entities.viva.js
+│   ├── modes/
+│   │   └── modes.viva.js
+│   ├── cortex/
+│   │   └── cortex.viva.js
+│   └── memory/
+│       └── memory.viva.js
+└── ikiro/
+    └── ikiro.viva.js               (quest / zettelkasten read)
+#+end_src
+
+Each package: standalone deno workspace member. Modes import via
+=@vivalence/tools/<category>=.
+
+*** Naming
+
+| trait | vector field | aperture mount | shell command |
+|-------+--------------+----------------+---------------|
+| =TOOLED= | =mode.cake.tools= | (none — uses /dialogue middleware) | (n/a) |
+| =MCPEXPOSED= | =mode.cake.tools= (same) | =/mcp/handle= (POST) | =viva mcp <type> <slug>= |
+
+=MCPEXPOSED= reads as "mode is exposed as an MCP server". Symmetric with EXPOSED
+("mode call surface exposed via aperture"). Adopting EXPOSED's naming family.
+
+*** Open questions to resolve before M4 implementation
+
+- *Aperture path*: =/mcp/handle= vs =/mcp= (single leaf). Single leaf is
+  simpler (one POST returns one response). =/mcp/handle= is descriptive but
+  one-route-deep. Lean toward =/mcp= as a leaf.
+- *MCPEXPOSED includes TOOLED?* No — composition. A mode could expose only via
+  MCP (no LLM hallucination) by listing only =MCPEXPOSED= in =manifest.traits=.
+  Independent traits, independent activation.
+- *Do daemon-internal tools need separate auth/visibility?* Yes for write
+  tools (gated). v1 has only read tools — same auth as everything else
+  (shard.secure at aperture edge).
+- *Aggregator bridge in M4 or deferred?* Deferred to M4.4. Per-mode bridge is
+  v1; aggregator is convenience-add later if claude-desktop ergonomics demand.
+
+** Cross-references (additions)
+
+| Quest | Relationship |
+|-------------+--------------|
+| =systems/ghost/.ikiro/ghost-client= Phase 6 | This work IS Phase 6's daemon-side concern. Picks up the deferred MCP exposure. |
+| =systems/ghost/.ikiro/ghost-client= general | ghost-client trajectories overlap with daemon-internal tool surface (M6.9). Future merge plan. |
+| =subsystems/typology/tests/gestalten/shape/mcp.test.js= | Pattern proof — same Vector→MCP-server walker that M4 leverages. |
+| =subsystems/typology/tests/gestalten/shape/agentic.test.js= (NEW M2) | Sibling proof — same Vector→Hallucination-tools walker. shape.agentic + shape.mcp are the dual compilers M4 makes symmetric. |
+
+* M7 — Kajuit integration (DESIGN)
+
+A second b-line: how the client surfaces tool activity so the human in front
+of the chat can see what the tutor is doing. Two surfaces — the Dock itself
+(panel A widget, where the conversation lives) and one or more C-panel
+widgets (where structural detail lives — D / E / F slots inside C).
+
+** Dock — inline tool rendering
+
+The cortex packet protocol already carries =tool_use= and =tool_result= as part
+types within the dialogue stream. Dock currently renders text parts; tool
+parts are dormant (longdistance K20 prior art exists but isn't wired in
+post-rename). Minimum surface:
+
+| event | render |
+|-------+--------|
+| =/part/open { type: "tool_use" }= | collapsed chip: "🔧 calling =<name>=..." |
+| =/part/delta { input }= (streamed) | (no UI; input accumulates) |
+| =/part/close= for tool_use | chip transitions to "called =<name>=" with =<details>= for input |
+| Synthetic =tool_result= turn (server-emitted) | result chip: success state + =<details>= for output, OR error state |
+
+Render rule: collapsed-by-default, click-to-expand. Tool result chips reuse
+text-part styling but with a left border indicator (success = ok; error = warn).
+
+Lazy follow-up: inline /tool execution-progress events/ (=tool.start=,
+=tool.finish=, =tool.error= as new event types on the cortex stream). Defer
+until a tool exists where progress matters — for v1, =tool_use= part landing
+plus the synthetic =tool_result= turn arriving are sufficient to show the
+round trip.
+
+** C-panel surface ideas
+
+Panel C is the structural row containing D / E / F slots. Tool-surfacing
+widgets live IN panels D/E/F, not in C itself. Three concrete proposals:
+
+*** Tool execution tail widget (panel D, F, or E)
+
+Live list of all tool calls in the current conversation/thread. Fields per
+row: tool name, duration (from span timing), status (running / done / errored),
+short input/output preview. Click → expand into full =<details>=. Updates as
+new tool_use parts arrive on the stream.
+
+Source: =thread.$turns= already updates reactively; filter for parts of type
+=tool_use= / =tool_result=, group by tool_use.id, render row.
+
+*** Tool catalog widget (panel D or F)
+
+Static list of tools available in the current mode. Source:
+=mode.cake.tools= → server-side compiled via =shape.strip()= → exposed as
+=mode.aperture.open("/tools/strip", () => strip(tools))=. Client fetches at
+mode-load, renders as a tree of name + valence + input schema. Pedagogical:
+"here's what dewey can do."
+
+*** Span / telemetry widget (panel D or F, OR a dedicated developer overlay)
+
+Live tail of spans and logs from M8. Tree-rendered (parent span → child spans),
+with timing bars. Right home is a developer-mode overlay rather than a
+permanent C-panel slot, but proof-of-concept can land in panel D as a
+dev-only widget.
+
+** Pick
+
+Concrete recommendation:
+
+- M7.1 (priority): Dock inline rendering of =tool_use= / =tool_result= parts.
+  Smallest surface, biggest user-visible delta. Lights up dewey's =learner_state=
+  immediately once an Anthropic API call provokes it.
+- M7.2: Tool execution tail widget — sketch in panel F (right side, narrower).
+  Reuses thread.$turns subscription. No new wire.
+- M7.3 (defer): Tool catalog widget. Needs =/tools/strip= aperture route
+  (already in quest's Open questions).
+- M7.4 (defer): Span/telemetry widget. Lands with M8.
+
+** Phases (M7)
+
+- [ ] M7.1: Dock — render =tool_use= part as collapsed chip with =<details>= input; render =tool_result= part as result chip with =<details>= output
+- [ ] M7.2: panel F widget — Tool execution tail; reactive over =thread.$turns=, filters tool_use/tool_result parts, groups by id
+- [ ] M7.3 (deferred): panel D widget — Tool catalog from =mode.cake.tools.strip=
+- [ ] M7.4 (deferred): panel D/F dev widget — Span tree from M8 telemetry feed
+
+* M8 — Telemetry MVP (logs + spans, DESIGN)
+
+Tool dispatch is a span — the canonical primitive vivalence already has at
+=subsystems/typology/prototypes/span.js= with the =shard.track= middleware
+family at =subsystems/typology/gestalten/shard/track.js=. Build on these,
+don't re-invent.
+
+** What exists
+
+| primitive | role | location |
+|-----------+------+---------|
+| =Span= | nameable timed unit; nestable; has =track.{transport,transition,subject,fault}= subtracks | =typology/prototypes/span.js= |
+| =shard.track.span(name, pipe)= | middleware that opens a span on entry, drains on exit | =typology/gestalten/shard/track.js= |
+| =shard.track.fault()= | catches throws, attaches to span's fault track | same file |
+| =shard.track.subject(schema, id)= | binds entity reference to span | same file |
+| =shard.track.request()= | binds request/response on span's transport track | same file |
+
+Span lifecycle: =new Span(name).to(pipe).begin()= → ... → =span.drain()= sends
+to pipe. =span.branch(name)= creates child span (referenced by track.js's span
+middleware). JSON serialization via =span.json= is structured.
+
+Logs: not yet a primitive. Easiest add — a =log(level, msg, attrs)= method on
+Span that pushes to a per-span log array, drained with the span. Or a separate
+=Log= primitive emitted to a logs pipe.
+
+** What's missing
+
+1. A /pipe/ — destination for drained spans/logs. Options:
+   - in-memory ring buffer (=class RingPipe { send(item); since(ts) }=)
+   - stdout (=(span) => console.log(JSON.stringify(span.json))=)
+   - file rotation
+   - HTTP/gRPC OTel exporter
+   v1 pipe: in-memory ring + parallel stdout for dev visibility.
+
+2. Wire =shard.track.span("tool/<name>", pipe)= into =compileToolsVector= so
+   every tool dispatch is auto-spanned. Children attach to parent span via
+   =ctx.span= — already supported by track.js.
+
+3. Pipe accessor on the daemon — =daemon.telemetry.spans= and
+   =daemon.telemetry.logs= as ring-buffer instances, queryable.
+
+4. Aperture route on daemon — =GET /telemetry/spans?since=<ts>= and
+   =GET /telemetry/logs?since=<ts>= — read-only access to the ring contents.
+   Auth via existing =shard.secure.authorize=.
+
+5. Client subscription — =$daemon.telemetry= store in client polls or
+   subscribes (eventually WS-based). Initially polling at low frequency for
+   the dev overlay (M7.4).
+
+** Hypothesis (minimum viable scaffold)
+
+#+begin_src
+typology/
+  prototypes/
+    span.js                      ← exists; (optional) extend with .log() method
+    log.js                       ← NEW: independent Log primitive
+  gestalten/
+    shard/track.js               ← exists; minor extension only if logs need a tracking method
+
+systems/runtime/
+  daemon/
+    telemetry.js                 ← NEW: RingPipe(s), exposed on daemon as `daemon.telemetry`
+    traits/_compile-tools.js     ← (added in M4); also wraps tools' Vector with track.span middleware
+    aperture                     ← /telemetry/{spans,logs} routes
+#+end_src
+
+#+begin_src javascript
+// systems/runtime/daemon/telemetry.js (proposed)
+export class RingPipe {
+  constructor(capacity = 1000) {
+    this.capacity = capacity;
+    this.items = [];
+  }
+  send(item) {
+    this.items.push({ at: Date.now(), item: typeof item.json === "object" ? item.json : item });
+    if (this.items.length > this.capacity) this.items.shift();
+  }
+  since(ts) {
+    return this.items.filter((entry) => entry.at >= ts);
+  }
+  clear() {
+    this.items.length = 0;
+  }
+}
+
+export function attach(daemon) {
+  daemon.telemetry = {
+    spans: new RingPipe(),
+    logs:  new RingPipe(),
+  };
+  daemon.aperture
+    .branch("/telemetry")
+    .open("/spans", (ctx) => daemon.telemetry.spans.since(ctx.input?.since ?? 0))
+    .open("/logs",  (ctx) => daemon.telemetry.logs.since(ctx.input?.since ?? 0));
+}
+#+end_src
+
+Wire into =compileToolsVector= (M4):
+
+#+begin_src diff
+ export function compileToolsVector(mode, daemon) {
+   const tools = new Vector();
+   tools.use(shard.context.attach("daemon", daemon));
+   tools.use(shard.context.attach("mode", mode));
++  tools.use(shard.track.span(`mode/${mode.type}/${mode.slug}/tool`, daemon.telemetry?.spans));
++  tools.use(shard.track.fault());
+   tools.slurp(mode.cake.tools);
+   return tools;
+ }
+#+end_src
+
+Every tool dispatched through TOOLED or MCPEXPOSED now opens a span on entry,
+drains on exit, captures faults. =shard.track.span= already handles the
+parent/child case via =ctx.span= — child spans nest under whatever parent span
+the request was running under.
+
+** Logs
+
+Two paths to logs:
+
+1. /Span-attached logs/ — extend Span with =.log(level, msg, attrs)= that
+   pushes into a per-span =logs[]= array; drained with the span. Pros:
+   logs are correlated with span context. Cons: logs only visible after span
+   drains.
+2. /Independent log pipe/ — new =Log= primitive with =.send(daemon.telemetry.logs)=,
+   timestamped, with optional =span_id= for correlation. Pros: real-time;
+   no drain delay. Cons: separate primitive.
+
+Recommendation: option 2 for v1. Independent =Log= primitive at
+=typology/prototypes/log.js= drained to =daemon.telemetry.logs=. Span_id
+correlation via current =ctx.span?.hash= when available.
+
+#+begin_src javascript
+// typology/prototypes/log.js (proposed)
+export class Log {
+  constructor(level, msg, attrs = {}) {
+    this.level = level;     // "trace" | "debug" | "info" | "warn" | "error"
+    this.msg   = msg;
+    this.attrs = attrs;
+    this.at    = Date.now();
+  }
+  withSpan(span) {
+    if (span) this.attrs.span = span.hash;
+    return this;
+  }
+  to(pipe) {
+    if (pipe) typeof pipe === "function" ? pipe(this) : pipe.send(this);
+    return this;
+  }
+  get json() { return { at: this.at, level: this.level, msg: this.msg, attrs: this.attrs }; }
+}
+#+end_src
+
+Tools log via =ctx.daemon.telemetry?.logs= directly when explicit visibility
+is needed beyond span timing.
+
+** Critique pass
+
+*** Pipe lifecycle
+
+Pipes are unbounded if RingPipe.capacity grows. Default 1000 is arbitrary;
+tune by observation. Aperture endpoints take =since= cursor for incremental
+fetch — client doesn't re-pull whole ring.
+
+*** Span hash uniqueness
+
+Span hash uses =[nature, trace?.hash, timing.begun]=. Two tools called with
+same nature in same millisecond would collide. Acceptable for v1 (tools are
+sequential); add randomness (=crypto.randomUUID()=) if collisions appear.
+
+*** Sensitive data in logs
+
+Tool inputs/outputs MAY contain sensitive data (auth tokens, PII). v1 logs
+ALL spans. Mitigation: per-tool opt-out via pattern descriptor flag
+(=pattern.private= true → span captured but input/output redacted). Defer
+implementation; document the constraint.
+
+*** Drain delay
+
+Spans drain on tool dispatch completion, not during. Long-running tools
+(future: file downloads, image generation) won't show up in the span pipe
+until they finish. Acceptable for v1 (no long-running tools yet).
+
+*** Stdout pipe
+
+For dev visibility, attach =(span) => console.log(JSON.stringify(span.json))=
+as a SECOND pipe via =shard.track.span= chain. Or — simpler — daemon.telemetry
+is itself a multi-pipe: =telemetry.spans.add(stdoutPipe)=. Defer multi-sink
+plumbing; v1 = ring only, console.log via ad-hoc dev aid.
+
+*** Cross-process / aggregator concern
+
+Multi-daemon span aggregation is out of scope for MVP. Single-daemon ring
+buffer + aperture access is enough to develop tooling.
+
+** Phases (M8)
+
+- [ ] M8.1: =systems/runtime/daemon/telemetry.js= with =RingPipe= + =attach(daemon)=
+- [ ] M8.2: extend =compileToolsVector= with =shard.track.span= + =shard.track.fault= wrapping
+- [ ] M8.3: =typology/prototypes/log.js= =Log= primitive + index re-export
+- [ ] M8.4: aperture =/telemetry/{spans,logs}= routes
+- [ ] M8.5 (defer): kajuit subscription store + dev widget (lands with M7.4)
+- [ ] M8.6 (defer): multi-pipe sinks (stdout + ring + ...)
+- [ ] M8.7 (defer): redaction flag for private tools
+
+** Cross-references (M8)
+
+| Quest | Relationship |
+|-------------+--------------|
+| =project_telemetry_architecture.md= (memory) | Established direction: single OTel engine, shared ontology in typology, analyzer shard as seed. M8 sits on Span/track scaffolding already in typology. |
+| =subsystems/typology/tests/span.test.js= | Existing test of Span lifecycle (begin / drain / track subtypes). M8 adds RingPipe + Log + tool-dispatch wrapping; existing Span tests cover the underlying primitive. |
+| M4 (MCPEXPOSED) | M8's =compileToolsVector= wrapping applies to BOTH TOOLED and MCPEXPOSED — tool spans regardless of who dispatched. |
+| M7 (kajuit) | M7.4 dev widget consumes M8's =/telemetry/{spans,logs}= aperture routes. |
+
+* Changelog
+
+- 2026-05-06: Drafted — proposed map-of-factories shape, defensive guards, persona prompt addition. Two grammars distinguished. Cross-refs: cortex, longdistance, s48, dewey-dossier compact, shell-client Phase 6.
+- 2026-05-06 (rev 2): Critique pass — dropped dual fn/spec form, defensive warns, persona prompt, premature memory. Tightened to map + factory.
+- 2026-05-06 (rev 3): Channel grammar correction — server-send is 4 verbs (=packet,close,error,abort=), =open= is client-initiate. Herald marked SUPERSEDED.
+- 2026-05-06 (rev 4): *Major rewrite* per @beef "tools must be a vector". Replaced map-of-factories with Vector + pattern descriptors + =shape.Agentic= compiler — the canonical pattern used by =bak/teacher/dewey/aperture/agent.js= and tested in =subsystems/typology/tests/gestalten/shape/mcp.test.js=. CHAOSMONKEY slurp moved into returned finalizer per @beef on slurp ordering — trait order constraint dissolved. Output schema added per @beef on spec shape. Dossier =tool(ctx)= factory deleted (replaced by Vector branch in dewey.viva.js). Retard callout logged at =.ikiro/zettelkasten.md ## Callouts=. Reuse audit rewritten — typology already has every primitive; TOOLED is 13 LoC of composition.
+- 2026-05-06 (rev 5): bak/teacher prior-art pass per @beef "/Users/finn/vivalence/code/vivalence/registry/modes/@vivalence/bak/teacher here too". Moved =agentic.llmstxt= injection into the TOOLED middleware (was deferred in open questions; bak/teacher/iroh/aperture/agent.js:34 confirms it's canonical via =agent.enhance(controller.llmstxt)=). Added cross-references to three bak prior-art files (dewey/aperture/conversation.js, iroh/aperture/agent.js, iroh/aperture/tools/play.js). Documented effect signature confirmation from bak — =async (toolCtx) => result= with =toolCtx.input=. Verified =steer/strategy.js= dispatches 1-arg effects with full Context.
+- 2026-05-06 (rev 6): =shape.agentic= refactor per @beef "why is this a class??? no shape is a class. does this make senses? first principles??? b: the shape should process for consumption such that we dont have to do this object.entries shit later. this goes both ways. hallucination and the agentic shape should be aligned towards each other!". Audited every shape — =shape.Agentic= is the only class outlier; class form leaks 9 internal fields with zero external consumers. Refactored to function form: =shape.agentic(vector)= → ={tools, llmstxt}=, 22 LoC, uses =steer.rollup(vector, steer.guarded)= (same walker as shape.mcp, free input validation). Added =Hallucination.absorb({llmstxt, tools})= bundle method — one call replaces the =add() + Object.entries loop= boilerplate. TOOLED collapsed to 11 LoC with single =ctx.hallucination.absorb(compiled)= call. Symmetric design: shape.mcp emits MCP wire format, shape.agentic emits Hallucination native — same Vector, two compilers, each speaks consumer's idiom.
+
+- 2026-05-07 (rev 7 — M1 LANDED + optimization): M1 atomic landing executed cleanly. Files: =shape/agentic.js= function form (24 LoC), =hallucination.js= +absorb, =Mode.ts= +TOOLED enum, =traits/tooled.js= NEW (13 → 16 LoC after harness-guard optimization), =traits/chaosmonkey.js= body→finalizer refactor, =traits/index.js= re-export, =dewey.viva.js= tools Vector + TOOLED in manifest + drop /object stub, =dossier.js= drop tool() factory + unused v import, =zettelkasten.md= TOOLED note. Optimization pass: added =mode.cake.harness ??= new Vector()= guard in TOOLED for robustness; updated =scenarios/cortex.js= to invoke CHAOSMONKEY's returned finalizer. Both watches green (runtime :2501 ALIVE, kajuit :1794 vite ready).
+
+- 2026-05-07 (rev 7 — M2 TESTS): =subsystems/typology/tests/gestalten/shape/agentic.test.js= NEW 17 steps (tool collection, llmstxt block, execute dispatch, custom separator), =systems/runtime/tests/mode/tooled.test.js= NEW 10 steps (compilation, absorb, ctx injection, trait order independence). Regression: cortex.integration 16/16, conversation.integration 5/5, mode/traits 22/22 — total 53 steps green. CHAOSMONKEY finalizer refactor proven non-breaking. STATUS flipped DESIGN → IMPLEMENTING.
+
+- 2026-05-07 (rev 8 — M4–M6 DESIGN): Appended MCP exposure + standard tool library design. M4: MCPEXPOSED trait compiles =mode.cake.tools= via =shape.mcp=, mounts =handle= on aperture; shell-client =viva mcp <type> <slug>= subcommand bridges stdio↔HTTP; aggregator deferred. Helper =compileToolsVector(mode, daemon)= factored to dedupe TOOLED + MCPEXPOSED setup. M5: trait test + shell-client mcp bridge test + claude-desktop live verify. M6: =registry/tools/@vivalence/= namespace with filesystem / shell / web / daemon-internal (entities, modes, cortex, memory) / ikiro categories. Distinction surfaced: world-facing tools (plumbing) vs inward-facing daemon tools (vivalence's identity — self-introspecting language-learning OS). VCS read-only constraint excludes git tools from v1; bash via opt-in allow-list. Shell-client trajectory tree IS the daemon-control surface — M6.9 plans single-source-of-truth merge.
+
+- 2026-05-07 (rev 9 — M7 + M8 DESIGN): Two b-line additions. M7 — kajuit integration: Dock inline rendering of tool_use/tool_result parts (collapsed chips with =<details>= expansion); panel F widget for tool execution tail; deferred panel D widgets for tool catalog and span/telemetry tree. M8 — telemetry MVP: build on existing =Span= prototype + =shard.track= middleware family. Add =RingPipe= sink + =daemon.telemetry= attachment + =Log= primitive + aperture routes =/telemetry/{spans,logs}=. =compileToolsVector= gains =shard.track.span= + =shard.track.fault= wrapping — every tool dispatch auto-spanned, child spans nest under request span via =ctx.span=. Cross-reference =project_telemetry_architecture.md= memory entry: aligned with single-OTel-engine direction.
+
+- 2026-05-18 (rev 10 — M3 bruno surface + SSE wire validation + event grammar migration): M3 first-real-exercise via bruno. NEW: =testament/_bruno/variants/.../harness/chat-tool.bru= (6 asserts) + =run-dewey-tools.sh= driver. Bruno hygiene: =_bruno-attic/= dir to evade CLI's GUI-only =ignore= field; 4 broken legacy =.bru= bodies fixed before move; jq selectors patched for v1.38+ reporter shape; SSE chat step pivoted bru→curl (axios buffer cap = -1). NEW: =systems/runtime/tests/sse.integration.test.js= (3 steps green) — POSTs via real fetch to =Deno.serve(http(dewey.aperture))=, reads body via getReader/TextDecoder, asserts text/event-stream + plain chat + tool-loop SSE shape. Validates =shape.http= + =Response.publish= + =cortex.streamLeaf= + CHAOSMONKEY persistence wrapper end-to-end. Tool name =/learner/state= confirmed-by-design: =shape.agentic= normalizes path-nature to Anthropic-valid =_=-name. Real-bug surfaced: live Anthropic SDK stream cuts off before =message_delta= → no =/turn/close= packet → cortex loop returns early → SSE response closes. Suspect =translate.js:142= =default: return null= swallowing unknown SDK event types. Packet event grammar migrated system-wide =.= → =/= (97 tests green: 56 typology + 41 runtime). 14 source files + 4 bruno + 2 shell drivers + bruno regex literals (slashes escaped). Soma keeps opaque-string switch — no Signal routing introduced per Finn =no need for migrating to signals and vectors=. Cross-refs: [[project_event_grammar]], [[project_bruno_hygiene]], [[project_sse_integration_test]], [[project_agentic_tool_naming]] memory entries.

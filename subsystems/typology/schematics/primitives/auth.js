@@ -1,5 +1,5 @@
-import { ID, Slug, v } from "@vivalence/typology";
-import { JWTToken, Username, Password } from "@vivalence/typology";
+import { v } from "../v.js";
+import { ID, Slug, JWTToken, Username, Password } from "../scalars/index.js";
 
 export const AuthorityToken = v.object(
   {
