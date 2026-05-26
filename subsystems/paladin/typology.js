@@ -4,5 +4,3 @@ export * from "./lifecycle/index.js";
 export * as prototypes from "./prototypes/index.js";
 export * as lifecycle from "./lifecycle/index.js";
 export * as belt from "./belt/index.js";
-
-export { paladin } from "./wafer.js";

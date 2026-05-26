@@ -33,17 +33,24 @@ export class Pensieve extends Map {
     const slugMap = typeMap.get(slug);
     if (!slugMap) return null;
 
-    if (!version) {
-      const versions = Array.from(slugMap.keys());
-      const highestVersion = versions
-        .sort((a, b) => semver.compare(semver.parse(a), semver.parse(b)))
-        .reverse()[0];
-
-      return slugMap.get(highestVersion);
-    }
+    if (!version) return this.latest(slugMap);
 
     const versions = Array.from(slugMap.keys());
     const matchingVersion = versions.find((v) => semver.satisfies(v, version));
     return matchingVersion ? slugMap.get(matchingVersion) : null;
+  }
+
+  latest(slugMap) {
+    const [top] = Array.from(slugMap.keys())
+      .sort((a, b) => semver.compare(semver.parse(a), semver.parse(b)))
+      .reverse();
+    return slugMap.get(top);
+  }
+
+  byType(type) {
+    const out = [];
+    for (const ownerMap of this.values())
+      for (const slugMap of ownerMap.get(type)?.values() ?? []) out.push(this.latest(slugMap));
+    return out;
   }
 }

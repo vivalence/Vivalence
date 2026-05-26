@@ -52,7 +52,7 @@ export const daemons = [
     lighthouse: {
       module: "@vivalence/lighthouse/multiplayer",
       statics: {
-        remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
       },
     },
 
@@ -67,26 +67,26 @@ export const daemons = [
       {
         module: "@vivalence/hallucinator/anthropic",
         statics: {},
-        secrets: { key: paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
       },
       {
         module: "@vivalence/hallucinator/elevenlabs",
         statics: {},
-        secrets: { key: paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
       },
       {
         module: "@vivalence/hallucinator/deepgram",
         statics: {},
-        secrets: { key: paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+        secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
       },
     ],
 
     consume: {
-      // nlp: {module: "@vivalence/service/nlp-stanza", secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") }, statics: {remote: new Url(paladin.env.get("SERVICE_NLP_REMOTE")), language: "es", processors: "tokenize,mwt,pos,lemma,depparse",},},
+      // nlp: {module: "@vivalence/service/nlp-stanza", secrets: { key: () => paladin.secret.get("SERVICE_NLP_KEY") }, statics: {remote: () => new Url(paladin.env.get("SERVICE_NLP_REMOTE")), language: "es", processors: "tokenize,mwt,pos,lemma,depparse",},},
     },
   },
 ];
 
 export const services = [
-  // {slug: "nlp-stanza", module: "@vivalence/service/nlp-stanza", secrets: { key: paladin.secret.get("SERVICE_NLP_KEY") }, statics: {serve: new Url(paladin.env.get("SERVICE_NLP_SERVE")), processors: "tokenize,mwt,pos,lemma,depparse",},},
+  // {slug: "nlp-stanza", module: "@vivalence/service/nlp-stanza", secrets: { key: () => paladin.secret.get("SERVICE_NLP_KEY") }, statics: {serve: () => new Url(paladin.env.get("SERVICE_NLP_SERVE")), processors: "tokenize,mwt,pos,lemma,depparse",},},
 ];

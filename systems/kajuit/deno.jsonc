@@ -7,7 +7,7 @@
     // "./control": "./client.viva.js",
   },
   "tasks": {
-    "watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite dev",
+    "watch": "VIVA_SYSTEM_ROLE=CLIENT deno run -A --env-file=../../testament/.env npm:vite dev",
     "start": "VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite dev",
     "bundle": "deno run -A npm:vite build",
     "preview": "deno run -A npm:vite preview",

@@ -1,8 +1,5 @@
 import { assertEquals, assertThrows } from "@std/assert"
-import paladin from "@vivalence/paladin"
 import { pickStartPlan } from "../trajectories/instance/start.js"
-
-await paladin.ikiro
 
 const wafer = {
   runtime: { slug: "runtime" },

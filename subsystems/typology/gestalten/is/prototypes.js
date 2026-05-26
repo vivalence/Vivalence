@@ -73,7 +73,7 @@ export function View(thing) {
 
 export function url(thing) {
   if (is.string(thing)) return thing.includes("://");
-  if (thing.origin && (thing.pathname || thing.nature)) return true;
+  if (thing && thing.origin && (thing.pathname || thing.nature)) return true;
   return false;
 }
 

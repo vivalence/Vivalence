@@ -1,19 +1,20 @@
 import paladin from "@vivalence/paladin";
-import { Vector, Span, steer } from "@vivalence/typology";
-import { ShellSignal, ShellContext } from "./typology/index.js";
+import { Vector, Span, Path, steer } from "@vivalence/typology";
+import { shard } from "@vivalence/sheets";
+import { ShellSignal, ShellContext } from "./typology.js";
 
-// await paladin.ikiro;
+import trajectories from "./trajectories/index.js";
 
 const strategy = (carry, effect) => async (context) => {
   await carry(context, async (ctx) => (ctx.effect = await effect(ctx)));
   return context.effect;
 };
-import trajectories from "./trajectories/index.js";
 
 const trajectory = new Vector();
+
 trajectory
   .use(async (ctx, next) => {
-    ctx.span = new Span("ghost.invoke").to(paladin.system.logs.pipe).begin();
+    ctx.span = new Span("ghost.invoke").to(paladin.system.pipe).begin();
     ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") });
     await next();
     if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code);
@@ -39,7 +40,24 @@ trajectory
     };
 
     await next();
-  });
+  })
+  .use(async (ctx, next) => {
+    // @beef issue: when mounting i collapse the environemnt variables and pass nulls to Url and Path constructors.
+    // console.log("Deno.cwd(), new Path(Deno.cwd())", Deno.cwd(), new Path(Deno.cwd()));
+    const cakes = await paladin.find.type(new Path(Deno.cwd()), "variant", 0);
+    // console.log("cakes", cakes);
+    if (cakes.length) {
+      paladin.scopes([["variant", () => true, () => new Path(Deno.cwd())]]);
+      // paladin.env.set("VIVA_VARIANT_MOUNT", Deno.cwd());
+      ctx.variant = await paladin.variant.mount();
+      // console.log("ctx.variant", ctx.variant);
+    }
+    await next();
+    // console.log("Deno.cwd(), new Path(Deno.cwd())", Deno.cwd(), new Path(Deno.cwd()));
+    // console.log("cakes", cakes);
+    // console.log("ctx.variant", ctx.variant);
+  })
+  .use(shard.view());
 
 trajectories(trajectory);
 
@@ -56,6 +74,8 @@ if (!Deno.args.length) {
 
 const signal = new ShellSignal(Deno.args);
 const context = new ShellContext({ signal });
+
+await paladin.system.mount();
 
 try {
   await steer.invoke(trajectory, signal, strategy)(context);

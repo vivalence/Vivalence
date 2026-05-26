@@ -10,6 +10,9 @@
     "./specimen": "./specimen/index.js",
     "./scenarios": "./tests/scenarios/index.js",
   },
+  "publish": {
+    "exclude": ["**/#*#"],
+  },
   "tasks": {
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
     // "test/production": "deno test -A --no-check --watch tests/production.test.js",

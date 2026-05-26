@@ -21,20 +21,20 @@
 
     // "viva/install": "deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js",
     "dependencies": "deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess",
-    "viva/install": "echo '#!/bin/sh\nexec deno run --config '\"$(pwd)\"'/deno.jsonc -A '\"$(pwd)\"'/systems/ghost/mod.js \"$@\"' > ~/.deno/bin/viva && chmod +x ~/.deno/bin/viva",
+    "viva/install": "sh systems/ghost/install.sh \"$(pwd)\"",
     "install": "deno task dependencies && deno task viva/install",
 
-    "paladin/test": "deno run --watch -A ./subsystems/paladin/tests/*.test.js",
-    "typology/test": "deno run --watch -A ./subsystems/typology/tests/**/*.test.js",
-    "kajuit/test": "deno test -A --no-check --watch ./systems/kajuit/tests/**/*.test.js",
-    "ghost/test": "deno test -A --no-check --watch ./systems/ghost/tests/**/*.test.js",
-    "runtime/test": "deno run --watch -A ./systems/runtime/tests/**/*.test.js",
+    "paladin/test": "deno task --cwd ./subsystems/paladin test",
+    "typology/test": "deno task --cwd ./subsystems/typology test",
+    "kajuit/test": "deno task --cwd ./systems/kajuit test",
+    "ghost/test": "deno task --cwd ./systems/ghost test",
+    "runtime/test": "deno task --cwd ./systems/runtime test",
 
-    "runtime/run": "deno run -A ./systems/runtime/run.js",
-    "runtime/watch": "deno run --watch -A ./systems/runtime/run.js",
+    "runtime/run": "deno task --cwd ./systems/runtime run",
+    "runtime/watch": "deno task --cwd ./systems/runtime watch",
 
-    "ghost/watch": "deno run --watch -A ./systems/ghost/mod.js",
-    "ghost/run": "deno run -A ./systems/ghost/mod.js",
+    "ghost/run": "deno task --cwd ./systems/ghost run",
+    "ghost/watch": "deno task --cwd ./systems/ghost watch",
 
     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",

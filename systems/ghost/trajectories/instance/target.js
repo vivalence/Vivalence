@@ -1,16 +1,31 @@
 import paladin from "@vivalence/paladin";
-import { resolve } from "@std/path";
 
-export async function resolveTarget(target) {
-  if (!target) throw new Error("usage: instance/<cmd> <slug|path>");
-  const entry = await paladin.system.instances.read(target);
-  return {
-    slug: entry ? target : target.replaceAll("/", "_"),
-    mount: entry?.mount ?? resolve(Deno.cwd(), target),
-  };
+const CHILDREN = {
+  runtime: { task: "runtime/run" },
+  kajuit: { task: "kajuit/watch" },
+};
+
+export function specs(param, { detached = false } = {}) {
+  const target = param ?? "all";
+  const known = ["all", ...Object.keys(CHILDREN)];
+  if (!known.includes(target)) {
+    throw new Error(`instance: unknown target '${target}' — expected ${known.join(" | ")}`);
+  }
+
+  const variant = paladin.scope.variant;
+  if (!variant) throw new Error("instance: no variant mounted — set VIVA_VARIANT_MOUNT");
+
+  const mount = variant.absolute;
+  const slug = mount.split("/").filter(Boolean).pop();
+  const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
+
+  const chosen = target === "all" ? Object.keys(CHILDREN) : [target];
+  return chosen.map((type) => ({
+    type,
+    slug,
+    mount,
+    detached,
+    cmd: ["deno", "task", "--config", config, "-q", CHILDREN[type].task],
+    env: {},
+  }));
 }
-
-export const CHILDREN = [
-  { process: "runtime", task: "runtime/run" },
-  { process: "kajuit", task: "kajuit/watch" },
-];

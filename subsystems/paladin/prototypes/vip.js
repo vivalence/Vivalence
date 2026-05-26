@@ -16,6 +16,10 @@ export class Vip {
 
     return this;
   }
+  async list(query = {}) {
+    return this.pensieve.byType(query.type);
+  }
+
   async accio(query) {
     const lookup = cast.lookup(query);
     const module = await this.pensieve.revelio(lookup);

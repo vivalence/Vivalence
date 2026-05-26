@@ -1,12 +1,4 @@
-import { is, cast, fromm, Path, v } from "@vivalence/typology";
-
-export async function publish(paladin) {
-  const publish = Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("PUBLIC_"));
-
-  for (const [key, value] of publish) {
-    Deno.env.set(key, value);
-  }
-}
+import { is, fromm } from "@vivalence/typology";
 
 export async function statements(paladin) {
   const mounts = [];
@@ -38,32 +30,24 @@ export async function statements(paladin) {
 
 export async function secure(paladin) {
   delete paladin.secret;
-  delete paladin.tilde;
+  delete paladin.tilde; // depracated.
 
   // const secret = Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("SECRET_VIVA_")); console.log(secret); for (const [key, value] of secret) {Deno.env.set(key, null);} console.log("env", Deno.env.toObject());
 }
 
-export async function validate(paladin) {
-  // console.log({ ...paladin.variant });
-  const errors = [];
-  const collect = (label, value, schema) => {
-    for (const e of schema.errors(value)) {
-      errors.push(`${label}${e.instancePath || ""}: ${e.message}`);
-    }
-  };
+// export async function questions(paladin) {
+//   return;
+//   // if (paladin.is.citizen)
+//   //   paladin.check
+//   //     .path([
+//   //       paladin.env.get("VIVA_REPOSITORY_MOUNT"),
+//   //       paladin.env.get("VIVA_VARIANT_MOUNT"),
+//   //       paladin.env.get("VIVA_REGISTRY_MOUNT"),
+//   //     ])
+//   //     .throw();
+// }
 
-  if (Object.keys(paladin.variant.runtime).length)
-    collect("runtime", paladin.variant.runtime, v.primitives.variant.Runtime);
-  for (const [slug, client] of Object.entries(paladin.variant.clients))
-    collect(`client[${slug}]`, client, v.primitives.variant.Client);
-  for (const daemon of paladin.variant.daemons)
-    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
-  for (const service of paladin.variant.services)
-    collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
-
-  if (errors.length) throw new Error(`[paladin.validate]\n  ${errors.join("\n  ")}`);
-  // console.log(JSON.stringify({ errors }, null, 2));
-}
+// validate migrated to prototypes/variant.js (part of variant.mount).
 
 // export async function mount(paladin) {
 // return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
@@ -76,15 +60,3 @@ export async function validate(paladin) {
 //     await paladin.state.dir(dir);
 //   }
 // }
-
-export async function questions(paladin) {
-  return;
-  if (paladin.is.citizen)
-    paladin.check
-      .path([
-        paladin.env.get("VIVA_REPOSITORY_MOUNT"),
-        paladin.env.get("VIVA_VARIANT_MOUNT"),
-        paladin.env.get("VIVA_REGISTRY_MOUNT"),
-      ])
-      .throw();
-}

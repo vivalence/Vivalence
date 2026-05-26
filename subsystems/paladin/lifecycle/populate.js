@@ -1,22 +1,17 @@
 import * as dotenv from "@std/dotenv";
 import { join } from "@std/path";
-import { Env, Path } from "@vivalence/typology";
+import { Path } from "@vivalence/typology";
 
 export async function env(paladin) {
-  // console.log("ENV CALL");
-  // read process env
   for (const [key, value] of Object.entries(Deno.env.toObject())) {
     if (key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_")) paladin.env.set(key, value);
     if (key.startsWith("SECRET_VIVA_")) paladin.secret.set(key, value);
   }
 
-  // read env file
   if (Deno.env.has("VIVA_ENV_FILE")) {
     const envPath = Deno.env.get("VIVA_ENV_FILE");
     paladin.env.assign(await dotenv.load({ envPath }));
   }
-
-  // VIVA_SYSTEM_MOUNT ?
 
   // fallback to repo .env
   // if (paladin.check.env(["VIVA_REPOSITORY_MOUNT", "VIVA_VARIANT_MOUNT"]).fails && (paladin.is.citizen || paladin.is.dev)) {const ROOT_OFFSET = "../../../.env"; const envPath = new URL(ROOT_OFFSET, import.meta.url).pathname; const env = await dotenv.load({ envPath }); paladin.env.assign(env);}
@@ -36,36 +31,11 @@ export async function scopes(paladin) {
   ]);
   paladin.scopes([
     [
-      "repository",
-      () => true,
-      () =>
-        new Path(
-          paladin.env.get("VIVA_REPOSITORY_MOUNT") ??
-            new URL("../../../", import.meta.url).pathname, // lifecycle → paladin → subsystems → repo
-        ),
-    ],
-    [
-      "registry",
-      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
-      () => {
-        let envpath;
-        if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
-          envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
-        } else {
-          envpath = paladin.scope.repository.branch("registry").absolute;
-        }
-        return envpath ? new Path(envpath) : undefined;
-      },
-    ],
-  ]);
-  paladin.scopes([
-    [
       "variant", //
       () => paladin.env.has("VIVA_VARIANT_MOUNT"),
       () => new Path(paladin.env.get("VIVA_VARIANT_MOUNT")),
     ],
 
-    // ["circuitry", () => paladin.env.has("VIVA_CIRCUITRY_MOUNT") || (paladin.scope.variant && paladin.is.citizen), () => {let envpath; if (Deno.env.has("VIVA_CIRCUITRY_MOUNT")) {envpath = Deno.env.get("VIVA_CIRCUITRY_MOUNT");} else {envpath = paladin.scope.variant.branch("circuitry").absolute;} return envpath ? new Path(envpath) : undefined;},],
     [
       "environment",
       () =>
@@ -95,65 +65,46 @@ export async function scopes(paladin) {
       },
     ],
   ]);
-
-  // console.log(`system`, paladin.scope.system); console.log(`regist`, paladin.scope.registry); console.log(`varian`, paladin.scope.variant); console.log(`circui`, paladin.scope.circuitry); console.log(`enviro`, paladin.scope.environment); console.log(`mountp`, paladin.scope.mountpoint);
-  // console.log({ paladin });
-
-  // paladin.scopes([
-  //   // Legacy aliases
-  //   ["circuits", () => paladin.scope.circuitry !== undefined, () => paladin.scope.circuitry],
-
-  //   ["tilde", () => paladin.scope.variant !== undefined, () => paladin.scope.variant],
-  // ]);
-}
-
-export async function environment(paladin) {
-  // console.log("scope", { scope: paladin.scope });
-  if (!paladin.scope.environment) return;
-  await paladin.state.dir(paladin.scope.environment.absolute);
-
-  const apply = (env) => async (path) => {
-    if (!path) return;
-    return env.assign(await paladin.read.json(path));
-  };
-
-  const envpath = paladin.scope.environment.absolute;
-  const allJsonFiles = await paladin.find.json(envpath);
-
-  await Promise.all([
-    apply(paladin.secret)(allJsonFiles.find((file) => file.absolute.includes("secret"))),
-    ...allJsonFiles.filter((file) => !file.absolute.includes("secret")).map(apply(paladin.env)),
+  paladin.scopes([
+    [
+      "repository",
+      () => true,
+      () =>
+        new Path(
+          paladin.env.get("VIVA_REPOSITORY_MOUNT") ??
+            new URL("../../../", import.meta.url).pathname, // lifecycle → paladin → subsystems → repo
+        ),
+    ],
+    [
+      "registry",
+      () => Deno.env.has("VIVA_REGISTRY_MOUNT") || paladin.is.citizen,
+      () => {
+        let envpath;
+        if (Deno.env.has("VIVA_REGISTRY_MOUNT")) {
+          envpath = Deno.env.get("VIVA_REGISTRY_MOUNT");
+        } else {
+          envpath = paladin.scope.repository.branch("registry").absolute;
+        }
+        return envpath ? new Path(envpath) : undefined;
+      },
+    ],
   ]);
-
-  return paladin;
 }
 
-export async function veryimportantpackage(paladin) {
-  if (paladin.is.veryimportant) {
-    const { Vip } = await import("@vivalence/paladin/typology");
-    paladin.vip = new Vip(paladin);
-  }
-}
-
-export async function system(paladin) {
-  const { default: install } = await import("../belt/system.js");
-  await install(paladin);
-}
-
-export async function questions(paladin) {
-  //   paladin.check
-  //     .env([
-  //       // "VIVA_SYSTEM_MODE",
-  //       // "VIVA_SYSTEM_ROLE",
-  //       // "VIVA_REPOSITORY_MOUNT", // conditional
-  //       // "VIVA_VARIANT_MOUNT", // conditional
-  //       // "VIVA_REGISTRY_MOUNT", // conditional
-  //       // "VIVA_RUNTIME_SERVE", // conditional
-  //       // "VIVA_LIGHTHOUSE_SERVE", // conditional
-  //       // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
-  //       // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
-  //       // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
-  //       // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
-  //     ])
-  //     .throw();
-}
+// export async function questions(paladin) {
+//   paladin.check
+//     .env([
+//       // "VIVA_SYSTEM_MODE",
+//       // "VIVA_SYSTEM_ROLE",
+//       // "VIVA_REPOSITORY_MOUNT", // conditional
+//       // "VIVA_VARIANT_MOUNT", // conditional
+//       // "VIVA_REGISTRY_MOUNT", // conditional
+//       // "VIVA_RUNTIME_SERVE", // conditional
+//       // "VIVA_LIGHTHOUSE_SERVE", // conditional
+//       // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
+//       // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
+//       // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
+//       // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
+//     ])
+//     .throw();
+// }

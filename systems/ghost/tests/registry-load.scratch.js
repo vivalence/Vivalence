@@ -4,8 +4,6 @@
 import paladin from "@vivalence/paladin";
 import { Path } from "@vivalence/typology";
 
-await paladin.ikiro;
-
 const registryPath = new Path(paladin.env.get("VIVA_REPOSITORY_MOUNT")).branch("registry");
 console.log("registry path:", registryPath.absolute);
 

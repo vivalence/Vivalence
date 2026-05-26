@@ -1,20 +1,27 @@
 import fs from "@std/fs";
+import { dirname } from "@std/path";
 
-export default function state(config) {
-  const resolve = (path) => (typeof path === "function" ? path() : path);
+export default function state(paladin) {
+  const resolve = (path) => (typeof path === "function" ? path() : path?.absolute ?? path);
+  const parent = (file) => fs.ensureDir(dirname(file));
 
-  const assertPath = async (path) => {
-    const resolved = resolve(path);
-    try {
-      await fs.ensureDir(resolved);
-      return null;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
-  };
-
-  config.state = {
-    dir: assertPath,
+  paladin.state = {
+    dir: (path) => fs.ensureDir(resolve(path)),
+    json: async (path, data) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, JSON.stringify(data, null, 2));
+    },
+    jsonl: async (path, entry) => {
+      const file = resolve(path);
+      await parent(file);
+      await Deno.writeTextFile(file, JSON.stringify(entry) + "\n", { append: true });
+    },
+    remove: (path) => Deno.remove(resolve(path)).catch(() => {}),
+    open: async (path) => {
+      const file = resolve(path);
+      await parent(file);
+      return Deno.open(file, { write: true, create: true, append: true });
+    },
   };
 }

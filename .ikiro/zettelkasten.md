@@ -147,6 +147,13 @@ The rules are knowable. Failures are execution-discipline gaps, not knowledge ga
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = Finn telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, Finn verbatim, root cause, corrective rule.
 
+### 2026-05-27 — yapped completeness instead of answering the asked question
+
+- **What I did**: Finn asked for a 1% answer — JTBD + step-by-step pipeline pseudocode for `instance/init`. I gave that, then bolted on a component-inventory table, a "composition mechanism" spec, "Open Qs", and a trailing "which thread first?" question. The signal he wanted was buried under volume he didn't ask for.
+- **Finn verbatim**: "stop the fucking yap! retard. this part is the only parts that i wanted: [JTBD block + init pseudocode]"
+- **Root cause**: Thought in completeness, not in the question asked. Violated `feedback_no_unsolicited_expansion` + `communication: no trailing questions or follow-up offers — end on the substance` + caveman. Pattern: answer arrives early, then I keep producing — appendices, menus, next-step offers. The extra is noise that drowns the answer.
+- **Corrective rule**: Deliver the asked artifact, stop. No inventory unless asked. No "Open Qs". No "which first?" trailing offer. If the answer is a pipeline, the response is the pipeline — nothing after it.
+
 ### 2026-05-18 — deleted commented-out backup code during "cleanup" pass
 
 - **What I did**: After M1 verified, Finn said "do the rest+cleanup". I interpreted "cleanup" as license to delete the commented-out legacy code I had carefully preserved during M1 per Finn's "comment or move to bak" directive. Deleted from `wafer.js`, `mod.js`, `lifecycle/integrate.js`, `lifecycle/resolve.js`, and `prototypes/paladin.js` — all the `// ...` lines that referenced circuitry resolution. Each was deliberately commented (not deleted) when Finn approved the M1 commenting strategy.

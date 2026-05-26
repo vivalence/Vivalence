@@ -1,11 +1,9 @@
 import paladin from "@vivalence/paladin";
 import { Die, Runtime } from "@vivalence/runtime";
 
-// import { Vector } from "@vivalence/typology";
-// console.log(new Vector() .branch() .branch() .open(null, () => {}),);
-
 const run = await (async function () {
-  await paladin.ikiro;
+  await paladin.variant.mount();
+  console.log("paladin.env.vars", paladin.env.vars, Deno.env.toObject());
   const die = new Die({ good: new Runtime() });
   await die.populate();
   return die;
@@ -20,7 +18,6 @@ export default run;
 
 if (import.meta.main) {
   await run.ikiro;
-  // console.log("run:", { run });
   await run.perpetuate();
 }
 

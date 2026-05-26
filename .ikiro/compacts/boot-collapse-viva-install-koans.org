@@ -1,0 +1,163 @@
+#+TITLE: Boot collapse · viva install · koans
+#+STATUS: APPLIED
+
+* Arc
+
+Continued the paladin boot refactor into a full collapse, then built the
+viva install path, dev-run wiring, deno.jsonc alignment, a koans totem,
+and designed system/variant introspection.
+
+* Paladin boot — collapsed
+
+@beef: "this is a shit boot process. first and absolute: remove teh named
+vector signatures boot wafer shitshow. thats the goal." · "no paladin.ikiro"
+
+Decided two ways; @beef: *"way 2. lazy mounts."* (imperative mod.js +
+fn.once lazy mounts; NOT selbstbestimmt/dossier — "i dont see the absolute
+requirement").
+
+Decisive fact (the WHY ikiro existed): =variant.mount= → =find.type= →
+=read.viva(cake)= dynamic-imports the variant marker, which =import paladin=.
+Re-entrant. Full boot at module-top-level await would deadlock (paladin's
+own top-level await pending while the marker waits for paladin to finish).
+ikiro deferred the marker-load past export. The collapse keeps that ordering
+via lazy fn.once mounts instead of a monolith promise.
+
+Shipped (TDD — boot.test.js red→green, 5/5):
+- DELETED =subsystems/paladin/wafer.js= and =lifecycle/resolve.js=.
+- =mod.js= imperative: =new Paladin()= → =populate.env= → =populate.scopes=
+  → (if citizen) =integrate.statements= + =integrate.publish= → export.
+  No ikiro. No steer.invoke.
+- =prototypes/paladin.js=: =vip= now a ctor sibling of system/variant.
+- =prototypes/variant.js=: =markers=→=cakes= rename. environment→resolve→validate.
+- barrels trimmed (typology.js dropped wafer re-export; lifecycle/index dropped resolve).
+- consumers migrated: =await paladin.ikiro= → =paladin.variant.mount()= (runtime/run,
+  kajuit/vite, temp) or deleted (ghost tests build own fixtures).
+- publish belongs in mod.js, NOT variant.mount. @beef: "no. iditot. this belongs
+  into mod.js obviously."
+- live-validated: runtime :2501 ALIVE, kajuit :1794, ghost exit 0.
+
+Ghost bug fixed (latent, then hit live): =ghost/mod.js= used =paladin.system.logs.pipe=
+(stale API — System has =.pipe=, no =.logs=) and never mounted system. →
+=paladin.system.pipe= + =await paladin.system.mount()= before invoke.
+
+* Variant ontology (corrected)
+
+@beef: *"you have not understood what a variant is yet. a variant shows up
+unter $SYSTEM as an instance. its a running instance of the system according
+ot config in our variant."*
+
+- =$SYSTEM= (~/.viva) = the machine ledger of running instances (instances.json,
+  locks/, logs/).
+- variant = a *running instance of the whole system*, configured by its variant
+  config. The .viva.js marker is its declaration, not the variant itself.
+- it registers under $SYSTEM: instances.json[slug] → mount.
+- ~/vivatemp = the "localhost" instance (marker + environment/ + materialized
+  mountpoint/{daemon_*,service_*}); ~/viva = dead pre-current-architecture home.
+
+* viva install
+
+@beef: "THIS SHOULD LIVE IN GHOST" · "ghost.sh but used per default as viva"
+
+Findings:
+- =deno install -g= IGNORES =workspace= + =importMap= → "@vivalence/typology not
+  a dependency". Global install = self-contained tool only. Works only post-publish.
+- Repo-install needs a WRAPPER (=deno run --config <root>= honors workspace).
+  deno install is the *jsr-future* UX, unreachable from a workspace.
+
+Built — env-file anchor + generic symlinked launcher:
+- =systems/ghost/ghost.sh= (generic): sources =$XDG_CONFIG_HOME/viva/env=, sets
+  =VIVA_ENV_FILE=, execs =deno run --config $VIVA_REPOSITORY_MOUNT/deno.jsonc=
+  ghost/mod.js. No baked path → committable verbatim → symlinkable (live edits).
+- =systems/ghost/install.sh= (pure sh, no viva/deno needed = valid bootstrap):
+  upserts =VIVA_REPOSITORY_MOUNT= into =~/.config/viva/env=, symlinks ghost.sh →
+  =~/.deno/bin/viva=.
+- root =viva/install= task → =sh systems/ghost/install.sh "$(pwd)"= (escape-hell gone).
+
+Through-line: =~/.config/viva/env= is the durable machine anchor across channels
+(dev symlink / jsr / curl). 3-tier config: ~/.config/viva (bootstrap, pre-mount)
+· ~/.viva (state) · variant/environment (per-instance + secrets).
+
+* Dev run + env injection
+
+@beef: "we dont need to slave to the env file?! might be something else." ·
+"i dont want to write this file definition in every command. thats annoying as
+fuck." · "how do i protect against that loading in other environments? without
+the use of other env variables??!!" · "that doesnt work if i use the same repo i
+develop in to run my system. not good. what are other standard js solutions here?"
+
+Resolution — *the command IS the toggle* (standard JS: dev script loads dotenv,
+prod doesn't). @beef: "nice." [PRAISED]
+- =VIVA_ENV_FILE= is the shared seam: populate.env already loads it; also reads
+  raw Deno.env directly (docker ENV). Not a leash — file is one delivery of three.
+- =watch= tasks load the file; =run= tasks bare → container ENV in prod.
+- =.env= → =testament/.env= (co-located with the fixtures it targets; gitignore
+  =**/.env= already covers).
+- gotcha: =--env-file=FILE= needs the =, not a space (space silently defaults to
+  .env and treats the path as a script).
+
+* deno.jsonc alignment
+
+@beef: *"Verdict: package level, top links."*
+- every package owns =run= (bare) / =watch= (--env-file=../../testament/.env) / =test=.
+- top deno.jsonc = pure links: =deno task --cwd ./systems|subsystems/<x> <task>=.
+- fixed a latent bug: top paladin/typology/runtime =test= were =deno run= → now
+  link to package =deno test=.
+- verified: runtime/watch boots clean through the full delegation chain.
+
+* Publish track (Q1 done; entities block)
+
+Per-member publish, workspace intact; kajuit = vite ARTIFACT not jsr. Quest:
+=.ikiro/quests/viva-install.quest.org= (JSR + curl channels).
+
+Q1 self-contained graph DONE:
+- import_map: fs-extra → @^11; removed the =importmap= https entry.
+- vendored WICG importmap → =subsystems/typology/gestalten/bundle/importmap.js=
+  (plain JS, =bundle.svelte= is real API not dev-only, so it stays in the graph).
+- publish.exclude junk (=**/#*#=).
+
+Remaining blocker (dry-run only, NOTHING published): =typology/entities/**= 72
+TS errors, root =DataEntity.ts= stale vs MikroORM v6 (=EntityRepository<>= generic,
+=.create/.em/.findOneOrFail= moved). =--allow-slow-types= does NOT bypass hard tsc
+errors. Also pending: spawn pipeline deno-task → jsr specifier; import.meta.url
+offset dies post-publish (env-file now supplies VIVA_REPOSITORY_MOUNT).
+
+* Koans totem [NEW]
+
+@beef: "set up a set of 4-6 koans of functions to uncomment and execute and
+commands to run directly in cli that demo the functionality we have now arrive
+at and enabled. [mark: this is a new ikiro/totem koans]" · "write the koans in
+temp.js"
+
+=testament/temp.js= — run =deno run --env-file=./testament/.env -A ./testament/temp.js=,
+uncomment the call beneath ONE koan:
+- koan1 bareBoot (no ikiro, siblings) · koan2 lazyVariant (scope snapshot
+  before/after + runtime/daemons/services) · koan3 systemLedger · koan4 mountOnce
+  (fn.once) · koan5 repoScope (+ registry).
+- CLI koans K6 install · K7 dev watch (command=toggle) · K8 publish dry-run.
+- @beef added inline directives: koan2 "highlight the variant and other set scopes
+  before and after"; koan5 "highlight registry here too".
+- testament excluded from workspace, but root import-map walk-up still resolves
+  @vivalence from testament/.
+
+* Introspection — designed, lean diff PROPOSED (not applied)
+
+@beef: "viva should offer ways to introspect the system and variant. how do great
+clis do that?"
+
+Canon: info/status · env/config · list/get · describe/inspect · doctor · --json ·
+useful bare invocation. Noun-first + progressive disclosure. The koans ARE the
+introspection — promote bodies to handlers.
+
+Lean diff proposed (awaiting go): new =systems/ghost/trajectories/introspect.js=
+(=system=, =variant=, =env=) + register in trajectories/index.js as =/system=,
+=/variant=, =/env=. Deferred: --json, doctor, instance/list, bare-viva status.
+
+* Open / next
+
+- APPLY the introspect lean diff (system/variant/env handlers).
+- =viva-cli= quest unwritten (system/init + instance/* + sheets); init-ontology
+  settled: init=scaffold-config, clone=fetch-registry+lighthouse-user.
+- a.2 docker, a.3 viva command families, a.x sheets — execution matrix (tasklist).
+- entities-TS (72) blocks JSR publish.
+- @beef drives execution step by step; continuing in /private/logs.

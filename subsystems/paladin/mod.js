@@ -1,18 +1,13 @@
-import { steer } from "@vivalence/typology";
-import { paladin as wafer } from "./wafer.js";
-import * as resolve from "./lifecycle/resolve.js";
+import { Paladin } from "./prototypes/paladin.js";
+import * as populate from "./lifecycle/populate.js";
 import * as integrate from "./lifecycle/integrate.js";
 
-const paladin = await steer.invoke(wafer(), "/construct/populate/base")(); // ugh. replace with selbstbestimmt and dossier pattern.
+const paladin = new Paladin();
+await populate.env(paladin);
+await populate.scopes(paladin);
 
-paladin.ikiro = (async () => {
-  // await resolve.circuitry(paladin);
-  await resolve.variant(paladin);
+if (paladin.is.citizen) {
   await integrate.statements(paladin);
-  await integrate.publish(paladin);
-  await integrate.questions(paladin);
-  await integrate.validate(paladin);
-  // console.log(JSON.stringify(paladin., null, 2));
-})();
+}
 
 export default paladin;

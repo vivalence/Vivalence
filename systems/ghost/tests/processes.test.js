@@ -1,8 +1,5 @@
 import { assertEquals } from "@std/assert"
-import paladin from "@vivalence/paladin"
 import { pickProcessTargets } from "../lib/processes.js"
-
-await paladin.ikiro
 
 const variant = "/tmp/fixture-variant"
 

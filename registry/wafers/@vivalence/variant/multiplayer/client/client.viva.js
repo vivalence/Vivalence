@@ -12,16 +12,16 @@ export const clients = {
     slug: "kajuit",
     module: "@vivalence/kajuit",
     statics: {
-      serve: new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
       //
       lighthouse: {
-        remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
+        remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),
       },
     },
   },
 };
 
-// export const clients = {kajuit: {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")), remote: new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE")), lighthouse: {remote: new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),},},},};
+// export const clients = {kajuit: {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")), remote: () => new Url(paladin.env.get("PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE")), lighthouse: {remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")),},},},};
 
 // export const services = [
 //   {
@@ -29,7 +29,7 @@ export const clients = {
 //     module: "@vivalence/lighthouse/multiplayer",
 //     secrets: { jwt: paladin.secret.get("JWT_SECRET") },
 //     statics: {
-//       serve: new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")),
+//       serve: () => new Url(paladin.env.get("VIVA_LIGHTHOUSE_SERVE")),
 //     },
 //     datamap: {
 //       module: "@vivalence/datamap/libsql",

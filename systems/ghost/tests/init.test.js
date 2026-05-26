@@ -1,9 +1,6 @@
 import { assertEquals, assertRejects } from "@std/assert"
 import { Vector, Signal, steer } from "@vivalence/typology"
-import paladin from "@vivalence/paladin"
 import { init } from "../trajectories/instance/init.js"
-
-await paladin.ikiro
 
 const VARIANT_MANIFEST = `export const manifest = { owner: "@vivalence", type: "variant", slug: "fixture", version: "0.0.1" };`
 const ALT_VARIANT_MANIFEST = `export const manifest = { owner: "@vivalence", type: "variant", slug: "alt", version: "0.0.1" };`

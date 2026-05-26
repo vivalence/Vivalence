@@ -1,18 +1,13 @@
 import { Env } from "@vivalence/typology";
 import belt from "../belt/index.js";
+import { System } from "./system.js";
+import { Variant } from "./variant.js";
+import { Vip } from "./vip.js";
 
 export class Paladin {
   traits = [];
   env = new Env();
   secret = new Env();
-
-  variant = {
-    // circuitry: [], // backup: pre-M1 variant quest
-    runtime: {},
-    clients: {},
-    daemons: [],
-    services: [],
-  };
 
   constructor() {
     // deprecated
@@ -25,6 +20,11 @@ export class Paladin {
     // resolution
     belt.is(this);
     belt.scope(this);
+    belt.publish(this);
+    // mountables — siblings of vip, own their state, fn.once mount()
+    this.system = new System(this);
+    this.variant = new Variant(this);
+    this.vip = new Vip(this);
   }
 
   get role() {

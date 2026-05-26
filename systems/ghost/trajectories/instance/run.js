@@ -1,78 +1,41 @@
 import paladin from "@vivalence/paladin";
-import { resolveTarget, CHILDREN } from "./target.js";
+import { specs } from "./target.js";
+
+const encoder = new TextEncoder();
 
 export async function run(ctx) {
   const { signal, span } = ctx;
-  const [target] = signal.params;
-  const { slug, mount } = await resolveTarget(target);
+  const processes = await Promise.all(specs(signal.params[0]).map((spec) => paladin.system.spawn(spec)));
 
-  const repository = paladin.env.get("VIVA_REPOSITORY_MOUNT");
+  const branches = new Map();
+  for (const process of processes) {
+    const { type, slug } = process.spec;
+    const log = paladin.system.log(type, slug);
+    const out = await log.open("out");
+    const err = await log.open("err");
 
-  const spawned = await Promise.all(
-    CHILDREN.map((definition) => spawn({ slug, mount, repository, span, ...definition })),
-  );
+    process.out.tap((line) => out.write(encoder.encode(line + "\n")));
+    process.err.tap((line) => err.write(encoder.encode(line + "\n")));
 
-  const teardown = async (reason) => {
-    console.error(`\nghost: ${reason} — terminating children`);
-    for (const { process, child } of spawned) {
-      try {
-        child.kill("SIGTERM");
-      } catch {}
-      await paladin.system.locks.remove(slug, process);
-    }
-  };
+    const branch = span?.branch(`run.${type}`).begin();
+    branch?.track.subject({ schema: "process", id: String(process.pid) });
+    branches.set(process, branch);
+  }
 
-  const interrupt = () => teardown("SIGINT").then(() => Deno.exit(130));
-  Deno.addSignalListener("SIGINT", interrupt);
-
+  const slug = processes[0]?.spec.slug;
   console.log(
-    `ghost: running ${slug} (${spawned.map((s) => `${s.process}=${s.child.pid}`).join(", ")})`,
+    `ghost: running ${slug} (${processes.map((process) => `${process.spec.type}=${process.pid}`).join(", ")})`,
   );
-  console.log(`ghost: logs at ${paladin.scope.system.absolute}/logs/${slug}/`);
 
-  const statuses = await Promise.all(
-    spawned.map(async ({ process, child }) => {
-      const status = await child.status;
-      await paladin.system.locks.remove(slug, process);
-      return { process, code: status.code, success: status.success };
+  const children = await Promise.all(
+    processes.map(async (process) => {
+      const status = await process.status;
+      const branch = branches.get(process);
+      if (!status.success) branch?.track.fault().raise(`exit ${status.code}`, "EXIT");
+      branch?.seal();
+      return { type: process.spec.type, ...status };
     }),
   );
 
-  Deno.removeSignalListener("SIGINT", interrupt);
-
-  ctx.effect = { status: "ran", slug, mount, children: statuses };
-}
-
-async function spawn({ slug, process, task, mount, repository, span }) {
-  const outLog = await paladin.system.logs.open(slug, process, "out");
-  const errLog = await paladin.system.logs.open(slug, process, "err");
-
-  const child = new Deno.Command("deno", {
-    args: ["task", "--config", repository + "/deno.jsonc", "-q", task],
-    env: {
-      ...Deno.env.toObject(),
-      VIVA_VARIANT_MOUNT: mount,
-    },
-    stdin: "null",
-    stdout: "piped",
-    stderr: "piped",
-  }).spawn();
-
-  child.stdout.pipeTo(outLog.writable).catch(() => {}); // @beef dont catch quityly. at least log.
-  child.stderr.pipeTo(errLog.writable).catch(() => {});
-
-  await paladin.system.locks.write(slug, process, {
-    pid: child.pid,
-    started: new Date().toISOString(),
-    mount,
-    process,
-    task,
-  });
-
-  span
-    ?.branch(`run.${process}`)
-    .begin()
-    .track.subject({ schema: "process", id: String(child.pid) });
-
-  return { process, child };
+  ctx.effect = { status: "ran", slug, children };
 }

@@ -1,34 +1,44 @@
 import paladin from "@vivalence/paladin";
 import { resolve } from "@std/path";
-import * as fs from "@std/fs";
+import { React, Box, Text, Select, TextInput, useState } from "@vivalence/sheets";
 
 export async function clone(ctx) {
-  const { signal, span } = ctx;
-  const [slug, targetArg] = signal.params;
+  console.log("CTX");
+  // console.log(paladin.)
+  const identifier =
+    ctx.signal.params[0] ?? (await ctx.view.form(SlugPicker, { options: await variants() }));
 
-  if (!slug || !targetArg) {
-    throw new Error("usage: instance/clone <slug> <target>");
-  }
+  if (!identifier) return (ctx.effect = { aborted: true });
 
+  const targetInput =
+    ctx.signal.params[1] ?? (await ctx.view.form(TargetPicker, { initial: `./${identifier}` }));
+  if (!targetInput) return (ctx.effect = { aborted: true });
+
+  const target = resolve(Deno.cwd(), targetInput);
+  ctx.effect = { slug: identifier, target };
+}
+
+async function variants() {
   await paladin.vip.mount(paladin.scope.registry);
+  const cakes = await paladin.vip.list({ type: "variant" });
+  return cakes.map((cake) => ({ label: cake.manifest.slug, value: cake.manifest.slug }));
+}
 
-  const cake = await paladin.vip.accio(slug);
-  const sourcePath = cake.mount.dirname;
-  const targetPath = resolve(Deno.cwd(), targetArg);
+function SlugPicker({ options, done }) {
+  return React.createElement(
+    Box,
+    { flexDirection: "column" },
+    React.createElement(Text, null, "clone which variant?"),
+    React.createElement(Select, { items: options, onSelect: (item) => done(item.value ?? item) }),
+  );
+}
 
-  span?.track.subject({ schema: "variant", id: cake.manifest.slug });
-
-  await paladin.state.dir(targetPath);
-  await fs.copy(sourcePath, targetPath, { overwrite: true });
-
-  await paladin.system.instances.write(cake.manifest.slug, {
-    mount: targetPath,
-  });
-
-  ctx.effect = {
-    status: "cloned",
-    slug: cake.manifest.slug,
-    source: sourcePath,
-    target: targetPath,
-  };
+function TargetPicker({ initial, done }) {
+  const [value, setValue] = useState(initial);
+  return React.createElement(
+    Box,
+    { flexDirection: "column" },
+    React.createElement(Text, null, "clone to which path?"),
+    React.createElement(TextInput, { value, onChange: setValue, onSubmit: done }),
+  );
 }

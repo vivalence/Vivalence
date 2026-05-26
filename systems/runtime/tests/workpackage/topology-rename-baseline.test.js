@@ -1,7 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 
-await paladin.ikiro;
 await paladin.vip.mount(paladin.scope.registry.branch("kernels"));
 
 specimen.describe(

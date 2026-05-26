@@ -37,6 +37,34 @@ export {
   useFocusManager,
 };
 
+export const shard = {
+  view: () => async (ctx, next) => {
+    ctx.view = {
+      once(element) {
+        const instance = render(
+          <Static items={[element]}>{(item, index) => <Box key={index}>{item}</Box>}</Static>,
+        );
+        setTimeout(() => instance.unmount(), 0);
+        return instance.waitUntilExit();
+      },
+      form(Component, props = {}) {
+        return new Promise((resolve) => {
+          const done = (value) => {
+            instance.unmount();
+            resolve(value);
+          };
+          const instance = render(<Component {...props} done={done} />);
+        });
+      },
+      app(Component, props = {}) {
+        const instance = render(<Component {...props} />);
+        return { instance, teardown: () => instance.unmount() };
+      },
+    };
+    await next();
+  },
+};
+
 function labelOf(item) {
   if (typeof item === "string") return item;
   return item.label ?? item.value ?? String(item);

@@ -1,11 +1,8 @@
 import { assertEquals, assertExists } from "@std/assert"
 import { Vector, Signal, steer, Mask } from "@vivalence/typology"
-import { Paladin, populate, resolve } from "@vivalence/paladin/typology"
-import paladin from "@vivalence/paladin"
+import { Paladin, populate } from "@vivalence/paladin/typology"
 import { fromFileUrl, dirname, resolve as resolvePath } from "@std/path"
 import { init } from "../trajectories/instance/init.js"
-
-await paladin.ikiro
 
 const HERE = dirname(fromFileUrl(import.meta.url))
 const LOCALHOST_WAFER = resolvePath(HERE, "../../../registry/wafers/@vivalence/variant/localhost")
@@ -53,7 +50,7 @@ Deno.test("localhost wafer: resolves into runtime/clients/services/daemons", asy
   const { dest } = await installLocalhost()
 
   const paladin = await mkPaladin(dest)
-  await resolve.variant(paladin)
+  await paladin.variant.mount()
 
   assertEquals(paladin.variant.runtime.slug, "runtime")
   assertEquals(paladin.variant.runtime.traits, ["EMBEDDED"])

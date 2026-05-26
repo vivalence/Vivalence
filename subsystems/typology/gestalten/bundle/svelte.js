@@ -3,7 +3,7 @@ import { basename, dirname } from "@std/path";
 import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
-import { resolveImportMap, resolveModuleSpecifier } from "importmap";
+import { resolveImportMap, resolveModuleSpecifier } from "./importmap.js";
 
 function mapimports(imports = {}, baseUrl) {
   const resolvedImportmap = resolveImportMap({ imports }, baseUrl);
