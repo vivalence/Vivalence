@@ -153,6 +153,8 @@ The rules are knowable. Failures are execution-discipline gaps, not knowledge ga
 - **Finn verbatim**: "stop the fucking yap! retard. this part is the only parts that i wanted: [JTBD block + init pseudocode]"
 - **Root cause**: Thought in completeness, not in the question asked. Violated `feedback_no_unsolicited_expansion` + `communication: no trailing questions or follow-up offers — end on the substance` + caveman. Pattern: answer arrives early, then I keep producing — appendices, menus, next-step offers. The extra is noise that drowns the answer.
 - **Corrective rule**: Deliver the asked artifact, stop. No inventory unless asked. No "Open Qs". No "which first?" trailing offer. If the answer is a pipeline, the response is the pipeline — nothing after it.
+- **REPEAT (same session, build phase)**: Finn: *"less yap!!!!!!! holy shit your a yappy retard. MORE CODE!"* — during the drain/Process build I shipped multi-section essays (Command avenues, per-subject logs, ctx.span refactor) when he wanted code + a one-line answer. Same root cause, code phase. **Hardened rule: once building, response = code first, ≤1 line prose. Essays only on explicit "explain".**
+- **CONFLATED logs with spans**: Finn: *"span doesnt fucking branch on lines???!! are you retarded??"* — I wrote `process.out.tap(line => span.branch(line)...)`, branching a span per stdout line. Wrong: a Span is a scoped lifecycle trace (ONE branch per process; subject=pid, transitions spawn→ready→exit, timing). Stdout **lines are logs** → they feed the subject's `logs` Pipe → disk. **Rule: lines→logs Pipe; spans = structured lifecycle, never one-node-per-line. Two separate streams.**
 
 ### 2026-05-18 — deleted commented-out backup code during "cleanup" pass
 

@@ -1,3 +1,5 @@
+import { fromm } from "@vivalence/typology";
+
 export class Queue {
   buffer = [];
   resolve = null;
@@ -41,6 +43,14 @@ export class Queue {
 
   get depth() {
     return this.buffer.length;
+  }
+
+  to(...sinks) {
+    const writes = sinks.map((target) => fromm.sink(target).write);
+    (async () => {
+      for await (const value of this.drain()) for (const write of writes) write(value);
+    })();
+    return this;
   }
 
   [Symbol.asyncIterator]() {

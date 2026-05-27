@@ -1,6 +1,5 @@
 import { Wafer } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
-import { sleep } from "@vivalence/shared";
 import * as lifecycle from "./lifecycle/index.js";
 
 export class Die extends Wafer {
@@ -16,12 +15,13 @@ export class Die extends Wafer {
   async populate() {
     await lifecycle.population.wiring(this);
     await lifecycle.population.registry(this);
-    await lifecycle.population.terrans(this);
+    await lifecycle.population.daemons(this);
+    await lifecycle.population.processes(this);
     await lifecycle.population.aperture(this);
   }
 
   async resolve() {
-    for (const die of this.good.terrans) {
+    for (const die of [...this.good.daemons, ...this.good.processes]) {
       await die.populate();
       await die.resolve();
       await die.integrate();
@@ -40,36 +40,32 @@ export class Die extends Wafer {
   }
 
   async disintegrate() {
+    if (this.status.is(["STOPPING", "STOPPED"])) return;
     this.status.set("stopping");
 
-    for (const die of this.good.terrans) {
+    for (const die of [...this.good.daemons, ...this.good.processes]) {
       await die.disintegrate?.();
     }
 
     this.abort.abort();
-
-    delete this.good;
-
-    await sleep(2);
     this.status.set("stopped");
   }
 
   async perpetuate() {
     this.status.set("alive");
 
+    // console.log("run.status");
+    // console.log(this.status);
+    // console.log("run.status");
+
     ["SIGTERM", "SIGINT", "SIGQUIT"].forEach((sig) => {
-      Deno.addSignalListener(sig, () => this.disintegrate(sig));
+      Deno.addSignalListener(sig, async () => {
+        await this.disintegrate();
+        Deno.exit(0);
+      });
     });
 
     while (this.status.is("alive")) {
-      if (this.status.is("stopped")) {
-        // shutdown in grace. i might need some hook here once i chose a paradigm for shutting down dies.
-        return;
-      }
-      if (!this.good) {
-        // handle missing runtime.
-        return;
-      }
       await this.good.ters?.patrol();
       await new Promise((resolve) => setTimeout(resolve, 60000));
     }

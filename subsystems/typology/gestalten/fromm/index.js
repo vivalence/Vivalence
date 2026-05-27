@@ -1,5 +1,33 @@
 import { not, cast, is, prototypes } from "@vivalence/typology";
 
+export const sink = (target) => {
+  return {
+    get write() {
+      if (is.fn(target)) return target;
+      if (target?.send) return (value) => target.send(value);
+      if (target?.enqueue) return (value) => target.enqueue(value);
+      if (target?.set) return (value) => target.set(value);
+      if (target?.getWriter) {
+        const writer = target.getWriter();
+        const encoder = new TextEncoder();
+        return (value) => writer.write(typeof value === "string" ? encoder.encode(value) : value);
+      }
+      throw not.is("sink", target);
+    },
+  };
+};
+
+export const source = (origin) => {
+  return {
+    get read() {
+      if (origin?.[Symbol.asyncIterator]) return origin; // ReadableStream, Queue, generator
+      if (origin?.observe) return origin.observe(); // Pipe
+      if (Array.isArray(origin)) return (async function* () { yield* origin; })();
+      throw not.is("source", origin);
+    },
+  };
+};
+
 export const url = (thing) => {
   if (!is.url(thing)) throw not.is("url", thing);
   const url = cast.url(thing);

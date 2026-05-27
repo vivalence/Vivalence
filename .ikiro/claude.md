@@ -245,6 +245,7 @@ root .ikiro/ — IMPLEMENTED (verification pending):
 
 root .ikiro/ — DESIGN:
 - decorum — zone-based theming; M1 done, M2-M5 open
+- dapper-second-theme — warm-red "ember" theme sampled from the flap clip (one palette → web zones + TUI ascii field); DESIGN, depends on decorum runtime switch
 - exhibit-absorbs-shadow — exhibit absorbs shadow as RECITE style (drafted 2026-04-22)
 - herald — unified self-description route family (lands w/ M4.0 /connect)
 - documentation — outward-facing docs surface (started 2026-05-10)

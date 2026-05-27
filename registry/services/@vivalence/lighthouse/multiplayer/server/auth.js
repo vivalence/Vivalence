@@ -72,6 +72,7 @@ async function signup(input, ctx) {
 
   await ctx.entities.em.flush();
 
+  // console.log({ identity, authority });
   return respond.success({
     identity: { id: identity.id, slug: identity.slug },
     authority,

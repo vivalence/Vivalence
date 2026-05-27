@@ -182,47 +182,53 @@ Compositions mount via =form= (blocking, resolves on =done=) or =app=
 
 * Milestones (test-driven)
 
-** M1 — sheets component library (atoms + layouts + field protocol)
+** M1 — sheets component library (atoms + layouts + field protocol) [SHIPPED]
 Test-first. The pure reducers + the Form state machine are the testable surface
 (R1) — no ink rendering for logic tests.
 
-- tests → =subsystems/sheets/tests/workpackage/=
-  - =text.state.test.js= — insert / delete / cursor move+clamp / submit.
-  - =select.state.test.js= — up/down clamp+wrap; submit yields value.
-  - =multiselect.state.test.js= — toggle; submit yields array.
-  - =field-protocol.test.js= — Actions → ={kind:"nav", action}=; value-field →
-    ={kind:"value", value}=.
-  - =form.state.test.js= — =formMachine=: advance on submit, collect values by
-    name, exactly one active, terminal action resolves ={values, action}=.
+- tests → =subsystems/sheets/tests/= (flat; @beef moved out of =workpackage/=)
+  - =text.state.test.js= — insert / delete / cursor move+clamp.
+  - =select.state.test.js= — up/down clamp; value reads option.value.
+  - =multiselect.state.test.js= — toggle add/remove; defaultValue seeds.
+  - =field-protocol.test.js= — value advances, nav routes, unknown is identity.
+  - =form.state.test.js= — =formMachine=: advance, collect by name, terminal
+    action resolves ={values, action}=, back steps without losing values.
 - impl: =state/{text,select,multiselect,form}.js= (pure) +
   =components/{TextInput,PasswordInput,Select,MultiSelect,Confirm,TextArea,List,Field,Actions,Form,Banner,Tasks}.jsx=
-  + =mod.jsx= barrel re-exporting all + =shard=.
-- acceptance: reducers + formMachine green; =deno task sheets/demo= renders a
-  two-field form with =[commit][skip]= resolving ={values, action}=.
+  + app shell =components/{Logo,Background,Chrome}.jsx= + =theme.js= (brand
+  palette + glyphs + wordmark; the dapper-TUI seam, R10)
+  + =mod.jsx= barrel re-exporting all + =shard=. Deps =react=/=ink= via
+  =import_map.json= (no =npm:= specifiers, @beef).
+- acceptance: *14 reducer tests green*; barrel loads all components; ghost
+  =shard= intact; live UX demo =testament/temp.js= (Form =[commit]/[skip]= →
+  ={values, action}=, MultiSelect, live Tasks, success Banner).
 
-** M2 — paladin process lifecycle telemetry
-- tests → =subsystems/paladin/tests/workpackage/=
-  - =lifecycle.test.js= — spawn a trivial =deno eval=; assert =system.lifecycle=
-    emits =spawning → running → exited= in order with pid + code.
-  - =boot.test.js= — =system.boot([spec, spec])= returns 2 handles, both locked,
-    lifecycle taps fire; teardown kills both, locks removed.
-  - rewrite the red =workpackage/system.test.js= to =(type, slug)= + flat
-    layout (carried open item from the process-management compact).
-- impl: =System.lifecycle= Pipe; =Process= phase emits; =System.boot(specs)=.
-- acceptance: lifecycle ordering green; boot/teardown census clean.
+** M2 — paladin process spawn + boot [SHIPPED · angle A]
+@beef: *"too many pipes. overengineered."* → chose *angle A* (of three explored):
+1 pipe total. =Process= is a pure executor; attached → stdio =inherit= (the terminal
+IS the live view), detached → =null=. Dropped per-process out/err =Pipe= + in =Queue=
++ =relay=/=feed= + the proposed =lifecycle= Pipe. Lifecycle is observed through the
+*span tree* (branch per process: subject=pid, timing, fault), which already drains
+through the one existing span pipe (mod.js → =spans.jsonl=).
+- impl: =Process.spawn= (=inherit= | =null=); =System.boot(specs)=.
+- test: =tests/workpackage/spawn.test.js= — boot returns a live handle per spec,
+  lock written on spawn, removed on exit (poll; the removal is fire-and-forget in
+  =status.then=). attached arms OS signals → sanitizers off for that test.
+- acceptance: spawn.test green, 3× stable.
 
-** M3 — init trajectory (compose M1 + M2)
-- tests → =systems/ghost/tests/workpackage/=
-  - =init.gather.test.js= — scripted signal/params + a fake =ctx.view= returning
-    canned values → GATHER yields ={identifier, account, config}=; commit vs
-    skip branches.
-  - =init.act.test.js= — fake =system.boot= + lifecycle Pipe → init taps events,
-    builds the Tasks model, teardown on signal kills handles (lighthouse
-    stubbed).
-- impl: =init.js= GATHER + ACT; the two JSDoc annotations; route already wired
-  (=trajectories/index.js= opens =/instance/init=).
-- acceptance: gather + act green; live =viva instance/init <variant>= boots,
-  shows live Tasks, Ctrl-C tears down clean.
+** M3 — init trajectory + sheets uniform resolve [SHIPPED · angle A]
+- sheets: every input honors =done= as the submit fallback (=(onSubmit ?? done)=)
+  so =ctx.view.form(MultiSelect)= et al resolve uniformly (Form already used =done=).
+- =init.js=: GATHER (=vip.list= log per D1 + admin =Form= [commit]/[skip] + config
+  =MultiSelect=) → ACT (=system.boot=, span branch per process, lighthouse-on-commit
+  stub, hold until =status=/teardown). The two JSDoc annotations ride on =init=.
+- =run.js= leaned to the same shape (boot + span trace; =inherit=, no out/err tap).
+- the old wafer-copy =init.test.js= (install semantics) → =tests/bak/= — superseded;
+  that behaviour is clone's, not init's.
+- test: =tests/init.gather.test.js= — faked =ctx.view= + stubbed =system.boot= →
+  GATHER yields ={admin, config}=, ACT boots the variant's specs + sets =effect=.
+- acceptance: gather green; live app =testament/temp.jsx=; =viva instance/init=
+  boots the variant (children inherit the terminal), Ctrl-C → =system.teardown=.
 
 * Contract (invariants)
 

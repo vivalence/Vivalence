@@ -1,12 +1,15 @@
 import paladin from "@vivalence/paladin";
-import { Vector, Span, Path, steer } from "@vivalence/typology";
-import { shard } from "@vivalence/sheets";
+import { Vector, Span, Path, steer, shard } from "@vivalence/typology";
+import { view, JsonTree } from "@vivalence/sheets";
 import { ShellSignal, ShellContext } from "./typology.js";
 
 import trajectories from "./trajectories/index.js";
 
 const strategy = (carry, effect) => async (context) => {
-  await carry(context, async (ctx) => (ctx.effect = await effect(ctx)));
+  await carry(context, async (ctx) => {
+    const result = await effect(ctx);
+    ctx.effect ??= result;
+  });
   return context.effect;
 };
 
@@ -14,12 +17,24 @@ const trajectory = new Vector();
 
 trajectory
   .use(async (ctx, next) => {
-    ctx.span = new Span("ghost.invoke").to(paladin.system.pipe).begin();
+    // const pipe = new Pipe()
+    // pipe.tap(span=> paladin.system.pipe[...probably paladin.system.log()])
+
+    ctx.span = new Span("ghost");
+    // ctx.span.to(paladin.variant.logs);
+
+    ctx.span.begin();
     ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") });
-    await next();
-    if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code);
-    ctx.span.drain();
+
+    try {
+      await next();
+    } finally {
+      if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code);
+      ctx.span.drain();
+    }
   })
+
+  // .use(async (ctx, next) => {ctx.span = new Span("ghost.invoke").to(paladin.system.pipe).begin(); ctx.span.track.subject({ schema: "signal", id: ctx.signal.absolute.join(" ") }); await next(); if (ctx.error) ctx.span.track.fault().raise(ctx.error.message, ctx.error.code); ctx.span.drain();})
   .use(async (ctx, next) => {
     try {
       await next();
@@ -33,6 +48,7 @@ trajectory
       const [apply, effect] = steer.traverse(trajectory, signal); // @beef validate
       const context = new ShellContext({ signal });
       await apply(context, async (_ctx) => {
+        // @beef try catch pipe bubble!
         const result = await effect(_ctx);
         if (!_ctx.effect && result) _ctx.effect = result;
       });
@@ -42,35 +58,46 @@ trajectory
     await next();
   })
   .use(async (ctx, next) => {
-    // @beef issue: when mounting i collapse the environemnt variables and pass nulls to Url and Path constructors.
-    // console.log("Deno.cwd(), new Path(Deno.cwd())", Deno.cwd(), new Path(Deno.cwd()));
-    const cakes = await paladin.find.type(new Path(Deno.cwd()), "variant", 0);
-    // console.log("cakes", cakes);
+    // shell cwd — deno task rewrites Deno.cwd() to repo root; INIT_CWD preserves user shell cwd
+    const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+    const cakes = await paladin.find.type(new Path(cwd), "variant", 0);
     if (cakes.length) {
-      paladin.scopes([["variant", () => true, () => new Path(Deno.cwd())]]);
-      // paladin.env.set("VIVA_VARIANT_MOUNT", Deno.cwd());
+      paladin.scopes([["variant", () => true, () => new Path(cwd)]]);
       ctx.variant = await paladin.variant.mount();
-      // console.log("ctx.variant", ctx.variant);
     }
     await next();
-    // console.log("Deno.cwd(), new Path(Deno.cwd())", Deno.cwd(), new Path(Deno.cwd()));
-    // console.log("cakes", cakes);
-    // console.log("ctx.variant", ctx.variant);
   })
-  .use(shard.view());
+  // view surface dispatch :: --buffer hijacks scroll into a Chrome shell.
+  // post-body :: --json dumps effect; --tree walks effect interactively.
+  .use(async (ctx, next) => {
+    const flags = ctx.signal.flags ?? {};
+    // console.log({ ctx }, ctx.signal.flags);
+    let shell = null;
+
+    if (flags.buffer) {
+      shell = view.buffer.shell();
+      ctx.view = view.hijack(shell);
+    } else {
+      ctx.view = view;
+    }
+
+    try {
+      await next();
+      if (shell) await shell.untilExit(); // hold alt-screen until user presses esc/return
+    } finally {
+      if (shell) shell.release();
+      if (flags.json) {
+        console.log(JSON.stringify(ctx.effect, null, 2));
+        // } else if (flags.tree) {
+        // ctx.view = view.hijack(shell);
+        //   await view.scroll.render({ data: ctx.effect }, null, JsonTree);
+      }
+    }
+  });
 
 trajectories(trajectory);
 
-if (!Deno.args.length) {
-  // console.log("usage: viva <command> [args...] [--flags]");
-  // console.log("commands:");
-  // console.log("  instance/clone <slug> <target>");
-  // console.log("  instance/run   <slug|path>      (attached)");
-  // console.log("  instance/start <slug|path>      (detached)");
-  // console.log("  instance/stop  <slug|path>");
-  // console.log("  sheets/text-select");
-  Deno.exit(0);
-}
+if (!Deno.args.length) Deno.exit(0);
 
 const signal = new ShellSignal(Deno.args);
 const context = new ShellContext({ signal });
@@ -79,7 +106,6 @@ await paladin.system.mount();
 
 try {
   await steer.invoke(trajectory, signal, strategy)(context);
-  // console.log(context);
   if (context.error) console.error(context.error);
 } catch (error) {
   if (error.code === "NOT_FOUND") {

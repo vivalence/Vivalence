@@ -1,0 +1,916 @@
+#+TITLE: 52.02 Docker — Hands-on Walkthrough
+#+AUTHOR: Vivalence
+
+Roterfaden: drive the system manually from inside a single =vivalence/vivalence:alpine=
+container. Every step is a real bash command you type. At the side of each step
+you'll see how the same thing happens for you under =docker compose=, =deno task=,
+or a deployed host (Coolify). Learn the mechanism by hand; let the orchestrator do
+it for you afterwards.
+
+* 0. Build the base
+
+Build once. The base image carries deno, jj, sqlite, the repo, and the =viva= binary.
+
+#+begin_src sh
+deno task vivalence/build   # → vivalence/vivalence:alpine
+deno task runtime/build     # → vivalence/runtime:alpine   (FROM the base)
+deno task kajuit/build      # → vivalence/kajuit:alpine    (multistage → nginx)
+# OR
+deno task build             # all three
+#+end_src
+
+The runtime + kajuit images inherit everything from the base. So the base is
+both a runnable client (=viva= CLI) AND the substrate every other image extends.
+
+* 1. Enter the box
+
+#+begin_src sh
+docker run --rm -it vivalence/vivalence:alpine bash
+#+end_src
+
+What you get inside:
+- =WORKDIR /viva/repository= with the repo COPYed in at build time
+- =viva= on =PATH= (symlink → =systems/ghost/ghost.sh=)
+- =VIVA_REPOSITORY_MOUNT= and =VIVA_REGISTRY_MOUNT= already exported
+- jj, ripgrep, fzf, vim, tmux, htop, jq, docker-cli — devshell-grade
+
+Nothing else. No system mount. No variant. No env file. Bare.
+
+* 2. See the system through ghost's eyes
+
+#+begin_src sh
+# inside container
+viva system/doctor
+#+end_src
+
+#+begin_src text
+viva doctor
+
+identity
+role:   mode:
+flags: citizen
+
+scopes
+✓ system         /root/.viva
+✓ repository     /viva/repository
+✓ registry       /viva/repository/registry
+✗ variant        —
+  ✗ mountpoint     —
+  ✗ environment    —
+
+processes (armed:false  attached:0)  —
+locks (0)                            —
+instances (0)                        —
+logs (0 files)                       —
+
+variant (daemons:0  services:0  runtime:no)
+registry (30 modes  12 types)
+environment (2 vars)
+  VIVA_REPOSITORY_MOUNT          /viva/repository
+  VIVA_REGISTRY_MOUNT            /viva/repository/registry
+vip cache: 1  ·  secrets: 0
+#+end_src
+
+# Reading the report:
+# - *role / mode are blank* — no =VIVA_SYSTEM_ROLE= / =VIVA_SYSTEM_MODE= passed.
+#   Doctor still runs because everything else (scopes, registry walk) is derivable.
+# - *system → =/root/.viva=* — paladin defaulted because =VIVA_SYSTEM_MOUNT= unset.
+#   =instance/init= would scaffold =logs/= + =locks/= there on first run.
+# - *registry shows 30 modes / 12 types* — pulled from =/viva/repository/registry=
+#   via COPY. The catalogue is in the image.
+# - *variant ✗* — no variant scope. We have nothing to run yet.
+
+This is the floor. Every later step adds one missing piece.
+
+** Equivalent calls
+
+| where        | what                                  |
+|--------------+---------------------------------------|
+| host repo    | =deno task ghost/run /system/doctor=  |
+| installed    | =viva /system/doctor=                 |
+| container    | =docker run … viva /system/doctor=    |
+
+* 3. Mount a variant (the unlock)
+
+Pick the =multiplayer= variant shipped in the registry. Variant lives at
+=registry/wafers/@vivalence/variant/multiplayer/=. Mount it.
+
+#+begin_src sh
+docker run --rm -it \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  vivalence/vivalence:alpine bash
+
+# inside:
+viva system/doctor
+#+end_src
+
+What you'll now see:
+- =variant= scope resolves → the multiplayer dir
+- =mountpoint= + =environment= scopes resolve (subdirs of the variant)
+- =variant (daemons:N  services:M  runtime:yes)= populated
+- env section shows =VIVA_VARIANT_MOUNT=
+
+In the host workflow this happens implicitly — ghost mw scans cwd for a
+=.viva.js= marker. In a container, no =cd= → set the env explicitly.
+
+** Mount from outside, not COPY
+
+If you want a variant living *outside* the image (your own clone, in dev):
+
+#+begin_src sh
+docker run --rm -it \
+  -v ~/projects/brazilian:/viva/variant \
+  -e VIVA_VARIANT_MOUNT=/viva/variant \
+  -e VIVA_SYSTEM_ROLE=SUDO \
+  vivalence/vivalence:alpine bash
+#+end_src
+
+Now the container reads your host clone. Edits on the host show up live.
+This is how you'd iterate without rebuilding.
+
+* 4. Run the runtime by hand — build the envelope, one var at a time
+
+The variant is mounted. =viva system/doctor= reads cleanly. But the moment we
+ask the system to *boot something* (=instance/init=, =instance/run=, direct
+=deno run -A systems/runtime/run.js=), it crashes. The image is fine. The
+envelope around it is empty.
+
+We'll add the envelope by hand, one error at a time, learning what each var
+unlocks.
+
+** 4.0 Set the mode (the runtime image's only ENV)
+
+The =:runtime= image differs from =:alpine= by exactly two things: =ENV
+VIVA_SYSTEM_MODE=RUNTIME= and a default =CMD=. From inside =:alpine= we just
+set the env and call the cmd ourselves:
+
+#+begin_src sh
+# inside the container
+export VIVA_SYSTEM_MODE=RUNTIME
+deno run -A systems/runtime/run.js
+#+end_src
+
+That's =:runtime= reproduced by hand. Try it. It will crash — but informatively.
+
+** 4.1 Read the crash → add the *serves*
+
+First the kajuit child blows up:
+
+#+begin_src text
+kajuit  TypeError: Invalid URL: 'NaN'
+kajuit      at Url.get hostname (file:///…/subsystems/typology/prototypes/url.js:132:12)
+kajuit      at serverConfig (file:///…/systems/kajuit/vite.config.mjs:28:32)
+#+end_src
+
+Reading: =vite.config.mjs:28= calls =new URL(client.statics.serve)=. =serve= is
+unset → URL parser hits =NaN= port → crash. The variable it wants is
+=VIVA_CLIENT_KAJUIT_SERVE=.
+
+Then (or before — depends which child trips first) the runtime daemon needs
+its own listener address: =VIVA_RUNTIME_SERVE=. And the lighthouse service
+mounted under it needs a route: =VIVA_LIGHTHOUSE_SERVE=.
+
+Three /serve/ URLs — *where each process binds*:
+
+#+begin_src sh
+export VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
+export VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
+export VIVA_CLIENT_KAJUIT_SERVE=http://0.0.0.0:1794
+#+end_src
+
+=0.0.0.0= because inside the container we need to bind to all interfaces, not
+loopback. Port choice matches what compose ships: 2501 runtime, 1794 kajuit.
+
+Re-run. Different crash.
+
+** 4.2 Read the next crash → add the *secret*
+
+#+begin_src text
+Error: JWT secret not configured in service.secrets.jwt
+    at default (file:///…/registry/services/@vivalence/lighthouse/multiplayer/server/lib/jwt.js:75:11)
+    at Module.inject (file:///…/registry/services/@vivalence/lighthouse/multiplayer/server/auth.js:16:30)
+#+end_src
+
+Lighthouse signs JWTs. Without a key it refuses to boot. Add:
+
+#+begin_src sh
+export SECRET_VIVA_JWT=dev
+#+end_src
+
+Any non-empty value works in dev. In production it's a long random string —
+paladin treats =SECRET_*= specially (never logs, never publishes, sandboxed
+from kajuit).
+
+Re-run. It boots.
+
+** 4.3 Make the client talk to the server → add the *remotes*
+
+The runtime is up; the kajuit client is up. But the SPA in your browser needs
+to know where the *server* lives — and "localhost" inside the container is
+not the same as "localhost" on your host machine. Those are the =PUBLIC_= vars:
+
+#+begin_src sh
+export PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501
+export PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer
+export PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=http://localhost:1794
+#+end_src
+
+=PUBLIC_= means: this var is safe to leak to the browser. Paladin's
+=publish()= mirrors =PUBLIC_*= keys to =Deno.env= at variant mount; kajuit's
+entrypoint serializes them into =_app/env.js= so the SPA can read them at
+runtime. Anything *not* prefixed =PUBLIC_= stays server-side.
+
+The /serves/ are server-side bindings. The /remotes/ are client-side targets.
+Same URL, different lens.
+
+** 4.4 Persist state → add the *mountpoint*
+
+By default the runtime writes DBs and per-daemon state into the variant's
+=mountpoint/= subdir. That's inside the image — disappears on container exit.
+Bind-mount a host volume:
+
+Exit, restart with:
+
+#+begin_src sh
+docker run --rm -it \
+  -v ./mountpoint/:/viva/mountpoint \
+  -p 2501:2501 -p 1794:1794 \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  -e VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint \
+  -e VIVA_SYSTEM_MODE=RUNTIME \
+  -e VIVA_RUNTIME_SERVE=http://0.0.0.0:2501 \
+  -e VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer \
+  -e VIVA_CLIENT_KAJUIT_SERVE=http://0.0.0.0:1794 \
+  -e PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501 \
+  -e PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer \
+  -e PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=http://localhost:1794 \
+  -e SECRET_VIVA_JWT=dev \
+  vivalence/vivalence:alpine bash
+#+end_src
+
+#+begin_src shell
+  viva instance/run
+  viva instance/init # if you want to verify systm running end to end and maybe want to create a user.
+  # alternatively create a user with $curl 
+#+end_src
+
+=VIVA_MOUNTPOINT_MOUNT= tells paladin where to write state. The bind-mount
+keeps it between runs (and lets you inspect the dbs from your host). The =-p=
+flags make 2501 + 1794 reachable from your host browser.
+
+This boots the runtime + lighthouse + vite. What it does *not* unlock:
+
+- =VIVA_SYSTEM_ROLE=RUNTIME= — without it, =doctor= prints =role: <blank>=.
+  The system still works; the role flag is for telemetry / introspection.
+- =SECRET_VIVA_ANTHROPIC_API_KEY= / =SECRET_VIVA_ELEVENLABS_API_KEY= /
+  =SECRET_VIVA_DEEPGRAM_API_KEY= — the three hallucinator providers
+  ([[file:doctor%20output][see =instance/doctor=]] below). Without them, daemons that try to
+  hallucinate (chat, tts, transcription) will throw at use-time, not boot-time.
+- =VIVA_SYSTEM_MOUNT= — defaults to =/root/.viva= inside the container, which
+  vanishes on exit. Bind-mount it (=-v ./system:/viva/system -e
+  VIVA_SYSTEM_MOUNT=/viva/system=) if you want =instances.json= + lock ledger
+  to survive.
+
+Twelve flags get you booted. Sixteen get you a production-shaped deploy.
+Compose declares all of them at once — see §6.
+
+** A convention: put hand-runs in =testament/docker/=
+
+If you're testing the envelope by hand from the repo, dropping into
+=testament/docker/= keeps your bind-mount artifacts (=mountpoint/=, =system/=)
+out of git and alongside the rest of testament:
+
+#+begin_src sh
+cd testament && mkdir -p docker && cd docker
+docker run … -v ./mountpoint/:/viva/mountpoint …
+#+end_src
+
+After your first =instance/run=, =tree= the bind-mount and you'll see what
+the runtime actually wrote:
+
+#+begin_src text
+testament/docker/
+└── mountpoint/
+    ├── daemon_brazilian/
+    │   ├── migrations/
+    │   │   └── Migration20260529200930.ts
+    │   └── test-language.viva.db
+    └── service_multiplayer/
+        ├── lighthouse.viva.db
+        └── migrations/
+            └── Migration20260529200930.ts
+#+end_src
+
+One subdir per daemon (=daemon_<slug>=) and per service (=service_<slug>=),
+each holding its own libSQL db + migration history. The bind-mount means
+this survives container teardown — next =docker run= rehydrates from the same
+state.
+
+* 5. Validate the envelope — doctor, instance/doctor, instance/run
+
+Inside the container with the full envelope, run the inspections.
+
+** 5.0 Three ways forward — pick by goal
+
+#+begin_src sh
+viva instance/run                                          # boot, foreground, no user
+viva instance/init                                         # boot + signup wizard (e2e + admin user)
+# alternatively create a user with curl against a running stack:
+curl -X POST $PUBLIC_VIVA_LIGHTHOUSE_REMOTE/auth/signup \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"beef","password":"biggusdickus"}'
+#+end_src
+
+Which one to pick depends on what you're verifying:
+
+| goal                                          | command                       |
+|-----------------------------------------------+-------------------------------|
+| services come up, you'll inspect logs / state | =viva instance/run= (§5.3)    |
+| end-to-end check + create the first user      | =viva instance/init=          |
+| stack is up, you want to add more users       | =curl=/bruno → =/auth/signup= (§5.4) |
+
+=instance/run= is the workhorse — stays attached, you read logs, Ctrl-C to
+exit. =instance/init= bundles boot + signup + ready-frame into one wizard,
+ideal for first-time setup. Once the stack is running, =curl= (or the bruno
+collection in =testament/_bruno/=) lets you provision additional accounts
+without restarting.
+
+The next subsections walk each in detail.
+
+** 5.1 =viva system/doctor= — the envelope reflected back
+
+#+begin_src text
+viva doctor
+
+identity
+role:   mode: RUNTIME
+flags: citizen
+
+scopes
+✓ system         /root/.viva
+✓ repository     /viva/repository
+✓ registry       /viva/repository/registry
+✓ variant        /viva/repository/registry/wafers/@vivalence/variant/multiplayer
+  ✓ mountpoint     /viva/mountpoint
+  ✓ environment    /viva/repository/registry/wafers/@vivalence/variant/multiplayer/environment
+
+processes (armed:false  attached:0)  —
+locks (0)                            —
+instances (0)                        —
+logs (0 files)                       —
+
+variant (daemons:0  services:0  runtime:no)
+clients: —
+
+registry (30 modes  12 types)
+  variant:2  corpus:2  domain:1  ontology:3  dashboard:1  game:11
+  tactic:2  teacher:1  hallucinator:3  lighthouse:2  service:1  datamap:1
+
+environment (11 vars)
+  VIVA_SYSTEM_MODE                 RUNTIME
+  VIVA_VARIANT_MOUNT               /viva/repository/registry/wafers/@vivalence/variant/multiplayer
+  VIVA_MOUNTPOINT_MOUNT            /viva/mountpoint
+  VIVA_REPOSITORY_MOUNT            /viva/repository
+  VIVA_REGISTRY_MOUNT              /viva/repository/registry
+  VIVA_RUNTIME_SERVE               http://0.0.0.0:2501
+  VIVA_LIGHTHOUSE_SERVE            http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
+  VIVA_CLIENT_KAJUIT_SERVE         http://0.0.0.0:1794
+  PUBLIC_VIVA_RUNTIME_REMOTE       http://localhost:2501
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE    http://localhost:2501/attached/process/lighthouse/multiplayer
+  PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE http://localhost:1794
+
+vip cache: 1  ·  secrets: 1
+#+end_src
+
+Compare to §2: scopes went from 3✓/3✗ to 6✓/0✗. Env block jumped from 2 vars
+to 11. =secrets: 1= reflects =SECRET_VIVA_JWT=. =mode: RUNTIME= confirms the
+mode env took. =role:= is still blank because we never set =VIVA_SYSTEM_ROLE=
+— optional for boot, useful for telemetry.
+
+=processes= / =locks= / =instances= remain at 0 because we haven't booted
+anything yet. =variant (daemons:0 services:0 runtime:no)= because doctor
+shows the *unmounted* shape — until something calls =paladin.variant.mount()=,
+the variant is just a manifest reference. Next step proves it mounts.
+
+** 5.2 =viva instance/doctor= — what the variant resolves to
+
+This mounts the variant and dumps the resolved =paladin.variant= object.
+Trimmed:
+
+#+begin_src text
+Variant {
+  manifest: { type: "variant", slug: "multiplayer" },
+  runtime: {
+    slug: "runtime",
+    statics: { serve: Url { origin: "http://0.0.0.0:2501" } },
+    datamap: { module: "@vivalence/datamap/libsql",
+               statics: { db: { file: "runtime.viva.db" } } }
+  },
+  clients: {
+    kajuit: { slug: "kajuit",
+              statics: { serve: Url { origin: "http://0.0.0.0:1794" },
+                         lighthouse: { remote: Url { … } } } }
+  },
+  daemons: [
+    Mask {
+      manifest: { type: "daemon", slug: "brazilian", traits: ["ACTIVE"] },
+      mount: Path { nature: "/daemon_brazilian", trace: "/viva/mountpoint" },
+      statics: { language: { known: "english", learning: "brazilian" } },
+      kernel: ["@vivalence/domain/language-learning",
+               "@vivalence/ontology/word",
+               "@vivalence/ontology/sentence",
+               "@vivalence/ontology/conjugation",
+               "@vivalence/corpus/english-to-brazilian"],
+      modes:  ["@vivalence/game/flashcard", "@vivalence/game/write",
+               "@vivalence/game/shadow", "@vivalence/game/judge",
+               "@vivalence/game/match", "@vivalence/game/conjugation",
+               "@vivalence/game/paradigm", "@vivalence/game/pick",
+               "@vivalence/game/cloze", "@vivalence/game/listen",
+               "@vivalence/game/exhibit",
+               "@vivalence/tactic/five-fold-session",
+               "@vivalence/tactic/clinic",
+               "@vivalence/dashboard/dataspace",
+               "@vivalence/teacher/dewey"],
+      lighthouse: { module: "@vivalence/lighthouse/multiplayer", … },
+      datamap: { module: "@vivalence/datamap/libsql", … },
+      hallucinators: [
+        { module: "@vivalence/hallucinator/anthropic",  secrets: { … } },
+        { module: "@vivalence/hallucinator/elevenlabs", secrets: { … } },
+        { module: "@vivalence/hallucinator/deepgram",   secrets: { … } }
+      ],
+    }
+  ],
+  services: [
+    Mask {
+      slug: "multiplayer",
+      module: "@vivalence/lighthouse/multiplayer",
+      secrets: { jwt: "dev" },
+      statics: { serve: Url { nature: "/attached/process/lighthouse/multiplayer",
+                              origin: "http://0.0.0.0:2501" } },
+      datamap: { module: "@vivalence/datamap/libsql", … }
+    }
+  ],
+  paladin: Paladin {
+    env: Env { vars: { …all 11… } },
+    secret: Env { vars: { SECRET_VIVA_JWT: "dev" } },
+    …
+  }
+}
+#+end_src
+
+What this proves:
+- The variant manifest resolved → one daemon (=brazilian=), one service
+  (=multiplayer=).
+- The daemon's =modes= list (15 entries) shows what gameplay surfaces it
+  carries — flashcards, shadow, judge, conjugation, dashboards, teacher.
+- The daemon ships three /hallucinators/ — anthropic / elevenlabs /
+  deepgram. Each expects =secrets= (the =SECRET_VIVA_*= variants you didn't
+  set). They're declared, but inert until secrets land.
+- =services[0].secrets.jwt = "dev"= confirms =SECRET_VIVA_JWT= flowed into
+  paladin.secret → into the service mask.
+- =paladin.env.vars= holds all 11 =VIVA_*= / =PUBLIC_VIVA_*=. =paladin.secret.vars=
+  holds the one =SECRET_*=. Sandbox: the SPA never sees =paladin.secret=.
+
+** 5.3 =viva instance/run= — both children up, foreground
+
+#+begin_src text
+run runtime=96 kajuit=97
+Task run    deno run -A --env-file=../../testament/.env run.js
+Task watch  VIVA_SYSTEM_ROLE=CLIENT deno run -A --env-file=../../testament/.env npm:vite dev
+Warning  The `--env-file` flag was used, but '../../testament/.env' was not found.
+…
+[migrator] Processing 'Migration20260529200930'
+[migrator] Applied 'Migration20260529200930'
+[DATASET:install] upsert:symbol  111/111
+[DATASET:install] upsert:symbol   44/44
+[DATASET:install] upsert:literal 2216/2216
+[DATASET:install] link:literal   2216 entities linked
+Status:ALIVE
+  VITE v6.3.3  ready in 3253 ms
+  ➜  Local:   http://localhost:1794/
+  ➜  Network: http://172.17.0.3:1794/
+#+end_src
+
+What happened, in order:
+- /Fork/: runtime child pid 96, kajuit child pid 97. Each child inherits the
+  full env.
+- /env-file warning/: deno tasks for runtime + kajuit hardcode
+  =--env-file=../../testament/.env=. Inside the container that path doesn't
+  exist — cosmetic warning, not a failure. The env is already exported in the
+  shell, so the env-file is moot.
+- /migrations/: libSQL migrator runs once per db file, applies the schema.
+  Writes land in =/viva/mountpoint/= → visible on host (see tree in §4.4).
+- /dataset install/: the english-to-brazilian corpus loads — 111 symbols, 44
+  more from a second source, 2216 literals linked into the graph.
+- =Status:ALIVE=: lighthouse + vite signal ready.
+
+Open =http://localhost:1794/= in your host browser — kajuit reads =_app/env.js=,
+the SPA calls =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=, dashboards render.
+
+Ctrl-C in the container exits both children cleanly.
+
+** 5.4 Create the first user — two paths
+
+=instance/run= got the services up, but there's no user account in the
+=multiplayer= service's db yet. The SPA at =http://localhost:1794/= can load,
+but it can't log in until somebody exists. Two paths to create one:
+
+*** Path A — =viva instance/init= (wizard)
+
+Instead of =instance/run=, call =instance/init=. The Chrome wraps the
+boot + signup wizard + ready frame:
+
+#+begin_src sh
+viva instance/init
+#+end_src
+
+Phases: =boot= (spawns runtime + kajuit, awaits =Status:ALIVE=) → =create=
+(admin form prompts =username= + =password=) → =install= (POSTs to
+=/auth/signup= against the lighthouse, receives an identity id) → =ready=
+(per-process status, =enter= to teardown). After =enter=, the instance is
+registered with =$VIVA_SYSTEM_MOUNT/instances.json= and the children exit.
+
+This is the "first-time signup ritual" — boots the stack, registers an admin,
+unwinds.
+
+*** Path B — bruno (or curl) against a running lighthouse
+
+If the services are already up (=instance/run= in another shell), hit the
+endpoint directly. The canonical form lives in =testament/_bruno/= as a
+bruno collection (=vivalence/viva=), but it's just an HTTP POST under the hood.
+
+Bruno tree (relevant slice):
+
+#+begin_src text
+testament/_bruno/
+└── system/
+    ├── auth/                 ← shortcut aliases at top
+    │   ├── signup.bru
+    │   └── login.bru
+    └── lighthouse/
+        └── auth/             ← canonical, mirrors the lighthouse module
+            ├── Signup.bru
+            ├── Login.bru
+            ├── Verify.bru
+            ├── Refresh.bru
+            ├── Logout.bru
+            └── Login Invalid.bru
+#+end_src
+
+The request body:
+
+#+begin_src text
+POST {{PUBLIC_VIVA_LIGHTHOUSE_REMOTE}}/auth/signup
+auth: none
+body:json
+{
+  "username": "beef",
+  "password": "biggusdickus"
+}
+#+end_src
+
+Response (real, 200 OK, ~300 ms):
+
+#+begin_src jsonc
+{
+  "status": "SUCCESS",
+  "identity": {
+    "id": "019e755e-2418-76f9-8f95-45acec9462dd",
+    "slug": "beef"
+  },
+  "authority": {
+    "access":  "eyJhbGciOiJIUzI1NiJ9.…",   // JWT, short-lived bearer
+    "refresh": "eyJhbGciOiJIUzI1NiJ9.…"    // refresh token
+  }
+}
+#+end_src
+
+Three things to note in the response:
+- =identity.slug= is what humans use; =identity.id= is the immutable handle.
+- =authority.access= is the JWT — pass as =Authorization: Bearer <access>=
+  on every authenticated call.
+- =authority.refresh= is exchanged at =/auth/refresh= for a new =access= when
+  the short-lived one expires.
+
+Run it from the bru CLI (=PUBLIC_VIVA_LIGHTHOUSE_REMOTE= comes from the bruno
+=localhost= environment):
+
+#+begin_src sh
+cd testament/_bruno
+bru run system/lighthouse/auth/Signup.bru --env localhost
+#+end_src
+
+Bash glue scripts chain this with login + downstream calls. Example —
+=testament/_bruno/run-dewey.sh=:
+
+#+begin_src sh
+bru run system/lighthouse/auth/login.bru --env $ENV \
+  --reporter-json /tmp/bru-login.json > /dev/null
+TOKEN=$(jq -r '.[0].results[0].response.data.authority.access' /tmp/bru-login.json)
+
+# ... then use $TOKEN as Bearer on every subsequent request
+bru run system/daemon/datamap/mode/findOne.bru --env $ENV --env-var accessToken=$TOKEN …
+#+end_src
+
+The =--reporter-json= flag dumps the full response so =jq= can carve out the
+access token. After that, every downstream =bru run= takes =--env-var
+accessToken=…= to inject the bearer.
+
+Raw curl equivalent (no bruno needed):
+
+#+begin_src sh
+curl -X POST http://localhost:2501/attached/process/lighthouse/multiplayer/auth/signup \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"beef","password":"biggusdickus"}'
+#+end_src
+
+Same endpoint =instance/init= hits internally. Useful for scripted bootstrap,
+CI seeds, multi-user setups, or stepping through auth flows in bruno's GUI.
+
+** 5.5 Close the loop — log into kajuit
+
+Container running. User exists. Open =http://localhost:1794/= in your host
+browser:
+
+#+begin_src text
+┌───────────────────────────────────────────────┐
+│                                               │
+│                                               │
+│                                               │
+│         beef _________   ••••••••••• 🛡        │
+│                                               │
+│                          [ connect ]          │
+│                                               │
+│                                               │
+└───────────────────────────────────────────────┘
+#+end_src
+
+A minimal login frame: =username=, =password=, =connect=. The SPA posted
+=/auth/login= to =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=, got back the same
+=identity= + =authority= shape as §5.4, stashed the JWT, and dropped you into
+the dashboard.
+
+This is the full loop validated end-to-end:
+
+1. /image baked/ — base alpine + repo + viva binary
+2. /envelope supplied/ — twelve =-e= flags + bind-mount + ports (§4)
+3. /services booted/ — runtime + lighthouse + vite alive (§5.3)
+4. /user provisioned/ — POST =/auth/signup= via bruno (§5.4)
+5. /client connected/ — SPA login at =:1794= → JWT → dashboards (this step)
+
+Steps 4 + 5 are repeatable: any number of users via bruno, any number of
+browser sessions via login. Step 2 is what compose mechanizes — next section.
+
+**** Security caveat — the signup endpoint is currently open
+
+As of this writing, =/auth/signup= accepts /any/ request — no admin gate, no
+invite token, no rate limit. *This means anyone who can reach lighthouse's
+public URL can create an account.* Acceptable for a single-user dev box on
+localhost; *not* acceptable for a public deploy.
+
+To be fixed: signup will require either (a) an admin-only path during initial
+=instance/init=, or (b) an invite-token gate post-bootstrap. Until then,
+public deploys should firewall =/auth/signup= or front it with a reverse
+proxy that drops unauthenticated POSTs.
+
+* 6. The delta — what the image bakes, what the envelope ships
+
+** What the runtime image bakes
+
+#+begin_src dockerfile
+FROM vivalence/vivalence:alpine
+WORKDIR /viva/repository
+ENV VIVA_SYSTEM_MODE="RUNTIME"
+CMD ["deno", "run", "-A", "systems/runtime/run.js"]
+#+end_src
+
+Two lines over the base. =VIVA_SYSTEM_MODE=RUNTIME= pins the role; =CMD= sets
+the default invocation. The image has *no opinion* about which variant, which
+ports, which secrets — those are deferred to whoever runs it.
+
+** What the kajuit image bakes (and why it's multistage)
+
+#+begin_src dockerfile
+# Stage 1 — bundle the SPA
+FROM vivalence/vivalence:alpine AS build
+WORKDIR /viva/repository
+ENV VIVA_SYSTEM_MODE="BUILD"
+ENV VIVA_SYSTEM_ROLE="CLIENT"
+RUN deno install                          # svelte/vite deps
+RUN deno task kajuit/bundle               # → systems/kajuit/build/
+
+# Stage 2 — nginx serves the bundle
+FROM nginx:alpine
+COPY --from=build /viva/repository/systems/kajuit/build /usr/share/nginx/html
+EXPOSE 1794
+#+end_src
+
+The SPA is a /built artifact/ — no deno at runtime. An entrypoint script reads
+=PUBLIC_VIVA_*= at container start and stamps them into =_app/env.js= before
+nginx serves. Same image → different deploys → different remotes.
+
+** The delta the envelope supplies
+
+Whatever isn't baked in must be passed in. The shape doesn't change between
+=docker run -e= and =compose environment:= — only the syntax. Side-by-side:
+
+@beef i made this:
+| group         | hand (§4)                                  | compose                                  |
+|---------------+--------------------------------------------+------------------------------------------|
+| /persistence/ | =-v vivalence-mountpoint:/viva/mountpoint= | =volumes: - mountpoint:/viva/mountpoint= |
+| /exposure/    | =-p 2501:2501 -p 1794:1794=                | =ports: ["2501:2501", "1794:1794"]=      |
+| /system/      | =-e VIVA_SYSTEM_MOUNT=…=            | 
+|               | =-e VIVA_REPOSITORY_MOUNT=/viva/repository= |
+|               | =-e VIVA_REGISTRY_MOUNT=/viva/repository/registry= |
+|               | =-e VIVA_ENV_MOUNT=
+| /VARIANT/     | =-e VIVA_VARIANT_MOUNT=…=                  | =VIVA_VARIANT_MOUNT=…=                   |
+|               | =-e VIVA_ENVIRONMENT_MOUNT=/viva/environemnt= |                 |
+|               | =-e VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint= | =VIVA_MOUNTPOINT_MOUNT=…=                |
+| /serves/      | =-e VIVA_RUNTIME_SERVE=…=                  | =VIVA_RUNTIME_SERVE=…=                   |
+|               | =-e VIVA_LIGHTHOUSE_SERVE=…=               | =VIVA_LIGHTHOUSE_SERVE=…=                |
+|               | =-e VIVA_CLIENT_KAJUIT_SERVE=…=            | =VIVA_CLIENT_KAJUIT_SERVE=…=             |
+| /remotes/     | =-e PUBLIC_VIVA_RUNTIME_REMOTE=…=          | =PUBLIC_VIVA_RUNTIME_REMOTE=…=           |
+|               | =-e PUBLIC_VIVA_LIGHTHOUSE_REMOTE=…=       | =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=…=        |
+|               | =-e PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=…=    | =PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=…=     |
+| /secrets/     | =-e SECRET_VIVA_JWT=…=                     | =SECRET_VIVA_JWT=…=                      |
+|               | =-e SECRET_VIVA_ANTHROPIC_API_KEY=…=       | =SECRET_VIVA_ANTHROPIC_API_KEY=…=        |
+| /services/    | =-e VIVA_SOMETHING=…= | 
+|               | =-e NLP_MOUNT= | 
+| /public/      | =-e PUBLIC_VIVA_SOMETHING=…= 
+/beef 
+
+** The compose form
+
+=registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml=:
+
+#+begin_src yaml
+volumes:
+  mountpoint:
+
+services:
+  runtime:
+    image: vivalence/runtime:alpine
+    ports: ["2501:2501"]
+    environment:
+      - VIVA_SYSTEM_MODE=PRODUCTION
+      - VIVA_SYSTEM_ROLE=RUNTIME
+      - VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer
+      - VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint
+      - VIVA_RUNTIME_SERVE=http://0.0.0.0:2501
+      - VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer
+      - PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer
+      - SECRET_VIVA_JWT=…
+      - SECRET_VIVA_ANTHROPIC_API_KEY=…
+    volumes:
+      - mountpoint:/viva/mountpoint
+
+  kajuit:
+    image: vivalence/kajuit:alpine
+    restart: unless-stopped
+    ports: ["1794:1794"]
+    environment:
+      - PUBLIC_VIVA_LIGHTHOUSE_REMOTE=…
+      - PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=…
+#+end_src
+
+Notice what compose does *not* set on either container:
+- =VIVA_SYSTEM_MODE= on runtime — *baked into the image* (it's already RUNTIME)
+- the kajuit SPA's URL config — handled by the kajuit entrypoint at start
+- the runtime's CMD — image default carries it
+
+Notice what it *does* override:
+- =VIVA_SYSTEM_ROLE=RUNTIME= explicitly (defensive; image sets MODE not ROLE)
+- =VIVA_SYSTEM_MODE=PRODUCTION= on the runtime container (overrides the
+  =RUNTIME= bake — production deploys flip mode regardless of role)
+
+** Prefix grammar — who reads what
+
+| prefix          | who reads it           | example                                    |
+|-----------------+------------------------+--------------------------------------------|
+| =VIVA_=         | server-side runtime    | =VIVA_VARIANT_MOUNT=, =VIVA_RUNTIME_SERVE= |
+| =PUBLIC_VIVA_=  | client (kajuit SPA)    | =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=            |
+| =SECRET_VIVA_=  | server-only secrets    | =SECRET_VIVA_JWT=                          |
+| =SERVICE_*=     | external integrations  | =SERVICE_NLP_KEY=                          |
+
+Paladin's =publish()= mirrors =PUBLIC_*= keys to =Deno.env= at variant mount,
+which is how kajuit's entrypoint script can serialize them into =env.js= for
+the SPA. Anything not =PUBLIC_= stays server-side.
+
+** Run it
+
+#+begin_src sh
+cd registry/wafers/@vivalence/variant/multiplayer
+docker compose up        # both, foreground
+docker compose up -d     # detached
+docker compose logs -f runtime
+docker compose down -v   # tear down + drop mountpoint volume
+#+end_src
+
+Browse =http://localhost:1794=. Lighthouse on =:2501=.
+
+* 7. What the registry pattern enables
+
+The compose file lives *inside the variant*
+(=registry/wafers/@vivalence/variant/multiplayer/=). Every variant ships its
+own compose. To run a different variant, you don't change the image — you cd
+to that variant's dir and =docker compose up=.
+
+This is the key insight: *image = engine, variant = config*. The base
+=vivalence/vivalence:alpine= is universal. Variants are mounted (or COPYed) and
+parameterized via env.
+
+* 8. Deploying further out
+
+** One-host, one compose (Coolify, Dokku, self-hosted)
+
+Coolify reads a =docker-compose.yml= from a git repo. Point Coolify at the
+variant dir:
+
+- *Repo*: your variant fork (or the monorepo, with compose path =registry/wafers/…/multiplayer/docker-compose.yml=)
+- *Build pack*: docker compose
+- *Env vars*: paste the =environment:= block, swap localhost for your domain
+- *Volumes*: Coolify will manage the named =mountpoint= volume
+- *Domain*: route =:1794 → kajuit=, =:2501 → runtime=
+
+For TLS / routing, replace the published ports with Coolify-managed proxy labels
+(=traefik.http.routers.kajuit.rule=…=).
+
+** Multiple hosts — split runtime from kajuit
+
+Two compose files. =runtime-compose.yml= on host A (with the mountpoint volume,
+the DB, the secrets). =kajuit-compose.yml= on host B (CDN edge, static).
+=PUBLIC_VIVA_LIGHTHOUSE_REMOTE= on host B points at host A's public URL.
+
+The image set doesn't change. Only the env vars and which compose lives where.
+
+** Production registry
+
+#+begin_src sh
+deno task tag          # tag local images → registry.vivalence.org/…
+deno task push         # push
+deno task publish      # build + tag + push in one
+#+end_src
+
+Coolify (or your host) pulls from =registry.vivalence.org=. CI can call
+=deno task publish= on every merge to main.
+
+* Lessons after walking through it by hand
+
+1. *The base image is a devshell as much as a runtime.* Everything else extends it.
+2. *Env is the only knob.* Three roles (SUDO / RUNTIME / CLIENT), four prefixes
+   (VIVA_, PUBLIC_VIVA_, SECRET_VIVA_, SERVICE_). The same code runs differently.
+3. *Variants are mountable.* You can COPY them in (production image) or volume-mount them
+   (dev). Doctor reflects this — variant ✗ until the env says where it is.
+4. *Kajuit's runtime config is injected at container start, not build.* Same
+   image, different deploy = different env.js = different remote pointers.
+5. *Compose is the script.* If you can do it by hand in the container, compose
+   can do it for you. If you can't, compose can't either — debug in bash first.
+
+* Cheatsheet
+
+#+begin_src sh
+# build
+deno task build
+
+# explore
+docker run --rm -it vivalence/vivalence:alpine bash
+viva system/doctor
+
+# mount + explore (variant scope only — doctor reads cleanly, boot will crash)
+docker run --rm -it \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  vivalence/vivalence:alpine bash
+
+# full runtime envelope by hand (see §4 for full env walk)
+docker run --rm -it \
+  -v vivalence-mountpoint:/viva/mountpoint \
+  -e VIVA_VARIANT_MOUNT=/viva/repository/registry/wafers/@vivalence/variant/multiplayer \
+  -e VIVA_MOUNTPOINT_MOUNT=/viva/mountpoint \
+  -e VIVA_SYSTEM_MODE=RUNTIME \
+  -e VIVA_RUNTIME_SERVE=http://0.0.0.0:2501 \
+  -e VIVA_LIGHTHOUSE_SERVE=http://0.0.0.0:2501/attached/process/lighthouse/multiplayer \
+  -e VIVA_CLIENT_KAJUIT_SERVE=http://0.0.0.0:1794 \
+  -e PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501 \
+  -e PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2501/attached/process/lighthouse/multiplayer \
+  -e PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE=http://localhost:1794 \
+  -e SECRET_VIVA_JWT=dev \
+  -p 2501:2501 -p 1794:1794 \
+  vivalence/vivalence:alpine viva instance/run
+
+# full stack via compose
+cd registry/wafers/@vivalence/variant/multiplayer
+docker compose up
+
+# publish
+deno task publish
+#+end_src
+
+* Further reading
+
+- =52.01_getting-started.org= — host workflow (no docker)
+- =Dockerfile= — base image
+- =systems/runtime/Dockerfile= — runtime image (inherits base)
+- =systems/kajuit/Dockerfile= — multistage build → nginx
+- =registry/wafers/@vivalence/variant/multiplayer/docker-compose.yml= — full compose
+- =.ikiro/known-issues.org= — sharp edges

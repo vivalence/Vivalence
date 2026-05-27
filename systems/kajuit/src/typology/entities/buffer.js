@@ -1,8 +1,8 @@
-import { Entity } from "../prototypes/entity.js";
-import { fn } from "@vivalence/typology";
+import { fn, RemoteRepository } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js"; // RemoteEnity (name the semantic space "Remote")
 
 export class Buffer extends Entity {
-  view = null;
+  view = null; // bundle
   context = null;
   hooks = { mount: [], render: [], tick: [], release: [], destroy: [] };
 
@@ -51,8 +51,6 @@ export class Buffer extends Entity {
     for (const hook of this.hooks.destroy) hook(this);
   }
 }
-
-import { RemoteRepository } from "@vivalence/typology";
 
 export const BufferDossier = {
   name: "buffer",

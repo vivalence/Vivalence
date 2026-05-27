@@ -1,4 +1,4 @@
-import { Mask, v, fn } from "@vivalence/typology";
+import { Pipe, Mask, v, fn } from "@vivalence/typology";
 
 const hydrate = (node) =>
   typeof node === "function"
@@ -26,24 +26,34 @@ async function resolve(variant) {
     });
 
   const [cake] = cakes;
+  variant.manifest = cake.manifest;
   variant.runtime = hydrate(cake.runtime ?? {});
   variant.clients = hydrate(cake.clients ?? {});
-  variant.daemons = [...(cake.daemons ?? []), ...(cake.circuitry?.daemons ?? [])]
-    .map((declaration) => mask("daemon")(hydrate(declaration)));
-  variant.services = [...(cake.services ?? []), ...(cake.circuitry?.services ?? [])]
-    .map((declaration) => mask("service")(hydrate(declaration)));
+  variant.daemons = [...(cake.daemons ?? []), ...(cake.circuitry?.daemons ?? [])].map(
+    (declaration) => mask("daemon")(hydrate(declaration)),
+  );
+  variant.services = [...(cake.services ?? []), ...(cake.circuitry?.services ?? [])].map(
+    (declaration) => mask("service")(hydrate(declaration)),
+  );
+
+  // variant.runtime.logs = new Pipe()
+  // variant.clients.kajuit.logs = new Pipe()
 }
 
 function validate(variant) {
   const errors = [];
   const collect = (label, value, schema) => {
-    for (const error of schema.errors(value)) errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
+    for (const error of schema.errors(value))
+      errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
   };
-  if (Object.keys(variant.runtime).length) collect("runtime", variant.runtime, v.primitives.variant.Runtime);
+  if (Object.keys(variant.runtime).length)
+    collect("runtime", variant.runtime, v.primitives.variant.Runtime);
   for (const [slug, client] of Object.entries(variant.clients))
     collect(`client[${slug}]`, client, v.primitives.variant.Client);
-  for (const daemon of variant.daemons) collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
-  for (const service of variant.services) collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
+  for (const daemon of variant.daemons)
+    collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
+  for (const service of variant.services)
+    collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
   if (errors.length) throw new Error(`[variant.mount validate]\n  ${errors.join("\n  ")}`);
 }
 
@@ -55,20 +65,26 @@ async function environment(variant) {
     files.map((file) =>
       variant.paladin.read
         .json(file)
-        .then((json) => (file.absolute.includes("secret") ? variant.paladin.secret : variant.paladin.env).assign(json)),
+        .then((json) =>
+          (file.absolute.includes("secret") ? variant.paladin.secret : variant.paladin.env).assign(
+            json,
+          ),
+        ),
     ),
   );
 }
 
 export class Variant {
+  manifest = {};
   runtime = {};
   clients = {};
   daemons = [];
   services = [];
 
   constructor(paladin) {
-    this.paladin = paladin;
     this.mount = fn.once(this.mount.bind(this));
+    this.paladin = paladin;
+    // this.logs = new Pipe();
   }
 
   async mount() {
@@ -76,6 +92,12 @@ export class Variant {
     await resolve(this);
     validate(this);
     this.paladin.publish();
+
+    // await log(this);
+    // return this.paladin.state.jsonl(this.path.branch("spans.jsonl"), span.json);
+    // return this.paladin.state.file(this.path.branch(`${stream}.log`));
+    // this.logs.tap((span) => Deno.writeTextFileSync(FILE, render(span) + "\n\n", { append: true })); // B
+
     return this;
   }
 }

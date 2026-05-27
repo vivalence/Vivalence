@@ -1,5 +1,6 @@
 import { is, Url, Path } from "@vivalence/typology";
 
+// Rename BufferBundle
 export class BufferView {
   bundles = [];
   schema = {};

@@ -1,6 +1,6 @@
 import { Env } from "@vivalence/typology";
 import belt from "../belt/index.js";
-import { System } from "./system.js";
+import { System } from "./system/index.js";
 import { Variant } from "./variant.js";
 import { Vip } from "./vip.js";
 

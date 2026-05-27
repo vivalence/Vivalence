@@ -1,8 +1,0 @@
-{"nature":"ghost.invoke","timing":{"begun":666.625709,"sealed":672.426417},"subject":{"schema":"signal","id":"instance/start"}}
-{"nature":"ghost.invoke","timing":{"begun":580.186083,"sealed":585.703166},"subject":{"schema":"signal","id":"instance/stop kajuit"}}
-{"nature":"ghost.invoke","timing":{"begun":533.815917,"sealed":535.692542},"subject":{"schema":"signal","id":"instance/stop"}}
-{"nature":"ghost.invoke","timing":{"begun":565.079,"sealed":567.1375},"subject":{"schema":"signal","id":"instance/stop"}}
-{"nature":"ghost.invoke","timing":{"begun":560.341459,"sealed":564.146667},"subject":{"schema":"signal","id":"instance/start"}}
-{"nature":"ghost.invoke","timing":{"begun":534.376166,"sealed":537.125375},"subject":{"schema":"signal","id":"instance/stop"}}
-{"nature":"ghost.invoke","timing":{"begun":263.809917,"sealed":265.083667},"subject":{"schema":"signal","id":"instance/stop"}}
-{"nature":"ghost.invoke","timing":{"begun":262.50275,"sealed":265.931042},"subject":{"schema":"signal","id":"instance/start"}}

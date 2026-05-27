@@ -1,0 +1,147 @@
+#+TITLE: instance/init holistic client · fromm IO channels · ascii video field
+#+STATUS: WORKING SPIKE (init end-to-end; Field + overlay proven in temp.jsx)
+
+* Arc
+
+=viva instance/init= went from a console-flooding spike to a holistic TUI client.
+Three strata landed: (1) the runtime teardown bug fixed + process IO reframed as
+typology channels behind one =attachment= enum; (2) the =fromm= gestalt gained
+=sink/source= (+ inline =lines=) so =Pipe.to/from= / =Queue.to= compose across any
+stream-shaped thing; (3) =instance/init= became boot→ready→create→install→kill,
+detecting readiness off a single =Status:ALIVE= beacon both children print, then
+signing the admin up against the lighthouse. Then a stretch: an mp4 → ascii video
+background (=^ v > ≪= density ramp, real-colour palette) with an input panel
+composited on top. New quest: =dapper-second-theme= (ember).
+
+* Decision: process stdio is ONE enum, not two booleans
+
+@beef: *"i dont like the detach/capture dichotomy and i dont like the status
+prototype addition. why is detached false different from capture true? ... if we
+need three, we use an enum. but less is more. best part no part."*
+
+I had bolted a =capture= boolean beside =detached= (2 booleans = 4 states for 3
+behaviours). Collapsed to =spec.attachment ∈ "inherit" | "piped" | "detached"=
+(=process.js= / =system.js= / =target.js=; =start= → detached, =init= → piped, =run=
+default inherit). =piped= wires the channels; =detached= unrefs + untracked.
+
+* Decision: streams compose — fromm.sink/source, to/from everywhere
+
+@beef: *"this is already solved by pipes and spans."* — killed my hand-rolled
+drain/ring/listener loop. Then *"there is an elegant way here. some composition"*
+and *"pipes can fan out"* → =to=/=from= went variadic.
+
+Landed on the =fromm= gestalt (view-X-as-Y), after @beef: *"you missed the essence
+of the signature of fromm() functios"* — every fromm export is
+=(subject) => ({ get view() {…} })=. So:
+- =fromm.sink(target).write= — any sink → push fn (=send=/=enqueue=/=set=/=getWriter=/fn).
+- =fromm.source(origin).read= — any source → async iterable (ReadableStream/Queue/Pipe/array).
+@beef chose =.write= / =.read= (act-duality) over =.push= / =.stream=.
+
+=Pipe.to(...sinks)= / =Pipe.from(...sources)= / =Queue.to(...sinks)= dispatch through
+=fromm=. The byte→line transform stays *inline* — @beef: *"keep lines inline then"*
+(a local =lines()= in =process.js=, not a fromm export). =process.js= piped path:
+=this.in.to(child.stdin)= + =this.out.from(lines(child.stdout), lines(child.stderr))=.
+
+First home was =cast/flow.js=; @beef: *"rewrite ...flow.js to be in ...fromm"* —
+=cast= is coercion, =fromm= is regard-as. Moved.
+
+* Decision: lines are LOGS, not span branches
+
+@beef: *"span doesnt fucking branch on lines???!! are you retarded?? holy shit his
+is dumb."* (callout — see zettelkasten) — I wrote =out.tap(line => span.branch(line))=.
+Wrong: a Span is a scoped lifecycle trace (ONE branch per process: subject=pid,
+transitions spawn→ready→exit, timing). Stdout lines feed the subject's =logs= Pipe.
+Two separate streams; never one-node-per-line.
+
+Related: @beef commented out =this.seal()= in =Span.drain= — *"why do we seal on
+drain?"*. =drain= conflated emit + terminal-seal, blocking streaming. Decouple:
+=drain= = emit (repeatable), =seal= = stop the clock. Proven in the temp.js drain
+practice (fork a track every 1000ms, =pipe.send(root)= streams snapshots, two sync
+taps = two sinks console+file).
+
+* Decision: readiness = one Status:ALIVE beacon both children print
+
+@beef: *"why cant we just place 2 console.log statements in runtime and kajuit
+both running console.log(...,new Status(...)) and the daddy process reads for
+that?? easy. diret."* — and *"single status ALIVE!! not two separate."*
+
+No new pipe (M2's one-pipe decision holds), no =Status.reflect= addition. The pipe
+is per-child, so the beacon needs no identity — just a token. runtime =launch=
+onListen + kajuit vite plugin both =console.log(new Status("alive"))= → stdout
+=Status:ALIVE=. init taps =process.out= for =line.includes("Status:ALIVE")=.
+
+* instance/init — the working lifecycle
+
+Flow: =paladin.variant.mount()= (cwd-sense skips it; ghost runs from repo root) →
+=system.boot(specs(param, {attachment:"piped"}))= → tap each =process.out= (forward
+to the wizard's dim log tail, resolve on =Status:ALIVE=) → admin =Form= → on commit
+=new Connection(paladin.variant.clients.ghost.statics.lighthouse.remote).call(
+"/auth/signup", {username, password})= → live =Tasks= status → kill held → effect.
+Signup is real (argon2 + JWT persisted to =lighthouse.viva.db=; handler reads =input=
+directly, body ={username,password}=, Request defaults POST).
+
+* Decision: the composed wizard lives in ghost, not sheets
+
+@beef: *"one seems weirdly abstracted. maybe its time to move .jsx into ghost. next
+to the init.js we have Init.jsx. fair."* — sheets stays primitives (Form/Tasks/
+Banner/Chrome/Background); the trajectory owns its specific composition. So
+=systems/ghost/trajectories/instance/Init.jsx= (phase machine: boot→create→install
+→ready; taps =process.out=, never =console.log= — ink owns the screen) next to a
+thin =init.js= (faculties: =boot=/=signup=/=teardown=). Workspace root jsx config
+covers a =.jsx= in ghost — no config change. (Overrides quest C1/D6 "no components
+in trajectories" for the composed-wizard case.) ready frame shows masked password
+(=•= × length) + per-process status/errors + completed steps.
+
+* Ascii video background (the stretch)
+
+@beef: *"can we maybe build a more holistic client? ... render a asciart video type
+in the background in low warm dark waving reds"* → *"i literally mean video. i have
+a mp4. from there to background video. in ink. surely possible?!"*
+
+Pipeline (=video_assets/asci/=): =ffmpeg= → downscaled raw frames (96×26, 12fps, 4s
+loop) → =convert.js= → =frames.json= → =Field= player (=testament/temp.jsx=) cycles
+frames, renders each row as colour RUNS (group same-colour cells; never per-char —
+96×26 = 2.5k nodes would choke ink).
+
+- charset: @beef *"lets keep 4 symbols. ^ is the lightest V the second lightest.
+  then > for second heaviest and ≪ (U+226A) for heaviest."* — a *density* ramp by
+  glyph ink-weight (=^ v > ≪=), NOT Sobel direction. (We researched edge/gradient
+  ascii — atan2→directional chars, blur-before-Sobel — then @beef chose pure density.
+  Prior art: Asciimatic, jave.de image2ascii survey.)
+- guillemet question: @beef wanted a glyph reading as fused =<<= → =≪= (U+226A).
+- colour: first cut used a luminance→fixed-red ramp; @beef: *"the reds are off. the
+  colors dont match. but it moves."* The clip is a rocket reentry (magenta-pink core,
+  orange-white plasma, purple sky), not dull red. Fix: extract RGB, colour each cell
+  by its ACTUAL quantized video colour (66-colour palette); glyph still = density.
+- overlay: @beef *"render an input field above that"* + *"center center"*. ink has no
+  z-overlay → composite the input INTO the frame's =({char,fg,bg})= cell grid: paint
+  a centered dark panel, write the centered input text, render runs by fg+bg. One true
+  overlay, no layering. This is the Step-4 compositor route, proven.
+
+* Quest: dapper-second-theme (ember)
+
+@beef: *"persist this as a theme in dapper. as a quest for a theme rather. a second
+theme."* → =.ikiro/quests/dapper-second-theme.quest.org= (DESIGN). A warm palette as
+a peer of =themes/dark.js= (new ramp in =colors.js= + =themes/<name>.js= via
+=skeleton= + register in =themes/index.js=), as the single colour source for BOTH
+web zones AND the TUI Field. Depends on decorum lifting its "single theme, no runtime
+switch" constraint. ⚠ the seed palette in the quest came from a dull t=80 sample —
+must be resampled from the real loop window (the plasma magenta→orange→white now in
+=frames.json='s palette).
+
+* Callouts (logged in zettelkasten ## Callouts)
+
+- *yapping in build phase* — @beef: *"less yap!!!!!!! holy shit your a yappy retard.
+  MORE CODE!"* Rule: once building, response = code first, ≤1 line prose.
+- *conflated logs with spans* — @beef: *"span doesnt fucking branch on lines???!!"*
+  Rule: lines→logs Pipe; spans = structured lifecycle, never per-line.
+
+* Open / next
+
+- *Step 4 integrate* — fold the Field + compositor behind the =Init= wizard (Chrome/
+  Form spliced into the video grid per phase). Held: @beef *"not yet"* at proposal time.
+- *Step 5 tune* — glyph cuts (24/70/140, clip is dark), quantize STEP (palette size),
+  loop window/seam, fps.
+- *ember palette* — resample anchors from the real loop window into the theme quest.
+- *lighthouse gate* — init signs up unconditionally now; the "only if variant features
+  a lighthouse" gate + security close-the-lighthouse follow-on still open (viva-init quest).

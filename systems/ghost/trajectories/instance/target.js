@@ -5,7 +5,7 @@ const CHILDREN = {
   kajuit: { task: "kajuit/watch" },
 };
 
-export function specs(param, { detached = false } = {}) {
+export function specs(param, { attachment = "inherit" } = {}) {
   const target = param ?? "all";
   const known = ["all", ...Object.keys(CHILDREN)];
   if (!known.includes(target)) {
@@ -16,7 +16,7 @@ export function specs(param, { detached = false } = {}) {
   if (!variant) throw new Error("instance: no variant mounted — set VIVA_VARIANT_MOUNT");
 
   const mount = variant.absolute;
-  const slug = mount.split("/").filter(Boolean).pop();
+  const slug = mount.split("/").filter(Boolean).pop(); // @beef ugly and stupid
   const config = `${paladin.scope.repository.absolute}/deno.jsonc`;
 
   const chosen = target === "all" ? Object.keys(CHILDREN) : [target];
@@ -24,8 +24,8 @@ export function specs(param, { detached = false } = {}) {
     type,
     slug,
     mount,
-    detached,
+    attachment,
     cmd: ["deno", "task", "--config", config, "-q", CHILDREN[type].task],
-    env: {},
+    env: { VIVA_VARIANT_MOUNT: mount },
   }));
 }

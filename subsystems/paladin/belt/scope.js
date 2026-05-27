@@ -2,6 +2,7 @@ import { Path } from "@vivalence/typology";
 
 export default async function (paladin) {
   const scopes = new Map();
+  // paladin._scopes = scopes;
 
   paladin.scopes = (declarations) => {
     declarations.forEach(([name, condition, resolver]) => {
@@ -35,7 +36,6 @@ export default async function (paladin) {
           return { enumerable: true, configurable: true };
         }
       },
-      // get json() {return JSON.parse(JSON.stringify({ scopes }));},
     },
   );
 }

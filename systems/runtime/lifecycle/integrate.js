@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { shard, Url, Connection, shape, Vector } from "@vivalence/typology";
+import { shard, Url, Connection, shape, Vector, Status } from "@vivalence/typology";
 
 // const testVector = new Vector();
 // testVector.branch("/test/vector").open("/here", () => {
@@ -14,9 +14,9 @@ import { shard, Url, Connection, shape, Vector } from "@vivalence/typology";
 export async function wake(die) {
   die.good.ters = {
     async patrol() {
-      for (const terran of die.good.terrans) {
-        if (terran.status.is("ERROR")) {
-          console.warn(`Terran unhealthy`, terran.slug);
+      for (const child of [...die.good.daemons, ...die.good.processes]) {
+        if (child.status.is("ERROR")) {
+          console.warn(`child unhealthy`, child.slug);
         }
       }
       console.log(`$[runtime:${paladin.variant.runtime?.slug}]`, die.status);
@@ -38,8 +38,8 @@ export async function launch(runtimeDie) {
       port: Number(url.port),
       hostname: url.hostname,
       signal: runtimeDie.abort.signal,
-      onListen({ hostname, port }) {
-        console.log(`listening on ${hostname}:${port}`);
+      onListen() {
+        console.log(new Status("alive"));
       },
     },
     shard.cors.wrap(shape.http(runtimeDie.good.aperture)),

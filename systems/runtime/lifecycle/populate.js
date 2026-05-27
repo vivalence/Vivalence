@@ -19,9 +19,7 @@ export async function aperture(runtimeDie) {
     .open("/manifest", () => runtimeDie.manifest);
 }
 
-export async function terrans(runtimeDie) {
-  // console.log(paladin);
-  // console.log(paladin.variant);
+export async function daemons(runtimeDie) {
   for (const mask of paladin.variant.daemons) {
     const daemonDie = new DaemonDie({
       mask,
@@ -31,16 +29,15 @@ export async function terrans(runtimeDie) {
     });
 
     daemonDie.good.mount = new Path(`/daemon/${daemonDie.slug}`);
-    // console.log("die.latch", runtimeDie.good.latch);
     daemonDie.good.url = runtimeDie.good.latch //
       .branch(daemonDie.good.mount.nature);
 
     daemonDie.good.attach = runtimeDie.good.latch.branch("/attached");
-    // console.log("daemonDie.attach");
-    // console.log(daemonDie.good.attach);
     runtimeDie.good.daemons.push(daemonDie);
   }
+}
 
+export async function processes(runtimeDie) {
   for (const mask of paladin.variant.services) {
     const cake = await paladin.vip.accio(mask.module);
     // if cake.implements(trait) TODO

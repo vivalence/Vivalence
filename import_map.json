@@ -13,6 +13,14 @@
     "@std/jsonc": "jsr:@std/jsonc@1.0",
     "@std/async": "jsr:@std/async@1.0",
     "@std/io": "jsr:@std/io",
+    "@std/streams": "jsr:@std/streams@1.0",
+
+    "@cliffy/command": "jsr:@cliffy/command@1.0.0-rc.8",
+    "@cliffy/command/help": "jsr:@cliffy/command@1.0.0-rc.8/help",
+    "@cliffy/prompt": "jsr:@cliffy/prompt@1.0.0-rc.8",
+    "@cliffy/ansi/colors": "jsr:@cliffy/ansi@1.0.0-rc.8/colors",
+    "@cliffy/table": "jsr:@cliffy/table@1.0.0-rc.8",
+
     "@cross/dir": "jsr:@cross/dir@1.1",
     "@cross/env": "jsr:@cross/env@1.0",
     "@std/fs": "npm:fs-extra@^11",
@@ -70,6 +78,9 @@
     "tailwind-variants": "npm:tailwind-variants",
     "carbon-icons-svelte": "npm:carbon-icons-svelte@^13.3",
     "$bits-ui": "npm:bits-ui@^1.4",
+
+    "react": "npm:react@18",
+    "ink": "npm:ink@5",
 
     "@oak/oak": "jsr:@oak/oak@^17.1",
     "@oak/oak/application": "jsr:@oak/oak@^17.1/application",

@@ -3,12 +3,13 @@ import { hash } from "@vivalence/typology";
 import { Timed, Transported, Transitioned, Subjected, Faulted } from "./tracks.js";
 
 export class Span extends Signature {
+  pipe = null;
+
   timing = new Timed(null, this);
   transport = null;
   transition = null;
   subject = null;
   fault = null;
-  pipe = null;
 
   track = {
     transport: (options) => {

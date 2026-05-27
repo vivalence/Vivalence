@@ -1,5 +1,5 @@
 import deno from "@deno/vite-plugin";
-import { Url } from "@vivalence/typology";
+import { Url, Status } from "@vivalence/typology";
 import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import { dirname, join } from "@std/path";
@@ -45,8 +45,17 @@ async function serverConfig() {
   };
 }
 
+function beacon() {
+  return {
+    name: "viva-status-beacon",
+    configureServer(server) {
+      server.httpServer?.once("listening", () => console.log(new Status("alive")));
+    },
+  };
+}
+
 export default defineConfig(async ({ command }) => ({
-  plugins: [sveltekit(), deno()],
+  plugins: [sveltekit(), deno(), beacon()],
   logLevel: "info",
   build: {
     target: "es2022",

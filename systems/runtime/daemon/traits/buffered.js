@@ -32,19 +32,20 @@ export const BUFFERED = async (mode, daemon) => {
 
   const ensure = (repo, ref) => (helper(ref) ? ref : repo.findOne(ref?.id ?? ref));
 
-  mode.buffer = async (desc = {}) => {
+  mode.buffer = async (data = {}) => {
+    // extend to rich interface. ctx.mode.buffer.emit()
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.cake.buffer.cast(desc),
-      index: desc.index ?? 0,
+      data: mode.cake.buffer.cast(data),
+      index: data.index ?? 0,
     });
-    if (desc.literals)
+    if (data.literals)
       buffer.literals.add(
-        await Promise.all(desc.literals.map((l) => ensure(daemon.entities.literal, l))),
+        await Promise.all(data.literals.map((l) => ensure(daemon.entities.literal, l))),
       );
-    if (desc.symbols)
+    if (data.symbols)
       buffer.symbols.add(
-        await Promise.all(desc.symbols.map((s) => ensure(daemon.entities.symbol, s))),
+        await Promise.all(data.symbols.map((s) => ensure(daemon.entities.symbol, s))),
       );
     return buffer;
   };

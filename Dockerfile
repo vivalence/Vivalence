@@ -48,13 +48,11 @@ COPY subsystems/ ./subsystems/
 COPY registry/ ./registry/
 
 RUN deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess
-RUN deno install --entrypoint ./systems/shell/mod.js ./systems/runtime/run.js
-# RUN deno install --global --config ./deno.jsonc -f -A -n viva ./systems/shell/mod.js
 
-RUN mkdir -p /root/.deno/bin && \
-    printf '#!/bin/sh\ncd /viva/repository && exec deno run -A ./systems/shell/mod.js "$@"\n' \
-    > /root/.deno/bin/viva && \
-    chmod +x /root/.deno/bin/viva
+RUN mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository
+
+# alt: deno-native global binary (no env-file sourcing, no INIT_CWD)
+# RUN deno install -g --config ./deno.jsonc -f -A -n viva ./systems/ghost/mod.js
 
 ENV PATH="/root/.deno/bin:$PATH"
 ENV VIVA_REPOSITORY_MOUNT=/viva/repository

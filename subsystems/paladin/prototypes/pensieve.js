@@ -1,14 +1,18 @@
 // import {once, fn:{once}} from "@vivalence/belt";
 // import {once, fn:{once}} from "@vivalence/typology/belt";
 import * as semver from "@std/semver";
+import { Manifest } from "./manifest.js";
 // // vectorizable af.
 
 export class Pensieve extends Map {
   register(cake) {
     //todo: cast module
+    // cast cake.manifest
     if (!cake || !cake.manifest) console.log("no manifest", cake);
-
-    const { owner = "@vivalence", type, slug, version } = cake.manifest;
+    if (!cake.manifest.owner) cake.manifest.owner = "@vivalence";
+    cake.manifest = new Manifest(cake.manifest);
+    const { owner, type, slug, version } = cake.manifest;
+    // console.log(cake.manifest.identifier);
 
     if (!this.has(owner)) this.set(owner, new Map());
     const ownerMap = this.get(owner);

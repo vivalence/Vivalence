@@ -1,44 +1,91 @@
 import paladin from "@vivalence/paladin";
-import { resolve } from "@std/path";
-import { React, Box, Text, Select, TextInput, useState } from "@vivalence/sheets";
+import { dirname, resolve } from "@std/path";
+import { CloneConfirm, SlugPicker, TargetPicker } from "./Clone.jsx";
+
+// skip state + scm during clone — clone is "fresh checkout from registry"
+// const SKIP = new Set([".logs", ".git", ".jj", "node_modules"]);
 
 export async function clone(ctx) {
-  console.log("CTX");
-  // console.log(paladin.)
-  const identifier =
-    ctx.signal.params[0] ?? (await ctx.view.form(SlugPicker, { options: await variants() }));
+  const cakes = await findCakes();
 
-  if (!identifier) return (ctx.effect = { aborted: true });
+  let identifier = ctx.signal.params[0];
+  let cake = identifier
+    ? cakes.find((c) => c.manifest.identifier === identifier || c.manifest.slug === identifier)
+    : null;
 
-  const targetInput =
-    ctx.signal.params[1] ?? (await ctx.view.form(TargetPicker, { initial: `./${identifier}` }));
-  if (!targetInput) return (ctx.effect = { aborted: true });
+  // explicit identifier passed but no match — drop to picker
+  if (identifier && !cake) {
+    console.warn(`variant not found: ${identifier}`);
+    identifier = null;
+  }
 
-  const target = resolve(Deno.cwd(), targetInput);
-  ctx.effect = { slug: identifier, target };
+  if (!cake) {
+    const choice = await ctx.view.scroll.render(
+      { options: cakes.map((c) => c.manifest.identifier) },
+      null,
+      SlugPicker,
+    );
+    if (!choice) return (ctx.effect = { aborted: true });
+    cake = cakes.find((c) => c.manifest.identifier === choice);
+  }
+
+  let target = ctx.signal.params[1];
+  if (!target) {
+    target = await ctx.view.scroll.render(
+      { initial: `./${cake.manifest.slug}` },
+      null,
+      TargetPicker,
+    );
+  }
+  if (!target) return (ctx.effect = { aborted: true });
+
+  const source = dirname(cake.mount.absolute);
+  // shell cwd — deno task rewrites PWD to repo root; INIT_CWD preserves original shell cwd
+  const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+  const absolute = resolve(cwd, target);
+
+  // console.log({
+  //   env: Deno.env.toObject(),
+  //   paladin: paladin.env.vars,
+  //   cwd,
+  //   identifier,
+  //   cake,
+  //   target,
+  //   source,
+  //   absolute,
+  // });
+
+  const confirmed = await ctx.view.scroll.render(
+    { source, target: absolute, identifier: cake.manifest.identifier },
+    null,
+    CloneConfirm,
+  );
+  if (!confirmed) return (ctx.effect = { aborted: true });
+
+  await cloneDir(source, absolute);
+
+  ctx.effect = {
+    variant: cake.manifest,
+    target: { relative: target, absolute },
+    source,
+  };
 }
 
-async function variants() {
+async function findCakes() {
   await paladin.vip.mount(paladin.scope.registry);
-  const cakes = await paladin.vip.list({ type: "variant" });
-  return cakes.map((cake) => ({ label: cake.manifest.slug, value: cake.manifest.slug }));
+  return await paladin.vip.list({ type: "variant" });
 }
 
-function SlugPicker({ options, done }) {
-  return React.createElement(
-    Box,
-    { flexDirection: "column" },
-    React.createElement(Text, null, "clone which variant?"),
-    React.createElement(Select, { items: options, onSelect: (item) => done(item.value ?? item) }),
-  );
-}
-
-function TargetPicker({ initial, done }) {
-  const [value, setValue] = useState(initial);
-  return React.createElement(
-    Box,
-    { flexDirection: "column" },
-    React.createElement(Text, null, "clone to which path?"),
-    React.createElement(TextInput, { value, onChange: setValue, onSubmit: done }),
-  );
+async function cloneDir(source, target) {
+  await Deno.mkdir(target, { recursive: true });
+  for await (const entry of Deno.readDir(source)) {
+    // if (SKIP.has(entry.name)) continue;
+    const src = `${source}/${entry.name}`;
+    const dst = `${target}/${entry.name}`;
+    if (entry.isDirectory) {
+      await cloneDir(src, dst);
+    } else if (entry.isFile) {
+      await Deno.copyFile(src, dst);
+    }
+  }
 }

@@ -1,0 +1,128 @@
+#+TITLE: Known Issues
+#+STATUS: LIVE LEDGER
+
+Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
+evidence, attempts, why not fixed now, fallback workaround.
+
+* detached-process-die-on-parent-exit
+
+** Symptom
+
+=viva /instance/start= reports =ghost: started temp (runtime=PID kajuit=PID)= and
+writes lock files at =$VIVA_SYSTEM_MOUNT/locks/<type>_<slug>.lock=. Within
+milliseconds the spawned PIDs are dead. =kill -0 <pid>= → "no such process". The
+intended behaviour (background runtime+kajuit running after ghost exits) does not
+happen.
+
+** Root cause hypothesis
+
+=Deno.Command= has no native way to put a child in a new session / process group on
+unix. =child.unref()= only stops the parent's event loop from waiting on the child
+— it does NOT decouple the child from the controlling terminal's session. When the
+parent ghost process exits (or the shell sends SIGHUP), the cascade reaches the
+detached deno child because it still shares the process group / session.
+
+macOS lacks =setsid= as a standalone binary, so the obvious unix shim
+(=setsid deno task ...=) isn't available out of the box.
+
+** Evidence
+
+#+begin_src text
+$ deno task ghost/run /instance/start
+ghost: started temp (runtime=57865, kajuit=57866)
+$ kill -0 57865
+(eval):kill:1: kill 57865 failed: no such process
+$ kill -0 57866
+(eval):kill:1: kill 57866 failed: no such process
+#+end_src
+
+Lock files contain the dead pids:
+
+#+begin_src jsonc
+// $VIVA_SYSTEM_MOUNT/locks/runtime_temp.lock
+{ "pid": 57865, "type": "runtime", "slug": "temp", "mount": "/Users/.../testament/temp",
+  "started": "2026-05-28T..." }
+#+end_src
+
+=/instance/init= (=piped= attachment) and =/instance/run= (=inherit= attachment)
+both work end-to-end — confirms the env / variant resolution chain is fine, the
+problem is specifically the =detached= attachment lifecycle.
+
+** Attempts (none kept)
+
+1. Wrap cmd in =nohup=. Lock pid then = nohup's pid, not the deno's, so
+   =/instance/stop= reads the wrong pid; also nohup writes to =nohup.out= when
+   stdout is a tty, polluting cwd.
+2. =nohup sh -c 'deno ... > LOG 2>&1'=. Same lock-pid problem + shell escaping
+   the env vars.
+3. Pipe child stdout/stderr to log files. Tangential to the death cause,
+   reverted.
+
+All reverted. Process.js is back to its original simple form.
+
+** Why not fixed now
+
+We don't yet know the precise cause without a controlled experiment. Options that
+would actually work (in rough order of effort):
+
+- compile a tiny =setsid=-equivalent shim and ship it via =viva/install=
+- replace the =nohup= path with a =sh -c 'exec ...'= so the shell process replaces
+  itself with deno (pid preserved) and explicitly call =setpgid= / detach
+- write a Deno script wrapper that uses =Deno.Command= with a fresh
+  =Deno.Process=-style detach (none currently exists)
+- use a real process supervisor (launchd plist, systemd unit, pm2) — overkill
+  for our scale
+
+None of these are 30-minute jobs. Currently we are using =/instance/init= and
+=/instance/run= for everything that needs a live variant, which both work.
+
+** Fallback workaround
+
+Use =/instance/run= (inherit attachment, stays attached to terminal) or
+=/instance/init= (piped attachment, holds the ink wizard until user dismisses).
+Both keep the children alive for the duration of the parent process — that's
+what every demo this week has used.
+
+* deno-task-cwd-rewrite
+
+** Symptom
+
+=Deno.cwd()= inside a handler reflects the directory of the resolved
+=deno.jsonc= (repo root) — NOT the shell directory the user typed =deno task=
+from. Without correction, =viva /instance/clone localhost ./here= materializes
+the variant at =<repo-root>/here= instead of =<shell-cwd>/here=.
+
+** Cause
+
+=deno task= walks up to find the nearest =deno.jsonc=, then chdirs to that
+directory before running the task. =PWD= is also overwritten to the repo root.
+The original shell cwd is preserved only in =INIT_CWD=.
+
+** Workaround (in use)
+
+#+begin_src js
+const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+#+end_src
+
+Applied at every handler that resolves a user-supplied relative path
+(=instance/clone=, mw in =systems/ghost/mod.js=). Should be lifted into a paladin
+helper (=paladin.cwd= or =ctx.cwd=) so handlers don't have to remember.
+
+* paladin-scope-overwrite-warning
+
+** Symptom
+
+Every =viva= invocation prints =paladin.scope overwrite= to stderr.
+
+** Cause
+
+Ghost mw re-registers the =variant= scope on every invocation via
+=paladin.scopes([["variant", () => true, () => new Path(cwd)]])=. Paladin's
+scope ledger warns when a scope is re-registered.
+
+** Why not fixed
+
+Cosmetic. The override is intentional (ghost wants its cwd-derived variant
+scope to win over the env-derived one) but the warning fires every time. Either
+make paladin silent on re-register, or detect "same value" overwrites and
+suppress.

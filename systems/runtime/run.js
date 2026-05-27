@@ -3,21 +3,19 @@ import { Die, Runtime } from "@vivalence/runtime";
 
 const run = await (async function () {
   await paladin.variant.mount();
-  console.log("paladin.env.vars", paladin.env.vars, Deno.env.toObject());
+  // console.log("paladin.env.vars", paladin.env.vars, Deno.env.toObject());
   const die = new Die({ good: new Runtime() });
   await die.populate();
   return die;
 })();
 
-run.ikiro = (async function ikiro() {
-  await run.resolve();
-  await run.integrate();
-})();
+// run.ikiro = (async function ikiro() {await run.resolve(); await run.integrate();})();
 
 export default run;
 
 if (import.meta.main) {
-  await run.ikiro;
+  await run.resolve();
+  await run.integrate();
   await run.perpetuate();
 }
 
