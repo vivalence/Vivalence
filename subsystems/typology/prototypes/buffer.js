@@ -15,7 +15,7 @@ export class BufferView {
   }
   cast(desc = {}) {
     if (!desc.data) desc.data = {};
-    this.schema.defaults(desc);
+    this.schema.cast(desc);
     return desc.data;
   }
   withPath(path) {

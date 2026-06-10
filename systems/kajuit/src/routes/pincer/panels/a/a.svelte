@@ -10,8 +10,19 @@
   const main = getContext(MAIN);
   const quarters = getContext(QUARTERS);
 
+  // console.log('main',main)
+  main.$current.subscribe((current) => (console.log('current',current)));
+  main.$terminal.subscribe((terminal) => (console.log('terminal',terminal)));
+  // main.$buffer.subscribe((buffer) => (console.log('buffer',buffer)));
+
+    // bufferAtom = current.$buffer;
   let currentThread = $state(null);
   let bufferAtom = $state(null);
+
+  // $inspect("buffer",bufferAtom)
+  // $inspect("thread",currentThread)
+ // bufferAtom.subscribe((buffer) => (console.log('buffer',buffer)));
+
   let buffer = $state(null);
   let status = $state(null);
   let terminal = $state(null);

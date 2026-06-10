@@ -5,4 +5,4 @@ import memory from "./userspace/Memory.ts";
 import buffer from "./userspace/Buffer.ts";
 import trace from "./userspace/Trace.ts";
 
-export const entities = [literal, symbol, buffer, memory, trace];
+export const entities = { literal, symbol, buffer, memory, trace };

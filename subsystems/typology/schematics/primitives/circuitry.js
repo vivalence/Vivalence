@@ -2,6 +2,7 @@ import { v } from "../v.js";
 import { Slug } from "../scalars/index.js";
 import { Manifest } from "./manifest.js";
 
+// rename to either mode or spec or maybe scope all of them under spec? or maybe i called it cake? some coherent name. spec makes most sense honestly.
 export const ModuleSpec = v.object(
   {
     module: v.string(),
@@ -14,13 +15,13 @@ export const ModuleSpec = v.object(
 export const Daemon = v.object(
   {
     manifest: Manifest,
-    statics: v.record(v.string(), v.unknown()).optional(),
-    kernel: v.array(v.string()).optional(),
-    modes: v.array(v.string()).optional(),
-    lighthouse: ModuleSpec.optional(),
-    datamap: ModuleSpec.optional(),
+    statics: v.record(v.string(), v.unknown()).default({}),
+    kernel: v.array(v.string()).default([]),
+    modes: v.array(v.string()).default([]),
+    consume: v.record(v.string(), ModuleSpec).default({}),
+    lighthouse: ModuleSpec,
+    datamap: ModuleSpec,
     hallucinators: v.array(ModuleSpec).optional(),
-    consume: v.record(v.string(), ModuleSpec).optional(),
   },
   { additionalProperties: true },
 );

@@ -1,4 +1,4 @@
-FROM vivalence/vivalence:alpine
+FROM vivalence/viva:alpine
 
 WORKDIR /viva/repository
 

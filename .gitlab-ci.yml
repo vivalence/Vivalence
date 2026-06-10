@@ -8,8 +8,7 @@ stages:
 
 variables:
   DOCKER_DRIVER: overlay2
-  REGISTRY: registry.vivalence.org/beef/viva
-  # COOLIFY_BASE: https://cool.vivalence.com/api/v1/deploy
+  REGISTRY: registry.vivalence.org/beef/viva # might i not better inject this as a build var???
 
 build-and-push:
   stage: build
@@ -19,15 +18,15 @@ build-and-push:
     - when: always
 
   script:
-    - docker build -f ./Dockerfile -t vivalence/vivalence:alpine .
+    - docker build -f ./Dockerfile -t vivalence/viva:alpine .
     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
     - docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .
 
-    - docker tag vivalence/vivalence:alpine $REGISTRY/vivalence/vivalence:alpine
+    - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
     - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
     - docker tag vivalence/kajuit:alpine $REGISTRY/vivalence/kajuit:alpine
 
-    - docker push $REGISTRY/vivalence/vivalence:alpine
+    - docker push $REGISTRY/vivalence/viva:alpine
     - docker push $REGISTRY/vivalence/runtime:alpine
     - docker push $REGISTRY/vivalence/kajuit:alpine
 # deploy-kajuit:
@@ -78,16 +77,16 @@ build-and-push:
 # build-and-push:
 #   stage: build
 #   script:
-#     - docker build -f ./Dockerfile -t vivalence/vivalence:alpine .
+#     - docker build -f ./Dockerfile -t vivalence/viva:alpine .
 #     - docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .
 #     # - docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .
 
-#     - docker tag vivalence/vivalence:alpine $REGISTRY/vivalence/vivalence:alpine
+#     - docker tag vivalence/viva:alpine $REGISTRY/vivalence/viva:alpine
 #     - docker tag vivalence/runtime:alpine $REGISTRY/vivalence/runtime:alpine
 #     # - docker tag vivalence/kajuit:alpine $REGISTRY/vivalence/kajuit:alpine
 
 #     - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
-#     - docker push $REGISTRY/vivalence/vivalence:alpine
+#     - docker push $REGISTRY/vivalence/viva:alpine
 #     - docker push $REGISTRY/vivalence/runtime:alpine
 #     # - docker push $REGISTRY/vivalence/kajuit:alpine
 

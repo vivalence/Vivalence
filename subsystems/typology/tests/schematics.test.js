@@ -51,7 +51,7 @@ specimen.describe("schematics", () => {
       const schema = v.buffer({
         data: { recall: v.string().default("LEARNING") },
       });
-      const value = schema.defaults({ mode: "m", data: {} });
+      const value = schema.cast({ mode: "m", data: {} });
       specimen.expect(value.data.recall).toBe("LEARNING");
     });
 
@@ -59,12 +59,12 @@ specimen.describe("schematics", () => {
       const schema = v.buffer({
         data: { recall: v.string().default("LEARNING") },
       });
-      const value = schema.defaults({ mode: "m", data: { recall: "KNOWN" } });
+      const value = schema.cast({ mode: "m", data: { recall: "KNOWN" } });
       specimen.expect(value.data.recall).toBe("KNOWN");
     });
 
     specimen.it("Value.Default fills index default", () => {
-      const value = v.buffer().defaults({ mode: "m", data: {} });
+      const value = v.buffer().cast({ mode: "m", data: {} });
       specimen.expect(value.index).toBe(0);
     });
   });

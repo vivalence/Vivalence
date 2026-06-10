@@ -1,12 +1,13 @@
 import paladin from "@vivalence/paladin";
 import { wrap } from "@mikro-orm/core";
 
-import { Mode, Url, Path, Aperture, Cortex, shard } from "@vivalence/typology";
+import { Mode, Url, Path, Aperture, Cortex, shard, v } from "@vivalence/typology";
 import { is, array, shape, steer } from "@vivalence/typology";
 import { sets } from "@vivalence/typology/entities";
 
 import * as kernel from "../kernel.js";
 import * as traits from "../traits/index.js";
+import { entities as defaults } from "../entities.js";
 
 export async function core(die) {
   const registry = {
@@ -21,7 +22,9 @@ export async function core(die) {
   die.register = await paladin.vip.accioMap(registry);
 
   die.kernel = {
-    domain: die.register.kernel.find((m) => m.manifest.type === "domain"),
+    domain: v.primitives.kernel.Domain.cast(
+      die.register.kernel.find((m) => m.manifest?.type === "domain") ?? {},
+    ),
     corpus: die.register.kernel.filter((m) => m.manifest.type === "corpus"),
     ontology: die.register.kernel.filter((m) => m.manifest.type === "ontology"),
   };
@@ -29,17 +32,19 @@ export async function core(die) {
   die.variant.traits = {
     ...kernel.traits,
     ...traits,
-    ...(die.kernel.domain.traits || {}),
+    ...die.kernel.domain.traits,
   };
 
-  die.variant.modes = [...kernel.modes, ...(die.kernel.domain.modes || [])];
+  die.variant.modes = { ...kernel.modes, ...die.kernel.domain.modes };
 
-  die.variant.entities = [
+  // tiers by type: base sets (abstract, shadowed) → daemon-default concretes → domain concretes (win)
+  die.variant.entities = Object.values({
     ...sets.daemon,
     ...sets.kernel,
     ...sets.userspace,
+    ...defaults,
     ...die.kernel.domain.entities,
-  ];
+  });
 }
 
 export function wiring(daemonDie) {
@@ -96,19 +101,12 @@ export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
     const registeredModes = [...daemonDie.register.kernel, ...daemonDie.register.modes]
       .map((register) => {
-        const variant = daemonDie.variant.modes //
-          .find((v) => register.manifest.type === v.type);
+        const kind = daemonDie.variant.modes[register.manifest.type] ?? kernel.root;
+        return { kind, register };
+      });
 
-        if (variant) return { variant, register };
-
-        console.log(`@runtime/daemon/population/modes(${register.type})`);
-        console.log("variant not found during mode construction");
-        console.log({ register });
-      })
-      .filter(Boolean);
-
-    for (const { register, variant } of registeredModes) {
-      const mode = new variant.prototype(register);
+    for (const { register, kind } of registeredModes) {
+      const mode = new kind.prototype(register);
       mode.mount = daemonDie.good.mount.clone().branch(`/mode/${mode.type}/${mode.slug}`);
       mode.url = daemonDie.good.url.branch(mode.mount.nature);
 

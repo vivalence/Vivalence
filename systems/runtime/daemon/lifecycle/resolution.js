@@ -1,28 +1,16 @@
 import { is, shard } from "@vivalence/typology";
 
 export async function kernel(daemonDie) {
-  const { entities } = daemonDie.good;
-
-  daemonDie.kernel.domain.aperture
-    .use(shard.context.attach("daemon", daemonDie.good));
-
-  const userspace = daemonDie.kernel.domain.aperture.branch("/userspace");
-
-  userspace
-    .branch("/entities/trace")
-    .slurp(shard.datamap.repository(entities.trace))
-    .slurp(shard.datamap.reactive(entities.trace, daemonDie.good.twitch));
-
-  userspace
-    .branch("/entities/memory")
-    .slurp(shard.datamap.repository(entities.memory))
-    .slurp(shard.datamap.reactive(entities.memory, daemonDie.good.twitch));
-
   daemonDie.good.aperture
     .use(shard.secure.authorize())
     .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
-    .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
-    .slurp(daemonDie.kernel.domain.aperture);
+    .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+
+  if (daemonDie.kernel.domain.aperture)
+    daemonDie.good.aperture.slurp(daemonDie.kernel.domain.aperture);
+
+  // domain wires its own userspace entities (trace/memory, …); slim daemon has no domain → no-op
+  await daemonDie.kernel.domain.resolve?.(daemonDie);
 }
 
 export async function freight(daemonDie) {

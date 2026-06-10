@@ -44,17 +44,17 @@
     "kajuit/watch": "deno task --cwd ./systems/kajuit watch",
     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle",
 
-    "vivalence/build": "docker build -f ./Dockerfile -t vivalence/vivalence:alpine .",
+    "vivalence/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
     "kajuit/build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
     "build": "DOCKER_BUILDKIT=1 deno task vivalence/build && deno task runtime/build && deno task kajuit/build",
 
-    "vivalence/tag": "docker tag vivalence/vivalence:alpine registry.vivalence.org/vivalence/vivalence:alpine",
+    "vivalence/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
     "kajuit/tag": "docker tag vivalence/kajuit:alpine registry.vivalence.org/vivalence/kajuit:alpine",
     "tag": "deno task vivalence/tag && deno task runtime/tag && deno task kajuit/tag",
 
-    "vivalence/push": "docker push registry.vivalence.org/vivalence/vivalence:alpine",
+    "vivalence/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
     "kajuit/push": "docker push registry.vivalence.org/vivalence/kajuit:alpine",
     "push": "deno task vivalence/push && deno task runtime/push && deno task kajuit/push",
@@ -107,17 +107,17 @@
 
 //     "kajuit/bundle": "deno task --cwd ./systems/kajuit bundle", // maybe ought be universal??
 
-//     "vivalence/build": "docker build -f ./Dockerfile -t vivalence/vivalence:alpine .",
+//     "vivalence/build": "docker build -f ./Dockerfile -t vivalence/viva:alpine .",
 //     "runtime/build": "docker build -f ./systems/runtime/Dockerfile -t vivalence/runtime:alpine .",
 //     "kajuit/build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
 //     "build": "DOCKER_BUILDKIT=1 deno run vivalence/build && deno run runtime/build && deno run kajuit/build",
 
-//     "vivalence/tag": "docker tag vivalence/vivalence:alpine registry.vivalence.org/vivalence/vivalence:alpine",
+//     "vivalence/tag": "docker tag vivalence/viva:alpine registry.vivalence.org/vivalence/viva:alpine",
 //     "runtime/tag": "docker tag vivalence/runtime:alpine registry.vivalence.org/vivalence/runtime:alpine",
 //     "kajuit/tag": "docker tag vivalence/kajuit:alpine registry.vivalence.org/vivalence/kajuit:alpine",
 //     "tag": "deno run vivalence/tag && deno run runtime/tag && deno run kajuit/tag",
 
-//     "vivalence/push": "docker push registry.vivalence.org/vivalence/vivalence:alpine",
+//     "vivalence/push": "docker push registry.vivalence.org/vivalence/viva:alpine",
 //     "runtime/push": "docker push registry.vivalence.org/vivalence/runtime:alpine",
 //     "kajuit/push": "docker push registry.vivalence.org/vivalence/kajuit:alpine",
 //     "push": "deno run vivalence/push && deno run runtime/push && deno run kajuit/push",

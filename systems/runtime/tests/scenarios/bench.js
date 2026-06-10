@@ -29,6 +29,7 @@ import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity, helper } f
 import { provider as memoryDatamap } from "@vivalence/typology/scenarios";
 import { Daemon } from "@vivalence/runtime/daemon";
 import * as kernel from "../../daemon/kernel.js";
+import { entities as defaults } from "../../daemon/entities.js";
 import * as traits from "../../daemon/traits/index.js";
 import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
 import * as lifecyclePopulation from "../../daemon/lifecycle/population.js";
@@ -110,14 +111,15 @@ export async function bench(spec = {}) {
     BUFFERED: BENCH_BUFFERED,
   };
 
-  const variantModes = [...kernel.modes, ...(domain?.modes || [])];
+  const variantModes = { ...kernel.modes, ...(domain?.modes || {}) };
 
-  const variantEntities = [
+  const variantEntities = Object.values({
     ...sets.daemon,
     ...sets.kernel,
     ...sets.userspace,
-    ...(domain?.entities || []),
-  ];
+    ...defaults,
+    ...(domain?.entities || {}),
+  });
 
   // ── boot datamap ─────────────────────────────────────────────────
   const datamapInstance = await memoryDatamap(variantEntities);

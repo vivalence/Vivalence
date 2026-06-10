@@ -9,6 +9,7 @@ const hydrate = (node) =>
         ? Object.fromEntries(Object.entries(node).map(([key, value]) => [key, hydrate(value)]))
         : node;
 
+// move to lifecycle / dossier / die
 async function resolve(variant) {
   if (!variant.paladin.scope.variant) throw new Error("variant.mount: no scope.variant");
   await variant.paladin.state.dir(variant.paladin.scope.variant.absolute);
@@ -40,23 +41,33 @@ async function resolve(variant) {
   // variant.clients.kajuit.logs = new Pipe()
 }
 
+// move to lifecycle / dossier / die
 function validate(variant) {
   const errors = [];
   const collect = (label, value, schema) => {
     for (const error of schema.errors(value))
       errors.push(`${label}${error.instancePath || ""}: ${error.message}`);
   };
-  if (Object.keys(variant.runtime).length)
+  if (Object.keys(variant.runtime).length) {
+    v.primitives.variant.Runtime.cast(variant.runtime);
     collect("runtime", variant.runtime, v.primitives.variant.Runtime);
-  for (const [slug, client] of Object.entries(variant.clients))
+  }
+  for (const [slug, client] of Object.entries(variant.clients)) {
+    v.primitives.variant.Client.cast(client);
     collect(`client[${slug}]`, client, v.primitives.variant.Client);
-  for (const daemon of variant.daemons)
+  }
+  for (const daemon of variant.daemons) {
+    v.primitives.circuitry.Daemon.cast(daemon);
     collect(`daemon[${daemon.slug}]`, daemon, v.primitives.circuitry.Daemon);
-  for (const service of variant.services)
+  }
+  for (const service of variant.services) {
+    v.primitives.circuitry.Service.cast(service);
     collect(`service[${service.slug}]`, service, v.primitives.circuitry.Service);
+  }
   if (errors.length) throw new Error(`[variant.mount validate]\n  ${errors.join("\n  ")}`);
 }
 
+// move to lifecycle / dossier / die
 async function environment(variant) {
   if (!variant.paladin.scope.environment) return;
   await variant.paladin.state.dir(variant.paladin.scope.environment);

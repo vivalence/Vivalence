@@ -147,6 +147,30 @@ The rules are knowable. Failures are execution-discipline gaps, not knowledge ga
 
 > "retard" is the self-improve codeword (verbatim — only that word counts). Each occurrence = Finn telling me to self-improve. During `ikiro/compact`, `ikiro/review`, `ikiro/self-improvement`: scan for "retard" / "retarded" and log each hit here. Format: date, what I was doing, Finn verbatim, root cause, corrective rule.
 
+### 2026-06-10 — thrashed CSS positioning instead of reading the layout (meter "LEFT")
+
+- **What I did**: Finn wanted the practice speed rail at the panel's far left. Three blind attempts: flex column inside the centered Desk stage (pushed text), `position: fixed` (trapped by a transformed ancestor → landed at the column edge, and the stretched flex row spread the word lines vertically), each fix reacting to the previous screenshot instead of to the layout. Finn: "LLLLLLEEEEEFFFFTTTT" / "retard" / "think" / "what does this look like in GOOODDD???"
+- **Finn verbatim**: "no.. all the way to the fucking left. god dammit" / "retard" / "think"
+- **Root cause**: Never read Desk.svelte before positioning. Desk = `.desk-surface` (full panel) → `.desk-stage` (centered max-width column); anything mounted in a panel's stage cannot reach the panel edge from inside. The meter is panel chrome, not stage content — wrong layer entirely. Violated `feedback_grep_before_propose` (grep/read the layout component before any cross-component layout work) and `feedback_no_hotfix_cascades` (three reactive hotfixes instead of one structural understanding).
+- **Corrective rule**: Any "place X at screen/panel edge" request → FIRST read the enclosing layout component(s) and identify which box owns that edge; mount the element at that layer (overlay sibling with a positioned wrapper), never fight from inside a centered column with fixed/transform hacks. One structural fix, not screenshot-reaction loops.
+
+### 2026-06-10 — hand-padded columns inside code blocks (research report)
+
+- **What I did**: Emitter-receptacle research report contained (a) a call-tree fenced block annotating each node with padded inline columns (`aimed.js:3      thread.pull = ...`) and (b) a props-contract fenced block as a hand-aligned two-column layout (`terminal      thread; ...`). Both wrapped mid-column in Finn's terminal and turned to garbage — he pasted the wreckage back.
+- **Finn verbatim**: "i dont like this format. remember that!" / "and there is a rule against this format in ikiro!! retard."
+- **Root cause**: Treated fenced code blocks as exempt from `feedback_no_width_dependent_formatting`. They are not — wrapping inside a fence is identical. Also bypassed `.ikiro/claude.md` communication rules already covering this: "tables for symbolic content only" (props contract is symbolic → pipe table) and "prefer annotated code snippets over diagrams... not boxes around it".
+- **Corrective rule**: NO hand-aligned columns anywhere, fenced or not. Symbolic/enumerable contracts → pipe markdown table (renderer aligns). Call trees → one short fact per line, ref unpadded at line end, never an annotation column. Memory `feedback_no_width_dependent_formatting` hardened with explicit fence non-exemption.
+
+### 2026-06-10 — kept shipping prose/diagrams/option-menus when Finn wanted code
+
+- **What I did**: Debugging why nyan rendered nothing. After I'd found the root cause, every decision-point I answered with multi-section proposals — indented-tree render-chain diagrams, "first the op then 3 places it might live" enumerations, recommend-and-trade-off menus, an AskUserQuestion. Finn told me twice to stop. Even after =stfu with text. show me code= I gave another proposal block; after =propose again= I gave a third. Only when he yelled did I collapse to two code blocks.
+- **Finn verbatim**: "less fucking text retard holy shit" / "you and your retarded diagrams and text. COOOOOOOOODDDDDDDDDDDDDDEEEEEEEEEEEEEEEE" (also, earlier: "stfu with text. show me code." / "what means never builds buffer???!! whats misssiiiiiiinnnnnnnnnngggg")
+- **Root cause**: Same family as the 2026-05-27 yap callouts, applied to a debug/decision loop. I treated each Finn nudge as a request for a more thorough analysis, so I escalated text volume exactly when he was asking for less. The diagram/enumeration habit (`feedback_trace_diagrams`, file-tree formatting) is correct for a design doc but is noise inside a fast back-and-forth where Finn already holds the context.
+- **Corrective rule**:
+  1. **=show me code= / =CODE= / =code only= → output code blocks, ≤1 line of prose.** No diagram, no option menu, no recommendation paragraph.
+  2. **In a live iteration loop, drop the formatting rituals.** Indented trees + multi-option proposals are for `ikiro/*` artifacts and first-contact design, not for turn-by-turn debugging where Finn is steering.
+  3. **A Finn nudge to "stop the text" means CUT, not "explain more carefully".** If the next response is longer than the last, I misread the signal.
+
 ### 2026-05-27 — yapped completeness instead of answering the asked question
 
 - **What I did**: Finn asked for a 1% answer — JTBD + step-by-step pipeline pseudocode for `instance/init`. I gave that, then bolted on a component-inventory table, a "composition mechanism" spec, "Open Qs", and a trailing "which thread first?" question. The signal he wanted was buried under volume he didn't ask for.

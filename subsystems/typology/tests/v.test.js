@@ -165,23 +165,23 @@ specimen.describe("v", () => {
     });
   });
 
-  specimen.describe(".defaults()", () => {
+  specimen.describe(".cast()", () => {
     specimen.it("applies defaults and returns value", () => {
       const s = v.object({ recall: v.string().default("LEARNING") });
-      const value = s.defaults({});
+      const value = s.cast({});
       specimen.expect(value.recall).toBe("LEARNING");
     });
 
     specimen.it("retains provided values", () => {
       const s = v.object({ recall: v.string().default("LEARNING") });
-      const value = s.defaults({ recall: "KNOWN" });
+      const value = s.cast({ recall: "KNOWN" });
       specimen.expect(value.recall).toBe("KNOWN");
     });
 
     specimen.it("returns the same object (mutates in place)", () => {
       const s = v.object({ x: v.number().default(0) });
       const input = {};
-      const output = s.defaults(input);
+      const output = s.cast(input);
       specimen.expect(input).toBe(output);
     });
   });
@@ -258,7 +258,7 @@ specimen.describe("v", () => {
       });
       specimen.expect(schema.check({})).toBe(true);
       specimen.expect(schema.check({ count: 42 })).toBe(true);
-      specimen.expect(schema.defaults({}).count).toBe(0);
+      specimen.expect(schema.cast({}).count).toBe(0);
     });
   });
 
@@ -375,14 +375,14 @@ specimen.describe("v", () => {
       })).toBe(true);
     });
 
-    specimen.it(".defaults() works on buffer schema", () => {
+    specimen.it(".cast() works on buffer schema", () => {
       const schema = v.buffer({
         data: {
           recall: v.string().default("LEARNING"),
           gameplay: v.string().default("visual"),
         },
       });
-      const value = schema.defaults({ mode: "m", data: {} });
+      const value = schema.cast({ mode: "m", data: {} });
       specimen.expect(value.data.recall).toBe("LEARNING");
       specimen.expect(value.data.gameplay).toBe("visual");
     });
@@ -391,7 +391,7 @@ specimen.describe("v", () => {
       const schema = v.buffer({
         data: { recall: v.string().default("LEARNING") },
       });
-      const value = schema.defaults({ data: {} });
+      const value = schema.cast({ data: {} });
       specimen.expect(value.data.recall).toBe("LEARNING");
     });
   });

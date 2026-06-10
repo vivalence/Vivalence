@@ -1,4 +1,4 @@
-FROM vivalence/vivalence:alpine AS build
+FROM vivalence/viva:alpine AS build
 
 WORKDIR /viva/repository
 ENV VIVA_SYSTEM_MODE="BUILD"

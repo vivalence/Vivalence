@@ -1,0 +1,99 @@
+#+TITLE: nyan typer — ttyper-lineage study, the recall/spelling/motor disentanglement spine, standalone daemon, Svelte-mode + Deno-TUI split, units analytical engine
+#+TOPIC: typer mode "nyan" under daemon "typing-practice" · deep study of ttyper + monkeytype + keybr + amphetype + curriculum + pedagogy + gamified lineage · 4 design lenses (minimal/maximalist/analytical/steering-params) · three-memory disentanglement (recall=onset / spelling=mid-word+diacritic / motor=steady IKI) as the design spine · standalone first, NO learning domain, sacrifice persistence · three panels setup/practice/review · registry-only (Finn owns testament) · file-tree formatting standards · dapper semantic-token theming · units engine keys/pairs/triples/words + damage + keybr-conf + finger transitions + retype + first-key-start + rhythm-only consistency · two canonical artifacts: Svelte mode GUI (in viva) + Deno TUI (ignored from viva) · React peak = design surface only · html detour deleted
+
+* Arc
+
+** Quest request + deep study
+
+User: =start a new quest. typer.= + =deeply study this an similar apps: [github.com/max-niederman/ttyper]= + =what does a minimal version look like? what a maximallist? what does a more analytically minded implementation look like? what parameters might i want to be able to control and steer towards when using this type of tool for learning in a more long term permanent context where i'd steer my learners towards different learning markers like accuracy, consistency, speed, fluency, etc.= + =take your time= + =nyan= (effort set to ultracode).
+
+Ran a Workflow (12 agents): read ttyper's actual Rust source + studied monkeytype, keybr, amphetype, the touch-typing curriculum tradition, the keystroke-dynamics/pedagogy canon, and the gamified/literary branch; then four synthesis lenses (minimal / maximalist / analytical / steering-params) + a completeness critic.
+
+Key findings carried forward: ttyper is the keystroke event model (=TestEvent{time,key,correct}=) WITHOUT memory — stores CPS, converts to WPM only at the edge (=WPM_PER_CPS=12=); kogasa consistency =100·(1−tanh(cv+cv³/3+cv⁵/5))= (monkeytype); keybr per-key confidence =targetGap/measured=, gated curriculum; amphetype damage =freq·slowness²·(1+err)= + viscosity; pedagogy canon = Soukoreff C/IF/INF/F error taxonomy, K1 onset = lexical access vs within-word IKI = motor.
+
+** Disentanglement spine + standalone reframe (the pivotal correction)
+
+Presented the design space, recommended a 3-memory disentanglement spine but wired it into the existing learning domain (Memory.is.strong gate, byLastSignal routing). Finn rejected that framing:
+
+User: =tell me a bit more about this. what does the 3 memory thesis look like in practice. 1% answer.= + =the whole [segment] is nice until this section. here it falls appart / you have a wrong assumption. i dont yet want this mode integrated into the learning domain. we will create a standalone daemon, without any domain or ontology, just a single standalone mode. as a first step. i want you to tell me about the 3-memory thesis (recall/spelling/motor thing. and then we think about a minimal implementation of the mode that already features the full spine, without going into any domain. we will sacrifice persistance and long term analysis for this. no past games via Play. but we will get there eventually. the mode's buffer should at first have three panels. setup, practice, review.=
+
+Retracted the domain hooks (=memory.is.strong=, =byLastSignal=). Reframed: the gate was a cross-session crutch — in a single ephemeral session one attempt self-decomposes by timing shape. (Thesis captured in its own section below.)
+
+** Mode shape decisions
+
+User: =flexible granularity. ill want to switch back and forth.= + =disengage deserves full handling with a gameplay flag. also keep it internal.= + =also seutp a json with variuous word sets. in hte future well use emitters for this.= + =names: mode nyan. daemon typing-practice= + =no quest yet.= + =talk to me about files. what files will you write?= + =i take care of the testament. you just do registry.=
+
+Locked: review granularity is a toggle (per-item ↔ aggregate); the disentangle method sits behind an internal =gameplay= flag (buffer =data=, NOT manifest — config is sibling/buffer, manifest stays metadata); a =wordsets.json= seeds content (emitters later); mode slug =nyan=, daemon slug =typing-practice=; registry is mine, testament (circuitry.js daemon entry) is Finn's.
+
+** File-tree formatting standards (two corrections → two memories)
+
+Presented a file tree with right-padded comment columns. Finn: =never ever use formatting that depends on line width / intendation for ordering. remember this.= → saved memory =feedback_no_width_dependent_formatting= (padded comment columns wrap and detach in Finn's terminal).
+
+Re-rendered. Finn: =better but dont prepend the file names with a dash. and either create more distance between file and description or linebreak them. show me approaches to both.= Showed Approach A (filename backticked on its own line, description below) and Approach B (inline ` — ` separator). Finn: =a. remember this tree view and a as standards.= → saved memory =feedback_file_tree_format= (nested-indent tree, paths only; per file = backticked filename on its own line, description on the next line; no dash, no inline column).
+
+** Build — registry mode, relocated by Finn to game/nyan
+
+User: =create [tree] and a singleton buffer. nyan.svelte make it minimal=. Grepping the registry surfaced Finn's root =nyan.viva.js= — a complete runnable Deno TUI (the algorithm: =press/commit/attempt/classify/analyze=, Soukoreff C/IF/INF, kogasa, recall/spelling/motor labelling). I called it "spec"; Finn: =thats not spec, thats demo= + =minimal=. Built the registry mode (manifest =BUFFERED,SELFEVIDENT=, =data/wordsets.json= with pt+en sets, singleton =Nyan.svelte= porting the engine + three panels) at =registry/modes/@vivalence/typer/nyan/=.
+
+Finn relocated it to =registry/modes/@vivalence/game/nyan/= (manifest type =game= — sits with write/cloze/listen, not an invented =typer= type) and added =buffer/nyan.tui.js=. So =game/nyan= is canonical; =typer/nyan= is my stale wrong-type duplicate (deletion pending — Finn never confirmed).
+
+** Theming pass — dapper semantic tokens
+
+User: =give me another pass for theming specifically. we didnt intentionally align our design.= Read dapper (=themes/dark.js=): roles success=lime, warning=amber, danger/error=red, accent=pink, primary=aqua, each with =-surface/-contrast/-boundary=. Locked the lane/mark map: clean→success, spelling→warning, motor→error, recall→accent, headline speed→primary; marks g/y/r→success/warning/error. Removed the two hardcoded hex (=#c678dd=,=#d2a64a=) from =game/nyan/Nyan.svelte=; everything is now a =--colors-*= token.
+
+** New meta — the units analytical engine
+
+Finn pasted two evolved "peak" versions (React + Deno TUI) and the analytical writeup. User: =new meta!= and (later) =such a good app already.= The engine matured well past the minimal port:
+
+- Unit table: keys/pairs/triples/words via ONE parameterized window fold (=windows(a,k,cfg)= + =wordWindow=), so all unit sizes share one stat block over one strike stream.
+- =dmg = n·max(med/base−1,0)² + 2·errn= — frequency-weighted excess slowness + an error channel (fixes "one hesitation crowns a rare pair"; error-only units still rank).
+- =conf = targetGap/med=, =targetGap = 12000/targetWpm= — keybr confidence as a bar (green ≥1, amber ≥0.7) = the future graduation gate, rendered.
+- Finger transitions: every pair classed alt/hand/finger/repeat by =FINGERS=/=tclass= → motor-mechanics signal (same-finger penalty) no app in the lineage surfaces.
+- Retype disentangler: =pick(...,retype)= doubles each word; =classify(...,prevSame)= zeroes recall on pass-2 → pass-2 is pure motor.
+- Lazy =t0= (=run.t0 ??= t= on first keypress) = first keystroke is the start event, not buffer render.
+- Consistency over intra-word IKIs only (onsets belong to recall; counting them was double-attribution + tanked short runs).
+- Honest thin-evidence dimming (n<3 rows dimmed, not hidden); the broken grid was Tailwind JIT-only =grid-cols-[…]= classes (no compiler in the artifact runtime) → fixed with inline =gridTemplateColumns=.
+
+** The html detour + architecture lock
+
+Finn: =lets go over the top. nyan cat! go go go. maybe with / without sound?!= I built a standalone =nyan-cat.html= (cat-as-caret runner, rainbow trail, WebAudio chiptune). Off-architecture. Finn: =what html? why is there an html? i want a mode gui (svelte) and a tui (standalone - ignore from viva perspective)=. Deleted =nyan-cat.html=.
+
+Architecture locked: TWO canonical artifacts —
+- =registry/modes/@vivalence/game/nyan/= — the mode GUI, Svelte, in viva, dapper-themed.
+- root =nyan.viva.js= — the standalone Deno TUI, ignored from viva (dev/reference, not registered).
+- the React peak = design/scratch surface, NOT a viva file; its engine + review layout port INTO the Svelte mode.
+- nyan cat, if wanted, = flair inside the Svelte practice panel, not its own file.
+
+* The three-memory spine (the load-bearing design thesis)
+
+One typed attempt's keystroke timestamps decompose by SHAPE into three lanes — no domain, no KNOWN-state gate needed standalone (onset captures recall by construction, steady-state captures motor):
+
+- recall  — the pre-first-keystroke onset gap (=onset_ms=); long onset then a fast clean burst = retrieval bottleneck (vocabulary).
+- spelling — mid-word: long gaps before specific chars, backspaces, accent-confusion (=accentMiss=), especially diacritics; forgiving grades ç→c correct for the SIGNAL but the raw accent miss is still logged.
+- motor    — steady intra-word inter-key intervals with no error; the only lane a typing trainer should "fix".
+
+A session keeps three ephemeral accumulators (plain JS, NOT domain Memory entities): per-item onset, per-grapheme accent histogram, per-digraph latency table. Review renders the three. Persistence later = serialize the keystroke atom array; the analysis is unchanged. Optional sharper disentangler = the retype pass (type each word twice; pass-2 onset removed → pure motor), shipped via =prevSame=.
+
+* Standards saved (memory)
+
+- =feedback_no_width_dependent_formatting= — never padded comment columns / width-dependent layout; wraps in Finn's terminal.
+- =feedback_file_tree_format= — nested-indent tree (paths only) + filename-on-own-line, description below (Approach A); no dash, no inline column.
+
+* Praised by Finn
+
+- The matured analytical app: =such a good app already.= — specifically the finger-mechanics transitions, the unified unit-window engine, the honest damage ranking, the thin-evidence dimming.
+
+* Lessons (self-corrections — no "retard" callout this session)
+
+- Wired the typer into the learning domain (Memory/Trace/tactics) before Finn asked. He wanted a standalone daemon first, persistence sacrificed. Rule: do not assume domain integration; "a mode" can be a standalone shell with in-session-only state.
+- Built an off-architecture =nyan-cat.html= toy from "go over the top" instead of putting the flair inside the mode. Rule: every artifact must be one of the agreed targets (Svelte mode / Deno TUI); no stray surfaces.
+- Called Finn's runnable root =nyan.viva.js= the "spec" — it is a DEMO (a throwaway proof of the algorithm), not a spec to port 1:1. Extract the engine, drop the chrome.
+
+* Open / Pending
+
+- Port the new-meta engine (units keys/pairs/triples/words, damage, keybr-conf, finger transitions, retype, first-key-start, rhythm-only consistency) + the richer review layout INTO =game/nyan/Nyan.svelte= (Svelte + dapper). The Svelte mode currently still carries the OLD minimal engine (Finn's latest edit added =,terminal= to props + a =console.log= debug line; engine unchanged).
+- Delete the stale =registry/modes/@vivalence/typer/nyan/= tree (my wrong-type duplicate; superseded by =game/nyan=).
+- Testament (Finn's): the =typing-practice= daemon entry in circuitry.js — =modes: ["@vivalence/game/nyan"]=.
+- No quest authored yet (Finn deferred; this compact is the design record until then).
+- nyan cat flair into the Svelte practice panel = open, only if Finn wants it.
+- Eventual domain integration ("we will get there eventually"): persistence of the keystroke atom array → cross-session per-digraph aggregation, then the slow-digraph → corpus-query loop (keybr/amphetype move) the daemon would inherit.

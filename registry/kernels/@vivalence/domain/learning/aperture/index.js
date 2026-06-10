@@ -1,4 +1,4 @@
-import { Aperture } from "@vivalence/typology";
+import { Aperture, shard } from "@vivalence/typology";
 import { is } from "@vivalence/typology";
 
 export const aperture = new Aperture()
@@ -49,3 +49,20 @@ export const aperture = new Aperture()
     const memory = await literal.review(signal, ctx);
     return memory;
   });
+
+// Domain resolve hook — runtime calls this at daemon resolution to wire the
+// domain's userspace entity endpoints (needs the per-daemon repos + twitch).
+export function resolve(daemonDie) {
+  const { entities, twitch, aperture } = daemonDie.good;
+  const userspace = aperture.branch("/userspace");
+
+  userspace
+    .branch("/entities/trace")
+    .slurp(shard.datamap.repository(entities.trace))
+    .slurp(shard.datamap.reactive(entities.trace, twitch));
+
+  userspace
+    .branch("/entities/memory")
+    .slurp(shard.datamap.repository(entities.memory))
+    .slurp(shard.datamap.reactive(entities.memory, twitch));
+}

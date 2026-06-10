@@ -42,8 +42,8 @@ export { intent, mode, user };
 export { thread, turn, buffer };
 
 export const sets = {
-  network: [identity, daemon],
-  daemon: [intent, user, mode],
-  kernel: [literal, symbol],
-  userspace: [thread, turn, buffer], //
+  network:   { identity, daemon },
+  daemon:    { intent, user, mode },
+  kernel:    { literal, symbol },
+  userspace: { thread, turn, buffer },
 };

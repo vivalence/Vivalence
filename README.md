@@ -1,9 +1,12 @@
+# WIP
 the sections must answer:
 I. what is vivalence/how does it work/what makes it different.
 2. how do i set this up/run it/build for it.
 3. whats the architecture in detail.
 
 # VivalenceOS
+Using maps, sets, and trees to control things that are and do. Less is more. JSON is god.
+
 what is it? why is it different.
 
 ## CONCEPT

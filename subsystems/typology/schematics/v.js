@@ -20,7 +20,7 @@ function enhance(schema) {
       if (prop === "clean") return (value) => Value.Clean(target, value);
       if (prop === "errors") return (value) => Value.Errors(target, value);
       if (prop === "compile") return () => Compile(target);
-      if (prop === "defaults") return (value) => (Value.Default(target, value), value);
+      if (prop === "cast") return (value) => (Value.Default(target, value), value);
       return Reflect.get(target, prop, receiver);
     },
   });
@@ -99,7 +99,7 @@ export const v = {
   equal:    (a, b) => Value.Equal(a, b),
   clone:    (value) => Value.Clone(value),
   check:    (schema, value) => Value.Check(schema, value),
-  defaults: (schema, value) => (Value.Default(schema, value), value),
+  cast:     (schema, value) => (Value.Default(schema, value), value),
   errors:   (schema, value) => Value.Errors(schema, value),
   create:   (schema) => Value.Create(schema),
   clean:    (schema, value) => Value.Clean(schema, value),

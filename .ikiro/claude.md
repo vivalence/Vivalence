@@ -145,7 +145,7 @@ jj: **READ ONLY.** `jj log` / `jj show` / `jj diff` / `jj op log` / `jj st` only
 
 boundaries: never delete databases or migration files. Gestalten namespaces (shape, steer, shard) only for Vectors. Transport adapters at `subsystems/typology/gestalten/shard/transmitter.js`.
 
-communication: tables for symbolic content only; structure rendered as structure (trees, traces); canonical vocabulary precise; never present layers as parallel alternatives; no trailing questions or follow-up offers — end on the substance; short answers — minimum signal, no fluff, no exhaustive enumeration unless asked; prefer annotated code snippets over diagrams and prose blocks — show the code with inline notes, not boxes around it.
+communication: tables for symbolic content only; structure rendered as structure (trees, traces); canonical vocabulary precise; never present layers as parallel alternatives; no trailing questions or follow-up offers — end on the substance; short answers — minimum signal, no fluff, no exhaustive enumeration unless asked; prefer annotated code snippets over diagrams and prose blocks — show the code with inline notes, not boxes around it; code-heavy answers (@beef 2026-06-10, permanent) — code/diff/snippet is the body of every answer that touches code, prose shrinks to short annotations around the blocks.
 
 ### anti-rationalization
 

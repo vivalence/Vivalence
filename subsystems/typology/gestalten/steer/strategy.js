@@ -43,7 +43,7 @@ export const request = (carry, effect, steps, signal) => async (input) => {
 export const guarded = (carry, effect, steps, signal) => async (input) => {
   for (const step of steps) {
     if (step.input) {
-      step.input.defaults(input);
+      step.input.cast(input);
       const errors = [...step.input.errors(input)];
       if (errors.length) throw new ValidationError(errors, signal);
     }
